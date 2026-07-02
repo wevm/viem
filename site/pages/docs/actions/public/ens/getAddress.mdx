@@ -1,0 +1,180 @@
+# getAddress
+
+Gets the address for an ENS name (via the ENS Universal Resolver's `resolveWithGateways`).
+
+Names should be [UTS-46 normalized](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) before lookup with `Ens.normalize`.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { Ens } from 'viem/utils'
+import { client } from './viem.config'
+
+const address = await client.ens.getAddress({
+  name: Ens.normalize('wevm.eth'),
+})
+// @log: '0xd2135CfB216b74109775236E36d4b433F1DF507B'
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { Ens } from 'viem/utils'
+import { client } from './viem.config'
+
+const address = await Actions.ens.getAddress(client, {
+  name: Ens.normalize('wevm.eth'),
+})
+// @log: '0xd2135CfB216b74109775236E36d4b433F1DF507B'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Return Value
+
+`Address | null`
+
+The resolved address, or `null` when the name has no address record. Note that resolving with an explicit [`coinType`](#cointype) goes through the `bytes`-typed resolver profile, so the result is not checksummed.
+
+## Parameters
+
+### blockNumber
+
+- **Type:** `bigint`
+
+Resolves against the state at a given block number.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const address = await Actions.ens.getAddress(client, {
+  blockNumber: 23_085_558n, // [!code focus]
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
+### blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+Resolves against the state at a given block tag.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const address = await Actions.ens.getAddress(client, {
+  blockTag: 'finalized', // [!code focus]
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
+### coinType
+
+- **Type:** `bigint`
+- **Default:** `60n` (ETH)
+
+The [ENSIP-9](https://docs.ens.domains/ensip/9) coin type to resolve the address for. Derive one from a chain id with `Ens.toCoinType`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { base, mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const address = await Actions.ens.getAddress(client, {
+  coinType: Ens.toCoinType(BigInt(base.id)), // [!code focus]
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
+### gatewayUrls
+
+- **Type:** `readonly string[]`
+
+Universal Resolver gateway URLs for CCIP-read requests. Defaults to the client-side batch gateway.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const address = await Actions.ens.getAddress(client, {
+  gatewayUrls: ['https://ccip.ens.xyz'], // [!code focus]
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
+### name
+
+- **Type:** `string`
+
+The ENS name to resolve.
+
+### strict
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether to throw errors propagated from the Universal Resolver instead of returning `null`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const address = await Actions.ens.getAddress(client, {
+  name: Ens.normalize('wevm.eth'),
+  strict: true, // [!code focus]
+})
+```
+
+### universalResolverAddress
+
+- **Type:** `Address`
+- **Default:** `client.chain.contracts.ensUniversalResolver.address`
+
+Address of the ENS Universal Resolver contract.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const address = await Actions.ens.getAddress(client, {
+  name: Ens.normalize('wevm.eth'),
+  universalResolverAddress: '0xeeeeeeee14d718c2b47d9923deab1335e144eeee', // [!code focus]
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#strict); resolver errors otherwise map to `null`). |

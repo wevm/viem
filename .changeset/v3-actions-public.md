@@ -377,3 +377,25 @@ The onchain verification actions stay flat with their v2 names (`Actions.verifyH
 ```
 
 `verifyHash` drops the deprecated `universalSignatureVerifierAddress` alias (use `erc6492VerifierAddress`) and the `chain` override (the client's chain is used); signature objects follow the ox shape (`yParity`, no `v`). The `chain.verifyHash` hook now lives on the `Chain` type for chains with custom account verification.
+
+The ENS actions were grouped under the `ens` namespace, and CCIP-read (`OffchainLookup` reverts) now resolves inside `call` for any contract, honoring the client's `ccipRead` option.
+
+```diff
+- import { getEnsAddress, getEnsAvatar, getEnsName, getEnsResolver, getEnsText } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const address = await getEnsAddress(client, { name })
+- const avatar = await getEnsAvatar(client, { name })
+- const ensName = await getEnsName(client, { address })
+- const resolver = await getEnsResolver(client, { name })
+- const twitter = await getEnsText(client, { name, key: 'com.twitter' })
++ const address = await Actions.ens.getAddress(client, { name })
++ const avatar = await Actions.ens.getAvatar(client, { name })
++ const ensName = await Actions.ens.getName(client, { address })
++ const resolver = await Actions.ens.getResolver(client, { name })
++ const twitter = await Actions.ens.getText(client, { name, key: 'com.twitter' })
+```
+
+The ENS name primitives live on the `Ens` utility namespace (`Ens.normalize`, `Ens.namehash`, `Ens.labelhash`, `Ens.toCoinType` taking/returning `bigint`).
+
+The CCIP-read callback call now executes at the original call's block context (`blockNumber`/`blockTag`); previously the callback always ran against the latest block.

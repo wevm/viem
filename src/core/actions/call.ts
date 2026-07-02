@@ -176,8 +176,25 @@ export async function call(
 
     const data = getRevertErrorData(err)
 
-    // TODO: handle CCIP-Read offchain lookup (`0x556f1830`) once the offchain
-    // lookup utility is ported.
+    // ERC-3668: resolve `OffchainLookup` reverts via the CCIP-read flow.
+    // Loaded on demand — the gateway-fetch machinery is dead weight for the
+    // overwhelming majority of calls.
+    if (
+      client.ccipRead !== false &&
+      data?.slice(0, 10) === '0x556f1830' &&
+      to
+    ) {
+      const { offchainLookup } = await import('./internal/ccip.js')
+      return {
+        data: await offchainLookup(client, {
+          blockNumber,
+          blockTag,
+          data,
+          requestOptions,
+          to,
+        }),
+      }
+    }
 
     if (deploylessCall && data?.slice(0, 10) === '0x101bb98d')
       throw new CounterfactualDeploymentFailedError({ factory })

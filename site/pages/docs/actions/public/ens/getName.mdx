@@ -1,0 +1,111 @@
+# getName
+
+Gets the primary ENS name for an address (via the ENS Universal Resolver's `reverseWithGateways`).
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const name = await client.ens.getName({
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+// @log: 'wevm.eth'
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const name = await Actions.ens.getName(client, {
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+// @log: 'wevm.eth'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Return Value
+
+`string | null`
+
+The primary ENS name, or `null` when the address has no reverse record.
+
+## Parameters
+
+### address
+
+- **Type:** `Address`
+
+The address to reverse-resolve.
+
+### blockNumber
+
+- **Type:** `bigint`
+
+Resolves against the state at a given block number.
+
+### blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+Resolves against the state at a given block tag.
+
+### coinType
+
+- **Type:** `bigint`
+- **Default:** `60n` (ETH)
+
+The [ENSIP-9](https://docs.ens.domains/ensip/9) coin type of the reverse record to resolve.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { base, mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const name = await Actions.ens.getName(client, {
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+  coinType: Ens.toCoinType(BigInt(base.id)), // [!code focus]
+})
+```
+
+### gatewayUrls
+
+- **Type:** `readonly string[]`
+
+Universal Resolver gateway URLs for CCIP-read requests. Defaults to the client-side batch gateway.
+
+### strict
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether to throw errors propagated from the Universal Resolver instead of returning `null`.
+
+### universalResolverAddress
+
+- **Type:** `Address`
+- **Default:** `client.chain.contracts.ensUniversalResolver.address`
+
+Address of the ENS Universal Resolver contract.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#strict); resolver errors otherwise map to `null`). |

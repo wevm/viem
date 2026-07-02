@@ -527,6 +527,37 @@ export default defineConfig({
             ],
           },
           {
+            text: 'ENS',
+            collapsed: true,
+            items: [
+              {
+                text: 'getAddress',
+                link: '/docs/actions/public/ens/getAddress',
+                badge: badge('public'),
+              },
+              {
+                text: 'getAvatar',
+                link: '/docs/actions/public/ens/getAvatar',
+                badge: badge('public'),
+              },
+              {
+                text: 'getName',
+                link: '/docs/actions/public/ens/getName',
+                badge: badge('public'),
+              },
+              {
+                text: 'getResolver',
+                link: '/docs/actions/public/ens/getResolver',
+                badge: badge('public'),
+              },
+              {
+                text: 'getText',
+                link: '/docs/actions/public/ens/getText',
+                badge: badge('public'),
+              },
+            ],
+          },
+          {
             text: 'Fee',
             collapsed: true,
             items: [

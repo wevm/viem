@@ -18,6 +18,7 @@ import * as block from '../block/index.js'
 import { call } from '../call.js'
 import * as chains from '../chains/index.js'
 import * as contract from '../contract/index.js'
+import * as ens from '../ens/index.js'
 import * as filter from '../filter/index.js'
 import * as event from '../event/index.js'
 import * as fee from '../fee/index.js'
@@ -86,6 +87,13 @@ export function publicActions() {
       read: (options) => contract.read(client, options),
       simulate: (options) => contract.simulate(client, options as never),
       watchEvent: (options) => contract.watchEvent(client, options as never),
+    },
+    ens: {
+      getAddress: (options) => ens.getAddress(client, options),
+      getAvatar: (options) => ens.getAvatar(client, options),
+      getName: (options) => ens.getName(client, options),
+      getResolver: (options) => ens.getResolver(client, options),
+      getText: (options) => ens.getText(client, options),
     },
     filter: {
       getChanges: (options) => filter.getChanges(client, options as never),
@@ -703,6 +711,109 @@ export declare namespace publicActions {
         options: contract.watchEvent.Options<abi, eventName, strict, fromBlock>,
       ) => contract.watchEvent.Watcher<abi, eventName, strict>
     }
+    ens: {
+      /**
+       * Gets the address for an ENS name.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       * import { Ens } from 'viem/utils'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const address = await client.ens.getAddress({
+       *   name: Ens.normalize('wevm.eth'),
+       * })
+       * ```
+       */
+      getAddress: (
+        options: ens.getAddress.Options,
+      ) => Promise<ens.getAddress.ReturnType>
+      /**
+       * Gets the avatar image URI for an ENS name.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       * import { Ens } from 'viem/utils'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const avatar = await client.ens.getAvatar({
+       *   name: Ens.normalize('wevm.eth'),
+       * })
+       * ```
+       */
+      getAvatar: (
+        options: ens.getAvatar.Options,
+      ) => Promise<ens.getAvatar.ReturnType>
+      /**
+       * Gets the primary ENS name for an address.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const name = await client.ens.getName({
+       *   address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+       * })
+       * ```
+       */
+      getName: (options: ens.getName.Options) => Promise<ens.getName.ReturnType>
+      /**
+       * Gets the resolver address for an ENS name.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       * import { Ens } from 'viem/utils'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const resolver = await client.ens.getResolver({
+       *   name: Ens.normalize('wevm.eth'),
+       * })
+       * ```
+       */
+      getResolver: (
+        options: ens.getResolver.Options,
+      ) => Promise<ens.getResolver.ReturnType>
+      /**
+       * Gets a text record for an ENS name.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       * import { Ens } from 'viem/utils'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const twitter = await client.ens.getText({
+       *   key: 'com.twitter',
+       *   name: Ens.normalize('wevm.eth'),
+       * })
+       * ```
+       */
+      getText: (options: ens.getText.Options) => Promise<ens.getText.ReturnType>
+    }
     filter: {
       /**
        * Returns the changes for a filter since it was created or last polled.
@@ -801,9 +912,9 @@ export declare namespace publicActions {
        *
        * @example
        * ```ts
-       * import * as AbiEvent from 'ox/AbiEvent'
        * import { Client, http, publicActions } from 'viem'
        * import { mainnet } from 'viem/chains'
+       * import { AbiEvent } from 'viem/utils'
        *
        * const client = Client.create({
        *   chain: mainnet,
@@ -836,9 +947,9 @@ export declare namespace publicActions {
        *
        * @example
        * ```ts
-       * import * as AbiEvent from 'ox/AbiEvent'
        * import { Client, http, publicActions } from 'viem'
        * import { mainnet } from 'viem/chains'
+       * import { AbiEvent } from 'viem/utils'
        *
        * const client = Client.create({
        *   chain: mainnet,
@@ -871,9 +982,9 @@ export declare namespace publicActions {
        *
        * @example
        * ```ts
-       * import * as AbiEvent from 'ox/AbiEvent'
        * import { Client, http, publicActions } from 'viem'
        * import { mainnet } from 'viem/chains'
+       * import { AbiEvent } from 'viem/utils'
        *
        * const client = Client.create({
        *   chain: mainnet,

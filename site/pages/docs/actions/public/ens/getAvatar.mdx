@@ -1,0 +1,114 @@
+# getAvatar
+
+Gets the avatar image URI for an ENS name.
+
+Resolves the `avatar` text record, including [CAIP-22/CAIP-29](https://github.com/ChainAgnostic/CAIPs) NFT records (fetching the NFT's token URI and metadata), and normalizes IPFS/Arweave URIs to gateway URLs. Unresolvable or invalid records return `null`.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { Ens } from 'viem/utils'
+import { client } from './viem.config'
+
+const avatar = await client.ens.getAvatar({
+  name: Ens.normalize('wevm.eth'),
+})
+// @log: 'https://ipfs.io/ipfs/Qma8mnp6xV3J2cRNf3mTth5C8nV11CAnceVinc3y8jSbio'
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { Ens } from 'viem/utils'
+import { client } from './viem.config'
+
+const avatar = await Actions.ens.getAvatar(client, {
+  name: Ens.normalize('wevm.eth'),
+})
+// @log: 'https://ipfs.io/ipfs/Qma8mnp6xV3J2cRNf3mTth5C8nV11CAnceVinc3y8jSbio'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Return Value
+
+`string | null`
+
+The avatar image URI, or `null` when the name has no `avatar` record or the record cannot be resolved to a valid image.
+
+## Parameters
+
+### assetGatewayUrls
+
+- **Type:** `{ ipfs?: string; arweave?: string }`
+
+Gateway URL overrides for resolving offchain asset URIs.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const avatar = await Actions.ens.getAvatar(client, {
+  assetGatewayUrls: { ipfs: 'https://cloudflare-ipfs.com' }, // [!code focus]
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
+### blockNumber
+
+- **Type:** `bigint`
+
+Resolves against the state at a given block number.
+
+### blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+Resolves against the state at a given block tag.
+
+### gatewayUrls
+
+- **Type:** `readonly string[]`
+
+Universal Resolver gateway URLs for CCIP-read requests. Defaults to the client-side batch gateway.
+
+### name
+
+- **Type:** `string`
+
+The ENS name to resolve.
+
+### strict
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether to throw errors propagated from the Universal Resolver instead of returning `null`.
+
+### universalResolverAddress
+
+- **Type:** `Address`
+- **Default:** `client.chain.contracts.ensUniversalResolver.address`
+
+Address of the ENS Universal Resolver contract.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#strict); resolver and avatar-parse errors otherwise map to `null`). |
