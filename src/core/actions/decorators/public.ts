@@ -20,6 +20,8 @@ import * as contract from '../contract/index.js'
 import * as filter from '../filter/index.js'
 import * as event from '../event/index.js'
 import * as fee from '../fee/index.js'
+import { simulateBlocks } from '../simulateBlocks.js'
+import { simulateCalls } from '../simulateCalls.js'
 import * as token from '../token/index.js'
 import * as transaction from '../transaction/index.js'
 
@@ -98,6 +100,8 @@ export function publicActions() {
       getGasPrice: () => fee.getGasPrice(client),
       getHistory: (options) => fee.getHistory(client, options),
     },
+    simulateBlocks: (options) => simulateBlocks(client, options as never),
+    simulateCalls: (options) => simulateCalls(client, options as never),
     token: {
       getAllowance: Object.assign(
         (options: never) => token.getAllowance(client, options),
@@ -114,6 +118,8 @@ export function publicActions() {
       ),
     } as never,
     transaction: {
+      createAccessList: (options) =>
+        transaction.createAccessList(client, options),
       createPendingFilter: () => transaction.createPendingFilter(client),
       estimateGas: (options) => transaction.estimateGas(client, options),
       fill: (options) => transaction.fill(client, options),
@@ -978,6 +984,82 @@ export declare namespace publicActions {
         options: fee.getHistory.Options,
       ) => Promise<fee.getHistory.ReturnType>
     }
+    /**
+     * Simulates a sequence of blocks with optional block and state overrides.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const [block] = await client.simulateBlocks({
+     *   blocks: [{
+     *     calls: [{
+     *       account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+     *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+     *       value: 1n,
+     *     }],
+     *   }],
+     * })
+     * ```
+     */
+    simulateBlocks: <const calls extends readonly unknown[]>(
+      options: simulateBlocks.Options<calls>,
+    ) => Promise<simulateBlocks.ReturnType<chain, calls>>
+    /**
+     * Simulates execution of a batch of calls, returning typed per-call
+     * results. Executes via `eth_simulateV1`, falling back to a multicall3
+     * `aggregate3` batch on nodes without support.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const { results } = await client.simulateCalls({
+     *   account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+     *   calls: [{
+     *     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+     *     value: 1n,
+     *   }],
+     * })
+     * ```
+     */
+    simulateCalls: <
+      const calls extends readonly unknown[],
+      mode extends 'auto' | 'simulate' | 'multicall' = 'auto',
+      allowFailure extends boolean = true,
+      traceAssetChanges extends boolean = false,
+      traceTransfers extends boolean = false,
+      validation extends boolean = false,
+    >(
+      options: simulateCalls.Options<
+        calls,
+        mode,
+        allowFailure,
+        traceAssetChanges,
+        traceTransfers,
+        validation
+      >,
+    ) => Promise<
+      simulateCalls.ReturnType<
+        chain,
+        calls,
+        mode,
+        allowFailure,
+        [traceAssetChanges | traceTransfers | validation] extends [false]
+          ? false
+          : true
+      >
+    >
     token: {
       /**
        * Gets the ERC-20 allowance a spender has over an account's tokens.
@@ -1088,6 +1170,28 @@ export declare namespace publicActions {
       }
     }
     transaction: {
+      /**
+       * Creates an EIP-2930 access list covering the storage a transaction
+       * touches.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const { accessList, gasUsed } = await client.transaction.createAccessList({
+       *   data: '0x06fdde03',
+       *   to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+       * })
+       * ```
+       */
+      createAccessList: (
+        options?: transaction.createAccessList.Options | undefined,
+      ) => Promise<transaction.createAccessList.ReturnType>
       /**
        * Creates a filter to listen for new pending transaction hashes.
        *

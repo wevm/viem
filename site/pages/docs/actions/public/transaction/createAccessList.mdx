@@ -1,0 +1,304 @@
+# createAccessList
+
+Creates an EIP-2930 access list covering the storage a transaction touches (`eth_createAccessList`).
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const { accessList, gasUsed } = await client.transaction.createAccessList({
+  data: '0x06fdde03',
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+// @log: {
+// @log:   accessList: [
+// @log:     {
+// @log:       address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
+// @log:       storageKeys: [
+// @log:         '0x0000000000000000000000000000000000000000000000000000000000000000',
+// @log:       ],
+// @log:     },
+// @log:   ],
+// @log:   gasUsed: 26671n,
+// @log: }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const { accessList, gasUsed } = await Actions.transaction.createAccessList(
+  client,
+  {
+    data: '0x06fdde03',
+    to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  },
+)
+// @log: {
+// @log:   accessList: [
+// @log:     {
+// @log:       address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
+// @log:       storageKeys: [
+// @log:         '0x0000000000000000000000000000000000000000000000000000000000000000',
+// @log:       ],
+// @log:     },
+// @log:   ],
+// @log:   gasUsed: 26671n,
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Return Value
+
+`{ accessList: AccessList, gasUsed: bigint }`
+
+The EIP-2930 access list covering the storage the call touches, and the gas consumed by the call with the access list applied.
+
+## Parameters
+
+### account
+
+- **Type:** `Account | Address`
+
+The Account (or address) attached to the call (`msg.sender`).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const result = await Actions.transaction.createAccessList(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  data: '0x06fdde03',
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### blockNumber
+
+- **Type:** `bigint`
+
+Creates the access list against the state at a given block number.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const result = await Actions.transaction.createAccessList(client, {
+  blockNumber: 42069n, // [!code focus]
+  data: '0x06fdde03',
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+Creates the access list against the state at a given block tag.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const result = await Actions.transaction.createAccessList(client, {
+  blockTag: 'pending', // [!code focus]
+  data: '0x06fdde03',
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### data
+
+- **Type:** `Hex`
+
+The calldata to send with the transaction.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const result = await Actions.transaction.createAccessList(client, {
+  data: '0x06fdde03', // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### gas
+
+- **Type:** `bigint`
+
+The gas limit for the call.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const result = await Actions.transaction.createAccessList(client, {
+  data: '0x06fdde03',
+  gas: 100_000n, // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### gasPrice
+
+- **Type:** `bigint`
+
+The legacy gas price (in wei) to use. Mutually exclusive with `maxFeePerGas`/`maxPriorityFeePerGas`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const result = await Actions.transaction.createAccessList(client, {
+  data: '0x06fdde03',
+  gasPrice: 20_000_000_000n, // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### maxFeePerGas
+
+- **Type:** `bigint`
+
+The total fee per gas (in wei) the sender is willing to pay (EIP-1559).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const result = await Actions.transaction.createAccessList(client, {
+  data: '0x06fdde03',
+  maxFeePerGas: 20_000_000_000n, // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### maxPriorityFeePerGas
+
+- **Type:** `bigint`
+
+The max priority fee per gas (in wei) to pay to the block producer (EIP-1559).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const result = await Actions.transaction.createAccessList(client, {
+  data: '0x06fdde03',
+  maxPriorityFeePerGas: 1_000_000_000n, // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### nonce
+
+- **Type:** `number`
+
+The nonce to use for the transaction's sender.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const result = await Actions.transaction.createAccessList(client, {
+  data: '0x06fdde03',
+  nonce: 69, // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### requestOptions
+
+- **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
+
+Per-request transport options (e.g. an `AbortSignal` to cancel the request).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const controller = new AbortController()
+const result = await Actions.transaction.createAccessList(client, {
+  data: '0x06fdde03',
+  requestOptions: { signal: controller.signal }, // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### to
+
+- **Type:** `Address`
+
+The contract address or recipient of the transaction.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const result = await Actions.transaction.createAccessList(client, {
+  data: '0x06fdde03',
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+})
+```
+
+### value
+
+- **Type:** `bigint`
+
+The value (in wei) sent with the transaction.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const result = await Actions.transaction.createAccessList(client, {
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1_000_000_000_000_000_000n, // [!code focus]
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `RpcError.ExecutionError` | The access-list creation failed (e.g. the call reverted). |

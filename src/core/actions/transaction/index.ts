@@ -1,3 +1,4 @@
+export { createAccessList } from './createAccessList.js'
 export { createPendingFilter } from './createPendingFilter.js'
 export { estimateGas } from './estimateGas.js'
 export { fill } from './fill.js'

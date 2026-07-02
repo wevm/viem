@@ -253,6 +253,16 @@ export default defineConfig({
             badge: badge('wallet'),
           },
           {
+            text: 'simulateBlocks',
+            link: '/docs/actions/public/simulateBlocks',
+            badge: badge('public'),
+          },
+          {
+            text: 'simulateCalls',
+            link: '/docs/actions/public/simulateCalls',
+            badge: badge('public'),
+          },
+          {
             text: 'Address',
             collapsed: true,
             items: [
@@ -671,6 +681,11 @@ export default defineConfig({
             text: 'Transaction',
             collapsed: true,
             items: [
+              {
+                text: 'createAccessList',
+                link: '/docs/actions/public/transaction/createAccessList',
+                badge: badge('public'),
+              },
               {
                 text: 'createPendingFilter',
                 link: '/docs/actions/public/transaction/createPendingFilter',

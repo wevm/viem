@@ -80,6 +80,7 @@ Flat public action names were renamed to their namespaced v3 equivalents.
 - getLogs(client, options)
 + Actions.event.getLogs(client, options)
 
+- createAccessList(client, options)
 - fillTransaction(client, options)
 - getTransaction(client, options)
 - getTransactionConfirmations(client, options)
@@ -88,6 +89,7 @@ Flat public action names were renamed to their namespaced v3 equivalents.
 - sendTransaction(client, options)
 - sendRawTransaction(client, options)
 - signTransaction(client, options)
++ Actions.transaction.createAccessList(client, options)
 + Actions.transaction.fill(client, options)
 + Actions.transaction.get(client, options)
 + Actions.transaction.getConfirmations(client, options)
@@ -327,4 +329,35 @@ The EIP-5792 wallet actions were grouped under the `wallet` namespace.
 + const capabilities = await Actions.wallet.getCapabilities(client)
 + await Actions.wallet.showCallsStatus(client, { id })
 + const confirmed = await Actions.wallet.waitForCallsStatus(client, { id })
+```
+
+The standalone `multicall` action was removed in favor of `simulateCalls`, which accepts the same typed calls (`contracts` becomes `calls`, per-item `address` becomes `to`) and returns a `{ results }` envelope. `allowFailure`, `batchSize`, `multicallAddress`, and `deployless` moved onto `simulateCalls`.
+
+```diff
+- const results = await multicall(client, {
+-   contracts: [
+-     { address, abi, functionName: 'balanceOf', args },
+-     { address, abi, functionName: 'totalSupply' },
+-   ],
+- })
++ const { results } = await Actions.simulateCalls(client, {
++   calls: [
++     { to: address, abi, functionName: 'balanceOf', args },
++     { to: address, abi, functionName: 'totalSupply' },
++   ],
++ })
+```
+
+`simulateCalls` executes via `eth_simulateV1` by default and transparently falls back to a multicall3 `aggregate3` batch on nodes without support (cached per client). Pin `mode: 'multicall'` for exact `multicall` semantics (always `aggregate3`, no detection request, multicall3 `msg.sender`), or `mode: 'simulate'` for deterministic rich results (`block`, per-call `gasUsed`/`logs`, `traceAssetChanges`).
+
+`simulateBlocks` and `simulateCalls` land flat at `Actions.*` (decorators `client.simulateBlocks` / `client.simulateCalls`; `client.multicall` no longer exists), and the per-block/state override option is singular `stateOverride` with the ox record shape.
+
+```diff
+  const result = await simulateBlocks(client, {
+    blocks: [{
+      calls,
+-     stateOverrides: [{ address: account, balance: parseEther('10000') }],
++     stateOverride: { [account]: { balance: Value.fromEther('10000') } },
+    }],
+  })
 ```

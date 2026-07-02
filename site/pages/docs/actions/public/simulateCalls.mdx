@@ -1,0 +1,522 @@
+# simulateCalls
+
+Simulates execution of a batch of calls, returning typed per-call results.
+
+Calls execute via `eth_simulateV1` by default. On nodes without support (and with no simulate-only option requested), execution transparently falls back to a [multicall3](https://github.com/mds1/multicall) `aggregate3` batch, and the outcome is cached per client. Pin a specific mode with the [`mode`](#mode) option.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const { results } = await client.simulateCalls({
+  account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    },
+    {
+      data: '0xdeadbeef',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    },
+  ],
+})
+// @log: {
+// @log:   block: { number: 23139774n, ... },
+// @log:   results: [
+// @log:     { data: '0x', gasUsed: 21000n, logs: [], result: null, status: 'success' },
+// @log:     { data: '0x', gasUsed: 21070n, logs: [], result: null, status: 'success' },
+// @log:   ],
+// @log: }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const { results } = await Actions.simulateCalls(client, {
+  account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    },
+    {
+      data: '0xdeadbeef',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    },
+  ],
+})
+// @log: {
+// @log:   block: { number: 23139774n, ... },
+// @log:   results: [
+// @log:     { data: '0x', gasUsed: 21000n, logs: [], result: null, status: 'success' },
+// @log:     { data: '0x', gasUsed: 21070n, logs: [], result: null, status: 'success' },
+// @log:   ],
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+### Batched Reads
+
+Typed contract calls decode into typed `result` values, making `simulateCalls` the batched counterpart of [`contract.read`](/docs/actions/public/contract/read):
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const abi = Abi.from([
+  'function balanceOf(address) view returns (uint256)',
+  'function totalSupply() view returns (uint256)',
+])
+
+const { results } = await Actions.simulateCalls(client, {
+  calls: [
+    {
+      abi,
+      args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+      functionName: 'balanceOf',
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+    },
+    {
+      abi,
+      functionName: 'totalSupply',
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+    },
+  ],
+})
+// @log: [
+// @log:   { result: 424122n, status: 'success', ... },
+// @log:   { result: 1000000n, status: 'success', ... },
+// @log: ]
+```
+
+### Asset Changes
+
+Trace the account's native and token balance changes across the batch with [`traceAssetChanges`](#traceassetchanges):
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const { assetChanges } = await Actions.simulateCalls(client, {
+  account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    },
+  ],
+  traceAssetChanges: true,
+})
+// @log: [
+// @log:   {
+// @log:     token: { address: '0xeeee…eeee', decimals: 18, symbol: 'ETH' },
+// @log:     value: { pre: 10000000000000000000n, post: 9999999999999999999n, diff: -1n },
+// @log:   },
+// @log: ]
+```
+
+## Return Value
+
+`{ assetChanges?, block?, results }`
+
+Per-call `results` (in call order): `{ data, gasUsed, logs, result, status: 'success' } | { data, gasUsed, logs, error, status: 'failure' }`. With [`allowFailure: false`](#allowfailure), `results` holds bare decoded values instead.
+
+`block` is the simulated block (`undefined` when execution fell back to `aggregate3`, which also omits the `data`/`gasUsed`/`logs` extras). `assetChanges` is populated when [`traceAssetChanges`](#traceassetchanges) is set.
+
+## Parameters
+
+### account
+
+- **Type:** `Account | Address`
+
+Account attached to the calls (`msg.sender` on the `eth_simulateV1` path). Required for [`traceAssetChanges`](#traceassetchanges).
+
+:::warning
+On the `aggregate3` fallback path, sub-call `msg.sender` is the multicall3 contract; `account` only sets the outer `eth_call` sender. Pin `mode: 'simulate'` when calls are sender-sensitive.
+:::
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { results } = await Actions.simulateCalls(client, {
+  account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929', // [!code focus]
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    },
+  ],
+})
+```
+
+### allowFailure
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to return per-call `{ status, result | error }` objects. When `false`, `results` holds bare decoded values and the first failing call throws.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+// ---cut---
+const { results } = await Actions.simulateCalls(client, {
+  allowFailure: false, // [!code focus]
+  calls: [
+    {
+      abi,
+      functionName: 'totalSupply',
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+    },
+  ],
+})
+// @log: results: [1000000n]
+```
+
+### mode
+
+- **Type:** `'auto' | 'simulate' | 'multicall'`
+- **Default:** `'auto'`
+
+Execution mode.
+
+- `'auto'`: attempts `eth_simulateV1`; when the node rejects the method, the batch re-executes via `aggregate3` and the verdict is cached for the client. Options that `aggregate3` cannot express (`traceAssetChanges`, `traceTransfers`, `validation`, call `value`) disable the fallback and surface the node error instead.
+- `'simulate'`: always `eth_simulateV1`. Deterministic rich results; throws on unsupported nodes.
+- `'multicall'`: always `aggregate3`. No detection request; lean results.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+// ---cut---
+const { results } = await Actions.simulateCalls(client, {
+  mode: 'multicall', // [!code focus]
+  calls: [
+    {
+      abi,
+      functionName: 'totalSupply',
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+    },
+  ],
+})
+```
+
+### batchSize
+
+- **Type:** `number`
+- **Default:** `client.batch.multicall.batchSize ?? 1024`
+
+Max calldata bytes per `aggregate3` chunk (fallback and `'multicall'` paths).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+// ---cut---
+const { results } = await Actions.simulateCalls(client, {
+  mode: 'multicall',
+  batchSize: 512, // [!code focus]
+  calls: [
+    {
+      abi,
+      functionName: 'totalSupply',
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+    },
+  ],
+})
+```
+
+### blockNumber
+
+- **Type:** `bigint`
+
+Simulates against the state at a given block number.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { results } = await Actions.simulateCalls(client, {
+  blockNumber: 42069n, // [!code focus]
+  calls: [
+    {
+      data: '0xdeadbeef',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    },
+  ],
+})
+```
+
+### blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+Simulates against the state at a given block tag.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { results } = await Actions.simulateCalls(client, {
+  blockTag: 'pending', // [!code focus]
+  calls: [
+    {
+      data: '0xdeadbeef',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    },
+  ],
+})
+```
+
+### calls
+
+- **Type:** `Calls`
+
+The calls to simulate. Each call is either a raw call (`to`, `data`, `value`) or a typed contract call (`to`, `abi`, `functionName`, `args`), plus an optional `dataSuffix` appended to the calldata. Call `value` forces the `eth_simulateV1` mode.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { results } = await Actions.simulateCalls(client, {
+  calls: [ // [!code focus]
+    { // [!code focus]
+      abi: Abi.from(['function name() view returns (string)']), // [!code focus]
+      functionName: 'name', // [!code focus]
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+    }, // [!code focus]
+    { // [!code focus]
+      data: '0xdeadbeef', // [!code focus]
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+})
+```
+
+### deployless
+
+- **Type:** `boolean`
+
+Forces a deployless multicall (bytecode `eth_call`) on the `aggregate3` path, for chains without a multicall3 deployment.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+// ---cut---
+const { results } = await Actions.simulateCalls(client, {
+  mode: 'multicall',
+  calls: [
+    {
+      abi,
+      functionName: 'totalSupply',
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+    },
+  ],
+  deployless: true, // [!code focus]
+})
+```
+
+### multicallAddress
+
+- **Type:** `Address`
+- **Default:** `client.chain.contracts.multicall3.address`
+
+Multicall3 address override for the `aggregate3` path.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+// ---cut---
+const { results } = await Actions.simulateCalls(client, {
+  mode: 'multicall',
+  calls: [
+    {
+      abi,
+      functionName: 'totalSupply',
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+    },
+  ],
+  multicallAddress: '0xcA11bde05977b3631167028862bE2a173976CA11', // [!code focus]
+})
+```
+
+### requestOptions
+
+- **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
+
+Per-request transport options (e.g. an `AbortSignal` to cancel the request).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const controller = new AbortController()
+const { results } = await Actions.simulateCalls(client, {
+  calls: [
+    {
+      data: '0xdeadbeef',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    },
+  ],
+  requestOptions: { signal: controller.signal }, // [!code focus]
+})
+```
+
+### stateOverride
+
+- **Type:** `StateOverrides`
+
+Overrides account state (balance, nonce, code, storage) for the simulation.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { results } = await Actions.simulateCalls(client, {
+  account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    },
+  ],
+  stateOverride: { // [!code focus]
+    '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929': { // [!code focus]
+      balance: 1000000000000000000000n, // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
+})
+```
+
+### traceAssetChanges
+
+- **Type:** `boolean`
+
+Whether to trace native/ERC20/ERC721 balance changes of [`account`](#account) across the batch. Requires `account`; forces the `eth_simulateV1` mode.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { assetChanges } = await Actions.simulateCalls(client, {
+  account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    },
+  ],
+  traceAssetChanges: true, // [!code focus]
+})
+```
+
+### traceTransfers
+
+- **Type:** `boolean`
+
+Whether to trace transfers as synthetic logs (emitted as ERC-20 style `Transfer` events from address `0xeeee…eeee`). Forces the `eth_simulateV1` mode.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { results } = await Actions.simulateCalls(client, {
+  account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    },
+  ],
+  traceTransfers: true, // [!code focus]
+})
+```
+
+### validation
+
+- **Type:** `boolean`
+
+Whether to run in validation mode, applying full transaction validation (nonce, balance, fee checks) as if the calls were real transactions. Forces the `eth_simulateV1` mode.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { results } = await Actions.simulateCalls(client, {
+  account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    },
+  ],
+  validation: true, // [!code focus]
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `RpcError.ExecutionError` | The simulation request failed (e.g. fee invariants violated, insufficient balance, or the node rejected the payload). |
+| `ContractFunctionExecutionError` | A call's encode/decode failed with `allowFailure: false` (per-call failures otherwise surface on the result's `error`). |

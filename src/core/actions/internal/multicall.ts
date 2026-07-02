@@ -2,6 +2,7 @@ import * as AbiFunction from 'ox/AbiFunction'
 import * as Address from 'ox/Address'
 import type * as Errors from 'ox/Errors'
 import type * as Hex from 'ox/Hex'
+import * as RpcResponse from 'ox/RpcResponse'
 import * as StateOverrides from 'ox/StateOverrides'
 
 import type * as Client from '../../Client.js'
@@ -11,9 +12,20 @@ import { createBatchScheduler } from '../../internal/promise.js'
 import { multicall3Bytecode } from './constants.js'
 import { toDeploylessCallViaBytecodeData } from './deployless.js'
 
-const aggregate3Abi = /*#__PURE__*/ AbiFunction.from(
+export const aggregate3Abi = /*#__PURE__*/ AbiFunction.from(
   'function aggregate3((address target, bool allowFailure, bytes callData)[] calls) returns ((bool success, bytes returnData)[] returnData)',
 )
+
+/** Whether an error (or any of its causes) is a method-not-found/supported RPC rejection. */
+export function isMethodNotSupportedError(err: unknown): boolean {
+  let error: unknown = err
+  while (error) {
+    if (error instanceof RpcResponse.MethodNotFoundError) return true
+    if (error instanceof RpcResponse.MethodNotSupportedError) return true
+    error = (error as { cause?: unknown }).cause
+  }
+  return false
+}
 
 type RequestOptions = Parameters<Client.Client['request']>[1]
 

@@ -3,7 +3,12 @@ import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 
 import type { Assign, OneOf, Prettify } from '../../internal/types.js'
-import type { ContractFunctionParameters } from './contract.js'
+import type {
+  ContractFunctionArgs,
+  ContractFunctionName,
+  ContractFunctionParameters,
+  ContractFunctionReturnType,
+} from './contract.js'
 
 /** A single call in a batch (raw call data or contract function parameters). */
 export type Call<
@@ -63,3 +68,101 @@ export type Calls<
           ? readonly Prettify<call>[]
           : // Fallback
             readonly OneOf<Call>[]
+
+/** Result of a single {@link Call} in a batch. */
+export type CallResult<
+  result = unknown,
+  allowFailure extends boolean = true,
+  options extends {
+    error?: Error
+    extraProperties?: Record<string, unknown>
+  } = { error: Error; extraProperties: {} },
+> = allowFailure extends true
+  ?
+      | Prettify<
+          options['extraProperties'] & {
+            error?: undefined
+            result: result
+            status: 'success'
+          }
+        >
+      | Prettify<
+          options['extraProperties'] & {
+            error: unknown extends options['error'] ? Error : options['error']
+            result?: undefined
+            status: 'failure'
+          }
+        >
+  : result
+
+/** Per-call results of a batched call action, preserving per-call inference. */
+export type CallResults<
+  calls extends readonly unknown[],
+  allowFailure extends boolean = true,
+  options extends {
+    error?: Error
+    extraProperties?: Record<string, unknown>
+    mutability: AbiStateMutability
+  } = { error: Error; extraProperties: {}; mutability: AbiStateMutability },
+  ///
+  result extends readonly any[] = [],
+> = calls extends readonly [] // no calls, return empty
+  ? readonly []
+  : calls extends readonly [infer call] // one call left before returning `result`
+    ? readonly [
+        ...result,
+        CallResult<
+          CallReturnType<call, options['mutability']>,
+          allowFailure,
+          options
+        >,
+      ]
+    : calls extends readonly [infer call, ...infer rest] // grab first call and recurse through `rest`
+      ? CallResults<
+          [...rest],
+          allowFailure,
+          options,
+          [
+            ...result,
+            CallResult<
+              CallReturnType<call, options['mutability']>,
+              allowFailure,
+              options
+            >,
+          ]
+        >
+      : readonly unknown[] extends calls
+        ? readonly CallResult<unknown, allowFailure, options>[]
+        : // If `calls` is *some* array but we couldn't assign `unknown[]` to it,
+          // then it must hold some known/homogenous type.
+          calls extends readonly (infer call extends OneOf<Call>)[]
+          ? readonly CallResult<
+              CallReturnType<call, options['mutability']>,
+              allowFailure,
+              options
+            >[]
+          : // Fallback
+            readonly CallResult<unknown, allowFailure, options>[]
+
+/** Extracts the decoded return type of a {@link Call}. */
+type CallReturnType<
+  call,
+  mutability extends AbiStateMutability,
+> = call extends { abi: infer abi extends Abi }
+  ? call extends {
+      functionName: infer functionName extends ContractFunctionName<
+        abi,
+        mutability
+      >
+    }
+    ? call extends {
+        args: infer args extends ContractFunctionArgs<
+          abi,
+          mutability,
+          functionName
+        >
+      }
+      ? ContractFunctionReturnType<abi, mutability, functionName, args>
+      : ContractFunctionReturnType<abi, mutability, functionName>
+    : ContractFunctionReturnType<abi, mutability>
+  : unknown

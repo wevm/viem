@@ -16,5 +16,7 @@ export * as wallet from './wallet/index.js'
 
 export { signMessage } from './signMessage.js'
 export { signTypedData } from './signTypedData.js'
+export { simulateBlocks } from './simulateBlocks.js'
+export { simulateCalls } from './simulateCalls.js'
 
 export * as test from './test.js'

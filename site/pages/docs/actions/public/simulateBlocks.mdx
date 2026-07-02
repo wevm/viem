@@ -1,0 +1,343 @@
+# simulateBlocks
+
+Simulates a sequence of blocks with optional block and state overrides (`eth_simulateV1`).
+
+Each block executes its calls against the state produced by the previous one, so multi-block flows (approve then transfer, deploy then call) can be simulated in a single request.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const [block] = await client.simulateBlocks({
+  blocks: [{
+    calls: [{
+      account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    }],
+  }],
+})
+// @log: {
+// @log:   number: 23139774n,
+// @log:   ...
+// @log:   calls: [{ data: '0x', gasUsed: 21000n, logs: [], result: null, status: 'success' }],
+// @log: }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const [block] = await Actions.simulateBlocks(client, {
+  blocks: [{
+    calls: [{
+      account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    }],
+  }],
+})
+// @log: {
+// @log:   number: 23139774n,
+// @log:   ...
+// @log:   calls: [{ data: '0x', gasUsed: 21000n, logs: [], result: null, status: 'success' }],
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+Calls can also be typed contract calls. When `abi` is provided, `result` holds the decoded return value and failures decode into contract errors:
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const [block] = await Actions.simulateBlocks(client, {
+  blocks: [{
+    calls: [{
+      abi: Abi.from(['function name() view returns (string)']),
+      functionName: 'name',
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+    }],
+  }],
+})
+// @log: block.calls[0].result === 'wagmi'
+```
+
+## Return Value
+
+`readonly (Block & { calls: CallResult[] })[]`
+
+One simulated block per input block. Each block carries the standard block fields plus per-call results: `{ data, gasUsed, logs, result, status: 'success' } | { data, gasUsed, logs, error, status: 'failure' }`.
+
+## Parameters
+
+### blocks
+
+- **Type:** `readonly { blockOverrides?: BlockOverrides; calls: Calls; stateOverride?: StateOverrides }[]`
+
+The blocks to simulate, executed in sequence.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const blocks = await Actions.simulateBlocks(client, {
+  blocks: [{ // [!code focus]
+    calls: [{ // [!code focus]
+      account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929', // [!code focus]
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+      value: 1n, // [!code focus]
+    }], // [!code focus]
+  }], // [!code focus]
+})
+```
+
+#### blockOverrides
+
+- **Type:** `BlockOverrides`
+
+Values to override on the simulated block (e.g. `baseFeePerGas`, `gasLimit`, `number`, `time`).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const blocks = await Actions.simulateBlocks(client, {
+  blocks: [{
+    blockOverrides: { // [!code focus]
+      baseFeePerGas: 1_000_000_000n, // [!code focus]
+    }, // [!code focus]
+    calls: [{
+      account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    }],
+  }],
+})
+```
+
+#### calls
+
+- **Type:** `Calls`
+
+The calls to execute in this block. Each call is either a raw call (`to`, `data`, `value`) or a typed contract call (`to`, `abi`, `functionName`, `args`), plus optional transaction-request fields (`account`, `gas`, `nonce`, fee fields) and a `dataSuffix` appended to the calldata. Use `to: null` for a contract deployment.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const blocks = await Actions.simulateBlocks(client, {
+  blocks: [{
+    calls: [{ // [!code focus]
+      abi: Abi.from(['function mint(uint256 tokenId)']), // [!code focus]
+      args: [69420n], // [!code focus]
+      functionName: 'mint', // [!code focus]
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+    }], // [!code focus]
+  }],
+})
+```
+
+#### stateOverride
+
+- **Type:** `StateOverrides`
+
+Overrides account state (balance, nonce, code, storage) for this block's execution.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const blocks = await Actions.simulateBlocks(client, {
+  blocks: [{
+    calls: [{
+      account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    }],
+    stateOverride: { // [!code focus]
+      '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929': { // [!code focus]
+        balance: 1_000_000_000_000_000_000n, // [!code focus]
+      }, // [!code focus]
+    }, // [!code focus]
+  }],
+})
+```
+
+### blockNumber
+
+- **Type:** `bigint`
+
+Simulates from the state at a given block number.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const blocks = await Actions.simulateBlocks(client, {
+  blockNumber: 42069n, // [!code focus]
+  blocks: [{
+    calls: [{
+      account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    }],
+  }],
+})
+```
+
+### blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+Simulates from the state at a given block tag.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const blocks = await Actions.simulateBlocks(client, {
+  blockTag: 'pending', // [!code focus]
+  blocks: [{
+    calls: [{
+      account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    }],
+  }],
+})
+```
+
+### requestOptions
+
+- **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
+
+Per-request transport options (e.g. an `AbortSignal` to cancel the request).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const controller = new AbortController()
+const blocks = await Actions.simulateBlocks(client, {
+  blocks: [{
+    calls: [{
+      account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    }],
+  }],
+  requestOptions: { signal: controller.signal }, // [!code focus]
+})
+```
+
+### returnFullTransactions
+
+- **Type:** `boolean`
+
+Whether to return full transaction objects on the simulated blocks instead of hashes.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const blocks = await Actions.simulateBlocks(client, {
+  blocks: [{
+    calls: [{
+      account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    }],
+  }],
+  returnFullTransactions: true, // [!code focus]
+})
+```
+
+### traceTransfers
+
+- **Type:** `boolean`
+
+Whether to trace ETH transfers as synthetic logs (emitted as ERC-20 style `Transfer` events from address `0xeeee...eeee`).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const blocks = await Actions.simulateBlocks(client, {
+  blocks: [{
+    calls: [{
+      account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    }],
+  }],
+  traceTransfers: true, // [!code focus]
+})
+```
+
+### validation
+
+- **Type:** `boolean`
+
+Whether to run in validation mode, applying full transaction validation (nonce, balance, fee checks) as if the calls were real transactions.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const blocks = await Actions.simulateBlocks(client, {
+  blocks: [{
+    calls: [{
+      account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    }],
+  }],
+  validation: true, // [!code focus]
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `RpcError.ExecutionError` | The simulation request failed (e.g. invalid request, fee invariants violated, or the node rejected the payload). |
