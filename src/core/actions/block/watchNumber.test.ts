@@ -4,6 +4,7 @@ import { Actions, Client, fallback, http, testActions, webSocket } from 'viem'
 
 import * as anvil from '~test/anvil.js'
 import * as Http from '~test/http.js'
+import * as Tcp from '~test/tcp.js'
 import * as Ws from '~test/ws.js'
 import { wait } from '../../internal/wait.js'
 
@@ -202,6 +203,47 @@ test('poll: false uses a subscription (webSocket)', async () => {
   for (let i = 1; i < numbers.length; i++)
     expect(numbers[i]! > numbers[i - 1]!).toBe(true)
 })
+
+test(
+  'subscription: resumes after a transport drop',
+  { timeout: 15_000 },
+  async () => {
+    const proxy = await Tcp.createProxy(anvil.mainnet.rpcUrl.ws)
+    const wsClient = Client.create({
+      transport: webSocket(proxy.url, {
+        keepAlive: false,
+        reconnect: { connectionTimeout: 2_000, minReconnectionDelay: 50 },
+      }),
+    })
+
+    const numbers: bigint[] = []
+    const watch = Actions.block.watchNumber(wsClient)
+    watch.onBlockNumber((blockNumber) => numbers.push(blockNumber))
+
+    // First delivery over the initial connection.
+    await wait(200)
+    await testClient.block.mine({ blocks: 1 })
+    await wait(400)
+    expect(numbers.length).toBeGreaterThanOrEqual(1)
+
+    const received = numbers.length
+    proxy.drop()
+
+    // The socket redials through the proxy and resubscribes; deliveries resume.
+    let resumed = false
+    for (let i = 0; i < 20 && !resumed; i++) {
+      await testClient.block.mine({ blocks: 1 })
+      await wait(250)
+      resumed = numbers.length > received
+    }
+
+    watch.off()
+    ;(await wsClient.transport.getRpcClient()).close()
+    await proxy.close()
+
+    expect(resumed).toBe(true)
+  },
+)
 
 test('subscription: resolves subscribe from a fallback transport', async () => {
   const fallbackClient = Client.create({

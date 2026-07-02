@@ -14,6 +14,20 @@ test('default: uninstalls a block filter', async () => {
   expect(await Actions.filter.uninstall(client, { filter })).toBe(false)
 })
 
+test('behavior: install → changes → uninstall round-trip', async () => {
+  const filter = await Actions.block.createFilter(client)
+
+  await Actions.test.block.mine(client, { blocks: 1 })
+  const changes = await Actions.filter.getChanges(client, { filter })
+  expect(changes.length).toBe(1)
+
+  expect(await Actions.filter.uninstall(client, { filter })).toBe(true)
+  await expect(
+    Actions.filter.getChanges(client, { filter }),
+  ).rejects.toThrowError('filter not found')
+  expect(await Actions.filter.uninstall(client, { filter })).toBe(false)
+})
+
 test('decorator', async () => {
   const decorated = client.extend(publicActions())
   const id = await client.request({ method: 'eth_newBlockFilter' })
