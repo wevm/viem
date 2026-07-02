@@ -161,6 +161,42 @@ describe('encryptedDeposit', () => {
       }),
     ).rejects.toThrow('`account` is required.')
   })
+
+  test('behavior: prepared encrypted deposit payload', async () => {
+    const prepared = {
+      amount: parseUnits('1', 6),
+      chainId: tempoModerato.id,
+      encrypted: {
+        ciphertext: '0x1234',
+        ephemeralPubkeyX:
+          '0x0000000000000000000000000000000000000000000000000000000000000001',
+        ephemeralPubkeyYParity: 0,
+        nonce: '0x000000000000000000000000',
+        tag: '0x00000000000000000000000000000000',
+      },
+      keyIndex: 0n,
+      portalAddress: '0x3F5296303400B56271b476F5A0B9cBF74350D6Ac',
+      token: '0x20c0000000000000000000000000000000000000',
+      zoneId: 7,
+    } satisfies zoneActions.PreparedEncryptedDeposit
+
+    const calls = zoneActions.encryptedDeposit.calls(prepared)
+
+    expect(calls[0].args).toEqual([prepared.portalAddress, parseUnits('1', 6)])
+    expect(calls[1].address).toBe(prepared.portalAddress)
+    expect(calls[1].functionName).toBe('depositEncrypted')
+    expect(calls[1].args[2]).toBe(prepared.keyIndex)
+    expect(calls[1].args[3]).toEqual(prepared.encrypted)
+
+    await expect(
+      zoneActions.encryptedDeposit(mainnetClient, {
+        ...prepared,
+        chainId: prepared.chainId + 1,
+      }),
+    ).rejects.toThrow(
+      'Prepared encrypted deposit chain ID does not match client chain.',
+    )
+  })
 })
 
 describe('deposit', () => {
