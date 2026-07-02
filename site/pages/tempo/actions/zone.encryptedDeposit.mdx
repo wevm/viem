@@ -1,4 +1,3 @@
-import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
 # `zone.encryptedDeposit`
@@ -80,68 +79,6 @@ export const broadcaster = client
 ```
 
 :::
-
-### Prepared Return Type
-
-```ts
-type PreparedEncryptedDeposit = {
-  /** Amount of tokens to deposit. */
-  amount: bigint
-  /** Parent chain ID. */
-  chainId: number
-  /** Encrypted deposit payload. */
-  encrypted: {
-    ciphertext: Hex
-    ephemeralPubkeyX: Hex
-    ephemeralPubkeyYParity: number
-    nonce: Hex
-    tag: Hex
-  }
-  /** Encryption key index from the portal contract. */
-  keyIndex: bigint
-  /** Zone portal address on the parent chain. */
-  portalAddress: Address
-  /** Token address or ID to deposit. */
-  token: Address | bigint
-  /** Zone ID. */
-  zoneId: number
-}
-```
-
-### Prepared Parameters
-
-#### amount
-
-- **Type:** `bigint`
-
-Amount of tokens to deposit.
-
-#### recipient
-
-- **Type:** `Address`
-
-Recipient address in the zone.
-
-#### token
-
-- **Type:** `Address | bigint`
-
-Token address or ID to deposit.
-
-#### zoneId
-
-- **Type:** `number`
-
-Zone ID to deposit into (e.g. `7`).
-
-#### memo (optional)
-
-- **Type:** `Hex`
-- **Default:** `0x00...00`
-
-Optional deposit memo.
-
-<ReadParameters />
 
 ## Return Type
 
