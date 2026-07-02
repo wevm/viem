@@ -143,6 +143,14 @@ For v3 rewrite work, also read `AGENTS.tmp.md`.
   - Use `pnpm test --project core --bail=1` for core failures.
   - Use `--project tempo` for tempo work.
   - Use `SKIP_GLOBAL_SETUP=true` for offline runs that do not need anvil.
+- **Check for orphaned anvil listeners before full-suite runs**; a killed test run can leave
+  its proxy holding ports 8545/8645, making later runs fail at global setup (`EADDRINUSE`) or
+  time out en masse against the wedged instance. `lsof -nP -i :8545 -i :8645` and kill the stale
+  `node` process.
+- **Full parallel runs can rate-limit the fork upstream**; 100+ fresh fork instances cold-fetching
+  pinned state can saturate the fork RPC, failing random fork-state tests (`getBalance`,
+  `getProof`, …). Re-run with `--maxWorkers=4`, and verify suspicious failures in isolation before
+  suspecting code.
 - **Use `anvil.local` for pending-hash polling tests**; a fork forwards unknown-hash lookups
   (`eth_getTransactionReceipt`, `eth_getTransactionByHash`) to the upstream RPC, adding unbounded
   latency to polls over pending or replaced transactions.
