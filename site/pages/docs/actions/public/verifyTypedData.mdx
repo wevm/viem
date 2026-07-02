@@ -1,0 +1,120 @@
+# verifyTypedData
+
+Verifies that [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data was signed by the provided address, supporting Smart Contract Accounts (ERC-1271/6492/8010) and Externally Owned Accounts.
+
+Computes the typed-data sign payload and delegates to [`verifyHash`](/docs/actions/public/verifyHash), which also accepts all of its options ([`mode`](/docs/actions/public/verifyHash#mode), [`factory`](/docs/actions/public/verifyHash#factory), block selectors, and verifier overrides).
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const valid = await client.verifyTypedData({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  domain: {
+    chainId: 1,
+    name: 'Ether Mail',
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+    version: '1',
+  },
+  types: {
+    Mail: [{ name: 'contents', type: 'string' }],
+  },
+  primaryType: 'Mail',
+  message: { contents: 'Hello, Bob!' },
+  signature: '0x…',
+})
+// @log: true
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const valid = await Actions.verifyTypedData(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  domain: {
+    chainId: 1,
+    name: 'Ether Mail',
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+    version: '1',
+  },
+  types: {
+    Mail: [{ name: 'contents', type: 'string' }],
+  },
+  primaryType: 'Mail',
+  message: { contents: 'Hello, Bob!' },
+  signature: '0x…',
+})
+// @log: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Return Value
+
+`boolean`
+
+Whether the signature is valid for the given typed data and address.
+
+## Parameters
+
+Accepts every [`verifyHash` parameter](/docs/actions/public/verifyHash#parameters) except `hash`, plus the typed-data fields:
+
+### domain
+
+- **Type:** `TypedDataDomain`
+
+The EIP-712 domain separator fields.
+
+### types
+
+- **Type:** `TypedData`
+
+The type definitions for the typed data.
+
+### primaryType
+
+- **Type:** `string`
+
+The primary type to extract from `types`.
+
+### message
+
+- **Type:** `Record<string, unknown>`
+
+The typed message to verify, matching `primaryType`'s shape.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const valid = await Actions.verifyTypedData(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  domain: { name: 'Ether Mail', version: '1', chainId: 1 },
+  types: { Mail: [{ name: 'contents', type: 'string' }] },
+  primaryType: 'Mail',
+  message: { contents: 'Hello, Bob!' }, // [!code focus]
+  signature: '0x…',
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `RpcError.ExecutionError` | The verification request failed for a reason other than an invalid signature (invalid signatures resolve to `false`). |

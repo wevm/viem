@@ -361,3 +361,19 @@ The standalone `multicall` action was removed in favor of `simulateCalls`, which
     }],
   })
 ```
+
+The onchain verification actions stay flat with their v2 names (`Actions.verifyHash` / `Actions.verifyMessage` / `Actions.verifyTypedData`), and `verifySiweMessage` moved out of `viem/siwe` to join them.
+
+```diff
+- import { verifyHash, verifyMessage, verifyTypedData } from 'viem/actions'
+- import { verifySiweMessage } from 'viem/siwe'
++ import { Actions } from 'viem'
+
+- const valid = await verifyHash(client, { address, hash, signature })
++ const valid = await Actions.verifyHash(client, { address, hash, signature })
+
+- const valid = await verifySiweMessage(client, { message, signature })
++ const valid = await Actions.verifySiweMessage(client, { message, signature })
+```
+
+`verifyHash` drops the deprecated `universalSignatureVerifierAddress` alias (use `erc6492VerifierAddress`) and the `chain` override (the client's chain is used); signature objects follow the ox shape (`yParity`, no `v`). The `chain.verifyHash` hook now lives on the `Chain` type for chains with custom account verification.

@@ -2,6 +2,7 @@ import type { Abi } from 'abitype'
 import type * as AbiEvent from 'ox/AbiEvent'
 import type * as Block from 'ox/Block'
 import type * as Fee from 'ox/Fee'
+import type * as TypedData from 'ox/TypedData'
 
 import type * as Account from '../../Account.js'
 import type * as Chain from '../../Chain.js'
@@ -24,6 +25,10 @@ import { simulateBlocks } from '../simulateBlocks.js'
 import { simulateCalls } from '../simulateCalls.js'
 import * as token from '../token/index.js'
 import * as transaction from '../transaction/index.js'
+import { verifyHash } from '../verifyHash.js'
+import { verifyMessage } from '../verifyMessage.js'
+import { verifySiweMessage } from '../verifySiweMessage.js'
+import { verifyTypedData } from '../verifyTypedData.js'
 
 /**
  * Bag of public actions bound to a {@link Client}. Pass to `Client.create`'s
@@ -131,6 +136,10 @@ export function publicActions() {
       waitForReceipt: (options) => transaction.waitForReceipt(client, options),
       watchPending: (options) => transaction.watchPending(client, options),
     },
+    verifyHash: (options) => verifyHash(client, options),
+    verifyMessage: (options) => verifyMessage(client, options),
+    verifySiweMessage: (options) => verifySiweMessage(client, options),
+    verifyTypedData: (options) => verifyTypedData(client, options as never),
   })
 }
 
@@ -1386,5 +1395,103 @@ export declare namespace publicActions {
         options?: transaction.watchPending.Options | undefined,
       ) => transaction.watchPending.Watcher
     }
+    /**
+     * Verifies a signature over a hash onchain, supporting Smart Contract
+     * Accounts (ERC-1271/6492/8010) and Externally Owned Accounts.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const valid = await client.verifyHash({
+     *   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+     *   hash: '0x…',
+     *   signature: '0x…',
+     * })
+     * ```
+     */
+    verifyHash: (options: verifyHash.Options) => Promise<verifyHash.ReturnType>
+    /**
+     * Verifies that a message was signed by the provided address, supporting
+     * Smart Contract Accounts (ERC-1271/6492/8010) and Externally Owned
+     * Accounts.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const valid = await client.verifyMessage({
+     *   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+     *   message: 'hello world',
+     *   signature: '0x…',
+     * })
+     * ```
+     */
+    verifyMessage: (
+      options: verifyMessage.Options,
+    ) => Promise<verifyMessage.ReturnType>
+    /**
+     * Verifies that an EIP-4361 formatted message was signed, supporting
+     * Smart Contract Accounts (ERC-1271/6492/8010) and Externally Owned
+     * Accounts.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const valid = await client.verifySiweMessage({
+     *   message: 'example.com wants you to sign in with your Ethereum account…',
+     *   signature: '0x…',
+     * })
+     * ```
+     */
+    verifySiweMessage: (
+      options: verifySiweMessage.Options,
+    ) => Promise<verifySiweMessage.ReturnType>
+    /**
+     * Verifies that typed data was signed by the provided address, supporting
+     * Smart Contract Accounts (ERC-1271/6492/8010) and Externally Owned
+     * Accounts.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const valid = await client.verifyTypedData({
+     *   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+     *   domain: { name: 'Ether Mail', version: '1', chainId: 1 },
+     *   types: { Mail: [{ name: 'contents', type: 'string' }] },
+     *   primaryType: 'Mail',
+     *   message: { contents: 'hello world' },
+     *   signature: '0x…',
+     * })
+     * ```
+     */
+    verifyTypedData: <
+      const typedData extends TypedData.TypedData | Record<string, unknown>,
+      primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
+    >(
+      options: verifyTypedData.Options<typedData, primaryType>,
+    ) => Promise<verifyTypedData.ReturnType>
   }
 }

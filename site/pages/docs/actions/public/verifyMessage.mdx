@@ -1,0 +1,79 @@
+# verifyMessage
+
+Verifies that a message was signed by the provided address, supporting Smart Contract Accounts (ERC-1271/6492/8010) and Externally Owned Accounts.
+
+Computes the [EIP-191](https://eips.ethereum.org/EIPS/eip-191) personal-message hash and delegates to [`verifyHash`](/docs/actions/public/verifyHash), which also accepts all of its options ([`mode`](/docs/actions/public/verifyHash#mode), [`factory`](/docs/actions/public/verifyHash#factory), block selectors, and verifier overrides).
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const valid = await client.verifyMessage({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  message: 'hello world',
+  signature: '0x…',
+})
+// @log: true
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const valid = await Actions.verifyMessage(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  message: 'hello world',
+  signature: '0x…',
+})
+// @log: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Return Value
+
+`boolean`
+
+Whether the signature is valid for the given message and address.
+
+## Parameters
+
+Accepts every [`verifyHash` parameter](/docs/actions/public/verifyHash#parameters) except `hash`, plus:
+
+### message
+
+- **Type:** `string | { raw: Hex | Bytes }`
+
+The message that was signed. Use the `raw` form for pre-encoded data.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const valid = await Actions.verifyMessage(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  message: { raw: '0x68656c6c6f20776f726c64' }, // [!code focus]
+  signature: '0x…',
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `RpcError.ExecutionError` | The verification request failed for a reason other than an invalid signature (invalid signatures resolve to `false`). |

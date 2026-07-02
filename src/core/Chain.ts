@@ -52,6 +52,8 @@ export type Chain = {
   testnet?: boolean | undefined
   /** Transaction signing & preparation hooks. */
   transaction?: Chain.Transaction | undefined
+  /** Hook to verify a signed hash against an address (chains with custom account verification). */
+  verifyHash?: Chain.VerifyHash | undefined
 }
 
 export declare namespace Chain {
@@ -61,6 +63,19 @@ export declare namespace Chain {
     url: string
     apiUrl?: string | undefined
   }
+
+  /** Hook to verify a signed hash against an address. */
+  type VerifyHash = (
+    client: Client.Client,
+    options: {
+      /** The address that signed the hash. */
+      address: Address.Address
+      /** The hash that was signed. */
+      hash: Hex.Hex
+      /** The signature to verify. */
+      signature: Hex.Hex
+    },
+  ) => MaybePromise<boolean>
 
   /** A deployed contract on a {@link Chain}. */
   type Contract = {

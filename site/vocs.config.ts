@@ -263,6 +263,26 @@ export default defineConfig({
             badge: badge('public'),
           },
           {
+            text: 'verifyHash',
+            link: '/docs/actions/public/verifyHash',
+            badge: badge('public'),
+          },
+          {
+            text: 'verifyMessage',
+            link: '/docs/actions/public/verifyMessage',
+            badge: badge('public'),
+          },
+          {
+            text: 'verifySiweMessage',
+            link: '/docs/actions/public/verifySiweMessage',
+            badge: badge('public'),
+          },
+          {
+            text: 'verifyTypedData',
+            link: '/docs/actions/public/verifyTypedData',
+            badge: badge('public'),
+          },
+          {
             text: 'Address',
             collapsed: true,
             items: [
