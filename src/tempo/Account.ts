@@ -4,7 +4,12 @@ import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
-import { KeyAuthorization, SignatureEnvelope } from 'ox/tempo'
+import {
+  Channel,
+  KeyAuthorization,
+  MultisigConfig,
+  SignatureEnvelope,
+} from 'ox/tempo'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import * as WebCryptoP256 from 'ox/WebCryptoP256'
 import type {
@@ -19,6 +24,7 @@ import { keccak256 } from '../utils/hash/keccak256.js'
 import { hashMessage } from '../utils/signature/hashMessage.js'
 import { hashTypedData } from '../utils/signature/hashTypedData.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
+import type { KeyAuthorizationManager } from './KeyAuthorizationManager.js'
 import * as Transaction from './Transaction.js'
 
 export type Account_base<source extends string = string> = RequiredBy<
@@ -27,6 +33,8 @@ export type Account_base<source extends string = string> = RequiredBy<
 > & {
   /** Key type. */
   keyType: SignatureEnvelope.Type
+  /** Sign fn. */
+  sign: NonNullable<LocalAccount['sign']>
   /** Sign transaction fn. */
   signTransaction: <
     serializer extends
@@ -40,22 +48,46 @@ export type Account_base<source extends string = string> = RequiredBy<
         }
       | undefined,
   ) => Promise<Hex.Hex>
+  /** Sign voucher fn. */
+  signVoucher: (
+    parameters: signVoucher.Parameters,
+  ) => Promise<signVoucher.ReturnValue>
 }
 
 export type RootAccount = Account_base<'root'> & {
   /** Sign key authorization. */
   signKeyAuthorization: (
-    key: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>,
+    key: resolveAccessKey.Parameters,
     parameters: Pick<
       KeyAuthorization.KeyAuthorization,
-      'chainId' | 'expiry' | 'limits'
-    >,
+      'chainId' | 'expiry' | 'limits' | 'scopes' | 'witness'
+    > & {
+      /** Whether to authorize the key as an admin key (TIP-1049). */
+      admin?: boolean | undefined
+    },
   ) => Promise<KeyAuthorization.Signed>
 }
 
 export type AccessKeyAccount = Account_base<'accessKey'> & {
   /** Access key ID. */
   accessKeyAddress: Address.Address
+  /** Pending key authorization manager. */
+  keyAuthorizationManager?: KeyAuthorizationManager | undefined
+  /**
+   * Signs a hash.
+   *
+   * By default, access key accounts sign through a keychain envelope so the
+   * signature authorizes the parent account.
+   *
+   * Set `raw` to `true` to sign directly with the access key, without keychain
+   * hashing or keychain enveloping.
+   */
+  sign: (parameters: {
+    /** Hash to sign. */
+    hash: Hex.Hex
+    /** Sign directly with the access key, without keychain hashing or enveloping. */
+    raw?: boolean | undefined
+  }) => Promise<Hex.Hex>
 }
 
 export type Account = OneOf<RootAccount | AccessKeyAccount>
@@ -104,12 +136,13 @@ export function fromHeadlessWebAuthn<
   privateKey: Hex.Hex,
   options: options | fromHeadlessWebAuthn.Options,
 ): fromHeadlessWebAuthn.ReturnValue<options> {
-  const { access, rpId, origin, internal_version } = options
+  const { access, keyAuthorizationManager, rpId, origin, internal_version } =
+    options
 
   const publicKey = P256.getPublicKey({ privateKey })
 
   return from({
-    access,
+    ...(access ? { access, keyAuthorizationManager } : {}),
     internal_version,
     keyType: 'webAuthn',
     publicKey,
@@ -140,7 +173,10 @@ export declare namespace fromHeadlessWebAuthn {
     WebAuthnP256.getSignPayload.Options,
     'challenge' | 'rpId' | 'origin'
   > &
-    Pick<from.Parameters, 'access' | 'internal_version'> & {
+    Pick<
+      from.Parameters,
+      'access' | 'internal_version' | 'keyAuthorizationManager'
+    > & {
       rpId: string
       origin: string
     }
@@ -166,11 +202,11 @@ export function fromP256<const options extends fromP256.Options>(
   privateKey: Hex.Hex,
   options: options | fromP256.Options = {},
 ): fromP256.ReturnValue<options> {
-  const { access, internal_version } = options
+  const { access, keyAuthorizationManager, internal_version } = options
   const publicKey = P256.getPublicKey({ privateKey })
 
   return from({
-    access,
+    ...(access ? { access, keyAuthorizationManager } : {}),
     internal_version,
     keyType: 'p256',
     publicKey,
@@ -186,7 +222,10 @@ export function fromP256<const options extends fromP256.Options>(
 }
 
 export declare namespace fromP256 {
-  export type Options = Pick<from.Parameters, 'access' | 'internal_version'>
+  export type Options = Pick<
+    from.Parameters,
+    'access' | 'internal_version' | 'keyAuthorizationManager'
+  >
 
   export type ReturnValue<options extends Options = Options> =
     from.ReturnValue<options>
@@ -209,11 +248,11 @@ export function fromSecp256k1<const options extends fromSecp256k1.Options>(
   privateKey: Hex.Hex,
   options: options | fromSecp256k1.Options = {},
 ): fromSecp256k1.ReturnValue<options> {
-  const { access, internal_version } = options
+  const { access, keyAuthorizationManager, internal_version } = options
   const publicKey = Secp256k1.getPublicKey({ privateKey })
 
   return from({
-    access,
+    ...(access ? { access, keyAuthorizationManager } : {}),
     internal_version,
     keyType: 'secp256k1',
     publicKey,
@@ -226,10 +265,85 @@ export function fromSecp256k1<const options extends fromSecp256k1.Options>(
 }
 
 export declare namespace fromSecp256k1 {
-  export type Options = Pick<from.Parameters, 'access' | 'internal_version'>
+  export type Options = Pick<
+    from.Parameters,
+    'access' | 'internal_version' | 'keyAuthorizationManager'
+  >
 
   export type ReturnValue<options extends Options = Options> =
     from.ReturnValue<options>
+}
+
+/**
+ * Instantiates a synthetic Account for a native multisig (TIP-1061) config.
+ *
+ * The returned account does not hold a key. It is used purely to drive the
+ * standard `sendTransaction` flow: it derives the multisig address from the
+ * config and passes the prepared request (carrying the collected owner
+ * `signatures`) through to the chain serializer, which combines the approvals
+ * into the multisig signature envelope.
+ *
+ * Owner approvals are produced separately by signing with `multisig` request
+ * metadata (see `signTransaction`), and provided here via `signatures`.
+ *
+ * Accepts a raw config and normalizes it internally (via `MultisigConfig.from`),
+ * so callers don't need to call `MultisigConfig.from` themselves.
+ *
+ * @example
+ * ```ts
+ * import { Account } from 'viem/tempo'
+ *
+ * const account = Account.fromMultisig({
+ *   threshold: 2,
+ *   owners: [
+ *     { owner: owner_1.address, weight: 1 },
+ *     { owner: owner_2.address, weight: 1 },
+ *   ],
+ * })
+ *
+ * // Pass the account to `prepareTransactionRequest` — the multisig config is
+ * // inferred from it, so no `multisig` field is needed.
+ * const request = await client.prepareTransactionRequest({ account, ...rest })
+ *
+ * // The prepared request carries the multisig account as sender, so it doesn't
+ * // need to be re-passed to `sendTransaction`.
+ * const transaction = await client.sendTransaction({
+ *   ...request,
+ *   signatures: [signature_1, signature_2],
+ * })
+ * ```
+ *
+ * @param config Multisig config (raw or from `MultisigConfig.from`).
+ * @returns Multisig account.
+ */
+export function fromMultisig(config: MultisigConfig.Config): MultisigAccount {
+  const normalized = MultisigConfig.from(config)
+  const address = Address.checksum(MultisigConfig.getAddress(normalized))
+  return {
+    address,
+    config: normalized,
+    publicKey: '0x',
+    source: 'multisig',
+    type: 'local',
+    async sign() {
+      throw new Error('`sign` is not supported for multisig accounts.')
+    },
+    async signMessage() {
+      throw new Error('`signMessage` is not supported for multisig accounts.')
+    },
+    async signTransaction(transaction, options) {
+      const { serializer = Transaction.serialize } = options ?? {}
+      return (await serializer(transaction as never)) as Hex.Hex
+    },
+    async signTypedData() {
+      throw new Error('`signTypedData` is not supported for multisig accounts.')
+    },
+  }
+}
+
+export type MultisigAccount = LocalAccount<'multisig'> & {
+  /** Multisig config (from `MultisigConfig.from`). */
+  config: MultisigConfig.Config
 }
 
 /**
@@ -350,11 +464,11 @@ export function fromWebCryptoP256<
   keyPair: Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>,
   options: options | fromWebCryptoP256.Options = {},
 ): fromWebCryptoP256.ReturnValue<options> {
-  const { access, internal_version } = options
+  const { access, keyAuthorizationManager, internal_version } = options
   const { publicKey, privateKey } = keyPair
 
   return from({
-    access,
+    ...(access ? { access, keyAuthorizationManager } : {}),
     internal_version,
     keyType: 'p256',
     publicKey,
@@ -371,44 +485,115 @@ export function fromWebCryptoP256<
 }
 
 export declare namespace fromWebCryptoP256 {
-  export type Options = Pick<from.Parameters, 'access' | 'internal_version'>
+  export type Options = Pick<
+    from.Parameters,
+    'access' | 'internal_version' | 'keyAuthorizationManager'
+  >
 
   export type ReturnValue<options extends Options = Options> =
     from.ReturnValue<options>
+}
+
+export async function signVoucher(
+  account: LocalAccount,
+  parameters: signVoucher.Parameters,
+): Promise<signVoucher.ReturnValue> {
+  const hash = getVoucherSignPayload(parameters)
+  if (isAccessKeyAccount(account)) return account.sign({ hash, raw: true })
+  return account.sign!({ hash })
+}
+
+function getVoucherSignPayload(parameters: signVoucher.Parameters) {
+  const { chainId, channel, cumulativeAmount } = parameters
+  const channelId =
+    typeof channel === 'string'
+      ? channel
+      : Channel.computeId(channel, {
+          chainId,
+        })
+
+  return Channel.getVoucherSignPayload({
+    chainId,
+    channelId,
+    cumulativeAmount,
+  })
+}
+
+export declare namespace signVoucher {
+  type Parameters = {
+    /** Chain ID. */
+    chainId: number | bigint
+    /** Channel descriptor or ID. */
+    channel: Channel.computeId.Channel | Hex.Hex
+    /** Total voucher amount signed for the channel. */
+    cumulativeAmount: bigint
+  }
+
+  type ReturnValue = Hex.Hex
+}
+
+function isAccessKeyAccount(
+  account: LocalAccount,
+): account is AccessKeyAccount {
+  return account.source === 'accessKey' && 'accessKeyAddress' in account
 }
 
 export async function signKeyAuthorization(
   account: LocalAccount,
   parameters: signKeyAuthorization.Parameters,
 ): Promise<signKeyAuthorization.ReturnValue> {
-  const { chainId, key, expiry, limits } = parameters
-  const { accessKeyAddress, keyType: type } = key
+  const { chainId, key, expiry, limits, scopes, witness, admin } = parameters
+  const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
 
-  const signature = await account.sign!({
-    hash: KeyAuthorization.getSignPayload({
-      address: accessKeyAddress,
-      chainId,
-      expiry,
-      limits,
-      type,
-    }),
-  })
+  // When the signer is an admin access key, the authorization must be
+  // signed directly by that key and bound to the parent account it acts
+  // on behalf of, so the signed payload cannot be replayed against another
+  // account. [TIP-1049]
+  const isAccessKey = isAccessKeyAccount(account)
+  const boundFields = isAccessKey ? { account: account.address } : {}
+
+  // Admin key authorizations are unrestricted and must not carry expiry,
+  // limits, or call scopes (the protocol rejects them). [TIP-1049]
+  const restrictions = admin ? {} : { expiry, limits, scopes }
+
+  const hash = KeyAuthorization.getSignPayload({
+    address: accessKeyAddress,
+    chainId,
+    type,
+    witness,
+    ...(admin ? { isAdmin: true } : {}),
+    ...boundFields,
+    ...restrictions,
+  } as never)
+  const signature = isAccessKey
+    ? await account.sign({ hash, raw: true })
+    : await account.sign!({ hash })
   return KeyAuthorization.from({
     address: accessKeyAddress,
     chainId,
-    expiry,
-    limits,
     signature: SignatureEnvelope.from(signature),
     type,
-  })
+    ...(witness ? { witness } : {}),
+    ...(admin ? { isAdmin: true } : {}),
+    ...boundFields,
+    ...restrictions,
+  } as never)
 }
 
 export declare namespace signKeyAuthorization {
   type Parameters = Pick<
     KeyAuthorization.KeyAuthorization,
-    'chainId' | 'expiry' | 'limits'
+    'chainId' | 'expiry' | 'limits' | 'scopes' | 'witness'
   > & {
-    key: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>
+    key: resolveAccessKey.Parameters
+    /**
+     * Whether to authorize the key as an admin key. Admin keys are
+     * unrestricted and can manage the account's other access keys; `expiry`,
+     * `limits`, and `scopes` are ignored. Requires the T6 hardfork.
+     *
+     * [TIP-1049](https://tips.sh/1049)
+     */
+    admin?: boolean | undefined
   }
 
   type ReturnValue = KeyAuthorization.Signed
@@ -429,7 +614,8 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
     includePrefix: false,
   })
 
-  async function sign({ hash }: { hash: Hex.Hex }) {
+  async function sign({ hash, raw }: { hash: Hex.Hex; raw?: boolean }) {
+    if (raw) return await parameters.sign({ hash })
     const innerHash =
       parentAddress && internal_version === 'v2'
         ? keccak256(Hex.concat('0x04', hash, parentAddress))
@@ -444,10 +630,7 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
           version: internal_version,
         }),
       )
-    // Don't need to append magic bytes to secp256k1 signatures as they are
-    // backwards compatible with existing verification logic.
-    if (keyType === 'secp256k1') return signature
-    return Hex.concat(signature, SignatureEnvelope.magicBytes)
+    return signature
   }
 
   return {
@@ -483,14 +666,40 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
     },
     async signTransaction(transaction, options) {
       const { serializer = Transaction.serialize } = options ?? {}
-      const signature = await sign({
-        hash: keccak256(await serializer(transaction)),
-      })
+      const presign = (() => {
+        if ('feePayerSignature' in transaction && transaction.feePayerSignature)
+          return { ...transaction, feePayerSignature: null }
+        return transaction
+      })()
+
+      const payload = keccak256(await serializer(presign))
+
+      // Native multisig (TIP-1061): return this owner's approval — a serialized
+      // primitive signature over the multisig owner approval digest — instead of
+      // a full serialized transaction. Approvals are combined later in
+      // `sendTransaction({ signatures })`.
+      const multisig = (
+        transaction as { multisig?: MultisigConfig.Config | undefined }
+      ).multisig
+      if (multisig) {
+        const digest = MultisigConfig.getSignPayload({
+          payload,
+          genesisConfig: multisig,
+        })
+        return await sign({ hash: digest, raw: true })
+      }
+
+      const signature = await sign({ hash: payload })
       const envelope = SignatureEnvelope.from(signature)
       return await serializer(transaction, envelope as never)
     },
     async signTypedData(typedData) {
       return await sign({ hash: hashTypedData(typedData) })
+    },
+    async signVoucher(parameters) {
+      const hash = getVoucherSignPayload(parameters)
+      if (parentAddress) return await sign({ hash, raw: true })
+      return await sign({ hash })
     },
     publicKey,
     source,
@@ -506,6 +715,8 @@ declare namespace fromBase {
     publicKey: PublicKey.PublicKey
     /** Key type. */
     keyType?: SignatureEnvelope.Type | undefined
+    /** Pending key authorization manager. */
+    keyAuthorizationManager?: KeyAuthorizationManager | undefined
     /** Sign function. */
     sign: NonNullable<LocalAccount['sign']>
     /** Source. */
@@ -525,26 +736,32 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
     ...account,
     source: 'root',
     async signKeyAuthorization(key, parameters) {
-      const { chainId, expiry, limits } = parameters
-      const { accessKeyAddress, keyType: type } = key
+      const { chainId, expiry, limits, scopes, witness, admin } = parameters
+      const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
+
+      // Admin key authorizations are unrestricted and must not carry expiry,
+      // limits, or call scopes (the protocol rejects them). [TIP-1049]
+      const restrictions = admin ? {} : { expiry, limits, scopes }
 
       const signature = await account.sign({
         hash: KeyAuthorization.getSignPayload({
           address: accessKeyAddress,
           chainId,
-          expiry,
-          limits,
           type,
-        }),
+          witness,
+          ...(admin ? { isAdmin: true } : {}),
+          ...restrictions,
+        } as never),
       })
       const keyAuthorization = KeyAuthorization.from({
         address: accessKeyAddress,
         chainId,
-        expiry,
-        limits,
         signature: SignatureEnvelope.from(signature),
         type,
-      })
+        ...(witness ? { witness } : {}),
+        ...(admin ? { isAdmin: true } : {}),
+        ...restrictions,
+      } as never)
       return keyAuthorization
     },
   }
@@ -558,12 +775,13 @@ declare namespace fromRoot {
 
 // biome-ignore lint/correctness/noUnusedVariables: _
 function fromAccessKey(parameters: fromAccessKey.Parameters): AccessKeyAccount {
-  const { access } = parameters
+  const { access, keyAuthorizationManager } = parameters
   const { address: parentAddress } = parseAccount(access)
   const account = fromBase({ ...parameters, parentAddress })
   return {
     ...account,
     accessKeyAddress: Address.fromPublicKey(parameters.publicKey),
+    keyAuthorizationManager,
     source: 'accessKey',
   }
 }
@@ -576,9 +794,57 @@ declare namespace fromAccessKey {
      * the parent account's address as the keychain address.
      */
     access: viem_Account | Address.Address
+    /** Pending key authorization manager. */
+    keyAuthorizationManager?: KeyAuthorizationManager | undefined
   }
 
   export type ReturnValue = AccessKeyAccount
+}
+
+/** @internal */
+export function resolveAccessKey(
+  accessKey: resolveAccessKey.Parameters,
+): resolveAccessKey.ReturnType {
+  if ('accessKeyAddress' in accessKey)
+    return {
+      accessKeyAddress: accessKey.accessKeyAddress,
+      keyType: accessKey.keyType,
+    }
+  if ('publicKey' in accessKey && accessKey.publicKey)
+    return {
+      accessKeyAddress: Address.fromPublicKey(
+        PublicKey.fromHex(accessKey.publicKey),
+      ),
+      keyType: accessKey.type,
+    }
+  return {
+    accessKeyAddress: accessKey.address,
+    keyType: accessKey.type,
+  }
+}
+
+export declare namespace resolveAccessKey {
+  type Parameters =
+    | Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>
+    | OneOf<
+        | {
+            /** Access key address. */
+            address: Address.Address
+            /** Key type. */
+            type: SignatureEnvelope.Type
+          }
+        | {
+            /** Access key public key. */
+            publicKey: Hex.Hex
+            /** Key type. */
+            type: SignatureEnvelope.Type
+          }
+      >
+
+  type ReturnType = {
+    accessKeyAddress: Address.Address
+    keyType: SignatureEnvelope.Type
+  }
 }
 
 // Export types required for inference.

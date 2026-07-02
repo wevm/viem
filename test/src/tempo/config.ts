@@ -25,6 +25,7 @@ import {
 } from '../../../src/index.js'
 import * as Actions from '../../../src/tempo/actions/index.js'
 import { Account, Addresses, Tick } from '../../../src/tempo/index.js'
+import { defineToken } from '../../../src/tokens/index.js'
 import { rpcUrl } from './prool.js'
 
 export const nodeEnv = import.meta.env.VITE_TEMPO_ENV || 'localnet'
@@ -64,6 +65,23 @@ export const chain = (() => {
       })
   }
 })()
+
+export const tokens = [
+  defineToken({
+    addresses: { [chain.id]: addresses.pathUsd },
+    currency: 'USD',
+    decimals: 6,
+    name: 'PathUSD',
+    symbol: 'pathUSD',
+  }),
+  defineToken({
+    addresses: { [chain.id]: addresses.alphaUsd },
+    currency: 'USD',
+    decimals: 6,
+    name: 'AlphaUSD',
+    symbol: 'alphaUSD',
+  }),
+]
 
 export function debugOptions({
   rpcUrl,
@@ -107,18 +125,18 @@ export const http = (url = rpcUrl) =>
   })
 
 export function getClient<
-  chain extends Chain | undefined = typeof tempoLocalnet,
+  chain_ extends Chain | undefined = typeof tempoLocalnet,
   accountOrAddress extends viem_Account | Address | undefined = undefined,
 >(
   parameters: Partial<
     Pick<
-      ClientConfig<Transport, chain, accountOrAddress>,
-      'account' | 'chain' | 'transport'
+      ClientConfig<Transport, chain_, accountOrAddress>,
+      'account' | 'chain' | 'tokens' | 'transport'
     >
   > = {},
 ): Client<
   Transport,
-  chain,
+  chain_,
   accountOrAddress extends Address
     ? JsonRpcAccount<accountOrAddress>
     : accountOrAddress
@@ -126,6 +144,7 @@ export function getClient<
   return createClient({
     pollingInterval: 100,
     chain,
+    tokens,
     transport: http(rpcUrl),
     ...parameters,
   }) as never
@@ -195,7 +214,7 @@ export async function setupPoolWithLiquidity(
 }
 
 export async function setupTokenPair(
-  client: Client<Transport, typeof chain, viem_Account>,
+  client: Client<Transport, typeof tempoLocalnet, viem_Account>,
 ) {
   // Create quote token
   const { token: quoteToken } = await Actions.token.createSync(client, {
@@ -214,35 +233,35 @@ export async function setupTokenPair(
 
   await sendTransactionSync(client, {
     calls: [
-      Actions.token.grantRoles.call({
+      Actions.token.grantRoles.call(client, {
         token: baseToken,
         role: 'issuer',
         to: client.account.address,
       }),
-      Actions.token.grantRoles.call({
+      Actions.token.grantRoles.call(client, {
         token: quoteToken,
         role: 'issuer',
         to: client.account.address,
       }),
-      Actions.token.mint.call({
+      Actions.token.mint.call(client, {
         token: baseToken,
         to: client.account.address,
         amount: parseUnits('10000', 6),
       }),
-      Actions.token.mint.call({
+      Actions.token.mint.call(client, {
         token: quoteToken,
         to: client.account.address,
         amount: parseUnits('10000', 6),
       }),
-      Actions.token.approve.call({
+      Actions.token.approve.call(client, {
         token: baseToken,
         spender: Addresses.stablecoinDex,
-        amount: parseUnits('10000', 6),
+        amount: { decimals: 6, formatted: '10000' },
       }),
-      Actions.token.approve.call({
+      Actions.token.approve.call(client, {
         token: quoteToken,
         spender: Addresses.stablecoinDex,
-        amount: parseUnits('10000', 6),
+        amount: { decimals: 6, formatted: '10000' },
       }),
     ],
   })
@@ -254,7 +273,7 @@ export async function setupTokenPair(
 }
 
 export async function setupOrders(
-  client: Client<Transport, typeof chain, viem_Account>,
+  client: Client<Transport, typeof tempoLocalnet, viem_Account>,
 ) {
   const { base: base1 } = await setupTokenPair(client)
   const { base: base2 } = await setupTokenPair(client)
@@ -296,7 +315,7 @@ export async function setupFeeToken(
   if (!isAddressEqual(account.address, targetAccount.address)) {
     await Actions.token.transferSync(client, {
       account,
-      amount: parseUnits('10000', 6),
+      amount: { formatted: '10000' },
       to: targetAccount.address,
       token: feeToken,
     })

@@ -25,4 +25,5 @@ export const flowPreviewnet = /*#__PURE__*/ defineChain({
       blockCreated: 6205,
     },
   },
+  testnet: true,
 })

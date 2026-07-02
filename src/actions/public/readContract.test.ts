@@ -3,6 +3,7 @@ import { describe, expect, test } from 'vitest'
 import {
   Delegation,
   ErrorsExample,
+  GH434,
   SoladyAccount07,
   SoladyAccountFactory07,
 } from '~contracts/generated.js'
@@ -25,10 +26,13 @@ import type { Hex } from '../../types/misc.js'
 import { pad } from '../../utils/data/pad.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { encodeFunctionData } from '../../utils/index.js'
+import { mine } from '../test/mine.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
+import { getBlock } from './getBlock.js'
 import { readContract } from './readContract.js'
 
 const client = anvilMainnet.getClient()
+const returnsBlockNumberBytecode = '0x4360005260206000f3'
 
 describe('wagmi', () => {
   test('default', async () => {
@@ -163,6 +167,28 @@ describe('wagmi', () => {
         blockOverrides: { time: 420n },
       }),
     ).toEqual(420n)
+  })
+
+  test('args: blockHash', async () => {
+    const address = '0x0000000000000000000000000000000000000420'
+    const block = await getBlock(client)
+    await mine(client, { blocks: 1 })
+
+    expect(
+      await readContract(client, {
+        abi: GH434.abi,
+        address,
+        blockHash: block.hash!,
+        functionName: 'baz',
+        requireCanonical: true,
+        stateOverride: [
+          {
+            address,
+            code: returnsBlockNumberBytecode,
+          },
+        ],
+      }),
+    ).toEqual(block.number)
   })
 })
 

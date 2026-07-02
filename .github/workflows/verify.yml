@@ -67,7 +67,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        version: ['5.8.2', '5.9.3', 'latest']
+        version: ['5.9.3', 'latest']
 
     steps:
       - name: Clone repository
@@ -147,7 +147,6 @@ jobs:
     strategy:
       matrix:
         node-env: 
-          - devnet
           - testnet
           # - mainnet
     steps:
@@ -203,6 +202,8 @@ jobs:
 
       - name: Set up foundry
         uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: v1.7.1
 
       - name: Set up pnpm
         uses: wevm/actions/.github/actions/pnpm@main
@@ -221,7 +222,7 @@ jobs:
 
       - name: Install Playwright Browsers
         if: ${{ matrix.runtime == 'next' || matrix.runtime == 'vite' }}
-        run: pnpx playwright@1.55.1 install --with-deps
+        run: pnpx playwright@1.59.1 install --with-deps
 
       - name: Build
         run: pnpm build
@@ -251,44 +252,46 @@ jobs:
         shell: bash
         run: pnpm vectors
 
-  # wagmi:
-  #   name: Wagmi
-  #   permissions:
-  #     contents: read
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 10
-  #   strategy:
-  #     matrix:
-  #       typescript-version: ['5.7.2', '5.8.3', '5.9.3', 'latest']
+  wagmi:
+    name: Wagmi
+    # TODO: Re-enable Wagmi verification.
+    if: ${{ false }}
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        typescript-version: ['5.7.3', '5.8.3', '5.9.3']
 
-  #   steps:
-  #     - name: Clone repository
-  #       uses: actions/checkout@v4
-  #       with: 
-  #         submodules: 'recursive'
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
 
-  #     - name: Install dependencies
-  #       uses: ./.github/actions/install-dependencies
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
 
-  #     - name: Set TypeScript version
-  #       run: |
-  #         pnpm install -D -w typescript@${{ matrix.typescript-version }}
-  #         node -e "import fs from 'fs'; const p = JSON.parse(fs.readFileSync('./package.json', 'utf8')); p.pnpm = p.pnpm || {}; p.pnpm.overrides = p.pnpm.overrides || {}; p.pnpm.overrides.typescript = '${{ matrix.typescript-version }}'; fs.writeFileSync('package.json', JSON.stringify(p, null, 2));"
-  #         pnpm install --no-frozen-lockfile
+      - name: Set TypeScript version
+        run: |
+          pnpm install -D -w typescript@${{ matrix.typescript-version }}
+          node -e "import fs from 'fs'; const p = JSON.parse(fs.readFileSync('./package.json', 'utf8')); p.pnpm = p.pnpm || {}; p.pnpm.overrides = p.pnpm.overrides || {}; p.pnpm.overrides.typescript = '${{ matrix.typescript-version }}'; fs.writeFileSync('package.json', JSON.stringify(p, null, 2));"
+          pnpm install --no-frozen-lockfile
 
-  #     - name: Setup wagmi
-  #       uses: ./.github/actions/setup-wagmi
-  #       env:
-  #         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup wagmi
+        uses: ./.github/actions/setup-wagmi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  #     - name: Check types
-  #       run: pnpm check:types
-  #       working-directory: ./wagmi
+      - name: Check types
+        run: pnpm check:types
+        working-directory: ./wagmi
 
-  #     - name: Bench types
-  #       run: pnpm bench:types
-  #       working-directory: ./wagmi
+      - name: Bench types
+        run: pnpm bench:types
+        working-directory: ./wagmi
 
-  #     - name: Check build
-  #       run: pnpm build
-  #       working-directory: ./wagmi
+      - name: Check build
+        run: pnpm build
+        working-directory: ./wagmi

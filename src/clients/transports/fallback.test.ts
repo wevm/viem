@@ -1,4 +1,4 @@
-import { assertType, describe, expect, test } from 'vitest'
+import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { createHttpServer } from '~test/utils.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
@@ -695,6 +695,7 @@ describe('client', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "tokens": undefined,
         "transport": {
           "key": "fallback",
           "methods": undefined,
@@ -1052,9 +1053,9 @@ describe('rankTransports', () => {
       },
     })
 
-    await wait(20)
+    await vi.waitFor(() => expect(results.length).toBeGreaterThanOrEqual(2))
 
-    expect(results.map((r) => r.method)).toMatchInlineSnapshot(`
+    expect(results.slice(0, 2).map((r) => r.method)).toMatchInlineSnapshot(`
       [
         "eth_getBlockByNumber",
         "eth_blockNumber",

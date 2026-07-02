@@ -1,0 +1,112 @@
+---
+description: Approve a spender and manage token allowances with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Approve Spending
+
+Grant a spender an allowance to transfer your tokens, then read or spend against it.
+
+These recipes assume you have [set up a Client](/tokens) extended with `publicActions` and
+`walletActions`.
+
+## Recipes
+
+### Approve a Spender
+
+Use [`approve`](/tokens/actions/approve) (via the `approveSync` variant) to grant a spender an
+allowance and wait for confirmation. Plain `amount` values are base units. Use
+`amount: { decimals: 6, formatted: '10.5' }` to parse a human-readable decimal string.
+When `decimals` is omitted, it is inferred from the token.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { value, formatted, receipt } = await client.token.approveSync({
+  amount: 10500000n, // 10.5 USDC
+  spender: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+// @log: {
+// @log:   value: 10500000n,
+// @log:   formatted: '10.5',
+// @log:   receipt: { status: 'success', … },
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### Read an Allowance
+
+Use [`getAllowance`](/tokens/actions/getAllowance) to read how much a spender may still spend on behalf of
+an owner.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const allowance = await client.token.getAllowance({
+  account: '0x55FE002aefF02F77364de339a1292923A15844B8',
+  spender: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+// @log: { amount: 10500000n, decimals: 6, formatted: '10.5' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### Spend an Allowance
+
+Once approved, the spender can move tokens on behalf of the owner with
+[`transfer`](/tokens/actions/transfer) by passing `from`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.transferSync({
+  amount: { decimals: 6, formatted: '10.5' },
+  from: '0x55FE002aefF02F77364de339a1292923A15844B8',
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+// @log: {
+// @log:   receipt: { status: 'success', … },
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:check-check"
+    title="approve"
+    description="Action reference for approving a spender to transfer tokens."
+    to="/tokens/actions/approve"
+  />
+  <Card
+    icon="lucide:scale"
+    title="getAllowance"
+    description="Action reference for reading a spender's remaining allowance."
+    to="/tokens/actions/getAllowance"
+  />
+</Cards>

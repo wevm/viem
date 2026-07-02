@@ -3,21 +3,22 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vocs dev",
-    "build": "NODE_OPTIONS='--max-old-space-size=16384' vocs build",
+    "dev": "pnpm -w gen:token-lookup && vocs dev",
+    "build": "pnpm -w gen:token-lookup && pnpm -w build:types && NODE_OPTIONS='--max-old-space-size=6144' vocs build",
     "twoslash": "vocs twoslash",
     "preview": "vocs preview"
   },
   "devDependencies": {
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "accounts": "^0.9.0",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-server-dom-webpack": "~19.2.3",
     "tailwindcss": "^4.1.16",
     "viem": "workspace:*",
-    "vite": "^7.1.11",
-    "vocs": "https://pkg.pr.new/wevm/vocs@59e3450",
-    "waku": "1.0.0-alpha.2"
+    "vite": "^8.0.14",
+    "vocs": "^2.2.1",
+    "waku": "^1.0.0-beta.1"
   }
 }

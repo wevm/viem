@@ -22,7 +22,7 @@ describe('request', () => {
       {
         "id": 1,
         "jsonrpc": "2.0",
-        "result": "anvil/v1.6.0",
+        "result": "anvil/v1.7.1",
       }
     `)
   })
@@ -37,7 +37,7 @@ describe('request', () => {
       {
         "id": 1,
         "jsonrpc": "2.0",
-        "result": "anvil/v1.6.0",
+        "result": "anvil/v1.7.1",
       }
     `)
   })
@@ -186,6 +186,26 @@ describe('request', () => {
       }),
     ).toBeDefined()
     expect(headers['x-wagmi']).toBeDefined()
+
+    await server.close()
+  })
+
+  test('fetchOptions: signal aborts request', async () => {
+    const server = await createHttpServer(async (_req, res) => {
+      await wait(1_000)
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+    const client = getHttpRpcClient(server.url)
+    const controller = new AbortController()
+
+    setTimeout(() => controller.abort(), 50)
+
+    await expect(
+      client.request({
+        body: { method: 'web3_clientVersion' },
+        fetchOptions: { signal: controller.signal },
+      }),
+    ).rejects.toThrowError('This operation was aborted')
 
     await server.close()
   })
@@ -361,6 +381,59 @@ describe('request', () => {
     expect(fetchOverride).toHaveBeenCalled()
   })
 
+  test('maxResponseBodySize', async () => {
+    const body = JSON.stringify({ result: '0x1' })
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Length': body.length,
+        'Content-Type': 'application/json',
+      })
+      res.end(body)
+    })
+
+    const client = getHttpRpcClient(server.url, {
+      maxResponseBodySize: body.length - 1,
+    })
+
+    await expect(() =>
+      client.request({
+        body: { method: 'web3_clientVersion' },
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ResponseBodyTooLargeError: HTTP response body exceeded the size limit.
+
+      Max: 15 bytes
+      Received: 16 bytes
+
+      Version: viem@x.y.z]
+    `)
+
+    await server.close()
+  })
+
+  test('maxResponseBodySize disabled', async () => {
+    const body = JSON.stringify({ result: '0x1' })
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Length': body.length,
+        'Content-Type': 'application/json',
+      })
+      res.end(body)
+    })
+
+    const client = getHttpRpcClient(server.url, {
+      maxResponseBodySize: false,
+    })
+
+    await expect(
+      client.request({
+        body: { method: 'web3_clientVersion' },
+      }),
+    ).resolves.toEqual({ result: '0x1' })
+
+    await server.close()
+  })
+
   // TODO: This is flaky.
   test.skip('timeout', async () => {
     const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
@@ -478,12 +551,12 @@ describe('http (batch)', () => {
         {
           "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.6.0",
+          "result": "anvil/v1.7.1",
         },
         {
           "id": 2,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.6.0",
+          "result": "anvil/v1.7.1",
         },
       ]
     `)
@@ -504,7 +577,7 @@ describe('http (batch)', () => {
         {
           "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.6.0",
+          "result": "anvil/v1.7.1",
         },
         {
           "error": {
@@ -530,7 +603,7 @@ describe('http (batch)', () => {
         {
           "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.6.0",
+          "result": "anvil/v1.7.1",
         },
         {
           "error": {

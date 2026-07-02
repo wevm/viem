@@ -1,0 +1,45 @@
+---
+description: Control who can pay you on Tempo with receive policies, validate inbound transfers, and recover blocked funds.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Receive Policies
+
+## Overview
+
+A receive policy lets an account control which senders and tokens it will accept. Inbound transfers
+that fail your policy are blocked rather than credited, and the funds can later be claimed by an
+authorized party or burned. This gives compliance-sensitive recipients control over what lands in
+their account.
+
+[See the Policy Registry specification](https://docs.tempo.xyz/protocol/tip403/overview)
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:shield-check"
+    title="Set a Receive Policy"
+    description="Choose which senders and tokens your account accepts."
+    to="/tempo/guides/receive-policies/set"
+  />
+  <Card
+    icon="lucide:scan-line"
+    title="Validate Transfers"
+    description="Check whether a transfer would be accepted before sending."
+    to="/tempo/guides/receive-policies/validate"
+  />
+  <Card
+    icon="lucide:lock"
+    title="Handle Blocked Funds"
+    description="Read, claim, or burn funds blocked by a receive policy."
+    to="/tempo/guides/receive-policies/blocked"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="receivePolicy.set"
+    description="Set the sender and token policies for an account."
+    to="/tempo/actions/receivePolicy.set"
+  />
+</Cards>

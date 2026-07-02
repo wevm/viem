@@ -1,0 +1,24 @@
+# `Storage.session`
+
+Creates a storage backed by `globalThis.sessionStorage`. Suitable for browser environments where tokens should persist for the duration of the tab session.
+
+## Usage
+
+```ts twoslash
+// @twoslash-cache: {"v":2,"hash":"10dfa70b238051984cd4fe4e23e7d9b0d17e488e4675cdb0857a8d7e75b09f3b","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIBlNdgQwDmuKnDT8OSAJxUANjDCC0+JAHYq40sIaIQvAcMohZjMLkQAGKgGN8E/tZrlEUgL4V02cwWJkjNejxrCDAxTjEDGEQePlIhGAA6fTjDUU0dABYMuQUlFUR1agltPAiUkWNTcwAmGzs4xz9EADZ3Txw8QhJyDTodEBY2DhjIozEJHQBWbONc5TUNYph+5PijEzMkWpBbe0bnAEZWj2ovTt8e6j68ADMAVzBHRhDw+DhnsAAKCCw0D7gAPzRVbCBI3UgQZgJADyv3+AEpgbF4klkakQFAINYELoAMKkGD8GhwTj8cJomCcABGDgA1jAoNSMJwAAaCWQQGmyAAq+EYcAScDeHxBMBZCTG6SQzW28kU8wKiy0y1KwpC6yqWzqeycWwybVOHV0XT8vUCumCoS4ZXiSMiqNGaQmahks3l+UKmhKuht6I25hmuwaupaBswRp83X8110n2Yy0IUHhrzQAEkaMxPvSMNExKRTIIKJwiPxZHcouT84pEZwALL8DBUmAABQhzH5MAAPEQIIwoAA+SXOxAADkKcryCyKyv6QrTGY1m0QgfqDhDB31J3D3hNlwC/UtYRLZYreYLnAAPpwwHdZLJL5wHrAblUoEPJIgDgdx3N8pMld6IDHuWi7mP+Oyrvs0phmcxoXNG5o7CEYS+hWooOuU746AcADMBw5O6U5eiqPoUqBSDgUGa5NNUFgwRGu4If0cYJtAybaOmMCZtmuZoFWgg1vWjYtm2HadmeigPjed4Pk+MAvmYA5YUguGuhOCqeks/QcQuciaoglGQSG1QjvR3jiIIRhgPw8Z4ByllOh+BzTARk6WGa/QAOTATAnnkYqEE6k0dEALo2NA3iDOwXDACM5ScK4nDgpCnDeYwXEAPQZmwnkADpgPlh7WhSnAALxxSiQpwO8ISfPC+X5fwADu/CMMV9pzpxmaedmnlFt5pblp59WPMhXA+WVpItW15L2jpXGfD1MAYMN+VGPG4hIKAfQKDVYB4GgCCuK4QA"}
+import { Storage } from 'viem/tempo'
+
+const storage = Storage.session()
+
+await storage.setItem('key', 'value')
+const value = await storage.getItem('key')
+// @log: 'value'
+```
+
+## Return Type
+
+```ts
+type ReturnType = Storage
+```
+
+A `Storage` instance backed by `sessionStorage`.

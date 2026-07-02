@@ -706,6 +706,7 @@ export type PublicRpcSchema = [
         ]
     ReturnType: {
       accessList: AccessList
+      error?: string | undefined
       gasUsed: Quantity
     }
   },
@@ -764,6 +765,7 @@ export type PublicRpcSchema = [
     Method: 'eth_fillTransaction'
     Parameters: [transaction: TransactionRequest]
     ReturnType: {
+      capabilities?: Record<string, unknown> | undefined
       raw: Hex
       tx: Transaction
     }
@@ -865,6 +867,18 @@ export type PublicRpcSchema = [
       includeTransactionObjects: boolean,
     ]
     ReturnType: Block | null
+  },
+  /**
+   * @description Returns the receipts of a block specified by block number, block tag, or block hash
+   * @link https://ethereum.github.io/execution-apis/api/methods/eth_getBlockReceipts/
+   * @example
+   * provider.request({ method: 'eth_getBlockReceipts', params: ['latest'] })
+   * // => [{ ... }, { ... }]
+   */
+  {
+    Method: 'eth_getBlockReceipts'
+    Parameters: [block: BlockNumber | BlockTag | Hash]
+    ReturnType: TransactionReceipt[] | null
   },
   /**
    * @description Returns the number of transactions in a block specified by block hash
@@ -973,7 +987,7 @@ export type PublicRpcSchema = [
       address: Address,
       /** An array of storage-keys that should be proofed and included. */
       storageKeys: Hash[],
-      block: BlockNumber | BlockTag,
+      block: BlockNumber | BlockTag | BlockIdentifier,
     ]
     ReturnType: Proof
   },
@@ -1727,6 +1741,7 @@ export type WalletRpcSchema = [
     Method: 'eth_fillTransaction'
     Parameters: [transaction: TransactionRequest]
     ReturnType: {
+      capabilities?: Record<string, unknown> | undefined
       raw: Hex
       tx: Transaction
     }
@@ -2138,6 +2153,8 @@ export type EIP1193RequestOptions = {
   retryDelay?: number | undefined
   /** The max number of times to retry. */
   retryCount?: number | undefined
+  /** Abort signal to cancel the request. */
+  signal?: AbortSignal | undefined
   /** Unique identifier for the request. */
   uid?: string | undefined
 }

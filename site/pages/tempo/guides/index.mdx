@@ -1,0 +1,71 @@
+---
+description: Task-oriented guides for building common Tempo features with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Guides
+
+Task-oriented walkthroughs for building common [Tempo](https://tempo.xyz) features with Viem.
+Each guide shows the end-to-end flow using Viem Clients and [Tempo Actions](/tempo/actions),
+and links out to the [Tempo protocol docs](https://docs.tempo.xyz) for deeper detail.
+
+New to Tempo with Viem? Start with [Getting Started](/tempo) to set up a Client, then pick a
+guide below.
+
+<Cards>
+  <Card
+    icon="lucide:wallet"
+    title="Accounts"
+    description="Create accounts from private keys, passkeys, and device-bound keys, then connect the Accounts SDK."
+    to="/tempo/guides/accounts/create"
+  />
+  <Card
+    icon="lucide:send"
+    title="Tempo Transactions"
+    description="Pay fees in stablecoins, sponsor fees, batch calls, and send concurrent or scheduled transactions."
+    to="/tempo/transactions"
+  />
+  <Card
+    icon="lucide:key-round"
+    title="Access Keys"
+    description="Delegate signing to secondary keys, authorize admin keys, manage witnesses, and verify signatures."
+    to="/tempo/guides/access-keys"
+  />
+  <Card
+    icon="lucide:arrow-left-right"
+    title="Stablecoin Exchange"
+    description="Swap stablecoins, place and manage orders, create trading pairs, and provide Fee AMM liquidity."
+    to="/tempo/guides/stablecoin-exchange"
+  />
+  <Card
+    icon="lucide:at-sign"
+    title="Virtual Addresses"
+    description="Register a master address and accept payments to unlimited virtual addresses that resolve to you."
+    to="/tempo/guides/virtual-addresses"
+  />
+  <Card
+    icon="lucide:shield-check"
+    title="Receive Policies"
+    description="Control who can pay you, validate incoming transfers, and claim or burn funds blocked by a policy."
+    to="/tempo/guides/receive-policies"
+  />
+  <Card
+    icon="lucide:radio"
+    title="Payment Channels"
+    description="Open funded channels, stream off-chain vouchers, and settle or close to move stablecoins onchain."
+    to="/tempo/guides/payment-channels"
+  />
+  <Card
+    icon="lucide:shield"
+    title="Private Zones"
+    description="Connect to a private zone, deposit funds into it, and withdraw them back to the parent Tempo chain."
+    to="/tempo/guides/zones"
+  />
+  <Card
+    icon="lucide:coins"
+    title="Tokens"
+    description="Create TIP-20 tokens, manage balances and roles, configure transfer policies, and distribute rewards."
+    to="/tempo/guides/create-token"
+  />
+</Cards>

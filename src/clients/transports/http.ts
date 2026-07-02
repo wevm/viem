@@ -42,6 +42,8 @@ export type HttpTransportConfig<
    * @link https://developer.mozilla.org/en-US/docs/Web/API/fetch
    */
   fetchOptions?: HttpRpcClientOptions['fetchOptions'] | undefined
+  /** Maximum response body size in bytes. Set to `false` to disable. @default 10_485_760 */
+  maxResponseBodySize?: HttpRpcClientOptions['maxResponseBodySize'] | undefined
   /** A callback to handle the response from `fetch`. */
   onFetchRequest?: HttpRpcClientOptions['onRequest'] | undefined
   /** A callback to handle the response from `fetch`. */
@@ -81,6 +83,17 @@ export type HttpTransportErrorType =
   | UrlRequiredErrorType
   | ErrorType
 
+let signalId = 0
+const signalIds = new WeakMap<AbortSignal, number>()
+function getSignalId(signal: AbortSignal | undefined) {
+  if (!signal) return 'default'
+  const id = signalIds.get(signal)
+  if (id !== undefined) return id
+  const nextId = signalId++
+  signalIds.set(signal, nextId)
+  return nextId
+}
+
 /**
  * @description Creates a HTTP transport that connects to a JSON-RPC API.
  */
@@ -97,6 +110,7 @@ export function http<
     fetchFn,
     fetchOptions,
     key = 'http',
+    maxResponseBodySize,
     methods,
     name = 'HTTP JSON-RPC',
     onFetchRequest,
@@ -115,6 +129,7 @@ export function http<
     const rpcClient = getHttpRpcClient(url_, {
       fetchFn,
       fetchOptions,
+      maxResponseBodySize,
       onRequest: onFetchRequest,
       onResponse: onFetchResponse,
       timeout,
@@ -125,11 +140,14 @@ export function http<
         key,
         methods,
         name,
-        async request({ method, params }) {
+        async request({ method, params }, options) {
           const body = { method, params }
+          const fetchOptions = options?.signal
+            ? { signal: options.signal }
+            : undefined
 
           const { schedule } = createBatchScheduler({
-            id: url_,
+            id: `${url_}.${getSignalId(options?.signal)}`,
             wait,
             shouldSplitBatch(requests) {
               return requests.length > batchSize
@@ -137,6 +155,7 @@ export function http<
             fn: (body: RpcRequest[]) =>
               rpcClient.request({
                 body,
+                fetchOptions,
               }),
             sort: (a, b) => a.id - b.id,
           })
@@ -147,6 +166,7 @@ export function http<
               : [
                   await rpcClient.request({
                     body,
+                    fetchOptions,
                   }),
                 ]
 

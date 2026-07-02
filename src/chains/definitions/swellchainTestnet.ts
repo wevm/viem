@@ -25,4 +25,5 @@ export const swellchainTestnet = /*#__PURE__*/ defineChain({
       blockCreated: 1,
     },
   },
+  testnet: true,
 })

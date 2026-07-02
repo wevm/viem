@@ -31,4 +31,5 @@ export const metisSepolia = /*#__PURE__*/ defineChain({
       blockCreated: 224185,
     },
   },
+  testnet: true,
 })
