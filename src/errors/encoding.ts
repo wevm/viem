@@ -66,6 +66,17 @@ export class InvalidHexValueError extends BaseError {
   }
 }
 
+export type RlpDepthLimitExceededErrorType = RlpDepthLimitExceededError & {
+  name: 'RlpDepthLimitExceededError'
+}
+export class RlpDepthLimitExceededError extends BaseError {
+  constructor({ limit }: { limit: number }) {
+    super(`RLP depth limit of \`${limit}\` exceeded.`, {
+      name: 'RlpDepthLimitExceededError',
+    })
+  }
+}
+
 export type SizeOverflowErrorType = SizeOverflowError & {
   name: 'SizeOverflowError'
 }

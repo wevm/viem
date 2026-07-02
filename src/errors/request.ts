@@ -44,6 +44,23 @@ export class HttpRequestError extends BaseError {
   }
 }
 
+export type ResponseBodyTooLargeErrorType = ResponseBodyTooLargeError & {
+  name: 'ResponseBodyTooLargeError'
+}
+export class ResponseBodyTooLargeError extends BaseError {
+  maxSize: number
+  size: number
+
+  constructor({ maxSize, size }: { maxSize: number; size: number }) {
+    super('HTTP response body exceeded the size limit.', {
+      metaMessages: [`Max: ${maxSize} bytes`, `Received: ${size} bytes`],
+      name: 'ResponseBodyTooLargeError',
+    })
+    this.maxSize = maxSize
+    this.size = size
+  }
+}
+
 export type WebSocketRequestErrorType = WebSocketRequestError & {
   name: 'WebSocketRequestError'
 }

@@ -1,6 +1,12 @@
 {
   "extends": "../tsconfig.base.json",
-  "include": ["."],
+  "include": [".", "../src"],
+  "exclude": [
+    "../src/**/*.test.ts",
+    "../src/**/*.test-d.ts",
+    "../src/**/*.bench.ts",
+    "../src/**/*.bench-d.ts"
+  ],
   "compilerOptions": {
     "composite": true,
     "noEmit": true,

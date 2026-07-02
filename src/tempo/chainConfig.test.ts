@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
 import {
@@ -14,7 +14,13 @@ import { createClient, http } from '../index.js'
 import { defineChain } from '../utils/chain/defineChain.js'
 import { hashMessage } from '../utils/index.js'
 import * as accessKeyActions from './actions/accessKey.js'
-import { Account, P256, WebCryptoP256 } from './index.js'
+import {
+  Account,
+  Addresses,
+  KeyAuthorizationManager,
+  P256,
+  WebCryptoP256,
+} from './index.js'
 
 const client = getClient({
   account: accounts.at(0)!,
@@ -141,6 +147,114 @@ describe('prepareTransactionRequest', () => {
     const request = await prepareTransactionRequest(clientWithFeeToken, {})
     expect(request.feeToken).toBe(feeToken)
   })
+
+  test('behavior: keyAuthorizationManager attaches pending key authorization', async () => {
+    const rootAccount = accounts.at(0)!
+    const keyAuthorizationManager = KeyAuthorizationManager.memory()
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: rootAccount,
+      keyAuthorizationManager,
+    })
+    const expiry = Math.floor((Date.now() + 30_000) / 1000)
+    const keyAuthorization = await accessKeyActions.signAuthorization(client, {
+      account: rootAccount,
+      accessKey,
+      expiry,
+    })
+
+    await keyAuthorizationManager.set(
+      {
+        address: accessKey.address,
+        accessKey: accessKey.accessKeyAddress,
+        chainId: client.chain.id,
+      },
+      keyAuthorization,
+    )
+
+    const request = await prepareTransactionRequest(client, {
+      account: accessKey,
+      parameters: ['chainId'],
+    })
+
+    expect(request.keyAuthorization).toBe(keyAuthorization)
+  })
+
+  test('behavior: keyAuthorizationManager reads metadata without client account', async () => {
+    const rootAccount = accounts.at(0)!
+    const keyAuthorizationManager = KeyAuthorizationManager.memory()
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: rootAccount,
+      keyAuthorizationManager,
+    })
+    const accessKeyClient = getClient({
+      account: accessKey,
+    })
+    const expiry = Math.floor((Date.now() + 30_000) / 1000)
+    const keyAuthorization = await accessKeyActions.signAuthorization(client, {
+      account: rootAccount,
+      accessKey,
+      expiry,
+    })
+
+    await keyAuthorizationManager.set(
+      {
+        address: accessKey.address,
+        accessKey: accessKey.accessKeyAddress,
+        chainId: accessKeyClient.chain.id,
+      },
+      keyAuthorization,
+    )
+
+    const requestSpy = vi.spyOn(accessKeyClient, 'request')
+    const request = await prepareTransactionRequest(accessKeyClient, {
+      parameters: ['chainId'],
+    })
+    const requestCalls = requestSpy.mock.calls as [
+      { method: string; params?: readonly unknown[] },
+    ][]
+    const metadataCall = requestCalls.find(([request]) => {
+      if (request.method !== 'eth_call') return false
+      const call = request.params?.[0] as { to?: string } | undefined
+      return call?.to?.toLowerCase() === Addresses.accountKeychain.toLowerCase()
+    })
+    const call = metadataCall?.[0].params?.[0] as
+      | { from?: string | undefined }
+      | undefined
+
+    expect(request.keyAuthorization).toBe(keyAuthorization)
+    expect(call?.from).toBeUndefined()
+  })
+
+  test('behavior: keyAuthorizationManager removes authorization for authorized key', async () => {
+    const rootAccount = accounts.at(0)!
+    const keyAuthorizationManager = KeyAuthorizationManager.memory()
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: rootAccount,
+      keyAuthorizationManager,
+    })
+    const expiry = Math.floor((Date.now() + 30_000) / 1000)
+    const key = {
+      address: accessKey.address,
+      accessKey: accessKey.accessKeyAddress,
+      chainId: client.chain.id,
+    }
+    const keyAuthorization = await accessKeyActions.signAuthorization(client, {
+      account: rootAccount,
+      accessKey,
+      expiry,
+    })
+
+    await accessKeyActions.authorizeSync(client, { accessKey, expiry })
+    await keyAuthorizationManager.set(key, keyAuthorization)
+
+    const request = await prepareTransactionRequest(client, {
+      account: accessKey,
+      parameters: ['chainId'],
+    })
+
+    expect(request.keyAuthorization).toBeUndefined()
+    expect(await keyAuthorizationManager.get(key)).toBeUndefined()
+  })
 })
 
 describe('formatters', () => {
@@ -153,6 +267,7 @@ describe('formatters', () => {
       hash: receipt.transactionHash,
     })
     expect(transaction.hash).toBe(receipt.transactionHash)
+    expect(transaction.blockTimestamp).toBeTypeOf('bigint')
     expect(transaction.type).toBe('tempo')
     expect(transaction.calls).toBeDefined()
     expect(transaction.signature).toBeDefined()
@@ -387,6 +502,30 @@ describe('verifyHash', () => {
     ).toBe(true)
   })
 
+  test('accessKey: secp256k1 valid signature', async () => {
+    const rootAccount = accounts.at(0)!
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: rootAccount,
+    })
+
+    await accessKeyActions.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    const hash = hashMessage('hello world')
+    const signature = await accessKey.sign({ hash })
+
+    expect(
+      await verifyHash(client, {
+        address: accessKey.address,
+        hash,
+        signature,
+        mode: 'allowAccessKey',
+      }),
+    ).toBe(true)
+  })
+
   test('accessKey: invalid signature returns false', async () => {
     const rootAccount = accounts.at(0)!
     const accessKey = Account.fromP256(generatePrivateKey(), {
@@ -459,7 +598,7 @@ describe('verifyHash', () => {
   test('behavior: non-tempo chain (client)', async () => {
     const client = createClient({
       chain: mainnet,
-      transport: http(),
+      transport: http('https://eth.drpc.org'),
     })
 
     const privateKey = P256.randomPrivateKey()

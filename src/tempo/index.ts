@@ -1,3 +1,5 @@
+// biome-ignore lint/performance/noBarrelFile: entrypoint module
+export { Bytes, PublicKey, Secp256k1 } from 'ox'
 // Export types required for inference.
 export type {
   /** @deprecated */
@@ -9,21 +11,68 @@ export type {
   /** @deprecated */
   TxEnvelopeTempo as z_TxEnvelopeTempo,
 } from 'ox/tempo'
-// biome-ignore lint/performance/noBarrelFile: _
-export { TempoAddress, Tick, TokenId } from 'ox/tempo'
+export {
+  Channel,
+  MultisigConfig,
+  Period,
+  ReceivePolicyReceipt,
+  TempoAddress,
+  Tick,
+  TokenId,
+  VirtualAddress,
+  VirtualMaster,
+} from 'ox/tempo'
+export {
+  type CustomTransport,
+  type CustomTransportConfig,
+  type CustomTransportErrorType,
+  custom,
+} from '../clients/transports/custom.js'
+export {
+  type FallbackTransport,
+  type FallbackTransportConfig,
+  type FallbackTransportErrorType,
+  fallback,
+} from '../clients/transports/fallback.js'
+export {
+  type HttpTransport,
+  type HttpTransportConfig,
+  type HttpTransportErrorType,
+  http,
+} from '../clients/transports/http.js'
+export {
+  type WebSocketTransport,
+  type WebSocketTransportConfig,
+  type WebSocketTransportErrorType,
+  webSocket,
+} from '../clients/transports/webSocket.js'
 export * as Abis from './Abis.js'
 export * as Account from './Account.js'
 export * as Addresses from './Addresses.js'
 export * as Actions from './actions/index.js'
 export * as Capabilities from './Capabilities.js'
+export * as Chain from './Chain.js'
+export {
+  type Client,
+  type ClientConfig,
+  type CreateClientErrorType,
+  createClient,
+} from './Client.js'
 export {
   type Decorator as TempoActions,
   decorator as tempoActions,
 } from './Decorator.js'
+export * as Expiry from './Expiry.js'
+export * from './errors.js'
 export * as Formatters from './Formatters.js'
 export * as Hardfork from './Hardfork.js'
+export * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
 export * as P256 from './P256.js'
-export * as Secp256k1 from './Secp256k1.js'
+/** @experimental */
+export * as Scopes from './Scopes.js'
+/** @experimental */
+export * as Selectors from './Selectors.js'
+export * as Storage from './Storage.js'
 export * as TokenIds from './TokenIds.js'
 // Export types required for inference.
 export type {
@@ -56,6 +105,6 @@ export type {
 } from './Transaction.js'
 export * as Transaction from './Transaction.js'
 export * as Transport from './Transport.js'
-export { walletNamespaceCompat, withFeePayer } from './Transport.js'
+export { walletNamespaceCompat, withFeePayer, withRelay } from './Transport.js'
 export * as WebAuthnP256 from './WebAuthnP256.js'
 export * as WebCryptoP256 from './WebCryptoP256.js'

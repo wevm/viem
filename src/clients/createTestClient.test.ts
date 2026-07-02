@@ -90,6 +90,7 @@ test('creates', () => {
       "setStorageAt": [Function],
       "snapshot": [Function],
       "stopImpersonatingAccount": [Function],
+      "tokens": undefined,
       "transport": {
         "key": "mock",
         "methods": undefined,
@@ -177,6 +178,7 @@ describe('transports', () => {
         "setStorageAt": [Function],
         "snapshot": [Function],
         "stopImpersonatingAccount": [Function],
+        "tokens": undefined,
         "transport": {
           "fetchOptions": undefined,
           "key": "http",
@@ -265,6 +267,7 @@ describe('transports', () => {
         "setStorageAt": [Function],
         "snapshot": [Function],
         "stopImpersonatingAccount": [Function],
+        "tokens": undefined,
         "transport": {
           "getRpcClient": [Function],
           "getSocket": [Function],
@@ -346,6 +349,7 @@ test('extend', () => {
       "getBlobBaseFee": [Function],
       "getBlock": [Function],
       "getBlockNumber": [Function],
+      "getBlockReceipts": [Function],
       "getBlockTransactionCount": [Function],
       "getBytecode": [Function],
       "getCallsStatus": [Function],
@@ -426,6 +430,17 @@ test('extend', () => {
       "snapshot": [Function],
       "stopImpersonatingAccount": [Function],
       "switchChain": [Function],
+      "token": {
+        "approve": [Function],
+        "approveSync": [Function],
+        "getAllowance": [Function],
+        "getBalance": [Function],
+        "getMetadata": [Function],
+        "getTotalSupply": [Function],
+        "transfer": [Function],
+        "transferSync": [Function],
+      },
+      "tokens": undefined,
       "transport": {
         "fetchOptions": undefined,
         "key": "http",

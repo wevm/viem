@@ -1,0 +1,186 @@
+---
+description: Set up Viem token utilities.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Getting Started
+
+## Overview
+
+Viem provides type-safe, chain-aware utilities for interacting with tokens. Tokens are declared
+on the Client (via the `tokens` property), and exposed through a single `token` namespace on the
+Client.
+
+Each Action selects its token either by `token` symbol (resolved to its token address and
+`decimals` from the Client) or by an explicit token address, so you can call Actions like
+[`transfer`](/tokens/actions/transfer) and [`getBalance`](/tokens/actions/getBalance) without looking
+up an address or decimals.
+
+## Setup
+
+Setup token Actions for Viem by following the steps below.
+
+::::steps
+
+### Install
+
+To use token Actions, ensure that you have Viem installed.
+
+:::code-group
+
+```bash [npm]
+npm i viem
+```
+
+```bash [pnpm]
+pnpm i viem
+```
+
+```bash [bun]
+bun i viem
+```
+
+:::
+
+### Configure
+
+Next, we will configure a Viem Client. Token **read** Actions (like `getBalance`) are available on a
+[Public Client](/docs/clients/public) via `createPublicClient`, and token **write** Actions (like
+`transfer`) on a [Wallet Client](/docs/clients/wallet) via `createWalletClient`.
+
+:::code-group
+
+```ts twoslash [Public Client]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+export const client = createPublicClient({
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+})
+```
+
+```ts twoslash [Wallet Client]
+import { createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+export const client = createWalletClient({
+  account: privateKeyToAccount('0x...'),
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+})
+```
+
+:::
+
+:::tip
+Instead of listing tokens one by one, pass a curated **token set** from the `tokens` object, like
+`tokens.tempo` (every token on Tempo chains). See [Token Sets](/tokens/tokens#token-sets) for more.
+
+```ts twoslash
+import { createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { mainnet } from 'viem/chains'
+import { tokens } from 'viem/tokens' // [!code focus]
+
+export const client = createWalletClient({
+  account: privateKeyToAccount('0x...'),
+  chain: mainnet,
+  tokens: tokens.all, // [!code focus]
+  transport: http(),
+})
+```
+:::
+
+:::tip
+To use both read and write Token Actions on a single Client, extend a Client with both
+[Public Actions](/docs/actions/public/introduction) and
+[Wallet Actions](/docs/actions/wallet/introduction):
+
+```ts twoslash
+import { createClient, http, publicActions, walletActions } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+// ---cut---
+const client = createClient({
+  account: privateKeyToAccount('0x...'),
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+})
+  .extend(publicActions)
+  .extend(walletActions)
+```
+:::
+
+### Use Token Actions
+
+Now that you have a Client set up, you can interact with tokens.
+
+```ts twoslash
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+const client = createPublicClient({
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+})
+// ---cut---
+const balance = await client.token.getBalance({
+  account: '0x55FE002aefF02F77364de339a1292923A15844B8',
+  token: 'usdc',
+})
+// @log: {
+// @log:   amount: 1234560000n,
+// @log:   decimals: 6,
+// @log:   formatted: '1234.56',
+// @log: }
+```
+
+:::info
+Symbol selectors like `token: 'usdc'` are only available when the token exists
+on the Client's `tokens` array. See [Defining Tokens](/tokens/guides/defining-tokens) for
+how to define reusable tokens and attach them to a Client. If the symbol is not
+declared, pass the token address instead:
+
+```ts twoslash
+const balance = await client.token.getBalance({
+  account: '0x55FE002aefF02F77364de339a1292923A15844B8',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+:::
+
+::::
+
+## Next Steps
+
+<Cards>
+  <Card
+    icon="lucide:coins"
+    title="Tokens"
+    description="Learn how token selection and decimals resolution works."
+    to="/tokens/tokens"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Guides"
+    description="Follow task-oriented walkthroughs for common token flows."
+    to="/tokens/guides"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="Actions"
+    description="Browse the full Token Actions reference."
+    to="/tokens/actions"
+  />
+</Cards>

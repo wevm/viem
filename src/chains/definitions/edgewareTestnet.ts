@@ -18,4 +18,5 @@ export const edgewareTestnet = /*#__PURE__*/ defineChain({
       apiUrl: 'https://testnet.edgscan.live/api',
     },
   },
+  testnet: true,
 })

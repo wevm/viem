@@ -6,7 +6,9 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
+
+permissions: {} # each job should declare only the permissions it needs
 
 jobs:
   verify:
@@ -14,19 +16,21 @@ jobs:
     uses: ./.github/workflows/verify.yml
     secrets: inherit
     permissions:
-      contents: read
+      contents: read # checkout repository contents in the reusable workflow
 
   changesets:
     name: Create version pull request
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    outputs:
+      hasChangesets: ${{ steps.changesets.outputs.hasChangesets }}
     permissions:
-      contents: write
-      pull-requests: write 
+      contents: write # commit version/changelog updates to the release pull request
+      pull-requests: write # create or update the Changesets release pull request
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
           fetch-depth: 0
@@ -34,9 +38,12 @@ jobs:
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
+        with:
+          skip-cache: true # avoid cache poisoning attacks
 
       - name: Create Version Pull Request
-        uses: changesets/action@v1
+        id: changesets
+        uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc
         with:
           commit: 'chore: version package'
           title: 'chore: version package'
@@ -46,58 +53,42 @@ jobs:
 
   release:
     name: Release
-    needs: verify
+    if: needs.changesets.outputs.hasChangesets == 'false'
+    needs: [verify, changesets]
     runs-on: ubuntu-latest
+    # TODO: Add `environment: npm` after configuring the npm environment with required reviewers.
     timeout-minutes: 5
+    outputs:
+      published: ${{ steps.changesets.outputs.published }}
     permissions:
-      contents: write
-      id-token: write
-      pull-requests: write
+      contents: write # create GitHub releases and tags after npm publish
+      id-token: write # authenticate to npm via trusted publishing
 
     steps:
       - name: Clone repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with: 
+        with:
           submodules: 'recursive'
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
+        with:
+          skip-cache: true # avoid cache poisoning attacks
 
       - name: Publish to NPM
+        id: changesets
         uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc
         with:
-          createGithubReleases: ${{ github.ref == 'refs/heads/main' }}
+          createGithubReleases: true
           publish: pnpm changeset:publish
-          version: pnpm changeset:version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  jsr:
-    name: JSR
-    needs: verify
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-      id-token: write
-
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with: 
-          submodules: 'recursive'
-
-      - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
-
-      - name: Publish to JSR
-        run: pnpm version:update && cd src && pnpx jsr publish --allow-slow-types --allow-dirty
-
   docs:
     name: Deploy Docs
-    needs: changesets
+    needs: [verify, changesets, release]
+    if: always() && needs.verify.result == 'success' && needs.changesets.result == 'success' && (needs.release.result == 'success' || needs.release.result == 'skipped')
     uses: ./.github/workflows/deploy-docs.yml
     secrets: inherit
     permissions:
-      contents: read
-    if: needs.changesets.outputs.published == 'true'
+      contents: read # checkout repository contents in the reusable workflow

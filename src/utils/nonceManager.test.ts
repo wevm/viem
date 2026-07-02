@@ -6,8 +6,12 @@ import {
   dropTransaction,
   getTransaction,
   sendTransaction,
+  sendTransactionSync,
   setBalance,
 } from '../actions/index.js'
+import { mainnet } from '../chains/index.js'
+import { createWalletClient } from '../clients/createWalletClient.js'
+import { custom } from '../clients/transports/custom.js'
 import { createNonceManager, jsonRpc, nonceManager } from './nonceManager.js'
 import { parseEther } from './unit/parseEther.js'
 
@@ -178,6 +182,108 @@ test('nonceManager export', async () => {
       13,
     ]
   `)
+})
+
+test('reset clears consumed nonce cache', async () => {
+  const nonceManager = createNonceManager({
+    source: {
+      get: () => 1,
+      set: () => {},
+    },
+  })
+
+  expect(await nonceManager.consume(mainnetArgs)).toBe(1)
+
+  nonceManager.reset(mainnetArgs)
+
+  expect(await nonceManager.consume(mainnetArgs)).toBe(1)
+})
+
+test('get preserves consumed nonce cache', async () => {
+  const nonceManager = createNonceManager({
+    source: {
+      get: () => 1,
+      set: () => {},
+    },
+  })
+
+  expect(await nonceManager.consume(mainnetArgs)).toBe(1)
+  expect(await nonceManager.get(mainnetArgs)).toBe(2)
+  expect(await nonceManager.consume(mainnetArgs)).toBe(2)
+})
+
+test('failed sendTransaction resets consumed nonce', async () => {
+  const nonceManager = createNonceManager({
+    source: jsonRpc(),
+  })
+  const account = privateKeyToAccount(privateKey, { nonceManager })
+  const client = createWalletClient({
+    chain: mainnet,
+    transport: custom({
+      async request({ method }) {
+        if (method === 'eth_getTransactionCount') return '0x1'
+        if (method === 'eth_sendRawTransaction')
+          throw new Error('rate limit exceeded')
+        return '0x0'
+      },
+    }),
+  })
+
+  await expect(
+    sendTransaction(client, {
+      account,
+      gas: 21_000n,
+      maxFeePerGas: 1n,
+      maxPriorityFeePerGas: 1n,
+      to: account.address,
+      value: 1n,
+    }),
+  ).rejects.toThrow()
+
+  expect(
+    await nonceManager.consume({
+      address: account.address,
+      chainId: mainnet.id,
+      client,
+    }),
+  ).toBe(1)
+})
+
+test('failed sendTransactionSync resets consumed nonce', async () => {
+  const nonceManager = createNonceManager({
+    source: jsonRpc(),
+  })
+  const account = privateKeyToAccount(privateKey, { nonceManager })
+  const client = createWalletClient({
+    chain: mainnet,
+    transport: custom({
+      async request({ method }) {
+        if (method === 'eth_getTransactionCount') return '0x1'
+        if (method === 'eth_sendRawTransactionSync')
+          throw new Error('rate limit exceeded')
+        return '0x0'
+      },
+    }),
+  })
+
+  await expect(
+    sendTransactionSync(client, {
+      account,
+      gas: 21_000n,
+      maxFeePerGas: 1n,
+      maxPriorityFeePerGas: 1n,
+      to: account.address,
+      value: 1n,
+    }),
+  ).rejects.toThrow()
+
+  expect(
+    await nonceManager.consume({
+      address: account.address,
+      chainId: mainnet.id,
+      client,
+    }),
+  ).toBe(1)
 })
 
 test('dropped tx', async () => {

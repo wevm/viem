@@ -48,7 +48,7 @@ import { defineCall } from '../internal/utils.js'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -120,7 +120,7 @@ export namespace claim {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -171,7 +171,7 @@ export namespace claim {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -235,7 +235,7 @@ export namespace claimSync {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -279,7 +279,7 @@ export async function distribute<
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -363,7 +363,7 @@ export namespace distribute {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -437,7 +437,7 @@ export declare namespace distributeSync {
  * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -503,7 +503,7 @@ export namespace getGlobalRewardPerToken {
  * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -576,7 +576,7 @@ export namespace getPendingRewards {
  * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -654,7 +654,7 @@ export namespace getUserRewardInfo {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -699,7 +699,7 @@ export async function setRecipient<
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -783,7 +783,7 @@ export namespace setRecipient {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -854,7 +854,7 @@ export declare namespace setRecipientSync {
  * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -928,7 +928,7 @@ export declare namespace watchRewardDistributed {
  * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *

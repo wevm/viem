@@ -17,4 +17,5 @@ export const meterTestnet = /*#__PURE__*/ defineChain({
       url: 'https://scan-warringstakes.meter.io',
     },
   },
+  testnet: true,
 })

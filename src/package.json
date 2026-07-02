@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "2.47.10",
+  "version": "2.54.1",
   "type": "module",
   "main": "./_cjs/index.js",
   "module": "./_esm/index.js",
@@ -16,8 +16,7 @@
     "!**/*.test.ts.snap",
     "!**/*.test-d.ts",
     "!**/*.tsbuildinfo",
-    "!tsconfig.build.json",
-    "!jsr.json"
+    "!tsconfig.build.json"
   ],
   "exports": {
     ".": {
@@ -125,6 +124,21 @@
       "import": "./_esm/tempo/actions/index.js",
       "default": "./_cjs/tempo/actions/index.js"
     },
+    "./tempo/chains": {
+      "types": "./_types/tempo/chains/index.d.ts",
+      "import": "./_esm/tempo/chains/index.js",
+      "default": "./_cjs/tempo/chains/index.js"
+    },
+    "./tempo/zones": {
+      "types": "./_types/tempo/zones/index.d.ts",
+      "import": "./_esm/tempo/zones/index.js",
+      "default": "./_cjs/tempo/zones/index.js"
+    },
+    "./tokens": {
+      "types": "./_types/tokens/index.d.ts",
+      "import": "./_esm/tokens/index.js",
+      "default": "./_cjs/tokens/index.js"
+    },
     "./utils": {
       "types": "./_types/utils/index.d.ts",
       "import": "./_esm/utils/index.js",
@@ -192,6 +206,9 @@
       "tempo/actions": [
         "./_types/tempo/actions/index.d.ts"
       ],
+      "tempo/chains": [
+        "./_types/tempo/chains/index.d.ts"
+      ],
       "utils": [
         "./_types/utils/index.d.ts"
       ],
@@ -218,8 +235,8 @@
     "@scure/bip39": "1.6.0",
     "abitype": "1.2.3",
     "isows": "1.0.7",
-    "ox": "0.14.7",
-    "ws": "8.18.3"
+    "ox": "0.14.29",
+    "ws": "8.20.1"
   },
   "license": "MIT",
   "homepage": "https://viem.sh",

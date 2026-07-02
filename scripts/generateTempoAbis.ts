@@ -1,21 +1,29 @@
 import * as Fs from 'node:fs'
 import * as Path from 'node:path'
 import * as Abi from 'ox/Abi'
+import * as AbiFunction from 'ox/AbiFunction'
+import * as AbiItem from 'ox/AbiItem'
 
 const extensions: Record<string, string[]> = {
   ITIP20: ['IRolesAuth'],
 }
 
 const out = Path.resolve(import.meta.dirname, '../src/tempo/Abis.ts')
+const selectorsOut = Path.resolve(
+  import.meta.dirname,
+  '../src/tempo/Selectors.ts',
+)
 const precompilesDir = Path.resolve(
   import.meta.dirname,
   '../test/tempo/crates/contracts/src/precompiles',
 )
 
+const compareStrings = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0)
+
 // Read all .rs files from the precompiles directory
-const files = Fs.readdirSync(precompilesDir).filter(
-  (file) => file.endsWith('.rs') && file !== 'mod.rs',
-)
+const files = Fs.readdirSync(precompilesDir)
+  .filter((file) => file.endsWith('.rs') && file !== 'mod.rs')
+  .sort()
 
 // Aggregate content from all precompile files
 const content = files
@@ -25,6 +33,11 @@ const content = files
 interface InterfaceDefinition {
   name: string
   items: string[]
+}
+
+interface ProcessedInterface {
+  exportName: string
+  abi: ReturnType<typeof Abi.from>
 }
 
 const interfaces = new Map<string, InterfaceDefinition>()
@@ -81,16 +94,14 @@ for (const solMatch of content.matchAll(solBlockRegex)) {
       const [fullMatch, structName, structBody] = structMatch
       if (!structName || !structBody) continue
 
-      // Parse struct fields
+      // Parse struct fields. Strip comment lines before splitting on `;` so
+      // that semicolons inside doc comments aren't treated as field separators.
       const fields = structBody
+        .split('\n')
+        .filter((line) => !line.trim().startsWith('///'))
+        .join('\n')
         .split(';')
-        .map((f) =>
-          f
-            .split('\n')
-            .filter((line) => !line.trim().startsWith('///'))
-            .join(' ')
-            .trim(),
-        )
+        .map((f) => f.replace(/\s+/g, ' ').trim())
         .filter(Boolean)
 
       if (fields.length > 0) {
@@ -172,6 +183,7 @@ Fs.writeFileSync(
 
 // Generate ABIs for all interfaces
 const processedInterfaces = new Set<string>()
+const processedInterfaceData: ProcessedInterface[] = []
 
 for (const [interfaceName, interfaceData] of interfaces.entries()) {
   // Skip if this interface is only used as an extension (not exported standalone)
@@ -226,14 +238,109 @@ for (const [interfaceName, interfaceData] of interfaces.entries()) {
     return item.replace('external bool', 'external returns (bool)')
   })
 
-  console.log(items)
+  const abi = Abi.from(items)
 
   Fs.appendFileSync(
     out,
-    `export const ${exportName} = ${JSON.stringify(Abi.from(items))} as const\n\n`,
+    `export const ${exportName} = ${JSON.stringify(abi)} as const\n\n`,
   )
 
   processedInterfaces.add(interfaceName)
+  processedInterfaceData.push({ exportName, abi })
+}
+
+// Generate concatenated `abis` export
+const exportNames: string[] = []
+for (const [interfaceName] of interfaces.entries()) {
+  const isUsedAsExtension = Object.values(extensions)
+    .flat()
+    .includes(interfaceName)
+  const isExtendedItself = interfaceName in extensions
+  if (isUsedAsExtension && !isExtendedItself) continue
+  if (!processedInterfaces.has(interfaceName)) continue
+
+  let cleanName = interfaceName.startsWith('I')
+    ? interfaceName.slice(1)
+    : interfaceName
+  if (cleanName.startsWith('TIP') && cleanName.length > 3) {
+    const charAfterTip = cleanName.charAt(3)
+    if (charAfterTip >= 'A' && charAfterTip <= 'Z')
+      cleanName = cleanName.slice(3)
+  }
+  const exportName = cleanName
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .toLowerCase()
+    .split(/[_\-. \s]+/)
+    .map((w, i) => (i ? w[0]!.toUpperCase() + w.slice(1) : w))
+    .join('')
+  exportNames.push(exportName)
+}
+
+Fs.appendFileSync(
+  out,
+  `export const abis = [\n${exportNames.map((n) => `  ...${n},`).join('\n')}\n] as const\n`,
+)
+
+try {
+  Fs.rmSync(selectorsOut)
+} catch {}
+
+Fs.writeFileSync(
+  selectorsOut,
+  "// Generated with `pnpm gen:abis`. Do not modify manually.\n\nimport type { Abi, ExtractAbiFunctionNames } from 'abitype'\nimport type { Hex } from '../types/misc.js'\nimport type * as Abis from './Abis.js'\n\n",
+)
+Fs.appendFileSync(
+  selectorsOut,
+  'type FunctionSelectors<\n  abi extends Abi,\n  excluded extends string = never,\n> = {\n  readonly [name in Exclude<ExtractAbiFunctionNames<abi>, excluded>]: Hex\n}\n\n',
+)
+Fs.appendFileSync(
+  selectorsOut,
+  'type OverloadedFunctionSelectors<names extends string> = {\n  readonly [name in names]: Record<string, Hex>\n}\n\n',
+)
+
+for (const { exportName, abi } of processedInterfaceData) {
+  const functions = abi
+    .filter((item) => item.type === 'function')
+    .sort(
+      (a, b) =>
+        compareStrings(a.name, b.name) ||
+        compareStrings(AbiItem.getSignature(a), AbiItem.getSignature(b)),
+    )
+  if (functions.length === 0) continue
+
+  const functionNames = functions.map((item) => item.name)
+  const overloadedNames = Array.from(
+    new Set(
+      functionNames.filter(
+        (name, index) => functionNames.indexOf(name) !== index,
+      ),
+    ),
+  ).sort(compareStrings)
+
+  const selectors: Record<string, string | Record<string, string>> = {}
+  for (const item of functions) {
+    const selector = AbiFunction.getSelector(item)
+    if (overloadedNames.includes(item.name)) {
+      selectors[item.name] ??= {}
+      const overloadedSelectors = selectors[item.name] as Record<string, string>
+      overloadedSelectors[AbiItem.getSignature(item)] = selector
+      continue
+    }
+    selectors[item.name] = selector
+  }
+
+  const overloadedNameType = overloadedNames
+    .map((name) => `'${name}'`)
+    .join(' | ')
+  const selectorType =
+    overloadedNames.length > 0
+      ? `FunctionSelectors<typeof Abis.${exportName}, ${overloadedNameType}> & OverloadedFunctionSelectors<${overloadedNameType}>`
+      : `FunctionSelectors<typeof Abis.${exportName}>`
+
+  Fs.appendFileSync(
+    selectorsOut,
+    `export const ${exportName} = ${JSON.stringify(selectors, null, 2)} as const satisfies ${selectorType}\n\n`,
+  )
 }
 
 console.log(

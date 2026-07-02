@@ -23,4 +23,5 @@ export const tempoDevnet = /*#__PURE__*/ defineChain({
       webSocket: ['wss://rpc.devnet.tempoxyz.dev'],
     },
   },
+  testnet: true,
 })

@@ -9,13 +9,12 @@ Transfers TIP-20 tokens from the caller to a recipient.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseUnits } from 'viem'
 import { client } from './viem.config'
 
 const { receipt } = await client.token.transferSync({
-  amount: parseUnits('10.5', 6),
+  amount: { formatted: '10.5' },
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: '0x20c0000000000000000000000000000000000000',
+  token: 'pathusd',
 })
 
 console.log('Transaction hash:', receipt.transactionHash)
@@ -28,21 +27,64 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 :::
 
+### By Token Address
+
+When passing a token address, include `amount.decimals` so the formatted amount can be parsed.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.transferSync({
+  amount: { decimals: 6, formatted: '10.5' },
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Base Amounts
+
+Pass a `bigint` to use the token's base unit amount directly.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.transferSync({
+  amount: 10500000n,
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'pathusd',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ### Asynchronous Usage
 
-The example above uses a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+The examples above use a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
 
 If you are optimizing for performance, you should use the non-sync `token.transfer` action and wait for inclusion manually:
 
 ```ts twoslash
 import { Actions } from 'viem/tempo'
-import { parseUnits } from 'viem'
 import { client } from './viem.config'
 
 const hash = await client.token.transfer({
-  amount: parseUnits('10.5', 6),
+  amount: { formatted: '10.5' },
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: '0x20c0000000000000000000000000000000000000',
+  token: 'pathusd',
 })
 const receipt = await client.waitForTransactionReceipt({ hash })
 
@@ -54,13 +96,17 @@ const { args }
 
 ```ts
 type ReturnType = {
-  /** Amount of tokens transferred */
+  /** Amount of tokens transferred, in base units. */
   amount: bigint
-  /** Address tokens were transferred from */
+  /** Token decimals used to derive `formatted`, if known. */
+  decimals?: number | undefined
+  /** Address tokens were transferred from. */
   from: Address
-  /** Transaction receipt */
+  /** Transferred amount formatted with the token's `decimals`, if known. */
+  formatted?: string | undefined
+  /** Transaction receipt. */
   receipt: TransactionReceipt
-  /** Address tokens were transferred to */
+  /** Address tokens were transferred to. */
   to: Address
 }
 ```
@@ -69,9 +115,11 @@ type ReturnType = {
 
 ### amount
 
-- **Type:** `bigint`
+- **Type:** `bigint | { decimals?: number, formatted: string }`
 
-Amount of tokens to transfer.
+Amount to transfer in base units. Use `{ formatted: '10.5' }` to parse a human-readable
+decimal string for a chain-declared token, or include `amount.decimals` when using a
+token address.
 
 ### to
 
@@ -81,9 +129,10 @@ Address to transfer tokens to.
 
 ### token
 
-- **Type:** `Address | bigint`
+- **Type:** `string`
 
-Address or ID of the TIP-20 token.
+Token to operate on: a [chain-declared](/tokens/tokens#token-lookup) token name (resolving
+its `address` and `decimals`), a TIP-20 token id, or a token address.
 
 ### memo (optional)
 
@@ -98,4 +147,3 @@ Optional memo to attach to the transfer event.
 Address to transfer tokens from. When specified, transfers tokens from the given address (requires prior approval). Defaults to the caller's address.
 
 <WriteParameters />
-

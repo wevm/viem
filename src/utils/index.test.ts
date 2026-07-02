@@ -44,6 +44,7 @@ test('exports utils', () => {
       "offchainLookup",
       "offchainLookupAbiItem",
       "offchainLookupSignature",
+      "ccipReadTunnel",
       "assertCurrentChain",
       "defineChain",
       "extractChain",

@@ -49,6 +49,10 @@ export type WaitToProveParameters<
      * @default 100
      */
     gameLimit?: number | undefined
+    /**
+     * L2 timestamp of the withdrawal. Required for super-root dispute games.
+     */
+    l2Timestamp?: bigint | undefined
     receipt: TransactionReceipt
     /**
      * Polling frequency (in ms). Defaults to Client's pollingInterval config.
@@ -105,7 +109,7 @@ export async function waitToProve<
   client: Client<Transport, chain, account>,
   parameters: WaitToProveParameters<chain, chainOverride>,
 ): Promise<WaitToProveReturnType> {
-  const { gameLimit, receipt } = parameters
+  const { gameLimit, l2Timestamp, receipt } = parameters
 
   const [withdrawal] = getWithdrawals(receipt)
 
@@ -123,7 +127,7 @@ export async function waitToProve<
   if (portalVersion.major < 3) {
     const output = await waitForNextL2Output(client, {
       ...parameters,
-      l2BlockNumber: receipt.blockNumber,
+      l2BlockNumber: l2Timestamp ?? receipt.blockNumber,
     } as WaitForNextL2OutputParameters)
     return {
       game: {
@@ -133,6 +137,7 @@ export async function waitToProve<
         metadata: '0x',
         rootClaim: output.outputRoot,
         timestamp: output.timestamp,
+        usesSuperRoots: false,
       },
       output,
       withdrawal,
@@ -142,7 +147,7 @@ export async function waitToProve<
   const game = await waitForNextGame(client, {
     ...parameters,
     limit: gameLimit,
-    l2BlockNumber: receipt.blockNumber,
+    l2BlockNumber: l2Timestamp ?? receipt.blockNumber,
   } as WaitForNextGameParameters)
   return {
     game,

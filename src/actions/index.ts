@@ -117,6 +117,12 @@ export {
   getBlockNumber,
 } from './public/getBlockNumber.js'
 export {
+  type GetBlockReceiptsErrorType,
+  type GetBlockReceiptsParameters,
+  type GetBlockReceiptsReturnType,
+  getBlockReceipts,
+} from './public/getBlockReceipts.js'
+export {
   type GetBlockTransactionCountErrorType,
   type GetBlockTransactionCountParameters,
   type GetBlockTransactionCountReturnType,
@@ -468,6 +474,7 @@ export {
   type StopImpersonatingAccountParameters,
   stopImpersonatingAccount,
 } from './test/stopImpersonatingAccount.js'
+export * as token from './token/index.js'
 export {
   type AddChainErrorType,
   type AddChainParameters,

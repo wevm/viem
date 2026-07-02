@@ -18,4 +18,5 @@ export const exsatTestnet = /*#__PURE__*/ defineChain({
       apiUrl: 'https://scan-testnet.exsat.network/api',
     },
   },
+  testnet: true,
 })

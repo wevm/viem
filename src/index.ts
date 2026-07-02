@@ -169,6 +169,11 @@ export type {
   GetBlockNumberReturnType,
 } from './actions/public/getBlockNumber.js'
 export type {
+  GetBlockReceiptsErrorType,
+  GetBlockReceiptsParameters,
+  GetBlockReceiptsReturnType,
+} from './actions/public/getBlockReceipts.js'
+export type {
   GetBlockTransactionCountErrorType,
   GetBlockTransactionCountParameters,
   GetBlockTransactionCountReturnType,
@@ -873,6 +878,8 @@ export {
   type InvalidHexBooleanErrorType,
   InvalidHexValueError,
   type InvalidHexValueErrorType,
+  RlpDepthLimitExceededError,
+  type RlpDepthLimitExceededErrorType,
   SizeOverflowError,
   type SizeOverflowErrorType,
 } from './errors/encoding.js'
@@ -933,6 +940,8 @@ export {
 export {
   HttpRequestError,
   type HttpRequestErrorType,
+  ResponseBodyTooLargeError,
+  type ResponseBodyTooLargeErrorType,
   RpcRequestError,
   type RpcRequestErrorType,
   SocketClosedError,
@@ -1020,6 +1029,8 @@ export {
   type InvalidSerializedTransactionTypeErrorType,
   InvalidStorageKeySizeError,
   type InvalidStorageKeySizeErrorType,
+  InvalidYParityError,
+  type InvalidYParityErrorType,
   TransactionExecutionError,
   type TransactionExecutionErrorType,
   TransactionNotFoundError,
@@ -1045,6 +1056,7 @@ export {
   InvalidDecimalNumberError,
   type InvalidDecimalNumberErrorType,
 } from './errors/unit.js'
+export type { ResolvedToken, Tokens } from './tokens/defineToken.js'
 export type {
   DeriveAccount,
   HDKey,
@@ -1135,6 +1147,7 @@ export type {
   EIP1193Parameters,
   EIP1193Provider,
   EIP1193RequestFn,
+  EIP1193RequestOptions,
   EIP1474Methods,
   NetworkSync,
   PaymasterRpcSchema,
@@ -1465,6 +1478,10 @@ export {
   offchainLookupSignature,
 } from './utils/ccip.js'
 export {
+  type CcipReadTunnelParameters,
+  ccipReadTunnel,
+} from './utils/ccipTunnel.js'
+export {
   type AssertCurrentChainErrorType,
   type AssertCurrentChainParameters,
   assertCurrentChain,
@@ -1630,6 +1647,7 @@ export {
 export {
   type DefineTransactionRequestErrorType,
   defineTransactionRequest,
+  type ExtractFormattedTransactionRequest,
   type FormatTransactionRequestErrorType,
   type FormattedTransactionRequest,
   formatTransactionRequest,

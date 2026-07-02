@@ -32,21 +32,23 @@ pnpm i viem
 
 Next, we will configure a [Viem Client](/docs/clients/custom).
 
-In the snippet below, we will set up a Tempo chain, and extend our client with `tempoActions`.
+In the snippet below, we create a Tempo Client with `createClient`. It defaults to the
+Tempo mainnet chain and an `http` transport, and comes preconfigured with `tempoActions`.
 
 ```ts twoslash [viem.config.ts] 
 // [!include ~/snippets/tempo/viem.config.ts:setup]
 ```
 
 :::tip
-It is also possible to set up a default fee token by adding a `feeToken` property to the chain.
+`createClient` also accepts Tempo options like `testnet` to target the Tempo testnet and
+`feeToken` to set a default fee token for every transaction.
 
 ```ts
+import { createClient } from 'viem/tempo'
+
 export const client = createClient({
-  chain: tempoModerato.extend({ // [!code hl]
-    feeToken: '0x20c0000000000000000000000000000000000001', // [!code hl]
-  }), // [!code hl]
-  // ...
+  feeToken: '0x20c0000000000000000000000000000000000001', // [!code hl]
+  testnet: true, // [!code hl]
 })
 ```
 :::
@@ -113,10 +115,11 @@ console.log(
   'Alpha USD Metadata:', 
   metadata.name,
   metadata.symbol,
+  metadata.logoURI,
   metadata.decimals,
   metadata.totalSupply
 )
-// @log: Alpha USD Metadata: Alpha USD, AlphaUSD, 6, 1000000000000000000000n
+// @log: Alpha USD Metadata: Alpha USD, AlphaUSD, https://example.com/token.svg, 6, 1000000000000000000000n
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
