@@ -1,0 +1,83 @@
+# transferSync
+
+Transfers an ERC-20 token, waits for the transaction receipt, and returns the decoded `Transfer` event data alongside it. When `from` is provided, it transfers on behalf of another account via `transferFrom`.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const { from, to, value, receipt } = await client.token.transferSync({
+  amount: 500000000n,
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+// @log: { from: '0x…', to: '0x7099…', value: 500000000n, decimals: 6, formatted: '500', receipt: { … } }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const { from, to, value, receipt } = await Actions.token.transferSync(client, {
+  amount: 500000000n,
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+// @log: { from: '0x…', to: '0x7099…', value: 500000000n, decimals: 6, formatted: '500', receipt: { … } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+## Return Value
+
+`{ from, to, value, decimals?, formatted?, receipt }`
+
+The decoded `Transfer` event args (`from`, `to`, `value`), the transaction `receipt`, and `decimals`/`formatted` when the token's decimals are known.
+
+## Parameters
+
+Accepts the same parameters as [`transfer`](/docs/actions/wallet/token/transfer) (`amount`, `to`, `token`, `from`, `account`), plus the receipt options below.
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw if the transaction receipt indicates a revert.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const result = await Actions.token.transferSync(client, {
+  amount: 500000000n,
+  throwOnReceiptRevert: false, // [!code focus]
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Account.NotFoundError` | No `account` was provided and the client has no account. |
+| `ContractError.ContractFunctionExecutionError` | The `transfer`/`transferFrom` call could not be executed. |

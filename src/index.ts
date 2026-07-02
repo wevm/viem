@@ -12,6 +12,7 @@ export * as ContractError from './core/ContractError.js'
 export * as Errors from './core/Errors.js'
 export * as RpcError from './core/RpcError.js'
 export * as NonceManager from './core/NonceManager.js'
+export * as Token from './core/Token.js'
 export * as Transport from './core/Transport.js'
 export {
   custom,

@@ -3,7 +3,7 @@ import { expectTypeOf, test } from 'vitest'
 
 import * as constants from '~test/constants.js'
 import { mainnet } from '../chains/definitions/mainnet.js'
-import { Account, Client, http } from 'viem'
+import { Account, Client, http, Token } from 'viem'
 
 const { address, privateKey } = constants.accounts[0]
 
@@ -44,6 +44,21 @@ test('account: omitted account is undefined', () => {
 test('chain: inferred from the chain option', () => {
   const client = Client.create({ chain: mainnet, transport: http() })
   expectTypeOf(client.chain).toEqualTypeOf<typeof mainnet>()
+})
+
+test('tokens: inferred from the tokens option', () => {
+  const usdc = Token.from({
+    addresses: { 1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' },
+    decimals: 6,
+    symbol: 'USDC',
+  })
+  const client = Client.create({ tokens: [usdc], transport: http() })
+  expectTypeOf(client.tokens).toEqualTypeOf<readonly [typeof usdc]>()
+})
+
+test('tokens: omitted tokens is undefined', () => {
+  const client = Client.create({ transport: http() })
+  expectTypeOf(client.tokens).toEqualTypeOf<undefined>()
 })
 
 test('extend: accumulates the returned bag', () => {

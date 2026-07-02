@@ -622,6 +622,52 @@ export default defineConfig({
             ],
           },
           {
+            text: 'Token',
+            collapsed: true,
+            items: [
+              {
+                text: 'approve',
+                link: '/docs/actions/wallet/token/approve',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'approveSync',
+                link: '/docs/actions/wallet/token/approveSync',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'getAllowance',
+                link: '/docs/actions/public/token/getAllowance',
+                badge: badge('public'),
+              },
+              {
+                text: 'getBalance',
+                link: '/docs/actions/public/token/getBalance',
+                badge: badge('public'),
+              },
+              {
+                text: 'getMetadata',
+                link: '/docs/actions/public/token/getMetadata',
+                badge: badge('public'),
+              },
+              {
+                text: 'getTotalSupply',
+                link: '/docs/actions/public/token/getTotalSupply',
+                badge: badge('public'),
+              },
+              {
+                text: 'transfer',
+                link: '/docs/actions/wallet/token/transfer',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'transferSync',
+                link: '/docs/actions/wallet/token/transferSync',
+                badge: badge('wallet'),
+              },
+            ],
+          },
+          {
             text: 'Transaction',
             collapsed: true,
             items: [

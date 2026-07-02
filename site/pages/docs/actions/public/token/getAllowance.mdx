@@ -1,0 +1,141 @@
+# getAllowance
+
+Gets the amount of an ERC-20 token that a spender is allowed to transfer on behalf of an owner.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const allowance = await client.token.getAllowance({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+// @log: { amount: 250000000n, decimals: 6, formatted: '250' }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const allowance = await Actions.token.getAllowance(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+// @log: { amount: 250000000n, decimals: 6, formatted: '250' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+export const client = Client.create({
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Return Value
+
+`Amount`
+
+The allowance as `{ amount, decimals, formatted }`, where `amount` is in base units and `formatted` is the human-readable decimal string.
+
+## Parameters
+
+### account
+
+- **Type:** `Address`
+
+The account that owns the tokens.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const allowance = await Actions.token.getAllowance(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+### spender
+
+- **Type:** `Address`
+
+The spender allowed to transfer the owner's tokens.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const allowance = await Actions.token.getAllowance(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582', // [!code focus]
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+### token
+
+- **Type:** `Address | string`
+
+The token to read: a contract `address`, or a symbol declared on the client's [`tokens`](/docs/clients/create) array.
+
+```ts twoslash
+// @noErrors
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+const client = Client.create({
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+}).extend(publicActions())
+// ---cut---
+const allowance = await client.token.getAllowance({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+  token: 'usdc', // [!code focus]
+})
+```
+
+### decimals
+
+- **Type:** `number`
+
+Token decimals used to derive `formatted`. When omitted, decimals are taken from a declared token, or fetched from the contract.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const allowance = await Actions.token.getAllowance(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  decimals: 6, // [!code focus]
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractError.ContractFunctionExecutionError` | The `allowance` call could not be executed. |

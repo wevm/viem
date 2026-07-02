@@ -1,7 +1,13 @@
+import * as Value from 'ox/Value'
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as contract from '~test/contract.js'
-import { expect, test } from 'vitest'
+import {
+  client as tokenClient,
+  holder,
+  usdc,
+} from '~test/token.js'
+import { describe, expect, test } from 'vitest'
 
 import { publicActions } from './public.js'
 
@@ -56,4 +62,57 @@ test('decorates a client with public actions', async () => {
       address: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac',
     }),
   ).toBeTypeOf('number')
+})
+
+describe('token', () => {
+  const client = tokenClient.extend(publicActions())
+
+  test('attaches read token actions', () => {
+    expect(typeof client.token.getAllowance).toBe('function')
+    expect(typeof client.token.getBalance).toBe('function')
+    expect(typeof client.token.getMetadata).toBe('function')
+    expect(typeof client.token.getTotalSupply).toBe('function')
+  })
+
+  describe('getBalance', () => {
+    test('default: by token symbol', async () => {
+      const balance = await client.token.getBalance({
+        token: 'usdc',
+        account: holder,
+      })
+      expect(balance.amount).toBeTypeOf('bigint')
+      expect(balance.formatted).toBe(Value.format(balance.amount, 6))
+    })
+
+    test('by token address', async () => {
+      const balance = await client.token.getBalance({
+        token: usdc,
+        account: holder,
+      })
+      expect(balance.amount).toBeTypeOf('bigint')
+      expect(balance.formatted).toBe(Value.format(balance.amount, 6))
+    })
+  })
+
+  describe('getMetadata', () => {
+    test('default: by token symbol', async () => {
+      const metadata = await client.token.getMetadata({ token: 'usdc' })
+      expect(metadata).toMatchInlineSnapshot(`
+        {
+          "decimals": 6,
+          "name": "USD Coin",
+          "symbol": "USDC",
+        }
+      `)
+    })
+  })
+
+  describe('getTotalSupply', () => {
+    test('default: by token symbol', async () => {
+      const totalSupply = await client.token.getTotalSupply({ token: 'usdc' })
+      expect(totalSupply.amount).toBeTypeOf('bigint')
+      expect(totalSupply.amount).toBeGreaterThan(0n)
+      expect(totalSupply.formatted).toBe(Value.format(totalSupply.amount, 6))
+    })
+  })
 })

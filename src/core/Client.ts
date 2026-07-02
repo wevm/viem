@@ -5,6 +5,7 @@ import type * as RpcSchema from 'ox/RpcSchema'
 
 import * as Account from './Account.js'
 import type * as Chain from './Chain.js'
+import type * as Token from './Token.js'
 import * as Transport from './Transport.js'
 import type { DataSuffix } from './internal/dataSuffix.js'
 import { uid } from './internal/uid.js'
@@ -19,17 +20,21 @@ export type Client<
   chain extends Chain.Chain | undefined = Chain.Chain | undefined,
   account extends Account.Account | undefined = Account.Account | undefined,
   transport extends Transport.Transport = Transport.Transport,
+  tokens extends Token.Tokens | undefined = Token.Tokens | undefined,
   schema extends RpcSchema.Generic = RpcSchema.Default,
   extended extends Extended | undefined = Extended | undefined,
-> = Base<chain, account, transport, schema> &
+> = Base<chain, account, transport, tokens, schema> &
   (extended extends Extended ? extended : unknown) & {
     /** Extends the Client with the bag returned by `fn`. */
     extend: <const fn extends Extended>(
-      fn: (client: Client<chain, account, transport, schema, extended>) => fn,
+      fn: (
+        client: Client<chain, account, transport, tokens, schema, extended>,
+      ) => fn,
     ) => Client<
       chain,
       account,
       transport,
+      tokens,
       schema,
       Prettify<fn> & (extended extends Extended ? extended : unknown)
     >
@@ -39,6 +44,7 @@ type Base<
   chain extends Chain.Chain | undefined,
   account extends Account.Account | undefined,
   transport extends Transport.Transport,
+  tokens extends Token.Tokens | undefined,
   schema extends RpcSchema.Generic,
 > = {
   /** The Account of the Client (Actions that need a signer default to it). */
@@ -63,6 +69,8 @@ type Base<
   pollingInterval: number
   /** Retry/dedupe-wrapped request fn, typed against the resolved `schema`. */
   request: Transport.RequestFn<schema>
+  /** Collection of tokens declared on the Client. */
+  tokens: tokens
   /** The live transport instance. */
   transport: ReturnType<transport['setup']>
   /** The type of Client. */
@@ -73,7 +81,7 @@ type Base<
 
 /** Extensions may add keys but not redefine base keys. */
 type Extended = Prettify<
-  { [key in keyof Base<any, any, any, any>]?: undefined } & {
+  { [key in keyof Base<any, any, any, any, any>]?: undefined } & {
     [key: string]: unknown
   }
 >
@@ -124,15 +132,17 @@ export function create<
   accountOrAddress extends Account.Account | Address.Address | undefined =
     undefined,
   transport extends Transport.Transport = Transport.Transport,
+  const tokens extends Token.Tokens | undefined = undefined,
   schema extends RpcSchema.Schema = RpcSchema.Default,
 >(
-  options: create.Options<chain, accountOrAddress, transport, schema>,
+  options: create.Options<chain, accountOrAddress, transport, tokens, schema>,
 ): Client<
   chain,
   accountOrAddress extends Address.Address
     ? Account.JsonRpc<accountOrAddress>
     : accountOrAddress,
   transport,
+  tokens,
   RpcSchema.ToGeneric<schema>
 >
 
@@ -144,6 +154,7 @@ export function create(options: create.Options): Client {
     dataSuffix,
     key = 'base',
     name = 'Base Client',
+    tokens,
     type = 'base',
   } = options
 
@@ -180,6 +191,7 @@ export function create(options: create.Options): Client {
     name,
     pollingInterval,
     request: transport.request,
+    tokens,
     transport,
     type,
     uid: uid(),
@@ -229,6 +241,7 @@ export declare namespace create {
       | Address.Address
       | undefined,
     transport extends Transport.Transport = Transport.Transport,
+    tokens extends Token.Tokens | undefined = Token.Tokens | undefined,
     schema extends RpcSchema.Schema = RpcSchema.Default,
   > = {
     /** The Account (or address) to use for Actions that require a signer. */
@@ -257,6 +270,11 @@ export declare namespace create {
     schema?: schema | undefined
     /** Per-request timeout (ms) passed through to `transport.setup`. */
     timeout?: number | undefined
+    /**
+     * Collection of tokens to declare on the Client. A token's symbol becomes
+     * usable by `token` actions when its `addresses` cover the Client's chain.
+     */
+    tokens?: tokens | undefined
     /** The transport for the Client. */
     transport: transport
     /** The type of Client. @default 'base' */

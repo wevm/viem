@@ -1,0 +1,132 @@
+# getTotalSupply
+
+Gets the total supply of an ERC-20 token, returned in base units and human-readable form.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const supply = await client.token.getTotalSupply({
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+// @log: { amount: 43428122000000000n, decimals: 6, formatted: '43428122000' }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const supply = await Actions.token.getTotalSupply(client, {
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+// @log: { amount: 43428122000000000n, decimals: 6, formatted: '43428122000' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+export const client = Client.create({
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Return Value
+
+`Amount`
+
+The total supply as `{ amount, decimals, formatted }`, where `amount` is in base units and `formatted` is the human-readable decimal string.
+
+## Parameters
+
+### token
+
+- **Type:** `Address | string`
+
+The token to read: a contract `address`, or a symbol declared on the client's [`tokens`](/docs/clients/create) array.
+
+```ts twoslash
+// @noErrors
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+const client = Client.create({
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+}).extend(publicActions())
+// ---cut---
+const supply = await client.token.getTotalSupply({
+  token: 'usdc', // [!code focus]
+})
+```
+
+### decimals
+
+- **Type:** `number`
+
+Token decimals used to derive `formatted`. When omitted, decimals are taken from a declared token, or fetched from the contract.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const supply = await Actions.token.getTotalSupply(client, {
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  decimals: 6, // [!code focus]
+})
+```
+
+### blockNumber
+
+- **Type:** `bigint`
+
+Reads the total supply at a given block number.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const supply = await Actions.token.getTotalSupply(client, {
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  blockNumber: 42069n, // [!code focus]
+})
+```
+
+### blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+Reads the total supply at a given block tag.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const supply = await Actions.token.getTotalSupply(client, {
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  blockTag: 'safe', // [!code focus]
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractError.ContractFunctionExecutionError` | The `totalSupply` call could not be executed. |

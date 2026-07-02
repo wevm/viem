@@ -1,0 +1,193 @@
+# transfer
+
+Transfers an amount of an ERC-20 token, and returns the transaction hash. When `from` is provided, it transfers on behalf of another account via `transferFrom` (using an allowance).
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const hash = await client.token.transfer({
+  amount: 500000000n,
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+// @log: "0x4ca7ee652d57678f26e887c19671f76c1aff..."
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const hash = await Actions.token.transfer(client, {
+  amount: 500000000n,
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+// @log: "0x4ca7ee652d57678f26e887c19671f76c1aff..."
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+:::tip
+Use [`transferSync`](/docs/actions/wallet/token/transferSync) to wait for the transaction receipt and decoded `Transfer` event in a single call.
+:::
+
+## Return Value
+
+`Hash`
+
+The transaction hash.
+
+## Parameters
+
+### amount
+
+- **Type:** `bigint | { decimals?: number; formatted: string }`
+
+The amount to transfer, in base units (`bigint`) or as a formatted helper. When `formatted` is given, `decimals` is taken from the helper, the declared token, or fetched.
+
+```ts twoslash
+// @noErrors
+import { Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+const client = Client.create({
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+}).extend(walletActions())
+// ---cut---
+const hash = await client.token.transfer({
+  amount: { formatted: '500' }, // [!code focus]
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: 'usdc',
+})
+```
+
+### to
+
+- **Type:** `Address`
+
+The recipient of the tokens.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.token.transfer(client, {
+  amount: 500000000n,
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // [!code focus]
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+### token
+
+- **Type:** `Address | string`
+
+The token to transfer: a contract `address`, or a symbol declared on the client's [`tokens`](/docs/clients/create) array.
+
+```ts twoslash
+// @noErrors
+import { Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+const client = Client.create({
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+}).extend(walletActions())
+// ---cut---
+const hash = await client.token.transfer({
+  amount: 500000000n,
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: 'usdc', // [!code focus]
+})
+```
+
+### from
+
+- **Type:** `Address`
+
+The account to transfer tokens from, using an allowance via `transferFrom`. When omitted, tokens are transferred from the caller.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.token.transfer(client, {
+  amount: 500000000n,
+  from: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+### account
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+The account that sends the transaction.
+
+```ts twoslash
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.token.transfer(client, {
+  account: Account.fromPrivateKey('0x…'), // [!code focus]
+  amount: 500000000n,
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+### amount.decimals
+
+- **Type:** `number`
+
+Token decimals used to parse a formatted `amount`. When omitted, decimals are taken from a declared token, or fetched from the contract.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.token.transfer(client, {
+  amount: { decimals: 6, formatted: '500' }, // [!code focus]
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Account.NotFoundError` | No `account` was provided and the client has no account. |
+| `ContractError.ContractFunctionExecutionError` | The `transfer`/`transferFrom` call could not be executed. |

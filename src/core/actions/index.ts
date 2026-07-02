@@ -10,6 +10,7 @@ export * as contract from './contract/index.js'
 export * as filter from './filter/index.js'
 export * as event from './event/index.js'
 export * as fee from './fee/index.js'
+export * as token from './token/index.js'
 export * as transaction from './transaction/index.js'
 export * as wallet from './wallet/index.js'
 

@@ -16,6 +16,7 @@
     "docs:sync-utils": "bun scripts/docs:sync-utils.ts",
     "exports:update": "bun scripts/exports:update.ts",
     "gen:tempo-abis": "bun scripts/gen:tempo-abis.ts",
+    "gen:tokenlist": "bun scripts/gen:tokenlist.ts && vp check --fix src/tokens",
     "knip": "knip --production --no-tag-hints",
     "postinstall": "git submodule update --init --recursive && pnpm contracts:build && pnpm dev",
     "preinstall": "pnpx only-allow pnpm",
@@ -278,6 +279,11 @@
       "types": "./dist/node/index.d.ts",
       "src": "./src/node/index.ts",
       "default": "./dist/node/index.js"
+    },
+    "./tokens": {
+      "types": "./dist/tokens/index.d.ts",
+      "src": "./src/tokens/index.ts",
+      "default": "./dist/tokens/index.js"
     },
     "./utils": {
       "types": "./dist/utils/index.d.ts",

@@ -3,6 +3,8 @@ import type { Abi, TypedData } from 'abitype'
 import type * as Account from '../../Account.js'
 import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
+import type * as Token from '../../Token.js'
+import type * as Transport from '../../Transport.js'
 import type {
   ContractConstructorArgs,
   ContractFunctionArgs,
@@ -12,6 +14,7 @@ import * as chains from '../chains/index.js'
 import * as contract from '../contract/index.js'
 import { signMessage } from '../signMessage.js'
 import { signTypedData } from '../signTypedData.js'
+import * as token from '../token/index.js'
 import * as transaction from '../transaction/index.js'
 import * as wallet from '../wallet/index.js'
 
@@ -39,9 +42,10 @@ export function walletActions() {
   return <
     chain extends Chain.Chain | undefined,
     account extends Account.Account | undefined,
+    tokens extends Token.Tokens | undefined = undefined,
   >(
-    client: Client.Client<chain, account>,
-  ): walletActions.Decorator<chain, account> => ({
+    client: Client.Client<chain, account, Transport.Transport, tokens>,
+  ): walletActions.Decorator<chain, account, tokens> => ({
     chains: {
       add: (options) => chains.add(client, options),
       switch: (options) => chains.switch(client, options),
@@ -52,6 +56,31 @@ export function walletActions() {
       write: (options) => contract.write(client, options as never),
       writeSync: (options) => contract.writeSync(client, options as never),
     },
+    token: {
+      approve: Object.assign(
+        (options: never) => token.approve(client, options),
+        {
+          call: (args: never) => token.approve.call(client, args),
+          estimateGas: (options: never) =>
+            token.approve.estimateGas(client, options),
+          extractEvent: token.approve.extractEvent,
+          simulate: (options: never) => token.approve.simulate(client, options),
+        },
+      ),
+      approveSync: (options: never) => token.approveSync(client, options),
+      transfer: Object.assign(
+        (options: never) => token.transfer(client, options),
+        {
+          call: (args: never) => token.transfer.call(client, args),
+          estimateGas: (options: never) =>
+            token.transfer.estimateGas(client, options),
+          extractEvent: token.transfer.extractEvent,
+          simulate: (options: never) =>
+            token.transfer.simulate(client, options),
+        },
+      ),
+      transferSync: (options: never) => token.transferSync(client, options),
+    } as never,
     transaction: {
       fill: (options) => transaction.fill(client, options),
       prepare: (options) => transaction.prepare(client, options),
@@ -89,6 +118,7 @@ export declare namespace walletActions {
   type Decorator<
     chain extends Chain.Chain | undefined = Chain.Chain | undefined,
     account extends Account.Account | undefined = Account.Account | undefined,
+    tokens extends Token.Tokens | undefined = Token.Tokens | undefined,
   > = {
     chains: {
       /**
@@ -251,6 +281,132 @@ export declare namespace walletActions {
       >(
         options: contract.writeSync.Options<abi, functionName, args, chain>,
       ) => Promise<contract.writeSync.ReturnType<chain>>
+    }
+    token: {
+      /**
+       * Approves a spender to transfer ERC-20 tokens on behalf of the caller.
+       *
+       * @example
+       * ```ts
+       * import { Account, Client, http, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   account: Account.fromPrivateKey('0x…'),
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(walletActions())
+       * const hash = await client.token.approve({
+       *   amount: 100000000n,
+       *   spender: '0x…',
+       *   token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+       * })
+       * ```
+       */
+      approve: ((
+        options: token.approve.Options<chain, account, tokens>,
+      ) => Promise<token.approve.ReturnType>) & {
+        /** Defines an `approve` contract call. */
+        call: (
+          args: token.approve.Args<chain, tokens>,
+        ) => ReturnType<typeof token.approve.call>
+        /** Estimates the gas required to approve a spender. */
+        estimateGas: (
+          options: token.approve.Options<chain, account, tokens>,
+        ) => Promise<bigint>
+        /** Extracts the `Approval` event from logs. */
+        extractEvent: typeof token.approve.extractEvent
+        /** Simulates an approval of a spender. */
+        simulate: (
+          options: token.approve.Options<chain, account, tokens>,
+        ) => ReturnType<typeof token.approve.simulate>
+      }
+      /**
+       * Approves a spender to transfer ERC-20 tokens on behalf of the caller,
+       * and waits for the transaction to be confirmed.
+       *
+       * @example
+       * ```ts
+       * import { Account, Client, http, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   account: Account.fromPrivateKey('0x…'),
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(walletActions())
+       * const { receipt, ...event } = await client.token.approveSync({
+       *   amount: 100000000n,
+       *   spender: '0x…',
+       *   token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+       * })
+       * ```
+       */
+      approveSync: (
+        options: token.approveSync.Options<chain, account, tokens>,
+      ) => Promise<token.approveSync.ReturnType<chain>>
+      /**
+       * Transfers ERC-20 tokens to another address.
+       *
+       * @example
+       * ```ts
+       * import { Account, Client, http, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   account: Account.fromPrivateKey('0x…'),
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(walletActions())
+       * const hash = await client.token.transfer({
+       *   amount: 100000000n,
+       *   to: '0x…',
+       *   token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+       * })
+       * ```
+       */
+      transfer: ((
+        options: token.transfer.Options<chain, account, tokens>,
+      ) => Promise<token.transfer.ReturnType>) & {
+        /** Defines a `transfer`/`transferFrom` contract call. */
+        call: (
+          args: token.transfer.Args<chain, tokens>,
+        ) => ReturnType<typeof token.transfer.call>
+        /** Estimates the gas required to transfer ERC-20 tokens. */
+        estimateGas: (
+          options: token.transfer.Options<chain, account, tokens>,
+        ) => Promise<bigint>
+        /** Extracts the `Transfer` event from logs. */
+        extractEvent: typeof token.transfer.extractEvent
+        /** Simulates a transfer of ERC-20 tokens. */
+        simulate: (
+          options: token.transfer.Options<chain, account, tokens>,
+        ) => ReturnType<typeof token.transfer.simulate>
+      }
+      /**
+       * Transfers ERC-20 tokens to another address, and waits for the
+       * transaction to be confirmed.
+       *
+       * @example
+       * ```ts
+       * import { Account, Client, http, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   account: Account.fromPrivateKey('0x…'),
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(walletActions())
+       * const { receipt, ...event } = await client.token.transferSync({
+       *   amount: 100000000n,
+       *   to: '0x…',
+       *   token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+       * })
+       * ```
+       */
+      transferSync: (
+        options: token.transferSync.Options<chain, account, tokens>,
+      ) => Promise<token.transferSync.ReturnType<chain>>
     }
     transaction: {
       /**

@@ -6,6 +6,8 @@ import type * as Fee from 'ox/Fee'
 import type * as Account from '../../Account.js'
 import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
+import type * as Token from '../../Token.js'
+import type * as Transport from '../../Transport.js'
 import type {
   ContractFunctionArgs,
   ContractFunctionName,
@@ -18,6 +20,7 @@ import * as contract from '../contract/index.js'
 import * as filter from '../filter/index.js'
 import * as event from '../event/index.js'
 import * as fee from '../fee/index.js'
+import * as token from '../token/index.js'
 import * as transaction from '../transaction/index.js'
 
 /**
@@ -40,9 +43,10 @@ export function publicActions() {
   return <
     chain extends Chain.Chain | undefined,
     account extends Account.Account | undefined,
+    tokens extends Token.Tokens | undefined = undefined,
   >(
-    client: Client.Client<chain, account>,
-  ): publicActions.Decorator<chain, account> => ({
+    client: Client.Client<chain, account, Transport.Transport, tokens>,
+  ): publicActions.Decorator<chain, account, tokens> => ({
     address: {
       getBalance: (options) => address.getBalance(client, options),
       getCode: (options) => address.getCode(client, options),
@@ -94,6 +98,21 @@ export function publicActions() {
       getGasPrice: () => fee.getGasPrice(client),
       getHistory: (options) => fee.getHistory(client, options),
     },
+    token: {
+      getAllowance: Object.assign(
+        (options: never) => token.getAllowance(client, options),
+        { call: (args: never) => token.getAllowance.call(client, args) },
+      ),
+      getBalance: Object.assign(
+        (options: never) => token.getBalance(client, options),
+        { call: (args: never) => token.getBalance.call(client, args) },
+      ),
+      getMetadata: (options: never) => token.getMetadata(client, options),
+      getTotalSupply: Object.assign(
+        (options: never) => token.getTotalSupply(client, options),
+        { call: (args: never) => token.getTotalSupply.call(client, args) },
+      ),
+    } as never,
     transaction: {
       createPendingFilter: () => transaction.createPendingFilter(client),
       estimateGas: (options) => transaction.estimateGas(client, options),
@@ -113,6 +132,7 @@ export declare namespace publicActions {
   type Decorator<
     chain extends Chain.Chain | undefined = Chain.Chain | undefined,
     account extends Account.Account | undefined = Account.Account | undefined,
+    tokens extends Token.Tokens | undefined = Token.Tokens | undefined,
   > = {
     address: {
       /**
@@ -957,6 +977,115 @@ export declare namespace publicActions {
       getHistory: (
         options: fee.getHistory.Options,
       ) => Promise<fee.getHistory.ReturnType>
+    }
+    token: {
+      /**
+       * Gets the ERC-20 allowance a spender has over an account's tokens.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const allowance = await client.token.getAllowance({
+       *   account: '0x…',
+       *   spender: '0x…',
+       *   token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+       * })
+       * ```
+       */
+      getAllowance: ((
+        options: token.getAllowance.Options<chain, tokens>,
+      ) => Promise<token.getAllowance.ReturnType>) & {
+        /**
+         * Defines an `allowance` contract call, ready to pass to any action
+         * that accepts a contract call.
+         */
+        call: (
+          args: token.getAllowance.Args<chain, tokens>,
+        ) => ReturnType<typeof token.getAllowance.call>
+      }
+      /**
+       * Gets the ERC-20 token balance of an account.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const balance = await client.token.getBalance({
+       *   account: '0x…',
+       *   token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+       * })
+       * ```
+       */
+      getBalance: ((
+        options: token.getBalance.Options<chain, account, tokens>,
+      ) => Promise<token.getBalance.ReturnType>) & {
+        /**
+         * Defines a `balanceOf` contract call, ready to pass to any action
+         * that accepts a contract call.
+         */
+        call: (
+          args: token.getBalance.Args<chain, account, tokens>,
+        ) => ReturnType<typeof token.getBalance.call>
+      }
+      /**
+       * Gets the metadata (`decimals`, `name`, `symbol`) of an ERC-20 token.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const metadata = await client.token.getMetadata({
+       *   token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+       * })
+       * ```
+       */
+      getMetadata: (
+        options: token.getMetadata.Options<chain, tokens>,
+      ) => Promise<token.getMetadata.ReturnType>
+      /**
+       * Gets the total supply of an ERC-20 token.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const totalSupply = await client.token.getTotalSupply({
+       *   token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+       * })
+       * ```
+       */
+      getTotalSupply: ((
+        options: token.getTotalSupply.Options<chain, tokens>,
+      ) => Promise<token.getTotalSupply.ReturnType>) & {
+        /**
+         * Defines a `totalSupply` contract call, ready to pass to any action
+         * that accepts a contract call.
+         */
+        call: (
+          args: token.getTotalSupply.Args<chain, tokens>,
+        ) => ReturnType<typeof token.getTotalSupply.call>
+      }
     }
     transaction: {
       /**
