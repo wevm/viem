@@ -682,7 +682,7 @@ importers:
         specifier: 0.14.29
         version: 0.14.29(typescript@5.9.3)(zod@4.4.3)
       ws:
-        specifier: ^8.21.0
+        specifier: 8.21.0
         version: 8.21.0
 
 packages:
@@ -6903,8 +6903,8 @@ packages:
       typescript:
         optional: true
 
-  viem@2.53.1:
-    resolution: {integrity: sha512-FhfJ/SW73CVosiyVLmIMVgKDRKYV1AGCLzZoHYvmNayyVff63Qi1ocPCk59LqC/cNw244RbBJjHnmxqXkE7NpA==}
+  viem@2.54.1:
+    resolution: {integrity: sha512-QRC3GBSnQit4pbb0sSBHRD9WYTPAffvhOqdqp8LgkRRktXZq8dePezZM/ZIkFwluLT7fMP90908goHQbtcga2A==}
     peerDependencies:
       typescript: ^5.9.3
     peerDependenciesMeta:
@@ -8939,7 +8939,7 @@ snapshots:
       pino-pretty: 10.3.1
       prom-client: 14.2.0
       type-fest: 4.39.0
-      viem: 2.53.1(typescript@5.9.3)(zod@3.25.76)
+      viem: 2.54.1(typescript@5.9.3)(zod@3.25.76)
       yargs: 17.7.2
       zod: 3.25.76
       zod-validation-error: 1.5.0(zod@3.25.76)
@@ -14584,7 +14584,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.53.1(typescript@5.9.3)(zod@3.25.76):
+  viem@2.54.1(typescript@5.9.3)(zod@3.25.76):
     dependencies:
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
