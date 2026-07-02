@@ -14,8 +14,8 @@ import { sendCalls } from './sendCalls.js'
 
 type TxHashes = `0x${string}`[]
 const calls = new Map<string, TxHashes>()
-const node = http(anvil.mainnet.rpcUrl.http).setup({})
-const client = anvil.getClient(anvil.mainnet)
+const node = http(anvil.local.rpcUrl.http).setup({})
+const client = anvil.getClient(anvil.local)
 const testClient = client.extend(testActions())
 
 function getClient() {

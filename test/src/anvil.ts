@@ -110,6 +110,18 @@ export const mainnet = defineAnvil({
   port: Number(getEnv('VITE_ANVIL_PORT', '8545')),
 })
 
+/**
+ * Non-fork instance for tests that do not need mainnet state. Unknown-hash
+ * lookups answer locally (a fork forwards them upstream, adding unbounded
+ * latency to pending-transaction polls).
+ */
+export const local = defineAnvil({
+  chainId: 1,
+  hardfork: 'Prague',
+  noMining: true,
+  port: Number(getEnv('VITE_ANVIL_PORT_LOCAL', '8645')),
+})
+
 function getEnv(key: string, fallback: string): string {
   if (typeof process.env[key] === 'string') return process.env[key] as string
   return fallback

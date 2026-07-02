@@ -4,6 +4,7 @@ import type * as Hex from 'ox/Hex'
 import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
 import { BaseError } from '../../Errors.js'
+import { isAbortError } from '../../internal/errors.js'
 import { observe } from '../../internal/observe.js'
 import {
   type WithRetryParameters,
@@ -77,7 +78,6 @@ export function waitForReceipt<chain extends Chain.Chain | undefined>(
   let transaction: Transaction | undefined
   let replacedTransaction: Transaction | undefined
   let receipt: Receipt | undefined
-  let retrying = false
 
   const receiptListeners = new Set<waitForReceipt.OnReceiptFn<chain>>()
   const replacedListeners = new Set<waitForReceipt.OnReplacedFn<chain>>()
@@ -123,14 +123,6 @@ export function waitForReceipt<chain extends Chain.Chain | undefined>(
     for (const listener of replacedListeners) listener(response)
   }
 
-  const enoughConfirmations = (
-    blockNumber: bigint,
-    minedBlockNumber?: bigint,
-  ) =>
-    confirmations <= 1 ||
-    (minedBlockNumber != null &&
-      blockNumber - minedBlockNumber + 1n >= BigInt(confirmations))
-
   unobserve = observe(
     observerId,
     { onError: emitError, onReceipt: emitReceipt, onReplaced: emitReplaced },
@@ -139,14 +131,156 @@ export function waitForReceipt<chain extends Chain.Chain | undefined>(
       // Set when the observer is torn down (e.g. via `off`) before the async
       // setup below has created the watch, so it does not start a stray poll.
       let stopped = false
+      // Cancels in-flight retry backoffs on teardown.
+      const aborter = new AbortController()
+
+      // Candidate block numbers queue in order and drain one at a time, so a
+      // slow lookup defers ticks instead of dropping them.
+      const queue: bigint[] = []
+      let queued: bigint | undefined
+      let head: bigint | undefined
+      let draining = false
+
+      // Confirms against the latest observed head, so confirmations accrued
+      // while a lookup was in flight still count.
+      function confirmed(minedBlockNumber: bigint | undefined) {
+        if (confirmations <= 1) return true
+        if (minedBlockNumber == null) return false
+        const blockNumber =
+          head != null && head > minedBlockNumber ? head : minedBlockNumber
+        return blockNumber - minedBlockNumber + 1n >= BigInt(confirmations)
+      }
+
+      async function process(blockNumber: bigint) {
+        try {
+          if (!receipt) {
+            // The node may surface a slow transaction after startup.
+            if (checkReplacement && !transaction)
+              transaction = await getTransaction(client, { hash })
+            receipt = await getReceipt(client, { hash })
+          }
+          if (!confirmed(receipt.blockNumber)) return
+          emit.onReceipt(receipt)
+        } catch (err) {
+          // The receipt is not found yet: the transaction is still pending,
+          // or it has been replaced.
+          if (
+            err instanceof TransactionNotFoundError ||
+            err instanceof TransactionReceiptNotFoundError
+          ) {
+            if (!transaction) return
+
+            try {
+              replacedTransaction = transaction
+
+              // Scan the candidate block for a transaction sharing the
+              // original `from` + `nonce`. Retry on missing blocks (slow
+              // sync).
+              const block = await withRetry(
+                () =>
+                  getBlock(client, {
+                    blockNumber,
+                    includeTransactions: true,
+                  }),
+                {
+                  delay: retryDelay,
+                  retryCount,
+                  shouldRetry: ({ error }) =>
+                    error instanceof BlockNotFoundError,
+                  signal: aborter.signal,
+                },
+              )
+
+              const replacement = (
+                block.transactions as readonly Transaction[]
+              ).find(
+                ({ from, hash: hash_, nonce }) =>
+                  // Ignore the original transaction (slow-RPC race).
+                  hash_ !== hash &&
+                  from === replacedTransaction!.from &&
+                  nonce === replacedTransaction!.nonce,
+              )
+
+              // No replacement found yet: keep polling.
+              if (!replacement) return
+
+              receipt = await getReceipt(client, { hash: replacement.hash })
+
+              if (!confirmed(receipt.blockNumber)) return
+
+              let reason: waitForReceipt.ReplacementReason = 'replaced'
+              if (
+                replacement.to === replacedTransaction.to &&
+                replacement.value === replacedTransaction.value &&
+                replacement.input === replacedTransaction.input
+              )
+                reason = 'repriced'
+              else if (
+                replacement.from === replacement.to &&
+                replacement.value === 0n
+              )
+                reason = 'cancelled'
+
+              emit.onReplaced({
+                reason,
+                replacedTransaction: replacedTransaction!,
+                transaction: replacement,
+                transactionReceipt: receipt!,
+              })
+              emit.onReceipt(receipt!)
+            } catch (err_) {
+              if (isAbortError(err_)) return
+              emit.onError(err_ as Error)
+            }
+          } else {
+            emit.onError(err as Error)
+          }
+        }
+      }
+
+      async function drain() {
+        if (draining) return
+        draining = true
+        try {
+          while (queue.length > 0 && !stopped) await process(queue.shift()!)
+        } finally {
+          draining = false
+        }
+      }
 
       void (async () => {
-        // Resolve eagerly if the receipt is already available, so callers do
-        // not wait for the next block when the transaction was already mined.
-        receipt = await getReceipt(client, { hash }).catch(() => undefined)
+        // Look up the receipt eagerly, so callers do not wait for the next
+        // block when the transaction was already mined. Resolve the original
+        // transaction alongside it, so a replacement is detectable even when
+        // the original leaves the pool before the first tick; some RPCs are
+        // slow to surface a fresh transaction, so retry with backoff.
+        let eagerError: Error | undefined
+        await Promise.all([
+          (async () => {
+            receipt = await getReceipt(client, { hash }).catch(() => undefined)
+          })(),
+          (async () => {
+            if (!checkReplacement) return
+            try {
+              transaction = await withRetry(
+                () => getTransaction(client, { hash }),
+                { delay: retryDelay, retryCount, signal: aborter.signal },
+              )
+            } catch (err) {
+              // Not found: the transaction may surface later; ticks retry.
+              if (err instanceof TransactionNotFoundError) return
+              if (isAbortError(err)) return
+              eagerError = err as Error
+            }
+          })(),
+        ])
         if (stopped) return
-        if (receipt && confirmations <= 1) {
+        if (receipt && confirmed(receipt.blockNumber)) {
           emit.onReceipt(receipt)
+          return
+        }
+        if (eagerError && !receipt) {
+          emit.onError(eagerError)
           return
         }
 
@@ -156,125 +290,21 @@ export function waitForReceipt<chain extends Chain.Chain | undefined>(
           poll: true,
           pollingInterval,
         })
-        watch.onBlockNumber(async (blockNumber_) => {
-          if (retrying) return
-
-          let blockNumber = blockNumber_
-
-          try {
-            // We already have a receipt: resolve once it has enough
-            // confirmations against its own mined block.
-            if (receipt) {
-              if (!enoughConfirmations(blockNumber, receipt.blockNumber)) return
-              emit.onReceipt(receipt)
-              return
-            }
-
-            // Resolve the original transaction so we can detect replacements.
-            // Some RPCs are slow to surface a freshly-mined transaction, so we
-            // retry with backoff.
-            if (checkReplacement && !transaction) {
-              retrying = true
-              await withRetry(
-                async () => {
-                  transaction = await getTransaction(client, { hash })
-                  if (transaction.blockNumber)
-                    blockNumber = transaction.blockNumber
-                },
-                { delay: retryDelay, retryCount },
-              )
-              retrying = false
-            }
-
-            receipt = await getReceipt(client, { hash })
-
-            if (!enoughConfirmations(blockNumber, receipt.blockNumber)) return
-
-            emit.onReceipt(receipt)
-          } catch (err) {
-            // The receipt is not found yet: the transaction is still pending,
-            // or it has been replaced.
-            if (
-              err instanceof TransactionNotFoundError ||
-              err instanceof TransactionReceiptNotFoundError
-            ) {
-              if (!transaction) {
-                retrying = false
-                return
-              }
-
-              try {
-                replacedTransaction = transaction
-
-                // Scan the candidate block for a transaction sharing the
-                // original `from` + `nonce`. Retry on missing blocks (slow
-                // sync).
-                retrying = true
-                const block = await withRetry(
-                  () =>
-                    getBlock(client, {
-                      blockNumber,
-                      includeTransactions: true,
-                    }),
-                  {
-                    delay: retryDelay,
-                    retryCount,
-                    shouldRetry: ({ error }) =>
-                      error instanceof BlockNotFoundError,
-                  },
-                )
-                retrying = false
-
-                const replacement = (
-                  block.transactions as readonly Transaction[]
-                ).find(
-                  ({ from, hash: hash_, nonce }) =>
-                    // Ignore the original transaction (slow-RPC race).
-                    hash_ !== hash &&
-                    from === replacedTransaction!.from &&
-                    nonce === replacedTransaction!.nonce,
-                )
-
-                // No replacement found yet: keep polling.
-                if (!replacement) return
-
-                receipt = await getReceipt(client, { hash: replacement.hash })
-
-                if (!enoughConfirmations(blockNumber, receipt.blockNumber))
-                  return
-
-                let reason: waitForReceipt.ReplacementReason = 'replaced'
-                if (
-                  replacement.to === replacedTransaction.to &&
-                  replacement.value === replacedTransaction.value &&
-                  replacement.input === replacedTransaction.input
-                )
-                  reason = 'repriced'
-                else if (
-                  replacement.from === replacement.to &&
-                  replacement.value === 0n
-                )
-                  reason = 'cancelled'
-
-                emit.onReplaced({
-                  reason,
-                  replacedTransaction: replacedTransaction!,
-                  transaction: replacement,
-                  transactionReceipt: receipt!,
-                })
-                emit.onReceipt(receipt!)
-              } catch (err_) {
-                emit.onError(err_ as Error)
-              }
-            } else {
-              emit.onError(err as Error)
-            }
-          }
+        watch.onBlockNumber((blockNumber, prevBlockNumber) => {
+          if (head == null || blockNumber > head) head = blockNumber
+          // Queue each candidate block once: from the first observed head on
+          // a fresh poll, or just after the previous head when joining an
+          // already-running shared poll.
+          const floor = queued ?? prevBlockNumber ?? blockNumber - 1n
+          for (let n = floor + 1n; n <= blockNumber; n++) queue.push(n)
+          if (queued == null || blockNumber > queued) queued = blockNumber
+          void drain()
         })
       })()
 
       return () => {
         stopped = true
+        aborter.abort()
         watch?.off()
       }
     },

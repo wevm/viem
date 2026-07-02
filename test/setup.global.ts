@@ -1,7 +1,9 @@
-import { mainnet } from './src/anvil.js'
+import { local, mainnet } from './src/anvil.js'
 
 export default async function () {
   if (process.env.SKIP_GLOBAL_SETUP) return
-  const shutdown = await mainnet.start()
-  return () => shutdown()
+  const shutdowns = await Promise.all([mainnet.start(), local.start()])
+  return async () => {
+    await Promise.all(shutdowns.map((shutdown) => shutdown()))
+  }
 }

@@ -10,16 +10,16 @@ import { wait } from '../../internal/wait.js'
 import { WaitForReceiptTimeoutError } from './waitForReceipt.js'
 
 const client = Client.create({
-  transport: http(anvil.mainnet.rpcUrl.http),
+  transport: http(anvil.local.rpcUrl.http),
   pollingInterval: 100,
 })
 const testClient = client.extend(testActions())
 
-// A JSON-RPC server that forwards to the anvil fork (so every response is a
-// real, valid wire shape) but lets a test override specific methods on specific
-// calls. `intercept` returns `{ result }` / `{ error }` to override, or
-// `undefined` to forward to anvil. This drives the not-found / retry / error
-// branches deterministically without mocks.
+// A JSON-RPC server that forwards to the anvil instance (so every response is
+// a real, valid wire shape) but lets a test override specific methods on
+// specific calls. `intercept` returns `{ result }` / `{ error }` to override,
+// or `undefined` to forward to anvil. This drives the not-found / retry /
+// error branches deterministically without mocks.
 function proxyServer(
   intercept: (
     method: string,
@@ -43,7 +43,7 @@ function proxyServer(
           const override = intercept(r.method, index)
           if (override)
             return { id: r.id, jsonrpc: '2.0' as const, ...override }
-          const upstream = await fetch(anvil.mainnet.rpcUrl.http, {
+          const upstream = await fetch(anvil.local.rpcUrl.http, {
             body: JSON.stringify(r),
             headers: { 'Content-Type': 'application/json' },
             method: 'POST',
@@ -72,7 +72,8 @@ async function mineSlowly(blocks: number) {
 
 // Replacement detection requires the watcher to observe the original (pending)
 // transaction before it is replaced. Block until the node reports it in the
-// pool (so the watcher's next tick can capture it), then add a small margin.
+// pool (so the watcher's eager transaction lookup can capture it), then add a
+// small margin.
 async function whenPendingObserved(hash: `0x${string}`) {
   while (true) {
     const found = await Actions.transaction
@@ -455,6 +456,7 @@ test('rethrows a non-not-found error from the node', async () => {
   })
   await testClient.block.mine({ blocks: 1 })
 
+  // `retryCount: 0` surfaces the error without transport retry backoff.
   const server = await proxyServer((method) =>
     method === 'eth_getTransactionReceipt'
       ? { error: { code: -32603, message: 'boom' } }
@@ -462,7 +464,7 @@ test('rethrows a non-not-found error from the node', async () => {
   )
   try {
     const proxyClient = Client.create({
-      transport: http(server.url),
+      transport: http(server.url, { retryCount: 0 }),
       pollingInterval: 100,
     })
 
@@ -534,7 +536,7 @@ test('confirmations: waits across blocks when the receipt lands later', async ()
   expect(receipt.status).toBe('success')
 })
 
-test('retrying: ignores ticks while a transaction lookup is in flight', async () => {
+test('retrying: retries the transaction lookup while blocks advance', async () => {
   await setup()
   const hash = await Actions.transaction.send(client, {
     account: source.address,
@@ -544,9 +546,8 @@ test('retrying: ignores ticks while a transaction lookup is in flight', async ()
   await testClient.block.mine({ blocks: 1 })
 
   // The node reports the tx as missing for the first few lookups (with a slow
-  // retry backoff). While a retry is in flight the head advances, so the poll
-  // ticks that land during that window are skipped. Eventually the tx +
-  // receipt surface and it resolves.
+  // retry backoff), while blocks keep advancing. The lookup retries until the
+  // tx surfaces, then the receipt resolves.
   const server = await proxyServer((method, index) => {
     if (method === 'eth_getTransactionReceipt' && index === 0)
       return { result: null }
@@ -650,8 +651,8 @@ test('replacement: waits for confirmations after detecting a replacement', async
 
   // The replacement is detected the moment it is mined (one confirmation),
   // which is not yet enough, so it keeps polling until another block lands and
-  // then resolves with the replacement's receipt. (Like v2, `onReplaced` is not
-  // emitted on this path: the cached receipt fast-path resolves it once the
+  // then resolves with the replacement's receipt. (`onReplaced` is not emitted
+  // on this path: the cached receipt fast-path resolves it once the
   // confirmation count is met.)
   const watcher = Actions.transaction.waitForReceipt(client, {
     confirmations: 2,
@@ -688,7 +689,8 @@ test('replacement: surfaces a block-scan error to onError', async () => {
 
   // The original transaction is observed pending, but scanning the candidate
   // block fails with a non-retryable error, which surfaces to the receipt
-  // promise (and `onError`).
+  // promise (and `onError`). `retryCount: 0` surfaces the error without
+  // transport retry backoff.
   const server = await proxyServer((method) =>
     method === 'eth_getBlockByNumber'
       ? { error: { code: -32603, message: 'boom' } }
@@ -697,7 +699,7 @@ test('replacement: surfaces a block-scan error to onError', async () => {
   try {
     await whenPendingObserved(hash)
     const proxyClient = Client.create({
-      transport: http(server.url),
+      transport: http(server.url, { retryCount: 0 }),
       pollingInterval: 100,
     })
 

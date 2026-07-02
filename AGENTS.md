@@ -143,6 +143,12 @@ For v3 rewrite work, also read `AGENTS.tmp.md`.
   - Use `pnpm test --project core --bail=1` for core failures.
   - Use `--project tempo` for tempo work.
   - Use `SKIP_GLOBAL_SETUP=true` for offline runs that do not need anvil.
+- **Use `anvil.local` for pending-hash polling tests**; a fork forwards unknown-hash lookups
+  (`eth_getTransactionReceipt`, `eth_getTransactionByHash`) to the upstream RPC, adding unbounded
+  latency to polls over pending or replaced transactions.
+  - Reserve `anvil.mainnet` for tests that need pinned fork state.
+  - Transport retries also stack here: proxy tests asserting error passthrough should set
+    `retryCount: 0` on the proxied transport.
 - **Colocate tests**; tests are sibling `*.test.ts` files next to their module; prefer inline snapshots over snapshot files.
 - **No tests for pure re-exports**; upstream packages own coverage for pure re-export modules.
   - Once a facade gains project logic, add sibling tests.
