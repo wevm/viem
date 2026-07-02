@@ -202,6 +202,8 @@ test('exports', () => {
       "InvalidHexBooleanError",
       "InvalidHexValueError",
       "RlpDepthLimitExceededError",
+      "RlpListBoundaryExceededError",
+      "RlpTrailingBytesError",
       "SizeOverflowError",
       "EnsAvatarInvalidNftUriError",
       "EnsAvatarUnsupportedNamespaceError",

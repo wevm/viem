@@ -880,6 +880,10 @@ export {
   type InvalidHexValueErrorType,
   RlpDepthLimitExceededError,
   type RlpDepthLimitExceededErrorType,
+  RlpListBoundaryExceededError,
+  type RlpListBoundaryExceededErrorType,
+  RlpTrailingBytesError,
+  type RlpTrailingBytesErrorType,
   SizeOverflowError,
   type SizeOverflowErrorType,
 } from './errors/encoding.js'
