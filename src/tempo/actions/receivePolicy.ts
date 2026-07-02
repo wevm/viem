@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import type { ReceivePolicyReceipt } from 'ox/tempo'
+import { type ReceivePolicyReceipt, VirtualAddress } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
@@ -56,6 +56,9 @@ export type BlockedReason = ReceivePolicyReceipt.BlockedReason
 
 /** @internal */
 const blockedReasons = ['none', 'tokenFilter', 'receivePolicy'] as const
+
+/** @internal 12-byte prefix shared by TIP-20 token addresses. */
+const tip20Prefix = '0x20c000000000000000000000'
 
 /** @internal */
 const systemPrecompiles = [
@@ -1278,9 +1281,9 @@ function resolveClaimer(claimer: Claimer, self: Address): Address {
 /** @internal */
 function assertValidRecoveryAuthority(recoveryAuthority: Address) {
   if (isAddressEqual(recoveryAuthority, zeroAddress)) return
-  if (Addresses.isVirtualAddress(recoveryAuthority))
+  if (VirtualAddress.isVirtual(recoveryAuthority))
     throw new Error('Recovery authority cannot be a TIP-1022 virtual address.')
-  if (Addresses.isTip20Address(recoveryAuthority))
+  if (recoveryAuthority.toLowerCase().startsWith(tip20Prefix))
     throw new Error('Recovery authority cannot be a TIP-20 token address.')
   if (
     systemPrecompiles.some((address) =>
