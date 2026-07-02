@@ -1614,3 +1614,51 @@ export const validator = [
     ],
   },
 ] as const
+
+export const storageCredits = [
+  {
+    type: 'error',
+    name: 'DelegateCallNotAllowed',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'InvalidMode',
+    inputs: [],
+  },
+  {
+    type: 'function',
+    name: 'balanceOf',
+    stateMutability: 'view',
+    inputs: [{ name: 'account', type: 'address' }],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    type: 'function',
+    name: 'modeOf',
+    stateMutability: 'view',
+    inputs: [{ name: 'account', type: 'address' }],
+    outputs: [{ type: 'uint8' }],
+  },
+  {
+    type: 'function',
+    name: 'budgetOf',
+    stateMutability: 'view',
+    inputs: [{ name: 'account', type: 'address' }],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    type: 'function',
+    name: 'setMode',
+    stateMutability: 'nonpayable',
+    inputs: [{ name: 'newMode', type: 'uint8' }],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'setBudget',
+    stateMutability: 'nonpayable',
+    inputs: [{ name: 'creditBudget', type: 'uint64' }],
+    outputs: [],
+  },
+] as const
