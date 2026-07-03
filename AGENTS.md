@@ -84,6 +84,7 @@ For v3 rewrite work, also read `AGENTS.tmp.md`.
 
 - **Stateless module APIs**; public APIs are module namespaces full of functions and types. Do not introduce stateful classes for normal library behavior.
 - **Public entrypoint docs**; when adding a public module or export, update the owning `index.ts` (and `src/index.ts` for root exports) with the export and a TSDoc block.
+- **Alphabetical exports**; order exports alphabetically by exported name — barrel/entrypoint export statements, named-export lists, and the exported declaration blocks of action/module files alike.
 - **Package exports are generated**; run `pnpm exports:update` only when intentionally adding, removing, or renaming public subpath exports.
 - **Keep public APIs lean**; avoid exposing options for values the library can derive from existing inputs.
 - **Wire formats stay explicit**; serialization, RPC, RLP, ABI, and transaction-envelope code should keep wire-order and field-shape decisions visible at the call site.
@@ -147,6 +148,9 @@ For v3 rewrite work, also read `AGENTS.tmp.md`.
   its proxy holding ports 8545/8645, making later runs fail at global setup (`EADDRINUSE`) or
   time out en masse against the wedged instance. `lsof -nP -i :8545 -i :8645` and kill the stale
   `node` process.
+- **eip4844/kzg tests flake under full parallel runs**; the blob/kzg suites (`prepare`, `sign`
+  eip4844 cases) intermittently time out when the whole suite runs with `--maxWorkers=4`, and
+  pass in isolation. Verify in isolation before suspecting code.
 - **Full parallel runs can rate-limit the fork upstream**; 100+ fresh fork instances cold-fetching
   pinned state can saturate the fork RPC, failing random fork-state tests (`getBalance`,
   `getProof`, …). Re-run with `--maxWorkers=4`, and verify suspicious failures in isolation before
