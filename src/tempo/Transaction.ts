@@ -126,7 +126,7 @@ export type TransactionRequestTempo<
     feeToken?: TempoAddress.Address | bigint | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     multisig?: MultisigConfig.Config<index> | undefined
-    /** Bootstrap multisig config hint for node-side gas modeling (TIP-1061). Filled during `prepareTransactionRequest`. */
+    /** Bootstrap multisig config hint for node-side gas modeling (TIP-1061). Only valid for unregistered senders. */
     multisigInit?:
       | {
           salt: Hex.Hex
@@ -134,7 +134,7 @@ export type TransactionRequestTempo<
           owners: readonly { owner: Address; weight: number }[]
         }
       | undefined
-    /** Modeled owner approval count for node-side gas modeling (TIP-1061). Filled during `prepareTransactionRequest`. */
+    /** Modeled owner approval count for node-side gas modeling (TIP-1061). */
     multisigSignatureCount?: number | undefined
     nonceKey?: 'expiring' | quantity | undefined
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined
