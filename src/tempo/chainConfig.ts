@@ -86,9 +86,6 @@ export const chainConfig = {
         const config = MultisigConfig.from(multisig)
         request.multisig = config
         request.from = MultisigConfig.getAddress(config)
-        // TIP-1061 gas modeling: `eth_fillTransaction`/`eth_estimateGas` price
-        // bootstrap from `multisigInit`; the node ignores the hint when the
-        // sender is already registered.
         request.multisigInit = {
           salt: config.salt ?? MultisigConfig.zeroSalt,
           threshold: Number(config.threshold),
