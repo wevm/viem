@@ -48,7 +48,12 @@ export async function getMetadata<
 
   const [decimals, name, symbol] = await Promise.all([
     declared?.decimals ??
-      read(client, { ...rest, abi: erc20Abi, address, functionName: 'decimals' }),
+      read(client, {
+        ...rest,
+        abi: erc20Abi,
+        address,
+        functionName: 'decimals',
+      }),
     declared?.name ??
       read(client, { ...rest, abi: erc20Abi, address, functionName: 'name' }),
     declared?.symbol ??

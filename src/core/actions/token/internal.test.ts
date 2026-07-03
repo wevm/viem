@@ -33,9 +33,8 @@ describe('resolveToken', () => {
   })
 
   test('explicit `decimals` overrides the token decimals', () => {
-    expect(
-      resolveToken(client, { token: 'usdc', decimals: 8 }),
-    ).toMatchInlineSnapshot(`
+    expect(resolveToken(client, { token: 'usdc', decimals: 8 }))
+      .toMatchInlineSnapshot(`
       {
         "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         "decimals": 8,
@@ -53,9 +52,8 @@ describe('resolveToken', () => {
   })
 
   test('passes through an `address` with explicit `decimals`', () => {
-    expect(
-      resolveToken(client, { token: dai, decimals: 18 }),
-    ).toMatchInlineSnapshot(`
+    expect(resolveToken(client, { token: dai, decimals: 18 }))
+      .toMatchInlineSnapshot(`
       {
         "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
         "decimals": 18,
@@ -81,7 +79,9 @@ describe('resolveToken', () => {
   })
 
   test('resolves an `address` when the client has no tokens', () => {
-    const chainless = Client.create({ transport: http('https://eth.merkle.io') })
+    const chainless = Client.create({
+      transport: http('https://eth.merkle.io'),
+    })
     expect(resolveToken(chainless, { token: usdc })).toMatchInlineSnapshot(`
       {
         "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
@@ -91,7 +91,9 @@ describe('resolveToken', () => {
   })
 
   test('throws for a `token` symbol when the client has no tokens', () => {
-    const chainless = Client.create({ transport: http('https://eth.merkle.io') })
+    const chainless = Client.create({
+      transport: http('https://eth.merkle.io'),
+    })
     expect(() =>
       resolveToken(chainless, { token: 'usdc' }),
     ).toThrowErrorMatchingInlineSnapshot(

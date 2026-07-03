@@ -59,7 +59,8 @@ export declare namespace signAuthorization {
 
 /** Thrown when an Account type does not support signing Authorizations. */
 export class AccountTypeNotSupportedError extends BaseError {
-  override readonly name = 'Actions.wallet.signAuthorization.AccountTypeNotSupportedError'
+  override readonly name =
+    'Actions.wallet.signAuthorization.AccountTypeNotSupportedError'
 
   constructor({ type }: { type: string }) {
     super(`Account type "${type}" is not supported.`, {

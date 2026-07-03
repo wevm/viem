@@ -45,7 +45,12 @@ export async function getBalance<
   client: Client.Client<chain, account, Transport.Transport, tokens>,
   options: getBalance.Options<chain, account, tokens>,
 ): Promise<getBalance.ReturnType> {
-  const { account: account_ = client.account, decimals, token, ...rest } = options
+  const {
+    account: account_ = client.account,
+    decimals,
+    token,
+    ...rest
+  } = options
   if (!account_) throw new Account.NotFoundError()
   const address = typeof account_ === 'string' ? account_ : account_.address
   const [amount, { decimals: resolved }] = await Promise.all([

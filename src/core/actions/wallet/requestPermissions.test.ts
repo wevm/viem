@@ -6,9 +6,8 @@ import * as anvil from '~test/anvil.js'
 const client = anvil.getWalletClient(anvil.mainnet)
 
 test('default', async () => {
-  expect(
-    await Actions.wallet.requestPermissions(client, { eth_accounts: {} }),
-  ).toMatchInlineSnapshot(`
+  expect(await Actions.wallet.requestPermissions(client, { eth_accounts: {} }))
+    .toMatchInlineSnapshot(`
     [
       {
         "caveats": [

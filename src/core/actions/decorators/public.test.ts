@@ -2,11 +2,7 @@ import * as Value from 'ox/Value'
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as contract from '~test/contract.js'
-import {
-  client as tokenClient,
-  holder,
-  usdc,
-} from '~test/token.js'
+import { client as tokenClient, holder, usdc } from '~test/token.js'
 import { describe, expect, test } from 'vitest'
 
 import { publicActions } from './public.js'

@@ -31,7 +31,12 @@ export async function prepareAuthorization(
   client: Client.Client,
   options: prepareAuthorization.Options,
 ): Promise<prepareAuthorization.ReturnType> {
-  const { account: account_ = client.account, address, chainId, nonce } = options
+  const {
+    account: account_ = client.account,
+    address,
+    chainId,
+    nonce,
+  } = options
 
   if (!account_) throw new Account.NotFoundError()
   const account =
