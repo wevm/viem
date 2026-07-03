@@ -3,6 +3,7 @@ import type * as Errors from 'ox/Errors'
 import type * as Hex from 'ox/Hex'
 import type * as Kzg from 'ox/Kzg'
 import * as TransactionRequest from 'ox/TransactionRequest'
+import type * as TxEnvelope from 'ox/TxEnvelope'
 import { z } from 'ox/zod'
 
 import * as Account from '../../Account.js'
@@ -88,10 +89,12 @@ export async function sign<chain extends Chain.Chain | undefined>(
   if (account.type === 'local') {
     const toEnvelope =
       codecChain?.transaction?.toEnvelope ?? TransactionRequest.toEnvelope
-    const envelope = await toEnvelope(
+    // A chain hook may produce a custom (opaque) envelope; it round-trips
+    // into the same chain's `getSignPayload`/`serialize` via the account.
+    const envelope = (await toEnvelope(
       request as TransactionRequest.TransactionRequest,
       { kzg },
-    )
+    )) as TxEnvelope.TxEnvelope
     return account.signTransaction(envelope, { chain: codecChain })
   }
 

@@ -1,6 +1,8 @@
 import * as Authorization from 'ox/Authorization'
 import * as Blobs from 'ox/Blobs'
+import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
+import * as Signature from 'ox/Signature'
 import * as TransactionRequest from 'ox/TransactionRequest'
 import * as TxEnvelope from 'ox/TxEnvelope'
 import * as Value from 'ox/Value'
@@ -370,6 +372,64 @@ describe('behavior: chain', () => {
       type: 'eip1559',
     })
     expect(TxEnvelope.deserialize(signed).value).toBe(69n)
+  })
+
+  test('behavior: custom envelope chain signs cast-free', async () => {
+    type ZedEnvelope = {
+      nonce: bigint | number
+      to?: `0x${string}` | undefined
+      type: 'zed'
+      value?: bigint | undefined
+    }
+
+    const zed = Chain.from({
+      id: 1,
+      name: 'Zed',
+      nativeCurrency: { name: 'Zed', symbol: 'ZED', decimals: 18 },
+      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+      transaction: {
+        getSignPayload: (envelope: ZedEnvelope) =>
+          Hash.keccak256(
+            Hex.fromString(
+              `${envelope.type}:${envelope.to}:${envelope.value}:${envelope.nonce}`,
+            ),
+          ),
+        serialize: (
+          envelope: ZedEnvelope,
+          options?: { signature?: Signature.Signature | undefined },
+        ) =>
+          Hex.concat(
+            '0x7a',
+            Hex.fromString(`${envelope.type}:${envelope.value}`),
+            options?.signature ? Signature.toHex(options.signature) : '0x',
+          ),
+        toEnvelope: (request): ZedEnvelope => ({
+          nonce: request.nonce ?? 0n,
+          to: request.to ?? undefined,
+          type: 'zed',
+          value: request.value,
+        }),
+      },
+    })
+
+    const zedClient = Client.create({
+      chain: zed,
+      transport: http(anvil.mainnet.rpcUrl.http),
+    })
+
+    const signed = await Actions.transaction.sign(zedClient, {
+      account: local,
+      gas: 21_000n,
+      maxFeePerGas: 1_000_000_000n,
+      maxPriorityFeePerGas: 1n,
+      nonce: 785,
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    })
+
+    expect(signed).toMatchInlineSnapshot(
+      `"0x7a7a65643a31ce2e43cb6b7c96a07eca82dee1c1e4e2c3e9d0916ac2973e988875b37948bf3333426e56ae523da5924e82654107e56981d312fe6a7467c017ce0cce0572ef5e1c"`,
+    )
   })
 })
 

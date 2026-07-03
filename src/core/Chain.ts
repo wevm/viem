@@ -8,7 +8,6 @@ import type * as Signature from 'ox/Signature'
 import type * as Transaction from 'ox/Transaction'
 import type * as TransactionReceipt from 'ox/TransactionReceipt'
 import type * as TransactionRequest from 'ox/TransactionRequest'
-import type * as TxEnvelope from 'ox/TxEnvelope'
 import type { z } from 'ox/zod'
 import type * as Client from './Client.js'
 import { BaseError } from './Errors.js'
@@ -44,6 +43,8 @@ export type Chain = {
     [key: string]: Chain.RpcUrls
     default: Chain.RpcUrls
   }
+  /** Typed chain-extension declaration (see {@link extendSchema}). */
+  extendSchema?: Record<string, unknown> | undefined
   /** Bidirectional RPC ↔ native codecs. */
   schema?: Chain.Schema | undefined
   /** Source chain id (e.g. the L1 chain). */
@@ -70,8 +71,14 @@ export declare namespace Chain {
     options: {
       /** The address that signed the hash. */
       address: Address.Address
+      /** The block number the verification runs against. */
+      blockNumber?: bigint | undefined
+      /** The block tag the verification runs against. */
+      blockTag?: Block.Tag | undefined
       /** The hash that was signed. */
       hash: Hex.Hex
+      /** Verification mode requested by the caller. */
+      mode?: string | undefined
       /** The signature to verify. */
       signature: Hex.Hex
     },
@@ -166,14 +173,27 @@ export declare namespace Chain {
     ) => Promise<bigint | null> | bigint | null
   }
 
-  /** Transaction signing & preparation hooks for a {@link Chain}. */
+  /**
+   * A transaction envelope a {@link Chain}'s hooks operate on. Chains with
+   * custom transaction types provide hooks over their own envelope shape
+   * (`type` is optional pre-inference on unsigned envelopes).
+   */
+  type Envelope = { type?: string | undefined }
+
+  /**
+   * Transaction signing & preparation hooks for a {@link Chain}.
+   *
+   * Hook parameters are declared contravariantly (`never`) so chains with
+   * custom envelope types (see {@link Envelope}) assign without casts; the
+   * envelope flows opaquely from `toEnvelope` into `getSignPayload`/`serialize`.
+   */
   type Transaction = {
     /**
      * Derives the sign payload (hash) for a transaction envelope.
      *
      * @default `TxEnvelope.getSignPayload`
      */
-    getSignPayload?: ((envelope: TxEnvelope.TxEnvelope) => Hex.Hex) | undefined
+    getSignPayload?: ((envelope: never) => Hex.Hex) | undefined
     /**
      * Hook to prepare a transaction request. Runs while a transaction is
      * prepared (e.g. to inject chain-specific fields). Provide a function to
@@ -197,7 +217,7 @@ export declare namespace Chain {
      */
     serialize?:
       | ((
-          envelope: TxEnvelope.TxEnvelope,
+          envelope: never,
           options?: { signature?: Signature.Signature | undefined } | undefined,
         ) => Hex.Hex)
       | undefined
@@ -210,7 +230,7 @@ export declare namespace Chain {
       | ((
           request: TransactionRequest.TransactionRequest,
           options?: { kzg?: Kzg.Kzg | undefined } | undefined,
-        ) => MaybePromise<TxEnvelope.TxEnvelope>)
+        ) => MaybePromise<Envelope>)
       | undefined
   }
 
@@ -346,7 +366,7 @@ export type ExtractTransactionRequest<chain extends Chain | undefined> =
  * })
  * ```
  */
-export function from<const chain extends Chain>(
+export function from<const chain extends Chain & Record<string, unknown>>(
   chain: chain,
 ): from.ReturnType<chain> {
   return Object.assign(chain, { extend: extend(chain) }) as never
@@ -355,7 +375,7 @@ export function from<const chain extends Chain>(
 export declare namespace from {
   type ReturnType<chain> = Prettify<
     chain & {
-      extend: <const extended extends Partial<Chain>>(
+      extend: <const extended extends Partial<Chain> & Record<string, unknown>>(
         extended: extended,
       ) => from.ReturnType<Assign<chain, extended>>
     }
@@ -366,6 +386,38 @@ export declare namespace from {
 function extend(base: Chain) {
   return (extended: Partial<Chain>) => from({ ...base, ...extended } as Chain)
 }
+
+/**
+ * Declares typed chain-extension properties. Type-only: returns an empty
+ * carrier whose type flows through {@link from} so extension fields are typed
+ * on the chain root.
+ *
+ * @example
+ * ```ts
+ * import { Chain } from 'viem'
+ *
+ * const chain = Chain.from({
+ *   extendSchema: Chain.extendSchema<{ feeToken?: string | undefined }>(),
+ *   // ...
+ *   feeToken: '0x20c0000000000000000000000000000000000001',
+ * })
+ * chain.feeToken
+ * // ^? string | undefined
+ * ```
+ */
+export function extendSchema<schema extends Record<string, unknown>>(): schema {
+  return {} as schema
+}
+
+/**
+ * Extension record a {@link Chain} declares via {@link extendSchema}
+ * (`{}` when the chain declares none).
+ */
+export type ExtractExtension<chain extends Chain | undefined> = chain extends {
+  extendSchema: infer extension extends Record<string, unknown>
+}
+  ? extension
+  : {}
 
 /** Asserts that the connected chain matches the chain targeted by a request. */
 export function assertCurrent({

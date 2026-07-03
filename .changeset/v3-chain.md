@@ -49,7 +49,7 @@ Deprecated chain fee fields were removed in favor of `maxPriorityFeePerGas`.
  })
 ```
 
-Experimental and extension chain fields were renamed or removed from the chain shape.
+Experimental and deprecated extension chain fields were renamed or removed from the chain shape; `extendSchema` moved onto the `Chain` namespace.
 
 ```diff
 -const chain = defineChain({
@@ -58,5 +58,9 @@ Experimental and extension chain fields were renamed or removed from the chain s
 -  extendSchema: extendSchema<{ slug: string }>(),
 +const chain = Chain.from({
 +  preconfirmationTime: 1_000,
++  extendSchema: Chain.extendSchema<{ slug: string }>(),
++  slug: 'example',
  })
 ```
+
+Chain transaction hooks (`toEnvelope`/`getSignPayload`/`serialize`) accept custom envelope types without casts, and the `verifyHash` hook receives the caller's `mode` and block context.

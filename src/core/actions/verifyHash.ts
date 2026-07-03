@@ -57,6 +57,25 @@ export async function verifyHash(
   client: Client.Client,
   options: verifyHash.Options,
 ): Promise<verifyHash.ReturnType> {
+  if (client.chain?.verifyHash)
+    return await client.chain.verifyHash(client, {
+      ...options,
+      signature: normalizeSignature(options.signature),
+    })
+
+  return await verifyDefault(client, options)
+}
+
+/**
+ * The default (hook-less) verification path. Chain `verifyHash` hooks call
+ * this to fall back to standard verification without re-dispatching.
+ *
+ * @internal
+ */
+export async function verifyDefault(
+  client: Client.Client,
+  options: verifyHash.Options,
+): Promise<verifyHash.ReturnType> {
   const {
     address,
     erc6492VerifierAddress = client.chain?.contracts?.erc6492Verifier?.address,
@@ -64,12 +83,6 @@ export async function verifyHash(
     mode = 'auto',
     multicallAddress = client.chain?.contracts?.multicall3?.address,
   } = options
-
-  if (client.chain?.verifyHash)
-    return await client.chain.verifyHash(client, {
-      ...options,
-      signature: normalizeSignature(options.signature),
-    })
 
   const signature = normalizeSignature(options.signature)
 
