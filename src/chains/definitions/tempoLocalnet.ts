@@ -1,7 +1,10 @@
 import * as Chain from '../../core/Chain.js'
+import { chainConfig } from '../../tempo/chainConfig.js'
 
 export const tempoLocalnet = /*#__PURE__*/ Chain.from({
+  ...chainConfig,
   id: 1337,
+  hardfork: 't3',
   name: 'Tempo',
   nativeCurrency: {
     name: 'USD',

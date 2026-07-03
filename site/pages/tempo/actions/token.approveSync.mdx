@@ -1,0 +1,126 @@
+# token.approveSync
+
+Approves a spender to transfer TIP-20 tokens on behalf of the caller, and waits for the transaction to be confirmed.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const { owner, spender, amount, receipt } = await client.token.approveSync({
+  amount: 100n,
+  spender: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: 1n,
+})
+// @log: { owner: '0x…', spender: '0x…', amount: 100n, receipt: { … } }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { owner, spender, amount, receipt } = await Actions.token.approveSync(client, {
+  amount: 100n,
+  spender: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: 1n,
+})
+// @log: { owner: '0x…', spender: '0x…', amount: 100n, receipt: { … } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### amount
+
+- **Type:** `bigint | { decimals?: number, formatted: string }`
+
+Amount of tokens to approve, in base units or formatted decimal form.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.token.approveSync(client, {
+  amount: { decimals: 6, formatted: '1.5' }, // [!code focus]
+  spender: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+### spender
+
+- **Type:** `Address`
+
+Address of the spender.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.token.approveSync(client, {
+  amount: 100n,
+  spender: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw when the receipt marks the transaction as reverted.
+
+### token
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the TIP-20 token.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.token.approveSync(client, {
+  amount: 100n,
+  spender: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: 1n, // [!code focus]
+})
+```
+
+## Return Value
+
+`{ owner: Address, spender: Address, amount: bigint, decimals?: number, formatted?: string, receipt: TransactionReceipt }`
+
+The `Approval` event data and the transaction receipt. `decimals` and `formatted` are present when the token's decimals are known.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed or the receipt reverted. |

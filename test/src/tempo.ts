@@ -1,0 +1,94 @@
+import { Server } from 'prool'
+import * as TestContainers from 'prool/testcontainers'
+
+import { Account, Actions, Client, http } from 'viem'
+import { tempoLocalnet } from 'viem/chains'
+import { tokens } from 'viem/tokens'
+
+import * as constants from './constants.js'
+
+export const port = 9545
+
+/** Pool-scoped RPC URL (one node instance per vitest pool). */
+export const rpcUrl = `http://localhost:${port}/${constants.poolId}`
+
+/** Tempo localnet dev accounts (the anvil "test … junk" mnemonic). */
+export const accounts = constants.accounts
+
+export const alphaUsd = '0x20c0000000000000000000000000000000000001'
+export const pathUsd = '0x20c0000000000000000000000000000000000000'
+
+const feeAmmAbi = [
+  {
+    name: 'mint',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'userToken' },
+      { type: 'address', name: 'validatorToken' },
+      { type: 'uint256', name: 'validatorTokenAmount' },
+      { type: 'address', name: 'to' },
+    ],
+    outputs: [],
+  },
+] as const
+
+/** Creates a Client for the pool's Tempo node instance. */
+export function getClient(options: getClient.Options = {}) {
+  const { account = Account.fromPrivateKey(accounts[0].privateKey) } = options
+  return Client.create({
+    account,
+    chain: tempoLocalnet,
+    pollingInterval: 100,
+    tokens: tokens.tempo,
+    transport: http(rpcUrl),
+  })
+}
+
+export declare namespace getClient {
+  type Options = {
+    /** Account for the Client. @default dev account 0 */
+    account?: Account.Account | undefined
+  }
+}
+
+/** Mints fee-AMM liquidity for `token` (fee-token validity). */
+export async function mintLiquidity(
+  client: ReturnType<typeof getClient>,
+  options: { token: string },
+) {
+  await Actions.contract.writeSync(client, {
+    abi: feeAmmAbi,
+    address: '0xfeec000000000000000000000000000000000000',
+    args: [options.token, pathUsd, 1_000_000_000n, client.account!.address],
+    feeToken: pathUsd,
+    functionName: 'mint',
+    nonceKey: 'expiring',
+  } as never)
+}
+
+/** Mints fee-AMM liquidity for the genesis tokens (fee-token validity). */
+export async function setup() {
+  const client = getClient()
+  for (const id of [1n, 2n, 3n])
+    await mintLiquidity(client, {
+      token: `0x20c000000000000000000000000000000000000${id}`,
+    })
+}
+
+/** Restarts the pool's Tempo node instance (fresh genesis state). */
+export async function restart() {
+  await fetch(`${rpcUrl}/restart`)
+}
+
+/** Creates the pooled Tempo node server (Dockerized via testcontainers). */
+export function createServer() {
+  return Server.create({
+    instance: TestContainers.Instance.tempo({
+      blockTime: '2ms',
+      image: 'ghcr.io/tempoxyz/tempo:latest',
+      port,
+    }),
+    port,
+  })
+}

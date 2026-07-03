@@ -1,0 +1,82 @@
+# token.getRoleAdmin
+
+Gets the admin role for a specific role in a TIP-20 token.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const adminRole = await client.token.getRoleAdmin({
+  role: 'issuer',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: '0x0000000000000000000000000000000000000000000000000000000000000000'
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const adminRole = await Actions.token.getRoleAdmin(client, {
+  role: 'issuer',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: '0x0000000000000000000000000000000000000000000000000000000000000000'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client } from 'viem/tempo'
+
+export const client = Client.create()
+```
+
+:::
+
+## Parameters
+
+### role
+
+- **Type:** `TokenRole`
+
+Role to get admin for. Valid roles: `'defaultAdmin'`, `'pause'`, `'unpause'`, `'issuer'`, `'burnBlocked'`.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const adminRole = await Actions.token.getRoleAdmin(client, {
+  role: 'pause', // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+### token
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the TIP-20 token.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const adminRole = await Actions.token.getRoleAdmin(client, {
+  role: 'issuer',
+  token: 1n, // [!code focus]
+})
+```
+
+## Return Value
+
+`Hex`
+
+The admin role hash.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The token read failed. |

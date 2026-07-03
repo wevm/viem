@@ -1,0 +1,126 @@
+# token.setRoleAdminSync
+
+Sets the admin role for a specific role in a TIP-20 token, and waits for the transaction to be confirmed.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const { role, newAdminRole, sender, receipt } = await client.token.setRoleAdminSync({
+  adminRole: 'defaultAdmin',
+  role: 'issuer',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: { role: '0x…', newAdminRole: '0x…', sender: '0x…', receipt: { … } }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { role, newAdminRole, sender, receipt } = await Actions.token.setRoleAdminSync(client, {
+  adminRole: 'defaultAdmin',
+  role: 'issuer',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: { role: '0x…', newAdminRole: '0x…', sender: '0x…', receipt: { … } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### adminRole
+
+- **Type:** `TokenRole`
+
+New admin role. Valid roles: `'defaultAdmin'`, `'pause'`, `'unpause'`, `'issuer'`, `'burnBlocked'`.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.token.setRoleAdminSync(client, {
+  adminRole: 'pause', // [!code focus]
+  role: 'issuer',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+### role
+
+- **Type:** `TokenRole`
+
+Role to set admin for. Valid roles: `'defaultAdmin'`, `'pause'`, `'unpause'`, `'issuer'`, `'burnBlocked'`.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.token.setRoleAdminSync(client, {
+  adminRole: 'defaultAdmin',
+  role: 'burnBlocked', // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw when the receipt marks the transaction as reverted.
+
+### token
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the TIP-20 token.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.token.setRoleAdminSync(client, {
+  adminRole: 'defaultAdmin',
+  role: 'issuer',
+  token: 1n, // [!code focus]
+})
+```
+
+## Return Value
+
+`{ role: Hex, newAdminRole: Hex, sender: Address, receipt: TransactionReceipt }`
+
+The `RoleAdminUpdated` event data and the transaction receipt.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed or the receipt reverted. |

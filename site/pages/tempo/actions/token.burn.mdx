@@ -1,0 +1,115 @@
+# token.burn
+
+Burns TIP-20 tokens from the caller's balance.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const hash = await client.token.burn({
+  amount: 100n,
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: '0x…'
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await Actions.token.burn(client, {
+  amount: 100n,
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: '0x…'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### amount
+
+- **Type:** `bigint | { decimals?: number, formatted: string }`
+
+Amount of tokens to burn, in base units or formatted decimal form.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.token.burn(client, {
+  amount: { decimals: 6, formatted: '1.5' }, // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### memo
+
+- **Type:** `Hex`
+
+Memo to include in the burn (calls `burnWithMemo`).
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.token.burn(client, {
+  amount: 100n,
+  memo: '0xdeadbeef', // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+### token
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the TIP-20 token.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.token.burn(client, {
+  amount: 100n,
+  token: 1n, // [!code focus]
+})
+```
+
+## Return Value
+
+`Hex`
+
+The transaction hash.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed. |

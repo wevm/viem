@@ -62,3 +62,5 @@ const schema = z.RpcSchema.from({
   abe_foo: { params: z.tuple([z.number()]), returns: z.string() },
 })
 ```
+
+Added the `viem/tempo` entrypoint with the `Client.create` factory, `tempoActions()` decorator, `Actions` namespaces (`token`, `fee`, `nonce`), support modules (`Abis`, `Addresses`, `Selectors`, `Scopes`, `Storage`, `Expiry`, `TokenIds`, `Capabilities`, `Hardfork`, `Chain`, `chainConfig`), and Tempo fee-token errors.

@@ -1,0 +1,121 @@
+# token.getAllowance
+
+Gets TIP-20 token allowance.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const allowance = await client.token.getAllowance({
+  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  spender: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: { amount: 100000000n, decimals: 6, formatted: '100' }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const allowance = await Actions.token.getAllowance(client, {
+  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  spender: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: { amount: 100000000n, decimals: 6, formatted: '100' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client } from 'viem/tempo'
+
+export const client = Client.create()
+```
+
+:::
+
+## Parameters
+
+### account
+
+- **Type:** `Address`
+
+Account that owns the tokens.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const allowance = await Actions.token.getAllowance(client, {
+  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+  spender: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+### decimals
+
+- **Type:** `number`
+
+Decimals used to convert between base units and the human-readable amount. Inferred from the client's `tokens` array when `token` matches a declared token; otherwise fetched from the token contract when needed.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const allowance = await Actions.token.getAllowance(client, {
+  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  decimals: 6, // [!code focus]
+  spender: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+### spender
+
+- **Type:** `Address`
+
+Spender of the tokens.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const allowance = await Actions.token.getAllowance(client, {
+  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  spender: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+### token
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the TIP-20 token.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const allowance = await Actions.token.getAllowance(client, {
+  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  spender: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: 1n, // [!code focus]
+})
+```
+
+## Return Value
+
+`{ amount: bigint, decimals: number, formatted: string }`
+
+The allowance, in base units (`amount`) and human-readable form (`formatted`, derived from `decimals`).
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The token read failed. |

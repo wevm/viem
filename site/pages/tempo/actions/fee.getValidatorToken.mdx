@@ -1,0 +1,54 @@
+# fee.getValidatorToken
+
+Gets a validator's preferred fee token.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const validatorToken = await client.fee.getValidatorToken({
+  validator: '0xcccccccc00000000000000000000000000000001',
+})
+// @log: { address: '0x20C0000000000000000000000000000000000000', id: 0n }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const validatorToken = await Actions.fee.getValidatorToken(client, {
+  validator: '0xcccccccc00000000000000000000000000000001',
+})
+// @log: { address: '0x20C0000000000000000000000000000000000000', id: 0n }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client } from 'viem/tempo'
+
+export const client = Client.create()
+```
+
+:::
+
+## Parameters
+
+### validator
+
+- **Type:** `Address`
+
+Validator address.
+
+## Return Value
+
+`{ address: Address, id: bigint } | null`
+
+The validator's preferred fee token (validators without an explicit preference resolve to the protocol default, pathUSD).
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The FeeManager read failed. |

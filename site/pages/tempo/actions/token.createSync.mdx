@@ -1,0 +1,189 @@
+# token.createSync
+
+Creates a new TIP-20 token, and waits for the transaction to be confirmed.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const { token, tokenId } = await client.token.createSync({
+  currency: 'USD',
+  name: 'My Token',
+  symbol: 'MTK',
+})
+// @log: {
+// @log:   token: '0x20c0000000000000000000000000000000000001',
+// @log:   name: 'My Token',
+// @log:   symbol: 'MTK',
+// @log:   currency: 'USD',
+// @log:   quoteToken: '0x20c0000000000000000000000000000000000000',
+// @log:   admin: '0x…',
+// @log:   salt: '0x…',
+// @log:   tokenId: 1n,
+// @log:   receipt: { … },
+// @log: }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { token, tokenId } = await Actions.token.createSync(client, {
+  currency: 'USD',
+  name: 'My Token',
+  symbol: 'MTK',
+})
+// @log: {
+// @log:   token: '0x20c0000000000000000000000000000000000001',
+// @log:   name: 'My Token',
+// @log:   symbol: 'MTK',
+// @log:   currency: 'USD',
+// @log:   quoteToken: '0x20c0000000000000000000000000000000000000',
+// @log:   admin: '0x…',
+// @log:   salt: '0x…',
+// @log:   tokenId: 1n,
+// @log:   receipt: { … },
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### admin
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Admin (or address) of the token.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.token.createSync(client, {
+  admin: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+  currency: 'USD',
+  name: 'My Token',
+  symbol: 'MTK',
+})
+```
+
+### currency
+
+- **Type:** `string`
+
+Currency (e.g. `USD`).
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### logoURI
+
+- **Type:** `string`
+
+Logo URI. Requires a T5-enabled Tempo chain.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.token.createSync(client, {
+  currency: 'USD',
+  logoURI: 'https://example.com/token.svg', // [!code focus]
+  name: 'My Token',
+  symbol: 'MTK',
+})
+```
+
+### name
+
+- **Type:** `string`
+
+Token name.
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+### quoteToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `0x20c0000000000000000000000000000000000000` (PathUSD)
+
+Quote token of the new token.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.token.createSync(client, {
+  currency: 'USD',
+  name: 'My Token',
+  quoteToken: 1n, // [!code focus]
+  symbol: 'MTK',
+})
+```
+
+### salt
+
+- **Type:** `Hex`
+- **Default:** `Hex.random(32)`
+
+Unique salt used to derive the token address.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.token.createSync(client, {
+  currency: 'USD',
+  name: 'My Token',
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
+  symbol: 'MTK',
+})
+```
+
+### symbol
+
+- **Type:** `string`
+
+Token symbol.
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw when the receipt marks the transaction as reverted.
+
+## Return Value
+
+`{ token: Address, name: string, symbol: string, currency: string, quoteToken: Address, admin: Address, salt: Hex, tokenId: TokenId, receipt: TransactionReceipt }`
+
+The `TokenCreated` event data, the new token's `tokenId`, and the transaction receipt.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `BaseError` | No `admin` was provided and the client has no account. |
+| `ContractFunctionExecutionError` | The write failed or the receipt reverted. |

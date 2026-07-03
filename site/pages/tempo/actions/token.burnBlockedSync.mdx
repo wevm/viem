@@ -1,0 +1,126 @@
+# token.burnBlockedSync
+
+Burns TIP-20 tokens from a blocked address, and waits for the transaction to be confirmed.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const { from, amount, receipt } = await client.token.burnBlockedSync({
+  amount: 100n,
+  from: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: { from: '0x…', amount: 100n, receipt: { … } }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { from, amount, receipt } = await Actions.token.burnBlockedSync(client, {
+  amount: 100n,
+  from: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: { from: '0x…', amount: 100n, receipt: { … } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### amount
+
+- **Type:** `bigint | { decimals?: number, formatted: string }`
+
+Amount of tokens to burn, in base units or formatted decimal form.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.token.burnBlockedSync(client, {
+  amount: { decimals: 6, formatted: '1.5' }, // [!code focus]
+  from: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### from
+
+- **Type:** `Address`
+
+Address to burn tokens from.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.token.burnBlockedSync(client, {
+  amount: 100n,
+  from: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw when the receipt marks the transaction as reverted.
+
+### token
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the TIP-20 token.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.token.burnBlockedSync(client, {
+  amount: 100n,
+  from: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: 1n, // [!code focus]
+})
+```
+
+## Return Value
+
+`{ from: Address, amount: bigint, receipt: TransactionReceipt }`
+
+The `BurnBlocked` event data and the transaction receipt.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed or the receipt reverted. |

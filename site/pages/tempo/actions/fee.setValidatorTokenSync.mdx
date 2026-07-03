@@ -1,0 +1,64 @@
+# fee.setValidatorTokenSync
+
+Sets the validator's preferred fee token and waits for the transaction to be confirmed.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const { token, receipt } = await client.fee.setValidatorTokenSync({
+  token: 1n,
+})
+// @log: { token: '0x20C0000000000000000000000000000000000001', receipt: { … } }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { token, receipt } = await Actions.fee.setValidatorTokenSync(client, {
+  token: 1n,
+})
+// @log: { token: '0x20C0000000000000000000000000000000000001', receipt: { … } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### token
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the TIP-20 token.
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw when the receipt marks the transaction as reverted.
+
+## Return Value
+
+`{ token: Address, validator: Address, receipt: TransactionReceipt }`
+
+The `ValidatorTokenSet` event data and the transaction receipt.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed or the receipt reverted. |

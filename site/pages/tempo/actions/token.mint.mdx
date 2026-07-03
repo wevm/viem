@@ -1,0 +1,137 @@
+# token.mint
+
+Mints TIP-20 tokens to an address.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const hash = await client.token.mint({
+  amount: 100n,
+  to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: '0x…'
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await Actions.token.mint(client, {
+  amount: 100n,
+  to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: '0x…'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### amount
+
+- **Type:** `bigint | { decimals?: number, formatted: string }`
+
+Amount of tokens to mint, in base units or formatted decimal form.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.token.mint(client, {
+  amount: { decimals: 6, formatted: '1.5' }, // [!code focus]
+  to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### memo
+
+- **Type:** `Hex`
+
+Memo to include in the mint (calls `mintWithMemo`).
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.token.mint(client, {
+  amount: 100n,
+  memo: '0xdeadbeef', // [!code focus]
+  to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+### to
+
+- **Type:** `Address`
+
+Address to mint tokens to.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.token.mint(client, {
+  amount: 100n,
+  to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+### token
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the TIP-20 token.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.token.mint(client, {
+  amount: 100n,
+  to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  token: 1n, // [!code focus]
+})
+```
+
+## Return Value
+
+`Hex`
+
+The transaction hash.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed. |

@@ -1,0 +1,63 @@
+# fee.getUserToken
+
+Gets the user's default fee token.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const userToken = await client.fee.getUserToken()
+// @log: { address: '0x20C0000000000000000000000000000000000001', id: 1n }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const userToken = await Actions.fee.getUserToken(client)
+// @log: { address: '0x20C0000000000000000000000000000000000001', id: 1n }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### account
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Account (or address) to read the fee token for.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const userToken = await Actions.fee.getUserToken(client, {
+  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+})
+```
+
+## Return Value
+
+`{ address: Address, id: bigint } | null`
+
+The user's default fee token, or `null` when unset.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The FeeManager read failed. |

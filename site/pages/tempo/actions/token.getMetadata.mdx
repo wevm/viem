@@ -1,0 +1,85 @@
+# token.getMetadata
+
+Gets TIP-20 token metadata including name, symbol, logo URI, currency, decimals, and total supply.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const metadata = await client.token.getMetadata({
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: {
+// @log:   name: 'My Token',
+// @log:   symbol: 'MTK',
+// @log:   currency: 'USD',
+// @log:   decimals: 6,
+// @log:   logoURI: 'https://example.com/token.svg',
+// @log:   quoteToken: '0x20c0000000000000000000000000000000000000',
+// @log:   totalSupply: 1000000000000n,
+// @log:   paused: false,
+// @log:   supplyCap: 100000000000000n,
+// @log:   transferPolicyId: 1n,
+// @log: }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const metadata = await Actions.token.getMetadata(client, {
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: {
+// @log:   name: 'My Token',
+// @log:   symbol: 'MTK',
+// @log:   currency: 'USD',
+// @log:   decimals: 6,
+// @log:   logoURI: 'https://example.com/token.svg',
+// @log:   quoteToken: '0x20c0000000000000000000000000000000000000',
+// @log:   totalSupply: 1000000000000n,
+// @log:   paused: false,
+// @log:   supplyCap: 100000000000000n,
+// @log:   transferPolicyId: 1n,
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client } from 'viem/tempo'
+
+export const client = Client.create()
+```
+
+:::
+
+## Parameters
+
+### token
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the TIP-20 token.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const metadata = await Actions.token.getMetadata(client, {
+  token: 1n, // [!code focus]
+})
+```
+
+## Return Value
+
+`{ currency: string, decimals: number, logoURI: string, quoteToken?: Address, name: string, paused?: boolean, supplyCap?: bigint, symbol: string, totalSupply: bigint, transferPolicyId?: bigint }`
+
+The token metadata. `quoteToken`, `paused`, `supplyCap`, and `transferPolicyId` are `undefined` for the default quote token (PathUSD).
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The token read failed. |

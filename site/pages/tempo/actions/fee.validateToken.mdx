@@ -1,0 +1,57 @@
+# fee.validateToken
+
+Validates that a token can be used as a Tempo fee token.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const { address, id, metadata } = await client.fee.validateToken({
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: { address: '0x20c0…0001', id: 1n, metadata: { currency: 'USD', … } }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { address, id, metadata } = await Actions.fee.validateToken(client, {
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: { address: '0x20c0…0001', id: 1n, metadata: { currency: 'USD', … } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client } from 'viem/tempo'
+
+export const client = Client.create()
+```
+
+:::
+
+## Parameters
+
+### token
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the TIP-20 token.
+
+## Return Value
+
+`{ address: Address, id: bigint, metadata: TokenMetadata }`
+
+The fee token address, ID, and TIP-20 metadata.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `FeeTokenNotTip20Error` | The token is not a registered TIP-20 token. |
+| `FeeTokenNotUsdError` | The token is not USD-denominated. |
+| `FeeTokenPausedError` | The token is paused. |
+| `InvalidFeeTokenError` | The token could not be resolved or read. |
