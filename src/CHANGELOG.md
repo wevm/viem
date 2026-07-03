@@ -1,5 +1,25 @@
 # viem
 
+## 2.54.2
+
+### Patch Changes
+
+- [#4742](https://github.com/wevm/viem/pull/4742) [`71f8731a4cb0d569f7bc9453bc27e238f3f90c29`](https://github.com/wevm/viem/commit/71f8731a4cb0d569f7bc9453bc27e238f3f90c29) Thanks [@lifeofjer](https://github.com/lifeofjer)! - Added Mars Credit chain.
+
+- [#4790](https://github.com/wevm/viem/pull/4790) [`e5626e3ec72149721d1109a8a638ae9aea982695`](https://github.com/wevm/viem/commit/e5626e3ec72149721d1109a8a638ae9aea982695) Thanks [@jxom](https://github.com/jxom)! - Rejected RLP payloads in `fromRlp` with trailing bytes after the decoded item or list items extending beyond their declared list length.
+
+- [#4768](https://github.com/wevm/viem/pull/4768) [`48175663f1bb2b2a2a32d51c8e87100d977b3eb9`](https://github.com/wevm/viem/commit/48175663f1bb2b2a2a32d51c8e87100d977b3eb9) Thanks [@nikhilkumar1612](https://github.com/nikhilkumar1612)! - Fixed `estimateUserOperationGas` omitting `fees` during User Operation preparation, which caused strict bundlers to reject gas estimation requests.
+
+- [#4784](https://github.com/wevm/viem/pull/4784) [`404a11944045b88405fec20b52f8d9b7fa727056`](https://github.com/wevm/viem/commit/404a11944045b88405fec20b52f8d9b7fa727056) Thanks [@decofe](https://github.com/decofe)! - Added Storage Credits (TIP-1060) precompile ABI & address to Tempo exports.
+
+- [#4789](https://github.com/wevm/viem/pull/4789) [`1e93747abba0f0d8286e083c6c1ff3f07a640aa6`](https://github.com/wevm/viem/commit/1e93747abba0f0d8286e083c6c1ff3f07a640aa6) Thanks [@jxom](https://github.com/jxom)! - Added Storage Credits (TIP-1060) precompile selectors to Tempo exports.
+
+- [#4786](https://github.com/wevm/viem/pull/4786) [`b4b3cbed4329e1d49887ed5812b07610a84a6b32`](https://github.com/wevm/viem/commit/b4b3cbed4329e1d49887ed5812b07610a84a6b32) Thanks [@struong](https://github.com/struong)! - Added `zone.encryptedDeposit.prepare` for Tempo Zone encrypted deposits.
+
+- [#4788](https://github.com/wevm/viem/pull/4788) [`74699ef25d0549f020c168a7ff535bee5e50adf0`](https://github.com/wevm/viem/commit/74699ef25d0549f020c168a7ff535bee5e50adf0) Thanks [@jxom](https://github.com/jxom)! - Updated `ws` to `8.21.0`.
+
+- [#4758](https://github.com/wevm/viem/pull/4758) [`0fafede5136b42a5322f8f900961e9b3fe9a526f`](https://github.com/wevm/viem/commit/0fafede5136b42a5322f8f900961e9b3fe9a526f) Thanks [@decofe](https://github.com/decofe)! - Added validation rejecting Tempo receive policy claimers that can never claim funds (TIP-1022 virtual addresses, TIP-20 token addresses, and Tempo system precompiles), and exported `Addresses.tip20ChannelReserve`.
+
 ## 2.54.1
 
 ### Patch Changes
