@@ -1261,10 +1261,6 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
 
   const to = '0x0000000000000000000000000000000000000001'
 
-  // Bootstrap gas is explicit: node-side estimation for uninitialized multisig
-  // senders is broken (simulation marker cache poisons repeat iterations).
-  const bootstrapGas = 2_000_000n
-
   test('flat 2-of-2: init + subsequent', async () => {
     const owner_1 = accounts[1]
     const owner_2 = accounts[2]
@@ -1298,7 +1294,6 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
           }),
         ],
         feeToken,
-        gas: bootstrapGas,
         multisig: config,
       })
       const signatures = await Promise.all(
@@ -1381,7 +1376,6 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
         }),
       ],
       feeToken,
-      gas: bootstrapGas,
       multisig: config,
     })
     // Only 2 of the 3 owners approve. Spread `...request` first so the explicit
@@ -1428,7 +1422,6 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
         }),
       ],
       feeToken,
-      gas: bootstrapGas,
       multisig: config,
     })
     // The heavy owner alone satisfies the threshold (weight 2 >= 2).
@@ -1477,7 +1470,6 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
         }),
       ],
       feeToken,
-      gas: bootstrapGas,
       multisig: config,
     })
     const signatures = await Promise.all(
@@ -1526,7 +1518,6 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
         }),
       ],
       feeToken,
-      gas: bootstrapGas,
     })
     // The prepared request carries the multisig account as sender, so `...request`
     // is enough — no need to re-pass `account` to `sendTransaction`.

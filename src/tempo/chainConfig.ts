@@ -1,6 +1,7 @@
 import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
 import { MultisigConfig, SignatureEnvelope, type TokenId } from 'ox/tempo'
+import { estimateGas } from '../actions/public/estimateGas.js'
 import { getCode } from '../actions/public/getCode.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
 import { maxUint256 } from '../constants/number.js'
@@ -63,6 +64,29 @@ export const chainConfig = {
             request.gas = (request.gas ?? 0n) + 20_000n
           else if (request.account?.source === 'accessKey')
             request.gas = (request.gas ?? 0n) + 10_000n
+        }
+
+        // Native multisig bootstrap (TIP-1061, `nonce == 0`): the node prices
+        // `init` verification and bootstrap storage only when the request
+        // carries `multisigInit`, so re-estimate with the hint attached.
+        if (request.multisig && !request.nonce) {
+          const config = MultisigConfig.from(request.multisig)
+          request.gas = await getAction(
+            client,
+            estimateGas,
+            'estimateGas',
+          )({
+            ...request,
+            multisigInit: {
+              salt: config.salt ?? MultisigConfig.zeroSalt,
+              threshold: Number(config.threshold),
+              owners: config.owners.map((owner) => ({
+                owner: owner.owner,
+                weight: Number(owner.weight),
+              })),
+            },
+            prepare: false,
+          } as never)
         }
 
         return request as unknown as typeof r
