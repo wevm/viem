@@ -2,6 +2,7 @@ import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
 import { MultisigConfig, SignatureEnvelope, type TokenId } from 'ox/tempo'
 import { getCode } from '../actions/public/getCode.js'
+import { getTransactionCount } from '../actions/public/getTransactionCount.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
 import { maxUint256 } from '../constants/number.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
@@ -90,6 +91,32 @@ export const chainConfig = {
         // `request.from`. A multisig account *is* the sender — keep it so the
         // prepared request can be sent without re-passing `account`.
         if (request.account?.source !== 'multisig') delete request.account
+        // Prefill the sender nonce: bootstrap detection (serializer `init`)
+        // and the `multisigInit` estimation hint both key off `nonce == 0`.
+        if (
+          typeof request.nonce === 'undefined' &&
+          typeof request.nonceKey === 'undefined'
+        )
+          request.nonce = await getAction(
+            client,
+            getTransactionCount,
+            'getTransactionCount',
+          )({ address: request.from, blockTag: 'pending' })
+
+        // TIP-1061 simulation hints: the node prices multisig verification
+        // and bootstrap storage from these during gas estimation.
+        // `multisigInit` mirrors the serializer (`init` attaches on `nonce == 0`).
+        const config = MultisigConfig.from(multisig)
+        request.multisigSignatureCount = config.owners.length
+        if (!request.nonce)
+          request.multisigInit = {
+            salt: config.salt ?? MultisigConfig.zeroSalt,
+            threshold: Number(config.threshold),
+            owners: config.owners.map((owner) => ({
+              owner: owner.owner,
+              weight: Number(owner.weight),
+            })),
+          }
       }
 
       if (
