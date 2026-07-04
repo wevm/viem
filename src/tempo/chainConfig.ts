@@ -83,8 +83,17 @@ export const chainConfig = {
           ? (request.account as MultisigAccount).config
           : undefined)
       if (multisig) {
-        request.multisig = multisig
-        request.from = MultisigConfig.getAddress(multisig)
+        const config = MultisigConfig.from(multisig)
+        request.multisig = config
+        request.from = MultisigConfig.getAddress(config)
+        request.multisigInit = {
+          salt: config.salt ?? MultisigConfig.zeroSalt,
+          threshold: Number(config.threshold),
+          owners: config.owners.map((owner) => ({
+            owner: owner.owner,
+            weight: Number(owner.weight),
+          })),
+        }
         // A non-multisig `account` (e.g. the client's default) isn't the sender,
         // so drop it: core then fills nonce/gas/fees for the multisig sender via
         // `request.from`. A multisig account *is* the sender — keep it so the

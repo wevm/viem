@@ -121,8 +121,12 @@ export function formatTransactionRequest(
   // `multisig` / `signatures` are client-side only (TIP-1061). They drive
   // sender derivation, owner signing, and final envelope assembly, but are
   // never sent as raw RPC fields — the wire payload is the serialized tx.
+  // `multisigInit` / `multisigSignatureCount` are wire fields: the node
+  // prices multisig gas from them during simulation.
   const {
     multisig: _multisig,
+    multisigInit,
+    multisigSignatureCount,
     signatures: _signatures,
     ...rpcRequest
   } = request
@@ -164,6 +168,10 @@ export function formatTransactionRequest(
 
   return {
     ...rpc,
+    ...(multisigInit ? { multisigInit } : {}),
+    ...(typeof multisigSignatureCount !== 'undefined'
+      ? { multisigSignatureCount }
+      : {}),
     ...(request.capabilities ? { capabilities: request.capabilities } : {}),
     ...(keyData ? { keyData } : {}),
     ...(keyId ? { keyId } : {}),
