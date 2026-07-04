@@ -1,5 +1,12 @@
 import * as fs from 'node:fs'
-import { type Config, defineConfig, McpSource } from 'vocs/config'
+import {
+  type Config,
+  defineConfig,
+  Embedding,
+  McpSource,
+  Reranker,
+  Retriever,
+} from 'vocs/config'
 
 import pkg from '../src/package.json' with { type: 'json' }
 
@@ -175,6 +182,19 @@ export default defineConfig({
       if (documentId.startsWith('pages/experimental')) return 2
       return 1
     },
+  },
+  ai: {
+    // Semantic (AI) search on top of the built-in keyword search. Vocs owns the
+    // pipeline: pages are chunked + embedded at build time into a static vector
+    // store, then queries are embedded and searched at runtime.
+    //
+    // Requires `CLOUDFLARE_ACCOUNT_ID` + `CLOUDFLARE_API_TOKEN` (with the
+    // Workers AI permission) at both build time (to embed pages) and runtime
+    // (to embed each query). See site/.env.example.
+    retriever: Retriever.local({
+      embedding: Embedding.cloudflare(), // @cf/baai/bge-base-en-v1.5
+      reranker: Reranker.cloudflare(), // @cf/baai/bge-reranker-base
+    }),
   },
   sidebar: {
     '/docs/': [
@@ -3358,7 +3378,6 @@ export default defineConfig({
     },
   ],
   twoslash: {
-    checkOnly: true,
     // Persist twoslash results inline in the markdown source as
     // `// @twoslash-cache: ...` comments so the cache travels with the repo.
     // This lets cold Vercel builds skip twoslash entirely instead of
