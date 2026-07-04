@@ -1,5 +1,15 @@
 # viem
 
+## 2.54.3
+
+### Patch Changes
+
+- [#4792](https://github.com/wevm/viem/pull/4792) [`da4f54be6d3b5f5b0741e9ade94055685f9247c1`](https://github.com/wevm/viem/commit/da4f54be6d3b5f5b0741e9ade94055685f9247c1) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added TIP-1061 multisig gas estimation hints (`multisigInit`, `multisigSignatureCount`), and attached `multisigInit` to multisig requests so node-side fill and estimation price bootstrap gas.
+
+- [#4792](https://github.com/wevm/viem/pull/4792) [`da4f54be6d3b5f5b0741e9ade94055685f9247c1`](https://github.com/wevm/viem/commit/da4f54be6d3b5f5b0741e9ade94055685f9247c1) Thanks [@jxom](https://github.com/jxom)! - Updated `ox` to `0.14.30`.
+
+- [#4791](https://github.com/wevm/viem/pull/4791) [`515b637cde2d0338f012abfb501f1983440e4e76`](https://github.com/wevm/viem/commit/515b637cde2d0338f012abfb501f1983440e4e76) Thanks [@jxom](https://github.com/jxom)! - Fixed `encodeAbiParameters` and `decodeAbiParameters` handling of zero-width types (zero-length fixed arrays and empty tuples).
+
 ## 2.54.2
 
 ### Patch Changes
