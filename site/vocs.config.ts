@@ -194,6 +194,9 @@ export default defineConfig({
     retriever: Retriever.local({
       embedding: Embedding.cloudflare(), // @cf/baai/bge-base-en-v1.5
       reranker: Reranker.cloudflare(), // @cf/baai/bge-reranker-base
+      // Index external docs alongside viem's own pages. `weight` (< 1)
+      // slightly de-prioritizes them so viem docs win on comparable relevance.
+      sources: [{ url: 'https://wagmi.sh/llms.txt', label: 'wagmi', weight: 0.8 }],
     }),
   },
   sidebar: {
