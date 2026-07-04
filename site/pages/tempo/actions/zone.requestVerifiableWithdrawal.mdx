@@ -15,7 +15,7 @@ import { parseUnits } from 'viem'
 import { client } from './zones.config'
 
 // Generate a keypair for decrypting the sender identity later.
-// Store the private key securely — the holder can reveal the sender.
+// Store the private key securely. The holder can reveal the sender.
 const { privateKey, publicKey } = Secp256k1.createKeyPair()
 const revealTo = PublicKey.toHex(PublicKey.compress(publicKey))
 

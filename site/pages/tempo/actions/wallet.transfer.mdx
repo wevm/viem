@@ -36,7 +36,7 @@ export const client = createClient({
 
 ## Editable mode
 
-By default, `wallet.transfer` is read-only — the wallet signs and submits the transfer programmatically (using an access key when one matches, otherwise prompting the user with a confirm dialog).
+By default, `wallet.transfer` is read-only. The wallet signs and submits the transfer programmatically (using an access key when one matches, otherwise prompting the user with a confirm dialog).
 
 Pass `editable: true` to open the wallet's send UI instead, with any supplied fields pre-filled for the user to confirm or edit before signing. In this mode all fields are optional.
 
