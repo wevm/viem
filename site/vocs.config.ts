@@ -184,18 +184,9 @@ export default defineConfig({
     },
   },
   ai: {
-    // Semantic (AI) search on top of the built-in keyword search. Vocs owns the
-    // pipeline: pages are chunked + embedded at build time into a static vector
-    // store, then queries are embedded and searched at runtime.
-    //
-    // Requires `CLOUDFLARE_ACCOUNT_ID` + `CLOUDFLARE_API_TOKEN` (with the
-    // Workers AI permission) at both build time (to embed pages) and runtime
-    // (to embed each query). See site/.env.example.
     retriever: Retriever.local({
-      embedding: Embedding.cloudflare(), // @cf/baai/bge-base-en-v1.5
-      reranker: Reranker.cloudflare(), // @cf/baai/bge-reranker-base
-      // Index external docs alongside viem's own pages. `weight` (< 1)
-      // slightly de-prioritizes them so viem docs win on comparable relevance.
+      embedding: Embedding.cloudflare(),
+      reranker: Reranker.cloudflare(),
       sources: [{ url: 'https://wagmi.sh/llms.txt', label: 'wagmi', weight: 0.8 }],
     }),
   },
