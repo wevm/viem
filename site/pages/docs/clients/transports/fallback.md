@@ -78,6 +78,29 @@ const client = createPublicClient({
 })
 ```
 
+## RPC Error Fallthrough
+
+By default, the `fallback` Transport tries the next Transport after most JSON-RPC errors. It still throws immediately for errors that should not be retried, such as user rejection, transaction rejection, WalletConnect session settlement errors, and execution reverts.
+
+Use `shouldThrow` to customize which errors should stop fallback selection. For example, returning `false` lets the Transport try the next RPC URL when one provider has stale mempool or chain state.
+
+```ts twoslash
+import { createPublicClient, fallback, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: fallback(
+    [http('https://1.rpc.thirdweb.com/...'), http('https://mainnet.infura.io/v3/...')],
+    {
+      shouldThrow: (error) => error.message.includes('user rejected'),
+    },
+  ),
+})
+```
+
+The `fallback` Transport selects a Transport per request. Client actions that make multiple RPC requests, such as estimating gas and then sending a transaction, can still use different RPC URLs across those requests.
+
 ## Parameters
 
 ### rank (optional)
