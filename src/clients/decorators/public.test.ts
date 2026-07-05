@@ -66,6 +66,7 @@ test('default', async () => {
       "getGasPrice": [Function],
       "getLogs": [Function],
       "getProof": [Function],
+      "getRawTransaction": [Function],
       "getStorageAt": [Function],
       "getTransaction": [Function],
       "getTransactionConfirmations": [Function],
@@ -356,6 +357,14 @@ describe('smoke test', () => {
 
   test('estimateMaxPriorityFeePerGas', async () => {
     expect(await client.estimateMaxPriorityFeePerGas()).toBeDefined()
+  })
+
+  test('getRawTransaction', async () => {
+    expect(
+      await client.getRawTransaction({
+        hash: '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98b',
+      }),
+    ).toBeDefined()
   })
 
   test('getStorageAt', async () => {

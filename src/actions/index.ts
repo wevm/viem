@@ -201,6 +201,12 @@ export {
   getProof,
 } from './public/getProof.js'
 export {
+  type GetRawTransactionErrorType,
+  type GetRawTransactionParameters,
+  type GetRawTransactionReturnType,
+  getRawTransaction,
+} from './public/getRawTransaction.js'
+export {
   type GetStorageAtErrorType,
   type GetStorageAtParameters,
   type GetStorageAtReturnType,
