@@ -442,6 +442,10 @@ export default defineConfig({
                 link: '/docs/actions/public/fillTransaction',
               },
               {
+                text: 'getRawTransaction',
+                link: '/docs/actions/public/getRawTransaction',
+              },
+              {
                 text: 'getTransaction',
                 link: '/docs/actions/public/getTransaction',
               },
