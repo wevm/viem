@@ -1,5 +1,11 @@
 # viem
 
+## 2.54.4
+
+### Patch Changes
+
+- [#4801](https://github.com/wevm/viem/pull/4801) [`8d1db77e6379cfb4028cb8f0742b6633311fce43`](https://github.com/wevm/viem/commit/8d1db77e6379cfb4028cb8f0742b6633311fce43) Thanks [@jxom](https://github.com/jxom)! - Added `getRawTransaction` action to retrieve a raw, serialized transaction via `eth_getRawTransactionByHash`.
+
 ## 2.54.3
 
 ### Patch Changes
