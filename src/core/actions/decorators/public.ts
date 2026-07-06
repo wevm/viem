@@ -138,6 +138,7 @@ export function publicActions() {
       get: (options) => transaction.get(client, options),
       getConfirmations: (options) =>
         transaction.getConfirmations(client, options),
+      getRaw: (options) => transaction.getRaw(client, options),
       getReceipt: (options) => transaction.getReceipt(client, options),
       prepare: (options) => transaction.prepare(client, options),
       waitForReceipt: (options) => transaction.waitForReceipt(client, options),
@@ -1415,6 +1416,26 @@ export declare namespace publicActions {
       getConfirmations: (
         options: transaction.getConfirmations.Options<chain>,
       ) => Promise<transaction.getConfirmations.ReturnType>
+      /**
+       * Returns the raw, serialized transaction given a hash.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const rawTransaction = await client.transaction.getRaw({
+       *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+       * })
+       * ```
+       */
+      getRaw: (
+        options: transaction.getRaw.Options,
+      ) => Promise<transaction.getRaw.ReturnType>
       /**
        * Returns the transaction receipt for a given transaction hash.
        *

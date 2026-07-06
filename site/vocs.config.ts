@@ -790,6 +790,11 @@ export default defineConfig({
                 badge: badge('public'),
               },
               {
+                text: 'getRaw',
+                link: '/docs/actions/public/transaction/getRaw',
+                badge: badge('public'),
+              },
+              {
                 text: 'getReceipt',
                 link: '/docs/actions/public/transaction/getReceipt',
                 badge: badge('public'),

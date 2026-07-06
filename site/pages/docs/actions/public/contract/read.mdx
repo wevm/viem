@@ -113,6 +113,28 @@ const balance = await Actions.contract.read(client, {
 })
 ```
 
+### blockHash
+
+- **Type:** `Hex`
+
+Reads the contract at the block with the given hash ([EIP-1898](https://eips.ethereum.org/EIPS/eip-1898)). Pair with [`requireCanonical`](#requirecanonical) to reject blocks outside the canonical chain.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+// ---cut---
+const supply = await Actions.contract.read(client, {
+  abi,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d', // [!code focus]
+  functionName: 'totalSupply',
+})
+```
+
 ### blockNumber
 
 - **Type:** `bigint`
@@ -197,6 +219,30 @@ const supply = await Actions.contract.read(client, {
   abi,
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   functionName: 'totalSupply', // [!code focus]
+})
+```
+
+### requireCanonical
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether the block given via [`blockHash`](#blockhash) must be in the canonical chain ([EIP-1898](https://eips.ethereum.org/EIPS/eip-1898)). When `true`, the read fails for blocks that are known but not canonical (e.g. uncles).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+// ---cut---
+const supply = await Actions.contract.read(client, {
+  abi,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+  functionName: 'totalSupply',
+  requireCanonical: true, // [!code focus]
 })
 ```
 
