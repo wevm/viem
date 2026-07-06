@@ -46,9 +46,11 @@ import type {
   WriteParameters,
 } from '../internal/types.js'
 import {
+  type CallParameters,
   defineCall,
   findDeclaredToken,
   pickWriteParameters,
+  resolveCallParameters,
   resolveToken,
   resolveTokenWithDecimals,
 } from '../internal/utils.js'
@@ -130,15 +132,14 @@ export namespace approve {
    * `address`; `amount.decimals` is inferred from the client's declared
    * `tokens` when omitted.
    *
-   * @param client - Client.
-   * @param parameters - Parameters.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    parameters: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
-    const { amount, spender, token } = parameters
+    const [client, args] = resolveCallParameters(parameters)
+    const { amount, spender, token } = args
     const { address, decimals } = resolveToken(client, { token })
     return defineCall({
       address,
@@ -389,13 +390,13 @@ export namespace burnBlocked {
    *
    * `amount.decimals` is inferred from the client's declared `tokens` when omitted.
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { from, amount, token } = args
     const { address, decimals } = resolveToken(client, { token })
     return defineCall({
@@ -598,13 +599,13 @@ export namespace burn {
    *
    * `amount.decimals` is inferred from the client's declared `tokens` when omitted.
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { amount, memo, token } = args
     const { address, decimals } = resolveToken(client, { token })
     const value = internal_Token.toBaseUnits(amount, decimals)
@@ -812,13 +813,13 @@ export namespace changeTransferPolicy {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token, policyId } = args
     return defineCall({
       address: resolveToken(client, { token }).address,
@@ -1049,13 +1050,13 @@ export namespace create {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
+    const [client, args] = resolveCallParameters(parameters)
     const {
       name,
       symbol,
@@ -1247,14 +1248,13 @@ export namespace getAllowance {
    * other action that accepts a contract call. The token is selected by `token`,
    * which is either a TIP20 token id or a contract address.
    *
-   * @param client - Client.
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
+    const [client, args] = resolveCallParameters(parameters)
     return defineCall({
       address: resolveToken(client, args).address,
       abi: Abis.tip20,
@@ -1333,15 +1333,20 @@ export namespace getBalance {
    * other action that accepts a contract call. The token is selected by `token`,
    * which is either a TIP20 token id or a contract address.
    *
-   * @param client - Client.
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<
     chain extends Chain | undefined,
     account extends Account | undefined,
-  >(client: Client<Transport, chain, account>, args: Args<account>) {
-    const account_ = args.account ?? client.account
+  >(
+    ...parameters: CallParameters<
+      Args<account>,
+      Client<Transport, chain, account>
+    >
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
+    const account_ = args.account ?? client?.account
     if (!account_) throw new AccountNotFoundError()
     const account = parseAccount(account_).address
     return defineCall({
@@ -1658,14 +1663,13 @@ export namespace getTotalSupply {
    * other action that accepts a contract call. The token is selected by `token`,
    * which is either a TIP20 token id or a contract address.
    *
-   * @param client - Client.
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
+    const [client, args] = resolveCallParameters(parameters)
     return defineCall({
       address: resolveToken(client, args).address,
       abi: Abis.tip20,
@@ -1728,13 +1732,13 @@ export namespace getRoleAdmin {
   /**
    * Defines a call to the `getRoleAdmin` function.
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { role, token } = args
     return defineCall({
       address: resolveToken(client, { token }).address,
@@ -1809,13 +1813,13 @@ export namespace hasRole {
   /**
    * Defines a call to the `hasRole` function.
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { account, role, token } = args
     return defineCall({
       address: resolveToken(client, { token }).address,
@@ -1939,13 +1943,13 @@ export namespace grantRoles {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token, to, role } = args
     const roleHash = TokenRole.serialize(role)
     return defineCall({
@@ -2149,13 +2153,13 @@ export namespace mint {
    *
    * `amount.decimals` is inferred from the client's declared `tokens` when omitted.
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { to, amount, memo, token } = args
     const { address, decimals } = resolveToken(client, { token })
     const value = internal_Token.toBaseUnits(amount, decimals)
@@ -2360,13 +2364,13 @@ export namespace pause {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token } = args
     return defineCall({
       address: resolveToken(client, { token }).address,
@@ -2566,13 +2570,13 @@ export namespace renounceRoles {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token, role } = args
     const roleHash = TokenRole.serialize(role)
     return defineCall({
@@ -2782,13 +2786,13 @@ export namespace revokeRoles {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token, from, role } = args
     const roleHash = TokenRole.serialize(role)
     return defineCall({
@@ -2986,13 +2990,13 @@ export namespace setSupplyCap {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token, supplyCap } = args
     return defineCall({
       address: resolveToken(client, { token }).address,
@@ -3189,13 +3193,13 @@ export namespace setRoleAdmin {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token, role, adminRole } = args
     const roleHash = TokenRole.serialize(role)
     const adminRoleHash = TokenRole.serialize(adminRole)
@@ -3371,17 +3375,16 @@ export namespace transfer {
    * `address`; `amount.decimals` is inferred from the client's declared
    * `tokens` when omitted.
    *
-   * @param client - Client.
-   * @param parameters - Parameters.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    parameters: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
-    const { from, memo, to, token } = parameters
+    const [client, args] = resolveCallParameters(parameters)
+    const { from, memo, to, token } = args
     const { address, decimals } = resolveToken(client, { token })
-    const value = internal_Token.toBaseUnits(parameters.amount, decimals)
+    const value = internal_Token.toBaseUnits(args.amount, decimals)
     const callArgs = (() => {
       if (memo && from)
         return {
@@ -3645,13 +3648,13 @@ export namespace unpause {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token } = args
     return defineCall({
       address: resolveToken(client, { token }).address,
@@ -3843,13 +3846,13 @@ export namespace prepareUpdateQuoteToken {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token, quoteToken } = args
     return defineCall({
       address: resolveToken(client, { token }).address,
@@ -4043,13 +4046,13 @@ export namespace updateQuoteToken {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args,
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token } = args
     return defineCall({
       address: resolveToken(client, { token }).address,
