@@ -165,7 +165,7 @@ try {
 
 Fs.writeFileSync(
   out,
-  "// Generated with `pnpm gen:abis`. Do not modify manually.\n\nimport * as Abi from 'ox/Abi'\n\n",
+  '// Generated with `pnpm gen:tempo-abis`. Do not modify manually.\n\n',
 )
 
 // Generate ABIs for all interfaces
