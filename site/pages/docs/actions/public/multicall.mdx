@@ -1,4 +1,4 @@
-# simulateCalls
+# multicall
 
 Simulates execution of a batch of calls, returning typed per-call results.
 
@@ -11,7 +11,7 @@ Calls execute via `eth_simulateV1` by default. On nodes without support (and wit
 ```ts twoslash [Decorator]
 import { client } from './viem.config'
 
-const { results } = await client.simulateCalls({
+const { results } = await client.multicall({
   account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
   calls: [
     {
@@ -37,7 +37,7 @@ const { results } = await client.simulateCalls({
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-const { results } = await Actions.simulateCalls(client, {
+const { results } = await Actions.multicall(client, {
   account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
   calls: [
     {
@@ -73,7 +73,7 @@ export const client = Client.create({
 
 ### Batched Reads
 
-Typed contract calls decode into typed `result` values, making `simulateCalls` the batched counterpart of [`contract.read`](/docs/actions/public/contract/read):
+Typed contract calls decode into typed `result` values, making `multicall` the batched counterpart of [`contract.read`](/docs/actions/public/contract/read):
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -87,7 +87,7 @@ const abi = Abi.from([
   'function totalSupply() view returns (uint256)',
 ])
 
-const { results } = await Actions.simulateCalls(client, {
+const { results } = await Actions.multicall(client, {
   calls: [
     {
       abi,
@@ -118,7 +118,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 
-const { assetChanges } = await Actions.simulateCalls(client, {
+const { assetChanges } = await Actions.multicall(client, {
   account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
   calls: [
     {
@@ -162,7 +162,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const { results } = await Actions.simulateCalls(client, {
+const { results } = await Actions.multicall(client, {
   account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929', // [!code focus]
   calls: [
     {
@@ -188,7 +188,7 @@ import { Abi } from 'viem/utils'
 const client = Client.create({ chain: mainnet, transport: http() })
 const abi = Abi.from(['function totalSupply() view returns (uint256)'])
 // ---cut---
-const { results } = await Actions.simulateCalls(client, {
+const { results } = await Actions.multicall(client, {
   allowFailure: false, // [!code focus]
   calls: [
     {
@@ -220,7 +220,7 @@ import { Abi } from 'viem/utils'
 const client = Client.create({ chain: mainnet, transport: http() })
 const abi = Abi.from(['function totalSupply() view returns (uint256)'])
 // ---cut---
-const { results } = await Actions.simulateCalls(client, {
+const { results } = await Actions.multicall(client, {
   mode: 'multicall', // [!code focus]
   calls: [
     {
@@ -247,7 +247,7 @@ import { Abi } from 'viem/utils'
 const client = Client.create({ chain: mainnet, transport: http() })
 const abi = Abi.from(['function totalSupply() view returns (uint256)'])
 // ---cut---
-const { results } = await Actions.simulateCalls(client, {
+const { results } = await Actions.multicall(client, {
   mode: 'multicall',
   batchSize: 512, // [!code focus]
   calls: [
@@ -272,7 +272,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const { results } = await Actions.simulateCalls(client, {
+const { results } = await Actions.multicall(client, {
   blockNumber: 42069n, // [!code focus]
   calls: [
     {
@@ -296,7 +296,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const { results } = await Actions.simulateCalls(client, {
+const { results } = await Actions.multicall(client, {
   blockTag: 'pending', // [!code focus]
   calls: [
     {
@@ -320,7 +320,7 @@ import { Abi } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const { results } = await Actions.simulateCalls(client, {
+const { results } = await Actions.multicall(client, {
   calls: [ // [!code focus]
     { // [!code focus]
       abi: Abi.from(['function name() view returns (string)']), // [!code focus]
@@ -349,7 +349,7 @@ import { Abi } from 'viem/utils'
 const client = Client.create({ chain: mainnet, transport: http() })
 const abi = Abi.from(['function totalSupply() view returns (uint256)'])
 // ---cut---
-const { results } = await Actions.simulateCalls(client, {
+const { results } = await Actions.multicall(client, {
   mode: 'multicall',
   calls: [
     {
@@ -377,7 +377,7 @@ import { Abi } from 'viem/utils'
 const client = Client.create({ chain: mainnet, transport: http() })
 const abi = Abi.from(['function totalSupply() view returns (uint256)'])
 // ---cut---
-const { results } = await Actions.simulateCalls(client, {
+const { results } = await Actions.multicall(client, {
   mode: 'multicall',
   calls: [
     {
@@ -403,7 +403,7 @@ import { mainnet } from 'viem/chains'
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
 const controller = new AbortController()
-const { results } = await Actions.simulateCalls(client, {
+const { results } = await Actions.multicall(client, {
   calls: [
     {
       data: '0xdeadbeef',
@@ -426,7 +426,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const { results } = await Actions.simulateCalls(client, {
+const { results } = await Actions.multicall(client, {
   account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
   calls: [
     {
@@ -454,7 +454,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const { assetChanges } = await Actions.simulateCalls(client, {
+const { assetChanges } = await Actions.multicall(client, {
   account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
   calls: [
     {
@@ -478,7 +478,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const { results } = await Actions.simulateCalls(client, {
+const { results } = await Actions.multicall(client, {
   account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
   calls: [
     {
@@ -502,7 +502,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const { results } = await Actions.simulateCalls(client, {
+const { results } = await Actions.multicall(client, {
   account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
   calls: [
     {

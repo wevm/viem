@@ -11,16 +11,16 @@ import type * as StateOverrides from 'ox/StateOverrides'
 import type * as TransactionRequest from 'ox/TransactionRequest'
 import { z } from 'ox/zod'
 
-import type * as Account from '../Account.js'
-import type * as Chain from '../Chain.js'
-import type * as Client from '../Client.js'
-import * as ContractError from '../ContractError.js'
-import * as RpcError from '../RpcError.js'
-import { isAbortError } from '../internal/errors.js'
-import type { Prettify } from '../internal/types.js'
-import { blockParameter } from './internal/blockParameter.js'
-import type { Call, CallResults, Calls } from './internal/calls.js'
-import * as transactionRequest from './internal/transactionRequest.js'
+import type * as Account from '../../Account.js'
+import type * as Chain from '../../Chain.js'
+import type * as Client from '../../Client.js'
+import * as ContractError from '../../ContractError.js'
+import * as RpcError from '../../RpcError.js'
+import { isAbortError } from '../../internal/errors.js'
+import type { Prettify } from '../../internal/types.js'
+import { blockParameter } from '../internal/blockParameter.js'
+import type { Call, CallResults, Calls } from '../internal/calls.js'
+import * as transactionRequest from '../internal/transactionRequest.js'
 
 type RequestOptions = Parameters<Client.Client['request']>[1]
 
@@ -37,7 +37,7 @@ type RequestOptions = Parameters<Client.Client['request']>[1]
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const [block] = await Actions.simulateBlocks(client, {
+ * const [block] = await Actions.block.simulate(client, {
  *   blocks: [{
  *     calls: [{
  *       account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
@@ -48,13 +48,13 @@ type RequestOptions = Parameters<Client.Client['request']>[1]
  * })
  * ```
  */
-export async function simulateBlocks<
+export async function simulate<
   chain extends Chain.Chain | undefined,
   const calls extends readonly unknown[],
 >(
   client: Client.Client<chain>,
-  options: simulateBlocks.Options<calls>,
-): Promise<simulateBlocks.ReturnType<chain, calls>> {
+  options: simulate.Options<calls>,
+): Promise<simulate.ReturnType<chain, calls>> {
   const {
     blockNumber,
     blockTag = client.blockTag ?? 'latest',
@@ -68,7 +68,7 @@ export async function simulateBlocks<
   try {
     const blockStateCalls = blocks.map((block) => {
       const calls = block.calls.map((call_) => {
-        const call = call_ as Call<unknown, simulateBlocks.CallExtraProperties>
+        const call = call_ as Call<unknown, simulate.CallExtraProperties>
         const { abi, account, args, dataSuffix, functionName, ...rest } = call
 
         const from = (() => {
@@ -144,7 +144,7 @@ export async function simulateBlocks<
       const calls = rpcCalls.map((call, j) => {
         const { abi, args, functionName, to } = blocks[i]!.calls[j]! as Call<
           unknown,
-          simulateBlocks.CallExtraProperties
+          simulate.CallExtraProperties
         >
 
         const data = call.error?.data ?? call.returnData
@@ -188,7 +188,7 @@ export async function simulateBlocks<
       })
 
       return { ...block, calls }
-    }) as unknown as simulateBlocks.ReturnType<chain, calls>
+    }) as unknown as simulate.ReturnType<chain, calls>
   } catch (err) {
     if (isAbortError(err)) throw err
 
@@ -196,7 +196,7 @@ export async function simulateBlocks<
   }
 }
 
-export declare namespace simulateBlocks {
+export declare namespace simulate {
   type CallExtraProperties = Prettify<
     Omit<
       TransactionRequest.toRpc.Input,

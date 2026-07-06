@@ -110,6 +110,7 @@ export function walletActions() {
       watchAsset: (options) => wallet.watchAsset(client, options),
     },
     signMessage: (options) => signMessage(client, options),
+    signTransaction: (options) => transaction.sign(client, options),
     signTypedData: (options) => signTypedData(client, options as never),
   })
 }
@@ -845,6 +846,28 @@ export declare namespace walletActions {
     signMessage: (
       options: signMessage.Options,
     ) => Promise<signMessage.ReturnType>
+    /**
+     * Signs a transaction. Alias of `transaction.sign`.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http, walletActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   account: Account.fromPrivateKey('0x…'),
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(walletActions())
+     * const signed = await client.signTransaction({
+     *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+     *   value: 1n,
+     * })
+     * ```
+     */
+    signTransaction: (
+      options: transaction.sign.Options<chain>,
+    ) => Promise<transaction.sign.ReturnType>
     /**
      * Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data.
      *

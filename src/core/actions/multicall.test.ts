@@ -30,7 +30,7 @@ const usdcAddress = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 const wagmiAddress = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
 
 test('simulates a batch of reads', async () => {
-  const { results } = await Actions.simulateCalls(client, {
+  const { results } = await Actions.multicall(client, {
     calls: [
       {
         abi: erc20Abi,
@@ -78,7 +78,7 @@ test('simulates a batch of reads', async () => {
 })
 
 test('behavior: mutation calls', async () => {
-  const { results } = await Actions.simulateCalls(client, {
+  const { results } = await Actions.multicall(client, {
     account: a,
     calls: [
       {
@@ -132,7 +132,7 @@ test('behavior: mutation calls', async () => {
 // (the native-balance probe deploys a helper contract).
 test.skip('behavior: traceAssetChanges', async () => {
   const account = '0xdead000000000000000042069420694206942069' as const
-  const { assetChanges } = await Actions.simulateCalls(client, {
+  const { assetChanges } = await Actions.multicall(client, {
     account,
     calls: [
       {
@@ -156,7 +156,7 @@ test.skip('behavior: traceAssetChanges', async () => {
 
 test('behavior: mutation calls with insufficient balance', async () => {
   await expect(
-    Actions.simulateCalls(client, {
+    Actions.multicall(client, {
       account: '0x0000000000000000000000000000000000696969',
       calls: [
         {
@@ -171,7 +171,7 @@ test('behavior: mutation calls with insufficient balance', async () => {
 })
 
 test('behavior: contract function does not exist (abi call)', async () => {
-  const { results } = await Actions.simulateCalls(client, {
+  const { results } = await Actions.multicall(client, {
     calls: [
       {
         abi: wagmiAbi,
@@ -206,7 +206,7 @@ test('behavior: contract function does not exist (abi call)', async () => {
 })
 
 test('behavior: contract function does not exist (raw call)', async () => {
-  const { results } = await Actions.simulateCalls(client, {
+  const { results } = await Actions.multicall(client, {
     calls: [
       {
         data: '0xdeadbeef',
@@ -239,7 +239,7 @@ test('behavior: contract function does not exist (raw call)', async () => {
 })
 
 test('behavior: contract revert', async () => {
-  const { results } = await Actions.simulateCalls(client, {
+  const { results } = await Actions.multicall(client, {
     calls: [
       {
         abi: wagmiAbi,
@@ -282,7 +282,7 @@ test('behavior: stress (1000 calls)', async () => {
       to: usdcAddress,
     } as const)
 
-  const { results } = await Actions.simulateCalls(client, { calls })
+  const { results } = await Actions.multicall(client, { calls })
   expect(results.length).toBe(1_000)
   expect(
     results.every(
@@ -293,7 +293,7 @@ test('behavior: stress (1000 calls)', async () => {
 
 test('behavior: account not provided with traceAssetChanges', async () => {
   await expect(
-    Actions.simulateCalls(client, {
+    Actions.multicall(client, {
       calls: [
         {
           to: b,
@@ -310,7 +310,7 @@ test('behavior: account not provided with traceAssetChanges', async () => {
 })
 
 test('args: allowFailure (false returns bare results)', async () => {
-  const results = await Actions.simulateCalls(client, {
+  const results = await Actions.multicall(client, {
     allowFailure: false,
     calls: [
       {
@@ -336,7 +336,7 @@ test('args: allowFailure (false returns bare results)', async () => {
 
 test('args: allowFailure (false throws on first failure)', async () => {
   await expect(
-    Actions.simulateCalls(client, {
+    Actions.multicall(client, {
       allowFailure: false,
       calls: [
         {
@@ -363,7 +363,7 @@ test('args: mode (multicall executes via aggregate3)', async () => {
     }),
   })
 
-  const { results, ...rest } = await Actions.simulateCalls(proxy, {
+  const { results, ...rest } = await Actions.multicall(proxy, {
     mode: 'multicall',
     calls: [
       {
@@ -402,7 +402,7 @@ test('args: mode (multicall executes via aggregate3)', async () => {
 })
 
 test('args: mode (multicall decodes failures)', async () => {
-  const { results } = await Actions.simulateCalls(client, {
+  const { results } = await Actions.multicall(client, {
     mode: 'multicall',
     calls: [
       {
@@ -448,7 +448,7 @@ test('args: mode (multicall decodes failures)', async () => {
 
 test('args: mode (multicall rejects value calls)', async () => {
   await expect(
-    Actions.simulateCalls(client, {
+    Actions.multicall(client, {
       mode: 'multicall',
       calls: [
         {
@@ -485,7 +485,7 @@ test('args: batchSize (chunks aggregate3 batches)', async () => {
       to: usdcAddress,
     } as const)
 
-  const { results } = await Actions.simulateCalls(proxy, {
+  const { results } = await Actions.multicall(proxy, {
     mode: 'multicall',
     batchSize: 64,
     calls,
@@ -503,7 +503,7 @@ test('args: batchSize (chunks aggregate3 batches)', async () => {
 })
 
 test('args: deployless (multicall via bytecode)', async () => {
-  const { results } = await Actions.simulateCalls(client, {
+  const { results } = await Actions.multicall(client, {
     mode: 'multicall',
     calls: [
       {
@@ -544,7 +544,7 @@ test('behavior: auto mode falls back to aggregate3 and caches', async () => {
     }),
   })
 
-  const first = await Actions.simulateCalls(proxy, {
+  const first = await Actions.multicall(proxy, {
     calls: [
       {
         abi: erc20Abi,
@@ -567,7 +567,7 @@ test('behavior: auto mode falls back to aggregate3 and caches', async () => {
   `)
 
   // Second batch skips the eth_simulateV1 attempt (cached per client).
-  const second = await Actions.simulateCalls(proxy, {
+  const second = await Actions.multicall(proxy, {
     calls: [
       {
         abi: erc20Abi,
@@ -600,7 +600,7 @@ test('behavior: simulate pin throws on unsupported nodes', async () => {
   })
 
   await expect(
-    Actions.simulateCalls(proxy, {
+    Actions.multicall(proxy, {
       mode: 'simulate',
       calls: [
         {
@@ -626,7 +626,7 @@ test('behavior: forcing options disable the fallback', async () => {
   })
 
   await expect(
-    Actions.simulateCalls(proxy, {
+    Actions.multicall(proxy, {
       calls: [
         {
           abi: erc20Abi,
@@ -640,7 +640,7 @@ test('behavior: forcing options disable the fallback', async () => {
 })
 
 test('behavior: simulateV1 path returns the simulated block', async () => {
-  const result = await Actions.simulateCalls(client, {
+  const result = await Actions.multicall(client, {
     calls: [
       {
         abi: erc20Abi,
@@ -656,7 +656,7 @@ test('behavior: simulateV1 path returns the simulated block', async () => {
 
 test('decorator', async () => {
   const decorated = client.extend(publicActions())
-  const { results } = await decorated.simulateCalls({
+  const { results } = await decorated.multicall({
     calls: [
       {
         abi: erc20Abi,
@@ -670,7 +670,7 @@ test('decorator', async () => {
 
 test('args: stateOverride (multicall mode)', async () => {
   const target = '0x00000000000000000000000000000000000cafe1'
-  const { results } = await Actions.simulateCalls(client, {
+  const { results } = await Actions.multicall(client, {
     mode: 'multicall',
     calls: [
       {
@@ -710,7 +710,7 @@ test('behavior: client batch config supplies aggregate3 defaults', async () => {
     }),
   })
 
-  const { results } = await Actions.simulateCalls(configured, {
+  const { results } = await Actions.multicall(configured, {
     mode: 'multicall',
     calls: [
       {
@@ -736,7 +736,7 @@ test('behavior: chainless client falls back to a deployless multicall', async ()
     }),
   })
 
-  const { results } = await Actions.simulateCalls(chainless, {
+  const { results } = await Actions.multicall(chainless, {
     mode: 'multicall',
     calls: [
       {
@@ -757,7 +757,7 @@ test('behavior: chainless client falls back to a deployless multicall', async ()
 })
 
 test('behavior: encode failure keeps result ordering (multicall mode)', async () => {
-  const { results } = await Actions.simulateCalls(client, {
+  const { results } = await Actions.multicall(client, {
     mode: 'multicall',
     calls: [
       {
@@ -814,7 +814,7 @@ test('behavior: encode failure keeps result ordering (multicall mode)', async ()
 
 test('args: allowFailure (false throws on first failure, multicall mode)', async () => {
   await expect(
-    Actions.simulateCalls(client, {
+    Actions.multicall(client, {
       allowFailure: false,
       mode: 'multicall',
       calls: [
@@ -856,7 +856,7 @@ test('behavior: contract revert with error not on abi (multicall mode)', async (
     (abiItem) => !('name' in abiItem) || abiItem.name !== 'SimpleError',
   )
 
-  const { results } = await Actions.simulateCalls(client, {
+  const { results } = await Actions.multicall(client, {
     mode: 'multicall',
     calls: [
       {
@@ -893,7 +893,7 @@ test('behavior: contract revert with error not on abi (multicall mode)', async (
 })
 
 test('args: multicallAddress', async () => {
-  const { results } = await Actions.simulateCalls(client, {
+  const { results } = await Actions.multicall(client, {
     mode: 'multicall',
     calls: [
       {
@@ -915,7 +915,7 @@ test('args: multicallAddress', async () => {
 })
 
 test('args: multicallAddress (invalid target fails the chunk)', async () => {
-  const { results } = await Actions.simulateCalls(client, {
+  const { results } = await Actions.multicall(client, {
     mode: 'multicall',
     calls: [
       {

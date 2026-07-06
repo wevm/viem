@@ -12,7 +12,7 @@ const wagmiAbi = Abi.from([
 ])
 
 test('per-call results discriminate on status and infer abi return types', async () => {
-  const result = await Actions.simulateBlocks(client, {
+  const result = await Actions.block.simulate(client, {
     blocks: [
       {
         calls: [
@@ -59,7 +59,7 @@ test('per-call results discriminate on status and infer abi return types', async
 })
 
 test('block fields are typed', async () => {
-  const result = await Actions.simulateBlocks(client, {
+  const result = await Actions.block.simulate(client, {
     blocks: [
       {
         calls: [
@@ -79,7 +79,7 @@ test('block fields are typed', async () => {
 test('decorator mirrors the standalone signature', async () => {
   const decorated = client.extend(publicActions())
 
-  const result = await decorated.simulateBlocks({
+  const result = await decorated.block.simulate({
     blocks: [
       {
         calls: [

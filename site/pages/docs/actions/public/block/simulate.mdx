@@ -1,4 +1,4 @@
-# simulateBlocks
+# simulate
 
 Simulates a sequence of blocks with optional block and state overrides (`eth_simulateV1`).
 
@@ -11,7 +11,7 @@ Each block executes its calls against the state produced by the previous one, so
 ```ts twoslash [Decorator]
 import { client } from './viem.config'
 
-const [block] = await client.simulateBlocks({
+const [block] = await client.block.simulate({
   blocks: [{
     calls: [{
       account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
@@ -31,7 +31,7 @@ const [block] = await client.simulateBlocks({
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-const [block] = await Actions.simulateBlocks(client, {
+const [block] = await Actions.block.simulate(client, {
   blocks: [{
     calls: [{
       account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
@@ -68,7 +68,7 @@ import { Abi } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 
-const [block] = await Actions.simulateBlocks(client, {
+const [block] = await Actions.block.simulate(client, {
   blocks: [{
     calls: [{
       abi: Abi.from(['function name() view returns (string)']),
@@ -100,7 +100,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const blocks = await Actions.simulateBlocks(client, {
+const blocks = await Actions.block.simulate(client, {
   blocks: [{ // [!code focus]
     calls: [{ // [!code focus]
       account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929', // [!code focus]
@@ -123,7 +123,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const blocks = await Actions.simulateBlocks(client, {
+const blocks = await Actions.block.simulate(client, {
   blocks: [{
     blockOverrides: { // [!code focus]
       baseFeePerGas: 1_000_000_000n, // [!code focus]
@@ -150,7 +150,7 @@ import { Abi } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const blocks = await Actions.simulateBlocks(client, {
+const blocks = await Actions.block.simulate(client, {
   blocks: [{
     calls: [{ // [!code focus]
       abi: Abi.from(['function mint(uint256 tokenId)']), // [!code focus]
@@ -174,7 +174,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const blocks = await Actions.simulateBlocks(client, {
+const blocks = await Actions.block.simulate(client, {
   blocks: [{
     calls: [{
       account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
@@ -202,7 +202,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const blocks = await Actions.simulateBlocks(client, {
+const blocks = await Actions.block.simulate(client, {
   blockNumber: 42069n, // [!code focus]
   blocks: [{
     calls: [{
@@ -227,7 +227,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const blocks = await Actions.simulateBlocks(client, {
+const blocks = await Actions.block.simulate(client, {
   blockTag: 'pending', // [!code focus]
   blocks: [{
     calls: [{
@@ -252,7 +252,7 @@ import { mainnet } from 'viem/chains'
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
 const controller = new AbortController()
-const blocks = await Actions.simulateBlocks(client, {
+const blocks = await Actions.block.simulate(client, {
   blocks: [{
     calls: [{
       account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
@@ -276,7 +276,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const blocks = await Actions.simulateBlocks(client, {
+const blocks = await Actions.block.simulate(client, {
   blocks: [{
     calls: [{
       account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
@@ -300,7 +300,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const blocks = await Actions.simulateBlocks(client, {
+const blocks = await Actions.block.simulate(client, {
   blocks: [{
     calls: [{
       account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
@@ -324,7 +324,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const blocks = await Actions.simulateBlocks(client, {
+const blocks = await Actions.block.simulate(client, {
   blocks: [{
     calls: [{
       account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',

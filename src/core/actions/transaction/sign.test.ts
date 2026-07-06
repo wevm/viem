@@ -479,3 +479,7 @@ describe('behavior: prepare', () => {
     expect(Hex.slice(signed, 0, 1)).toMatchInlineSnapshot(`"0x02"`)
   })
 })
+
+test('alias: `Actions.signTransaction`', () => {
+  expect(Actions.signTransaction).toBe(Actions.transaction.sign)
+})

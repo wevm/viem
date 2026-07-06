@@ -23,7 +23,7 @@ const usdcAddress = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 const maxUint256 = 2n ** 256n - 1n
 
 test('simulates calls across blocks', async () => {
-  const result = await Actions.simulateBlocks(client, {
+  const result = await Actions.block.simulate(client, {
     blocks: [
       {
         calls: [
@@ -78,7 +78,7 @@ test('simulates calls across blocks', async () => {
 })
 
 test('args: blockOverrides', async () => {
-  const result = await Actions.simulateBlocks(client, {
+  const result = await Actions.block.simulate(client, {
     blocks: [
       {
         blockOverrides: {
@@ -105,7 +105,7 @@ test('args: blockOverrides', async () => {
 
 test('behavior: fee cap too high', async () => {
   await expect(
-    Actions.simulateBlocks(client, {
+    Actions.block.simulate(client, {
       blocks: [
         {
           calls: [
@@ -132,7 +132,7 @@ test('behavior: fee cap too high', async () => {
 
 test('behavior: tip higher than fee cap', async () => {
   await expect(
-    Actions.simulateBlocks(client, {
+    Actions.block.simulate(client, {
       blocks: [
         {
           calls: [
@@ -160,7 +160,7 @@ test('behavior: tip higher than fee cap', async () => {
 
 test('behavior: gas too low', async () => {
   await expect(
-    Actions.simulateBlocks(client, {
+    Actions.block.simulate(client, {
       blocks: [
         {
           calls: [
@@ -190,7 +190,7 @@ test('behavior: gas too low', async () => {
 
 test('behavior: insufficient funds', async () => {
   await expect(
-    Actions.simulateBlocks(client, {
+    Actions.block.simulate(client, {
       blocks: [
         {
           calls: [
@@ -224,7 +224,7 @@ test('behavior: insufficient funds', async () => {
 })
 
 test('behavior: contract function does not exist (abi call)', async () => {
-  const result = await Actions.simulateBlocks(client, {
+  const result = await Actions.block.simulate(client, {
     blocks: [
       {
         calls: [
@@ -266,7 +266,7 @@ test('behavior: contract function does not exist (abi call)', async () => {
 })
 
 test('behavior: contract function does not exist (raw call)', async () => {
-  const result = await Actions.simulateBlocks(client, {
+  const result = await Actions.block.simulate(client, {
     blocks: [
       {
         calls: [
@@ -306,7 +306,7 @@ test('behavior: contract function does not exist (raw call)', async () => {
 })
 
 test('behavior: contract revert', async () => {
-  const result = await Actions.simulateBlocks(client, {
+  const result = await Actions.block.simulate(client, {
     blocks: [
       {
         calls: [
@@ -402,7 +402,7 @@ test('behavior: decodes error from returnData when error field is absent', async
     }),
   })
 
-  const result = await Actions.simulateBlocks(canned, {
+  const result = await Actions.block.simulate(canned, {
     blocks: [
       {
         calls: [
@@ -435,7 +435,7 @@ test('behavior: dataSuffix', async () => {
     }),
   })
 
-  const result = await Actions.simulateBlocks(proxy, {
+  const result = await Actions.block.simulate(proxy, {
     blocks: [
       {
         calls: [
@@ -478,7 +478,7 @@ test('behavior: dataSuffix', async () => {
 
 test('decorator', async () => {
   const decorated = client.extend(publicActions())
-  const result = await decorated.simulateBlocks({
+  const result = await decorated.block.simulate({
     blocks: [
       {
         calls: [

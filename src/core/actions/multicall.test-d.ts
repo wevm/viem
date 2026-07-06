@@ -13,7 +13,7 @@ const erc20Abi = Abi.from([
 const to = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
 
 test('auto mode: block is optional, result extras are optional', async () => {
-  const result = await Actions.simulateCalls(client, {
+  const result = await Actions.multicall(client, {
     calls: [{ abi: erc20Abi, functionName: 'name', to }],
   })
 
@@ -31,14 +31,14 @@ test('auto mode: block is optional, result extras are optional', async () => {
 })
 
 test('forcing option narrows to the rich shape', async () => {
-  const result = await Actions.simulateCalls(client, {
+  const result = await Actions.multicall(client, {
     account: to,
     calls: [{ abi: erc20Abi, functionName: 'name', to }],
     traceAssetChanges: true,
   })
 
   expectTypeOf(result.assetChanges).toEqualTypeOf<
-    readonly Actions.simulateCalls.AssetChange[]
+    readonly Actions.multicall.AssetChange[]
   >()
   expectTypeOf(result.block).not.toEqualTypeOf<undefined>()
 
@@ -50,13 +50,13 @@ test('forcing option narrows to the rich shape', async () => {
 })
 
 test('simulate pin: rich shape', async () => {
-  const result = await Actions.simulateCalls(client, {
+  const result = await Actions.multicall(client, {
     mode: 'simulate',
     calls: [{ abi: erc20Abi, functionName: 'name', to }],
   })
 
   expectTypeOf(result.assetChanges).toEqualTypeOf<
-    readonly Actions.simulateCalls.AssetChange[]
+    readonly Actions.multicall.AssetChange[]
   >()
 
   const call = result.results[0]
@@ -65,7 +65,7 @@ test('simulate pin: rich shape', async () => {
 })
 
 test('multicall pin: lean shape without block or extras', async () => {
-  const result = await Actions.simulateCalls(client, {
+  const result = await Actions.multicall(client, {
     mode: 'multicall',
     calls: [
       { abi: erc20Abi, functionName: 'name', to },
@@ -90,7 +90,7 @@ test('multicall pin: lean shape without block or extras', async () => {
 })
 
 test('multicall pin: simulate-only options are rejected', async () => {
-  await Actions.simulateCalls(client, {
+  await Actions.multicall(client, {
     mode: 'multicall',
     calls: [{ abi: erc20Abi, functionName: 'name', to }],
     // @ts-expect-error traceAssetChanges unavailable with the multicall mode
@@ -99,7 +99,7 @@ test('multicall pin: simulate-only options are rejected', async () => {
 })
 
 test('simulate pin: multicall-only options are rejected', async () => {
-  await Actions.simulateCalls(client, {
+  await Actions.multicall(client, {
     mode: 'simulate',
     calls: [{ abi: erc20Abi, functionName: 'name', to }],
     // @ts-expect-error batchSize unavailable with the simulate mode
@@ -108,7 +108,7 @@ test('simulate pin: multicall-only options are rejected', async () => {
 })
 
 test('allowFailure: false returns bare results', async () => {
-  const result = await Actions.simulateCalls(client, {
+  const result = await Actions.multicall(client, {
     allowFailure: false,
     calls: [
       { abi: erc20Abi, functionName: 'name', to },

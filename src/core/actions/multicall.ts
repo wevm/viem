@@ -25,7 +25,7 @@ import {
   getMulticallAddress,
   isMethodNotSupportedError,
 } from './internal/multicall.js'
-import { simulateBlocks } from './simulateBlocks.js'
+import { simulate } from './block/simulate.js'
 import { createAccessList } from './transaction/createAccessList.js'
 
 type RequestOptions = Parameters<Client.Client['request']>[1]
@@ -66,7 +66,7 @@ const simulateV1Support = /*#__PURE__*/ new Map<string, boolean>()
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const { results } = await Actions.simulateCalls(client, {
+ * const { results } = await Actions.multicall(client, {
  *   account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
  *   calls: [
  *     {
@@ -77,7 +77,7 @@ const simulateV1Support = /*#__PURE__*/ new Map<string, boolean>()
  * })
  * ```
  */
-export async function simulateCalls<
+export async function multicall<
   chain extends Chain.Chain | undefined,
   const calls extends readonly unknown[],
   mode extends 'auto' | 'simulate' | 'multicall' = 'auto',
@@ -87,7 +87,7 @@ export async function simulateCalls<
   validation extends boolean = false,
 >(
   client: Client.Client<chain>,
-  options: simulateCalls.Options<
+  options: multicall.Options<
     calls,
     mode,
     allowFailure,
@@ -96,7 +96,7 @@ export async function simulateCalls<
     validation
   >,
 ): Promise<
-  simulateCalls.ReturnType<
+  multicall.ReturnType<
     chain,
     calls,
     mode,
@@ -106,9 +106,9 @@ export async function simulateCalls<
       : true
   >
 > {
-  const { mode = 'auto' } = options as simulateCalls.Options
+  const { mode = 'auto' } = options as multicall.Options
   const { traceAssetChanges, traceTransfers, validation } =
-    options as simulateCalls.Options<
+    options as multicall.Options<
       readonly unknown[],
       'auto' | 'simulate' | 'multicall',
       boolean,
@@ -125,7 +125,7 @@ export async function simulateCalls<
       (call) => typeof call.value === 'bigint' && call.value !== 0n,
     )
 
-  type Result = simulateCalls.ReturnType<
+  type Result = multicall.ReturnType<
     chain,
     calls,
     mode,
@@ -163,9 +163,9 @@ export async function simulateCalls<
 /** Executes the batch via `eth_simulateV1` (with asset tracing support). */
 async function executeSimulate(
   client: Client.Client,
-  options: simulateCalls.Options,
+  options: multicall.Options,
 ): Promise<{
-  assetChanges: readonly simulateCalls.AssetChange[]
+  assetChanges: readonly multicall.AssetChange[]
   block: Block.Block
   results: readonly unknown[]
 }> {
@@ -231,7 +231,7 @@ async function executeSimulate(
 
   const assetStateOverride = { [zeroAddress]: { nonce: 0n } }
 
-  const blocks = await simulateBlocks(client, {
+  const blocks = await simulate(client, {
     blockNumber,
     blockTag: blockTag as never,
     requestOptions,
@@ -372,7 +372,7 @@ async function executeSimulate(
     (x) => (x.status === 'success' ? (x.result as string) : null),
   )
 
-  const assetChanges: simulateCalls.AssetChange[] = []
+  const assetChanges: multicall.AssetChange[] = []
   for (const [i, balancePost] of balancesPost.entries()) {
     const balancePre = balancesPre[i]
 
@@ -421,7 +421,7 @@ async function executeSimulate(
 /** Executes the batch as a multicall3 `aggregate3` read (`eth_call`). */
 async function executeMulticall(
   client: Client.Client,
-  options: simulateCalls.Options,
+  options: multicall.Options,
 ): Promise<{ results: readonly unknown[] }> {
   const {
     account: account_ = client.account,
@@ -633,7 +633,7 @@ function applyAllowFailure(
   })
 }
 
-export declare namespace simulateCalls {
+export declare namespace multicall {
   type AssetChange = {
     /** Token the balance change applies to (native currency uses the `0xeeee…eeee` sentinel address). */
     token: {

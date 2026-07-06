@@ -22,8 +22,7 @@ import * as ens from '../ens/index.js'
 import * as filter from '../filter/index.js'
 import * as event from '../event/index.js'
 import * as fee from '../fee/index.js'
-import { simulateBlocks } from '../simulateBlocks.js'
-import { simulateCalls } from '../simulateCalls.js'
+import { multicall } from '../multicall.js'
 import * as token from '../token/index.js'
 import * as transaction from '../transaction/index.js'
 import { verifyHash } from '../verifyHash.js'
@@ -71,6 +70,7 @@ export function publicActions() {
       getReceipts: (options) => block.getReceipts(client, options),
       getTransactionCount: (options) =>
         block.getTransactionCount(client, options),
+      simulate: (options) => block.simulate(client, options as never),
       watch: (options) => block.watch(client, options),
       watchNumber: (options) => block.watchNumber(client, options),
     },
@@ -113,8 +113,7 @@ export function publicActions() {
       getGasPrice: () => fee.getGasPrice(client),
       getHistory: (options) => fee.getHistory(client, options),
     },
-    simulateBlocks: (options) => simulateBlocks(client, options as never),
-    simulateCalls: (options) => simulateCalls(client, options as never),
+    multicall: (options) => multicall(client, options as never),
     token: {
       getAllowance: Object.assign(
         (options: never) => token.getAllowance(client, options),
@@ -377,6 +376,32 @@ export declare namespace publicActions {
       getTransactionCount: (
         options?: block.getTransactionCount.Options | undefined,
       ) => Promise<block.getTransactionCount.ReturnType>
+      /**
+       * Simulates a sequence of blocks with optional block and state overrides.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const [block] = await client.block.simulate({
+       *   blocks: [{
+       *     calls: [{
+       *       account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+       *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+       *       value: 1n,
+       *     }],
+       *   }],
+       * })
+       * ```
+       */
+      simulate: <const calls extends readonly unknown[]>(
+        options: block.simulate.Options<calls>,
+      ) => Promise<block.simulate.ReturnType<chain, calls>>
       /**
        * Watches incoming blocks, returning a watcher handle.
        *
@@ -1105,32 +1130,6 @@ export declare namespace publicActions {
       ) => Promise<fee.getHistory.ReturnType>
     }
     /**
-     * Simulates a sequence of blocks with optional block and state overrides.
-     *
-     * @example
-     * ```ts
-     * import { Client, http, publicActions } from 'viem'
-     * import { mainnet } from 'viem/chains'
-     *
-     * const client = Client.create({
-     *   chain: mainnet,
-     *   transport: http(),
-     * }).extend(publicActions())
-     * const [block] = await client.simulateBlocks({
-     *   blocks: [{
-     *     calls: [{
-     *       account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
-     *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-     *       value: 1n,
-     *     }],
-     *   }],
-     * })
-     * ```
-     */
-    simulateBlocks: <const calls extends readonly unknown[]>(
-      options: simulateBlocks.Options<calls>,
-    ) => Promise<simulateBlocks.ReturnType<chain, calls>>
-    /**
      * Simulates execution of a batch of calls, returning typed per-call
      * results. Executes via `eth_simulateV1`, falling back to a multicall3
      * `aggregate3` batch on nodes without support.
@@ -1144,7 +1143,7 @@ export declare namespace publicActions {
      *   chain: mainnet,
      *   transport: http(),
      * }).extend(publicActions())
-     * const { results } = await client.simulateCalls({
+     * const { results } = await client.multicall({
      *   account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
      *   calls: [{
      *     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -1153,7 +1152,7 @@ export declare namespace publicActions {
      * })
      * ```
      */
-    simulateCalls: <
+    multicall: <
       const calls extends readonly unknown[],
       mode extends 'auto' | 'simulate' | 'multicall' = 'auto',
       allowFailure extends boolean = true,
@@ -1161,7 +1160,7 @@ export declare namespace publicActions {
       traceTransfers extends boolean = false,
       validation extends boolean = false,
     >(
-      options: simulateCalls.Options<
+      options: multicall.Options<
         calls,
         mode,
         allowFailure,
@@ -1170,7 +1169,7 @@ export declare namespace publicActions {
         validation
       >,
     ) => Promise<
-      simulateCalls.ReturnType<
+      multicall.ReturnType<
         chain,
         calls,
         mode,
