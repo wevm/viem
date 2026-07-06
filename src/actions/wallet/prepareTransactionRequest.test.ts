@@ -854,9 +854,13 @@ describe('without `eth_fillTransaction`', () => {
         to: targetAccount.address,
         value: parseEther('1'),
       } as never)
+      const tempoRequest = request as {
+        feePayerSignature?: unknown
+        feeToken?: string | undefined
+      }
 
-      expect(request.feePayerSignature).toBeDefined()
-      expect(request.feeToken).toBe(sponsorFeeToken)
+      expect(tempoRequest.feePayerSignature).toBeDefined()
+      expect(tempoRequest.feeToken).toBe(sponsorFeeToken)
     } finally {
       fillTransactionSpy.mockRestore()
     }
