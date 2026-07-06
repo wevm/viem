@@ -131,8 +131,23 @@ export default defineConfig({
       status: 308,
     },
     {
-      source: '/:match/simulate',
-      destination: '/:match/simulateBlocks',
+      source: '/docs/actions/public/simulate',
+      destination: '/docs/actions/public/block/simulate',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/simulateBlocks',
+      destination: '/docs/actions/public/block/simulate',
+      status: 308,
+    },
+    {
+      source: '/docs/contract/multicall',
+      destination: '/docs/actions/public/multicall',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/simulateCalls',
+      destination: '/docs/actions/public/multicall',
       status: 308,
     },
 
@@ -200,195 +215,493 @@ export default defineConfig({
     },
   },
   sidebar: {
-    '/tempo': [
-      { text: 'Overview', link: '/tempo' },
-      {
-        text: 'Fee Token Actions',
-        collapsed: true,
-        items: [
-          { text: 'fee.getUserToken', link: '/tempo/actions/fee.getUserToken' },
-          {
-            text: 'fee.getValidatorToken',
-            link: '/tempo/actions/fee.getValidatorToken',
-          },
-          { text: 'fee.setUserToken', link: '/tempo/actions/fee.setUserToken' },
-          {
-            text: 'fee.setUserTokenSync',
-            link: '/tempo/actions/fee.setUserTokenSync',
-          },
-          {
-            text: 'fee.setValidatorToken',
-            link: '/tempo/actions/fee.setValidatorToken',
-          },
-          {
-            text: 'fee.setValidatorTokenSync',
-            link: '/tempo/actions/fee.setValidatorTokenSync',
-          },
-          {
-            text: 'fee.validateToken',
-            link: '/tempo/actions/fee.validateToken',
-          },
-          {
-            text: 'fee.watchSetUserToken',
-            link: '/tempo/actions/fee.watchSetUserToken',
-          },
-          {
-            text: 'fee.watchSetValidatorToken',
-            link: '/tempo/actions/fee.watchSetValidatorToken',
-          },
-        ],
-      },
-      {
-        text: 'Nonce Actions',
-        collapsed: true,
-        items: [
-          { text: 'nonce.getNonce', link: '/tempo/actions/nonce.getNonce' },
-          {
-            text: 'nonce.watchIncremented',
-            link: '/tempo/actions/nonce.watchIncremented',
-          },
-        ],
-      },
-      {
-        text: 'TIP-20 Token Actions',
-        collapsed: true,
-        items: [
-          { text: 'token.approve', link: '/tempo/actions/token.approve' },
-          {
-            text: 'token.approveSync',
-            link: '/tempo/actions/token.approveSync',
-          },
-          { text: 'token.burn', link: '/tempo/actions/token.burn' },
-          {
-            text: 'token.burnBlocked',
-            link: '/tempo/actions/token.burnBlocked',
-          },
-          {
-            text: 'token.burnBlockedSync',
-            link: '/tempo/actions/token.burnBlockedSync',
-          },
-          { text: 'token.burnSync', link: '/tempo/actions/token.burnSync' },
-          {
-            text: 'token.changeTransferPolicy',
-            link: '/tempo/actions/token.changeTransferPolicy',
-          },
-          {
-            text: 'token.changeTransferPolicySync',
-            link: '/tempo/actions/token.changeTransferPolicySync',
-          },
-          { text: 'token.create', link: '/tempo/actions/token.create' },
-          { text: 'token.createSync', link: '/tempo/actions/token.createSync' },
-          {
-            text: 'token.getAllowance',
-            link: '/tempo/actions/token.getAllowance',
-          },
-          { text: 'token.getBalance', link: '/tempo/actions/token.getBalance' },
-          {
-            text: 'token.getMetadata',
-            link: '/tempo/actions/token.getMetadata',
-          },
-          {
-            text: 'token.getRoleAdmin',
-            link: '/tempo/actions/token.getRoleAdmin',
-          },
-          {
-            text: 'token.getTotalSupply',
-            link: '/tempo/actions/token.getTotalSupply',
-          },
-          { text: 'token.grantRoles', link: '/tempo/actions/token.grantRoles' },
-          {
-            text: 'token.grantRolesSync',
-            link: '/tempo/actions/token.grantRolesSync',
-          },
-          { text: 'token.hasRole', link: '/tempo/actions/token.hasRole' },
-          { text: 'token.mint', link: '/tempo/actions/token.mint' },
-          { text: 'token.mintSync', link: '/tempo/actions/token.mintSync' },
-          { text: 'token.pause', link: '/tempo/actions/token.pause' },
-          { text: 'token.pauseSync', link: '/tempo/actions/token.pauseSync' },
-          {
-            text: 'token.prepareUpdateQuoteToken',
-            link: '/tempo/actions/token.prepareUpdateQuoteToken',
-          },
-          {
-            text: 'token.prepareUpdateQuoteTokenSync',
-            link: '/tempo/actions/token.prepareUpdateQuoteTokenSync',
-          },
-          {
-            text: 'token.renounceRoles',
-            link: '/tempo/actions/token.renounceRoles',
-          },
-          {
-            text: 'token.renounceRolesSync',
-            link: '/tempo/actions/token.renounceRolesSync',
-          },
-          {
-            text: 'token.revokeRoles',
-            link: '/tempo/actions/token.revokeRoles',
-          },
-          {
-            text: 'token.revokeRolesSync',
-            link: '/tempo/actions/token.revokeRolesSync',
-          },
-          {
-            text: 'token.setRoleAdmin',
-            link: '/tempo/actions/token.setRoleAdmin',
-          },
-          {
-            text: 'token.setRoleAdminSync',
-            link: '/tempo/actions/token.setRoleAdminSync',
-          },
-          {
-            text: 'token.setSupplyCap',
-            link: '/tempo/actions/token.setSupplyCap',
-          },
-          {
-            text: 'token.setSupplyCapSync',
-            link: '/tempo/actions/token.setSupplyCapSync',
-          },
-          { text: 'token.transfer', link: '/tempo/actions/token.transfer' },
-          {
-            text: 'token.transferSync',
-            link: '/tempo/actions/token.transferSync',
-          },
-          { text: 'token.unpause', link: '/tempo/actions/token.unpause' },
-          {
-            text: 'token.unpauseSync',
-            link: '/tempo/actions/token.unpauseSync',
-          },
-          {
-            text: 'token.updateQuoteToken',
-            link: '/tempo/actions/token.updateQuoteToken',
-          },
-          {
-            text: 'token.updateQuoteTokenSync',
-            link: '/tempo/actions/token.updateQuoteTokenSync',
-          },
-          {
-            text: 'token.watchAdminRole',
-            link: '/tempo/actions/token.watchAdminRole',
-          },
-          {
-            text: 'token.watchApprove',
-            link: '/tempo/actions/token.watchApprove',
-          },
-          { text: 'token.watchBurn', link: '/tempo/actions/token.watchBurn' },
-          {
-            text: 'token.watchCreate',
-            link: '/tempo/actions/token.watchCreate',
-          },
-          { text: 'token.watchMint', link: '/tempo/actions/token.watchMint' },
-          { text: 'token.watchRole', link: '/tempo/actions/token.watchRole' },
-          {
-            text: 'token.watchTransfer',
-            link: '/tempo/actions/token.watchTransfer',
-          },
-          {
-            text: 'token.watchUpdateQuoteToken',
-            link: '/tempo/actions/token.watchUpdateQuoteToken',
-          },
-        ],
-      },
-    ],
+    '/tempo': {
+      backLink: true,
+      items: [
+        {
+          text: 'Tempo',
+          items: [
+            { text: 'Getting Started', link: '/tempo' },
+            { text: 'Tempo Docs & Guides', link: 'https://docs.tempo.xyz' },
+          ],
+        },
+        {
+          text: 'Actions',
+          items: [
+            { text: 'Overview', link: '/tempo/actions' },
+            {
+              text: 'AMM',
+              collapsed: true,
+              items: [
+                { text: 'burn', link: '/tempo/actions/amm.burn' },
+                { text: 'burnSync', link: '/tempo/actions/amm.burnSync' },
+                {
+                  text: 'getLiquidityBalance',
+                  link: '/tempo/actions/amm.getLiquidityBalance',
+                },
+                { text: 'getPool', link: '/tempo/actions/amm.getPool' },
+                { text: 'mint', link: '/tempo/actions/amm.mint' },
+                { text: 'mintSync', link: '/tempo/actions/amm.mintSync' },
+                {
+                  text: 'rebalanceSwap',
+                  link: '/tempo/actions/amm.rebalanceSwap',
+                },
+                {
+                  text: 'rebalanceSwapSync',
+                  link: '/tempo/actions/amm.rebalanceSwapSync',
+                },
+                { text: 'watchBurn', link: '/tempo/actions/amm.watchBurn' },
+                { text: 'watchMint', link: '/tempo/actions/amm.watchMint' },
+                {
+                  text: 'watchRebalanceSwap',
+                  link: '/tempo/actions/amm.watchRebalanceSwap',
+                },
+              ],
+            },
+            {
+              text: 'Channel',
+              collapsed: true,
+              items: [
+                { text: 'close', link: '/tempo/actions/channel.close' },
+                { text: 'closeSync', link: '/tempo/actions/channel.closeSync' },
+                { text: 'getStates', link: '/tempo/actions/channel.getStates' },
+                { text: 'open', link: '/tempo/actions/channel.open' },
+                { text: 'openSync', link: '/tempo/actions/channel.openSync' },
+                {
+                  text: 'requestClose',
+                  link: '/tempo/actions/channel.requestClose',
+                },
+                {
+                  text: 'requestCloseSync',
+                  link: '/tempo/actions/channel.requestCloseSync',
+                },
+                { text: 'settle', link: '/tempo/actions/channel.settle' },
+                {
+                  text: 'settleSync',
+                  link: '/tempo/actions/channel.settleSync',
+                },
+                {
+                  text: 'signVoucher',
+                  link: '/tempo/actions/channel.signVoucher',
+                },
+                { text: 'topUp', link: '/tempo/actions/channel.topUp' },
+                { text: 'topUpSync', link: '/tempo/actions/channel.topUpSync' },
+                { text: 'withdraw', link: '/tempo/actions/channel.withdraw' },
+                {
+                  text: 'withdrawSync',
+                  link: '/tempo/actions/channel.withdrawSync',
+                },
+              ],
+            },
+            {
+              text: 'Fee',
+              collapsed: true,
+              items: [
+                {
+                  text: 'getUserToken',
+                  link: '/tempo/actions/fee.getUserToken',
+                },
+                {
+                  text: 'getValidatorToken',
+                  link: '/tempo/actions/fee.getValidatorToken',
+                },
+                {
+                  text: 'setUserToken',
+                  link: '/tempo/actions/fee.setUserToken',
+                },
+                {
+                  text: 'setUserTokenSync',
+                  link: '/tempo/actions/fee.setUserTokenSync',
+                },
+                {
+                  text: 'setValidatorToken',
+                  link: '/tempo/actions/fee.setValidatorToken',
+                },
+                {
+                  text: 'setValidatorTokenSync',
+                  link: '/tempo/actions/fee.setValidatorTokenSync',
+                },
+                {
+                  text: 'validateToken',
+                  link: '/tempo/actions/fee.validateToken',
+                },
+                {
+                  text: 'watchSetUserToken',
+                  link: '/tempo/actions/fee.watchSetUserToken',
+                },
+                {
+                  text: 'watchSetValidatorToken',
+                  link: '/tempo/actions/fee.watchSetValidatorToken',
+                },
+              ],
+            },
+            {
+              text: 'Nonce',
+              collapsed: true,
+              items: [
+                { text: 'getNonce', link: '/tempo/actions/nonce.getNonce' },
+                {
+                  text: 'watchIncremented',
+                  link: '/tempo/actions/nonce.watchIncremented',
+                },
+              ],
+            },
+            {
+              text: 'Policy',
+              collapsed: true,
+              items: [
+                { text: 'create', link: '/tempo/actions/policy.create' },
+                {
+                  text: 'createSync',
+                  link: '/tempo/actions/policy.createSync',
+                },
+                { text: 'getData', link: '/tempo/actions/policy.getData' },
+                {
+                  text: 'isAuthorized',
+                  link: '/tempo/actions/policy.isAuthorized',
+                },
+                {
+                  text: 'modifyBlacklist',
+                  link: '/tempo/actions/policy.modifyBlacklist',
+                },
+                {
+                  text: 'modifyBlacklistSync',
+                  link: '/tempo/actions/policy.modifyBlacklistSync',
+                },
+                {
+                  text: 'modifyWhitelist',
+                  link: '/tempo/actions/policy.modifyWhitelist',
+                },
+                {
+                  text: 'modifyWhitelistSync',
+                  link: '/tempo/actions/policy.modifyWhitelistSync',
+                },
+                { text: 'setAdmin', link: '/tempo/actions/policy.setAdmin' },
+                {
+                  text: 'setAdminSync',
+                  link: '/tempo/actions/policy.setAdminSync',
+                },
+                {
+                  text: 'watchAdminUpdated',
+                  link: '/tempo/actions/policy.watchAdminUpdated',
+                },
+                {
+                  text: 'watchBlacklistUpdated',
+                  link: '/tempo/actions/policy.watchBlacklistUpdated',
+                },
+                {
+                  text: 'watchCreate',
+                  link: '/tempo/actions/policy.watchCreate',
+                },
+                {
+                  text: 'watchWhitelistUpdated',
+                  link: '/tempo/actions/policy.watchWhitelistUpdated',
+                },
+              ],
+            },
+            {
+              text: 'Receive Policy',
+              collapsed: true,
+              items: [
+                { text: 'burn', link: '/tempo/actions/receivePolicy.burn' },
+                {
+                  text: 'burnSync',
+                  link: '/tempo/actions/receivePolicy.burnSync',
+                },
+                { text: 'claim', link: '/tempo/actions/receivePolicy.claim' },
+                {
+                  text: 'claimSync',
+                  link: '/tempo/actions/receivePolicy.claimSync',
+                },
+                { text: 'get', link: '/tempo/actions/receivePolicy.get' },
+                {
+                  text: 'getBlockedBalance',
+                  link: '/tempo/actions/receivePolicy.getBlockedBalance',
+                },
+                { text: 'set', link: '/tempo/actions/receivePolicy.set' },
+                {
+                  text: 'setSync',
+                  link: '/tempo/actions/receivePolicy.setSync',
+                },
+                {
+                  text: 'validate',
+                  link: '/tempo/actions/receivePolicy.validate',
+                },
+                {
+                  text: 'watchBlocked',
+                  link: '/tempo/actions/receivePolicy.watchBlocked',
+                },
+                {
+                  text: 'watchBurned',
+                  link: '/tempo/actions/receivePolicy.watchBurned',
+                },
+                {
+                  text: 'watchClaimed',
+                  link: '/tempo/actions/receivePolicy.watchClaimed',
+                },
+                {
+                  text: 'watchUpdated',
+                  link: '/tempo/actions/receivePolicy.watchUpdated',
+                },
+              ],
+            },
+            {
+              text: 'Stablecoin DEX',
+              collapsed: true,
+              items: [
+                { text: 'buy', link: '/tempo/actions/dex.buy' },
+                { text: 'buySync', link: '/tempo/actions/dex.buySync' },
+                { text: 'cancel', link: '/tempo/actions/dex.cancel' },
+                { text: 'cancelStale', link: '/tempo/actions/dex.cancelStale' },
+                {
+                  text: 'cancelStaleSync',
+                  link: '/tempo/actions/dex.cancelStaleSync',
+                },
+                { text: 'cancelSync', link: '/tempo/actions/dex.cancelSync' },
+                { text: 'createPair', link: '/tempo/actions/dex.createPair' },
+                {
+                  text: 'createPairSync',
+                  link: '/tempo/actions/dex.createPairSync',
+                },
+                { text: 'getBalance', link: '/tempo/actions/dex.getBalance' },
+                { text: 'getBuyQuote', link: '/tempo/actions/dex.getBuyQuote' },
+                { text: 'getOrder', link: '/tempo/actions/dex.getOrder' },
+                {
+                  text: 'getOrderbook',
+                  link: '/tempo/actions/dex.getOrderbook',
+                },
+                {
+                  text: 'getSellQuote',
+                  link: '/tempo/actions/dex.getSellQuote',
+                },
+                {
+                  text: 'getTickLevel',
+                  link: '/tempo/actions/dex.getTickLevel',
+                },
+                { text: 'place', link: '/tempo/actions/dex.place' },
+                { text: 'placeFlip', link: '/tempo/actions/dex.placeFlip' },
+                {
+                  text: 'placeFlipSync',
+                  link: '/tempo/actions/dex.placeFlipSync',
+                },
+                { text: 'placeSync', link: '/tempo/actions/dex.placeSync' },
+                { text: 'sell', link: '/tempo/actions/dex.sell' },
+                { text: 'sellSync', link: '/tempo/actions/dex.sellSync' },
+                {
+                  text: 'watchFlipOrderPlaced',
+                  link: '/tempo/actions/dex.watchFlipOrderPlaced',
+                },
+                {
+                  text: 'watchOrderCancelled',
+                  link: '/tempo/actions/dex.watchOrderCancelled',
+                },
+                {
+                  text: 'watchOrderFilled',
+                  link: '/tempo/actions/dex.watchOrderFilled',
+                },
+                {
+                  text: 'watchOrderPlaced',
+                  link: '/tempo/actions/dex.watchOrderPlaced',
+                },
+                { text: 'withdraw', link: '/tempo/actions/dex.withdraw' },
+                {
+                  text: 'withdrawSync',
+                  link: '/tempo/actions/dex.withdrawSync',
+                },
+              ],
+            },
+            {
+              text: 'Token',
+              collapsed: true,
+              items: [
+                { text: 'approve', link: '/tempo/actions/token.approve' },
+                {
+                  text: 'approveSync',
+                  link: '/tempo/actions/token.approveSync',
+                },
+                { text: 'burn', link: '/tempo/actions/token.burn' },
+                {
+                  text: 'burnBlocked',
+                  link: '/tempo/actions/token.burnBlocked',
+                },
+                {
+                  text: 'burnBlockedSync',
+                  link: '/tempo/actions/token.burnBlockedSync',
+                },
+                { text: 'burnSync', link: '/tempo/actions/token.burnSync' },
+                {
+                  text: 'changeTransferPolicy',
+                  link: '/tempo/actions/token.changeTransferPolicy',
+                },
+                {
+                  text: 'changeTransferPolicySync',
+                  link: '/tempo/actions/token.changeTransferPolicySync',
+                },
+                { text: 'create', link: '/tempo/actions/token.create' },
+                { text: 'createSync', link: '/tempo/actions/token.createSync' },
+                {
+                  text: 'getAllowance',
+                  link: '/tempo/actions/token.getAllowance',
+                },
+                { text: 'getBalance', link: '/tempo/actions/token.getBalance' },
+                {
+                  text: 'getMetadata',
+                  link: '/tempo/actions/token.getMetadata',
+                },
+                {
+                  text: 'getRoleAdmin',
+                  link: '/tempo/actions/token.getRoleAdmin',
+                },
+                {
+                  text: 'getTotalSupply',
+                  link: '/tempo/actions/token.getTotalSupply',
+                },
+                { text: 'grantRoles', link: '/tempo/actions/token.grantRoles' },
+                {
+                  text: 'grantRolesSync',
+                  link: '/tempo/actions/token.grantRolesSync',
+                },
+                { text: 'hasRole', link: '/tempo/actions/token.hasRole' },
+                { text: 'mint', link: '/tempo/actions/token.mint' },
+                { text: 'mintSync', link: '/tempo/actions/token.mintSync' },
+                { text: 'pause', link: '/tempo/actions/token.pause' },
+                { text: 'pauseSync', link: '/tempo/actions/token.pauseSync' },
+                {
+                  text: 'prepareUpdateQuoteToken',
+                  link: '/tempo/actions/token.prepareUpdateQuoteToken',
+                },
+                {
+                  text: 'prepareUpdateQuoteTokenSync',
+                  link: '/tempo/actions/token.prepareUpdateQuoteTokenSync',
+                },
+                {
+                  text: 'renounceRoles',
+                  link: '/tempo/actions/token.renounceRoles',
+                },
+                {
+                  text: 'renounceRolesSync',
+                  link: '/tempo/actions/token.renounceRolesSync',
+                },
+                {
+                  text: 'revokeRoles',
+                  link: '/tempo/actions/token.revokeRoles',
+                },
+                {
+                  text: 'revokeRolesSync',
+                  link: '/tempo/actions/token.revokeRolesSync',
+                },
+                {
+                  text: 'setRoleAdmin',
+                  link: '/tempo/actions/token.setRoleAdmin',
+                },
+                {
+                  text: 'setRoleAdminSync',
+                  link: '/tempo/actions/token.setRoleAdminSync',
+                },
+                {
+                  text: 'setSupplyCap',
+                  link: '/tempo/actions/token.setSupplyCap',
+                },
+                {
+                  text: 'setSupplyCapSync',
+                  link: '/tempo/actions/token.setSupplyCapSync',
+                },
+                { text: 'transfer', link: '/tempo/actions/token.transfer' },
+                {
+                  text: 'transferSync',
+                  link: '/tempo/actions/token.transferSync',
+                },
+                { text: 'unpause', link: '/tempo/actions/token.unpause' },
+                {
+                  text: 'unpauseSync',
+                  link: '/tempo/actions/token.unpauseSync',
+                },
+                {
+                  text: 'updateQuoteToken',
+                  link: '/tempo/actions/token.updateQuoteToken',
+                },
+                {
+                  text: 'updateQuoteTokenSync',
+                  link: '/tempo/actions/token.updateQuoteTokenSync',
+                },
+                {
+                  text: 'watchAdminRole',
+                  link: '/tempo/actions/token.watchAdminRole',
+                },
+                {
+                  text: 'watchApprove',
+                  link: '/tempo/actions/token.watchApprove',
+                },
+                { text: 'watchBurn', link: '/tempo/actions/token.watchBurn' },
+                {
+                  text: 'watchCreate',
+                  link: '/tempo/actions/token.watchCreate',
+                },
+                { text: 'watchMint', link: '/tempo/actions/token.watchMint' },
+                { text: 'watchRole', link: '/tempo/actions/token.watchRole' },
+                {
+                  text: 'watchTransfer',
+                  link: '/tempo/actions/token.watchTransfer',
+                },
+                {
+                  text: 'watchUpdateQuoteToken',
+                  link: '/tempo/actions/token.watchUpdateQuoteToken',
+                },
+              ],
+            },
+            {
+              text: 'Validator',
+              collapsed: true,
+              items: [
+                { text: 'add', link: '/tempo/actions/validator.add' },
+                { text: 'addSync', link: '/tempo/actions/validator.addSync' },
+                {
+                  text: 'changeOwner',
+                  link: '/tempo/actions/validator.changeOwner',
+                },
+                {
+                  text: 'changeOwnerSync',
+                  link: '/tempo/actions/validator.changeOwnerSync',
+                },
+                {
+                  text: 'changeStatus',
+                  link: '/tempo/actions/validator.changeStatus',
+                },
+                {
+                  text: 'changeStatusSync',
+                  link: '/tempo/actions/validator.changeStatusSync',
+                },
+                { text: 'get', link: '/tempo/actions/validator.get' },
+                {
+                  text: 'getByIndex',
+                  link: '/tempo/actions/validator.getByIndex',
+                },
+                { text: 'getCount', link: '/tempo/actions/validator.getCount' },
+                {
+                  text: 'getNextFullDkgCeremony',
+                  link: '/tempo/actions/validator.getNextFullDkgCeremony',
+                },
+                { text: 'getOwner', link: '/tempo/actions/validator.getOwner' },
+                { text: 'list', link: '/tempo/actions/validator.list' },
+                {
+                  text: 'setNextFullDkgCeremony',
+                  link: '/tempo/actions/validator.setNextFullDkgCeremony',
+                },
+                {
+                  text: 'setNextFullDkgCeremonySync',
+                  link: '/tempo/actions/validator.setNextFullDkgCeremonySync',
+                },
+                { text: 'update', link: '/tempo/actions/validator.update' },
+                {
+                  text: 'updateSync',
+                  link: '/tempo/actions/validator.updateSync',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
     '/docs': [
       {
         text: 'Clients & Transports',
@@ -421,56 +734,6 @@ export default defineConfig({
         collapsed: true,
         items: [
           { text: 'Overview', link: '/docs/actions' },
-          {
-            text: 'Wallet Actions',
-            link: '/docs/actions/wallet',
-            badge: badge('wallet'),
-          },
-          {
-            text: 'call',
-            link: '/docs/actions/public/call',
-            badge: badge('public'),
-          },
-          {
-            text: 'signMessage',
-            link: '/docs/actions/wallet/signMessage',
-            badge: badge('wallet'),
-          },
-          {
-            text: 'signTypedData',
-            link: '/docs/actions/wallet/signTypedData',
-            badge: badge('wallet'),
-          },
-          {
-            text: 'simulateBlocks',
-            link: '/docs/actions/public/simulateBlocks',
-            badge: badge('public'),
-          },
-          {
-            text: 'simulateCalls',
-            link: '/docs/actions/public/simulateCalls',
-            badge: badge('public'),
-          },
-          {
-            text: 'verifyHash',
-            link: '/docs/actions/public/verifyHash',
-            badge: badge('public'),
-          },
-          {
-            text: 'verifyMessage',
-            link: '/docs/actions/public/verifyMessage',
-            badge: badge('public'),
-          },
-          {
-            text: 'verifySiweMessage',
-            link: '/docs/actions/public/verifySiweMessage',
-            badge: badge('public'),
-          },
-          {
-            text: 'verifyTypedData',
-            link: '/docs/actions/public/verifyTypedData',
-            badge: badge('public'),
-          },
           {
             text: 'Address',
             collapsed: true,
@@ -622,6 +885,11 @@ export default defineConfig({
                 badge: badge('test'),
               },
               {
+                text: 'simulate',
+                link: '/docs/actions/public/block/simulate',
+                badge: badge('public'),
+              },
+              {
                 text: 'watch',
                 link: '/docs/actions/public/block/watch',
                 badge: badge('public'),
@@ -629,6 +897,22 @@ export default defineConfig({
               {
                 text: 'watchNumber',
                 link: '/docs/actions/public/block/watchNumber',
+                badge: badge('public'),
+              },
+            ],
+          },
+          {
+            text: 'Call',
+            collapsed: true,
+            items: [
+              {
+                text: 'call',
+                link: '/docs/actions/public/call',
+                badge: badge('public'),
+              },
+              {
+                text: 'multicall',
+                link: '/docs/actions/public/multicall',
                 badge: badge('public'),
               },
             ],
@@ -837,6 +1121,47 @@ export default defineConfig({
                 text: 'setRpcUrl',
                 link: '/docs/actions/test/node/setRpcUrl',
                 badge: badge('test'),
+              },
+            ],
+          },
+          {
+            text: 'Sign & Verify',
+            collapsed: true,
+            items: [
+              {
+                text: 'signMessage',
+                link: '/docs/actions/wallet/signMessage',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'signTransaction',
+                link: '/docs/actions/wallet/signTransaction',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'signTypedData',
+                link: '/docs/actions/wallet/signTypedData',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'verifyHash',
+                link: '/docs/actions/public/verifyHash',
+                badge: badge('public'),
+              },
+              {
+                text: 'verifyMessage',
+                link: '/docs/actions/public/verifyMessage',
+                badge: badge('public'),
+              },
+              {
+                text: 'verifySiweMessage',
+                link: '/docs/actions/public/verifySiweMessage',
+                badge: badge('public'),
+              },
+              {
+                text: 'verifyTypedData',
+                link: '/docs/actions/public/verifyTypedData',
+                badge: badge('public'),
               },
             ],
           },
