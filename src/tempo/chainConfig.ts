@@ -94,6 +94,7 @@ export const chainConfig = {
             weight: Number(owner.weight),
           })),
         }
+        request.multisigSignatureCount ??= inferMultisigSignatureCount(config)
         // A non-multisig `account` (e.g. the client's default) isn't the sender,
         // so drop it: core then fills nonce/gas/fees for the multisig sender via
         // `request.from`. A multisig account *is* the sender — keep it so the
@@ -147,6 +148,7 @@ export const chainConfig = {
       // validBefore timestamp.
       const useExpiringNonce = await (async () => {
         if (request.nonceKey === 'expiring') return true
+        if (multisig) return false
         if (request.feePayer && typeof request.nonceKey === 'undefined')
           return true
         const address = request.account?.address
@@ -261,3 +263,16 @@ export const chainConfig = {
 } as const satisfies viem_ChainConfig & { blockTime: number }
 
 export type ChainConfig = typeof chainConfig
+
+function inferMultisigSignatureCount(config: MultisigConfig.Config) {
+  const threshold = Number(config.threshold)
+  const weights = config.owners
+    .map((owner) => Number(owner.weight))
+    .sort((a, b) => b - a)
+  let total = 0
+  for (const [index, weight] of weights.entries()) {
+    total += weight
+    if (total >= threshold) return index + 1
+  }
+  return weights.length
+}

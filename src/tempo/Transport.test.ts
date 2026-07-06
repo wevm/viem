@@ -1,15 +1,17 @@
 import * as Http from 'node:http'
 import { createRequestListener } from '@remix-run/node-fetch-server'
 import { Hex, RpcRequest, RpcResponse } from 'ox'
+import { MultisigConfig } from 'ox/tempo'
 import { privateKeyToAccount } from 'viem/accounts'
 import {
   getCallsStatus,
+  prepareTransactionRequest,
   sendCallsSync,
   sendTransaction,
   sendTransactionSync,
   signTransaction,
 } from 'viem/actions'
-import { Transaction } from 'viem/tempo'
+import { Account, Transaction } from 'viem/tempo'
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { accounts, chain, getClient, http } from '~test/tempo/config.js'
 import { walletNamespaceCompat, withFeePayer, withRelay } from './Transport.js'
@@ -241,6 +243,53 @@ describe('withRelay', () => {
         params: expect.any(Array),
       })
     })
+
+    test.runIf(import.meta.env.VITE_TEMPO_MULTISIG)(
+      'behavior: sendTransactionSync sponsors multisig with feePayer: true',
+      async () => {
+        const owner_1 = accounts[14]
+        const owner_2 = accounts[15]
+        const config = MultisigConfig.from({
+          threshold: 2,
+          owners: [
+            { owner: owner_1.address, weight: 1 },
+            { owner: owner_2.address, weight: 1 },
+          ],
+        })
+        const account = Account.fromMultisig(config)
+
+        const request = await prepareTransactionRequest(client, {
+          feePayer: true,
+          multisig: config,
+          to: account.address,
+          value: 0n,
+        })
+        const signatures = await Promise.all(
+          [owner_1, owner_2].map((owner) =>
+            signTransaction(client, { ...request, account: owner }),
+          ),
+        )
+        const receipt = await sendTransactionSync(client, {
+          ...request,
+          account,
+          feePayer: true,
+          multisig: config,
+          signatures,
+        })
+
+        expect(receipt.status).toBe('success')
+        expect(receipt.from).toBe(account.address.toLowerCase())
+        expect(receipt.feePayer).toBe(accounts[0].address.toLowerCase())
+        expect(relayRequests).toContainEqual({
+          method: 'eth_fillTransaction',
+          params: expect.any(Array),
+        })
+        expect(relayRequests).toContainEqual({
+          method: 'eth_signRawTransaction',
+          params: expect.any(Array),
+        })
+      },
+    )
 
     test('behavior: non-sponsored transaction uses default transport', async () => {
       const receipt = await sendTransactionSync(client, {

@@ -293,22 +293,22 @@ describe('serialize', () => {
     expect(serialized.startsWith('0x76')).toBe(true)
   })
 
-  test('behavior: throws when feePayer object but no from and non-secp256k1 sig', async () => {
-    await expect(
-      Transaction.serialize(
-        {
-          chainId: 1,
-          calls: [{ to: '0x0000000000000000000000000000000000000000' }],
-          feePayer: accounts.at(1)!,
-        },
-        {
-          type: 'p256',
-          signature: { r: 1n, s: 1n },
-          publicKey: { x: 1n, y: 1n, prefix: 4 },
-          prehash: true,
-        },
-      ),
-    ).rejects.toThrow('Unable to extract sender from transaction or signature.')
+  test('behavior: feePayer object derives sender from p256 signature', async () => {
+    const serialized = await Transaction.serialize(
+      {
+        chainId: 1,
+        calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+        feePayer: accounts.at(1)!,
+      },
+      {
+        type: 'p256',
+        signature: { r: 1n, s: 1n },
+        publicKey: { x: 1n, y: 1n, prefix: 4 },
+        prehash: true,
+      },
+    )
+
+    expect(serialized.startsWith('0x76')).toBe(true)
   })
 })
 
