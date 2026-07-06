@@ -1,0 +1,129 @@
+# channel.signVoucher
+
+Signs a TIP-20 payment channel voucher. Vouchers commit to a cumulative amount: each voucher covers the total paid over the channel's lifetime and supersedes earlier ones.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const signature = await client.channel.signVoucher({
+  channel: '0x…',
+  cumulativeAmount: 100n,
+})
+// @log: '0x…'
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const signature = await Actions.channel.signVoucher(client, {
+  channel: '0x…',
+  cumulativeAmount: 100n,
+})
+// @log: '0x…'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### account
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Account to sign with. Must be the channel's payer or its `authorizedSigner`.
+
+```ts twoslash
+import { Account } from 'viem'
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const signature = await Actions.channel.signVoucher(client, {
+  account: Account.fromPrivateKey('0x…'), // [!code focus]
+  channel: '0x…',
+  cumulativeAmount: 100n,
+})
+```
+
+### chainId
+
+- **Type:** `number | bigint`
+- **Default:** `client.chain.id`
+
+Chain ID the voucher is bound to.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const signature = await Actions.channel.signVoucher(client, {
+  chainId: 4217, // [!code focus]
+  channel: '0x…',
+  cumulativeAmount: 100n,
+})
+```
+
+### channel
+
+- **Type:** `Hex | Channel`
+
+Channel ID, or channel descriptor (its ID is computed locally).
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const signature = await Actions.channel.signVoucher(client, {
+  channel: { // [!code focus]
+    expiringNonceHash: '0x…', // [!code focus]
+    payee: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // [!code focus]
+    payer: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+    salt: '0x…', // [!code focus]
+    token: 1n, // [!code focus]
+  }, // [!code focus]
+  cumulativeAmount: 100n,
+})
+```
+
+### cumulativeAmount
+
+- **Type:** `bigint`
+
+Total voucher amount signed for the channel.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const signature = await Actions.channel.signVoucher(client, {
+  channel: '0x…',
+  cumulativeAmount: 100n, // [!code focus]
+})
+```
+
+## Return Value
+
+`Hex`
+
+The voucher signature. Pass it to [`channel.settle`](/tempo/actions/channel.settle) or [`channel.close`](/tempo/actions/channel.close).
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Account.NotFoundError` | No `account` was provided and the client has no account. |
+| `BaseError` | No `chainId` was provided and the client has no chain, or the account cannot sign. |

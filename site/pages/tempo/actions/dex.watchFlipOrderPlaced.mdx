@@ -1,0 +1,44 @@
+# dex.watchFlipOrderPlaced
+
+Watches for flip order placed events, returning a watcher handle. Emits only `OrderPlaced` logs with `isFlipOrder` set.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const watcher = client.dex.watchFlipOrderPlaced()
+watcher.onLogs((logs) => console.log(logs))
+// later: watcher.off()
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const watcher = Actions.dex.watchFlipOrderPlaced(client)
+watcher.onLogs((logs) => console.log(logs))
+// later: watcher.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client } from 'viem/tempo'
+
+export const client = Client.create()
+```
+
+:::
+
+## Return Value
+
+`Watcher`
+
+A watcher handle over `OrderPlaced` events for flip orders: register listeners with `onLogs`/`onError`, stop with `off`, or consume it as an async iterable.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The event subscription failed. |

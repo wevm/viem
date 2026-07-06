@@ -1,0 +1,63 @@
+# policy.getData
+
+Gets policy data: the admin and type of a TIP-403 transfer policy.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const data = await client.policy.getData({
+  policyId: 2n,
+})
+// @log: { admin: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', type: 'whitelist' }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const data = await Actions.policy.getData(client, {
+  policyId: 2n,
+})
+// @log: { admin: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', type: 'whitelist' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client } from 'viem/tempo'
+
+export const client = Client.create()
+```
+
+:::
+
+## Parameters
+
+### policyId
+
+- **Type:** `bigint`
+
+Policy ID.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const data = await Actions.policy.getData(client, {
+  policyId: 2n, // [!code focus]
+})
+```
+
+## Return Value
+
+`{ admin: Address, type: 'whitelist' | 'blacklist' }`
+
+The policy admin and type.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The registry read failed. |

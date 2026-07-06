@@ -1,0 +1,149 @@
+# dex.sellSync
+
+Sells a specific amount of tokens, and waits for the transaction to be confirmed.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const { receipt } = await client.dex.sellSync({
+  amountIn: 100n,
+  minAmountOut: 95n,
+  tokenIn: '0x20c0000000000000000000000000000000000001',
+  tokenOut: '0x20c0000000000000000000000000000000000002',
+})
+// @log: { receipt: { … } }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { receipt } = await Actions.dex.sellSync(client, {
+  amountIn: 100n,
+  minAmountOut: 95n,
+  tokenIn: '0x20c0000000000000000000000000000000000001',
+  tokenOut: '0x20c0000000000000000000000000000000000002',
+})
+// @log: { receipt: { … } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### amountIn
+
+- **Type:** `bigint`
+
+Amount of `tokenIn` to sell.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const { receipt } = await Actions.dex.sellSync(client, {
+  amountIn: 100n, // [!code focus]
+  minAmountOut: 95n,
+  tokenIn: '0x20c0000000000000000000000000000000000001',
+  tokenOut: '0x20c0000000000000000000000000000000000002',
+})
+```
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### minAmountOut
+
+- **Type:** `bigint`
+
+Minimum amount of `tokenOut` to receive.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const { receipt } = await Actions.dex.sellSync(client, {
+  amountIn: 100n,
+  minAmountOut: 95n, // [!code focus]
+  tokenIn: '0x20c0000000000000000000000000000000000001',
+  tokenOut: '0x20c0000000000000000000000000000000000002',
+})
+```
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw when the receipt marks the transaction as reverted.
+
+### tokenIn
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the token to sell.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const { receipt } = await Actions.dex.sellSync(client, {
+  amountIn: 100n,
+  minAmountOut: 95n,
+  tokenIn: 1n, // [!code focus]
+  tokenOut: '0x20c0000000000000000000000000000000000002',
+})
+```
+
+### tokenOut
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the token to receive.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const { receipt } = await Actions.dex.sellSync(client, {
+  amountIn: 100n,
+  minAmountOut: 95n,
+  tokenIn: '0x20c0000000000000000000000000000000000001',
+  tokenOut: 2n, // [!code focus]
+})
+```
+
+## Return Value
+
+`{ receipt: TransactionReceipt }`
+
+The transaction receipt.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed or the receipt reverted. |

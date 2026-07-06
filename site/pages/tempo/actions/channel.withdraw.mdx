@@ -1,0 +1,97 @@
+# channel.withdraw
+
+Withdraws payer funds after the close grace period elapses. Start the grace period with [`channel.requestClose`](/tempo/actions/channel.requestClose); the withdrawal is gated until it ends.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const hash = await client.channel.withdraw({
+  channel: {
+    expiringNonceHash: '0x…',
+    payee: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+    payer: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    salt: '0x…',
+    token: 1n,
+  },
+})
+// @log: '0x…'
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await Actions.channel.withdraw(client, {
+  channel: {
+    expiringNonceHash: '0x…',
+    payee: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+    payer: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    salt: '0x…',
+    token: 1n,
+  },
+})
+// @log: '0x…'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### channel
+
+- **Type:** `Channel`
+
+Channel descriptor: the fields that identify the channel (`payer`, `payee`, `token`, `salt`, `expiringNonceHash`, plus optional `operator` and `authorizedSigner`). Use the event data returned by [`channel.openSync`](/tempo/actions/channel.openSync).
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.channel.withdraw(client, {
+  channel: { // [!code focus]
+    expiringNonceHash: '0x…', // [!code focus]
+    payee: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // [!code focus]
+    payer: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+    salt: '0x…', // [!code focus]
+    token: 1n, // [!code focus]
+  }, // [!code focus]
+})
+```
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+## Return Value
+
+`Hex`
+
+The transaction hash.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed (for example, the close grace period has not elapsed). |

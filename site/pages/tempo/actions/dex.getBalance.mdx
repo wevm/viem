@@ -1,0 +1,84 @@
+# dex.getBalance
+
+Gets a user's token balance on the DEX.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const balance = await client.dex.getBalance({
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: 100n
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const balance = await Actions.dex.getBalance(client, {
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: 100n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### account
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Account (or address) to read the balance of.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const balance = await Actions.dex.getBalance(client, {
+  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+### token
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the token.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const balance = await Actions.dex.getBalance(client, {
+  token: 1n, // [!code focus]
+})
+```
+
+## Return Value
+
+`bigint`
+
+The user's token balance on the DEX.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Account.NotFoundError` | No `account` was provided and the client has no account. |
+| `ContractFunctionExecutionError` | The DEX read failed. |

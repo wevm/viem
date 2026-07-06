@@ -1,0 +1,131 @@
+# receivePolicy.claimSync
+
+Claims blocked funds for a receipt, and waits for the transaction to be confirmed.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const { amount, to } = await client.receivePolicy.claimSync({
+  receipt: '0x…',
+  to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+})
+// @log: {
+// @log:   token: '0x20c0000000000000000000000000000000000001',
+// @log:   receiver: '0x…',
+// @log:   blockedNonce: 1n,
+// @log:   blockedAt: 1715000000n,
+// @log:   receiptVersion: 1,
+// @log:   originator: '0x…',
+// @log:   recipient: '0x…',
+// @log:   recoveryAuthority: '0x…',
+// @log:   caller: '0x…',
+// @log:   to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+// @log:   amount: 100n,
+// @log:   receipt: { … },
+// @log: }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { amount, to } = await Actions.receivePolicy.claimSync(client, {
+  receipt: '0x…',
+  to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+})
+// @log: {
+// @log:   token: '0x20c0000000000000000000000000000000000001',
+// @log:   receiver: '0x…',
+// @log:   blockedNonce: 1n,
+// @log:   blockedAt: 1715000000n,
+// @log:   receiptVersion: 1,
+// @log:   originator: '0x…',
+// @log:   recipient: '0x…',
+// @log:   recoveryAuthority: '0x…',
+// @log:   caller: '0x…',
+// @log:   to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+// @log:   amount: 100n,
+// @log:   receipt: { … },
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+### receipt
+
+- **Type:** `ReceivePolicyReceipt`
+
+The encoded claim receipt (witness from a `TransferBlocked` event). The `ReceivePolicyReceipt` type is re-exported from `'viem/tempo'`.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.receivePolicy.claimSync(client, {
+  receipt: '0x…', // [!code focus]
+  to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+})
+```
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw when the receipt marks the transaction as reverted.
+
+### to
+
+- **Type:** `Address`
+
+Destination to release the blocked funds to.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.receivePolicy.claimSync(client, {
+  receipt: '0x…',
+  to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+})
+```
+
+## Return Value
+
+`{ token: Address, receiver: Address, blockedNonce: bigint, blockedAt: bigint, receiptVersion: number, originator: Address, recipient: Address, recoveryAuthority: Address, caller: Address, to: Address, amount: bigint, receipt: TransactionReceipt }`
+
+The `ReceiptClaimed` event data and the transaction receipt.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed or the receipt reverted. |

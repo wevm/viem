@@ -1,0 +1,82 @@
+# amm.getPool
+
+Gets the reserves for a liquidity pool.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const pool = await client.amm.getPool({
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+})
+// @log: { reserveUserToken: 1000n, reserveValidatorToken: 500n, totalSupply: 750n }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const pool = await Actions.amm.getPool(client, {
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+})
+// @log: { reserveUserToken: 1000n, reserveValidatorToken: 500n, totalSupply: 750n }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client } from 'viem/tempo'
+
+export const client = Client.create()
+```
+
+:::
+
+## Parameters
+
+### userToken
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the user token of the pool.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const pool = await Actions.amm.getPool(client, {
+  userToken: 1n, // [!code focus]
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+})
+```
+
+### validatorToken
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the validator token of the pool.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const pool = await Actions.amm.getPool(client, {
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: 2n, // [!code focus]
+})
+```
+
+## Return Value
+
+`{ reserveUserToken: bigint, reserveValidatorToken: bigint, totalSupply: bigint }`
+
+The pool reserves and the total supply of LP tokens.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The pool read failed. |

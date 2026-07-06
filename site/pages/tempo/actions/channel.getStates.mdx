@@ -1,0 +1,64 @@
+# channel.getStates
+
+Gets TIP-20 payment channel state for a channel ID or channel descriptor.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const state = await client.channel.getStates({
+  channel: '0x…',
+})
+// @log: { settled: 100n, deposit: 1000n, closeRequestedAt: 0 }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const state = await Actions.channel.getStates(client, {
+  channel: '0x…',
+})
+// @log: { settled: 100n, deposit: 1000n, closeRequestedAt: 0 }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client } from 'viem/tempo'
+
+export const client = Client.create()
+```
+
+:::
+
+## Parameters
+
+### channel
+
+- **Type:** `Hex | Channel | readonly (Hex | Channel)[]`
+
+Channel ID, channel descriptor, or list of IDs and descriptors. Descriptor IDs are computed locally from the client's chain ID. Pass a list to fetch multiple states in one call (returns an array).
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const states = await Actions.channel.getStates(client, {
+  channel: ['0x…', '0x…'], // [!code focus]
+})
+```
+
+## Return Value
+
+`{ settled: bigint, deposit: bigint, closeRequestedAt: number }`
+
+The channel state: amount settled to the payee, deposit locked in the channel, and the timestamp of the close request (`0` when close has not been requested). An array of states when `channel` is a list.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `BaseError` | A channel descriptor was provided and the client has no chain. |
+| `ContractFunctionExecutionError` | The channel read failed. |

@@ -1,0 +1,115 @@
+# policy.create
+
+Creates a new TIP-403 transfer policy. Policies are whitelists or blacklists that gate TIP-20 transfers; IDs `0` (always reject) and `1` (always allow) are reserved protocol policies.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const hash = await client.policy.create({
+  type: 'whitelist',
+})
+// @log: '0x…'
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await Actions.policy.create(client, {
+  type: 'whitelist',
+})
+// @log: '0x…'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### addresses
+
+- **Type:** `readonly Address[]`
+
+Accounts to initialize the policy with.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.policy.create(client, {
+  addresses: [ // [!code focus]
+    '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // [!code focus]
+  ], // [!code focus]
+  type: 'whitelist',
+})
+```
+
+### admin
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Policy admin (or address).
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.policy.create(client, {
+  admin: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+  type: 'whitelist',
+})
+```
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+### type
+
+- **Type:** `'whitelist' | 'blacklist'`
+
+Type of policy to create.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.policy.create(client, {
+  type: 'blacklist', // [!code focus]
+})
+```
+
+## Return Value
+
+`Hex`
+
+The transaction hash.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `BaseError` | No `admin` was provided and the client has no account. |
+| `ContractFunctionExecutionError` | The write failed. |

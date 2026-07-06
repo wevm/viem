@@ -1,0 +1,129 @@
+# policy.modifyBlacklistSync
+
+Modifies a policy blacklist, and waits for the transaction to be confirmed.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const { account, restricted } = await client.policy.modifyBlacklistSync({
+  address: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  policyId: 2n,
+  restricted: true,
+})
+// @log: { policyId: 2n, updater: '0x…', account: '0x…', restricted: true, receipt: { … } }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { account, restricted } = await Actions.policy.modifyBlacklistSync(
+  client,
+  {
+    address: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+    policyId: 2n,
+    restricted: true,
+  },
+)
+// @log: { policyId: 2n, updater: '0x…', account: '0x…', restricted: true, receipt: { … } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### address
+
+- **Type:** `Address`
+
+Target account address.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.policy.modifyBlacklistSync(client, {
+  address: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // [!code focus]
+  policyId: 2n,
+  restricted: true,
+})
+```
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+### policyId
+
+- **Type:** `bigint`
+
+Policy ID.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.policy.modifyBlacklistSync(client, {
+  address: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  policyId: 2n, // [!code focus]
+  restricted: true,
+})
+```
+
+### restricted
+
+- **Type:** `boolean`
+
+Whether the account is restricted.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.policy.modifyBlacklistSync(client, {
+  address: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  policyId: 2n,
+  restricted: false, // [!code focus]
+})
+```
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw when the receipt marks the transaction as reverted.
+
+## Return Value
+
+`{ policyId: bigint, updater: Address, account: Address, restricted: boolean, receipt: TransactionReceipt }`
+
+The `BlacklistUpdated` event data and the transaction receipt.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed or the receipt reverted. |

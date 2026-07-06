@@ -1,0 +1,79 @@
+# validator.changeOwner
+
+Changes the owner of the `ValidatorConfig` precompile. Only the current owner can transfer ownership.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const hash = await client.validator.changeOwner({
+  newOwner: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+})
+// @log: '0x…'
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await Actions.validator.changeOwner(client, {
+  newOwner: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+})
+// @log: '0x…'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### newOwner
+
+- **Type:** `Address`
+
+The new owner address.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.validator.changeOwner(client, {
+  newOwner: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // [!code focus]
+})
+```
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+## Return Value
+
+`Hex`
+
+The transaction hash.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed (for example, the caller is not the owner). |

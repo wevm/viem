@@ -1,0 +1,98 @@
+# dex.withdraw
+
+Withdraws tokens from the DEX to the caller's wallet.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const hash = await client.dex.withdraw({
+  amount: 100n,
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: '0x…'
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await Actions.dex.withdraw(client, {
+  amount: 100n,
+  token: '0x20c0000000000000000000000000000000000001',
+})
+// @log: '0x…'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### amount
+
+- **Type:** `bigint`
+
+Amount to withdraw.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.dex.withdraw(client, {
+  amount: 100n, // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+### token
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the token to withdraw.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.dex.withdraw(client, {
+  amount: 100n,
+  token: 1n, // [!code focus]
+})
+```
+
+## Return Value
+
+`Hex`
+
+The transaction hash.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed (for example, the DEX balance is insufficient). |

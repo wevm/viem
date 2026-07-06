@@ -1,0 +1,79 @@
+# dex.createPair
+
+Creates a new trading pair on the DEX.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const hash = await client.dex.createPair({
+  base: '0x20c0000000000000000000000000000000000001',
+})
+// @log: '0x…'
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await Actions.dex.createPair(client, {
+  base: '0x20c0000000000000000000000000000000000001',
+})
+// @log: '0x…'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### base
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the base token for the pair.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.dex.createPair(client, {
+  base: 1n, // [!code focus]
+})
+```
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+## Return Value
+
+`Hex`
+
+The transaction hash.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed (for example, the pair already exists). |

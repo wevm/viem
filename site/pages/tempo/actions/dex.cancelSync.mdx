@@ -1,0 +1,86 @@
+# dex.cancelSync
+
+Cancels an order from the orderbook, and waits for the transaction to be confirmed.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const { orderId, receipt } = await client.dex.cancelSync({
+  orderId: 123n,
+})
+// @log: { orderId: 123n, receipt: { … } }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { orderId, receipt } = await Actions.dex.cancelSync(client, {
+  orderId: 123n,
+})
+// @log: { orderId: 123n, receipt: { … } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+### orderId
+
+- **Type:** `bigint`
+
+Order ID to cancel.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.dex.cancelSync(client, {
+  orderId: 123n, // [!code focus]
+})
+```
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw when the receipt marks the transaction as reverted.
+
+## Return Value
+
+`{ orderId: bigint, receipt: TransactionReceipt }`
+
+The `OrderCancelled` event data and the transaction receipt.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed or the receipt reverted. |

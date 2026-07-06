@@ -1,0 +1,142 @@
+# dex.buy
+
+Buys a specific amount of tokens.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const hash = await client.dex.buy({
+  amountOut: 100n,
+  maxAmountIn: 105n,
+  tokenIn: '0x20c0000000000000000000000000000000000001',
+  tokenOut: '0x20c0000000000000000000000000000000000002',
+})
+// @log: '0x…'
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await Actions.dex.buy(client, {
+  amountOut: 100n,
+  maxAmountIn: 105n,
+  tokenIn: '0x20c0000000000000000000000000000000000001',
+  tokenOut: '0x20c0000000000000000000000000000000000002',
+})
+// @log: '0x…'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### amountOut
+
+- **Type:** `bigint`
+
+Amount of `tokenOut` to buy.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.dex.buy(client, {
+  amountOut: 100n, // [!code focus]
+  maxAmountIn: 105n,
+  tokenIn: '0x20c0000000000000000000000000000000000001',
+  tokenOut: '0x20c0000000000000000000000000000000000002',
+})
+```
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### maxAmountIn
+
+- **Type:** `bigint`
+
+Maximum amount of `tokenIn` to spend.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.dex.buy(client, {
+  amountOut: 100n,
+  maxAmountIn: 105n, // [!code focus]
+  tokenIn: '0x20c0000000000000000000000000000000000001',
+  tokenOut: '0x20c0000000000000000000000000000000000002',
+})
+```
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+### tokenIn
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the token to spend.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.dex.buy(client, {
+  amountOut: 100n,
+  maxAmountIn: 105n,
+  tokenIn: 1n, // [!code focus]
+  tokenOut: '0x20c0000000000000000000000000000000000002',
+})
+```
+
+### tokenOut
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the token to buy.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.dex.buy(client, {
+  amountOut: 100n,
+  maxAmountIn: 105n,
+  tokenIn: '0x20c0000000000000000000000000000000000001',
+  tokenOut: 2n, // [!code focus]
+})
+```
+
+## Return Value
+
+`Hex`
+
+The transaction hash.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed (for example, the swap would exceed `maxAmountIn`). |

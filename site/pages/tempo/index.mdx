@@ -1,3 +1,5 @@
+import { Card, Cards } from 'vocs'
+
 # Tempo
 
 ## Overview
@@ -36,7 +38,10 @@ Tempo actions are also callable standalone via the `Actions` namespace: `Actions
 :::
 
 <Cards>
+  <Card title="Fee AMM" description="Provide liquidity to fee token pools." to="/tempo/actions/amm.mint" />
   <Card title="Fee Tokens" description="Validate, read, and set user and validator fee tokens." to="/tempo/actions/fee.setUserToken" />
   <Card title="Nonces" description="Read 2D nonces and watch nonce increments." to="/tempo/actions/nonce.getNonce" />
+  <Card title="Payment Channels" description="Open, settle, and close payment channels with signed vouchers." to="/tempo/actions/channel.open" />
+  <Card title="Stablecoin DEX" description="Place, quote, and manage stablecoin orders." to="/tempo/actions/dex.place" />
   <Card title="TIP-20 Tokens" description="Create, mint, transfer, and manage TIP-20 tokens." to="/tempo/actions/token.transferSync" />
 </Cards>

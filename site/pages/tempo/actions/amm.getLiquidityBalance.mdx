@@ -1,0 +1,120 @@
+# amm.getLiquidityBalance
+
+Gets the LP token balance for an account in a specific pool.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const balance = await client.amm.getLiquidityBalance({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+})
+// @log: 100n
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const balance = await Actions.amm.getLiquidityBalance(client, {
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+})
+// @log: 100n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client } from 'viem/tempo'
+
+export const client = Client.create()
+```
+
+:::
+
+## Parameters
+
+### address
+
+- **Type:** `Address`
+
+Address to check the balance for.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const balance = await Actions.amm.getLiquidityBalance(client, {
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+})
+```
+
+### poolId
+
+- **Type:** `Hex`
+
+Pool ID. Alternative to identifying the pool with `userToken` and `validatorToken`.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const balance = await Actions.amm.getLiquidityBalance(client, {
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  poolId: '0x…', // [!code focus]
+})
+```
+
+### userToken
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the user token of the pool. Required with `validatorToken` when `poolId` is not provided.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const balance = await Actions.amm.getLiquidityBalance(client, {
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  userToken: 1n, // [!code focus]
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+})
+```
+
+### validatorToken
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the validator token of the pool. Required with `userToken` when `poolId` is not provided.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const balance = await Actions.amm.getLiquidityBalance(client, {
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: 2n, // [!code focus]
+})
+```
+
+## Return Value
+
+`bigint`
+
+The LP token balance.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `BaseError` | Neither `poolId` nor `userToken` and `validatorToken` were provided. |
+| `ContractFunctionExecutionError` | The pool read failed. |

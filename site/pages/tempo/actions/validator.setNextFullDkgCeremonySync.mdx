@@ -1,0 +1,88 @@
+# validator.setNextFullDkgCeremonySync
+
+Sets the next epoch for a full DKG (distributed key generation) ceremony, and waits for the transaction to be confirmed.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const { receipt } = await client.validator.setNextFullDkgCeremonySync({
+  epoch: 100n,
+})
+// @log: { receipt: { … } }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { receipt } = await Actions.validator.setNextFullDkgCeremonySync(
+  client,
+  { epoch: 100n },
+)
+// @log: { receipt: { … } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### epoch
+
+- **Type:** `bigint`
+
+The epoch number for the next full DKG ceremony.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const { receipt } = await Actions.validator.setNextFullDkgCeremonySync(
+  client,
+  { epoch: 100n }, // [!code focus]
+)
+```
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw when the receipt marks the transaction as reverted.
+
+## Return Value
+
+`{ receipt: TransactionReceipt }`
+
+The transaction receipt.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed or the receipt reverted. |

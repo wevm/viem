@@ -1,0 +1,80 @@
+# receivePolicy.get
+
+Gets the receive policy configured for an account. A receive policy controls which TIP-20 tokens and which senders the account accepts.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const policy = await client.receivePolicy.get()
+// @log: {
+// @log:   hasReceivePolicy: true,
+// @log:   senderPolicyId: 'allow-all',
+// @log:   senderPolicyType: 'whitelist',
+// @log:   tokenPolicyId: 'allow-all',
+// @log:   tokenPolicyType: 'whitelist',
+// @log:   claimer: 'sender',
+// @log:   recoveryAuthority: '0x0000000000000000000000000000000000000000',
+// @log: }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const policy = await Actions.receivePolicy.get(client)
+// @log: {
+// @log:   hasReceivePolicy: true,
+// @log:   senderPolicyId: 'allow-all',
+// @log:   senderPolicyType: 'whitelist',
+// @log:   tokenPolicyId: 'allow-all',
+// @log:   tokenPolicyType: 'whitelist',
+// @log:   claimer: 'sender',
+// @log:   recoveryAuthority: '0x0000000000000000000000000000000000000000',
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### account
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Account (or address) to read the receive policy for.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const policy = await Actions.receivePolicy.get(client, {
+  account: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // [!code focus]
+})
+```
+
+## Return Value
+
+`{ hasReceivePolicy: boolean, senderPolicyId: PolicyRef, senderPolicyType: 'whitelist' | 'blacklist', tokenPolicyId: PolicyRef, tokenPolicyType: 'whitelist' | 'blacklist', claimer: Claimer, recoveryAuthority: Address }`
+
+The account's receive policy. `PolicyRef` is `'reject-all'` (built-in policy `0`), `'allow-all'` (built-in policy `1`), or a custom policy ID. `Claimer` is `'sender'`, `'self'`, or a delegated address.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Account.NotFoundError` | No `account` was provided and the client has no account. |
+| `ContractFunctionExecutionError` | The registry read failed. |

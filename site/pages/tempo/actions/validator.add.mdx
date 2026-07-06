@@ -1,0 +1,167 @@
+# validator.add
+
+Adds a new validator to the validator set. Only the `ValidatorConfig` owner can add validators.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const hash = await client.validator.add({
+  active: true,
+  inboundAddress: '192.168.1.1:8080',
+  newValidatorAddress: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  outboundAddress: '192.168.1.1:8080',
+  publicKey: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+})
+// @log: '0x…'
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await Actions.validator.add(client, {
+  active: true,
+  inboundAddress: '192.168.1.1:8080',
+  newValidatorAddress: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  outboundAddress: '192.168.1.1:8080',
+  publicKey: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+})
+// @log: '0x…'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### active
+
+- **Type:** `boolean`
+
+Whether the validator should be active.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.validator.add(client, {
+  active: false, // [!code focus]
+  inboundAddress: '192.168.1.1:8080',
+  newValidatorAddress: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  outboundAddress: '192.168.1.1:8080',
+  publicKey: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+})
+```
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### inboundAddress
+
+- **Type:** `string`
+
+The validator's inbound address `<hostname|ip>:<port>` for incoming connections.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.validator.add(client, {
+  active: true,
+  inboundAddress: 'validator.example.com:8080', // [!code focus]
+  newValidatorAddress: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  outboundAddress: '192.168.1.1:8080',
+  publicKey: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+})
+```
+
+### newValidatorAddress
+
+- **Type:** `Address`
+
+The address of the new validator.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.validator.add(client, {
+  active: true,
+  inboundAddress: '192.168.1.1:8080',
+  newValidatorAddress: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // [!code focus]
+  outboundAddress: '192.168.1.1:8080',
+  publicKey: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+})
+```
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+### outboundAddress
+
+- **Type:** `string`
+
+The validator's outbound IP address `<ip>:<port>` for firewall whitelisting (IP only, no hostnames).
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.validator.add(client, {
+  active: true,
+  inboundAddress: '192.168.1.1:8080',
+  newValidatorAddress: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  outboundAddress: '203.0.113.1:8080', // [!code focus]
+  publicKey: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+})
+```
+
+### publicKey
+
+- **Type:** `Hex`
+
+The validator's communication public key.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.validator.add(client, {
+  active: true,
+  inboundAddress: '192.168.1.1:8080',
+  newValidatorAddress: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  outboundAddress: '192.168.1.1:8080',
+  publicKey: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', // [!code focus]
+})
+```
+
+## Return Value
+
+`Hex`
+
+The transaction hash.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed (for example, the caller is not the owner or the validator already exists). |

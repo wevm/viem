@@ -1,0 +1,166 @@
+# amm.rebalanceSwapSync
+
+Performs a rebalance swap from validator token to user token, and waits for the transaction to be confirmed.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const { amountIn, amountOut, receipt } = await client.amm.rebalanceSwapSync({
+  amountOut: 100n,
+  to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+})
+// @log: {
+// @log:   userToken: '0x20c0000000000000000000000000000000000001',
+// @log:   validatorToken: '0x20c0000000000000000000000000000000000002',
+// @log:   swapper: '0x…',
+// @log:   amountIn: 100n,
+// @log:   amountOut: 100n,
+// @log:   receipt: { … },
+// @log: }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { amountIn, amountOut, receipt } = await Actions.amm.rebalanceSwapSync(
+  client,
+  {
+    amountOut: 100n,
+    to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    userToken: '0x20c0000000000000000000000000000000000001',
+    validatorToken: '0x20c0000000000000000000000000000000000002',
+  },
+)
+// @log: {
+// @log:   userToken: '0x20c0000000000000000000000000000000000001',
+// @log:   validatorToken: '0x20c0000000000000000000000000000000000002',
+// @log:   swapper: '0x…',
+// @log:   amountIn: 100n,
+// @log:   amountOut: 100n,
+// @log:   receipt: { … },
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### amountOut
+
+- **Type:** `bigint`
+
+Amount of user token to receive.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.amm.rebalanceSwapSync(client, {
+  amountOut: 100n, // [!code focus]
+  to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+})
+```
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw when the receipt marks the transaction as reverted.
+
+### to
+
+- **Type:** `Address`
+
+Address to send the user token to.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.amm.rebalanceSwapSync(client, {
+  amountOut: 100n,
+  to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+})
+```
+
+### userToken
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the user token of the pool.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.amm.rebalanceSwapSync(client, {
+  amountOut: 100n,
+  to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  userToken: 1n, // [!code focus]
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+})
+```
+
+### validatorToken
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the validator token of the pool.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.amm.rebalanceSwapSync(client, {
+  amountOut: 100n,
+  to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: 2n, // [!code focus]
+})
+```
+
+## Return Value
+
+`{ userToken: Address, validatorToken: Address, swapper: Address, amountIn: bigint, amountOut: bigint, receipt: TransactionReceipt }`
+
+The `RebalanceSwap` event data and the transaction receipt.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed or the receipt reverted. |

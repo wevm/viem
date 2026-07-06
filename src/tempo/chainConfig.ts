@@ -155,8 +155,7 @@ export const chainConfig: ChainConfig = {
       { runAt: ['beforeFillTransaction', 'afterFillParameters'] },
     ],
     serialize: TxEnvelopeTempo.serialize,
-    // The prepared request carries Tempo fields beyond the base request shape.
-    toEnvelope: (request) => {
+    toEnvelope(request) {
       const { data, to, value, ...rest } = request as typeof request & {
         calls?: readonly unknown[] | undefined
       }

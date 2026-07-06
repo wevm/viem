@@ -1,0 +1,78 @@
+# amm.watchRebalanceSwap
+
+Watches for rebalance swap events, returning a watcher handle.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const watcher = client.amm.watchRebalanceSwap()
+watcher.onLogs((logs) => console.log(logs))
+// later: watcher.off()
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const watcher = Actions.amm.watchRebalanceSwap(client)
+watcher.onLogs((logs) => console.log(logs))
+// later: watcher.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client } from 'viem/tempo'
+
+export const client = Client.create()
+```
+
+:::
+
+## Parameters
+
+### userToken
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the user token to filter events. Events are filtered only when both `userToken` and `validatorToken` are provided.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const watcher = Actions.amm.watchRebalanceSwap(client, {
+  userToken: '0x20c0000000000000000000000000000000000001', // [!code focus]
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+})
+```
+
+### validatorToken
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the validator token to filter events. Events are filtered only when both `userToken` and `validatorToken` are provided.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const watcher = Actions.amm.watchRebalanceSwap(client, {
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: '0x20c0000000000000000000000000000000000002', // [!code focus]
+})
+```
+
+## Return Value
+
+`Watcher`
+
+A watcher handle over `RebalanceSwap` events: register listeners with `onLogs`/`onError`, stop with `off`, or consume it as an async iterable.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The event subscription failed. |

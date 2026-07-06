@@ -12,6 +12,7 @@ export default defineConfig({
     ignorePatterns: [
       'contracts/**',
       'contracts-old/**',
+      'site-old/**',
       'src-old/**',
       'src/vendor/**',
       'test-old/**',
@@ -46,6 +47,7 @@ export default defineConfig({
     ignorePatterns: [
       'contracts/**',
       'contracts-old/**',
+      'site-old/**',
       'src-old/**',
       'src/vendor/**',
       'test-old/**',
@@ -76,6 +78,7 @@ export default defineConfig({
       '**/node_modules/**',
       '**/dist/**',
       'contracts-old/**',
+      'site-old/**',
       'src-old/**',
       'test-old/**',
     ],
@@ -97,6 +100,8 @@ export default defineConfig({
           include: ['src/tempo/actions/**/*.test.ts'],
           globalSetup: ['./test/setup.tempo.global.ts'],
           setupFiles: ['./test/setup.tempo.ts'],
+          // Parallel per-worker containers slow receipt ceremonies.
+          testTimeout: 30_000,
         },
       },
     ],

@@ -1,0 +1,110 @@
+# receivePolicy.burnSync
+
+Burns the funds backing a blocked receipt, and waits for the transaction to be confirmed.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const { amount, token } = await client.receivePolicy.burnSync({
+  receipt: '0x…',
+})
+// @log: {
+// @log:   token: '0x20c0000000000000000000000000000000000001',
+// @log:   receiver: '0x…',
+// @log:   blockedNonce: 1n,
+// @log:   blockedAt: 1715000000n,
+// @log:   receiptVersion: 1,
+// @log:   originator: '0x…',
+// @log:   recipient: '0x…',
+// @log:   recoveryAuthority: '0x…',
+// @log:   caller: '0x…',
+// @log:   amount: 100n,
+// @log:   receipt: { … },
+// @log: }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { amount, token } = await Actions.receivePolicy.burnSync(client, {
+  receipt: '0x…',
+})
+// @log: {
+// @log:   token: '0x20c0000000000000000000000000000000000001',
+// @log:   receiver: '0x…',
+// @log:   blockedNonce: 1n,
+// @log:   blockedAt: 1715000000n,
+// @log:   receiptVersion: 1,
+// @log:   originator: '0x…',
+// @log:   recipient: '0x…',
+// @log:   recoveryAuthority: '0x…',
+// @log:   caller: '0x…',
+// @log:   amount: 100n,
+// @log:   receipt: { … },
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+### receipt
+
+- **Type:** `ReceivePolicyReceipt`
+
+The encoded claim receipt (witness from a `TransferBlocked` event). The `ReceivePolicyReceipt` type is re-exported from `'viem/tempo'`.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const result = await Actions.receivePolicy.burnSync(client, {
+  receipt: '0x…', // [!code focus]
+})
+```
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw when the receipt marks the transaction as reverted.
+
+## Return Value
+
+`{ token: Address, receiver: Address, blockedNonce: bigint, blockedAt: bigint, receiptVersion: number, originator: Address, recipient: Address, recoveryAuthority: Address, caller: Address, amount: bigint, receipt: TransactionReceipt }`
+
+The `ReceiptBurned` event data and the transaction receipt.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed or the receipt reverted. |

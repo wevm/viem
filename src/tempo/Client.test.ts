@@ -9,10 +9,16 @@ test('default', () => {
   expect(client.chain?.id).toBe(4217)
   expect(client.tokens?.length).toBeGreaterThan(0)
   // Decorated namespaces.
+  expect(client.amm.getPool).toBeTypeOf('function')
+  expect(client.channel.open).toBeTypeOf('function')
+  expect(client.dex.buy).toBeTypeOf('function')
   expect(client.fee.getUserToken).toBeTypeOf('function')
   expect(client.fee.estimateFeesPerGas).toBeTypeOf('function')
   expect(client.nonce.getNonce).toBeTypeOf('function')
+  expect(client.policy.create).toBeTypeOf('function')
+  expect(client.receivePolicy.get).toBeTypeOf('function')
   expect(client.token.transferSync).toBeTypeOf('function')
+  expect(client.validator.list).toBeTypeOf('function')
   expect(client.address.getBalance).toBeTypeOf('function')
 })
 

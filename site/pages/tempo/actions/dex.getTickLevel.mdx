@@ -1,0 +1,103 @@
+# dex.getTickLevel
+
+Gets the price level information at a specific tick.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const level = await client.dex.getTickLevel({
+  base: '0x20c0000000000000000000000000000000000001',
+  isBid: true,
+  tick: -10,
+})
+// @log: { head: 12n, tail: 15n, totalLiquidity: 500n }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const level = await Actions.dex.getTickLevel(client, {
+  base: '0x20c0000000000000000000000000000000000001',
+  isBid: true,
+  tick: -10,
+})
+// @log: { head: 12n, tail: 15n, totalLiquidity: 500n }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client } from 'viem/tempo'
+
+export const client = Client.create()
+```
+
+:::
+
+## Parameters
+
+### base
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the base token.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const level = await Actions.dex.getTickLevel(client, {
+  base: 1n, // [!code focus]
+  isBid: true,
+  tick: -10,
+})
+```
+
+### isBid
+
+- **Type:** `boolean`
+
+Whether to query the bid side (`true`) or ask side (`false`).
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const level = await Actions.dex.getTickLevel(client, {
+  base: '0x20c0000000000000000000000000000000000001',
+  isBid: false, // [!code focus]
+  tick: 10,
+})
+```
+
+### tick
+
+- **Type:** `number`
+
+Price tick to query. Use `Tick.fromPrice` from `'viem/tempo'` to convert a price into a tick.
+
+```ts twoslash
+import { Actions, Tick } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const level = await Actions.dex.getTickLevel(client, {
+  base: '0x20c0000000000000000000000000000000000001',
+  isBid: true,
+  tick: Tick.fromPrice('0.9999'), // [!code focus]
+})
+```
+
+## Return Value
+
+`{ head: bigint, tail: bigint, totalLiquidity: bigint }`
+
+The price level: order IDs of the first and last orders at the tick (`0` when empty) and the total liquidity available.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The orderbook read failed. |

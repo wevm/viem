@@ -1,0 +1,92 @@
+# dex.getOrderbook
+
+Gets orderbook information for a trading pair.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const book = await client.dex.getOrderbook({
+  base: '0x20c0000000000000000000000000000000000001',
+  quote: '0x20c0000000000000000000000000000000000002',
+})
+// @log: {
+// @log:   base: '0x20c0000000000000000000000000000000000001',
+// @log:   quote: '0x20c0000000000000000000000000000000000002',
+// @log:   bestBidTick: -10,
+// @log:   bestAskTick: 10,
+// @log: }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const book = await Actions.dex.getOrderbook(client, {
+  base: '0x20c0000000000000000000000000000000000001',
+  quote: '0x20c0000000000000000000000000000000000002',
+})
+// @log: {
+// @log:   base: '0x20c0000000000000000000000000000000000001',
+// @log:   quote: '0x20c0000000000000000000000000000000000002',
+// @log:   bestBidTick: -10,
+// @log:   bestAskTick: 10,
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client } from 'viem/tempo'
+
+export const client = Client.create()
+```
+
+:::
+
+## Parameters
+
+### base
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the base token.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const book = await Actions.dex.getOrderbook(client, {
+  base: 1n, // [!code focus]
+  quote: '0x20c0000000000000000000000000000000000002',
+})
+```
+
+### quote
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the quote token.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const book = await Actions.dex.getOrderbook(client, {
+  base: '0x20c0000000000000000000000000000000000001',
+  quote: 2n, // [!code focus]
+})
+```
+
+## Return Value
+
+`{ base: Address, quote: Address, bestBidTick: number, bestAskTick: number }`
+
+The orderbook: the pair's token addresses and the current best bid and ask ticks.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The orderbook read failed. |

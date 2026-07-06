@@ -1,0 +1,42 @@
+# validator.getCount
+
+Gets the total number of validators.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const count = await client.validator.getCount()
+// @log: 10n
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const count = await Actions.validator.getCount(client)
+// @log: 10n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client } from 'viem/tempo'
+
+export const client = Client.create()
+```
+
+:::
+
+## Return Value
+
+`bigint`
+
+The total number of validators.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The ValidatorConfig read failed. |

@@ -1,0 +1,176 @@
+# channel.open
+
+Opens and funds a TIP-20 payment channel.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const hash = await client.channel.open({
+  deposit: 100n,
+  payee: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: 1n,
+})
+// @log: '0x…'
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await Actions.channel.open(client, {
+  deposit: 100n,
+  payee: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: 1n,
+})
+// @log: '0x…'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+})
+```
+
+:::
+
+## Parameters
+
+### authorizedSigner
+
+- **Type:** `Address`
+- **Default:** `'0x0000000000000000000000000000000000000000'`
+
+Optional dedicated signer for vouchers. When zero, the payer signs vouchers.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.channel.open(client, {
+  authorizedSigner: '0x90F79bf6EB2c4f870365E785982E1f101E93b906', // [!code focus]
+  deposit: 100n,
+  payee: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: 1n,
+})
+```
+
+### deposit
+
+- **Type:** `bigint`
+
+Amount of TIP-20 token to deposit.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.channel.open(client, {
+  deposit: 100n, // [!code focus]
+  payee: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: 1n,
+})
+```
+
+### feeToken
+
+- **Type:** `TokenId | Address`
+- **Default:** `client.feeToken`
+
+TIP-20 token to pay transaction fees with.
+
+### nonceKey
+
+- **Type:** `bigint | 'random'`
+
+Nonce key to send the transaction under. Pass `'random'` to use a random key.
+
+### operator
+
+- **Type:** `Address`
+- **Default:** `'0x0000000000000000000000000000000000000000'`
+
+Optional relayer allowed to submit [`channel.settle`](/tempo/actions/channel.settle) for the payee.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.channel.open(client, {
+  deposit: 100n,
+  operator: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC', // [!code focus]
+  payee: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: 1n,
+})
+```
+
+### payee
+
+- **Type:** `Address`
+
+Account that receives settled voucher payments.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.channel.open(client, {
+  deposit: 100n,
+  payee: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // [!code focus]
+  token: 1n,
+})
+```
+
+### salt
+
+- **Type:** `Hex`
+- **Default:** `Hex.random(32)`
+
+User-supplied salt to distinguish otherwise identical channels.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.channel.open(client, {
+  deposit: 100n,
+  payee: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  salt: '0x…', // [!code focus]
+  token: 1n,
+})
+```
+
+### token
+
+- **Type:** `TokenId | Address`
+
+TIP-20 token address or ID held by the channel.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.channel.open(client, {
+  deposit: 100n,
+  payee: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0x20c0000000000000000000000000000000000001', // [!code focus]
+})
+```
+
+## Return Value
+
+`Hex`
+
+The transaction hash.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The write failed. |

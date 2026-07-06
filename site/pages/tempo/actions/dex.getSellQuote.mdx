@@ -1,0 +1,103 @@
+# dex.getSellQuote
+
+Gets the quote for selling a specific amount of tokens. Quotes are read-only and do not execute a swap.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const amountOut = await client.dex.getSellQuote({
+  amountIn: 100n,
+  tokenIn: '0x20c0000000000000000000000000000000000001',
+  tokenOut: '0x20c0000000000000000000000000000000000002',
+})
+// @log: 99n
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const amountOut = await Actions.dex.getSellQuote(client, {
+  amountIn: 100n,
+  tokenIn: '0x20c0000000000000000000000000000000000001',
+  tokenOut: '0x20c0000000000000000000000000000000000002',
+})
+// @log: 99n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client } from 'viem/tempo'
+
+export const client = Client.create()
+```
+
+:::
+
+## Parameters
+
+### amountIn
+
+- **Type:** `bigint`
+
+Amount of `tokenIn` to sell.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const amountOut = await Actions.dex.getSellQuote(client, {
+  amountIn: 100n, // [!code focus]
+  tokenIn: '0x20c0000000000000000000000000000000000001',
+  tokenOut: '0x20c0000000000000000000000000000000000002',
+})
+```
+
+### tokenIn
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the token to sell.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const amountOut = await Actions.dex.getSellQuote(client, {
+  amountIn: 100n,
+  tokenIn: 1n, // [!code focus]
+  tokenOut: '0x20c0000000000000000000000000000000000002',
+})
+```
+
+### tokenOut
+
+- **Type:** `TokenId | Address`
+
+Address or ID of the token to receive.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+const amountOut = await Actions.dex.getSellQuote(client, {
+  amountIn: 100n,
+  tokenIn: '0x20c0000000000000000000000000000000000001',
+  tokenOut: 2n, // [!code focus]
+})
+```
+
+## Return Value
+
+`bigint`
+
+The amount of `tokenOut` received for selling the specified `amountIn`.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractFunctionExecutionError` | The quote read failed. |
