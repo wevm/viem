@@ -828,6 +828,40 @@ describe('without `eth_fillTransaction`', () => {
     `)
   })
 
+  test('behavior: sponsor fill feeToken overrides prefilled feeToken', async () => {
+    const requestFeeToken = '0x20c0000000000000000000000000000000000001'
+    const sponsorFeeToken = '0x20c0000000000000000000000000000000000000'
+    const fillTransactionSpy = vi
+      .spyOn(fillTransaction, 'fillTransaction')
+      .mockResolvedValueOnce({
+        transaction: {
+          feePayerSignature: {
+            r: '0x1',
+            s: '0x2',
+            yParity: 0,
+          },
+          feeToken: sponsorFeeToken,
+          gas: 21000n,
+        },
+      } as never)
+
+    try {
+      const request = await prepareTransactionRequest(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        feePayer: true,
+        feeToken: requestFeeToken,
+        parameters: ['gas'],
+        to: targetAccount.address,
+        value: parseEther('1'),
+      } as never)
+
+      expect(request.feePayerSignature).toBeDefined()
+      expect(request.feeToken).toBe(sponsorFeeToken)
+    } finally {
+      fillTransactionSpy.mockRestore()
+    }
+  })
+
   test('behavior: chain default priority fee', async () => {
     await setup()
 
