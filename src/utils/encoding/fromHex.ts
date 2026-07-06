@@ -208,7 +208,7 @@ export type HexToNumberErrorType =
  *
  * @example
  * import { hexToNumber } from 'viem'
- * const data = hexToBigInt('0x00000000000000000000000000000000000000000000000000000000000001a4', { size: 32 })
+ * const data = hexToNumber('0x00000000000000000000000000000000000000000000000000000000000001a4', { size: 32 })
  * // 420
  */
 export function hexToNumber(hex: Hex, opts: HexToNumberOpts = {}): number {
