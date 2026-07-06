@@ -6,6 +6,9 @@ import * as Selectors from './Selectors.js'
 const pathUsd = '0x20c0000000000000000000000000000000000001'
 const recipient = '0x0000000000000000000000000000000000000001'
 
+// Requires the `viem/tempo` entrypoint.
+test.todo('exports through tempo entrypoint')
+
 test('target.any', () => {
   const scope = Scopes.target(pathUsd).any()
   expect(scope).toEqual({ address: pathUsd })

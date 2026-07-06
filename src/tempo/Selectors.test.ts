@@ -47,6 +47,9 @@ function getSelectorValues(selectors: Record<string, unknown>) {
   )
 }
 
+// Requires the `viem/tempo` entrypoint.
+test.todo('exports through tempo entrypoint')
+
 test('exports one selector map per ABI', () => {
   expect(Object.keys(Selectors).sort()).toEqual(Object.keys(selectorMaps))
   expect(Object.keys(Selectors).sort()).toEqual(

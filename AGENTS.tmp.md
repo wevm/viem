@@ -36,6 +36,13 @@ when porting or reshaping v2 surface area.
   - Diff the v3 `*.test.ts` against the v2 `*.test.ts` and port every meaningful case (each account kind, every option/arg variant, error shapes).
   - Note any intentionally dropped cases (e.g. v2 `test.skip`) and why.
   - Only then continue to the next batch.
+- **Mark dependency-blocked test ports as `test.todo`**; when a v2 test case cannot be ported
+  yet because something it needs has not landed (a later module, the entrypoint, the node
+  harness), add a `test.todo('<v2 case name>')` to the closest v3 suite with a comment naming
+  the missing dependency (not a plan-phase label).
+  - This keeps deferred parity visible in the test run itself, not only in the plan.
+  - Resolve (or relocate) each todo when its dependency lands; a finished module has zero
+    stale todos.
 - **Drop `@deprecated` surface on migration**; do not carry over v2 deprecated surface.
   - This includes deprecated properties, options, parameters, and exports.
   - Port only the non-deprecated replacement.

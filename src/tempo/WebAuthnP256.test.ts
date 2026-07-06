@@ -1,6 +1,10 @@
 import * as Bytes from 'ox/Bytes'
+import * as Hash from 'ox/Hash'
+import * as Hex from 'ox/Hex'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
+import * as Signature from 'ox/Signature'
+import * as WebAuthnP256_ox from 'ox/WebAuthnP256'
 import { describe, expect, test } from 'vitest'
 
 import * as WebAuthnP256 from './WebAuthnP256.js'
@@ -111,5 +115,56 @@ describe('createCredential', () => {
         rpId: 'example.com',
       }),
     ).rejects.toThrowError()
+  })
+})
+
+describe('getCredential', () => {
+  test('signs a hash and attaches the stored public key', async () => {
+    const hash = Hash.keccak256(Hex.fromString('hello'))
+
+    type GetFn = NonNullable<WebAuthnP256.getCredential.Parameters['getFn']>
+
+    const getFn: GetFn = async (options) => {
+      const challenge = Bytes.toHex(
+        new Uint8Array(options!.publicKey!.challenge as ArrayBuffer),
+      )
+      const { metadata, payload } = WebAuthnP256_ox.getSignPayload({
+        challenge,
+        origin: 'http://localhost',
+        rpId: 'localhost',
+      })
+      const signature = P256.sign({ hash: true, payload, privateKey })
+      return {
+        id: 'test-credential-id',
+        response: {
+          authenticatorData: Bytes.fromHex(metadata.authenticatorData)
+            .buffer as ArrayBuffer,
+          clientDataJSON: Bytes.fromString(metadata.clientDataJSON)
+            .buffer as ArrayBuffer,
+          signature: Signature.toDerBytes(signature).buffer as ArrayBuffer,
+        },
+        type: 'public-key',
+      } as unknown as Credential
+    }
+
+    const credential = await WebAuthnP256.getCredential({
+      getFn,
+      async getPublicKey() {
+        return PublicKey.toHex(publicKey)
+      },
+      hash,
+      rpId: 'localhost',
+    })
+
+    expect(credential.id).toBe('test-credential-id')
+    expect(credential.publicKey).toBe(PublicKey.toHex(publicKey))
+    expect(
+      WebAuthnP256_ox.verify({
+        challenge: hash,
+        metadata: credential.metadata,
+        publicKey,
+        signature: credential.signature,
+      }),
+    ).toBe(true)
   })
 })

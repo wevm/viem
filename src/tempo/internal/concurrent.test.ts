@@ -40,3 +40,8 @@ test('different keys do not interfere', async () => {
   expect(results[0]).toBe(false)
   expect(results[1]).toBe(false)
 })
+
+// Expiring-nonce integration requires the Tempo chain config and a node
+// (`detect` drives nonceKey selection in the transaction prepare hook).
+test.todo('sendTransaction with expiring nonce')
+test.todo('concurrent transactions use expiring nonces')
