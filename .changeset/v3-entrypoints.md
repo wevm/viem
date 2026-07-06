@@ -63,12 +63,4 @@ const schema = z.RpcSchema.from({
 })
 ```
 
-Added the `viem/tempo` entrypoint with the `Client.create` factory, `tempoActions()` decorator, `Actions` namespaces (`amm`, `channel`, `dex`, `fee`, `nonce`, `policy`, `receivePolicy`, `token`, `validator`), support modules (`Abis`, `Addresses`, `Selectors`, `Scopes`, `Storage`, `Expiry`, `TokenIds`, `Capabilities`, `Hardfork`, `Chain`, `chainConfig`), `Channel`/`ReceivePolicyReceipt`/`Tick`/`TokenId` re-exports from `ox/tempo`, and Tempo fee-token errors.
-
 Added `signTransaction` to the `Actions` namespace and the `walletActions()` decorator as an alias of `Actions.transaction.sign`.
-
-The Tempo `reward` actions were removed, since TIP-20 rewards are disabled on-chain from the T7/T8 hardforks.
-
-```diff
-- const hash = await client.reward.distribute({ amount, token })
-```

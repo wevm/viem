@@ -2,9 +2,6 @@ import type * as Hex from 'ox/Hex'
 import { expectTypeOf, test } from 'vitest'
 
 import { Chain } from 'viem'
-import { tempo, tempoModerato } from 'viem/chains'
-
-import type { Hardfork } from '../tempo/Hardfork.js'
 
 test('from: preserves literal types', () => {
   const chain = Chain.from({
@@ -80,11 +77,4 @@ test('transaction hooks: custom envelope assigns without casts', () => {
   expectTypeOf(chain.transaction.serialize).toEqualTypeOf<
     (envelope: ZedEnvelope) => Hex.Hex
   >()
-})
-
-test('tempo: extension record and root fields', () => {
-  expectTypeOf(tempoModerato.hardfork).toEqualTypeOf<'t5'>()
-  expectTypeOf<
-    Chain.ExtractExtension<typeof tempo>['hardfork']
-  >().toEqualTypeOf<Hardfork | undefined>()
 })

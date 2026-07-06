@@ -1,10 +1,7 @@
 import * as Chain from '../../core/Chain.js'
-import { chainConfig } from '../../tempo/chainConfig.js'
 
 export const tempoDevnet = /*#__PURE__*/ Chain.from({
-  ...chainConfig,
   id: 31318,
-  hardfork: 't3',
   name: 'Tempo Devnet',
   blockExplorers: {
     default: {

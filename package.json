@@ -280,11 +280,6 @@
       "src": "./src/node/index.ts",
       "default": "./dist/node/index.js"
     },
-    "./tempo": {
-      "types": "./dist/tempo/index.d.ts",
-      "src": "./src/tempo/index.ts",
-      "default": "./dist/tempo/index.js"
-    },
     "./tokens": {
       "types": "./dist/tokens/index.d.ts",
       "src": "./src/tokens/index.ts",

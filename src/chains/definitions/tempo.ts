@@ -1,8 +1,6 @@
 import * as Chain from '../../core/Chain.js'
-import { chainConfig } from '../../tempo/chainConfig.js'
 
 export const tempo = /*#__PURE__*/ Chain.from({
-  ...chainConfig,
   id: 4217,
   blockExplorers: {
     default: {
