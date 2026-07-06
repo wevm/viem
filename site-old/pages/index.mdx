@@ -1,0 +1,175 @@
+---
+title: Viem · TypeScript Interface for Ethereum
+content:
+  width: 100%
+layout: landing
+logo: false
+outline: false
+---
+
+import { HomePage } from 'vocs'
+import { Sponsors } from './components/Sponsors'
+
+<div className="absolute max-w-[1120px] mx-auto w-full top-20 bottom-0 bg-[url('/colosseum-light.svg')] dark:bg-[url('/colosseum.svg')] bg-no-repeat max-sm:w-[200%] max-sm:-left-[200px] max-sm:hidden" />
+
+<div className="max-w-[1120px] mx-auto vp-doc relative px-[24px] mb-[96px] mt-[32px] md:px-0 md:mb-[64px]">
+  <div className="pt-[48px] max-sm:pt-0">
+    <div className="max-sm:px-0 flex justify-between z-0 max-md:justify-center">
+      <div className="space-y-8 max-w-[400px] flex flex-col items-start max-md:items-center">
+        <img className="h-[72px] dark:invert-[1] max-sm:h-[60px]" src="/logo-light-hug.svg" alt="viem logo" />
+        <div className="font-regular text-[21px] max-sm:text-[18px] text-[#919193] max-md:text-center">Build reliable apps & libraries with <span className="text-black dark:text-white">lightweight</span>, <span className="text-black dark:text-white">composable</span>, and <span className="text-black dark:text-white">type-safe</span> modules that interface with Ethereum</div>
+        <div className="flex justify-center space-x-2 flex-nowrap">
+          <HomePage.Button href="/docs/getting-started" variant="accent">Get started</HomePage.Button>
+          <HomePage.Button href="/docs/introduction">Why Viem?</HomePage.Button>
+          <HomePage.Button href="https://github.com/wevm/viem">GitHub</HomePage.Button>
+        </div>
+      </div>
+      <div className="flex flex-col justify-between w-[440px] space-y-10 max-lg:w-[300px] max-md:hidden">
+        <div id="home-install" className="h-full">
+
+  :::code-group
+
+  ```bash [npm]
+  npm i viem
+  ```
+
+  ```bash [pnpm]
+  pnpm i viem
+  ```
+
+  ```bash [bun]
+  bun i viem
+  ```
+
+  :::
+
+    </div>
+    <div className="flex justify-between space-x-2">
+      <div className="flex-1 h-[44px] p-1.5 flex items-center gap-2 rounded-lg border border-black/10 dark:border-white/10 bg-white/80 dark:bg-white/5">
+        <span className="font-medium text-[15px] opacity-60 bg-black/10 dark:bg-black/40 px-3 h-full flex items-center rounded-md">stars</span>
+        <span className="font-medium text-[15px] text-black dark:text-white flex-1 text-center">2.4k</span>
+      </div>
+      <div className="flex-1 h-[44px] p-1.5 flex items-center gap-2 rounded-lg border border-green-400/30 bg-green-400/10">
+        <span className="font-medium text-[15px] opacity-80 bg-[#041204] px-3 h-full flex items-center rounded-md">coverage</span>
+        <span className="font-medium text-[15px] text-green-400 flex-1 text-center">100%</span>
+      </div>
+      <div className="flex-1 h-[44px] p-1.5 flex items-center gap-2 rounded-lg border border-black/10 dark:border-white/10 bg-white/80 dark:bg-white/5 max-lg:hidden">
+        <span className="font-medium text-[15px] opacity-60 bg-black/10 dark:bg-black/40 px-3 h-full flex items-center rounded-md">license</span>
+        <span className="font-medium text-[15px] text-black dark:text-white flex-1 text-center">MIT</span>
+      </div>
+    </div>
+    </div>
+    </div>
+    <div className="flex justify-between flex-wrap mt-16 max-sm:hidden">
+      <div className="pr-2 w-1/4 max-lg:pb-3 max-sm:px-0 max-lg:w-1/2 max-sm:w-full z-0">
+        <div className="relative w-full h-[168px] max-lg:h-[142px] overflow-hidden">
+          <div className="border-black/10 dark:border-white/10 border border-solid rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
+            <div className="text-xl font-medium text-black dark:text-white">Modular</div>
+            <div className="text-[17px] text-[#919193]">Composable modules to build applications & libraries with speed</div>
+          </div>
+          <div className="absolute left-0 right-0 top-0 bottom-0 dark:bg-[#313136] opacity-20 z-0" />
+          <div className="absolute left-0 right-0 top-0 bottom-0 backdrop-filter backdrop-blur-[2px] z-0" />
+        </div>
+      </div>
+      <div className="pl-2 pr-2 max-sm:px-0 max-lg:pb-3 max-lg:pr-0 w-1/4 max-lg:w-1/2 max-sm:w-full z-0">
+        <div className="relative w-full h-[168px] max-lg:h-[142px]">
+          <div className="border-black/10 dark:border-white/10 border border-solid rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
+            <div className="text-xl font-medium text-black dark:text-white">Lightweight</div>
+            <div>
+            <div className="text-[17px] text-[#919193]">Tiny bundle size optimized for tree-shaking</div>
+            <a href="/docs/introduction#bundle-size" className="text-[17px]">See more</a>
+            </div>
+          </div>
+          <div className="absolute left-0 right-0 top-0 bottom-0 dark:bg-[#313136] opacity-20 z-0" />
+          <div className="absolute left-0 right-0 top-0 bottom-0 backdrop-filter backdrop-blur-[2px] z-0" />
+        </div>
+      </div>
+      <div className="pl-2 pr-2 max-lg:pb-3 max-sm:px-0 max-lg:pl-0 w-1/4 max-lg:w-1/2 max-sm:w-full z-0">
+        <div className="relative w-full h-[168px] max-lg:h-[142px]">
+          <div className="border-black/10 dark:border-white/10 border border-solid rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
+            <div className="text-xl font-medium text-black dark:text-white">Performant</div>
+            <div className="text-[17px] text-[#919193]">Optimized architecture compared to alternative libraries</div>
+          </div>
+          <div className="absolute left-0 right-0 top-0 bottom-0 dark:bg-[#313136] opacity-20 z-0" />
+          <div className="absolute left-0 right-0 top-0 bottom-0 backdrop-filter backdrop-blur-[2px] z-0" />
+        </div>
+      </div>
+      <div className="pl-2 w-1/4 max-sm:px-0 max-lg:w-1/2 max-sm:w-full z-0">
+        <div className="relative w-full h-[168px] max-lg:h-[142px]">
+          <div className="border-black/10 dark:border-white/10 border border-solid rounded-lg h-full px-5 py-6 absolute z-10 flex flex-col justify-between w-full">
+            <div className="text-xl font-medium text-black dark:text-white">Typed APIs</div>
+            <div className="text-[17px] text-[#919193]">Flexible programmatic APIs with extensive TypeScript typing</div>
+          </div>
+          <div className="absolute left-0 right-0 top-0 bottom-0 dark:bg-[#313136] opacity-20 z-0" />
+          <div className="absolute left-0 right-0 top-0 bottom-0 backdrop-filter backdrop-blur-[2px] z-0" />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<article className="vocs_Content max-w-[70ch] mx-auto space-y-4" data-v-content>
+
+## Overview
+
+```ts twoslash
+// @twoslash-cache: {"v":2,"hash":"c2af8de0c3407b10a35732b39590ecea4e8a9f4e5725f1b69b1211fd83684693","data":"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="}
+// 1. Import modules.
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+// 2. Set up your client with desired chain & transport.
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+// 3. Consume an action!
+const blockNumber = await client.getBlockNumber()
+```
+
+## Features
+
+viem supports all these features out-of-the-box:
+
+- Abstractions over the [JSON-RPC API](https://ethereum.org/en/developers/docs/apis/json-rpc/) to make your life easier
+- First-class APIs for interacting with [Smart Contracts](https://ethereum.org/en/glossary/#smart-contract)
+- Language closely aligned to official [Ethereum terminology](https://ethereum.org/en/glossary/)
+- Import your Browser Extension, WalletConnect or Private Key Wallet
+- Browser native [BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt), instead of large BigNumber libraries
+- Utilities for working with [ABIs](https://ethereum.org/en/glossary/#abi) (encoding/decoding/inspection)
+- TypeScript ready ([infer types](/docs/typescript) from ABIs and EIP-712 Typed Data)
+- First-class support for [Anvil](https://book.getfoundry.sh/), [Hardhat](https://hardhat.org/) & [Ganache](https://trufflesuite.com/ganache/)
+- Test suite running against [forked](https://ethereum.org/en/glossary/#fork) Ethereum network
+
+## Community
+
+Check out the following places for more wagmi-related content:
+
+- Follow [@wevm_dev](https://twitter.com/wevm_dev), [@_jxom](https://twitter.com/_jxom), and [@awkweb](https://twitter.com/awkweb) on Twitter for project updates
+- Join the [discussions on GitHub](https://github.com/wevm/viem/discussions)
+- [Share your project/organization](https://github.com/wevm/viem/discussions/104) that uses viem
+
+## Support
+
+Help support future development and make wagmi a sustainable open-source project:
+
+- [GitHub Sponsors](https://github.com/sponsors/wevm?metadata_campaign=docs_support)
+- [Gitcoin Grant](https://wagmi.sh/gitcoin)
+- [wevm.eth](https://etherscan.io/enslookup-search?search=wevm.eth)
+
+## Sponsors
+
+<Sponsors />
+
+<div className="flex justify-center mt-10">
+  <a href="https://vercel.com/?utm_source=wevm&utm_campaign=oss">
+    <img
+      className="h-8"
+      src="https://www.datocms-assets.com/31049/1618983297-powered-by-vercel.svg"
+      alt="Powered by Vercel"
+    />
+  </a>
+</div>
+
+</article>

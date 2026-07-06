@@ -1,0 +1,321 @@
+# signTransaction (Local Account) [Signs a transaction with the Account's private key.]
+
+Signs a transaction with the Account's private key.
+
+## Usage
+
+```ts twoslash
+// @twoslash-cache: {"v":2,"hash":"7df1466f1261b4c3ef81fd496bdf2581864cf7c96d215532651d6251c4e2798e","data":"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"}
+import { parseGwei } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+const signature = await account.signTransaction({
+  chainId: 1,
+  maxFeePerGas: parseGwei('20'),
+  maxPriorityFeePerGas: parseGwei('3'),
+  gas: 21000n,
+  nonce: 69,
+  to: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+})
+// @log: Output: "0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33"
+```
+
+### Custom serializer
+
+viem has a built-in serializer for **Legacy**, **EIP-2930** (`0x01`) and **EIP-1559** (`0x02`) transaction types. If you would like to serialize on another transaction type that viem does not support internally, you can pass a custom serializer.
+
+```ts 
+import { parseGwei } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+const signature = await account.signTransaction({
+  maxFeePerGas: parseGwei('20'),
+  maxPriorityFeePerGas: parseGwei('3'),
+  gas: 21000n,
+  nonce: 69,
+  to: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+}, {
+  serializer(transaction) { // [!code focus:16]
+    const {
+      chainId,
+      nonce,
+      // ...
+    } = transaction
+
+    return concatHex([
+      '0x69',
+      toRlp([
+        toHex(chainId),
+        nonce ? toHex(nonce) : '0x',
+        // ...
+      ]),
+    ])
+  }
+})
+```
+
+## Returns
+
+[`Hex`](/docs/glossary/types#Hex)
+
+The signed transaction.
+
+## Parameters
+
+### accessList (optional)
+
+- **Type:** [`AccessList`](/docs/glossary/types#accesslist)
+
+The access list.
+
+```ts twoslash
+// @twoslash-cache: {"v":2,"hash":"3dcd5d939c69c5a6aaf465884544f254966168ab3c08aed52b8cfe06132418e8","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjgEsBzMAQzQBXUjETsABgAZaAEmBtSXMDwC+EyiDb9SDRADYqAGxgq0+JAE4qaHTxh6tvAcNGajy3IilVG+HfyMNOQGqhTo2F4ExGSaNPRMLGzsgcxCYGjiwAA6YOz5KVBQonBw4gCCRSVwANy5BeyQYIwwALL8AvakAPziAHIsLe2dZOwAPuzpsABmnlB1eQXcfOIAFFgBALYOZGXsOYsN+f5w+OIAEvynCw2qAJTsALwAfOwACqQQm1xwMAA85zozxuS2c5SE5ggSgAXoIuCw1htSPxtsE9uDITC4SwAEowACOQngaAeL3en2+vz+AGUwRDCFi0PCwHjXGAACqRYH1UF8VrwOD8exrYDsbalIUwdiqLI8o5igWS8S0vj8ABGJn5EvsIPy9yerw+Xx+/0BtG5h04znZyNYgSZCPYf1+Sn4HmhozoNDAUDg7GpZC4bq4HptHUFQWZADEwH8w3bIywA673eqTK9Hv7A8HQ7aIw6wDG43n7czk0HUxqYM8KOw0CXE3kvaZfe8tjtSHBndn3WRnsgpABdJ5t5Go3bdlMhvsDwfPVb18Olx2LhMF2sQLAFuC9fZyo4uivTnriQ850YTKYwWZgGDzfeqcaTH3Xuakw0Uk0AoG6q18Tk4FAAAigj8OIfzMKwHCYIBIG2OwzY+n6AF3nB/BPnizCkFAzr1soPC1ukADWkAAO5gDW7BYEomw6BgKEIfQLZ+kRMAYBA0x1pEwGgU+2QgAAogAkm8ADsACMABMQFfPwyj8SOrHsZxMGoaB85IiiHZ7ChPG2EBr5gFwBZ/Kpen8LW1FcLRpD0Vy77ksaVJmhaDRYEIGpcIwADSbEXHQv5wBAIgtOI/FWUQggwL5GD8b+qlhSARgQIwbpxbkqiaNouhIJJAAsximDw5hIKJNh2A4eCpMFGTuJ4SA+CAfgBEEsSIPlYQRDgeCECQ5A2F6eDrJ8OC6BgDzLByDYFuB5bnvG+bRrGC3LmAc2VumtYHA0qQCgAMj8mR7paO1VAKiUyOJ6UnUsaBQpKMV7Pxl38cgg6/qob2/s1yhCVA4hgEImxqmQCyqPOq6LY620FLtpQHWwso3fk/BnaUF20FdIC/g0bD3fYj0Y1jX0PiTlo/WAf0A0DIOkGDG5bsyO5I7jPbHru63TitjZFtzBac7CVavJeL43neYNPleYtQA5RqUqaQJZbYOWIAAzJJhVmBYiDiQArOVpD2I4k188ydW3g1vj+MirUhOrnXUJEPUxP11CDYgIDDZuZCYA8cNwAjR0wyjaNPSAL3Y/uePIgTbFhxHZOfYOSs6Housa0lRUlTrjXK0bVWMC08OHebXjiVbLXBLlDuqc7fVxO7nvUd7Y1+6HRP8SnKuWGVmda6VBv5x7qPFAKpdIKrFc21XoThI73Ue71sQDQkHte6NvucHdMfRXHHcgG9Xd6OJ4nWH3xXayfg+VR70cPXH4+IAVTXW/abX6DXTuLy7Der03I0+3GuwCmVNGg02XloZWx9db63PtnXuecb4vzkpTKAj9e7NWnm1SSqhBy+GgFESCyRJqCBEFKTM/BSJyQ4NVdIaAAB0JtprMlWDDf2gdxDIHYAAem4ewZAABCZgsB2DTBSkIMo+hBz7mDrDdu7AADkl0FEUH3PkO+scMB7GQEozGCi8EPlUYsAxiwQH/XYOXDKdxNCon4EgUAiFuAsDwGgBAqhVBAA="}
+import { privateKeyToAccount } from 'viem/accounts'
+const account = privateKeyToAccount('0x...')
+// ---cut---
+const signature = await account.signTransaction({
+  accessList: [ // [!code focus:6]
+    {
+      address: '0x1',
+      storageKeys: ['0x1'],
+    },
+  ],
+  chainId: 1,
+})
+```
+
+### authorizationList (optional)
+
+- **Type:** `AuthorizationList`
+
+Signed EIP-7702 Authorization list.
+
+```ts twoslash
+// @twoslash-cache: {"v":2,"hash":"74eefb4269fbff831a13f8600571db61b05d881603f6c55517a7a438169d606a","data":"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"}
+import { privateKeyToAccount } from 'viem/accounts'
+const account = privateKeyToAccount('0x...')
+// ---cut---
+const authorization = await account.signAuthorization({
+  contractAddress: '0x...',
+  chainId: 1,
+  nonce: 1,
+})
+
+const signature = await account.signTransaction({
+  authorizationList: [authorization], // [!code focus]
+  chainId: 1,
+})
+```
+
+### blobs (optional)
+
+- **Type:** `Hex[]`
+
+Blobs for [Blob Transactions](/docs/guides/blob-transactions). 
+
+```ts
+import * as cKzg from 'c-kzg'
+import { toBlobs, setupKzg, stringToHex } from 'viem'
+import { mainnetTrustedSetupPath } from 'viem/node'
+
+const kzg = setupKzg(cKzg, mainnetTrustedSetupPath) 
+
+const hash = await account.signTransaction({
+  blobs: toBlobs({ data: stringToHex('blobby blob!') }), // [!code focus]
+  kzg,
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8'
+})
+```
+
+### chainId (optional)
+
+- **Type:** `number`
+
+The chain ID.
+
+```ts twoslash
+// @twoslash-cache: {"v":2,"hash":"99042d2359bd211a900bbb73217ee63fd606533bfbfaa0d8ee8a22027bc4afa9","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjgEsBzMAQzQBXUjETsABgAZaAEmBtSXMDwC+EyiDb9SDRADYqAGxgq0+JAE4qaHTxh6tvAcNGajy3IilVG+HfyMNOQGqhTo2F4ExGSaNPRMLGzsgcxCYGjiwAA6YOz5KVBQonBw4gCCRSVwANy5BeyQYIwwALL8AvakAPziAHIsLe2dZOwAPuzpsABmnlB1eQXcfOIAFFgBALYOZGXsOYsN+f5w+OIAEvynCw2qAJTsALwAfOwACqQQm1xwMAA85zozxuS2c5SE5ggSgAXoIuCw1htSPxtsE9uDITC4SwAEowACOQngaAeL3en2+vz+AGUwRDCFi0PCwHjXGAACqRYH1UF8VrwOD8exrYDsbalIUwdiqLI8o5igWS8S0vj8ABGJn5EvsIPy9yerw+Xx+/0BtG5h04znZyNYgSZCPYf1+Sn4HmhozoNDAUDg7GpZC4bq4HptHUFQWZADEwH8w3bIywA673eqTK9Hv7A8HQ7aIw6wDG43n7czk0HUxqYM8KOw0CXE3kvaZfe8tjtSHBndn3WRnsgpABdJ5t5Go3bdlMhvsDwfPVb18Olx2LhMF2sQLAFuC9fZyo4uivTnriQ850YTKYwWZgGDzfeqcaTH3Xuakw0Uk0AoG6q18Tk4FAAAigj8OIfzMKwHCYIBIG2OwzY+n6AF3nB/BPnizCkFAzr1soPC1ukADWkAAO5gDW7BYEomw6BgKEIfQLZ+kRMAYBA0x1pEwGgU+2QgAAogAkm8ADsACMABMQFfPwyj8SOrHsZxMGoaB85IiiHZ7ChPG2EBr5gFwBZ/Kpen8LW1FcLRpD0Vy77ksaVJmhaDRYEIGpcIwADSbEXHQv5wBAIgtOI/FWUQggwL5GD8b+qlhSARgQIwbpxbkqiaNouhIJJAAsximDw5hIKJNh2A4eCpMFGTuJ4SA+CAfgBEEsSIPlYQRDgeCECQ5A2F6eDrJ8OC6BgDzLByDYFuB5bnvG+bRrGC3LmAc2VumtYHA0zXKEJUDiGAQibGqZALKo86rotjrbQUu1gPth3HadpDnRuW7MjusqWmevYnlmU65kujZFitjbrSGabVk+V43ne50wy+cNQA5RqUqaQJZbYOWIAAzJJhVmBYiDiQArOVpD2I4k1gwWdW3g1vj+MirUhPjnXUJEPUxP11CDYgIDDZuZCYA892PY0z2xFQ2V6KTBNJUVJWIGV1AVY44tQPTXjiUzLXBLlqiDr40BRJBySTYIIhSpm/CkXJHDVekaAAHQ09NzKrLdmviLr7AAPT++wyAAITMLA7DTClQhwIOGV3JoqL8EgoCIdwLB4GgCCqKoQA="}
+import { privateKeyToAccount } from 'viem/accounts'
+const account = privateKeyToAccount('0x...')
+// ---cut---
+const signature = await account.signTransaction({
+  chainId: 1, // [!code focus]
+})
+```
+
+### data (optional)
+
+- **Type:** `0x${string}`
+
+Transaction data.
+
+```ts twoslash
+// @twoslash-cache: {"v":2,"hash":"b3e534ca19b20ba165c7b5ead0724250507f95dc334c8133449183d63193ba4e","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjgEsBzMAQzQBXUjETsABgAZaAEmBtSXMDwC+EyiDb9SDRADYqAGxgq0+JAE4qaHTxh6tvAcNGajy3IilVG+HfyMNOQGqhTo2F4ExGSaNPRMLGzsgcxCYGjiwAA6YOz5KVBQonBw4gCCRSVwANy5BeyQYIwwALL8AvakAPziAHIsLe2dZOwAPuzpsABmnlB1eQXcfOIAFFgBALYOZGXsOYsN+f5w+OIAEvynCw2qAJTsALwAfOwACqQQm1xwMAA85zozxuS2c5SE5ggSgAXoIuCw1htSPxtsE9uDITC4SwAEowACOQngaAeL3en2+vz+AGUwRDCFi0PCwHjXGAACqRYH1UF8VrwOD8exrYDsbalIUwdiqLI8o5igWS8S0vj8ABGJn5EvsIPy9yerw+Xx+/0BtG5h04znZyNYgSZCPYf1+Sn4HmhozoNDAUDg7GpZC4bq4HptHUFQWZADEwH8w3bIywA673eqTK9Hv7A8HQ7aIw6wDG43n7czk0HUxqYM8KOw0CXE3kvaZfe8tjtSHBndn3WRnsgpABdJ5t5Go3bdlMhvsDwfPVb18Olx2LhMF2sQLAFuC9fZyo4uivTnriQ850YTKYwWZgGDzfeqcaTH3Xuakw0Uk0AoG6q18Tk4FAAAigj8OIfzMKwHCYIBIG2OwzY+n6AF3nB/BPnizCkFAzr1soPC1ukADWkAAO5gDW7BYEomw6BgKEIfQLZ+kRMAYBA0x1pEwGgU+2QgAAogAkm8ADsACMABMQFfPwyj8SOrHsZxMGoaB85IiiHZ7ChPG2EBr5gFwBZ/Kpen8LW1FcLRpD0Vy77ksaVJmhaDRYEIGpcIwADSbEXHQv5wBAIgtOI/FWUQggwL5GD8b+qlhSARgQIwbpxbkqiaNouhIJJAAsximDw5hIKJNh2A4eCpMFGTuJ4SA+CAfgBEEsSIPlYQRDgeCECQ5A2F6eDrJ8OC6BgDzLByDYFuB5bnvG+bRrGC3LmAc2VumtYHA0UCgYlMiMFIkn8CdADMlhqpJkmndMMAABxQFI/BSDAACsjB5dMkmiTA/BQJYUh3adjCia9+iMIwknpWAqjzqui2OttBS7bY+20Idx1nRdV03fdj3PW9H1fT9f0A0DINgxDUMgAsYTsJu267kj+Rnr2J5ZlOuZLo2RYrY260hmm1ZPleN53rTIsvmLUAOUalKmkCWW2DliCnZJhVmBYiDia95WkPYjiTXzBZ1beDW+P4yKtSEauddQkQ9TE/XUINiAgMNm5kJgDwo2B7D8QdR0nfw52Xddt0PU9L3vZ932/f9gPA6D4OQ/xSs6Hor3q0lRUlYgBXUBVji+6bXjiRbLXBLlqiDr40BRJBySTYIIhSpm/CkXJHDVekaAAHRG9NzKrEjvviAA5IHmMh9j4d41HhOxyTCfk8nVPj+wAD0m/sMgACEzCwOw0wpUIcCDhldyaKi/BIKAiHcCweBoAgqiqEAA==="}
+import { privateKeyToAccount } from 'viem/accounts'
+const account = privateKeyToAccount('0x...')
+// ---cut---
+const signature = await account.signTransaction({
+  data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' // [!code focus]
+})
+```
+
+### gas (optional)
+
+- **Type:** `bigint`
+
+The gas limit for the transaction.
+
+```ts twoslash
+// @twoslash-cache: {"v":2,"hash":"d0371a5dbb9107323b54bf06e30a57fb8f9788ece76026a387fc97f181ba375f","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjgEsBzMAQzQBXUjETsABgAZaAEmBtSXMDwC+EyiDb9SDRADYqAGxgq0+JAE4qaHTxh6tvAcNGajy3IilVG+HfyMNOQGqhTo2F4ExGSaNPRMLGzsgcxCYGjiwAA6YOz5KVBQonBw4gCCRSVwANy5BeyQYIwwALL8AvakAPziAHIsLe2dZOwAPuzpsABmnlB1eQXcfOIAFFgBALYOZGXsOYsN+f5w+OIAEvynCw2qAJTsALwAfOwACqQQm1xwMAA85zozxuS2c5SE5ggSgAXoIuCw1htSPxtsE9uDITC4SwAEowACOQngaAeL3en2+vz+AGUwRDCFi0PCwHjXGAACqRYH1UF8VrwOD8exrYDsbalIUwdiqLI8o5igWS8S0vj8ABGJn5EvsIPy9yerw+Xx+/0BtG5h04znZyNYgSZCPYf1+Sn4HmhozoNDAUDg7GpZC4bq4HptHUFQWZADEwH8w3bIywA673eqTK9Hv7A8HQ7aIw6wDG43n7czk0HUxqYM8KOw0CXE3kvaZfe8tjtSHBndn3WRnsgpABdJ5t5Go3bdlMhvsDwfPVb18Olx2LhMF2sQLAFuC9fZyo4uivTnriQ850YTKYwWZgGDzfeqcaTH3Xuakw0Uk0AoG6q18Tk4FAAAigj8OIfzMKwHCYIBIG2OwzY+n6AF3nB/BPnizCkFAzr1soPC1ukADWkAAO5gDW7BYEomw6BgKEIfQLZ+kRMAYBA0x1pEwGgU+2QgAAogAkm8ADsACMABMQFfPwyj8SOrHsZxMGoaB85IiiHZ7ChPG2EBr5gFwBZ/Kpen8LW1FcLRpD0Vy77ksaVJmhaDRYEIGpcIwADSbEXHQv5wBAIgtOI/FWUQggwL5GD8b+qlhSARgQIwbpxbkqiaNouhIJJAAsximDw5hIKJNh2A4eCpMFGTuJ4SA+CAfgBEEsSIPlYQRDgeCECQ5A2F6eDrJ8OC6BgDzLByDYFuB5bnvG+bRrGC3LmAc2VumtYHA0PBXOIaq8MoaALKo86rotjrbQUu17AdPBHSdG5bsyO6ypaZ69ieWZTrmS6NkWK2NutIZptWT5Xjed4neDL6Q1ADlGpSppAlltg5YgADMkmFWYFiIOJACs5WkPYjiTYDBZ1beDW+P4yKtSEWOddQkQ9TE/XUINiAgMNm5kJgDw3fth21VQ2V6AT2NJUVJWY8TpN4DdVNeOJtMtcEuWqIOvjQFEkHJJNggiFKmb8KRckcNV6RoAAdOT03MqsV1C+w+iWHlklSGAtYAPQ++wyAAITMLA7DTClQhwIOGV3JoqL8EgoCIdwLB4GgCCqKoQA=="}
+import { privateKeyToAccount } from 'viem/accounts'
+const account = privateKeyToAccount('0x...')
+// ---cut---
+const signature = await account.signTransaction({
+  gas: 69420n, // [!code focus]
+})
+```
+
+### gasPrice (optional)
+
+- **Type:** `bigint`
+
+The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/glossary/terms#legacy-transaction).
+
+```ts twoslash
+// @twoslash-cache: {"v":2,"hash":"b7ec1ee81245cba4f31e779a46b7f4c7fd4b7c43c16478ab237b7cdd762fc1e5","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjgEsBzMAQzQBXUjETsABgAZaAEmBtSXMDwC+EyiDb9SDRADYqAGxgq0+JAE4qaHTxh6tvAcNGajy3IilVG+HfyMNOQGqhTo2F4ExGSaNPRMLGzsgcxCYGjiwAA6YOz5KVBQonBw4gCCRSVwANy5BeyQYIwwALL8AvakAPziAHIsLe2dZOwAPuzpsABmnlB1eQXcfOIAFFgBALYOZGXsOYsN+f5w+OIAEvynCw2qAJTsALwAfOwACqQQm1xwMAA85zozxuS2c5SE5ggSgAXoIuCw1htSPxtsE9uDITC4SwAEowACOQngaAeL3en2+vz+AGUwRDCFi0PCwHjXGAACqRYH1UF8VrwOD8exrYDsbalIUwdiqLI8o5igWS8S0vj8ABGJn5EvsIPy9yerw+Xx+/0BtG5h04znZyNYgSZCPYf1+Sn4HmhozoNDAUDg7GpZC4bq4HptHUFQWZADEwH8w3bIywA673eqTK9Hv7A8HQ7aIw6wDG43n7czk0HUxqYM8KOw0CXE3kvaZfe8tjtSHBndn3WRnsgpABdJ5t5Go3bdlMhvsDwfPVb18Olx2LhMF2sQLAFuC9fZyo4uivTnriQ850YTKYwWZgGDzfeqcaTH3Xuakw0Uk0AoG6q18Tk4FAAAigj8OIfzMKwHCYIBIG2OwzY+n6AF3nB/BPnizCkFAzr1soPC1ukADWkAAO5gDW7BYEomw6BgKEIfQLZ+kRMAYBA0x1pEwGgU+2QgAAogAkm8ADsACMABMQFfPwyj8SOrHsZxMGoaB85IiiHZ7ChPG2EBr5gFwBZ/Kpen8LW1FcLRpD0Vy77ksaVJmhaDRYEIGpcIwADSbEXHQv5wBAIgtOI/FWUQggwL5GD8b+qlhSARgQIwbpxbkqiaNouhIJJAAsximDw5hIKJNh2A4eCpMFGTuJ4SA+CAfgBEEsSIPlYQRDgeCECQ5A2F6eDrJ8OC6BgDzLByDYFuB5bnvG+bRrGC3LmAc2VumtYHA0PBXB8XliOwaq8MoaALKo86rotjrbQUu1wPtoVHSdGTnRuW7MjusqWmevYnlmU65kujZFitjbrSGabVk+V43ne50wy+cNQA5RqUqaQJZbYOWIAAzJJhVmBYiDiQArOVpD2I4k1gwWdW3g1vj+MirUhPjnXUJEPUxP11CDYgIDDZuZCYA892PYdx08KdWM6HopME0lRUlYgAAcFNU3g4tKC09NeOJTMtcEuUc6p3N9XE/OC8GVwPEivwAOKkTAXCrA4+BkKeeEqIRRloLu/HO1w/F3OIUunbk1lYFCHD2zATsu5oUApQgAsAMIsH1aB+uhij4ewojUfApi2AW7AcewPBB3WECNEI2w6267BBwAdLkuQALTsDJjB7PgaBoFgZQAPTD0QXAwJsLenMPye98PEJcB4TLwMPccJ1wcRCqnyDICAdAolgJiaFHMf7FROiO9Xj7TBS7AAOTj5P9/t2A69B6s995ZJUj33cuSj3YN/KQIDQFgLACAQcg4qDZT0PoRWJgiZWA1pVAW79E7GHqiTQ2LNjYk0kqoaBTVoBREgskSaggRBSkzPwUickODVXSGgae1pprMlWLdbWB1xDoNdvfH+f9ayAOQAAQmYLAdg0wUpCDgIODKdxNCon4EgUAiFuAsDwNnEAqhVBAA==="}
+import { parseGwei } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+const account = privateKeyToAccount('0x...')
+// ---cut---
+const signature = await account.signTransaction({
+  gasPrice: parseGwei('20'), // [!code focus]
+})
+```
+
+### kzg (optional)
+
+- **Type:** `KZG`
+
+KZG implementation for [Blob Transactions](/docs/guides/blob-transactions). 
+
+See [`setupKzg`](/docs/utilities/setupKzg) for more information.
+
+```ts
+import * as cKzg from 'c-kzg'
+import { toBlobs, setupKzg, stringToHex } from 'viem'
+import { mainnetTrustedSetupPath } from 'viem/node'
+
+const kzg = setupKzg(cKzg, mainnetTrustedSetupPath) // [!code focus]
+
+const signature = await account.signTransaction({
+  blobs: toBlobs({ data: stringToHex('blobby blob!') }), // [!code focus]
+  kzg, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8'
+})
+```
+
+### maxFeePerGas (optional)
+
+- **Type:** `bigint`
+
+Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
+
+```ts twoslash
+// @twoslash-cache: {"v":2,"hash":"c9a431e5ea21b07e93dc856430c092b1eadfd2333a7f18eca4a1c805833a8de6","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjgEsBzMAQzQBXUjETsABgAZaAEmBtSXMDwC+EyiDb9SDRADYqAGxgq0+JAE4qaHTxh6tvAcNGajy3IilVG+HfyMNOQGqhTo2F4ExGSaNPRMLGzsgcxCYGjiwAA6YOz5KVBQonBw4gCCRSVwANy5BeyQYIwwALL8AvakAPziAHIsLe2dZOwAPuzpsABmnlB1eQXcfOIAFFgBALYOZGXsOYsN+f5w+OIAEvynCw2qAJTsALwAfOwACqQQm1xwMAA85zozxuS2c5SE5ggSgAXoIuCw1htSPxtsE9uDITC4SwAEowACOQngaAeL3en2+vz+AGUwRDCFi0PCwHjXGAACqRYH1UF8VrwOD8exrYDsbalIUwdiqLI8o5igWS8S0vj8ABGJn5EvsIPy9yerw+Xx+/0BtG5h04znZyNYgSZCPYf1+Sn4HmhozoNDAUDg7GpZC4bq4HptHUFQWZADEwH8w3bIywA673eqTK9Hv7A8HQ7aIw6wDG43n7czk0HUxqYM8KOw0CXE3kvaZfe8tjtSHBndn3WRnsgpABdJ5t5Go3bdlMhvsDwfPVb18Olx2LhMF2sQLAFuC9fZyo4uivTnriQ850YTKYwWZgGDzfeqcaTH3Xuakw0Uk0AoG6q18Tk4FAAAigj8OIfzMKwHCYIBIG2OwzY+n6AF3nB/BPnizCkFAzr1soPC1ukADWkAAO5gDW7BYEomw6BgKEIfQLZ+kRMAYBA0x1pEwGgU+2QgAAogAkm8ADsACMABMQFfPwyj8SOrHsZxMGoaB85IiiHZ7ChPG2EBr5gFwBZ/Kpen8LW1FcLRpD0Vy77ksaVJmhaDRYEIGpcIwADSbEXHQv5wBAIgtOI/FWUQggwL5GD8b+qlhSARgQIwbpxbkqiaNouhIJJAAsximDw5hIKJNh2A4eCpMFGTuJ4SA+CAfgBEEsSIPlYQRDgeCECQ5A2F6eDrJ8OC6BgDzLByDYFuB5bnvG+bRrGC3LmAc2VumtYHA0zXKEJUDiGAQibGqZC/rRtBRjAMBvGQADiVziGqvDKGgCyqPOq6LY620FLtYD7Ydx2naQ538Jd123aQD17M9PCve9G5bsyO6ypaZ69ieWZTrmS6NkWK2NutIZptWT5Xjed7veTL6U1ADlGpSppAlltg5YgADMkmFWYFiIOJACs5WkPYjiTYTBZ1beDW+P4yKtSEXOddQkQ9TE/XUINiAgMNm5kJgDz/YDjTA7EVDZXoAvc0lRUlYgZXUBVjhG1AUteOJsstcEuXK6pat9XEWs69RetjQ8F1XTd92PewcOvazOh6Pohg27zSBScLot4BHkPRwgxj1e1nvy977W+6r2u9WbmsJNrqzBlcDxIr8d2kTAXCrA4+BkKeeEqIRRloLu/Ft1w/F3E9L0ZLk1lYFCHDNzArft5oUApQg2sAMIsH1aB+uhij4ewojUfApi2AW7AcewPCj3WEAm9sSipUY7CjwAdLkuQALTsDJjB7HwGgNAWAygAHowFEC4DATY79ThgLXgAsBEIuAeCZPAMBi9l5cDiEKDeyBkAgDoCiLAJhNCz3nvsKiOgW530fNMCk7AADkUCYFMK/mALBo9VhMLypJKQTC7i5AgewPhUhxESMkWAEAg5BzmzZnoAAHI1EwadEDWEdiLSq2suErwLtLIuTU5b2jauJfQqg5FNWgFESCyRJqCBEFKTM/BSJyQ4NVdIaA4HWmmsyVYv0XbiA9jyHOUdoYx10R3Jh/DBG1hEcgAAhMwWA7BpgpSEHAQcGU7iaFRPwJAoBELcBYHgPeIBVCqCAA"}
+import { parseGwei } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+const account = privateKeyToAccount('0x...')
+// ---cut---
+const signature = await account.signTransaction({
+  chainId: 1,
+  maxFeePerGas: parseGwei('20'), // [!code focus]
+})
+```
+
+### maxPriorityFeePerGas (optional)
+
+- **Type:** `bigint`
+
+Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs/glossary/terms#eip-1559-transaction)
+
+```ts twoslash
+// @twoslash-cache: {"v":2,"hash":"72e0649af82ba8f363f84d55ce0e4749b04105f20fbb794ff3b54e9048317c35","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjgEsBzMAQzQBXUjETsABgAZaAEmBtSXMDwC+EyiDb9SDRADYqAGxgq0+JAE4qaHTxh6tvAcNGajy3IilVG+HfyMNOQGqhTo2F4ExGSaNPRMLGzsgcxCYGjiwAA6YOz5KVBQonBw4gCCRSVwANy5BeyQYIwwALL8AvakAPziAHIsLe2dZOwAPuzpsABmnlB1eQXcfOIAFFgBALYOZGXsOYsN+f5w+OIAEvynCw2qAJTsALwAfOwACqQQm1xwMAA85zozxuS2c5SE5ggSgAXoIuCw1htSPxtsE9uDITC4SwAEowACOQngaAeL3en2+vz+AGUwRDCFi0PCwHjXGAACqRYH1UF8VrwOD8exrYDsbalIUwdiqLI8o5igWS8S0vj8ABGJn5EvsIPy9yerw+Xx+/0BtG5h04znZyNYgSZCPYf1+Sn4HmhozoNDAUDg7GpZC4bq4HptHUFQWZADEwH8w3bIywA673eqTK9Hv7A8HQ7aIw6wDG43n7czk0HUxqYM8KOw0CXE3kvaZfe8tjtSHBndn3WRnsgpABdJ5t5Go3bdlMhvsDwfPVb18Olx2LhMF2sQLAFuC9fZyo4uivTnriQ850YTKYwWZgGDzfeqcaTH3Xuakw0Uk0AoG6q18Tk4FAAAigj8OIfzMKwHCYIBIG2OwzY+n6AF3nB/BPnizCkFAzr1soPC1ukADWkAAO5gDW7BYEomw6BgKEIfQLZ+kRMAYBA0x1pEwGgU+2QgAAogAkm8ADsACMABMQFfPwyj8SOrHsZxMGoaB85IiiHZ7ChPG2EBr5gFwBZ/Kpen8LW1FcLRpD0Vy77ksaVJmhaDRYEIGpcIwADSbEXHQv5wBAIgtOI/FWUQggwL5GD8b+qlhSARgQIwbpxbkqiaNouhIJJAAsximDw5hIKJNh2A4eCpMFGTuJ4SA+CAfgBEEsSIPlYQRDgeCECQ5A2F6eDrJ8OC6BgDzLByDYFuB5bnvG+bRrGC3LmAc2VumtYHA0zXKEJUDiGAQibGqZC/rRtAfPCSiYFGMAwG8ZAAOJXOIaq8MoaALKo86rotjrbQUu1gPth3HadpDnfwl1KFCxkYHdD3Pa97DvTwn3fRuW7MjusqWmevYnlmU65kujZFitjbrSGabVk+V43ne330y+jNQA5RqUqaQJZbYOWIAAzJJhVmBYiDiQArOVpD2I4k2UwWdW3g1vj+MirUhELnXUJEPUxP11CDYgIDDZuZCYA8wOg404OxFQ2V6BLwtJUVJWIGV1AVY4VtQErXjiarLXBLl2uqXrfVxEbJvUWbY0PBdV1w7d92PaQL17Gjn28zoej6IYLui7ljV87LeAJ7DN0IynyMIMY9XtYH6vB+1oe68bvV24bCTG6swZXA8SK/E9pEwFwqwOPgZCnnhKiEUZaC7vxI9cPxdxvR9GS5NZWBQhwg8wMPo+aFAKUIMbADCLB9WgfroYo+HsKI1HwKYtgFuwHHsDwy91hANvbEoVKRh2DLwAHS5FyAAWnYDJRgex8BoDQFgMoAB6FBRAuAwE2KA04KCT5wJQRCLgHgmTwBQfvQ+XA4hCjPsgZAIA6AoiwCYTQ29d77CojoIeP9HzTApOwAA5BgrBAiIFgAocvVYAi8qSSkAIu4uQ0HsBkVIVRaj1FgBAIOQc9s+Z6AABz6JFsVMW1hPYy0qsbCRR867Kwbk1NW9o2odR0U1aAURILJEmoIEQUpMz8FInJDg1V0hoBwdaaazJViAx9uIAOPJy7XXhojVO6dxDWLHgIgW8jaxKOQAAQmYLAdg0wUpCDgIODKdxNCon4EgUAiFuAsDwDfEAqhVBAA="}
+import { parseGwei } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+const account = privateKeyToAccount('0x...')
+// ---cut---
+const signature = await account.signTransaction({
+  chainId: 1,
+  maxPriorityFeePerGas: parseGwei('3'), // [!code focus]
+})
+```
+
+### nonce (optional)
+
+- **Type:** `number`
+
+Unique number identifying this transaction.
+
+```ts twoslash
+// @twoslash-cache: {"v":2,"hash":"4a7c36e011b7568f9bdde2762b09b57b32726e8df41c39ecb1485e18d48d602d","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjgEsBzMAQzQBXUjETsABgAZaAEmBtSXMDwC+EyiDb9SDRADYqAGxgq0+JAE4qaHTxh6tvAcNGajy3IilVG+HfyMNOQGqhTo2F4ExGSaNPRMLGzsgcxCYGjiwAA6YOz5KVBQonBw4gCCRSVwANy5BeyQYIwwALL8AvakAPziAHIsLe2dZOwAPuzpsABmnlB1eQXcfOIAFFgBALYOZGXsOYsN+f5w+OIAEvynCw2qAJTsALwAfOwACqQQm1xwMAA85zozxuS2c5SE5ggSgAXoIuCw1htSPxtsE9uDITC4SwAEowACOQngaAeL3en2+vz+AGUwRDCFi0PCwHjXGAACqRYH1UF8VrwOD8exrYDsbalIUwdiqLI8o5igWS8S0vj8ABGJn5EvsIPy9yerw+Xx+/0BtG5h04znZyNYgSZCPYf1+Sn4HmhozoNDAUDg7GpZC4bq4HptHUFQWZADEwH8w3bIywA673eqTK9Hv7A8HQ7aIw6wDG43n7czk0HUxqYM8KOw0CXE3kvaZfe8tjtSHBndn3WRnsgpABdJ5t5Go3bdlMhvsDwfPVb18Olx2LhMF2sQLAFuC9fZyo4uivTnriQ850YTKYwWZgGDzfeqcaTH3Xuakw0Uk0AoG6q18Tk4FAAAigj8OIfzMKwHCYIBIG2OwzY+n6AF3nB/BPnizCkFAzr1soPC1ukADWkAAO5gDW7BYEomw6BgKEIfQLZ+kRMAYBA0x1pEwGgU+2QgAAogAkm8ADsACMABMQFfPwyj8SOrHsZxMGoaB85IiiHZ7ChPG2EBr5gFwBZ/Kpen8LW1FcLRpD0Vy77ksaVJmhaDRYEIGpcIwADSbEXHQv5wBAIgtOI/FWUQggwL5GD8b+qlhSARgQIwbpxbkqiaNouhIJJAAsximDw5hIKJNh2A4eCpMFGTuJ4SA+CAfgBEEsSIPlYQRDgeCECQ5A2F6eDrJ8OC6BgDzLByDYFuB5bnvG+bRrGC3LmAc2VumtYHA0TShY0QibGqZALKo86rotjrbQUu1iPth3HRlG5bsyO6ypaZ69ieWZTrmS6NkWK2NutIZptWT5Xjed4neDL6Q1ADlGpSppAlltg5YgADMkmFWYFiIOJACs5WkPYjiTYDBZ1beDW+P4yKtSEWOddQkQ9TE/XUINiAgMNm5kJgDw3eIYAHUdHPZXoBPY0lRUlYgRPUBVjg3VTXjibTLXBLlqiDr40BRJBySTYIIhSpm/CkXJHDVekaAAHTk9NzKrFdQvsPoljsAA9F77DIAAhMwsDsNMKVCHAg4ZXcmiovwSCgIh3AsHgaAIKoqhAA="}
+import { privateKeyToAccount } from 'viem/accounts'
+const account = privateKeyToAccount('0x...')
+// ---cut---
+const signature = await account.signTransaction({
+  nonce: 69 // [!code focus]
+})
+```
+
+### to (optional)
+
+- **Type:** `Address`
+
+The transaction recipient.
+
+```ts twoslash
+// @twoslash-cache: {"v":2,"hash":"69e1a6c5952e76c033ffa721a1fb7384ac05502bcb2b3f42de01677d4041070b","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjgEsBzMAQzQBXUjETsABgAZaAEmBtSXMDwC+EyiDb9SDRADYqAGxgq0+JAE4qaHTxh6tvAcNGajy3IilVG+HfyMNOQGqhTo2F4ExGSaNPRMLGzsgcxCYGjiwAA6YOz5KVBQonBw4gCCRSVwANy5BeyQYIwwALL8AvakAPziAHIsLe2dZOwAPuzpsABmnlB1eQXcfOIAFFgBALYOZGXsOYsN+f5w+OIAEvynCw2qAJTsALwAfOwACqQQm1xwMAA85zozxuS2c5SE5ggSgAXoIuCw1htSPxtsE9uDITC4SwAEowACOQngaAeL3en2+vz+AGUwRDCFi0PCwHjXGAACqRYH1UF8VrwOD8exrYDsbalIUwdiqLI8o5igWS8S0vj8ABGJn5EvsIPy9yerw+Xx+/0BtG5h04znZyNYgSZCPYf1+Sn4HmhozoNDAUDg7GpZC4bq4HptHUFQWZADEwH8w3bIywA673eqTK9Hv7A8HQ7aIw6wDG43n7czk0HUxqYM8KOw0CXE3kvaZfe8tjtSHBndn3WRnsgpABdJ5t5Go3bdlMhvsDwfPVb18Olx2LhMF2sQLAFuC9fZyo4uivTnriQ850YTKYwWZgGDzfeqcaTH3Xuakw0Uk0AoG6q18Tk4FAAAigj8OIfzMKwHCYIBIG2OwzY+n6AF3nB/BPnizCkFAzr1soPC1ukADWkAAO5gDW7BYEomw6BgKEIfQLZ+kRMAYBA0x1pEwGgU+2QgAAogAkm8ADsACMABMQFfPwyj8SOrHsZxMGoaB85IiiHZ7ChPG2EBr5gFwBZ/Kpen8LW1FcLRpD0Vy77ksaVJmhaDRYEIGpcIwADSbEXHQv5wBAIgtOI/FWUQggwL5GD8b+qlhSARgQIwbpxbkqiaNouhIJJAAsximDw5hIKJNh2A4eCpMFGTuJ4SA+CAfgBEEsSIPlYQRDgeCECQ5A2F6eDrJ8OC6BgDzLByDYFuB5bnvG+bRrGC3LmAc2VumtYHA0aAQIlMgAHRHelYCqPOq6LY620FLt+20EdB0nWE7Cbtuu7XfkZ69ieWZTrmS6NkWK2NutIZptWT5Xjed4LI+l4vtDUAOUalKmkCWW2DliAAMySYVZgWIg4kAKzlaQ9iOJNwMFnVt4Nb4/jIq1IS4511CRD1MT9dQg2ICAw2bmQmAPLd7D8Ydx0gBjOh6MTeNJUVJXtWTFN4LttNeOJDMtcEuWqIOvjQFEkHJJNggiFKmb8KRckcNV6RoAdVPTcyqzXaLADkEsHR77AAPR++wyAAITMLA7DTClQhwIOGV3JoqL8EgoCIdwLBqwgqiqEAA"}
+import { privateKeyToAccount } from 'viem/accounts'
+const account = privateKeyToAccount('0x...')
+// ---cut---
+const signature = await account.signTransaction({
+  to: '0x...' // [!code focus]
+})
+```
+
+### type (optional)
+
+- **Type:** `"legacy" | "eip2930" | "eip1559"`
+
+The transaction type.
+
+```ts twoslash
+// @twoslash-cache: {"v":2,"hash":"c6938e9c472f5dc451be60e3bfd3b710f3e668ff9be66fc87ddb88131b304cb5","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjgEsBzMAQzQBXUjETsABgAZaAEmBtSXMDwC+EyiDb9SDRADYqAGxgq0+JAE4qaHTxh6tvAcNGajy3IilVG+HfyMNOQGqhTo2F4ExGSaNPRMLGzsgcxCYGjiwAA6YOz5KVBQonBw4gCCRSVwANy5BeyQYIwwALL8AvakAPziAHIsLe2dZOwAPuzpsABmnlB1eQXcfOIAFFgBALYOZGXsOYsN+f5w+OIAEvynCw2qAJTsALwAfOwACqQQm1xwMAA85zozxuS2c5SE5ggSgAXoIuCw1htSPxtsE9uDITC4SwAEowACOQngaAeL3en2+vz+AGUwRDCFi0PCwHjXGAACqRYH1UF8VrwOD8exrYDsbalIUwdiqLI8o5igWS8S0vj8ABGJn5EvsIPy9yerw+Xx+/0BtG5h04znZyNYgSZCPYf1+Sn4HmhozoNDAUDg7GpZC4bq4HptHUFQWZADEwH8w3bIywA673eqTK9Hv7A8HQ7aIw6wDG43n7czk0HUxqYM8KOw0CXE3kvaZfe8tjtSHBndn3WRnsgpABdJ5t5Go3bdlMhvsDwfPVb18Olx2LhMF2sQLAFuC9fZyo4uivTnriQ850YTKYwWZgGDzfeqcaTH3Xuakw0Uk0AoG6q18Tk4FAAAigj8OIfzMKwHCYIBIG2OwzY+n6AF3nB/BPnizCkFAzr1soPC1ukADWkAAO5gDW7BYEomw6BgKEIfQLZ+kRMAYBA0x1pEwGgU+2QgAAogAkm8ADsACMABMQFfPwyj8SOrHsZxMGoaB85IiiHZ7ChPG2EBr5gFwBZ/Kpen8LW1FcLRpD0Vy77ksaVJmhaDRYEIGpcIwADSbEXHQv5wBAIgtOI/FWUQggwL5GD8b+qlhSARgQIwbpxbkqiaNouhIJJAAsximDw5hIKJNh2A4eCpMFGTuJ4SA+CAfgBEEsSIPlYQRDgeCECQ5A2F6eDrJ8OC6BgDzLByDYFuB5bnvG+bRrGC3LmAc2VumtYAPK3lt0zFkujbrSGabVvOq6LY6O0wHtB1rmWPYnVWlGbtuu4HA0Z69ieWZTrmh0FkWK1HY9sLPU+V43neCyPpeL5Q1ADlGpSppAlltg5YgADMkmFWYFiIOJACs5WkPYjiTcDBZ1beDW+P4yKtSEOOddQkQ9TE/XUINiAgMNm5kJgDwJew/EwFwWDE0Tlj8ejOh6ETuNJUVJWIAV1AVY4qk0144n0y1wS5aog6+NAUSQckk2CCIUqZvwpFyRw1XpGgAB0lPTcyqwfVxODiAA5OLktE9L/vsAA9OH7DIAAhMwsDsNMKVCHAg4ZXcmiovwSCgIh3AsHgaAIKoqhAA"}
+// @noErrors
+import { privateKeyToAccount } from 'viem/accounts'
+const account = privateKeyToAccount('0x...')
+// ---cut---
+const signature = await account.signTransaction({
+  type: 'eip1559' // [!code focus]
+})
+```
+
+### value (optional)
+
+- **Type:** `bigint`
+
+Value in wei sent with this transaction.
+
+```ts twoslash
+// @twoslash-cache: {"v":2,"hash":"b3ae5a01fc6da556d8370361c5c01877e579c0999f45fc856f7601b51f9b3af4","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BjCMONAAjgEsBzMAQzQBXUjETsABgAZaAEmBtSXMDwC+EyiDb9SDRADYqAGxgq0+JAE4qaHTxh6tvAcNGajy3IilVG+HfyMNOQGqhTo2F4ExGSaNPRMLGzsgcxCYGjiwAA6YOz5KVBQonBw4gCCRSVwANy5BeyQYIwwALL8AvakAPziAHIsLe2dZOwAPuzpsABmnlB1eQXcfOIAFFgBALYOZGXsOYsN+f5w+OIAEvynCw2qAJTsALwAfOwACqQQm1xwMAA85zozxuS2c5SE5ggSgAXoIuCw1htSPxtsE9uDITC4SwAEowACOQngaAeL3en2+vz+AGUwRDCFi0PCwHjXGAACqRYH1UF8VrwOD8exrYDsbalIUwdiqLI8o5igWS8S0vj8ABGJn5EvsIPy9yerw+Xx+/0BtG5h04znZyNYgSZCPYf1+Sn4HmhozoNDAUDg7GpZC4bq4HptHUFQWZADEwH8w3bIywA673eqTK9Hv7A8HQ7aIw6wDG43n7czk0HUxqYM8KOw0CXE3kvaZfe8tjtSHBndn3WRnsgpABdJ5t5Go3bdlMhvsDwfPVb18Olx2LhMF2sQLAFuC9fZyo4uivTnriQ850YTKYwWZgGDzfeqcaTH3Xuakw0Uk0AoG6q18Tk4FAAAigj8OIfzMKwHCYIBIG2OwzY+n6AF3nB/BPnizCkFAzr1soPC1ukADWkAAO5gDW7BYEomw6BgKEIfQLZ+kRMAYBA0x1pEwGgU+2QgAAogAkm8ADsACMABMQFfPwyj8SOrHsZxMGoaB85IiiHZ7ChPG2EBr5gFwBZ/Kpen8LW1FcLRpD0Vy77ksaVJmhaDRYEIGpcIwADSbEXHQv5wBAIgtOI/FWUQggwL5GD8b+qlhSARgQIwbpxbkqiaNouhIJJAAsximDw5hIKJNh2A4eCpMFGTuJ4SA+CAfgBEEsSIPlYQRDgeCECQ5A2F6eDrJ8OC6BgDzLByDYFuB5bnvG+bRrGC3LmAc2VumtYHA0kVGES4hqrwyhoAsqjzqui2OttBS7ft7CHTwx2nRuW7MjusqWmevYnlmU65kujZFitjbrSGabVk+V43nep2Qy+0NQA5RqUqaQJZbYOWIAAzJJhVmBYiDiQArOVpD2I4k3AwWdW3g1vj+MirUhDjnXUJEPUxP11CDYgIDDZuZCYA8t1iPdR21VQ2V6ETuNJUVJWICT1AVY4Is0144n0y1wS5azqkc31cQ83zwZXA8SK/AJ5hkKsDj4GQp54SohFGWgu78aRMBcApEz8TwnveyAdwHeLaC5NZWBQhwFswFb9tc1AKUILzADCLB9WgfroYo+HsKI1HwKYtgFuwHEIdbpB1hAjRCNsSipUY7ABwAdLkuQALTsDJjB7PgaBoFgZQAPRD0QXAwJszenEPic90PEJcB4TLwEPMdx7E5U8MnyDICAdAolgJiaBHUf7FROiWxX0rsNMFLsAA5GPE/323YBrxXqz33lklSPfdy5CPdg38pAgNAWA8BYCwAgEHIOSWGNpbWDlvjJA4lGoY3Jngd+8d1YoK1ozHWiBLCqFgU1aAURILJEmoIEQUpMz8FInJDg1V0hoCntaaazJVjXRFuILBNt77iT/rWQByAACEzBYA3xSkIOAg4Mp3E0KifgSBQCIW4CwPAmcQCqFUEAA=="}
+import { parseEther } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+const account = privateKeyToAccount('0x...')
+// ---cut---
+const signature = await account.signTransaction({
+  value: parseEther('1'), // [!code focus]
+})
+```

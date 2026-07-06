@@ -1,0 +1,260 @@
+# Cross Chain USDC Transfers (CCTP Integration)
+
+## Overview
+
+:::info
+This guide is maintained by [Circle](https://www.circle.com).
+:::
+
+Let's set up a cross-chain USDC transfer using [Circle's Cross-Chain Transfer Protocol (CCTP V2)](https://developers.circle.com/stablecoins/cctp-getting-started) and Viem.
+
+In this guide, we'll build a TypeScript script that burns USDC on the **Optimism Sepolia** testnet and mints the equivalent USDC on the **Ethereum Sepolia** testnet – all with just a few steps.
+
+We'll use Viem's wallet client to interact with both chains, and the Circle CCTP Attestation API to retrieve the attestation needed to mint USDC on the destination chain.
+
+By the end, you'll know how to:
+
+* Approve the Circle TokenMessenger contract to spend USDC on the source chain (Optimism Sepolia).
+* Burn USDC on the source chain to initiate a cross-chain transfer.
+* Fetch an attestation from Circle verifying the burn event.
+* Mint USDC on the destination chain (Ethereum Sepolia) using the attestation.
+* Verify that the USDC balance moved from the source chain to the destination chain.
+
+## Steps
+
+::::steps
+
+### Set up Viem Clients
+
+First, we need to configure our environment and connect to both blockchains. We'll use **Viem** to create wallet clients for signing transactions and public clients for reading blockchain data.
+
+```ts twoslash [config.ts]
+// @twoslash-cache: {"v":2,"hash":"7f73071bb0f06865a5fe45d1d549ccc90097590d3f794f4ec882b121ec702a63","data":"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="}
+import { createClient, http, publicActions, walletActions } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { sepolia, optimismSepolia } from 'viem/chains';
+
+export const account = privateKeyToAccount('0x...');
+
+export const client = {
+  optimismSepolia: createClient({
+    account,
+    chain: optimismSepolia,
+    transport: http(),
+  })
+    .extend(publicActions)
+    .extend(walletActions),
+
+  sepolia: createClient({
+    account,
+    chain: sepolia,
+    transport: http(),
+  })
+    .extend(publicActions)
+    .extend(walletActions),
+}
+```
+
+:::note
+Ensure your test wallet is funded with Sepolia ETH (for gas) on both networks and some Sepolia USDC on Optimism.
+:::
+
+### Define constants
+
+Next, let's define all the constants we'll need: contract addresses, domains, and transfer parameters.
+
+CCTP uses specific contracts on each chain for messaging and token minting/burning, and uses [**domain IDs**](https://developers.circle.com/stablecoins/supported-domains) to identify each blockchain in the protocol. The domain ID for Ethereum (Sepolia) is 0, and for Optimism (Sepolia) it's 2.
+
+We'll also specify the amount of USDC to transfer (in USDC's smallest unit, 6 decimal places) and the max fee for a **Fast** transfer.
+
+```ts [constants.ts]
+import { erc20Abi } from 'viem'
+
+export const domain = {
+  optimismSepolia: 2,
+  mainnet: 0,
+}
+
+export const tokenMessengerAbi = [{
+  type: 'function', 
+  name: 'depositForBurn', 
+  stateMutability: 'nonpayable',
+  inputs: [
+    { name: 'amount', type: 'uint256' }, 
+    { name: 'destinationDomain', type: 'uint32' },
+    { name: 'mintRecipient', type: 'bytes32' }, 
+    { name: 'burnToken', type: 'address' },
+    { name: 'destinationCaller', type: 'bytes32' }, 
+    { name: 'maxFee', type: 'uint256' },
+    { name: 'minFinalityThreshold', type: 'uint32' },
+  ],
+  outputs: [],
+}, {
+  type: 'function', 
+  name: 'receiveMessage', 
+  stateMutability: 'nonpayable',
+  inputs: [ 
+    { name: 'message', type: 'bytes' }, 
+    { name: 'attestation', type: 'bytes' } 
+  ],
+  outputs: [],
+}] as const
+
+export const tokenMessengerAddress = {
+  optimismSepolia: '0x8fe6b999dc680ccfdd5bf7eb0974218be2542daa',
+  mainnet: '0xe737e5cebeeba77efe34d4aa090756590b1ce275',
+}
+
+export const usdcAbi = erc20Abi
+
+export const usdcAddress = {
+  optimismSepolia: '0x5fd84259d66cd46123540766be93dfe6d43130d7',
+  mainnet: '0x1c7d4b196cb0c7b01d743fbc6116a902379c7238',
+}
+```
+
+### Approve USDC for transfer
+
+Before we can burn USDC, we must approve the TokenMessenger contract to spend it.   
+To prevent a race condition, we call waitForTransactionReceipt to ensure the approval transaction is confirmed before we proceed to the next step.
+
+```ts
+import { parseUnits } from 'viem'
+import { client } from './config'
+import { tokenMessengerAddress, usdcAddress, usdcAbi } from './constants'
+
+async function approveUSDC() {
+  // approve 1 USDC
+  const hash = await client.optimismSepolia.writeContract({
+    abi: usdcAbi,
+    address: usdcAddress.optimismSepolia,
+    functionName: 'approve',
+    args: [tokenMessengerAddress.optimismSepolia, parseUnits('1', 6)],
+  });
+  await client.optimismSepolia.waitForTransactionReceipt({ hash });
+}
+```
+
+### Burn USDC to initiate the transfer
+
+Now comes the core of CCTP: **burning** USDC on the source chain to initiate the transfer.
+
+We'll call the TokenMessenger's `depositForBurn(...)` function on Optimism Sepolia.   
+This will burn the specified USDC from our wallet and emit a message that Circle's infrastructure will pick up.
+
+Our function burnUSDC will handle this and return the transaction result, which we'll need for the next step (to retrieve the attestation).
+
+```ts
+import { erc20Abi, padHex, parseUnits } from 'viem'
+import { client } from './config'
+import { domain, tokenMessengerAddress, usdcAddress, usdcAbi } from './constants'
+
+const destinationAddress = '0x...'
+
+async function burnUSDC() {
+  return await client.optimismSepolia.writeContract({
+    abi: tokenMessengerAbi,
+    address: tokenMessengerAddress.optimismSepolia,
+    functionName: 'depositForBurn',
+    args: [
+      parseUnits('1', 6), 
+      domain.sepolia, 
+      padHex(destinationAddress, { dir: 'left', size: 32 }),
+      usdcAddress.optimismSepolia, 
+      '0x0000000000000000000000000000000000000000000000000000000000000000', 
+      parseUnits('0.0005', 6), 
+      1000,
+    ],
+  })
+}
+```
+
+### Retrieve the attestation from Circle
+
+After burning USDC on the source chain, Circle's CCTP service needs to provide an **attestation** – basically a signed confirmation that the burn event happened and is valid.
+
+The attestation will later be used to authorize minting on the destination chain. Circle provides a public API endpoint to fetch this attestation by the source domain and transaction hash.
+
+```ts
+import { Hex } from 'viem'
+import { domain } from './constants'
+
+async function retrieveAttestation(burnTx: Hex) {
+  const url = `https://iris-api-sandbox.circle.com/v2/messages/${domain.optimismSepolia}?transactionHash=${burnTx}`;
+
+  return new Promise((resolve, reject) => {
+    const interval = setInterval(async () => {
+      try {
+        const response = await fetch(url)
+        if (!response.ok) return
+        
+        const data = await response.json()
+        if (!data?.messages?.[0]) return
+        if (data.messages[0].status !== 'complete') return
+
+        clearInterval(interval)
+        resolve(data.messages[0])
+      } catch (error: any) {
+        clearInterval(interval)
+        reject(error)
+      }
+    }, 5000);
+  });
+}
+```
+
+### Mint USDC on the destination chain
+
+With the attestation, we call the receiveMessage function on the MessageTransmitter contract on Ethereum Sepolia. This function verifies the attestation and mints the USDC to our destination address.
+
+```ts
+import { client } from './config'
+import { tokenMessengerAddress, tokenMessengerAbi } from './constants'
+
+async function mintUSDC(attestation: { attestation: Hex, message: Hex }) {
+  return await client.sepolia.writeContract({
+    to: tokenMessengerAddress.sepolia,
+    abi: tokenMessengerAbi,
+    functionName: 'receiveMessage',
+    args: [attestation.message, attestation.attestation],
+  });
+}
+```
+
+### Execute the transfer
+
+Finally, we execute the steps in sequence and verify the final balances on both chains.
+
+```ts
+import { client } from './config'
+
+// 1. Approve USDC on source chain
+await approveUSDC();
+
+// 2. Burn USDC on source (initiates transfer)
+const burnTx = await burnUSDC();
+
+// 3. Retrieve attestation for the burn transaction
+const attestation = await retrieveAttestation(burnTx);
+
+// 4. Mint USDC on destination chain using the attestation
+await mintUSDC(attestation);
+
+const sourceBalance = await client.optimismSepolia.readContract({
+  address: usdcAddress.optimismSepolia,
+  abi: usdcAbi,
+  functionName: 'balanceOf',
+  args: [account.address],
+});
+const destBalance = await client.sepolia.readContract({
+  address: usdcAddress.sepolia,
+  abi: usdcAbi,
+  functionName: 'balanceOf',
+  args: [account.address],
+});
+
+console.log(`USDC on Optimism Sepolia: ${formatUnits(sourceBalance, 6)}`);
+console.log(`USDC on Ethereum Sepolia: ${formatUnits(destBalance, 6)}`);
+```
+
+::::

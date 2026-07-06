@@ -1,0 +1,381 @@
+---
+description: Send your first Tempo Transaction with Viem, and discover the payment-native features they unlock.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Tempo Transactions
+
+## Overview
+
+Tempo Transactions are a Tempo-native [EIP-2718](https://eips.ethereum.org/EIPS/eip-2718)
+transaction type designed for payments. They support configurable fee tokens, fee
+sponsorship, batched calls, concurrent nonces, access keys, and scheduled execution, and are
+recommended over Ethereum transactions on Tempo.
+
+With Viem, Tempo properties (like `feeToken`, `feePayer`, `nonceKey`, `validAfter`, and
+`validBefore`) are compatible with any action that sends a transaction. This includes
+[`sendTransaction`](/docs/actions/wallet/sendTransaction),
+[`writeContract`](/docs/contract/writeContract), and all [Tempo Actions](/tempo/actions)
+(along with their `*Sync` variants).
+
+[See the Tempo Transactions specification](https://docs.tempo.xyz/protocol/transactions#tempo-transactions)
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Send a Transaction
+
+Use `sendTransactionSync` to send a transaction and wait for its receipt in a single call.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+const receipt = await client.sendTransactionSync({
+  data: '0xdeadbeef',
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Pay Fees with Stablecoins
+
+Use the `feeToken` field to pay fees in any USD-denominated TIP-20 token. Tempo's Fee AMM
+automatically swaps to the validator's preferred token.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+const alphaUsd = '0x20c0000000000000000000000000000000000001'
+
+const receipt = await client.sendTransactionSync({
+  data: '0xdeadbeef',
+  feeToken: alphaUsd, // [!code focus]
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+:::info
+See the [Pay Fees in a Stablecoin](/tempo/guides/pay-fees) guide for validating fee tokens,
+setting a default, and handling common errors.
+:::
+
+### Sponsor Fees
+
+A fee payer can cover gas fees for the sender via the `feePayer` field. You can use a local
+account or a remote relay service.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+const feePayer = Account.fromSecp256k1('0x...')
+
+const receipt = await client.sendTransactionSync({
+  data: '0xdeadbeef',
+  feePayer, // [!code focus]
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+:::info
+See the [Sponsor User Fees](/tempo/guides/sponsor-fees) guide for sponsoring with a local
+account or routing requests through a relay.
+:::
+
+### Batch Calls
+
+Bundle multiple operations into a single atomic transaction with the `calls` field.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+const receipt = await client.sendTransactionSync({
+  calls: [ // [!code focus]
+    { // [!code focus]
+      data: '0xcafebabe00000000000000000000000000000001', // [!code focus]
+      to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef', // [!code focus]
+    }, // [!code focus]
+    { // [!code focus]
+      data: '0xdeadbeef00000000000000000000000000000002', // [!code focus]
+      to: '0xfeedfacefeedfacefeedfacefeedfacefeedface', // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+:::info
+See the [Batch Calls](/tempo/guides/batch-calls) guide for batching Tempo Actions like
+approvals and transfers.
+:::
+
+### Access Keys
+
+Access keys delegate signing authority from a primary account to a secondary key, such as a
+device-bound non-extractable [WebCrypto key](https://developer.mozilla.org/en-US/docs/Web/API/CryptoKeyPair).
+The primary account signs a key authorization that grants the access key permission to sign
+transactions on its behalf.
+
+:::code-group
+
+```ts twoslash [example.ts]
+// @noErrors
+import { Account, WebCryptoP256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+// 1. Instantiate account.
+const account = Account.fromSecp256k1('0x...')
+
+// 2. Generate a non-extractable WebCrypto key pair & instantiate access key.
+const keyPair = await WebCryptoP256.createKeyPair()
+const accessKey = Account.fromWebCryptoP256(keyPair, {
+  access: account,
+})
+
+// 3. Sign over key authorization with account.
+const keyAuthorization = await account.signKeyAuthorization(accessKey)
+
+// 4. Attach key authorization to (next) transaction.
+const receipt = await client.sendTransactionSync({
+  account: accessKey, // sign transaction with access key // [!code focus]
+  data: '0xdeadbeef',
+  keyAuthorization, // [!code focus]
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+:::info
+See the [Access Keys](/tempo/guides/access-keys) guide for admin access keys, witnesses, and
+verifying signatures.
+:::
+
+### Concurrent Transactions
+
+Send multiple transactions from the same account in parallel by giving each an independent
+`nonceKey`, avoiding sequential nonce confirmation.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+const [receipt1, receipt2] = await Promise.all([
+  client.sendTransactionSync({
+    data: '0xdeadbeef',
+    nonceKey: 567n, // [!code focus]
+    to: '0xcafebabecafebabecafebabecafebabecafebabe',
+  }),
+  client.sendTransactionSync({
+    data: '0xcafebabe',
+    nonceKey: 789n, // [!code focus]
+    to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+  }),
+])
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+:::info
+See the [Concurrent Transactions](/tempo/guides/concurrent-transactions) guide for reading
+nonces and managing nonce keys.
+:::
+
+### Scheduled Transactions
+
+Sign a transaction in advance and define a time window for when it can execute onchain with
+the `validAfter` and `validBefore` fields.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+const receipt = await client.sendTransactionSync({
+  data: '0xdeadbeef',
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+  validAfter: Math.floor(Number(new Date('2026-01-01')) / 1000), // [!code focus]
+  validBefore: Math.floor(Number(new Date('2026-01-02')) / 1000), // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+:::info
+See the [Scheduled Transactions](/tempo/guides/scheduled-transactions) guide for setting an
+expiry only and other scheduling patterns.
+:::
+
+### Write to a Contract
+
+Contract writes are sent as Tempo Transactions too, so [`writeContract`](/docs/contract/writeContract)
+and [`writeContractSync`](/docs/contract/writeContractSync) accept the same Tempo properties,
+such as `feeToken`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseAbi } from 'viem'
+import { client } from './viem.config'
+const abi = parseAbi(['function approve(address, uint256) returns (bool)'])
+
+const receipt = await client.writeContractSync({
+  abi,
+  address: '0x20c0000000000000000000000000000000000001',
+  functionName: 'approve',
+  args: ['0xcafebabecafebabecafebabecafebabecafebabe', 100n],
+  feeToken: '0x20c0000000000000000000000000000000000001', // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Use Tempo Actions
+
+[Tempo Actions](/tempo/actions) like [`token.transfer`](/tempo/actions/token.transfer) also
+send Tempo Transactions, so they accept the same Tempo properties, such as `feeToken`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { client } from './viem.config'
+const { receipt } = await client.token.transferSync({
+  amount: parseUnits('10.5', 6),
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000000',
+  feeToken: '0x20c0000000000000000000000000000000000001', // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Prefer Sync Actions
+
+`sendTransactionSync` submits the transaction and resolves with the receipt once it is
+included, removing a manual [`waitForTransactionReceipt`](/docs/actions/public/waitForTransactionReceipt)
+round-trip. Tempo's sub-second finality makes this fast, and it keeps payment flows simple.
+
+```ts
+const hash = await client.sendTransaction({ // [!code --]
+  data: '0xdeadbeef', // [!code --]
+  to: '0xcafebabecafebabecafebabecafebabecafebabe', // [!code --]
+}) // [!code --]
+const receipt = await client.waitForTransactionReceipt({ hash }) // [!code --]
+const receipt = await client.sendTransactionSync({ // [!code ++]
+  data: '0xdeadbeef', // [!code ++]
+  to: '0xcafebabecafebabecafebabecafebabecafebabe', // [!code ++]
+}) // [!code ++]
+```
+
+### Set a Default Fee Token
+
+Rather than passing `feeToken` on every transaction, set a default globally by passing
+`feeToken` to `createClient`. It applies to all transactions sent with the client.
+
+```ts twoslash
+import { privateKeyToAccount } from 'viem/accounts'
+import { createClient } from 'viem/tempo'
+
+export const client = createClient({
+  account: privateKeyToAccount('0x...'),
+  feeToken: '0x20c0000000000000000000000000000000000001', // [!code focus]
+  testnet: true,
+})
+```
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:layers"
+    title="Batch Calls"
+    description="Bundle multiple operations into a single atomic transaction."
+    to="/tempo/guides/batch-calls"
+  />
+  <Card
+    icon="lucide:split"
+    title="Send Concurrent Transactions"
+    description="Send transactions in parallel using independent nonce keys."
+    to="/tempo/guides/concurrent-transactions"
+  />
+  <Card
+    icon="lucide:clock"
+    title="Schedule Transactions"
+    description="Sign a transaction now and define when it can execute onchain."
+    to="/tempo/guides/scheduled-transactions"
+  />
+  <Card
+    icon="lucide:coins"
+    title="Pay Fees in a Stablecoin"
+    description="Pay transaction fees in any USD-denominated TIP-20 token."
+    to="/tempo/guides/pay-fees"
+  />
+  <Card
+    icon="lucide:hand-coins"
+    title="Sponsor User Fees"
+    description="Cover gas fees on behalf of your users for a gasless experience."
+    to="/tempo/guides/sponsor-fees"
+  />
+  <Card
+    icon="lucide:users"
+    title="Multisig Transactions"
+    description="Send a transaction from a native multisig by collecting owner approvals."
+    to="/tempo/guides/multisig-transactions"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: Transactions"
+    description="The full Tempo Transactions protocol specification."
+    to="https://docs.tempo.xyz/protocol/transactions#tempo-transactions"
+  />
+</Cards>

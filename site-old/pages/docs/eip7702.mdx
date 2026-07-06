@@ -1,0 +1,24 @@
+---
+description: An Overview of EIP-7702
+---
+
+# EIP-7702 Overview
+
+EIP-7702 is a proposal to add a new Transaction type to allow an EOA to designate a Smart Contract as its "implementation".
+
+The main difference between an EIP-7702 Transaction and other transactions is the inclusion of a **"authorization list"** property, a set of `(chain_id, contract_address, nonce, y_parity, r, s)` tuples that depict what Contracts should be delegated onto the Externally Owned Account. 
+
+:::note
+In Viem, you won't need to worry about constructing these Authorization Tuples manually as you can use [`signAuthorization`](/docs/eip7702/signAuthorization) to generate them and use them in [Transaction APIs](/docs/eip7702/contract-writes).
+:::
+
+Applications of EIP-7702 include:
+
+- **Batching**: allowing multiple operations from the same user in one atomic transaction. One common example is an ERC-20 approval followed by spending that approval, a common workflow in DEXes that requires two transactions today. Advanced use cases of batching occasionally involve dependencies: the output of the first operation is part of the input to the second operation.
+- **Sponsorship**: account X pays for a transaction on behalf of account Y. Account X could be paid in some other ERC-20 for this service, or it could be an application operator including the transactions of its users for free.
+- **Privilege de-escalation**: users can sign sub-keys, and give them specific permissions that are much weaker than global access to the account. For example, you could imagine a permission to spend ERC-20 tokens but not ETH, or to spend up to 1% of total balance per day, or to interact only with a specific application.
+
+## Next Steps
+
+- [Contract Writes](/docs/eip7702/contract-writes)
+- [Sending Transactions](/docs/eip7702/sending-transactions)

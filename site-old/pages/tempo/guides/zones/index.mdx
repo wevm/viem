@@ -1,0 +1,50 @@
+---
+description: Connect to private Tempo Zones, deposit funds into them, and withdraw back to Tempo Mainnet.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Private Zones
+
+## Overview
+
+Zones are private, account-scoped chains on [Tempo](https://tempo.xyz). Each zone is an isolated
+execution environment that keeps balances, transfers, and history invisible to the public chain while
+remaining interoperable with Tempo Mainnet, other zones, and shared liquidity. Funds enter a zone by
+depositing from Mainnet and leave by withdrawing back to it.
+
+[See the Tempo Zones specification](https://docs.tempo.xyz/protocol/zones)
+
+:::warning
+Tempo Zones are in early development and available on Tempo Testnet only. Expect breaking changes and
+do not use them in production.
+:::
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:plug"
+    title="Connect to a Zone"
+    description="Authenticate a Viem client with a zone before reading state."
+    to="/tempo/guides/zones/connect"
+  />
+  <Card
+    icon="lucide:arrow-down-to-line"
+    title="Deposit to a Zone"
+    description="Move stablecoins from Tempo Mainnet into a zone."
+    to="/tempo/guides/zones/deposit"
+  />
+  <Card
+    icon="lucide:arrow-up-from-line"
+    title="Withdraw from a Zone"
+    description="Move stablecoins from a zone back to Tempo Mainnet."
+    to="/tempo/guides/zones/withdraw"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: Zones"
+    description="The full Tempo Zones protocol specification."
+    to="https://docs.tempo.xyz/protocol/zones"
+  />
+</Cards>

@@ -1,0 +1,183 @@
+# Cross Chain USDC Transfers with Bridge Kit
+
+:::info
+This guide is maintained by [Circle](https://www.circle.com).
+:::
+
+## Overview
+
+This quickstart guide helps you write a script that transfers USDC from Base to Ethereum using [Bridge Kit](https://learn.circle.com/bridge-kit).
+
+Bridge Kit is a high-level SDK that lets you start bridging in just 10 lines of code. It provides:
+
+* **Hundreds of bridge routes** – Transfer between dozens of supported blockchains
+* **Simple setup** – Start bridging in 10 lines of code
+* **Fee collection** – Monetize your application by collecting fees from end-users
+* **Custom configurations** – Specify transfer speeds, custom RPC endpoints, and wallet clients
+* **Multiple wallet support** – Works with Viem, Ethers, MetaMask, Phantom, and more
+* **Smart retry capabilities** – Automatically identify and recover stuck transactions
+
+By the end, you'll know how to:
+
+* Install Bridge Kit and its dependencies
+* Configure your environment with private keys
+* Execute a cross-chain USDC transfer from Base to Ethereum
+* Verify the transfer on the blockchain
+
+## Steps
+
+::::steps
+
+### Prerequisites
+
+Before you begin, ensure that you've:
+
+* Installed Node.js v22+ and npm
+* Created an Ethereum Sepolia wallet and Base Sepolia wallet. You will fund these wallets in this quickstart.
+
+### Set up your development environment
+
+Create a new directory and install Bridge Kit and its dependencies:
+
+```bash
+# Setup your directory and initialize a Node.js project
+mkdir bridge-kit-quickstart-transfer-base-to-eth
+cd bridge-kit-quickstart-transfer-base-to-eth
+npm init -y
+
+# Install Bridge Kit and tools
+npm install @circle-fin/bridge-kit @circle-fin/adapter-viem-v2 viem typescript tsx dotenv
+```
+
+### Initialize and configure the project
+
+First, initialize the project, which creates a `tsconfig.json` file:
+
+```bash
+# Initialize a TypeScript project
+npx tsc --init
+```
+
+Then, edit the `tsconfig.json` file:
+
+```bash
+# Replace the contents of the generated file
+cat <<'EOF' > tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true
+  }
+}
+EOF
+```
+
+### Configure environment variables
+
+Create a `.env` file in the project directory and add your wallet private key, replacing `{YOUR_PRIVATE_KEY}` with the private key for your Ethereum Sepolia wallet. (You can find and export your private key in MetaMask.)
+
+```bash
+echo "PRIVATE_KEY={YOUR_PRIVATE_KEY}" > .env
+```
+
+:::warning
+Never commit your private key to version control. Use environment variables or a secure key management system.
+:::
+
+### Fund your wallets
+
+For this quickstart, you need both USDC and native tokens in your Ethereum testnet wallet and native tokens in your Base testnet wallet. If you need USDC testnet tokens, use the [Circle Faucet](https://faucet.circle.com) to get 10 USDC in your Ethereum testnet wallet.
+
+Use the following faucets to get testnet native tokens in your wallets:
+
+* [Ethereum Sepolia faucet](https://sepoliafaucet.com)
+* [Base Sepolia faucet](https://www.alchemy.com/faucets/base-sepolia)
+
+:::tip
+Instead of using the Base Sepolia faucet, you can use the Ethereum Sepolia faucet to transfer some tokens to Base.
+:::
+
+### Create the transfer script
+
+Create an `index.ts` file in the project directory and add the following code. This code sets up your script and transfers 10 USDC from Base to Ethereum:
+
+```ts [index.ts]
+// Import Bridge Kit and its dependencies
+import "dotenv/config";
+import { BridgeKit } from "@circle-fin/bridge-kit";
+import { createAdapterFromPrivateKey } from "@circle-fin/adapter-viem-v2";
+import { inspect } from "util";
+
+// Initialize the SDK
+const kit = new BridgeKit();
+
+const bridgeUSDC = async (): Promise<void> => {
+  try {
+    // Initialize the adapter which lets you transfer tokens from your wallet on any EVM-compatible chain
+    const adapter = createAdapterFromPrivateKey({
+      privateKey: process.env.PRIVATE_KEY as string,
+    });
+
+    console.log("---------------Starting Bridging---------------");
+
+    // Execute the transfer using the same adapter for both source and destination chain
+    const result = await kit.bridge({
+      from: { adapter, chain: "Base_Sepolia" },
+      to: { adapter, chain: "Ethereum_Sepolia" },
+      amount: "10",
+    });
+
+    console.log("RESULT", inspect(result, false, null, true));
+  } catch (err) {
+    console.log("ERROR", inspect(err, false, null, true));
+  }
+};
+
+void bridgeUSDC();
+```
+
+### Run the transfer
+
+Save the `index.ts` file and run the script in your terminal:
+
+```bash
+npx tsx index.ts
+```
+
+### Verify the transfer
+
+After your script completes, find the returned `steps` array in the terminal output. Each transaction step includes an `explorerUrl` that you can visit to verify that the USDC amount matches the amount you transferred.
+
+The following code is an example of how an `approve` step might look in the terminal output. The values are used in this example only and are not a real transaction:
+
+```bash
+steps: [
+  {
+    name: "approve",
+    state: "success",
+    txHash: "0x...txHash",
+    data: {
+      txHash:
+        "0x...txHash",
+      status: "success",
+      cumulativeGasUsed: 24567891n,
+      gasUsed: 52843n,
+      blockNumber: 8921456n,
+      blockHash:
+        "0x...blockHash",
+      transactionIndex: 245,
+      effectiveGasPrice: 1523456n,
+      explorerUrl:
+        "https://sepolia.etherscan.io/tx/0x...txHash",
+    },
+  },
+]
+```
+
+:::tip
+[Collect a fee on transfers](https://learn.circle.com/bridge-kit/tutorials/collect-a-transfer-fee) and [estimate gas and provider fees](https://learn.circle.com/bridge-kit/tutorials/estimate-costs) before a transfer, only proceeding if the cost is acceptable.
+:::
+
+::::

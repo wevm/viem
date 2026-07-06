@@ -1,0 +1,45 @@
+---
+description: Open funded TIP-20 channels on Tempo, stream off-chain vouchers, and settle or close to move funds onchain.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Payment Channels
+
+## Overview
+
+A payment channel lets a payer lock up TIP-20 funds once, then pay a payee repeatedly with signed
+off-chain vouchers instead of a transaction per payment. The payee settles vouchers onchain whenever
+they want, and either side can close the channel to reconcile the final balance. This is ideal for
+high-frequency, low-latency payments such as pay-as-you-go billing.
+
+[See the Payment Channels guide](https://docs.tempo.xyz/guide/machine-payments/pay-as-you-go)
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:plug"
+    title="Open & Fund a Channel"
+    description="Open a channel, deposit funds, and read its state."
+    to="/tempo/guides/payment-channels/open"
+  />
+  <Card
+    icon="lucide:receipt"
+    title="Send & Settle Vouchers"
+    description="Sign off-chain vouchers and settle them onchain."
+    to="/tempo/guides/payment-channels/vouchers"
+  />
+  <Card
+    icon="lucide:circle-x"
+    title="Close & Withdraw"
+    description="Close a channel and withdraw the remaining balance."
+    to="/tempo/guides/payment-channels/close"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="channel.open"
+    description="Open and fund a TIP-20 payment channel."
+    to="/tempo/actions/channel.open"
+  />
+</Cards>
