@@ -1533,4 +1533,40 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
     expect(receipt.status).toBe('success')
     expect(receipt.from).toBe(account.address.toLowerCase())
   })
+
+  test('fee payer sponsors bootstrap multisig', async () => {
+    const owner_1 = accounts[12]
+    const owner_2 = accounts[13]
+    const config = MultisigConfig.from({
+      threshold: 2,
+      owners: [
+        { owner: owner_1.address, weight: 1 },
+        { owner: owner_2.address, weight: 1 },
+      ],
+    })
+    const account = Account.fromMultisig(config)
+
+    const request = await prepareTransactionRequest(client, {
+      feePayer: accounts[0],
+      multisig: config,
+      to: account.address,
+      value: 0n,
+    })
+    const signatures = await Promise.all(
+      [owner_1, owner_2].map((owner) =>
+        signTransaction(client, { ...request, account: owner }),
+      ),
+    )
+    const receipt = await sendTransactionSync(client, {
+      ...request,
+      account,
+      feePayer: accounts[0],
+      multisig: config,
+      signatures,
+    })
+
+    expect(receipt.status).toBe('success')
+    expect(receipt.from).toBe(account.address.toLowerCase())
+    expect(receipt.feePayer).toBe(accounts[0].address.toLowerCase())
+  })
 })
