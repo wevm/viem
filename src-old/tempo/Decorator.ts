@@ -5129,6 +5129,9 @@ type BoundActionHelpers<action> = (action extends { call: infer helper }
   (action extends { estimateGas: infer helper }
     ? { estimateGas: BoundHelper<helper> }
     : {}) &
+  (action extends { prepare: infer helper }
+    ? { prepare: BoundHelper<helper> }
+    : {}) &
   (action extends { simulate: infer helper }
     ? { simulate: BoundHelper<helper> }
     : {}) &

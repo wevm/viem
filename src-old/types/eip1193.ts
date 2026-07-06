@@ -992,6 +992,17 @@ export type PublicRpcSchema = [
     ReturnType: Proof
   },
   /**
+   * @description Returns the raw, serialized transaction specified by hash
+   * @example
+   * provider.request({ method: 'eth_getRawTransactionByHash', params: ['0x...'] })
+   * // => '0x...'
+   */
+  {
+    Method: 'eth_getRawTransactionByHash'
+    Parameters: [hash: Hash]
+    ReturnType: Hex | null
+  },
+  /**
    * @description Returns the value from a storage position at an address
    * @link https://eips.ethereum.org/EIPS/eip-1474
    * @example

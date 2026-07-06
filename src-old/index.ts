@@ -238,6 +238,11 @@ export type {
   GetProofReturnType,
 } from './actions/public/getProof.js'
 export type {
+  GetRawTransactionErrorType,
+  GetRawTransactionParameters,
+  GetRawTransactionReturnType,
+} from './actions/public/getRawTransaction.js'
+export type {
   GetStorageAtErrorType,
   GetStorageAtParameters,
   GetStorageAtReturnType,
@@ -880,6 +885,10 @@ export {
   type InvalidHexValueErrorType,
   RlpDepthLimitExceededError,
   type RlpDepthLimitExceededErrorType,
+  RlpListBoundaryExceededError,
+  type RlpListBoundaryExceededErrorType,
+  RlpTrailingBytesError,
+  type RlpTrailingBytesErrorType,
   SizeOverflowError,
   type SizeOverflowErrorType,
 } from './errors/encoding.js'

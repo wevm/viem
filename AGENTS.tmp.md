@@ -6,15 +6,20 @@ when porting or reshaping v2 surface area.
 ## Source Boundaries
 
 - **Clean slate**; the old sources live under `src-old/` and `test-old/`.
-  - `src-old/` is a snapshot of upstream `wevm/viem` **main @ v2.54.1** (refreshed 2026-06-30
-    from `origin/main`), not the original v2 freeze. It is the parity baseline and now includes
-    later-landed features (e.g. `viem/tokens`, the `token` action namespace, the `tokens` Client
-    option, new chains, tempo `Client`/`Scopes`/`Selectors`).
+  - `src-old/` is a snapshot of upstream `wevm/viem` **main @ v2.54.6** (`8cebc26d3`, refreshed
+    2026-07-07 from `origin/main`), not the original v2 freeze. It is the parity baseline and
+    includes later-landed features (e.g. `viem/tokens`, the `token` action namespace, the
+    `tokens` Client option, new chains, tempo `Client`/`Scopes`/`Selectors`, storage credits,
+    client-less token `.call` builders).
+  - `test-old/`, `contracts-old/`, and `site-old/` are snapshots of the same commit's `test/`,
+    `contracts/`, and `site/` — refresh all four together.
   - Use them only for reference and test-porting source.
   - Never edit them.
-  - Never import from them in committed code.
-  - `src-old/` is excluded from the v3 typecheck/test/lint configs; it never affects the build.
-  - To refresh again: `rm -rf src-old && mkdir src-old && git archive origin/main:src | tar -x -C src-old`.
+  - Never import from them in committed code (one-shot parity scripts may, see below).
+  - The `-old` dirs are excluded from the v3 typecheck/test/lint configs; they never affect the build.
+  - To refresh again:
+    `for p in src test contracts site; do rm -rf $p-old && mkdir $p-old && git archive origin/main:$p | tar -x -C $p-old; done`,
+    then port upstream deltas touching already-migrated v3 modules in the same pass.
   - The v3 tree grows fresh in `src/` and `test/`.
 - **Parity tests are one-shot scaffolding**; delete `src-old/` comparison tests before commit.
   - Permanent tests are ports of old suites, adapted to the new API.

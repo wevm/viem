@@ -29,6 +29,54 @@ const tokenlessClient = getClient({
   tokens: undefined,
 })
 
+describe('call (without client)', () => {
+  test('default: builds the same call as the client form', () => {
+    const args = {
+      amount: parseUnits('1.25', 6),
+      to: account2.address,
+      token: addresses.alphaUsd,
+    } as const
+    expect(actions.token.transfer.call(args)).toEqual(
+      actions.token.transfer.call(client, args),
+    )
+
+    expect(
+      actions.token.approve.call({
+        amount: 100n,
+        spender: account2.address,
+        token: TokenId.fromAddress(addresses.alphaUsd),
+      }).to,
+    ).toBe(addresses.alphaUsd)
+
+    expect(
+      actions.token.getBalance.call({
+        account: account2.address,
+        token: addresses.alphaUsd,
+      }).args,
+    ).toEqual([account2.address])
+  })
+
+  test('amount: formatted amounts require explicit decimals', () => {
+    expect(
+      actions.token.mint.call({
+        amount: { decimals: 6, formatted: '1.25' },
+        to: account2.address,
+        token: addresses.alphaUsd,
+      }).args,
+    ).toEqual([account2.address, parseUnits('1.25', 6)])
+
+    expect(() =>
+      actions.token.mint.call({
+        amount: { formatted: '1.25' },
+        to: account2.address,
+        token: addresses.alphaUsd,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Token decimals are required. Pass \`amount.decimals\` or select a declared token.]`,
+    )
+  })
+})
+
 describe('approve', () => {
   test('decimals: requires decimals for an undeclared formatted amount', async () => {
     await expect(

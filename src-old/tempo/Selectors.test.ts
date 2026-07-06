@@ -19,6 +19,7 @@ const selectorMaps = {
   receivePolicyGuard: Selectors.receivePolicyGuard,
   signatureVerifier: Selectors.signatureVerifier,
   stablecoinDex: Selectors.stablecoinDex,
+  storageCredits: Selectors.storageCredits,
   tip20: Selectors.tip20,
   tip20ChannelReserve: Selectors.tip20ChannelReserve,
   tip20Factory: Selectors.tip20Factory,
