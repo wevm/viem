@@ -6,6 +6,49 @@ const extensions: Record<string, string[]> = {
   ITIP20: ['IRolesAuth'],
 }
 
+// Interfaces not present in the pinned node crates, emitted verbatim.
+const extraAbis: Record<string, readonly unknown[]> = {
+  storageCredits: [
+    { type: 'error', name: 'DelegateCallNotAllowed', inputs: [] },
+    { type: 'error', name: 'InvalidMode', inputs: [] },
+    {
+      type: 'function',
+      name: 'balanceOf',
+      stateMutability: 'view',
+      inputs: [{ name: 'account', type: 'address' }],
+      outputs: [{ type: 'uint64' }],
+    },
+    {
+      type: 'function',
+      name: 'modeOf',
+      stateMutability: 'view',
+      inputs: [{ name: 'account', type: 'address' }],
+      outputs: [{ type: 'uint8' }],
+    },
+    {
+      type: 'function',
+      name: 'budgetOf',
+      stateMutability: 'view',
+      inputs: [{ name: 'account', type: 'address' }],
+      outputs: [{ type: 'uint64' }],
+    },
+    {
+      type: 'function',
+      name: 'setMode',
+      stateMutability: 'nonpayable',
+      inputs: [{ name: 'newMode', type: 'uint8' }],
+      outputs: [],
+    },
+    {
+      type: 'function',
+      name: 'setBudget',
+      stateMutability: 'nonpayable',
+      inputs: [{ name: 'creditBudget', type: 'uint64' }],
+      outputs: [],
+    },
+  ],
+}
+
 const out = Path.resolve(import.meta.dirname, '../src/tempo/Abis.ts')
 const precompilesDir = Path.resolve(
   import.meta.dirname,
@@ -234,8 +277,16 @@ for (const [interfaceName, interfaceData] of interfaces.entries()) {
   processedInterfaces.add(interfaceName)
 }
 
+// Emit the extra (non-crate) interfaces.
+for (const [exportName, abi] of Object.entries(extraAbis)) {
+  Fs.appendFileSync(
+    out,
+    `export const ${exportName} = ${JSON.stringify(abi)} as const\n\n`,
+  )
+}
+
 // Generate concatenated `abis` export
-const exportNames: string[] = []
+const exportNames: string[] = Object.keys(extraAbis)
 for (const [interfaceName] of interfaces.entries()) {
   const isUsedAsExtension = Object.values(extensions)
     .flat()

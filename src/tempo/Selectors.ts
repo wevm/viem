@@ -95,6 +95,14 @@ export const stablecoinDex = {
   withdraw: '0x08fab167',
 } as const satisfies FunctionSelectors<typeof Abis.stablecoinDex>
 
+export const storageCredits = {
+  balanceOf: '0x70a08231',
+  budgetOf: '0x7865e71f',
+  modeOf: '0x13668995',
+  setBudget: '0xffe295c3',
+  setMode: '0x21175b4a',
+} as const satisfies FunctionSelectors<typeof Abis.storageCredits>
+
 export const tip20 = {
   BURN_BLOCKED_ROLE: '0x32ad9be8',
   DOMAIN_SEPARATOR: '0x3644e515',

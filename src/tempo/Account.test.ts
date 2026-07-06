@@ -670,6 +670,7 @@ describe('fromMultisig', () => {
   test.todo('weighted threshold: single heavy owner meets threshold')
   test.todo('account hoisted to client: send without explicit `account`')
   test.todo('infer multisig from `account` (no `multisig` field)')
+  test.todo('fee payer sponsors bootstrap multisig')
 })
 
 describe('signAuthorization', () => {

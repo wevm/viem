@@ -21,19 +21,23 @@ export { defineCall } from '../../core/actions/token/internal.js'
  * explicit `decimals`). When `token` is a token id or address, its `decimals`
  * is inferred from the client's declared `tokens` when the address matches a
  * declared token, otherwise taken from the explicit `decimals`.
+ *
+ * When `client` is omitted, `token` must be a token id or address (symbols
+ * cannot be resolved), and `decimals` is only taken from the explicit
+ * `decimals`.
  */
 export function resolveToken(
-  client: Client.Client,
+  client: Client.Client | undefined,
   parameters: resolveToken.Parameters,
 ): { address: Address.Address; decimals: number | undefined } {
   const { decimals, token } = parameters
 
   // Symbols resolve through the client's declared tokens.
-  if (typeof token === 'string' && !token.startsWith('0x'))
+  if (client && typeof token === 'string' && !token.startsWith('0x'))
     return resolveErc20Token(client, { decimals, token })
 
   const address = TokenId.toAddress(token as TokenId.TokenIdOrAddress)
-  const declared = findDeclaredToken(client, address)
+  const declared = client ? findDeclaredToken(client, address) : undefined
   return { address, decimals: decimals ?? declared?.decimals }
 }
 
@@ -64,6 +68,31 @@ export async function resolveTokenWithDecimals(
       functionName: 'decimals',
     }),
   }
+}
+
+/**
+ * Parameters of an action's `.call` builder: the call arguments, optionally
+ * preceded by a Client. The Client is used to resolve token symbols declared
+ * on its `tokens` array and to infer token `decimals`. When the Client is
+ * omitted, `token` must be a TIP-20 token id or contract `address`, and
+ * formatted `amount` values must carry explicit `decimals`.
+ */
+export type CallParameters<
+  args,
+  client extends Client.Client = Client.Client,
+  // Note: mutable (non-`readonly`) tuples, so bound decorator helpers can
+  // pattern-match these parameters.
+> = [client: client, args: args] | [args: args]
+
+/**
+ * Splits {@link CallParameters} into `[client, args]`, with an `undefined`
+ * client when the caller omitted it.
+ */
+export function resolveCallParameters<args, client extends Client.Client>(
+  parameters: CallParameters<args, client>,
+): readonly [client: client | undefined, args: args] {
+  if (parameters.length === 2) return parameters
+  return [undefined, parameters[0]]
 }
 
 /**

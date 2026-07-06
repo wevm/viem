@@ -95,6 +95,34 @@ test('resolveTokenWithDecimals: declared token skips the contract read', async (
   })
 })
 
+test('resolveToken: without a client', () => {
+  expect(utils.resolveToken(undefined, { token: 1n })).toEqual({
+    address: '0x20c0000000000000000000000000000000000001',
+    decimals: undefined,
+  })
+  expect(
+    utils.resolveToken(undefined, {
+      decimals: 6,
+      token: '0x20c0000000000000000000000000000000000001',
+    }),
+  ).toEqual({
+    address: '0x20c0000000000000000000000000000000000001',
+    decimals: 6,
+  })
+})
+
+test('resolveToken: symbols require a client', () => {
+  expect(() =>
+    utils.resolveToken(undefined, { token: 'alphaUSD' }),
+  ).toThrowError()
+})
+
+test('resolveCallParameters', () => {
+  const args = { token: 1n }
+  expect(utils.resolveCallParameters([client, args])).toEqual([client, args])
+  expect(utils.resolveCallParameters([args])).toEqual([undefined, args])
+})
+
 test('pickWriteParameters', () => {
   const picked = utils.pickWriteParameters({
     account: '0xa',
