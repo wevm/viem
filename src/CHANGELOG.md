@@ -1,5 +1,13 @@
 # viem
 
+## 2.54.5
+
+### Patch Changes
+
+- [#4803](https://github.com/wevm/viem/pull/4803) [`49fa5c885c5478e3e7a92411d7b309785df36974`](https://github.com/wevm/viem/commit/49fa5c885c5478e3e7a92411d7b309785df36974) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed fee-payer sponsorship for native multisig transaction preparation and serialization.
+
+- [#4805](https://github.com/wevm/viem/pull/4805) [`5c0aae47181b13f58c7125542c13a2bc82f8662b`](https://github.com/wevm/viem/commit/5c0aae47181b13f58c7125542c13a2bc82f8662b) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Preserved sponsor-returned `feeToken` values from `eth_fillTransaction` responses with `feePayerSignature`.
+
 ## 2.54.4
 
 ### Patch Changes
