@@ -7,6 +7,7 @@ import {
   McpSource,
   Reranker,
   Retriever,
+  VectorStore,
 } from 'vocs/config'
 
 import pkg from '../src/package.json' with { type: 'json' }
@@ -196,6 +197,8 @@ export default defineConfig({
       sources: [
         { url: 'https://wagmi.sh/llms.txt', label: 'wagmi', weight: 0.8 },
       ],
+      // int8 quantization keeps the server AI manifest under Vercel's 250MB function limit.
+      vectorStore: VectorStore.static({ format: 'int8' }),
     }),
   },
   sidebar: {
