@@ -79,3 +79,29 @@ when porting or reshaping v2 surface area.
   - Do this before finishing the module.
   - Use one changeset per area or module.
   - Update an existing area changeset instead of adding duplicates.
+
+## Tempo / ox Learnings (W4)
+
+- **ox ≥ beta.13 `Signature` uses hex `r`/`s`**; `src-old`'s signed-serialization paths
+  (`BigInt(...)` conversions) cannot execute against current ox. Generate v2 parity vectors for
+  unsigned/presign forms only; validate signed structure at the ox level (deserialize
+  round-trips, address recovery).
+- **ox ≥ beta.14 owns the tempo request wire surface**: `keyId`/`multisigInit`/
+  `multisigSignatureCount`/`capabilities` fields, `keyType`/`keyData`/`feePayer` carriage, the
+  key-data length-hint shim, TIP-1 feeToken withholding, zero-address call defaulting, and the
+  `toEnvelope` fee-payer presign marker. viem's `tempo/chainConfig.ts` codec is a thin adapter
+  (client-only fields: Account `feePayer`, `multisig`/`signatures`, `nonceKey: 'expiring'`);
+  do not re-add wire logic viem-side.
+- **"TIP-76" is not a TIP**; the fee-payer/gas-sponsorship mechanism is specified in TIP-1
+  ("Tempo Transaction", type byte `0x76`). Cite TIP-1 in comments.
+- **`ghcr.io/tempoxyz/tempo:latest` has no multisig (`0x05`) envelope decode**; multisig e2e is
+  gated behind `VITE_TEMPO_MULTISIG` (v2 gated identically). Testcontainers does not re-pull
+  `latest` — `docker pull ghcr.io/tempoxyz/tempo:latest` when node behavior looks stale.
+- **Copy `.env` from the root viem checkout** (`~/git/viem/.env`) for a keyed
+  `VITE_ANVIL_FORK_URL`; the drpc.org default rate-limits under repeated fork cold-starts
+  (mass 5s-timeout cascades). Ports 8545/8645 may be held by a local tempo container — override
+  with `VITE_ANVIL_PORT`/`VITE_ANVIL_PORT_LOCAL`.
+- **Tempo node estimation caps gas by sender balance when fee fields are present** — even with
+  `feePayer: true` (node-side gap; sponsored senders capped by their own empty balance). Core
+  `prepare` omits self-derived fees from its internal estimate; direct `estimateGas` calls with
+  explicit fees surface the node error by design.

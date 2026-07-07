@@ -1,7 +1,10 @@
 import * as Chain from '../../core/Chain.js'
+import { chainConfig } from '../../tempo/chainConfig.js'
 
 export const tempoModerato = /*#__PURE__*/ Chain.from({
+  ...chainConfig,
   id: 42431,
+  hardfork: 't5',
   blockExplorers: {
     default: {
       name: 'Tempo Explorer',

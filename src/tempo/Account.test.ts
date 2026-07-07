@@ -671,6 +671,8 @@ describe('fromMultisig', () => {
   test.todo('account hoisted to client: send without explicit `account`')
   test.todo('infer multisig from `account` (no `multisig` field)')
   test.todo('fee payer sponsors bootstrap multisig')
+  test.todo('fee payer co-sign derives the sender from a p256 signature')
+  test.todo('`feePayer` same as sender preserves `from`')
 })
 
 describe('signAuthorization', () => {

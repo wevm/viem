@@ -675,9 +675,11 @@ function fromBase(parameters: fromBase.Parameters): Base {
     async signTransaction(envelope_, options) {
       const chain = options?.chain
       // The envelope originates from the tempo chain's `toEnvelope` (or is a
-      // Tempo envelope directly); `multisig` rides it as request metadata.
+      // Tempo envelope directly); `feePayer` and `multisig` ride it as
+      // request metadata.
       const envelope =
         envelope_ as unknown as TxEnvelopeTempo.TxEnvelopeTempo & {
+          feePayer?: viem_Account.Account | boolean | undefined
           multisig?: MultisigConfig.Config | undefined
         }
 
@@ -698,6 +700,30 @@ function fromBase(parameters: fromBase.Parameters): Base {
       }
 
       const signature = await sign({ hash: payload })
+
+      if (typeof envelope.feePayer === 'object') {
+        const feePayer = envelope.feePayer
+        if (!feePayer.sign)
+          throw new Error('`feePayer` account does not implement `sign`.')
+
+        const tx = TxEnvelopeTempo.from(envelope, {
+          signature: SignatureEnvelope.from(signature),
+        })
+        const sender =
+          envelope.from ??
+          SignatureEnvelope.extractAddress({
+            payload: TxEnvelopeTempo.getSignPayload(tx),
+            root: true,
+            signature: tx.signature,
+          })
+        const feePayerSignature = await feePayer.sign({
+          hash: TxEnvelopeTempo.getFeePayerSignPayload(tx, { sender }),
+        })
+        return TxEnvelopeTempo.serialize(tx, {
+          feePayerSignature: Signature.from(feePayerSignature),
+        })
+      }
+
       const serialize = (chain?.transaction?.serialize ??
         TxEnvelopeTempo.serialize) as (
         envelope: unknown,
