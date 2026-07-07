@@ -312,7 +312,6 @@ export type NewSmartAccount8130ReturnType = To8130AccountReturnType & {
  *   from: account.address,
  *   accountChanges: [account.createChange],
  *   calls: [[{ to: recipient, value }]],
- *   senderAuthScheme: 'secp256k1',
  * })
  * const signed = await account.signTransaction({
  *   chainId, nonceKey: 0n, nonceSequence: 0n,

@@ -7,40 +7,36 @@ import type { Account } from '../../../types/account.js'
 import type { BlockTag } from '../../../types/block.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
+import { concatHex } from '../../../utils/data/concat.js'
 import { hexToBigInt } from '../../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../../utils/encoding/toHex.js'
-import { aaTransactionType } from '../constants.js'
+import { aaTransactionType, canonicalAuthDataLength } from '../constants.js'
 import type { AaAccountChange, AaCalls } from '../types/transaction.js'
-
-/**
- * Authentication scheme an EIP-8130 actor uses to sign. The node prices the
- * authentication gas deterministically from the auth-blob shape, so declaring
- * the scheme lets `eth_estimateGas` charge the right amount without a real
- * signature.
- */
-export type Eip8130AuthScheme = 'secp256k1' | 'p256' | 'webAuthn'
 
 export type EstimateGas8130Parameters = {
   /**
-   * Sender address. **Required** — the sender drives actor/policy resolution,
-   * and the node returns `INVALID_PARAMS` for an EIP-8130 estimate without it.
+   * Sender address. **Required** (or {@link EstimateGas8130Parameters.sender})
+   * — the sender drives actor/policy resolution, and the node returns
+   * `INVALID_PARAMS` for an EIP-8130 estimate without one.
    */
-  from: Address
+  from?: Address | undefined
+  /**
+   * The EIP-8130 sender account. Interchangeable with `from` — the two must
+   * agree if both are set. Prefer this when you don't otherwise need `from`
+   * (e.g. no plain-tx fallback), since it's the field the wire transaction
+   * itself carries.
+   */
+  sender?: Address | undefined
 
   // ── Simplified mode (no accountChanges/calls) ─────────────────────────────
-  // The node synthesises stub auth blobs from the declared scheme. Use this
-  // when the caller only needs to price a call from an already-deployed account
-  // without knowing the full transaction shape.
+  // Use this when the caller only needs to price a call from an
+  // already-deployed account without knowing the full transaction shape.
   /** Target of the (representative) call being estimated. */
   to?: Address | undefined
   /** Calldata of the call being estimated. */
   data?: Hex | undefined
   /** Native value sent with the call. */
   value?: bigint | undefined
-  /** Sender authentication scheme. Defaults to `secp256k1` on the node. */
-  senderAuthScheme?: Eip8130AuthScheme | undefined
-  /** Override the sender auth-payload byte length (otherwise scheme-derived). */
-  senderAuthSize?: number | undefined
 
   // ── Full-body mode (accountChanges + calls) ────────────────────────────────
   // When `accountChanges` or `calls` is provided, the request is sent as a
@@ -48,7 +44,7 @@ export type EstimateGas8130Parameters = {
   // calls + metadata). The node routes this through the real EIP-8130 executor
   // simulation, which is required to correctly price account-creation
   // (`create` account-change) and per-phase call overhead. The simplified
-  // `to`/`data`/`value`/`senderAuthScheme` fields are ignored in this mode.
+  // `to`/`data`/`value` fields are ignored in this mode.
   /**
    * Account-change operations included in the transaction (e.g. `create` for
    * new smart-account deployment). Pass an empty array for follow-up txs on an
@@ -71,12 +67,43 @@ export type EstimateGas8130Parameters = {
    */
   nonceSequence?: number | undefined
 
+  // ── Sender authentication ───────────────────────────────────────────────
+  // The node prices authentication gas from the *shape* of the auth blob it
+  // is given, exactly as it would from a real signature — so declaring the
+  // right shape here (without signing) gets an accurate estimate. Provide
+  // exactly one of the following (in priority order if more than one is set):
+  /**
+   * The full raw `senderAuth` blob to price verbatim: `authenticator(20) ||
+   * data` for a configured account, or a bare signature for the default EOA.
+   * Use when you already have (or want full control over) the exact blob.
+   */
+  senderAuth?: Hex | undefined
+  /**
+   * Verifier (authenticator contract) address hint. The blob is synthesized
+   * as `verifier || filler`, where `filler` is `senderAuthSize` bytes if
+   * given, else a representative default length for known canonical
+   * verifiers ({@link canonicalAuthenticators}) — pass `senderAuthSize`
+   * explicitly for a custom verifier with no known default.
+   */
+  senderAuthVerifier?: Address | undefined
+  /**
+   * Sender auth-payload byte length. Combined with `senderAuthVerifier`, it
+   * overrides the verifier's default length. Alone (no verifier), it prices a
+   * bare (unprefixed, default-EOA-path) filler blob of this length.
+   */
+  senderAuthSize?: number | undefined
+
   // ── Common ────────────────────────────────────────────────────────────────
   /** Optional sponsoring payer; priced into the estimate when set. */
   payer?: Address | undefined
-  /** Payer authentication scheme. Defaults to `secp256k1` on the node. */
-  payerAuthScheme?: Eip8130AuthScheme | undefined
-  /** Override the payer auth-payload byte length (otherwise scheme-derived). */
+  /**
+   * The full raw `payerAuth` blob to price verbatim (always the prefixed
+   * `authenticator(20) || data` form). See `senderAuth`.
+   */
+  payerAuth?: Hex | undefined
+  /** Payer verifier address hint. See `senderAuthVerifier`. */
+  payerAuthVerifier?: Address | undefined
+  /** Payer auth-payload byte length override. See `senderAuthSize`. */
   payerAuthSize?: number | undefined
   /** Block number to estimate against. */
   blockNumber?: bigint | undefined
@@ -93,22 +120,27 @@ const maxAuthSize = 8_192
  * Estimates gas for an EIP-8130 (`AA_TX_TYPE`) call via `eth_estimateGas`.
  *
  * Requires a node with the EIP-8130 `eth_estimateGas` extension
- * (base `feat(eip8130): add eth_estimateGas for 8130`). The estimate runs a
- * read-only `simulate` on the executor: no signature verification, no fee
- * settlement, all state reverted. It shares the pre-call pipeline
- * (account-change apply, auto-delegation, intrinsic gas) with the verifying
- * `execute` path, so the estimate cannot drift from real execution gas.
+ * (base `feat(eip8130-rpc): price estimateGas from raw sender/payer auth
+ * blobs`). The estimate runs a read-only `simulate` on the executor: no
+ * signature verification, no fee settlement, all state reverted. It shares
+ * the pre-call pipeline (account-change apply, auto-delegation, intrinsic
+ * gas) with the verifying `execute` path, so the estimate cannot drift from
+ * real execution gas.
  *
  * Two request modes:
  *
- * **Simplified** — omit `accountChanges`/`calls`. The node synthesises stub
- * auth blobs from the declared `senderAuthScheme` and `senderAuthSize`.
- * Suitable for pricing individual calls from an already-deployed account.
+ * **Simplified** — omit `accountChanges`/`calls`. Suitable for pricing
+ * individual calls from an already-deployed account.
  *
  * **Full-body** — supply `accountChanges` and/or `calls`. The request is sent
  * as a complete EIP-8130 tx body and routed through the real executor
  * simulation. Required to correctly price account-creation (`create`
  * account-change) and per-phase call overhead.
+ *
+ * In both modes, the node prices authentication gas from the auth blob's
+ * *shape*, never a real signature — pass `senderAuthVerifier` (or a raw
+ * `senderAuth`) for a configured account, and leave both unset for the
+ * default EOA. See {@link EstimateGas8130Parameters}.
  *
  * Note: unlike standard `eth_estimateGas`, an EIP-8130 estimate returns the
  * charged gas **even when a phase reverts**, because a reverted EIP-8130 tx is
@@ -123,25 +155,33 @@ export async function estimateGas8130<
 ): Promise<EstimateGas8130ReturnType> {
   const {
     from,
+    sender,
     to,
     data,
     value,
-    senderAuthScheme,
+    senderAuth: senderAuthExplicit,
+    senderAuthVerifier,
     senderAuthSize,
     accountChanges,
     calls,
     nonceKey = 0n,
     nonceSequence = 0,
     payer,
-    payerAuthScheme,
+    payerAuth: payerAuthExplicit,
+    payerAuthVerifier,
     payerAuthSize,
     blockNumber,
     blockTag = 'pending',
   } = parameters
 
-  if (!from)
+  const account_ = sender ?? from
+  if (!account_)
     throw new BaseError(
-      '`from` is required for an EIP-8130 gas estimate: the sender drives actor/policy resolution.',
+      '`sender` (or `from`) is required for an EIP-8130 gas estimate: the sender drives actor/policy resolution.',
+    )
+  if (sender && from && sender !== from)
+    throw new BaseError(
+      `\`sender\` (${sender}) and \`from\` (${from}) must agree when both are set.`,
     )
 
   for (const size of [senderAuthSize, payerAuthSize])
@@ -149,6 +189,17 @@ export async function estimateGas8130<
       throw new BaseError(
         `auth size ${size} out of range (0..=${maxAuthSize}).`,
       )
+
+  const senderAuth = buildAuthBlob(
+    senderAuthExplicit,
+    senderAuthVerifier,
+    senderAuthSize,
+  )
+  const payerAuth = buildAuthBlob(
+    payerAuthExplicit,
+    payerAuthVerifier,
+    payerAuthSize,
+  )
 
   const useFullBody = accountChanges !== undefined || calls !== undefined
 
@@ -161,8 +212,7 @@ export async function estimateGas8130<
     // deserialiser (expects u64, not a hex string).
     request = {
       type: aaTransactionType,
-      from,
-      sender: from,
+      sender: account_,
       nonceKey: Number(nonceKey),
       nonceSequence,
       expiry: 0,
@@ -172,46 +222,35 @@ export async function estimateGas8130<
       // Large gas cap so the simulation isn't capped below real execution.
       gasLimit: 30_000_000,
       accountChanges: (accountChanges ?? []).map(serializeAccountChange),
-      calls: (calls ?? [[{ to: from, value: 0n, data: '0x' as Hex }]]).map(
-        (phase) =>
-          phase.map((c) => ({
-            to: c.to,
-            value: numberToHex(c.value ?? 0n),
-            data: c.data ?? '0x',
-          })),
+      calls: (
+        calls ?? [[{ to: account_, value: 0n, data: '0x' as Hex }]]
+      ).map((phase) =>
+        phase.map((c) => ({
+          to: c.to,
+          value: numberToHex(c.value ?? 0n),
+          data: c.data ?? '0x',
+        })),
       ),
       metadata: '0x',
       payer: payer ?? null,
     }
-    // Pass auth-scheme hints so the node can price intrinsic gas correctly even
-    // when the authenticator type cannot be fully inferred from on-chain state
-    // (e.g. the account hasn't been deployed yet).  The node ignores these in
-    // simulate mode when it can determine the scheme from initialActors, so
-    // providing them is always safe.
-    if (senderAuthScheme !== undefined) request.senderAuthScheme = senderAuthScheme
-    if (senderAuthSize !== undefined)
-      request.senderAuthSize = numberToHex(senderAuthSize)
-    if (payerAuthScheme !== undefined) request.payerAuthScheme = payerAuthScheme
-    if (payerAuthSize !== undefined)
-      request.payerAuthSize = numberToHex(payerAuthSize)
+    if (senderAuth !== undefined) request.senderAuth = senderAuth
+    if (payerAuth !== undefined) request.payerAuth = payerAuth
   } else {
-    // Simplified mode: let the node synthesise stub auth blobs from the scheme.
+    // Simplified mode. `sender` is always set so the node recognizes the
+    // request as an EIP-8130 estimate even when no auth blob is supplied
+    // (an absent auth blob is a valid default-EOA/configured-k1 request, not
+    // an indication this is a plain, non-8130 request).
     request = {
       type: aaTransactionType,
-      from,
+      sender: account_,
     }
     if (to !== undefined) request.to = to
     if (data !== undefined) request.data = data
     if (value !== undefined) request.value = numberToHex(value)
-    if (senderAuthScheme !== undefined)
-      request.senderAuthScheme = senderAuthScheme
-    if (senderAuthSize !== undefined)
-      request.senderAuthSize = numberToHex(senderAuthSize)
     if (payer !== undefined) request.payer = payer
-    if (payerAuthScheme !== undefined)
-      request.payerAuthScheme = payerAuthScheme
-    if (payerAuthSize !== undefined)
-      request.payerAuthSize = numberToHex(payerAuthSize)
+    if (senderAuth !== undefined) request.senderAuth = senderAuth
+    if (payerAuth !== undefined) request.payerAuth = payerAuth
   }
 
   const block = blockNumber !== undefined ? numberToHex(blockNumber) : blockTag
@@ -224,6 +263,45 @@ export async function estimateGas8130<
   )({ method: 'eth_estimateGas', params: [request, block] })
 
   return hexToBigInt(gas)
+}
+
+/**
+ * Builds the raw `senderAuth`/`payerAuth` blob to price, in priority order:
+ *
+ * 1. `explicit` — pass the caller's raw blob through verbatim.
+ * 2. `verifier` set — synthesize `verifier || filler`, where `filler` is
+ *    `size` bytes if given, else the verifier's known default length
+ *    ({@link canonicalAuthDataLength}). Throws if neither is available.
+ * 3. `size` alone (no verifier) — a bare (unprefixed) filler blob of `size`
+ *    bytes, pricing the default-EOA path at a specific length.
+ * 4. All unset — `undefined` (no auth blob on the request; the node applies
+ *    its own default).
+ *
+ * The filler byte (`0xff`) is arbitrary but non-zero, so its EIP-2028
+ * calldata cost matches a real (high-entropy) signature rather than
+ * under-pricing it as zero bytes. It is never recovered — the estimate prices
+ * shape only, never verifies a signature.
+ */
+function buildAuthBlob(
+  explicit: Hex | undefined,
+  verifier: Address | undefined,
+  size: number | undefined,
+): Hex | undefined {
+  if (explicit !== undefined) return explicit
+  if (verifier === undefined) {
+    if (size === undefined) return undefined
+    return filler(size)
+  }
+  const dataLength = size ?? canonicalAuthDataLength[verifier.toLowerCase()]
+  if (dataLength === undefined)
+    throw new BaseError(
+      `No default auth-payload length is known for verifier ${verifier}. Pass an explicit auth size.`,
+    )
+  return concatHex([verifier, filler(dataLength)])
+}
+
+function filler(length: number): Hex {
+  return `0x${'ff'.repeat(length)}` as Hex
 }
 
 /**

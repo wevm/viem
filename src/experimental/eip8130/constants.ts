@@ -97,6 +97,24 @@ export const canonicalAuthenticators = {
   delegate: '0x4C4D27e56087797Feca62262417d57be4e30dD1F',
 } as const satisfies Record<string, Hex>
 
+/**
+ * Representative authentication-payload byte length (the bytes after a
+ * prefixed blob's 20-byte authenticator selector) for each canonical
+ * authenticator, keyed by lowercased address. Used by `estimateGas8130` to
+ * synthesize an auth-blob stub from a verifier-address hint alone, without
+ * requiring the caller to know the exact real signature length.
+ *
+ * @remarks
+ * These are representative defaults, not exact sizes — e.g. a real WebAuthn
+ * payload's length varies with client-data JSON length. Mirrors the node's
+ * `Eip8130AuthScheme::default_data_len`. Pass an explicit size to override.
+ */
+export const canonicalAuthDataLength: Record<string, number> = {
+  [canonicalAuthenticators.k1.toLowerCase()]: 65,
+  [canonicalAuthenticators.p256.toLowerCase()]: 128,
+  [canonicalAuthenticators.passkey.toLowerCase()]: 256,
+}
+
 /** Nonce Manager precompile address (`NONCE_MANAGER_ADDRESS`). */
 export const nonceManagerAddress =
   '0x813000000000000000000000000000000000aa01' satisfies Hex

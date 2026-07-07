@@ -23,7 +23,6 @@ export {
   toSmartAccount8130,
 } from './accounts/toSmartAccount8130.js'
 export {
-  type Eip8130AuthScheme,
   type EstimateGas8130Parameters,
   type EstimateGas8130ReturnType,
   estimateGas8130,
@@ -78,6 +77,7 @@ export {
   accountConfigAddress,
   actorChangeType,
   actorScope,
+  canonicalAuthDataLength,
   canonicalAuthenticators,
   defaultAccountAddress,
   deploymentHeaderSize,
