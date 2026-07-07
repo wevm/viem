@@ -1,5 +1,25 @@
 # viem
 
+## 2.54.6
+
+### Patch Changes
+
+- [#4807](https://github.com/wevm/viem/pull/4807) [`f1ac4480d0c1c6f29bf709f116068e903643ecad`](https://github.com/wevm/viem/commit/f1ac4480d0c1c6f29bf709f116068e903643ecad) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Supported calling token `.call` builders without a Client (restores the pre-`2.54` call signature). When the Client is omitted, `token` must be a TIP20 token id or contract address, and formatted amounts require explicit `decimals`.
+
+## 2.54.5
+
+### Patch Changes
+
+- [#4803](https://github.com/wevm/viem/pull/4803) [`49fa5c885c5478e3e7a92411d7b309785df36974`](https://github.com/wevm/viem/commit/49fa5c885c5478e3e7a92411d7b309785df36974) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed fee-payer sponsorship for native multisig transaction preparation and serialization.
+
+- [#4805](https://github.com/wevm/viem/pull/4805) [`5c0aae47181b13f58c7125542c13a2bc82f8662b`](https://github.com/wevm/viem/commit/5c0aae47181b13f58c7125542c13a2bc82f8662b) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Preserved sponsor-returned `feeToken` values from `eth_fillTransaction` responses with `feePayerSignature`.
+
+## 2.54.4
+
+### Patch Changes
+
+- [#4801](https://github.com/wevm/viem/pull/4801) [`8d1db77e6379cfb4028cb8f0742b6633311fce43`](https://github.com/wevm/viem/commit/8d1db77e6379cfb4028cb8f0742b6633311fce43) Thanks [@jxom](https://github.com/jxom)! - Added `getRawTransaction` action to retrieve a raw, serialized transaction via `eth_getRawTransactionByHash`.
+
 ## 2.54.3
 
 ### Patch Changes

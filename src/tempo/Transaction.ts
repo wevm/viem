@@ -2,7 +2,6 @@
 
 import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
-import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
 import {
   type AuthorizationTempo,
@@ -297,7 +296,8 @@ async function serializeTempo(
   },
   sig?: OneOf<SignatureEnvelope.SignatureEnvelope | viem_Signature> | undefined,
 ) {
-  const signature = (() => {
+  // Track caller signatures separately from synthesized multisig approvals.
+  const signature_provided = (() => {
     if (transaction.signature) return transaction.signature
     if (sig && 'type' in sig) return sig as SignatureEnvelope.SignatureEnvelope
     if (sig)
@@ -325,9 +325,14 @@ async function serializeTempo(
   const hasPrefilledFeePayerSignature =
     typeof transaction.feePayerSignature !== 'undefined' &&
     transaction.feePayerSignature !== null
+  // Sponsorship sender signatures omit `feeToken`.
   const shouldStripFeeTokenForSponsorship =
-    (feePayer === true && (!signature || !feePayerSignature)) ||
-    (!signature && hasPrefilledFeePayerSignature)
+    // Relay fills a partial sender envelope first.
+    (feePayer === true && (!signature_provided || !feePayerSignature)) ||
+    // Local fee-payer accounts sign after sender serialization.
+    (typeof feePayer === 'object' && !signature_provided) ||
+    // Filled transactions can already include fee-payer approval.
+    (!signature_provided && hasPrefilledFeePayerSignature)
 
   const transaction_ox = {
     ...rest,
@@ -354,22 +359,15 @@ async function serializeTempo(
   // for the sender sign payload and the partial sponsorship handoff envelope.
   // Keep it only on the final broadcast envelope so the chain can verify
   // the fee payer.
-  if (shouldStripFeeTokenForSponsorship) delete transaction_ox.feeToken
+  const transaction_sender_ox = { ...transaction_ox }
+  if (shouldStripFeeTokenForSponsorship) delete transaction_sender_ox.feeToken
 
-  // Native multisig (TIP-1061): combine the collected owner approvals into the
-  // multisig signature envelope and serialize the broadcast transaction. The
-  // approvals are recovered against the multisig owner digest and ordered into
-  // the strictly-ascending owner address order the node requires.
-  //
-  // Bootstrap (`init`) is auto-detected from the nonce: the protocol requires
-  // (and consumes) nonce `0` for the first transaction from a derived account,
-  // so `nonce == 0` uniquely identifies a bootstrap. This matches the serialized
-  // nonce above (a falsy `nonce` serializes as `0`). The owner approval digest
-  // doesn't commit to `init`, so attaching it here (rather than at owner-signing)
-  // is safe.
-  // NOTE: fee-payer + multisig is handled in a later phase.
-  if (transaction.multisig && transaction.signatures && !feePayer) {
-    const payload = TxTempo.getSignPayload(TxTempo.from(transaction_ox))
+  // Combine owner approvals before fee-payer handling.
+  const signature = (() => {
+    if (signature_provided) return signature_provided
+    if (!transaction.multisig || !transaction.signatures) return undefined
+
+    const payload = TxTempo.getSignPayload(TxTempo.from(transaction_sender_ox))
     const signatures = transaction.signatures.map((approval) =>
       SignatureEnvelope.from(approval),
     )
@@ -378,31 +376,25 @@ async function serializeTempo(
       signatures,
       genesisConfig: transaction.multisig,
     })
-    const signature = SignatureEnvelope.from({
+    return SignatureEnvelope.from({
       genesisConfig: transaction.multisig,
       signatures: sorted,
       ...(nonce ? {} : { init: true }),
     })
-    return TxTempo.serialize(transaction_ox, {
-      feePayerSignature: undefined,
-      signature,
-    })
-  }
+  })()
 
   if (signature && typeof transaction.feePayer === 'object') {
     const tx = TxTempo.from(transaction_ox, {
       signature,
     })
 
-    const sender = (() => {
-      if (transaction.from) return transaction.from
-      if (signature.type === 'secp256k1')
-        return Secp256k1.recoverAddress({
-          payload: TxTempo.getSignPayload(tx),
-          signature: signature.signature,
-        })
-      throw new Error('Unable to extract sender from transaction or signature.')
-    })()
+    const sender =
+      transaction.from ??
+      SignatureEnvelope.extractAddress({
+        payload: TxTempo.getSignPayload(tx),
+        root: true,
+        signature,
+      })
 
     const hash = TxTempo.getFeePayerSignPayload(tx, {
       sender,
@@ -421,16 +413,16 @@ async function serializeTempo(
     // Fee payer signature was prefilled during `eth_fillTransaction` -- emit
     // a full envelope with both signatures to skip `eth_signRawTransaction`.
     if (signature && feePayerSignature)
-      return TxTempo.serialize(transaction_ox, {
+      return TxTempo.serialize(transaction_sender_ox, {
         signature,
       })
     if (signature)
-      return TxTempo.serialize(transaction_ox, {
+      return TxTempo.serialize(transaction_sender_ox, {
         format: 'feePayer',
         sender: transaction.from,
         signature,
       })
-    return TxTempo.serialize(transaction_ox, {
+    return TxTempo.serialize(transaction_sender_ox, {
       feePayerSignature: null,
     })
   }
@@ -439,10 +431,7 @@ async function serializeTempo(
     // If we have specified a fee payer, the user will not be signing over the fee token.
     // Defer the fee token signing to the fee payer. Once the fee payer has signed,
     // keep `feeToken` so the broadcast envelope carries the token the chain must charge.
-    {
-      ...transaction_ox,
-      ...(feePayer && !feePayerSignature ? { feeToken: undefined } : {}),
-    },
+    transaction_sender_ox,
     {
       feePayerSignature: undefined,
       signature,

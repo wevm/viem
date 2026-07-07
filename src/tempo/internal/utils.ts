@@ -1,5 +1,6 @@
 import type { Abi, AbiStateMutability, Address } from 'abitype'
 import { TokenId } from 'ox/tempo'
+import type { Account } from '../../accounts/types.js'
 import { readContract } from '../../actions/public/readContract.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -26,17 +27,21 @@ import * as Abis from '../Abis.js'
  * from the client's declared `tokens` when the address matches a declared token,
  * otherwise taken from the explicit `decimals`.
  *
- * @param client - Client.
+ * When `client` is omitted, `token` must be a token id or address (symbols
+ * cannot be resolved), and `decimals` is only taken from the explicit
+ * `decimals`.
+ *
+ * @param client - Client (optional).
  * @param parameters - Parameters.
  * @returns The resolved `address` and `decimals`.
  */
 export function resolveToken(
-  client: Client<Transport, Chain | undefined>,
+  client: Client<Transport, Chain | undefined> | undefined,
   parameters: resolveToken.Parameters,
 ): { address: Address; decimals: number | undefined } {
   const { decimals, token } = parameters
 
-  if (typeof token === 'string') {
+  if (client && typeof token === 'string') {
     const declared = findDeclaredTokenBySymbol(client, token)
     if (declared)
       return {
@@ -48,7 +53,7 @@ export function resolveToken(
   const address = TokenId.toAddress(token as TokenId.TokenIdOrAddress)
   return {
     address,
-    decimals: decimals ?? inferDecimals(client, address),
+    decimals: decimals ?? (client ? inferDecimals(client, address) : undefined),
   }
 }
 
@@ -209,6 +214,39 @@ export function pickWriteParameters(parameters: Record<string, unknown>) {
     validAfter,
     validBefore,
   }
+}
+
+/**
+ * Parameters of an action's `.call` builder: the call arguments, optionally
+ * preceded by a Client. The Client is used to resolve token symbols declared
+ * on its `tokens` array and to infer token `decimals`. When the Client is
+ * omitted, `token` must be a TIP20 token id or contract `address`, and
+ * formatted `amount` values must carry explicit `decimals`.
+ */
+export type CallParameters<
+  args,
+  client extends Client<
+    Transport,
+    Chain | undefined,
+    Account | undefined
+  > = Client<Transport, Chain | undefined>,
+  // Note: mutable (non-`readonly`) tuples, so bound decorator helpers can
+  // pattern-match these parameters (see `BoundHelper` in `../Decorator.ts`).
+> = [client: client, args: args] | [args: args]
+
+/**
+ * Splits {@link CallParameters} into `[client, args]`, with an `undefined`
+ * client when the caller omitted it.
+ * @internal
+ */
+export function resolveCallParameters<
+  args,
+  client extends Client<Transport, Chain | undefined, Account | undefined>,
+>(
+  parameters: CallParameters<args, client>,
+): readonly [client: client | undefined, args: args] {
+  if (parameters.length === 2) return parameters
+  return [undefined, parameters[0]]
 }
 
 export function defineCall<

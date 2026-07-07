@@ -1,3 +1,4 @@
+import { MultisigConfig } from 'ox/tempo'
 import { describe, expect, test, vi } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
@@ -146,6 +147,60 @@ describe('prepareTransactionRequest', () => {
     })
     const request = await prepareTransactionRequest(clientWithFeeToken, {})
     expect(request.feeToken).toBe(feeToken)
+  })
+
+  test('behavior: multisigSignatureCount inferred from equal weights', async () => {
+    const config = MultisigConfig.from({
+      threshold: 2,
+      owners: [
+        { owner: accounts[1].address, weight: 1 },
+        { owner: accounts[2].address, weight: 1 },
+        { owner: accounts[3].address, weight: 1 },
+      ],
+    })
+
+    const request = await prepareTransactionRequest(client, {
+      multisig: config,
+      parameters: ['chainId'],
+    })
+
+    expect(request.multisigSignatureCount).toBe(2)
+  })
+
+  test('behavior: multisigSignatureCount inferred from weights', async () => {
+    const config = MultisigConfig.from({
+      threshold: 2,
+      owners: [
+        { owner: accounts[1].address, weight: 2 },
+        { owner: accounts[2].address, weight: 1 },
+      ],
+    })
+
+    const request = await prepareTransactionRequest(client, {
+      multisig: config,
+      parameters: ['chainId'],
+    })
+
+    expect(request.multisigSignatureCount).toBe(1)
+  })
+
+  test('behavior: explicit multisigSignatureCount is preserved', async () => {
+    const config = MultisigConfig.from({
+      threshold: 2,
+      owners: [
+        { owner: accounts[1].address, weight: 1 },
+        { owner: accounts[2].address, weight: 1 },
+        { owner: accounts[3].address, weight: 1 },
+      ],
+    })
+
+    const request = await prepareTransactionRequest(client, {
+      multisig: config,
+      multisigSignatureCount: 3,
+      parameters: ['chainId'],
+    })
+
+    expect(request.multisigSignatureCount).toBe(3)
   })
 
   test('behavior: keyAuthorizationManager attaches pending key authorization', async () => {

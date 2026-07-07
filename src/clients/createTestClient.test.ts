@@ -371,6 +371,7 @@ test('extend', () => {
       "getLogs": [Function],
       "getPermissions": [Function],
       "getProof": [Function],
+      "getRawTransaction": [Function],
       "getStorageAt": [Function],
       "getTransaction": [Function],
       "getTransactionConfirmations": [Function],
