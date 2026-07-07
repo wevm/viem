@@ -1,4 +1,5 @@
 import * as fs from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import {
   type Config,
   defineConfig,
@@ -9,6 +10,11 @@ import {
 } from 'vocs/config'
 
 import pkg from '../src/package.json' with { type: 'json' }
+
+// Load `site/.env` (e.g. `CLOUDFLARE_*` for AI search). No-op if absent.
+try {
+  process.loadEnvFile(fileURLToPath(new URL('./.env', import.meta.url)))
+} catch {}
 
 const hasBuiltTypes = fs.existsSync(
   new URL('../src/_types/index.d.ts', import.meta.url),
@@ -187,7 +193,9 @@ export default defineConfig({
     retriever: Retriever.local({
       embedding: Embedding.cloudflare(),
       reranker: Reranker.cloudflare(),
-      sources: [{ url: 'https://wagmi.sh/llms.txt', label: 'wagmi', weight: 0.8 }],
+      sources: [
+        { url: 'https://wagmi.sh/llms.txt', label: 'wagmi', weight: 0.8 },
+      ],
     }),
   },
   sidebar: {
