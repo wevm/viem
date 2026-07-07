@@ -287,7 +287,7 @@ export declare namespace Chain {
   type SchemaCodec = {
     /** Codec decoding an RPC value into its native shape (via `z.decode`). */
     fromRpc?: z.ZodMiniType | undefined
-    /** Codec encoding a native value into its RPC shape (via `z.decode`). */
+    /** Codec encoding a native value into its RPC shape (via `z.encode`). */
     toRpc?: z.ZodMiniType | undefined
   }
 }
@@ -338,8 +338,9 @@ export type ExtractTransactionReceipt<chain extends Chain | undefined> =
 
 /**
  * Native transaction request input a {@link Chain} accepts. Resolves to
- * `z.input` of the chain's `schema.transactionRequest.toRpc` codec when
- * declared, otherwise the default {@link TransactionRequest.toRpc.Input}.
+ * `z.output` of the chain's `schema.transactionRequest.toRpc` codec when
+ * declared (the codec's native side — `z.encode` encodes it into the RPC
+ * shape), otherwise the default {@link TransactionRequest.toRpc.Input}.
  */
 export type ExtractTransactionRequest<chain extends Chain | undefined> =
   chain extends {
@@ -347,7 +348,7 @@ export type ExtractTransactionRequest<chain extends Chain | undefined> =
       transactionRequest: { toRpc: infer schema extends z.ZodMiniType }
     }
   }
-    ? z.input<schema>
+    ? z.output<schema>
     : TransactionRequest.toRpc.Input
 
 /**

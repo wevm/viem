@@ -98,11 +98,11 @@ export async function sign<chain extends Chain.Chain | undefined>(
     return account.signTransaction(envelope, { chain: codecChain })
   }
 
-  // The chain codec is an untyped `z.ZodMiniType`, so its decoded output widens
+  // The chain codec is an untyped `z.ZodMiniType`, so its encoded output widens
   // to `unknown`; assert back to the RPC shape it produces.
   const rpc: TransactionRequest.Rpc = codecChain?.schema?.transactionRequest
     ?.toRpc
-    ? (z.decode(
+    ? (z.encode(
         codecChain.schema.transactionRequest.toRpc,
         request,
       ) as TransactionRequest.Rpc)

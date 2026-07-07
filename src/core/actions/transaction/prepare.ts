@@ -90,7 +90,7 @@ export async function prepare<
   const parameters = options.parameters ?? defaultParameters
   const { kzg, nonceManager } = options
 
-  const account = account_
+  let account = account_
     ? typeof account_ === 'string'
       ? Account.from(account_)
       : account_
@@ -146,6 +146,13 @@ export async function prepare<
       { client, phase: 'beforeFillTransaction' },
     )
     nonce ??= request.nonce
+    // The hook may replace or drop the sending account (e.g. a chain that
+    // derives the sender from request fields, like a multisig config).
+    account = request.account
+      ? typeof request.account === 'string'
+        ? Account.from(request.account as Address.Address)
+        : request.account
+      : undefined
   }
 
   const attemptFill = (() => {
@@ -181,7 +188,7 @@ export async function prepare<
     try {
       const result = await fill(client, {
         ...omitControl(request),
-        account: account_,
+        account: request.account,
         chain,
         nonce,
       } as never)
@@ -306,6 +313,7 @@ export async function prepare<
     }
   }
 
+  let feesFilled = false
   if (parameters.includes('fees')) {
     if (request.type !== 'legacy' && request.type !== 'eip2930') {
       if (
@@ -326,6 +334,7 @@ export async function prepare<
           throw new MaxFeePerGasTooLowError({ maxPriorityFeePerGas })
         request.maxPriorityFeePerGas = maxPriorityFeePerGas
         request.maxFeePerGas = maxFeePerGas
+        feesFilled = true
       }
     } else {
       if (
@@ -341,6 +350,7 @@ export async function prepare<
           type: 'legacy',
         })
         request.gasPrice = gasPrice
+        feesFilled = true
       }
     }
   }
@@ -348,7 +358,19 @@ export async function prepare<
   if (parameters.includes('gas') && typeof request.gas === 'undefined')
     request.gas = await estimateGas(client, {
       ...omitControl(request),
-      account: account_,
+      // Fees derived above are not part of the caller's intent: feeding them
+      // back into estimation only gates it on the sender's balance (nodes cap
+      // estimable gas by `balance / fee`), which breaks senders that do not
+      // hold the fee themselves (e.g. sponsored transactions). Caller-supplied
+      // fees are forwarded as-is.
+      ...(feesFilled
+        ? {
+            gasPrice: undefined,
+            maxFeePerGas: undefined,
+            maxPriorityFeePerGas: undefined,
+          }
+        : {}),
+      account: request.account,
       kzg,
     } as never)
 

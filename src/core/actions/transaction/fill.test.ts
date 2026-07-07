@@ -335,13 +335,17 @@ test('behavior: encodes/decodes via chain schema when declared', async () => {
     transport: http(),
   })
 
+  // `value` is a bigint: the codec must encode (`z.encode`) the native
+  // request into its RPC shape (`z.decode` would reject non-RPC values).
   const { transaction } = await Actions.transaction.fill(schemaClient, {
     account,
     data: '0xdeadbeef',
     to: '0x0000000000000000000000000000000000000000',
+    value: 1n,
   })
 
   expect(transaction.from).toBe(account.toLowerCase())
+  expect(transaction.value).toBe(1n)
   expect(transaction.type).toBe('eip1559')
   if (transaction.type !== 'eip1559') return
   expect(transaction.maxFeePerGas).toBeTypeOf('bigint')

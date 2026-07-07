@@ -149,10 +149,10 @@ const chainWithSchema = Chain.from({
   rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
   schema: {
     transactionRequest: {
-      toRpc: z.pipe(
-        z.object({ custom: z.string() }),
-        z.transform(() => ({}) as TransactionRequest.Rpc),
-      ),
+      toRpc: z.codec(z.any(), z.object({ custom: z.string() }), {
+        decode: () => ({ custom: '' }),
+        encode: () => ({}) as TransactionRequest.Rpc,
+      }),
     },
   },
 })

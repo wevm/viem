@@ -1,13 +1,17 @@
 import * as Blobs from 'ox/Blobs'
 import * as Hex from 'ox/Hex'
+import * as TransactionRequest from 'ox/TransactionRequest'
 import * as Value from 'ox/Value'
+import { z } from 'ox/zod'
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
+import * as Http from '~test/http.js'
 import { kzg } from '~test/kzg.js'
 import { describe, expect, test } from 'vitest'
 
-import { Account, Actions, RpcError } from 'viem'
+import { Account, Actions, Client, http, RpcError } from 'viem'
+import { mainnet } from 'viem/chains'
 
 const client = anvil.getClient(anvil.mainnet)
 
@@ -286,5 +290,65 @@ describe('errors', () => {
       Details: The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
       Version: viem@2.52.1]
     `)
+  })
+})
+
+describe('behavior: chain schema', () => {
+  test('encodes the request via the chain request codec', async () => {
+    // The generic tuple encoding strips fields it does not know; a chain
+    // request codec must own the request encoding so chain-specific fields
+    // (`feeToken` here) reach the node.
+    let body: any
+    const server = await Http.createServer((req, res) => {
+      let data = ''
+      req.on('data', (chunk) => {
+        data += chunk
+      })
+      req.on('end', () => {
+        body = JSON.parse(data)
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(
+          JSON.stringify({ id: body.id, jsonrpc: '2.0', result: '0x5208' }),
+        )
+      })
+    })
+    try {
+      const chain = mainnet.extend({
+        schema: {
+          transactionRequest: {
+            toRpc: z.codec(z.any(), z.any(), {
+              decode: (rpc) => rpc,
+              encode: (request) => ({
+                ...TransactionRequest.toRpc(request as never),
+                feeToken: (request as any).feeToken,
+              }),
+            }),
+          },
+        },
+      })
+      const client = Client.create({ chain, transport: http(server.url) })
+
+      const gas = await Actions.transaction.estimateGas(client, {
+        account: sourceAccount.address,
+        feeToken: '0x20c0000000000000000000000000000000000001',
+        to: targetAccount.address,
+        value: 1n,
+      } as never)
+
+      expect(gas).toBe(21000n)
+      expect(body.params).toMatchInlineSnapshot(`
+        [
+          {
+            "feeToken": "0x20c0000000000000000000000000000000000001",
+            "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+            "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+            "value": "0x1",
+          },
+          "latest",
+        ]
+      `)
+    } finally {
+      await server.close()
+    }
   })
 })

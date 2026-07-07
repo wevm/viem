@@ -17,7 +17,7 @@ Chain definitions were moved from `defineChain` to the `Chain` namespace.
  })
 ```
 
-Chain formatter configuration was replaced by RPC/native schema codecs.
+Chain formatter configuration was replaced by RPC/native schema codecs. `fromRpc` codecs decode wire values via `z.decode`; `toRpc` codecs encode native values via `z.encode` (the codec's native side is its output — request option types resolve from `z.output` of `schema.transactionRequest.toRpc`).
 
 ```diff
 -import { defineChain, formatters } from 'viem'

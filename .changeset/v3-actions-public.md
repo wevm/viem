@@ -402,3 +402,7 @@ The ENS actions were grouped under the `ens` namespace, and CCIP-read (`Offchain
 The ENS name primitives live on the `Ens` utility namespace (`Ens.normalize`, `Ens.namehash`, `Ens.labelhash`, `Ens.toCoinType` taking/returning `bigint`).
 
 The CCIP-read callback call now executes at the original call's block context (`blockNumber`/`blockTag`); previously the callback always ran against the latest block.
+
+`Actions.transaction.prepare` no longer feeds the fees it derives back into its internal gas estimation (nodes cap estimable gas by `balance / fee`, which broke senders that do not hold the fee themselves, e.g. sponsored transactions); caller-supplied fees are still forwarded.
+
+`Actions.transaction.estimateGas` encodes the request via the chain's `schema.transactionRequest` codec when declared, so chain-specific request fields reach the node.

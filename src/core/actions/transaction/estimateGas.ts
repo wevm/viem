@@ -119,9 +119,21 @@ export async function estimateGas(
 
     const item = z.RpcSchema.parseItem(z.RpcSchema.Eth, 'eth_estimateGas')
 
+    // Chains with a request codec encode the request themselves — the generic
+    // tuple encoding below would reject or strip chain-specific fields — so
+    // encode a placeholder in its slot and substitute afterwards.
+    const codec = client.chain?.schema?.transactionRequest?.toRpc
+
     const params = stateOverride
-      ? z.RpcSchema.encodeParams(item, [request, block, stateOverride])
-      : z.RpcSchema.encodeParams(item, [request, block])
+      ? z.RpcSchema.encodeParams(item, [
+          codec ? {} : request,
+          block,
+          stateOverride,
+        ])
+      : z.RpcSchema.encodeParams(item, [codec ? {} : request, block])
+    // The chain codec is an untyped `z.ZodMiniType`, so its encoded output
+    // widens to `unknown`; assert back to the RPC shape it produces.
+    if (codec) params[0] = z.encode(codec, request) as TransactionRequest.Rpc
 
     return z.RpcSchema.decodeReturns(
       item,

@@ -22,15 +22,15 @@ const chain = Chain.from({
   rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
   schema: {
     transactionRequest: {
-      toRpc: z.pipe(
-        z.object({ custom: z.string() }),
-        z.transform(() => ({}) as TransactionRequest.Rpc),
-      ),
+      toRpc: z.codec(z.any(), z.object({ custom: z.string() }), {
+        decode: () => ({ custom: '' }),
+        encode: () => ({}) as TransactionRequest.Rpc,
+      }),
     },
   },
 })
 
-test('chain schema: Options use z.input of the request codec', () => {
+test('chain schema: Options use z.output of the request codec', () => {
   expectTypeOf<sign.Options<typeof chain>>().toMatchTypeOf<{
     custom: string
   }>()

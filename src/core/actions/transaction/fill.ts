@@ -76,11 +76,11 @@ export async function fill<chain extends Chain.Chain | undefined>(
     nonce,
   } satisfies TransactionRequest.toRpc.Input
 
-  // The chain codec is an untyped `z.ZodMiniType`, so its decoded output widens
+  // The chain codec is an untyped `z.ZodMiniType`, so its encoded output widens
   // to `unknown`; assert back to the RPC shape it produces.
   const rpcRequest: TransactionRequest.Rpc = chain?.schema?.transactionRequest
     ?.toRpc
-    ? (z.decode(
+    ? (z.encode(
         chain.schema.transactionRequest.toRpc,
         request,
       ) as TransactionRequest.Rpc)

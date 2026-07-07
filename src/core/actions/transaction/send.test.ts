@@ -316,10 +316,10 @@ describe('behavior: chain schema', () => {
     const chain = mainnet.extend({
       schema: {
         transactionRequest: {
-          toRpc: z.pipe(
-            z.any(),
-            z.transform((request) => TransactionRequest.toRpc(request)),
-          ),
+          toRpc: z.codec(z.any(), z.any(), {
+            decode: (rpc) => rpc,
+            encode: (request) => TransactionRequest.toRpc(request as never),
+          }),
         },
       },
     })
