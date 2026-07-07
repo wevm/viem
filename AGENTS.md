@@ -148,6 +148,9 @@ For v3 rewrite work, also read `AGENTS.tmp.md`.
   its proxy holding ports 8545/8645, making later runs fail at global setup (`EADDRINUSE`) or
   time out en masse against the wedged instance. `lsof -nP -i :8545 -i :8645` and kill the stale
   `node` process.
+- **Tempo tests boot one container per test file**; the file's `afterAll` stops it. A cancelled
+  run leaks `tempo.<uuid>` containers that starve later runs. `docker ps` and `docker rm -f`
+  the leaked ones before re-running `--project tempo`.
 - **eip4844/kzg tests flake under full parallel runs**; the blob/kzg suites (`prepare`, `sign`
   eip4844 cases) intermittently time out when the whole suite runs with `--maxWorkers=4`, and
   pass in isolation. Verify in isolation before suspecting code.

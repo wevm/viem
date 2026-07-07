@@ -1,0 +1,127 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `token.create`
+
+Creates a new TIP-20 token, and assigns the admin role to `admin` (defaults to the Client's account). [Learn more](https://docs.tempo.xyz/protocol/tip20/overview)
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { admin, receipt, token, tokenId } = await client.token.createSync({
+  currency: 'USD',
+  logoURI: 'https://example.com/cusd.svg',
+  name: 'My Company USD',
+  symbol: 'CUSD',
+})
+
+console.log('Address:', token)
+// @log: Address: 0x20c0000000000000000000000000000000000004
+console.log('Admin:', admin)
+// @log: Admin: 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb
+console.log('ID:', tokenId)
+// @log: ID: 4n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+The example above uses a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `token.create` action and wait for inclusion manually:
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await client.token.create({
+  currency: 'USD',
+  logoURI: 'https://example.com/cusd.svg',
+  name: 'My Company USD',
+  symbol: 'CUSD',
+})
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
+
+const { args: { token } } = Actions.token.create.extractEvent(receipt.logs)
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Created token address. */
+  token: Address
+  /** Token name. */
+  name: string
+  /** Token symbol. */
+  symbol: string
+  /** Currency (e.g. "USD"). */
+  currency: string
+  /** Quote token address. */
+  quoteToken: Address
+  /** Admin address. */
+  admin: Address
+  /** Unique salt. */
+  salt: Hex
+  /** Token ID. */
+  tokenId: bigint
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+}
+```
+
+## Parameters
+
+### admin (optional)
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Admin address for the token. Required when the Client has no account.
+
+### currency
+
+- **Type:** `string`
+
+Currency code for the token (e.g. `"USD"`).
+
+### logoURI (optional)
+
+- **Type:** `string`
+
+Logo URI for the token. Requires a T5-enabled Tempo chain.
+
+### name
+
+- **Type:** `string`
+
+Name of the token.
+
+### quoteToken (optional)
+
+- **Type:** `Address | bigint`
+
+Quote token address or ID. Defaults to pathUSD.
+
+### salt (optional)
+
+- **Type:** `Hex`
+- **Default:** `Hex.random(32)`
+
+Unique salt for deterministic token address generation.
+
+### symbol
+
+- **Type:** `string`
+
+Symbol of the token.
+
+<WriteParameters />

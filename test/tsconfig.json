@@ -30,6 +30,12 @@
       "viem/node": [
         "../src/node/index.ts"
       ],
+      "viem/tempo": [
+        "../src/tempo/index.ts"
+      ],
+      "viem/tempo/actions": [
+        "../src/tempo/actions/index.ts"
+      ],
       "viem/tokens": [
         "../src/tokens/index.ts"
       ],

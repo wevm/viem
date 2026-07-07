@@ -1,7 +1,7 @@
 import type * as TokenId from 'ox/tempo/TokenId'
-import type * as TransactionRequest from 'ox/tempo/TransactionRequest'
 
 import type { writeSync } from '../../core/actions/contract/writeSync.js'
+import type { TransactionRequest } from '../chainConfig.js'
 import type { UnionPick } from '../../core/internal/types.js'
 
 export type { ReadParameters } from '../../core/actions/token/internal.js'
@@ -36,7 +36,7 @@ export type WriteParameters = UnionPick<
   | 'throwOnReceiptRevert'
 > &
   UnionPick<
-    TransactionRequest.TransactionRequest,
+    TransactionRequest,
     | 'feePayer'
     | 'feeToken'
     | 'keyAuthorization'

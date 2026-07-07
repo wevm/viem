@@ -1,0 +1,74 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `token.getAllowance`
+
+Gets the TIP-20 allowance a spender has over an account's tokens.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const allowance = await client.token.getAllowance({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  spender: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+console.log('Allowance:', allowance)
+// @log: Allowance: { amount: 10500000n, decimals: 6, formatted: '10.5' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Allowance in the token's base units. */
+  amount: bigint
+  /** Token decimals used to derive `formatted`. */
+  decimals: number
+  /** Allowance formatted as a human-readable decimal string. */
+  formatted: string
+}
+```
+
+The remaining allowance, both in base units (`amount`) and as a human-readable
+decimal string (`formatted`, derived from the token's `decimals`).
+
+## Parameters
+
+### account
+
+- **Type:** `Address`
+
+Account that owns the tokens.
+
+### decimals (optional)
+
+- **Type:** `number`
+
+Decimals used to convert between base units and the human-readable amount.
+Inferred from the Client's `tokens` set when `token` matches a declared token;
+otherwise fetched from the token contract when needed.
+
+### spender
+
+- **Type:** `Address`
+
+Spender of the tokens.
+
+### token
+
+- **Type:** `Address | bigint`
+
+Token to operate on: a TIP-20 token id or a contract address.
+
+<ReadParameters />

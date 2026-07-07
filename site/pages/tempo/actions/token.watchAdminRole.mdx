@@ -1,0 +1,124 @@
+# `token.watchAdminRole`
+
+Watches TIP-20 `RoleAdminUpdated` events for a token. The event is emitted when the admin role that governs a role changes. [Learn more about roles](https://docs.tempo.xyz/protocol/tip20/spec#role-based-access-control)
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.token.watchAdminRole({
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log(log.args)
+  // @log: {
+  // @log:   role: '0x114e74f6ea3bd819998f78687bfcb11b140da08e9b7d222fa9c1f1ba1f2aa122',
+  // @log:   newAdminRole: '0x139c2898040ef16910dc9f44dc697df79363da767d8bc92f2e310312b816e46d',
+  // @log:   sender: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+  // @log: }
+})
+
+// Later, tear down the watcher.
+watcher.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Also callable standalone: `Actions.token.watchAdminRole(client, options)`, with `Actions` imported from `'viem/tempo'`.
+
+## Return Type
+
+Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.
+
+```ts
+type ReturnType = {
+  /** Registers a log listener. Starts the watcher on first registration. Returns an unregister function. */
+  onLogs: (fn: (logs: readonly Log[]) => void) => () => void
+  /** Registers an error listener. Returns an unregister function. */
+  onError: (fn: (error: Error) => void) => () => void
+  /** Tears down the watcher: removes listeners, ends iterators, stops the poll or subscription. */
+  off: () => void
+  /** Async-iterates emitted log batches (latest-only stream). */
+  [Symbol.asyncIterator]: () => AsyncIterableIterator<{ logs: readonly Log[] }>
+}
+```
+
+Each log is decoded, with the event arguments on `args`:
+
+```ts
+type Log = {
+  /** Decoded `RoleAdminUpdated` event arguments. */
+  args: {
+    /** Role whose admin role changed (bytes32 role hash). */
+    role: Hex
+    /** New admin role (bytes32 role hash). */
+    newAdminRole: Hex
+    /** Address that performed the update. */
+    sender: Address
+  }
+  /** Name of the emitted event. */
+  eventName: 'RoleAdminUpdated'
+  // ...standard log fields (address, blockHash, blockNumber, logIndex, transactionHash, ...)
+}
+```
+
+Role values are bytes32 role hashes. Compare them against a named role (`defaultAdmin`, `pause`, `unpause`, `issuer`, `burnBlocked`) with `TokenRole.serialize` from `ox/tempo/TokenRole`.
+
+## Parameters
+
+### args (optional)
+
+- **Type:** `object`
+
+```ts
+type Args = {
+  /** Filter by role (bytes32 role hash). */
+  role?: Hex | Hex[] | null
+  /** Filter by new admin role (bytes32 role hash). */
+  newAdminRole?: Hex | Hex[] | null
+  /** Filter by sender. */
+  sender?: Address | Address[] | null
+}
+```
+
+Indexed argument values to filter logs by. Derive a role hash from a named role with `TokenRole.serialize` from `ox/tempo/TokenRole`, for example `TokenRole.serialize('pause')`.
+
+### batch (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to batch the logs found within a poll interval into a single emission. When `false`, each log is emitted on its own.
+
+### fromBlock (optional)
+
+- **Type:** `bigint`
+
+Block number from which to start watching for logs.
+
+### poll (optional)
+
+- **Type:** `boolean`
+
+Whether to poll for new logs instead of using a subscription. Defaults to `true` when the transport cannot subscribe or `fromBlock` is provided.
+
+### pollingInterval (optional)
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Polling frequency (in ms).
+
+### token
+
+- **Type:** `Address | bigint`
+
+Token to operate on: a TIP-20 token id or a contract address.

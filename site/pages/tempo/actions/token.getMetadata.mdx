@@ -1,0 +1,76 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `token.getMetadata`
+
+Gets TIP-20 token metadata including name, symbol, logo URI, currency, decimals, and total supply.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const metadata = await client.token.getMetadata({
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log(metadata)
+// @log: {
+// @log:   currency: 'USD',
+// @log:   decimals: 6,
+// @log:   logoURI: '',
+// @log:   name: 'AlphaUSD',
+// @log:   paused: false,
+// @log:   quoteToken: '0x20C0000000000000000000000000000000000000',
+// @log:   supplyCap: 340282366920938463463374607431768211455n,
+// @log:   symbol: 'AlphaUSD',
+// @log:   totalSupply: 202914184810805067765n,
+// @log:   transferPolicyId: 1n,
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Currency (e.g. "USD"). */
+  currency: string
+  /** Decimals of the token. */
+  decimals: number
+  /** Logo URI of the token. Empty string if unset or unsupported by the active Tempo hardfork. */
+  logoURI: string
+  /** Name of the token. */
+  name: string
+  /** Whether the token is paused. `undefined` for the default quote token (`0x20c0...0000`). */
+  paused?: boolean
+  /** Quote token. `undefined` for the default quote token (`0x20c0...0000`). */
+  quoteToken?: Address
+  /** Supply cap. `undefined` for the default quote token (`0x20c0...0000`). */
+  supplyCap?: bigint
+  /** Symbol of the token. */
+  symbol: string
+  /** Total supply of the token. */
+  totalSupply: bigint
+  /** Transfer policy ID. 0="always-reject", 1="always-allow", >2=custom policy. `undefined` for the default quote token (`0x20c0...0000`). */
+  transferPolicyId?: bigint
+}
+```
+
+## Parameters
+
+### token
+
+- **Type:** `Address | bigint`
+
+Token to operate on: a TIP-20 token id or a contract address. Metadata (`name`,
+`symbol`, `decimals`) declared on the Client's `tokens` set overrides values read
+from the contract.
+
+<ReadParameters />

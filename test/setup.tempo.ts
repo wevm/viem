@@ -1,3 +1,14 @@
-import { setup } from './src/tempo.js'
+import { afterAll, beforeAll } from 'vitest'
 
-await setup()
+import { rpcUrl, setup } from './src/tempo.js'
+
+beforeAll(async () => {
+  if (process.env.SKIP_GLOBAL_SETUP) return
+  await setup()
+})
+
+// Reap the file's node instance; containers otherwise accumulate across files.
+afterAll(async () => {
+  if (process.env.SKIP_GLOBAL_SETUP) return
+  await fetch(`${rpcUrl}/stop`)
+})

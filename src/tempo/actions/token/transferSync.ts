@@ -1,0 +1,80 @@
+import type * as Address from 'ox/Address'
+import type * as Errors from 'ox/Errors'
+import * as Value from 'ox/Value'
+
+import type * as Account from '../../../core/Account.js'
+import type * as Chain from '../../../core/Chain.js'
+import type * as Client from '../../../core/Client.js'
+import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import { resolveAmountDecimals } from '../../../core/actions/token/internal.js'
+import { resolveToken } from '../../internal/utils.js'
+import { transfer } from './transfer.js'
+
+/**
+ * Transfers TIP-20 tokens to another address, and waits for the transaction to be confirmed.
+ *
+ * @example
+ * ```ts
+ * import { Account, Actions, Client, http } from 'viem/tempo'
+ *
+ * const client = Client.create({
+ *   account: Account.fromSecp256k1('0x…'),
+ *   transport: http(),
+ * })
+ *
+ * const { receipt, ...event } = await Actions.token.transferSync(client, {
+ *   amount: 100n,
+ *   to: '0x…',
+ *   token: '0x20c0000000000000000000000000000000000001',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param options - Options.
+ * @returns The transaction receipt and event data.
+ */
+export async function transferSync<
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
+>(
+  client: Client.Client<chain, account>,
+  options: transferSync.Options,
+): Promise<transferSync.ReturnType> {
+  const { amount, token, throwOnReceiptRevert = true } = options
+  const { decimals } = resolveToken(client, { token })
+  const resolved = resolveAmountDecimals(amount, decimals)
+  const receipt = await transfer.inner(writeSync, client, {
+    ...options,
+    throwOnReceiptRevert,
+  } as never)
+  const { args } = transfer.extractEvent(receipt.logs)
+  return {
+    ...args,
+    ...(resolved === undefined
+      ? {}
+      : { decimals: resolved, formatted: Value.format(args.amount, resolved) }),
+    receipt,
+  } as never
+}
+
+export namespace transferSync {
+  export type Args = transfer.Args
+  export type Options = transfer.Options
+  export type ReturnType = {
+    /** Address the tokens were transferred from. */
+    from: Address.Address
+    /** Address the tokens were transferred to. */
+    to: Address.Address
+    /** Transferred amount, in base units. */
+    amount: bigint
+    /** Token decimals used to derive `formatted`, if known. */
+    decimals?: number | undefined
+    /** Transferred amount formatted with the token's `decimals`, if known. */
+    formatted?: string | undefined
+
+    /** Transaction receipt. */
+    receipt: writeSync.ReturnType
+  }
+  // TODO: exhaustive error type
+  export type ErrorType = Errors.GlobalErrorType
+}

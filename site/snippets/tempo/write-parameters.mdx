@@ -1,0 +1,78 @@
+### account (optional)
+
+- **Type:** `Account | Address`
+
+Account that will be used to send the transaction.
+
+### feePayer (optional)
+
+- **Type:** `Account | boolean`
+
+Fee payer for the transaction (TIP-1 gas sponsorship).
+
+Pass `true` to defer the fee token to an external fee payer (e.g. a relay), or a local Account to co-sign the transaction as the fee payer.
+
+### feeToken (optional)
+
+- **Type:** `Address | bigint`
+
+Fee token for the transaction.
+
+Can be an unpaused USD-denominated TIP-20 token address or ID.
+
+### gas (optional)
+
+- **Type:** `bigint`
+
+Gas limit for the transaction.
+
+### keyAuthorization (optional)
+
+- **Type:** `KeyAuthorization`
+
+Signed key authorization to include with the transaction, authorizing an access key to act for the sending account.
+
+### maxFeePerGas (optional)
+
+- **Type:** `bigint`
+
+Max fee per gas for the transaction.
+
+### maxPriorityFeePerGas (optional)
+
+- **Type:** `bigint`
+
+Max priority fee per gas for the transaction.
+
+### nonce (optional)
+
+- **Type:** `number`
+
+Nonce for the transaction.
+
+### nonceKey (optional)
+
+- **Type:** `'expiring' | 'random' | bigint`
+
+Nonce key for the transaction (TIP-1009 2D nonces).
+
+Use `'expiring'` to select an expiring nonce, which enables concurrent transaction submission without nonce ordering. Use `'random'` to select a random key.
+
+### throwOnReceiptRevert (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether a `Sync` action throws when the receipt reports a revert.
+
+### validAfter (optional)
+
+- **Type:** `number`
+
+Unix timestamp after which the transaction can be included.
+
+### validBefore (optional)
+
+- **Type:** `number`
+
+Unix timestamp before which the transaction must be included.

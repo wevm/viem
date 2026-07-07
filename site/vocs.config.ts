@@ -979,6 +979,90 @@ export default defineConfig({
       },
       { ...sidebar.utilities, collapsed: true },
     ],
+    '/tempo': [
+      { text: 'Getting Started', link: '/tempo' },
+      { text: 'Tempo Docs & Guides', link: 'https://docs.tempo.xyz' },
+      {
+        text: 'Actions',
+        items: [
+          {
+            text: 'Token',
+            collapsed: false,
+            items: [
+              { text: 'approve', link: '/tempo/actions/token.approve' },
+              { text: 'burn', link: '/tempo/actions/token.burn' },
+              { text: 'burnBlocked', link: '/tempo/actions/token.burnBlocked' },
+              {
+                text: 'changeTransferPolicy',
+                link: '/tempo/actions/token.changeTransferPolicy',
+              },
+              { text: 'create', link: '/tempo/actions/token.create' },
+              {
+                text: 'getAllowance',
+                link: '/tempo/actions/token.getAllowance',
+              },
+              { text: 'getBalance', link: '/tempo/actions/token.getBalance' },
+              { text: 'getMetadata', link: '/tempo/actions/token.getMetadata' },
+              {
+                text: 'getRoleAdmin',
+                link: '/tempo/actions/token.getRoleAdmin',
+              },
+              {
+                text: 'getTotalSupply',
+                link: '/tempo/actions/token.getTotalSupply',
+              },
+              { text: 'grantRoles', link: '/tempo/actions/token.grantRoles' },
+              { text: 'hasRole', link: '/tempo/actions/token.hasRole' },
+              { text: 'mint', link: '/tempo/actions/token.mint' },
+              { text: 'pause', link: '/tempo/actions/token.pause' },
+              {
+                text: 'prepareUpdateQuoteToken',
+                link: '/tempo/actions/token.prepareUpdateQuoteToken',
+              },
+              {
+                text: 'renounceRoles',
+                link: '/tempo/actions/token.renounceRoles',
+              },
+              { text: 'revokeRoles', link: '/tempo/actions/token.revokeRoles' },
+              {
+                text: 'setRoleAdmin',
+                link: '/tempo/actions/token.setRoleAdmin',
+              },
+              {
+                text: 'setSupplyCap',
+                link: '/tempo/actions/token.setSupplyCap',
+              },
+              { text: 'transfer', link: '/tempo/actions/token.transfer' },
+              { text: 'unpause', link: '/tempo/actions/token.unpause' },
+              {
+                text: 'updateQuoteToken',
+                link: '/tempo/actions/token.updateQuoteToken',
+              },
+              {
+                text: 'watchAdminRole',
+                link: '/tempo/actions/token.watchAdminRole',
+              },
+              {
+                text: 'watchApprove',
+                link: '/tempo/actions/token.watchApprove',
+              },
+              { text: 'watchBurn', link: '/tempo/actions/token.watchBurn' },
+              { text: 'watchCreate', link: '/tempo/actions/token.watchCreate' },
+              { text: 'watchMint', link: '/tempo/actions/token.watchMint' },
+              { text: 'watchRole', link: '/tempo/actions/token.watchRole' },
+              {
+                text: 'watchTransfer',
+                link: '/tempo/actions/token.watchTransfer',
+              },
+              {
+                text: 'watchUpdateQuoteToken',
+                link: '/tempo/actions/token.watchUpdateQuoteToken',
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
   socials: [
     {
@@ -1012,6 +1096,7 @@ export default defineConfig({
   },
   topNav: [
     { text: 'Docs', link: '/docs' },
+    { text: 'Tempo', link: '/tempo', match: '/tempo' },
     {
       text: pkg.version,
       items: [

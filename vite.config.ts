@@ -100,6 +100,8 @@ export default defineConfig({
           include: ['src/tempo/actions/**/*.test.ts'],
           globalSetup: ['./test/setup.tempo.global.ts'],
           setupFiles: ['./test/setup.tempo.ts'],
+          // Per-file container boot + liquidity mints run in beforeAll.
+          hookTimeout: 20_000,
           // Parallel per-worker containers slow receipt ceremonies.
           testTimeout: 30_000,
         },

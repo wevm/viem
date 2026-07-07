@@ -1,0 +1,96 @@
+# Getting Started
+
+## Overview
+
+[Tempo](https://tempo.xyz) is a purpose-built Layer 1 blockchain optimized for payments.
+
+It enshrines features like [token management](https://docs.tempo.xyz/protocol/tip20/overview), a [Fee AMM](https://docs.tempo.xyz/protocol/fees), and a [stablecoin DEX](https://docs.tempo.xyz/protocol/exchange) directly into the protocol, as well as a [Tempo transaction type](https://docs.tempo.xyz/protocol/transactions) with support for batch calls, fee sponsorship, configurable fee tokens, concurrent transactions, and access keys.
+
+## Setup
+
+Set up the Tempo extension for Viem by following the steps below.
+
+::::steps
+
+### Install
+
+To use the Tempo extension, ensure that you have Viem installed.
+
+:::code-group
+
+```bash [npm]
+npm i viem
+```
+
+```bash [pnpm]
+pnpm i viem
+```
+
+```bash [bun]
+bun i viem
+```
+
+:::
+
+### Configure
+
+Next, we will configure a Tempo [Client](/docs/clients).
+
+In the snippet below, we create a Client with `Client.create`. It defaults to the Tempo mainnet chain and an `http` transport, and comes decorated with Tempo Actions.
+
+```ts twoslash [viem.config.ts]
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::tip
+`Client.create` also accepts `testnet` to target the Tempo testnet, and `feeToken` to set a default fee token for every transaction sent with the Client.
+
+```ts
+import { Client } from 'viem/tempo'
+
+export const client = Client.create({
+  feeToken: '0x20c0000000000000000000000000000000000001', // [!code hl]
+  testnet: true, // [!code hl]
+})
+```
+:::
+
+### Use Tempo Actions
+
+Once the Client is configured, use Tempo Actions from the `token` namespace to work with TIP-20 tokens.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.token.transferSync({
+  amount: { decimals: 6, formatted: '10.5' },
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log('Transferred:', result.formatted)
+// @log: Transferred: 10.5
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+::::
+
+## Actions
+
+Tempo Actions are available on the Client (as shown above), or standalone via the `Actions` namespace. Browse the action reference from the sidebar.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const metadata = await Actions.token.getMetadata(client, {
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```

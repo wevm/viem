@@ -1,0 +1,52 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `token.getRoleAdmin`
+
+Gets the admin role for a specific role in a TIP-20 token. [Learn more about token roles](https://docs.tempo.xyz/protocol/tip403/spec)
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const adminRole = await client.token.getRoleAdmin({
+  role: 'issuer',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log('Admin role:', adminRole)
+// @log: Admin role: 0x0000000000000000000000000000000000000000000000000000000000000000
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = Hex // Admin role hash
+```
+
+The admin role hash. The zero hash is the `defaultAdmin` role. Use `TokenRole.serialize`
+from `ox/tempo` to compare against a named role.
+
+## Parameters
+
+### role
+
+- **Type:** `"defaultAdmin" | "pause" | "unpause" | "issuer" | "burnBlocked"`
+
+Role to get admin for.
+
+### token
+
+- **Type:** `Address | bigint`
+
+Token to operate on: a TIP-20 token id or a contract address.
+
+<ReadParameters />

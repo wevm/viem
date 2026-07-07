@@ -1,9 +1,9 @@
 import { Server } from 'prool'
 import * as TestContainers from 'prool/testcontainers'
 
-import { Account, Actions, Client, http } from 'viem'
+import { Actions, Token } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
-import { tokens } from 'viem/tokens'
+import { Account, Client, http } from 'viem/tempo'
 
 import * as constants from './constants.js'
 
@@ -17,6 +17,24 @@ export const accounts = constants.accounts
 
 export const alphaUsd = '0x20c0000000000000000000000000000000000001'
 export const pathUsd = '0x20c0000000000000000000000000000000000000'
+
+/** Genesis token declarations (drive `decimals`/`formatted` inference). */
+const tokens = [
+  Token.from({
+    addresses: { [tempoLocalnet.id]: pathUsd },
+    currency: 'USD',
+    decimals: 6,
+    name: 'pathUSD',
+    symbol: 'pathUSD',
+  }),
+  Token.from({
+    addresses: { [tempoLocalnet.id]: alphaUsd },
+    currency: 'USD',
+    decimals: 6,
+    name: 'AlphaUSD',
+    symbol: 'AlphaUSD',
+  }),
+]
 
 const feeAmmAbi = [
   {
@@ -35,12 +53,14 @@ const feeAmmAbi = [
 
 /** Creates a Client for the pool's Tempo node instance. */
 export function getClient(options: getClient.Options = {}) {
-  const { account = Account.fromPrivateKey(accounts[0].privateKey) } = options
+  const { account = Account.fromSecp256k1(accounts[0].privateKey), feeToken } =
+    options
   return Client.create({
     account,
     chain: tempoLocalnet,
+    ...(feeToken ? { feeToken } : {}),
     pollingInterval: 100,
-    tokens: tokens.tempo,
+    tokens,
     transport: http(rpcUrl),
   })
 }
@@ -49,6 +69,8 @@ export declare namespace getClient {
   type Options = {
     /** Account for the Client. @default dev account 0 */
     account?: Account.Account | undefined
+    /** Default fee token for the Client. */
+    feeToken?: `0x${string}` | undefined
   }
 }
 
@@ -70,10 +92,13 @@ export async function mintLiquidity(
 /** Mints fee-AMM liquidity for the genesis tokens (fee-token validity). */
 export async function setup() {
   const client = getClient()
-  for (const id of [1n, 2n, 3n])
-    await mintLiquidity(client, {
-      token: `0x20c000000000000000000000000000000000000${id}`,
-    })
+  await Promise.all(
+    [1n, 2n, 3n].map((id) =>
+      mintLiquidity(client, {
+        token: `0x20c000000000000000000000000000000000000${id}`,
+      }),
+    ),
+  )
 }
 
 /** Restarts the pool's Tempo node instance (fresh genesis state). */

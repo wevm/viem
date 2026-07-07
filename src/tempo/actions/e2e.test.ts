@@ -125,9 +125,7 @@ describe('transaction.sendSync', () => {
       feeToken: tempo.pathUsd,
     })
     expect(receipt.status).toBe('success')
-    expect(receipt.feePayer?.toLowerCase()).toBe(
-      feePayer.address.toLowerCase(),
-    )
+    expect(receipt.feePayer?.toLowerCase()).toBe(feePayer.address.toLowerCase())
   })
 
   // Native multisig (TIP-1061) runs only on a multisig-capable node: the
@@ -136,68 +134,76 @@ describe('transaction.sendSync', () => {
   // transaction`. Opt in with `VITE_TEMPO_MULTISIG=true` against a
   // multisig-enabled node. (The combining itself is covered hermetically in
   // `chainConfig.test.ts`.)
-  test.runIf(process.env.VITE_TEMPO_MULTISIG)('multisig (2-of-2): owner approvals combine into the envelope', async () => {
-    const owner1 = Account.fromSecp256k1(accounts[8]!.privateKey)
-    const owner2 = Account.fromSecp256k1(accounts[9]!.privateKey)
-    const account = Account.fromMultisig({
-      threshold: 2,
-      owners: [
-        { owner: owner1.address, weight: 1 },
-        { owner: owner2.address, weight: 1 },
-      ],
-    })
+  test.runIf(process.env.VITE_TEMPO_MULTISIG)(
+    'multisig (2-of-2): owner approvals combine into the envelope',
+    async () => {
+      const owner1 = Account.fromSecp256k1(accounts[8]!.privateKey)
+      const owner2 = Account.fromSecp256k1(accounts[9]!.privateKey)
+      const account = Account.fromMultisig({
+        threshold: 2,
+        owners: [
+          { owner: owner1.address, weight: 1 },
+          { owner: owner2.address, weight: 1 },
+        ],
+      })
 
-    // Fund the derived multisig account with the fee token.
-    const funder = tempo.getClient({ account: owner1 })
-    await Actions.contract.writeSync(funder, {
-      abi: [
-        {
-          name: 'transfer',
-          type: 'function',
-          stateMutability: 'nonpayable',
-          inputs: [
-            { type: 'address', name: 'to' },
-            { type: 'uint256', name: 'amount' },
-          ],
-          outputs: [{ type: 'bool' }],
-        },
-      ],
-      address: Addresses.pathUsd,
-      args: [account.address, 10_000_000n],
-      feeToken: tempo.pathUsd,
-      functionName: 'transfer',
-    } as never)
+      // Fund the derived multisig account with the fee token.
+      const funder = tempo.getClient({ account: owner1 })
+      await Actions.contract.writeSync(funder, {
+        abi: [
+          {
+            name: 'transfer',
+            type: 'function',
+            stateMutability: 'nonpayable',
+            inputs: [
+              { type: 'address', name: 'to' },
+              { type: 'uint256', name: 'amount' },
+            ],
+            outputs: [{ type: 'bool' }],
+          },
+        ],
+        address: Addresses.pathUsd,
+        args: [account.address, 10_000_000n],
+        feeToken: tempo.pathUsd,
+        functionName: 'transfer',
+      } as never)
 
-    const client = tempo.getClient({ account })
-    const { request } = await Actions.transaction.prepare(client, {
-      account,
-      calls: [{ to }],
-      feeToken: tempo.pathUsd,
-    } as never)
+      const client = tempo.getClient({ account })
+      const { request } = await Actions.transaction.prepare(client, {
+        account,
+        calls: [{ to }],
+        feeToken: tempo.pathUsd,
+      } as never)
 
-    console.error('STEP: envelope', JSON.stringify(request, (_, v) => typeof v === 'bigint' ? v.toString() : v))
-    const envelope = tempoLocalnet.transaction.toEnvelope(
-      request as never,
-    ) as Envelope
-    const approvals = [
-      await owner1.signTransaction(envelope as never, {
-        chain: tempoLocalnet,
-      }),
-      await owner2.signTransaction(envelope as never, {
-        chain: tempoLocalnet,
-      }),
-    ]
+      console.error(
+        'STEP: envelope',
+        JSON.stringify(request, (_, v) =>
+          typeof v === 'bigint' ? v.toString() : v,
+        ),
+      )
+      const envelope = tempoLocalnet.transaction.toEnvelope(
+        request as never,
+      ) as Envelope
+      const approvals = [
+        await owner1.signTransaction(envelope as never, {
+          chain: tempoLocalnet,
+        }),
+        await owner2.signTransaction(envelope as never, {
+          chain: tempoLocalnet,
+        }),
+      ]
 
-    const serialized = await account.signTransaction(
-      { ...envelope, signatures: approvals } as never,
-      { chain: tempoLocalnet },
-    )
-    const receipt = await Actions.transaction.sendRawSync(client, {
-      transaction: serialized,
-    })
-    expect(receipt.status).toBe('success')
-    expect(receipt.from.toLowerCase()).toBe(account.address.toLowerCase())
-  })
+      const serialized = await account.signTransaction(
+        { ...envelope, signatures: approvals } as never,
+        { chain: tempoLocalnet },
+      )
+      const receipt = await Actions.transaction.sendRawSync(client, {
+        transaction: serialized,
+      })
+      expect(receipt.status).toBe('success')
+      expect(receipt.from.toLowerCase()).toBe(account.address.toLowerCase())
+    },
+  )
 
   test('estimateGas: explicit fee fields', async () => {
     const client = tempo.getClient()
@@ -286,7 +292,9 @@ describe('transaction.sendSync', () => {
   test.todo('sign-only `transaction.sign` for an unfunded account')
 
   // Blocked on later waves.
-  test.todo('relay: sign-only + sign-and-broadcast policies (W6 Transport.withRelay)')
+  test.todo(
+    'relay: sign-only + sign-and-broadcast policies (W6 Transport.withRelay)',
+  )
   test.todo('access key periodic spending limits (W5e accessKey.authorize)')
   test.todo('zone.encryptedDeposit.prepare (W5e zone actions)')
 })

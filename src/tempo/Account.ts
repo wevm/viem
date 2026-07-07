@@ -67,7 +67,7 @@ export type AccessKeyAccount = Base<'accessKey'> & {
 }
 
 /** A Tempo account. */
-export type Account = OneOf<RootAccount | AccessKeyAccount>
+export type Account = OneOf<RootAccount | AccessKeyAccount | MultisigAccount>
 
 /** A synthetic account for a native multisig (TIP-1061) config. */
 export type MultisigAccount = viem_Account.Local<'multisig'> & {

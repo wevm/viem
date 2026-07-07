@@ -1,0 +1,85 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `token.setRoleAdmin`
+
+Sets the admin role for a specific role in a TIP-20 token. Requires the current admin role for the target role. [Learn more about token roles](https://docs.tempo.xyz/protocol/tip403/spec)
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.setRoleAdminSync({
+  adminRole: 'pause',
+  role: 'issuer',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+The example above uses a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `token.setRoleAdmin` action and wait for inclusion manually:
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await client.token.setRoleAdmin({
+  adminRole: 'pause',
+  role: 'issuer',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
+
+const { args } = Actions.token.setRoleAdmin.extractEvent(receipt.logs)
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Role whose admin role was updated. */
+  role: Hex
+  /** New admin role. */
+  newAdminRole: Hex
+  /** Address that updated the admin role. */
+  sender: Address
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+}
+```
+
+## Parameters
+
+### adminRole
+
+- **Type:** `"defaultAdmin" | "pause" | "unpause" | "issuer" | "burnBlocked"`
+
+New admin role.
+
+### role
+
+- **Type:** `"defaultAdmin" | "pause" | "unpause" | "issuer" | "burnBlocked"`
+
+Role to set admin for.
+
+### token
+
+- **Type:** `Address | bigint`
+
+Token to operate on: a TIP-20 token id or a contract address.
+
+<WriteParameters />
