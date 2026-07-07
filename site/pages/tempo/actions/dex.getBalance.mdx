@@ -1,0 +1,52 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `dex.getBalance`
+
+Gets an account's token balance held on the DEX.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const balance = await client.dex.getBalance({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+console.log('DEX balance:', balance)
+// @log: DEX balance: 100000000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = bigint
+```
+
+The user's token balance on the DEX.
+
+## Parameters
+
+### account (optional)
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Account that owns the DEX balance.
+
+### token
+
+- **Type:** `Address | bigint`
+
+Token to query: a TIP-20 token id or a contract address.
+
+<ReadParameters />

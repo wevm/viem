@@ -1,0 +1,118 @@
+# `amm.watchBurn`
+
+Watches `Burn` events on the fee AMM.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.amm.watchBurn()
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log(log.args)
+  // @log: { sender: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', userToken: '0x20c0000000000000000000000000000000000001', validatorToken: '0x20c0000000000000000000000000000000000002' }
+})
+
+// Later, tear down the watcher.
+watcher.off()
+```
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+
+Also callable standalone: `Actions.amm.watchBurn(client, options)`, with `Actions` imported from `'viem/tempo'`.
+
+## Return Type
+
+Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.
+
+```ts
+type ReturnType = {
+  /** Registers a log listener. Starts the watcher on first registration. Returns an unregister function. */
+  onLogs: (fn: (logs: readonly Log[]) => void) => () => void
+  /** Registers an error listener. Returns an unregister function. */
+  onError: (fn: (error: Error) => void) => () => void
+  /** Tears down the watcher: removes listeners, ends iterators, stops the poll or subscription. */
+  off: () => void
+  /** Async-iterates emitted log batches (latest-only stream). */
+  [Symbol.asyncIterator]: () => AsyncIterableIterator<{ logs: readonly Log[] }>
+}
+```
+
+Each log is decoded, with the event arguments on `args`:
+
+```ts
+type Log = {
+  /** Decoded `Burn` event arguments. */
+  args: {
+    /** Address that removed liquidity. */
+    sender: Address
+    /** User token address. */
+    userToken: Address
+    /** Validator token address. */
+    validatorToken: Address
+    /** Amount of user token returned. */
+    amountUserToken: bigint
+    /** Amount of validator token returned. */
+    amountValidatorToken: bigint
+    /** Amount of LP tokens burned. */
+    liquidity: bigint
+    /** Address that received tokens. */
+    to: Address
+  }
+  /** Name of the emitted event. */
+  eventName: 'Burn'
+  // ...standard log fields (address, blockHash, blockNumber, logIndex, transactionHash, ...)
+}
+```
+
+## Parameters
+
+### args (optional)
+
+- **Type:** `object`
+
+```ts
+type Args = {
+  /** Filter by address that removed liquidity. */
+  sender?: Address | Address[] | null
+  /** Filter by user token address. */
+  userToken?: Address | Address[] | null
+  /** Filter by validator token address. */
+  validatorToken?: Address | Address[] | null
+}
+```
+
+Indexed argument values to filter logs by.
+
+### batch (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to batch the logs found within a poll interval into a single emission. When `false`, each log is emitted on its own.
+
+### fromBlock (optional)
+
+- **Type:** `bigint`
+
+Block number from which to start watching for logs.
+
+### poll (optional)
+
+- **Type:** `boolean`
+
+Whether to poll for new logs instead of using a subscription. Defaults to `true` when the transport cannot subscribe or `fromBlock` is provided.
+
+### pollingInterval (optional)
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Polling frequency (in ms).

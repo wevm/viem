@@ -112,3 +112,15 @@ when porting or reshaping v2 surface area.
 - **The v3 harness ships 10 dev accounts** (`test/src/constants.ts`), not v2's 20; the validator
   test account is `accounts[9]`. Validators are registered per-file via
   `tempo.registerValidator` (`test/src/tempo.ts`) — the dev image does not pre-register one.
+- **Action args that collide with transaction-request fields must be destructured out of
+  `inner`** before spreading options into `write`/`writeSync`. A top-level `signature` (channel
+  `settle`/`close` voucher signatures) is interpreted by the tempo codec as the transaction
+  signature envelope and fails with "Unable to coerce value ... to a valid signature envelope".
+- **Non-indexed event args cannot be topic-filtered**; passing them via a watcher's `args`
+  silently matches everything. `dex.watchFlipOrderPlaced` filters `isFlipOrder` client-side by
+  wrapping the `Watcher` handle.
+- **Core `block.simulate` resolves the sender per call** (`call.account`/`call.from`; no client
+  fallback). v2's tempo `simulate.simulateBlocks` defaulted to `client.account` — that default
+  returns with the tempo `simulate` namespace (W5e); until then tests pass `account` on the call.
+- **Channel ids embed the open transaction's expiring-nonce hash** and are nondeterministic
+  across runs; assert them against the `openSync` result instead of pinning snapshots.

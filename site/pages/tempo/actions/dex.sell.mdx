@@ -1,0 +1,68 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `dex.sell`
+
+Sells an exact amount of tokens into the DEX orderbook.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.dex.sellSync({
+  amountIn: 100000000n,
+  minAmountOut: 50000000n,
+  tokenIn: '0x20c0000000000000000000000000000000000001',
+  tokenOut: '0x20c0000000000000000000000000000000000000',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+}
+```
+
+The transaction receipt for the sell.
+
+## Parameters
+
+### amountIn
+
+- **Type:** `bigint`
+
+Amount of `tokenIn` to sell.
+
+### minAmountOut
+
+- **Type:** `bigint`
+
+Minimum amount of `tokenOut` to receive.
+
+### tokenIn
+
+- **Type:** `Address | bigint`
+
+Token to sell: a TIP-20 token id or a contract address.
+
+### tokenOut
+
+- **Type:** `Address | bigint`
+
+Token to receive: a TIP-20 token id or a contract address.
+
+<WriteParameters />

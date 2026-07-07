@@ -1,0 +1,58 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `amm.getPool`
+
+Gets the reserves for a liquidity pool.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const pool = await client.amm.getPool({
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+})
+
+console.log('Pool:', pool)
+// @log: Pool: { reserveUserToken: 1000000000n, reserveValidatorToken: 1000000000n, totalSupply: 1000000000n }
+```
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Reserve of user token. */
+  reserveUserToken: bigint
+  /** Reserve of validator token. */
+  reserveValidatorToken: bigint
+  /** Total supply of LP tokens. */
+  totalSupply: bigint
+}
+```
+
+The pool reserves and LP token total supply.
+
+## Parameters
+
+### userToken
+
+- **Type:** `Address | bigint`
+
+Address or ID of the user token.
+
+### validatorToken
+
+- **Type:** `Address | bigint`
+
+Address or ID of the validator token.
+
+<ReadParameters />

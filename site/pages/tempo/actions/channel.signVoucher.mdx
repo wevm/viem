@@ -1,0 +1,61 @@
+# `channel.signVoucher`
+
+Signs a TIP-20 channel reserve voucher.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const signature = await client.channel.signVoucher({
+  channel: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+  cumulativeAmount: 40000000n,
+})
+
+console.log('Signature:', signature)
+// @log: Signature: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b
+```
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+
+## Return Type
+
+```ts
+type ReturnType = Hex
+```
+
+The voucher signature.
+
+## Parameters
+
+### account (optional)
+
+- **Type:** `Account | Hex`
+- **Default:** `client.account`
+
+Account to sign with.
+
+### chainId (optional)
+
+- **Type:** `number | bigint`
+- **Default:** `client.chain.id`
+
+The chain ID.
+
+### channel
+
+- **Type:** `Channel | Hex`
+
+Channel ID or channel.
+
+### cumulativeAmount
+
+- **Type:** `bigint`
+
+Total voucher amount signed for the channel.

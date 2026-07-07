@@ -1,0 +1,48 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `channel.getStates`
+
+Gets TIP-20 channel reserve state for a channel ID or channel.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const state = await client.channel.getStates({
+  channel: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+})
+
+console.log('Channel state:', state)
+// @log: Channel state: { closeRequestedAt: 0, deposit: 100000000n, settled: 40000000n }
+```
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+
+## Return Type
+
+```ts
+type ReturnType = {
+  settled: bigint
+  deposit: bigint
+  closeRequestedAt: number
+}
+```
+
+A single channel state for a single channel input, or a readonly list of channel states for a channel list.
+
+## Parameters
+
+### channel
+
+- **Type:** `Hex | Channel | readonly (Hex | Channel)[]`
+
+Channel ID, channel, or list of IDs and channels.
+
+<ReadParameters />

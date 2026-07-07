@@ -1,0 +1,64 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `amm.getLiquidityBalance`
+
+Gets the LP token balance for an account in a specific pool.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const balance = await client.amm.getLiquidityBalance({
+  address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+})
+
+console.log('Liquidity balance:', balance)
+// @log: Liquidity balance: 500000000n
+```
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+
+## Return Type
+
+```ts
+type ReturnType = bigint
+```
+
+The LP token balance for the account in the pool.
+
+## Parameters
+
+### address
+
+- **Type:** `Address`
+
+Address to check balance for.
+
+### poolId
+
+- **Type:** `Hex`
+
+Pool ID. Pass either `poolId` or both `userToken` and `validatorToken`.
+
+### userToken
+
+- **Type:** `Address | bigint`
+
+User token. Pass with `validatorToken` when not passing `poolId`.
+
+### validatorToken
+
+- **Type:** `Address | bigint`
+
+Validator token. Pass with `userToken` when not passing `poolId`.
+
+<ReadParameters />

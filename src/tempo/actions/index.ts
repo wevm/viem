@@ -1,4 +1,7 @@
 // biome-ignore lint/performance/noBarrelFile: namespace module
+export * as amm from './amm/index.js'
+export * as channel from './channel/index.js'
+export * as dex from './dex/index.js'
 export * as fee from './fee/index.js'
 export * as nonce from './nonce/index.js'
 export * as token from './token/index.js'

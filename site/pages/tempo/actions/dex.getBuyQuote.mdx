@@ -1,0 +1,58 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `dex.getBuyQuote`
+
+Gets the amount of input tokens needed to buy an exact output amount.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const amountIn = await client.dex.getBuyQuote({
+  amountOut: 100000000n,
+  tokenIn: '0x20c0000000000000000000000000000000000000',
+  tokenOut: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log('Amount in:', amountIn)
+// @log: Amount in: 100100000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = bigint
+```
+
+The amount of `tokenIn` needed to buy the specified `amountOut`.
+
+## Parameters
+
+### amountOut
+
+- **Type:** `bigint`
+
+Amount of `tokenOut` to buy.
+
+### tokenIn
+
+- **Type:** `Address | bigint`
+
+Token to spend: a TIP-20 token id or a contract address.
+
+### tokenOut
+
+- **Type:** `Address | bigint`
+
+Token to buy: a TIP-20 token id or a contract address.
+
+<ReadParameters />

@@ -1,0 +1,60 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `dex.getOrderbook`
+
+Gets an orderbook pair summary.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const orderbook = await client.dex.getOrderbook({
+  base: '0x20c0000000000000000000000000000000000001',
+  quote: '0x20c0000000000000000000000000000000000000',
+})
+
+console.log('Orderbook:', orderbook)
+// @log: Orderbook: { base: '0x20c0000000000000000000000000000000000001', quote: '0x20c0000000000000000000000000000000000000', bestBidTick: -100, bestAskTick: 100 }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Base token address. */
+  base: Address
+  /** Quote token address. */
+  quote: Address
+  /** Best bid tick. */
+  bestBidTick: number
+  /** Best ask tick. */
+  bestAskTick: number
+}
+```
+
+The orderbook base and quote token addresses with the best bid and ask ticks.
+
+## Parameters
+
+### base
+
+- **Type:** `Address | bigint`
+
+Base token: a TIP-20 token id or a contract address.
+
+### quote
+
+- **Type:** `Address | bigint`
+
+Quote token: a TIP-20 token id or a contract address.
+
+<ReadParameters />

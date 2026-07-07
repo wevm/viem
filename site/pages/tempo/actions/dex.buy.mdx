@@ -1,0 +1,68 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `dex.buy`
+
+Buys an exact amount of tokens from the DEX orderbook.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.dex.buySync({
+  amountOut: 100000000n,
+  maxAmountIn: 150000000n,
+  tokenIn: '0x20c0000000000000000000000000000000000000',
+  tokenOut: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+}
+```
+
+The transaction receipt for the buy.
+
+## Parameters
+
+### amountOut
+
+- **Type:** `bigint`
+
+Amount of `tokenOut` to buy.
+
+### maxAmountIn
+
+- **Type:** `bigint`
+
+Maximum amount of `tokenIn` to spend.
+
+### tokenIn
+
+- **Type:** `Address | bigint`
+
+Token to spend: a TIP-20 token id or a contract address.
+
+### tokenOut
+
+- **Type:** `Address | bigint`
+
+Token to buy: a TIP-20 token id or a contract address.
+
+<WriteParameters />

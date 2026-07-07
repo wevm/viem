@@ -1,0 +1,54 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `dex.withdraw`
+
+Withdraws tokens from the DEX to the caller's wallet.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.dex.withdrawSync({
+  amount: 100000000n,
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+}
+```
+
+The transaction receipt for the withdrawal.
+
+## Parameters
+
+### amount
+
+- **Type:** `bigint`
+
+Amount to withdraw.
+
+### token
+
+- **Type:** `Address | bigint`
+
+Token to withdraw: a TIP-20 token id or a contract address.
+
+<WriteParameters />

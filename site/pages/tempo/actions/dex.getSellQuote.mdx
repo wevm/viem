@@ -1,0 +1,58 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `dex.getSellQuote`
+
+Gets the output amount received for selling an exact input amount.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const amountOut = await client.dex.getSellQuote({
+  amountIn: 100000000n,
+  tokenIn: '0x20c0000000000000000000000000000000000001',
+  tokenOut: '0x20c0000000000000000000000000000000000000',
+})
+
+console.log('Amount out:', amountOut)
+// @log: Amount out: 99900000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = bigint
+```
+
+The amount of `tokenOut` received for selling the specified `amountIn`.
+
+## Parameters
+
+### amountIn
+
+- **Type:** `bigint`
+
+Amount of `tokenIn` to sell.
+
+### tokenIn
+
+- **Type:** `Address | bigint`
+
+Token to spend: a TIP-20 token id or a contract address.
+
+### tokenOut
+
+- **Type:** `Address | bigint`
+
+Token to receive: a TIP-20 token id or a contract address.
+
+<ReadParameters />

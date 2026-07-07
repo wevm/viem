@@ -986,6 +986,94 @@ export default defineConfig({
         text: 'Actions',
         items: [
           {
+            text: 'AMM',
+            collapsed: false,
+            items: [
+              { text: 'burn', link: '/tempo/actions/amm.burn' },
+              {
+                text: 'getLiquidityBalance',
+                link: '/tempo/actions/amm.getLiquidityBalance',
+              },
+              { text: 'getPool', link: '/tempo/actions/amm.getPool' },
+              { text: 'mint', link: '/tempo/actions/amm.mint' },
+              {
+                text: 'rebalanceSwap',
+                link: '/tempo/actions/amm.rebalanceSwap',
+              },
+              { text: 'watchBurn', link: '/tempo/actions/amm.watchBurn' },
+              { text: 'watchMint', link: '/tempo/actions/amm.watchMint' },
+              {
+                text: 'watchRebalanceSwap',
+                link: '/tempo/actions/amm.watchRebalanceSwap',
+              },
+            ],
+          },
+          {
+            text: 'Channel',
+            collapsed: false,
+            items: [
+              { text: 'close', link: '/tempo/actions/channel.close' },
+              { text: 'getStates', link: '/tempo/actions/channel.getStates' },
+              { text: 'open', link: '/tempo/actions/channel.open' },
+              {
+                text: 'requestClose',
+                link: '/tempo/actions/channel.requestClose',
+              },
+              { text: 'settle', link: '/tempo/actions/channel.settle' },
+              {
+                text: 'signVoucher',
+                link: '/tempo/actions/channel.signVoucher',
+              },
+              { text: 'topUp', link: '/tempo/actions/channel.topUp' },
+              { text: 'withdraw', link: '/tempo/actions/channel.withdraw' },
+            ],
+          },
+          {
+            text: 'DEX',
+            collapsed: false,
+            items: [
+              { text: 'buy', link: '/tempo/actions/dex.buy' },
+              { text: 'cancel', link: '/tempo/actions/dex.cancel' },
+              { text: 'cancelStale', link: '/tempo/actions/dex.cancelStale' },
+              { text: 'createPair', link: '/tempo/actions/dex.createPair' },
+              { text: 'getBalance', link: '/tempo/actions/dex.getBalance' },
+              { text: 'getBuyQuote', link: '/tempo/actions/dex.getBuyQuote' },
+              { text: 'getOrder', link: '/tempo/actions/dex.getOrder' },
+              {
+                text: 'getOrderbook',
+                link: '/tempo/actions/dex.getOrderbook',
+              },
+              {
+                text: 'getSellQuote',
+                link: '/tempo/actions/dex.getSellQuote',
+              },
+              {
+                text: 'getTickLevel',
+                link: '/tempo/actions/dex.getTickLevel',
+              },
+              { text: 'place', link: '/tempo/actions/dex.place' },
+              { text: 'placeFlip', link: '/tempo/actions/dex.placeFlip' },
+              { text: 'sell', link: '/tempo/actions/dex.sell' },
+              {
+                text: 'watchFlipOrderPlaced',
+                link: '/tempo/actions/dex.watchFlipOrderPlaced',
+              },
+              {
+                text: 'watchOrderCancelled',
+                link: '/tempo/actions/dex.watchOrderCancelled',
+              },
+              {
+                text: 'watchOrderFilled',
+                link: '/tempo/actions/dex.watchOrderFilled',
+              },
+              {
+                text: 'watchOrderPlaced',
+                link: '/tempo/actions/dex.watchOrderPlaced',
+              },
+              { text: 'withdraw', link: '/tempo/actions/dex.withdraw' },
+            ],
+          },
+          {
             text: 'Fee',
             collapsed: false,
             items: [

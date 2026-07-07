@@ -1,0 +1,109 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `amm.mint`
+
+Adds liquidity to a pool.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt, ...event } = await client.amm.mintSync({
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  userTokenAddress: '0x20c0000000000000000000000000000000000001',
+  validatorTokenAddress: '0x20c0000000000000000000000000000000000002',
+  validatorTokenAmount: 1000000n,
+})
+
+console.log('Mint:', event)
+// @log: Mint: {
+// @log:   sender: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+// @log:   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+// @log:   userToken: '0x20c0000000000000000000000000000000000001',
+// @log:   validatorToken: '0x20c0000000000000000000000000000000000002',
+// @log:   amountValidatorToken: 1000000n,
+// @log:   liquidity: 1000000n,
+// @log: }
+```
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+
+
+### Asynchronous Usage
+
+The examples above use a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `amm.mint` action and wait for inclusion manually:
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await client.amm.mint({
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  userTokenAddress: '0x20c0000000000000000000000000000000000001',
+  validatorTokenAddress: '0x20c0000000000000000000000000000000000002',
+  validatorTokenAmount: 1000000n,
+})
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
+
+const { args } = Actions.amm.mint.extractEvent(receipt.logs)
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Address that added liquidity. */
+  sender: Address
+  /** Address that received LP tokens. */
+  to: Address
+  /** User token address. */
+  userToken: Address
+  /** Validator token address. */
+  validatorToken: Address
+  /** Amount of validator token added. */
+  amountValidatorToken: bigint
+  /** Amount of LP tokens minted. */
+  liquidity: bigint
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+}
+```
+
+The transaction receipt and decoded `Mint` event data.
+
+## Parameters
+
+### to
+
+- **Type:** `Address`
+
+Address to mint LP tokens to.
+
+### userTokenAddress
+
+- **Type:** `Address | bigint`
+
+User token address.
+
+### validatorTokenAddress
+
+- **Type:** `Address | bigint`
+
+Validator token address.
+
+### validatorTokenAmount
+
+- **Type:** `bigint`
+
+Amount of validator token to add.
+
+<WriteParameters />

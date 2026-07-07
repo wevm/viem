@@ -1,0 +1,114 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `channel.settle`
+
+Settles a TIP-20 channel reserve voucher.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const channel = {
+  authorizedSigner: '0x0000000000000000000000000000000000000000',
+  expiringNonceHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  operator: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC',
+  payee: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  payer: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000101',
+  token: '0x20c0000000000000000000000000000000000001',
+} as const
+
+const { receipt, ...settled } = await client.channel.settleSync({
+  cumulativeAmount: 40000000n,
+  channel,
+  signature: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b',
+})
+
+console.log('Settled:', settled)
+// @log: Settled: { channelId: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', payer: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', payee: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', cumulativeAmount: 40000000n, deltaPaid: 40000000n, newSettled: 40000000n }
+```
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+
+
+### Asynchronous Usage
+
+The examples above use a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `channel.settle` action and wait for inclusion manually:
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const channel = {
+  authorizedSigner: '0x0000000000000000000000000000000000000000',
+  expiringNonceHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  operator: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC',
+  payee: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  payer: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000101',
+  token: '0x20c0000000000000000000000000000000000001',
+} as const
+
+const hash = await client.channel.settle({
+  cumulativeAmount: 40000000n,
+  channel,
+  signature: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b',
+})
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
+
+const { args } = Actions.channel.settle.extractEvent(receipt.logs)
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Channel ID. */
+  channelId: Hex
+  /** Channel payer. */
+  payer: Address
+  /** Channel payee. */
+  payee: Address
+  /** Total voucher amount. */
+  cumulativeAmount: bigint
+  /** Amount paid by this settlement. */
+  deltaPaid: bigint
+  /** New settled amount. */
+  newSettled: bigint
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+}
+```
+
+The transaction receipt and decoded event data.
+
+## Parameters
+
+### channel
+
+- **Type:** `Channel`
+
+TIP-20 channel.
+
+### cumulativeAmount
+
+- **Type:** `bigint`
+
+Total voucher amount signed for the channel.
+
+### signature
+
+- **Type:** `Hex`
+
+Voucher signature.
+
+<WriteParameters />

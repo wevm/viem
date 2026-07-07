@@ -1,0 +1,67 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `dex.getOrder`
+
+Gets an order by ID.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const order = await client.dex.getOrder({
+  orderId: 123n,
+})
+
+console.log('Order:', order)
+// @log: Order: { orderId: 123n, maker: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', bookKey: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', isBid: true, tick: 100, amount: 100000000n, remaining: 100000000n, prev: 0n, next: 0n, isFlip: false, flipTick: 0 }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Order ID. */
+  orderId: bigint
+  /** Order maker. */
+  maker: Address
+  /** Orderbook key. */
+  bookKey: Hex
+  /** Whether the order is on the bid side. */
+  isBid: boolean
+  /** Price tick. */
+  tick: number
+  /** Original order amount. */
+  amount: bigint
+  /** Remaining order amount. */
+  remaining: bigint
+  /** Previous order ID at this tick. */
+  prev: bigint
+  /** Next order ID at this tick. */
+  next: bigint
+  /** Whether the order flips when filled. */
+  isFlip: boolean
+  /** Target tick for the flipped order. */
+  flipTick: number
+}
+```
+
+The decoded order state.
+
+## Parameters
+
+### orderId
+
+- **Type:** `bigint`
+
+Order ID to query.
+
+<ReadParameters />

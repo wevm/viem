@@ -1,0 +1,65 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `dex.getTickLevel`
+
+Gets the order queue and liquidity at a tick level.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const level = await client.dex.getTickLevel({
+  base: '0x20c0000000000000000000000000000000000001',
+  isBid: true,
+  tick: 100,
+})
+
+console.log('Tick level:', level)
+// @log: Tick level: { head: 123n, tail: 124n, totalLiquidity: 200000000n }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Order ID of the first order at this tick (0 if empty). */
+  head: bigint
+  /** Order ID of the last order at this tick (0 if empty). */
+  tail: bigint
+  /** Total liquidity available at this tick level. */
+  totalLiquidity: bigint
+}
+```
+
+The first and last order IDs at the tick, plus total liquidity available.
+
+## Parameters
+
+### base
+
+- **Type:** `Address | bigint`
+
+Base token to query: a TIP-20 token id or a contract address.
+
+### isBid
+
+- **Type:** `boolean`
+
+Whether to query the bid side (`true`) or ask side (`false`).
+
+### tick
+
+- **Type:** `number`
+
+Price tick to query. A tick of `100` is approximately price `1.001`.
+
+<ReadParameters />

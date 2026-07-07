@@ -1,0 +1,113 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `dex.placeFlip`
+
+Places a flip order that automatically flips when filled.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { flipTick, isFlipOrder, orderId } = await client.dex.placeFlipSync({
+  amount: 100000000n,
+  flipTick: 200,
+  tick: 100,
+  token: '0x20c0000000000000000000000000000000000001',
+  type: 'buy',
+})
+
+console.log('Flip order:', { flipTick, isFlipOrder, orderId })
+// @log: Flip order: { flipTick: 200, isFlipOrder: true, orderId: 123n }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+The example above uses the `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `dex.placeFlip` action and wait for inclusion manually:
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await client.dex.placeFlip({
+  amount: 100000000n,
+  flipTick: 200,
+  tick: 100,
+  token: '0x20c0000000000000000000000000000000000001',
+  type: 'buy',
+})
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
+
+const { args } = Actions.dex.placeFlip.extractEvent(receipt.logs)
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Order ID. */
+  orderId: bigint
+  /** Order maker. */
+  maker: Address
+  /** Base token. */
+  token: Address
+  /** Order amount. */
+  amount: bigint
+  /** Whether the order is a bid. */
+  isBid: boolean
+  /** Price tick. */
+  tick: number
+  /** Whether the order is a flip order. */
+  isFlipOrder: boolean
+  /** Flip tick. */
+  flipTick: number
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+}
+```
+
+The placed flip order event data and transaction receipt.
+
+## Parameters
+
+### amount
+
+- **Type:** `bigint`
+
+Amount of tokens to place in the order.
+
+### flipTick
+
+- **Type:** `number`
+
+Target tick to flip to when the order is filled.
+
+### tick
+
+- **Type:** `number`
+
+Price tick for the order. A tick of `100` is approximately price `1.001`.
+
+### token
+
+- **Type:** `Address | bigint`
+
+Base token: a TIP-20 token id or a contract address.
+
+### type
+
+- **Type:** `'buy' | 'sell'`
+
+Order type.
+
+<WriteParameters />

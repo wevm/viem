@@ -1,0 +1,129 @@
+# `dex.watchOrderPlaced`
+
+Watches `OrderPlaced` events on the DEX.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.dex.watchOrderPlaced()
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log(log.args)
+  // @log: {
+  // @log:   orderId: 123n,
+  // @log:   maker: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  // @log:   token: '0x20c0000000000000000000000000000000000001',
+  // @log:   amount: 100000000n,
+  // @log:   isBid: true,
+  // @log:   tick: 100,
+  // @log:   isFlipOrder: false,
+  // @log:   flipTick: 0,
+  // @log: }
+})
+
+// Later, tear down the watcher.
+watcher.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Also callable standalone: `Actions.dex.watchOrderPlaced(client, options)`, with `Actions` imported from `'viem/tempo'`.
+
+## Return Type
+
+Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.
+
+```ts
+type ReturnType = {
+  /** Registers a log listener. Starts the watcher on first registration. Returns an unregister function. */
+  onLogs: (fn: (logs: readonly Log[]) => void) => () => void
+  /** Registers an error listener. Returns an unregister function. */
+  onError: (fn: (error: Error) => void) => () => void
+  /** Tears down the watcher: removes listeners, ends iterators, stops the poll or subscription. */
+  off: () => void
+  /** Async-iterates emitted log batches (latest-only stream). */
+  [Symbol.asyncIterator]: () => AsyncIterableIterator<{ logs: readonly Log[] }>
+}
+```
+
+Each log is decoded, with the event arguments on `args`:
+
+```ts
+type Log = {
+  /** Decoded `OrderPlaced` event arguments. */
+  args: {
+    /** Order ID. */
+    orderId: bigint
+    /** Order maker. */
+    maker: Address
+    /** Base token. */
+    token: Address
+    /** Order amount. */
+    amount: bigint
+    /** Whether the order is a bid. */
+    isBid: boolean
+    /** Price tick. */
+    tick: number
+    /** Whether the order is a flip order. */
+    isFlipOrder: boolean
+    /** Flip tick. */
+    flipTick: number
+  }
+  /** Name of the emitted event. */
+  eventName: 'OrderPlaced'
+  // ...standard log fields (address, blockHash, blockNumber, logIndex, transactionHash, ...)
+}
+```
+
+## Parameters
+
+### args (optional)
+
+- **Type:** `object`
+
+```ts
+type Args = {
+  /** Filter by order ID. */
+  orderId?: bigint | readonly bigint[] | null
+  /** Filter by order maker. */
+  maker?: Address | readonly Address[] | null
+  /** Filter by base token. */
+  token?: Address | readonly Address[] | null
+}
+```
+
+Indexed argument values to filter logs by.
+
+### batch (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to batch the logs found within a poll interval into a single emission. When `false`, each log is emitted on its own.
+
+### fromBlock (optional)
+
+- **Type:** `bigint`
+
+Block number from which to start watching for logs.
+
+### poll (optional)
+
+- **Type:** `boolean`
+
+Whether to poll for new logs instead of using a subscription. Defaults to `true` when the transport cannot subscribe or `fromBlock` is provided.
+
+### pollingInterval (optional)
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Polling frequency (in ms).
