@@ -9,18 +9,20 @@ import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
 import type * as Token from '../../Token.js'
 import type * as Transport from '../../Transport.js'
-import { estimateGas as estimateContractGas } from '../contract/estimateGas.js'
-import { simulate as simulateContract } from '../contract/simulate.js'
+import type { simulate as simulateContract } from '../contract/simulate.js'
 import { write } from '../contract/write.js'
 import type { writeSync } from '../contract/writeSync.js'
 import { erc20Abi } from './internal/abi.js'
 import {
   type AmountInput,
   defineCall,
+  dispatchWrite,
+  estimateWrite,
   pickWriteParameters,
   resolveToken,
-  type TokenParameter,
+  simulateWrite,
   toBaseUnits,
+  type TokenParameter,
   type WriteParameters,
 } from './internal.js'
 
@@ -106,11 +108,11 @@ export namespace transfer {
     action: action,
     client: Client.Client<chain, account, Transport.Transport, tokens>,
     options: transfer.Options<chain, account, tokens>,
-  ): Promise<ActionReturnType<action>> {
-    return (await action(client, {
+  ): Promise<dispatchWrite.ReturnType<action>> {
+    return dispatchWrite(action, client, {
       ...options,
-      ...transfer.call(client, options as never),
-    } as never)) as never
+      ...transfer.call(client, options),
+    })
   }
 
   /**
@@ -153,10 +155,10 @@ export namespace transfer {
     client: Client.Client<chain, account, Transport.Transport, tokens>,
     options: transfer.Options<chain, account, tokens>,
   ): Promise<bigint> {
-    return estimateContractGas(client, {
-      ...pickWriteParameters(options as never),
-      ...transfer.call(client, options as never),
-    } as never)
+    return estimateWrite(client, {
+      ...pickWriteParameters(options),
+      ...transfer.call(client, options),
+    })
   }
 
   /**
@@ -177,10 +179,10 @@ export namespace transfer {
   ): Promise<
     simulateContract.ReturnType<typeof erc20Abi, 'transfer' | 'transferFrom'>
   > {
-    return simulateContract(client, {
-      ...pickWriteParameters(options as never),
-      ...transfer.call(client, options as never),
-    } as never) as never
+    return simulateWrite(client, {
+      ...pickWriteParameters(options),
+      ...transfer.call(client, options),
+    })
   }
 
   /**
@@ -198,11 +200,6 @@ export namespace transfer {
     return log
   }
 }
-
-/** The awaited return type of a contract write action. @internal */
-type ActionReturnType<action extends (...args: never[]) => unknown> = Awaited<
-  ReturnType<action>
->
 
 /** Builds the underlying `transfer`/`transferFrom` contract call. @internal */
 function getCall(client: Client.Client, options: transfer.Args) {

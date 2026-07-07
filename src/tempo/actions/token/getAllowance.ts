@@ -49,7 +49,7 @@ export async function getAllowance<
   const [amount, { decimals: resolved }] = await Promise.all([
     read(client, {
       ...rest,
-      ...getAllowance.call(client, { account, spender, token } as never),
+      ...getAllowance.call(client, { account, spender, token }),
     }),
     resolveTokenWithDecimals(client, { decimals, token }),
   ])

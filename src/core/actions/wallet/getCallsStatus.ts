@@ -123,8 +123,7 @@ export async function getCallsStatus(
   return {
     ...response,
     atomic,
-    chainId:
-      typeof chainId === 'string' ? Hex.toNumber(chainId) : (chainId as never),
+    chainId: typeof chainId === 'string' ? Hex.toNumber(chainId) : chainId,
     receipts:
       receipts?.map((receipt) => ({
         ...receipt,

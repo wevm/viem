@@ -38,7 +38,7 @@ export async function withdrawSync<
   const receipt = await withdraw.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   return { receipt }
 }
 

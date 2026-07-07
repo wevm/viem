@@ -40,13 +40,13 @@ export async function setSupplyCapSync<
   const receipt = await setSupplyCap.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = setSupplyCap.extractEvent(receipt.logs)
   return {
     ...args,
 
     receipt,
-  } as never
+  }
 }
 
 export namespace setSupplyCapSync {

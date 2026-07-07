@@ -20,9 +20,9 @@ export async function topUpSync<
   const receipt = await topUp.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = topUp.extractEvent(receipt.logs)
-  return { ...args, receipt } as never
+  return { ...args, receipt }
 }
 
 export namespace topUpSync {

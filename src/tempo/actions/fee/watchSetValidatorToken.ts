@@ -33,7 +33,7 @@ export function watchSetValidatorToken<chain extends Chain.Chain | undefined>(
     address: Addresses.feeManager,
     eventName: 'ValidatorTokenSet',
     strict: true,
-  }) as never
+  })
 }
 
 export namespace watchSetValidatorToken {

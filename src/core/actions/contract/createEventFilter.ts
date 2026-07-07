@@ -101,7 +101,7 @@ export declare namespace createEventFilter {
      *
      * @default false
      */
-    strict?: strict | boolean | undefined
+    strict?: strict | undefined
   }
 
   type ReturnType<

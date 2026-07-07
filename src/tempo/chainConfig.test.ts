@@ -345,7 +345,7 @@ describe('transaction.toEnvelope', () => {
       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
       type: 'eip1559',
       value: 1n,
-    } as never)
+    })
     expect(envelope.type).toBe('eip1559')
   })
 })
@@ -373,7 +373,7 @@ describe('transaction.getSignPayload', () => {
       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
       type: 'eip1559',
       value: 1n,
-    } as never)
+    })
     expect(getSignPayload(envelope)).toBe(
       TxEnvelope.getSignPayload(envelope as never),
     )
@@ -587,13 +587,13 @@ describe('transaction.serialize', () => {
       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
       type: 'eip1559',
       value: 1n,
-    } as never)
+    })
     const signature = Secp256k1.sign({
       payload: getSignPayload(envelope),
       privateKey,
     })
     const viaEnvelope = serialize(envelope, {
-      signature: SignatureEnvelope.from(signature) as never,
+      signature: SignatureEnvelope.from(signature),
     })
     const viaSignature = serialize(envelope, { signature })
     expect(viaEnvelope).toBe(viaSignature)
@@ -607,7 +607,7 @@ describe('transaction.serialize', () => {
       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
       type: 'eip1559',
       value: 1n,
-    } as never)
+    })
     expect(() =>
       serialize(envelope, {
         signature: {

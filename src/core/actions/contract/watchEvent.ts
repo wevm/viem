@@ -158,7 +158,7 @@ export declare namespace watchEvent {
      *
      * @default false
      */
-    strict?: strict | boolean | undefined
+    strict?: strict | undefined
   }
 
   type Watcher<

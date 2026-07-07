@@ -139,7 +139,7 @@ export async function scheduleMulticall(
         target: request.to,
       }))
 
-      const calldata = AbiFunction.encodeData(aggregate3Abi, [calls] as never)
+      const calldata = AbiFunction.encodeData(aggregate3Abi, [calls])
 
       const multicallRequest =
         multicallAddress === null

@@ -14,6 +14,7 @@ import type { WriteParameters } from '../../internal/types.js'
 import {
   type CallParameters,
   defineCall,
+  dispatchWrite,
   resolveCallParameters,
   resolveToken,
 } from '../../internal/utils.js'
@@ -68,11 +69,11 @@ export namespace setValidatorToken {
     action: action,
     client: Client.Client<chain, account>,
     options: setValidatorToken.Options,
-  ): Promise<ActionReturnType<action>> {
-    return (await action(client, {
+  ): Promise<dispatchWrite.ReturnType<action>> {
+    return dispatchWrite(action, client, {
       ...options,
-      ...setValidatorToken.call(client, options as never),
-    } as never)) as never
+      ...setValidatorToken.call(client, options),
+    })
   }
 
   /**
@@ -112,7 +113,3 @@ export namespace setValidatorToken {
     return log
   }
 }
-
-type ActionReturnType<action> = action extends typeof writeSync
-  ? writeSync.ReturnType
-  : write.ReturnType

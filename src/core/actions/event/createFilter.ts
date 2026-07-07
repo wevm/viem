@@ -124,7 +124,7 @@ export declare namespace createFilter {
          *
          * @default false
          */
-        strict?: strict | boolean | undefined
+        strict?: strict | undefined
       }
     | {
         /** Events to filter and decode logs by. */
@@ -135,7 +135,7 @@ export declare namespace createFilter {
          *
          * @default false
          */
-        strict?: strict | boolean | undefined
+        strict?: strict | undefined
       }
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     | {}

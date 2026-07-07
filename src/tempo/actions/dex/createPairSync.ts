@@ -39,12 +39,12 @@ export async function createPairSync<
   const receipt = await createPair.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = createPair.extractEvent(receipt.logs)
   return {
     ...args,
     receipt,
-  } as never
+  }
 }
 
 export namespace createPairSync {

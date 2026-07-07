@@ -44,7 +44,7 @@ export async function getCapabilities<
     : ([account_?.address] as const)
   const capabilities_raw = await client.request({
     method: 'wallet_getCapabilities',
-    params: params as never,
+    params: params,
   })
 
   const capabilities = {} as Record<number, Record<string, unknown>>

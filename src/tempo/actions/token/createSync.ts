@@ -44,14 +44,14 @@ export async function createSync<
   const receipt = await create.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = create.extractEvent(receipt.logs)
   const tokenId = TokenId.fromAddress(args.token)
   return {
     ...args,
     receipt,
     tokenId,
-  } as never
+  }
 }
 
 export namespace createSync {

@@ -22,7 +22,7 @@ import { burn } from './burn.js'
  * const { receipt, ...event } = await Actions.amm.burnSync(client, {
  *   userToken: '0x20c0000000000000000000000000000000000001',
  *   validatorToken: '0x20c0000000000000000000000000000000000002',
- * } as never)
+ * })
  * ```
  *
  * @param client - Client.
@@ -40,12 +40,12 @@ export async function burnSync<
   const receipt = await burn.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = burn.extractEvent(receipt.logs)
   return {
     ...args,
     receipt,
-  } as never
+  }
 }
 
 export namespace burnSync {

@@ -54,7 +54,7 @@ export async function getResolver(
     blockNumber,
     blockTag,
     functionName: 'findResolver',
-  } as never)) as [Address.Address, Hex.Hex, bigint]
+  })) as [Address.Address, Hex.Hex, bigint]
 
   return resolverAddress
 }

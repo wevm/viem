@@ -13,7 +13,13 @@ import type {
   ContractFunctionName,
   ContractFunctionParameters,
 } from '../internal/contract.js'
+import { estimateGas as estimateContractGas } from '../contract/estimateGas.js'
 import { read } from '../contract/read.js'
+import { simulate as simulateContract } from '../contract/simulate.js'
+import type { write } from '../contract/write.js'
+import type { writeSync } from '../contract/writeSync.js'
+import type { send } from '../transaction/send.js'
+import type { sendSync } from '../transaction/sendSync.js'
 import { erc20Abi } from './internal/abi.js'
 
 /**
@@ -366,5 +372,82 @@ export function defineCall<
     ...(call as any),
     data: AbiFunction.encodeData(abiItem, (call as any).args),
     to: (call as any).address,
-  } as never
+  }
+}
+
+/**
+ * Dispatches a write action to `write` or `writeSync`.
+ *
+ * Token actions expose a fixed option shape, while the core contract
+ * writes derive their request shape from the Client's `chain`. The two meet here,
+ * behind a single localized cast, so action implementations stay cast-free.
+ */
+export async function dispatchWrite<
+  action extends typeof write | typeof writeSync,
+>(
+  action: action,
+  client: Client.Client,
+  options: object,
+): Promise<dispatchWrite.ReturnType<action>> {
+  const fn = action as (
+    client: Client.Client,
+    options: object,
+  ) => Promise<dispatchWrite.ReturnType<action>>
+  return await fn(client, options)
+}
+
+export declare namespace dispatchWrite {
+  type ReturnType<action> = action extends typeof writeSync
+    ? writeSync.ReturnType
+    : write.ReturnType
+}
+
+/**
+ * Dispatches a token action's batched transaction to `transaction.send` or
+ * `transaction.sendSync` (see {@link dispatchWrite} for the rationale).
+ */
+export async function dispatchSend<
+  action extends typeof send | typeof sendSync,
+>(
+  action: action,
+  client: Client.Client,
+  options: object,
+): Promise<dispatchSend.ReturnType<action>> {
+  const fn = action as (
+    client: Client.Client,
+    options: object,
+  ) => Promise<dispatchSend.ReturnType<action>>
+  return await fn(client, options)
+}
+
+export declare namespace dispatchSend {
+  type ReturnType<action> = action extends typeof sendSync
+    ? sendSync.ReturnType
+    : send.ReturnType
+}
+
+/**
+ * Estimates the gas of a token contract write. Bridges the chain-independent
+ * fixed option shape into `contract.estimateGas` (see {@link dispatchWrite}).
+ */
+export async function estimateWrite(
+  client: Client.Client,
+  options: object,
+): Promise<bigint> {
+  return estimateContractGas(client, options as estimateContractGas.Options)
+}
+
+/**
+ * Simulates a token contract write. Bridges the chain-independent token
+ * option shape into `contract.simulate` (see {@link dispatchWrite}); the
+ * result type is contextually inferred from the caller's return type.
+ */
+export function simulateWrite<returnType>(
+  client: Client.Client,
+  options: object,
+): Promise<returnType> {
+  return simulateContract(
+    client,
+    options as simulateContract.Options,
+  ) as Promise<returnType>
 }

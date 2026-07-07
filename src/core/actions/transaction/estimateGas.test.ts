@@ -319,7 +319,7 @@ describe('behavior: chain schema', () => {
             toRpc: z.codec(z.any(), z.any(), {
               decode: (rpc) => rpc,
               encode: (request) => ({
-                ...TransactionRequest.toRpc(request as never),
+                ...TransactionRequest.toRpc(request),
                 feeToken: (request as any).feeToken,
               }),
             }),

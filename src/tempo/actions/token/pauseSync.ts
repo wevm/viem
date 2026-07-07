@@ -18,7 +18,7 @@ export async function pauseSync<
   const receipt = await pause.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = pause.extractEvent(receipt.logs)
   return { ...args, receipt }
 }

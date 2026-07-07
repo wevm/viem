@@ -39,12 +39,12 @@ export async function placeSync<
   const receipt = await place.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = place.extractEvent(receipt.logs)
   return {
     ...args,
     receipt,
-  } as never
+  }
 }
 
 export namespace placeSync {

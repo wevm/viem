@@ -358,7 +358,7 @@ test('args: mode (multicall executes via aggregate3)', async () => {
     transport: custom({
       async request({ method, params }: { method: string; params: unknown }) {
         requests.push(method)
-        return client.request({ method, params } as never)
+        return client.request({ method, params })
       },
     }),
   })
@@ -472,7 +472,7 @@ test('args: batchSize (chunks aggregate3 batches)', async () => {
     transport: custom({
       async request({ method, params }: { method: string; params: unknown }) {
         requests.push(method)
-        return client.request({ method, params } as never)
+        return client.request({ method, params })
       },
     }),
   })
@@ -539,7 +539,7 @@ test('behavior: auto mode falls back to aggregate3 and caches', async () => {
           simulateAttempts.push(calls)
           throw new RpcResponse.MethodNotFoundError()
         }
-        return client.request({ method, params } as never)
+        return client.request({ method, params })
       },
     }),
   })
@@ -594,7 +594,7 @@ test('behavior: simulate pin throws on unsupported nodes', async () => {
       async request({ method, params }: { method: string; params: unknown }) {
         if (method === 'eth_simulateV1')
           throw new RpcResponse.MethodNotFoundError()
-        return client.request({ method, params } as never)
+        return client.request({ method, params })
       },
     }),
   })
@@ -620,7 +620,7 @@ test('behavior: forcing options disable the fallback', async () => {
       async request({ method, params }: { method: string; params: unknown }) {
         if (method === 'eth_simulateV1')
           throw new RpcResponse.MethodNotFoundError()
-        return client.request({ method, params } as never)
+        return client.request({ method, params })
       },
     }),
   })
@@ -705,7 +705,7 @@ test('behavior: client batch config supplies aggregate3 defaults', async () => {
     transport: custom({
       async request({ method, params }: { method: string; params: unknown }) {
         requests.push({ method, params })
-        return client.request({ method, params } as never)
+        return client.request({ method, params })
       },
     }),
   })
@@ -731,7 +731,7 @@ test('behavior: chainless client falls back to a deployless multicall', async ()
   const chainless = Client.create({
     transport: custom({
       async request({ method, params }: { method: string; params: unknown }) {
-        return client.request({ method, params } as never)
+        return client.request({ method, params })
       },
     }),
   })
@@ -762,7 +762,7 @@ test('behavior: encode failure keeps result ordering (multicall mode)', async ()
     calls: [
       {
         abi: erc20Abi,
-        args: [a, 1n] as never,
+        args: [a, 1n],
         functionName: 'name',
         to: usdcAddress,
       },

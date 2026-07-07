@@ -56,7 +56,7 @@ export async function transferSync<
   const receipt = await transfer.inner(writeContractSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = transfer.extractEvent(receipt.logs)
   return {
     ...args,

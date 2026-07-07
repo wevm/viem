@@ -42,13 +42,13 @@ export async function setRoleAdminSync<
   const receipt = await setRoleAdmin.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = setRoleAdmin.extractEvent(receipt.logs)
   return {
     ...args,
 
     receipt,
-  } as never
+  }
 }
 
 export namespace setRoleAdminSync {

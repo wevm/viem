@@ -203,7 +203,7 @@ export class ContractFunctionExecutionError extends BaseError<Error> {
 
     const abiItem = (() => {
       try {
-        return AbiFunction.fromAbi(abi, functionName as never, {
+        return AbiFunction.fromAbi(abi, functionName, {
           args: args as never,
         })
       } catch {

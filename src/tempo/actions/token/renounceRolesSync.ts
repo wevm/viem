@@ -40,10 +40,10 @@ export async function renounceRolesSync<
   const receipt = await renounceRoles.inner(sendSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const events = renounceRoles.extractEvents(receipt.logs)
   const value = events.map((event) => event.args)
-  return { receipt, value } as never
+  return { receipt, value }
 }
 
 export namespace renounceRolesSync {

@@ -144,7 +144,7 @@ async function attemptedFill(options: Record<string, unknown>) {
     to,
     value: 1n,
     ...options,
-  } as never)
+  })
   return counter.state.calls > 0
 }
 
@@ -1363,7 +1363,7 @@ describe('errors', () => {
         to,
         type: 'legacy',
         value: 1n,
-      } as never),
+      }),
     ).rejects.toThrowError(Eip1559FeesNotSupportedError)
   })
 })

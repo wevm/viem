@@ -37,7 +37,7 @@ export function watchBurn<chain extends Chain.Chain | undefined>(
     address: resolveToken(client, { token }).address,
     eventName: 'Burn',
     strict: true,
-  }) as never
+  })
 }
 
 export namespace watchBurn {

@@ -38,7 +38,7 @@ export async function buySync<
   const receipt = await buy.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   return { receipt }
 }
 

@@ -46,7 +46,7 @@ export async function transferSync<
   const receipt = await transfer.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = transfer.extractEvent(receipt.logs)
   return {
     ...args,
@@ -54,7 +54,7 @@ export async function transferSync<
       ? {}
       : { decimals: resolved, formatted: Value.format(args.amount, resolved) }),
     receipt,
-  } as never
+  }
 }
 
 export namespace transferSync {

@@ -33,7 +33,7 @@ export function watchMint<chain extends Chain.Chain | undefined>(
     address: Addresses.feeManager,
     eventName: 'Mint',
     strict: true,
-  }) as never
+  })
 }
 
 export namespace watchMint {

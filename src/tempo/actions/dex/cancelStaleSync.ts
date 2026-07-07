@@ -38,12 +38,12 @@ export async function cancelStaleSync<
   const receipt = await cancelStale.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = cancelStale.extractEvent(receipt.logs)
   return {
     ...args,
     receipt,
-  } as never
+  }
 }
 
 export namespace cancelStaleSync {

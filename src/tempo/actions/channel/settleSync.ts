@@ -20,9 +20,9 @@ export async function settleSync<
   const receipt = await settle.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = settle.extractEvent(receipt.logs)
-  return { ...args, receipt } as never
+  return { ...args, receipt }
 }
 
 export namespace settleSync {

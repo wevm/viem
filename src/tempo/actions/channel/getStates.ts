@@ -25,10 +25,29 @@ export async function getStates<
   options: getStates.Options<channel>,
 ): Promise<getStates.ReturnType<channel>> {
   const { channel, ...rest } = options
-  return read(client, {
-    ...rest,
-    ...getStates.call({ channel, chainId: client.chain?.id } as never),
-  } as never) as never
+  const chainId = client.chain?.id
+  // The single/batch contract call is selected from the input arity; the
+  // conditional return type cannot be derived from the branch union.
+  const state = Array.isArray(channel)
+    ? await read(client, {
+        ...rest,
+        abi: Abis.tip20ChannelReserve,
+        address: Addresses.tip20ChannelReserve,
+        args: [
+          (channel as readonly getStates.Channel[]).map((channel) =>
+            resolveChannelId(channel, chainId),
+          ),
+        ],
+        functionName: 'getChannelStatesBatch',
+      })
+    : await read(client, {
+        ...rest,
+        abi: Abis.tip20ChannelReserve,
+        address: Addresses.tip20ChannelReserve,
+        args: [resolveChannelId(channel as getStates.Channel, chainId)],
+        functionName: 'getChannelState',
+      })
+  return state as getStates.ReturnType<channel>
 }
 
 export namespace getStates {
@@ -63,39 +82,34 @@ export namespace getStates {
   ) {
     const [, args] = resolveCallParameters(parameters)
     const { channel, chainId } = args
-    if (Array.isArray(channel)) {
-      const channelIds = (channel as readonly Channel[]).map((channel) => {
-        const channel_ = channel as Channel
-        if (typeof channel_ === 'string') return channel_
-        if (chainId === undefined)
-          throw new Error('`chainId` is required for channel inputs.')
-        return Channel.computeId(channel_, { chainId })
-      })
+    if (Array.isArray(channel))
       return defineCall({
         abi: Abis.tip20ChannelReserve,
         address: Addresses.tip20ChannelReserve,
-        args: [channelIds],
+        args: [
+          (channel as readonly Channel[]).map((channel) =>
+            resolveChannelId(channel, chainId),
+          ),
+        ],
         functionName: 'getChannelStatesBatch',
       })
-    }
-
-    const channel_ = channel as Channel
-    if (typeof channel_ === 'string')
-      return defineCall({
-        abi: Abis.tip20ChannelReserve,
-        address: Addresses.tip20ChannelReserve,
-        args: [channel_],
-        functionName: 'getChannelState',
-      })
-
-    if (chainId === undefined)
-      throw new Error('`chainId` is required for channel inputs.')
 
     return defineCall({
       abi: Abis.tip20ChannelReserve,
       address: Addresses.tip20ChannelReserve,
-      args: [Channel.computeId(channel_, { chainId })],
+      args: [resolveChannelId(channel as Channel, chainId)],
       functionName: 'getChannelState',
     })
   }
+}
+
+/** Resolves a channel input (id or channel value) to its channel id. @internal */
+function resolveChannelId(
+  channel: getStates.Channel,
+  chainId: number | undefined,
+): Hex.Hex {
+  if (typeof channel === 'string') return channel
+  if (chainId === undefined)
+    throw new Error('`chainId` is required for channel inputs.')
+  return Channel.computeId(channel, { chainId })
 }

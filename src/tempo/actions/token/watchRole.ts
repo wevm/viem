@@ -37,7 +37,7 @@ export function watchRole<chain extends Chain.Chain | undefined>(
     address: resolveToken(client, { token }).address,
     eventName: 'RoleMembershipUpdated',
     strict: true,
-  }) as never
+  })
 }
 
 export namespace watchRole {

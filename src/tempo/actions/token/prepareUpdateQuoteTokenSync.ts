@@ -48,7 +48,7 @@ export async function prepareUpdateQuoteTokenSync<
   return {
     ...args,
     receipt,
-  } as never
+  }
 }
 
 export namespace prepareUpdateQuoteTokenSync {

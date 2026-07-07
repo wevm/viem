@@ -43,7 +43,7 @@ export async function updateQuoteTokenSync<
   return {
     ...args,
     receipt,
-  } as never
+  }
 }
 
 export namespace updateQuoteTokenSync {

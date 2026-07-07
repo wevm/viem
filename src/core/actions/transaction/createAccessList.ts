@@ -77,7 +77,7 @@ export async function createAccessList(
           TransactionRequest.toRpc(request),
           typeof block === 'bigint' ? Hex.fromNumber(block) : block,
         ],
-      } as never,
+      },
       requestOptions,
     )) as Response
 

@@ -37,7 +37,7 @@ export function watchApprove<chain extends Chain.Chain | undefined>(
     address: resolveToken(client, { token }).address,
     eventName: 'Approval',
     strict: true,
-  }) as never
+  })
 }
 
 export namespace watchApprove {

@@ -55,7 +55,7 @@ export async function getLogs<
   return AbiEvent.extractLogs(events, logs as never, {
     args: filter.args,
     strict: filter.strict ?? false,
-  }) as never
+  })
 }
 
 export declare namespace getLogs {

@@ -45,10 +45,10 @@ export async function read<
 ): Promise<read.ReturnType<abi, functionName, args>> {
   const { abi, address, args, functionName, ...rest } = options as read.Options
 
-  const abiItem = AbiFunction.fromAbi(abi, functionName as never, {
-    args: args as never,
+  const abiItem = AbiFunction.fromAbi(abi, functionName, {
+    args: args,
   })
-  const data = AbiFunction.encodeData(abiItem, args as never)
+  const data = AbiFunction.encodeData(abiItem, args)
 
   try {
     const response = await call(client, {

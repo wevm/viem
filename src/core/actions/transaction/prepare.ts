@@ -372,7 +372,7 @@ export async function prepare<
         : {}),
       account: request.account,
       kzg,
-    } as never)
+    })
 
   if (hook?.fn && hook.runAt.includes('afterFillParameters'))
     request = await hook.fn(

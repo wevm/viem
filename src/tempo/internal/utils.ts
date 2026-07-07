@@ -9,7 +9,13 @@ import {
 } from '../../core/actions/token/internal.js'
 import * as Abis from '../Abis.js'
 
-export { defineCall } from '../../core/actions/token/internal.js'
+export {
+  defineCall,
+  dispatchSend,
+  dispatchWrite,
+  estimateWrite,
+  simulateWrite,
+} from '../../core/actions/token/internal.js'
 
 /**
  * Resolves the token contract `address` and `decimals` from a `token`, which

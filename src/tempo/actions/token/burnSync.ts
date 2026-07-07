@@ -46,7 +46,7 @@ export async function burnSync<
   const receipt = await burn.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = burn.extractEvent(receipt.logs)
   return {
     ...args,
@@ -54,7 +54,7 @@ export async function burnSync<
       ? {}
       : { decimals: resolved, formatted: Value.format(args.amount, resolved) }),
     receipt,
-  } as never
+  }
 }
 
 export namespace burnSync {

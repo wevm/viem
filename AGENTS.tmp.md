@@ -124,3 +124,10 @@ when porting or reshaping v2 surface area.
   returns with the tempo `simulate` namespace (W5e); until then tests pass `account` on the call.
 - **Channel ids embed the open transaction's expiring-nonce hash** and are nondeterministic
   across runs; assert them against the `openSync` result instead of pinning snapshots.
+- **`as never` audit (2026-07-07)**: 683 → 103 (62 impl + 41 test). Every remaining site was
+  verified load-bearing (its removal produces type errors). The removable classes and their
+  root-cause fixes are codified in AGENTS.md ("No `as never`"); the dominant fix was the
+  shared write-dispatch seam in `core/actions/token/internal.ts`. Remaining hotspots are the
+  wire-codec/envelope glue (`tempo/Account.ts`, `tempo/chainConfig.ts` + their tests, e2e
+  envelope assertions) and dynamic hook/decorator plumbing in core — reduce opportunistically
+  when touching those files, don't mass-rewrite.

@@ -65,7 +65,7 @@ describe('call integration', () => {
             method: string
             params: unknown
           }) {
-            return client.request({ method, params } as never)
+            return client.request({ method, params })
           },
         },
         { retryCount: 0 },
@@ -101,7 +101,7 @@ describe('call integration', () => {
             method: string
             params: unknown
           }) {
-            return client.request({ method, params } as never)
+            return client.request({ method, params })
           },
         },
         { retryCount: 0 },

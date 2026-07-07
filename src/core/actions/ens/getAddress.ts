@@ -60,7 +60,7 @@ export async function getAddress(
 
   try {
     const addrItem = AbiFunction.fromAbi(addressResolverAbi, 'addr', {
-      args: args as never,
+      args: args,
     })
 
     const [data] = (await read(client, {
@@ -74,7 +74,7 @@ export async function getAddress(
       blockNumber,
       blockTag,
       functionName: 'resolveWithGateways',
-    } as never)) as [Hex.Hex, Address.Address]
+    })) as [Hex.Hex, Address.Address]
 
     if (data === '0x') return null
 

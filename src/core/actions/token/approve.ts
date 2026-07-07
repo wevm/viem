@@ -9,18 +9,20 @@ import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
 import type * as Token from '../../Token.js'
 import type * as Transport from '../../Transport.js'
-import { estimateGas as estimateContractGas } from '../contract/estimateGas.js'
-import { simulate as simulateContract } from '../contract/simulate.js'
+import type { simulate as simulateContract } from '../contract/simulate.js'
 import { write } from '../contract/write.js'
 import type { writeSync } from '../contract/writeSync.js'
 import { erc20Abi } from './internal/abi.js'
 import {
   type AmountInput,
   defineCall,
+  dispatchWrite,
+  estimateWrite,
   pickWriteParameters,
   resolveToken,
-  type TokenParameter,
+  simulateWrite,
   toBaseUnits,
+  type TokenParameter,
   type WriteParameters,
 } from './internal.js'
 
@@ -89,11 +91,11 @@ export namespace approve {
     action: action,
     client: Client.Client<chain, account, Transport.Transport, tokens>,
     options: approve.Options<chain, account, tokens>,
-  ): Promise<ActionReturnType<action>> {
-    return (await action(client, {
+  ): Promise<dispatchWrite.ReturnType<action>> {
+    return dispatchWrite(action, client, {
       ...options,
-      ...approve.call(client, options as never),
-    } as never)) as never
+      ...approve.call(client, options),
+    })
   }
 
   /**
@@ -135,10 +137,10 @@ export namespace approve {
     client: Client.Client<chain, account, Transport.Transport, tokens>,
     options: approve.Options<chain, account, tokens>,
   ): Promise<bigint> {
-    return estimateContractGas(client, {
-      ...pickWriteParameters(options as never),
-      ...approve.call(client, options as never),
-    } as never)
+    return estimateWrite(client, {
+      ...pickWriteParameters(options),
+      ...approve.call(client, options),
+    })
   }
 
   /**
@@ -157,10 +159,10 @@ export namespace approve {
     client: Client.Client<chain, account, Transport.Transport, tokens>,
     options: approve.Options<chain, account, tokens>,
   ): Promise<simulateContract.ReturnType<typeof erc20Abi, 'approve'>> {
-    return simulateContract(client, {
-      ...pickWriteParameters(options as never),
-      ...approve.call(client, options as never),
-    } as never) as never
+    return simulateWrite(client, {
+      ...pickWriteParameters(options),
+      ...approve.call(client, options),
+    })
   }
 
   /**
@@ -178,11 +180,6 @@ export namespace approve {
     return log
   }
 }
-
-/** The awaited return type of a contract write action. @internal */
-type ActionReturnType<action extends (...args: never[]) => unknown> = Awaited<
-  ReturnType<action>
->
 
 /** Builds the underlying `approve` contract call. @internal */
 function getCall(client: Client.Client, options: approve.Args) {

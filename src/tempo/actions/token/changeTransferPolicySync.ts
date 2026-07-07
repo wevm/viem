@@ -41,12 +41,12 @@ export async function changeTransferPolicySync<
   const receipt = await changeTransferPolicy.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = changeTransferPolicy.extractEvent(receipt.logs)
   return {
     ...args,
     receipt,
-  } as never
+  }
 }
 
 export namespace changeTransferPolicySync {

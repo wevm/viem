@@ -397,7 +397,7 @@ test('behavior: decodes error from returnData when error field is absent', async
                 '0x0000000000000000000000000000000000000000000000000000000000000000',
             },
           ]
-        return client.request({ method } as never)
+        return client.request({ method })
       },
     }),
   })
@@ -430,7 +430,7 @@ test('behavior: dataSuffix', async () => {
     transport: custom({
       async request({ method, params }: { method: string; params: unknown }) {
         requests.push(params)
-        return client.request({ method, params } as never)
+        return client.request({ method, params })
       },
     }),
   })

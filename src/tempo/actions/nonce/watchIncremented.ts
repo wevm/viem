@@ -34,7 +34,7 @@ export function watchIncremented<chain extends Chain.Chain | undefined>(
     address: Addresses.nonceManager,
     eventName: 'NonceIncremented',
     strict: true,
-  }) as never
+  })
 }
 
 export namespace watchIncremented {

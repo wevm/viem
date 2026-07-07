@@ -41,10 +41,10 @@ export async function grantRolesSync<
   const receipt = await grantRoles.inner(sendSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const events = grantRoles.extractEvents(receipt.logs)
   const value = events.map((event) => event.args)
-  return { receipt, value } as never
+  return { receipt, value }
 }
 
 export namespace grantRolesSync {

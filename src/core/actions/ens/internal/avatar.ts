@@ -279,14 +279,14 @@ export async function getNftTokenUri(
       address: nft.contractAddress,
       args: [BigInt(nft.tokenId)],
       functionName: 'tokenURI',
-    } as never)) as string
+    })) as string
   if (nft.namespace === 'erc1155')
     return (await read(client, {
       abi: erc1155UriAbi,
       address: nft.contractAddress,
       args: [BigInt(nft.tokenId)],
       functionName: 'uri',
-    } as never)) as string
+    })) as string
   throw new EnsAvatarUnsupportedNamespaceError({ namespace: nft.namespace })
 }
 

@@ -94,7 +94,7 @@ export declare namespace getLogs {
      *
      * @default false
      */
-    strict?: strict | boolean | undefined
+    strict?: strict | undefined
   } & OneOf<
     | {
         /** Block number or tag after which to include logs. */

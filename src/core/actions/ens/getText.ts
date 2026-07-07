@@ -64,7 +64,7 @@ export async function getText(
       blockNumber,
       blockTag,
       functionName: 'resolveWithGateways',
-    } as never)) as [Hex.Hex, Address.Address]
+    })) as [Hex.Hex, Address.Address]
 
     if (data === '0x') return null
 

@@ -53,8 +53,8 @@ export function walletActions() {
     contract: {
       deploy: (options) => contract.deploy(client, options as never),
       deploySync: (options) => contract.deploySync(client, options as never),
-      write: (options) => contract.write(client, options as never),
-      writeSync: (options) => contract.writeSync(client, options as never),
+      write: (options) => contract.write(client, options),
+      writeSync: (options) => contract.writeSync(client, options),
     },
     token: {
       approve: Object.assign(
@@ -100,9 +100,8 @@ export function walletActions() {
       requestAddresses: () => wallet.requestAddresses(client),
       requestPermissions: (options) =>
         wallet.requestPermissions(client, options),
-      sendCalls: (options) => wallet.sendCalls(client, options as never),
-      sendCallsSync: (options) =>
-        wallet.sendCallsSync(client, options as never),
+      sendCalls: (options) => wallet.sendCalls(client, options),
+      sendCallsSync: (options) => wallet.sendCallsSync(client, options),
       showCallsStatus: (options) => wallet.showCallsStatus(client, options),
       signAuthorization: (options) => wallet.signAuthorization(client, options),
       waitForCallsStatus: (options) =>
@@ -111,7 +110,7 @@ export function walletActions() {
     },
     signMessage: (options) => signMessage(client, options),
     signTransaction: (options) => transaction.sign(client, options),
-    signTypedData: (options) => signTypedData(client, options as never),
+    signTypedData: (options) => signTypedData(client, options),
   })
 }
 

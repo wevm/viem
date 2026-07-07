@@ -330,7 +330,7 @@ async function verifyErc8010(
         target: address,
       },
     ],
-  ] as never)
+  ])
 
   const { data: response } = await call(client, {
     ...(multicallAddress
@@ -387,7 +387,7 @@ async function verifyErc1271(
     blockTag,
     functionName: 'isValidSignature',
     requestOptions,
-  } as never).catch((error) => {
+  }).catch((error) => {
     if (error instanceof ContractError.ContractFunctionExecutionError)
       throw new VerificationError()
     throw error

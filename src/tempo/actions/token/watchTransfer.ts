@@ -37,7 +37,7 @@ export function watchTransfer<chain extends Chain.Chain | undefined>(
     address: resolveToken(client, { token }).address,
     eventName: 'Transfer',
     strict: true,
-  }) as never
+  })
 }
 
 export namespace watchTransfer {

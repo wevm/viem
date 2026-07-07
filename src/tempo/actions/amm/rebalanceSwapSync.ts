@@ -22,7 +22,7 @@ import { rebalanceSwap } from './rebalanceSwap.js'
  * const { receipt, ...event } = await Actions.amm.rebalanceSwapSync(client, {
  *   userToken: '0x20c0000000000000000000000000000000000001',
  *   validatorToken: '0x20c0000000000000000000000000000000000002',
- * } as never)
+ * })
  * ```
  *
  * @param client - Client.
@@ -40,12 +40,12 @@ export async function rebalanceSwapSync<
   const receipt = await rebalanceSwap.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = rebalanceSwap.extractEvent(receipt.logs)
   return {
     ...args,
     receipt,
-  } as never
+  }
 }
 
 export namespace rebalanceSwapSync {

@@ -38,12 +38,12 @@ export async function cancelSync<
   const receipt = await cancel.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = cancel.extractEvent(receipt.logs)
   return {
     ...args,
     receipt,
-  } as never
+  }
 }
 
 export namespace cancelSync {

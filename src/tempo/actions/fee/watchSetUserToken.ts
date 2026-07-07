@@ -33,7 +33,7 @@ export function watchSetUserToken<chain extends Chain.Chain | undefined>(
     address: Addresses.feeManager,
     eventName: 'UserTokenSet',
     strict: true,
-  }) as never
+  })
 }
 
 export namespace watchSetUserToken {

@@ -195,7 +195,7 @@ describe.each(accountCases)('account: %s', (name, account) => {
         transactionRequest: {
           toRpc: z.codec(z.any(), z.any(), {
             decode: (rpc) => rpc,
-            encode: (request) => TransactionRequest.toRpc(request as never),
+            encode: (request) => TransactionRequest.toRpc(request),
           }),
         },
       },

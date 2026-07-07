@@ -42,7 +42,7 @@ export async function getReceipts<chain extends Chain.Chain | undefined>(
     {
       method: 'eth_getBlockReceipts',
       params: [blockHash ?? blockNumberHex ?? blockTag],
-    } as never,
+    },
     { dedupe: Boolean(blockHash ?? blockNumberHex) },
   )) as readonly TransactionReceipt.Rpc[] | null
 

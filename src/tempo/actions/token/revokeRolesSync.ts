@@ -41,10 +41,10 @@ export async function revokeRolesSync<
   const receipt = await revokeRoles.inner(sendSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const events = revokeRoles.extractEvents(receipt.logs)
   const value = events.map((event) => event.args)
-  return { receipt, value } as never
+  return { receipt, value }
 }
 
 export namespace revokeRolesSync {

@@ -39,7 +39,7 @@ export async function sendRawSync<chain extends Chain.Chain | undefined>(
     {
       method: 'eth_sendRawTransactionSync',
       params: timeout ? [transaction, timeout] : [transaction],
-    } as never,
+    },
     { ...requestOptions, retryCount: 0 },
   )) as TransactionReceipt.Rpc
 

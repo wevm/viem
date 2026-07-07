@@ -65,8 +65,8 @@ export async function estimateGas<
 
   const data = dataSuffix_.append(
     AbiFunction.encodeData(
-      AbiFunction.fromAbi(abi, functionName as never, { args: args as never }),
-      args as never,
+      AbiFunction.fromAbi(abi, functionName, { args: args }),
+      args,
     ),
     dataSuffix,
   )

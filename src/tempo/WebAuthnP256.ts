@@ -54,7 +54,7 @@ export async function createCredential(
           name: rpId,
         }
       : undefined,
-    name: undefined as never,
+    name: undefined,
     user: {
       displayName: label,
       id: new Uint8Array(userId ?? Bytes.fromString(label)),

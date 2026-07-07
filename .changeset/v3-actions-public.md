@@ -406,3 +406,5 @@ The CCIP-read callback call now executes at the original call's block context (`
 `Actions.transaction.prepare` no longer feeds the fees it derives back into its internal gas estimation (nodes cap estimable gas by `balance / fee`, which broke senders that do not hold the fee themselves, e.g. sponsored transactions); caller-supplied fees are still forwarded.
 
 `Actions.transaction.estimateGas` encodes the request via the chain's `schema.transactionRequest` codec when declared, so chain-specific request fields reach the node.
+
+Passing `strict: true` to `contract.getLogs`, `contract.watchEvent`, `contract.createEventFilter`, and `event.createFilter` now narrows decoded `log.args` to the required (non-partial) shape at the type level; the widened property type previously defeated the generic's inference.

@@ -44,7 +44,16 @@ export async function getMetadata<
   client: Client.Client<chain, account>,
   options: getMetadata.Options,
 ): Promise<getMetadata.ReturnType> {
-  const { token, ...rest } = options
+  const { blockNumber, blockTag, token, ...restOptions } = options
+  // `blockNumber`/`blockTag` are mutually exclusive on the multicall options.
+  const rest = {
+    ...restOptions,
+    ...(blockNumber != null
+      ? { blockNumber }
+      : blockTag != null
+        ? { blockTag }
+        : {}),
+  }
   const { address } = resolveToken(client, { token })
   const abi = Abis.tip20
 
@@ -68,7 +77,7 @@ export async function getMetadata<
       ] as const,
       allowFailure: true,
       deployless: true,
-    } as never)
+    })
     const [currency, decimals, logoURI, name, symbol, totalSupply] = results
     return {
       name: unwrapMulticallResult(name),
@@ -97,7 +106,7 @@ export async function getMetadata<
     ] as const,
     allowFailure: true,
     deployless: true,
-  } as never)
+  })
   const [
     currency,
     decimals,

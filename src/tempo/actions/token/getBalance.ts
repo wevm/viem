@@ -55,7 +55,7 @@ export async function getBalance<
   const [amount, { decimals: resolved }] = await Promise.all([
     read(client, {
       ...rest,
-      ...getBalance.call(client, { account: address, token } as never),
+      ...getBalance.call(client, { account: address, token }),
     }),
     resolveTokenWithDecimals(client, { decimals, token }),
   ])

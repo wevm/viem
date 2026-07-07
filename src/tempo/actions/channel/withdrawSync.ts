@@ -20,9 +20,9 @@ export async function withdrawSync<
   const receipt = await withdraw.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = withdraw.extractEvent(receipt.logs)
-  return { ...args, receipt } as never
+  return { ...args, receipt }
 }
 
 export namespace withdrawSync {

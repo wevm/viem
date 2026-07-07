@@ -58,10 +58,10 @@ export async function simulate<
   const { abi, address, args, functionName, ...rest } =
     options as simulate.Options
 
-  const abiItem = AbiFunction.fromAbi(abi, functionName as never, {
-    args: args as never,
+  const abiItem = AbiFunction.fromAbi(abi, functionName, {
+    args: args,
   })
-  const data = AbiFunction.encodeData(abiItem, args as never)
+  const data = AbiFunction.encodeData(abiItem, args)
 
   const account = rest.account ?? client.account
   const sender = account

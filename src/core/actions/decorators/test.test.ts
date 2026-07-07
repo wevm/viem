@@ -28,7 +28,7 @@ test('args: mode (threads into every mode-prefixed request)', async () => {
     transport: custom({
       async request({ method, params }: { method: string; params: unknown }) {
         methods.push(method)
-        return client.request({ method, params } as never)
+        return client.request({ method, params })
       },
     }),
   }).extend(testActions({ mode: 'hardhat' }))

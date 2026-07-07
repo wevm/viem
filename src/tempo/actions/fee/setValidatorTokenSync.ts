@@ -41,12 +41,12 @@ export async function setValidatorTokenSync<
   const receipt = await setValidatorToken.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = setValidatorToken.extractEvent(receipt.logs)
   return {
     ...args,
     receipt,
-  } as never
+  }
 }
 
 export namespace setValidatorTokenSync {

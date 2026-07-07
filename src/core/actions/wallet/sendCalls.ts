@@ -89,10 +89,10 @@ export async function sendCalls<
   const calls = (options.calls as readonly Call[]).map((call) => {
     const data = call.abi
       ? AbiFunction.encodeData(
-          AbiFunction.fromAbi(call.abi, call.functionName as never, {
-            args: call.args as never,
+          AbiFunction.fromAbi(call.abi, call.functionName, {
+            args: call.args,
           }),
-          call.args as never,
+          call.args,
         )
       : call.data
 
@@ -122,7 +122,7 @@ export async function sendCalls<
       { retryCount: 0 },
     )
     if (typeof response === 'string') return { id: response }
-    return response as never
+    return response
   } catch (err) {
     const error = err as Errors.BaseError & { details?: string | undefined }
     const details = (error.details ?? '').toLowerCase()

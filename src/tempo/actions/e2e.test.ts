@@ -166,14 +166,14 @@ describe('transaction.sendSync', () => {
         args: [account.address, 10_000_000n],
         feeToken: tempo.pathUsd,
         functionName: 'transfer',
-      } as never)
+      })
 
       const client = tempo.getClient({ account })
       const { request } = await Actions.transaction.prepare(client, {
         account,
         calls: [{ to }],
         feeToken: tempo.pathUsd,
-      } as never)
+      })
 
       console.error(
         'STEP: envelope',
@@ -220,7 +220,7 @@ describe('transaction.sendSync', () => {
         ...request,
         maxFeePerGas: 20_000_000_000n,
         maxPriorityFeePerGas: 0n,
-      } as never),
+      }),
     ])
     expect(withFees).toBe(plain)
 
@@ -259,7 +259,7 @@ describe('transaction.sendSync', () => {
       async request({ method, params }) {
         if (method === 'eth_fillTransaction')
           throw new RpcError_MethodNotFound()
-        return await http.request({ method, params } as never)
+        return await http.request({ method, params })
       },
     })
     const unfunded = Account.fromSecp256k1(
@@ -275,7 +275,7 @@ describe('transaction.sendSync', () => {
       calls: [{ to }],
       feePayer: true,
       feeToken: tempo.pathUsd,
-    } as never)
+    })
     expect(request.gas).toBeGreaterThan(0n)
     expect(request.maxFeePerGas).toBeGreaterThan(0n)
   })

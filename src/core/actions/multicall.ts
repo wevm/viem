@@ -140,24 +140,24 @@ export async function multicall<
       throw new BaseError(
         "`traceAssetChanges`, `traceTransfers`, `validation`, and call `value` are not supported with `mode: 'multicall'`.",
       )
-    return (await executeMulticall(client, options as never)) as Result
+    return (await executeMulticall(client, options)) as Result
   }
 
   if (mode === 'auto' && !forced) {
     if (simulateV1Support.get(client.uid) === false)
-      return (await executeMulticall(client, options as never)) as Result
+      return (await executeMulticall(client, options)) as Result
 
     try {
-      return (await executeSimulate(client, options as never)) as Result
+      return (await executeSimulate(client, options)) as Result
     } catch (err) {
       if (isAbortError(err)) throw err
       if (!isMethodNotSupportedError(err)) throw err
       simulateV1Support.set(client.uid, false)
-      return (await executeMulticall(client, options as never)) as Result
+      return (await executeMulticall(client, options)) as Result
     }
   }
 
-  return (await executeSimulate(client, options as never)) as Result
+  return (await executeSimulate(client, options)) as Result
 }
 
 /** Executes the batch via `eth_simulateV1` (with asset tracing support). */
@@ -210,10 +210,10 @@ async function executeSimulate(
           if (!call.data && !call.abi) return undefined
           const data = call.abi
             ? AbiFunction.encodeData(
-                AbiFunction.fromAbi(call.abi, call.functionName as never, {
-                  args: call.args as never,
+                AbiFunction.fromAbi(call.abi, call.functionName, {
+                  args: call.args,
                 }),
-                call.args as never,
+                call.args,
               )
             : call.data
           const { accessList } = await createAccessList(client, {
@@ -232,8 +232,8 @@ async function executeSimulate(
   const assetStateOverride = { [zeroAddress]: { nonce: 0n } }
 
   const blocks = await simulate(client, {
-    blockNumber,
-    blockTag: blockTag as never,
+    // `blockNumber`/`blockTag` are mutually exclusive on the simulate options.
+    ...(blockNumber != null ? { blockNumber } : { blockTag }),
     requestOptions,
     blocks: [
       ...(traceAssetChanges
@@ -320,6 +320,8 @@ async function executeSimulate(
             },
           ]
         : []),
+      // Raw balance-probe calls (`data`-only) sit outside the typed `Call`
+      // union that structured calls satisfy.
     ] as never,
     traceTransfers,
     validation,
@@ -413,7 +415,7 @@ async function executeSimulate(
 
   return {
     assetChanges,
-    block: block as never,
+    block: block,
     results: applyAllowFailure(results, allowFailure),
   }
 }
@@ -471,10 +473,10 @@ async function executeMulticall(
       try {
         const data = call.abi
           ? AbiFunction.encodeData(
-              AbiFunction.fromAbi(call.abi, call.functionName as never, {
-                args: call.args as never,
+              AbiFunction.fromAbi(call.abi, call.functionName, {
+                args: call.args,
               }),
-              call.args as never,
+              call.args,
             )
           : (call.data ?? '0x')
         const callData = call.dataSuffix
@@ -522,7 +524,7 @@ async function executeMulticall(
 
   const chunkResults = await Promise.allSettled(
     chunks.map(async (chunk) => {
-      const calldata = AbiFunction.encodeData(aggregate3Abi, [chunk] as never)
+      const calldata = AbiFunction.encodeData(aggregate3Abi, [chunk])
 
       const request =
         multicallAddress === null
@@ -541,7 +543,7 @@ async function executeMulticall(
           params: rpcStateOverride
             ? [request, block, rpcStateOverride]
             : [request, block],
-        } as never,
+        },
         requestOptions,
       )
 
@@ -586,8 +588,8 @@ async function executeMulticall(
           throw new ContractError.RawContractError({ data: returnData })
         const result = abi
           ? AbiFunction.decodeResult(
-              AbiFunction.fromAbi(abi, functionName as never, {
-                args: args as never,
+              AbiFunction.fromAbi(abi, functionName, {
+                args: args,
               }),
               returnData,
             )

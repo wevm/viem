@@ -165,7 +165,7 @@ describe.each([
       await Actions.verifyHash(client, {
         address,
         hash,
-        signature: signature as never,
+        signature: signature,
       }),
     ).toBe(expectedResult)
   })
@@ -223,7 +223,7 @@ test('behavior: appended-byte signature is invalid', async () => {
 test('behavior: unexpected errors still get thrown', async () => {
   await expect(
     Actions.verifyHash(client, {
-      address: '0x0' as never,
+      address: '0x0',
       hash: PersonalMessage.getSignPayload(Hex.fromString('0xdead')),
       signature: '0xdead',
     }),
@@ -446,7 +446,7 @@ describe('erc6492', () => {
       }),
       transport: custom({
         async request({ method, params }: { method: string; params: unknown }) {
-          return local.request({ method, params } as never)
+          return local.request({ method, params })
         },
       }),
     })

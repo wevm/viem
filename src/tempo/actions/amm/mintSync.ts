@@ -22,7 +22,7 @@ import { mint } from './mint.js'
  * const { receipt, ...event } = await Actions.amm.mintSync(client, {
  *   userToken: '0x20c0000000000000000000000000000000000001',
  *   validatorToken: '0x20c0000000000000000000000000000000000002',
- * } as never)
+ * })
  * ```
  *
  * @param client - Client.
@@ -40,12 +40,12 @@ export async function mintSync<
   const receipt = await mint.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = mint.extractEvent(receipt.logs)
   return {
     ...args,
     receipt,
-  } as never
+  }
 }
 
 export namespace mintSync {

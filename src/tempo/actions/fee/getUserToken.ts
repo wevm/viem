@@ -48,7 +48,7 @@ export async function getUserToken<
   const { account, ...rest } = options
   const address = await read(client, {
     ...rest,
-    ...getUserToken.call(client, { account } as never),
+    ...getUserToken.call(client, { account }),
   })
   if (address === zeroAddress) return null
   return {

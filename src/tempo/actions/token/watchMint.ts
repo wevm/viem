@@ -37,7 +37,7 @@ export function watchMint<chain extends Chain.Chain | undefined>(
     address: resolveToken(client, { token }).address,
     eventName: 'Mint',
     strict: true,
-  }) as never
+  })
 }
 
 export namespace watchMint {

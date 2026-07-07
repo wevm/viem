@@ -45,8 +45,8 @@ export async function getPool<chain extends Chain.Chain | undefined>(
     validatorToken,
   })
   const [pool, totalSupply] = await Promise.all([
-    read(client, { ...rest, ...poolCall } as never),
-    read(client, { ...rest, ...totalSupplyCall } as never),
+    read(client, { ...rest, ...poolCall }),
+    read(client, { ...rest, ...totalSupplyCall }),
   ])
   return {
     reserveUserToken: (pool as { reserveUserToken: bigint }).reserveUserToken,

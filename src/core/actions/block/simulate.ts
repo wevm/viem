@@ -80,10 +80,10 @@ export async function simulate<
         const data = (() => {
           const data = abi
             ? AbiFunction.encodeData(
-                AbiFunction.fromAbi(abi, functionName as never, {
-                  args: args as never,
+                AbiFunction.fromAbi(abi, functionName, {
+                  args: args,
                 }),
-                args as never,
+                args,
               )
             : call.data
           if (!dataSuffix) return data
@@ -115,7 +115,7 @@ export async function simulate<
     const params = z.RpcSchema.encodeParams(item, [
       { blockStateCalls, returnFullTransactions, traceTransfers, validation },
       block,
-    ] as never)
+    ])
 
     type RpcCallResult = {
       error?:
@@ -127,7 +127,7 @@ export async function simulate<
       status: Hex.Hex
     }
     const result = (await client.request(
-      { method: 'eth_simulateV1', params } as never,
+      { method: 'eth_simulateV1', params },
       requestOptions,
     )) as unknown as readonly (Block.Rpc & {
       calls?: readonly RpcCallResult[] | undefined
@@ -155,8 +155,8 @@ export async function simulate<
         const result =
           abi && status === 'success' && data !== '0x'
             ? AbiFunction.decodeResult(
-                AbiFunction.fromAbi(abi, functionName as never, {
-                  args: args as never,
+                AbiFunction.fromAbi(abi, functionName, {
+                  args: args,
                 }),
                 data,
               )

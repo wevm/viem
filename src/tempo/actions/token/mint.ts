@@ -8,8 +8,7 @@ import type * as Log from 'ox/Log'
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
-import { estimateGas as estimateContractGas } from '../../../core/actions/contract/estimateGas.js'
-import { simulate as simulateContract } from '../../../core/actions/contract/simulate.js'
+import type { simulate as simulateContract } from '../../../core/actions/contract/simulate.js'
 import { write } from '../../../core/actions/contract/write.js'
 import type { writeSync } from '../../../core/actions/contract/writeSync.js'
 import {
@@ -21,9 +20,12 @@ import type { TokenParameter, WriteParameters } from '../../internal/types.js'
 import {
   type CallParameters,
   defineCall,
+  dispatchWrite,
+  estimateWrite,
   pickWriteParameters,
   resolveCallParameters,
   resolveToken,
+  simulateWrite,
 } from '../../internal/utils.js'
 
 /**
@@ -82,11 +84,11 @@ export namespace mint {
     action: action,
     client: Client.Client<chain, account>,
     options: Options,
-  ): Promise<ActionReturnType<action>> {
-    return (await action(client, {
+  ): Promise<dispatchWrite.ReturnType<action>> {
+    return dispatchWrite(action, client, {
       ...options,
-      ...mint.call(client, options as never),
-    } as never)) as never
+      ...mint.call(client, options),
+    })
   }
 
   /**
@@ -116,10 +118,10 @@ export namespace mint {
     chain extends Chain.Chain | undefined,
     account extends Account.Account | undefined,
   >(client: Client.Client<chain, account>, options: Options): Promise<bigint> {
-    return estimateContractGas(client, {
-      ...pickWriteParameters(options as never),
-      ...mint.call(client, options as never),
-    } as never)
+    return estimateWrite(client, {
+      ...pickWriteParameters(options),
+      ...mint.call(client, options),
+    })
   }
 
   /** Simulates minting tokens. */
@@ -132,10 +134,10 @@ export namespace mint {
   ): Promise<
     simulateContract.ReturnType<typeof Abis.tip20, 'mint' | 'mintWithMemo'>
   > {
-    return simulateContract(client, {
-      ...pickWriteParameters(options as never),
-      ...mint.call(client, options as never),
-    } as never) as never
+    return simulateWrite(client, {
+      ...pickWriteParameters(options),
+      ...mint.call(client, options),
+    })
   }
 
   /** Extracts the `Mint` event from logs. */
@@ -148,7 +150,3 @@ export namespace mint {
     return log
   }
 }
-
-type ActionReturnType<action> = action extends typeof writeSync
-  ? writeSync.ReturnType
-  : write.ReturnType

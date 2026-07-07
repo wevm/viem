@@ -16,6 +16,7 @@ import type { TokenParameter, WriteParameters } from '../../internal/types.js'
 import {
   type CallParameters,
   defineCall,
+  dispatchSend,
   pickWriteParameters,
   resolveCallParameters,
   resolveToken,
@@ -79,22 +80,22 @@ export namespace revokeRoles {
     action: action,
     client: Client.Client<chain, account>,
     options: Options,
-  ): Promise<ActionReturnType<action>> {
-    return (await action(client, {
-      ...pickWriteParameters(options as never),
+  ): Promise<dispatchSend.ReturnType<action>> {
+    return dispatchSend(action, client, {
+      ...pickWriteParameters(options),
       calls: options.roles.map((role) => {
         const call = revokeRoles.call(client, { ...options, role })
         return {
           data: AbiFunction.encodeData(
             AbiFunction.fromAbi(call.abi, call.functionName, {
               args: call.args,
-            } as never),
+            }),
             call.args,
           ),
           to: call.address,
         }
       }),
-    } as never)) as never
+    })
   }
 
   /**
@@ -132,10 +133,6 @@ export namespace revokeRoles {
     return events
   }
 }
-
-type ActionReturnType<action> = action extends typeof sendSync
-  ? sendSync.ReturnType
-  : send.ReturnType
 
 export type RoleMembershipUpdated = {
   /** Role whose membership changed. */

@@ -52,7 +52,7 @@ export async function approveSync<
   const receipt = await approve.inner(writeContractSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = approve.extractEvent(receipt.logs)
   return {
     ...args,

@@ -26,8 +26,8 @@ export async function getLiquidityBalance<
 ): Promise<getLiquidityBalance.ReturnType> {
   return read(client, {
     ...options,
-    ...getLiquidityBalance.call(client, options as never),
-  } as never) as never
+    ...getLiquidityBalance.call(client, options),
+  })
 }
 
 export namespace getLiquidityBalance {

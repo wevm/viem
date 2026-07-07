@@ -20,9 +20,9 @@ export async function closeSync<
   const receipt = await close.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = close.extractEvent(receipt.logs)
-  return { ...args, receipt } as never
+  return { ...args, receipt }
 }
 
 export namespace closeSync {

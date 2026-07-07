@@ -70,7 +70,7 @@ export function publicActions() {
       getReceipts: (options) => block.getReceipts(client, options),
       getTransactionCount: (options) =>
         block.getTransactionCount(client, options),
-      simulate: (options) => block.simulate(client, options as never),
+      simulate: (options) => block.simulate(client, options),
       watch: (options) => block.watch(client, options),
       watchNumber: (options) => block.watchNumber(client, options),
     },
@@ -80,13 +80,13 @@ export function publicActions() {
     },
     contract: {
       createEventFilter: (options) =>
-        contract.createEventFilter(client, options as never),
-      estimateGas: (options) => contract.estimateGas(client, options as never),
+        contract.createEventFilter(client, options),
+      estimateGas: (options) => contract.estimateGas(client, options),
       getEip712Domain: (options) => contract.getEip712Domain(client, options),
-      getLogs: (options) => contract.getLogs(client, options as never),
+      getLogs: (options) => contract.getLogs(client, options),
       read: (options) => contract.read(client, options),
-      simulate: (options) => contract.simulate(client, options as never),
-      watchEvent: (options) => contract.watchEvent(client, options as never),
+      simulate: (options) => contract.simulate(client, options),
+      watchEvent: (options) => contract.watchEvent(client, options),
     },
     ens: {
       getAddress: (options) => ens.getAddress(client, options),
@@ -96,8 +96,8 @@ export function publicActions() {
       getText: (options) => ens.getText(client, options),
     },
     filter: {
-      getChanges: (options) => filter.getChanges(client, options as never),
-      getLogs: (options) => filter.getLogs(client, options as never),
+      getChanges: (options) => filter.getChanges(client, options),
+      getLogs: (options) => filter.getLogs(client, options),
       uninstall: (options) => filter.uninstall(client, options),
     },
     event: {
@@ -113,7 +113,7 @@ export function publicActions() {
       getGasPrice: () => fee.getGasPrice(client),
       getHistory: (options) => fee.getHistory(client, options),
     },
-    multicall: (options) => multicall(client, options as never),
+    multicall: (options) => multicall(client, options),
     token: {
       getAllowance: Object.assign(
         (options: never) => token.getAllowance(client, options),
@@ -147,7 +147,7 @@ export function publicActions() {
     verifyHash: (options) => verifyHash(client, options),
     verifyMessage: (options) => verifyMessage(client, options),
     verifySiweMessage: (options) => verifySiweMessage(client, options),
-    verifyTypedData: (options) => verifyTypedData(client, options as never),
+    verifyTypedData: (options) => verifyTypedData(client, options),
   })
 }
 

@@ -64,6 +64,22 @@ For v3 rewrite work, also read `AGENTS.tmp.md`.
   - Decorator usage prefers named imports like `testActions`.
   - Do not use named imports for individual actions.
 - **Minimize `as any`**; avoid new `as any` where a safer assertion is practical, but do not mass-rewrite existing crypto, tuple, and inference glue that already relies on it.
+- **No `as never`**; treat a needed `as never` as a bug in the surrounding types and fix the
+  types instead. Known root causes and their fixes:
+  - Inference-defeating property unions (`strict?: strict | boolean | undefined`) — drop the
+    widening arm so literal arguments pin the generic.
+  - Union-of-actions dispatch (`typeof write | typeof writeSync`) — route through the shared
+    internal dispatchers (`dispatchWrite`/`dispatchSend`/`estimateWrite`/`simulateWrite` in
+    `core/actions/token/internal.ts`, re-exported for tempo); never add per-file dispatch casts.
+  - Either-or option unions (`blockNumber`/`blockTag`) — thread one side with a conditional
+    spread instead of passing both.
+  - Action args that collide with transaction-request fields (`signature`) — destructure them
+    out before spreading options into a write.
+  - Runtime-selected calls vs conditional return types — branch on the runtime discriminant so
+    each arm typechecks, and cast only the final return to the conditional type.
+  - When a cast is genuinely unavoidable (wire-codec/envelope unions, dynamic hook plumbing),
+    prefer a precise `as X` with a one-line justification comment; a commented `as never` is the
+    last resort and only in internal seams or tests exercising them.
 - **Destructure when accessing multiple properties**; prefer `const { a, b } = options` over repeated `options.a`, `options.b`.
 - **Read from `options.x` when normalizing a single field**; avoid inventing a second name.
   - Applies when transforming one option into a local of the same name.

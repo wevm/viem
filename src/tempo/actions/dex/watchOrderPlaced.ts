@@ -33,7 +33,7 @@ export function watchOrderPlaced<chain extends Chain.Chain | undefined>(
     address: Addresses.stablecoinDex,
     eventName: 'OrderPlaced',
     strict: true,
-  }) as never
+  })
 }
 
 export namespace watchOrderPlaced {

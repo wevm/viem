@@ -46,7 +46,7 @@ export async function getTotalSupply<
   const [amount, { decimals: resolved }] = await Promise.all([
     read(client, {
       ...rest,
-      ...getTotalSupply.call(client, { token } as never),
+      ...getTotalSupply.call(client, { token }),
     }),
     resolveTokenWithDecimals(client, { decimals, token }),
   ])

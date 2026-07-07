@@ -53,7 +53,7 @@ export async function getName(
       blockNumber,
       blockTag,
       functionName: 'reverseWithGateways',
-    } as never)) as [string, Address.Address, Address.Address]
+    })) as [string, Address.Address, Address.Address]
 
     return name || null
   } catch (err) {

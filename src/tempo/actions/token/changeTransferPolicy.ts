@@ -6,8 +6,7 @@ import type * as TokenId from 'ox/tempo/TokenId'
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
-import { estimateGas as estimateContractGas } from '../../../core/actions/contract/estimateGas.js'
-import { simulate as simulateContract } from '../../../core/actions/contract/simulate.js'
+import type { simulate as simulateContract } from '../../../core/actions/contract/simulate.js'
 import { write } from '../../../core/actions/contract/write.js'
 import type { writeSync } from '../../../core/actions/contract/writeSync.js'
 import * as Abis from '../../Abis.js'
@@ -15,9 +14,12 @@ import type { WriteParameters } from '../../internal/types.js'
 import {
   type CallParameters,
   defineCall,
+  dispatchWrite,
+  estimateWrite,
   pickWriteParameters,
   resolveCallParameters,
   resolveToken,
+  simulateWrite,
 } from '../../internal/utils.js'
 
 /**
@@ -73,11 +75,11 @@ export namespace changeTransferPolicy {
     action: action,
     client: Client.Client<chain, account>,
     options: changeTransferPolicy.Options,
-  ): Promise<ActionReturnType<action>> {
-    return (await action(client, {
+  ): Promise<dispatchWrite.ReturnType<action>> {
+    return dispatchWrite(action, client, {
       ...options,
-      ...changeTransferPolicy.call(client, options as never),
-    } as never)) as never
+      ...changeTransferPolicy.call(client, options),
+    })
   }
 
   /**
@@ -117,10 +119,10 @@ export namespace changeTransferPolicy {
     client: Client.Client<chain, account>,
     options: changeTransferPolicy.Options,
   ): Promise<bigint> {
-    return estimateContractGas(client, {
-      ...pickWriteParameters(options as never),
-      ...changeTransferPolicy.call(client, options as never),
-    } as never)
+    return estimateWrite(client, {
+      ...pickWriteParameters(options),
+      ...changeTransferPolicy.call(client, options),
+    })
   }
 
   /**
@@ -139,10 +141,10 @@ export namespace changeTransferPolicy {
   ): Promise<
     simulateContract.ReturnType<typeof Abis.tip20, 'changeTransferPolicyId'>
   > {
-    return simulateContract(client, {
-      ...pickWriteParameters(options as never),
-      ...changeTransferPolicy.call(client, options as never),
-    } as never) as never
+    return simulateWrite(client, {
+      ...pickWriteParameters(options),
+      ...changeTransferPolicy.call(client, options),
+    })
   }
 
   /**
@@ -160,7 +162,3 @@ export namespace changeTransferPolicy {
     return log
   }
 }
-
-type ActionReturnType<action> = action extends typeof writeSync
-  ? writeSync.ReturnType
-  : write.ReturnType

@@ -64,7 +64,7 @@ export async function getChanges<
   return AbiEvent.extractLogs(events, logs as never, {
     args: 'args' in filter ? filter.args : undefined,
     strict: ('strict' in filter ? filter.strict : undefined) ?? false,
-  }) as never
+  })
 }
 
 export declare namespace getChanges {

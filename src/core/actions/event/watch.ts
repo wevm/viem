@@ -130,14 +130,23 @@ export function watch<
             async () => {
               if (!initialized) {
                 try {
-                  filter = (await createFilter(client, {
-                    address,
-                    args,
-                    event,
-                    events: events_,
-                    fromBlock,
-                    strict,
-                  } as createFilter.Options)) as Filter<'event'>
+                  // One of `event`/`events_` is set; each branch takes the
+                  // matching arm of the `createFilter` options union.
+                  type Options = createFilter.Options<
+                    AbiEvent.AbiEvent | readonly AbiEvent.AbiEvent[],
+                    boolean | undefined
+                  >
+                  const options = (
+                    event
+                      ? { address, args, event, fromBlock, strict }
+                      : { address, events: events_, fromBlock, strict }
+                  ) as Options
+                  filter = (await createFilter<
+                    AbiEvent.AbiEvent | readonly AbiEvent.AbiEvent[],
+                    boolean | undefined,
+                    Block.Number | undefined,
+                    undefined
+                  >(client, options)) as Filter<'event'>
                 } catch {}
                 initialized = true
                 return
@@ -226,7 +235,7 @@ export function watch<
                 ? AbiEvent.extractLogs(events, [log], { args, strict })
                 : [log]
               if (logs.length === 0) return
-              emit.onLogs(logs as never)
+              emit.onLogs(logs)
             })
             subscription.onError((error) => emit.onError?.(error as Error))
             unsubscribe = () => {

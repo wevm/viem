@@ -47,7 +47,7 @@ export async function approveSync<
   const receipt = await approve.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = approve.extractEvent(receipt.logs)
   return {
     ...args,
@@ -55,7 +55,7 @@ export async function approveSync<
       ? {}
       : { decimals: resolved, formatted: Value.format(args.amount, resolved) }),
     receipt,
-  } as never
+  }
 }
 
 export namespace approveSync {

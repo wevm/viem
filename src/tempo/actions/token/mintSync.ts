@@ -24,7 +24,7 @@ export async function mintSync<
   const receipt = await mint.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = mint.extractEvent(receipt.logs)
   return {
     ...args,
@@ -32,7 +32,7 @@ export async function mintSync<
       ? {}
       : { decimals: resolved, formatted: Value.format(args.amount, resolved) }),
     receipt,
-  } as never
+  }
 }
 
 export namespace mintSync {

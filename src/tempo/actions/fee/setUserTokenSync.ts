@@ -40,12 +40,12 @@ export async function setUserTokenSync<
   const receipt = await setUserToken.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = setUserToken.extractEvent(receipt.logs)
   return {
     ...args,
     receipt,
-  } as never
+  }
 }
 
 export namespace setUserTokenSync {

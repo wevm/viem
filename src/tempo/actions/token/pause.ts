@@ -6,8 +6,7 @@ import type * as Log from 'ox/Log'
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
-import { estimateGas as estimateContractGas } from '../../../core/actions/contract/estimateGas.js'
-import { simulate as simulateContract } from '../../../core/actions/contract/simulate.js'
+import type { simulate as simulateContract } from '../../../core/actions/contract/simulate.js'
 import { write } from '../../../core/actions/contract/write.js'
 import type { writeSync } from '../../../core/actions/contract/writeSync.js'
 import * as Abis from '../../Abis.js'
@@ -15,9 +14,12 @@ import type { TokenParameter, WriteParameters } from '../../internal/types.js'
 import {
   type CallParameters,
   defineCall,
+  dispatchWrite,
+  estimateWrite,
   pickWriteParameters,
   resolveCallParameters,
   resolveToken,
+  simulateWrite,
 } from '../../internal/utils.js'
 
 /**
@@ -67,11 +69,11 @@ export namespace pause {
     action: action,
     client: Client.Client<chain, account>,
     options: Options,
-  ): Promise<ActionReturnType<action>> {
-    return (await action(client, {
+  ): Promise<dispatchWrite.ReturnType<action>> {
+    return dispatchWrite(action, client, {
       ...options,
-      ...pause.call(client, options as never),
-    } as never)) as never
+      ...pause.call(client, options),
+    })
   }
 
   /** Defines a call to the `pause` function. */
@@ -93,10 +95,10 @@ export namespace pause {
     chain extends Chain.Chain | undefined,
     account extends Account.Account | undefined,
   >(client: Client.Client<chain, account>, options: Options): Promise<bigint> {
-    return estimateContractGas(client, {
-      ...pickWriteParameters(options as never),
-      ...pause.call(client, options as never),
-    } as never)
+    return estimateWrite(client, {
+      ...pickWriteParameters(options),
+      ...pause.call(client, options),
+    })
   }
 
   /** Simulates pausing a token. */
@@ -107,10 +109,10 @@ export namespace pause {
     client: Client.Client<chain, account>,
     options: Options,
   ): Promise<simulateContract.ReturnType<typeof Abis.tip20, 'pause'>> {
-    return simulateContract(client, {
-      ...pickWriteParameters(options as never),
-      ...pause.call(client, options as never),
-    } as never) as never
+    return simulateWrite(client, {
+      ...pickWriteParameters(options),
+      ...pause.call(client, options),
+    })
   }
 
   /** Extracts the `PauseStateUpdate` event from logs. */
@@ -123,10 +125,6 @@ export namespace pause {
     return log
   }
 }
-
-type ActionReturnType<action> = action extends typeof writeSync
-  ? writeSync.ReturnType
-  : write.ReturnType
 
 export type PauseStateUpdate = {
   /** Address that updated the pause state. */

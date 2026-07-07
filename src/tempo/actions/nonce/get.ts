@@ -43,7 +43,7 @@ export async function get<
   const { account, nonceKey, ...rest } = options
   return read(client, {
     ...rest,
-    ...get.call(client, { account, nonceKey } as never),
+    ...get.call(client, { account, nonceKey }),
   })
 }
 

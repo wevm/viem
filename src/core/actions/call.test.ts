@@ -190,7 +190,7 @@ test('error: pass code and to', async () => {
 test('error: invalid from address', async () => {
   await expect(() =>
     Actions.call(client, {
-      account: '0xdeadbeef' as never,
+      account: '0xdeadbeef',
       data: name4bytes,
       to: address,
     }),
@@ -201,7 +201,7 @@ test('error: invalid to address', async () => {
   await expect(() =>
     Actions.call(client, {
       data: name4bytes,
-      to: '0xdeadbeef' as never,
+      to: '0xdeadbeef',
     }),
   ).rejects.toThrowError()
 })

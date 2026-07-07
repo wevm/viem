@@ -39,13 +39,13 @@ export async function unpauseSync<
   const receipt = await unpause.inner(writeSync, client, {
     ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = unpause.extractEvent(receipt.logs)
   return {
     ...args,
 
     receipt,
-  } as never
+  }
 }
 
 export namespace unpauseSync {

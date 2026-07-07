@@ -37,7 +37,7 @@ export function watchAdminRole<chain extends Chain.Chain | undefined>(
     address: resolveToken(client, { token }).address,
     eventName: 'RoleAdminUpdated',
     strict: true,
-  }) as never
+  })
 }
 
 export namespace watchAdminRole {

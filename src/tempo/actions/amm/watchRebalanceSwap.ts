@@ -33,7 +33,7 @@ export function watchRebalanceSwap<chain extends Chain.Chain | undefined>(
     address: Addresses.feeManager,
     eventName: 'RebalanceSwap',
     strict: true,
-  }) as never
+  })
 }
 
 export namespace watchRebalanceSwap {

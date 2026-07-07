@@ -33,7 +33,7 @@ export function watchCreate<chain extends Chain.Chain | undefined>(
     address: Addresses.tip20Factory,
     eventName: 'TokenCreated',
     strict: true,
-  }) as never
+  })
 }
 
 export namespace watchCreate {

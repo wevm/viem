@@ -275,7 +275,7 @@ export const chainConfig = {
                     address: Addresses.accountKeychain,
                     args: [address, accessKey],
                     functionName: 'getKey',
-                  } as never)) as {
+                  })) as {
                     keyId: Address.Address
                     expiry: bigint
                     isRevoked: boolean
@@ -349,13 +349,10 @@ export const chainConfig = {
             )
           return envelope.signature
         })()
-        return TxEnvelope.serialize(
-          envelope as never,
-          {
-            ...options,
-            signature,
-          } as never,
-        )
+        return TxEnvelope.serialize(envelope, {
+          ...options,
+          signature,
+        } as never)
       }
 
       // Track caller signatures separately from synthesized multisig
@@ -364,7 +361,7 @@ export const chainConfig = {
         if (envelope.signature) return envelope.signature
         const signature = options.signature
         if (!signature) return undefined
-        return SignatureEnvelope.from(signature as never)
+        return SignatureEnvelope.from(signature)
       })()
 
       // Combine owner approvals into the multisig signature envelope
@@ -484,7 +481,7 @@ export const chainConfig = {
           blockNumber,
           blockTag,
           functionName: 'getKey',
-        } as never)) as { expiry: bigint; isRevoked: boolean }
+        })) as { expiry: bigint; isRevoked: boolean }
 
         if (key.isRevoked) return false
         if (key.expiry <= BigInt(Math.floor(Date.now() / 1000))) return false
@@ -547,7 +544,7 @@ function isTempoRequest(request: Record<string, unknown>): boolean {
 
 /** Decodes (wire → native) a Tempo RPC transaction request. @internal */
 function decodeRequest(rpc: Record<string, unknown>): TransactionRequest {
-  return TransactionRequestTempo.fromRpc(rpc as never) as TransactionRequest
+  return TransactionRequestTempo.fromRpc(rpc) as TransactionRequest
 }
 
 /** Encodes (native → wire) a Tempo transaction request. @internal */
@@ -555,7 +552,7 @@ function encodeRequest(
   r: Record<string, unknown>,
 ): TransactionRequestRpc | ox_TransactionRequest.Rpc {
   // Non-tempo requests take the generic encoding.
-  if (!isTempoRequest(r)) return ox_TransactionRequest.toRpc(r as never)
+  if (!isTempoRequest(r)) return ox_TransactionRequest.toRpc(r)
 
   // `multisig`/`signatures` are client-side only. They drive
   // sender derivation, owner signing, and final envelope assembly, but are
@@ -577,7 +574,7 @@ function encodeRequest(
     ...(typeof nonceKey === 'bigint' || nonceKey === 'random'
       ? { nonceKey }
       : { nonceKey: undefined }),
-  } as never) as TransactionRequestRpc
+  }) as TransactionRequestRpc
 
   // A local fee-payer Account (a viem concept) encodes as `feePayer: true`
   // but keeps `feeToken` on the wire: the client chose the token, and the

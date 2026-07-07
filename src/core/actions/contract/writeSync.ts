@@ -54,8 +54,8 @@ export async function writeSync<
     options as writeSync.Options
 
   const data = AbiFunction.encodeData(
-    AbiFunction.fromAbi(abi, functionName as never, { args: args as never }),
-    args as never,
+    AbiFunction.fromAbi(abi, functionName, { args: args }),
+    args,
   )
 
   const account = rest.account ?? client.account

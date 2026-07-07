@@ -59,6 +59,6 @@ test('getLogs rejects non-event filters', () => {
 
   client.filter.getLogs({
     // @ts-expect-error block filters have no logs to fetch
-    filter: { id: '0x', request: undefined as never, type: 'block' },
+    filter: { id: '0x', request: undefined, type: 'block' },
   })
 })

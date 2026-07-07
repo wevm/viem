@@ -108,7 +108,7 @@ export async function registerValidator(
     feeToken: pathUsd,
     functionName: 'addValidator',
     nonceKey: 'expiring',
-  } as never)
+  })
 }
 
 /** Mints fee-AMM liquidity for `token` (fee-token validity). */
