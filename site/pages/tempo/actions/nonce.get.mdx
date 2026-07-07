@@ -1,0 +1,53 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `nonce.get`
+
+Gets the nonce for an account and nonce key.
+
+Nonce key `0` is reserved for protocol nonces. Use keys greater than `0` for 2D nonces.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const nonce = await client.nonce.get({
+  nonceKey: 1n,
+})
+
+console.log('Nonce:', nonce)
+// @log: Nonce: 42n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = bigint
+```
+
+The nonce value for the account and nonce key.
+
+## Parameters
+
+### account (optional)
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Account to read the nonce of. Defaults to the Client's account.
+
+### nonceKey
+
+- **Type:** `bigint`
+
+Nonce key to read. Key `0` is reserved for protocol nonces.
+
+<ReadParameters />

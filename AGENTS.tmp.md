@@ -105,3 +105,10 @@ when porting or reshaping v2 surface area.
   `feePayer: true` (node-side gap; sponsored senders capped by their own empty balance). Core
   `prepare` omits self-derived fees from its internal estimate; direct `estimateGas` calls with
   explicit fees surface the node error by design.
+- **Genesis presets dev accounts' user fee token to token 1 (alphaUSD)** — `setUserToken` to the
+  current value succeeds but emits no `UserTokenSet` event, so `setUserTokenSync` throws
+  `` `UserTokenSet` event not found ``. Tests must set a token that differs from the current
+  preference (v2 masked this with per-test `restart`).
+- **The v3 harness ships 10 dev accounts** (`test/src/constants.ts`), not v2's 20; the validator
+  test account is `accounts[9]`. Validators are registered per-file via
+  `tempo.registerValidator` (`test/src/tempo.ts`) — the dev image does not pre-register one.

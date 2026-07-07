@@ -1,0 +1,51 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `fee.getValidatorToken`
+
+Gets a validator's preferred fee token.
+
+Returns `null` when the fee manager contract reports the zero address. Validators with no preference set resolve to pathUSD at the node level.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const token = await client.fee.getValidatorToken({
+  validator: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+
+console.log('Fee token:', token)
+// @log: Fee token: { address: '0x20c0000000000000000000000000000000000001', id: 1n }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Fee token contract address. */
+  address: Address
+  /** Fee token id. */
+  id: bigint
+} | null
+```
+
+The validator's fee token address and id, or `null` if the contract reports the zero address.
+
+## Parameters
+
+### validator
+
+- **Type:** `Address`
+
+Validator address.
+
+<ReadParameters />

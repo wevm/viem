@@ -2,6 +2,8 @@ import type * as Account from '../core/Account.js'
 import type * as Chain from '../core/Chain.js'
 import type * as Client from '../core/Client.js'
 import type * as Transport from '../core/Transport.js'
+import * as fee from './actions/fee/index.js'
+import * as nonce from './actions/nonce/index.js'
 import * as token from './actions/token/index.js'
 
 /**
@@ -27,6 +29,26 @@ export function tempoActions() {
   >(
     client: Client.Client<chain, account, Transport.Transport>,
   ): Decorator<chain, account> => ({
+    fee: {
+      getUserToken: (options) => fee.getUserToken(client, options),
+      getValidatorToken: (options) =>
+        fee.getValidatorToken(client, options as never),
+      setUserToken: (options) => fee.setUserToken(client, options as never),
+      setUserTokenSync: (options) =>
+        fee.setUserTokenSync(client, options as never),
+      setValidatorToken: (options) =>
+        fee.setValidatorToken(client, options as never),
+      setValidatorTokenSync: (options) =>
+        fee.setValidatorTokenSync(client, options as never),
+      validateToken: (options) => fee.validateToken(client, options as never),
+      watchSetUserToken: (options) => fee.watchSetUserToken(client, options),
+      watchSetValidatorToken: (options) =>
+        fee.watchSetValidatorToken(client, options),
+    },
+    nonce: {
+      get: (options) => nonce.get(client, options as never),
+      watchIncremented: (options) => nonce.watchIncremented(client, options),
+    },
     token: {
       approve: (options) => token.approve(client, options as never),
       approveSync: (options) => token.approveSync(client, options as never),
@@ -96,6 +118,248 @@ export type Decorator<
   chain extends Chain.Chain | undefined = Chain.Chain | undefined,
   account extends Account.Account | undefined = Account.Account | undefined,
 > = {
+  fee: {
+    /**
+     * Gets an account's default fee token.
+     *
+     * Returns `null` when the account has no fee token preference set.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const token = await client.fee.getUserToken()
+     * ```
+     *
+     * @param options - Options.
+     * @returns The account's fee token address and id, or `null` if unset.
+     */
+    getUserToken: (
+      options?: fee.getUserToken.Options,
+    ) => Promise<fee.getUserToken.ReturnType>
+    /**
+     * Gets a validator's preferred fee token.
+     *
+     * Returns `null` when the validator has no fee token preference set.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const token = await client.fee.getValidatorToken({
+     *   validator: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The validator's fee token address and id, or `null` if unset.
+     */
+    getValidatorToken: (
+      options: fee.getValidatorToken.Options,
+    ) => Promise<fee.getValidatorToken.ReturnType>
+    /**
+     * Sets the calling account's default fee token.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const hash = await client.fee.setUserToken({
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction hash.
+     */
+    setUserToken: (
+      options: fee.setUserToken.Options,
+    ) => Promise<fee.setUserToken.ReturnType>
+    /**
+     * Sets the calling account's default fee token, and waits for the
+     * transaction to be confirmed.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const { receipt, ...event } = await client.fee.setUserTokenSync({
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
+     */
+    setUserTokenSync: (
+      options: fee.setUserTokenSync.Options,
+    ) => Promise<fee.setUserTokenSync.ReturnType>
+    /**
+     * Sets the calling validator's preferred fee token.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const hash = await client.fee.setValidatorToken({
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction hash.
+     */
+    setValidatorToken: (
+      options: fee.setValidatorToken.Options,
+    ) => Promise<fee.setValidatorToken.ReturnType>
+    /**
+     * Sets the calling validator's preferred fee token, and waits for the
+     * transaction to be confirmed.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const { receipt, ...event } = await client.fee.setValidatorTokenSync({
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
+     */
+    setValidatorTokenSync: (
+      options: fee.setValidatorTokenSync.Options,
+    ) => Promise<fee.setValidatorTokenSync.ReturnType>
+    /**
+     * Validates that a token can be used as a Tempo fee token.
+     *
+     * Fee tokens must be unpaused USD-denominated TIP-20 tokens.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const { address, id, metadata } = await client.fee.validateToken({
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The fee token address, id, and metadata.
+     */
+    validateToken: (
+      options: fee.validateToken.Options,
+    ) => Promise<fee.validateToken.ReturnType>
+    /**
+     * Watches `UserTokenSet` events on the fee manager.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const watcher = client.fee.watchSetUserToken()
+     * watcher.onLogs((logs) => console.log(logs))
+     * ```
+     *
+     * @param options - Options.
+     * @returns A watcher handle.
+     */
+    watchSetUserToken: (
+      options?: fee.watchSetUserToken.Options,
+    ) => fee.watchSetUserToken.ReturnType
+    /**
+     * Watches `ValidatorTokenSet` events on the fee manager.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const watcher = client.fee.watchSetValidatorToken()
+     * watcher.onLogs((logs) => console.log(logs))
+     * ```
+     *
+     * @param options - Options.
+     * @returns A watcher handle.
+     */
+    watchSetValidatorToken: (
+      options?: fee.watchSetValidatorToken.Options,
+    ) => fee.watchSetValidatorToken.ReturnType
+  }
+  nonce: {
+    /**
+     * Gets the nonce for an account and nonce key (2D nonces, TIP-1009).
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const nonce = await client.nonce.get({ nonceKey: 1n })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The nonce value.
+     */
+    get: (options: nonce.get.Options) => Promise<nonce.get.ReturnType>
+    /**
+     * Watches `NonceIncremented` events on the nonce manager (2D nonces,
+     * TIP-1009).
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const watcher = client.nonce.watchIncremented()
+     * watcher.onLogs((logs) => console.log(logs))
+     * ```
+     *
+     * @param options - Options.
+     * @returns A watcher handle.
+     */
+    watchIncremented: (
+      options?: nonce.watchIncremented.Options,
+    ) => nonce.watchIncremented.ReturnType
+  }
   token: {
     /**
      * Approves a spender to transfer TIP-20 tokens on behalf of the caller.

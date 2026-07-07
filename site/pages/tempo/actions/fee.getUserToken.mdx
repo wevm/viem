@@ -1,0 +1,50 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `fee.getUserToken`
+
+Gets an account's default fee token.
+
+Returns `null` when the account has no fee token preference set.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const token = await client.fee.getUserToken()
+
+console.log('Fee token:', token)
+// @log: Fee token: { address: '0x20c0000000000000000000000000000000000001', id: 1n }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Fee token contract address. */
+  address: Address
+  /** Fee token id. */
+  id: bigint
+} | null
+```
+
+The account's fee token address and id, or `null` if unset.
+
+## Parameters
+
+### account (optional)
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Account to read the fee token of. Defaults to the Client's account.
+
+<ReadParameters />

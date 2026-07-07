@@ -986,6 +986,45 @@ export default defineConfig({
         text: 'Actions',
         items: [
           {
+            text: 'Fee',
+            collapsed: false,
+            items: [
+              { text: 'getUserToken', link: '/tempo/actions/fee.getUserToken' },
+              {
+                text: 'getValidatorToken',
+                link: '/tempo/actions/fee.getValidatorToken',
+              },
+              { text: 'setUserToken', link: '/tempo/actions/fee.setUserToken' },
+              {
+                text: 'setValidatorToken',
+                link: '/tempo/actions/fee.setValidatorToken',
+              },
+              {
+                text: 'validateToken',
+                link: '/tempo/actions/fee.validateToken',
+              },
+              {
+                text: 'watchSetUserToken',
+                link: '/tempo/actions/fee.watchSetUserToken',
+              },
+              {
+                text: 'watchSetValidatorToken',
+                link: '/tempo/actions/fee.watchSetValidatorToken',
+              },
+            ],
+          },
+          {
+            text: 'Nonce',
+            collapsed: false,
+            items: [
+              { text: 'get', link: '/tempo/actions/nonce.get' },
+              {
+                text: 'watchIncremented',
+                link: '/tempo/actions/nonce.watchIncremented',
+              },
+            ],
+          },
+          {
             text: 'Token',
             collapsed: false,
             items: [

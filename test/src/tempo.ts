@@ -51,6 +51,22 @@ const feeAmmAbi = [
   },
 ] as const
 
+const validatorConfigAbi = [
+  {
+    name: 'addValidator',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'newValidatorAddress' },
+      { type: 'bytes32', name: 'publicKey' },
+      { type: 'bool', name: 'active' },
+      { type: 'string', name: 'inboundAddress' },
+      { type: 'string', name: 'outboundAddress' },
+    ],
+    outputs: [],
+  },
+] as const
+
 /** Creates a Client for the pool's Tempo node instance. */
 export function getClient(options: getClient.Options = {}) {
   const { account = Account.fromSecp256k1(accounts[0].privateKey), feeToken } =
@@ -72,6 +88,27 @@ export declare namespace getClient {
     /** Default fee token for the Client. */
     feeToken?: `0x${string}` | undefined
   }
+}
+
+/** Registers `address` as a validator (dev account 0 is the config owner). */
+export async function registerValidator(
+  client: ReturnType<typeof getClient>,
+  options: { address: `0x${string}` },
+) {
+  await Actions.contract.writeSync(client, {
+    abi: validatorConfigAbi,
+    address: '0xcccccccc00000000000000000000000000000000',
+    args: [
+      options.address,
+      '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+      true,
+      '192.168.1.100:8080',
+      '192.168.1.100:8080',
+    ],
+    feeToken: pathUsd,
+    functionName: 'addValidator',
+    nonceKey: 'expiring',
+  } as never)
 }
 
 /** Mints fee-AMM liquidity for `token` (fee-token validity). */

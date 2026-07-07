@@ -2,7 +2,7 @@
 "viem": major
 ---
 
-The `viem/tempo` extension was rebuilt on v3 primitives: module namespaces (`Abis`, `Account`, `Addresses`, `Capabilities`, `Expiry`, `Hardfork`, `KeyAuthorizationManager`, `P256`, `Scopes`, `Selectors`, `Storage`, `TokenIds`, `WebAuthnP256`, `WebCryptoP256`), chain schema hooks in place of formatters/serializers, a `Client.create` factory decorated with `tempoActions()`, and domain-namespaced actions (`token` landed; further namespaces follow).
+The `viem/tempo` extension was rebuilt on v3 primitives: module namespaces (`Abis`, `Account`, `Addresses`, `Capabilities`, `Expiry`, `Hardfork`, `KeyAuthorizationManager`, `P256`, `Scopes`, `Selectors`, `Storage`, `TokenIds`, `WebAuthnP256`, `WebCryptoP256`), chain schema hooks in place of formatters/serializers, a `Client.create` factory decorated with `tempoActions()`, and domain-namespaced actions (`token`, `fee`, and `nonce` landed; further namespaces follow). The `nonce` actions drop the namespace echo: `nonce.getNonce` → `nonce.get`, `nonce.watchNonceIncremented` → `nonce.watchIncremented`.
 
 ```diff
 - import { Account, Actions, createClient } from 'viem/tempo'

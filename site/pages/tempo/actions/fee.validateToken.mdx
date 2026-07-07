@@ -1,0 +1,78 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `fee.validateToken`
+
+Validates that a token can be used as a Tempo fee token.
+
+Fee tokens must be unpaused USD-denominated TIP-20 tokens.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const token = await client.fee.validateToken({
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log('Fee token:', token)
+// @log: Fee token: {
+// @log:   address: '0x20c0000000000000000000000000000000000001',
+// @log:   id: 1n,
+// @log:   metadata: {
+// @log:     decimals: 6,
+// @log:     name: 'USD Token',
+// @log:     symbol: 'USD',
+// @log:     currency: 'USD',
+// @log:     paused: false,
+// @log:   },
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Fee token contract address. */
+  address: Address
+  /** Fee token id. */
+  id: bigint
+  /** Fee token metadata. */
+  metadata: {
+    decimals: number
+    name: string
+    symbol: string
+    currency: string
+    paused: boolean
+  }
+}
+```
+
+The fee token address, id, and metadata.
+
+## Parameters
+
+### token
+
+- **Type:** `Address | bigint`
+
+Token to validate: a TIP-20 token id or a contract address.
+
+<ReadParameters />
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `InvalidFeeTokenError` | Thrown when the fee token cannot be resolved or read as a valid fee token. |
+| `FeeTokenNotTip20Error` | Thrown when the fee token is not a TIP-20 token. |
+| `FeeTokenNotUsdError` | Thrown when the fee token is not denominated in USD. |
+| `FeeTokenPausedError` | Thrown when the fee token is paused. |
