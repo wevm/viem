@@ -1,0 +1,36 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `validator.getCount`
+
+Gets the total number of validators.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.validator.getCount()
+
+console.log('Result:', result)
+// @log: Result: 4n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = bigint
+```
+
+The total number of validators.
+
+## Parameters
+
+<ReadParameters />

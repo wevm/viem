@@ -1,0 +1,88 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `policy.create`
+
+Creates a TIP-403 transfer policy.
+
+When `admin` is omitted, it defaults to the calling account.
+
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { policyId, receipt } = await client.policy.createSync({
+  type: 'whitelist',
+})
+
+console.log('Policy ID:', policyId)
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Policy ID: 1n
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+The examples above use a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `policy.create` action and wait for inclusion manually:
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await client.policy.create({
+  type: 'whitelist',
+})
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
+
+const { args } = Actions.policy.create.extractEvent(receipt.logs)
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Policy ID. */
+  policyId: bigint
+  /** Policy type. */
+  type: 'blacklist' | 'whitelist'
+  /** Address that created the policy. */
+  updater: Address
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+}
+```
+
+Policy creation details and the transaction receipt.
+
+## Parameters
+
+### addresses (optional)
+
+- **Type:** `readonly Address[]`
+
+Optional accounts to initialize the policy with.
+
+### admin (optional)
+
+- **Type:** `Account | Address`
+
+Policy admin address. Defaults to the calling account when omitted.
+
+### type
+
+- **Type:** `'blacklist' | 'whitelist'`
+
+Policy type.
+
+<WriteParameters />

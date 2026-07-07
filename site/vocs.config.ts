@@ -1113,6 +1113,77 @@ export default defineConfig({
             ],
           },
           {
+            text: 'Policy',
+            collapsed: false,
+            items: [
+              { text: 'create', link: '/tempo/actions/policy.create' },
+              { text: 'getData', link: '/tempo/actions/policy.getData' },
+              {
+                text: 'isAuthorized',
+                link: '/tempo/actions/policy.isAuthorized',
+              },
+              {
+                text: 'modifyBlacklist',
+                link: '/tempo/actions/policy.modifyBlacklist',
+              },
+              {
+                text: 'modifyWhitelist',
+                link: '/tempo/actions/policy.modifyWhitelist',
+              },
+              { text: 'setAdmin', link: '/tempo/actions/policy.setAdmin' },
+              {
+                text: 'watchAdminUpdated',
+                link: '/tempo/actions/policy.watchAdminUpdated',
+              },
+              {
+                text: 'watchBlacklistUpdated',
+                link: '/tempo/actions/policy.watchBlacklistUpdated',
+              },
+              {
+                text: 'watchCreate',
+                link: '/tempo/actions/policy.watchCreate',
+              },
+              {
+                text: 'watchWhitelistUpdated',
+                link: '/tempo/actions/policy.watchWhitelistUpdated',
+              },
+            ],
+          },
+          {
+            text: 'Receive Policy',
+            collapsed: false,
+            items: [
+              { text: 'burn', link: '/tempo/actions/receivePolicy.burn' },
+              { text: 'claim', link: '/tempo/actions/receivePolicy.claim' },
+              { text: 'get', link: '/tempo/actions/receivePolicy.get' },
+              {
+                text: 'getBlockedBalance',
+                link: '/tempo/actions/receivePolicy.getBlockedBalance',
+              },
+              { text: 'set', link: '/tempo/actions/receivePolicy.set' },
+              {
+                text: 'validate',
+                link: '/tempo/actions/receivePolicy.validate',
+              },
+              {
+                text: 'watchBlocked',
+                link: '/tempo/actions/receivePolicy.watchBlocked',
+              },
+              {
+                text: 'watchBurned',
+                link: '/tempo/actions/receivePolicy.watchBurned',
+              },
+              {
+                text: 'watchClaimed',
+                link: '/tempo/actions/receivePolicy.watchClaimed',
+              },
+              {
+                text: 'watchUpdated',
+                link: '/tempo/actions/receivePolicy.watchUpdated',
+              },
+            ],
+          },
+          {
             text: 'Token',
             collapsed: false,
             items: [
@@ -1185,6 +1256,38 @@ export default defineConfig({
                 text: 'watchUpdateQuoteToken',
                 link: '/tempo/actions/token.watchUpdateQuoteToken',
               },
+            ],
+          },
+          {
+            text: 'Validator',
+            collapsed: false,
+            items: [
+              { text: 'add', link: '/tempo/actions/validator.add' },
+              {
+                text: 'changeOwner',
+                link: '/tempo/actions/validator.changeOwner',
+              },
+              {
+                text: 'changeStatus',
+                link: '/tempo/actions/validator.changeStatus',
+              },
+              { text: 'get', link: '/tempo/actions/validator.get' },
+              {
+                text: 'getByIndex',
+                link: '/tempo/actions/validator.getByIndex',
+              },
+              { text: 'getCount', link: '/tempo/actions/validator.getCount' },
+              {
+                text: 'getNextFullDkgCeremony',
+                link: '/tempo/actions/validator.getNextFullDkgCeremony',
+              },
+              { text: 'getOwner', link: '/tempo/actions/validator.getOwner' },
+              { text: 'list', link: '/tempo/actions/validator.list' },
+              {
+                text: 'setNextFullDkgCeremony',
+                link: '/tempo/actions/validator.setNextFullDkgCeremony',
+              },
+              { text: 'update', link: '/tempo/actions/validator.update' },
             ],
           },
         ],

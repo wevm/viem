@@ -1,0 +1,86 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `validator.update`
+
+Updates validator information.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.validator.updateSync({
+  inboundAddress: 'validator.example.com:9000',
+  newValidatorAddress: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  outboundAddress: '203.0.113.10:9000',
+  publicKey: '0x1111111111111111111111111111111111111111111111111111111111111111',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+The examples above use a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `validator.update` action and wait for inclusion manually:
+
+```ts twoslash
+import { client } from './viem.config'
+
+const hash = await client.validator.update({
+  inboundAddress: 'validator.example.com:9000',
+  newValidatorAddress: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  outboundAddress: '203.0.113.10:9000',
+  publicKey: '0x1111111111111111111111111111111111111111111111111111111111111111',
+})
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+}
+```
+
+The transaction receipt.
+
+## Parameters
+
+### inboundAddress
+
+- **Type:** `string`
+
+Validator inbound address `<hostname|ip>:<port>`.
+
+### newValidatorAddress
+
+- **Type:** `Address`
+
+New address for this validator.
+
+### outboundAddress
+
+- **Type:** `string`
+
+Validator outbound IP address `<ip>:<port>`.
+
+### publicKey
+
+- **Type:** `Hex`
+
+Validator communication public key.
+
+<WriteParameters />

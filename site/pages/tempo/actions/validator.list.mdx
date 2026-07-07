@@ -1,0 +1,43 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `validator.list`
+
+Gets the complete set of validators.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.validator.list()
+
+console.log('Result:', result.length)
+// @log: Result: 4
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type Validator = {
+  publicKey: Hex
+  active: boolean
+  index: bigint
+  validatorAddress: Address
+  inboundAddress: string
+  outboundAddress: string
+}[]
+```
+
+The complete set of validators.
+
+## Parameters
+
+<ReadParameters />

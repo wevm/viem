@@ -2,7 +2,7 @@
 "viem": major
 ---
 
-The `viem/tempo` extension was rebuilt on v3 primitives: module namespaces (`Abis`, `Account`, `Addresses`, `Capabilities`, `Expiry`, `Hardfork`, `KeyAuthorizationManager`, `P256`, `Scopes`, `Selectors`, `Storage`, `TokenIds`, `WebAuthnP256`, `WebCryptoP256`), chain schema hooks in place of formatters/serializers, a `Client.create` factory decorated with `tempoActions()`, and domain-namespaced actions (`token`, `fee`, `nonce`, `amm`, `channel`, and `dex` landed; further namespaces follow). The `nonce` actions drop the namespace echo: `nonce.getNonce` → `nonce.get`, `nonce.watchNonceIncremented` → `nonce.watchIncremented`.
+The `viem/tempo` extension was rebuilt on v3 primitives: module namespaces (`Abis`, `Account`, `Addresses`, `Capabilities`, `Expiry`, `Hardfork`, `KeyAuthorizationManager`, `P256`, `Scopes`, `Selectors`, `Storage`, `TokenIds`, `WebAuthnP256`, `WebCryptoP256`), chain schema hooks in place of formatters/serializers, a `Client.create` factory decorated with `tempoActions()`, and domain-namespaced actions (`token`, `fee`, `nonce`, `amm`, `channel`, `dex`, `policy`, `receivePolicy`, and `validator` landed; further namespaces follow). `policy.create` now honors an explicit `admin` option (previously the sender was always used). The `nonce` actions drop the namespace echo: `nonce.getNonce` → `nonce.get`, `nonce.watchNonceIncremented` → `nonce.watchIncremented`.
 
 ```diff
 - import { Account, Actions, createClient } from 'viem/tempo'

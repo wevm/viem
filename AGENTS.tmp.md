@@ -124,6 +124,9 @@ when porting or reshaping v2 surface area.
   returns with the tempo `simulate` namespace (W5e); until then tests pass `account` on the call.
 - **Channel ids embed the open transaction's expiring-nonce hash** and are nondeterministic
   across runs; assert them against the `openSync` result instead of pinning snapshots.
+- **Fee transfers are policy-enforced**: a sender blacklisted on its fee token fails any
+  transaction paying fees in that token with `PolicyForbids` — pay fees in a different token
+  (see the dex `cancelStale` test). v2-era nodes did not enforce policies on fee transfers.
 - **`as never` audit (2026-07-07)**: 683 → 103 (62 impl + 41 test). Every remaining site was
   verified load-bearing (its removal produces type errors). The removable classes and their
   root-cause fixes are codified in AGENTS.md ("No `as never`"); the dominant fix was the

@@ -1,0 +1,51 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `policy.isAuthorized`
+
+Checks if a user is authorized by a TIP-403 transfer policy.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const authorized = await client.policy.isAuthorized({
+  policyId: 1n,
+  user: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+
+console.log('Authorized:', authorized)
+// @log: Authorized: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = boolean
+```
+
+Whether the user is authorized by the policy.
+
+## Parameters
+
+### policyId
+
+- **Type:** `bigint`
+
+Policy ID.
+
+### user
+
+- **Type:** `Address`
+
+User address to check.
+
+<ReadParameters />

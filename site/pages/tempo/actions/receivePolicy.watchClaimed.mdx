@@ -1,0 +1,112 @@
+# `receivePolicy.watchClaimed`
+
+Watches for receipt claimed events.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.receivePolicy.watchClaimed()
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log(log.args)
+  // @log: { token: '0x20c0000000000000000000000000000000000001', receiver: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', blockedNonce: 1n, to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', amount: 1000000n }
+})
+
+// Later, tear down the watcher.
+watcher.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Also callable standalone: `Actions.receivePolicy.watchClaimed(client, options)`, with `Actions` imported from `'viem/tempo'`.
+
+## Return Type
+
+Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.
+
+```ts
+type ReturnType = {
+  /** Registers a log listener. Starts the watcher on first registration. Returns an unregister function. */
+  onLogs: (fn: (logs: readonly Log[]) => void) => () => void
+  /** Registers an error listener. Returns an unregister function. */
+  onError: (fn: (error: Error) => void) => () => void
+  /** Tears down the watcher: removes listeners, ends iterators, stops the poll or subscription. */
+  off: () => void
+  /** Async-iterates emitted log batches (latest-only stream). */
+  [Symbol.asyncIterator]: () => AsyncIterableIterator<{ logs: readonly Log[] }>
+}
+```
+
+Each log is decoded, with the event arguments on `args`:
+
+```ts
+type Log = {
+  /** Decoded `ReceiptClaimed` event arguments. */
+  args: {
+    token: Address
+    receiver: Address
+    blockedNonce: bigint
+    blockedAt: bigint
+    receiptVersion: number
+    originator: Address
+    recipient: Address
+    recoveryAuthority: Address
+    caller: Address
+    to: Address
+    amount: bigint
+  }
+  /** Name of the emitted event. */
+  eventName: 'ReceiptClaimed'
+  // ...standard log fields (address, blockHash, blockNumber, logIndex, transactionHash, ...)
+}
+```
+
+## Parameters
+
+### args (optional)
+
+- **Type:** `object`
+
+```ts
+type Args = {
+  token?: Address | Address[] | null
+  receiver?: Address | Address[] | null
+  blockedNonce?: bigint | bigint[] | null
+}
+```
+
+Indexed argument values to filter logs by.
+
+### batch (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to batch the logs found within a poll interval into a single emission. When `false`, each log is emitted on its own.
+
+### fromBlock (optional)
+
+- **Type:** `bigint`
+
+Block number from which to start watching for logs.
+
+### poll (optional)
+
+- **Type:** `boolean`
+
+Whether to poll for new logs instead of using a subscription. Defaults to `true` when the transport cannot subscribe or `fromBlock` is provided.
+
+### pollingInterval (optional)
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Polling frequency (in ms).

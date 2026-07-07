@@ -1,0 +1,36 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `validator.getOwner`
+
+Gets the validator config owner.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.validator.getOwner()
+
+console.log('Result:', result)
+// @log: Result: 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = Address
+```
+
+The validator config owner address.
+
+## Parameters
+
+<ReadParameters />

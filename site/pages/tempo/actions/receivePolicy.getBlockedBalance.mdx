@@ -1,0 +1,44 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `receivePolicy.getBlockedBalance`
+
+Gets the blocked balance for an encoded receipt.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const balance = await client.receivePolicy.getBlockedBalance({
+  receipt: '0x1234',
+})
+
+console.log('Blocked balance:', balance)
+// @log: Blocked balance: 1000000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = bigint
+```
+
+The blocked balance for the encoded receipt.
+
+## Parameters
+
+### receipt
+
+- **Type:** `Hex`
+
+The encoded claim receipt.
+
+<ReadParameters />

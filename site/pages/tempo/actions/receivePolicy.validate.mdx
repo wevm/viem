@@ -1,0 +1,63 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `receivePolicy.validate`
+
+Checks whether a transfer or mint to a receiver is allowed by the receiver receive policy.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.receivePolicy.validate({
+  receiver: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  sender: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log('Authorized:', result.authorized)
+// @log: Authorized: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Whether the transfer is authorized. */
+  authorized: boolean
+  /** Reason the transfer would be blocked. */
+  blockedReason: 'none' | 'tokenFilter' | 'receivePolicy'
+}
+```
+
+Whether the transfer is authorized and why it would be blocked.
+
+## Parameters
+
+### receiver
+
+- **Type:** `Address`
+
+Receiver address.
+
+### sender
+
+- **Type:** `Address`
+
+Sender address.
+
+### token
+
+- **Type:** `Address`
+
+Token address.
+
+<ReadParameters />

@@ -28,7 +28,54 @@ async function setupTokenPair() {
 }
 
 describe('cancelStale', () => {
-  test.todo('default (blocked: policy)')
+  test('default', async () => {
+    const { base } = await setupTokenPair()
+
+    // Create a blacklist policy and attach it to the quote token (pathUSD,
+    // used for bid escrows).
+    const { policyId } = await Actions.policy.createSync(client, {
+      type: 'blacklist',
+    })
+    await Actions.token.changeTransferPolicySync(client, {
+      policyId,
+      token: tempo.pathUsd,
+    })
+
+    // Place a bid order (escrows quote token).
+    const { orderId } = await Actions.dex.placeSync(client, {
+      amount: Value.from('100', 6),
+      tick: 100,
+      token: base,
+      type: 'buy',
+    })
+
+    // Blacklist the maker (ourselves), making the order stale.
+    await Actions.policy.modifyBlacklistSync(client, {
+      address: account.address,
+      policyId,
+      restricted: true,
+    })
+
+    // Pay fees in alphaUSD: the sender is now blacklisted on pathUSD, so
+    // pathUSD fee transfers are forbidden by the policy.
+    const { receipt, orderId: returnedOrderId } =
+      await Actions.dex.cancelStaleSync(client, {
+        feeToken: tempo.alphaUsd,
+        orderId,
+      })
+
+    expect(receipt.status).toBe('success')
+    expect(returnedOrderId).toBe(orderId)
+
+    // Restore the maker so later tests in this file keep a clean slate (the
+    // node state is shared across tests within the file).
+    await Actions.policy.modifyBlacklistSync(client, {
+      address: account.address,
+      feeToken: tempo.alphaUsd,
+      policyId,
+      restricted: false,
+    })
+  })
 
   test('behavior: cannot cancel non-stale order', async () => {
     const { base } = await setupTokenPair()

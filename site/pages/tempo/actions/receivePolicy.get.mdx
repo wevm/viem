@@ -1,0 +1,59 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `receivePolicy.get`
+
+Gets the receive policy configured for an account.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const policy = await client.receivePolicy.get({
+  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+})
+
+console.log('Receive policy:', policy.hasReceivePolicy)
+// @log: Receive policy: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Whether the account has a receive policy configured. */
+  hasReceivePolicy: boolean
+  /** TIP-403 policy restricting which senders are allowed. */
+  senderPolicyId: 'reject-all' | 'allow-all' | bigint
+  /** Type of the sender policy. */
+  senderPolicyType: 'blacklist' | 'whitelist'
+  /** TIP-403 policy restricting which tokens are allowed. */
+  tokenPolicyId: 'reject-all' | 'allow-all' | bigint
+  /** Type of the token policy. */
+  tokenPolicyType: 'blacklist' | 'whitelist'
+  /** Who can reclaim funds blocked by this policy. */
+  claimer: 'sender' | 'self' | Address
+  /** Raw recovery authority address. */
+  recoveryAuthority: Address
+}
+```
+
+The account receive policy configuration.
+
+## Parameters
+
+### account (optional)
+
+- **Type:** `Account | Address`
+
+Account or address whose receive policy is read. Defaults to `client.account`.
+
+<ReadParameters />

@@ -1,0 +1,36 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `validator.getNextFullDkgCeremony`
+
+Gets the next epoch for a full DKG ceremony.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.validator.getNextFullDkgCeremony()
+
+console.log('Result:', result)
+// @log: Result: 42n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = bigint
+```
+
+The next epoch for a full DKG ceremony.
+
+## Parameters
+
+<ReadParameters />

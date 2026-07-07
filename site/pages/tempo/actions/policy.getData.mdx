@@ -1,0 +1,49 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `policy.getData`
+
+Gets TIP-403 transfer policy data.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const data = await client.policy.getData({
+  policyId: 1n,
+})
+
+console.log('Policy data:', data)
+// @log: Policy data: { admin: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', type: 'whitelist' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Admin address. */
+  admin: Address
+  /** Policy type. */
+  type: 'blacklist' | 'whitelist'
+}
+```
+
+The policy admin address and policy type.
+
+## Parameters
+
+### policyId
+
+- **Type:** `bigint`
+
+Policy ID.
+
+<ReadParameters />

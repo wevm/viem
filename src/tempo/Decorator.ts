@@ -7,7 +7,10 @@ import * as channel from './actions/channel/index.js'
 import * as dex from './actions/dex/index.js'
 import * as fee from './actions/fee/index.js'
 import * as nonce from './actions/nonce/index.js'
+import * as policy from './actions/policy/index.js'
+import * as receivePolicy from './actions/receivePolicy/index.js'
 import * as token from './actions/token/index.js'
+import * as validator from './actions/validator/index.js'
 
 /**
  * Bag of Tempo actions bound to a {@link Client.Client}. Pass to
@@ -109,6 +112,42 @@ export function tempoActions() {
       get: (options) => nonce.get(client, options),
       watchIncremented: (options) => nonce.watchIncremented(client, options),
     },
+    policy: {
+      create: (options) => policy.create(client, options),
+      createSync: (options) => policy.createSync(client, options),
+      getData: (options) => policy.getData(client, options),
+      isAuthorized: (options) => policy.isAuthorized(client, options),
+      modifyBlacklist: (options) => policy.modifyBlacklist(client, options),
+      modifyBlacklistSync: (options) =>
+        policy.modifyBlacklistSync(client, options),
+      modifyWhitelist: (options) => policy.modifyWhitelist(client, options),
+      modifyWhitelistSync: (options) =>
+        policy.modifyWhitelistSync(client, options),
+      setAdmin: (options) => policy.setAdmin(client, options),
+      setAdminSync: (options) => policy.setAdminSync(client, options),
+      watchAdminUpdated: (options) => policy.watchAdminUpdated(client, options),
+      watchBlacklistUpdated: (options) =>
+        policy.watchBlacklistUpdated(client, options),
+      watchCreate: (options) => policy.watchCreate(client, options),
+      watchWhitelistUpdated: (options) =>
+        policy.watchWhitelistUpdated(client, options),
+    },
+    receivePolicy: {
+      burn: (options) => receivePolicy.burn(client, options),
+      burnSync: (options) => receivePolicy.burnSync(client, options),
+      claim: (options) => receivePolicy.claim(client, options),
+      claimSync: (options) => receivePolicy.claimSync(client, options),
+      get: (options) => receivePolicy.get(client, options),
+      getBlockedBalance: (options) =>
+        receivePolicy.getBlockedBalance(client, options),
+      set: (options) => receivePolicy.set(client, options),
+      setSync: (options) => receivePolicy.setSync(client, options),
+      validate: (options) => receivePolicy.validate(client, options),
+      watchBlocked: (options) => receivePolicy.watchBlocked(client, options),
+      watchBurned: (options) => receivePolicy.watchBurned(client, options),
+      watchClaimed: (options) => receivePolicy.watchClaimed(client, options),
+      watchUpdated: (options) => receivePolicy.watchUpdated(client, options),
+    },
     token: {
       approve: (options) => token.approve(client, options),
       approveSync: (options) => token.approveSync(client, options),
@@ -162,6 +201,28 @@ export function tempoActions() {
       watchTransfer: (options) => token.watchTransfer(client, options),
       watchUpdateQuoteToken: (options) =>
         token.watchUpdateQuoteToken(client, options),
+    },
+    validator: {
+      add: (options) => validator.add(client, options),
+      addSync: (options) => validator.addSync(client, options),
+      changeOwner: (options) => validator.changeOwner(client, options),
+      changeOwnerSync: (options) => validator.changeOwnerSync(client, options),
+      changeStatus: (options) => validator.changeStatus(client, options),
+      changeStatusSync: (options) =>
+        validator.changeStatusSync(client, options),
+      get: (options) => validator.get(client, options),
+      getByIndex: (options) => validator.getByIndex(client, options),
+      getCount: (options) => validator.getCount(client, options),
+      getNextFullDkgCeremony: (options) =>
+        validator.getNextFullDkgCeremony(client, options),
+      getOwner: (options) => validator.getOwner(client, options),
+      list: (options) => validator.list(client, options),
+      setNextFullDkgCeremony: (options) =>
+        validator.setNextFullDkgCeremony(client, options),
+      setNextFullDkgCeremonySync: (options) =>
+        validator.setNextFullDkgCeremonySync(client, options),
+      update: (options) => validator.update(client, options),
+      updateSync: (options) => validator.updateSync(client, options),
     },
   })
 }
@@ -1239,6 +1300,118 @@ export type Decorator<
     watchIncremented: (
       options?: nonce.watchIncremented.Options,
     ) => nonce.watchIncremented.ReturnType
+  }
+  policy: {
+    /** Creates a TIP-403 transfer policy. */
+    create: (
+      options: policy.create.Options<account>,
+    ) => Promise<policy.create.ReturnType>
+    /** Creates a TIP-403 transfer policy, and waits for the transaction to be confirmed. */
+    createSync: (
+      options: policy.createSync.Options<account>,
+    ) => Promise<policy.createSync.ReturnType>
+    /** Gets TIP-403 transfer policy data. */
+    getData: (
+      options: policy.getData.Options,
+    ) => Promise<policy.getData.ReturnType>
+    /** Checks if a user is authorized by a TIP-403 transfer policy. */
+    isAuthorized: (
+      options: policy.isAuthorized.Options,
+    ) => Promise<policy.isAuthorized.ReturnType>
+    /** Modifies a TIP-403 transfer policy blacklist. */
+    modifyBlacklist: (
+      options: policy.modifyBlacklist.Options,
+    ) => Promise<policy.modifyBlacklist.ReturnType>
+    /** Modifies a TIP-403 transfer policy blacklist, and waits for the transaction to be confirmed. */
+    modifyBlacklistSync: (
+      options: policy.modifyBlacklistSync.Options,
+    ) => Promise<policy.modifyBlacklistSync.ReturnType>
+    /** Modifies a TIP-403 transfer policy whitelist. */
+    modifyWhitelist: (
+      options: policy.modifyWhitelist.Options,
+    ) => Promise<policy.modifyWhitelist.ReturnType>
+    /** Modifies a TIP-403 transfer policy whitelist, and waits for the transaction to be confirmed. */
+    modifyWhitelistSync: (
+      options: policy.modifyWhitelistSync.Options,
+    ) => Promise<policy.modifyWhitelistSync.ReturnType>
+    /** Sets the admin for a TIP-403 transfer policy. */
+    setAdmin: (
+      options: policy.setAdmin.Options,
+    ) => Promise<policy.setAdmin.ReturnType>
+    /** Sets the admin for a TIP-403 transfer policy, and waits for the transaction to be confirmed. */
+    setAdminSync: (
+      options: policy.setAdminSync.Options,
+    ) => Promise<policy.setAdminSync.ReturnType>
+    /** Watches `PolicyAdminUpdated` events on the TIP-403 registry. */
+    watchAdminUpdated: (
+      options?: policy.watchAdminUpdated.Options,
+    ) => policy.watchAdminUpdated.ReturnType
+    /** Watches `BlacklistUpdated` events on the TIP-403 registry. */
+    watchBlacklistUpdated: (
+      options?: policy.watchBlacklistUpdated.Options,
+    ) => policy.watchBlacklistUpdated.ReturnType
+    /** Watches `PolicyCreated` events on the TIP-403 registry. */
+    watchCreate: (
+      options?: policy.watchCreate.Options,
+    ) => policy.watchCreate.ReturnType
+    /** Watches `WhitelistUpdated` events on the TIP-403 registry. */
+    watchWhitelistUpdated: (
+      options?: policy.watchWhitelistUpdated.Options,
+    ) => policy.watchWhitelistUpdated.ReturnType
+  }
+  receivePolicy: {
+    /** Burns the funds backing a blocked receipt. */
+    burn: (
+      options: receivePolicy.burn.Options,
+    ) => Promise<receivePolicy.burn.ReturnType>
+    /** Burns the funds backing a blocked receipt and waits for the transaction to be confirmed. */
+    burnSync: (
+      options: receivePolicy.burnSync.Options,
+    ) => Promise<receivePolicy.burnSync.ReturnType>
+    /** Claims blocked funds for a receipt. */
+    claim: (
+      options: receivePolicy.claim.Options,
+    ) => Promise<receivePolicy.claim.ReturnType>
+    /** Claims blocked funds for a receipt and waits for the transaction to be confirmed. */
+    claimSync: (
+      options: receivePolicy.claimSync.Options,
+    ) => Promise<receivePolicy.claimSync.ReturnType>
+    /** Gets the receive policy configured for an account. */
+    get: (
+      options: receivePolicy.get.Options,
+    ) => Promise<receivePolicy.get.ReturnType>
+    /** Gets the blocked balance for an encoded receipt. */
+    getBlockedBalance: (
+      options: receivePolicy.getBlockedBalance.Options,
+    ) => Promise<receivePolicy.getBlockedBalance.ReturnType>
+    /** Sets the receive policy for the calling account. */
+    set: (
+      options: receivePolicy.set.Options,
+    ) => Promise<receivePolicy.set.ReturnType>
+    /** Sets the receive policy for the calling account and waits for the transaction to be confirmed. */
+    setSync: (
+      options: receivePolicy.setSync.Options,
+    ) => Promise<receivePolicy.setSync.ReturnType>
+    /** Checks whether a transfer or mint to a receiver is allowed by the receiver's receive policy. */
+    validate: (
+      options: receivePolicy.validate.Options,
+    ) => Promise<receivePolicy.validate.ReturnType>
+    /** Watches for blocked transfer events. */
+    watchBlocked: (
+      options?: receivePolicy.watchBlocked.Options,
+    ) => receivePolicy.watchBlocked.ReturnType
+    /** Watches for receipt burned events. */
+    watchBurned: (
+      options?: receivePolicy.watchBurned.Options,
+    ) => receivePolicy.watchBurned.ReturnType
+    /** Watches for receipt claimed events. */
+    watchClaimed: (
+      options?: receivePolicy.watchClaimed.Options,
+    ) => receivePolicy.watchClaimed.ReturnType
+    /** Watches for receive policy update events. */
+    watchUpdated: (
+      options?: receivePolicy.watchUpdated.Options,
+    ) => receivePolicy.watchUpdated.ReturnType
   }
   token: {
     /**
@@ -2322,5 +2495,67 @@ export type Decorator<
     watchUpdateQuoteToken: (
       options: token.watchUpdateQuoteToken.Options,
     ) => token.watchUpdateQuoteToken.ReturnType
+  }
+  validator: {
+    /** Adds a new validator. */
+    add: (options: validator.add.Options) => Promise<validator.add.ReturnType>
+    /** Adds a new validator, and waits for the transaction to be confirmed. */
+    addSync: (
+      options: validator.addSync.Options,
+    ) => Promise<validator.addSync.ReturnType>
+    /** Changes the owner of the validator config precompile. */
+    changeOwner: (
+      options: validator.changeOwner.Options,
+    ) => Promise<validator.changeOwner.ReturnType>
+    /** Changes the owner of the validator config precompile, and waits for the transaction to be confirmed. */
+    changeOwnerSync: (
+      options: validator.changeOwnerSync.Options,
+    ) => Promise<validator.changeOwnerSync.ReturnType>
+    /** Changes validator active status. */
+    changeStatus: (
+      options: validator.changeStatus.Options,
+    ) => Promise<validator.changeStatus.ReturnType>
+    /** Changes validator active status, and waits for the transaction to be confirmed. */
+    changeStatusSync: (
+      options: validator.changeStatusSync.Options,
+    ) => Promise<validator.changeStatusSync.ReturnType>
+    /** Gets validator information by address. */
+    get: (options: validator.get.Options) => Promise<validator.get.ReturnType>
+    /** Gets a validator address by index. */
+    getByIndex: (
+      options: validator.getByIndex.Options,
+    ) => Promise<validator.getByIndex.ReturnType>
+    /** Gets the total number of validators. */
+    getCount: (
+      options?: validator.getCount.Options,
+    ) => Promise<validator.getCount.ReturnType>
+    /** Gets the next epoch for a full DKG ceremony. */
+    getNextFullDkgCeremony: (
+      options?: validator.getNextFullDkgCeremony.Options,
+    ) => Promise<validator.getNextFullDkgCeremony.ReturnType>
+    /** Gets the validator config owner. */
+    getOwner: (
+      options?: validator.getOwner.Options,
+    ) => Promise<validator.getOwner.ReturnType>
+    /** Gets the complete set of validators. */
+    list: (
+      options?: validator.list.Options,
+    ) => Promise<validator.list.ReturnType>
+    /** Sets the next epoch for a full DKG ceremony. */
+    setNextFullDkgCeremony: (
+      options: validator.setNextFullDkgCeremony.Options,
+    ) => Promise<validator.setNextFullDkgCeremony.ReturnType>
+    /** Sets the next epoch for a full DKG ceremony, and waits for the transaction to be confirmed. */
+    setNextFullDkgCeremonySync: (
+      options: validator.setNextFullDkgCeremonySync.Options,
+    ) => Promise<validator.setNextFullDkgCeremonySync.ReturnType>
+    /** Updates validator information. */
+    update: (
+      options: validator.update.Options,
+    ) => Promise<validator.update.ReturnType>
+    /** Updates validator information, and waits for the transaction to be confirmed. */
+    updateSync: (
+      options: validator.updateSync.Options,
+    ) => Promise<validator.updateSync.ReturnType>
   }
 } & ([chain, account] extends [unknown, unknown] ? unknown : never)
