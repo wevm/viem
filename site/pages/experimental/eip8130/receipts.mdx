@@ -1,0 +1,63 @@
+---
+description: Read EIP-8130 receipt fields — per-phase statuses, payer, and metadata
+---
+
+# Receipts
+
+An `AA_TX_TYPE` (`0x79`) receipt carries extra fields beyond a standard receipt: the resolved gas **payer**, the **per-phase execution statuses**, and the echoed **metadata**. `getTransactionReceipt8130` and `waitForTransactionReceipt8130` surface these under a parsed `eip8130` property while still returning the raw receipt.
+
+## Wait for a receipt
+
+```ts
+import { waitForTransactionReceipt8130 } from 'viem/experimental/eip8130'
+
+const receipt = await waitForTransactionReceipt8130(client, { hash })
+
+receipt.status                  // top-level tx status ('0x1' / '0x0')
+receipt.eip8130.payer           // who paid gas (sender for self-pay)
+receipt.eip8130.phaseStatuses   // e.g. ['0x1', '0x0'] — per phase, in order
+receipt.eip8130.metadata        // opaque bytes echoed from the signed tx
+```
+
+It polls `eth_getTransactionReceipt` until the transaction is mined (default every `500ms`, timing out after `60_000ms` — both configurable). Unlike the generic `waitForTransactionReceipt`, it skips same-nonce replacement detection, since EIP-8130 uses 2D channel nonces.
+
+## Fetch without waiting
+
+`getTransactionReceipt8130` returns `null` if the receipt is not yet available:
+
+```ts
+import { getTransactionReceipt8130 } from 'viem/experimental/eip8130'
+
+const receipt = await getTransactionReceipt8130(client, { hash })
+if (receipt) console.log(receipt.eip8130.phaseStatuses)
+```
+
+The `eip8130` fields are only populated for `AA_TX_TYPE` receipts on a node with the extension; they are `undefined` for standard receipts or older nodes.
+
+## Per-phase statuses
+
+`phaseStatuses` reports each [call phase](/experimental/eip8130/calls-and-batching) in order — `0x1` for success, `0x0` for revert. Because a reverted phase halts execution, every phase after the first failure is reported `0x0`. The array is empty when the transaction has no calls (e.g. a config-only change).
+
+`allPhasesSucceeded` collapses this to a single boolean:
+
+```ts
+import { allPhasesSucceeded, waitForTransactionReceipt8130 } from 'viem/experimental/eip8130'
+
+const receipt = await waitForTransactionReceipt8130(client, { hash })
+if (!allPhasesSucceeded(receipt.eip8130)) {
+  // The tx was still included and the fee was paid, but a phase reverted.
+  const failedPhase = receipt.eip8130.phaseStatuses?.findIndex((s) => s !== '0x1')
+}
+```
+
+:::warning[A reverted 8130 transaction is still included]
+Unlike a failed EVM call, a reverted `AA_TX_TYPE` transaction is mined: its nonce is consumed and its fee is paid. Always check `phaseStatuses` / `allPhasesSucceeded` (not just `receipt.status`) to confirm your calls actually executed.
+:::
+
+## The payer field
+
+`eip8130.payer` is the account that paid the gas: the sender for a self-paid transaction, or the named [payer](/experimental/eip8130/sponsoring-transactions) for a sponsored one. Use it to confirm sponsorship landed as expected.
+
+## Next
+
+- Attach and read application data with [metadata](/experimental/eip8130/metadata).

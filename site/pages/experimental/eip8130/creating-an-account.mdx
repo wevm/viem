@@ -1,0 +1,115 @@
+---
+description: Create an EIP-8130 smart account from a secp256k1, P-256, or WebAuthn passkey signer
+---
+
+# Creating an Account
+
+`newSmartAccount8130` turns a signer into an EIP-8130 smart account. It auto-derives the controlling actor, the deployment bytecode, and the counterfactual CREATE2 address. The account is **not** deployed yet — it is deployed atomically inside its [first transaction](/experimental/eip8130/sending-a-transaction#deploy-on-first-use).
+
+By default the account is an **`UpgradeableAccount`** deployed behind an ERC-1967 `UpgradeableProxy`, so its implementation can later be swapped via a CONFIG-key-signed `upgradeBySignature`. Pass `upgradeable: false` to deploy an immutable `DefaultHighRateAccount` behind a 45-byte ERC-1167 proxy instead.
+
+The signer type (K1 / P-256 / WebAuthn) is detected automatically.
+
+## secp256k1 (EOA key)
+
+```ts
+import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
+import { newSmartAccount8130 } from 'viem/experimental/eip8130'
+
+const owner = privateKeyToAccount(generatePrivateKey())
+
+const account = newSmartAccount8130({ signer: owner })
+
+account.address        // counterfactual address (deterministic from the salt)
+account.createChange   // include in `accountChanges` to deploy on first use
+```
+
+Pass a fixed `salt` to recover the same address across sessions:
+
+```ts
+import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
+import { newSmartAccount8130 } from 'viem/experimental/eip8130'
+const owner = privateKeyToAccount(generatePrivateKey())
+const account = newSmartAccount8130({
+  signer: owner,
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000001',
+})
+```
+
+## P-256
+
+```ts
+import * as P256 from 'ox/P256'
+import { newSmartAccount8130, toP256Signer } from 'viem/experimental/eip8130'
+
+const signer = toP256Signer({ privateKey: P256.randomPrivateKey() })
+
+const account = newSmartAccount8130({ signer })
+```
+
+## WebAuthn / passkey
+
+```ts
+import { createWebAuthnCredential, toWebAuthnAccount } from 'viem/account-abstraction'
+import { newSmartAccount8130, toWebAuthnSigner } from 'viem/experimental/eip8130'
+
+const credential = await createWebAuthnCredential({ name: 'vibes' })
+const signer = toWebAuthnSigner(toWebAuthnAccount({ credential }))
+
+const account = newSmartAccount8130({ signer })
+```
+
+## Multiple initial keys
+
+Register additional actors at creation with `extraActors`. Use the [`key`](/experimental/eip8130/rotating-owners#actors-and-keys) builders — the library sorts actors by `actorId` for you (a protocol requirement).
+
+```ts
+import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
+import { key, newSmartAccount8130, toP256Signer } from 'viem/experimental/eip8130'
+import * as P256 from 'ox/P256'
+
+const owner = privateKeyToAccount(generatePrivateKey())
+const p256 = toP256Signer({ privateKey: P256.randomPrivateKey() })
+
+const account = newSmartAccount8130({
+  signer: owner,
+  extraActors: [key.p256(p256.publicKey)],
+})
+```
+
+## Plain / delegated EOAs
+
+To use a raw secp256k1 EOA as its own account (cheapest auth path — a bare 65-byte signature, no contract required), use `toEoa8130Account`. The same account can later be upgraded to a smart account via an EIP-7702 delegation in its first transaction.
+
+```ts
+import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
+import { toEoa8130Account } from 'viem/experimental/eip8130'
+
+const account = toEoa8130Account(privateKeyToAccount(generatePrivateKey()))
+
+// Later, install smart-account code with `account.delegate(impl)` in the first
+// transaction's `accountChanges`.
+```
+
+## Cross-chain (ERC-4337) portability
+
+The same EIP-8130 account works on chains **without** native 8130 support through a bundler, by wrapping it as a standard Viem Smart Account. Execution routes through `executeBatch` on the `BackwardsCompatible4337Account` implementation, and deployment uses the Account Configuration contract as the ERC-4337 factory.
+
+`BackwardsCompatible4337Account` is an opt-in example — it is **not** part of the canonical deployment. Deploy it yourself (via the Account Configuration `CREATE2` factory) and pass its address as `implementation`:
+
+```ts
+import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
+import { toSmartAccount8130 } from 'viem/experimental/eip8130'
+
+const account = await toSmartAccount8130({
+  client,
+  owner: privateKeyToAccount(generatePrivateKey()),
+  userSalt: '0x0000000000000000000000000000000000000000000000000000000000000001',
+  initialActors: [/* key.k1(owner.address), ... */],
+  implementation: erc4337AccountImplementation, // address of your deployed BackwardsCompatible4337Account
+})
+```
+
+## Next
+
+Now [send a transaction](/experimental/eip8130/sending-a-transaction) with your account.

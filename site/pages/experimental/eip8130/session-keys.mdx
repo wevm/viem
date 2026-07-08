@@ -1,0 +1,131 @@
+---
+description: Create policy-gated session keys on an EIP-8130 account
+---
+
+# Session Keys
+
+A session key is a **policy-gated actor**: a key authorized with a restricted scope and a policy commitment. The protocol forces every call that key makes to land on a `PolicyManager`, which enforces the committed policy (spend limits, target/selector allowlists) and then drives the account. This lets you hand out a scoped key without granting full ownership.
+
+:::warning[Warning]
+The `PolicyManager` and `SessionPolicy` contracts are an unaudited reference implementation from [base/eip-8130](https://github.com/base/eip-8130/tree/main/src/examples/policies). Addresses default to the Base Sepolia deployment — override `manager` / `policy` for other chains.
+:::
+
+## The flow
+
+1. **Author** a `SessionPolicy` config — the allowlists and spend limits.
+2. **Bind** it to the account with `defineSessionPolicy` to get the commitment, the `authorizeActor` policy, and the install call.
+3. **Authorize + install** the key in one transaction. The install initializes the binding and MUST land before the key's first use.
+4. **Use** the key: it sends `executeCall(action)`, and its only reachable target is the manager.
+
+## Author + bind
+
+```ts
+import { parseUnits } from 'viem'
+import {
+  defineSessionPolicy,
+  encodeSessionPolicyConfig,
+} from 'viem/experimental/eip8130'
+
+const session = defineSessionPolicy({
+  account: account.address,
+  policyConfig: encodeSessionPolicyConfig({
+    // ≤ 100 USDC per week.
+    tokenLimits: [
+      { token: usdc, limit: parseUnits('100', 6), period: 7n * 86_400n },
+    ],
+    // Only `transfer(address,uint256)` on the USDC contract.
+    callScopes: [
+      { target: usdc, selectorRules: [{ selector: '0xa9059cbb' }] },
+    ],
+  }),
+})
+
+session.commitment   // the policy commitment stored on the actor
+session.actorPolicy  // pass to `authorizeActor(key, { scope, policy })`
+```
+
+`selectorRules` may bind recipients for the standard ERC-20 selectors (`transfer`, `transferFrom`, `approve`):
+
+```ts
+import { encodeSessionPolicyConfig } from 'viem/experimental/eip8130'
+
+encodeSessionPolicyConfig({
+  callScopes: [
+    {
+      target: usdc,
+      selectorRules: [{ selector: '0xa9059cbb', recipients: [payroll] }],
+    },
+  ],
+})
+```
+
+## Authorize + install
+
+Authorize the session key with a **restricted** scope (a policy-bearing actor must not have `config` scope) and ride the install call in the same transaction:
+
+```ts
+import {
+  actorScope,
+  authorizeActor,
+  key,
+  sendCalls8130,
+} from 'viem/experimental/eip8130'
+
+const sessionKey = key.p256({ x, y })
+
+const change = await account.change(
+  [
+    authorizeActor(sessionKey, {
+      scope: actorScope.sender,
+      policy: session.actorPolicy,
+    }),
+  ],
+  { chainId: client.chain.id, sequence: Number(sequence) },
+)
+
+const hash = await sendCalls8130(client, {
+  account,
+  accountChanges: [change],
+  // The install call initializes the binding — it must land before first use.
+  calls: [session.installCall(sessionKey.actorId)],
+  gas: 300_000n,
+})
+```
+
+## Use the session key
+
+Build the account with the session signer and send an `executeCall`. The manager verifies the action against the committed policy, then executes it:
+
+```ts
+import { encodeFunctionData, erc20Abi, parseUnits } from 'viem'
+import {
+  encodeSessionPolicyAction,
+  newSmartAccount8130,
+  sendCalls8130,
+  toP256Signer,
+} from 'viem/experimental/eip8130'
+
+// Same account address, driven by the session key.
+const sessionAccount = newSmartAccount8130({
+  signer: toP256Signer({ privateKey: sessionPrivateKey }),
+  salt: accountSalt,
+})
+
+const transfer = encodeFunctionData({
+  abi: erc20Abi,
+  functionName: 'transfer',
+  args: [recipient, parseUnits('10', 6)],
+})
+
+const hash = await sendCalls8130(client, {
+  account: sessionAccount,
+  calls: [
+    session.executeCall(
+      encodeSessionPolicyAction({ target: usdc, data: transfer }),
+    ),
+  ],
+  gas: 250_000n,
+})
+```
+
+A transfer that exceeds the weekly limit, or targets a contract/selector outside the allowlist, reverts inside the manager — so the key can only ever act within its committed policy.

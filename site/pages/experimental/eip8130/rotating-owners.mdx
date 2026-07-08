@@ -1,0 +1,145 @@
+---
+description: Authorize and revoke actors on an EIP-8130 account
+---
+
+# Rotating Owners
+
+An EIP-8130 account is controlled by a set of **actors**. You rotate ownership by applying a signed `config` account-change that authorizes new actors and/or revokes existing ones. Because a config change is just an `accountChanges` entry, it rides along inside a normal transaction.
+
+## Actors and keys
+
+Each actor is `{ actorId, authenticator }`. Build them with the `key` helpers:
+
+```ts
+import { key } from 'viem/experimental/eip8130'
+
+key.k1('0xowner...')             // secp256k1 (native ecrecover)
+key.p256({ x, y })               // P-256 public key
+key.passkey({ x, y })            // WebAuthn / FIDO2 passkey
+key.delegate('0xotherAccount')   // signatures for another account act for this one
+```
+
+## Scope and expiry
+
+`authorizeActor` attaches a permission scope and optional expiry to an actor. Combine scope flags with `toScope`:
+
+```ts
+import { actorScope, authorizeActor, key, toScope } from 'viem/experimental/eip8130'
+
+authorizeActor(key.p256({ x, y }), {
+  // What the actor may do: sign / act as sender / act as payer / change config.
+  scope: toScope(actorScope.sender, actorScope.signature),
+  // Optional expiry (unix seconds); 0/omitted = no expiry.
+  expiry: BigInt(Math.floor(Date.now() / 1000) + 86_400),
+})
+```
+
+| Flag | Grants |
+| --- | --- |
+| `actorScope.signature` | Producing signatures for the account (e.g. ERC-1271). |
+| `actorScope.sender` | Sending transactions (the `sender` auth path). |
+| `actorScope.payer` | Sponsoring transactions as the `payer`. |
+| `actorScope.config` | Changing the account's actor configuration. |
+
+An unrestricted (full-owner) actor uses scope `0`.
+
+## Read the config sequence
+
+Every config change is signed against the account's **next** config sequence. Read it first to avoid sequence-mismatch rejections:
+
+```ts
+import { getConfigSequence8130, getEip8130Deployment } from 'viem/experimental/eip8130'
+
+const { accountConfiguration } = getEip8130Deployment(client.chain.id)!
+const { local: sequence } = await getConfigSequence8130(client, {
+  accountConfiguration,
+  account: account.address,
+})
+```
+
+## Add an owner
+
+Sign the change with `account.change(...)`, then include it in a transaction's `accountChanges`:
+
+```ts
+import {
+  actorScope,
+  authorizeActor,
+  key,
+  sendCalls8130,
+} from 'viem/experimental/eip8130'
+
+const change = await account.change(
+  [
+    authorizeActor(key.k1('0xnewOwner...'), {
+      scope: actorScope.sender, // full owner? use scope 0
+    }),
+  ],
+  { chainId: client.chain.id, sequence: Number(sequence) },
+)
+
+const hash = await sendCalls8130(client, {
+  account,
+  accountChanges: [change],
+  calls: [], // config-only transaction
+  gas: 200_000n,
+})
+```
+
+## Revoke an owner
+
+`revokeActor` accepts an actor or a raw `actorId`. Combine authorize + revoke in one change to atomically rotate a key:
+
+```ts
+import {
+  actorScope,
+  authorizeActor,
+  key,
+  revokeActor,
+} from 'viem/experimental/eip8130'
+
+const rotate = await account.change(
+  [
+    authorizeActor(key.k1('0xnewOwner...'), { scope: actorScope.sender }),
+    revokeActor(key.k1('0xoldOwner...')),
+  ],
+  { chainId: client.chain.id, sequence: Number(sequence) },
+)
+```
+
+## Rotate during deployment
+
+For a delegated EOA, you can delegate *and* install new keys in the very first transaction — no separate account handle required:
+
+```ts
+import {
+  actorScope,
+  authorizeActor,
+  canonicalEip8130Deployment,
+  key,
+  sendCalls8130,
+  toEoa8130Account,
+} from 'viem/experimental/eip8130'
+import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
+
+const account = toEoa8130Account(privateKeyToAccount(generatePrivateKey()))
+
+const addP256 = await account.change(
+  [authorizeActor(key.p256({ x, y }), { scope: actorScope.sender })],
+  { chainId: client.chain.id, sequence: 0 },
+)
+
+const hash = await sendCalls8130(client, {
+  account,
+  accountChanges: [
+    account.delegate(canonicalEip8130Deployment.accounts.defaultHighRate),
+    addP256,
+  ],
+  calls: [],
+  gas: 300_000n,
+})
+```
+
+## Next
+
+Authorize a scoped, policy-gated [session key](/experimental/eip8130/session-keys).

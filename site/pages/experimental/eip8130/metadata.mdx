@@ -1,0 +1,58 @@
+---
+description: Attach opaque, authenticated application data to an EIP-8130 transaction
+---
+
+# Metadata
+
+An EIP-8130 transaction can carry an opaque, application-defined `metadata` blob — arbitrary bytes with no protocol meaning. It is appended **after** `calls` in the signed body, so it is authenticated by the sender (and, when present, the [payer](/experimental/eip8130/sponsoring-transactions)): it cannot be altered in flight without invalidating the signature. The node echoes it back on the [receipt](/experimental/eip8130/receipts).
+
+Use it to bind off-chain context to a transaction — a payer `policyId`, a client request id, an app tag — where you want the value tamper-evident but don't want to spend calldata inside a call.
+
+:::info
+`metadata` is not interpreted on-chain and does not affect execution. It is a signed, echoed annotation — not a substitute for on-chain state or event logs.
+:::
+
+## Setting metadata
+
+`metadata` is a field on the transaction, not a parameter of `sendCalls8130`. Build the transaction with `prepareTransaction8130`, set `metadata`, then sign and submit:
+
+```ts
+import { sendRawTransaction } from 'viem/actions'
+import { prepareTransaction8130 } from 'viem/experimental/eip8130'
+import { stringToHex } from 'viem'
+
+const tx = await prepareTransaction8130(client, {
+  account,
+  calls: [[{ to: recipient, data }]],
+  gas: 250_000n,
+})
+
+// Appended after calls — authenticated by the signature(s).
+tx.metadata = stringToHex(JSON.stringify({ requestId: 'abc-123' }))
+
+const serialized = await account.signTransaction(tx)
+const hash = await sendRawTransaction(client, { serializedTransaction: serialized })
+```
+
+Any hex value works; `'0x'` (or omitting the field) means no metadata. Because it is signed, a sponsored transaction's payer also commits to the exact bytes.
+
+## Reading metadata back
+
+The value round-trips onto the receipt:
+
+```ts
+import { hexToString } from 'viem'
+import { waitForTransactionReceipt8130 } from 'viem/experimental/eip8130'
+
+const receipt = await waitForTransactionReceipt8130(client, { hash })
+const raw = receipt.eip8130.metadata // e.g. '0x7b22...'
+if (raw && raw !== '0x') {
+  const decoded = JSON.parse(hexToString(raw))
+}
+```
+
+Keep it small — every byte is signed and stored on-chain. For large payloads, store the data off-chain and put only a hash or id in `metadata`.
+
+## Next
+
+- Read per-phase outcomes and the payer on the [receipt](/experimental/eip8130/receipts).

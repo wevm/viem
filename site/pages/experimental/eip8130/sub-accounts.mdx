@@ -1,0 +1,105 @@
+---
+description: Derive multiple EIP-8130 accounts per owner and link them with delegate actors
+---
+
+# Sub Accounts
+
+EIP-8130 has no dedicated "sub account" type — instead you compose two primitives:
+
+1. **Derive many accounts from one owner** — each `salt` yields a distinct, independent account address controlled by the same signer.
+2. **Link accounts with delegate actors** — a `delegate` actor lets one account's keys authorize transactions on another, so a primary account can drive its sub accounts.
+
+## Many accounts, one owner
+
+The account address is a deterministic function of the salt (plus the wallet code and initial actors). Pass a distinct `salt` to derive independent sub accounts for the same owner — useful for per-app, per-user, or per-purpose isolation.
+
+```ts
+import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
+import { newSmartAccount8130 } from 'viem/experimental/eip8130'
+
+const owner = privateKeyToAccount(generatePrivateKey())
+
+// A stable, human-meaningful salt derivation is convenient here.
+const main = newSmartAccount8130({ signer: owner, salt: saltFor('main') })
+const trading = newSmartAccount8130({ signer: owner, salt: saltFor('trading') })
+const savings = newSmartAccount8130({ signer: owner, salt: saltFor('savings') })
+
+main.address !== trading.address // distinct accounts, same owner key
+```
+
+Each sub account is deployed independently on its first transaction (see [Sending a Transaction](/experimental/eip8130/sending-a-transaction#deploy-on-first-use)).
+
+## Linking with delegate actors
+
+A **delegate actor** authorizes signatures that are valid for another account to act for *this* account. Add `key.delegate(primary)` to a sub account and the primary account's keys can drive it — a "controlled by" link, without sharing raw private keys.
+
+```ts
+import {
+  actorScope,
+  authorizeActor,
+  key,
+  sendCalls8130,
+} from 'viem/experimental/eip8130'
+
+// On the sub account, authorize the primary account as a delegate.
+const link = await subAccount.change(
+  [
+    authorizeActor(key.delegate(main.address), {
+      scope: actorScope.sender,
+    }),
+  ],
+  { chainId: client.chain.id, sequence: Number(sequence) },
+)
+
+const hash = await sendCalls8130(client, {
+  account: subAccount,
+  accountChanges: [link],
+  calls: [],
+  gas: 200_000n,
+})
+```
+
+Once linked, build an account handle that signs for the sub account using the **primary** signer via the delegate authenticator:
+
+```ts
+import {
+  canonicalAuthenticators,
+  sendCalls8130,
+  to8130Account,
+} from 'viem/experimental/eip8130'
+
+// Drive `subAccount.address` with `main`'s key through the delegate authenticator.
+const subAsDelegate = to8130Account({
+  signer: main.signer,
+  authenticator: canonicalAuthenticators.delegate,
+  address: subAccount.address,
+})
+
+const hash = await sendCalls8130(client, {
+  account: subAsDelegate,
+  calls: [{ to: recipient, value: 1n }],
+  gas: 200_000n,
+})
+```
+
+:::note
+The delegate authenticator validates a signature produced for the linked account, so authentication gas is priced from the delegate blob's shape. Pass `senderAuthVerifier: canonicalAuthenticators.delegate` to [`estimateGas8130`](/experimental/eip8130/sending-a-transaction#estimate-gas) when pricing delegate-signed transactions.
+:::
+
+## Revoking a link
+
+Revoke the delegate actor to unlink a sub account at any time:
+
+```ts
+import { key, revokeActor } from 'viem/experimental/eip8130'
+
+const unlink = await subAccount.change(
+  [revokeActor(key.delegate(main.address))],
+  { chainId: client.chain.id, sequence: Number(sequence) },
+)
+```
+
+## Next
+
+- Let a third party pay for a sub account's gas — [Sponsoring Transactions](/experimental/eip8130/sponsoring-transactions).
+- Negotiate sponsorship with a service — [Payer Services (ERC-8168)](/experimental/eip8130/payer-services).

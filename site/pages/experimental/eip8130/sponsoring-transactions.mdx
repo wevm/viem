@@ -1,0 +1,100 @@
+---
+description: Have a third party pay gas for an EIP-8130 transaction via a co-signing payer
+---
+
+# Sponsoring Transactions
+
+An EIP-8130 transaction can name a **payer** — a second account that co-signs the transaction and pays its gas. The sender authorizes the calls; the payer authorizes paying. This is the native mechanism behind gas sponsorship and pay-with-token flows.
+
+Two auth blobs are produced:
+
+- `sender_auth` — the account authorizes the calls.
+- `payer_auth` — the payer, bound to the resolved sender, authorizes paying the fee.
+
+There are two ways to obtain `payer_auth`:
+
+- **You hold the payer key** (self-sponsor, or your own backend) → co-sign locally. Covered here.
+- **A service holds the payer key** → negotiate terms and have it co-sign over RPC. See [Payer Services (ERC-8168)](/experimental/eip8130/payer-services).
+
+## Co-signing locally
+
+Pass a `payer` signer to `sendCalls8130`. It signs `payer_auth` bound to the sender and sets the `payer` wire field. Set `payer.address` when the on-chain payer account differs from the signing key.
+
+```ts
+import { privateKeyToAccount } from 'viem/accounts'
+import { sendCalls8130 } from 'viem/experimental/eip8130'
+
+const sponsor = privateKeyToAccount(process.env.SPONSOR_KEY as `0x${string}`)
+
+const hash = await sendCalls8130(client, {
+  account,                       // signs sender_auth
+  calls: [{ to: recipient, data }],
+  gas: 250_000n,
+  payer: { account: sponsor },   // signs payer_auth, pays the fee
+})
+```
+
+## Estimating a sponsored transaction
+
+Pass the `payer` address (and, if the payer uses a non-K1 key, `payerAuthVerifier`) so the node prices the payer authentication too:
+
+```ts
+import { canonicalAuthenticators, estimateGas8130 } from 'viem/experimental/eip8130'
+
+const gas = await estimateGas8130(client, {
+  sender: account.address,
+  calls: [[{ to: recipient, data }]],
+  payer: sponsor.address,
+  payerAuthVerifier: canonicalAuthenticators.k1,
+})
+```
+
+## Pay with a token
+
+To charge the sender in an ERC-20 while the payer fronts native gas, run a two-phase transaction: phase 0 transfers the token to the payer, phase 1 runs the user's calls. The payer only co-signs because it can see its fee is paid in phase 0.
+
+```ts
+import { encodeTokenTransfer } from 'viem/experimental/eip8168'
+import { sendCalls8130 } from 'viem/experimental/eip8130'
+
+const hash = await sendCalls8130(client, {
+  account,
+  calls: [
+    // phase 0 — pay the payer in USDC
+    [encodeTokenTransfer({ token: usdc, to: sponsor.address, amount: fee })],
+    // phase 1 — the actual calls
+    [{ to: recipient, data }],
+  ],
+  gas: 300_000n,
+  payer: { account: sponsor },
+})
+```
+
+In practice the token amount and payer are negotiated with a [payer service](/experimental/eip8130/payer-services), which quotes the fee and builds these phases for you.
+
+## Lower-level control
+
+`sendCalls8130` wraps two primitives when you need to inspect or persist the transaction between signing and submitting:
+
+```ts
+import { sendRawTransaction } from 'viem/actions'
+import { prepareTransaction8130 } from 'viem/experimental/eip8130'
+
+const tx = await prepareTransaction8130(client, {
+  account,
+  calls: /* AaCalls (phased) */ phases,
+  gas: 250_000n,
+  payer: { account: sponsor },
+})
+
+// Produces sender_auth + payer_auth and returns the serialized envelope.
+const serialized = await account.signTransaction(tx, { payer: { account: sponsor } })
+
+const hash = await sendRawTransaction(client, { serializedTransaction: serialized })
+```
+
+If you already have a `payer_auth` blob (e.g. returned by a service), preset `transaction.payerAuth` before signing to skip local payer signing entirely.
+
+## Next
+
+Negotiate sponsorship or token payment with a web service — [Payer Services (ERC-8168)](/experimental/eip8130/payer-services).
