@@ -420,71 +420,6 @@ describe('erc6492', async () => {
   })
 })
 
-describe('args: blockHash (EIP-1898)', async () => {
-  test('blockHash', async () => {
-    const { factoryAddress } = await deploySoladyAccount_07()
-
-    const { request, result: verifier } = await simulateContract(client, {
-      account: localAccount,
-      abi: SoladyAccountFactory07.abi,
-      address: factoryAddress,
-      functionName: 'createAccount',
-      args: [localAccount.address, pad('0x0')],
-    })
-    await writeContract(client, request)
-    await mine(client, { blocks: 1 })
-
-    const signature = await signMessageErc1271(client, {
-      account: localAccount,
-      message: 'hello world',
-      verifier,
-    })
-
-    const block = await getBlock(client)
-
-    await expect(
-      verifyHash(client, {
-        address: verifier,
-        hash: hashMessage('hello world'),
-        signature,
-        blockHash: block.hash!,
-      }),
-    ).resolves.toBe(true)
-  })
-
-  test('blockHash + requireCanonical', async () => {
-    const { factoryAddress } = await deploySoladyAccount_07()
-
-    const { request, result: verifier } = await simulateContract(client, {
-      account: localAccount,
-      abi: SoladyAccountFactory07.abi,
-      address: factoryAddress,
-      functionName: 'createAccount',
-      args: [localAccount.address, pad('0x0')],
-    })
-    await writeContract(client, request)
-    await mine(client, { blocks: 1 })
-
-    const signature = await signMessageErc1271(client, {
-      account: localAccount,
-      message: 'hello world',
-      verifier,
-    })
-
-    const block = await getBlock(client)
-
-    await expect(
-      verifyHash(client, {
-        address: verifier,
-        hash: hashMessage('hello world'),
-        signature,
-        blockHash: block.hash!,
-        requireCanonical: true,
-      }),
-    ).resolves.toBe(true)
-  })
-})
-
 describe('erc8010', async () => {
   let delegation: `0x${string}`
   let delegation_withInit: `0x${string}`
@@ -636,6 +571,35 @@ describe('erc8010', async () => {
 
     const valid = await verifyHash(client, {
       address: account.address,
+      hash,
+      signature,
+    })
+
+    expect(valid).toBe(true)
+  })
+
+  test('predelegated: blockHash (EIP-1898)', async () => {
+    const account = privateKeyToAccount(generatePrivateKey())
+
+    const authorization = await signAuthorization(client, {
+      account,
+      address: delegation,
+    })
+
+    const hash = hashMessage('hello world')
+
+    const signature = serializeErc8010Signature({
+      authorization,
+      signature: await account.sign({
+        hash,
+      }),
+    })
+
+    const block = await getBlock(client)
+
+    const valid = await verifyHash(client, {
+      address: account.address,
+      blockHash: block.hash!,
       hash,
       signature,
     })
@@ -826,6 +790,71 @@ describe('erc8010', async () => {
         signature,
       }),
     ).toBe(false)
+  })
+})
+
+describe('args: blockHash (EIP-1898)', async () => {
+  let blockHashBeforeDeploy: `0x${string}`
+  let blockHashAfterDeploy: `0x${string}`
+  let signature: Hex
+  let verifier: `0x${string}`
+
+  beforeAll(async () => {
+    blockHashBeforeDeploy = (await getBlock(client)).hash!
+
+    const { factoryAddress } = await deploySoladyAccount_07()
+    const { request, result } = await simulateContract(client, {
+      account: localAccount,
+      abi: SoladyAccountFactory07.abi,
+      address: factoryAddress,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
+    verifier = result
+    await writeContract(client, request)
+    await mine(client, { blocks: 1 })
+
+    signature = await signMessageErc1271(client, {
+      account: localAccount,
+      message: 'hello world',
+      verifier,
+    })
+
+    blockHashAfterDeploy = (await getBlock(client)).hash!
+  })
+
+  test('blockHash', async () => {
+    await expect(
+      verifyHash(client, {
+        address: verifier,
+        hash: hashMessage('hello world'),
+        signature,
+        blockHash: blockHashAfterDeploy,
+      }),
+    ).resolves.toBe(true)
+  })
+
+  test('blockHash + requireCanonical', async () => {
+    await expect(
+      verifyHash(client, {
+        address: verifier,
+        hash: hashMessage('hello world'),
+        signature,
+        blockHash: blockHashAfterDeploy,
+        requireCanonical: true,
+      }),
+    ).resolves.toBe(true)
+  })
+
+  test('blockHash: pre-deployment block', async () => {
+    await expect(
+      verifyHash(client, {
+        address: verifier,
+        hash: hashMessage('hello world'),
+        signature,
+        blockHash: blockHashBeforeDeploy,
+      }),
+    ).resolves.toBe(false)
   })
 })
 
