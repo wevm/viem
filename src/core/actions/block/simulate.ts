@@ -1,14 +1,12 @@
 import type { Abi, AbiStateMutability, Narrow } from 'abitype'
-import * as AbiFunction from 'ox/AbiFunction'
-import * as AbiParameters from 'ox/AbiParameters'
-import type * as Address from 'ox/Address'
-import * as Block from 'ox/Block'
-import type * as BlockOverrides from 'ox/BlockOverrides'
-import type * as Errors from 'ox/Errors'
-import * as Hex from 'ox/Hex'
-import * as Log from 'ox/Log'
-import type * as StateOverrides from 'ox/StateOverrides'
-import type * as TransactionRequest from 'ox/TransactionRequest'
+import { AbiFunction, AbiParameters, Block, Hex, Log } from 'ox'
+import type {
+  Address,
+  BlockOverrides,
+  Errors,
+  StateOverrides,
+  TransactionRequest,
+} from 'ox'
 import { z } from 'ox/zod'
 
 import type * as Account from '../../Account.js'
@@ -66,15 +64,21 @@ export async function simulate<
   } = options
 
   try {
-    const blockStateCalls = blocks.map((block) => {
+    // Chains with a request codec encode calls themselves; nested generic
+    // encoding would reject or strip chain-specific fields.
+    const codec = client.chain?.schema?.transactionRequest?.toRpc
+
+    const rpcCalls: TransactionRequest.Rpc[][] = []
+    const blockStateCalls = blocks.map((block, i) => {
       const calls = block.calls.map((call_) => {
         const call = call_ as Call<unknown, simulate.CallExtraProperties>
         const { abi, account, args, dataSuffix, functionName, ...rest } = call
 
         const from = (() => {
           if (call.from) return call.from
-          if (!account) return undefined
-          return typeof account === 'string' ? account : account.address
+          const account_ = account ?? client.account
+          if (!account_) return undefined
+          return typeof account_ === 'string' ? account_ : account_.address
         })()
 
         const data = (() => {
@@ -99,7 +103,42 @@ export async function simulate<
 
         transactionRequest.assert(request)
 
-        return request
+        if (!codec) return request
+
+        // The chain codec is an untyped `z.ZodMiniType`, so its encoded output
+        // widens to `unknown`; assert back to the RPC shape it produces.
+        type BatchedRpc = TransactionRequest.Rpc & {
+          calls?:
+            | {
+                data?: Hex.Hex | undefined
+                to?: Address.Address | undefined
+                value?: Hex.Hex | undefined
+              }[]
+            | undefined
+        }
+        const rpc = z.encode(codec, request) as BatchedRpc
+
+        // `eth_simulateV1` defaults a missing `to` to a contract creation
+        // (execution-apis fill rules). Chains that encode requests as batched
+        // `calls` omit the top-level `to`, so the node would append a phantom
+        // CREATE to the batch. Hoist the last batched call to the top level —
+        // the node folds `to` back into the batch, reconstructing the
+        // identical call list.
+        if (!rpc.to && rpc.calls && rpc.calls.length > 0) {
+          const hoisted = rpc.calls[rpc.calls.length - 1]!
+          if (hoisted.to) {
+            rpc.to = hoisted.to
+            rpc.data = hoisted.data
+            rpc.value = hoisted.value
+            if (rpc.calls.length === 1) delete rpc.calls
+            else rpc.calls = rpc.calls.slice(0, -1)
+          }
+        }
+
+        const calls = rpcCalls[i] ?? []
+        calls.push(rpc)
+        rpcCalls[i] = calls
+        return {}
       })
 
       return {
@@ -116,6 +155,11 @@ export async function simulate<
       { blockStateCalls, returnFullTransactions, traceTransfers, validation },
       block,
     ])
+    if (codec) {
+      const input = params[0]
+      for (const [i, calls] of rpcCalls.entries())
+        input.blockStateCalls[i]!.calls = calls
+    }
 
     type RpcCallResult = {
       error?:
@@ -191,6 +235,7 @@ export async function simulate<
     }) as unknown as simulate.ReturnType<chain, calls>
   } catch (err) {
     if (isAbortError(err)) throw err
+    if (err instanceof RpcError.ExecutionError) throw err
 
     throw new RpcError.ExecutionError(err as Error, { chain: client.chain })
   }

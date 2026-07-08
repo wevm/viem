@@ -1,0 +1,94 @@
+# `accessKey.signAuthorization`
+
+Signs a key authorization for an access key.
+
+:::info
+If you want to authorize a key and send the transaction in one step, use [`accessKey.authorize`](/tempo/actions/accessKey.authorize) instead.
+:::
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { P256 } from 'ox'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const keyAuthorization = await client.accessKey.signAuthorization({
+  accessKey,
+  expiry: Math.floor((Date.now() + 30_000) / 1000),
+})
+
+console.log('Key authorization:', keyAuthorization)
+// @log: Key authorization: { address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', chainId: 1337n, type: 'p256', ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = KeyAuthorization.Signed
+```
+
+A signed key authorization object that can be passed as `keyAuthorization` to any write action.
+
+## Parameters
+
+### accessKey
+
+- **Type:** `Address | AccessKeyAccount | { address: Address; type: SignatureEnvelope.Type } | { publicKey: Hex; type: SignatureEnvelope.Type }`
+
+Access key to authorize.
+
+### account (optional)
+
+- **Type:** `Account | Hex`
+
+Account to sign with.
+
+### admin (optional)
+
+- **Type:** `boolean`
+
+Whether to authorize the key as an admin key. Admin keys are unrestricted and can manage the account's other access keys; `expiry`, `limits`, and `scopes` are ignored. Requires the T6 hardfork.
+
+### chainId (optional)
+
+- **Type:** `number | bigint`
+
+Chain ID for replay protection.
+
+### expiry (optional)
+
+- **Type:** `number`
+
+Unix timestamp when the key expires.
+
+### limits (optional)
+
+- **Type:** `readonly { token: Address; limit: bigint; period?: number }[]`
+
+Spending limits per token.
+
+### scopes (optional)
+
+- **Type:** `readonly { address: Address; selector?: Hex | string; recipients?: readonly Address[] }[]`
+
+Call scopes restricting which contracts, selectors, and recipients the key can call.
+
+### witness (optional)
+
+- **Type:** `Hex`
+
+Optional 32-byte witness bound into the authorization's signing hash.

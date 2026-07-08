@@ -119,9 +119,15 @@ when porting or reshaping v2 surface area.
 - **Non-indexed event args cannot be topic-filtered**; passing them via a watcher's `args`
   silently matches everything. `dex.watchFlipOrderPlaced` filters `isFlipOrder` client-side by
   wrapping the `Watcher` handle.
-- **Core `block.simulate` resolves the sender per call** (`call.account`/`call.from`; no client
-  fallback). v2's tempo `simulate.simulateBlocks` defaulted to `client.account` — that default
-  returns with the tempo `simulate` namespace (W5e); until then tests pass `account` on the call.
+- **Tempo simulation rides core namespaces** — `Actions.block.simulate` and
+  `Actions.multicall({ mode: 'simulate' })`; there is no tempo `simulate` namespace. Core
+  `block.simulate` defaults call senders to `client.account` (v2 `simulateBlocks` parity) and
+  hoists a Tempo batch's final nested call into top-level `to`/`data`/`value` for the wire shape.
+- **Zone live behavior is untestable on the dev node** — no zone portal contracts, no
+  `zone_*` RPC, and `portalAddresses` has no localnet entry (mainnet/Moderato only). Zone
+  suites cover call-builders, prepared payloads, and local errors; live deposit/withdrawal
+  and `zone_*` reads stay `test.todo`. `signAuthorizationToken` signs and stores locally, so
+  a `zoneModerato(id)` chain declaration over the pool transport keeps it hermetic.
 - **Channel ids embed the open transaction's expiring-nonce hash** and are nondeterministic
   across runs; assert them against the `openSync` result instead of pinning snapshots.
 - **Fee transfers are policy-enforced**: a sender blacklisted on its fee token fails any

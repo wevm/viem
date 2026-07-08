@@ -1,0 +1,112 @@
+# `wallet.transfer`
+
+Transfers a TIP-20 token via the connected Tempo wallet.
+
+This action invokes the `wallet_transfer` JSON-RPC method on the connected wallet. By default it is read-only: the wallet uses a matching access key when one is available, otherwise it shows a confirm dialog. Pass `editable: true` to open the wallet send UI with the supplied fields pre-filled.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+const client = Client.create({
+  transport: custom(provider),
+})
+
+const { receipt } = await client.wallet.transfer({
+  amount: '1.5',
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'pathusd',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+### Editable Usage
+
+Pass `editable: true` to open the wallet send UI for the user to confirm or edit before signing. All other fields become optional pre-fills:
+
+```ts twoslash
+import { Client, custom } from 'viem/tempo'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+const client = Client.create({
+  transport: custom(provider),
+})
+
+const { receipt } = await client.wallet.transfer({
+  editable: true,
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'pathusd',
+})
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Chain ID the transfer was submitted to. */
+  chainId: number
+  /** Receipt of the submitted transfer. */
+  receipt: TransactionReceipt
+}
+```
+
+The submitted transfer receipt and chain ID.
+
+## Parameters
+
+### amount
+
+- **Type:** `string`
+
+Human-readable amount to transfer (for example, `"1.5"`). Optional when `editable` is `true`.
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the active chain
+
+Chain ID to transfer on.
+
+### editable (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether to open the editable wallet send UI. When `false`, the wallet uses a matching access key when one is available, otherwise it shows a confirm dialog.
+
+### feePayer (optional)
+
+- **Type:** `boolean | string`
+
+Fee payer override. `false` disables the wallet's default fee payer. A URL string uses a custom fee payer service.
+
+### from (optional)
+
+- **Type:** `Address`
+- **Default:** the active account
+
+Address to transfer tokens from. When set to a different address, the call uses `transferFrom` and requires the active account to have an allowance from `from`. Read-only variant only.
+
+### memo (optional)
+
+- **Type:** `string`
+
+UTF-8 memo (max 32 bytes) to attach to the transfer.
+
+### to
+
+- **Type:** `Address`
+
+Recipient address. Optional when `editable` is `true`.
+
+### token
+
+- **Type:** `Address | string`
+
+Token to transfer, accepted as either a contract address or a curated tokenlist symbol (case-insensitive, for example `"pathusd"`). Optional when `editable` is `true`.

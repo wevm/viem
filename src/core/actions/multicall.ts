@@ -1,13 +1,6 @@
 import type { AbiStateMutability, Narrow } from 'abitype'
-import * as Abi from 'ox/Abi'
-import * as AbiFunction from 'ox/AbiFunction'
-import * as AbiParameters from 'ox/AbiParameters'
-import type * as Address from 'ox/Address'
-import type * as Block from 'ox/Block'
-import type * as Errors from 'ox/Errors'
-import * as Hex from 'ox/Hex'
-import type * as Log from 'ox/Log'
-import * as StateOverrides from 'ox/StateOverrides'
+import { Abi, AbiFunction, AbiParameters, Hex, StateOverrides } from 'ox'
+import type { Address, Block, Errors, Log } from 'ox'
 
 import type * as Account from '../Account.js'
 import type * as Chain from '../Chain.js'
@@ -322,7 +315,7 @@ async function executeSimulate(
         : []),
       // Raw balance-probe calls (`data`-only) sit outside the typed `Call`
       // union that structured calls satisfy.
-    ] as never,
+    ] as simulate.Options['blocks'],
     traceTransfers,
     validation,
   })

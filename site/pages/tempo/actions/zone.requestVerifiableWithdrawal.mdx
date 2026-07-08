@@ -1,0 +1,123 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `zone.requestVerifiableWithdrawal`
+
+Requests a verifiable withdrawal from a zone to the parent Tempo chain. The zone sequencer encrypts the sender's identity for the provided `revealTo` public key.
+
+Batches an approval and a ZoneOutbox withdrawal request into a single transaction.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { PublicKey, Secp256k1 } from 'ox'
+import { client } from './viem.config'
+
+// Generate a keypair for decrypting the sender identity later.
+// Store the private key securely: the holder can reveal the sender.
+const { publicKey } = Secp256k1.createKeyPair()
+const revealTo = PublicKey.toHex(PublicKey.compress(publicKey))
+
+const { receipt } = await client.zone.requestVerifiableWithdrawalSync({
+  amount: 100_000_000n,
+  revealTo,
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+The example above uses a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `zone.requestVerifiableWithdrawal` action and wait for inclusion manually:
+
+```ts twoslash
+import { PublicKey, Secp256k1 } from 'ox'
+import { client } from './viem.config'
+
+const { publicKey } = Secp256k1.createKeyPair()
+const revealTo = PublicKey.toHex(PublicKey.compress(publicKey))
+
+const hash = await client.zone.requestVerifiableWithdrawal({
+  amount: 100_000_000n,
+  revealTo,
+  token: '0x20c0000000000000000000000000000000000001',
+})
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+}
+```
+
+The transaction receipt. The non-sync `zone.requestVerifiableWithdrawal` action returns the transaction hash.
+
+## Parameters
+
+### amount
+
+- **Type:** `bigint`
+
+Amount of tokens to withdraw.
+
+### data (optional)
+
+- **Type:** `Hex`
+
+Callback data for the recipient on the parent chain.
+
+### fallbackRecipient (optional)
+
+- **Type:** `Address`
+- **Default:** `to`
+
+Fallback address if the callback fails.
+
+### gas (optional)
+
+- **Type:** `bigint`
+- **Default:** `0n`
+
+Gas limit reserved for the withdrawal callback on the parent chain.
+
+### memo (optional)
+
+- **Type:** `Hex`
+
+Withdrawal memo.
+
+### revealTo
+
+- **Type:** `Hex`
+
+Compressed secp256k1 public key the sequencer encrypts the sender identity for.
+
+### to (optional)
+
+- **Type:** `Address`
+- **Default:** `account.address`
+
+Recipient address on the parent Tempo chain.
+
+### token
+
+- **Type:** `Address`
+
+Token address to withdraw.
+
+<WriteParameters />

@@ -986,6 +986,58 @@ export default defineConfig({
         text: 'Actions',
         items: [
           {
+            text: 'Access Key',
+            collapsed: false,
+            items: [
+              {
+                text: 'authorize',
+                link: '/tempo/actions/accessKey.authorize',
+              },
+              {
+                text: 'burnWitness',
+                link: '/tempo/actions/accessKey.burnWitness',
+              },
+              {
+                text: 'getMetadata',
+                link: '/tempo/actions/accessKey.getMetadata',
+              },
+              {
+                text: 'getRemainingLimit',
+                link: '/tempo/actions/accessKey.getRemainingLimit',
+              },
+              { text: 'isAdmin', link: '/tempo/actions/accessKey.isAdmin' },
+              {
+                text: 'isWitnessBurned',
+                link: '/tempo/actions/accessKey.isWitnessBurned',
+              },
+              { text: 'revoke', link: '/tempo/actions/accessKey.revoke' },
+              {
+                text: 'signAuthorization',
+                link: '/tempo/actions/accessKey.signAuthorization',
+              },
+              {
+                text: 'updateLimit',
+                link: '/tempo/actions/accessKey.updateLimit',
+              },
+              {
+                text: 'verifyHash',
+                link: '/tempo/actions/accessKey.verifyHash',
+              },
+              {
+                text: 'watchAdminAuthorized',
+                link: '/tempo/actions/accessKey.watchAdminAuthorized',
+              },
+              {
+                text: 'watchWitness',
+                link: '/tempo/actions/accessKey.watchWitness',
+              },
+              {
+                text: 'watchWitnessBurned',
+                link: '/tempo/actions/accessKey.watchWitnessBurned',
+              },
+            ],
+          },
+          {
             text: 'AMM',
             collapsed: false,
             items: [
@@ -1072,6 +1124,11 @@ export default defineConfig({
               },
               { text: 'withdraw', link: '/tempo/actions/dex.withdraw' },
             ],
+          },
+          {
+            text: 'Faucet',
+            collapsed: false,
+            items: [{ text: 'fund', link: '/tempo/actions/faucet.fund' }],
           },
           {
             text: 'Fee',
@@ -1288,6 +1345,72 @@ export default defineConfig({
                 link: '/tempo/actions/validator.setNextFullDkgCeremony',
               },
               { text: 'update', link: '/tempo/actions/validator.update' },
+            ],
+          },
+          {
+            text: 'Virtual Address',
+            collapsed: false,
+            items: [
+              {
+                text: 'getMasterAddress',
+                link: '/tempo/actions/virtualAddress.getMasterAddress',
+              },
+              {
+                text: 'registerMaster',
+                link: '/tempo/actions/virtualAddress.registerMaster',
+              },
+              {
+                text: 'resolve',
+                link: '/tempo/actions/virtualAddress.resolve',
+              },
+            ],
+          },
+          {
+            text: 'Wallet',
+            collapsed: false,
+            items: [
+              { text: 'deposit', link: '/tempo/actions/wallet.deposit' },
+              { text: 'swap', link: '/tempo/actions/wallet.swap' },
+              { text: 'transfer', link: '/tempo/actions/wallet.transfer' },
+            ],
+          },
+          {
+            text: 'Zone',
+            collapsed: false,
+            items: [
+              { text: 'deposit', link: '/tempo/actions/zone.deposit' },
+              {
+                text: 'encryptedDeposit',
+                link: '/tempo/actions/zone.encryptedDeposit',
+              },
+              {
+                text: 'getAuthorizationTokenInfo',
+                link: '/tempo/actions/zone.getAuthorizationTokenInfo',
+              },
+              {
+                text: 'getDepositStatus',
+                link: '/tempo/actions/zone.getDepositStatus',
+              },
+              {
+                text: 'getWithdrawalFee',
+                link: '/tempo/actions/zone.getWithdrawalFee',
+              },
+              {
+                text: 'getZoneInfo',
+                link: '/tempo/actions/zone.getZoneInfo',
+              },
+              {
+                text: 'requestVerifiableWithdrawal',
+                link: '/tempo/actions/zone.requestVerifiableWithdrawal',
+              },
+              {
+                text: 'requestWithdrawal',
+                link: '/tempo/actions/zone.requestWithdrawal',
+              },
+              {
+                text: 'signAuthorizationToken',
+                link: '/tempo/actions/zone.signAuthorizationToken',
+              },
             ],
           },
         ],

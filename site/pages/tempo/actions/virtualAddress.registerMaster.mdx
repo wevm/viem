@@ -1,0 +1,66 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `virtualAddress.registerMaster`
+
+Registers a virtual master address.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { masterId, receipt } = await client.virtualAddress.registerMasterSync({
+  salt: '0x00000000000000000000000000000000000000000000000000000000abf52baf',
+})
+
+console.log('Master ID:', masterId)
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Master ID: 0x58e21090
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+The examples above use a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await client.virtualAddress.registerMaster({
+  salt: '0x00000000000000000000000000000000000000000000000000000000abf52baf',
+})
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
+
+const { args } = Actions.virtualAddress.registerMaster.extractEvent(receipt.logs)
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  masterAddress: Address
+  masterId: Hex
+  receipt: TransactionReceipt
+}
+```
+
+Registration details and the transaction receipt.
+
+## Parameters
+
+### salt
+
+- **Type:** `Hex`
+
+Salt used for proof-of-work master ID derivation.
+
+<WriteParameters />

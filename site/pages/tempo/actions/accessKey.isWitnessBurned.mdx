@@ -1,0 +1,52 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `accessKey.isWitnessBurned`
+
+Checks whether a key-authorization witness has been burned for an account.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const isBurned = await client.accessKey.isWitnessBurned({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  witness: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+})
+
+console.log('Is burned:', isBurned)
+// @log: Is burned: false
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = boolean
+```
+
+Whether the witness has been burned.
+
+## Parameters
+
+### account (optional)
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Account (or address) to check the witness on.
+
+### witness
+
+- **Type:** `Hex`
+
+The 32-byte witness to check.
+
+<ReadParameters />

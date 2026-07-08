@@ -1,0 +1,44 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `virtualAddress.getMasterAddress`
+
+Gets the master address for a virtual-address master ID.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const address = await client.virtualAddress.getMasterAddress({
+  masterId: '0xdeadbeef',
+})
+
+console.log('Address:', address)
+// @log: Address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = Address | null
+```
+
+The master address, or `null` if unregistered.
+
+## Parameters
+
+### masterId
+
+- **Type:** `Hex`
+
+Master ID bytes.
+
+<ReadParameters />

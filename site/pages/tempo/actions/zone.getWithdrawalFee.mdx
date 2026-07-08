@@ -1,0 +1,43 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `zone.getWithdrawalFee`
+
+Returns the fee required for a withdrawal from a zone, given a callback gas limit.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const fee = await client.zone.getWithdrawalFee()
+
+console.log('Fee:', fee)
+// @log: Fee: 0n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = bigint
+```
+
+The withdrawal fee.
+
+## Parameters
+
+### gas (optional)
+
+- **Type:** `bigint`
+- **Default:** `0n`
+
+Gas limit reserved for the withdrawal callback on the parent chain.
+
+<ReadParameters />

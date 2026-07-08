@@ -7,7 +7,7 @@ import { Account, Client, http } from 'viem/tempo'
 
 import * as constants from './constants.js'
 
-export const port = 9545
+export const port = Number(process.env.VITE_TEMPO_PORT ?? 9545)
 
 /** Pool-scoped RPC URL (one node instance per vitest pool). */
 export const rpcUrl = `http://localhost:${port}/${constants.poolId}`

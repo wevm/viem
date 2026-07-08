@@ -1,0 +1,70 @@
+# `wallet.deposit`
+
+Opens the connected Tempo wallet's deposit flow, with optional pre-filled fields.
+
+This action invokes the `wallet_deposit` JSON-RPC method on the connected wallet, prompting the user to review and submit a deposit. Any fields you omit are left for the user to fill in.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+const client = Client.create({
+  transport: custom(provider),
+})
+
+const result = await client.wallet.deposit({
+  amount: '1.5',
+  token: 'pathusd',
+})
+
+console.log('Receipts:', result?.receipts)
+// @log: Receipts: [{ status: 'success', transactionHash: '0x1234...' }]
+```
+
+## Return Type
+
+```ts
+type ReturnType =
+  | {
+      /** Receipts of any onchain operations performed during the deposit. */
+      receipts?: readonly TransactionReceipt[] | undefined
+    }
+  | undefined
+```
+
+The wallet may return `undefined` (or an object with no `receipts`) if the deposit did not require any onchain operations.
+
+## Parameters
+
+### address (optional)
+
+- **Type:** `Address`
+
+Deposit address to pre-fill.
+
+### amount (optional)
+
+- **Type:** `string`
+
+Human-readable amount to pre-fill (for example, `"1.5"`).
+
+### chainId (optional)
+
+- **Type:** `number`
+
+Source chain ID to pre-fill.
+
+### displayName (optional)
+
+- **Type:** `string`
+
+Human-readable account display name.
+
+### token (optional)
+
+- **Type:** `Address | string`
+
+Token to pre-fill, accepted as either a contract address or a supported deposit token symbol. Omit to let the user choose.

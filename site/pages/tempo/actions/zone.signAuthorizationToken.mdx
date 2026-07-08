@@ -1,0 +1,72 @@
+# `zone.signAuthorizationToken`
+
+Signs a zone authorization token and stores it for the zone HTTP transport. The token authenticates subsequent zone RPC requests via the `X-Authorization-Token` header.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { token } = await client.zone.signAuthorizationToken()
+
+console.log('Token:', token)
+// @log: Token: 0x...
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Authentication object. */
+  authentication: ZoneRpcAuthentication
+  /** Serialized authorization token. */
+  token: Hex
+}
+```
+
+The signed authentication object and the serialized token.
+
+## Parameters
+
+### account (optional)
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Account to sign the authorization token with. Must be a local account.
+
+### chain (optional)
+
+- **Type:** `Chain`
+- **Default:** `client.chain`
+
+Zone chain to sign the token for.
+
+### expiresAt (optional)
+
+- **Type:** `number`
+- **Default:** `issuedAt + 86_400`
+
+Unix timestamp when the token expires.
+
+### issuedAt (optional)
+
+- **Type:** `number`
+- **Default:** `Math.floor(Date.now() / 1000)`
+
+Unix timestamp when the token was issued.
+
+### storage (optional)
+
+- **Type:** `Storage`
+- **Default:** `Storage.defaultStorage()`
+
+Storage instance to persist the signed token.

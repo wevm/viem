@@ -1,0 +1,58 @@
+# `faucet.fund`
+
+Funds an account with testnet tokens.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const receipts = await client.faucet.fundSync({
+  account: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+})
+
+console.log('Receipts:', receipts)
+// @log: Receipts: [{ status: 'success', transactionHash: '0x1234...' }]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+The examples above use a `*Sync` variant of the action, that will wait for the transactions to be included before returning.
+
+```ts twoslash
+import { client } from './viem.config'
+
+const hashes = await client.faucet.fund({
+  account: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+})
+```
+
+## Return Type
+
+```ts
+type ReturnType = readonly TransactionReceipt[]
+```
+
+The transaction receipts.
+
+## Parameters
+
+### account
+
+- **Type:** `Account | Address`
+
+Account to fund.
+
+### timeout (optional)
+
+- **Type:** `number`
+
+Timeout in milliseconds.

@@ -1,0 +1,37 @@
+# `zone.getAuthorizationTokenInfo`
+
+Returns the authenticated account address and token expiry from the current authorization token.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const info = await client.zone.getAuthorizationTokenInfo()
+
+console.log('Account:', info.account)
+console.log('Expires At:', info.expiresAt)
+// @log: Account: 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb
+// @log: Expires At: 1717027200n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Authenticated account address. */
+  account: Address
+  /** Token expiry as a unix timestamp. */
+  expiresAt: bigint
+}
+```
+
+The authorization token info.

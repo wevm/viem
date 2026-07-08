@@ -1,0 +1,69 @@
+# `wallet.swap`
+
+Opens the connected Tempo wallet's swap flow, with optional pre-filled fields.
+
+This action invokes the `wallet_swap` JSON-RPC method on the connected wallet, prompting the user to review and submit a swap. Any fields you omit are left for the user to fill in.
+
+## Usage
+
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+const client = Client.create({
+  transport: custom(provider),
+})
+
+const { receipt } = await client.wallet.swap({
+  amount: '1.5',
+  token: '0x20c0000000000000000000000000000000000001',
+  type: 'sell',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Receipt of the submitted swap. */
+  receipt: TransactionReceipt
+}
+```
+
+The submitted swap receipt.
+
+## Parameters
+
+### amount (optional)
+
+- **Type:** `string`
+
+Human-readable amount to pre-fill (for example, `"1.5"`).
+
+### pairToken (optional)
+
+- **Type:** `Address`
+
+Other side of the swap pair. For buys, this is the token to sell. For sells, this is the token to buy.
+
+### slippage (optional)
+
+- **Type:** `number`
+
+Maximum allowed slippage as a decimal fraction (for example, `0.05`).
+
+### token (optional)
+
+- **Type:** `Address`
+
+Token to buy or sell. Omit to let the user choose.
+
+### type (optional)
+
+- **Type:** `'buy' | 'sell'`
+
+Whether the amount is an exact buy or sell amount.

@@ -1,0 +1,62 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `accessKey.getMetadata`
+
+Gets the metadata for an access key.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const metadata = await client.accessKey.getMetadata({
+  accessKey: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+
+console.log('Access key metadata:', metadata)
+// @log: Access key metadata: { address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', expiry: 1735689600n, isRevoked: false, keyType: 'secp256k1', spendPolicy: 'limited' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Access key address. */
+  address: Address
+  /** Unix timestamp when the key expires. */
+  expiry: bigint
+  /** Whether the key is revoked. */
+  isRevoked: boolean
+  /** Key type. */
+  keyType: 'secp256k1' | 'p256' | 'webAuthn'
+  /** Spending policy. */
+  spendPolicy: 'limited' | 'unlimited'
+}
+```
+
+The access key metadata.
+
+## Parameters
+
+### accessKey
+
+- **Type:** `Address | AccessKeyAccount`
+
+Access key to read the metadata of. Pass an access key address or an access key account.
+
+### account (optional)
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Account (or address) that owns the key.
+
+<ReadParameters />
