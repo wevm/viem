@@ -157,17 +157,17 @@ export async function getTransaction<
       index,
     })
 
-  // EIP-8130 (`AA_TX_TYPE`, type 0x7b) responses wrap the transaction body in a
+  // EIP-8130 (`AA_TX_TYPE`, type 0x79) responses wrap the transaction body in a
   // nested `tx` object and omit the `hash` field (unlike standard tx responses).
   // Flatten the nested body and inject the request hash so downstream formatters
   // (and `waitForTransactionReceipt`) have all the fields they expect.
-  if ((transaction as any).type === '0x7b') {
+  if ((transaction as any).type === '0x79') {
     const raw = transaction as any
     const body = raw.tx ?? {}
     transaction = {
       // Inject the request hash — not present in the RPC response.
       hash: hash ?? undefined,
-      type: '0x7b',
+      type: '0x79',
       // Top-level block context fields (present in mined txs).
       blockHash: raw.blockHash,
       blockNumber: raw.blockNumber,

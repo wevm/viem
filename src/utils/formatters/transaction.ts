@@ -41,7 +41,7 @@ export const transactionType = {
   '0x2': 'eip1559',
   '0x3': 'eip4844',
   '0x4': 'eip7702',
-  '0x7b': 'eip8130',
+  '0x79': 'eip8130',
 } as const satisfies Record<Hex, TransactionType>
 
 export type FormatTransactionErrorType = ErrorType
