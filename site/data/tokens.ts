@@ -30,6 +30,16 @@ export const tokenLookupData = [
         name: 'OP Mainnet',
       },
       {
+        address: '0x3D7F2C478aAfdB65542BCB44bCeeC05849999d2D',
+        id: 25,
+        name: 'Cronos Mainnet',
+      },
+      {
+        address: '0xfA2958CB79b0491CC627c1557F441eF849Ca8eb1',
+        id: 50,
+        name: 'XDC Network',
+      },
+      {
         address: '0x078D782b760474a361dDA0AF3839290b0EF57AD6',
         id: 130,
         name: 'Unichain',
@@ -40,9 +50,19 @@ export const tokenLookupData = [
         name: 'Polygon',
       },
       {
+        address: '0x754704Bc059F8C67012fEd69BC8A327a5aafb603',
+        id: 143,
+        name: 'Monad',
+      },
+      {
         address: '0x29219dd400f2Bf60E5a23d13Be72B486D4038894',
         id: 146,
         name: 'Sonic',
+      },
+      {
+        address: '0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4',
+        id: 324,
+        name: 'ZKsync Era',
       },
       {
         address: '0x79A02482A880bCE3F13e09Da970dC34db4CD24d1',
@@ -50,9 +70,24 @@ export const tokenLookupData = [
         name: 'World Chain',
       },
       {
+        address: '0xb88339CB7199b77E23DB6E890353E22632Ba630f',
+        id: 999,
+        name: 'HyperEVM',
+      },
+      {
         address: '0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392',
         id: 1329,
         name: 'Sei Network',
+      },
+      {
+        address: '0xa00C59fF5a080D2b954d0c75e46E22a0c371235a',
+        id: 1776,
+        name: 'Injective',
+      },
+      {
+        address: '0xCfb1186F4e93D60E60a8bDd997427D1F33bc372B',
+        id: 2818,
+        name: 'Morph',
       },
       {
         address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
@@ -63,6 +98,11 @@ export const tokenLookupData = [
         address: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
         id: 42161,
         name: 'Arbitrum One',
+      },
+      {
+        address: '0xcebA9300f2b948710d2653dD7B07f33A8B32118C',
+        id: 42220,
+        name: 'Celo',
       },
       {
         address: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
@@ -83,6 +123,11 @@ export const tokenLookupData = [
         address: '0xd996633a415985DBd7D6D12f4A4343E31f5037cf',
         id: 81224,
         name: 'Codex',
+      },
+      {
+        address: '0x222365EF19F7947e5484218551B56bb3965Aa7aF',
+        id: 98866,
+        name: 'Plume',
       },
     ],
     currency: 'USD',
