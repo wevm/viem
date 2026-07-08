@@ -1,5 +1,19 @@
 # viem
 
+## 2.55.0
+
+### Minor Changes
+
+- [#4817](https://github.com/wevm/viem/pull/4817) [`2825f37bd4d9429a312dad378410d63c67feb0f8`](https://github.com/wevm/viem/commit/2825f37bd4d9429a312dad378410d63c67feb0f8) Thanks [@davidperk](https://github.com/davidperk)! - Added `depositNonce` and `depositReceiptVersion` to OP Stack transaction receipts.
+
+- [#4822](https://github.com/wevm/viem/pull/4822) [`0ef1b5d84abc6f03c4f7573ca5bab851593ccb2f`](https://github.com/wevm/viem/commit/0ef1b5d84abc6f03c4f7573ca5bab851593ccb2f) Thanks [@tmm](https://github.com/tmm)! - Added `filterChains` utility for filtering chain definitions by structured criteria.
+
+### Patch Changes
+
+- [#4809](https://github.com/wevm/viem/pull/4809) [`c93d355d68f2ac98d5f139c963564651576793de`](https://github.com/wevm/viem/commit/c93d355d68f2ac98d5f139c963564651576793de) Thanks [@defiQUG](https://github.com/defiQUG)! - Added Defi Oracle Meta Mainnet chain.
+
+- [#4818](https://github.com/wevm/viem/pull/4818) [`48324f72c057e5e52545e4672408af6bc9eeb60a`](https://github.com/wevm/viem/commit/48324f72c057e5e52545e4672408af6bc9eeb60a) Thanks [@cctdaniel](https://github.com/cctdaniel)! - Added Robinhood Chain and Robinhood Chain Testnet chains.
+
 ## 2.54.6
 
 ### Patch Changes
