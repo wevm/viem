@@ -53,6 +53,16 @@ The `viem/chains/utils` entrypoint was removed. Its members now live on the `Cha
 + const address = Chain.getContractAddress({ chain, contract: 'multicall3' })
 ```
 
+The `viem/celo`, `viem/linea`, `viem/op-stack`, and `viem/zksync` extension entrypoints were removed; their chain definitions remain in `viem/chains` as plain chains, while extension-specific actions, formatters, and serializers have no v3 equivalent (stay on v2, or use third-party packages built on `Chain.from` with `schema`/`serializers`/transaction hooks).
+
+```diff
+- import { optimism, publicActionsL2 } from 'viem/op-stack'
+- import { zksync } from 'viem/zksync'
+- import { celo } from 'viem/celo'
+- import { linea } from 'viem/linea'
++ import { celo, linea, optimism, zksync } from 'viem/chains'
+```
+
 Added the `viem/zod` entrypoint, re-exporting the Zod namespace (`z`) used to build typed JSON-RPC schemas for the Client `schema` option.
 
 ```ts
