@@ -95,20 +95,22 @@ const account = toEoa8130Account(privateKeyToAccount(generatePrivateKey()))
 
 The same EIP-8130 account works on chains **without** native 8130 support through a bundler, by wrapping it as a standard Viem Smart Account. Execution routes through `executeBatch` on the `BackwardsCompatible4337Account` implementation, and deployment uses the Account Configuration contract as the ERC-4337 factory.
 
-`BackwardsCompatible4337Account` is an opt-in example — it is **not** part of the canonical deployment. Deploy it yourself (via the Account Configuration `CREATE2` factory) and pass its address as `implementation`:
+`BackwardsCompatible4337Account` has a canonical CREATE2 address (`canonicalEip8130Deployment.accounts.erc4337`), but base's canonical `Deploy.s.sol` does **not** deploy it — deploy it on the target chain (via the Account Configuration `CREATE2` factory) before use, then pass its address as `implementation`:
 
 ```ts
 import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
-import { toSmartAccount8130 } from 'viem/experimental/eip8130'
+import { canonicalEip8130Deployment, toSmartAccount8130 } from 'viem/experimental/eip8130'
 
 const account = await toSmartAccount8130({
   client,
   owner: privateKeyToAccount(generatePrivateKey()),
   userSalt: '0x0000000000000000000000000000000000000000000000000000000000000001',
   initialActors: [/* key.k1(owner.address), ... */],
-  implementation: erc4337AccountImplementation, // address of your deployed BackwardsCompatible4337Account
+  implementation: canonicalEip8130Deployment.accounts.erc4337,
 })
 ```
+
+On a chain without native EIP-8130, the account must delegate to (or be deployed as) this ERC-4337 implementation, and its EntryPoint must be registered as a trusted-executor actor (`key.trustedExecutor(entryPoint)`) so it can drive `executeBatch`.
 
 ## Next
 

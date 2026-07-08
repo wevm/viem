@@ -127,7 +127,7 @@ export type To8130AccountReturnType = {
  * **Delegated EOA** — supply `address` only (no salt, no code, no actors):
  * ```ts
  * const account = to8130Account({ signer, address: eoaSigner.address })
- * // first tx: accountChanges: [account.delegate(deployment.accounts.defaultHighRate)]
+ * // first tx: accountChanges: [account.delegate(deployment.accounts.default)]
  * // add keys:  accountChanges: [account.delegate(...), await account.change([...])]
  * ```
  *
@@ -397,7 +397,7 @@ export type ToEoa8130AccountReturnType = {
    *
    * @example
    * await account.signTransaction({
-   *   accountChanges: [account.delegate(deployment.accounts.defaultHighRate)],
+   *   accountChanges: [account.delegate(deployment.accounts.default)],
    *   calls: wire, ...
    * })
    */
@@ -467,7 +467,7 @@ export type ToEoa8130AccountReturnType = {
  * const account = toEoa8130Account(privateKeyToAccount(pk))
  * const addP256 = await account.change([authorizeActor(key.p256(...))], { chainId, sequence: 0 })
  * const signed = await account.signTransaction({
- *   accountChanges: [account.delegate(deployment.accounts.defaultHighRate), addP256],
+ *   accountChanges: [account.delegate(deployment.accounts.default), addP256],
  *   calls: wire, ...
  * })
  */

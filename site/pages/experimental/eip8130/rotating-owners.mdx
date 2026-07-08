@@ -132,7 +132,7 @@ const addP256 = await account.change(
 const hash = await sendCalls8130(client, {
   account,
   accountChanges: [
-    account.delegate(canonicalEip8130Deployment.accounts.defaultHighRate),
+    account.delegate(canonicalEip8130Deployment.accounts.default),
     addP256,
   ],
   calls: [],

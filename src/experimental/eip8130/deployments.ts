@@ -15,22 +15,33 @@ export type Eip8130Deployment = {
   /** Deployed wallet implementation contracts (the singletons account proxies delegate to). */
   accounts: {
     /**
-     * UpgradeableAccount implementation — the default. Accounts are deployed
-     * behind an ERC-1967 `UpgradeableProxy` (see {@link upgradeableProxyBytecode})
-     * so they can be upgraded via `upgradeBySignature`.
+     * UpgradeableAccount implementation — the default for smart accounts.
+     * Accounts are deployed behind an ERC-1967 `UpgradeableProxy` (see
+     * {@link upgradeableProxyBytecode}) so they can be upgraded via
+     * `upgradeBySignature`.
      */
     upgradeable: Address
     /**
-     * DefaultHighRateAccount implementation — the immutable account. Deployed
-     * behind a 45-byte ERC-1167 proxy (see {@link erc1167Bytecode}).
+     * DefaultAccount implementation — the bare account, deployed standalone as
+     * the direct EIP-7702 delegation target for EOAs (no proxy). This is the
+     * default `delegate` target when an EOA adopts an EIP-8130 account.
+     */
+    default: Address
+    /**
+     * DefaultHighRateAccount implementation — the immutable smart-account
+     * variant. Deployed behind a 45-byte ERC-1167 proxy (see
+     * {@link erc1167Bytecode}).
      */
     defaultHighRate: Address
     /**
-     * BackwardsCompatible4337Account — an opt-in ERC-4337 example, not part of
-     * the canonical deployment. Deploy it yourself and pass to
-     * {@link toSmartAccount8130}.
+     * BackwardsCompatible4337Account — the ERC-4337 portable implementation
+     * (`DefaultAccount` + `validateUserOp`). Lets an account run on non-native
+     * chains via a bundler + EntryPoint at the same address; the EntryPoint is
+     * registered as a trusted-executor actor (see {@link key.trustedExecutor}).
+     * Not deployed by base's canonical `Deploy.s.sol` — deploy it separately;
+     * the CREATE2 address below is canonical.
      */
-    erc4337?: Address | undefined
+    erc4337: Address
   }
   /** Deployed authenticator contracts (for EVM execution on non-native chains). */
   authenticators: {
@@ -74,7 +85,9 @@ export const canonicalEip8130Deployment = {
   accountConfiguration: '0x2403408177dB7F8512a9593343a7C80371D8f2dF',
   accounts: {
     upgradeable: '0xF8dafa4DA35F664cf2CF842f00482ebb68a982b3',
+    default: '0xaF0973bbebe12BDaE6B61c96019dc0DcA554b67c',
     defaultHighRate: '0x6c4230a4101849a3CB6438C40D3d47EdE9aca096',
+    erc4337: '0x8812ee1c9BA2395b5f113412769f22C6e7b89B11',
   },
   authenticators: {
     k1: '0x0000000000000000000000000000000000000001',

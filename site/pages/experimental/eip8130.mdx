@@ -69,13 +69,15 @@ import { getEip8130Deployment, canonicalEip8130Deployment } from 'viem/experimen
 
 const deployment = getEip8130Deployment(84_538_453) ?? canonicalEip8130Deployment
 deployment.accountConfiguration    // factory + actor-config registry
-deployment.accounts.upgradeable    // UpgradeableAccount — the default wallet impl
-deployment.accounts.defaultHighRate // DefaultHighRateAccount — immutable wallet impl
+deployment.accounts.upgradeable    // UpgradeableAccount — default smart-account impl
+deployment.accounts.default        // DefaultAccount — default EOA (EIP-7702) delegate
+deployment.accounts.defaultHighRate // DefaultHighRateAccount — immutable smart-account impl
+deployment.accounts.erc4337        // BackwardsCompatible4337Account — cross-chain (ERC-4337)
 deployment.authenticators.p256     // P-256 authenticator
 deployment.policies?.manager       // example PolicyManager (session keys)
 ```
 
-Two account implementations are deployed: **`UpgradeableAccount`** (the default — deployed behind an ERC-1967 `UpgradeableProxy`, upgradeable via `upgradeBySignature`) and **`DefaultHighRateAccount`** (immutable — deployed behind a 45-byte ERC-1167 proxy). `DefaultAccount` is a base building block inherited by both and is not deployed standalone; `BackwardsCompatible4337Account` is an opt-in ERC-4337 example you deploy yourself.
+Account implementations: **`UpgradeableAccount`** (the default for smart accounts — behind an ERC-1967 `UpgradeableProxy`, upgradeable via `upgradeBySignature`), **`DefaultAccount`** (the bare building block, deployed standalone as the direct EIP-7702 delegation target for EOAs), **`DefaultHighRateAccount`** (immutable — behind a 45-byte ERC-1167 proxy), and **`BackwardsCompatible4337Account`** (the ERC-4337 portable implementation for non-native chains). The first three are deployed by base's canonical `Deploy.s.sol`; the 4337 implementation is deployed separately but has a canonical CREATE2 address.
 
 ## Guides
 
