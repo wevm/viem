@@ -1,10 +1,12 @@
-import * as AbiConstructor from 'ox/AbiConstructor'
-import * as AbiFunction from 'ox/AbiFunction'
-import * as Bytes from 'ox/Bytes'
-import * as ContractAddress from 'ox/ContractAddress'
-import * as Hex from 'ox/Hex'
-import * as PersonalMessage from 'ox/PersonalMessage'
-import * as Signature from 'ox/Signature'
+import {
+  AbiConstructor,
+  AbiFunction,
+  Bytes,
+  ContractAddress,
+  Hex,
+  PersonalMessage,
+  Signature,
+} from 'ox'
 import { SignatureErc6492 } from 'ox/erc6492'
 import { SignatureErc8010 } from 'ox/erc8010'
 import * as generated from '~contracts/generated.js'

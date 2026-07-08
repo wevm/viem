@@ -1,5 +1,4 @@
-import * as Bytes from 'ox/Bytes'
-import * as Ens from 'ox/Ens'
+import { Bytes, Ens } from 'ox'
 
 // Adapted from https://github.com/mafintosh/dns-packet
 /** Encodes an ENS name into a DNS wire-format packet. */

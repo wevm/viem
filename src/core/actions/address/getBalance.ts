@@ -1,6 +1,5 @@
-import * as AbiFunction from 'ox/AbiFunction'
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
+import { AbiFunction } from 'ox'
+import type { Address, Errors } from 'ox'
 import { z } from 'ox/zod'
 
 import type * as Client from '../../Client.js'

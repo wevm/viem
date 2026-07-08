@@ -1,5 +1,5 @@
-import * as Abi from 'ox/Abi'
-import type * as Hex from 'ox/Hex'
+import { Abi } from 'ox'
+import type { Hex } from 'ox'
 import { Actions, Client, http } from 'viem'
 import { expectTypeOf, test } from 'vitest'
 

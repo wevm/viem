@@ -1,4 +1,4 @@
-import * as Hex from 'ox/Hex'
+import { Hex } from 'ox'
 
 export type DataSuffix =
   | Hex.Hex

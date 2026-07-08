@@ -1,7 +1,5 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import * as Address from 'ox/Address'
-import * as ReceivePolicyReceipt from 'ox/tempo/ReceivePolicyReceipt'
-import * as Value from 'ox/Value'
+import { AbiEvent, Address, Value } from 'ox'
+import { ReceivePolicyReceipt } from 'ox/tempo'
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 

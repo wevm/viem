@@ -1,5 +1,5 @@
-import * as Abi from 'ox/Abi'
-import type * as Address from 'ox/Address'
+import { Abi } from 'ox'
+import type { Address } from 'ox'
 
 import type * as Client from '../../../Client.js'
 import { BaseError } from '../../../Errors.js'

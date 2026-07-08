@@ -1,10 +1,12 @@
-import * as Bytes from 'ox/Bytes'
-import * as Hash from 'ox/Hash'
-import * as Hex from 'ox/Hex'
-import * as P256 from 'ox/P256'
-import * as PublicKey from 'ox/PublicKey'
-import * as Signature from 'ox/Signature'
-import * as WebAuthnP256_ox from 'ox/WebAuthnP256'
+import {
+  Bytes,
+  Hash,
+  Hex,
+  P256,
+  PublicKey,
+  Signature,
+  WebAuthnP256 as WebAuthnP256_ox,
+} from 'ox'
 import { describe, expect, test } from 'vitest'
 
 import * as WebAuthnP256 from './WebAuthnP256.js'

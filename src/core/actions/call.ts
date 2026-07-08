@@ -1,9 +1,11 @@
-import type * as Address from 'ox/Address'
-import type * as BlockOverrides from 'ox/BlockOverrides'
-import type * as Errors from 'ox/Errors'
-import * as Hex from 'ox/Hex'
-import type * as StateOverrides from 'ox/StateOverrides'
-import type * as TransactionRequest from 'ox/TransactionRequest'
+import { Hex } from 'ox'
+import type {
+  Address,
+  BlockOverrides,
+  Errors,
+  StateOverrides,
+  TransactionRequest,
+} from 'ox'
 import { z } from 'ox/zod'
 
 import type * as Account from '../Account.js'

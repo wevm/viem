@@ -1,6 +1,5 @@
-import type * as Errors from 'ox/Errors'
-import * as Hex from 'ox/Hex'
-import * as PersonalMessage from 'ox/PersonalMessage'
+import { Hex, PersonalMessage } from 'ox'
+import type { Errors } from 'ox'
 
 import type * as Account from '../Account.js'
 import type * as Client from '../Client.js'

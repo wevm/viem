@@ -1,5 +1,4 @@
-import * as AbiConstructor from 'ox/AbiConstructor'
-import * as Ens from 'ox/Ens'
+import { AbiConstructor, Ens } from 'ox'
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'

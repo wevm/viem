@@ -1,4 +1,4 @@
-import * as AbiConstructor from 'ox/AbiConstructor'
+import { AbiConstructor } from 'ox'
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as contract from '~test/contract.js'

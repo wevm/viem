@@ -1,5 +1,5 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import type * as Errors from 'ox/Errors'
+import { AbiEvent } from 'ox'
+import type { Errors } from 'ox'
 
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'

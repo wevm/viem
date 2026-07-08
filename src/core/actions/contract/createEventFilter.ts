@@ -1,8 +1,6 @@
 import type { Abi } from 'abitype'
-import * as AbiEvent from 'ox/AbiEvent'
-import type * as Address from 'ox/Address'
-import type * as Block from 'ox/Block'
-import type * as Errors from 'ox/Errors'
+import { AbiEvent } from 'ox'
+import type { Address, Block, Errors } from 'ox'
 
 import type * as Client from '../../Client.js'
 import type { Filter } from '../filter/Filter.js'

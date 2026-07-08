@@ -1,7 +1,4 @@
-import * as AbiFunction from 'ox/AbiFunction'
-import * as Blobs from 'ox/Blobs'
-import * as Hex from 'ox/Hex'
-import * as Value from 'ox/Value'
+import { AbiFunction, Blobs, Hex, Value } from 'ox'
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'

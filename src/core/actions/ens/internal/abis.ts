@@ -1,4 +1,4 @@
-import * as Abi from 'ox/Abi'
+import { Abi } from 'ox'
 
 const universalResolverErrors = [
   'error DNSDecodingFailed(bytes dns)',

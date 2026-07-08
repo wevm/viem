@@ -1,8 +1,6 @@
 import type { Abi } from 'abitype'
-import * as AbiEvent from 'ox/AbiEvent'
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import type * as Log from 'ox/Log'
+import { AbiEvent } from 'ox'
+import type { Address, Errors, Log } from 'ox'
 
 import type * as Account from '../../Account.js'
 import type * as Chain from '../../Chain.js'

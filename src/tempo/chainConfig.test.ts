@@ -1,10 +1,10 @@
-import * as Address from 'ox/Address'
-import * as Secp256k1 from 'ox/Secp256k1'
-import * as TxEnvelope from 'ox/TxEnvelope'
-import * as Signature from 'ox/Signature'
-import * as MultisigConfig from 'ox/tempo/MultisigConfig'
-import * as SignatureEnvelope from 'ox/tempo/SignatureEnvelope'
-import * as TxEnvelopeTempo from 'ox/tempo/TxEnvelopeTempo'
+import {
+  Address,
+  Secp256k1,
+  Signature,
+  TransactionEnvelope as TxEnvelope,
+} from 'ox'
+import { MultisigConfig, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import { z } from 'ox/zod'
 import { describe, expect, test } from 'vitest'
 

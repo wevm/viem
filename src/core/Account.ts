@@ -1,16 +1,17 @@
-import * as Address from 'ox/Address'
-import * as Authorization from 'ox/Authorization'
-import type * as Bytes from 'ox/Bytes'
-import type * as Errors from 'ox/Errors'
-import * as HdKey from 'ox/HdKey'
-import * as Hex from 'ox/Hex'
-import * as Mnemonic from 'ox/Mnemonic'
-import * as PersonalMessage from 'ox/PersonalMessage'
-import * as PublicKey from 'ox/PublicKey'
-import * as Secp256k1 from 'ox/Secp256k1'
-import * as Signature from 'ox/Signature'
-import * as TxEnvelope from 'ox/TxEnvelope'
-import * as TypedData from 'ox/TypedData'
+import {
+  Address,
+  Authorization,
+  HdKey,
+  Hex,
+  Mnemonic,
+  PersonalMessage,
+  PublicKey,
+  Secp256k1,
+  Signature,
+  TransactionEnvelope as TxEnvelope,
+  TypedData,
+} from 'ox'
+import type { Bytes, Errors } from 'ox'
 import type * as Chain from './Chain.js'
 import { BaseError } from './Errors.js'
 import type * as NonceManager from './NonceManager.js'

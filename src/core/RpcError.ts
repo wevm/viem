@@ -1,7 +1,5 @@
-import type * as Hex from 'ox/Hex'
-import type * as StateOverrides from 'ox/StateOverrides'
-import type * as TransactionRequest from 'ox/TransactionRequest'
-import * as Value from 'ox/Value'
+import { Value } from 'ox'
+import type { Hex, StateOverrides, TransactionRequest } from 'ox'
 
 import * as Json from '../utils/Json.js'
 import type * as Account from './Account.js'

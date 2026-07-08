@@ -1,5 +1,5 @@
-import * as RpcResponse from 'ox/RpcResponse'
-import type * as RpcSchema from 'ox/RpcSchema'
+import { RpcResponse } from 'ox'
+import type { RpcSchema } from 'ox'
 
 import * as errors from './errors.js'
 import * as promise from './promise.js'

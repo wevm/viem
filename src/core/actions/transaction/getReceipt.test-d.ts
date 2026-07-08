@@ -1,4 +1,4 @@
-import type * as TransactionReceipt from 'ox/TransactionReceipt'
+import type { TransactionReceipt } from 'ox'
 import { z } from 'ox/zod'
 import { expectTypeOf, test } from 'vitest'
 

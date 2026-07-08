@@ -1,6 +1,4 @@
-import * as AbiFunction from 'ox/AbiFunction'
-import * as AbiParameters from 'ox/AbiParameters'
-import * as Hex from 'ox/Hex'
+import { AbiFunction, AbiParameters, Hex } from 'ox'
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as testConstants from '~test/constants.js'

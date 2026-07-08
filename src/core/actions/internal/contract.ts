@@ -8,7 +8,7 @@ import type {
   ExtractAbiFunctionNames,
   ResolvedRegister,
 } from 'abitype'
-import type * as Hex from 'ox/Hex'
+import type { Hex } from 'ox'
 
 import type {
   IsNarrowable,

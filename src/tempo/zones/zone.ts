@@ -1,4 +1,4 @@
-import * as ZoneId from 'ox/tempo/ZoneId'
+import { ZoneId } from 'ox/tempo'
 
 import * as Chain from '../../core/Chain.js'
 import { tempo } from '../../chains/definitions/tempo.js'

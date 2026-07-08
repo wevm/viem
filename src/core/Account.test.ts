@@ -1,4 +1,4 @@
-import * as HdKey from 'ox/HdKey'
+import { HdKey, Secp256k1 } from 'ox'
 import { describe, expect, test } from 'vitest'
 
 import * as constants from '~test/constants.js'
@@ -12,7 +12,6 @@ import {
   TxEnvelope,
   TypedData,
 } from 'viem'
-import * as Secp256k1 from 'ox/Secp256k1'
 
 const mnemonic = 'test test test test test test test test test test test junk'
 

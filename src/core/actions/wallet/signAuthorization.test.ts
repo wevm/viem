@@ -1,6 +1,4 @@
-import * as Address from 'ox/Address'
-import * as Authorization from 'ox/Authorization'
-import * as Secp256k1 from 'ox/Secp256k1'
+import { Address, Authorization, Secp256k1 } from 'ox'
 import { expect, test } from 'vitest'
 import { Account, Actions } from 'viem'
 

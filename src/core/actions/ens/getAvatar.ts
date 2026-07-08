@@ -1,6 +1,4 @@
-import type * as Address from 'ox/Address'
-import type * as Block from 'ox/Block'
-import type * as Errors from 'ox/Errors'
+import type { Address, Block, Errors } from 'ox'
 
 import type * as Client from '../../Client.js'
 import { getText } from './getText.js'

@@ -1,8 +1,10 @@
-import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
-import type * as TransactionReceipt from 'ox/TransactionReceipt'
-import type * as TxEnvelope from 'ox/TxEnvelope'
-import * as TransactionReceipt_ from 'ox/TransactionReceipt'
+import { TransactionReceipt as TransactionReceipt_ } from 'ox'
+import type {
+  Errors,
+  Hex,
+  TransactionEnvelope as TxEnvelope,
+  TransactionReceipt,
+} from 'ox'
 import { z } from 'ox/zod'
 
 import type * as Chain from '../../Chain.js'

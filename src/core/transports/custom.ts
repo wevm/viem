@@ -1,4 +1,4 @@
-import * as Provider from 'ox/Provider'
+import { Provider } from 'ox'
 
 import * as Transport from '../Transport.js'
 

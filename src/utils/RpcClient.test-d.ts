@@ -1,4 +1,4 @@
-import type * as RpcResponse from 'ox/RpcResponse'
+import type { RpcResponse } from 'ox'
 import { z } from 'ox/zod'
 import { expectTypeOf, test } from 'vitest'
 

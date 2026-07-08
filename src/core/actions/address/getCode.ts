@@ -1,6 +1,4 @@
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
+import type { Address, Errors, Hex } from 'ox'
 import { z } from 'ox/zod'
 
 import type * as Client from '../../Client.js'

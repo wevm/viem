@@ -1,8 +1,5 @@
 import type { Abi } from 'abitype'
-import type * as AbiEvent from 'ox/AbiEvent'
-import type * as Block from 'ox/Block'
-import type * as Fee from 'ox/Fee'
-import type * as TypedData from 'ox/TypedData'
+import type { AbiEvent, Block, Fee, TypedData } from 'ox'
 
 import type * as Account from '../../Account.js'
 import type * as Chain from '../../Chain.js'

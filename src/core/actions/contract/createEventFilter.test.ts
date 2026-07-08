@@ -1,5 +1,5 @@
-import * as Address from 'ox/Address'
-import type * as Hex from 'ox/Hex'
+import { Address } from 'ox'
+import type { Hex } from 'ox'
 import { Actions, publicActions } from 'viem'
 import { expect, test } from 'vitest'
 

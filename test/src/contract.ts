@@ -1,5 +1,4 @@
-import type * as Address from 'ox/Address'
-import type * as Hex from 'ox/Hex'
+import type { Address, Hex } from 'ox'
 import { Actions, Client } from 'viem'
 
 import * as constants from './constants.js'

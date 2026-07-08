@@ -1,5 +1,4 @@
-import * as AbiFunction from 'ox/AbiFunction'
-import * as Value from 'ox/Value'
+import { AbiFunction, Value } from 'ox'
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
 import { expect, test } from 'vitest'

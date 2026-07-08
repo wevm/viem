@@ -1,4 +1,4 @@
-import type * as Errors from 'ox/Errors'
+import type { Errors } from 'ox'
 import { z } from 'ox/zod'
 
 import type * as Client from '../../Client.js'

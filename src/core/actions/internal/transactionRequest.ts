@@ -1,4 +1,4 @@
-import * as Hex from 'ox/Hex'
+import { Hex } from 'ox'
 
 import type * as Chain from '../../Chain.js'
 import * as RpcError from '../../RpcError.js'

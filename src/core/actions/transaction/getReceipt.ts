@@ -1,6 +1,5 @@
-import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
-import * as TransactionReceipt from 'ox/TransactionReceipt'
+import { TransactionReceipt } from 'ox'
+import type { Errors, Hex } from 'ox'
 import { z } from 'ox/zod'
 
 import type * as Chain from '../../Chain.js'

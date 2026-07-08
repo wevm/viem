@@ -1,5 +1,4 @@
-import * as AbiError from 'ox/AbiError'
-import * as AbiFunction from 'ox/AbiFunction'
+import { AbiError, AbiFunction } from 'ox'
 import { createServer } from '~test/http.js'
 import { expect, test } from 'vitest'
 

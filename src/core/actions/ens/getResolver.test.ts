@@ -1,4 +1,4 @@
-import * as Ens from 'ox/Ens'
+import { Ens } from 'ox'
 import * as anvil from '~test/anvil.js'
 import { beforeAll, expect, test } from 'vitest'
 

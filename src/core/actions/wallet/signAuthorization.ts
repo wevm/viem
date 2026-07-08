@@ -1,5 +1,4 @@
-import type * as Authorization from 'ox/Authorization'
-import type * as Errors from 'ox/Errors'
+import type { Authorization, Errors } from 'ox'
 
 import * as Account from '../../Account.js'
 import type * as Client from '../../Client.js'

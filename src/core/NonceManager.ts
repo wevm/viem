@@ -1,4 +1,4 @@
-import type * as Address from 'ox/Address'
+import type { Address } from 'ox'
 
 import type * as Client from './Client.js'
 import { getTransactionCount } from './actions/address/getTransactionCount.js'

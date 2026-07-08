@@ -1,6 +1,4 @@
-import type * as Block from 'ox/Block'
-import type * as Errors from 'ox/Errors'
-import type * as TransactionRequest from 'ox/TransactionRequest'
+import type { Block, Errors, TransactionRequest } from 'ox'
 import { z } from 'ox/zod'
 
 import type * as Chain from '../../Chain.js'

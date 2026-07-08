@@ -1,6 +1,5 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import type * as Address from 'ox/Address'
-import type * as Log from 'ox/Log'
+import { AbiEvent } from 'ox'
+import type { Address, Log } from 'ox'
 import { expectTypeOf, test } from 'vitest'
 
 import { Actions, Client, http } from 'viem'

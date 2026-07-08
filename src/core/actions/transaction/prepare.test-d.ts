@@ -1,6 +1,4 @@
-import type * as Address from 'ox/Address'
-import type * as Kzg from 'ox/Kzg'
-import type * as TransactionRequest from 'ox/TransactionRequest'
+import type { Address, Kzg, TransactionRequest } from 'ox'
 import { z } from 'ox/zod'
 import { expectTypeOf, test } from 'vitest'
 

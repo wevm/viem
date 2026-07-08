@@ -1,7 +1,5 @@
-import type * as AbiItem from 'ox/AbiItem'
-import type * as Address from 'ox/Address'
-import type * as Hex from 'ox/Hex'
-import type * as TransactionRequest from 'ox/tempo/TransactionRequest'
+import type { AbiItem, Address, Hex } from 'ox'
+import type { TransactionRequest } from 'ox/tempo'
 
 import type { ExactPartial, OneOf } from '../core/internal/types.js'
 

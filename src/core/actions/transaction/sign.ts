@@ -1,9 +1,11 @@
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
-import type * as Kzg from 'ox/Kzg'
-import * as TransactionRequest from 'ox/TransactionRequest'
-import type * as TxEnvelope from 'ox/TxEnvelope'
+import { TransactionRequest } from 'ox'
+import type {
+  Address,
+  Errors,
+  Hex,
+  Kzg,
+  TransactionEnvelope as TxEnvelope,
+} from 'ox'
 import { z } from 'ox/zod'
 
 import * as Account from '../../Account.js'

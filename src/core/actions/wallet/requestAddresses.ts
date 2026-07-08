@@ -1,5 +1,5 @@
-import * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
+import { Address } from 'ox'
+import type { Errors } from 'ox'
 
 import type * as Client from '../../Client.js'
 

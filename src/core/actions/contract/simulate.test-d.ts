@@ -1,5 +1,5 @@
 import { Abi } from 'ox'
-import type * as Address from 'ox/Address'
+import type { Address } from 'ox'
 import { expectTypeOf, test } from 'vitest'
 
 import { Actions, Client, http, publicActions, walletActions } from 'viem'

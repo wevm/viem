@@ -1,5 +1,4 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import * as Value from 'ox/Value'
+import { AbiEvent, Value } from 'ox'
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 

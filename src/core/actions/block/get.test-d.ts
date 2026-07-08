@@ -1,5 +1,4 @@
-import type * as Address from 'ox/Address'
-import type * as Hex from 'ox/Hex'
+import type { Address, Hex } from 'ox'
 import { z } from 'ox/zod'
 import { expectTypeOf, test } from 'vitest'
 

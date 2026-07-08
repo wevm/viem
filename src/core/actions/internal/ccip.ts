@@ -1,8 +1,5 @@
-import * as AbiError from 'ox/AbiError'
-import * as AbiParameters from 'ox/AbiParameters'
-import * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import * as Hex from 'ox/Hex'
+import { AbiError, AbiParameters, Address, Hex } from 'ox'
+import type { Errors } from 'ox'
 
 import type * as Client from '../../Client.js'
 import { BaseError } from '../../Errors.js'

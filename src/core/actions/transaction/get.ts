@@ -1,8 +1,5 @@
-import type * as Address from 'ox/Address'
-import type * as Block from 'ox/Block'
-import type * as Errors from 'ox/Errors'
-import * as Hex from 'ox/Hex'
-import * as Transaction from 'ox/Transaction'
+import { Hex, Transaction } from 'ox'
+import type { Address, Block, Errors } from 'ox'
 import { z } from 'ox/zod'
 
 import type * as Chain from '../../Chain.js'

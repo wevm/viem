@@ -1,7 +1,5 @@
-import * as Bytes from 'ox/Bytes'
-import type * as Hex from 'ox/Hex'
-import * as PublicKey from 'ox/PublicKey'
-import * as WebAuthnP256 from 'ox/WebAuthnP256'
+import { Bytes, PublicKey, WebAuthnP256 } from 'ox'
+import type { Hex } from 'ox'
 
 /** A WebAuthn P256 credential with its public key. */
 export type P256Credential = {

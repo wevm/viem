@@ -1,6 +1,5 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import * as Address from 'ox/Address'
-import type * as Hex from 'ox/Hex'
+import { AbiEvent, Address } from 'ox'
+import type { Hex } from 'ox'
 import { z } from 'ox/zod'
 import { Actions } from 'viem'
 import { describe, expect, test } from 'vitest'

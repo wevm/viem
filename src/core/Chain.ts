@@ -1,13 +1,15 @@
-import type * as Address from 'ox/Address'
-import type * as Block from 'ox/Block'
-import type * as Errors from 'ox/Errors'
-import type * as Fee from 'ox/Fee'
-import type * as Hex from 'ox/Hex'
-import type * as Kzg from 'ox/Kzg'
-import type * as Signature from 'ox/Signature'
-import type * as Transaction from 'ox/Transaction'
-import type * as TransactionReceipt from 'ox/TransactionReceipt'
-import type * as TransactionRequest from 'ox/TransactionRequest'
+import type {
+  Address,
+  Block,
+  Errors,
+  Fee,
+  Hex,
+  Kzg,
+  Signature,
+  Transaction,
+  TransactionReceipt,
+  TransactionRequest,
+} from 'ox'
 import type { z } from 'ox/zod'
 import type * as Client from './Client.js'
 import { BaseError } from './Errors.js'

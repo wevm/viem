@@ -1,5 +1,4 @@
-import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
+import type { Errors, Hex } from 'ox'
 
 import type * as Client from '../../Client.js'
 import { observe } from '../../internal/observe.js'

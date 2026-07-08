@@ -1,5 +1,4 @@
-import type * as Errors from 'ox/Errors'
-import type * as RpcSchema from 'ox/RpcSchema'
+import type { Errors, RpcSchema } from 'ox'
 
 import type * as Client from '../../Client.js'
 

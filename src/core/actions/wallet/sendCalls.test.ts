@@ -1,6 +1,4 @@
-import * as Hex from 'ox/Hex'
-import * as Provider from 'ox/Provider'
-import * as Value from 'ox/Value'
+import { Hex, Provider, Value } from 'ox'
 import { describe, expect, test } from 'vitest'
 import { Client, custom, http, testActions, walletActions } from 'viem'
 import { mainnet } from 'viem/chains'

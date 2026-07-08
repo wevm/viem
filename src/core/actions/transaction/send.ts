@@ -1,10 +1,5 @@
-import type * as Address from 'ox/Address'
-import * as Authorization from 'ox/Authorization'
-import type * as Errors from 'ox/Errors'
-import * as Hex from 'ox/Hex'
-import type * as Kzg from 'ox/Kzg'
-import * as Secp256k1 from 'ox/Secp256k1'
-import * as TransactionRequest from 'ox/TransactionRequest'
+import { Authorization, Hex, Secp256k1, TransactionRequest } from 'ox'
+import type { Address, Errors, Kzg } from 'ox'
 import { z } from 'ox/zod'
 
 import * as Account from '../../Account.js'

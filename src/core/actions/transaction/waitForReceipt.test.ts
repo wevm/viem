@@ -1,4 +1,4 @@
-import * as Value from 'ox/Value'
+import { Value } from 'ox'
 import { expect, test } from 'vitest'
 
 import { Actions, Client, http, testActions } from 'viem'

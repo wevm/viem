@@ -1,8 +1,5 @@
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import * as Hex from 'ox/Hex'
-import * as PersonalMessage from 'ox/PersonalMessage'
-import * as Siwe from 'ox/Siwe'
+import { Hex, PersonalMessage, Siwe } from 'ox'
+import type { Address, Errors } from 'ox'
 
 import type * as Client from '../Client.js'
 import { verifyHash } from './verifyHash.js'

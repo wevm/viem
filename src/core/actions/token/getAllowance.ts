@@ -1,4 +1,4 @@
-import type * as Address from 'ox/Address'
+import type { Address } from 'ox'
 
 import type * as Account from '../../Account.js'
 import type * as Chain from '../../Chain.js'

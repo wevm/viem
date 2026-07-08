@@ -1,4 +1,4 @@
-import * as Provider from 'ox/Provider'
+import { Provider } from 'ox'
 import { expect, test } from 'vitest'
 import { Client, custom } from 'viem'
 

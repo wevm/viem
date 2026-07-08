@@ -1,4 +1,4 @@
-import * as Hex from 'ox/Hex'
+import { Hex } from 'ox'
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 

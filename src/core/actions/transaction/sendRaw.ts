@@ -1,6 +1,4 @@
-import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
-import type * as TxEnvelope from 'ox/TxEnvelope'
+import type { Errors, Hex, TransactionEnvelope as TxEnvelope } from 'ox'
 
 import type * as Client from '../../Client.js'
 

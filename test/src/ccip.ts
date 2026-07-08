@@ -1,9 +1,5 @@
-import * as AbiParameters from 'ox/AbiParameters'
-import * as Hash from 'ox/Hash'
-import type * as Hex from 'ox/Hex'
-import * as Hex_ from 'ox/Hex'
-import * as Secp256k1 from 'ox/Secp256k1'
-import * as Signature from 'ox/Signature'
+import { AbiParameters, Hash, Hex as Hex_, Secp256k1, Signature } from 'ox'
+import type { Hex } from 'ox'
 
 import { accounts } from './constants.js'
 import { createServer } from './http.js'

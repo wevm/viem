@@ -1,5 +1,4 @@
-import * as Hex from 'ox/Hex'
-import * as Value from 'ox/Value'
+import { Hex, Value } from 'ox'
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 

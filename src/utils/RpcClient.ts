@@ -1,8 +1,5 @@
-import type * as Address from 'ox/Address'
-import type * as Hex from 'ox/Hex'
-import type * as RpcRequest_ox from 'ox/RpcRequest'
-import * as RpcResponse from 'ox/RpcResponse'
-import type * as RpcSchema from 'ox/RpcSchema'
+import { RpcResponse } from 'ox'
+import type { Address, Hex, RpcRequest as RpcRequest_ox, RpcSchema } from 'ox'
 
 import ReconnectingWebSocket from '../vendor/partysocket/ws.js'
 import * as Errors from '../core/Errors.js'

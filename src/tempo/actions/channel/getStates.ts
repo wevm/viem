@@ -1,6 +1,5 @@
-import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
-import * as Channel from 'ox/tempo/Channel'
+import type { Errors, Hex } from 'ox'
+import { Channel } from 'ox/tempo'
 
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'

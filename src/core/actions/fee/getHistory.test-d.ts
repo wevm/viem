@@ -1,4 +1,4 @@
-import type * as Fee from 'ox/Fee'
+import type { Fee } from 'ox'
 import { expectTypeOf, test } from 'vitest'
 
 import { Actions, Client, http } from 'viem'

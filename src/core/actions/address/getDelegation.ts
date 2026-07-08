@@ -1,6 +1,5 @@
-import * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import * as Hex from 'ox/Hex'
+import { Address, Hex } from 'ox'
+import type { Errors } from 'ox'
 
 import type * as Client from '../../Client.js'
 import type { blockParameter } from '../internal/blockParameter.js'

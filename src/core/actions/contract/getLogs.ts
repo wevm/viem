@@ -1,10 +1,6 @@
 import type { Abi } from 'abitype'
-import * as AbiEvent from 'ox/AbiEvent'
-import type * as Address from 'ox/Address'
-import type * as Block from 'ox/Block'
-import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
-import type * as Log from 'ox/Log'
+import { AbiEvent } from 'ox'
+import type { Address, Block, Errors, Hex, Log } from 'ox'
 
 import type * as Client from '../../Client.js'
 import type { OneOf } from '../../internal/types.js'

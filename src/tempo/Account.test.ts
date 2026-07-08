@@ -1,21 +1,25 @@
-import * as Address from 'ox/Address'
-import * as Authorization from 'ox/Authorization'
-import * as Hash from 'ox/Hash'
-import * as Hex from 'ox/Hex'
-import * as Bytes from 'ox/Bytes'
-import * as P256 from 'ox/P256'
-import * as PersonalMessage from 'ox/PersonalMessage'
-import * as PublicKey from 'ox/PublicKey'
-import * as Secp256k1 from 'ox/Secp256k1'
-import * as Signature from 'ox/Signature'
-import * as TypedData from 'ox/TypedData'
-import * as WebAuthnP256 from 'ox/WebAuthnP256'
-import * as WebCryptoP256 from 'ox/WebCryptoP256'
-import * as Channel from 'ox/tempo/Channel'
-import * as KeyAuthorization from 'ox/tempo/KeyAuthorization'
-import * as MultisigConfig from 'ox/tempo/MultisigConfig'
-import * as SignatureEnvelope from 'ox/tempo/SignatureEnvelope'
-import * as TxEnvelopeTempo from 'ox/tempo/TxEnvelopeTempo'
+import {
+  Address,
+  Authorization,
+  Bytes,
+  Hash,
+  Hex,
+  P256,
+  PersonalMessage,
+  PublicKey,
+  Secp256k1,
+  Signature,
+  TypedData,
+  WebAuthnP256,
+  WebCryptoP256,
+} from 'ox'
+import {
+  Channel,
+  KeyAuthorization,
+  MultisigConfig,
+  SignatureEnvelope,
+  TxEnvelopeTempo,
+} from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 
 import * as Account from './Account.js'

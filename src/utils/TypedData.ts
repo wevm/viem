@@ -1,12 +1,7 @@
 export * from 'ox/TypedData'
 
-import * as Address from 'ox/Address'
-import type * as Bytes from 'ox/Bytes'
-import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
-import * as Secp256k1 from 'ox/Secp256k1'
-import type * as Signature from 'ox/Signature'
-import * as TypedData from 'ox/TypedData'
+import { Address, Secp256k1, TypedData } from 'ox'
+import type { Bytes, Errors, Hex, Signature } from 'ox'
 
 /**
  * Recovers the signing address of signed [EIP-712](https://eips.ethereum.org/EIPS/eip-712)

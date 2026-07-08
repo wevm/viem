@@ -1,8 +1,6 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import type * as Hex from 'ox/Hex'
-import type * as Errors from 'ox/Errors'
-import * as Channel from 'ox/tempo/Channel'
-import type * as Log from 'ox/Log'
+import { AbiEvent } from 'ox'
+import type { Errors, Hex, Log } from 'ox'
+import { Channel } from 'ox/tempo'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'

@@ -1,5 +1,4 @@
-import * as P256 from 'ox/P256'
-import * as Secp256k1 from 'ox/Secp256k1'
+import { P256, Secp256k1 } from 'ox'
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 

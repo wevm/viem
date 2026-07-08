@@ -1,4 +1,4 @@
-import * as Errors from 'ox/Errors'
+import { Errors } from 'ox'
 
 import { version as packageVersion } from '../version.js'
 

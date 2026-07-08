@@ -1,5 +1,5 @@
-import * as Block from 'ox/Block'
-import type * as Errors from 'ox/Errors'
+import { Block } from 'ox'
+import type { Errors } from 'ox'
 import { z } from 'ox/zod'
 
 import type * as Chain from '../../Chain.js'

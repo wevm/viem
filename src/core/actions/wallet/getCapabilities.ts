@@ -1,6 +1,5 @@
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import * as Hex from 'ox/Hex'
+import { Hex } from 'ox'
+import type { Address, Errors } from 'ox'
 
 import * as Account from '../../Account.js'
 import type * as Capabilities from '../../Capabilities.js'

@@ -1,5 +1,4 @@
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
+import type { Address, Errors } from 'ox'
 
 import type * as Client from '../../Client.js'
 import { request } from '../internal/test/request.js'

@@ -1,10 +1,6 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import * as AbiFunction from 'ox/AbiFunction'
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
-import type * as Log from 'ox/Log'
-import * as TokenRole from 'ox/tempo/TokenRole'
+import { AbiEvent, AbiFunction } from 'ox'
+import type { Address, Errors, Hex, Log } from 'ox'
+import { TokenRole } from 'ox/tempo'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'

@@ -1,6 +1,5 @@
-import * as Authorization from 'ox/Authorization'
-import type * as Errors from 'ox/Errors'
-import * as Secp256k1 from 'ox/Secp256k1'
+import { Authorization, Secp256k1 } from 'ox'
+import type { Errors } from 'ox'
 
 import * as Account from '../../Account.js'
 import * as Chain from '../../Chain.js'

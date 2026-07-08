@@ -1,6 +1,4 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import * as AbiParameters from 'ox/AbiParameters'
-import * as Hex from 'ox/Hex'
+import { AbiEvent, AbiParameters, Hex } from 'ox'
 import { Actions, Client, http, publicActions, webSocket } from 'viem'
 import { expect, test } from 'vitest'
 

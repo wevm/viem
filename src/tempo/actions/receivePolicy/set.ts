@@ -1,9 +1,6 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import * as Address_ from 'ox/Address'
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import * as VirtualAddress from 'ox/tempo/VirtualAddress'
-import type * as Log from 'ox/Log'
+import { AbiEvent, Address as Address_ } from 'ox'
+import type { Address, Errors, Log } from 'ox'
+import { VirtualAddress } from 'ox/tempo'
 
 import * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'

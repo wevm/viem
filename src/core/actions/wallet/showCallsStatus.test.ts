@@ -1,4 +1,4 @@
-import * as Provider from 'ox/Provider'
+import { Provider } from 'ox'
 import { test } from 'vitest'
 import { Client, custom } from 'viem'
 import { showCallsStatus } from './showCallsStatus.js'

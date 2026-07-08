@@ -1,5 +1,5 @@
-import type * as Address from 'ox/Address'
-import type * as KeyAuthorization from 'ox/tempo/KeyAuthorization'
+import type { Address } from 'ox'
+import type { KeyAuthorization } from 'ox/tempo'
 
 import type { MaybePromise } from '../core/internal/types.js'
 

@@ -1,8 +1,6 @@
 import type { Abi, AbiStateMutability, ExtractAbiFunction } from 'abitype'
-import * as AbiFunction from 'ox/AbiFunction'
-import * as Address from 'ox/Address'
-import type * as Hex from 'ox/Hex'
-import * as Value from 'ox/Value'
+import { AbiFunction, Address, Value } from 'ox'
+import type { Hex } from 'ox'
 
 import type * as Account from '../../Account.js'
 import type * as Chain from '../../Chain.js'

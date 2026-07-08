@@ -58,6 +58,13 @@ For v3 rewrite work, also read `AGENTS.tmp.md`.
   - Named imports are fine for `internal/types.ts`.
   - Named imports are fine for single-function helpers like `stringify`, `uid`, and `wait`.
   - Named imports are fine for non-namespace third-party packages like `vitest`.
+- **ox imports use barrel named imports**; never deep-import `ox/<Module>` paths.
+  - Use `import { Hex, Value } from 'ox'` and `import type { Address } from 'ox'`.
+  - Tempo modules come from `import { TxEnvelopeTempo } from 'ox/tempo'`.
+  - Zod schemas come from `import { z } from 'ox/zod'`; tempo zod lives at `z.tempo.<Module>`.
+  - Preserve alias bindings via `import { TransactionRequest as ox_TransactionRequest } from 'ox'`.
+  - `ox/TxEnvelope` is exported from the root barrel as `TransactionEnvelope`.
+  - Exception: facade re-export files (e.g. `src/utils/*.ts`) keep deep `export * from 'ox/<Module>'`.
 - **Actions are imported via the root `Actions` namespace**; use `import { Actions } from 'viem'`.
   - Call standalone actions as `Actions.<action>(client, ...)`.
   - Test actions live under `Actions.test`.

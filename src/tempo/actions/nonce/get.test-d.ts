@@ -1,4 +1,4 @@
-import type * as Address from 'ox/Address'
+import type { Address } from 'ox'
 import { describe, expectTypeOf, test } from 'vitest'
 
 import { tempoLocalnet } from 'viem/chains'

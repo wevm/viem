@@ -2,7 +2,7 @@ import * as generated from '~contracts/generated.js'
 import { Actions } from 'viem'
 import * as anvil from '~test/anvil.js'
 import * as contract from '~test/contract.js'
-import * as Address from 'ox/Address'
+import { Address } from 'ox'
 import { expect, test } from 'vitest'
 
 const client = anvil.getClient(anvil.mainnet)

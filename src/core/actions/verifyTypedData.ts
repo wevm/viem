@@ -1,5 +1,5 @@
-import type * as Errors from 'ox/Errors'
-import * as TypedData from 'ox/TypedData'
+import { TypedData } from 'ox'
+import type { Errors } from 'ox'
 
 import type * as Client from '../Client.js'
 import { verifyHash } from './verifyHash.js'

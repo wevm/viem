@@ -1,4 +1,4 @@
-import type * as Block from 'ox/Block'
+import type { Block } from 'ox'
 
 import * as Errors from '../../Errors.js'
 

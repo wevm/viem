@@ -1,11 +1,5 @@
-import type * as Address from 'ox/Address'
-import type * as Block from 'ox/Block'
-import * as Blobs from 'ox/Blobs'
-import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
-import type * as Kzg from 'ox/Kzg'
-import type * as TxEnvelopeEip4844 from 'ox/TxEnvelopeEip4844'
-import * as Value from 'ox/Value'
+import { Blobs, Value } from 'ox'
+import type { Address, Block, Errors, Hex, Kzg, TxEnvelopeEip4844 } from 'ox'
 
 import * as Account from '../../Account.js'
 import type * as Capabilities from '../../Capabilities.js'

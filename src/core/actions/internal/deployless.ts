@@ -1,6 +1,5 @@
-import * as AbiConstructor from 'ox/AbiConstructor'
-import type * as Address from 'ox/Address'
-import type * as Hex from 'ox/Hex'
+import { AbiConstructor } from 'ox'
+import type { Address, Hex } from 'ox'
 
 import {
   deploylessCallViaBytecodeBytecode,

@@ -1,6 +1,5 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import type * as Hex from 'ox/Hex'
-import type * as Log from 'ox/Log'
+import { AbiEvent } from 'ox'
+import type { Hex, Log } from 'ox'
 import { Client, http, publicActions } from 'viem'
 import { expectTypeOf, test } from 'vitest'
 

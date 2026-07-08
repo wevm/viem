@@ -1,4 +1,4 @@
-import type * as Hex from 'ox/Hex'
+import type { Hex } from 'ox'
 import { expectTypeOf, test } from 'vitest'
 
 import { Account } from 'viem'

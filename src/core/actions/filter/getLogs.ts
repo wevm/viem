@@ -1,6 +1,5 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import type * as Block from 'ox/Block'
-import type * as Errors from 'ox/Errors'
+import { AbiEvent } from 'ox'
+import type { Block, Errors } from 'ox'
 import { z } from 'ox/zod'
 
 import type * as Client from '../../Client.js'

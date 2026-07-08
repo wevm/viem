@@ -1,4 +1,4 @@
-import * as AbiItem from 'ox/AbiItem'
+import { AbiItem } from 'ox'
 import { describe, expect, test } from 'vitest'
 
 import * as Abis from './Abis.js'

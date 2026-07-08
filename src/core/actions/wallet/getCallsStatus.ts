@@ -1,6 +1,5 @@
-import type * as Errors from 'ox/Errors'
-import * as Hex from 'ox/Hex'
-import * as TransactionReceipt from 'ox/TransactionReceipt'
+import { Hex, TransactionReceipt } from 'ox'
+import type { Errors } from 'ox'
 
 import type * as Capabilities from '../../Capabilities.js'
 import type * as Client from '../../Client.js'

@@ -1,4 +1,4 @@
-import * as Provider from 'ox/Provider'
+import { Provider } from 'ox'
 import { Instance, Server } from 'prool'
 import { Client, custom, http } from 'viem'
 

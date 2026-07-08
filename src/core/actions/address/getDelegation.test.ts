@@ -1,4 +1,4 @@
-import * as Address from 'ox/Address'
+import { Address } from 'ox'
 import { expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'

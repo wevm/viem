@@ -1,4 +1,4 @@
-import * as RpcResponse from 'ox/RpcResponse'
+import { RpcResponse } from 'ox'
 
 import * as promise from '../internal/promise.js'
 import * as RpcClient from '../../utils/RpcClient.js'

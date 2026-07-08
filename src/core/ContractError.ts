@@ -1,10 +1,6 @@
 import type { Abi, Address } from 'abitype'
-import * as AbiError from 'ox/AbiError'
-import * as AbiFunction from 'ox/AbiFunction'
-import * as AbiItem from 'ox/AbiItem'
-import * as AbiParameters from 'ox/AbiParameters'
-import type * as Errors from 'ox/Errors'
-import * as Hex from 'ox/Hex'
+import { AbiError, AbiFunction, AbiItem, AbiParameters, Hex } from 'ox'
+import type { Errors } from 'ox'
 
 import { BaseError } from './Errors.js'
 import * as RpcError from './RpcError.js'

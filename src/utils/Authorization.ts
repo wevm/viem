@@ -1,12 +1,7 @@
 export * from 'ox/Authorization'
 
-import * as Address from 'ox/Address'
-import * as Authorization from 'ox/Authorization'
-import type * as Bytes from 'ox/Bytes'
-import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
-import * as Secp256k1 from 'ox/Secp256k1'
-import * as Signature from 'ox/Signature'
+import { Address, Authorization, Secp256k1, Signature } from 'ox'
+import type { Bytes, Errors, Hex } from 'ox'
 
 /**
  * Recovers the authorizing address of an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702)

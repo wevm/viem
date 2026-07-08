@@ -1,5 +1,5 @@
 import * as tempo from '~test/tempo.js'
-import * as Value from 'ox/Value'
+import { Value } from 'ox'
 import { beforeAll, describe, expect, test } from 'vitest'
 
 import { Account, Actions } from 'viem/tempo'

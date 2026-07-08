@@ -1,6 +1,6 @@
 import type { Abi } from 'abitype'
-import * as AbiFunction from 'ox/AbiFunction'
-import type * as Errors from 'ox/Errors'
+import { AbiFunction } from 'ox'
+import type { Errors } from 'ox'
 
 import type * as Client from '../../Client.js'
 import * as ContractError from '../../ContractError.js'

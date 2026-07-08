@@ -1,6 +1,5 @@
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import type * as ReceivePolicyReceipt from 'ox/tempo/ReceivePolicyReceipt'
+import type { Address, Errors } from 'ox'
+import type { ReceivePolicyReceipt } from 'ox/tempo'
 
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'

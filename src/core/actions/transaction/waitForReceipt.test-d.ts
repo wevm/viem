@@ -1,4 +1,4 @@
-import type * as TransactionReceipt from 'ox/TransactionReceipt'
+import type { TransactionReceipt } from 'ox'
 import { expectTypeOf, test } from 'vitest'
 
 import { Actions, Chain, Client, http } from 'viem'

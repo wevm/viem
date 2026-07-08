@@ -1,7 +1,5 @@
-import { Abi } from 'ox'
-import * as AbiError from 'ox/AbiError'
-import * as AbiParameters from 'ox/AbiParameters'
-import type * as Hex from 'ox/Hex'
+import { Abi, AbiError, AbiParameters } from 'ox'
+import type { Hex } from 'ox'
 import { describe, expect, test } from 'vitest'
 
 import { ContractError, Errors, RpcError } from 'viem'

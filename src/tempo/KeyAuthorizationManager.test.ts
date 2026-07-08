@@ -1,4 +1,4 @@
-import type * as KeyAuthorization from 'ox/tempo/KeyAuthorization'
+import type { KeyAuthorization } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 
 import * as KeyAuthorizationManager from './KeyAuthorizationManager.js'

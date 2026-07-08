@@ -1,7 +1,4 @@
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
-import type * as RpcSchema from 'ox/RpcSchema'
+import type { Address, Errors, Hex, RpcSchema } from 'ox'
 
 import * as Account from './Account.js'
 import type * as Chain from './Chain.js'

@@ -1,7 +1,4 @@
-import * as Blobs from 'ox/Blobs'
-import * as Hex from 'ox/Hex'
-import * as TransactionRequest from 'ox/TransactionRequest'
-import * as Value from 'ox/Value'
+import { Blobs, Hex, TransactionRequest, Value } from 'ox'
 import { z } from 'ox/zod'
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'

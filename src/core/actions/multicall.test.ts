@@ -1,6 +1,4 @@
-import * as Abi from 'ox/Abi'
-import * as RpcResponse from 'ox/RpcResponse'
-import * as Value from 'ox/Value'
+import { Abi, RpcResponse, Value } from 'ox'
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'

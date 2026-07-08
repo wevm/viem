@@ -1,9 +1,5 @@
-import * as AbiFunction from 'ox/AbiFunction'
-import * as Address from 'ox/Address'
-import type * as Block from 'ox/Block'
-import * as Ens from 'ox/Ens'
-import type * as Errors from 'ox/Errors'
-import * as Hex from 'ox/Hex'
+import { AbiFunction, Address, Ens, Hex } from 'ox'
+import type { Block, Errors } from 'ox'
 
 import { getContractAddress } from '../../Chain.js'
 import type * as Client from '../../Client.js'

@@ -1,12 +1,12 @@
 export * from 'ox/TxEnvelope'
 
-import * as Address from 'ox/Address'
-import type * as Bytes from 'ox/Bytes'
-import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
-import * as Secp256k1 from 'ox/Secp256k1'
-import * as Signature from 'ox/Signature'
-import * as TxEnvelope from 'ox/TxEnvelope'
+import {
+  Address,
+  Secp256k1,
+  Signature,
+  TransactionEnvelope as TxEnvelope,
+} from 'ox'
+import type { Bytes, Errors, Hex } from 'ox'
 
 /**
  * Recovers the signing address of a transaction envelope, either serialized

@@ -1,7 +1,5 @@
-import * as Abi from 'ox/Abi'
-import * as AbiError from 'ox/AbiError'
-import * as AbiFunction from 'ox/AbiFunction'
-import type * as Hex from 'ox/Hex'
+import { Abi, AbiError, AbiFunction } from 'ox'
+import type { Hex } from 'ox'
 
 import { HttpError } from '../../../../utils/RpcClient.js'
 import type { ccipRequest } from '../../internal/ccip.js'

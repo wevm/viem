@@ -1,7 +1,7 @@
 // Derived from `./Abis.ts` — kept in sync by the `Selectors.test.ts` consistency matrix.
 
 import type { Abi, ExtractAbiFunctionNames } from 'abitype'
-import type * as Hex from 'ox/Hex'
+import type { Hex } from 'ox'
 
 import type * as Abis from './Abis.js'
 

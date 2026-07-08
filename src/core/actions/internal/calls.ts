@@ -1,6 +1,5 @@
 import type { Abi, AbiStateMutability } from 'abitype'
-import type * as Address from 'ox/Address'
-import type * as Hex from 'ox/Hex'
+import type { Address, Hex } from 'ox'
 
 import type { Assign, OneOf, Prettify } from '../../internal/types.js'
 import type {

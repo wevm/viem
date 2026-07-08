@@ -1,12 +1,7 @@
 export * from 'ox/PersonalMessage'
 
-import * as Address from 'ox/Address'
-import type * as Bytes from 'ox/Bytes'
-import type * as Errors from 'ox/Errors'
-import * as Hex from 'ox/Hex'
-import * as PersonalMessage from 'ox/PersonalMessage'
-import * as Secp256k1 from 'ox/Secp256k1'
-import type * as Signature from 'ox/Signature'
+import { Address, Hex, PersonalMessage, Secp256k1 } from 'ox'
+import type { Bytes, Errors, Signature } from 'ox'
 
 /**
  * Message accepted by the personal-message helpers: a UTF-8 string, or a

@@ -1,5 +1,4 @@
-import type * as Hex from 'ox/Hex'
-import type * as Transaction from 'ox/Transaction'
+import type { Hex, Transaction } from 'ox'
 import { z } from 'ox/zod'
 import { expectTypeOf, test } from 'vitest'
 

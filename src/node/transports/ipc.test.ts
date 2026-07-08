@@ -1,4 +1,4 @@
-import * as RpcResponse from 'ox/RpcResponse'
+import { RpcResponse } from 'ox'
 import { describe, expect, test } from 'vitest'
 
 import * as Ipc from '~test/ipc.js'

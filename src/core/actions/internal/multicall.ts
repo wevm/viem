@@ -1,9 +1,5 @@
-import * as AbiFunction from 'ox/AbiFunction'
-import * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
-import * as RpcResponse from 'ox/RpcResponse'
-import * as StateOverrides from 'ox/StateOverrides'
+import { AbiFunction, Address, RpcResponse, StateOverrides } from 'ox'
+import type { Errors, Hex } from 'ox'
 
 import type * as Client from '../../Client.js'
 import { BaseError } from '../../Errors.js'

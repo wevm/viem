@@ -1,7 +1,4 @@
-import * as AbiConstructor from 'ox/AbiConstructor'
-import * as AbiError from 'ox/AbiError'
-import * as AbiFunction from 'ox/AbiFunction'
-import * as Hex from 'ox/Hex'
+import { AbiConstructor, AbiError, AbiFunction, Hex } from 'ox'
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import { createCcipServer } from '~test/ccip.js'

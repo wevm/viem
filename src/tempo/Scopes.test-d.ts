@@ -1,5 +1,5 @@
-import type * as Hex from 'ox/Hex'
-import type * as KeyAuthorization from 'ox/tempo/KeyAuthorization'
+import type { Hex } from 'ox'
+import type { KeyAuthorization } from 'ox/tempo'
 import { expect, expectTypeOf, test } from 'vitest'
 
 import * as Scopes from './Scopes.js'

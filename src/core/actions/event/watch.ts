@@ -1,9 +1,5 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import type * as Address from 'ox/Address'
-import type * as Block from 'ox/Block'
-import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
-import * as Log from 'ox/Log'
+import { AbiEvent, Log } from 'ox'
+import type { Address, Block, Errors, Hex } from 'ox'
 
 import type * as Client from '../../Client.js'
 import { observe } from '../../internal/observe.js'

@@ -1,8 +1,10 @@
-import * as AbiFunction from 'ox/AbiFunction'
-import * as Authorization from 'ox/Authorization'
-import * as Errors from 'ox/Errors'
-import * as TransactionRequest from 'ox/TransactionRequest'
-import * as Value from 'ox/Value'
+import {
+  AbiFunction,
+  Authorization,
+  Errors,
+  TransactionRequest,
+  Value,
+} from 'ox'
 import { z } from 'ox/zod'
 import { describe, expect, test } from 'vitest'
 

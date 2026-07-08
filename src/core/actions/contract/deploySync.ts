@@ -1,7 +1,6 @@
 import type { Abi } from 'abitype'
-import * as AbiConstructor from 'ox/AbiConstructor'
-import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
+import { AbiConstructor } from 'ox'
+import type { Errors, Hex } from 'ox'
 
 import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'

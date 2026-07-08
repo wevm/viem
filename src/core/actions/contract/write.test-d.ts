@@ -1,7 +1,5 @@
 import { Abi } from 'ox'
-import type * as Address from 'ox/Address'
-import type * as Hex from 'ox/Hex'
-import type * as TransactionReceipt from 'ox/TransactionReceipt'
+import type { Address, Hex, TransactionReceipt } from 'ox'
 import { expectTypeOf, test } from 'vitest'
 
 import { Actions, Client, http, walletActions } from 'viem'

@@ -1,6 +1,6 @@
 import { connect, type Socket as NetSocket } from 'node:net'
 
-import * as RpcResponse from 'ox/RpcResponse'
+import { RpcResponse } from 'ox'
 
 import { stringify } from '../../core/internal/stringify.js'
 import * as RpcClient from '../../utils/RpcClient.js'
