@@ -197,8 +197,8 @@ export default defineConfig({
       sources: [
         { url: 'https://wagmi.sh/llms.txt', label: 'wagmi', weight: 0.8 },
       ],
-      // int8 quantization keeps the server AI manifest under Vercel's 250MB function limit.
-      vectorStore: VectorStore.static({ format: 'int8' }),
+      // Remote store keeps vectors out of the server bundle entirely.
+      vectorStore: VectorStore.cloudflare({ index: 'viem-docs' }),
     }),
   },
   sidebar: {
