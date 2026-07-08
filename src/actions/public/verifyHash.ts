@@ -19,8 +19,9 @@ import {
 } from '../../errors/contract.js'
 import type { InvalidHexBooleanError } from '../../errors/encoding.js'
 import type { ErrorType } from '../../errors/utils.js'
+import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import type { ByteArray, Hex, Signature } from '../../types/misc.js'
+import type { ByteArray, Hash, Hex, Signature } from '../../types/misc.js'
 import type { OneOf } from '../../types/utils.js'
 import {
   type EncodeDeployDataErrorType,
@@ -61,10 +62,27 @@ import { type CallErrorType, type CallParameters, call } from './call.js'
 import { type GetCodeErrorType, getCode } from './getCode.js'
 import { type ReadContractErrorType, readContract } from './readContract.js'
 
-export type VerifyHashParameters = Pick<
-  CallParameters,
-  'blockHash' | 'blockNumber' | 'blockTag' | 'requireCanonical'
-> & {
+export type BlockParameters = OneOf<
+  | {
+      /** The block number to check if the contract was already deployed. */
+      blockNumber?: bigint | undefined
+    }
+  | {
+      /**
+       * The block tag to check if the contract was already deployed.
+       * @default 'latest'
+       */
+      blockTag?: BlockTag | undefined
+    }
+  | {
+      /** The block hash to check if the contract was already deployed. Implements [EIP-1898](https://eips.ethereum.org/EIPS/eip-1898). */
+      blockHash: Hash
+      /** Whether or not to require the block to be in the canonical chain. Only allowed in conjunction with `blockHash`. */
+      requireCanonical?: boolean | undefined
+    }
+>
+
+export type VerifyHashParameters = BlockParameters & {
   /** The address that signed the original message. */
   address: Address
   /** The chain to use. */
@@ -213,12 +231,7 @@ export async function verifyErc8010(
   // If already delegated, perform standard ERC-1271 verification.
   if (code === concatHex(['0xef0100', authorization_ox.address]))
     return await verifyErc1271(client, {
-      address,
-      blockHash,
-      blockNumber,
-      blockTag,
-      hash,
-      requireCanonical,
+      ...parameters,
       signature,
     })
 
@@ -248,9 +261,11 @@ export async function verifyErc8010(
       : { code: multicall3Bytecode }),
     authorizationList: [authorization],
     abi: multicall3Abi,
+    blockHash,
     blockNumber,
     blockTag: 'pending',
     functionName: 'aggregate3',
+    requireCanonical,
     args: [
       [
         ...(initData
@@ -282,10 +297,7 @@ export async function verifyErc8010(
 }
 
 export namespace verifyErc8010 {
-  export type Parameters = Pick<
-    CallParameters,
-    'blockHash' | 'blockNumber' | 'blockTag' | 'requireCanonical'
-  > & {
+  export type Parameters = BlockParameters & {
     /** The address that signed the original message. */
     address: Address
     /** The hash to be verified. */
@@ -363,10 +375,7 @@ async function verifyErc6492(
 }
 
 export namespace verifyErc6492 {
-  export type Parameters = Pick<
-    CallParameters,
-    'blockHash' | 'blockNumber' | 'blockTag' | 'requireCanonical'
-  > & {
+  export type Parameters = BlockParameters & {
     /** The address that signed the original message. */
     address: Address
     /** The hash to be verified. */
@@ -417,10 +426,7 @@ export async function verifyErc1271(
 }
 
 export namespace verifyErc1271 {
-  export type Parameters = Pick<
-    CallParameters,
-    'blockHash' | 'blockNumber' | 'blockTag' | 'requireCanonical'
-  > & {
+  export type Parameters = BlockParameters & {
     /** The address that signed the original message. */
     address: Address
     /** The hash to be verified. */
