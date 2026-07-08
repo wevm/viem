@@ -4,16 +4,17 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hash, Hex } from '../../../types/misc.js'
+import { aaTransactionType } from '../constants.js'
 import type { AaAccountChange, AaCalls } from '../types/transaction.js'
 
 /**
- * Strongly-typed representation of an EIP-8130 (`AA_TX_TYPE`, type `0x7b`)
+ * Strongly-typed representation of an EIP-8130 (`AA_TX_TYPE`, type `0x79`)
  * transaction as returned by `eth_getTransactionByHash` on a node with the
  * EIP-8130 extension.
  */
 export type Transaction8130 = {
   /** EIP-8130 transaction type marker. */
-  type: '0x7b'
+  type: typeof aaTransactionType
   /** Transaction hash (injected from the request — not present in the raw RPC response). */
   hash: Hash
   /** Account address that sent the transaction (sender). */
@@ -63,7 +64,7 @@ export type GetTransaction8130ReturnType = Transaction8130
 
 /** Raw RPC response shape for `eth_getTransactionByHash` on an 8130 node. */
 type RawTx8130 = {
-  type: '0x7b'
+  type: typeof aaTransactionType
   tx: {
     chainId: number
     sender: Address
@@ -118,15 +119,15 @@ export async function getTransaction8130<
     }) => Promise<RawTx8130 | null>
   )({ method: 'eth_getTransactionByHash', params: [hash] })
 
-  if (!raw || raw.type !== '0x7b')
+  if (!raw || raw.type !== aaTransactionType)
     throw new Error(
-      `getTransaction8130: expected type 0x7b but got type ${(raw as any)?.type ?? 'null'} for hash ${hash}`,
+      `getTransaction8130: expected type ${aaTransactionType} but got type ${(raw as any)?.type ?? 'null'} for hash ${hash}`,
     )
 
   const body = raw.tx
 
   return {
-    type: '0x7b',
+    type: aaTransactionType,
     hash,
     from: raw.from ?? body.sender,
     chainId: body.chainId,

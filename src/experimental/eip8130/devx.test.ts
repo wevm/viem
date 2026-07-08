@@ -168,7 +168,7 @@ describe('sendCalls8130', () => {
       nonceSequence: 0n,
     })
     expect(hash).toMatch(/^0x[0-9a-f]{64}$/)
-    expect(sent?.startsWith('0x7b')).toBe(true)
+    expect(sent?.startsWith('0x79')).toBe(true)
 
     const parsed = parseTransaction8130(sent!)
     expect(parsed.from?.toLowerCase()).toBe(account.address.toLowerCase())

@@ -3,12 +3,12 @@ import type { Hex } from '../../types/misc.js'
 /**
  * EIP-2718 transaction type for EIP-8130 AA transactions (`AA_TX_TYPE`).
  */
-export const aaTransactionType = '0x7b' satisfies Hex
+export const aaTransactionType = '0x79' satisfies Hex
 
 /**
  * Magic byte for payer signature domain separation (`AA_PAYER_TYPE`).
  */
-export const aaPayerType = '0x7c' satisfies Hex
+export const aaPayerType = '0x7a' satisfies Hex
 
 /** Base intrinsic gas cost (`AA_BASE_COST`). */
 export const aaBaseCost = 15000n
@@ -89,12 +89,12 @@ export const externalCallerAuthenticator =
 export const canonicalAuthenticators = {
   /** secp256k1 — native sentinel (`ECRECOVER_AUTHENTICATOR`). */
   k1: '0x0000000000000000000000000000000000000001',
-  /** P-256 (raw). base/eip-8130 deployment (Base Sepolia). */
-  p256: '0x3AE129D846CD1CAf0369b4Caa56c188E18E11B15',
-  /** WebAuthn / FIDO2 passkey. base/eip-8130 deployment (Base Sepolia). */
-  passkey: '0x1CB75BE39Fb950202BF4239010534B86EdA66c31',
-  /** Signature delegation (1-hop). base/eip-8130 deployment (Base Sepolia). */
-  delegate: '0x4C4D27e56087797Feca62262417d57be4e30dD1F',
+  /** P-256 (raw). Canonical base/eip-8130 deployment. */
+  p256: '0x28096E6f98996799A08fBbCFF0B7c0D512D1f503',
+  /** WebAuthn / FIDO2 passkey. Canonical base/eip-8130 deployment. */
+  passkey: '0xD9B8d163a34FBaD781057F7B68889F0bbd70D7ed',
+  /** Signature delegation (1-hop). Canonical base/eip-8130 deployment. */
+  delegate: '0xb1f064A99919E4199b45F1b553b6ecb8d5d62a11',
 } as const satisfies Record<string, Hex>
 
 /**
@@ -134,7 +134,7 @@ export const txContextAddress =
  * parameter of {@link computeAddress8130}.
  */
 export const accountConfigAddress =
-  '0xAff8A7A86605D61197C1b98630d93B9d9702afb5' satisfies Hex
+  '0x2403408177dB7F8512a9593343a7C80371D8f2dF' satisfies Hex
 
 /**
  * Default wallet implementation for EOA auto-delegation

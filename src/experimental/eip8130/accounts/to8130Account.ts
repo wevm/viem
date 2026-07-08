@@ -20,7 +20,7 @@ import type {
   TransactionSerialized8130,
 } from '../types/transaction.js'
 import { computeAddress8130 } from '../utils/computeAddress.js'
-import { erc1167Bytecode } from '../utils/proxy.js'
+import { erc1167Bytecode, upgradeableProxyBytecode } from '../utils/proxy.js'
 import { signActorChanges8130 } from '../utils/signActorChanges.js'
 import { type Signer, signTransaction8130 } from '../utils/signTransaction.js'
 
@@ -127,7 +127,7 @@ export type To8130AccountReturnType = {
  * **Delegated EOA** — supply `address` only (no salt, no code, no actors):
  * ```ts
  * const account = to8130Account({ signer, address: eoaSigner.address })
- * // first tx: accountChanges: [account.delegate(deployment.accounts.default)]
+ * // first tx: accountChanges: [account.delegate(deployment.accounts.defaultHighRate)]
  * // add keys:  accountChanges: [account.delegate(...), await account.change([...])]
  * ```
  *
@@ -242,14 +242,21 @@ export type NewSmartAccount8130Parameters = {
    */
   salt?: Hex | undefined
   /**
-   * Wallet implementation address (proxied via ERC-1167).
-   * Defaults to the canonical `DefaultAccount`.
-   * Ignored if `code` is provided.
+   * When `true` (default), the account is deployed as an `UpgradeableAccount`
+   * behind an ERC-1967 `UpgradeableProxy` (upgradeable via `upgradeBySignature`).
+   * When `false`, it is deployed as an immutable `DefaultHighRateAccount` behind
+   * a 45-byte ERC-1167 proxy. Ignored if `code` is provided.
+   */
+  upgradeable?: boolean | undefined
+  /**
+   * Wallet implementation address the account proxies to. Defaults to the
+   * canonical `UpgradeableAccount` (or `DefaultHighRateAccount` when
+   * `upgradeable` is `false`). Ignored if `code` is provided.
    */
   implementation?: Address | undefined
   /**
-   * Deployment bytecode override. Defaults to `erc1167Bytecode(implementation)`
-   * (or the canonical `DefaultAccount` implementation if neither is provided).
+   * Deployment bytecode override. Defaults to `upgradeableProxyBytecode(implementation)`
+   * (or `erc1167Bytecode(implementation)` when `upgradeable` is `false`).
    */
   code?: Hex | undefined
   /**
@@ -325,7 +332,13 @@ export type NewSmartAccount8130ReturnType = To8130AccountReturnType & {
 export function newSmartAccount8130(
   parameters: NewSmartAccount8130Parameters,
 ): NewSmartAccount8130ReturnType {
-  const { signer, implementation, extraActors = [], accountConfigAddress } = parameters
+  const {
+    signer,
+    implementation,
+    upgradeable = true,
+    extraActors = [],
+    accountConfigAddress,
+  } = parameters
 
   // Detect signer type and derive the primary actor.
   // P256 / WebAuthn signers expose `.publicKey`; K1 signers have `.address`.
@@ -345,11 +358,17 @@ export function newSmartAccount8130(
 
   const salt = parameters.salt ?? randomBytes32()
 
+  // Default to the upgradeable account (ERC-1967 proxy); opt into the immutable
+  // DefaultHighRateAccount (ERC-1167 proxy) via `upgradeable: false`.
   const code =
     parameters.code ??
-    erc1167Bytecode(
-      implementation ?? canonicalEip8130Deployment.accounts.default,
-    )
+    (upgradeable
+      ? upgradeableProxyBytecode(
+          implementation ?? canonicalEip8130Deployment.accounts.upgradeable,
+        )
+      : erc1167Bytecode(
+          implementation ?? canonicalEip8130Deployment.accounts.defaultHighRate,
+        ))
 
   const inner = to8130Account({
     signer,
@@ -378,7 +397,7 @@ export type ToEoa8130AccountReturnType = {
    *
    * @example
    * await account.signTransaction({
-   *   accountChanges: [account.delegate(deployment.accounts.default)],
+   *   accountChanges: [account.delegate(deployment.accounts.defaultHighRate)],
    *   calls: wire, ...
    * })
    */
@@ -448,7 +467,7 @@ export type ToEoa8130AccountReturnType = {
  * const account = toEoa8130Account(privateKeyToAccount(pk))
  * const addP256 = await account.change([authorizeActor(key.p256(...))], { chainId, sequence: 0 })
  * const signed = await account.signTransaction({
- *   accountChanges: [account.delegate(deployment.accounts.default), addP256],
+ *   accountChanges: [account.delegate(deployment.accounts.defaultHighRate), addP256],
  *   calls: wire, ...
  * })
  */

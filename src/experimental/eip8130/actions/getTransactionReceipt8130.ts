@@ -10,7 +10,7 @@ import type { Hash, Hex } from '../../../types/misc.js'
  * EIP-8130 receipt fields surfaced by `eth_getTransactionReceipt`
  * (base `feat(eip8130): RPC support for ... AA receipts`).
  *
- * These are present only for `AA_TX_TYPE` (`0x7b`) receipts on a node with the
+ * These are present only for `AA_TX_TYPE` (`0x79`) receipts on a node with the
  * extension; they are `undefined` for standard receipts or older nodes.
  */
 export type Eip8130ReceiptFields = {

@@ -201,7 +201,7 @@ export {
   type ParseTransaction8130ErrorType,
   parseTransaction8130,
 } from './utils/parseTransaction.js'
-export { erc1167Bytecode } from './utils/proxy.js'
+export { erc1167Bytecode, upgradeableProxyBytecode } from './utils/proxy.js'
 export {
   type RecoverSenderAddress8130ErrorType,
   type RecoverSenderAddress8130Parameters,
