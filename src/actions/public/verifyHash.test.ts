@@ -47,6 +47,7 @@ import { sendTransaction } from '../wallet/sendTransaction.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
 import { signMessage } from '../wallet/signMessage.js'
 import { writeContract } from '../wallet/writeContract.js'
+import { getBlock } from './getBlock.js'
 import { simulateContract } from './simulateContract.js'
 import { verifyHash } from './verifyHash.js'
 
@@ -414,6 +415,71 @@ describe('erc6492', async () => {
           data: factoryData,
           signature,
         }),
+      }),
+    ).resolves.toBe(true)
+  })
+})
+
+describe('args: blockHash (EIP-1898)', async () => {
+  test('blockHash', async () => {
+    const { factoryAddress } = await deploySoladyAccount_07()
+
+    const { request, result: verifier } = await simulateContract(client, {
+      account: localAccount,
+      abi: SoladyAccountFactory07.abi,
+      address: factoryAddress,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
+    await writeContract(client, request)
+    await mine(client, { blocks: 1 })
+
+    const signature = await signMessageErc1271(client, {
+      account: localAccount,
+      message: 'hello world',
+      verifier,
+    })
+
+    const block = await getBlock(client)
+
+    await expect(
+      verifyHash(client, {
+        address: verifier,
+        hash: hashMessage('hello world'),
+        signature,
+        blockHash: block.hash!,
+      }),
+    ).resolves.toBe(true)
+  })
+
+  test('blockHash + requireCanonical', async () => {
+    const { factoryAddress } = await deploySoladyAccount_07()
+
+    const { request, result: verifier } = await simulateContract(client, {
+      account: localAccount,
+      abi: SoladyAccountFactory07.abi,
+      address: factoryAddress,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
+    await writeContract(client, request)
+    await mine(client, { blocks: 1 })
+
+    const signature = await signMessageErc1271(client, {
+      account: localAccount,
+      message: 'hello world',
+      verifier,
+    })
+
+    const block = await getBlock(client)
+
+    await expect(
+      verifyHash(client, {
+        address: verifier,
+        hash: hashMessage('hello world'),
+        signature,
+        blockHash: block.hash!,
+        requireCanonical: true,
       }),
     ).resolves.toBe(true)
   })
