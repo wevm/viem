@@ -95,7 +95,7 @@ const account = toEoa8130Account(privateKeyToAccount(generatePrivateKey()))
 
 The same EIP-8130 account works on chains **without** native 8130 support through a bundler, by wrapping it as a standard Viem Smart Account. Execution routes through `executeBatch` on the `BackwardsCompatible4337Account` implementation, and deployment uses the Account Configuration contract as the ERC-4337 factory.
 
-`BackwardsCompatible4337Account` has a canonical CREATE2 address (`canonicalEip8130Deployment.accounts.erc4337`), but base's canonical `Deploy.s.sol` does **not** deploy it — deploy it on the target chain (via the Account Configuration `CREATE2` factory) before use, then pass its address as `implementation`:
+`BackwardsCompatible4337Account` is deployed as a fourth singleton by base's canonical `Deploy.s.sol` at `canonicalEip8130Deployment.accounts.erc4337` (a canonical CREATE2 address). Pass it as `implementation`:
 
 ```ts
 import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'

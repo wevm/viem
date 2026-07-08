@@ -77,7 +77,7 @@ deployment.authenticators.p256     // P-256 authenticator
 deployment.policies?.manager       // example PolicyManager (session keys)
 ```
 
-Account implementations: **`UpgradeableAccount`** (the default for smart accounts — behind an ERC-1967 `UpgradeableProxy`, upgradeable via `upgradeBySignature`), **`DefaultAccount`** (the bare building block, deployed standalone as the direct EIP-7702 delegation target for EOAs), **`DefaultHighRateAccount`** (immutable — behind a 45-byte ERC-1167 proxy), and **`BackwardsCompatible4337Account`** (the ERC-4337 portable implementation for non-native chains). The first three are deployed by base's canonical `Deploy.s.sol`; the 4337 implementation is deployed separately but has a canonical CREATE2 address.
+Account implementations: **`UpgradeableAccount`** (the default for smart accounts — behind an ERC-1967 `UpgradeableProxy`, upgradeable via `upgradeBySignature`), **`DefaultAccount`** (the bare building block, deployed standalone as the direct EIP-7702 delegation target for EOAs), **`DefaultHighRateAccount`** (immutable — behind a 45-byte ERC-1167 proxy), and **`BackwardsCompatible4337Account`** (the ERC-4337 portable implementation for non-native chains). All four are deployed as singletons by base's canonical `Deploy.s.sol` at canonical CREATE2 addresses.
 
 ## Guides
 

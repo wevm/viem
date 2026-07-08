@@ -38,8 +38,8 @@ export type Eip8130Deployment = {
      * (`DefaultAccount` + `validateUserOp`). Lets an account run on non-native
      * chains via a bundler + EntryPoint at the same address; the EntryPoint is
      * registered as a trusted-executor actor (see {@link key.trustedExecutor}).
-     * Not deployed by base's canonical `Deploy.s.sol` — deploy it separately;
-     * the CREATE2 address below is canonical.
+     * Deployed as a fourth singleton by base's canonical `Deploy.s.sol`
+     * (base/eip-8130#27) at the canonical CREATE2 address below.
      */
     erc4337: Address
   }
