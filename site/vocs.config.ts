@@ -1186,6 +1186,10 @@ export default defineConfig({
                 text: 'extractChain',
                 link: '/docs/utilities/extractChain',
               },
+              {
+                text: 'filterChains',
+                link: '/docs/utilities/filterChains',
+              },
             ],
           },
           {

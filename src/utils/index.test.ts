@@ -48,6 +48,7 @@ test('exports utils', () => {
       "assertCurrentChain",
       "defineChain",
       "extractChain",
+      "filterChains",
       "getChainContractAddress",
       "concat",
       "concatBytes",

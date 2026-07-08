@@ -172,6 +172,12 @@ export {
   extractChain,
 } from './chain/extractChain.js'
 export {
+  type FilterChainsErrorType,
+  type FilterChainsParameters,
+  type FilterChainsReturnType,
+  filterChains,
+} from './chain/filterChains.js'
+export {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
 } from './chain/getChainContractAddress.js'
