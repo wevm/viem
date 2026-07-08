@@ -262,7 +262,7 @@
   },
   "dependencies": {
     "abitype": "1.2.3",
-    "ox": "1.0.0-beta.17"
+    "ox": "1.0.0-beta.18"
   },
   "exports": {
     ".": {
