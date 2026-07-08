@@ -475,7 +475,6 @@ const valid = await publicClient.verifyTypedData({
 })
 ```
 
-
 ### blockHash (optional)
 
 - **Type:** `Hash`
@@ -525,7 +524,7 @@ const valid = await publicClient.verifyTypedData({
 
 - **Type:** `boolean`
 
-Whether or not to throw an error if the block is not in the canonical chain. Only allowed in conjunction with `blockHash`. Implements [EIP-1898](https://eips.ethereum.org/EIPS/eip-1898).
+Whether or not to require the block to be in the canonical chain. If the block is not canonical, verification fails and returns `false` instead of being evaluated against it. Only allowed in conjunction with `blockHash`. Implements [EIP-1898](https://eips.ethereum.org/EIPS/eip-1898).
 
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts]

@@ -177,6 +177,43 @@ const valid = await publicClient.verifySiweMessage({
 })
 ```
 
+### blockHash (optional)
+
+- **Type:** `Hash`
+
+Only used when verifying a message that was signed by a Smart Contract Account. The block hash to check if the contract was already deployed. Implements [EIP-1898](https://eips.ethereum.org/EIPS/eip-1898).
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+declare const message: string
+// ---cut---
+const valid = await publicClient.verifySiweMessage({
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d', // [!code focus:1]
+  message,
+  signature:
+    '0x66edc32e2ab001213321ab7d959a2207fcef5190cc9abb6da5b0d2a8a9af2d4d2b0700e2c317c4106f337fd934fbbb0bf62efc8811a78603b33a8265d3b8f8cb1c',
+})
+```
+
+### requireCanonical (optional)
+
+- **Type:** `boolean`
+
+Whether or not to require the block to be in the canonical chain. If the block is not canonical, verification fails and returns `false` instead of being evaluated against it. Only allowed in conjunction with `blockHash`. Implements [EIP-1898](https://eips.ethereum.org/EIPS/eip-1898).
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+declare const message: string
+// ---cut---
+const valid = await publicClient.verifySiweMessage({
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+  requireCanonical: true, // [!code focus:1]
+  message,
+  signature:
+    '0x66edc32e2ab001213321ab7d959a2207fcef5190cc9abb6da5b0d2a8a9af2d4d2b0700e2c317c4106f337fd934fbbb0bf62efc8811a78603b33a8265d3b8f8cb1c',
+})
+```
+
 ### domain (optional)
 
 - **Type:** `string`
