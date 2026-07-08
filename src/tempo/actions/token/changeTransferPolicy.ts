@@ -1,7 +1,5 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import type * as Errors from 'ox/Errors'
-import type * as Log from 'ox/Log'
-import type * as TokenId from 'ox/tempo/TokenId'
+import { AbiEvent } from 'ox'
+import type { Address, Errors, Log } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -58,8 +56,8 @@ export namespace changeTransferPolicy {
   export type Args = {
     /** New transfer policy ID. */
     policyId: bigint
-    /** Address or ID of the TIP-20 token. */
-    token: TokenId.TokenIdOrAddress
+    /** TIP-20 token contract address. */
+    token: Address.Address
   }
   export type Options = WriteParameters & Args
   export type ReturnType = write.ReturnType
@@ -86,8 +84,7 @@ export namespace changeTransferPolicy {
    * Defines a call to the `changeTransferPolicyId` function.
    *
    * Can be passed to any action that accepts a contract call. The token is
-   * selected by `token`, which is either a TIP-20 token id or a contract
-   * `address`.
+   * selected by `token`, which is a TIP-20 token contract address.
    *
    * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.

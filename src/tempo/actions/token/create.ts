@@ -1,9 +1,5 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import * as Hex from 'ox/Hex'
-import type * as Log from 'ox/Log'
-import type * as TokenId from 'ox/tempo/TokenId'
+import { AbiEvent, Hex } from 'ox'
+import type { Address, Errors, Log } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -70,7 +66,7 @@ export namespace create {
     /** Logo URI. Requires a T5-enabled Tempo chain. */
     logoURI?: string | undefined
     /** Quote token. */
-    quoteToken?: TokenId.TokenIdOrAddress | undefined
+    quoteToken?: Address.Address | undefined
     /** Unique salt. @default Hex.random(32) */
     salt?: Hex.Hex | undefined
     /** Token symbol. */

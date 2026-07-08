@@ -1,5 +1,5 @@
-import type * as Errors from 'ox/Errors'
-import * as TokenRole from 'ox/tempo/TokenRole'
+import type { Errors } from 'ox'
+import { TokenRole } from 'ox/tempo'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -62,8 +62,7 @@ export namespace getRoleAdmin {
    * Defines a call to the `getRoleAdmin` function.
    *
    * Can be passed to any action that accepts a contract call. The token is
-   * selected by `token`, which is either a TIP-20 token id or a contract
-   * `address`.
+   * selected by `token`, which is a TIP-20 token contract address.
    *
    * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.

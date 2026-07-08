@@ -1,5 +1,4 @@
-import type * as Errors from 'ox/Errors'
-import * as TokenId from 'ox/tempo/TokenId'
+import type { Address, Errors } from 'ox'
 
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
@@ -11,7 +10,6 @@ import {
   type CallParameters,
   defineCall,
   resolveCallParameters,
-  resolveToken,
 } from '../../internal/utils.js'
 
 /** Gets the price level information at a specific tick. */
@@ -29,7 +27,7 @@ export async function getTickLevel<chain extends Chain.Chain | undefined>(
 
 export namespace getTickLevel {
   export type Args = {
-    /** Base token to query. */ base: TokenId.TokenIdOrAddress
+    /** Base token to query. */ base: Address.Address
     /** Whether to query the bid side (true) or ask side (false). */ isBid: boolean
     /** Price tick to query. */ tick: number
   }
@@ -45,12 +43,12 @@ export namespace getTickLevel {
   export function call<chain extends Chain.Chain | undefined>(
     ...parameters: CallParameters<Args, Client.Client<chain>>
   ) {
-    const [client, args] = resolveCallParameters(parameters)
+    const [, args] = resolveCallParameters(parameters)
     return defineCall({
       abi: Abis.stablecoinDex,
       address: Addresses.stablecoinDex,
       args: [
-        resolveToken(client, { token: args.base }).address,
+        args.base,
         args.tick,
         args.isBid,
       ],

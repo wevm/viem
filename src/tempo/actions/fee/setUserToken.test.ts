@@ -9,15 +9,12 @@ const client = tempo.getClient({ account, feeToken: tempo.pathUsd })
 describe('setUserToken', () => {
   test('default', async () => {
     expect(await Actions.fee.getUserToken(client)).toMatchInlineSnapshot(`
-      {
-        "address": "0x20C0000000000000000000000000000000000001",
-        "id": 1n,
-      }
+      "0x20C0000000000000000000000000000000000001"
     `)
 
     const { receipt: setReceipt, ...setResult } =
       await Actions.fee.setUserTokenSync(client, {
-        token: 2n,
+        token: '0x20c0000000000000000000000000000000000002',
       })
     expect(setReceipt.status).toBe('success')
     expect(setResult).toMatchInlineSnapshot(`
@@ -28,15 +25,12 @@ describe('setUserToken', () => {
     `)
 
     expect(await Actions.fee.getUserToken(client)).toMatchInlineSnapshot(`
-      {
-        "address": "0x20C0000000000000000000000000000000000002",
-        "id": 2n,
-      }
+      "0x20C0000000000000000000000000000000000002"
     `)
 
     const { receipt: resetReceipt, ...resetResult } =
       await Actions.fee.setUserTokenSync(client, {
-        token: 1n,
+        token: '0x20c0000000000000000000000000000000000001',
       })
     expect(resetReceipt.status).toBe('success')
     expect(resetResult).toMatchInlineSnapshot(`
@@ -47,10 +41,7 @@ describe('setUserToken', () => {
     `)
 
     expect(await Actions.fee.getUserToken(client)).toMatchInlineSnapshot(`
-      {
-        "address": "0x20C0000000000000000000000000000000000001",
-        "id": 1n,
-      }
+      "0x20C0000000000000000000000000000000000001"
     `)
   })
 })

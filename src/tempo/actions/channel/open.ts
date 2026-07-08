@@ -1,9 +1,5 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import * as Hex from 'ox/Hex'
-import * as TokenId from 'ox/tempo/TokenId'
-import type * as Log from 'ox/Log'
+import { AbiEvent, Hex } from 'ox'
+import type { Address, Errors, Log } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -21,7 +17,6 @@ import {
   estimateWrite,
   pickWriteParameters,
   resolveCallParameters,
-  resolveToken,
   simulateWrite,
 } from '../../internal/utils.js'
 
@@ -50,8 +45,8 @@ export namespace open {
     payee: Address.Address
     /** User-supplied salt to distinguish otherwise identical channels. */
     salt?: Hex.Hex | undefined
-    /** TIP-20 token address or ID held by the channel. */
-    token: TokenId.TokenIdOrAddress
+    /** TIP-20 token address held by the channel. */
+    token: Address.Address
   }
   export type Options = WriteParameters & Args
   export type ReturnType = write.ReturnType
@@ -78,7 +73,7 @@ export namespace open {
   export function call<chain extends Chain.Chain | undefined>(
     ...parameters: CallParameters<Args, Client.Client<chain>>
   ) {
-    const [client, args] = resolveCallParameters(parameters)
+    const [, args] = resolveCallParameters(parameters)
     const {
       authorizedSigner = '0x0000000000000000000000000000000000000000',
       deposit,
@@ -93,7 +88,7 @@ export namespace open {
       args: [
         payee,
         operator,
-        resolveToken(client, { token }).address,
+        token,
         deposit,
         salt,
         authorizedSigner,

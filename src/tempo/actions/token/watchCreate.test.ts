@@ -1,7 +1,5 @@
-import * as Hex from 'ox/Hex'
-import * as TokenId from 'ox/tempo/TokenId'
-import * as TokenRole from 'ox/tempo/TokenRole'
-import * as Value from 'ox/Value'
+import { AbiParameters, Hash, Hex, Value } from 'ox'
+import { TokenRole } from 'ox/tempo'
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 
@@ -13,7 +11,6 @@ const account3 = Account.fromSecp256k1(tempo.accounts[2]!.privateKey)
 const client2 = tempo.getClient({ account: account2, feeToken: tempo.pathUsd })
 
 void Hex
-void TokenId
 void TokenRole
 void account3
 void client2
@@ -58,8 +55,13 @@ describe('watchCreate', () => {
   })
   test('behavior: filter by token', async () => {
     const salt = Hex.random(32)
-    const tokenId = TokenId.compute({ salt, sender: client.account!.address })
-    const token = TokenId.toAddress(tokenId)
+    const hash = Hash.keccak256(
+      AbiParameters.encode(AbiParameters.from('address, bytes32'), [
+        client.account!.address,
+        salt,
+      ]),
+    )
+    const token = `0x20c0${'0'.repeat(20)}${hash.slice(2, 18)}` as const
     const watcher = Actions.token.watchCreate(client, { args: { token } })
     const logs: any[] = []
     watcher.onLogs((batch) => logs.push(...batch))

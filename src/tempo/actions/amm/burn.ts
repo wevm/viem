@@ -1,8 +1,5 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import type * as Log from 'ox/Log'
-import type * as TokenId from 'ox/tempo/TokenId'
+import { AbiEvent } from 'ox'
+import type { Address, Errors, Log } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -20,7 +17,6 @@ import {
   estimateWrite,
   pickWriteParameters,
   resolveCallParameters,
-  resolveToken,
   simulateWrite,
 } from '../../internal/utils.js'
 
@@ -62,10 +58,10 @@ export namespace burn {
     liquidity: bigint
     /** Address to send tokens to. */
     to: Address.Address
-    /** Address or ID of the user token. */
-    userToken: TokenId.TokenIdOrAddress
-    /** Address or ID of the validator token. */
-    validatorToken: TokenId.TokenIdOrAddress
+    /** User token address. */
+    userToken: Address.Address
+    /** Validator token address. */
+    validatorToken: Address.Address
   }
   export type Options = WriteParameters & Args
   export type ReturnType = write.ReturnType
@@ -92,11 +88,11 @@ export namespace burn {
   export function call<chain extends Chain.Chain | undefined>(
     ...parameters: CallParameters<Args, Client.Client<chain>>
   ) {
-    const [client, args] = resolveCallParameters(parameters)
+    const [, args] = resolveCallParameters(parameters)
     const { liquidity, to, userToken, validatorToken } = args
     const callArgs = [
-      resolveToken(client, { token: userToken }).address,
-      resolveToken(client, { token: validatorToken }).address,
+      userToken,
+      validatorToken,
       liquidity,
       to,
     ] as const

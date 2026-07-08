@@ -1,8 +1,5 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import type * as Log from 'ox/Log'
-import * as TokenId from 'ox/tempo/TokenId'
+import { AbiEvent } from 'ox'
+import type { Address, Errors, Log } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -58,7 +55,7 @@ export async function prepareUpdateQuoteToken<
 export namespace prepareUpdateQuoteToken {
   export type Args = {
     /** New quote token. */
-    quoteToken: TokenId.TokenIdOrAddress
+    quoteToken: Address.Address
   } & TokenParameter
   export type Options = WriteParameters & Args
   export type ReturnType = write.ReturnType

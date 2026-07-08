@@ -1,4 +1,4 @@
-import type * as Errors from 'ox/Errors'
+import type { Errors } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -7,7 +7,7 @@ import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import { sell } from './sell.js'
 
 /**
- * Sells a specific amount of tokens., and waits for the transaction to be confirmed.
+ * Sells a specific amount of tokens, and waits for the transaction to be confirmed.
  *
  * @example
  * ```ts

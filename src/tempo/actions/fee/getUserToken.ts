@@ -1,6 +1,4 @@
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import * as TokenId from 'ox/tempo/TokenId'
+import type { Address, Errors } from 'ox'
 
 import * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -36,7 +34,7 @@ const zeroAddress = '0x0000000000000000000000000000000000000000'
  *
  * @param client - Client.
  * @param options - Options.
- * @returns The account's fee token address and id, or `null` if unset.
+ * @returns The account's fee token address, or `null` if unset.
  */
 export async function getUserToken<
   chain extends Chain.Chain | undefined,
@@ -51,10 +49,7 @@ export async function getUserToken<
     ...getUserToken.call(client, { account }),
   })
   if (address === zeroAddress) return null
-  return {
-    address,
-    id: TokenId.fromAddress(address),
-  }
+  return address
 }
 
 export namespace getUserToken {
@@ -63,12 +58,7 @@ export namespace getUserToken {
     account?: Account.Account | Address.Address | undefined
   }
   export type Options = Omit<ReadParameters, 'account'> & Args
-  export type ReturnType = {
-    /** Fee token contract address. */
-    address: Address.Address
-    /** Fee token id. */
-    id: bigint
-  } | null
+  export type ReturnType = Address.Address | null
   // TODO: exhaustive error type
   export type ErrorType = Errors.GlobalErrorType
 

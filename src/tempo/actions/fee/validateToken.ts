@@ -1,6 +1,5 @@
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import * as TokenId from 'ox/tempo/TokenId'
+import { Address } from 'ox'
+import type { Errors } from 'ox'
 
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
@@ -29,14 +28,14 @@ const tip20AddressPrefix = '0x20c0'
  *
  * const client = Client.create({ transport: http() })
  *
- * const { address, id, metadata } = await Actions.fee.validateToken(client, {
+ * const { address, metadata } = await Actions.fee.validateToken(client, {
  *   token: '0x20c0000000000000000000000000000000000001',
  * })
  * ```
  *
  * @param client - Client.
  * @param options - Options.
- * @returns The fee token address, id, and metadata.
+ * @returns The fee token address and metadata.
  */
 export async function validateToken<chain extends Chain.Chain | undefined>(
   client: Client.Client<chain>,
@@ -45,7 +44,8 @@ export async function validateToken<chain extends Chain.Chain | undefined>(
   const { token, ...rest } = options
   const address = (() => {
     try {
-      return TokenId.toAddress(token)
+      Address.assert(token, { strict: false })
+      return token
     } catch (cause) {
       throw new InvalidFeeTokenError({
         cause: cause as Error,
@@ -88,7 +88,6 @@ export async function validateToken<chain extends Chain.Chain | undefined>(
 
   return {
     address,
-    id: TokenId.fromAddress(address),
     metadata,
   }
 }
@@ -98,8 +97,6 @@ export namespace validateToken {
   export type ReturnType = {
     /** Fee token contract address. */
     address: Address.Address
-    /** Fee token id. */
-    id: bigint
     /** Fee token metadata. */
     metadata: getMetadata.ReturnType
   }

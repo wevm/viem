@@ -1,5 +1,5 @@
 import * as tempo from '~test/tempo.js'
-import * as Value from 'ox/Value'
+import { Value } from 'ox'
 import { beforeAll, describe, expect, test } from 'vitest'
 
 import { Account, Actions } from 'viem/tempo'
@@ -33,10 +33,10 @@ describe('watchSetValidatorToken', () => {
     watcher.onLogs((batch) => logs.push(...batch))
     try {
       await Actions.fee.setValidatorTokenSync(validatorClient, {
-        token: 1n,
+        token: '0x20c0000000000000000000000000000000000001',
       })
       await Actions.fee.setValidatorTokenSync(validatorClient, {
-        token: 2n,
+        token: '0x20c0000000000000000000000000000000000002',
       })
 
       await waitForLogs(logs, 2)
@@ -67,7 +67,7 @@ describe('watchSetValidatorToken', () => {
     watcher.onLogs((batch) => logs.push(...batch))
     try {
       await Actions.fee.setValidatorTokenSync(validatorClient, {
-        token: 1n,
+        token: '0x20c0000000000000000000000000000000000001',
       })
 
       await waitForLogs(logs, 1)

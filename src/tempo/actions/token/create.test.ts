@@ -8,12 +8,14 @@ const client = tempo.getClient({ feeToken: tempo.pathUsd })
 
 describe('create', () => {
   test('default', async () => {
-    const { receipt, salt, token, tokenId, ...result } =
-      await Actions.token.createSync(client, {
+    const { receipt, salt, token, ...result } = await Actions.token.createSync(
+      client,
+      {
         currency: 'USD',
         name: 'Test USD',
         symbol: 'TUSD',
-      })
+      },
+    )
 
     expect(result).toMatchInlineSnapshot(`
       {
@@ -26,7 +28,6 @@ describe('create', () => {
     `)
     expect(salt).toBeDefined()
     expect(token).toBeDefined()
-    expect(tokenId).toBeDefined()
     expect(receipt.status).toBe('success')
 
     const code = await CoreActions.address.getCode(client, { address: token })

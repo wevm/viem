@@ -1,16 +1,17 @@
-import type * as Address from 'ox/Address'
-import * as Hash from 'ox/Hash'
-import * as Hex from 'ox/Hex'
-import * as ox_TransactionRequest from 'ox/TransactionRequest'
-import * as TxEnvelope from 'ox/TxEnvelope'
-import * as MultisigConfig from 'ox/tempo/MultisigConfig'
-import * as SignatureEnvelope from 'ox/tempo/SignatureEnvelope'
-import type * as TokenId from 'ox/tempo/TokenId'
-import * as TransactionRequestTempo from 'ox/tempo/TransactionRequest'
-import * as TxEnvelopeTempo from 'ox/tempo/TxEnvelopeTempo'
+import {
+  Hash,
+  Hex,
+  TransactionEnvelope as TxEnvelope,
+  TransactionRequest as ox_TransactionRequest,
+} from 'ox'
+import type { Address } from 'ox'
+import {
+  MultisigConfig,
+  SignatureEnvelope,
+  TransactionRequest as TransactionRequestTempo,
+  TxEnvelopeTempo,
+} from 'ox/tempo'
 import { z } from 'ox/zod'
-import * as z_Transaction from 'ox/zod/tempo/Transaction'
-import * as z_TransactionReceipt from 'ox/zod/tempo/TransactionReceipt'
 
 import type * as viem_Account from '../core/Account.js'
 import * as Chain from '../core/Chain.js'
@@ -84,13 +85,13 @@ export type Envelope = TxEnvelopeTempo.TxEnvelopeTempo & {
 export type ChainConfig = {
   blockTime: number
   extendSchema: {
-    feeToken?: TokenId.TokenIdOrAddress | undefined
+    feeToken?: Address.Address | undefined
     hardfork?: Hardfork | undefined
   }
   schema: {
-    transaction: { fromRpc: typeof z_Transaction.Transaction }
+    transaction: { fromRpc: typeof z.tempo.Transaction.Transaction }
     transactionReceipt: {
-      fromRpc: typeof z_TransactionReceipt.TransactionReceipt
+      fromRpc: typeof z.tempo.TransactionReceipt.TransactionReceipt
     }
     transactionRequest: {
       toRpc: z.ZodMiniType<TransactionRequest, TransactionRequestRpc>
@@ -130,7 +131,7 @@ type PrepareAccount = {
 type PrepareRequest = TransactionRequest & {
   account?: PrepareAccount | undefined
   chain?:
-    | (Chain.Chain & { feeToken?: TokenId.TokenIdOrAddress | undefined })
+    | (Chain.Chain & { feeToken?: Address.Address | undefined })
     | undefined
 }
 
@@ -142,12 +143,12 @@ type PrepareRequest = TransactionRequest & {
 export const chainConfig = {
   blockTime: 1_000,
   extendSchema: Chain.extendSchema<{
-    feeToken?: TokenId.TokenIdOrAddress | undefined
+    feeToken?: Address.Address | undefined
     hardfork?: Hardfork | undefined
   }>(),
   schema: {
-    transaction: { fromRpc: z_Transaction.Transaction },
-    transactionReceipt: { fromRpc: z_TransactionReceipt.TransactionReceipt },
+    transaction: { fromRpc: z.tempo.Transaction.Transaction },
+    transactionReceipt: { fromRpc: z.tempo.TransactionReceipt.TransactionReceipt },
     transactionRequest: {
       toRpc: z.codec(z.any(), z.any(), {
         decode: (rpc) => decodeRequest(rpc),

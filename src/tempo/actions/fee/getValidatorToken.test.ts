@@ -15,10 +15,7 @@ describe('getValidatorToken', () => {
         validator: account.address,
       }),
     ).resolves.toMatchInlineSnapshot(`
-      {
-        "address": "0x20C0000000000000000000000000000000000000",
-        "id": 0n,
-      }
+      "0x20C0000000000000000000000000000000000000"
     `)
   })
 
@@ -31,10 +28,7 @@ describe('getValidatorToken', () => {
         validator: validator.address,
       }),
     ).resolves.toMatchInlineSnapshot(`
-      {
-        "address": "0x20C0000000000000000000000000000000000000",
-        "id": 0n,
-      }
+      "0x20C0000000000000000000000000000000000000"
     `)
   })
 })

@@ -1,6 +1,5 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import type * as Errors from 'ox/Errors'
-import type * as Log from 'ox/Log'
+import { AbiEvent } from 'ox'
+import type { Errors, Log } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -82,8 +81,7 @@ export namespace unpause {
    * Defines a call to the `unpause` function.
    *
    * Can be passed to any action that accepts a contract call. The token is
-   * selected by `token`, which is either a TIP-20 token id or a contract
-   * `address`.
+   * selected by `token`, which is a TIP-20 token contract address.
    *
    * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.

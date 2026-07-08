@@ -21,7 +21,6 @@ describe('validateToken', () => {
     ).resolves.toMatchInlineSnapshot(`
       {
         "address": "0x20c0000000000000000000000000000000000000",
-        "id": 0n,
         "metadata": {
           "currency": "USD",
           "decimals": 6,
@@ -34,14 +33,13 @@ describe('validateToken', () => {
     `)
   })
 
-  test('behavior: validates token ids', async () => {
+  test('behavior: validates token addresses', async () => {
     await expect(
       Actions.fee.validateToken(client, {
-        token: 1n,
+        token: '0x20c0000000000000000000000000000000000001',
       }),
     ).resolves.toMatchObject({
       address: '0x20c0000000000000000000000000000000000001',
-      id: 1n,
       metadata: {
         currency: 'USD',
         paused: false,

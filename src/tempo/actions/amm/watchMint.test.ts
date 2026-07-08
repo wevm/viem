@@ -1,4 +1,4 @@
-import * as Value from 'ox/Value'
+import { Value } from 'ox'
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 
@@ -41,7 +41,7 @@ describe('watchMint', () => {
       await Actions.amm.mintSync(client, {
         to: account.address,
         userTokenAddress: token,
-        validatorTokenAddress: 1n,
+        validatorTokenAddress: tempo.alphaUsd,
         validatorTokenAmount: Value.from('100', 6),
       })
 

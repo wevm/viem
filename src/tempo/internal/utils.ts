@@ -1,5 +1,4 @@
-import type * as Address from 'ox/Address'
-import * as TokenId from 'ox/tempo/TokenId'
+import type { Address } from 'ox'
 
 import type * as Client from '../../core/Client.js'
 import { read } from '../../core/actions/contract/read.js'
@@ -19,18 +18,17 @@ export {
 
 /**
  * Resolves the token contract `address` and `decimals` from a `token`, which
- * is a token symbol declared on the client's `tokens` array, a TIP-20 token
- * id, or a contract `address`.
+ * is a token symbol declared on the client's `tokens` array or a contract
+ * `address`.
  *
  * When `token` is a declared symbol, the `address` and `decimals` are read
  * from the client's declared `tokens` (`decimals` can be overridden via the
- * explicit `decimals`). When `token` is a token id or address, its `decimals`
- * is inferred from the client's declared `tokens` when the address matches a
+ * explicit `decimals`). When `token` is an address, its `decimals` is
+ * inferred from the client's declared `tokens` when the address matches a
  * declared token, otherwise taken from the explicit `decimals`.
  *
- * When `client` is omitted, `token` must be a token id or address (symbols
- * cannot be resolved), and `decimals` is only taken from the explicit
- * `decimals`.
+ * When `client` is omitted, `token` must be an address (symbols cannot be
+ * resolved), and `decimals` is only taken from the explicit `decimals`.
  */
 export function resolveToken(
   client: Client.Client | undefined,
@@ -39,10 +37,15 @@ export function resolveToken(
   const { decimals, token } = parameters
 
   // Symbols resolve through the client's declared tokens.
-  if (client && typeof token === 'string' && !token.startsWith('0x'))
+  if (!token.startsWith('0x')) {
+    if (!client)
+      throw new Error(
+        `Token "${token}" is not an address. Symbols require a Client with declared \`tokens\`.`,
+      )
     return resolveErc20Token(client, { decimals, token })
+  }
 
-  const address = TokenId.toAddress(token as TokenId.TokenIdOrAddress)
+  const address = token as Address.Address
   const declared = client ? findDeclaredToken(client, address) : undefined
   return { address, decimals: decimals ?? declared?.decimals }
 }
@@ -51,8 +54,8 @@ export declare namespace resolveToken {
   type Parameters = {
     /** Decimals, if provided explicitly. */
     decimals?: number | undefined
-    /** Token symbol (declared on the client's `tokens` array), TIP-20 token id, or contract address. */
-    token: TokenId.TokenIdOrAddress | (string & {})
+    /** Token symbol (declared on the client's `tokens` array) or contract address. */
+    token: Address.Address | (string & {})
   }
 }
 

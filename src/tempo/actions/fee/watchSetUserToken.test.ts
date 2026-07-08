@@ -1,5 +1,5 @@
 import * as tempo from '~test/tempo.js'
-import * as Value from 'ox/Value'
+import { Value } from 'ox'
 import { describe, expect, test } from 'vitest'
 
 import { Account, Actions } from 'viem/tempo'
@@ -31,8 +31,8 @@ describe('watchSetUserToken', () => {
       await fund(account2.address)
       await fund(account3.address)
 
-      // Genesis presets token 1, so set different tokens: setting the
-      // current value emits no `UserTokenSet` event.
+      // Genesis presets the account token, so set different token addresses:
+      // setting the current value emits no `UserTokenSet` event.
       await Actions.fee.setUserTokenSync(client, {
         account: account2,
         token: '0x20c0000000000000000000000000000000000002',
@@ -87,7 +87,7 @@ describe('watchSetUserToken', () => {
       // Set token for account2 again (should be captured)
       await Actions.fee.setUserTokenSync(client, {
         account: account2,
-        token: 2n,
+        token: '0x20c0000000000000000000000000000000000002',
       })
 
       await waitForLogs(logs, 2)

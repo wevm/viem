@@ -1,8 +1,5 @@
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import * as Hash from 'ox/Hash'
-import * as Hex from 'ox/Hex'
-import type * as TokenId from 'ox/tempo/TokenId'
+import { Hash, Hex } from 'ox'
+import type { Address, Errors } from 'ox'
 
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
@@ -14,7 +11,6 @@ import {
   type CallParameters,
   defineCall,
   resolveCallParameters,
-  resolveToken,
 } from '../../internal/utils.js'
 
 /** Gets the LP token balance for an account in a specific pool. */
@@ -38,9 +34,9 @@ export namespace getLiquidityBalance {
     | { /** Pool ID. */ poolId: Hex.Hex }
     | {
         /** User token. */
-        userToken: TokenId.TokenIdOrAddress
+        userToken: Address.Address
         /** Validator token. */
-        validatorToken: TokenId.TokenIdOrAddress
+        validatorToken: Address.Address
       }
   )
   export type Options = Omit<ReadParameters, 'account'> & Args
@@ -52,16 +48,12 @@ export namespace getLiquidityBalance {
   export function call<chain extends Chain.Chain | undefined>(
     ...parameters: CallParameters<Args, Client.Client<chain>>
   ) {
-    const [client, args] = resolveCallParameters(parameters)
+    const [, args] = resolveCallParameters(parameters)
     const { address } = args
     const poolId = (() => {
       if ('poolId' in args) return args.poolId
-      const userTokenAddress = resolveToken(client, {
-        token: args.userToken,
-      }).address
-      const validatorTokenAddress = resolveToken(client, {
-        token: args.validatorToken,
-      }).address
+      const userTokenAddress = args.userToken
+      const validatorTokenAddress = args.validatorToken
       // Fee-AMM pool ids are directional: keccak256(pad32(userToken) || pad32(validatorToken)).
       return Hash.keccak256(
         Hex.concat(

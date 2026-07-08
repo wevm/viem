@@ -58,8 +58,8 @@ catalogs:
       specifier: ^0.2.57
       version: 0.2.57
     prool:
-      specifier: ~0.2.4
-      version: 0.2.4
+      specifier: ~0.2.5
+      version: 0.2.5
     publint:
       specifier: ^0.3.21
       version: 0.3.21
@@ -186,8 +186,8 @@ importers:
         specifier: 1.2.3
         version: 1.2.3(typescript@5.9.3)(zod@4.4.3)
       ox:
-        specifier: 1.0.0-beta.14
-        version: 1.0.0-beta.14(typescript@5.9.3)
+        specifier: 1.0.0-beta.17
+        version: 1.0.0-beta.17(typescript@5.9.3)
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 'catalog:'
@@ -230,10 +230,10 @@ importers:
         version: 0.18.1
       permissionless:
         specifier: 'catalog:'
-        version: 0.2.57(ox@1.0.0-beta.14(typescript@5.9.3))
+        version: 0.2.57(ox@1.0.0-beta.17(typescript@5.9.3))
       prool:
         specifier: 'catalog:'
-        version: 0.2.4(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0)
+        version: 0.2.5(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0)
       publint:
         specifier: 'catalog:'
         version: 0.3.21
@@ -5066,8 +5066,8 @@ packages:
       typescript:
         optional: true
 
-  ox@1.0.0-beta.14:
-    resolution: {integrity: sha512-kbX7Z09rP6KwNdjy0mUsuQK4F8QDDOK0YpSxdWQaMvD40kZtw21yFNnh2zLcCvGIOoA459pfaKLJmZooXl/ELA==}
+  ox@1.0.0-beta.17:
+    resolution: {integrity: sha512-flkdkzJSEBA0fUocK3koVWt6oXWGTXkQr4eehJJsREQy5oBPC3lL3ZSEgYWySYM5FbFVB6Lmsp73FhvgFbZTjw==}
     peerDependencies:
       typescript: ^5.9.3
     peerDependenciesMeta:
@@ -5342,8 +5342,8 @@ packages:
     resolution: {integrity: sha512-sF308EhTenb/pDRPakm+WgiN+VdM/T1RaHj1x+MvAuT8UiQP8JmOEbxVqtkbfR4LrvOg5n7ic01kRBDGXjYikA==}
     engines: {node: '>=10'}
 
-  prool@0.2.4:
-    resolution: {integrity: sha512-KAGs6e++7MJNQ/vq8Xrk6akz0lRk6AmhuGzSHkluX3kwVj2XjNDDOYSINZwahRv3xfSD0rXYv3iA/2vXw7z47w==}
+  prool@0.2.5:
+    resolution: {integrity: sha512-cBdMA6Ngupd3DkQnvTAmeZefVCQmJAnM8YWiRWTITMbWy0vd2lB2FJQuZXQROfZ8kyPWv0Um+TrQ+W81tbdGfw==}
     engines: {node: '>=22'}
     peerDependencies:
       '@pimlico/alto': '*'
@@ -11495,7 +11495,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@1.0.0-beta.14(typescript@5.9.3):
+  ox@1.0.0-beta.17(typescript@5.9.3):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 2.2.0
@@ -11732,9 +11732,9 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.57(ox@1.0.0-beta.14(typescript@5.9.3)):
+  permissionless@0.2.57(ox@1.0.0-beta.17(typescript@5.9.3)):
     optionalDependencies:
-      ox: 1.0.0-beta.14(typescript@5.9.3)
+      ox: 1.0.0-beta.17(typescript@5.9.3)
 
   picocolors@1.1.1: {}
 
@@ -11873,7 +11873,7 @@ snapshots:
     dependencies:
       tdigest: 0.1.2
 
-  prool@0.2.4(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0):
+  prool@0.2.5(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0):
     dependencies:
       change-case: 5.4.4
       eventemitter3: 5.0.4
@@ -12987,7 +12987,7 @@ snapshots:
   viem@file:(typescript@5.9.3)(zod@4.4.3):
     dependencies:
       abitype: 1.2.3(typescript@5.9.3)(zod@4.4.3)
-      ox: 1.0.0-beta.14(typescript@5.9.3)
+      ox: 1.0.0-beta.17(typescript@5.9.3)
     optionalDependencies:
       typescript: 5.9.3
     transitivePeerDependencies:

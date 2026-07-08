@@ -1,6 +1,5 @@
-import * as Value from 'ox/Value'
-import * as TokenId from 'ox/tempo/TokenId'
-import * as TokenRole from 'ox/tempo/TokenRole'
+import { Value } from 'ox'
+import { TokenRole } from 'ox/tempo'
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 
@@ -12,7 +11,6 @@ const account3 = Account.fromSecp256k1(tempo.accounts[2]!.privateKey)
 const client2 = tempo.getClient({ account: account2, feeToken: tempo.pathUsd })
 const client3 = tempo.getClient({ account: account3, feeToken: tempo.pathUsd })
 
-void TokenId
 void TokenRole
 void client2
 void client3
@@ -61,10 +59,10 @@ describe('burn', () => {
     expect(balance.amount).toBe(Value.from('75', 6))
   })
 
-  test('behavior: with token ID and formatted amount', async () => {
-    const { token, tokenId } = await Actions.token.createSync(client, {
+  test('behavior: with address and formatted amount', async () => {
+    const { token } = await Actions.token.createSync(client, {
       currency: 'USD',
-      name: 'Burn Token ID',
+      name: 'Burn Address',
       symbol: 'BTID',
     })
     await Actions.token.grantRolesSync(client, {
@@ -79,7 +77,7 @@ describe('burn', () => {
     })
     const { receipt, ...result } = await Actions.token.burnSync(client, {
       amount: { formatted: '1.5', decimals: 6 },
-      token: tokenId,
+      token,
     })
     expect(receipt.status).toBe('success')
     expect(result.formatted).toBe('1.5')

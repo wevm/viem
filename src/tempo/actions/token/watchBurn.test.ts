@@ -1,7 +1,5 @@
-import * as Hex from 'ox/Hex'
-import * as TokenId from 'ox/tempo/TokenId'
-import * as TokenRole from 'ox/tempo/TokenRole'
-import * as Value from 'ox/Value'
+import { Hex, Value } from 'ox'
+import { TokenRole } from 'ox/tempo'
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 
@@ -13,7 +11,6 @@ const account3 = Account.fromSecp256k1(tempo.accounts[2]!.privateKey)
 const client2 = tempo.getClient({ account: account2, feeToken: tempo.pathUsd })
 
 void Hex
-void TokenId
 void TokenRole
 void account3
 void client2

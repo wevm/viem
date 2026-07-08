@@ -1,6 +1,5 @@
-import * as Value from 'ox/Value'
-import * as TokenId from 'ox/tempo/TokenId'
-import * as TokenRole from 'ox/tempo/TokenRole'
+import { Value } from 'ox'
+import { TokenRole } from 'ox/tempo'
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 
@@ -12,7 +11,6 @@ const account3 = Account.fromSecp256k1(tempo.accounts[2]!.privateKey)
 const client2 = tempo.getClient({ account: account2, feeToken: tempo.pathUsd })
 const client3 = tempo.getClient({ account: account3, feeToken: tempo.pathUsd })
 
-void TokenId
 void TokenRole
 void client2
 void client3
@@ -138,22 +136,22 @@ describe('hasRole', () => {
       }),
     ).toBe(false)
   })
-  test('behavior: with token ID', async () => {
-    const { token, tokenId } = await Actions.token.createSync(client, {
+  test('behavior: with address', async () => {
+    const { token } = await Actions.token.createSync(client, {
       currency: 'USD',
-      name: 'HasRole Token ID',
+      name: 'HasRole Address',
       symbol: 'HRTID',
     })
     await Actions.token.grantRolesSync(client, {
       roles: ['issuer'],
       to: account2.address,
-      token: tokenId,
+      token,
     })
     expect(
       await Actions.token.hasRole(client, {
         account: account2.address,
         role: 'issuer',
-        token: tokenId,
+        token,
       }),
     ).toBe(true)
     expect(

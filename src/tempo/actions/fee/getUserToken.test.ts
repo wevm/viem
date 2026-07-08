@@ -1,5 +1,5 @@
 import * as tempo from '~test/tempo.js'
-import * as Value from 'ox/Value'
+import { Value } from 'ox'
 import { describe, expect, test } from 'vitest'
 
 import { Account, Actions } from 'viem/tempo'
@@ -23,43 +23,34 @@ describe('getUserToken', () => {
     await fund(account2.address)
     await fund(account3.address)
 
-    // Set token (address). Genesis presets token 1, so set a different
-    // token: setting the current value emits no `UserTokenSet` event.
+    // Genesis presets the account token, so set a different token address:
+    // setting the current value emits no `UserTokenSet` event.
     await Actions.fee.setUserTokenSync(client, {
       account: account2,
       token: '0x20c0000000000000000000000000000000000002',
     })
 
-    // Set another token (id)
+    // Set another token address.
     await Actions.fee.setUserTokenSync(client, {
       account: account3,
-      token: 3n,
+      token: '0x20c0000000000000000000000000000000000003',
     })
 
     expect(
       await Actions.fee.getUserToken(client, { account: account2.address }),
     ).toMatchInlineSnapshot(`
-      {
-        "address": "0x20C0000000000000000000000000000000000002",
-        "id": 2n,
-      }
+      "0x20C0000000000000000000000000000000000002"
     `)
     expect(
       await Actions.fee.getUserToken(client, { account: account3.address }),
     ).toMatchInlineSnapshot(`
-      {
-        "address": "0x20C0000000000000000000000000000000000003",
-        "id": 3n,
-      }
+      "0x20C0000000000000000000000000000000000003"
     `)
   })
 
   test('behavior: defaults to client account', async () => {
     expect(await Actions.fee.getUserToken(client)).toMatchInlineSnapshot(`
-      {
-        "address": "0x20C0000000000000000000000000000000000001",
-        "id": 1n,
-      }
+      "0x20C0000000000000000000000000000000000001"
     `)
   })
 })

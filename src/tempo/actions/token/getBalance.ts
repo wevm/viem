@@ -1,5 +1,4 @@
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
+import type { Address, Errors } from 'ox'
 
 import * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -76,9 +75,8 @@ export namespace getBalance {
    * Defines a call to the `balanceOf` function.
    *
    * Can be passed to any action that accepts a contract call. The token is
-   * selected by `token`, which is either a TIP-20 token id or a contract
-   * `address`; `decimals` is inferred from the client's declared `tokens` when
-   * omitted.
+   * selected by `token`; `decimals` is inferred from the client's
+   * declared `tokens` when omitted.
    *
    * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.

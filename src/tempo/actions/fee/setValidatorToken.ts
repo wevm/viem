@@ -1,7 +1,5 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import type * as Errors from 'ox/Errors'
-import type * as Log from 'ox/Log'
-import type * as TokenId from 'ox/tempo/TokenId'
+import { AbiEvent } from 'ox'
+import type { Address, Errors, Log } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -16,7 +14,6 @@ import {
   defineCall,
   dispatchWrite,
   resolveCallParameters,
-  resolveToken,
 } from '../../internal/utils.js'
 
 /**
@@ -52,8 +49,8 @@ export async function setValidatorToken<
 
 export namespace setValidatorToken {
   export type Args = {
-    /** Token to set as the preferred fee token: a TIP-20 token id or a contract `address`. */
-    token: TokenId.TokenIdOrAddress
+    /** Token address to set as the preferred fee token. */
+    token: Address.Address
   }
   export type Options = WriteParameters & Args
   export type ReturnType = write.ReturnType
@@ -80,8 +77,7 @@ export namespace setValidatorToken {
    * Defines a call to the `setValidatorToken` function.
    *
    * Can be passed to any action that accepts a contract call. The token is
-   * selected by `token`, which is either a TIP-20 token id or a contract
-   * `address`.
+   * selected by its contract `address`.
    *
    * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
@@ -89,11 +85,11 @@ export namespace setValidatorToken {
   export function call<chain extends Chain.Chain | undefined>(
     ...parameters: CallParameters<Args, Client.Client<chain>>
   ) {
-    const [client, args] = resolveCallParameters(parameters)
+    const [, args] = resolveCallParameters(parameters)
     return defineCall({
       abi: Abis.feeManager,
       address: Addresses.feeManager,
-      args: [resolveToken(client, args).address],
+      args: [args.token],
       functionName: 'setValidatorToken',
     })
   }

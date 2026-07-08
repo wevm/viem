@@ -1,4 +1,3 @@
-import * as TokenId from 'ox/tempo/TokenId'
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 
@@ -54,26 +53,11 @@ describe('getMetadata', () => {
   })
 
   test('behavior: quote token', async () => {
-    const idMetadata = await Actions.token.getMetadata(client, {
-      token: TokenId.fromAddress(tempo.pathUsd),
-    })
-
-    expect(idMetadata).toMatchInlineSnapshot(`
-      {
-        "currency": "USD",
-        "decimals": 6,
-        "logoURI": "",
-        "name": "pathUSD",
-        "symbol": "pathUSD",
-        "totalSupply": 184467440737095516150n,
-      }
-    `)
-
-    const addressMetadata = await Actions.token.getMetadata(client, {
+    const metadata = await Actions.token.getMetadata(client, {
       token: tempo.pathUsd,
     })
 
-    expect(addressMetadata).toMatchInlineSnapshot(`
+    expect(metadata).toMatchInlineSnapshot(`
       {
         "currency": "USD",
         "decimals": 6,
@@ -85,16 +69,14 @@ describe('getMetadata', () => {
     `)
   })
 
-  test('behavior: custom token (id)', async () => {
-    const token = await Actions.token.createSync(client, {
+  test('behavior: custom token', async () => {
+    const { token } = await Actions.token.createSync(client, {
       currency: 'USD',
       name: 'Test USD',
       symbol: 'TUSD',
     })
 
-    const metadata = await Actions.token.getMetadata(client, {
-      token: token.tokenId,
-    })
+    const metadata = await Actions.token.getMetadata(client, { token })
 
     expect(metadata).toMatchInlineSnapshot(`
       {

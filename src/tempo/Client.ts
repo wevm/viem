@@ -1,10 +1,8 @@
-import type * as Address from 'ox/Address'
-import type * as TokenId from 'ox/tempo/TokenId'
+import type { Address, RpcSchema } from 'ox'
 
 import type * as Account from '../core/Account.js'
 import type * as Chain from '../core/Chain.js'
 import * as viem_Client from '../core/Client.js'
-import type * as RpcSchema from 'ox/RpcSchema'
 import type * as Token from '../core/Token.js'
 import type * as Transport from '../core/Transport.js'
 import { publicActions } from '../core/actions/decorators/public.js'
@@ -152,7 +150,7 @@ export declare namespace create {
      * Default fee token for the Client. Extended onto the chain so it applies
      * to every transaction sent with the Client.
      */
-    feeToken?: TokenId.TokenIdOrAddress | undefined
+    feeToken?: Address.Address | undefined
     /**
      * Whether to use the Tempo testnet chain. Ignored when `chain` is
      * provided.

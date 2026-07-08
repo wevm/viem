@@ -1,6 +1,5 @@
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import * as TokenId from 'ox/tempo/TokenId'
+import { Hash, Hex } from 'ox'
+import type { Address, Errors } from 'ox'
 
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
@@ -12,10 +11,7 @@ import {
   type CallParameters,
   defineCall,
   resolveCallParameters,
-  resolveToken,
 } from '../../internal/utils.js'
-import * as Hash from 'ox/Hash'
-import * as Hex from 'ox/Hex'
 
 /** Gets orderbook information for a trading pair. */
 export async function getOrderbook<chain extends Chain.Chain | undefined>(
@@ -31,8 +27,8 @@ export async function getOrderbook<chain extends Chain.Chain | undefined>(
 
 export namespace getOrderbook {
   export type Args = {
-    /** Base token. */ base: TokenId.TokenIdOrAddress
-    /** Quote token. */ quote: TokenId.TokenIdOrAddress
+    /** Base token. */ base: Address.Address
+    /** Quote token. */ quote: Address.Address
   }
   export type Options = ReadParameters & Args
   export type ReturnType = {
@@ -47,9 +43,8 @@ export namespace getOrderbook {
   export function call<chain extends Chain.Chain | undefined>(
     ...parameters: CallParameters<Args, Client.Client<chain>>
   ) {
-    const [client, args] = resolveCallParameters(parameters)
-    const base = resolveToken(client, { token: args.base }).address
-    const quote = resolveToken(client, { token: args.quote }).address
+    const [, args] = resolveCallParameters(parameters)
+    const { base, quote } = args
     return defineCall({
       abi: Abis.stablecoinDex,
       address: Addresses.stablecoinDex,

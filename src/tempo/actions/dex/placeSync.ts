@@ -1,5 +1,4 @@
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
+import type { Address, Errors } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -8,7 +7,7 @@ import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import { place } from './place.js'
 
 /**
- * Places a limit order on the orderbook., and waits for the transaction to be confirmed.
+ * Places a limit order on the orderbook, and waits for the transaction to be confirmed.
  *
  * @example
  * ```ts

@@ -1,5 +1,4 @@
-import * as TokenId from 'ox/tempo/TokenId'
-import * as Value from 'ox/Value'
+import { Value } from 'ox'
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 
@@ -23,7 +22,7 @@ describe('call (without client)', () => {
       Actions.token.approve.call({
         amount: 100n,
         spender: account2.address,
-        token: TokenId.fromAddress(tempo.alphaUsd),
+        token: tempo.alphaUsd,
       }).to,
     ).toBe(tempo.alphaUsd)
 

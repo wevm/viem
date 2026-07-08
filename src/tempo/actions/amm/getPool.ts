@@ -1,7 +1,5 @@
-import type * as Errors from 'ox/Errors'
-import * as Hash from 'ox/Hash'
-import * as Hex from 'ox/Hex'
-import type * as TokenId from 'ox/tempo/TokenId'
+import { Hash, Hex } from 'ox'
+import type { Address, Errors } from 'ox'
 
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
@@ -13,7 +11,6 @@ import {
   type CallParameters,
   defineCall,
   resolveCallParameters,
-  resolveToken,
 } from '../../internal/utils.js'
 
 /**
@@ -58,10 +55,10 @@ export async function getPool<chain extends Chain.Chain | undefined>(
 
 export namespace getPool {
   export type Args = {
-    /** Address or ID of the user token. */
-    userToken: TokenId.TokenIdOrAddress
-    /** Address or ID of the validator token. */
-    validatorToken: TokenId.TokenIdOrAddress
+    /** User token address. */
+    userToken: Address.Address
+    /** Validator token address. */
+    validatorToken: Address.Address
   }
   export type Options = Omit<ReadParameters, 'account'> & Args
   export type ReturnType = {
@@ -84,13 +81,9 @@ export namespace getPool {
   export function calls<chain extends Chain.Chain | undefined>(
     ...parameters: CallParameters<Args, Client.Client<chain>>
   ) {
-    const [client, args] = resolveCallParameters(parameters)
-    const userTokenAddress = resolveToken(client, {
-      token: args.userToken,
-    }).address
-    const validatorTokenAddress = resolveToken(client, {
-      token: args.validatorToken,
-    }).address
+    const [, args] = resolveCallParameters(parameters)
+    const userTokenAddress = args.userToken
+    const validatorTokenAddress = args.validatorToken
     // Fee-AMM pool ids are directional: keccak256(pad32(userToken) || pad32(validatorToken)).
     const poolId = Hash.keccak256(
       Hex.concat(

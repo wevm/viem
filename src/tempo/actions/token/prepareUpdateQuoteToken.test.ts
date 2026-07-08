@@ -1,6 +1,5 @@
-import * as Value from 'ox/Value'
-import * as TokenId from 'ox/tempo/TokenId'
-import * as TokenRole from 'ox/tempo/TokenRole'
+import { Value } from 'ox'
+import { TokenRole } from 'ox/tempo'
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 
@@ -12,7 +11,6 @@ const account3 = Account.fromSecp256k1(tempo.accounts[2]!.privateKey)
 const client2 = tempo.getClient({ account: account2, feeToken: tempo.pathUsd })
 const client3 = tempo.getClient({ account: account3, feeToken: tempo.pathUsd })
 
-void TokenId
 void TokenRole
 void client2
 void client3
@@ -69,21 +67,21 @@ describe('prepareUpdateQuoteToken', () => {
     ).rejects.toThrow()
   })
 
-  test('behavior: with token ID', async () => {
+  test('behavior: with address', async () => {
     const { token: quoteToken } = await Actions.token.createSync(client, {
       currency: 'USD',
       name: 'Quote Token 3',
       symbol: 'LINK3',
     })
-    const { tokenId } = await Actions.token.createSync(client, {
+    const { token } = await Actions.token.createSync(client, {
       currency: 'USD',
-      name: 'Main Token ID',
+      name: 'Main Address',
       symbol: 'MAINID',
     })
     const { receipt, nextQuoteToken } =
       await Actions.token.prepareUpdateQuoteTokenSync(client, {
         quoteToken,
-        token: tokenId,
+        token,
       })
     expect(receipt.status).toBe('success')
     expect(nextQuoteToken).toBe(quoteToken)

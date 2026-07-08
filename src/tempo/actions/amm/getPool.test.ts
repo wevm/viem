@@ -9,7 +9,7 @@ const client = tempo.getClient({ account, feeToken: tempo.pathUsd })
 describe('getPool', () => {
   test('default', async () => {
     const pool = await Actions.amm.getPool(client, {
-      userToken: 1n,
+      userToken: tempo.pathUsd,
       validatorToken: tempo.alphaUsd,
     })
     expect(pool).toMatchInlineSnapshot(`

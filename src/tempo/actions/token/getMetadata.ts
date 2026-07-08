@@ -1,6 +1,4 @@
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import * as TokenId from 'ox/tempo/TokenId'
+import type { Address, Errors } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -64,7 +62,7 @@ export async function getMetadata<
     ...(declared?.symbol != null ? { symbol: declared.symbol } : {}),
   }
 
-  if (TokenId.fromAddress(address) === TokenId.fromAddress(Addresses.pathUsd)) {
+  if (address.toLowerCase() === Addresses.pathUsd.toLowerCase()) {
     const { results } = await multicall(client, {
       ...rest,
       calls: [

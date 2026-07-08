@@ -1,4 +1,4 @@
-import * as Value from 'ox/Value'
+import { Value } from 'ox'
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 
@@ -33,19 +33,19 @@ describe('mint', () => {
     await Actions.amm.mintSync(client, {
       to: account.address,
       userTokenAddress: token,
-      validatorTokenAddress: 1n,
+      validatorTokenAddress: tempo.alphaUsd,
       validatorTokenAmount: Value.from('100', 6),
     })
 
     const poolBefore = await Actions.amm.getPool(client, {
       userToken: token,
-      validatorToken: 1n,
+      validatorToken: tempo.alphaUsd,
     })
 
     const { receipt, ...result } = await Actions.amm.mintSync(client, {
       to: account.address,
       userTokenAddress: token,
-      validatorTokenAddress: 1n,
+      validatorTokenAddress: tempo.alphaUsd,
       validatorTokenAmount: Value.from('50', 6),
     })
 
@@ -55,7 +55,7 @@ describe('mint', () => {
 
     const poolAfter = await Actions.amm.getPool(client, {
       userToken: token,
-      validatorToken: 1n,
+      validatorToken: tempo.alphaUsd,
     })
 
     expect(poolAfter.reserveUserToken).toBe(poolBefore.reserveUserToken)

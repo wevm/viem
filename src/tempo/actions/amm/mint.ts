@@ -1,8 +1,5 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import type * as Log from 'ox/Log'
-import type * as TokenId from 'ox/tempo/TokenId'
+import { AbiEvent } from 'ox'
+import type { Address, Errors, Log } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -20,7 +17,6 @@ import {
   estimateWrite,
   pickWriteParameters,
   resolveCallParameters,
-  resolveToken,
   simulateWrite,
 } from '../../internal/utils.js'
 
@@ -61,9 +57,9 @@ export namespace mint {
     /** Address to mint LP tokens to. */
     to: Address.Address
     /** User token address. */
-    userTokenAddress: TokenId.TokenIdOrAddress
+    userTokenAddress: Address.Address
     /** Validator token address. */
-    validatorTokenAddress: TokenId.TokenIdOrAddress
+    validatorTokenAddress: Address.Address
     /** Amount of validator token to add. */
     validatorTokenAmount: bigint
   }
@@ -92,7 +88,7 @@ export namespace mint {
   export function call<chain extends Chain.Chain | undefined>(
     ...parameters: CallParameters<Args, Client.Client<chain>>
   ) {
-    const [client, args] = resolveCallParameters(parameters)
+    const [, args] = resolveCallParameters(parameters)
     const {
       to,
       userTokenAddress,
@@ -100,8 +96,8 @@ export namespace mint {
       validatorTokenAmount,
     } = args
     const callArgs = [
-      resolveToken(client, { token: userTokenAddress }).address,
-      resolveToken(client, { token: validatorTokenAddress }).address,
+      userTokenAddress,
+      validatorTokenAddress,
       validatorTokenAmount,
       to,
     ] as const

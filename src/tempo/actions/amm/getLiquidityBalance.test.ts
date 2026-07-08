@@ -10,7 +10,7 @@ describe('getLiquidityBalance', () => {
   test('default', async () => {
     const balance = await Actions.amm.getLiquidityBalance(client, {
       address: account.address,
-      userToken: 1n,
+      userToken: tempo.pathUsd,
       validatorToken: tempo.alphaUsd,
     })
     expect(typeof balance).toBe('bigint')

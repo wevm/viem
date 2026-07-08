@@ -1,4 +1,4 @@
-import type * as Errors from 'ox/Errors'
+import type { Errors } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -7,7 +7,7 @@ import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import { withdraw } from './withdraw.js'
 
 /**
- * Withdraws tokens from the DEX to the caller's wallet., and waits for the transaction to be confirmed.
+ * Withdraws tokens from the DEX to the caller's wallet, and waits for the transaction to be confirmed.
  *
  * @example
  * ```ts

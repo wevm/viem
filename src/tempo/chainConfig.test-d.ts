@@ -1,7 +1,5 @@
-import type * as Address from 'ox/Address'
-import type * as Hex from 'ox/Hex'
-import type * as MultisigConfig from 'ox/tempo/MultisigConfig'
-import type * as TokenId from 'ox/tempo/TokenId'
+import type { Address, Hex } from 'ox'
+import type { MultisigConfig } from 'ox/tempo'
 import { expectTypeOf, test } from 'vitest'
 
 import type { Account, Chain } from 'viem'
@@ -14,7 +12,7 @@ test('ExtractTransactionRequest: native tempo request shape', () => {
 
   expectTypeOf<Request>().toEqualTypeOf<TransactionRequest>()
   expectTypeOf<Request['feeToken']>().toEqualTypeOf<
-    TokenId.TokenIdOrAddress | undefined
+    Address.Address | undefined
   >()
   expectTypeOf<Request['feePayer']>().toEqualTypeOf<
     Account.Account | boolean | undefined
@@ -72,11 +70,11 @@ test('extension record: feeToken and hardfork typed on the chain root', () => {
     feeToken: '0x20c0000000000000000000000000000000000001',
   })
   expectTypeOf(extended.feeToken).toMatchTypeOf<
-    TokenId.TokenIdOrAddress | undefined
+    Address.Address | undefined
   >()
   expectTypeOf<
     Chain.ExtractExtension<typeof tempo>['feeToken']
-  >().toEqualTypeOf<TokenId.TokenIdOrAddress | undefined>()
+  >().toEqualTypeOf<Address.Address | undefined>()
 })
 
 test('MultisigInit shape', () => {

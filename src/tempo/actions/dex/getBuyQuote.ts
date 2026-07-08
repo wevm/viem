@@ -1,5 +1,4 @@
-import type * as Errors from 'ox/Errors'
-import * as TokenId from 'ox/tempo/TokenId'
+import type { Address, Errors } from 'ox'
 
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
@@ -11,7 +10,6 @@ import {
   type CallParameters,
   defineCall,
   resolveCallParameters,
-  resolveToken,
 } from '../../internal/utils.js'
 
 /**
@@ -25,8 +23,8 @@ import {
  *
  * const amountIn = await Actions.dex.getBuyQuote(client, {
  *   amountOut: 100_000000n,
- *   tokenIn: 1n,
- *   tokenOut: 2n,
+ *   tokenIn: '0x20c0000000000000000000000000000000000001',
+ *   tokenOut: '0x20c0000000000000000000000000000000000002',
  * })
  * ```
  *
@@ -50,9 +48,9 @@ export namespace getBuyQuote {
     /** Amount of tokenOut to buy. */
     amountOut: bigint
     /** Token to spend. */
-    tokenIn: TokenId.TokenIdOrAddress
+    tokenIn: Address.Address
     /** Token to buy. */
-    tokenOut: TokenId.TokenIdOrAddress
+    tokenOut: Address.Address
   }
   export type Options = ReadParameters & Args
   /** The amount of tokenIn needed to buy the specified amountOut. */
@@ -71,13 +69,13 @@ export namespace getBuyQuote {
   export function call<chain extends Chain.Chain | undefined>(
     ...parameters: CallParameters<Args, Client.Client<chain>>
   ) {
-    const [client, args] = resolveCallParameters(parameters)
+    const [, args] = resolveCallParameters(parameters)
     return defineCall({
       abi: Abis.stablecoinDex,
       address: Addresses.stablecoinDex,
       args: [
-        resolveToken(client, { token: args.tokenIn }).address,
-        resolveToken(client, { token: args.tokenOut }).address,
+        args.tokenIn,
+        args.tokenOut,
         args.amountOut,
       ],
       functionName: 'quoteSwapExactAmountOut',

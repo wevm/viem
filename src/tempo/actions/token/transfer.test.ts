@@ -1,5 +1,4 @@
-import * as TokenId from 'ox/tempo/TokenId'
-import * as Value from 'ox/Value'
+import { Value } from 'ox'
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 
@@ -134,40 +133,35 @@ describe('transfer', () => {
     expect(balance.amount).toBe(Value.from('100', 6))
   })
 
-  test.each([
-    ['token id', TokenId.fromAddress(tempo.pathUsd)],
-    ['address', tempo.pathUsd],
-  ] as const)(
-    'behavior: pathUSD with formatted amount (%s)',
-    async (_, token) => {
-      const amount = Value.from('1.25', 6)
-      const balanceBefore = await Actions.token.getBalance(client, {
-        account: account2.address,
-        token,
-      })
+  test('behavior: pathUSD with formatted amount', async () => {
+    const token = tempo.pathUsd
+    const amount = Value.from('1.25', 6)
+    const balanceBefore = await Actions.token.getBalance(client, {
+      account: account2.address,
+      token,
+    })
 
-      const { receipt, ...result } = await Actions.token.transferSync(client, {
-        amount: { formatted: '1.25' },
-        to: account2.address,
-        token,
-      })
+    const { receipt, ...result } = await Actions.token.transferSync(client, {
+      amount: { formatted: '1.25' },
+      to: account2.address,
+      token,
+    })
 
-      expect(receipt.status).toBe('success')
-      expect(result).toMatchObject({
-        amount,
-        decimals: 6,
-        formatted: '1.25',
-        from: account.address,
-        to: account2.address,
-      })
+    expect(receipt.status).toBe('success')
+    expect(result).toMatchObject({
+      amount,
+      decimals: 6,
+      formatted: '1.25',
+      from: account.address,
+      to: account2.address,
+    })
 
-      const balanceAfter = await Actions.token.getBalance(client, {
-        account: account2.address,
-        token,
-      })
-      expect(balanceAfter.amount - balanceBefore.amount).toBe(amount)
-    },
-  )
+    const balanceAfter = await Actions.token.getBalance(client, {
+      account: account2.address,
+      token,
+    })
+    expect(balanceAfter.amount - balanceBefore.amount).toBe(amount)
+  })
 
   test('behavior: with memo', async () => {
     const { receipt, ...result } = await Actions.token.transferSync(client, {

@@ -1,7 +1,4 @@
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import type * as Hex from 'ox/Hex'
-import * as TokenId from 'ox/tempo/TokenId'
+import type { Address, Errors, Hex } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -46,11 +43,9 @@ export async function createSync<
     throwOnReceiptRevert,
   })
   const { args } = create.extractEvent(receipt.logs)
-  const tokenId = TokenId.fromAddress(args.token)
   return {
     ...args,
     receipt,
-    tokenId,
   }
 }
 
@@ -74,8 +69,6 @@ export namespace createSync {
     admin: Address.Address
     /** Unique salt. */
     salt: Hex.Hex
-    /** Token ID. */
-    tokenId: TokenId.TokenId
     /** Transaction receipt. */
     receipt: writeSync.ReturnType
   }

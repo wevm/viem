@@ -1,5 +1,5 @@
 import * as tempo from '~test/tempo.js'
-import * as Value from 'ox/Value'
+import { Value } from 'ox'
 import { beforeAll, describe, expect, test } from 'vitest'
 
 import { Account, Actions } from 'viem/tempo'
@@ -43,18 +43,15 @@ describe('setValidatorToken', () => {
         validator: validator.address,
       }),
     ).resolves.toMatchInlineSnapshot(`
-      {
-        "address": "0x20C0000000000000000000000000000000000001",
-        "id": 1n,
-      }
+      "0x20C0000000000000000000000000000000000001"
     `)
   })
 
-  test('behavior: set token by id', async () => {
+  test('behavior: set token by address', async () => {
     const { receipt, ...result } = await Actions.fee.setValidatorTokenSync(
       validatorClient,
       {
-        token: 2n,
+        token: '0x20c0000000000000000000000000000000000002',
       },
     )
 
@@ -71,10 +68,7 @@ describe('setValidatorToken', () => {
         validator: validator.address,
       }),
     ).resolves.toMatchInlineSnapshot(`
-      {
-        "address": "0x20C0000000000000000000000000000000000002",
-        "id": 2n,
-      }
+      "0x20C0000000000000000000000000000000000002"
     `)
   })
 })

@@ -1,6 +1,4 @@
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import * as TokenId from 'ox/tempo/TokenId'
+import type { Address, Errors } from 'ox'
 
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
@@ -34,7 +32,7 @@ const zeroAddress = '0x0000000000000000000000000000000000000000'
  *
  * @param client - Client.
  * @param options - Options.
- * @returns The validator's fee token address and id, or `null` if unset.
+ * @returns The validator's fee token address, or `null` if unset.
  */
 export async function getValidatorToken<chain extends Chain.Chain | undefined>(
   client: Client.Client<chain>,
@@ -46,10 +44,7 @@ export async function getValidatorToken<chain extends Chain.Chain | undefined>(
     ...getValidatorToken.call({ validator }),
   })
   if (address === zeroAddress) return null
-  return {
-    address,
-    id: TokenId.fromAddress(address),
-  }
+  return address
 }
 
 export namespace getValidatorToken {
@@ -58,12 +53,7 @@ export namespace getValidatorToken {
     validator: Address.Address
   }
   export type Options = Omit<ReadParameters, 'account'> & Args
-  export type ReturnType = {
-    /** Fee token contract address. */
-    address: Address.Address
-    /** Fee token id. */
-    id: bigint
-  } | null
+  export type ReturnType = Address.Address | null
   // TODO: exhaustive error type
   export type ErrorType = Errors.GlobalErrorType
 

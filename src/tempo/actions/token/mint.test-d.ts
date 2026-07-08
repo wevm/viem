@@ -13,32 +13,33 @@ const client = Client.create({
   chain: tempoLocalnet,
   transport: http(),
 })
+const token = '0x20c0000000000000000000000000000000000001'
 
 describe('mint: options', () => {
   test('accepts base units or a formatted helper', () => {
-    mint(client, { amount: 100n, to: '0x', token: 1n })
+    mint(client, { amount: 100n, to: '0x', token })
     mint(client, {
       amount: { decimals: 6, formatted: '1' },
       to: '0x',
-      token: 1n,
+      token,
     })
   })
 
   test('accepts an optional hex memo', () => {
-    mint(client, { amount: 1n, memo: '0xdeadbeef', to: '0x', token: 1n })
+    mint(client, { amount: 1n, memo: '0xdeadbeef', to: '0x', token })
     // @ts-expect-error - memo must be hex
-    mint(client, { amount: 1n, memo: 'gm', to: '0x', token: 1n })
+    mint(client, { amount: 1n, memo: 'gm', to: '0x', token })
   })
 
   test('requires `to`', () => {
     // @ts-expect-error - must provide `to`
-    mint(client, { amount: 1n, token: 1n })
+    mint(client, { amount: 1n, token })
   })
 })
 
 describe('mint.call', () => {
   test('with and without a client', () => {
-    mint.call({ amount: 1n, to: '0x', token: 1n })
-    mint.call(client, { amount: 1n, to: '0x', token: 1n })
+    mint.call({ amount: 1n, to: '0x', token })
+    mint.call(client, { amount: 1n, to: '0x', token })
   })
 })

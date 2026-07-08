@@ -1,6 +1,4 @@
-import type * as Address from 'ox/Address'
-import type * as Errors from 'ox/Errors'
-import * as TokenId from 'ox/tempo/TokenId'
+import type { Address, Errors } from 'ox'
 
 import * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -13,7 +11,6 @@ import {
   type CallParameters,
   defineCall,
   resolveCallParameters,
-  resolveToken,
 } from '../../internal/utils.js'
 
 /**
@@ -29,7 +26,7 @@ import {
  * })
  *
  * const balance = await Actions.dex.getBalance(client, {
- *   token: 1n,
+ *   token: '0x20c0000000000000000000000000000000000001',
  * })
  * ```
  *
@@ -58,7 +55,7 @@ export namespace getBalance {
     /** Account (or address) that owns the DEX balance. @default client.account */
     account?: Account.Account | Address.Address | undefined
     /** Token to query. */
-    token: TokenId.TokenIdOrAddress
+    token: Address.Address
   }
   export type Options = Omit<ReadParameters, 'account'> & Args
   /** The user's token balance on the DEX. */
@@ -85,7 +82,7 @@ export namespace getBalance {
     return defineCall({
       abi: Abis.stablecoinDex,
       address: Addresses.stablecoinDex,
-      args: [address, resolveToken(client, { token: args.token }).address],
+      args: [address, args.token],
       functionName: 'balanceOf',
     })
   }

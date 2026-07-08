@@ -14,36 +14,37 @@ const client = Client.create({
   chain: tempoLocalnet,
   transport: http(),
 })
+const token = '0x20c0000000000000000000000000000000000001'
 
 describe('transfer: token selector', () => {
-  test('accepts a token id or address', () => {
-    transfer(client, { amount: 1n, to: '0x', token: 1n })
+  test('accepts an address', () => {
+    transfer(client, { amount: 1n, to: '0x', token })
     transfer(client, {
       amount: 1n,
       to: '0x',
-      token: '0x20c0000000000000000000000000000000000001',
+      token,
     })
   })
 
   test('rejects a symbol string', () => {
-    // @ts-expect-error - token must be a token id or address
+    // @ts-expect-error - token must be an address
     transfer(client, { amount: 1n, to: '0x', token: 'alphaUSD' })
   })
 })
 
 describe('transfer: amount', () => {
   test('accepts base units or a formatted helper', () => {
-    transfer(client, { amount: 100n, to: '0x', token: 1n })
+    transfer(client, { amount: 100n, to: '0x', token })
     transfer(client, {
       amount: { decimals: 6, formatted: '1' },
       to: '0x',
-      token: 1n,
+      token,
     })
   })
 
   test('rejects a bare string amount', () => {
     // @ts-expect-error - use base units or a formatted helper
-    transfer(client, { amount: '1', to: '0x', token: 1n })
+    transfer(client, { amount: '1', to: '0x', token })
   })
 })
 
@@ -52,7 +53,7 @@ describe('transfer: return types', () => {
     const result = await transferSync(client, {
       amount: 1n,
       to: '0x',
-      token: 1n,
+      token,
     })
     expectTypeOf(result.amount).toEqualTypeOf<bigint>()
     expectTypeOf(result.from).toEqualTypeOf<`0x${string}`>()
@@ -64,7 +65,7 @@ describe('transfer: return types', () => {
 
 describe('transfer.call', () => {
   test('with and without a client', () => {
-    transfer.call({ amount: 1n, to: '0x', token: 1n })
-    transfer.call(client, { amount: 1n, to: '0x', token: 1n })
+    transfer.call({ amount: 1n, to: '0x', token })
+    transfer.call(client, { amount: 1n, to: '0x', token })
   })
 })

@@ -1,7 +1,5 @@
-import * as AbiEvent from 'ox/AbiEvent'
-import type * as Errors from 'ox/Errors'
-import type * as Log from 'ox/Log'
-import type * as TokenId from 'ox/tempo/TokenId'
+import { AbiEvent } from 'ox'
+import type { Address, Errors, Log } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -19,7 +17,6 @@ import {
   estimateWrite,
   pickWriteParameters,
   resolveCallParameters,
-  resolveToken,
   simulateWrite,
 } from '../../internal/utils.js'
 
@@ -61,7 +58,7 @@ export namespace place {
     /** Price tick for the order. */
     tick: number
     /** Base token. */
-    token: TokenId.TokenIdOrAddress
+    token: Address.Address
     /** Order type. */
     type: 'buy' | 'sell'
   }
@@ -90,7 +87,7 @@ export namespace place {
    * Defines a call to the `place` function.
    *
    * Can be passed to any action that accepts a contract call. Tokens are
-   * selected by TIP-20 token id or contract `address`.
+   * selected by TIP-20 token address.
    *
    * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
@@ -98,13 +95,13 @@ export namespace place {
   export function call<chain extends Chain.Chain | undefined>(
     ...parameters: CallParameters<Args, Client.Client<chain>>
   ) {
-    const [client, args] = resolveCallParameters(parameters)
+    const [, args] = resolveCallParameters(parameters)
     const { amount, tick, token, type } = args
     return defineCall({
       abi: Abis.stablecoinDex,
       address: Addresses.stablecoinDex,
       args: [
-        resolveToken(client, { token }).address,
+        token,
         amount,
         type === 'buy',
         tick,

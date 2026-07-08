@@ -1,5 +1,4 @@
-import type * as Errors from 'ox/Errors'
-import type * as TokenId from 'ox/tempo/TokenId'
+import type { Address, Errors } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -17,7 +16,6 @@ import {
   estimateWrite,
   pickWriteParameters,
   resolveCallParameters,
-  resolveToken,
   simulateWrite,
 } from '../../internal/utils.js'
 
@@ -55,7 +53,7 @@ export async function withdraw<
 export namespace withdraw {
   export type Args = {
     /** Token to withdraw. */
-    token: TokenId.TokenIdOrAddress
+    token: Address.Address
     /** Amount to withdraw. */
     amount: bigint
   }
@@ -84,7 +82,7 @@ export namespace withdraw {
    * Defines a call to the `withdraw` function.
    *
    * Can be passed to any action that accepts a contract call. Tokens are
-   * selected by TIP-20 token id or contract `address`.
+   * selected by TIP-20 token address.
    *
    * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
@@ -92,12 +90,12 @@ export namespace withdraw {
   export function call<chain extends Chain.Chain | undefined>(
     ...parameters: CallParameters<Args, Client.Client<chain>>
   ) {
-    const [client, args] = resolveCallParameters(parameters)
+    const [, args] = resolveCallParameters(parameters)
     const { token, amount } = args
     return defineCall({
       abi: Abis.stablecoinDex,
       address: Addresses.stablecoinDex,
-      args: [resolveToken(client, { token }).address, amount],
+      args: [token, amount],
       functionName: 'withdraw',
     })
   }

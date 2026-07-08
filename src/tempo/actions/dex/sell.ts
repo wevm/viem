@@ -1,5 +1,4 @@
-import type * as Errors from 'ox/Errors'
-import type * as TokenId from 'ox/tempo/TokenId'
+import type { Address, Errors } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -17,7 +16,6 @@ import {
   estimateWrite,
   pickWriteParameters,
   resolveCallParameters,
-  resolveToken,
   simulateWrite,
 } from '../../internal/utils.js'
 
@@ -55,9 +53,9 @@ export async function sell<
 export namespace sell {
   export type Args = {
     /** Token to sell. */
-    tokenIn: TokenId.TokenIdOrAddress
+    tokenIn: Address.Address
     /** Token to receive. */
-    tokenOut: TokenId.TokenIdOrAddress
+    tokenOut: Address.Address
     /** Amount of tokenIn to sell. */
     amountIn: bigint
     /** Minimum amount of tokenOut to receive. */
@@ -88,7 +86,7 @@ export namespace sell {
    * Defines a call to the `swapExactAmountIn` function.
    *
    * Can be passed to any action that accepts a contract call. Tokens are
-   * selected by TIP-20 token id or contract `address`.
+   * selected by TIP-20 token address.
    *
    * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
@@ -96,14 +94,14 @@ export namespace sell {
   export function call<chain extends Chain.Chain | undefined>(
     ...parameters: CallParameters<Args, Client.Client<chain>>
   ) {
-    const [client, args] = resolveCallParameters(parameters)
+    const [, args] = resolveCallParameters(parameters)
     const { tokenIn, tokenOut, amountIn, minAmountOut } = args
     return defineCall({
       abi: Abis.stablecoinDex,
       address: Addresses.stablecoinDex,
       args: [
-        resolveToken(client, { token: tokenIn }).address,
-        resolveToken(client, { token: tokenOut }).address,
+        tokenIn,
+        tokenOut,
         amountIn,
         minAmountOut,
       ],

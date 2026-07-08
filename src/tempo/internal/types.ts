@@ -1,4 +1,4 @@
-import type * as TokenId from 'ox/tempo/TokenId'
+import type { Address } from 'ox'
 
 import type { writeSync } from '../../core/actions/contract/writeSync.js'
 import type { TransactionRequest } from '../chainConfig.js'
@@ -6,13 +6,10 @@ import type { UnionPick } from '../../core/internal/types.js'
 
 export type { ReadParameters } from '../../core/actions/token/internal.js'
 
-/**
- * Selects a TIP-20 token by `token`, which is either a TIP-20 token id or a
- * contract `address`.
- */
+/** Selects a TIP-20 token by its contract `address`. */
 export type TokenParameter = {
-  /** Token to operate on: a TIP-20 token id or a contract `address`. */
-  token: TokenId.TokenIdOrAddress
+  /** Token to operate on: a TIP-20 contract `address`. */
+  token: Address.Address
 }
 
 export type TokenParameters = TokenParameter & {

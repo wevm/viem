@@ -49,20 +49,6 @@ test('resolveToken: unknown symbol throws', () => {
   )
 })
 
-test('resolveToken: token id', () => {
-  expect(utils.resolveToken(client, { token: 1n })).toEqual({
-    address: '0x20c0000000000000000000000000000000000001',
-    decimals: 6,
-  })
-})
-
-test('resolveToken: token id of an undeclared token', () => {
-  expect(utils.resolveToken(client, { token: 2n })).toEqual({
-    address: '0x20c0000000000000000000000000000000000002',
-    decimals: undefined,
-  })
-})
-
 test('resolveToken: declared address infers decimals', () => {
   expect(
     utils.resolveToken(client, {
@@ -96,10 +82,6 @@ test('resolveTokenWithDecimals: declared token skips the contract read', async (
 })
 
 test('resolveToken: without a client', () => {
-  expect(utils.resolveToken(undefined, { token: 1n })).toEqual({
-    address: '0x20c0000000000000000000000000000000000001',
-    decimals: undefined,
-  })
   expect(
     utils.resolveToken(undefined, {
       decimals: 6,

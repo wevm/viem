@@ -262,47 +262,47 @@
   },
   "dependencies": {
     "abitype": "1.2.3",
-    "ox": "1.0.0-beta.14"
+    "ox": "1.0.0-beta.17"
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
       "src": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
     "./chains": {
-      "types": "./dist/chains/index.d.ts",
       "src": "./src/chains/index.ts",
+      "types": "./dist/chains/index.d.ts",
       "default": "./dist/chains/index.js"
     },
     "./node": {
-      "types": "./dist/node/index.d.ts",
       "src": "./src/node/index.ts",
+      "types": "./dist/node/index.d.ts",
       "default": "./dist/node/index.js"
     },
     "./tempo": {
-      "types": "./dist/tempo/index.d.ts",
       "src": "./src/tempo/index.ts",
+      "types": "./dist/tempo/index.d.ts",
       "default": "./dist/tempo/index.js"
     },
     "./tempo/actions": {
-      "types": "./dist/tempo/actions/index.d.ts",
       "src": "./src/tempo/actions/index.ts",
+      "types": "./dist/tempo/actions/index.d.ts",
       "default": "./dist/tempo/actions/index.js"
     },
     "./tokens": {
-      "types": "./dist/tokens/index.d.ts",
       "src": "./src/tokens/index.ts",
+      "types": "./dist/tokens/index.d.ts",
       "default": "./dist/tokens/index.js"
     },
     "./utils": {
-      "types": "./dist/utils/index.d.ts",
       "src": "./src/utils/index.ts",
+      "types": "./dist/utils/index.d.ts",
       "default": "./dist/utils/index.js"
     },
     "./zod": {
-      "types": "./dist/zod/index.d.ts",
       "src": "./src/zod/index.ts",
+      "types": "./dist/zod/index.d.ts",
       "default": "./dist/zod/index.js"
     }
   },
