@@ -1,4 +1,22 @@
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
+export {
+  Channel,
+  KeyAuthorization,
+  MultisigConfig,
+  Period,
+  ReceivePolicyReceipt,
+  SignatureEnvelope,
+  Tick,
+  TokenRole,
+  VirtualAddress,
+  VirtualMaster,
+  ZoneId,
+  ZoneRpcAuthentication,
+} from 'ox/tempo'
+export { custom } from '../core/transports/custom.js'
+export { fallback } from '../core/transports/fallback.js'
+export { http } from '../core/transports/http.js'
+export { webSocket } from '../core/transports/webSocket.js'
 export * as Abis from './Abis.js'
 export * as Account from './Account.js'
 export * as Actions from './actions/index.js'
@@ -15,9 +33,6 @@ export * as P256 from './P256.js'
 export * as Scopes from './Scopes.js'
 export * as Selectors from './Selectors.js'
 export * as Storage from './Storage.js'
+export { type Relay, withRelay } from './Transport.js'
 export * as WebAuthnP256 from './WebAuthnP256.js'
 export * as WebCryptoP256 from './WebCryptoP256.js'
-export { custom } from '../core/transports/custom.js'
-export { fallback } from '../core/transports/fallback.js'
-export { http } from '../core/transports/http.js'
-export { webSocket } from '../core/transports/webSocket.js'

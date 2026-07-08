@@ -266,43 +266,48 @@
   },
   "exports": {
     ".": {
-      "src": "./src/index.ts",
       "types": "./dist/index.d.ts",
+      "src": "./src/index.ts",
       "default": "./dist/index.js"
     },
     "./chains": {
-      "src": "./src/chains/index.ts",
       "types": "./dist/chains/index.d.ts",
+      "src": "./src/chains/index.ts",
       "default": "./dist/chains/index.js"
     },
     "./node": {
-      "src": "./src/node/index.ts",
       "types": "./dist/node/index.d.ts",
+      "src": "./src/node/index.ts",
       "default": "./dist/node/index.js"
     },
     "./tempo": {
-      "src": "./src/tempo/index.ts",
       "types": "./dist/tempo/index.d.ts",
+      "src": "./src/tempo/index.ts",
       "default": "./dist/tempo/index.js"
     },
     "./tempo/actions": {
-      "src": "./src/tempo/actions/index.ts",
       "types": "./dist/tempo/actions/index.d.ts",
+      "src": "./src/tempo/actions/index.ts",
       "default": "./dist/tempo/actions/index.js"
     },
+    "./tempo/zones": {
+      "types": "./dist/tempo/zones/index.d.ts",
+      "src": "./src/tempo/zones/index.ts",
+      "default": "./dist/tempo/zones/index.js"
+    },
     "./tokens": {
-      "src": "./src/tokens/index.ts",
       "types": "./dist/tokens/index.d.ts",
+      "src": "./src/tokens/index.ts",
       "default": "./dist/tokens/index.js"
     },
     "./utils": {
-      "src": "./src/utils/index.ts",
       "types": "./dist/utils/index.d.ts",
+      "src": "./src/utils/index.ts",
       "default": "./dist/utils/index.js"
     },
     "./zod": {
-      "src": "./src/zod/index.ts",
       "types": "./dist/zod/index.d.ts",
+      "src": "./src/zod/index.ts",
       "default": "./dist/zod/index.js"
     }
   },

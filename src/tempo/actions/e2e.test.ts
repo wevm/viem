@@ -1,12 +1,15 @@
 import { P256, Secp256k1 } from 'ox'
+import { TxEnvelopeTempo } from 'ox/tempo'
+import { createServer } from '~test/http.js'
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 
-import { Actions, Client, custom } from 'viem'
+import { Actions, Client, custom, http } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
 import * as Account from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import type { Envelope } from '../chainConfig.js'
+import { withRelay } from '../Transport.js'
 
 const accounts = tempo.accounts
 const to = '0x00000000000000000000000000000000000000ff'
@@ -291,11 +294,122 @@ describe('transaction.sendSync', () => {
   test.todo('sign-only `transaction.sign` for an unfunded account')
 
   // Blocked on later waves.
-  test.todo(
-    'relay: sign-only + sign-and-broadcast policies (W6 Transport.withRelay)',
-  )
   test.todo('access key periodic spending limits (W5e accessKey.authorize)')
   test.todo('zone.encryptedDeposit.prepare (W5e zone actions)')
+})
+
+/**
+ * Relay transport gate: a sponsored transaction from an unfunded sender
+ * flows through `withRelay`: fill via the relay, fee payer co-signature,
+ * and broadcast per policy.
+ */
+describe('withRelay', () => {
+  const feePayerKey = accounts[6]!.privateKey
+  const feePayer = Account.fromSecp256k1(feePayerKey)
+
+  /** Boots a relay: co-signs fee payer handoffs, proxies the rest to the node. */
+  async function createRelayServer() {
+    const methods: string[] = []
+
+    // The fee payer handoff format (`0x78`) shares the `0x76` body; swap the
+    // type byte to decode, then co-sign as the fee payer.
+    function cosign(serialized: string) {
+      const envelope = TxEnvelopeTempo.deserialize(`0x76${serialized.slice(4)}`)
+      const sender = envelope.from!
+      const feePayerSignature = Secp256k1.sign({
+        payload: TxEnvelopeTempo.getFeePayerSignPayload(envelope, { sender }),
+        privateKey: feePayerKey,
+      })
+      return TxEnvelopeTempo.serialize({ ...envelope, feePayerSignature })
+    }
+
+    const server = await createServer((req, res) => {
+      let body = ''
+      req.setEncoding('utf8')
+      req.on('data', (chunk) => {
+        body += chunk
+      })
+      req.on('end', async () => {
+        const request = JSON.parse(body)
+        methods.push(request.method)
+
+        const respond = (json: unknown) => {
+          res.writeHead(200, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify(json))
+        }
+
+        try {
+          if (request.method === 'eth_signRawTransaction')
+            return respond({
+              id: request.id,
+              jsonrpc: '2.0',
+              result: cosign(request.params[0]),
+            })
+
+          // Raw submissions carry the handoff payload; co-sign before
+          // proxying. Everything else (e.g. `eth_fillTransaction`) proxies
+          // verbatim.
+          const params =
+            request.method === 'eth_sendRawTransaction' ||
+            request.method === 'eth_sendRawTransactionSync'
+              ? [cosign(request.params[0])]
+              : request.params
+
+          const response = await fetch(tempo.rpcUrl, {
+            body: JSON.stringify({ ...request, params }),
+            headers: { 'Content-Type': 'application/json' },
+            method: 'POST',
+          })
+          respond(await response.json())
+        } catch (error) {
+          respond({
+            error: { code: -32000, message: (error as Error).message },
+            id: request.id,
+            jsonrpc: '2.0',
+          })
+        }
+      })
+    })
+    return { ...server, methods }
+  }
+
+  test.each(['sign-only', 'sign-and-broadcast'] as const)(
+    'policy: %s',
+    async (policy) => {
+      const relay = await createRelayServer()
+      try {
+        // Sponsorship covers the fee; the sender holds nothing.
+        const sender = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
+        const client = Client.create({
+          account: sender,
+          chain: tempoLocalnet,
+          pollingInterval: 100,
+          transport: withRelay(http(tempo.rpcUrl), http(relay.url), {
+            policy,
+          }),
+        })
+
+        const receipt = await Actions.transaction.sendSync(client, {
+          calls: [{ to }],
+          feePayer: true,
+        })
+
+        expect(receipt.status).toBe('success')
+        expect(receipt.from.toLowerCase()).toBe(sender.address.toLowerCase())
+        expect(receipt.feePayer?.toLowerCase()).toBe(
+          feePayer.address.toLowerCase(),
+        )
+        expect(relay.methods).toEqual([
+          'eth_fillTransaction',
+          policy === 'sign-only'
+            ? 'eth_signRawTransaction'
+            : 'eth_sendRawTransactionSync',
+        ])
+      } finally {
+        await relay.close()
+      }
+    },
+  )
 })
 
 /** JSON-RPC method-not-found error (forces the manual prepare path). */

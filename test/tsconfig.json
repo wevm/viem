@@ -36,6 +36,9 @@
       "viem/tempo/actions": [
         "../src/tempo/actions/index.ts"
       ],
+      "viem/tempo/zones": [
+        "../src/tempo/zones/index.ts"
+      ],
       "viem/tokens": [
         "../src/tokens/index.ts"
       ],
