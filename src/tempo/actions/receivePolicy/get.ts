@@ -15,7 +15,7 @@ import {
 } from '../../internal/utils.js'
 
 /** TIP-403 policy type. */
-export type PolicyType = 'whitelist' | 'blacklist'
+type PolicyType = 'whitelist' | 'blacklist'
 
 const policyTypes = ['whitelist', 'blacklist'] as const
 const rejectAllPolicyId = 0n
