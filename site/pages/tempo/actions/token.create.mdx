@@ -11,7 +11,7 @@ Creates a new TIP-20 token, and assigns the admin role to `admin` (defaults to t
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { admin, receipt, token, tokenId } = await client.token.createSync({
+const { admin, receipt, token } = await client.token.createSync({
   currency: 'USD',
   logoURI: 'https://example.com/cusd.svg',
   name: 'My Company USD',
@@ -22,8 +22,6 @@ console.log('Address:', token)
 // @log: Address: 0x20c0000000000000000000000000000000000004
 console.log('Admin:', admin)
 // @log: Admin: 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb
-console.log('ID:', tokenId)
-// @log: ID: 4n
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -71,8 +69,6 @@ type ReturnType = {
   admin: Address
   /** Unique salt. */
   salt: Hex
-  /** Token ID. */
-  tokenId: bigint
   /** Transaction receipt. */
   receipt: TransactionReceipt
 }

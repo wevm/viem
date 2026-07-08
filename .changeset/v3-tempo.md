@@ -2,7 +2,7 @@
 "viem": major
 ---
 
-The `viem/tempo` extension was rebuilt on v3 primitives: module namespaces (`Abis`, `Account`, `Addresses`, `Capabilities`, `Expiry`, `Hardfork`, `KeyAuthorizationManager`, `P256`, `Scopes`, `Selectors`, `Storage`, `TokenIds`, `WebAuthnP256`, `WebCryptoP256`), chain schema hooks in place of formatters/serializers, a `Client.create` factory decorated with `tempoActions()`, and domain-namespaced actions (`token`, `fee`, `nonce`, `amm`, `channel`, `dex`, `policy`, `receivePolicy`, and `validator` landed; further namespaces follow). `policy.create` now honors an explicit `admin` option (previously the sender was always used). The `nonce` actions drop the namespace echo: `nonce.getNonce` → `nonce.get`, `nonce.watchNonceIncremented` → `nonce.watchIncremented`.
+The `viem/tempo` extension was rebuilt on v3 primitives: module namespaces (`Abis`, `Account`, `Addresses`, `Capabilities`, `Expiry`, `Hardfork`, `KeyAuthorizationManager`, `P256`, `Scopes`, `Selectors`, `Storage`, `WebAuthnP256`, `WebCryptoP256`), chain schema hooks in place of formatters/serializers, a `Client.create` factory decorated with `tempoActions()`, and domain-namespaced actions (`accessKey`, `amm`, `channel`, `dex`, `faucet`, `fee`, `nonce`, `policy`, `receivePolicy`, `token`, `validator`, `virtualAddress`, `wallet`, and `zone`). The zones surface lives at `viem/tempo/zones` (auth-token `http` transport, `zone`/`zoneModerato` chain builders).
 
 ```diff
 - import { Account, Actions, createClient } from 'viem/tempo'
@@ -23,4 +23,13 @@ The `viem/tempo` extension was rebuilt on v3 primitives: module namespaces (`Abi
 + })
 ```
 
-Watcher actions (`token.watch*`) now return a `Watcher` handle (`watcher.onLogs(fn)` to subscribe, with decoded `log.args`) instead of accepting per-event callback options.
+Breaking changes:
+
+- Tokens are selected by address; token ids and the `TokenIds` namespace were removed (`fee.getUserToken` returns the token address).
+- Watcher actions (`token.watch*`, …) return a `Watcher` handle (`watcher.onLogs(fn)` to subscribe, with decoded `log.args`) instead of accepting per-event callback options.
+- `nonce.getNonce` → `nonce.get`; `nonce.watchNonceIncremented` → `nonce.watchIncremented`.
+- `policy.create` now honors an explicit `admin` option (previously the sender was always used).
+- The `reward` actions were removed (reward distribution is hardfork-disabled on-chain).
+- The `simulate` namespace dissolved into core: use `client.block.simulate` or `client.contract.simulate`.
+- `withFeePayer` and `walletNamespaceCompat` transports were removed; `withRelay` remains and gained a `policy` option (`'sign-only'` co-signs via the relay and broadcasts through the default transport; `'sign-and-broadcast'` forwards the submission to the relay).
+- `Account_base` → `Account.Base`; `Account.signAuthorization` takes the ox `Authorization` shape; `accessKeyAddress`/`resolveAccessKey` return checksummed addresses; the deprecated `z_*` re-exports and `internal_version` option were removed.

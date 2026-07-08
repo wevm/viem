@@ -1,0 +1,111 @@
+---
+description: Derive per-customer virtual deposit addresses offchain and resolve them to your master wallet.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Resolve & Accept Payments
+
+## Overview
+
+Once your master is registered, you can derive unlimited deposit addresses offchain by combining your
+`masterId` with a per-customer `userTag`. TIP-20 transfers to any of these addresses credit your
+master wallet automatically. You can also resolve a virtual address to confirm where it forwards
+before relying on it.
+
+[See the Virtual Addresses specification](https://docs.tempo.xyz/protocol/tip20/virtual-addresses)
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Derive a Deposit Address
+
+Build a virtual address from your `masterId` and a per-customer `userTag` with `VirtualAddress.from`.
+This is fully offchain, so deriving a new deposit address costs nothing.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { VirtualAddress } from 'viem/tempo'
+
+const depositAddress = VirtualAddress.from({
+  masterId: '0x58e21090',
+  userTag: '0x010203040506',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Resolve a Virtual Address
+
+Confirm where a virtual address forwards with
+[`virtualAddress.resolve`](/tempo/actions/virtualAddress.resolve). It returns the master wallet a
+TIP-20 transfer would credit.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const recipient = await client.virtualAddress.resolve({
+  address: '0x58e21090fdfdfdfdfdfdfdfdfdfd010203040506',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Use a Unique User Tag per Customer
+
+The `userTag` is how you attribute an incoming deposit to a customer. Assign each customer a distinct
+tag and store the mapping so you can reconcile forwarded deposits against the master wallet.
+
+### Only Send TIP-20 Tokens
+
+Forwarding applies only to TIP-20 transfers. Non-TIP-20 tokens (such as plain ERC-20 contracts) sent
+to a virtual address are credited to the literal address and are not recoverable. Restrict deposit
+addresses to TIP-20 stablecoins.
+
+### Don't Use Virtual Addresses in Policies
+
+Virtual addresses are forwarding aliases, not canonical holders. Configure [receive policies](/tempo/guides/receive-policies)
+and other access controls on the resolved master address, not on a virtual alias.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:user-plus"
+    title="Register a Master Address"
+    description="Register the master your deposit addresses forward to."
+    to="/tempo/guides/virtual-addresses/register"
+  />
+  <Card
+    icon="lucide:shield-check"
+    title="Receive Policies"
+    description="Control who can pay your resolved master address."
+    to="/tempo/guides/receive-policies"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="virtualAddress.resolve"
+    description="Resolve a virtual address to its master wallet."
+    to="/tempo/actions/virtualAddress.resolve"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: Virtual Addresses"
+    description="Address derivation and TIP-20 deposit forwarding."
+    to="https://docs.tempo.xyz/protocol/tip20/virtual-addresses"
+  />
+</Cards>

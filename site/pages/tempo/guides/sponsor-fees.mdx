@@ -1,0 +1,116 @@
+---
+description: Sponsor transaction fees on behalf of your users for a gasless experience on Tempo.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Sponsor User Fees
+
+## Overview
+
+A **fee payer** can cover the gas fees for a transaction on behalf of the sender, enabling a
+gasless experience for your users. The sender signs the transaction, and the fee payer
+separately authorizes paying its fees via the `feePayer` property.
+
+You can sponsor fees with a local account, or delegate to a remote relay service so the fee
+payer's key never leaves your server.
+
+[See the Sponsor User Fees guide](https://docs.tempo.xyz/guide/payments/sponsor-user-fees)
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Sponsor with a Local Account
+
+Pass a local account as `feePayer` to [`transaction.sendSync`](/docs/actions/wallet/transaction/sendSync).
+The sender signs the transaction and the fee payer signs to cover its fees.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const feePayer = Account.fromSecp256k1('0x...') // [!code focus]
+
+const receipt = await client.transaction.sendSync({
+  data: '0xdeadbeef',
+  feePayer, // [!code focus]
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Sponsor via a Relay
+
+To keep the fee payer's key server-side, route requests through a relay with the
+[`withRelay`](/tempo/transports/withRelay) transport, then set `feePayer: true` to ask the
+relay to sponsor the transaction.
+
+```ts twoslash
+import { Account, Client, http, withRelay } from 'viem/tempo'
+
+const client = Client.create({
+  account: Account.fromSecp256k1('0x...'),
+  testnet: true,
+  transport: withRelay( // [!code focus]
+    http(), // default transport // [!code focus]
+    http('https://relay.example.com'), // relay transport // [!code focus]
+  ), // [!code focus]
+})
+
+const receipt = await client.transaction.sendSync({
+  data: '0xdeadbeef',
+  feePayer: true, // [!code focus]
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+})
+```
+
+:::info
+For setting up the relay service itself, see the
+[Sponsor User Fees guide](https://docs.tempo.xyz/guide/payments/sponsor-user-fees) in the Tempo
+docs.
+:::
+
+## Best Practices
+
+### Choose Local vs Relay
+
+- **Local account**: simplest to set up, but the fee payer's private key lives in the same
+  process as the sender. Best for scripts, backends, and testing.
+- **Relay**: the fee payer's key stays on your server behind the relay endpoint, and clients
+  only send `feePayer: true`. Best for production apps sponsoring fees for many users.
+
+### Combine with a Fee Token
+
+Sponsorship and stablecoin fees compose: the fee payer can settle the sponsored fees in a
+`feeToken`. See [Pay Fees in a Stablecoin](/tempo/guides/pay-fees).
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:coins"
+    title="Pay Fees in a Stablecoin"
+    description="Pay transaction fees in any USD-denominated TIP-20 stablecoin token."
+    to="/tempo/guides/pay-fees"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="withRelay"
+    description="Route relay traffic so a server-side fee payer can sponsor transactions."
+    to="/tempo/transports/withRelay"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: Sponsor User Fees"
+    description="The full guide to fee sponsorship and running a fee payer relay."
+    to="https://docs.tempo.xyz/guide/payments/sponsor-user-fees"
+  />
+</Cards>

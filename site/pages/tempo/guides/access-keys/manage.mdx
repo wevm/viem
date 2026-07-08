@@ -1,0 +1,127 @@
+---
+description: Update spending limits, revoke access keys, and inspect their onchain metadata and remaining limits.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Manage Access Keys
+
+## Overview
+
+After an access key is authorized, the root key can manage it over its lifetime: adjust a
+spending limit, revoke the key entirely, or read its current onchain state. These operations let
+you respond to changing requirements without re-authorizing from scratch.
+
+[See the Access Keys specification](https://docs.tempo.xyz/protocol/transactions/AccountKeychain)
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Update a Spending Limit
+
+Change a key's limit for a token after authorization with
+[`accessKey.updateLimit`](/tempo/actions/accessKey.updateLimit).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.accessKey.updateLimitSync({
+  accessKey: '0x1234567890abcdef1234567890abcdef12345678',
+  limit: 100_000000n, // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Revoke an Access Key
+
+Revoke a key with [`accessKey.revoke`](/tempo/actions/accessKey.revoke) so it can no longer sign
+for the account.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.accessKey.revokeSync({
+  accessKey: '0x1234567890abcdef1234567890abcdef12345678', // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Inspect an Access Key
+
+Read a key's metadata with [`accessKey.getMetadata`](/tempo/actions/accessKey.getMetadata) and
+its remaining limit with [`accessKey.getRemainingLimit`](/tempo/actions/accessKey.getRemainingLimit).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const metadata = await client.accessKey.getMetadata({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  accessKey: '0x1234567890abcdef1234567890abcdef12345678',
+})
+
+const { remaining, periodEnd } = await client.accessKey.getRemainingLimit({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  accessKey: '0x1234567890abcdef1234567890abcdef12345678',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Revoke Promptly on Compromise
+
+If an access key may be compromised, revoke it immediately rather than waiting for its expiry.
+Revocation takes effect onchain, so a revoked key cannot sign further transactions.
+
+### Read State Before Acting
+
+Use [`accessKey.getMetadata`](/tempo/actions/accessKey.getMetadata) and
+[`accessKey.getRemainingLimit`](/tempo/actions/accessKey.getRemainingLimit) to confirm a key is
+active and has budget before relying on it, especially in server-side flows.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:key-round"
+    title="Authorize Access Keys"
+    description="Create an access key and authorize it to sign on an account's behalf."
+    to="/tempo/guides/access-keys/authorize"
+  />
+  <Card
+    icon="lucide:sliders-horizontal"
+    title="Set Permissions & Limits"
+    description="Restrict a key with an expiry, spending limits, and call scopes."
+    to="/tempo/guides/access-keys/permissions"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: Access Keys"
+    description="The full guide to authorizing and using access keys on Tempo."
+    to="https://docs.tempo.xyz/guide/use-accounts/authorize-access-keys"
+  />
+</Cards>

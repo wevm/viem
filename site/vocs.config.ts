@@ -981,13 +981,238 @@ export default defineConfig({
     ],
     '/tempo': [
       { text: 'Getting Started', link: '/tempo' },
+      { text: 'Chains', link: '/tempo/chains' },
       { text: 'Tempo Docs & Guides', link: 'https://docs.tempo.xyz' },
+      {
+        text: 'Guides',
+        items: [
+          { text: 'Overview', link: '/tempo/guides' },
+          {
+            text: 'Accounts',
+            collapsed: true,
+            items: [
+              {
+                text: 'Create an Account',
+                link: '/tempo/guides/accounts/create',
+              },
+              {
+                text: 'Sign In with a Passkey',
+                link: '/tempo/guides/accounts/passkeys',
+              },
+              {
+                text: 'Use the Tempo Accounts SDK',
+                link: '/tempo/guides/accounts/accounts-sdk',
+              },
+            ],
+          },
+          {
+            text: 'Tempo Transactions',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/tempo/transactions' },
+              { text: 'Batch Calls', link: '/tempo/guides/batch-calls' },
+              {
+                text: 'Concurrent Transactions',
+                link: '/tempo/guides/concurrent-transactions',
+              },
+              {
+                text: 'Scheduled Transactions',
+                link: '/tempo/guides/scheduled-transactions',
+              },
+              {
+                text: 'Pay Fees in a Stablecoin',
+                link: '/tempo/guides/pay-fees',
+              },
+              { text: 'Sponsor User Fees', link: '/tempo/guides/sponsor-fees' },
+              {
+                badge: { text: 'EXP', variant: 'warning' },
+                text: 'Multisig Transactions',
+                link: '/tempo/guides/multisig-transactions',
+              },
+            ],
+          },
+          {
+            text: 'Tokens',
+            collapsed: true,
+            items: [
+              {
+                text: 'Create a TIP-20 Token',
+                link: '/tempo/guides/create-token',
+              },
+              {
+                text: 'Mint & Burn Tokens',
+                link: '/tempo/guides/manage-token-balances',
+              },
+              { text: 'Transfer Tokens', link: '/tempo/guides/transfer-tokens' },
+              {
+                text: 'Manage Token Roles & Supply',
+                link: '/tempo/guides/manage-token-roles',
+              },
+              {
+                text: 'Configure Transfer Policies',
+                link: '/tempo/guides/transfer-policies',
+              },
+            ],
+          },
+          {
+            text: 'Access Keys',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/tempo/guides/access-keys' },
+              {
+                text: 'Authorize Access Keys',
+                link: '/tempo/guides/access-keys/authorize',
+              },
+              {
+                text: 'Set Permissions & Limits',
+                link: '/tempo/guides/access-keys/permissions',
+              },
+              {
+                text: 'Manage Access Keys',
+                link: '/tempo/guides/access-keys/manage',
+              },
+              {
+                text: 'Admin Access Keys',
+                link: '/tempo/guides/access-keys/admin',
+              },
+              { text: 'Witnesses', link: '/tempo/guides/access-keys/witnesses' },
+              {
+                text: 'Verify Signatures',
+                link: '/tempo/guides/access-keys/verify',
+              },
+            ],
+          },
+          {
+            text: 'Stablecoin Exchange',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/tempo/guides/stablecoin-exchange' },
+              {
+                text: 'Swap Stablecoins',
+                link: '/tempo/guides/stablecoin-exchange/swap',
+              },
+              {
+                text: 'Place & Manage Orders',
+                link: '/tempo/guides/stablecoin-exchange/orders',
+              },
+              {
+                text: 'Manage Exchange Balances',
+                link: '/tempo/guides/stablecoin-exchange/balances',
+              },
+              {
+                text: 'Create a Trading Pair',
+                link: '/tempo/guides/stablecoin-exchange/create-pair',
+              },
+              {
+                text: 'Provide Fee AMM Liquidity',
+                link: '/tempo/guides/stablecoin-exchange/fee-amm-liquidity',
+              },
+            ],
+          },
+          {
+            text: 'Virtual Addresses',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/tempo/guides/virtual-addresses' },
+              {
+                text: 'Register a Master Address',
+                link: '/tempo/guides/virtual-addresses/register',
+              },
+              {
+                text: 'Resolve & Accept Payments',
+                link: '/tempo/guides/virtual-addresses/resolve',
+              },
+            ],
+          },
+          {
+            text: 'Receive Policies',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/tempo/guides/receive-policies' },
+              {
+                text: 'Set a Receive Policy',
+                link: '/tempo/guides/receive-policies/set',
+              },
+              {
+                text: 'Validate Transfers',
+                link: '/tempo/guides/receive-policies/validate',
+              },
+              {
+                text: 'Handle Blocked Funds',
+                link: '/tempo/guides/receive-policies/blocked',
+              },
+            ],
+          },
+          {
+            text: 'Payment Channels',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/tempo/guides/payment-channels' },
+              {
+                text: 'Open & Fund a Channel',
+                link: '/tempo/guides/payment-channels/open',
+              },
+              {
+                text: 'Send & Settle Vouchers',
+                link: '/tempo/guides/payment-channels/vouchers',
+              },
+              {
+                text: 'Close & Withdraw',
+                link: '/tempo/guides/payment-channels/close',
+              },
+            ],
+          },
+          {
+            text: 'Private Zones',
+            collapsed: true,
+            items: [
+              {
+                text: 'Connect to a Zone',
+                link: '/tempo/guides/zones/connect',
+              },
+              {
+                text: 'Deposit to a Zone',
+                link: '/tempo/guides/zones/deposit',
+              },
+              {
+                text: 'Withdraw from a Zone',
+                link: '/tempo/guides/zones/withdraw',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        text: 'Accounts',
+        items: [
+          { text: 'Overview', link: '/tempo/accounts' },
+          {
+            text: 'Secp256k1 (Standard Account)',
+            link: '/tempo/accounts/account.fromSecp256k1',
+          },
+          { text: 'P256', link: '/tempo/accounts/account.fromP256' },
+          {
+            text: 'WebAuthnP256 (Passkey)',
+            link: '/tempo/accounts/account.fromWebAuthnP256',
+          },
+          {
+            text: 'WebCryptoP256',
+            link: '/tempo/accounts/account.fromWebCryptoP256',
+          },
+          {
+            badge: { text: 'EXP', variant: 'warning' },
+            text: 'Multisig',
+            link: '/tempo/accounts/account.fromMultisig',
+          },
+        ],
+      },
       {
         text: 'Actions',
         items: [
+          { text: 'Overview', link: '/tempo/actions' },
           {
             text: 'Access Key',
-            collapsed: false,
+            collapsed: true,
             items: [
               {
                 text: 'authorize',
@@ -1039,7 +1264,7 @@ export default defineConfig({
           },
           {
             text: 'AMM',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'burn', link: '/tempo/actions/amm.burn' },
               {
@@ -1062,7 +1287,7 @@ export default defineConfig({
           },
           {
             text: 'Channel',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'close', link: '/tempo/actions/channel.close' },
               { text: 'getStates', link: '/tempo/actions/channel.getStates' },
@@ -1082,7 +1307,7 @@ export default defineConfig({
           },
           {
             text: 'DEX',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'buy', link: '/tempo/actions/dex.buy' },
               { text: 'cancel', link: '/tempo/actions/dex.cancel' },
@@ -1127,12 +1352,12 @@ export default defineConfig({
           },
           {
             text: 'Faucet',
-            collapsed: false,
+            collapsed: true,
             items: [{ text: 'fund', link: '/tempo/actions/faucet.fund' }],
           },
           {
             text: 'Fee',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'getUserToken', link: '/tempo/actions/fee.getUserToken' },
               {
@@ -1160,7 +1385,7 @@ export default defineConfig({
           },
           {
             text: 'Nonce',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'get', link: '/tempo/actions/nonce.get' },
               {
@@ -1171,7 +1396,7 @@ export default defineConfig({
           },
           {
             text: 'Policy',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'create', link: '/tempo/actions/policy.create' },
               { text: 'getData', link: '/tempo/actions/policy.getData' },
@@ -1208,7 +1433,7 @@ export default defineConfig({
           },
           {
             text: 'Receive Policy',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'burn', link: '/tempo/actions/receivePolicy.burn' },
               { text: 'claim', link: '/tempo/actions/receivePolicy.claim' },
@@ -1242,7 +1467,7 @@ export default defineConfig({
           },
           {
             text: 'Token',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'approve', link: '/tempo/actions/token.approve' },
               { text: 'burn', link: '/tempo/actions/token.burn' },
@@ -1317,7 +1542,7 @@ export default defineConfig({
           },
           {
             text: 'Validator',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'add', link: '/tempo/actions/validator.add' },
               {
@@ -1349,7 +1574,7 @@ export default defineConfig({
           },
           {
             text: 'Virtual Address',
-            collapsed: false,
+            collapsed: true,
             items: [
               {
                 text: 'getMasterAddress',
@@ -1367,7 +1592,7 @@ export default defineConfig({
           },
           {
             text: 'Wallet',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'deposit', link: '/tempo/actions/wallet.deposit' },
               { text: 'swap', link: '/tempo/actions/wallet.swap' },
@@ -1376,7 +1601,7 @@ export default defineConfig({
           },
           {
             text: 'Zone',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'deposit', link: '/tempo/actions/zone.deposit' },
               {
@@ -1411,6 +1636,40 @@ export default defineConfig({
                 text: 'signAuthorizationToken',
                 link: '/tempo/actions/zone.signAuthorizationToken',
               },
+            ],
+          },
+        ],
+      },
+      {
+        text: 'Transports',
+        items: [
+          { text: 'withRelay', link: '/tempo/transports/withRelay' },
+        ],
+      },
+      {
+        text: 'Utilities',
+        items: [
+          {
+            badge: { text: 'EXP', variant: 'warning' },
+            text: 'Scopes',
+            link: '/tempo/utilities/Scopes',
+          },
+          {
+            badge: { text: 'EXP', variant: 'warning' },
+            text: 'Selectors',
+            link: '/tempo/utilities/Selectors',
+          },
+          {
+            text: 'Storage',
+            collapsed: true,
+            items: [
+              {
+                text: 'defaultStorage',
+                link: '/tempo/utilities/Storage.defaultStorage',
+              },
+              { text: 'from', link: '/tempo/utilities/Storage.from' },
+              { text: 'memory', link: '/tempo/utilities/Storage.memory' },
+              { text: 'session', link: '/tempo/utilities/Storage.session' },
             ],
           },
         ],

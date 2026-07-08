@@ -1,0 +1,181 @@
+---
+description: Restrict an access key with an expiry, per-token spending limits, recurring limits, and call scopes.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Set Permissions & Limits
+
+## Overview
+
+When you authorize an access key, you can restrict what it is allowed to do. Set an `expiry` so
+it stops working after a deadline, per-token `limits` to cap how much it can spend, and `scopes`
+to lock it to specific contracts, functions, and recipients. Combining these grants the least
+privilege a key needs.
+
+[See the Access Keys specification](https://docs.tempo.xyz/protocol/transactions/AccountKeychain)
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Set Expiry & Spending Limits
+
+Restrict an access key with an `expiry` and per-token `limits` so it can only spend a bounded
+amount before it expires.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { P256 } from 'ox'
+import { Account, Expiry } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const { receipt } = await client.accessKey.authorizeSync({
+  accessKey,
+  expiry: Expiry.hours(1), // [!code focus]
+  limits: [ // [!code focus]
+    { // [!code focus]
+      limit: 1_000_000n, // [!code focus]
+      token: '0x20c0000000000000000000000000000000000001', // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Set a Recurring Limit
+
+Add a `period` (in seconds) to a limit to make it a recurring cap that resets each period.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { P256 } from 'ox'
+import { Account } from 'viem/tempo'
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const { receipt } = await client.accessKey.authorizeSync({
+  accessKey,
+  limits: [
+    {
+      limit: Value.from('1000', 6),
+      period: 30 * 24 * 60 * 60, // resets every month // [!code focus]
+      token: '0x20c0000000000000000000000000000000000001',
+    },
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Restrict with Call Scopes
+
+Use `scopes` to limit which contracts, functions, and recipients an access key can call.
+
+:::code-group
+
+```ts twoslash [raw.ts]
+import { P256 } from 'ox'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const { receipt } = await client.accessKey.authorizeSync({
+  accessKey,
+  scopes: [ // [!code focus]
+    { // [!code focus]
+      address: '0x20c0000000000000000000000000000000000001', // [!code focus]
+      recipients: ['0xcafebabecafebabecafebabecafebabecafebabe'], // [!code focus]
+      selector: 'transfer(address,uint256)', // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+})
+```
+
+```ts twoslash [Scopes]
+import { P256 } from 'ox'
+import { Account, Scopes } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const { receipt } = await client.accessKey.authorizeSync({
+  accessKey,
+  scopes: [ // [!code focus]
+    Scopes.tip20('0x20c0000000000000000000000000000000000001') // [!code focus]
+      .transfer({ // [!code focus]
+        recipients: ['0xcafebabecafebabecafebabecafebabecafebabe'], // [!code focus]
+      }), // [!code focus]
+  ], // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Grant the Least Privilege
+
+Combine `expiry`, `limits`, and `scopes` so a compromised key can only spend a bounded amount,
+for a limited time, against specific contracts. Start narrow and widen only when a flow needs
+more access.
+
+### Prefer Recurring Limits for Subscriptions
+
+For ongoing charges, use a `period` so the cap resets automatically instead of re-authorizing a
+new key each cycle. Pair it with an `expiry` to bound the key's overall lifetime.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:key-round"
+    title="Authorize Access Keys"
+    description="Create an access key and authorize it to sign on an account's behalf."
+    to="/tempo/guides/access-keys/authorize"
+  />
+  <Card
+    icon="lucide:settings"
+    title="Manage Access Keys"
+    description="Update limits, revoke keys, and inspect their onchain state."
+    to="/tempo/guides/access-keys/manage"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: Access Keys"
+    description="The full guide to authorizing and using access keys on Tempo."
+    to="https://docs.tempo.xyz/guide/use-accounts/authorize-access-keys"
+  />
+</Cards>

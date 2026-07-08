@@ -1,0 +1,104 @@
+---
+description: Read your internal Stablecoin DEX balances and withdraw them back to your Tempo wallet.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Manage Exchange Balances
+
+## Overview
+
+Trades and filled orders settle to an internal balance on the DEX rather than directly to your
+wallet. This keeps trading cheap and fast. When you want to move funds back out, read your exchange
+balance and withdraw it to your wallet.
+
+[See the Stablecoin Exchange specification](https://docs.tempo.xyz/protocol/exchange)
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Read an Exchange Balance
+
+Read the internal DEX balance for an account and token with
+[`dex.getBalance`](/tempo/actions/dex.getBalance).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const balance = await client.dex.getBalance({
+  account: '0xcafebabecafebabecafebabecafebabecafebabe',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Withdraw to Your Wallet
+
+Move an exchange balance back to your wallet with
+[`dex.withdrawSync`](/tempo/actions/dex.withdraw).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.dex.withdrawSync({
+  amount: 100_000000n,
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Check Before You Withdraw
+
+Read the balance with `dex.getBalance` before withdrawing so you request an amount the exchange
+actually holds. Withdrawing more than your internal balance reverts.
+
+### Batch Trading and Withdrawal
+
+If you trade and immediately need funds in your wallet, batch the trade and the withdrawal into a
+single transaction with [batch calls](/tempo/guides/batch-calls) to save a round trip.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:arrow-left-right"
+    title="Swap Stablecoins"
+    description="Trade stablecoins that settle to your exchange balance."
+    to="/tempo/guides/stablecoin-exchange/swap"
+  />
+  <Card
+    icon="lucide:layers"
+    title="Batch Calls"
+    description="Combine a trade and a withdrawal into one transaction."
+    to="/tempo/guides/batch-calls"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="dex.withdraw"
+    description="Withdraw an internal DEX balance to your wallet."
+    to="/tempo/actions/dex.withdraw"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: Stablecoin Exchange"
+    description="How exchange balances and settlement work."
+    to="https://docs.tempo.xyz/protocol/exchange"
+  />
+</Cards>

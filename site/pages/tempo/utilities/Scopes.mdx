@@ -1,0 +1,110 @@
+# `Scopes`
+
+Builds typed call scopes for Tempo access keys.
+
+:::warning
+This API is experimental and may change in future releases.
+:::
+
+## Usage
+
+Use `Scopes` when authorizing or signing an access-key authorization with
+[`accessKey.authorize`](/tempo/actions/accessKey.authorize) or
+[`accessKey.signAuthorization`](/tempo/actions/accessKey.signAuthorization). The builders return
+scope objects that restrict which target, function selector, and optional recipients an access key
+can call.
+
+### TIP-20 Scopes
+
+```ts twoslash
+import { Scopes } from 'viem/tempo'
+
+const scopes = [
+  Scopes.tip20('0x20c0000000000000000000000000000000000001').transfer({
+    recipients: ['0xcafebabecafebabecafebabecafebabecafebabe'],
+  }),
+]
+```
+
+### Target Scopes
+
+```ts twoslash
+import { Scopes } from 'viem/tempo'
+
+const target = Scopes.target('0x20c0000000000000000000000000000000000001')
+
+const scopes = [
+  target.selector('0xa9059cbb', {
+    recipients: ['0xcafebabecafebabecafebabecafebabecafebabe'],
+  }),
+]
+```
+
+### Contract Scopes
+
+```ts twoslash
+import { Scopes, Selectors } from 'viem/tempo'
+
+const tip20 = Scopes.contract(
+  '0x20c0000000000000000000000000000000000001',
+  Selectors.tip20,
+)
+
+const scopes = [
+  tip20.approve({
+    recipients: ['0xcafebabecafebabecafebabecafebabecafebabe'],
+  }),
+]
+```
+
+## Return Type
+
+Each builder returns a scope object.
+
+```ts
+type Scope = {
+  address: Address
+  recipients?: readonly Address[]
+  selector?: Hex
+}
+```
+
+## Functions
+
+### `Scopes.contract`
+
+- **Type:** `(address: Address, selectors: Scopes.SelectorMap) => Scopes.Contract`
+
+Creates a typed scope builder from any selector map.
+
+### `Scopes.target`
+
+- **Type:** `(address: Address) => Scopes.Target`
+
+Creates a scope builder for an arbitrary target. Use `target.any()` to allow any selector on the target, or `target.selector(selector, options)` to allow a specific selector.
+
+### `Scopes.tip20`
+
+- **Type:** `(address: Address) => Scopes.Tip20`
+
+Creates a typed scope builder for a TIP-20 token using [`Selectors.tip20`](/tempo/utilities/Selectors).
+
+## Parameters
+
+### address
+
+- **Type:** `Address`
+
+Contract address the access key can call.
+
+### selectors
+
+- **Type:** `Scopes.SelectorMap`
+
+Selector map used by [`Scopes.contract`](#scopescontract). Generated selector maps are exported from [`Selectors`](/tempo/utilities/Selectors).
+
+### recipients
+
+- **Type:** `readonly Address[] | undefined`
+
+Optional recipient allowlist for selectors that support recipient restrictions.

@@ -1,0 +1,82 @@
+# `Selectors`
+
+Generated Tempo precompile function selectors.
+
+:::warning
+This API is experimental and may change in future releases.
+:::
+
+## Usage
+
+Use `Selectors` when you need the `bytes4` selector for a Tempo precompile function, or when building typed access-key scopes with [`Scopes.contract`](/tempo/utilities/Scopes#scopescontract).
+
+### TIP-20 Selector
+
+```ts twoslash
+import { Selectors } from 'viem/tempo'
+
+const selector = Selectors.tip20.transfer
+//    ^? const selector: "0xa9059cbb"
+```
+
+### Overloaded Selector
+
+Some precompile functions are overloaded. For those functions, the selector is keyed by full function signature.
+
+```ts twoslash
+import { Selectors } from 'viem/tempo'
+
+const selector = Selectors.tip20Factory.createToken['createToken(string,string,string,address,address,bytes32,string)']
+//    ^? const selector: "0x5323d222"
+```
+
+### Access-Key Scope Builder
+
+```ts twoslash
+import { Scopes, Selectors } from 'viem/tempo'
+
+const tip20 = Scopes.contract(
+  '0x20c0000000000000000000000000000000000001',
+  Selectors.tip20,
+)
+
+const scope = tip20.transfer({
+  recipients: ['0xcafebabecafebabecafebabecafebabecafebabe'],
+})
+```
+
+## Return Type
+
+Selector values are hex strings.
+
+```ts
+type Selector = Hex
+```
+
+Selector maps are grouped by Tempo precompile.
+
+```ts
+type SelectorMap = Record<string, Selector | Record<string, Selector>>
+```
+
+## Exports
+
+```ts
+import { Selectors } from 'viem/tempo'
+
+Selectors.accountKeychain
+Selectors.addressRegistry
+Selectors.feeAmm
+Selectors.feeManager
+Selectors.nonce
+Selectors.receivePolicyGuard
+Selectors.signatureVerifier
+Selectors.stablecoinDex
+Selectors.storageCredits
+Selectors.tip20
+Selectors.tip20ChannelReserve
+Selectors.tip20Factory
+Selectors.tip403Registry
+Selectors.validatorConfig
+Selectors.validatorConfigV2
+```

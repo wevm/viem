@@ -1,0 +1,38 @@
+# `Storage.session`
+
+Creates a storage backed by `globalThis.sessionStorage`. Suitable for browser environments where tokens should persist for the duration of the tab session.
+
+## Usage
+
+```ts twoslash
+import { Storage } from 'viem/tempo'
+
+const storage = Storage.session()
+
+await storage.setItem('key', 'value')
+const value = await storage.getItem('key')
+// @log: 'value'
+```
+
+## Parameters
+
+### options
+
+- **Type:** `Storage.from.Options`
+- **Default:** `{}`
+
+Options for key prefixing.
+
+### key
+
+- **Type:** `string | undefined`
+
+Key prefix prepended to all storage keys.
+
+## Return Type
+
+```ts
+type ReturnType = Storage
+```
+
+A `Storage` instance backed by `sessionStorage`.

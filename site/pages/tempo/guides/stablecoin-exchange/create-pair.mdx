@@ -1,0 +1,130 @@
+---
+description: Create a new trading pair on Tempo's Stablecoin DEX and configure a token's quote token.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Create a Trading Pair
+
+## Overview
+
+A trading pair lets two stablecoins trade against each other on the DEX. You create a pair for a
+base token, and the token's quote token determines what it is priced against. Changing a quote token
+is a two-step, time-delayed operation so the market has notice before pricing changes.
+
+[See the Stablecoin Exchange specification](https://docs.tempo.xyz/protocol/exchange)
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Create a Pair
+
+Create a new pair for a base token with [`dex.createPairSync`](/tempo/actions/dex.createPair).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt, ...pair } = await client.dex.createPairSync({
+  base: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Prepare a Quote Token Change
+
+Schedule a token's quote token with `token.prepareUpdateQuoteTokenSync`. This starts the mandatory
+delay before the change can be finalized.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { receipt } = await Actions.token.prepareUpdateQuoteTokenSync(client, {
+  token: '0x20c0000000000000000000000000000000000001',
+  quoteToken: '0x20c0000000000000000000000000000000000002',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Finalize a Quote Token Change
+
+After the delay elapses, apply the prepared change with `token.updateQuoteTokenSync`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { receipt } = await Actions.token.updateQuoteTokenSync(client, {
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Choose a Stable Quote Token
+
+The quote token is the currency the base token is priced in, so pick a widely held, liquid
+stablecoin. Pairs quoted in a thinly traded token are harder for takers to price and fill.
+
+### Respect the Quote Token Delay
+
+Updating a quote token is intentionally two-phase. Prepare the change, wait for the delay to elapse,
+then finalize it. Plan migrations around this window so trading is not disrupted unexpectedly.
+
+### Seed Liquidity After Creating a Pair
+
+A new pair has no resting liquidity. Place [orders](/tempo/guides/stablecoin-exchange/orders) (or
+provide [Fee AMM liquidity](/tempo/guides/stablecoin-exchange/fee-amm-liquidity)) so takers have
+something to trade against.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:list-ordered"
+    title="Place & Manage Orders"
+    description="Seed a new pair with resting limit and flip orders."
+    to="/tempo/guides/stablecoin-exchange/orders"
+  />
+  <Card
+    icon="lucide:droplets"
+    title="Provide Fee AMM Liquidity"
+    description="Supply liquidity that powers stablecoin fee conversions."
+    to="/tempo/guides/stablecoin-exchange/fee-amm-liquidity"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="dex.createPair"
+    description="Create a new trading pair for a base token."
+    to="/tempo/actions/dex.createPair"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: Stablecoin Exchange"
+    description="Trading pairs, quote tokens, and pricing."
+    to="https://docs.tempo.xyz/protocol/exchange"
+  />
+</Cards>

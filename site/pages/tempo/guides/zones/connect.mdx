@@ -1,0 +1,147 @@
+---
+description: Connect a Viem client to a private Tempo Zone and authenticate with an authorization token.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Connect to a Zone
+
+## Overview
+
+Zones are private, account-scoped chains on [Tempo](https://tempo.xyz). Each zone is an isolated
+execution environment that keeps balances, transfers, and history invisible to the public chain while
+inheriting the security guarantees of Tempo Mainnet.
+
+All zone RPC methods require an `X-Authorization-Token` header. The zone `http` transport attaches it
+automatically once you have signed an authorization token.
+
+[See the Tempo Zones specification](https://docs.tempo.xyz/protocol/zones)
+
+:::warning
+Tempo Zones are in early development and available on Tempo Testnet only. Expect breaking changes and
+do not use them in production.
+:::
+
+## Setup
+
+::::steps
+
+### Install
+
+To use Zones, ensure that you have Viem installed.
+
+:::code-group
+
+```bash [npm]
+npm i viem
+```
+
+```bash [pnpm]
+pnpm i viem
+```
+
+```bash [bun]
+bun i viem
+```
+
+:::
+
+### Configure a Zone Client
+
+Configure a [Viem Client](/docs/clients/create) for a zone using `zoneModerato` and the zone `http`
+transport. Viem ships two zone chain builders: `zone` for Tempo Mainnet and `zoneModerato` for the
+Moderato testnet.
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+### Sign an Authorization Token
+
+Before making any zone RPC requests, sign an authorization token with
+[`zone.signAuthorizationToken`](/tempo/actions/zone.signAuthorizationToken). This authenticates your
+account with the zone sequencer, and the zone `http` transport attaches the signed token as the
+`X-Authorization-Token` header on subsequent requests.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './zones.config'
+
+const { token } = await client.zone.signAuthorizationToken()
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+### Use Zone Actions
+
+Once authenticated, use [Zone Actions](/tempo/actions) to interact with your zone, such as
+[`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo) to read the zone's id, chain id, and sequencer.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './zones.config'
+
+const info = await client.zone.getZoneInfo()
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+::::
+
+## Best Practices
+
+### Reuse a Persisted Token
+
+The signed token is persisted with `Storage`. By default `Storage.defaultStorage()` auto-detects the
+environment (in-memory for Node.js, `sessionStorage` for browsers), so a connected session reuses the
+token instead of re-signing on every request. Provide a custom `storage` to control where it lives.
+
+### Check Token Expiry
+
+Authorization tokens expire. Read the current token's account and expiry with
+[`zone.getAuthorizationTokenInfo`](/tempo/actions/zone.getAuthorizationTokenInfo) and re-sign before
+it lapses to avoid failed RPC reads.
+
+### Pick the Right Chain Builder
+
+Use `zoneModerato` for testnet work and `zone` for Mainnet. Pointing a client at the wrong builder
+results in chain-id mismatches when signing tokens and sending transactions.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:arrow-down-to-line"
+    title="Deposit to a Zone"
+    description="Move stablecoins from Tempo Mainnet into a zone."
+    to="/tempo/guides/zones/deposit"
+  />
+  <Card
+    icon="lucide:arrow-up-from-line"
+    title="Withdraw from a Zone"
+    description="Move stablecoins from a zone back to Tempo Mainnet."
+    to="/tempo/guides/zones/withdraw"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="zone.signAuthorizationToken"
+    description="Sign the token that authenticates zone RPC requests."
+    to="/tempo/actions/zone.signAuthorizationToken"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: Zones"
+    description="The full Tempo Zones protocol specification."
+    to="https://docs.tempo.xyz/protocol/zones"
+  />
+</Cards>

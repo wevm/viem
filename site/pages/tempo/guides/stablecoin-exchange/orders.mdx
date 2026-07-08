@@ -1,0 +1,185 @@
+---
+description: Place limit and flip orders on Tempo's Stablecoin DEX, then read, inspect, and cancel them.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Place & Manage Orders
+
+## Overview
+
+Instead of taking liquidity with a swap, you can rest an order on the book at a chosen price. A
+limit order fills when the market reaches your tick; a flip order automatically places an opposing
+order once it fills, which is useful for market making. You can read the book, inspect individual
+orders, and cancel orders you no longer want.
+
+[See the Stablecoin Exchange specification](https://docs.tempo.xyz/protocol/exchange)
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo). Prices are expressed as ticks via
+[`Tick`](/tempo/actions).
+
+### Place a Limit Order
+
+Rest a buy or sell order at a price with [`dex.placeSync`](/tempo/actions/dex.place). Build the
+`tick` from a human-readable price with `Tick.fromPrice`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Tick } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { receipt, ...order } = await client.dex.placeSync({
+  amount: 100_000000n,
+  tick: Tick.fromPrice('0.99'),
+  token: '0x20c0000000000000000000000000000000000001',
+  type: 'buy',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Place a Flip Order
+
+A flip order re-posts on the opposite side at `flipTick` after it fills, letting you provide
+liquidity on both sides of the spread with [`dex.placeFlipSync`](/tempo/actions/dex.placeFlip).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Tick } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { receipt, ...order } = await client.dex.placeFlipSync({
+  amount: 100_000000n,
+  tick: Tick.fromPrice('0.99'),
+  flipTick: Tick.fromPrice('1.01'),
+  token: '0x20c0000000000000000000000000000000000001',
+  type: 'buy',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Read the Order Book
+
+Inspect resting liquidity for a pair with `dex.getOrderbook`, or read a single price level with
+[`dex.getTickLevel`](/tempo/actions/dex.getTickLevel).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions, Tick } from 'viem/tempo'
+import { client } from './viem.config'
+
+const base = '0x20c0000000000000000000000000000000000001'
+const quote = '0x20c0000000000000000000000000000000000002'
+
+const book = await Actions.dex.getOrderbook(client, { base, quote })
+
+const level = await client.dex.getTickLevel({
+  base,
+  tick: Tick.fromPrice('1.00'),
+  isBid: true,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Inspect an Order
+
+Read the current state of one of your orders with [`dex.getOrder`](/tempo/actions/dex.getOrder).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const order = await client.dex.getOrder({ orderId: 123n })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Cancel an Order
+
+Cancel your own resting order with [`dex.cancelSync`](/tempo/actions/dex.cancel). Anyone can clear
+stale orders with [`dex.cancelStaleSync`](/tempo/actions/dex.cancelStale).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.dex.cancelSync({ orderId: 123n })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Track Order IDs
+
+The order id returned when you place an order is what you need to inspect or cancel it later.
+Persist it alongside your own bookkeeping so you can manage open orders across sessions.
+
+### Use Flip Orders for Market Making
+
+If you are providing two-sided liquidity, a flip order saves a round trip: it re-posts on the
+opposite side automatically when it fills, instead of you watching for the fill and placing a new
+order yourself.
+
+### Clean Up Stale Orders
+
+Orders that can no longer fill clutter the book and tie up balances. Anyone can call
+`dex.cancelStaleSync` to remove them, which keeps the book healthy and frees reserved funds.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:arrow-left-right"
+    title="Swap Stablecoins"
+    description="Take liquidity immediately instead of resting an order."
+    to="/tempo/guides/stablecoin-exchange/swap"
+  />
+  <Card
+    icon="lucide:wallet"
+    title="Manage Exchange Balances"
+    description="Withdraw filled order proceeds back to your wallet."
+    to="/tempo/guides/stablecoin-exchange/balances"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="dex.placeFlip"
+    description="Place a flip order that re-posts after it fills."
+    to="/tempo/actions/dex.placeFlip"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: Stablecoin Exchange"
+    description="Limit orders, flip orders, and the order book model."
+    to="https://docs.tempo.xyz/protocol/exchange"
+  />
+</Cards>

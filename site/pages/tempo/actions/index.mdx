@@ -1,0 +1,151 @@
+# Overview
+
+| Action | Description |
+|--------|-------------|
+| **Access Key Actions** | |
+| [`accessKey.authorize`](/tempo/actions/accessKey.authorize) | Authorizes an access key by signing a key authorization and sending a transaction |
+| [`accessKey.burnWitness`](/tempo/actions/accessKey.burnWitness) | Burns a key-authorization witness, invalidating any authorization bound to it before it is submitted onchain |
+| [`accessKey.getMetadata`](/tempo/actions/accessKey.getMetadata) | Gets the metadata for an access key |
+| [`accessKey.getRemainingLimit`](/tempo/actions/accessKey.getRemainingLimit) | Gets the remaining spending limit for a key-token pair |
+| [`accessKey.isAdmin`](/tempo/actions/accessKey.isAdmin) | Checks whether an access key is an admin key for an account |
+| [`accessKey.isWitnessBurned`](/tempo/actions/accessKey.isWitnessBurned) | Checks whether a key-authorization witness has been burned for an account |
+| [`accessKey.revoke`](/tempo/actions/accessKey.revoke) | Revokes an authorized access key |
+| [`accessKey.signAuthorization`](/tempo/actions/accessKey.signAuthorization) | Signs a key authorization for an access key |
+| [`accessKey.updateLimit`](/tempo/actions/accessKey.updateLimit) | Updates the spending limit for a specific token on an authorized access key |
+| [`accessKey.verifyHash`](/tempo/actions/accessKey.verifyHash) | Verifies that a keychain signature was produced by an active access key for the expected account |
+| [`accessKey.watchAdminAuthorized`](/tempo/actions/accessKey.watchAdminAuthorized) | Watches `AdminKeyAuthorized` events on the account keychain |
+| [`accessKey.watchWitness`](/tempo/actions/accessKey.watchWitness) | Watches `KeyAuthorizationWitness` events on the account keychain |
+| [`accessKey.watchWitnessBurned`](/tempo/actions/accessKey.watchWitnessBurned) | Watches `KeyAuthorizationWitnessBurned` events on the account keychain |
+| **AMM Actions** | |
+| [`amm.burn`](/tempo/actions/amm.burn) | Removes liquidity from a pool |
+| [`amm.getLiquidityBalance`](/tempo/actions/amm.getLiquidityBalance) | Gets the LP token balance for an account in a specific pool |
+| [`amm.getPool`](/tempo/actions/amm.getPool) | Gets the reserves for a liquidity pool |
+| [`amm.mint`](/tempo/actions/amm.mint) | Adds liquidity to a pool |
+| [`amm.rebalanceSwap`](/tempo/actions/amm.rebalanceSwap) | Performs a rebalance swap from validator token to user token |
+| [`amm.watchBurn`](/tempo/actions/amm.watchBurn) | Watches `Burn` events on the fee AMM |
+| [`amm.watchMint`](/tempo/actions/amm.watchMint) | Watches `Mint` events on the fee AMM |
+| [`amm.watchRebalanceSwap`](/tempo/actions/amm.watchRebalanceSwap) | Watches `RebalanceSwap` events on the fee AMM |
+| **Channel Actions** | |
+| [`channel.close`](/tempo/actions/channel.close) | Closes a TIP-20 channel reserve channel from the payee or operator side |
+| [`channel.getStates`](/tempo/actions/channel.getStates) | Gets TIP-20 channel reserve state for a channel ID or channel |
+| [`channel.open`](/tempo/actions/channel.open) | Opens and funds a TIP-20 channel reserve channel |
+| [`channel.requestClose`](/tempo/actions/channel.requestClose) | Starts the payer close timer for a TIP-20 channel reserve channel |
+| [`channel.settle`](/tempo/actions/channel.settle) | Settles a TIP-20 channel reserve voucher |
+| [`channel.signVoucher`](/tempo/actions/channel.signVoucher) | Signs a TIP-20 channel reserve voucher |
+| [`channel.topUp`](/tempo/actions/channel.topUp) | Adds deposit to a TIP-20 channel reserve channel |
+| [`channel.withdraw`](/tempo/actions/channel.withdraw) | Withdraws payer funds after the close grace period elapses |
+| **Stablecoin DEX Actions** | |
+| [`dex.buy`](/tempo/actions/dex.buy) | Buys an exact amount of tokens from the DEX orderbook |
+| [`dex.cancel`](/tempo/actions/dex.cancel) | Cancels an open DEX order |
+| [`dex.cancelStale`](/tempo/actions/dex.cancelStale) | Cancels a stale DEX order |
+| [`dex.createPair`](/tempo/actions/dex.createPair) | Creates a DEX orderbook pair for a base token |
+| [`dex.getBalance`](/tempo/actions/dex.getBalance) | Gets an account's token balance held on the DEX |
+| [`dex.getBuyQuote`](/tempo/actions/dex.getBuyQuote) | Gets the amount of input tokens needed to buy an exact output amount |
+| [`dex.getOrder`](/tempo/actions/dex.getOrder) | Gets an order by ID |
+| [`dex.getOrderbook`](/tempo/actions/dex.getOrderbook) | Gets an orderbook pair summary |
+| [`dex.getSellQuote`](/tempo/actions/dex.getSellQuote) | Gets the output amount received for selling an exact input amount |
+| [`dex.getTickLevel`](/tempo/actions/dex.getTickLevel) | Gets the order queue and liquidity at a tick level |
+| [`dex.place`](/tempo/actions/dex.place) | Places a limit order on the DEX orderbook |
+| [`dex.placeFlip`](/tempo/actions/dex.placeFlip) | Places a flip order that automatically flips when filled |
+| [`dex.sell`](/tempo/actions/dex.sell) | Sells an exact amount of tokens into the DEX orderbook |
+| [`dex.watchFlipOrderPlaced`](/tempo/actions/dex.watchFlipOrderPlaced) | Watches `OrderPlaced` events on the DEX and delivers flip orders only |
+| [`dex.watchOrderCancelled`](/tempo/actions/dex.watchOrderCancelled) | Watches `OrderCancelled` events on the DEX |
+| [`dex.watchOrderFilled`](/tempo/actions/dex.watchOrderFilled) | Watches `OrderFilled` events on the DEX |
+| [`dex.watchOrderPlaced`](/tempo/actions/dex.watchOrderPlaced) | Watches `OrderPlaced` events on the DEX |
+| [`dex.withdraw`](/tempo/actions/dex.withdraw) | Withdraws tokens from the DEX to the caller's wallet |
+| **Faucet Actions** | |
+| [`faucet.fund`](/tempo/actions/faucet.fund) | Funds an account with testnet tokens |
+| **Fee Actions** | |
+| [`fee.getUserToken`](/tempo/actions/fee.getUserToken) | Gets an account's default fee token |
+| [`fee.getValidatorToken`](/tempo/actions/fee.getValidatorToken) | Gets a validator's preferred fee token |
+| [`fee.setUserToken`](/tempo/actions/fee.setUserToken) | Sets the calling account's default fee token |
+| [`fee.setValidatorToken`](/tempo/actions/fee.setValidatorToken) | Sets the calling validator's preferred fee token |
+| [`fee.validateToken`](/tempo/actions/fee.validateToken) | Validates that a token can be used as a Tempo fee token |
+| [`fee.watchSetUserToken`](/tempo/actions/fee.watchSetUserToken) | Watches `UserTokenSet` events on the fee manager |
+| [`fee.watchSetValidatorToken`](/tempo/actions/fee.watchSetValidatorToken) | Watches `ValidatorTokenSet` events on the fee manager |
+| **Nonce Actions** | |
+| [`nonce.get`](/tempo/actions/nonce.get) | Gets the nonce for an account and nonce key |
+| [`nonce.watchIncremented`](/tempo/actions/nonce.watchIncremented) | Watches `NonceIncremented` events on the nonce manager |
+| **Policy Actions** | |
+| [`policy.create`](/tempo/actions/policy.create) | Creates a TIP-403 transfer policy |
+| [`policy.getData`](/tempo/actions/policy.getData) | Gets TIP-403 transfer policy data |
+| [`policy.isAuthorized`](/tempo/actions/policy.isAuthorized) | Checks if a user is authorized by a TIP-403 transfer policy |
+| [`policy.modifyBlacklist`](/tempo/actions/policy.modifyBlacklist) | Modifies a TIP-403 transfer policy blacklist |
+| [`policy.modifyWhitelist`](/tempo/actions/policy.modifyWhitelist) | Modifies a TIP-403 transfer policy whitelist |
+| [`policy.setAdmin`](/tempo/actions/policy.setAdmin) | Sets the admin for a TIP-403 transfer policy |
+| [`policy.watchAdminUpdated`](/tempo/actions/policy.watchAdminUpdated) | Watches `PolicyAdminUpdated` events on the TIP-403 registry |
+| [`policy.watchBlacklistUpdated`](/tempo/actions/policy.watchBlacklistUpdated) | Watches `BlacklistUpdated` events on the TIP-403 registry |
+| [`policy.watchCreate`](/tempo/actions/policy.watchCreate) | Watches `PolicyCreated` events on the TIP-403 registry |
+| [`policy.watchWhitelistUpdated`](/tempo/actions/policy.watchWhitelistUpdated) | Watches `WhitelistUpdated` events on the TIP-403 registry |
+| **Receive Policy Actions** | |
+| [`receivePolicy.burn`](/tempo/actions/receivePolicy.burn) | Burns the funds backing a blocked receipt |
+| [`receivePolicy.claim`](/tempo/actions/receivePolicy.claim) | Claims blocked funds for a receipt |
+| [`receivePolicy.get`](/tempo/actions/receivePolicy.get) | Gets the receive policy configured for an account |
+| [`receivePolicy.getBlockedBalance`](/tempo/actions/receivePolicy.getBlockedBalance) | Gets the blocked balance for an encoded receipt |
+| [`receivePolicy.set`](/tempo/actions/receivePolicy.set) | Sets the receive policy for the calling account |
+| [`receivePolicy.validate`](/tempo/actions/receivePolicy.validate) | Checks whether a transfer or mint to a receiver is allowed by the receiver receive policy |
+| [`receivePolicy.watchBlocked`](/tempo/actions/receivePolicy.watchBlocked) | Watches for blocked transfer events |
+| [`receivePolicy.watchBurned`](/tempo/actions/receivePolicy.watchBurned) | Watches for receipt burned events |
+| [`receivePolicy.watchClaimed`](/tempo/actions/receivePolicy.watchClaimed) | Watches for receipt claimed events |
+| [`receivePolicy.watchUpdated`](/tempo/actions/receivePolicy.watchUpdated) | Watches for receive policy update events |
+| **Token Actions** | |
+| [`token.approve`](/tempo/actions/token.approve) | Approves a spender to transfer TIP-20 tokens on behalf of the caller |
+| [`token.burn`](/tempo/actions/token.burn) | Burns TIP-20 tokens from the caller's balance |
+| [`token.burnBlocked`](/tempo/actions/token.burnBlocked) | Burns TIP-20 tokens from a blocked address. Requires the `BURN_BLOCKED` role. [Learn more about token roles](https://docs.tempo.xyz/protocol/tip403/spec) |
+| [`token.changeTransferPolicy`](/tempo/actions/token.changeTransferPolicy) | Changes the transfer policy ID for a TIP-20 token. Requires the default admin role. [Learn more about transfer policies](https://docs.tempo.xyz/protocol/tip403/spec) |
+| [`token.create`](/tempo/actions/token.create) | Creates a new TIP-20 token, and assigns the admin role to `admin` (defaults to the Client's account). [Learn more](https://docs.tempo.xyz/protocol/tip20/overview) |
+| [`token.getAllowance`](/tempo/actions/token.getAllowance) | Gets the TIP-20 allowance a spender has over an account's tokens |
+| [`token.getBalance`](/tempo/actions/token.getBalance) | Gets the TIP-20 token balance of an account |
+| [`token.getMetadata`](/tempo/actions/token.getMetadata) | Gets TIP-20 token metadata including name, symbol, logo URI, currency, decimals, and total supply |
+| [`token.getRoleAdmin`](/tempo/actions/token.getRoleAdmin) | Gets the admin role for a specific role in a TIP-20 token. [Learn more about token roles](https://docs.tempo.xyz/protocol/tip403/spec) |
+| [`token.getTotalSupply`](/tempo/actions/token.getTotalSupply) | Gets the total supply of a TIP-20 token |
+| [`token.grantRoles`](/tempo/actions/token.grantRoles) | Grants roles for a TIP-20 token. Requires the admin role for each role being granted. [Learn more about token roles](https://docs.tempo.xyz/protocol/tip403/spec) |
+| [`token.hasRole`](/tempo/actions/token.hasRole) | Checks if an account has a specific role for a TIP-20 token. [Learn more about token roles](https://docs.tempo.xyz/protocol/tip403/spec) |
+| [`token.mint`](/tempo/actions/token.mint) | Mints TIP-20 tokens to an address. Requires the `ISSUER` role. [Learn more about roles](https://docs.tempo.xyz/protocol/tip20/spec#role-based-access-control) |
+| [`token.pause`](/tempo/actions/token.pause) | Pauses a TIP-20 token, preventing all transfers. Requires the `PAUSE` role. [Learn more about token roles](https://docs.tempo.xyz/protocol/tip403/spec) |
+| [`token.prepareUpdateQuoteToken`](/tempo/actions/token.prepareUpdateQuoteToken) | Prepares a quote token update for a TIP-20 token. Requires the token's admin role |
+| [`token.renounceRoles`](/tempo/actions/token.renounceRoles) | Renounces roles for a TIP-20 token, removing them from the caller's account. [Learn more about token roles](https://docs.tempo.xyz/protocol/tip403/spec) |
+| [`token.revokeRoles`](/tempo/actions/token.revokeRoles) | Revokes roles for a TIP-20 token. Requires the admin role for each role being revoked. [Learn more about token roles](https://docs.tempo.xyz/protocol/tip403/spec) |
+| [`token.setRoleAdmin`](/tempo/actions/token.setRoleAdmin) | Sets the admin role for a specific role in a TIP-20 token. Requires the current admin role for the target role. [Learn more about token roles](https://docs.tempo.xyz/protocol/tip403/spec) |
+| [`token.setSupplyCap`](/tempo/actions/token.setSupplyCap) | Sets the supply cap for a TIP-20 token. Requires the default admin role |
+| [`token.transfer`](/tempo/actions/token.transfer) | Transfers TIP-20 tokens to another address |
+| [`token.unpause`](/tempo/actions/token.unpause) | Unpauses a TIP-20 token, allowing transfers to resume. Requires the `UNPAUSE` role. [Learn more about token roles](https://docs.tempo.xyz/protocol/tip403/spec) |
+| [`token.updateQuoteToken`](/tempo/actions/token.updateQuoteToken) | Completes a prepared quote token update for a TIP-20 token. Requires the token's admin role |
+| [`token.watchAdminRole`](/tempo/actions/token.watchAdminRole) | Watches TIP-20 `RoleAdminUpdated` events for a token. The event is emitted when the admin role that governs a role changes. [Learn more about roles](https://docs.tempo.xyz/protocol/tip20/spec#role-based-access-control) |
+| [`token.watchApprove`](/tempo/actions/token.watchApprove) | Watches TIP-20 `Approval` events for a token |
+| [`token.watchBurn`](/tempo/actions/token.watchBurn) | Watches TIP-20 `Burn` events for a token |
+| [`token.watchCreate`](/tempo/actions/token.watchCreate) | Watches TIP-20 `TokenCreated` events from the token factory |
+| [`token.watchMint`](/tempo/actions/token.watchMint) | Watches TIP-20 `Mint` events for a token |
+| [`token.watchRole`](/tempo/actions/token.watchRole) | Watches TIP-20 `RoleMembershipUpdated` events for a token. The event is emitted when a role is granted to, or revoked from, an account. [Learn more about roles](https://docs.tempo.xyz/protocol/tip20/spec#role-based-access-control) |
+| [`token.watchTransfer`](/tempo/actions/token.watchTransfer) | Watches TIP-20 `Transfer` events for a token |
+| [`token.watchUpdateQuoteToken`](/tempo/actions/token.watchUpdateQuoteToken) | Watches TIP-20 quote token update events for a token. Emits `NextQuoteTokenSet` when a quote token update is staged, and `QuoteTokenUpdate` when it is applied |
+| **Validator Actions** | |
+| [`validator.add`](/tempo/actions/validator.add) | Adds a new validator |
+| [`validator.changeOwner`](/tempo/actions/validator.changeOwner) | Changes the owner of the validator config precompile |
+| [`validator.changeStatus`](/tempo/actions/validator.changeStatus) | Changes validator active status |
+| [`validator.get`](/tempo/actions/validator.get) | Gets validator information by address |
+| [`validator.getByIndex`](/tempo/actions/validator.getByIndex) | Gets a validator address by index |
+| [`validator.getCount`](/tempo/actions/validator.getCount) | Gets the total number of validators |
+| [`validator.getNextFullDkgCeremony`](/tempo/actions/validator.getNextFullDkgCeremony) | Gets the next epoch for a full DKG ceremony |
+| [`validator.getOwner`](/tempo/actions/validator.getOwner) | Gets the validator config owner |
+| [`validator.list`](/tempo/actions/validator.list) | Gets the complete set of validators |
+| [`validator.setNextFullDkgCeremony`](/tempo/actions/validator.setNextFullDkgCeremony) | Sets the next epoch for a full DKG ceremony |
+| [`validator.update`](/tempo/actions/validator.update) | Updates validator information |
+| **Virtual Address Actions** | |
+| [`virtualAddress.getMasterAddress`](/tempo/actions/virtualAddress.getMasterAddress) | Gets the master address for a virtual-address master ID |
+| [`virtualAddress.registerMaster`](/tempo/actions/virtualAddress.registerMaster) | Registers a virtual master address |
+| [`virtualAddress.resolve`](/tempo/actions/virtualAddress.resolve) | Resolves a virtual address to its master address |
+| **Wallet Actions** | |
+| [`wallet.deposit`](/tempo/actions/wallet.deposit) | Opens the connected Tempo wallet's deposit flow, with optional pre-filled fields |
+| [`wallet.swap`](/tempo/actions/wallet.swap) | Opens the connected Tempo wallet's swap flow, with optional pre-filled fields |
+| [`wallet.transfer`](/tempo/actions/wallet.transfer) | Transfers a TIP-20 token via the connected Tempo wallet |
+| **Zone Actions** | |
+| [`zone.deposit`](/tempo/actions/zone.deposit) | Deposits tokens into a zone from the parent Tempo chain |
+| [`zone.encryptedDeposit`](/tempo/actions/zone.encryptedDeposit) | Deposits tokens into a zone from the parent Tempo chain, encrypting the recipient and memo for the zone sequencer |
+| [`zone.getAuthorizationTokenInfo`](/tempo/actions/zone.getAuthorizationTokenInfo) | Returns the authenticated account address and token expiry from the current authorization token |
+| [`zone.getDepositStatus`](/tempo/actions/zone.getDepositStatus) | Returns deposit processing status for a given parent Tempo chain block number |
+| [`zone.getWithdrawalFee`](/tempo/actions/zone.getWithdrawalFee) | Returns the fee required for a withdrawal from a zone, given a callback gas limit |
+| [`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo) | Returns metadata about the current zone |
+| [`zone.requestVerifiableWithdrawal`](/tempo/actions/zone.requestVerifiableWithdrawal) | Requests a verifiable withdrawal from a zone to the parent Tempo chain. The zone sequencer encrypts the sender's identity for the provided `revealTo` public key |
+| [`zone.requestWithdrawal`](/tempo/actions/zone.requestWithdrawal) | Requests a withdrawal from a zone to the parent Tempo chain |
+| [`zone.signAuthorizationToken`](/tempo/actions/zone.signAuthorizationToken) | Signs a zone authorization token and stores it for the zone HTTP transport. The token authenticates subsequent zone RPC requests via the `X-Authorization-Token` header |

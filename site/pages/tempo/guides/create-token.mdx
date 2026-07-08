@@ -1,0 +1,106 @@
+---
+description: Deploy a TIP-20 stablecoin on Tempo and read its onchain metadata.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Create a TIP-20 Token
+
+## Overview
+
+TIP-20 is Tempo's native token standard for stablecoins. Creating a token deploys a new TIP-20
+contract, assigns an admin that controls roles and supply, and returns the token's address and id.
+Once created, you can mint, transfer, and configure the token with the rest of the Tokens guides.
+
+[See the TIP-20 specification](https://docs.tempo.xyz/protocol/tip20/overview)
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Create a Token
+
+Deploy a new TIP-20 token with [`token.createSync`](/tempo/actions/token.create). The `admin` you
+pass receives the admin role and can later grant issuer roles, set a supply cap, and pause transfers.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { admin, token } = await client.token.createSync({
+  admin: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  currency: 'USD',
+  logoURI: 'https://example.com/cusd.svg',
+  name: 'My Company USD',
+  symbol: 'CUSD',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Read Token Metadata
+
+Read a token's onchain metadata with [`token.getMetadata`](/tempo/actions/token.getMetadata),
+including its name, symbol, decimals, total supply, and any configured supply cap or transfer policy.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const metadata = await client.token.getMetadata({
+  token: '0x20c0000000000000000000000000000000000004',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Store the Token Address
+
+Token actions reference tokens by address. Store the `token` address returned by
+`token.createSync` so you can reference the token consistently across your application.
+
+### Provide a Stable Logo URI
+
+The `logoURI` is part of the token's onchain metadata and is shown by wallets and explorers. Host it
+at a permanent, public URL so the token displays correctly everywhere.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:flame"
+    title="Mint & Burn Tokens"
+    description="Issue and destroy supply for your token."
+    to="/tempo/guides/manage-token-balances"
+  />
+  <Card
+    icon="lucide:user-cog"
+    title="Manage Token Roles & Supply"
+    description="Grant issuer roles, cap supply, and pause transfers."
+    to="/tempo/guides/manage-token-roles"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="token.create"
+    description="Deploy a new TIP-20 token."
+    to="/tempo/actions/token.create"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: TIP-20"
+    description="The TIP-20 stablecoin token standard."
+    to="https://docs.tempo.xyz/protocol/tip20/overview"
+  />
+</Cards>

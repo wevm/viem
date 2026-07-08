@@ -1,0 +1,103 @@
+# `Account.fromMultisig`
+
+Instantiates an Account from a [native multisig](https://docs.tempo.xyz/protocol/transactions)
+(`MultisigConfig`) configuration.
+
+:::warning
+**Experimental.** Native multisig support is experimental and may change in a future release.
+It is not yet available on Tempo mainnet or testnet.
+:::
+
+The returned account represents the **multisig sender**: its address is derived from the
+config. It does not hold a key and cannot sign primitives directly (`sign`, `signMessage`,
+`signTypedData` throw). Instead, it is used purely to **broadcast** a multisig transaction:
+it drives the standard [`send`](/docs/actions/wallet/transaction/send) flow,
+passing the prepared request (carrying the collected owner `signatures`) through to the
+chain serializer, which combines the approvals into the multisig signature envelope.
+
+:::tip
+For the full transaction flow (preparing a request, collecting owner approvals, and
+broadcasting), see the [Multisig Transactions](/tempo/guides/multisig-transactions) guide.
+:::
+
+## Usage
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+
+const owner_1 = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner_2 = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+
+// Instantiate the multisig account (2-of-2) from its owners and threshold.
+const account = Account.fromMultisig({
+  threshold: 2,
+  owners: [
+    { owner: owner_1.address, weight: 1 },
+    { owner: owner_2.address, weight: 1 },
+  ],
+})
+
+console.log('Address:', account.address)
+```
+
+`Account.fromMultisig` accepts a raw config and normalizes it internally (via
+`MultisigConfig.from`), so you don't need to call `MultisigConfig.from` yourself. You can
+still pass a pre-built `MultisigConfig.Config` if you have one.
+
+## Return Type
+
+The return type is backwards compatible with Viem's `Account` type, with the multisig
+`config` attached.
+
+```ts
+type ReturnType = MultisigAccount
+
+type MultisigAccount = Account & {
+  /** Account address, derived from the multisig config. */
+  address: Address
+  /** Multisig config (normalized via `MultisigConfig.from`). */
+  config: MultisigConfig.Config
+  /** Account source. */
+  source: 'multisig'
+  /** Account type. */
+  type: 'local'
+}
+```
+
+:::warning
+`Account.fromMultisig` is for **broadcasting / sender identity** only. Calling `sign`,
+`signMessage`, or `signTypedData` on the returned account throws: owner approvals are
+produced separately by signing a prepared request with an owner account (see
+[Multisig Transactions](/tempo/guides/multisig-transactions)).
+:::
+
+## Parameters
+
+### config
+
+- **Type:** `MultisigConfig.Config`
+
+The multisig configuration, created with `MultisigConfig.from`. The config is normalized
+(owners sorted into canonical ascending order) before the address is derived.
+
+#### config.threshold
+
+- **Type:** `number`
+
+The total owner weight required to authorize a transaction.
+
+#### config.owners
+
+- **Type:** `readonly { owner: Address; weight: number }[]`
+
+The list of owners and their voting weights.
+
+#### config.salt (optional)
+
+- **Type:** `Hex`
+
+Optional salt used to derive a distinct multisig address for the same owner set.

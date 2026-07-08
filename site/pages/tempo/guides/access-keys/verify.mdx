@@ -1,0 +1,105 @@
+---
+description: Verify that a keychain signature was produced by an active access key for the expected account.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Verify Signatures
+
+## Overview
+
+[`accessKey.verifyHash`](/tempo/actions/accessKey.verifyHash) checks that a keychain signature
+over a hash was produced by an active access key for an expected account. This is useful for
+authentication flows where a user signs a challenge with an access key and your server verifies
+it. Verification returns `false` for account mismatches and for unknown, revoked, or expired
+keys.
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Verify an Admin Signature
+
+By default, `verifyHash` returns `true` only if the signature came from the account's root key
+or an active admin access key.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const valid = await Actions.accessKey.verifyHash(client, {
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  hash: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+  signature: '0x...',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Accept Any Active Access Key
+
+Set `admin: false` to accept a signature from any active access key on the account, not just the
+root or admin keys.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const valid = await Actions.accessKey.verifyHash(client, {
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  admin: false, // [!code focus]
+  hash: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+  signature: '0x...',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Choose the Right Admin Mode
+
+Keep the default `admin: true` when a flow should only accept the account owner or an admin key,
+such as administrative actions. Use `admin: false` when any authorized access key should pass,
+such as session-key authentication.
+
+### Verify the Exact Signed Hash
+
+Pass the same hash that was signed. `verifyHash` expects a V2 keychain signature envelope and
+rejects legacy signatures, so verification fails if the hash or signature format differs from
+what the key produced.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:key-round"
+    title="Authorize Access Keys"
+    description="Create an access key and authorize it to sign on an account's behalf."
+    to="/tempo/guides/access-keys/authorize"
+  />
+  <Card
+    icon="lucide:shield-check"
+    title="Admin Access Keys"
+    description="Authorize unrestricted admin keys that can manage an account's other keys."
+    to="/tempo/guides/access-keys/admin"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="accessKey.verifyHash"
+    description="The full API reference for verifying keychain signatures."
+    to="/tempo/actions/accessKey.verifyHash"
+  />
+</Cards>

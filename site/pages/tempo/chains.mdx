@@ -1,0 +1,52 @@
+# Chains
+
+The following Tempo chains are available:
+
+```ts
+import { Chain } from 'viem/tempo'
+
+Chain.mainnet // [!code hl]
+Chain.testnet // [!code hl]
+Chain.devnet // [!code hl]
+Chain.localnet // [!code hl]
+Chain.moderato // [!code hl]
+```
+
+You can also import Tempo chains by name from `viem/chains`:
+
+```ts
+import {
+  tempo, // [!code hl]
+  tempoDevnet, // [!code hl]
+  tempoLocalnet, // [!code hl]
+  tempoModerato, // [!code hl]
+} from 'viem/chains'
+```
+
+The `Chain` namespace also exports aliases for Tempo chains from `viem/tempo`:
+
+```ts
+import { Chain } from 'viem/tempo'
+
+Chain.tempoMainnet
+Chain.tempoTestnet
+```
+
+## Default Fee Token
+
+Set a default fee token for a Tempo chain by adding a `feeToken` property to the chain definition or passing `feeToken` to `Client.create`.
+
+Once set, all transactions will use this token as the default fee token, unless an override is provided at the transaction level.
+
+```ts
+import { Client } from 'viem/tempo'
+import { tempoModerato } from 'viem/chains'
+
+const chain = tempoModerato.extend({
+  feeToken: '0x20c0000000000000000000000000000000000001',
+})
+
+export const client = Client.create({
+  chain,
+})
+```

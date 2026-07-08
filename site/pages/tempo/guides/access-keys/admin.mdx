@@ -1,0 +1,149 @@
+---
+description: Authorize unrestricted admin access keys that can manage an account's other keys, and check admin status.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Admin Access Keys
+
+## Overview
+
+An admin access key is an unrestricted key that can manage an account's other access keys, such
+as authorizing and revoking them, without using the root key each time. Admin keys cannot carry
+an `expiry`, `limits`, or `scopes` (those are ignored), so treat them as powerful as the root
+key itself.
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Authorize an Admin Key
+
+Pass `admin: true` to [`accessKey.authorize`](/tempo/actions/accessKey.authorize) to authorize
+an unrestricted admin key.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { P256 } from 'ox'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const { receipt } = await client.accessKey.authorizeSync({
+  accessKey,
+  admin: true, // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Manage Keys with an Admin Key
+
+Once authorized, an admin key can authorize other keys on behalf of the account. Pass the admin
+key as the `account`, and Viem binds the authorization to the parent account while signing with
+the admin key.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { P256 } from 'ox'
+import { Account } from 'viem/tempo'
+import { account, adminKey, client } from './viem.config'
+
+// New key to authorize on behalf of the account.
+const childKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const { receipt } = await client.accessKey.authorizeSync({
+  account: adminKey,
+  accessKey: childKey,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { P256 } from 'ox'
+import { Account, Client } from 'viem/tempo'
+
+// Root account.
+export const account = Account.fromSecp256k1('0x...')
+
+// Admin key, previously authorized with `admin: true`.
+export const adminKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+export const client = Client.create({
+  account,
+  testnet: true,
+})
+```
+
+:::
+
+### Check Admin Status
+
+Use [`accessKey.isAdmin`](/tempo/actions/accessKey.isAdmin) to check whether a key is the
+account's root key or an active admin key.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const isAdmin = await client.accessKey.isAdmin({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  accessKey: '0x1234567890abcdef1234567890abcdef12345678',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Treat Admin Keys Like the Root Key
+
+Admin keys are unrestricted and can manage every other key on the account, so guard them as
+carefully as the root key. Back them with a non-extractable [WebCrypto or passkey account](/tempo/guides/accounts/create)
+and limit how many exist.
+
+### Prefer Scoped Keys for Day-to-Day Use
+
+Use admin keys only for key management. For routine spending, authorize
+[scoped access keys](/tempo/guides/access-keys/authorize) with an expiry and limits instead.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:key-round"
+    title="Authorize Access Keys"
+    description="Create an access key and authorize it to sign on an account's behalf."
+    to="/tempo/guides/access-keys/authorize"
+  />
+  <Card
+    icon="lucide:badge-check"
+    title="Verify Signatures"
+    description="Verify that a signature was produced by an active admin or access key."
+    to="/tempo/guides/access-keys/verify"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: Access Keys"
+    description="The full guide to authorizing and using access keys on Tempo."
+    to="https://docs.tempo.xyz/guide/use-accounts/authorize-access-keys"
+  />
+</Cards>

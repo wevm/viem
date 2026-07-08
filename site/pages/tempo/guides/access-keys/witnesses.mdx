@@ -1,0 +1,127 @@
+---
+description: Bind a witness to a key authorization and burn it to revoke signed-but-not-yet-submitted authorizations.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Witnesses
+
+## Overview
+
+A witness is an optional 32-byte value bound into a key authorization's signing hash. It lets
+you tie a single authorization to an arbitrary offchain context (such as a server-issued
+challenge), or use it as a revocation handle: burning the witness onchain invalidates any
+authorization carrying it before that authorization is submitted.
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Bind a Witness to an Authorization
+
+Pass a `witness` to [`accessKey.authorize`](/tempo/actions/accessKey.authorize) (or
+[`accessKey.signAuthorization`](/tempo/actions/accessKey.signAuthorization)) to bind it into the
+authorization's signing hash.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { P256 } from 'ox'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const { receipt } = await client.accessKey.authorizeSync({
+  accessKey,
+  witness: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Burn a Witness
+
+Invalidate any authorization bound to a witness with
+[`accessKey.burnWitness`](/tempo/actions/accessKey.burnWitness) before it is submitted onchain.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.accessKey.burnWitnessSync({
+  witness: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Check if a Witness Is Burned
+
+Use [`accessKey.isWitnessBurned`](/tempo/actions/accessKey.isWitnessBurned) to check whether a
+witness has already been burned for an account.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const isBurned = await client.accessKey.isWitnessBurned({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  witness: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Use a Witness as a Revocation Handle
+
+When you sign an authorization offline and hand it to a client, bind a witness you control. If
+you need to cancel before it is submitted, burn the witness to invalidate the authorization
+without waiting for it to land onchain.
+
+### Bind to a Server Challenge
+
+Derive the witness from a server-issued, single-use challenge so an authorization can only be
+submitted in the context you intended, mitigating replay across flows.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:key-round"
+    title="Authorize Access Keys"
+    description="Create an access key and authorize it to sign on an account's behalf."
+    to="/tempo/guides/access-keys/authorize"
+  />
+  <Card
+    icon="lucide:badge-check"
+    title="Verify Signatures"
+    description="Verify that a signature was produced by an active access key for an account."
+    to="/tempo/guides/access-keys/verify"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: Access Keys"
+    description="The full guide to authorizing and using access keys on Tempo."
+    to="https://docs.tempo.xyz/guide/use-accounts/authorize-access-keys"
+  />
+</Cards>
