@@ -1,7 +1,21 @@
 import * as fs from 'node:fs'
-import { type Config, defineConfig, McpSource } from 'vocs/config'
+import { fileURLToPath } from 'node:url'
+import {
+  type Config,
+  defineConfig,
+  Embedding,
+  McpSource,
+  Reranker,
+  Retriever,
+  VectorStore,
+} from 'vocs/config'
 
 import pkg from '../src/package.json' with { type: 'json' }
+
+// Load `site/.env` (e.g. `CLOUDFLARE_*` for AI search). No-op if absent.
+try {
+  process.loadEnvFile(fileURLToPath(new URL('./.env', import.meta.url)))
+} catch {}
 
 const hasBuiltTypes = fs.existsSync(
   new URL('../src/_types/index.d.ts', import.meta.url),
@@ -175,6 +189,17 @@ export default defineConfig({
       if (documentId.startsWith('pages/experimental')) return 2
       return 1
     },
+  },
+  ai: {
+    retriever: Retriever.local({
+      embedding: Embedding.cloudflare(),
+      reranker: Reranker.cloudflare(),
+      sources: [
+        { url: 'https://wagmi.sh/llms.txt', label: 'wagmi', weight: 0.8 },
+      ],
+      // Remote store keeps vectors out of the server bundle entirely.
+      vectorStore: VectorStore.cloudflare({ index: 'viem-docs' }),
+    }),
   },
   sidebar: {
     '/docs/': [
