@@ -65,16 +65,20 @@ export const revokedAuthenticator =
   '0xffffffffffffffffffffffffffffffffffffffff' satisfies Hex
 
 /**
- * Sentinel authenticator for execution-enabled "external caller" actors
- * (`EXTERNAL_CALLER_AUTHENTICATOR = address(uint160(uint256(keccak256("externalCaller"))))`).
+ * Sentinel authenticator for execution-enabled "trusted executor" actors
+ * (`TRUSTED_EXECUTOR = address(uint160(uint256(keccak256("trustedExecutor"))))`,
+ * as defined in `base/eip-8130`'s `DefaultAccount`).
  *
  * No contract is deployed here. An actor whose `authenticator` is this sentinel
  * is authorized to drive the account via `executeBatch` when it is the
  * `msg.sender` (e.g. an ERC-4337 EntryPoint or a {@link policyManagerAbi}
- * PolicyManager). It cannot produce signatures — only direct calls.
+ * PolicyManager). It cannot produce signatures — only direct calls. A
+ * policy-gated session key therefore requires its `manager` to also be
+ * registered as a trusted-executor actor (see {@link key.trustedExecutor}),
+ * otherwise the manager's forwarded `executeBatch` reverts.
  */
-export const externalCallerAuthenticator =
-  '0x345249274eE98994AbBf79ef955319e4Cb3f6849' satisfies Hex
+export const trustedExecutorAuthenticator =
+  '0xbe114b191a3ac7519670cac0c5e74aac1d819a13' satisfies Hex
 
 /**
  * Canonical authenticator set (the signature algorithms compliant nodes MUST

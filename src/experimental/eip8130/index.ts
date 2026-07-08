@@ -82,11 +82,11 @@ export {
   defaultAccountAddress,
   deploymentHeaderSize,
   ecrecoverAuthenticator,
-  externalCallerAuthenticator,
   maxCodeSize,
   nonceKeyMax,
   nonceManagerAddress,
   revokedAuthenticator,
+  trustedExecutorAuthenticator,
   txContextAddress,
 } from './constants.js'
 export {

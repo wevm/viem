@@ -8,6 +8,7 @@ import {
   actorScope,
   canonicalAuthenticators,
   ecrecoverAuthenticator,
+  trustedExecutorAuthenticator,
 } from './constants.js'
 import type {
   AaActor,
@@ -67,6 +68,19 @@ export const key = {
     return {
       actorId: actorIdFromAddress(delegatedAccount),
       authenticator: options.authenticator ?? canonicalAuthenticators.delegate,
+    }
+  },
+  /**
+   * Trusted-executor ("external caller") actor for `caller` — an address (e.g. a
+   * PolicyManager or ERC-4337 EntryPoint) authorized to drive the account via
+   * `executeBatch` by matching `msg.sender`, not by producing a signature. Pair
+   * with `authorizeActor(..., { scope: actorScope.sender })` and no policy. A
+   * policy-gated session key needs its `manager` registered this way.
+   */
+  trustedExecutor(caller: Address): AaActor {
+    return {
+      actorId: actorIdFromAddress(caller),
+      authenticator: trustedExecutorAuthenticator,
     }
   },
 } as const
