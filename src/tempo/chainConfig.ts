@@ -219,8 +219,10 @@ export const chainConfig = {
         const keyInfo = await getMetadata(client, {
           account: address,
           accessKey: accessKeyAddress,
+          blockHash: parameters.blockHash,
           blockNumber: parameters.blockNumber,
           blockTag: parameters.blockTag,
+          requireCanonical: parameters.requireCanonical,
         } as never)
 
         if (keyInfo.isRevoked) return false
@@ -237,8 +239,10 @@ export const chainConfig = {
       if (envelope.type === 'p256' || envelope.type === 'webAuthn') {
         const code = await getCode(client, {
           address,
+          blockHash: parameters.blockHash,
           blockNumber: parameters.blockNumber,
           blockTag: parameters.blockTag,
+          requireCanonical: parameters.requireCanonical,
         } as never)
         // Check if EOA, if not, we want to go down the ERC-1271 flow.
         if (

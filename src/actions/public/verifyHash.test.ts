@@ -47,6 +47,7 @@ import { sendTransaction } from '../wallet/sendTransaction.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
 import { signMessage } from '../wallet/signMessage.js'
 import { writeContract } from '../wallet/writeContract.js'
+import { getBlock } from './getBlock.js'
 import { simulateContract } from './simulateContract.js'
 import { verifyHash } from './verifyHash.js'
 
@@ -577,6 +578,35 @@ describe('erc8010', async () => {
     expect(valid).toBe(true)
   })
 
+  test('predelegated: blockHash (EIP-1898)', async () => {
+    const account = privateKeyToAccount(generatePrivateKey())
+
+    const authorization = await signAuthorization(client, {
+      account,
+      address: delegation,
+    })
+
+    const hash = hashMessage('hello world')
+
+    const signature = serializeErc8010Signature({
+      authorization,
+      signature: await account.sign({
+        hash,
+      }),
+    })
+
+    const block = await getBlock(client)
+
+    const valid = await verifyHash(client, {
+      address: account.address,
+      blockHash: block.hash!,
+      hash,
+      signature,
+    })
+
+    expect(valid).toBe(true)
+  })
+
   test('predelegated: with init data', async () => {
     const account = privateKeyToAccount(generatePrivateKey())
 
@@ -760,6 +790,71 @@ describe('erc8010', async () => {
         signature,
       }),
     ).toBe(false)
+  })
+})
+
+describe('args: blockHash (EIP-1898)', async () => {
+  let blockHashBeforeDeploy: `0x${string}`
+  let blockHashAfterDeploy: `0x${string}`
+  let signature: Hex
+  let verifier: `0x${string}`
+
+  beforeAll(async () => {
+    blockHashBeforeDeploy = (await getBlock(client)).hash!
+
+    const { factoryAddress } = await deploySoladyAccount_07()
+    const { request, result } = await simulateContract(client, {
+      account: localAccount,
+      abi: SoladyAccountFactory07.abi,
+      address: factoryAddress,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
+    verifier = result
+    await writeContract(client, request)
+    await mine(client, { blocks: 1 })
+
+    signature = await signMessageErc1271(client, {
+      account: localAccount,
+      message: 'hello world',
+      verifier,
+    })
+
+    blockHashAfterDeploy = (await getBlock(client)).hash!
+  })
+
+  test('blockHash', async () => {
+    await expect(
+      verifyHash(client, {
+        address: verifier,
+        hash: hashMessage('hello world'),
+        signature,
+        blockHash: blockHashAfterDeploy,
+      }),
+    ).resolves.toBe(true)
+  })
+
+  test('blockHash + requireCanonical', async () => {
+    await expect(
+      verifyHash(client, {
+        address: verifier,
+        hash: hashMessage('hello world'),
+        signature,
+        blockHash: blockHashAfterDeploy,
+        requireCanonical: true,
+      }),
+    ).resolves.toBe(true)
+  })
+
+  test('blockHash: pre-deployment block', async () => {
+    await expect(
+      verifyHash(client, {
+        address: verifier,
+        hash: hashMessage('hello world'),
+        signature,
+        blockHash: blockHashBeforeDeploy,
+      }),
+    ).resolves.toBe(false)
   })
 })
 
