@@ -181,9 +181,8 @@ For v3 rewrite work, also read `AGENTS.tmp.md`.
 - **Tempo tests boot one container per test file**; the file's `afterAll` stops it. A cancelled
   run leaks `tempo.<uuid>` containers that starve later runs. `docker ps` and `docker rm -f`
   the leaked ones before re-running `--project tempo`.
-- **eip4844/kzg tests flake under full parallel runs**; the blob/kzg suites (`prepare`, `sign`
-  eip4844 cases) intermittently time out when the whole suite runs with `--maxWorkers=4`, and
-  pass in isolation. Verify in isolation before suspecting code.
+- **Blob tests need raised timeouts**; PeerDAS cell proofs (`Blobs.toCellProofs`) cost ~5s of
+  CPU per blob, over the 5s default. Give blob-sidecar tests `{ timeout: 30_000 }`.
 - **Full parallel runs can rate-limit the fork upstream**; 100+ fresh fork instances cold-fetching
   pinned state can saturate the fork RPC, failing random fork-state tests (`getBalance`,
   `getProof`, …). Re-run with `--maxWorkers=4`, and verify suspicious failures in isolation before
@@ -197,6 +196,10 @@ For v3 rewrite work, also read `AGENTS.tmp.md`.
   - Reserve `anvil.mainnet` for tests that need pinned fork state.
   - Transport retries also stack here: proxy tests asserting error passthrough should set
     `retryCount: 0` on the proxied transport.
+- **Do not query historical ranges on a fork**; `eth_feeHistory` (and similar) over pre-fork
+  blocks forwards upstream, where retention varies (`pruned history unavailable`, HTTP 400).
+  Use `anvil.history`, a non-fork instance seeded with fixed blocks; never mine or send on it
+  beyond the idempotent seed in `fee/getHistory.test.ts`.
 - **Colocate tests**; tests are sibling `*.test.ts` files next to their module; prefer inline snapshots over snapshot files.
 - **No tests for pure re-exports**; upstream packages own coverage for pure re-export modules.
   - Once a facade gains project logic, add sibling tests.

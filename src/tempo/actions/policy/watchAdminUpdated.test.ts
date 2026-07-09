@@ -18,7 +18,11 @@ describe('watchAdminUpdated', () => {
       type: 'whitelist',
     })
 
-    const watcher = Actions.policy.watchAdminUpdated(client)
+    // Scope to this policy's admin update so the creation event (admin =
+    // creator) and other policies' events cannot leak into the assertion.
+    const watcher = Actions.policy.watchAdminUpdated(client, {
+      args: { admin: account2.address, policyId },
+    })
     const logs: any[] = []
     watcher.onLogs((batch) => logs.push(...batch))
     try {
@@ -30,10 +34,11 @@ describe('watchAdminUpdated', () => {
       await waitForLogs(logs)
 
       expect(logs).toHaveLength(1)
-      expect(logs[0]!.args).toMatchInlineSnapshot(`
+      const { policyId: emittedPolicyId, ...args } = logs[0]!.args
+      expect(emittedPolicyId).toBe(policyId)
+      expect(args).toMatchInlineSnapshot(`
         {
           "admin": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-          "policyId": 2n,
           "updater": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         }
       `)

@@ -336,7 +336,8 @@ describe('args', () => {
     expect(request.gasPrice).toBeTypeOf('bigint')
   })
 
-  test('blobs derive versionedHashes and sidecars', async () => {
+  // PeerDAS cell proofs cost ~5s of CPU per blob; raise the timeout.
+  test('blobs derive versionedHashes and sidecars', { timeout: 30_000 }, async () => {
     const blobs = Blobs.from(Hex.fromString('hello viem'))
     const { request } = await Actions.transaction.prepare(client, {
       account,
@@ -573,7 +574,8 @@ describe('behavior: attemptFill', () => {
     ).toBe(false)
   })
 
-  test('not when blobs+kzg with sidecars', async () => {
+  // PeerDAS cell proofs cost ~5s of CPU per blob; raise the timeout.
+  test('not when blobs+kzg with sidecars', { timeout: 30_000 }, async () => {
     const blobs = Blobs.from(Hex.fromString('hello viem'))
     expect(
       await attemptedFill({

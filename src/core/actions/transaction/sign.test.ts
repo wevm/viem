@@ -227,7 +227,8 @@ describe('eip7702', () => {
 })
 
 describe('eip4844', () => {
-  test('default (local)', async () => {
+  // PeerDAS cell proofs cost ~5s of CPU per blob; raise the timeout.
+  test('default (local)', { timeout: 30_000 }, async () => {
     const blobs = Blobs.from(Hex.fromString('hello world'))
     const signed = await Actions.transaction.sign(client, {
       account: local,

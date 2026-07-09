@@ -181,6 +181,18 @@ export const local = defineAnvil({
   port: Number(getEnv('VITE_ANVIL_PORT_LOCAL', '8645')),
 })
 
+/**
+ * Non-fork instance seeded with a fixed, immutable block history (see
+ * `fee/getHistory.test.ts`). Tests must not mine or send beyond the seed so
+ * historical queries stay deterministic.
+ */
+export const history = defineAnvil({
+  chainId: 1,
+  hardfork: 'Prague',
+  noMining: true,
+  port: Number(getEnv('VITE_ANVIL_PORT_HISTORY', '8745')),
+})
+
 function getEnv(key: string, fallback: string): string {
   if (typeof process.env[key] === 'string') return process.env[key] as string
   return fallback

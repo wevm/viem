@@ -1,69 +1,116 @@
-import { expect, test } from 'vitest'
-import { Actions } from 'viem'
+import { Value } from 'ox'
+import { beforeAll, expect, test } from 'vitest'
+import { Actions, testActions } from 'viem'
 
 import * as anvil from '~test/anvil.js'
+import * as constants from '~test/constants.js'
 
-const client = anvil.getClient(anvil.mainnet)
+const client = anvil.getClient(anvil.history)
+const testClient = client.extend(testActions())
+
+const source = constants.accounts[0]
+const to = constants.accounts[1].address
+
+// Seeds blocks 1-4, each holding one transfer with a known priority fee.
+// Idempotent by height, so retries and shared workers see identical history.
+beforeAll(async () => {
+  for (
+    let height = Number(await Actions.block.getNumber(client));
+    height < 4;
+    height++
+  ) {
+    await Actions.transaction.send(client, {
+      account: source.address,
+      maxFeePerGas: Value.fromGwei('10'),
+      maxPriorityFeePerGas: Value.fromGwei(String(height + 1)),
+      to,
+      value: 1n,
+    })
+    await testClient.block.mine({ blocks: 1 })
+  }
+})
 
 test('default', async () => {
   const feeHistory = await Actions.fee.getHistory(client, {
     blockCount: 4,
-    blockNumber: anvil.mainnet.forkBlockNumber,
+    blockNumber: 4n,
     rewardPercentiles: [25, 75],
   })
   expect(feeHistory).toMatchInlineSnapshot(`
-      {
-        "baseFeePerGas": [
-          634639953n,
-          649317659n,
-          638630382n,
-          635678744n,
-          618836874n,
+    {
+      "baseFeePerGas": [
+        1000000000n,
+        875175000n,
+        765931281n,
+        670323909n,
+        586650728n,
+      ],
+      "gasUsedRatio": [
+        0.0007,
+        0.0007,
+        0.0007,
+        0.0007,
+      ],
+      "oldestBlock": 1n,
+      "reward": [
+        [
+          1000000000n,
+          1000000000n,
         ],
-        "gasUsedRatio": [
-          0.5925104444444445,
-          0.43416302777777777,
-          0.48151269444444444,
-          0.39402274637913776,
+        [
+          2000000000n,
+          2000000000n,
         ],
-        "oldestBlock": 22263620n,
-        "reward": [
-          [
-            33147325n,
-            1083762509n,
-          ],
-          [
-            7094406n,
-            2000000000n,
-          ],
-          [
-            44743376n,
-            1000000000n,
-          ],
-          [
-            45452235n,
-            2436337100n,
-          ],
+        [
+          3000000000n,
+          3000000000n,
         ],
-      }
-    `)
+        [
+          4000000000n,
+          4000000000n,
+        ],
+      ],
+    }
+  `)
 })
 
 test('args: blockTag', async () => {
   const feeHistory = await Actions.fee.getHistory(client, {
-    blockCount: 4,
+    blockCount: 2,
     blockTag: 'latest',
     rewardPercentiles: [25, 75],
   })
-  expect(feeHistory.baseFeePerGas.length).toBe(5)
-  expect(feeHistory.reward?.length).toBe(4)
+  expect(feeHistory).toMatchInlineSnapshot(`
+    {
+      "baseFeePerGas": [
+        765931281n,
+        670323909n,
+        586650728n,
+      ],
+      "gasUsedRatio": [
+        0.0007,
+        0.0007,
+      ],
+      "oldestBlock": 3n,
+      "reward": [
+        [
+          3000000000n,
+          3000000000n,
+        ],
+        [
+          4000000000n,
+          4000000000n,
+        ],
+      ],
+    }
+  `)
 })
 
 test('args: no rewardPercentiles', async () => {
   const feeHistory = await Actions.fee.getHistory(client, {
     blockCount: 2,
-    blockNumber: anvil.mainnet.forkBlockNumber,
+    blockNumber: 4n,
     rewardPercentiles: [],
   })
-  expect(feeHistory.reward).toMatchInlineSnapshot(`undefined`)
+  expect(feeHistory.reward).toMatchInlineSnapshot(`[]`)
 })
