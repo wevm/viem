@@ -181,6 +181,9 @@ For v3 rewrite work, also read `AGENTS.tmp.md`.
   pinned state can saturate the fork RPC, failing random fork-state tests (`getBalance`,
   `getProof`, …). Re-run with `--maxWorkers=4`, and verify suspicious failures in isolation before
   suspecting code.
+- **Omit `blockTimestamp` from fork transaction snapshots**; its presence on
+  `eth_getTransactionByHash` / `includeTransactions` objects depends on the upstream node
+  implementation (reth extension). Destructure it out before snapshotting.
 - **Use `anvil.local` for pending-hash polling tests**; a fork forwards unknown-hash lookups
   (`eth_getTransactionReceipt`, `eth_getTransactionByHash`) to the upstream RPC, adding unbounded
   latency to polls over pending or replaced transactions.

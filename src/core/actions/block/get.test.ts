@@ -165,12 +165,14 @@ test('args: includeTransactions', async () => {
     blockNumber: anvil.mainnet.forkBlockNumber,
     includeTransactions: true,
   })
-  expect(block.transactions[0]).toMatchInlineSnapshot(`
+  // `blockTimestamp` presence depends on the upstream node implementation.
+  const { blockTimestamp: _blockTimestamp, ...transaction } =
+    block.transactions[0]!
+  expect(transaction).toMatchInlineSnapshot(`
     {
       "accessList": [],
       "blockHash": "0xd028bdc00aff985bdf872d6b961110d41a6fe4df5e93aeb6dffe2f38ae0a4f7d",
       "blockNumber": 22263623n,
-      "blockTimestamp": 1744590299n,
       "chainId": 1,
       "data": "0x380db829",
       "from": "0xe2da046340e00264c4f0443243a0565007ae08ac",

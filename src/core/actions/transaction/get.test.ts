@@ -9,7 +9,8 @@ import * as constants from '~test/constants.js'
 const client = anvil.getClient(anvil.mainnet)
 
 // The first transaction of the pinned fork-tip block. anvil caches the fork
-// block, so these lookups are deterministic and do not depend on the upstream.
+// block, so these lookups are deterministic. `blockTimestamp` is omitted:
+// its presence depends on the upstream node implementation.
 const forkTip = {
   blockHash:
     '0xd028bdc00aff985bdf872d6b961110d41a6fe4df5e93aeb6dffe2f38ae0a4f7d',
@@ -17,15 +18,15 @@ const forkTip = {
 } as const
 
 test('args: hash', async () => {
-  const transaction = await Actions.transaction.get(client, {
-    hash: forkTip.hash,
-  })
+  const { blockTimestamp: _blockTimestamp, ...transaction } =
+    await Actions.transaction.get(client, {
+      hash: forkTip.hash,
+    })
   expect(transaction).toMatchInlineSnapshot(`
     {
       "accessList": [],
       "blockHash": "0xd028bdc00aff985bdf872d6b961110d41a6fe4df5e93aeb6dffe2f38ae0a4f7d",
       "blockNumber": 22263623n,
-      "blockTimestamp": 1744590299n,
       "chainId": 1,
       "data": "0x380db829",
       "from": "0xe2da046340e00264c4f0443243a0565007ae08ac",
@@ -83,15 +84,15 @@ test('behavior: decodes via chain schema when declared', async () => {
   })
   const schemaClient = Client.create({ chain, transport: http() })
 
-  const transaction = await Actions.transaction.get(schemaClient, {
-    hash: forkTip.hash,
-  })
+  const { blockTimestamp: _blockTimestamp, ...transaction } =
+    await Actions.transaction.get(schemaClient, {
+      hash: forkTip.hash,
+    })
   expect(transaction).toMatchInlineSnapshot(`
     {
       "accessList": [],
       "blockHash": "0xd028bdc00aff985bdf872d6b961110d41a6fe4df5e93aeb6dffe2f38ae0a4f7d",
       "blockNumber": 22263623n,
-      "blockTimestamp": 1744590299n,
       "chainId": 1,
       "from": "0xe2da046340e00264c4f0443243a0565007ae08ac",
       "gas": 2000000n,
