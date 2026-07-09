@@ -1,4 +1,7 @@
+export { connect } from './connect.js'
+export { disconnect } from './disconnect.js'
 export { getAddresses } from './getAddresses.js'
+export { getAssets } from './getAssets.js'
 export { getCallsStatus } from './getCallsStatus.js'
 export { getCapabilities } from './getCapabilities.js'
 export { getPermissions } from './getPermissions.js'

@@ -91,7 +91,10 @@ export function walletActions() {
       sign: (options) => transaction.sign(client, options),
     },
     wallet: {
+      connect: (options) => wallet.connect(client, options),
+      disconnect: () => wallet.disconnect(client),
       getAddresses: () => wallet.getAddresses(client),
+      getAssets: (options) => wallet.getAssets(client, options),
       getCallsStatus: (options) => wallet.getCallsStatus(client, options),
       getCapabilities: (options) => wallet.getCapabilities(client, options),
       getPermissions: () => wallet.getPermissions(client),
@@ -563,6 +566,42 @@ export declare namespace walletActions {
     }
     wallet: {
       /**
+       * Requests to connect account(s) with optional capabilities via
+       * [ERC-7846 `wallet_connect`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7846.md).
+       *
+       * @example
+       * ```ts
+       * import { Client, custom, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: custom(window.ethereum!),
+       * }).extend(walletActions())
+       * const { accounts } = await client.wallet.connect()
+       * ```
+       */
+      connect: (
+        options?: wallet.connect.Options | undefined,
+      ) => Promise<wallet.connect.ReturnType>
+      /**
+       * Requests to disconnect connected account(s) via
+       * [ERC-7846 `wallet_disconnect`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7846.md).
+       *
+       * @example
+       * ```ts
+       * import { Client, custom, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: custom(window.ethereum!),
+       * }).extend(walletActions())
+       * await client.wallet.disconnect()
+       * ```
+       */
+      disconnect: () => Promise<void>
+      /**
        * Returns a list of account addresses owned by the wallet or client.
        *
        * @example
@@ -578,6 +617,32 @@ export declare namespace walletActions {
        * ```
        */
       getAddresses: () => Promise<wallet.getAddresses.ReturnType>
+      /**
+       * Retrieves assets for a given account from the connected wallet via
+       * [ERC-7811 `wallet_getAssets`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7811.md).
+       *
+       * @example
+       * ```ts
+       * import { Client, custom, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: custom(window.ethereum!),
+       * }).extend(walletActions())
+       * const assets = await client.wallet.getAssets({
+       *   account: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+       * })
+       * ```
+       */
+      getAssets: <
+        aggregate extends
+          | boolean
+          | ((asset: wallet.getAssets.Asset) => string)
+          | undefined = undefined,
+      >(
+        options?: wallet.getAssets.Options<aggregate> | undefined,
+      ) => Promise<wallet.getAssets.ReturnType<aggregate>>
       /**
        * Returns the status of a call batch that was sent via `sendCalls`.
        *

@@ -57,6 +57,65 @@ export function getWalletClient(
           params: [params[1], params[0]],
         })
       if (method === 'wallet_addEthereumChain') return null
+      if (method === 'wallet_connect')
+        return {
+          accounts: [
+            {
+              address: constants.accounts[0].address,
+              capabilities: params[0]?.capabilities ?? {},
+            },
+          ],
+        }
+      if (method === 'wallet_disconnect') return null
+      if (method === 'wallet_getAssets') {
+        const [{ assetTypeFilter, chainFilter }] = params
+        const assets: Record<
+          string,
+          readonly { type: string; [key: string]: unknown }[]
+        > = {
+          '0x1': [
+            {
+              address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+              balance: '0x5f5e100',
+              metadata: { decimals: 6, name: 'USD Coin', symbol: 'USDC' },
+              type: 'erc20',
+            },
+            {
+              address: '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d',
+              balance: '0x1',
+              metadata: { name: 'Bored Ape', symbol: 'BAYC', tokenId: '0x22b8' },
+              type: 'erc721',
+            },
+            {
+              address: '0x0000000000000000000000000000000000001155',
+              balance: '0x64',
+              metadata: {},
+              type: 'erc1155',
+            },
+            { balance: '0xde0b6b3a7640000', type: 'native' },
+          ],
+          '0x2105': [
+            {
+              address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
+              balance: '0x2faf080',
+              metadata: { decimals: 6, name: 'USD Coin', symbol: 'USDC' },
+              type: 'erc20',
+            },
+            { balance: '0x6f05b59d3b20000', type: 'native' },
+          ],
+        }
+        return Object.fromEntries(
+          Object.entries(assets)
+            .filter(([chainId]) => !chainFilter || chainFilter.includes(chainId))
+            .map(([chainId, assets]) => [
+              chainId,
+              assets.filter(
+                (asset) =>
+                  !assetTypeFilter || assetTypeFilter.includes(asset.type),
+              ),
+            ]),
+        )
+      }
       if (method === 'wallet_switchEthereumChain') {
         if (params[0].chainId === '0xfa')
           throw new Provider.ProviderRpcError(4902, 'Unrecognized chain.')
