@@ -10,8 +10,13 @@ import type { Hex } from '../../../types/misc.js'
 import { concatHex } from '../../../utils/data/concat.js'
 import { hexToBigInt } from '../../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../../utils/encoding/toHex.js'
-import { aaTransactionType, canonicalAuthDataLength } from '../constants.js'
+import {
+  aaTransactionType,
+  actorChangeType,
+  canonicalAuthDataLength,
+} from '../constants.js'
 import type { AaAccountChange, AaCalls } from '../types/transaction.js'
+import { encodeActorChangeData } from '../utils/actorChangeData.js'
 
 export type EstimateGas8130Parameters = {
   /**
@@ -325,7 +330,8 @@ function filler(length: number): Hex {
  * `eth_estimateGas` deserialiser expects. For `create` changes, all fields are
  * passed through directly. For `delegation`, only `target` is required (the
  * node does not need the proxy bytecode for gas pricing). For `config`, the
- * full change is forwarded so the node can price the auth-blob calldata.
+ * node tags the variant as `configChange` and expects each actor change in
+ * wire form (`changeType` + opaque `data`), not the typed authorize fields.
  */
 function serializeAccountChange(
   change: AaAccountChange,
@@ -344,13 +350,20 @@ function serializeAccountChange(
   if (change.type === 'delegation') {
     return { type: 'delegation', target: change.target }
   }
-  // config: forward as-is; the node doesn't verify the auth in simulate mode
-  // but does price its byte-length into the intrinsic gas.
+  // config → RPC tag `configChange`. Simulate does not verify auth, but still
+  // prices its byte-length into intrinsic gas and applies actorChanges.
   return {
-    type: 'config',
+    type: 'configChange',
     chainId: change.chainId,
     sequence: change.sequence,
-    actorChanges: change.actorChanges,
+    actorChanges: change.actorChanges.map((ac) => ({
+      changeType:
+        ac.changeType === actorChangeType.revokeActor
+          ? 'Revoke'
+          : 'Authorize',
+      actorId: ac.actorId,
+      data: encodeActorChangeData(ac),
+    })),
     auth: change.auth,
   }
 }
