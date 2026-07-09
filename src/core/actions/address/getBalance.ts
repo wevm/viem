@@ -1,6 +1,4 @@
-import { AbiFunction } from 'ox'
-import type { Address, Errors } from 'ox'
-import { z } from 'ox/zod'
+import { AbiFunction, type Address, type Errors, Hex } from 'ox'
 
 import type * as Client from '../../Client.js'
 import {
@@ -51,18 +49,17 @@ export async function getBalance(
     }
   }
 
-  const schema = z.RpcSchema.parseItem(z.RpcSchema.Eth, 'eth_getBalance')
   const balance = await client.request({
     method: 'eth_getBalance',
-    params: z.RpcSchema.encodeParams(schema, [
+    params: [
       address,
       blockParameter({
         ...block,
         blockTag: block.blockTag ?? client.blockTag ?? 'latest',
       }),
-    ]),
+    ],
   })
-  return z.RpcSchema.decodeReturns(schema, balance)
+  return Hex.toBigInt(balance)
 }
 
 export declare namespace getBalance {

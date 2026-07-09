@@ -312,9 +312,10 @@ for (const [interfaceName] of interfaces.entries()) {
   exportNames.push(exportName)
 }
 
+// Pure IIFE keeps the aggregate tree-shakable for consumers not using it.
 Fs.appendFileSync(
   out,
-  `export const abis = [\n${exportNames.map((n) => `  ...${n},`).join('\n')}\n] as const\n`,
+  `export const abis = /*#__PURE__*/ (() =>\n  [\n${exportNames.map((n) => `    ...${n},`).join('\n')}\n  ] as const)()\n`,
 )
 
 console.log(

@@ -1,15 +1,14 @@
-import type { Block } from 'ox'
+import { type Block, Hex } from 'ox'
 
 import * as Errors from '../../Errors.js'
 
 /**
- * Resolves a block identifier (number, tag, or EIP-1898 hash) into the native
- * block selector accepted by `z.RpcSchema.encodeParams` for JSON-RPC methods
- * that take a block parameter.
+ * Resolves a block identifier (number, tag, or EIP-1898 hash) into the wire
+ * block selector accepted by JSON-RPC methods that take a block parameter.
  */
 export function blockParameter(
   options: blockParameter.Options,
-): bigint | Block.Tag | blockParameter.HashIdentifier {
+): Hex.Hex | Block.Tag | blockParameter.HashIdentifier {
   const { blockHash, blockNumber, blockTag, requireCanonical } = options
 
   if (requireCanonical !== undefined && !blockHash)
@@ -18,7 +17,7 @@ export function blockParameter(
   if (blockHash)
     return requireCanonical ? { blockHash, requireCanonical } : { blockHash }
 
-  if (typeof blockNumber === 'bigint') return blockNumber
+  if (typeof blockNumber === 'bigint') return Hex.fromNumber(blockNumber)
 
   return blockTag ?? 'latest'
 }

@@ -192,10 +192,11 @@ export declare namespace Chain {
   type Transaction = {
     /**
      * Derives the sign payload (hash) for a transaction envelope.
+     * Return `undefined` to delegate to the default.
      *
      * @default `TxEnvelope.getSignPayload`
      */
-    getSignPayload?: ((envelope: never) => Hex.Hex) | undefined
+    getSignPayload?: ((envelope: never) => Hex.Hex | undefined) | undefined
     /**
      * Hook to prepare a transaction request. Runs while a transaction is
      * prepared (e.g. to inject chain-specific fields). Provide a function to
@@ -214,6 +215,7 @@ export declare namespace Chain {
       | undefined
     /**
      * Serializes a (signed or unsigned) transaction envelope.
+     * Return `undefined` to delegate to the default.
      *
      * @default `TxEnvelope.serialize`
      */
@@ -221,10 +223,11 @@ export declare namespace Chain {
       | ((
           envelope: never,
           options?: { signature?: Signature.Signature | undefined } | undefined,
-        ) => Hex.Hex)
+        ) => Hex.Hex | undefined)
       | undefined
     /**
      * Converts a transaction request into a (typed) transaction envelope.
+     * Return `undefined` to delegate to the default.
      *
      * @default `TransactionRequest.toEnvelope`
      */
@@ -232,7 +235,7 @@ export declare namespace Chain {
       | ((
           request: TransactionRequest.TransactionRequest,
           options?: { kzg?: Kzg.Kzg | undefined } | undefined,
-        ) => MaybePromise<Envelope>)
+        ) => MaybePromise<Envelope | undefined>)
       | undefined
   }
 

@@ -1,5 +1,4 @@
-import type { Errors } from 'ox'
-import { z } from 'ox/zod'
+import { type Errors, Hex } from 'ox'
 
 import type * as Client from '../../Client.js'
 
@@ -22,7 +21,7 @@ export async function getBlobBaseFee(
   client: Client.Client,
 ): Promise<getBlobBaseFee.ReturnType> {
   const baseFee = await client.request({ method: 'eth_blobBaseFee' })
-  return z.RpcSchema.decodeReturns(z.RpcSchema.Eth, 'eth_blobBaseFee', baseFee)
+  return Hex.toBigInt(baseFee)
 }
 
 export declare namespace getBlobBaseFee {

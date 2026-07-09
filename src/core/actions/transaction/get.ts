@@ -63,17 +63,15 @@ export async function get<
         },
         { dedupe: true },
       )
-    const schema = z.RpcSchema.parseItem(
-      z.RpcSchema.Eth,
-      'eth_getTransactionByBlockNumberAndIndex',
-    )
     return client.request(
       {
         method: 'eth_getTransactionByBlockNumberAndIndex',
-        params: z.RpcSchema.encodeParams(schema, [
-          typeof blockNumber === 'bigint' ? blockNumber : blockTag,
+        params: [
+          typeof blockNumber === 'bigint'
+            ? Hex.fromNumber(blockNumber)
+            : blockTag,
           Hex.fromNumber(index!),
-        ]),
+        ],
       },
       { dedupe: typeof blockNumber === 'bigint' },
     )

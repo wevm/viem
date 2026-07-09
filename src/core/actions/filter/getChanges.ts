@@ -1,6 +1,5 @@
-import { AbiEvent } from 'ox'
+import { AbiEvent, Log } from 'ox'
 import type { Block, Errors, Hex } from 'ox'
-import { z } from 'ox/zod'
 
 import type * as Client from '../../Client.js'
 import type * as event from '../event/index.js'
@@ -49,8 +48,8 @@ export async function getChanges<
   // `block` / `transaction` filters return hashes.
   if (typeof result[0] === 'string') return result as never
 
-  const item = z.RpcSchema.parseItem(z.RpcSchema.Eth, 'eth_getFilterChanges')
-  const logs = z.RpcSchema.decodeReturns(item, [...result] as never)
+  // Hash results returned above; remaining elements are raw logs.
+  const logs = result.map((log) => Log.fromRpc(log as Log.Rpc))
 
   const events = (() => {
     const abiEvent = 'abiEvent' in filter ? filter.abiEvent : undefined

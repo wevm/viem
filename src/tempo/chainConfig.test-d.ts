@@ -1,4 +1,4 @@
-import type { Address, Hex } from 'ox'
+import type { Address, Hex, TransactionEnvelope as TxEnvelope } from 'ox'
 import type { MultisigConfig } from 'ox/tempo'
 import { expectTypeOf, test } from 'vitest'
 
@@ -52,9 +52,13 @@ test('ExtractTransactionReceipt: tempo receipt codec output', () => {
 test('transaction hooks: envelope round-trips through the chain type', () => {
   expectTypeOf(tempo.transaction.getSignPayload)
     .parameter(0)
-    .toEqualTypeOf<Envelope>()
-  expectTypeOf(tempo.transaction.serialize).returns.toEqualTypeOf<Hex.Hex>()
-  expectTypeOf(tempo.transaction.toEnvelope).returns.toEqualTypeOf<Envelope>()
+    .toEqualTypeOf<Envelope | TxEnvelope.TxEnvelope>()
+  expectTypeOf(tempo.transaction.serialize).returns.toEqualTypeOf<
+    Hex.Hex | undefined
+  >()
+  expectTypeOf(tempo.transaction.toEnvelope).returns.toEqualTypeOf<
+    Envelope | undefined
+  >()
   expectTypeOf<Envelope['feePayer']>().toEqualTypeOf<
     Account.Account | boolean | undefined
   >()

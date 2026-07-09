@@ -1,4 +1,4 @@
-import { Block } from 'ox'
+import { Block, Hex } from 'ox'
 import type { Errors } from 'ox'
 import { z } from 'ox/zod'
 
@@ -45,17 +45,15 @@ export async function get<
         },
         { dedupe: true },
       )
-    const schema = z.RpcSchema.parseItem(
-      z.RpcSchema.Eth,
-      'eth_getBlockByNumber',
-    )
     return client.request(
       {
         method: 'eth_getBlockByNumber',
-        params: z.RpcSchema.encodeParams(schema, [
-          typeof blockNumber === 'bigint' ? blockNumber : blockTag,
+        params: [
+          typeof blockNumber === 'bigint'
+            ? Hex.fromNumber(blockNumber)
+            : blockTag,
           includeTransactions,
-        ]),
+        ],
       },
       { dedupe: typeof blockNumber === 'bigint' },
     )

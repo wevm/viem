@@ -458,7 +458,7 @@ test('behavior: dataSuffix', async () => {
             "calls": [
               {
                 "data": "0x06fdde031234",
-                "from": undefined,
+                "input": "0x06fdde031234",
                 "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
               },
             ],

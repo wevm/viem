@@ -1,11 +1,12 @@
-import { Authorization, Blobs, Hex, Secp256k1 } from 'ox'
-import type {
-  Address,
-  Errors,
-  Kzg,
+import {
+  Authorization,
+  Blobs,
+  Hex,
+  Secp256k1,
   StateOverrides,
   TransactionRequest,
 } from 'ox'
+import type { Address, Errors, Kzg } from 'ox'
 import { z } from 'ox/zod'
 
 import type * as Account from '../../Account.js'
@@ -116,28 +117,21 @@ export async function estimateGas(
       requireCanonical,
     })
 
-    const item = z.RpcSchema.parseItem(z.RpcSchema.Eth, 'eth_estimateGas')
-
-    // Chains with a request codec encode the request themselves — the generic
-    // tuple encoding below would reject or strip chain-specific fields — so
-    // encode a placeholder in its slot and substitute afterwards.
     const codec = client.chain?.schema?.transactionRequest?.toRpc
-
-    const params = stateOverride
-      ? z.RpcSchema.encodeParams(item, [
-          codec ? {} : request,
-          block,
-          stateOverride,
-        ])
-      : z.RpcSchema.encodeParams(item, [codec ? {} : request, block])
     // The chain codec is an untyped `z.ZodMiniType`, so its encoded output
     // widens to `unknown`; assert back to the RPC shape it produces.
-    if (codec) params[0] = z.encode(codec, request) as TransactionRequest.Rpc
+    const request_ = codec
+      ? (z.encode(codec, request) as TransactionRequest.Rpc)
+      : TransactionRequest.toRpc(request)
 
-    return z.RpcSchema.decodeReturns(
-      item,
+    return Hex.toBigInt(
       await client.request(
-        { method: 'eth_estimateGas', params },
+        {
+          method: 'eth_estimateGas',
+          params: stateOverride
+            ? [request_, block, StateOverrides.toRpc(stateOverride)]
+            : [request_, block],
+        },
         requestOptions,
       ),
     )

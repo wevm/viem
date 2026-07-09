@@ -1,5 +1,4 @@
-import type { Block, Errors } from 'ox'
-import { z } from 'ox/zod'
+import { type Block, type Errors, Hex } from 'ox'
 
 import type * as Client from '../../Client.js'
 
@@ -28,11 +27,6 @@ export async function getTransactionCount(
     blockTag = client.blockTag ?? 'latest',
   } = options
 
-  const schema = z.RpcSchema.parseItem(
-    z.RpcSchema.Eth,
-    'eth_getBlockTransactionCountByNumber',
-  )
-
   const count = await (() => {
     if (blockHash)
       return client.request(
@@ -45,15 +39,15 @@ export async function getTransactionCount(
     return client.request(
       {
         method: 'eth_getBlockTransactionCountByNumber',
-        params: z.RpcSchema.encodeParams(schema, [
-          typeof blockNumber === 'bigint' ? blockNumber : blockTag,
-        ]),
+        params: [
+          typeof blockNumber === 'bigint' ? Hex.fromNumber(blockNumber) : blockTag,
+        ],
       },
       { dedupe: typeof blockNumber === 'bigint' },
     )
   })()
 
-  return z.RpcSchema.decodeReturns(schema, count)
+  return Hex.toNumber(count)
 }
 
 export declare namespace getTransactionCount {

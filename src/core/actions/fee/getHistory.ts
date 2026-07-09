@@ -1,6 +1,5 @@
-import { Hex } from 'ox'
-import type { Block, Errors, Fee } from 'ox'
-import { z } from 'ox/zod'
+import { Fee, Hex } from 'ox'
+import type { Block, Errors } from 'ox'
 
 import type * as Client from '../../Client.js'
 
@@ -33,21 +32,19 @@ export async function getHistory(
     rewardPercentiles,
   } = options
 
-  const schema = z.RpcSchema.parseItem(z.RpcSchema.Eth, 'eth_feeHistory')
-
   const feeHistory = await client.request(
     {
       method: 'eth_feeHistory',
-      params: z.RpcSchema.encodeParams(schema, [
+      params: [
         Hex.fromNumber(blockCount),
-        typeof blockNumber === 'bigint' ? blockNumber : blockTag,
+        typeof blockNumber === 'bigint' ? Hex.fromNumber(blockNumber) : blockTag,
         [...rewardPercentiles],
-      ]),
+      ],
     },
     { dedupe: typeof blockNumber === 'bigint' },
   )
 
-  return z.RpcSchema.decodeReturns(schema, feeHistory)
+  return Fee.fromHistoryRpc(feeHistory)
 }
 
 export declare namespace getHistory {

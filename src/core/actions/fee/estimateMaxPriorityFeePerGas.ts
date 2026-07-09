@@ -1,5 +1,4 @@
-import type { Block, Errors, TransactionRequest } from 'ox'
-import { z } from 'ox/zod'
+import { type Block, type Errors, Hex, type TransactionRequest } from 'ox'
 
 import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
@@ -59,11 +58,7 @@ export async function internal_estimateMaxPriorityFeePerGas(
     const maxPriorityFeePerGasHex = await client.request({
       method: 'eth_maxPriorityFeePerGas',
     })
-    return z.RpcSchema.decodeReturns(
-      z.RpcSchema.Eth,
-      'eth_maxPriorityFeePerGas',
-      maxPriorityFeePerGasHex,
-    )
+    return Hex.toBigInt(maxPriorityFeePerGasHex)
   } catch {
     // If the RPC Provider does not support `eth_maxPriorityFeePerGas`
     // fall back to calculating it manually via `gasPrice - baseFeePerGas`.

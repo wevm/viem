@@ -1,5 +1,4 @@
 import type { Address, Errors, Hex } from 'ox'
-import { z } from 'ox/zod'
 
 import type * as Client from '../../Client.js'
 import {
@@ -38,10 +37,10 @@ export async function getCode(
   const hex = await client.request(
     {
       method: 'eth_getCode',
-      params: z.RpcSchema.encodeParams(z.RpcSchema.Eth, 'eth_getCode', [
+      params: [
         address,
         blockParameter({ blockHash, blockNumber, blockTag, requireCanonical }),
-      ]),
+      ],
     },
     { dedupe: typeof blockNumber === 'bigint' || blockHash !== undefined },
   )

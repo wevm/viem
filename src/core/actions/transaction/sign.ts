@@ -89,14 +89,17 @@ export async function sign<chain extends Chain.Chain | undefined>(
   } satisfies TransactionRequest.toRpc.Input
 
   if (account.type === 'local') {
-    const toEnvelope =
-      codecChain?.transaction?.toEnvelope ?? TransactionRequest.toEnvelope
     // A chain hook may produce a custom (opaque) envelope; it round-trips
     // into the same chain's `getSignPayload`/`serialize` via the account.
-    const envelope = (await toEnvelope(
+    // A hook returning `undefined` delegates to the generic default.
+    const envelope = ((await codecChain?.transaction?.toEnvelope?.(
       request as TransactionRequest.TransactionRequest,
       { kzg },
-    )) as TxEnvelope.TxEnvelope
+    )) ??
+      TransactionRequest.toEnvelope(
+        request as TransactionRequest.TransactionRequest,
+        { kzg },
+      )) as TxEnvelope.TxEnvelope
     return account.signTransaction(envelope, { chain: codecChain })
   }
 

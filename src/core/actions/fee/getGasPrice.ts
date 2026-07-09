@@ -1,5 +1,4 @@
-import type { Errors } from 'ox'
-import { z } from 'ox/zod'
+import { type Errors, Hex } from 'ox'
 
 import type * as Client from '../../Client.js'
 
@@ -22,7 +21,7 @@ export async function getGasPrice(
   client: Client.Client,
 ): Promise<getGasPrice.ReturnType> {
   const gasPrice = await client.request({ method: 'eth_gasPrice' })
-  return z.RpcSchema.decodeReturns(z.RpcSchema.Eth, 'eth_gasPrice', gasPrice)
+  return Hex.toBigInt(gasPrice)
 }
 
 export declare namespace getGasPrice {

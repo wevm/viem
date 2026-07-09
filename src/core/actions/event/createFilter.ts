@@ -1,6 +1,5 @@
-import { AbiEvent } from 'ox'
+import { AbiEvent, Filter as OxFilter } from 'ox'
 import type { Address, Block, Errors, Hex } from 'ox'
-import { z } from 'ox/zod'
 
 import type * as Client from '../../Client.js'
 import type { OneOf } from '../../internal/types.js'
@@ -69,12 +68,16 @@ export async function createFilter<
   })() as readonly Hex.Hex[] | undefined
 
   const getRequest = requestScope(client, { method: 'eth_newFilter' })
-  const item = z.RpcSchema.parseItem(z.RpcSchema.Eth, 'eth_newFilter')
   const id = await client.request({
     method: 'eth_newFilter',
-    params: z.RpcSchema.encodeParams(item, [
-      { address, fromBlock, toBlock, ...(topics ? { topics } : {}) },
-    ]),
+    params: [
+      OxFilter.toRpc({
+        address,
+        fromBlock,
+        toBlock,
+        ...(topics ? { topics } : {}),
+      }),
+    ],
   })
 
   return {

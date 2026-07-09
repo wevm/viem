@@ -1,12 +1,5 @@
-import { Hex } from 'ox'
-import type {
-  Address,
-  BlockOverrides,
-  Errors,
-  StateOverrides,
-  TransactionRequest,
-} from 'ox'
-import { z } from 'ox/zod'
+import { BlockOverrides, Hex, StateOverrides, TransactionRequest } from 'ox'
+import type { Address, Errors } from 'ox'
 
 import type * as Account from '../Account.js'
 import type * as Client from '../Client.js'
@@ -118,8 +111,6 @@ export async function call(
       to: deploylessCall ? undefined : to,
     } satisfies TransactionRequest.toRpc.Input
 
-    const item = z.RpcSchema.parseItem(z.RpcSchema.Eth, 'eth_call')
-
     if (
       batch &&
       data &&
@@ -154,22 +145,22 @@ export async function call(
         })
     }
 
-    const params = (() => {
-      if (blockOverrides)
-        return z.RpcSchema.encodeParams(item, [
-          request,
-          block,
-          stateOverride ?? {},
-          blockOverrides,
-        ])
-      if (stateOverride)
-        return z.RpcSchema.encodeParams(item, [request, block, stateOverride])
-      return z.RpcSchema.encodeParams(item, [request, block])
-    })()
-
-    const response = z.RpcSchema.decodeReturns(
-      item,
-      await client.request({ method: 'eth_call', params }, requestOptions),
+    const request_ = TransactionRequest.toRpc(request)
+    const response = await client.request(
+      {
+        method: 'eth_call',
+        params: blockOverrides
+          ? [
+              request_,
+              block,
+              StateOverrides.toRpc(stateOverride ?? {}),
+              BlockOverrides.toRpc(blockOverrides),
+            ]
+          : stateOverride
+            ? [request_, block, StateOverrides.toRpc(stateOverride)]
+            : [request_, block],
+      },
+      requestOptions,
     )
     if (response === '0x') return { data: undefined }
     return { data: response }

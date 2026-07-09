@@ -9,6 +9,7 @@ import {
   PublicKey,
   Secp256k1,
   Signature,
+  TransactionEnvelope as TxEnvelope,
   TypedData,
   WebAuthnP256,
   WebCryptoP256,
@@ -532,6 +533,53 @@ describe('signTransaction', () => {
         }),
       ),
     ).toBe(account.address)
+  })
+
+  test('behavior: non-tempo envelope signs via the generic path', async () => {
+    const account = Account.fromSecp256k1(privateKey)
+    const envelope = {
+      chainId: 1,
+      maxFeePerGas: 1000000000n,
+      nonce: 0n,
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      type: 'eip1559',
+      value: 1n,
+    } as const
+    const serialized = await account.signTransaction(envelope as never)
+
+    expect(serialized.startsWith('0x02')).toBe(true)
+
+    const deserialized = TxEnvelope.deserialize(
+      serialized as TxEnvelope.Serialized,
+    )
+    if (deserialized.type !== 'eip1559') throw new Error('unreachable')
+    const { r, s, yParity } = deserialized
+    if (r === undefined || s === undefined || yParity === undefined)
+      throw new Error('unreachable')
+    expect(
+      Address.checksum(
+        Secp256k1.recoverAddress({
+          payload: TxEnvelope.getSignPayload(envelope),
+          signature: { r, s, yParity },
+        }),
+      ),
+    ).toBe(account.address)
+  })
+
+  test('behavior: non-tempo envelope rejects non-secp256k1 keys', async () => {
+    const account = Account.fromP256(privateKey_p256)
+    await expect(
+      account.signTransaction({
+        chainId: 1,
+        maxFeePerGas: 1000000000n,
+        nonce: 0n,
+        to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+        type: 'eip1559',
+        value: 1n,
+      } as never),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: Unsupported signature type. Expected \`secp256k1\` but got \`p256\`.]`,
+    )
   })
 
   test('behavior: p256', async () => {

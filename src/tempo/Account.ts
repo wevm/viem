@@ -8,6 +8,7 @@ import {
   PublicKey,
   Secp256k1,
   Signature,
+  TransactionEnvelope as TxEnvelope,
   TypedData,
   WebAuthnP256,
   WebCryptoP256,
@@ -320,9 +321,15 @@ export function fromMultisig(config: MultisigConfig.Config): MultisigAccount {
       throw new Error('`signMessage` is not supported for multisig accounts.')
     },
     async signTransaction(envelope, options) {
-      const serialize =
-        options?.chain?.transaction?.serialize ?? TxEnvelopeTempo.serialize
-      return serialize(envelope as never)
+      const serialize = options?.chain?.transaction?.serialize as
+        | ((envelope: unknown) => Hex.Hex | undefined)
+        | undefined
+      return (
+        serialize?.(envelope) ??
+        TxEnvelopeTempo.serialize(
+          envelope as unknown as TxEnvelopeTempo.TxEnvelopeTempo,
+        )
+      )
     },
     async signTypedData() {
       throw new Error('`signTypedData` is not supported for multisig accounts.')
@@ -687,9 +694,32 @@ function fromBase(parameters: fromBase.Parameters): Base {
           multisig?: MultisigConfig.Config | undefined
         }
 
-      const getSignPayload = (chain?.transaction?.getSignPayload ??
-        TxEnvelopeTempo.getSignPayload) as (envelope: unknown) => Hex.Hex
-      const payload = getSignPayload(envelope)
+      // Non-tempo envelopes take the generic path (secp256k1 signatures
+      // only; other key types cannot produce valid signatures for them).
+      if (envelope.type && envelope.type !== 'tempo') {
+        const signature = SignatureEnvelope.from(
+          await sign({
+            hash: TxEnvelope.getSignPayload(
+              envelope_ as TxEnvelope.TxEnvelope<false>,
+            ),
+          }),
+        )
+        if (signature.type !== 'secp256k1')
+          throw new Error(
+            'Unsupported signature type. Expected `secp256k1` but got `' +
+              signature.type +
+              '`.',
+          )
+        return TxEnvelope.serialize(envelope_, {
+          signature: signature.signature,
+        })
+      }
+
+      const getSignPayload = chain?.transaction?.getSignPayload as
+        | ((envelope: unknown) => Hex.Hex | undefined)
+        | undefined
+      const payload =
+        getSignPayload?.(envelope) ?? TxEnvelopeTempo.getSignPayload(envelope)
 
       // Native multisig (TIP-1061): return this owner's approval — a
       // primitive signature over the multisig owner approval digest — instead
@@ -728,14 +758,14 @@ function fromBase(parameters: fromBase.Parameters): Base {
         })
       }
 
-      const serialize = (chain?.transaction?.serialize ??
-        TxEnvelopeTempo.serialize) as (
-        envelope: unknown,
-        options?: unknown,
-      ) => Hex.Hex
-      return serialize(envelope, {
-        signature: SignatureEnvelope.from(signature),
-      })
+      const serialize = chain?.transaction?.serialize as
+        | ((envelope: unknown, options?: unknown) => Hex.Hex | undefined)
+        | undefined
+      const signatureEnvelope = SignatureEnvelope.from(signature)
+      return (
+        serialize?.(envelope, { signature: signatureEnvelope }) ??
+        TxEnvelopeTempo.serialize(envelope, { signature: signatureEnvelope })
+      )
     },
     async signTypedData(typedData) {
       return await sign({

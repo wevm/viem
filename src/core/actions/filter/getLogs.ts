@@ -1,6 +1,5 @@
-import { AbiEvent } from 'ox'
+import { AbiEvent, Log } from 'ox'
 import type { Block, Errors } from 'ox'
-import { z } from 'ox/zod'
 
 import type * as Client from '../../Client.js'
 import type * as event from '../event/index.js'
@@ -41,8 +40,7 @@ export async function getLogs<
     params: [filter.id],
   })
 
-  const item = z.RpcSchema.parseItem(z.RpcSchema.Eth, 'eth_getFilterLogs')
-  const logs = z.RpcSchema.decodeReturns(item, [...result])
+  const logs = result.map((log) => Log.fromRpc(log))
 
   const events = (() => {
     const { abiEvent } = filter

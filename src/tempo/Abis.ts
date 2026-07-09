@@ -2964,20 +2964,21 @@ export const storageCredits = [
   },
 ] as const
 
-export const abis = [
-  ...storageCredits,
-  ...tip20ChannelReserve,
-  ...tip20,
-  ...validatorConfigV2,
-  ...signatureVerifier,
-  ...stablecoinDex,
-  ...addressRegistry,
-  ...feeManager,
-  ...feeAmm,
-  ...receivePolicyGuard,
-  ...accountKeychain,
-  ...nonce,
-  ...tip20Factory,
-  ...tip403Registry,
-  ...validatorConfig,
-] as const
+export const abis = /*#__PURE__*/ (() =>
+  [
+    ...storageCredits,
+    ...tip20ChannelReserve,
+    ...tip20,
+    ...validatorConfigV2,
+    ...signatureVerifier,
+    ...stablecoinDex,
+    ...addressRegistry,
+    ...feeManager,
+    ...feeAmm,
+    ...receivePolicyGuard,
+    ...accountKeychain,
+    ...nonce,
+    ...tip20Factory,
+    ...tip403Registry,
+    ...validatorConfig,
+  ] as const)()

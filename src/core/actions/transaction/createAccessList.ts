@@ -71,7 +71,7 @@ export async function createAccessList(
         method: 'eth_createAccessList',
         params: [
           TransactionRequest.toRpc(request),
-          typeof block === 'bigint' ? Hex.fromNumber(block) : block,
+          block,
         ],
       },
       requestOptions,

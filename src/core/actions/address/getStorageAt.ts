@@ -1,5 +1,4 @@
 import type { Address, Errors, Hex } from 'ox'
-import { z } from 'ox/zod'
 
 import type * as Client from '../../Client.js'
 import {
@@ -39,11 +38,11 @@ export async function getStorageAt(
   } = options
   return client.request({
     method: 'eth_getStorageAt',
-    params: z.RpcSchema.encodeParams(z.RpcSchema.Eth, 'eth_getStorageAt', [
+    params: [
       address,
       slot,
       blockParameter({ blockHash, blockNumber, blockTag, requireCanonical }),
-    ]),
+    ],
   })
 }
 

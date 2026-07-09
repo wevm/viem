@@ -1,5 +1,5 @@
-import type { AccountProof, Address, Errors, Hex } from 'ox'
-import { z } from 'ox/zod'
+import { AccountProof } from 'ox'
+import type { Address, Errors, Hex } from 'ox'
 
 import type * as Client from '../../Client.js'
 import {
@@ -40,16 +40,15 @@ export async function getProof(
     requireCanonical,
     storageKeys,
   } = options
-  const item = z.RpcSchema.parseItem(z.RpcSchema.Eth, 'eth_getProof')
   const proof = await client.request({
     method: 'eth_getProof',
-    params: z.RpcSchema.encodeParams(item, [
+    params: [
       address,
       [...storageKeys],
       blockParameter({ blockHash, blockNumber, blockTag, requireCanonical }),
-    ]),
+    ],
   })
-  return z.RpcSchema.decodeReturns(item, proof)
+  return AccountProof.fromRpc(proof)
 }
 
 export declare namespace getProof {

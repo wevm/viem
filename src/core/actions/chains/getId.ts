@@ -1,5 +1,4 @@
-import type { Errors } from 'ox'
-import { z } from 'ox/zod'
+import { type Errors, Hex } from 'ox'
 
 import type * as Client from '../../Client.js'
 
@@ -23,7 +22,7 @@ export async function getId(client: Client.Client): Promise<getId.ReturnType> {
     { method: 'eth_chainId' },
     { dedupe: true },
   )
-  return z.RpcSchema.decodeReturns(z.RpcSchema.Eth, 'eth_chainId', chainId)
+  return Hex.toNumber(chainId)
 }
 
 export declare namespace getId {

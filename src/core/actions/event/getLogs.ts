@@ -1,6 +1,5 @@
-import { AbiEvent } from 'ox'
-import type { Address, Block, Errors, Hex, Log } from 'ox'
-import { z } from 'ox/zod'
+import { AbiEvent, Filter, Log } from 'ox'
+import type { Address, Block, Errors, Hex } from 'ox'
 
 import type * as Client from '../../Client.js'
 import type { OneOf } from '../../internal/types.js'
@@ -60,16 +59,17 @@ export async function getLogs<
     return [events.map((event) => AbiEvent.encode(event).topics[0])]
   })() as readonly Hex.Hex[]
 
-  const item = z.RpcSchema.parseItem(z.RpcSchema.Eth, 'eth_getLogs')
   const result = await client.request({
     method: 'eth_getLogs',
-    params: z.RpcSchema.encodeParams(item, [
-      blockHash
-        ? { address, blockHash, topics }
-        : { address, fromBlock, toBlock, topics },
-    ]),
+    params: [
+      Filter.toRpc(
+        blockHash
+          ? { address, blockHash, topics }
+          : { address, fromBlock, toBlock, topics },
+      ),
+    ],
   })
-  const logs = z.RpcSchema.decodeReturns(item, [...result])
+  const logs = result.map((log) => Log.fromRpc(log))
 
   if (!events) return logs as never
   return AbiEvent.extractLogs(events, logs, { args, strict }) as never

@@ -1,10 +1,5 @@
-import {
-  Hash,
-  Hex,
-  TransactionEnvelope as TxEnvelope,
-  TransactionRequest as ox_TransactionRequest,
-} from 'ox'
-import type { Address } from 'ox'
+import { Hash, Hex, TransactionRequest as ox_TransactionRequest } from 'ox'
+import type { Address, TransactionEnvelope as TxEnvelope } from 'ox'
 import {
   MultisigConfig,
   SignatureEnvelope,
@@ -98,16 +93,20 @@ export type ChainConfig = {
     }
   }
   transaction: {
-    getSignPayload: (envelope: Envelope) => Hex.Hex
+    getSignPayload: (
+      envelope: Envelope | TxEnvelope.TxEnvelope,
+    ) => Hex.Hex | undefined
     prepare: [
       fn: Chain.Chain.Transaction.PrepareFn,
       options: { runAt: readonly Chain.Chain.Transaction.PreparePhase[] },
     ]
     serialize: (
-      envelope: Envelope,
+      envelope: Envelope | TxEnvelope.TxEnvelope,
       options?: TxEnvelopeTempo.serialize.Options | undefined,
-    ) => Hex.Hex
-    toEnvelope: (request: ox_TransactionRequest.TransactionRequest) => Envelope
+    ) => Hex.Hex | undefined
+    toEnvelope: (
+      request: ox_TransactionRequest.TransactionRequest,
+    ) => Envelope | undefined
   }
   verifyHash: Chain.Chain.VerifyHash
 }
@@ -157,9 +156,11 @@ export const chainConfig = {
     },
   },
   transaction: {
-    getSignPayload(envelope: Envelope): Hex.Hex {
-      if (envelope.type && envelope.type !== 'tempo')
-        return TxEnvelope.getSignPayload(envelope as never)
+    getSignPayload(
+      envelope: Envelope | TxEnvelope.TxEnvelope,
+    ): Hex.Hex | undefined {
+      // Non-tempo envelopes delegate to the generic default.
+      if (!isTempoEnvelope(envelope)) return undefined
       return TxEnvelopeTempo.getSignPayload(envelope)
     },
     prepare: [
@@ -328,33 +329,11 @@ export const chainConfig = {
       { runAt: ['beforeFillTransaction', 'afterFillParameters'] },
     ],
     serialize(
-      envelope: Envelope,
+      envelope: Envelope | TxEnvelope.TxEnvelope,
       options: TxEnvelopeTempo.serialize.Options = {},
-    ): Hex.Hex {
-      if (envelope.type && envelope.type !== 'tempo') {
-        const signature = (() => {
-          const signature = options.signature
-          if (!signature) return signature
-          if (typeof signature === 'object' && !('type' in signature))
-            return signature
-          // Signature envelopes only ride the tempo transaction type; other
-          // envelopes take a plain secp256k1 signature.
-          const envelope = SignatureEnvelope.from(
-            signature as SignatureEnvelope.SignatureEnvelope,
-          )
-          if (envelope.type !== 'secp256k1')
-            throw new Error(
-              'Unsupported signature type. Expected `secp256k1` but got `' +
-                envelope.type +
-                '`.',
-            )
-          return envelope.signature
-        })()
-        return TxEnvelope.serialize(envelope, {
-          ...options,
-          signature,
-        } as never)
-      }
+    ): Hex.Hex | undefined {
+      // Non-tempo envelopes delegate to the generic default.
+      if (!isTempoEnvelope(envelope)) return undefined
 
       // Track caller signatures separately from synthesized multisig
       // approvals.
@@ -418,9 +397,11 @@ export const chainConfig = {
 
       return TxEnvelopeTempo.serialize(envelope, { signature })
     },
-    toEnvelope(request: ox_TransactionRequest.TransactionRequest): Envelope {
-      if (!isTempoRequest(request))
-        return ox_TransactionRequest.toEnvelope(request) as never
+    toEnvelope(
+      request: ox_TransactionRequest.TransactionRequest,
+    ): Envelope | undefined {
+      // Non-tempo requests delegate to the generic default.
+      if (!isTempoRequest(request)) return undefined
 
       const { feePayer, multisig, signatures, ...rest } =
         request as TransactionRequest
@@ -515,6 +496,13 @@ export const chainConfig = {
   Chain.Chain,
   'blockTime' | 'extendSchema' | 'schema' | 'transaction' | 'verifyHash'
 > as ChainConfig
+
+/** Untyped envelopes are assumed tempo (they flow from `toEnvelope`). @internal */
+function isTempoEnvelope(
+  envelope: Envelope | TxEnvelope.TxEnvelope,
+): envelope is Envelope {
+  return !envelope.type || envelope.type === 'tempo'
+}
 
 /**
  * Whether a request targets the tempo transaction type: an explicit

@@ -1,12 +1,15 @@
 import type { Abi, AbiStateMutability, Narrow } from 'abitype'
-import { AbiFunction, AbiParameters, Block, Hex, Log } from 'ox'
-import type {
-  Address,
+import {
+  AbiFunction,
+  AbiParameters,
+  Block,
   BlockOverrides,
-  Errors,
+  Hex,
+  Log,
   StateOverrides,
   TransactionRequest,
 } from 'ox'
+import type { Address, Errors } from 'ox'
 import { z } from 'ox/zod'
 
 import type * as Account from '../../Account.js'
@@ -68,8 +71,7 @@ export async function simulate<
     // encoding would reject or strip chain-specific fields.
     const codec = client.chain?.schema?.transactionRequest?.toRpc
 
-    const rpcCalls: TransactionRequest.Rpc[][] = []
-    const blockStateCalls = blocks.map((block, i) => {
+    const blockStateCalls = blocks.map((block) => {
       const calls = block.calls.map((call_) => {
         const call = call_ as Call<unknown, simulate.CallExtraProperties>
         const { abi, account, args, dataSuffix, functionName, ...rest } = call
@@ -103,7 +105,7 @@ export async function simulate<
 
         transactionRequest.assert(request)
 
-        if (!codec) return request
+        if (!codec) return TransactionRequest.toRpc(request)
 
         // The chain codec is an untyped `z.ZodMiniType`, so its encoded output
         // widens to `unknown`; assert back to the RPC shape it produces.
@@ -135,31 +137,21 @@ export async function simulate<
           }
         }
 
-        const calls = rpcCalls[i] ?? []
-        calls.push(rpc)
-        rpcCalls[i] = calls
-        return {}
+        return rpc
       })
 
       return {
-        blockOverrides: block.blockOverrides,
+        blockOverrides: block.blockOverrides
+          ? BlockOverrides.toRpc(block.blockOverrides)
+          : undefined,
         calls,
-        stateOverrides: block.stateOverride,
+        stateOverrides: block.stateOverride
+          ? StateOverrides.toRpc(block.stateOverride)
+          : undefined,
       }
     })
 
     const block = blockParameter({ blockNumber, blockTag })
-
-    const item = z.RpcSchema.parseItem(z.RpcSchema.Eth, 'eth_simulateV1')
-    const params = z.RpcSchema.encodeParams(item, [
-      { blockStateCalls, returnFullTransactions, traceTransfers, validation },
-      block,
-    ])
-    if (codec) {
-      const input = params[0]
-      for (const [i, calls] of rpcCalls.entries())
-        input.blockStateCalls[i]!.calls = calls
-    }
 
     type RpcCallResult = {
       error?:
@@ -171,7 +163,18 @@ export async function simulate<
       status: Hex.Hex
     }
     const result = (await client.request(
-      { method: 'eth_simulateV1', params },
+      {
+        method: 'eth_simulateV1',
+        params: [
+          {
+            blockStateCalls,
+            returnFullTransactions,
+            traceTransfers,
+            validation,
+          },
+          block,
+        ],
+      },
       requestOptions,
     )) as unknown as readonly (Block.Rpc & {
       calls?: readonly RpcCallResult[] | undefined

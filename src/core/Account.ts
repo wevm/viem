@@ -147,16 +147,17 @@ export function from<const account extends Address.Address | from.Account>(
       signTransaction(transaction, options) {
         const chain = options?.chain
         // Chain hooks take their own (opaque) envelope type; the envelope
-        // originates from the same chain's `toEnvelope`.
-        const payload = chain?.transaction?.getSignPayload
-          ? chain.transaction.getSignPayload(transaction as never)
-          : TxEnvelope.getSignPayload(
-              transaction as TxEnvelope.TxEnvelope<false>,
-            )
-        return withSignature(sign({ hash: payload }), (signature) =>
-          chain?.transaction?.serialize
-            ? chain.transaction.serialize(transaction as never, { signature })
-            : TxEnvelope.serialize(transaction, { signature }),
+        // originates from the same chain's `toEnvelope`. A hook returning
+        // `undefined` delegates to the generic default.
+        const payload =
+          chain?.transaction?.getSignPayload?.(transaction as never) ??
+          TxEnvelope.getSignPayload(transaction as TxEnvelope.TxEnvelope<false>)
+        return withSignature(
+          sign({ hash: payload }),
+          (signature) =>
+            chain?.transaction?.serialize?.(transaction as never, {
+              signature,
+            }) ?? TxEnvelope.serialize(transaction, { signature }),
         )
       },
       signTypedData(typedData) {

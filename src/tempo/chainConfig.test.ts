@@ -1,9 +1,4 @@
-import {
-  Address,
-  Secp256k1,
-  Signature,
-  TransactionEnvelope as TxEnvelope,
-} from 'ox'
+import { Address, Secp256k1, Signature } from 'ox'
 import { MultisigConfig, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import { z } from 'ox/zod'
 import { describe, expect, test } from 'vitest'
@@ -18,8 +13,18 @@ const privateKey =
 const sender: Address.Address = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
 
 const codec = chainConfig.schema.transactionRequest.toRpc
-const { getSignPayload, serialize, toEnvelope } = chainConfig.transaction
-const [prepare] = chainConfig.transaction.prepare
+const { transaction } = chainConfig
+const [prepare] = transaction.prepare
+
+// Tempo-path helpers; the hooks return `undefined` only for non-tempo shapes.
+const toEnvelope = (request: Parameters<typeof transaction.toEnvelope>[0]) =>
+  transaction.toEnvelope(request)!
+const getSignPayload = (envelope: Envelope) =>
+  transaction.getSignPayload(envelope)!
+const serialize = (
+  envelope: Envelope,
+  options?: Parameters<typeof transaction.serialize>[1],
+) => transaction.serialize(envelope, options)!
 
 /** A client for hermetic prepare-hook branches (never dispatches). */
 const client = Client.create({ transport: http('http://localhost') })
@@ -338,15 +343,16 @@ describe('transaction.toEnvelope', () => {
     expect(envelope.feePayerSignature).toBeNull()
   })
 
-  test('routes non-tempo requests to the generic envelope', () => {
-    const envelope = toEnvelope({
-      chainId: 1,
-      maxFeePerGas: 1000000000n,
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-      type: 'eip1559',
-      value: 1n,
-    })
-    expect(envelope.type).toBe('eip1559')
+  test('delegates non-tempo requests to the core default', () => {
+    expect(
+      transaction.toEnvelope({
+        chainId: 1,
+        maxFeePerGas: 1000000000n,
+        to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+        type: 'eip1559',
+        value: 1n,
+      }),
+    ).toBeUndefined()
   })
 })
 
@@ -365,18 +371,17 @@ describe('transaction.getSignPayload', () => {
     expect(payload).not.toBe(v2.signPayload)
   })
 
-  test('routes non-tempo envelopes to the generic payload', () => {
-    const envelope = toEnvelope({
-      chainId: 1,
-      maxFeePerGas: 1000000000n,
-      nonce: 0n,
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-      type: 'eip1559',
-      value: 1n,
-    })
-    expect(getSignPayload(envelope)).toBe(
-      TxEnvelope.getSignPayload(envelope as never),
-    )
+  test('delegates non-tempo envelopes to the core default', () => {
+    expect(
+      transaction.getSignPayload({
+        chainId: 1,
+        maxFeePerGas: 1000000000n,
+        nonce: 0n,
+        to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+        type: 'eip1559',
+        value: 1n,
+      }),
+    ).toBeUndefined()
   })
 })
 
@@ -579,47 +584,17 @@ describe('transaction.serialize', () => {
     ).toMatchObject({ threshold: 2 })
   })
 
-  test('non-tempo: converts a secp256k1 signature envelope', () => {
-    const envelope = toEnvelope({
-      chainId: 1,
-      maxFeePerGas: 1000000000n,
-      nonce: 0n,
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-      type: 'eip1559',
-      value: 1n,
-    })
-    const signature = Secp256k1.sign({
-      payload: getSignPayload(envelope),
-      privateKey,
-    })
-    const viaEnvelope = serialize(envelope, {
-      signature: SignatureEnvelope.from(signature),
-    })
-    const viaSignature = serialize(envelope, { signature })
-    expect(viaEnvelope).toBe(viaSignature)
-    expect(viaEnvelope.startsWith('0x02')).toBe(true)
-  })
-
-  test('non-tempo: rejects non-secp256k1 signature envelopes', () => {
-    const envelope = toEnvelope({
-      chainId: 1,
-      maxFeePerGas: 1000000000n,
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-      type: 'eip1559',
-      value: 1n,
-    })
-    expect(() =>
-      serialize(envelope, {
-        signature: {
-          type: 'p256',
-          prehash: false,
-          publicKey: { prefix: 4, x: 1n, y: 2n },
-          signature: { r: 1n, s: 2n },
-        } as never,
+  test('delegates non-tempo envelopes to the core default', () => {
+    expect(
+      transaction.serialize({
+        chainId: 1,
+        maxFeePerGas: 1000000000n,
+        nonce: 0n,
+        to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+        type: 'eip1559',
+        value: 1n,
       }),
-    ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Unsupported signature type. Expected \`secp256k1\` but got \`p256\`.]`,
-    )
+    ).toBeUndefined()
   })
 })
 

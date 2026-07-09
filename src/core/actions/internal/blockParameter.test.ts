@@ -10,8 +10,8 @@ test('blockTag', () => {
   expect(blockParameter({ blockTag: 'safe' })).toBe('safe')
 })
 
-test('blockNumber: returns native bigint', () => {
-  expect(blockParameter({ blockNumber: 69420n })).toBe(69420n)
+test('blockNumber: returns wire hex', () => {
+  expect(blockParameter({ blockNumber: 69420n })).toBe('0x10f2c')
 })
 
 test('blockHash (EIP-1898)', () => {

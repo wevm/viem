@@ -1,5 +1,4 @@
-import type { Errors } from 'ox'
-import { z } from 'ox/zod'
+import { type Errors, Hex } from 'ox'
 
 import type * as Client from '../../Client.js'
 import { withCache } from '../internal/withCache.js'
@@ -28,11 +27,7 @@ export async function getNumber(
     () => client.request({ method: 'eth_blockNumber' }),
     { cacheKey: `blockNumber.${client.uid}`, cacheTime },
   )
-  return z.RpcSchema.decodeReturns(
-    z.RpcSchema.Eth,
-    'eth_blockNumber',
-    blockNumber,
-  )
+  return Hex.toBigInt(blockNumber)
 }
 
 export declare namespace getNumber {
