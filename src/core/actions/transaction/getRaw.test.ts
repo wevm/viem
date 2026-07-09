@@ -48,5 +48,9 @@ test('error: transaction not found', async () => {
     Actions.transaction.getRaw(localClient, {
       hash: '0x0000000000000000000000000000000000000000000000000000000000000001',
     }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot()
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [Transaction.NotFoundError: Transaction with hash "0x0000000000000000000000000000000000000000000000000000000000000001" could not be found.
+
+    Version: viem@2.52.1]
+  `)
 })

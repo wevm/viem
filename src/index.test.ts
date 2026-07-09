@@ -7,6 +7,7 @@ test('exports', () => {
     [
       "Account",
       "Actions",
+      "erc7821Actions",
       "publicActions",
       "testActions",
       "walletActions",

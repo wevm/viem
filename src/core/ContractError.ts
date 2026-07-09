@@ -4,6 +4,7 @@ import type { Errors } from 'ox'
 
 import { BaseError } from './Errors.js'
 import * as RpcError from './RpcError.js'
+import { getRevertData } from './internal/errors.js'
 import * as Json from '../utils/Json.js'
 
 /** JSON-RPC `eth_call` execution-reverted error code. */
@@ -64,28 +65,6 @@ export declare namespace fromError {
   }
 
   type ErrorType = ContractFunctionExecutionError | Errors.GlobalErrorType
-}
-
-/**
- * Walks a thrown error's `cause` chain (and nested `data` payloads) for the
- * selector-prefixed revert data returned by the node.
- *
- * @internal
- */
-function getRevertData(error: unknown): Hex.Hex | undefined {
-  let current: unknown = error
-  while (current) {
-    const data = (current as { data?: unknown }).data
-    if (typeof data === 'string' && data.startsWith('0x'))
-      return data as Hex.Hex
-    if (data && typeof data === 'object') {
-      const inner = (data as { data?: unknown }).data
-      if (typeof inner === 'string' && inner.startsWith('0x'))
-        return inner as Hex.Hex
-    }
-    current = (current as { cause?: unknown }).cause
-  }
-  return undefined
 }
 
 /**

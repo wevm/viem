@@ -1,6 +1,7 @@
 export * as Account from './core/Account.js'
 export * as Actions from './core/actions/index.js'
 export {
+  erc7821Actions,
   publicActions,
   testActions,
   walletActions,

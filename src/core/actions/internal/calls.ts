@@ -68,6 +68,25 @@ export type Calls<
           : // Fallback
             readonly OneOf<Call>[]
 
+/** A list of {@link Calls} batches, preserving per-call inference. */
+export type Batches<
+  batches extends readonly { calls: readonly unknown[] }[],
+  properties extends Record<string, unknown> = {},
+  ///
+  result extends readonly any[] = [],
+> = batches extends readonly [infer batch extends { calls: readonly unknown[] }]
+  ? readonly [...result, { calls: Calls<batch['calls']> } & properties]
+  : batches extends readonly [
+        infer batch extends { calls: readonly unknown[] },
+        ...infer rest extends readonly { calls: readonly unknown[] }[],
+      ]
+    ? Batches<
+        [...rest],
+        properties,
+        [...result, { calls: Calls<batch['calls']> } & properties]
+      >
+    : batches
+
 /** Result of a single {@link Call} in a batch. */
 export type CallResult<
   result = unknown,

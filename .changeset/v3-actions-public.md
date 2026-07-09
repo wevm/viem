@@ -313,6 +313,32 @@ Wallet JSON-RPC actions were grouped under the `wallet` namespace, and the EIP-7
 + const signed = await Actions.wallet.signAuthorization(client, { address })
 ```
 
+The ERC-7846 connection actions and ERC-7811 `getAssets` were folded in from `viem/experimental` under the `wallet` namespace.
+
+```diff
+- import { connect, disconnect, getAssets } from 'viem/experimental'
++ import { Actions } from 'viem'
+
+- const { accounts } = await connect(client)
+- await disconnect(client)
+- const assets = await getAssets(client)
++ const { accounts } = await Actions.wallet.connect(client)
++ await Actions.wallet.disconnect(client)
++ const assets = await Actions.wallet.getAssets(client)
+```
+
+The ERC-7821 executor actions were folded in from `viem/experimental` under the `erc7821` namespace, with an `erc7821Actions()` decorator.
+
+```diff
+- import { erc7821Actions } from 'viem/experimental'
++ import { Actions, erc7821Actions } from 'viem'
+
+- const hash = await execute(client, { address, calls })
+- const supported = await supportsExecutionMode(client, { address })
++ const hash = await Actions.erc7821.execute(client, { address, calls })
++ const supported = await Actions.erc7821.supportsExecutionMode(client, { address })
+```
+
 The EIP-5792 wallet actions were grouped under the `wallet` namespace.
 
 ```diff
