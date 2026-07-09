@@ -92,6 +92,17 @@ export type EstimateGas8130Parameters = {
    * bare (unprefixed, default-EOA-path) filler blob of this length.
    */
   senderAuthSize?: number | undefined
+  /**
+   * Acting-actor hint for simulation. Estimation never recovers a signature, so
+   * without this the node publishes the account's self-actor to the `TxContext`
+   * precompile — which makes policy-gated session-key calls look up the wrong
+   * policy and revert. Pass the session (or other non-self) actor id you intend
+   * to sign with; the node resolves that actor's policy after applying
+   * `accountChanges`, so an actor authorized in the same estimate request is
+   * visible. Orthogonal to {@link EstimateGas8130Parameters.senderAuthVerifier}
+   * (auth-gas pricing) — accept both when estimating a session-key send.
+   */
+  senderActorId?: Hex | undefined
 
   // ── Common ────────────────────────────────────────────────────────────────
   /** Optional sponsoring payer; priced into the estimate when set. */
@@ -140,11 +151,13 @@ const maxAuthSize = 8_192
  * In both modes, the node prices authentication gas from the auth blob's
  * *shape*, never a real signature — pass `senderAuthVerifier` (or a raw
  * `senderAuth`) for a configured account, and leave both unset for the
- * default EOA. See {@link EstimateGas8130Parameters}.
+ * default EOA. For policy-gated actors (session keys), also pass
+ * `senderActorId` so the simulate path publishes the intended acting actor
+ * instead of the account's self-actor. See {@link EstimateGas8130Parameters}.
  *
- * Note: unlike standard `eth_estimateGas`, an EIP-8130 estimate returns the
- * charged gas **even when a phase reverts**, because a reverted EIP-8130 tx is
- * still included (nonce consumed, fee paid).
+ * Note: an EIP-8130 estimate that reverts a phase surfaces the revert (like
+ * standard `eth_estimateGas`), even though a reverted EIP-8130 tx would still
+ * be included on-chain (nonce consumed, fee paid).
  */
 export async function estimateGas8130<
   chain extends Chain | undefined,
@@ -162,6 +175,7 @@ export async function estimateGas8130<
     senderAuth: senderAuthExplicit,
     senderAuthVerifier,
     senderAuthSize,
+    senderActorId,
     accountChanges,
     calls,
     nonceKey = 0n,
@@ -236,6 +250,7 @@ export async function estimateGas8130<
     }
     if (senderAuth !== undefined) request.senderAuth = senderAuth
     if (payerAuth !== undefined) request.payerAuth = payerAuth
+    if (senderActorId !== undefined) request.senderActorId = senderActorId
   } else {
     // Simplified mode. `sender` is always set so the node recognizes the
     // request as an EIP-8130 estimate even when no auth blob is supplied
@@ -251,6 +266,7 @@ export async function estimateGas8130<
     if (payer !== undefined) request.payer = payer
     if (senderAuth !== undefined) request.senderAuth = senderAuth
     if (payerAuth !== undefined) request.payerAuth = payerAuth
+    if (senderActorId !== undefined) request.senderActorId = senderActorId
   }
 
   const block = blockNumber !== undefined ? numberToHex(blockNumber) : blockTag
