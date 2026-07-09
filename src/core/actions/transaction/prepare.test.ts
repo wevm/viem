@@ -1,4 +1,4 @@
-import { AbiFunction, Blobs, Hex, Value } from 'ox'
+import { AbiFunction, Blobs, Hex, Transaction, Value } from 'ox'
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
@@ -7,7 +7,6 @@ import * as Http from '~test/http.js'
 import { kzg } from '~test/kzg.js'
 import { afterAll, describe, expect, test } from 'vitest'
 
-import { z } from 'ox/zod'
 import {
   Account,
   Actions,
@@ -762,10 +761,7 @@ describe('behavior: fill result', () => {
       rpcUrls: { default: { http: [fillServer.url] } },
       schema: {
         transaction: {
-          fromRpc: z.pipe(
-            z.Transaction.Transaction,
-            z.transform(() => ({ type: 'eip1559' as const })),
-          ),
+          fromRpc: (_rpc: Transaction.Rpc) => ({ type: 'eip1559' as const }),
         },
       },
     })

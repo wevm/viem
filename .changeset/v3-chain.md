@@ -17,12 +17,12 @@ Chain definitions were moved from `defineChain` to the `Chain` namespace.
  })
 ```
 
-Chain formatter configuration was replaced by RPC/native schema codecs. `fromRpc` codecs decode wire values via `z.decode`; `toRpc` codecs encode native values via `z.encode` (the codec's native side is its output — request option types resolve from `z.output` of `schema.transactionRequest.toRpc`).
+Chain formatter configuration was replaced by RPC/native schema converters. `fromRpc` converters decode wire values to native shapes; `toRpc` converters encode native values to wire shapes (request option types resolve from the parameter type of `schema.transactionRequest.toRpc`).
 
 ```diff
 -import { defineChain, formatters } from 'viem'
 +import { Chain } from 'viem'
-+import * as z from 'zod/mini'
++import { Block } from 'ox'
  
 -const chain = defineChain({
 -  formatters: {
@@ -31,7 +31,7 @@ Chain formatter configuration was replaced by RPC/native schema codecs. `fromRpc
 +const chain = Chain.from({
 +  schema: {
 +    block: {
-+      fromRpc: z.object({ baseFeePerGas: z.bigint() }),
++      fromRpc: (rpc) => Block.fromRpc(rpc),
 +    },
 +  },
  })

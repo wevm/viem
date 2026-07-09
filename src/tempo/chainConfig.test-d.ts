@@ -32,17 +32,17 @@ test('ExtractTransactionRequest: native tempo request shape', () => {
   >()
 })
 
-test('ExtractTransaction: tempo transaction codec output', () => {
+test('ExtractTransaction: tempo transaction converter output', () => {
   type Transaction = Chain.ExtractTransaction<typeof tempo>
 
   expectTypeOf<Transaction>().toHaveProperty('hash')
-  // Tempo-specific fields decoded by the chain codec.
+  // Tempo-specific fields decoded by the chain converter.
   type TempoTransaction = Extract<Transaction, { type: 'tempo' }>
   expectTypeOf<TempoTransaction>().toHaveProperty('calls')
   expectTypeOf<TempoTransaction>().toHaveProperty('feeToken')
 })
 
-test('ExtractTransactionReceipt: tempo receipt codec output', () => {
+test('ExtractTransactionReceipt: tempo receipt converter output', () => {
   type Receipt = Chain.ExtractTransactionReceipt<typeof tempo>
 
   expectTypeOf<Receipt>().toHaveProperty('transactionHash')

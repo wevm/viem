@@ -1,6 +1,6 @@
+import { Block } from 'ox'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { z } from 'ox/zod'
 import { expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
@@ -195,10 +195,10 @@ test('args: includeTransactions', async () => {
   `)
 })
 
-test('behavior: decodes via chain schema when declared', async () => {
+test('behavior: converts via chain schema when declared', async () => {
   const chain = mainnet.extend({
     rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-    schema: { block: { fromRpc: z.Block.Block } },
+    schema: { block: { fromRpc: (rpc: Block.Rpc) => Block.fromRpc(rpc) } },
   })
   const schemaClient = Client.create({ chain, transport: http() })
 
@@ -211,15 +211,15 @@ test('behavior: decodes via chain schema when declared', async () => {
   expect(viaSchema).toEqual(viaDefault)
 })
 
-test('behavior: decodes custom properties via chain schema', async () => {
+test('behavior: converts custom properties via chain schema', async () => {
   const chain = mainnet.extend({
     rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
     schema: {
       block: {
-        fromRpc: z.pipe(
-          z.Block.Block,
-          z.transform((block) => ({ ...block, custom: 'hello' as const })),
-        ),
+        fromRpc: (rpc: Block.Rpc) => ({
+          ...Block.fromRpc(rpc),
+          custom: 'hello' as const,
+        }),
       },
     },
   })
@@ -228,9 +228,9 @@ test('behavior: decodes custom properties via chain schema', async () => {
   const block = await Actions.block.get(schemaClient, {
     blockNumber: anvil.mainnet.forkBlockNumber,
   })
-  // custom property is decoded onto the result.
+  // custom property is converted onto the result.
   expect(block.custom).toBe('hello')
-  // standard properties still decode correctly.
+  // standard properties still convert correctly.
   expect(block.number).toBe(anvil.mainnet.forkBlockNumber)
 })
 

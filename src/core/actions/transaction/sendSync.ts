@@ -87,7 +87,7 @@ export async function sendSync<chain extends Chain.Chain | undefined>(
   } = options_
 
   const chain = chain_ === null ? null : (chain_ ?? client.chain)
-  const codecChain = chain_ ?? client.chain
+  const schemaChain = chain_ ?? client.chain
   const nonceManager =
     account.type === 'local' ? account.nonceManager : undefined
   let reset: NonceManager.NonceManager.Parameters | undefined
@@ -128,7 +128,7 @@ export async function sendSync<chain extends Chain.Chain | undefined>(
     const { request } = await prepare(client, {
       ...rest,
       account,
-      chain: codecChain,
+      chain: schemaChain,
       data,
       kzg,
       nonceManager,

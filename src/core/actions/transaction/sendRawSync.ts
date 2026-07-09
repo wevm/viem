@@ -5,7 +5,6 @@ import type {
   TransactionEnvelope as TxEnvelope,
   TransactionReceipt,
 } from 'ox'
-import { z } from 'ox/zod'
 
 import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
@@ -45,9 +44,9 @@ export async function sendRawSync<chain extends Chain.Chain | undefined>(
     { ...requestOptions, retryCount: 0 },
   )) as TransactionReceipt.Rpc
 
-  const schema = client.chain?.schema?.transactionReceipt?.fromRpc
+  const fromRpc = client.chain?.schema?.transactionReceipt?.fromRpc
   const decoded = (
-    schema ? z.decode(schema, receipt) : TransactionReceipt_.fromRpc(receipt)
+    fromRpc ? fromRpc(receipt) : TransactionReceipt_.fromRpc(receipt)
   ) as sendRawSync.ReturnType<chain>
 
   if (decoded.status === 'reverted' && throwOnReceiptRevert)

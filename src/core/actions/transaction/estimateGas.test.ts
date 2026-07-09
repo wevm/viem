@@ -1,5 +1,4 @@
 import { Blobs, Hex, TransactionRequest, Value } from 'ox'
-import { z } from 'ox/zod'
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
@@ -291,9 +290,9 @@ describe('errors', () => {
 })
 
 describe('behavior: chain schema', () => {
-  test('encodes the request via the chain request codec', async () => {
+  test('encodes the request via the chain request converter', async () => {
     // The generic tuple encoding strips fields it does not know; a chain
-    // request codec must own the request encoding so chain-specific fields
+    // request converter must own the request encoding so chain-specific fields
     // (`feeToken` here) reach the node.
     let body: any
     const server = await Http.createServer((req, res) => {
@@ -313,12 +312,9 @@ describe('behavior: chain schema', () => {
       const chain = mainnet.extend({
         schema: {
           transactionRequest: {
-            toRpc: z.codec(z.any(), z.any(), {
-              decode: (rpc) => rpc,
-              encode: (request) => ({
-                ...TransactionRequest.toRpc(request),
-                feeToken: (request as any).feeToken,
-              }),
+            toRpc: (request: any) => ({
+              ...TransactionRequest.toRpc(request),
+              feeToken: request.feeToken,
             }),
           },
         },

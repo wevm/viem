@@ -1,4 +1,4 @@
-import { z } from 'ox/zod'
+import { TransactionReceipt } from 'ox'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { expect, test } from 'vitest'
@@ -38,12 +38,13 @@ test('args: blockTag (default latest)', async () => {
   expect(receipts).toHaveLength(118)
 })
 
-test('behavior: decodes via chain schema when declared', async () => {
+test('behavior: converts via chain schema when declared', async () => {
   const chain = mainnet.extend({
     rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
     schema: {
       transactionReceipt: {
-        fromRpc: z.TransactionReceipt.TransactionReceipt,
+        fromRpc: (rpc: TransactionReceipt.Rpc) =>
+          TransactionReceipt.fromRpc(rpc),
       },
     },
   })
@@ -54,18 +55,15 @@ test('behavior: decodes via chain schema when declared', async () => {
   ).toEqual(await Actions.block.getReceipts(client, { blockNumber }))
 })
 
-test('behavior: decodes custom properties via chain schema', async () => {
+test('behavior: converts custom properties via chain schema', async () => {
   const chain = mainnet.extend({
     rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
     schema: {
       transactionReceipt: {
-        fromRpc: z.pipe(
-          z.TransactionReceipt.TransactionReceipt,
-          z.transform((receipt) => ({
-            ...receipt,
-            custom: 'hello' as const,
-          })),
-        ),
+        fromRpc: (rpc: TransactionReceipt.Rpc) => ({
+          ...TransactionReceipt.fromRpc(rpc),
+          custom: 'hello' as const,
+        }),
       },
     },
   })

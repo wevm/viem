@@ -1,6 +1,5 @@
 import { Authorization, Hex, Secp256k1, TransactionRequest } from 'ox'
 import type { Address, Errors, Kzg } from 'ox'
-import { z } from 'ox/zod'
 
 import * as Account from '../../Account.js'
 import * as Chain from '../../Chain.js'
@@ -64,8 +63,8 @@ export async function send<chain extends Chain.Chain | undefined>(
   // `null` opts out of the current-chain assertion; `undefined` falls back to
   // the client's chain.
   const chain = chain_ === null ? null : (chain_ ?? client.chain)
-  // The chain whose codec encodes the request (the opt-out does not apply).
-  const codecChain = chain_ ?? client.chain
+  // The chain whose converter encodes the request (the opt-out does not apply).
+  const schemaChain = chain_ ?? client.chain
 
   // Recover the address to reset the nonce against if signing/broadcasting
   // fails after the nonce manager has consumed one.
@@ -121,14 +120,10 @@ export async function send<chain extends Chain.Chain | undefined>(
 
       transactionRequest.assert(request)
 
-      // The chain codec is an untyped `z.ZodMiniType`, so its encoded output
-      // widens to `unknown`; assert back to the RPC shape it produces.
-      const rpc: TransactionRequest.Rpc = codecChain?.schema?.transactionRequest
-        ?.toRpc
-        ? (z.encode(
-            codecChain.schema.transactionRequest.toRpc,
-            request,
-          ) as TransactionRequest.Rpc)
+      // Chain converters are untyped; assert back to the RPC shape produced.
+      const toRpc = schemaChain?.schema?.transactionRequest?.toRpc
+      const rpc: TransactionRequest.Rpc = toRpc
+        ? (toRpc(request) as TransactionRequest.Rpc)
         : TransactionRequest.toRpc(request)
 
       return (await client.request(
@@ -146,7 +141,7 @@ export async function send<chain extends Chain.Chain | undefined>(
     const { request } = await prepare(client, {
       ...rest,
       account,
-      chain: codecChain,
+      chain: schemaChain,
       data,
       kzg,
       nonceManager,

@@ -8,7 +8,6 @@ import {
   TransactionRequest,
   Value,
 } from 'ox'
-import { z } from 'ox/zod'
 import { describe, expect, test } from 'vitest'
 import { Account, Actions, Chain, Client, http } from 'viem'
 import { mainnet, optimism } from 'viem/chains'
@@ -301,14 +300,11 @@ describe('behavior: account', () => {
 })
 
 describe('behavior: chain schema', () => {
-  test('encodes the json-rpc request via the chain request codec', async () => {
+  test('encodes the json-rpc request via the chain request converter', async () => {
     const chain = mainnet.extend({
       schema: {
         transactionRequest: {
-          toRpc: z.codec(z.any(), z.any(), {
-            decode: (rpc) => rpc,
-            encode: (request) => TransactionRequest.toRpc(request),
-          }),
+          toRpc: (request: any) => TransactionRequest.toRpc(request),
         },
       },
     })

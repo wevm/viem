@@ -10,7 +10,6 @@ import type {
   TransactionReceipt,
   TransactionRequest,
 } from 'ox'
-import type { z } from 'ox/zod'
 import type * as Client from './Client.js'
 import { BaseError } from './Errors.js'
 import type { Assign, MaybePromise, Prettify } from './internal/types.js'
@@ -47,7 +46,7 @@ export type Chain = {
   }
   /** Typed chain-extension declaration (see {@link extendSchema}). */
   extendSchema?: Record<string, unknown> | undefined
-  /** Bidirectional RPC ↔ native codecs. */
+  /** RPC ↔ native converters. */
   schema?: Chain.Schema | undefined
   /** Source chain id (e.g. the L1 chain). */
   sourceId?: number | undefined
@@ -277,83 +276,83 @@ export declare namespace Chain {
   }
 
   /**
-   * Per-entity `zod/mini` codecs, split by direction. `fromRpc` decodes an RPC
-   * value into its native (viem-side) shape; `toRpc` encodes a native value
-   * into its RPC/wire shape.
+   * Per-entity RPC ↔ native converters, split by direction. `fromRpc`
+   * converts an RPC value into its native (viem-side) shape; `toRpc` converts
+   * a native value into its RPC/wire shape.
    */
   type Schema = {
-    block?: SchemaCodec | undefined
-    transaction?: SchemaCodec | undefined
-    transactionReceipt?: SchemaCodec | undefined
-    transactionRequest?: SchemaCodec | undefined
+    block?: SchemaConverter | undefined
+    transaction?: SchemaConverter | undefined
+    transactionReceipt?: SchemaConverter | undefined
+    transactionRequest?: SchemaConverter | undefined
   }
 
-  /** RPC ↔ native `zod/mini` codec pair for a chain entity. */
-  type SchemaCodec = {
-    /** Codec decoding an RPC value into its native shape (via `z.decode`). */
-    fromRpc?: z.ZodMiniType | undefined
-    /** Codec encoding a native value into its RPC shape (via `z.encode`). */
-    toRpc?: z.ZodMiniType | undefined
+  /** RPC ↔ native converter pair for a chain entity. */
+  type SchemaConverter = {
+    /** Converts an RPC value into its native shape. */
+    fromRpc?: ((value: any) => unknown) | undefined
+    /** Converts a native value into its RPC shape. */
+    toRpc?: ((value: any) => unknown) | undefined
   }
 }
 
 /**
- * Native block type a {@link Chain} produces. Resolves to `z.output` of the
- * chain's `schema.block.fromRpc` codec when declared, otherwise the default
- * {@link Block.Block}.
+ * Native block type a {@link Chain} produces. Resolves to the return type of
+ * the chain's `schema.block.fromRpc` converter when declared, otherwise the
+ * default {@link Block.Block}.
  */
 export type ExtractBlock<
   chain extends Chain | undefined,
   includeTransactions extends boolean = false,
   blockTag extends Block.Tag = 'latest',
 > = chain extends {
-  schema: { block: { fromRpc: infer schema extends z.ZodMiniType } }
+  schema: { block: { fromRpc: (value: never) => infer block } }
 }
-  ? z.output<schema>
+  ? block
   : Block.Block<includeTransactions, blockTag>
 
 /**
- * Native transaction type a {@link Chain} produces. Resolves to `z.output` of
- * the chain's `schema.transaction.fromRpc` codec when declared, otherwise the
- * default {@link Transaction.Transaction}.
+ * Native transaction type a {@link Chain} produces. Resolves to the return
+ * type of the chain's `schema.transaction.fromRpc` converter when declared,
+ * otherwise the default {@link Transaction.Transaction}.
  */
 export type ExtractTransaction<
   chain extends Chain | undefined,
   pending extends boolean = false,
 > = chain extends {
-  schema: { transaction: { fromRpc: infer schema extends z.ZodMiniType } }
+  schema: { transaction: { fromRpc: (value: never) => infer transaction } }
 }
-  ? z.output<schema>
+  ? transaction
   : Transaction.Transaction<pending>
 
 /**
- * Native transaction receipt type a {@link Chain} produces. Resolves to
- * `z.output` of the chain's `schema.transactionReceipt.fromRpc` codec when
- * declared, otherwise the default
+ * Native transaction receipt type a {@link Chain} produces. Resolves to the
+ * return type of the chain's `schema.transactionReceipt.fromRpc` converter
+ * when declared, otherwise the default
  * {@link TransactionReceipt.TransactionReceipt}.
  */
 export type ExtractTransactionReceipt<chain extends Chain | undefined> =
   chain extends {
     schema: {
-      transactionReceipt: { fromRpc: infer schema extends z.ZodMiniType }
+      transactionReceipt: { fromRpc: (value: never) => infer receipt }
     }
   }
-    ? z.output<schema>
+    ? receipt
     : TransactionReceipt.TransactionReceipt
 
 /**
- * Native transaction request input a {@link Chain} accepts. Resolves to
- * `z.output` of the chain's `schema.transactionRequest.toRpc` codec when
- * declared (the codec's native side — `z.encode` encodes it into the RPC
- * shape), otherwise the default {@link TransactionRequest.toRpc.Input}.
+ * Native transaction request input a {@link Chain} accepts. Resolves to the
+ * parameter type of the chain's `schema.transactionRequest.toRpc` converter
+ * when declared (the converter's native side), otherwise the default
+ * {@link TransactionRequest.toRpc.Input}.
  */
 export type ExtractTransactionRequest<chain extends Chain | undefined> =
   chain extends {
     schema: {
-      transactionRequest: { toRpc: infer schema extends z.ZodMiniType }
+      transactionRequest: { toRpc: (value: infer request) => unknown }
     }
   }
-    ? z.output<schema>
+    ? request
     : TransactionRequest.toRpc.Input
 
 /**

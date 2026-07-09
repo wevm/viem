@@ -1,4 +1,4 @@
-import { z } from 'ox/zod'
+import { Transaction } from 'ox'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { expect, test } from 'vitest'
@@ -77,10 +77,14 @@ test('args: blockNumber + index', async () => {
   expect(transaction).toEqual(byHash)
 })
 
-test('behavior: decodes via chain schema when declared', async () => {
+test('behavior: converts via chain schema when declared', async () => {
   const chain = mainnet.extend({
     rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-    schema: { transaction: { fromRpc: z.Transaction.Transaction } },
+    schema: {
+      transaction: {
+        fromRpc: (rpc: Transaction.Rpc) => Transaction.fromRpc(rpc),
+      },
+    },
   })
   const schemaClient = Client.create({ chain, transport: http() })
 
@@ -94,6 +98,7 @@ test('behavior: decodes via chain schema when declared', async () => {
       "blockHash": "0xd028bdc00aff985bdf872d6b961110d41a6fe4df5e93aeb6dffe2f38ae0a4f7d",
       "blockNumber": 22263623n,
       "chainId": 1,
+      "data": "0x380db829",
       "from": "0xe2da046340e00264c4f0443243a0565007ae08ac",
       "gas": 2000000n,
       "gasPrice": 13319389978n,
@@ -107,25 +112,22 @@ test('behavior: decodes via chain schema when declared', async () => {
       "to": "0x39b7f514c199e4beb1739576a2dbd4de7414981b",
       "transactionIndex": 0,
       "type": "eip1559",
-      "v": 1,
+      "v": 28,
       "value": 0n,
       "yParity": 1,
     }
   `)
 })
 
-test('behavior: decodes custom properties via chain schema', async () => {
+test('behavior: converts custom properties via chain schema', async () => {
   const chain = mainnet.extend({
     rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
     schema: {
       transaction: {
-        fromRpc: z.pipe(
-          z.Transaction.Transaction,
-          z.transform((transaction) => ({
-            ...transaction,
-            custom: 'hello' as const,
-          })),
-        ),
+        fromRpc: (rpc: Transaction.Rpc) => ({
+          ...Transaction.fromRpc(rpc),
+          custom: 'hello' as const,
+        }),
       },
     },
   })

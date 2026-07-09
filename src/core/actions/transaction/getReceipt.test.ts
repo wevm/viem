@@ -1,4 +1,4 @@
-import { z } from 'ox/zod'
+import { TransactionReceipt } from 'ox'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { expect, test } from 'vitest'
@@ -103,7 +103,8 @@ test('behavior: decodes via chain schema when declared', async () => {
     rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
     schema: {
       transactionReceipt: {
-        fromRpc: z.TransactionReceipt.TransactionReceipt,
+        fromRpc: (rpc: TransactionReceipt.Rpc) =>
+          TransactionReceipt.fromRpc(rpc),
       },
     },
   })
@@ -119,13 +120,10 @@ test('behavior: decodes custom properties via chain schema', async () => {
     rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
     schema: {
       transactionReceipt: {
-        fromRpc: z.pipe(
-          z.TransactionReceipt.TransactionReceipt,
-          z.transform((receipt) => ({
-            ...receipt,
-            custom: 'hello' as const,
-          })),
-        ),
+        fromRpc: (rpc: TransactionReceipt.Rpc) => ({
+          ...TransactionReceipt.fromRpc(rpc),
+          custom: 'hello' as const,
+        }),
       },
     },
   })

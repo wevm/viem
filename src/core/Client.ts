@@ -9,7 +9,7 @@ import { uid } from './internal/uid.js'
 import type { Prettify } from './internal/types.js'
 
 /**
- * A viem Client: the composition root binding a {@link Chain} (config/codecs), a
+ * A viem Client: the composition root binding a {@link Chain} (config/converters), a
  * {@link Transport} (wire), and an optional {@link Account} (signer). Extend it
  * with action decorators via `.extend`.
  */

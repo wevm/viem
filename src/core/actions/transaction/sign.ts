@@ -6,7 +6,6 @@ import type {
   Kzg,
   TransactionEnvelope as TxEnvelope,
 } from 'ox'
-import { z } from 'ox/zod'
 
 import * as Account from '../../Account.js'
 import * as Chain from '../../Chain.js'
@@ -70,8 +69,8 @@ export async function sign<chain extends Chain.Chain | undefined>(
   // `null` opts out of the current-chain assertion; `undefined` falls back to
   // the client's chain.
   const chain = chain_ === null ? null : (chain_ ?? client.chain)
-  // The chain whose codec encodes the request (the opt-out does not apply).
-  const codecChain = chain_ ?? client.chain
+  // The chain whose converter encodes the request (the opt-out does not apply).
+  const schemaChain = chain_ ?? client.chain
 
   transactionRequest.assert(rest)
 
@@ -92,7 +91,7 @@ export async function sign<chain extends Chain.Chain | undefined>(
     // A chain hook may produce a custom (opaque) envelope; it round-trips
     // into the same chain's `getSignPayload`/`serialize` via the account.
     // A hook returning `undefined` delegates to the generic default.
-    const envelope = ((await codecChain?.transaction?.toEnvelope?.(
+    const envelope = ((await schemaChain?.transaction?.toEnvelope?.(
       request as TransactionRequest.TransactionRequest,
       { kzg },
     )) ??
@@ -100,17 +99,13 @@ export async function sign<chain extends Chain.Chain | undefined>(
         request as TransactionRequest.TransactionRequest,
         { kzg },
       )) as TxEnvelope.TxEnvelope
-    return account.signTransaction(envelope, { chain: codecChain })
+    return account.signTransaction(envelope, { chain: schemaChain })
   }
 
-  // The chain codec is an untyped `z.ZodMiniType`, so its encoded output widens
-  // to `unknown`; assert back to the RPC shape it produces.
-  const rpc: TransactionRequest.Rpc = codecChain?.schema?.transactionRequest
-    ?.toRpc
-    ? (z.encode(
-        codecChain.schema.transactionRequest.toRpc,
-        request,
-      ) as TransactionRequest.Rpc)
+  // Chain converters are untyped; assert back to the RPC shape produced.
+  const toRpc = schemaChain?.schema?.transactionRequest?.toRpc
+  const rpc: TransactionRequest.Rpc = toRpc
+    ? (toRpc(request) as TransactionRequest.Rpc)
     : TransactionRequest.toRpc(request)
 
   return client.request(

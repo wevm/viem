@@ -1,6 +1,5 @@
 import { Address, Secp256k1, Signature } from 'ox'
 import { MultisigConfig, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
-import { z } from 'ox/zod'
 import { describe, expect, test } from 'vitest'
 
 import { Client, http } from 'viem'
@@ -12,7 +11,7 @@ const privateKey =
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 const sender: Address.Address = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
 
-const codec = chainConfig.schema.transactionRequest.toRpc
+const { fromRpc, toRpc } = chainConfig.schema.transactionRequest
 const { transaction } = chainConfig
 const [prepare] = transaction.prepare
 
@@ -70,7 +69,7 @@ const v2 = {
 
 describe('schema.transactionRequest', () => {
   test('encodes a tempo request', () => {
-    expect(z.encode(codec, { ...baseRequest, from: sender }))
+    expect(toRpc({ ...baseRequest, from: sender }))
       .toMatchInlineSnapshot(`
         {
           "calls": [
@@ -93,7 +92,7 @@ describe('schema.transactionRequest', () => {
   })
 
   test('lifts flat `to`/`value`/`data` into `calls`', () => {
-    const rpc = z.encode(codec, {
+    const rpc = toRpc({
       feeToken: baseRequest.feeToken,
       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
       value: 69n,
@@ -113,7 +112,7 @@ describe('schema.transactionRequest', () => {
   })
 
   test('defaults a call-less request to the zero address', () => {
-    const rpc = z.encode(codec, {
+    const rpc = toRpc({
       feeToken: baseRequest.feeToken,
     }) as Record<string, unknown>
     expect(rpc.calls).toMatchInlineSnapshot(`
@@ -128,7 +127,7 @@ describe('schema.transactionRequest', () => {
   })
 
   test('threads wire fields the generic encoding drops', () => {
-    const rpc = z.encode(codec, {
+    const rpc = toRpc({
       ...baseRequest,
       capabilities: { balanceDiffs: true },
       keyData: '0x0578',
@@ -153,7 +152,7 @@ describe('schema.transactionRequest', () => {
   })
 
   test('shims key data longer than 4 bytes into a length hint', () => {
-    const rpc = z.encode(codec, {
+    const rpc = toRpc({
       ...baseRequest,
       keyData: `0x${'aa'.repeat(1400)}`,
       keyType: 'webAuthn',
@@ -163,7 +162,7 @@ describe('schema.transactionRequest', () => {
     // 4 bytes and below pass through.
     expect(
       (
-        z.encode(codec, { ...baseRequest, keyData: '0x01020304' }) as Record<
+        toRpc({ ...baseRequest, keyData: '0x01020304' }) as Record<
           string,
           unknown
         >
@@ -172,14 +171,14 @@ describe('schema.transactionRequest', () => {
   })
 
   test('feePayer: strips `feeToken` until the fee payer has signed', () => {
-    const pending = z.encode(codec, {
+    const pending = toRpc({
       ...baseRequest,
       feePayer: true,
     }) as Record<string, unknown>
     expect(pending.feeToken).toBeUndefined()
     expect(pending.feePayer).toBe(true)
 
-    const signed = z.encode(codec, {
+    const signed = toRpc({
       ...baseRequest,
       feePayer: true,
       feePayerSignature: {
@@ -192,7 +191,7 @@ describe('schema.transactionRequest', () => {
   })
 
   test('feePayer: encodes a fee payer account as `true`', () => {
-    const rpc = z.encode(codec, {
+    const rpc = toRpc({
       ...baseRequest,
       feePayer: { address: sender, type: 'json-rpc' },
     }) as Record<string, unknown>
@@ -201,7 +200,7 @@ describe('schema.transactionRequest', () => {
   })
 
   test('strips client-side multisig fields', () => {
-    const rpc = z.encode(codec, {
+    const rpc = toRpc({
       ...baseRequest,
       multisig: {
         threshold: 1,
@@ -215,7 +214,7 @@ describe('schema.transactionRequest', () => {
 
   test('routes non-tempo requests to the generic encoding', () => {
     expect(
-      z.encode(codec, {
+      toRpc({
         from: sender,
         gas: 21000n,
         maxFeePerGas: 1000000000n,
@@ -236,7 +235,7 @@ describe('schema.transactionRequest', () => {
   })
 
   test('decodes an RPC request', () => {
-    const request = z.decode(codec, {
+    const request = fromRpc({
       calls: [
         {
           data: '0xdeadbeef',
@@ -268,9 +267,8 @@ describe('schema.transactionRequest', () => {
     `)
   })
 
-  test('chain definitions carry the codec', () => {
-    const rpc = z.encode(
-      tempoModerato.schema.transactionRequest.toRpc,
+  test('chain definitions carry the converter', () => {
+    const rpc = tempoModerato.schema.transactionRequest.toRpc(
       baseRequest,
     ) as Record<string, unknown>
     expect(rpc.type).toBe('0x76')

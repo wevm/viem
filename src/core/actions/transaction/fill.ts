@@ -1,6 +1,5 @@
 import { Transaction, TransactionRequest } from 'ox'
 import type { Address, Errors, Hex } from 'ox'
-import { z } from 'ox/zod'
 
 import type * as Account from '../../Account.js'
 import type * as Capabilities from '../../Capabilities.js'
@@ -73,14 +72,10 @@ export async function fill<chain extends Chain.Chain | undefined>(
     nonce,
   } satisfies TransactionRequest.toRpc.Input
 
-  // The chain codec is an untyped `z.ZodMiniType`, so its encoded output widens
-  // to `unknown`; assert back to the RPC shape it produces.
-  const rpcRequest: TransactionRequest.Rpc = chain?.schema?.transactionRequest
-    ?.toRpc
-    ? (z.encode(
-        chain.schema.transactionRequest.toRpc,
-        request,
-      ) as TransactionRequest.Rpc)
+  // Chain converters are untyped; assert back to the RPC shape produced.
+  const toRpc = chain?.schema?.transactionRequest?.toRpc
+  const rpcRequest: TransactionRequest.Rpc = toRpc
+    ? (toRpc(request) as TransactionRequest.Rpc)
     : TransactionRequest.toRpc(request)
 
   try {
@@ -89,10 +84,9 @@ export async function fill<chain extends Chain.Chain | undefined>(
       requestOptions,
     )
 
+    const fromRpc = chain?.schema?.transaction?.fromRpc
     const transaction = (
-      chain?.schema?.transaction?.fromRpc
-        ? z.decode(chain.schema.transaction.fromRpc, response.tx)
-        : Transaction.fromRpc(response.tx)
+      fromRpc ? fromRpc(response.tx) : Transaction.fromRpc(response.tx)
     ) as Record<string, any>
 
     // Remove unnecessary fields.

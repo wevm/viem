@@ -1,5 +1,4 @@
-import type { Address, Hex } from 'ox'
-import { z } from 'ox/zod'
+import { Block, type Address, type Hex } from 'ox'
 import { expectTypeOf, test } from 'vitest'
 
 import { Actions, Chain, Client, http, publicActions } from 'viem'
@@ -17,18 +16,22 @@ test('includeTransactions: returns transaction objects', async () => {
   expectTypeOf(block.transactions[0].hash).toEqualTypeOf<Hex.Hex>()
 })
 
-test('chain schema: returns z.output of the block codec', async () => {
+test('chain schema: returns the block converter output', async () => {
   const chain = Chain.from({
     id: 1,
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-    schema: { block: { fromRpc: z.Block.Block } },
+    schema: {
+      block: {
+        fromRpc: (rpc: Block.Rpc): Block.Block => Block.fromRpc(rpc),
+      },
+    },
   })
   const schemaClient = Client.create({ chain, transport: http() })
 
   const block = await Actions.block.get(schemaClient)
-  expectTypeOf(block).toEqualTypeOf<z.output<typeof z.Block.Block>>()
+  expectTypeOf(block).toEqualTypeOf<Block.Block>()
 })
 
 test('chain schema: infers custom block properties', async () => {
@@ -39,9 +42,15 @@ test('chain schema: infers custom block properties', async () => {
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
     schema: {
       block: {
-        fromRpc: z.extend(z.Block.Block, {
-          custom: z.optional(z.Hex.Hex),
-          feeCurrency: z.nullable(z.Address.Address),
+        fromRpc: (
+          rpc: Block.Rpc,
+        ): Block.Block & {
+          custom?: Hex.Hex | undefined
+          feeCurrency: Address.Address | null
+        } => ({
+          ...Block.fromRpc(rpc),
+          custom: undefined,
+          feeCurrency: null,
         }),
       },
     },
@@ -65,10 +74,10 @@ test('chain schema: infers custom properties from a transform', async () => {
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
     schema: {
       block: {
-        fromRpc: z.pipe(
-          z.Block.Block,
-          z.transform((block) => ({ ...block, custom: 'hello' as const })),
-        ),
+        fromRpc: (rpc: Block.Rpc) => ({
+          ...Block.fromRpc(rpc),
+          custom: 'hello' as const,
+        }),
       },
     },
   })
@@ -87,7 +96,12 @@ test('decorator: threads custom chain properties through publicActions', async (
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
     schema: {
       block: {
-        fromRpc: z.extend(z.Block.Block, { custom: z.optional(z.Hex.Hex) }),
+        fromRpc: (
+          rpc: Block.Rpc,
+        ): Block.Block & { custom?: Hex.Hex | undefined } => ({
+          ...Block.fromRpc(rpc),
+          custom: undefined,
+        }),
       },
     },
   })

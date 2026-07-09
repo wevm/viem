@@ -7,7 +7,6 @@ import {
   TransactionRequest,
 } from 'ox'
 import type { Address, Errors, Kzg } from 'ox'
-import { z } from 'ox/zod'
 
 import type * as Account from '../../Account.js'
 import type * as Client from '../../Client.js'
@@ -117,11 +116,10 @@ export async function estimateGas(
       requireCanonical,
     })
 
-    const codec = client.chain?.schema?.transactionRequest?.toRpc
-    // The chain codec is an untyped `z.ZodMiniType`, so its encoded output
-    // widens to `unknown`; assert back to the RPC shape it produces.
-    const request_ = codec
-      ? (z.encode(codec, request) as TransactionRequest.Rpc)
+    const toRpc = client.chain?.schema?.transactionRequest?.toRpc
+    // Chain converters are untyped; assert back to the RPC shape produced.
+    const request_ = toRpc
+      ? (toRpc(request) as TransactionRequest.Rpc)
       : TransactionRequest.toRpc(request)
 
     return Hex.toBigInt(

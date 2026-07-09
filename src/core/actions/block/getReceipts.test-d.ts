@@ -1,5 +1,4 @@
-import type { TransactionReceipt } from 'ox'
-import { z } from 'ox/zod'
+import { TransactionReceipt } from 'ox'
 import { expectTypeOf, test } from 'vitest'
 
 import { Actions, Chain, Client, http, publicActions } from 'viem'
@@ -14,14 +13,19 @@ test('default: returns an array of transaction receipts', async () => {
   >()
 })
 
-test('chain schema: returns z.output of the transaction receipt codec', async () => {
+test('chain schema: returns the transaction receipt converter output', async () => {
   const chain = Chain.from({
     id: 1,
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
     schema: {
-      transactionReceipt: { fromRpc: z.TransactionReceipt.TransactionReceipt },
+      transactionReceipt: {
+        fromRpc: (
+          rpc: TransactionReceipt.Rpc,
+        ): TransactionReceipt.TransactionReceipt =>
+          TransactionReceipt.fromRpc(rpc),
+      },
     },
   })
   const schemaClient = Client.create({ chain, transport: http() })
@@ -30,7 +34,7 @@ test('chain schema: returns z.output of the transaction receipt codec', async ()
     blockNumber: 69420n,
   })
   expectTypeOf(receipts).toEqualTypeOf<
-    z.output<typeof z.TransactionReceipt.TransactionReceipt>[]
+    TransactionReceipt.TransactionReceipt[]
   >()
 })
 
@@ -42,10 +46,10 @@ test('decorator: threads custom chain properties through publicActions', async (
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
     schema: {
       transactionReceipt: {
-        fromRpc: z.pipe(
-          z.TransactionReceipt.TransactionReceipt,
-          z.transform((receipt) => ({ ...receipt, custom: 'hello' as const })),
-        ),
+        fromRpc: (rpc: TransactionReceipt.Rpc) => ({
+          ...TransactionReceipt.fromRpc(rpc),
+          custom: 'hello' as const,
+        }),
       },
     },
   })

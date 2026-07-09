@@ -1,5 +1,4 @@
 import type { Hex, TransactionRequest } from 'ox'
-import { z } from 'ox/zod'
 import { expectTypeOf, test } from 'vitest'
 
 import { Chain, Client, http, walletActions } from 'viem'
@@ -105,7 +104,7 @@ test('type: eip2930', () => {
   }).not.toMatchTypeOf<send.Options>()
 })
 
-// A chain whose request codec accepts a custom input field.
+// A chain whose request converter accepts a custom input field.
 const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
@@ -113,15 +112,12 @@ const chain = Chain.from({
   rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
   schema: {
     transactionRequest: {
-      toRpc: z.codec(z.any(), z.object({ custom: z.string() }), {
-        decode: () => ({ custom: '' }),
-        encode: () => ({}) as TransactionRequest.Rpc,
-      }),
+      toRpc: (_request: { custom: string }): TransactionRequest.Rpc => ({}),
     },
   },
 })
 
-test('chain schema: Options use z.output of the request codec', () => {
+test("chain schema: Options use the converter's native request type", () => {
   expectTypeOf<send.Options<typeof chain>>().toMatchTypeOf<{
     custom: string
   }>()

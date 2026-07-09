@@ -1,5 +1,4 @@
 import { AbiFunction, Authorization, TransactionRequest, Value } from 'ox'
-import { z } from 'ox/zod'
 import { describe, expect, test } from 'vitest'
 
 import {
@@ -190,10 +189,7 @@ describe.each(accountCases)('account: %s', (name, account) => {
     const chain = mainnet.extend({
       schema: {
         transactionRequest: {
-          toRpc: z.codec(z.any(), z.any(), {
-            decode: (rpc) => rpc,
-            encode: (request) => TransactionRequest.toRpc(request),
-          }),
+          toRpc: (request: any) => TransactionRequest.toRpc(request),
         },
       },
     })

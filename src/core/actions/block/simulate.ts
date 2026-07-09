@@ -10,7 +10,6 @@ import {
   TransactionRequest,
 } from 'ox'
 import type { Address, Errors } from 'ox'
-import { z } from 'ox/zod'
 
 import type * as Account from '../../Account.js'
 import type * as Chain from '../../Chain.js'
@@ -67,9 +66,9 @@ export async function simulate<
   } = options
 
   try {
-    // Chains with a request codec encode calls themselves; nested generic
+    // Chains with a request converter encode calls themselves; nested generic
     // encoding would reject or strip chain-specific fields.
-    const codec = client.chain?.schema?.transactionRequest?.toRpc
+    const toRpc = client.chain?.schema?.transactionRequest?.toRpc
 
     const blockStateCalls = blocks.map((block) => {
       const calls = block.calls.map((call_) => {
@@ -105,10 +104,9 @@ export async function simulate<
 
         transactionRequest.assert(request)
 
-        if (!codec) return TransactionRequest.toRpc(request)
+        if (!toRpc) return TransactionRequest.toRpc(request)
 
-        // The chain codec is an untyped `z.ZodMiniType`, so its encoded output
-        // widens to `unknown`; assert back to the RPC shape it produces.
+        // Chain converters are untyped; assert back to the RPC shape produced.
         type BatchedRpc = TransactionRequest.Rpc & {
           calls?:
             | {
@@ -118,7 +116,7 @@ export async function simulate<
               }[]
             | undefined
         }
-        const rpc = z.encode(codec, request) as BatchedRpc
+        const rpc = toRpc(request) as BatchedRpc
 
         // `eth_simulateV1` defaults a missing `to` to a contract creation
         // (execution-apis fill rules). Chains that encode requests as batched
@@ -180,12 +178,12 @@ export async function simulate<
       calls?: readonly RpcCallResult[] | undefined
     })[]
 
-    const schema = client.chain?.schema?.block?.fromRpc
+    const fromRpc = client.chain?.schema?.block?.fromRpc
 
     return result.map((rpcBlock, i) => {
       const { calls: rpcCalls = [], ...blockRpc } = rpcBlock
       const block = (
-        schema ? z.decode(schema, blockRpc) : Block.fromRpc(blockRpc)
+        fromRpc ? fromRpc(blockRpc) : Block.fromRpc(blockRpc)
       ) as Block.Block
 
       const calls = rpcCalls.map((call, j) => {

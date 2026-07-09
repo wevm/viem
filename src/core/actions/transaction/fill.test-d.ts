@@ -1,5 +1,4 @@
 import type { TransactionRequest } from 'ox'
-import { z } from 'ox/zod'
 import { expectTypeOf, test } from 'vitest'
 
 import { Chain, Client, http, publicActions, walletActions } from 'viem'
@@ -12,7 +11,7 @@ test('default: request input is the ox default', () => {
   expectTypeOf<fill.Options>().toMatchTypeOf<TransactionRequest.toRpc.Input>()
 })
 
-// A chain whose request codec accepts a custom input field.
+// A chain whose request converter accepts a custom input field.
 const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
@@ -20,15 +19,12 @@ const chain = Chain.from({
   rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
   schema: {
     transactionRequest: {
-      toRpc: z.codec(z.any(), z.object({ custom: z.string() }), {
-        decode: () => ({ custom: '' }),
-        encode: () => ({}) as TransactionRequest.Rpc,
-      }),
+      toRpc: (_request: { custom: string }): TransactionRequest.Rpc => ({}),
     },
   },
 })
 
-test('chain schema: Options use z.output of the request codec', () => {
+test("chain schema: Options use the converter's native request type", () => {
   expectTypeOf<Chain.ExtractTransactionRequest<typeof chain>>().toEqualTypeOf<{
     custom: string
   }>()

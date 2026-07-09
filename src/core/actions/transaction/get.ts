@@ -1,6 +1,5 @@
 import { Hex, Transaction } from 'ox'
 import type { Address, Block, Errors } from 'ox'
-import { z } from 'ox/zod'
 
 import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
@@ -86,9 +85,9 @@ export async function get<
       index,
     })
 
-  const schema = client.chain?.schema?.transaction?.fromRpc
+  const fromRpc = client.chain?.schema?.transaction?.fromRpc
   return (
-    schema ? z.decode(schema, transaction) : Transaction.fromRpc(transaction)
+    fromRpc ? fromRpc(transaction) : Transaction.fromRpc(transaction)
   ) as get.ReturnType<chain, blockTag>
 }
 

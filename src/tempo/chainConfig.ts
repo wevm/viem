@@ -3,10 +3,11 @@ import type { Address, TransactionEnvelope as TxEnvelope } from 'ox'
 import {
   MultisigConfig,
   SignatureEnvelope,
+  Transaction as TransactionTempo,
+  TransactionReceipt as TransactionReceiptTempo,
   TransactionRequest as TransactionRequestTempo,
   TxEnvelopeTempo,
 } from 'ox/tempo'
-import { z } from 'ox/zod'
 
 import type * as viem_Account from '../core/Account.js'
 import * as Chain from '../core/Chain.js'
@@ -75,7 +76,7 @@ export type Envelope = TxEnvelopeTempo.TxEnvelopeTempo & {
 /**
  * The Tempo chain configuration shape. Codec and hook members are typed
  * nominally so declaration emit references them instead of expanding the
- * (large) inferred zod schema types.
+ * (large) inferred schema types.
  */
 export type ChainConfig = {
   blockTime: number
@@ -84,12 +85,17 @@ export type ChainConfig = {
     hardfork?: Hardfork | undefined
   }
   schema: {
-    transaction: { fromRpc: typeof z.tempo.Transaction.Transaction }
+    transaction: {
+      fromRpc: (rpc: TransactionTempo.Rpc) => TransactionTempo.Transaction
+    }
     transactionReceipt: {
-      fromRpc: typeof z.tempo.TransactionReceipt.TransactionReceipt
+      fromRpc: (
+        rpc: TransactionReceiptTempo.Rpc,
+      ) => TransactionReceiptTempo.TransactionReceipt
     }
     transactionRequest: {
-      toRpc: z.ZodMiniType<TransactionRequest, TransactionRequestRpc>
+      fromRpc: (rpc: Record<string, unknown>) => TransactionRequest
+      toRpc: (request: TransactionRequest) => TransactionRequestRpc
     }
   }
   transaction: {
@@ -135,7 +141,7 @@ type PrepareRequest = TransactionRequest & {
 }
 
 /**
- * Shared Tempo chain configuration: RPC codecs, transaction hooks
+ * Shared Tempo chain configuration: RPC converters, transaction hooks
  * (expiring nonces, multisig senders, fee tokens), and signature-envelope
  * verification.
  */
@@ -146,13 +152,11 @@ export const chainConfig = {
     hardfork?: Hardfork | undefined
   }>(),
   schema: {
-    transaction: { fromRpc: z.tempo.Transaction.Transaction },
-    transactionReceipt: { fromRpc: z.tempo.TransactionReceipt.TransactionReceipt },
+    transaction: { fromRpc: TransactionTempo.fromRpc },
+    transactionReceipt: { fromRpc: TransactionReceiptTempo.fromRpc },
     transactionRequest: {
-      toRpc: z.codec(z.any(), z.any(), {
-        decode: (rpc) => decodeRequest(rpc),
-        encode: (request) => encodeRequest(request),
-      }),
+      fromRpc: decodeRequest,
+      toRpc: encodeRequest,
     },
   },
   transaction: {

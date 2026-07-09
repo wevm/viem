@@ -1,6 +1,5 @@
 import { TransactionReceipt } from 'ox'
 import type { Errors, Hex } from 'ox'
-import { z } from 'ox/zod'
 
 import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
@@ -36,9 +35,9 @@ export async function getReceipt<chain extends Chain.Chain | undefined>(
 
   if (!receipt) throw new TransactionReceiptNotFoundError({ hash })
 
-  const schema = client.chain?.schema?.transactionReceipt?.fromRpc
+  const fromRpc = client.chain?.schema?.transactionReceipt?.fromRpc
   return (
-    schema ? z.decode(schema, receipt) : TransactionReceipt.fromRpc(receipt)
+    fromRpc ? fromRpc(receipt) : TransactionReceipt.fromRpc(receipt)
   ) as getReceipt.ReturnType<chain>
 }
 

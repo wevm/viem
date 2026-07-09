@@ -1,9 +1,8 @@
-import { AbiFunction } from 'ox'
+import { AbiFunction, Transaction, TransactionRequest } from 'ox'
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as contract from '~test/contract.js'
 import * as Http from '~test/http.js'
-import { z } from 'ox/zod'
 import { describe, expect, test } from 'vitest'
 import { Account, Actions, Client, http, RpcError, NonceManager } from 'viem'
 import { mainnet } from 'viem/chains'
@@ -324,9 +323,13 @@ test('behavior: encodes/decodes via chain schema when declared', async () => {
   const schemaChain = mainnet.extend({
     rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
     schema: {
-      transaction: { fromRpc: z.Transaction.Pending },
+      transaction: {
+        fromRpc: (rpc: Transaction.Rpc<true>) =>
+          Transaction.fromRpc(rpc, { pending: true }),
+      },
       transactionRequest: {
-        toRpc: z.TransactionRequest.TransactionRequestToRpc,
+        toRpc: (request: TransactionRequest.toRpc.Input) =>
+          TransactionRequest.toRpc(request),
       },
     },
   })
@@ -335,8 +338,7 @@ test('behavior: encodes/decodes via chain schema when declared', async () => {
     transport: http(),
   })
 
-  // `value` is a bigint: the codec must encode (`z.encode`) the native
-  // request into its RPC shape (`z.decode` would reject non-RPC values).
+  // `value` is a bigint: the converter must encode the native request into its RPC shape.
   const { transaction } = await Actions.transaction.fill(schemaClient, {
     account,
     data: '0xdeadbeef',

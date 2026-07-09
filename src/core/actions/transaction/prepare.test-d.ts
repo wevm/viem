@@ -1,5 +1,4 @@
 import type { Address, Kzg, TransactionRequest } from 'ox'
-import { z } from 'ox/zod'
 import { expectTypeOf, test } from 'vitest'
 
 import {
@@ -139,7 +138,7 @@ test('parameters: a fully-populated request literal is accepted', () => {
   } as const satisfies prepare.Options).toMatchTypeOf<prepare.Options>()
 })
 
-// A chain whose request codec accepts a custom input field.
+// A chain whose request converter accepts a custom input field.
 const chainWithSchema = Chain.from({
   id: 1,
   name: 'Ethereum',
@@ -147,10 +146,7 @@ const chainWithSchema = Chain.from({
   rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
   schema: {
     transactionRequest: {
-      toRpc: z.codec(z.any(), z.object({ custom: z.string() }), {
-        decode: () => ({ custom: '' }),
-        encode: () => ({}) as TransactionRequest.Rpc,
-      }),
+      toRpc: (_request: { custom: string }): TransactionRequest.Rpc => ({}),
     },
   },
 })

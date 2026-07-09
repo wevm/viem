@@ -1,5 +1,4 @@
-import type { Hex, Transaction } from 'ox'
-import { z } from 'ox/zod'
+import { Transaction, type Hex } from 'ox'
 import { expectTypeOf, test } from 'vitest'
 
 import { Actions, Chain, Client, http, publicActions } from 'viem'
@@ -19,22 +18,25 @@ test("blockTag 'pending': threads pending into the transaction type", async () =
   expectTypeOf(transaction).toEqualTypeOf<Transaction.Transaction<true>>()
 })
 
-test('chain schema: returns z.output of the transaction codec', async () => {
+test('chain schema: returns the transaction converter output', async () => {
   const chain = Chain.from({
     id: 1,
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-    schema: { transaction: { fromRpc: z.Transaction.Transaction } },
+    schema: {
+      transaction: {
+        fromRpc: (rpc: Transaction.Rpc): Transaction.Transaction =>
+          Transaction.fromRpc(rpc),
+      },
+    },
   })
   const schemaClient = Client.create({ chain, transport: http() })
 
   const transaction = await Actions.transaction.get(schemaClient, {
     hash: '0x',
   })
-  expectTypeOf(transaction).toEqualTypeOf<
-    z.output<typeof z.Transaction.Transaction>
-  >()
+  expectTypeOf(transaction).toEqualTypeOf<Transaction.Transaction>()
 })
 
 test('chain schema: infers custom properties from a transform', async () => {
@@ -45,13 +47,10 @@ test('chain schema: infers custom properties from a transform', async () => {
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
     schema: {
       transaction: {
-        fromRpc: z.pipe(
-          z.Transaction.Transaction,
-          z.transform((transaction) => ({
-            ...transaction,
-            custom: 'hello' as const,
-          })),
-        ),
+        fromRpc: (rpc: Transaction.Rpc) => ({
+          ...Transaction.fromRpc(rpc),
+          custom: 'hello' as const,
+        }),
       },
     },
   })
@@ -71,13 +70,10 @@ test('decorator: threads custom chain properties through publicActions', async (
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
     schema: {
       transaction: {
-        fromRpc: z.pipe(
-          z.Transaction.Transaction,
-          z.transform((transaction) => ({
-            ...transaction,
-            custom: 'hello' as const,
-          })),
-        ),
+        fromRpc: (rpc: Transaction.Rpc) => ({
+          ...Transaction.fromRpc(rpc),
+          custom: 'hello' as const,
+        }),
       },
     },
   })
