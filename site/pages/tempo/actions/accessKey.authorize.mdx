@@ -157,7 +157,7 @@ const { receipt } = await client.accessKey.authorizeSync({
 })
 ```
 
-```ts twoslash [Builder]
+```ts twoslash [Scopes]
 import { parseUnits } from 'viem'
 import { Account, P256, Scopes } from 'viem/tempo'
 import { client } from './viem.config'
@@ -356,7 +356,7 @@ Unix timestamp when the key expires.
 
 - **Type:** `{ token: Address; limit: bigint; period?: number }[]`
 
-Spending limits per token. Optionally include `period` (in seconds) to make the limit periodic — it resets after each period. Use `Period.months(1)`, `Period.seconds(n)`, etc. from `ox/tempo` for convenience.
+Spending limits per token. Optionally include `period` (in seconds) to make the limit periodic. It resets after each period. Use `Period.months(1)`, `Period.seconds(n)`, etc. from `ox/tempo` for convenience.
 
 ### scopes (optional)
 

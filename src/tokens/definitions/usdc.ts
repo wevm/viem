@@ -5,7 +5,7 @@ import { defineToken } from '../defineToken.js'
  * across supported chains.
  *
  * Pass to a Client's `tokens` array, call with a chain id to produce a
- * [token config](/docs/chains/tokens), or read the metadata and `addresses`
+ * [token config](/tokens/guides/defining-tokens), or read the metadata and `addresses`
  * map directly.
  *
  * @example

@@ -249,6 +249,68 @@ const results = await publicClient.multicall({
 })
 ```
 
+### blockTag (optional)
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+The block tag to perform the read against.
+
+```ts
+const results = await publicClient.multicall({
+  contracts: [
+    {
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      abi: wagmiAbi,
+      functionName: 'totalSupply',
+    },
+    ...
+  ],
+  blockTag: 'safe', // [!code focus]
+})
+```
+
+### blockHash (optional)
+
+- **Type:** `Hash`
+
+The block hash to perform the read against. Implements [EIP-1898](https://eips.ethereum.org/EIPS/eip-1898).
+
+```ts
+const results = await publicClient.multicall({
+  contracts: [
+    {
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      abi: wagmiAbi,
+      functionName: 'totalSupply',
+    },
+    ...
+  ],
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d', // [!code focus]
+})
+```
+
+### requireCanonical (optional)
+
+- **Type:** `boolean`
+
+Whether or not to throw an error if the block is not in the canonical chain. Only allowed in conjunction with `blockHash`. Implements [EIP-1898](https://eips.ethereum.org/EIPS/eip-1898).
+
+```ts
+const results = await publicClient.multicall({
+  contracts: [
+    {
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      abi: wagmiAbi,
+      functionName: 'totalSupply',
+    },
+    ...
+  ],
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+  requireCanonical: true, // [!code focus]
+})
+```
+
 ### deployless (optional)
 
 - **Type:** `boolean`

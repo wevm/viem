@@ -1,6 +1,6 @@
 import type { ChainFormatters } from '../types/chain.js'
 import type { RpcTransaction } from '../types/rpc.js'
-import { hexToBigInt } from '../utils/encoding/fromHex.js'
+import { hexToBigInt, hexToNumber } from '../utils/encoding/fromHex.js'
 import { defineBlock } from '../utils/formatters/block.js'
 import {
   defineTransaction,
@@ -54,6 +54,12 @@ export const formatters = {
   transactionReceipt: /*#__PURE__*/ defineTransactionReceipt({
     format(args: OpStackRpcTransactionReceipt): OpStackTransactionReceipt {
       return {
+        ...(args.depositNonce
+          ? { depositNonce: hexToBigInt(args.depositNonce) }
+          : {}),
+        ...(args.depositReceiptVersion
+          ? { depositReceiptVersion: hexToNumber(args.depositReceiptVersion) }
+          : {}),
         l1GasPrice: args.l1GasPrice ? hexToBigInt(args.l1GasPrice) : null,
         l1GasUsed: args.l1GasUsed ? hexToBigInt(args.l1GasUsed) : null,
         l1Fee: args.l1Fee ? hexToBigInt(args.l1Fee) : null,

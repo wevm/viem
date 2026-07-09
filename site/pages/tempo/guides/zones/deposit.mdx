@@ -115,6 +115,14 @@ it landed.
 If hiding the recipient matters, use `zone.encryptedDeposit` so the destination is not exposed on the
 public chain. A plain deposit reveals the recipient on Mainnet.
 
+### Prepare Private Details Before Broadcasting
+
+If another wallet or service will broadcast the deposit, use
+[`zone.encryptedDeposit.prepare`](/tempo/actions/zone.encryptedDeposit#prepared-usage) to encrypt the
+private recipient and memo first. The broadcaster can pass the returned payload directly to
+[`zone.encryptedDeposit`](/tempo/actions/zone.encryptedDeposit) without learning the private details.
+Validate the public transaction details before broadcasting a prepared payload from another party.
+
 ### Track the Deposit Block Number
 
 `zone.getDepositStatus` is keyed by the Mainnet block number of the deposit. Capture it from the

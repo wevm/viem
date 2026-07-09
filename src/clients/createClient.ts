@@ -349,9 +349,10 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 /**
  * Binds an action function to a `client`, returning a parameter-only version
  * along with any helpers the action exposes. Helpers that need a client
- * (`.call`, `.calls`, `.callWithPeriod`, `.estimateGas`, `.simulate`) are bound
- * to `client`; pure helpers (`.extractEvent`, `.extractEvents`) are copied
- * as-is. Used by decorators that attach namespaced actions to a Client.
+ * (`.call`, `.calls`, `.callWithPeriod`, `.estimateGas`, `.prepare`,
+ * `.simulate`) are bound to `client`; pure helpers (`.extractEvent`,
+ * `.extractEvents`) are copied as-is. Used by decorators that attach
+ * namespaced actions to a Client.
  * @internal
  */
 export function bindActionDecorators(
@@ -364,14 +365,19 @@ export function bindActionDecorators(
     'calls',
     'callWithPeriod',
     'estimateGas',
+    'prepare',
     'simulate',
   ] as const)
     if (Object.hasOwn(action, key)) {
       const helper = action[key]
       wrapped[key] = (args: any = {}) => {
-        if (helper.length >= 2) return helper(client, args)
-        if (helper.length === 0) return helper()
-        return helper(args)
+        // Single-parameter helpers are client-less (e.g. `dex.buy.call(args)`).
+        // Everything else is called with `(client, args)`: two-parameter
+        // helpers, rest-parameter helpers that accept `(client, args)` or
+        // `(args)` (`length === 0`, e.g. `token.transfer.call`), and
+        // zero-argument helpers, which ignore the extra arguments.
+        if (helper.length === 1) return helper(args)
+        return helper(client, args)
       }
     }
   for (const key of ['extractEvent', 'extractEvents'] as const)

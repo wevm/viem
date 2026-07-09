@@ -161,6 +161,11 @@ import {
   getProof,
 } from '../../actions/public/getProof.js'
 import {
+  type GetRawTransactionParameters,
+  type GetRawTransactionReturnType,
+  getRawTransaction,
+} from '../../actions/public/getRawTransaction.js'
+import {
   type GetStorageAtParameters,
   type GetStorageAtReturnType,
   getStorageAt,
@@ -1353,6 +1358,30 @@ export type PublicActions<
       | undefined,
   ) => Promise<EstimateMaxPriorityFeePerGasReturnType>
   /**
+   * Returns the raw, serialized [Transaction](https://viem.sh/docs/glossary/terms#transaction) given a hash.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/getRawTransaction
+   * - JSON-RPC Methods: `eth_getRawTransactionByHash`
+   *
+   * @param args - {@link GetRawTransactionParameters}
+   * @returns The raw, serialized transaction. {@link GetRawTransactionReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const rawTransaction = await client.getRawTransaction({
+   *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+   * })
+   */
+  getRawTransaction: (
+    args: GetRawTransactionParameters,
+  ) => Promise<GetRawTransactionReturnType>
+  /**
    * Returns the value from a storage slot at a given address.
    *
    * - Docs: https://viem.sh/docs/contract/getStorageAt
@@ -2284,6 +2313,7 @@ export function publicActions<
     estimateMaxPriorityFeePerGas: (args) =>
       estimateMaxPriorityFeePerGas(client, args),
     fillTransaction: (args) => fillTransaction(client, args),
+    getRawTransaction: (args) => getRawTransaction(client, args),
     getStorageAt: (args) => getStorageAt(client, args),
     getTransaction: (args) => getTransaction(client, args),
     getTransactionConfirmations: (args) =>

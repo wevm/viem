@@ -53,6 +53,60 @@ const { receipt } = await client.accessKey.authorizeSync({
 
 :::
 
+### Authorize with Call Scopes
+
+Use `scopes` to restrict an access key to specific contract calls. You can pass raw scope objects
+directly, or use [`Scopes`](/tempo/utilities/Scopes) builders for typed selectors.
+
+:::code-group
+
+```ts twoslash [Raw]
+import { Account, P256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const { receipt } = await client.accessKey.authorizeSync({
+  accessKey,
+  scopes: [
+    {
+      address: '0x20c0000000000000000000000000000000000001',
+      selector: 'transfer(address,uint256)',
+      recipients: ['0xcafebabecafebabecafebabecafebabecafebabe'],
+    },
+  ],
+})
+```
+
+```ts twoslash [Scopes]
+import { Account, P256, Scopes } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const { receipt } = await client.accessKey.authorizeSync({
+  accessKey,
+  scopes: [
+    Scopes.tip20('0x20c0000000000000000000000000000000000001')
+      .transfer({
+        recipients: ['0xcafebabecafebabecafebabecafebabecafebabe'],
+      }),
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ### Defer Authorization to a Transaction
 
 Sign the authorization offline with [`accessKey.signAuthorization`](/tempo/actions/accessKey.signAuthorization),

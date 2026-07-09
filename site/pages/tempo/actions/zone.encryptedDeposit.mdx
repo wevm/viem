@@ -48,6 +48,38 @@ const hash = await client.zone.encryptedDeposit({
 const receipt = await client.waitForTransactionReceipt({ hash })
 ```
 
+## Prepared Usage
+
+Use `zone.encryptedDeposit.prepare` when one party should choose the private zone recipient, but another party will submit the parent-chain deposit transaction.
+
+:::warning
+Prepared encrypted deposits contain public transaction intent. If you receive a prepared payload from another party, validate `chainId`, `zoneId`, `portalAddress`, `token`, and `amount` before passing it to `zone.encryptedDeposit`.
+:::
+
+:::code-group
+
+```ts twoslash [prepare.ts]
+import { parseUnits } from 'viem'
+import { broadcaster, client } from './viem.config'
+
+const prepared = await client.zone.encryptedDeposit.prepare({
+  amount: parseUnits('100', 6),
+  recipient: '0x0000000000000000000000000000000000000001',
+  token: '0x20c0000000000000000000000000000000000001',
+  zoneId: 7,
+})
+
+const hash = await broadcaster.zone.encryptedDeposit(prepared)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+
+export const broadcaster = client
+```
+
+:::
+
 ## Return Type
 
 ```ts

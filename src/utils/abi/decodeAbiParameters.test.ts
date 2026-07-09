@@ -1507,7 +1507,7 @@ test('data size too small', () => {
       '0x0000000000000000000000000000000000000000000000000000000000010f2c',
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [PositionOutOfBoundsError: Position \`32\` is out of bounds (\`0 < position < 32\`).
+    [PositionOutOfBoundsError: Position \`63\` is out of bounds (\`0 < position < 32\`).
 
     Version: viem@x.y.z]
   `)
@@ -1577,14 +1577,14 @@ test('zst', () => {
   expect(() =>
     decodeAbiParameters([{ type: 'uint256[0][4294967295]' }], payload),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
+    [RecursiveReadLimitExceededError: Recursive read limit of \`8192\` exceeded (recursive read count: \`8193\`).
 
     Version: viem@x.y.z]
   `)
   expect(() =>
     decodeAbiParameters([{ type: 'uint32[0][4294967295]' }], payload),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
+    [RecursiveReadLimitExceededError: Recursive read limit of \`8192\` exceeded (recursive read count: \`8193\`).
 
     Version: viem@x.y.z]
   `)
@@ -1745,4 +1745,75 @@ test('recursive 2', () => {
 
     Version: viem@x.y.z]
   `)
+})
+
+describe('zero-width types', () => {
+  test('zero-length fixed array', () => {
+    expect(
+      decodeAbiParameters(
+        [{ type: 'uint256[0]' }, { type: 'uint256' }],
+        '0x0000000000000000000000000000000000000000000000000000000000000003',
+      ),
+    ).toEqual([[], 3n])
+  })
+
+  test('trailing empty tuple', () => {
+    expect(
+      decodeAbiParameters(
+        [{ type: 'uint256' }, { type: 'tuple', components: [] }],
+        '0x0000000000000000000000000000000000000000000000000000000000000005',
+      ),
+    ).toEqual([5n, []])
+  })
+
+  test('zero-length fixed array of dynamic type', () => {
+    expect(
+      decodeAbiParameters(
+        [{ type: 'string[0]' }, { type: 'uint256' }],
+        '0x00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000003',
+      ),
+    ).toEqual([[], 3n])
+  })
+
+  test('round-trip', () => {
+    const cases = [
+      {
+        params: [{ type: 'uint256[0]' }, { type: 'uint256' }],
+        values: [[], 3n],
+      },
+      {
+        params: [{ type: 'uint256' }, { type: 'tuple', components: [] }],
+        values: [5n, []],
+      },
+      {
+        params: [{ type: 'string[0]' }, { type: 'uint256' }],
+        values: [[], 3n],
+      },
+      {
+        params: [{ type: 'uint256[0]' }, { type: 'string' }],
+        values: [[], 'hello'],
+      },
+      {
+        params: [{ type: 'uint256[0][2]' }, { type: 'uint256' }],
+        values: [[[], []], 9n],
+      },
+      {
+        params: [
+          {
+            type: 'tuple',
+            components: [{ type: 'string' }, { type: 'tuple', components: [] }],
+          },
+        ],
+        values: [['hi', []]],
+      },
+    ] as const
+    for (const { params, values } of cases) {
+      expect(
+        decodeAbiParameters(
+          params,
+          encodeAbiParameters(params, values as never),
+        ),
+      ).toEqual(values)
+    }
+  })
 })

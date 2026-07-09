@@ -423,6 +423,15 @@ export async function prepareTransactionRequest<
             type,
             ...rest
           } = result.transaction
+          const feeToken = 'feeToken' in rest ? rest.feeToken : undefined
+          const hasFilledFeePayerSignature =
+            'feePayerSignature' in rest &&
+            rest.feePayerSignature !== null &&
+            typeof rest.feePayerSignature !== 'undefined'
+          const shouldUseFilledFeeToken =
+            typeof feeToken !== 'undefined' &&
+            feeToken !== null &&
+            (!('feeToken' in request) || hasFilledFeePayerSignature)
           supportsFillTransaction.set(client.uid, true)
           return {
             ...request,
@@ -461,12 +470,7 @@ export async function prepareTransactionRequest<
             rest.feePayerSignature !== null
               ? { feePayerSignature: rest.feePayerSignature }
               : {}),
-            ...('feeToken' in rest &&
-            typeof rest.feeToken !== 'undefined' &&
-            rest.feeToken !== null &&
-            !('feeToken' in request)
-              ? { feeToken: rest.feeToken }
-              : {}),
+            ...(shouldUseFilledFeeToken ? { feeToken } : {}),
             ...(result.capabilities
               ? { _capabilities: result.capabilities }
               : {}),
