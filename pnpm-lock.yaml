@@ -186,8 +186,8 @@ importers:
         specifier: 1.2.3
         version: 1.2.3(typescript@5.9.3)(zod@4.4.3)
       ox:
-        specifier: 1.0.0-beta.18
-        version: 1.0.0-beta.18(typescript@5.9.3)
+        specifier: 1.0.0-beta.19
+        version: 1.0.0-beta.19(typescript@5.9.3)
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 'catalog:'
@@ -230,7 +230,7 @@ importers:
         version: 0.18.1
       permissionless:
         specifier: 'catalog:'
-        version: 0.2.57(ox@1.0.0-beta.18(typescript@5.9.3))
+        version: 0.2.57(ox@1.0.0-beta.19(typescript@5.9.3))
       prool:
         specifier: 'catalog:'
         version: 0.2.5(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0)
@@ -5066,8 +5066,8 @@ packages:
       typescript:
         optional: true
 
-  ox@1.0.0-beta.18:
-    resolution: {integrity: sha512-Sm4gDfECIZkBJayLs7anSIbMSzDMPpLtzqKP1O4SL6f9qnlRji+r5eQnXyFkTnkVMmsyWzg5jNCf+qeDB8cW0g==}
+  ox@1.0.0-beta.19:
+    resolution: {integrity: sha512-pFY8AWJSjZblPhOej+KjxMEcpT44zSxKjR3yiFVEs+trhU2C+qhpiuOmMi8heaEj7sPrQ1dy7D6o1zaqfaUeGA==}
     peerDependencies:
       typescript: ^5.9.3
     peerDependenciesMeta:
@@ -11495,7 +11495,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@1.0.0-beta.18(typescript@5.9.3):
+  ox@1.0.0-beta.19(typescript@5.9.3):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 2.2.0
@@ -11732,9 +11732,9 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.57(ox@1.0.0-beta.18(typescript@5.9.3)):
+  permissionless@0.2.57(ox@1.0.0-beta.19(typescript@5.9.3)):
     optionalDependencies:
-      ox: 1.0.0-beta.18(typescript@5.9.3)
+      ox: 1.0.0-beta.19(typescript@5.9.3)
 
   picocolors@1.1.1: {}
 
@@ -12987,7 +12987,7 @@ snapshots:
   viem@file:(typescript@5.9.3)(zod@4.4.3):
     dependencies:
       abitype: 1.2.3(typescript@5.9.3)(zod@4.4.3)
-      ox: 1.0.0-beta.18(typescript@5.9.3)
+      ox: 1.0.0-beta.19(typescript@5.9.3)
     optionalDependencies:
       typescript: 5.9.3
     transitivePeerDependencies:
