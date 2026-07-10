@@ -181,6 +181,10 @@ For v3 rewrite work, also read `AGENTS.tmp.md`.
 - **Tempo tests boot one container per test file**; the file's `afterAll` stops it. A cancelled
   run leaks `tempo.<uuid>` containers that starve later runs. `docker ps` and `docker rm -f`
   the leaked ones before re-running `--project tempo`.
+- **The bundler harness needs the scoped fastify override**; `test/src/bundler.ts` boots Alto
+  via prool in the core global setup. The `package.json` override must stay
+  `"fastify@>=5.0.0": ">=5.8.5"` — a bare `"fastify"` key rewrites Alto's pinned deps and
+  breaks its boot.
 - **Blob tests need raised timeouts**; PeerDAS cell proofs (`Blobs.toCellProofs`) cost ~5s of
   CPU per blob, over the 5s default. Give blob-sidecar tests `{ timeout: 30_000 }`.
 - **Full parallel runs can rate-limit the fork upstream**; 100+ fresh fork instances cold-fetching

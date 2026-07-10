@@ -1,23 +1,23 @@
 [submodule "contracts/lib/forge-std"]
-	path = contracts-old/lib/forge-std
+	path = contracts/lib/forge-std
 	url = git@github.com:foundry-rs/forge-std.git
 [submodule "contracts/lib/solady"]
-	path = contracts-old/lib/solady
+	path = contracts/lib/solady
 	url = git@github.com:Vectorized/solady.git
 [submodule "contracts/lib/solady-dc09481"]
-	path = contracts-old/lib/solady-dc09481
+	path = contracts/lib/solady-dc09481
 	url = git@github.com:Vectorized/solady.git
 [submodule "contracts/lib/account-abstraction"]
-	path = contracts-old/lib/account-abstraction
+	path = contracts/lib/account-abstraction
 	url = git@github.com:eth-infinitism/account-abstraction.git
 [submodule "contracts/lib/openzeppelin"]
-	path = contracts-old/lib/openzeppelin
+	path = contracts/lib/openzeppelin
 	url = git@github.com:OpenZeppelin/openzeppelin-contracts.git
 [submodule "contracts/lib/solady-6c2d0da"]
-	path = contracts-old/lib/solady-6c2d0da
+	path = contracts/lib/solady-6c2d0da
 	url = git@github.com:Vectorized/solady.git
 [submodule "contracts/lib/account-abstraction-v07"]
-	path = contracts-old/lib/account-abstraction-v07
+	path = contracts/lib/account-abstraction-v07
 	url = git@github.com:eth-infinitism/account-abstraction.git
 [submodule "test/tempo"]
 	path = test/tempo
