@@ -1,7 +1,7 @@
 import type { Address } from 'abitype'
 
 /**
- * On-chain addresses for an EIP-8130 deployment ([base/eip-8130](https://github.com/base/eip-8130)).
+ * Onchain addresses for an EIP-8130 deployment ([base/eip-8130](https://github.com/base/eip-8130)).
  *
  * On chains **without** native EIP-8130 support, these contracts provide the
  * portable path: `accountConfiguration` is the ERC-4337 factory / config

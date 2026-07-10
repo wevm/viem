@@ -18,7 +18,7 @@ There are two ways to obtain `payer_auth`:
 
 ## Co-signing locally
 
-Pass a `payer` signer to `sendCalls8130`. It signs `payer_auth` bound to the sender and sets the `payer` wire field. Set `payer.address` when the on-chain payer account differs from the signing key.
+Pass a `payer` signer to `sendCalls8130`. It signs `payer_auth` bound to the sender and sets the `payer` wire field. Set `payer.address` when the onchain payer account differs from the signing key.
 
 ```ts
 import { privateKeyToAccount } from 'viem/accounts'

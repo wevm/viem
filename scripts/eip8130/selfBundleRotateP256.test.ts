@@ -32,7 +32,7 @@ const PRIVATE_KEY = process.env.PRIVATE_KEY as `0x${string}` | undefined
 const RPC_URL = process.env.BASE_SEPOLIA_RPC ?? 'https://sepolia.base.org'
 
 // P-256 generator point (Gx, Gy) — a valid, well-known public key used purely
-// to prove the actor is registered on-chain during validateUserOp. The op is
+// to prove the actor is registered onchain during validateUserOp. The op is
 // authorized by the k1 owner signing the actor change, not by this key.
 const p256PubKey = {
   x: '0x6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296',

@@ -293,7 +293,7 @@ export type NewSmartAccount8130ReturnType = To8130AccountReturnType & {
 /**
  * Creates a new EIP-8130 smart account from a signer, automatically deriving
  * the actor type, deployment bytecode, and counterfactual address. The account
- * is not yet deployed on-chain — include `account.createChange` in the first
+ * is not yet deployed onchain — include `account.createChange` in the first
  * transaction's `accountChanges` to atomically deploy and call in one shot.
  *
  * Supports K1 (secp256k1), P-256, and WebAuthn (passkey) signers, detected

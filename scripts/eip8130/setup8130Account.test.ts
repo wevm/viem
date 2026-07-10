@@ -20,7 +20,7 @@ const RPC_URL = process.env.BASE_SEPOLIA_RPC ?? 'https://sepolia.base.org'
 const SALT_LABEL = process.env.SALT_LABEL ?? 'viem-eip8130-demo-1'
 
 describe.runIf(PRIVATE_KEY)('setup an EIP-8130 account on Base Sepolia', () => {
-  test('computeAddress matches on-chain and createAccount lands', async () => {
+  test('computeAddress matches onchain and createAccount lands', async () => {
     const owner = privateKeyToAccount(PRIVATE_KEY!)
     const client = createClient({
       account: owner,

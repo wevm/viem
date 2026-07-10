@@ -186,7 +186,7 @@ export async function sendSponsoredCalls(
     : undefined
 
   // `conditions.maxExpiry` is a relative duration (seconds from now). The wallet
-  // sets the on-chain expiry to `now + maxExpiry`; the payer keeps `maxExpiry`
+  // sets the onchain expiry to `now + maxExpiry`; the payer keeps `maxExpiry`
   // short. Recomputed per attempt so a retry doesn't inherit a near-expiry
   // window. A caller-supplied absolute `expiry` is used as-is.
   const computeExpiry = (): bigint => {

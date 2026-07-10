@@ -9,7 +9,7 @@ An EIP-8130 transaction can carry an opaque, application-defined `metadata` blob
 Use it to bind off-chain context to a transaction — a payer `policyId`, a client request id, an app tag — where you want the value tamper-evident but don't want to spend calldata inside a call.
 
 :::info
-`metadata` is not interpreted on-chain and does not affect execution. It is a signed, echoed annotation — not a substitute for on-chain state or event logs.
+`metadata` is not interpreted onchain and does not affect execution. It is a signed, echoed annotation — not a substitute for onchain state or event logs.
 :::
 
 ## Setting metadata
@@ -51,7 +51,7 @@ if (raw && raw !== '0x') {
 }
 ```
 
-Keep it small — every byte is signed and stored on-chain. For large payloads, store the data off-chain and put only a hash or id in `metadata`.
+Keep it small — every byte is signed and stored onchain. For large payloads, store the data off-chain and put only a hash or id in `metadata`.
 
 ## Next
 

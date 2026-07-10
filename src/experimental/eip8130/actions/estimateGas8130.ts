@@ -162,7 +162,7 @@ const maxAuthSize = 8_192
  *
  * Note: an EIP-8130 estimate that reverts a phase surfaces the revert (like
  * standard `eth_estimateGas`), even though a reverted EIP-8130 tx would still
- * be included on-chain (nonce consumed, fee paid).
+ * be included onchain (nonce consumed, fee paid).
  */
 export async function estimateGas8130<
   chain extends Chain | undefined,

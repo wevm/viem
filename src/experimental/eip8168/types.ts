@@ -286,7 +286,7 @@ export type SignTransactionReturnType = {
 
 export type GetSponsorshipBalanceParameters = {
   from: Address
-  /** Optional execution-chain filter. */
+  /** Optional executionchain filter. */
   chainId?: Hex | undefined
   /** Aggregator: scope to a single service by address. */
   payer?: Address | undefined
