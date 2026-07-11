@@ -135,7 +135,7 @@ export function defineZone(
   }
 }
 
-export const localZone = defineZone()
+export const zone1 = defineZone()
 
 async function startZone(
   parameters: DefineZoneParameters,

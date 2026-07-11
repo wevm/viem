@@ -21,7 +21,7 @@ import * as Prool from './prool.js'
 
 // On localnet, provision a fresh zone (`tempo-zone dev`) against this
 // worker's L1 and derive the chain from its runtime metadata.
-const local = nodeEnv === 'localnet' ? await Prool.localZone.start() : undefined
+const local = nodeEnv === 'localnet' ? await Prool.zone1.start() : undefined
 
 export const zoneId = local?.zoneId ?? 7
 
