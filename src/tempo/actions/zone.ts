@@ -329,12 +329,11 @@ export async function getEncryptionKey<chain extends Chain | undefined>(
     throw keyCount === 0n
       ? new Error('No sequencer encryption key configured.')
       : publicKeyResult.error
-  const [x, yParity] = publicKeyResult.result
-  const prefix = yParity === 0 || yParity === 1 ? yParity + 2 : yParity
+  const [x, prefix] = publicKeyResult.result
   PublicKey.assert({ prefix, x: Hex.toBigInt(x) }, { compressed: true })
   return {
     keyIndex: keyCount - 1n,
-    publicKey: { x, yParity: prefix as 2 | 3 },
+    publicKey: { prefix: prefix as 2 | 3, x },
   }
 }
 
@@ -365,9 +364,9 @@ export namespace getEncryptionKey {
     keyIndex: bigint
     /** Active sequencer encryption public key. */
     publicKey: {
-      x: Hex.Hex
       /** SEC1 compressed public key prefix. */
-      yParity: 2 | 3
+      prefix: 2 | 3
+      x: Hex.Hex
     }
   }>
 
@@ -1652,14 +1651,14 @@ export namespace signAuthorizationToken {
  * @internal
  */
 async function encryptDepositPayload(
-  publicKey: { x: Hex.Hex; yParity: 2 | 3 },
+  publicKey: { prefix: 2 | 3; x: Hex.Hex },
   recipient: Address,
   portalAddress: Address,
   keyIndex: bigint,
   memo: Hex.Hex = zeroHash,
 ): Promise<EncryptedPayload> {
   const sequencerPublicKey = PublicKey.from({
-    prefix: publicKey.yParity,
+    prefix: publicKey.prefix,
     x: Hex.toBigInt(publicKey.x),
   })
 

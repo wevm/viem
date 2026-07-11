@@ -31,9 +31,9 @@ The key count and public key are read in one deployless multicall snapshot, keep
 type ReturnType = {
   keyIndex: bigint
   publicKey: {
-    x: Hex
     // SEC1 compressed public key prefix.
-    yParity: 2 | 3
+    prefix: 2 | 3
+    x: Hex
   }
 }
 ```

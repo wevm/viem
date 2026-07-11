@@ -42,7 +42,7 @@ test('getEncryptionKey returns the active key and index', async () => {
   const result = await zoneActions.getEncryptionKey(client, { zoneId: 7 })
 
   expectTypeOf(result).toEqualTypeOf<zoneActions.getEncryptionKey.ReturnValue>()
-  expectTypeOf(result.publicKey.yParity).toEqualTypeOf<2 | 3>()
+  expectTypeOf(result.publicKey.prefix).toEqualTypeOf<2 | 3>()
   zoneActions.getEncryptionKey.calls({
     portalAddress: '0x0000000000000000000000000000000000000001',
   })

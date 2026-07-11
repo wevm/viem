@@ -408,7 +408,7 @@ describe('getEncryptionKey', () => {
 
     expect(result.keyIndex).toBeGreaterThanOrEqual(0n)
     expect(result.publicKey.x).toMatch(/^0x[\da-f]{64}$/)
-    expect([2, 3]).toContain(result.publicKey.yParity)
+    expect([2, 3]).toContain(result.publicKey.prefix)
   })
 
   test('error: no chain', async () => {
