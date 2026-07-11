@@ -1,0 +1,20 @@
+# `entryPoint.getSupported`
+
+Returns the EntryPoint addresses supported by a Bundler.
+
+## Usage
+
+```ts
+import { Actions } from 'viem/account-abstraction'
+
+const entryPoints = await Actions.entryPoint.getSupported(bundlerClient)
+// @log: ['0x0000000071727De22E5E9d8BAf0edAc6f37da032']
+```
+
+The Bundler Client also exposes `bundlerClient.entryPoint.getSupported()`.
+
+Compare the result with the canonical addresses in [EntryPoint Versions](/account-abstraction/entry-point-versions). A Bundler must explicitly return `EntryPoint.addressV09` before it can accept EntryPoint 0.9 operations.
+
+## Return Type
+
+`readonly Address[]`

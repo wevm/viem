@@ -33,7 +33,7 @@ test('behavior: partial authorization: no chainId + nonce', async () => {
     {
       "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "nonce": 953n,
+      "nonce": 3774n,
     }
   `)
 })
@@ -48,7 +48,7 @@ test('behavior: partial authorization: no nonce', async () => {
     {
       "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 10,
-      "nonce": 953n,
+      "nonce": 3774n,
     }
   `)
 })

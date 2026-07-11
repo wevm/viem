@@ -1,0 +1,137 @@
+# `SmartAccount.from`
+
+Creates a Smart Account from an implementation definition. Viem resolves the address, tracks deployment state, allocates EntryPoint nonce keys, and wraps counterfactual signatures with ERC-6492 when needed.
+
+Use a built-in implementation unless you are integrating another account contract:
+
+- [`CoinbaseSmartAccount.from`](/account-abstraction/accounts/coinbase)
+- [`Simple7702SmartAccount.from`](/account-abstraction/accounts/simple-7702)
+- [`SoladySmartAccount.from`](/account-abstraction/accounts/solady)
+
+## Usage
+
+```ts
+import { SmartAccount } from 'viem/account-abstraction'
+
+const account = await SmartAccount.from({
+  client: executionClient,
+  entryPoint: {
+    abi: entryPointAbi,
+    address: entryPointAddress,
+    version: '0.7',
+  },
+  encodeCalls,
+  getAddress,
+  getFactoryArgs,
+  getStubSignature,
+  signMessage,
+  signTypedData,
+  signUserOperation,
+})
+```
+
+## Parameters
+
+### implementation
+
+#### implementation.authorization (optional)
+
+- **Type:** `{ account: PrivateKeyAccount, address: Address }`
+
+EIP-7702 delegation used to deploy the account.
+
+#### implementation.client
+
+- **Type:** `Client`
+
+Execution Client used to read account and EntryPoint state.
+
+#### implementation.decodeCalls (optional)
+
+- **Type:** `(data: Hex) => readonly Call[] | Promise<readonly Call[]>`
+
+Decodes account execution calldata into calls.
+
+#### implementation.encodeCalls
+
+- **Type:** `(calls: readonly Call[]) => Hex | Promise<Hex>`
+
+Encodes calls as account execution calldata.
+
+#### implementation.entryPoint
+
+- **Type:** `{ abi: Abi, address: Address, version: '0.6' | '0.7' | '0.8' | '0.9' }`
+
+EntryPoint supported by the implementation.
+
+#### implementation.extend (optional)
+
+- **Type:** `object`
+
+Additional properties exposed by the returned account.
+
+#### implementation.getAddress
+
+- **Type:** `() => Address | Promise<Address>`
+
+Returns the account address.
+
+#### implementation.getFactoryArgs
+
+- **Type:** `() => FactoryArgs | Promise<FactoryArgs>`
+
+Returns the factory address and calldata for an undeployed account.
+
+#### implementation.getNonce (optional)
+
+- **Type:** `(options?: { key?: bigint }) => bigint | Promise<bigint>`
+
+Overrides the default EntryPoint nonce lookup.
+
+#### implementation.getStubSignature
+
+- **Type:** `(userOperation?) => Hex | Promise<Hex>`
+
+Returns a placeholder signature for gas estimation.
+
+#### implementation.nonceKeyManager (optional)
+
+- **Type:** `NonceManager`
+
+Manages automatically allocated EntryPoint nonce keys.
+
+#### implementation.sign (optional)
+
+- **Type:** `(options: { hash: Hex }) => Hex | Promise<Hex>`
+
+Signs a raw hash and enables the returned account's `sign` method.
+
+#### implementation.signMessage
+
+- **Type:** `LocalAccount['signMessage']`
+
+Signs an EIP-191 personal message with the owner.
+
+#### implementation.signTypedData
+
+- **Type:** `LocalAccount['signTypedData']`
+
+Signs EIP-712 typed data with the owner.
+
+#### implementation.signUserOperation
+
+- **Type:** `(userOperation) => Hex | Promise<Hex>`
+
+Signs a User Operation with the owner.
+
+#### implementation.userOperation (optional)
+
+- **Type:** `{ estimateGas? }`
+
+Account-specific User Operation preparation hooks.
+
+## Return Type
+
+`SmartAccount.SmartAccount`
+
+The account includes `address`, `getFactoryArgs`, `getNonce`, `isDeployed`, `signMessage`, `signTypedData`, and `type: 'smart'` alongside implementation extensions.

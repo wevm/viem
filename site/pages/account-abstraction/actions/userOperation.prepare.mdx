@@ -1,0 +1,106 @@
+# `userOperation.prepare`
+
+Prepares a User Operation by filling missing account, authorization, factory, fee, gas, nonce, paymaster, and signature fields.
+
+## Usage
+
+```ts
+import { Actions } from 'viem/account-abstraction'
+
+const userOperation = await Actions.userOperation.prepare(bundlerClient, {
+  calls: [
+    {
+      to: '0x0000000000000000000000000000000000000000',
+      value: 1n,
+    },
+  ],
+})
+// @log: {
+//   callData: '0x...',
+//   callGasLimit: 53240n,
+//   maxFeePerGas: 3000000000n,
+//   maxPriorityFeePerGas: 2000000000n,
+//   nonce: 0n,
+//   preVerificationGas: 46292n,
+//   sender: '0x...',
+//   signature: '0x...',
+//   verificationGasLimit: 150000n,
+// }
+```
+
+The Bundler Client also exposes `bundlerClient.userOperation.prepare(options)`.
+
+Pass either `calls` for Smart Account encoding or an already encoded `callData`. All other version-specific User Operation fields are optional and preserved.
+
+## Parameters
+
+### client
+
+- **Type:** `Client.Client`
+
+Bundler Client used for preparation and gas estimation.
+
+### options
+
+#### options.account (optional)
+
+- **Type:** `SmartAccount`
+- **Default:** `client.account`
+
+Smart Account that sends the User Operation. Required when the Client has no account.
+
+#### options.callData (optional)
+
+- **Type:** `Hex`
+
+Encoded Smart Account call. Required when `calls` is omitted.
+
+#### options.calls (optional)
+
+- **Type:** `readonly Call[]`
+
+Calls encoded by the Smart Account. Required when `callData` is omitted.
+
+#### options.dataSuffix (optional)
+
+- **Type:** `Hex`
+- **Default:** `client.dataSuffix`
+
+Data appended to encoded Smart Account calldata.
+
+#### options.parameters (optional)
+
+- **Type:** `readonly ('authorization' | 'factory' | 'fees' | 'gas' | 'nonce' | 'paymaster' | 'signature')[]`
+- **Default:** All parameters
+
+Fields that the action should populate.
+
+#### options.paymaster (optional)
+
+- **Type:** `Address | true | PaymasterClient | PaymasterActions`
+- **Default:** `client.paymaster`
+
+Paymaster address or methods used during preparation.
+
+#### options.paymasterContext (optional)
+
+- **Type:** `unknown`
+- **Default:** `client.paymasterContext`
+
+Service-specific context passed to Paymaster methods.
+
+#### options.paymasterSignature (optional)
+
+- **Type:** `Hex`
+
+EntryPoint 0.9 Paymaster signature. It is preserved separately from `paymasterData` and excluded from the account-signed User Operation hash.
+
+#### options.stateOverride (optional)
+
+- **Type:** `StateOverrides`
+
+State overrides applied while estimating gas.
+
+## Return Type
+
+A complete `UserOperation` for the Smart Account's EntryPoint version. Fields excluded through `options.parameters` remain optional.

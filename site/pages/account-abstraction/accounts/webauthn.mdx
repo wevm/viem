@@ -1,0 +1,53 @@
+# `WebAuthnAccount.from`
+
+Creates an owner account from a WebAuthn P256 credential. The result can own a [`CoinbaseSmartAccount`](/account-abstraction/accounts/coinbase).
+
+## Create a Credential
+
+Credential creation lives in ox.
+
+```ts
+import { WebAuthnP256 } from 'ox'
+import { WebAuthnAccount } from 'viem/account-abstraction'
+
+const credential = await WebAuthnP256.createCredential({ name: 'Example' })
+const account = WebAuthnAccount.from(credential)
+```
+
+Persist `credential.id` and `credential.publicKey` to restore the account later:
+
+```ts
+const account = WebAuthnAccount.from({
+  id: storedCredential.id,
+  publicKey: storedCredential.publicKey,
+})
+```
+
+## Parameters
+
+### credential
+
+- **Type:** `{ id: string, publicKey: P256PublicKey | Hex }`
+
+WebAuthn credential or its persisted identity.
+
+### options (optional)
+
+#### options.getFn (optional)
+
+- **Type:** `WebAuthnP256.sign.Options['getFn']`
+- **Default:** `window.navigator.credentials.get`
+
+Credential request function for custom runtimes and tests.
+
+#### options.rpId (optional)
+
+- **Type:** `string`
+
+Relying Party ID supplied during authentication.
+
+## Return Type
+
+`WebAuthnAccount.Account`
+
+The account exposes `id`, `publicKey`, `sign`, `signMessage`, `signTypedData`, and `type: 'webAuthn'`.

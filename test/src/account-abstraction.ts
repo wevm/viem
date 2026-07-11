@@ -2,6 +2,8 @@ import { AbiConstructor, AbiParameters, type Address, Hex, Value } from 'ox'
 import { EntryPoint, UserOperation } from 'ox/erc4337'
 
 import { Account, Actions, Client } from 'viem'
+import * as Simple7702SmartAccount from '../../src/account-abstraction/Simple7702SmartAccount.js'
+import * as SoladySmartAccount from '../../src/account-abstraction/SoladySmartAccount.js'
 import {
   Simple7702Account08,
   SoladyAccount06,
@@ -12,8 +14,122 @@ import {
   VerifyingPaymaster08,
 } from '../../contracts/generated.js'
 import * as constants from './constants.js'
+import { getClient, mainnet } from './anvil.js'
 import { deploy } from './contract.js'
 import { createServer } from './http.js'
+
+const client = getClient(mainnet)
+
+/** Creates funded Simple7702 accounts for EntryPoint 0.9 tests. */
+export async function getSmartAccounts_09() {
+  const smartAccounts = []
+
+  for (const account of constants.accounts) {
+    const smartAccount = await Simple7702SmartAccount.from({
+      client,
+      entryPoint: '0.9',
+      owner: Account.fromPrivateKey(account.privateKey),
+    })
+    await Actions.transaction.send(client, {
+      account: constants.accounts[9].address,
+      to: smartAccount.address,
+      value: Value.fromEther('100'),
+    })
+    smartAccounts.push(smartAccount)
+  }
+
+  await Actions.test.block.mine(client, { blocks: 1 })
+  return smartAccounts
+}
+
+/** Creates funded Simple7702 accounts for EntryPoint 0.8 tests. */
+export async function getSmartAccounts_08() {
+  const { implementationAddress } = await deploySimple7702Account08(client)
+  const smartAccounts = []
+
+  for (const account of constants.accounts) {
+    const smartAccount = await Simple7702SmartAccount.from({
+      client,
+      implementation: implementationAddress,
+      owner: Account.fromPrivateKey(account.privateKey),
+    })
+    await Actions.transaction.send(client, {
+      account: constants.accounts[9].address,
+      to: smartAccount.address,
+      value: Value.fromEther('100'),
+    })
+    smartAccounts.push(smartAccount)
+  }
+
+  await Actions.test.block.mine(client, { blocks: 1 })
+  return smartAccounts
+}
+
+/** Creates funded Solady accounts for EntryPoint 0.7 tests. */
+export async function getSmartAccounts_07() {
+  const { factoryAddress } = await deploySoladyAccount07(client)
+  const smartAccounts = []
+
+  for (const salt of salts) {
+    const smartAccount = await SoladySmartAccount.from({
+      client,
+      factoryAddress,
+      owner: constants.accounts[0].address,
+      salt,
+    })
+    await Actions.transaction.send(client, {
+      account: constants.accounts[9].address,
+      to: smartAccount.address,
+      value: Value.fromEther('100'),
+    })
+    smartAccounts.push(smartAccount)
+  }
+
+  await Actions.test.block.mine(client, { blocks: 1 })
+  return smartAccounts
+}
+
+/** Creates funded Solady accounts for EntryPoint 0.6 tests. */
+export async function getSmartAccounts_06() {
+  const { factoryAddress } = await deploySoladyAccount06(client)
+  const smartAccounts = []
+
+  for (const salt of salts) {
+    const smartAccount = await SoladySmartAccount.from({
+      client,
+      entryPoint: {
+        abi: EntryPoint.abiV06,
+        address: EntryPoint.addressV06,
+        version: '0.6',
+      },
+      factoryAddress,
+      owner: constants.accounts[0].address,
+      salt,
+    })
+    await Actions.transaction.send(client, {
+      account: constants.accounts[9].address,
+      to: smartAccount.address,
+      value: Value.fromEther('100'),
+    })
+    smartAccounts.push(smartAccount)
+  }
+
+  await Actions.test.block.mine(client, { blocks: 1 })
+  return smartAccounts
+}
+
+const salts = [
+  '0x0',
+  '0x1',
+  '0x2',
+  '0x3',
+  '0x4',
+  '0x5',
+  '0x6',
+  '0x7',
+  '0x8',
+  '0x9',
+] as const
 
 /**
  * Spins up a real HTTP server implementing the ERC-7677 paymaster RPC
@@ -45,13 +161,11 @@ export async function createVerifyingPaymasterServer(
       address: paymaster,
       args: [
         UserOperation.toPacked(
-          // `fromRpc` returns the version/signed-widened union; paymaster
-          // RPC requests always carry a (dummy) signature.
-          UserOperation.fromRpc({
+          UserOperation.fromRpc<'0.7'>({
             ...userOperation,
             paymaster: userOperation.paymaster ?? paymaster,
             paymasterData: userOperation.paymasterData ?? timeRange,
-          }) as UserOperation.UserOperation<'0.7', true>,
+          }),
         ),
         validUntil,
         validAfter,
@@ -153,15 +267,6 @@ export async function deploySoladyAccount07(client: Client.Client) {
     ),
   })
   return { factoryAddress, implementationAddress }
-}
-
-/** Deploys a funded verifying paymaster against EntryPoint 0.6. */
-export async function deployVerifyingPaymaster06(client: Client.Client) {
-  return deployVerifyingPaymaster(client, {
-    abi: VerifyingPaymaster07.abi,
-    bytecode: VerifyingPaymaster07.bytecode.object,
-    entryPoint: EntryPoint.addressV06,
-  })
 }
 
 /** Deploys a funded verifying paymaster against EntryPoint 0.7. */

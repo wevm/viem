@@ -979,6 +979,98 @@ export default defineConfig({
       },
       { ...sidebar.utilities, collapsed: true },
     ],
+    '/account-abstraction': [
+      { text: 'Getting Started', link: '/account-abstraction' },
+      {
+        text: 'EntryPoint Versions',
+        link: '/account-abstraction/entry-point-versions',
+      },
+      {
+        text: 'Clients',
+        items: [
+          {
+            text: 'Bundler Client',
+            link: '/account-abstraction/clients/bundler',
+          },
+          {
+            text: 'Paymaster Client',
+            link: '/account-abstraction/clients/paymaster',
+          },
+        ],
+      },
+      {
+        text: 'Accounts',
+        items: [
+          {
+            text: 'SmartAccount.from',
+            link: '/account-abstraction/accounts/smart',
+          },
+          {
+            text: 'CoinbaseSmartAccount.from',
+            link: '/account-abstraction/accounts/coinbase',
+          },
+          {
+            text: 'SoladySmartAccount.from',
+            link: '/account-abstraction/accounts/solady',
+          },
+          {
+            text: 'Simple7702SmartAccount.from',
+            link: '/account-abstraction/accounts/simple-7702',
+          },
+          {
+            text: 'WebAuthnAccount.from',
+            link: '/account-abstraction/accounts/webauthn',
+          },
+        ],
+      },
+      {
+        text: 'Bundler Actions',
+        items: [
+          {
+            text: 'entryPoint.getSupported',
+            link: '/account-abstraction/actions/entryPoint.getSupported',
+          },
+          {
+            text: 'userOperation.prepare',
+            link: '/account-abstraction/actions/userOperation.prepare',
+          },
+          {
+            text: 'userOperation.estimateGas',
+            link: '/account-abstraction/actions/userOperation.estimateGas',
+          },
+          {
+            text: 'userOperation.send',
+            link: '/account-abstraction/actions/userOperation.send',
+          },
+          {
+            text: 'userOperation.get',
+            link: '/account-abstraction/actions/userOperation.get',
+          },
+          {
+            text: 'userOperation.getReceipt',
+            link: '/account-abstraction/actions/userOperation.getReceipt',
+          },
+          {
+            text: 'userOperation.waitForReceipt',
+            link: '/account-abstraction/actions/userOperation.waitForReceipt',
+          },
+        ],
+      },
+      {
+        text: 'Paymaster Actions',
+        items: [
+          {
+            text: 'paymaster.getData',
+            link: '/account-abstraction/actions/paymaster.getData',
+          },
+          {
+            text: 'paymaster.getStubData',
+            link: '/account-abstraction/actions/paymaster.getStubData',
+          },
+        ],
+      },
+      { text: 'Migrate from v2', link: '/account-abstraction/migration' },
+    ],
     '/tempo': [
       { text: 'Getting Started', link: '/tempo' },
       { text: 'Chains', link: '/tempo/chains' },
@@ -1043,7 +1135,10 @@ export default defineConfig({
                 text: 'Mint & Burn Tokens',
                 link: '/tempo/guides/manage-token-balances',
               },
-              { text: 'Transfer Tokens', link: '/tempo/guides/transfer-tokens' },
+              {
+                text: 'Transfer Tokens',
+                link: '/tempo/guides/transfer-tokens',
+              },
               {
                 text: 'Manage Token Roles & Supply',
                 link: '/tempo/guides/manage-token-roles',
@@ -1075,7 +1170,10 @@ export default defineConfig({
                 text: 'Admin Access Keys',
                 link: '/tempo/guides/access-keys/admin',
               },
-              { text: 'Witnesses', link: '/tempo/guides/access-keys/witnesses' },
+              {
+                text: 'Witnesses',
+                link: '/tempo/guides/access-keys/witnesses',
+              },
               {
                 text: 'Verify Signatures',
                 link: '/tempo/guides/access-keys/verify',
@@ -1642,9 +1740,7 @@ export default defineConfig({
       },
       {
         text: 'Transports',
-        items: [
-          { text: 'withRelay', link: '/tempo/transports/withRelay' },
-        ],
+        items: [{ text: 'withRelay', link: '/tempo/transports/withRelay' }],
       },
       {
         text: 'Utilities',
@@ -1708,6 +1804,11 @@ export default defineConfig({
   },
   topNav: [
     { text: 'Docs', link: '/docs' },
+    {
+      text: 'Account Abstraction',
+      link: '/account-abstraction',
+      match: '/account-abstraction',
+    },
     { text: 'Tempo', link: '/tempo', match: '/tempo' },
     {
       text: pkg.version,

@@ -1,0 +1,53 @@
+# EntryPoint Versions
+
+Viem supports EntryPoint 0.6, 0.7, 0.8, and 0.9. The selected Smart Account implementation, factory, Bundler, and Paymaster must support the same EntryPoint.
+
+| Version | Address | Accounts |
+| --- | --- | --- |
+| 0.6 | `EntryPoint.addressV06` | Coinbase and Solady |
+| 0.7 | `EntryPoint.addressV07` | Solady |
+| 0.8 | `EntryPoint.addressV08` | Simple7702 |
+| 0.9 | `EntryPoint.addressV09` | Simple7702 |
+
+Use [`entryPoint.getSupported`](/account-abstraction/actions/entryPoint.getSupported) to confirm that a Bundler accepts the selected address.
+
+## EntryPoint 0.9
+
+EntryPoint 0.9 is ABI-compatible with 0.7 and 0.8, but Bundlers must explicitly support its mempool and canonical address.
+
+Select it when creating a Simple7702 account:
+
+```ts
+import { Simple7702SmartAccount } from 'viem/account-abstraction'
+
+const account = await Simple7702SmartAccount.from({
+  client: executionClient,
+  entryPoint: '0.9',
+  owner,
+})
+```
+
+The canonical EntryPoint 0.9 address is `0x433709009B8330FDa32311DF1C2AFA402eD8D009`. The default EntryPoint 0.9 Simple7702 implementation is `0xa46cc63eBF4Bd77888AA327837d20b23A63a56B5`.
+
+### Paymaster Signatures
+
+EntryPoint 0.9 adds `paymasterSignature` for parallel account and Paymaster signing. Viem exposes it as a separate `UserOperation<'0.9'>` field.
+
+```ts
+const hash = await bundlerClient.userOperation.send({
+  calls,
+  paymaster: '0x…',
+  paymasterData: '0x…',
+  paymasterPostOpGasLimit: 50_000n,
+  paymasterSignature: '0x…',
+  paymasterVerificationGasLimit: 100_000n,
+})
+```
+
+The account-signed User Operation hash excludes `paymasterSignature`. Packing appends the signature, its two-byte length, and the `0x22e325a297439656` marker to `paymasterAndData`.
+
+See the official [EntryPoint 0.9 release](https://github.com/eth-infinitism/account-abstraction/releases/tag/v0.9.0) and [Paymaster signature guide](https://docs.erc4337.io/paymasters/paymaster-signature.html).
+
+### Deployment Behavior
+
+EntryPoint 0.9 ignores non-empty `initCode` when the account is already deployed and emits `IgnoredInitCode`. Account implementations must not assume that non-empty `initCode` always means first deployment.

@@ -1,0 +1,76 @@
+# `PaymasterClient.create`
+
+Creates an ERC-7677 Paymaster Client with `paymaster.getData` and `paymaster.getStubData` methods.
+
+## Usage
+
+```ts
+import { PaymasterClient, http } from 'viem/account-abstraction'
+
+const paymasterClient = PaymasterClient.create({
+  transport: http('https://paymaster.example'),
+})
+```
+
+Pass its Paymaster methods to a [Bundler Client](/account-abstraction/clients/bundler):
+
+```ts
+const bundlerClient = Client.create({
+  account,
+  client: executionClient,
+  paymaster: paymasterClient,
+  transport: http('https://bundler.example'),
+})
+```
+
+## Parameters
+
+### options
+
+#### options.cacheTime (optional)
+
+- **Type:** `number`
+
+Time in milliseconds that cacheable RPC responses are retained.
+
+#### options.key (optional)
+
+- **Type:** `string`
+- **Default:** `'paymaster'`
+
+Client key.
+
+#### options.name (optional)
+
+- **Type:** `string`
+- **Default:** `'Paymaster Client'`
+
+Client name.
+
+#### options.pollingInterval (optional)
+
+- **Type:** `number`
+
+Polling interval in milliseconds.
+
+#### options.retryCount (optional)
+
+- **Type:** `number`
+
+Default transport retry count.
+
+#### options.timeout (optional)
+
+- **Type:** `number`
+
+Transport timeout in milliseconds.
+
+#### options.transport
+
+- **Type:** `Transport`
+
+Transport connected to the Paymaster RPC endpoint.
+
+## Return Type
+
+`PaymasterClient.Client`

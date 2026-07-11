@@ -1,5 +1,5 @@
 import { history, local, mainnet } from './src/anvil.js'
-import { bundler } from './src/bundler.js'
+import { bundler, bundler09 } from './src/bundler.js'
 
 export default async function () {
   if (process.env.SKIP_GLOBAL_SETUP) return
@@ -8,6 +8,7 @@ export default async function () {
     local.start(),
     history.start(),
     bundler.start(),
+    bundler09.start(),
   ])
   return async () => {
     await Promise.all(shutdowns.map((shutdown) => shutdown()))

@@ -24,6 +24,12 @@
       "viem": [
         "../src/index.ts"
       ],
+      "viem/account-abstraction": [
+        "../src/account-abstraction/index.ts"
+      ],
+      "viem/account-abstraction/actions": [
+        "../src/account-abstraction/actions/index.ts"
+      ],
       "viem/chains": [
         "../src/chains/index.ts"
       ],

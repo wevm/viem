@@ -39,6 +39,7 @@
     "@changesets/cli": "catalog:",
     "@paulmillr/trusted-setups": "catalog:",
     "@pimlico/alto": "catalog:",
+    "@pimlico/alto-v09": "catalog:",
     "@remix-run/node-fetch-server": "catalog:",
     "@size-limit/preset-big-lib": "catalog:",
     "@types/bun": "catalog:",
@@ -262,52 +263,62 @@
   },
   "dependencies": {
     "abitype": "1.2.3",
-    "ox": "1.0.0-beta.21"
+    "ox": "1.0.0-beta.22"
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
       "src": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./account-abstraction": {
+      "src": "./src/account-abstraction/index.ts",
+      "types": "./dist/account-abstraction/index.d.ts",
+      "default": "./dist/account-abstraction/index.js"
+    },
+    "./account-abstraction/actions": {
+      "src": "./src/account-abstraction/actions/index.ts",
+      "types": "./dist/account-abstraction/actions/index.d.ts",
+      "default": "./dist/account-abstraction/actions/index.js"
+    },
     "./chains": {
-      "types": "./dist/chains/index.d.ts",
       "src": "./src/chains/index.ts",
+      "types": "./dist/chains/index.d.ts",
       "default": "./dist/chains/index.js"
     },
     "./node": {
-      "types": "./dist/node/index.d.ts",
       "src": "./src/node/index.ts",
+      "types": "./dist/node/index.d.ts",
       "default": "./dist/node/index.js"
     },
     "./tempo": {
-      "types": "./dist/tempo/index.d.ts",
       "src": "./src/tempo/index.ts",
+      "types": "./dist/tempo/index.d.ts",
       "default": "./dist/tempo/index.js"
     },
     "./tempo/actions": {
-      "types": "./dist/tempo/actions/index.d.ts",
       "src": "./src/tempo/actions/index.ts",
+      "types": "./dist/tempo/actions/index.d.ts",
       "default": "./dist/tempo/actions/index.js"
     },
     "./tempo/zones": {
-      "types": "./dist/tempo/zones/index.d.ts",
       "src": "./src/tempo/zones/index.ts",
+      "types": "./dist/tempo/zones/index.d.ts",
       "default": "./dist/tempo/zones/index.js"
     },
     "./tokens": {
-      "types": "./dist/tokens/index.d.ts",
       "src": "./src/tokens/index.ts",
+      "types": "./dist/tokens/index.d.ts",
       "default": "./dist/tokens/index.js"
     },
     "./utils": {
-      "types": "./dist/utils/index.d.ts",
       "src": "./src/utils/index.ts",
+      "types": "./dist/utils/index.d.ts",
       "default": "./dist/utils/index.js"
     },
     "./zod": {
-      "types": "./dist/zod/index.d.ts",
       "src": "./src/zod/index.ts",
+      "types": "./dist/zod/index.d.ts",
       "default": "./dist/zod/index.js"
     }
   },

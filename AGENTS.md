@@ -174,10 +174,10 @@ For v3 rewrite work, also read `AGENTS.tmp.md`.
   - Use `pnpm test --project core --bail=1` for core failures.
   - Use `--project tempo` for tempo work.
   - Use `SKIP_GLOBAL_SETUP=true` for offline runs that do not need anvil.
-- **Check for orphaned anvil listeners before full-suite runs**; a killed test run can leave
-  its proxy holding ports 8545/8645, making later runs fail at global setup (`EADDRINUSE`) or
-  time out en masse against the wedged instance. `lsof -nP -i :8545 -i :8645` and kill the stale
-  `node` process.
+- **Check for orphaned harness listeners before full-suite runs**; a killed test run can leave
+  its proxy holding ports 8545/8645/8745/4337/4338, making later runs fail at global setup
+  (`EADDRINUSE`) or time out en masse against the wedged instance. Check them with `lsof -nP`
+  and kill the stale `node` process.
 - **Tempo tests boot one container per test file**; the file's `afterAll` stops it. A cancelled
   run leaks `tempo.<uuid>` containers that starve later runs. `docker ps` and `docker rm -f`
   the leaked ones before re-running `--project tempo`.

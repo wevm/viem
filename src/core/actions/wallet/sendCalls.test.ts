@@ -134,12 +134,12 @@ test('default', async () => {
             },
             {
               "data": "0x1249c58b",
-              "to": "0x081f08945fd17c5470f7bcee23fb57ab1099428e",
+              "to": "0xbb0368cecdcb0759a32abbc21583af992fe94dd7",
               "value": undefined,
             },
             {
               "data": "0x1249c58b",
-              "to": "0x081f08945fd17c5470f7bcee23fb57ab1099428e",
+              "to": "0xbb0368cecdcb0759a32abbc21583af992fe94dd7",
               "value": undefined,
             },
           ],
@@ -188,12 +188,12 @@ test('behavior: chain on client', async () => {
             },
             {
               "data": "0x1249c58b",
-              "to": "0x081f08945fd17c5470f7bcee23fb57ab1099428e",
+              "to": "0xbb0368cecdcb0759a32abbc21583af992fe94dd7",
               "value": undefined,
             },
             {
               "data": "0x1249c58b",
-              "to": "0x081f08945fd17c5470f7bcee23fb57ab1099428e",
+              "to": "0xbb0368cecdcb0759a32abbc21583af992fe94dd7",
               "value": undefined,
             },
           ],
@@ -236,12 +236,12 @@ test('behavior: inferred account', async () => {
             },
             {
               "data": "0x1249c58b",
-              "to": "0x081f08945fd17c5470f7bcee23fb57ab1099428e",
+              "to": "0xbb0368cecdcb0759a32abbc21583af992fe94dd7",
               "value": undefined,
             },
             {
               "data": "0x1249c58b",
-              "to": "0x081f08945fd17c5470f7bcee23fb57ab1099428e",
+              "to": "0xbb0368cecdcb0759a32abbc21583af992fe94dd7",
               "value": undefined,
             },
           ],
@@ -485,7 +485,7 @@ test('args: dataSuffix', async () => {
           "calls": [
             {
               "data": "0x1249c58b12345678",
-              "to": "0x081f08945fd17c5470f7bcee23fb57ab1099428e",
+              "to": "0xbb0368cecdcb0759a32abbc21583af992fe94dd7",
               "value": undefined,
             },
           ],

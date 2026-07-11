@@ -17,7 +17,7 @@ const localClient = Client.create({
 // block, so the raw transaction is deterministic and independent of the
 // upstream.
 const hash =
-  '0xa830b5e09e6d2709eaddc555c12fe5177aa22a0862869aefab392d64bcb67926'
+  '0xa94e96a83d0c8ec8726d5393b832f2973bdb16249f8c84b01672b5a150010836'
 
 test('default', async () => {
   const rawTransaction = await Actions.transaction.getRaw(client, { hash })

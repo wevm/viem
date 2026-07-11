@@ -5,6 +5,8 @@ import { Client, custom, http } from 'viem'
 import * as constants from './constants.js'
 
 export type DefineAnvilParameters = Instance.anvil.Parameters & {
+  /** Initializes every pooled instance after startup. */
+  initialize?: ((rpcUrl: string) => Promise<void>) | undefined
   /** Proxy port the prool server listens on. */
   port: number
 }
@@ -13,7 +15,7 @@ export type Anvil = ReturnType<typeof defineAnvil>
 
 /** Defines a prool-managed anvil instance, proxied per pool id. */
 export function defineAnvil(parameters: DefineAnvilParameters) {
-  const { port, ...options } = parameters
+  const { initialize, port, ...options } = parameters
   const rpcUrl = {
     http: `http://127.0.0.1:${port}/${constants.poolId}`,
     ipc: `/tmp/anvil-${constants.poolId}.ipc`,
@@ -25,7 +27,10 @@ export function defineAnvil(parameters: DefineAnvilParameters) {
     port,
     rpcUrl,
     async start() {
-      return Server.create({ instance: Instance.anvil(options), port }).start()
+      const instance = initialize
+        ? defineInitializedAnvil(options, initialize)
+        : Instance.anvil(options)
+      return Server.create({ instance, port }).start()
     },
   }
 }
@@ -83,7 +88,11 @@ export function getWalletClient(
             {
               address: '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d',
               balance: '0x1',
-              metadata: { name: 'Bored Ape', symbol: 'BAYC', tokenId: '0x22b8' },
+              metadata: {
+                name: 'Bored Ape',
+                symbol: 'BAYC',
+                tokenId: '0x22b8',
+              },
               type: 'erc721',
             },
             {
@@ -106,7 +115,9 @@ export function getWalletClient(
         }
         return Object.fromEntries(
           Object.entries(assets)
-            .filter(([chainId]) => !chainFilter || chainFilter.includes(chainId))
+            .filter(
+              ([chainId]) => !chainFilter || chainFilter.includes(chainId),
+            )
             .map(([chainId, assets]) => [
               chainId,
               assets.filter(
@@ -162,9 +173,10 @@ export declare namespace getWalletClient {
 
 export const mainnet = defineAnvil({
   chainId: 1,
-  forkBlockNumber: 22263623n,
+  forkBlockNumber: 24_000_000n,
   forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://eth.drpc.org'),
   hardfork: 'Prague',
+  initialize: clearInheritedAccountCode,
   noMining: true,
   port: Number(getEnv('VITE_ANVIL_PORT', '8545')),
 })
@@ -196,4 +208,55 @@ export const history = defineAnvil({
 function getEnv(key: string, fallback: string): string {
   if (typeof process.env[key] === 'string') return process.env[key] as string
   return fallback
+}
+
+function defineInitializedAnvil(
+  parameters: Instance.anvil.Parameters,
+  initialize: (rpcUrl: string) => Promise<void>,
+) {
+  return Instance.define(() => {
+    let stop: (() => void) | undefined
+    return {
+      host: parameters.host ?? 'localhost',
+      name: 'anvil',
+      port: parameters.port ?? 8545,
+      async start({ port }) {
+        const instance = Instance.anvil(parameters).create({ port })
+        stop = await instance.start()
+        try {
+          await initialize(`http://${instance.host}:${instance.port}`)
+        } catch (error) {
+          await stop()
+          stop = undefined
+          throw error
+        }
+      },
+      async stop() {
+        await stop?.()
+      },
+    }
+  })()
+}
+
+/** Removes inherited EIP-7702 delegations from public dev accounts. */
+async function clearInheritedAccountCode(rpcUrl: string) {
+  const response = await fetch(rpcUrl, {
+    body: JSON.stringify(
+      constants.accounts.map((account, id) => ({
+        id,
+        jsonrpc: '2.0',
+        method: 'anvil_setCode',
+        params: [account.address, '0x'],
+      })),
+    ),
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+  })
+  if (!response.ok)
+    throw new Error(`Anvil setup failed with status ${response.status}.`)
+
+  type Response = { error?: { message: string } | undefined }
+  const values = (await response.json()) as readonly Response[]
+  const error = values.find((value) => value.error)?.error
+  if (error) throw new Error(error.message)
 }

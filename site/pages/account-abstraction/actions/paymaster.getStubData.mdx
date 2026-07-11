@@ -1,0 +1,79 @@
+# `paymaster.getStubData`
+
+Returns ERC-7677 Paymaster fields used for User Operation gas estimation.
+
+## Usage
+
+```ts
+import { Actions } from 'viem/account-abstraction'
+
+const fields = await Actions.paymaster.getStubData(paymasterClient, {
+  callData: '0x',
+  chainId: 1,
+  entryPointAddress: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
+  nonce: 0n,
+  sender: '0x0000000000000000000000000000000000000000',
+})
+// @log: {
+//   isFinal: false,
+//   paymaster: '0x...',
+//   paymasterData: '0x...',
+//   paymasterPostOpGasLimit: 50000n,
+//   paymasterVerificationGasLimit: 100000n,
+//   sponsor: { name: 'Example' },
+// }
+```
+
+The Paymaster Client also exposes `paymasterClient.paymaster.getStubData(options)`.
+
+## Parameters
+
+### client
+
+- **Type:** `PaymasterClient.Client`
+
+Paymaster Client used for the request.
+
+### options
+
+#### options.callData
+
+- **Type:** `Hex`
+
+Encoded Smart Account call.
+
+#### options.chainId
+
+- **Type:** `number`
+
+Chain ID for the User Operation.
+
+#### options.context (optional)
+
+- **Type:** `unknown`
+
+Paymaster service-specific context.
+
+#### options.entryPointAddress
+
+- **Type:** `Address`
+
+EntryPoint address for the User Operation.
+
+#### options.nonce
+
+- **Type:** `bigint`
+
+User Operation nonce.
+
+#### options.sender
+
+- **Type:** `Address`
+
+Smart Account address.
+
+Remaining version-specific User Operation fields are optional.
+
+## Return Type
+
+Paymaster fields plus optional `isFinal` and `sponsor` metadata. EntryPoint 0.6 uses `paymasterAndData`; EntryPoint 0.7, 0.8, and 0.9 use split Paymaster fields.

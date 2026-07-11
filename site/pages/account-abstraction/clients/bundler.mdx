@@ -1,0 +1,132 @@
+# `Client.create`
+
+Creates an ERC-4337 Bundler Client. The Client carries an optional Smart Account and execution Client, and exposes `entryPoint` and `userOperation` actions.
+
+## Usage
+
+```ts
+import { Client, http } from 'viem/account-abstraction'
+
+const bundlerClient = Client.create({
+  account,
+  client: executionClient,
+  transport: http('https://bundler.example'),
+})
+
+const hash = await bundlerClient.userOperation.send({
+  calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+})
+```
+
+The execution Client supplies chain reads and fee estimation. The Bundler transport handles ERC-4337 RPC methods.
+
+For EntryPoint 0.9, confirm the Bundler advertises `EntryPoint.addressV09`. EntryPoint 0.9 operations can carry a separate `paymasterSignature` for parallel account and Paymaster signing.
+
+## Paymaster
+
+Attach ERC-7677 methods from a [Paymaster Client](/account-abstraction/clients/paymaster) when the User Operation should be sponsored.
+
+```ts
+const bundlerClient = Client.create({
+  account,
+  client: executionClient,
+  paymaster: paymasterClient,
+  paymasterContext: { policyId: 'checkout' },
+  transport: http('https://bundler.example'),
+})
+```
+
+## Parameters
+
+### options
+
+#### options.account (optional)
+
+- **Type:** `SmartAccount`
+
+Default Smart Account for User Operation actions.
+
+#### options.cacheTime (optional)
+
+- **Type:** `number`
+
+Time in milliseconds that cacheable RPC responses are retained.
+
+#### options.chain (optional)
+
+- **Type:** `Chain`
+- **Default:** `options.client.chain`
+
+Chain used by the Bundler.
+
+#### options.client (optional)
+
+- **Type:** `Client`
+
+Execution RPC Client used for chain reads and fee estimation.
+
+#### options.dataSuffix (optional)
+
+- **Type:** `Hex`
+
+Data appended to encoded Smart Account calls.
+
+#### options.key (optional)
+
+- **Type:** `string`
+- **Default:** `'bundler'`
+
+Client key.
+
+#### options.name (optional)
+
+- **Type:** `string`
+- **Default:** `'Bundler Client'`
+
+Client name.
+
+#### options.paymaster (optional)
+
+- **Type:** `true | PaymasterClient | { getData?, getStubData? }`
+
+Paymaster configuration used while preparing User Operations.
+
+#### options.paymasterContext (optional)
+
+- **Type:** `unknown`
+
+Service-specific context passed to Paymaster methods.
+
+#### options.pollingInterval (optional)
+
+- **Type:** `number`
+
+Polling interval in milliseconds.
+
+#### options.retryCount (optional)
+
+- **Type:** `number`
+
+Default transport retry count.
+
+#### options.timeout (optional)
+
+- **Type:** `number`
+
+Transport timeout in milliseconds.
+
+#### options.transport
+
+- **Type:** `Transport`
+
+Transport connected to the Bundler RPC endpoint.
+
+#### options.userOperation (optional)
+
+- **Type:** `{ estimateFeesPerGas? }`
+
+User Operation preparation hooks. `estimateFeesPerGas` can override fee estimation for the attached account.
+
+## Return Type
+
+`Client.Client`

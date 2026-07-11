@@ -1,0 +1,76 @@
+# Account Abstraction
+
+Viem provides ERC-4337 smart accounts, Bundler and Paymaster Clients, and User Operation actions through `viem/account-abstraction`. Protocol primitives come from [ox](https://oxlib.sh).
+
+The account-abstraction entrypoint supports EntryPoint 0.6 through 0.9. See [EntryPoint Versions](/account-abstraction/entry-point-versions) for account compatibility and EntryPoint 0.9 Paymaster signatures.
+
+## Install
+
+```bash
+pnpm add viem ox
+```
+
+## Create an Account and Bundler Client
+
+Create an execution Client for chain reads, then attach a Smart Account to a Bundler Client.
+
+```ts
+import { Account, Actions, Client as ExecutionClient, http } from 'viem'
+import {
+  Client,
+  Simple7702SmartAccount,
+} from 'viem/account-abstraction'
+import { mainnet } from 'viem/chains'
+
+const executionClient = ExecutionClient.create({
+  chain: mainnet,
+  transport: http('https://eth.example'),
+})
+
+const owner = Account.fromPrivateKey('0x…')
+const account = await Simple7702SmartAccount.from({
+  client: executionClient,
+  owner,
+})
+
+const bundlerClient = Client.create({
+  account,
+  client: executionClient,
+  transport: http('https://bundler.example'),
+})
+```
+
+## Send a User Operation
+
+The Bundler Client is decorated with `entryPoint` and `userOperation` action namespaces.
+
+```ts
+const authorization = await Actions.wallet.signAuthorization(
+  executionClient,
+  account.authorization,
+)
+
+const hash = await bundlerClient.userOperation.send({
+  authorization,
+  calls: [
+    {
+      to: '0x0000000000000000000000000000000000000000',
+      value: 1n,
+    },
+  ],
+})
+
+const receipt = await bundlerClient.userOperation.waitForReceipt({ hash })
+```
+
+The first Simple7702 operation needs a signed EIP-7702 authorization. Later operations can omit it once the account is delegated.
+
+Use the standalone [`Actions`](/account-abstraction/actions/userOperation.send) namespace when you do not want decorated methods.
+
+## Next Steps
+
+- Configure a [Bundler Client](/account-abstraction/clients/bundler).
+- Choose an [EntryPoint version](/account-abstraction/entry-point-versions).
+- Choose or define a [Smart Account](/account-abstraction/accounts/smart).
+- Add an [ERC-7677 Paymaster Client](/account-abstraction/clients/paymaster).
+- Review the [v2 migration table](/account-abstraction/migration).

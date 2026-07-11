@@ -1,0 +1,87 @@
+# `userOperation.estimateGas`
+
+Estimates the gas required to execute a User Operation. Missing fields are prepared when a Smart Account is available.
+
+## Usage
+
+```ts
+import { Actions } from 'viem/account-abstraction'
+
+const gas = await Actions.userOperation.estimateGas(bundlerClient, {
+  calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+})
+// @log: {
+//   callGasLimit: 53240n,
+//   preVerificationGas: 46292n,
+//   verificationGasLimit: 150000n,
+// }
+```
+
+The Bundler Client also exposes `bundlerClient.userOperation.estimateGas(options)`.
+
+## Parameters
+
+### client
+
+- **Type:** `Client.Client`
+
+Bundler Client used for the estimate.
+
+### options
+
+#### options.account (optional)
+
+- **Type:** `SmartAccount`
+- **Default:** `client.account`
+
+Smart Account that sends the User Operation.
+
+#### options.callData (optional)
+
+- **Type:** `Hex`
+
+Encoded Smart Account call. Required when `calls` is omitted.
+
+#### options.calls (optional)
+
+- **Type:** `readonly Call[]`
+
+Calls encoded by the Smart Account. Required when `callData` is omitted.
+
+#### options.entryPointAddress (optional)
+
+- **Type:** `Address`
+- **Default:** `account.entryPoint.address`
+
+EntryPoint used for estimation. Required when no account is available.
+
+#### options.paymaster (optional)
+
+- **Type:** `Address | true | PaymasterClient | PaymasterActions`
+- **Default:** `client.paymaster`
+
+Paymaster configuration used while preparing the estimate.
+
+#### options.paymasterContext (optional)
+
+- **Type:** `unknown`
+
+Service-specific context passed to Paymaster methods.
+
+#### options.paymasterSignature (optional)
+
+- **Type:** `Hex`
+
+EntryPoint 0.9 Paymaster signature. It is excluded from the account-signed User Operation hash.
+
+#### options.stateOverride (optional)
+
+- **Type:** `StateOverrides`
+
+State overrides supplied as the third Bundler RPC parameter.
+
+## Return Type
+
+`UserOperationGas.UserOperationGas`
+
+EntryPoint 0.7, 0.8, and 0.9 responses can also include `paymasterPostOpGasLimit` and `paymasterVerificationGasLimit`.

@@ -1,0 +1,66 @@
+# `CoinbaseSmartAccount.from`
+
+Creates a Coinbase Smart Account for EntryPoint 0.6. Owners can be local accounts, addresses, or [`WebAuthnAccount`](/account-abstraction/accounts/webauthn) instances.
+
+## Usage
+
+```ts
+import { Account } from 'viem'
+import { CoinbaseSmartAccount } from 'viem/account-abstraction'
+
+const owner = Account.fromPrivateKey('0x…')
+
+const account = await CoinbaseSmartAccount.from({
+  client: executionClient,
+  owners: [owner],
+  version: '1.1',
+})
+```
+
+## Parameters
+
+### options
+
+#### options.address (optional)
+
+- **Type:** `Address`
+
+Existing account address. When omitted, it is derived from the factory.
+
+#### options.client
+
+- **Type:** `Client`
+
+Execution Client used to read account and EntryPoint state.
+
+#### options.nonce (optional)
+
+- **Type:** `bigint`
+- **Default:** `0n`
+
+Account creation nonce.
+
+#### options.ownerIndex (optional)
+
+- **Type:** `number`
+- **Default:** `0`
+
+Index of the owner used to sign.
+
+#### options.owners
+
+- **Type:** `readonly (Address | LocalAccount | WebAuthnAccount)[]`
+
+Account owners. At least one owner is required.
+
+Address owners can derive and inspect the account. The owner selected by `ownerIndex` must be local or WebAuthn to sign.
+
+#### options.version
+
+- **Type:** `'1' | '1.1'`
+
+Coinbase Smart Account contract version.
+
+## Return Type
+
+`CoinbaseSmartAccount.Account`

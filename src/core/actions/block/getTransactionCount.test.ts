@@ -14,7 +14,7 @@ test('args: blockNumber', async () => {
     await Actions.block.getTransactionCount(client, {
       blockNumber: anvil.mainnet.forkBlockNumber - 1n,
     }),
-  ).toBe(165)
+  ).toBe(141)
 })
 
 test('args: blockTag', async () => {

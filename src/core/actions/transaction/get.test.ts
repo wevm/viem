@@ -13,8 +13,8 @@ const client = anvil.getClient(anvil.mainnet)
 // its presence depends on the upstream node implementation.
 const forkTip = {
   blockHash:
-    '0xd028bdc00aff985bdf872d6b961110d41a6fe4df5e93aeb6dffe2f38ae0a4f7d',
-  hash: '0xa830b5e09e6d2709eaddc555c12fe5177aa22a0862869aefab392d64bcb67926',
+    '0x738cc1716ea1f08adac2d4e2230aedcee2d5cd3f65d66d5d3597e05d710a3d50',
+  hash: '0xa94e96a83d0c8ec8726d5393b832f2973bdb16249f8c84b01672b5a150010836',
 } as const
 
 test('args: hash', async () => {
@@ -25,26 +25,32 @@ test('args: hash', async () => {
   expect(transaction).toMatchInlineSnapshot(`
     {
       "accessList": [],
-      "blockHash": "0xd028bdc00aff985bdf872d6b961110d41a6fe4df5e93aeb6dffe2f38ae0a4f7d",
-      "blockNumber": 22263623n,
+      "blobVersionedHashes": [
+        "0x01637b24589ef367eaac307125f539f42cc84ca482d6c5f309698532c8a2d9d7",
+        "0x01244879be004a8d2180995d74c273e8c2b1edcd283620308015ffa774c1d1d7",
+        "0x01a426abdef2a217bd940077a2559b4eee7d9b98ce7c2f183a83d0c9564e0867",
+      ],
+      "blockHash": "0x738cc1716ea1f08adac2d4e2230aedcee2d5cd3f65d66d5d3597e05d710a3d50",
+      "blockNumber": 24000000n,
       "chainId": 1,
-      "data": "0x380db829",
-      "from": "0xe2da046340e00264c4f0443243a0565007ae08ac",
-      "gas": 2000000n,
-      "gasPrice": 13319389978n,
-      "hash": "0xa830b5e09e6d2709eaddc555c12fe5177aa22a0862869aefab392d64bcb67926",
-      "input": "0x380db829",
-      "maxFeePerGas": 13319389978n,
-      "maxPriorityFeePerGas": 12683711234n,
-      "nonce": 13314n,
-      "r": "0xc266bb09b052429bff556bf3d29249c71286851267246acb2d47a8f33502850c",
-      "s": "0x5c9715330193048ba9be906ccbbe2ef4c58eb3cdd25f21a2cad243a48371a931",
-      "to": "0x39b7f514c199e4beb1739576a2dbd4de7414981b",
+      "data": "0x",
+      "from": "0x5050f69a9786f081509234f1a7f4684b5e5b76c9",
+      "gas": 21000n,
+      "gasPrice": 10030101622n,
+      "hash": "0xa94e96a83d0c8ec8726d5393b832f2973bdb16249f8c84b01672b5a150010836",
+      "input": "0x",
+      "maxFeePerBlobGas": 1000000000n,
+      "maxFeePerGas": 30030000000n,
+      "maxPriorityFeePerGas": 10010000000n,
+      "nonce": 1846289n,
+      "r": "0xcca4472fa8fc4b09e23098d51d8ffd8c6c6b5924c11c22c60e319c3e90e97434",
+      "s": "0x025948b75cb749fe6e8ce13d10575e3a1e18d31c849d808e3d23263ea9e71021",
+      "to": "0xff00000000000000000000000000000000008453",
       "transactionIndex": 0,
-      "type": "eip1559",
-      "v": 28,
+      "type": "eip4844",
+      "v": 27,
       "value": 0n,
-      "yParity": 1,
+      "yParity": 0,
     }
   `)
 })
@@ -95,26 +101,32 @@ test('behavior: converts via chain schema when declared', async () => {
   expect(transaction).toMatchInlineSnapshot(`
     {
       "accessList": [],
-      "blockHash": "0xd028bdc00aff985bdf872d6b961110d41a6fe4df5e93aeb6dffe2f38ae0a4f7d",
-      "blockNumber": 22263623n,
+      "blobVersionedHashes": [
+        "0x01637b24589ef367eaac307125f539f42cc84ca482d6c5f309698532c8a2d9d7",
+        "0x01244879be004a8d2180995d74c273e8c2b1edcd283620308015ffa774c1d1d7",
+        "0x01a426abdef2a217bd940077a2559b4eee7d9b98ce7c2f183a83d0c9564e0867",
+      ],
+      "blockHash": "0x738cc1716ea1f08adac2d4e2230aedcee2d5cd3f65d66d5d3597e05d710a3d50",
+      "blockNumber": 24000000n,
       "chainId": 1,
-      "data": "0x380db829",
-      "from": "0xe2da046340e00264c4f0443243a0565007ae08ac",
-      "gas": 2000000n,
-      "gasPrice": 13319389978n,
-      "hash": "0xa830b5e09e6d2709eaddc555c12fe5177aa22a0862869aefab392d64bcb67926",
-      "input": "0x380db829",
-      "maxFeePerGas": 13319389978n,
-      "maxPriorityFeePerGas": 12683711234n,
-      "nonce": 13314n,
-      "r": "0xc266bb09b052429bff556bf3d29249c71286851267246acb2d47a8f33502850c",
-      "s": "0x5c9715330193048ba9be906ccbbe2ef4c58eb3cdd25f21a2cad243a48371a931",
-      "to": "0x39b7f514c199e4beb1739576a2dbd4de7414981b",
+      "data": "0x",
+      "from": "0x5050f69a9786f081509234f1a7f4684b5e5b76c9",
+      "gas": 21000n,
+      "gasPrice": 10030101622n,
+      "hash": "0xa94e96a83d0c8ec8726d5393b832f2973bdb16249f8c84b01672b5a150010836",
+      "input": "0x",
+      "maxFeePerBlobGas": 1000000000n,
+      "maxFeePerGas": 30030000000n,
+      "maxPriorityFeePerGas": 10010000000n,
+      "nonce": 1846289n,
+      "r": "0xcca4472fa8fc4b09e23098d51d8ffd8c6c6b5924c11c22c60e319c3e90e97434",
+      "s": "0x025948b75cb749fe6e8ce13d10575e3a1e18d31c849d808e3d23263ea9e71021",
+      "to": "0xff00000000000000000000000000000000008453",
       "transactionIndex": 0,
-      "type": "eip1559",
-      "v": 28,
+      "type": "eip4844",
+      "v": 27,
       "value": 0n,
-      "yParity": 1,
+      "yParity": 0,
     }
   `)
 })
@@ -159,10 +171,10 @@ test('error: transaction not found (by block number + index)', async () => {
       index: 9_999_999,
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Transaction.NotFoundError: Transaction at block number "22263623" at index "9999999" could not be found.
+    [Transaction.NotFoundError: Transaction at block number "24000000" at index "9999999" could not be found.
 
-      Version: viem@2.52.1]
-    `)
+    Version: viem@2.52.1]
+  `)
 })
 
 test('error: transaction not found (by block tag + index)', async () => {
@@ -182,10 +194,10 @@ test('error: transaction not found (by block hash + index)', async () => {
       index: 9_999_999,
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Transaction.NotFoundError: Transaction at block hash "0xd028bdc00aff985bdf872d6b961110d41a6fe4df5e93aeb6dffe2f38ae0a4f7d" at index "9999999" could not be found.
+    [Transaction.NotFoundError: Transaction at block hash "0x738cc1716ea1f08adac2d4e2230aedcee2d5cd3f65d66d5d3597e05d710a3d50" at index "9999999" could not be found.
 
-      Version: viem@2.52.1]
-    `)
+    Version: viem@2.52.1]
+  `)
 })
 
 test('error: transaction not found (by sender + nonce)', async () => {

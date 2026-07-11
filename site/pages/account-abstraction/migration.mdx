@@ -1,0 +1,58 @@
+# Migrate from v2
+
+The v3 API groups actions by resource, moves constructors into module namespaces, and delegates ERC-4337 primitives to ox.
+
+## Clients and Accounts
+
+| v2 | v3 |
+| --- | --- |
+| `createBundlerClient(options)` | `Client.create(options)` |
+| `createPaymasterClient(options)` | `PaymasterClient.create(options)` |
+| `toSmartAccount(implementation)` | `SmartAccount.from(implementation)` |
+| `toCoinbaseSmartAccount(options)` | `CoinbaseSmartAccount.from(options)` |
+| `toSoladySmartAccount(options)` | `SoladySmartAccount.from(options)` |
+| `toSimple7702SmartAccount(options)` | `Simple7702SmartAccount.from(options)` |
+| `toWebAuthnAccount(credential, options)` | `WebAuthnAccount.from(credential, options)` |
+| `createWebAuthnCredential(options)` | `WebAuthnP256.createCredential(options)` from `ox` |
+
+## Actions
+
+Import `Actions` from `viem/account-abstraction`, or call the same methods on a Bundler or Paymaster Client.
+
+| v2 | v3 |
+| --- | --- |
+| `prepareUserOperation` | `Actions.userOperation.prepare` |
+| `estimateUserOperationGas` | `Actions.userOperation.estimateGas` |
+| `sendUserOperation` | `Actions.userOperation.send` |
+| `getUserOperation` | `Actions.userOperation.get` |
+| `getUserOperationReceipt` | `Actions.userOperation.getReceipt` |
+| `waitForUserOperationReceipt` | `Actions.userOperation.waitForReceipt` |
+| `getSupportedEntryPoints` | `Actions.entryPoint.getSupported` |
+| `getPaymasterData` | `Actions.paymaster.getData` |
+| `getPaymasterStubData` | `Actions.paymaster.getStubData` |
+| Bundler `getChainId` | Core `Actions.chains.getId` |
+
+## ERC-4337 Primitives
+
+Viem exposes `EntryPoint`, `UserOperation`, `UserOperationGas`, and `UserOperationReceipt` modules from `viem/account-abstraction`. The `UserOperation` RPC codec uses the Bundler wire field `eip7702Auth`, preserves EntryPoint 0.6 `paymasterAndData`, and carries EntryPoint 0.9 `paymasterSignature`.
+
+| v2 | Replacement |
+| --- | --- |
+| `getUserOperationHash` | `UserOperation.hash` |
+| `getUserOperationTypedData` | `UserOperation.toTypedData` |
+| `toPackedUserOperation` | `UserOperation.toPacked` |
+| `getInitCode` | `UserOperation.toInitCode` |
+| `toUserOperation` | `UserOperation.from` |
+| `formatUserOperation` | `UserOperation.fromRpc` |
+| `formatUserOperationRequest` | `UserOperation.toRpc` |
+| `formatUserOperationGas` | `UserOperationGas.fromRpc` |
+| `formatUserOperationReceipt` | `UserOperationReceipt.fromRpc` |
+| EntryPoint ABI constants | `EntryPoint.abiV06`, `abiV07`, `abiV08`, and `abiV09` |
+| EntryPoint address constants | `EntryPoint.addressV06`, `addressV07`, `addressV08`, and `addressV09` |
+| `EntryPointVersion` | `EntryPoint.Version` |
+
+## Deferred Experimental APIs
+
+Standalone ERC-7739 helpers, ERC-7715 permissions, and ERC-7895 subaccounts remain deferred. They are not exported from the v3 account-abstraction entrypoint.
+
+`SoladySmartAccount.from` keeps ERC-7739 signing private to the implementation. Its `signMessage` and `signTypedData` methods support deployed and counterfactual ERC-7739-compatible accounts.

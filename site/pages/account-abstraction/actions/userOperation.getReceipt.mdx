@@ -1,0 +1,47 @@
+# `userOperation.getReceipt`
+
+Returns a User Operation receipt for a hash.
+
+## Usage
+
+```ts
+import { Actions } from 'viem/account-abstraction'
+
+const receipt = await Actions.userOperation.getReceipt(bundlerClient, {
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+})
+// @log: {
+//   actualGasCost: 100000000000000n,
+//   actualGasUsed: 100000n,
+//   entryPoint: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
+//   nonce: 0n,
+//   sender: '0x...',
+//   success: true,
+//   userOpHash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+//   ...
+// }
+```
+
+The Bundler Client also exposes `bundlerClient.userOperation.getReceipt(options)`.
+
+## Parameters
+
+### client
+
+- **Type:** `Client.Client`
+
+Bundler Client used for the lookup.
+
+### options
+
+#### options.hash
+
+- **Type:** `Hex`
+
+User Operation hash.
+
+## Return Type
+
+`UserOperationReceipt.UserOperationReceipt`
+
+Throws `UserOperationReceiptNotFoundError` when the Bundler returns `null`.

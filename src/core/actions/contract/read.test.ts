@@ -71,13 +71,13 @@ test('args: args', async () => {
     Execution reverted for an unknown reason.
 
     Contract Call:
-      address:   0x081f08945fd17c5470f7bcee23fb57ab1099428e
+      address:   0xbb0368cecdcb0759a32abbc21583af992fe94dd7
       function:  function ownerOf(uint256) pure returns (address)
       args:             (123)
      
     Request Arguments:
       data:  0x6352211e000000000000000000000000000000000000000000000000000000000000007b
-      to:    0x081f08945fd17c5470f7bcee23fb57ab1099428e
+      to:    0xbb0368cecdcb0759a32abbc21583af992fe94dd7
 
     Details: execution reverted
     Version: viem@2.52.1]
@@ -97,13 +97,13 @@ test('error: reverts', async () => {
     Execution reverted for an unknown reason.
 
     Contract Call:
-      address:   0x081f08945fd17c5470f7bcee23fb57ab1099428e
+      address:   0xbb0368cecdcb0759a32abbc21583af992fe94dd7
       function:  function ownerOf(uint256) pure returns (address)
       args:             (1)
      
     Request Arguments:
       data:  0x6352211e0000000000000000000000000000000000000000000000000000000000000001
-      to:    0x081f08945fd17c5470f7bcee23fb57ab1099428e
+      to:    0xbb0368cecdcb0759a32abbc21583af992fe94dd7
 
     Details: execution reverted
     Version: viem@2.52.1]
@@ -170,12 +170,12 @@ describe('reverts', () => {
       This is a revert message
 
       Contract Call:
-        address:   0xf102f0173707c6726543d65fa38025eb72026c37
+        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
         function:  function revertRead() pure
        
       Request Arguments:
         data:  0x9f558709
-        to:    0xf102f0173707c6726543d65fa38025eb72026c37
+        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
 
       Details: execution reverted: This is a revert message
       Version: viem@2.52.1]
@@ -193,12 +193,12 @@ describe('reverts', () => {
       An \`assert\` condition failed.
 
       Contract Call:
-        address:   0xf102f0173707c6726543d65fa38025eb72026c37
+        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
         function:  function assertRead() pure
        
       Request Arguments:
         data:  0xeb1aba20
-        to:    0xf102f0173707c6726543d65fa38025eb72026c37
+        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
 
       Details: execution reverted: panic: assertion failed (0x01)
       Version: viem@2.52.1]
@@ -216,12 +216,12 @@ describe('reverts', () => {
       Arithmetic operation resulted in underflow or overflow.
 
       Contract Call:
-        address:   0xf102f0173707c6726543d65fa38025eb72026c37
+        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
         function:  function overflowRead() pure returns (uint256)
        
       Request Arguments:
         data:  0x4adac6eb
-        to:    0xf102f0173707c6726543d65fa38025eb72026c37
+        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
 
       Details: execution reverted: panic: arithmetic underflow or overflow (0x11)
       Version: viem@2.52.1]
@@ -239,12 +239,12 @@ describe('reverts', () => {
       Division or modulo by zero (e.g. \`5 / 0\` or \`23 % 0\`).
 
       Contract Call:
-        address:   0xf102f0173707c6726543d65fa38025eb72026c37
+        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
         function:  function divideByZeroRead() pure returns (uint256)
        
       Request Arguments:
         data:  0x24db9ba0
-        to:    0xf102f0173707c6726543d65fa38025eb72026c37
+        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
 
       Details: execution reverted: panic: division or modulo by zero (0x12)
       Version: viem@2.52.1]
@@ -262,12 +262,12 @@ describe('reverts', () => {
       Execution reverted for an unknown reason.
 
       Contract Call:
-        address:   0xf102f0173707c6726543d65fa38025eb72026c37
+        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
         function:  function requireRead() pure
        
       Request Arguments:
         data:  0x699389ca
-        to:    0xf102f0173707c6726543d65fa38025eb72026c37
+        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
 
       Details: execution reverted
       Version: viem@2.52.1]

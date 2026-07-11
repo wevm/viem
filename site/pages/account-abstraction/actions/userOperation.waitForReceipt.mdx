@@ -1,0 +1,64 @@
+# `userOperation.waitForReceipt`
+
+Polls a Bundler until a User Operation receipt is available.
+
+## Usage
+
+```ts
+import { Actions } from 'viem/account-abstraction'
+
+const receipt = await Actions.userOperation.waitForReceipt(bundlerClient, {
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+})
+// @log: {
+//   actualGasCost: 100000000000000n,
+//   actualGasUsed: 100000n,
+//   success: true,
+//   userOpHash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+//   ...
+// }
+```
+
+The Bundler Client also exposes `bundlerClient.userOperation.waitForReceipt(options)`.
+
+## Parameters
+
+### client
+
+- **Type:** `Client.Client`
+
+Bundler Client used for polling.
+
+### options
+
+#### options.hash
+
+- **Type:** `Hex`
+
+User Operation hash.
+
+#### options.pollingInterval (optional)
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Polling frequency in milliseconds.
+
+#### options.retryCount (optional)
+
+- **Type:** `number`
+
+Number of polling attempts before timing out.
+
+#### options.timeout (optional)
+
+- **Type:** `number`
+- **Default:** `120_000`
+
+Time in milliseconds before timing out.
+
+## Return Type
+
+`UserOperationReceipt.UserOperationReceipt`
+
+Throws `WaitForUserOperationReceiptTimeoutError` when the retry count or timeout is reached.

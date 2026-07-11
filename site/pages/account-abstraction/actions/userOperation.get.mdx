@@ -1,0 +1,46 @@
+# `userOperation.get`
+
+Returns a User Operation and its available inclusion information for a hash.
+
+## Usage
+
+```ts
+import { Actions } from 'viem/account-abstraction'
+
+const userOperation = await Actions.userOperation.get(bundlerClient, {
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+})
+// @log: {
+//   blockHash: '0x...',
+//   blockNumber: 21000000n,
+//   entryPoint: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
+//   transactionHash: '0x...',
+//   userOperation: { sender: '0x...', nonce: 0n, ... },
+// }
+```
+
+The Bundler Client also exposes `bundlerClient.userOperation.get(options)`.
+
+## Parameters
+
+### client
+
+- **Type:** `Client.Client`
+
+Bundler Client used for the lookup.
+
+### options
+
+#### options.hash
+
+- **Type:** `Hex`
+
+User Operation hash.
+
+## Return Type
+
+`get.ReturnType`
+
+`blockHash`, `blockNumber`, and `transactionHash` are `null` while the User Operation is pending.
+
+Throws `UserOperationNotFoundError` when the Bundler returns `null`.

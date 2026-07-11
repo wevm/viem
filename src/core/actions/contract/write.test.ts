@@ -138,7 +138,7 @@ test('behavior: node error is wrapped as a contract error', async () => {
     [ContractFunctionExecutionError: The amount of gas (1) provided for the transaction is too low.
 
     Contract Call:
-      address:   0x081f08945fd17c5470f7bcee23fb57ab1099428e
+      address:   0xbb0368cecdcb0759a32abbc21583af992fe94dd7
       function:  function mint()
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
      
@@ -146,7 +146,7 @@ test('behavior: node error is wrapped as a contract error', async () => {
       from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
       gas:   1
       data:  0x1249c58b
-      to:    0x081f08945fd17c5470f7bcee23fb57ab1099428e
+      to:    0xbb0368cecdcb0759a32abbc21583af992fe94dd7
 
     Details: intrinsic gas too low
     Version: viem@2.52.1]
@@ -296,14 +296,14 @@ describe('reverts', () => {
       This is a revert message
 
       Contract Call:
-        address:   0xf102f0173707c6726543d65fa38025eb72026c37
+        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
         function:  function revertWrite()
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
        
       Request Arguments:
         from:  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         data:  0x940b8802
-        to:    0xf102f0173707c6726543d65fa38025eb72026c37
+        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
 
       Details: execution reverted: This is a revert message
       Version: viem@2.52.1]
@@ -323,14 +323,14 @@ describe('reverts', () => {
       An \`assert\` condition failed.
 
       Contract Call:
-        address:   0xf102f0173707c6726543d65fa38025eb72026c37
+        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
         function:  function assertWrite()
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
        
       Request Arguments:
         from:  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         data:  0x04696152
-        to:    0xf102f0173707c6726543d65fa38025eb72026c37
+        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
 
       Details: execution reverted: panic: assertion failed (0x01)
       Version: viem@2.52.1]
@@ -350,14 +350,14 @@ describe('reverts', () => {
       Arithmetic operation resulted in underflow or overflow.
 
       Contract Call:
-        address:   0xf102f0173707c6726543d65fa38025eb72026c37
+        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
         function:  function overflowWrite() returns (uint256)
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
        
       Request Arguments:
         from:  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         data:  0xd44de866
-        to:    0xf102f0173707c6726543d65fa38025eb72026c37
+        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
 
       Details: execution reverted: panic: arithmetic underflow or overflow (0x11)
       Version: viem@2.52.1]
@@ -377,14 +377,14 @@ describe('reverts', () => {
       Division or modulo by zero (e.g. \`5 / 0\` or \`23 % 0\`).
 
       Contract Call:
-        address:   0xf102f0173707c6726543d65fa38025eb72026c37
+        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
         function:  function divideByZeroWrite() returns (uint256)
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
        
       Request Arguments:
         from:  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         data:  0xc66cf133
-        to:    0xf102f0173707c6726543d65fa38025eb72026c37
+        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
 
       Details: execution reverted: panic: division or modulo by zero (0x12)
       Version: viem@2.52.1]
@@ -404,14 +404,14 @@ describe('reverts', () => {
       Execution reverted for an unknown reason.
 
       Contract Call:
-        address:   0xf102f0173707c6726543d65fa38025eb72026c37
+        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
         function:  function requireWrite()
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
        
       Request Arguments:
         from:  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         data:  0x4a9bc278
-        to:    0xf102f0173707c6726543d65fa38025eb72026c37
+        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
 
       Details: execution reverted
       Version: viem@2.52.1]

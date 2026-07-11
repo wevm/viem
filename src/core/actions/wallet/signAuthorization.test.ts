@@ -45,12 +45,12 @@ test('behavior: partial authorization: no chainId + nonce', async () => {
     account,
     address,
   })
-  const { r, s, yParity, ...rest } = authorization
+  const { r: _r, s: _s, yParity: _yParity, ...rest } = authorization
   expect(rest).toMatchInlineSnapshot(`
     {
       "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "nonce": 953n,
+      "nonce": 3774n,
     }
   `)
   expect(recovered(authorization)).toBe(true)
@@ -62,7 +62,7 @@ test('behavior: partial authorization: no chainId', async () => {
     address,
     nonce: 69n,
   })
-  const { r, s, yParity, ...rest } = authorization
+  const { r: _r, s: _s, yParity: _yParity, ...rest } = authorization
   expect(rest).toMatchInlineSnapshot(`
     {
       "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
@@ -94,7 +94,7 @@ test('behavior: hoisted account on client', async () => {
     chainId: 1,
     nonce: 0n,
   })
-  const { r, s, yParity, ...rest } = authorization
+  const { r: _r, s: _s, yParity: _yParity, ...rest } = authorization
   expect(rest).toMatchInlineSnapshot(`
     {
       "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",

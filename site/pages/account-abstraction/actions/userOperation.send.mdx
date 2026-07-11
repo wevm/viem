@@ -1,0 +1,110 @@
+# `userOperation.send`
+
+Prepares, signs, and broadcasts a User Operation to a Bundler.
+
+## Usage
+
+```ts
+import { Actions } from 'viem/account-abstraction'
+
+const hash = await Actions.userOperation.send(bundlerClient, {
+  calls: [
+    {
+      to: '0x0000000000000000000000000000000000000000',
+      value: 1n,
+    },
+  ],
+})
+// @log: 0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d
+```
+
+The Bundler Client also exposes `bundlerClient.userOperation.send(options)`.
+
+Pass either `calls` for Smart Account encoding or an already encoded `callData`. A complete User Operation can be sent without an account when `entryPointAddress`, `sender`, and `signature` are provided.
+
+### Simple7702 Authorization
+
+The first operation from a `Simple7702SmartAccount` needs a signed EIP-7702 authorization.
+
+```ts
+import { Actions as CoreActions } from 'viem'
+
+const authorization = await CoreActions.wallet.signAuthorization(
+  executionClient,
+  account.authorization,
+)
+
+const hash = await bundlerClient.userOperation.send({
+  authorization,
+  calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+})
+```
+
+Later operations can omit `authorization` after the account is delegated.
+
+## Parameters
+
+### client
+
+- **Type:** `Client.Client`
+
+Bundler Client used to broadcast the User Operation.
+
+### options
+
+#### options.account (optional)
+
+- **Type:** `SmartAccount`
+- **Default:** `client.account`
+
+Smart Account that prepares and signs the User Operation.
+
+#### options.callData (optional)
+
+- **Type:** `Hex`
+
+Encoded Smart Account call. Required when `calls` is omitted.
+
+#### options.calls (optional)
+
+- **Type:** `readonly Call[]`
+
+Calls encoded by the Smart Account. Required when `callData` is omitted.
+
+#### options.dataSuffix (optional)
+
+- **Type:** `Hex`
+
+Data appended to encoded Smart Account calldata.
+
+#### options.entryPointAddress (optional)
+
+- **Type:** `Address`
+- **Default:** `account.entryPoint.address`
+
+EntryPoint that receives the User Operation.
+
+#### options.paymaster (optional)
+
+- **Type:** `Address | true | PaymasterClient | PaymasterActions`
+- **Default:** `client.paymaster`
+
+Paymaster configuration used during preparation.
+
+#### options.paymasterContext (optional)
+
+- **Type:** `unknown`
+
+Service-specific context passed to Paymaster methods.
+
+#### options.paymasterSignature (optional)
+
+- **Type:** `Hex`
+
+EntryPoint 0.9 Paymaster signature. The Bundler packs it after `paymasterData` without changing the account-signed User Operation hash.
+
+## Return Type
+
+`Hex`
+
+The User Operation hash returned by the Bundler.

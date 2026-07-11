@@ -149,14 +149,14 @@ describe('reverts', () => {
       This is a revert message
 
       Contract Call:
-        address:   0xf102f0173707c6726543d65fa38025eb72026c37
+        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
         function:  function revertWrite()
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
        
       Request Arguments:
         from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
         data:  0x940b8802
-        to:    0xf102f0173707c6726543d65fa38025eb72026c37
+        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
 
       Details: execution reverted: This is a revert message
       Version: viem@2.52.1]
@@ -175,14 +175,14 @@ describe('reverts', () => {
       An \`assert\` condition failed.
 
       Contract Call:
-        address:   0xf102f0173707c6726543d65fa38025eb72026c37
+        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
         function:  function assertWrite()
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
        
       Request Arguments:
         from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
         data:  0x04696152
-        to:    0xf102f0173707c6726543d65fa38025eb72026c37
+        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
 
       Details: execution reverted: panic: assertion failed (0x01)
       Version: viem@2.52.1]

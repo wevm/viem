@@ -140,3 +140,23 @@ when porting or reshaping v2 surface area.
   wire-codec/envelope glue (`tempo/Account.ts`, `tempo/chainConfig.ts` + their tests, e2e
   envelope assertions) and dynamic hook/decorator plumbing in core — reduce opportunistically
   when touching those files, don't mass-rewrite.
+
+## Account Abstraction / ox Learnings
+
+- **ox beta.22 owns EntryPoint 0.9 and Bundler RPC codecs**. Viem adds the `calls` request shape
+  and preserves structured-signature inference around `UserOperation.from`.
+- **Alto 0.0.18 needs code overrides for EIP-7702 bundle estimation**. Set
+  `codeOverrideSupport` and a `fixedGasLimitForEstimation` to bypass viem 2's fill preflight,
+  which otherwise estimates before applying the delegation override.
+- **EntryPoint 0.9 tests need Alto 0.0.20**. Keep Alto 0.0.18 for existing versions and use the
+  `@pimlico/alto-v09` alias for 0.9. Predeploy its simulation artifacts on non-mining Anvil.
+- **Alto 0.0.20 cannot reconstruct included EntryPoint 0.9 operations by hash**. Prove inclusion
+  from the execution-node `UserOperationEvent` and keep the lookup gap as an explicit `test.todo`.
+- **Solady ERC-7739 signing stays private to account abstraction**. Apply nested signing before
+  `SmartAccount.from` adds the outer ERC-6492 wrapper for counterfactual accounts.
+- **ERC-7739 compatibility belongs to the account implementation, not its EntryPoint version**.
+  The EntryPoint 0.6 fixture uses a legacy Solady envelope.
+- **Vitest typecheck mode still runs suite hooks**. With global setup skipped, fresh AA runs cannot
+  reach Anvil; use `pnpm check:types` for deterministic type validation.
+- **Mainnet block 24,000,000 has EIP-7702 code on the public Anvil dev addresses**. The mainnet
+  harness clears inherited code when each pooled instance starts.

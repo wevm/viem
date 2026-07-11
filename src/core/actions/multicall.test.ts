@@ -880,7 +880,7 @@ test('behavior: contract revert with error not on abi (multicall mode)', async (
     Make sure you are using the correct ABI and that the error exists on it.
      
     Contract Call:
-      address:   0x081f08945fd17c5470f7bcee23fb57ab1099428e
+      address:   0xbb0368cecdcb0759a32abbc21583af992fe94dd7
       function:  function simpleCustomRead() pure
 
     Details: An error occurred.

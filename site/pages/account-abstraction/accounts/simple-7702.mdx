@@ -1,0 +1,80 @@
+# `Simple7702SmartAccount.from`
+
+Creates a Simple7702 Smart Account for EntryPoint 0.8 or 0.9. EntryPoint 0.8 is used by default. The owner's address is delegated to the matching Simple7702 implementation with an EIP-7702 authorization.
+
+## Usage
+
+```ts
+import { Account, Actions } from 'viem'
+import { Simple7702SmartAccount } from 'viem/account-abstraction'
+
+const owner = Account.fromPrivateKey('0x…')
+
+const account = await Simple7702SmartAccount.from({
+  client: executionClient,
+  owner,
+})
+
+const authorization = await Actions.wallet.signAuthorization(
+  executionClient,
+  account.authorization,
+)
+
+await bundlerClient.userOperation.send({
+  authorization,
+  calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+})
+```
+
+Pass the signed authorization with the first User Operation. It can be omitted after the delegation is deployed.
+
+### EntryPoint 0.9
+
+```ts
+const account = await Simple7702SmartAccount.from({
+  client: executionClient,
+  entryPoint: '0.9',
+  owner,
+})
+```
+
+This selects `EntryPoint.addressV09` and the canonical EntryPoint 0.9 Simple7702 implementation. The Bundler must advertise support for the EntryPoint 0.9 address.
+
+## Parameters
+
+### options
+
+#### options.client
+
+- **Type:** `Client`
+
+Execution Client used to read account and EntryPoint state.
+
+#### options.entryPoint (optional)
+
+- **Type:** `'0.8' | '0.9' | { abi: Abi, address: Address, version: EntryPoint.Version }`
+- **Default:** `'0.8'`
+
+EntryPoint used by the account. A custom EntryPoint requires a compatible Simple7702 implementation.
+
+#### options.getNonce (optional)
+
+- **Type:** `SmartAccount.Implementation['getNonce']`
+
+Overrides the account nonce resolver.
+
+#### options.implementation (optional)
+
+- **Type:** `Address`
+
+Simple7702 implementation address to delegate to. The default matches the selected EntryPoint version.
+
+#### options.owner
+
+- **Type:** `PrivateKeyAccount`
+
+Account that owns and authorizes the delegation.
+
+## Return Type
+
+`Simple7702SmartAccount.Account`

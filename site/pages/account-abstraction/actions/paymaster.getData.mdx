@@ -1,0 +1,77 @@
+# `paymaster.getData`
+
+Returns final ERC-7677 Paymaster fields for sending a User Operation.
+
+## Usage
+
+```ts
+import { Actions } from 'viem/account-abstraction'
+
+const fields = await Actions.paymaster.getData(paymasterClient, {
+  callData: '0x',
+  chainId: 1,
+  entryPointAddress: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
+  nonce: 0n,
+  sender: '0x0000000000000000000000000000000000000000',
+})
+// @log: {
+//   paymaster: '0x...',
+//   paymasterData: '0x...',
+//   paymasterPostOpGasLimit: 50000n,
+//   paymasterVerificationGasLimit: 100000n,
+// }
+```
+
+The Paymaster Client also exposes `paymasterClient.paymaster.getData(options)`.
+
+## Parameters
+
+### client
+
+- **Type:** `PaymasterClient.Client`
+
+Paymaster Client used for the request.
+
+### options
+
+#### options.callData
+
+- **Type:** `Hex`
+
+Encoded Smart Account call.
+
+#### options.chainId
+
+- **Type:** `number`
+
+Chain ID for the User Operation.
+
+#### options.context (optional)
+
+- **Type:** `unknown`
+
+Paymaster service-specific context.
+
+#### options.entryPointAddress
+
+- **Type:** `Address`
+
+EntryPoint address for the User Operation.
+
+#### options.nonce
+
+- **Type:** `bigint`
+
+User Operation nonce.
+
+#### options.sender
+
+- **Type:** `Address`
+
+Smart Account address.
+
+Remaining version-specific User Operation fields are optional.
+
+## Return Type
+
+EntryPoint 0.6 returns `{ paymasterAndData }`. EntryPoint 0.7, 0.8, and 0.9 return split Paymaster fields. EntryPoint 0.9 can also return `paymasterSignature` for parallel signing.

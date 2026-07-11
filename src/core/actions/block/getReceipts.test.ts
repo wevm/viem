@@ -13,13 +13,13 @@ const client = anvil.getClient(anvil.mainnet)
 // and independent of the upstream.
 const blockNumber = anvil.mainnet.forkBlockNumber
 const blockHash =
-  '0xd028bdc00aff985bdf872d6b961110d41a6fe4df5e93aeb6dffe2f38ae0a4f7d'
+  '0x738cc1716ea1f08adac2d4e2230aedcee2d5cd3f65d66d5d3597e05d710a3d50'
 const firstTransactionHash =
-  '0xa830b5e09e6d2709eaddc555c12fe5177aa22a0862869aefab392d64bcb67926'
+  '0xa94e96a83d0c8ec8726d5393b832f2973bdb16249f8c84b01672b5a150010836'
 
 test('args: blockNumber', async () => {
   const receipts = await Actions.block.getReceipts(client, { blockNumber })
-  expect(receipts).toHaveLength(118)
+  expect(receipts).toHaveLength(232)
   expect(receipts[0]).toEqual(
     await getReceipt(client, { hash: firstTransactionHash }),
   )
@@ -27,7 +27,7 @@ test('args: blockNumber', async () => {
 
 test('args: blockHash', async () => {
   const receipts = await Actions.block.getReceipts(client, { blockHash })
-  expect(receipts).toHaveLength(118)
+  expect(receipts).toHaveLength(232)
   expect(receipts[0]).toEqual(
     await getReceipt(client, { hash: firstTransactionHash }),
   )
@@ -35,7 +35,7 @@ test('args: blockHash', async () => {
 
 test('args: blockTag (default latest)', async () => {
   const receipts = await Actions.block.getReceipts(client)
-  expect(receipts).toHaveLength(118)
+  expect(receipts).toHaveLength(232)
 })
 
 test('behavior: converts via chain schema when declared', async () => {

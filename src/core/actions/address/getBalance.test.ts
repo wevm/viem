@@ -9,7 +9,7 @@ const client = anvil.getClient(anvil.mainnet)
 
 // WETH contract on mainnet (large, stable balance at the fork block).
 const weth = '0xC02aaa39b223FE8D0A0e5C4F27eAD9083C756Cc2'
-const wethBalance = 2780879341265161775352224n
+const wethBalance = 2578764282569393454844437n
 
 test('default', async () => {
   expect(await Actions.address.getBalance(client, { address: weth })).toBe(
