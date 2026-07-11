@@ -88,6 +88,7 @@ jobs:
         run: pnpm check:types
 
       - name: Bench types
+        if: matrix.version != 'latest'
         run: pnpm bench:types
 
   test:
