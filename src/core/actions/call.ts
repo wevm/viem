@@ -10,6 +10,7 @@ import {
   type RequireCanonicalError,
   blockParameter,
 } from './internal/blockParameter.js'
+import type { offchainLookup } from './internal/ccip.js'
 import {
   toDeploylessCallViaBytecodeData,
   toDeploylessCallViaFactoryData,
@@ -169,20 +170,15 @@ export async function call(
 
     const data = getRevertErrorData(err)
 
-    // ERC-3668: resolve `OffchainLookup` reverts via the CCIP-read flow.
-    // Loaded on demand — the gateway-fetch machinery is dead weight for the
-    // overwhelming majority of calls.
-    if (
-      client.ccipRead !== false &&
-      data?.slice(0, 10) === '0x556f1830' &&
-      to
-    ) {
+    // Resolve ERC-3668 reverts when the client supplies a request policy.
+    if (client.ccipRead && data?.slice(0, 10) === '0x556f1830' && to) {
       const { offchainLookup } = await import('./internal/ccip.js')
       return {
         data: await offchainLookup(client, {
           blockNumber,
           blockTag,
           data,
+          request: client.ccipRead.request,
           requestOptions,
           to,
         }),
@@ -232,6 +228,7 @@ export declare namespace call {
     | RpcError.ExecutionError
     | CounterfactualDeploymentFailedError
     | RequireCanonicalError
+    | offchainLookup.ErrorType
     | Errors.GlobalErrorType
 }
 

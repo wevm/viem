@@ -7,12 +7,19 @@ import {
 } from '~test/ens.js'
 import { beforeAll, describe, expect, test } from 'vitest'
 
-import { Actions, Client, http, publicActions } from 'viem'
+import { Actions, CcipRead, Client, http, publicActions } from 'viem'
 import { mainnet, optimism } from 'viem/chains'
 
 import { getName } from './getName.js'
 
 const client = Client.create({
+  chain: mainnet,
+  transport: http(anvil.mainnet.rpcUrl.http),
+})
+const unsafeRequest: CcipRead.Request = (options) =>
+  CcipRead.request({ ...options, allowUnsafeUrls: true })
+const ccipClient = Client.create({
+  ccipRead: { request: unsafeRequest },
   chain: mainnet,
   transport: http(anvil.mainnet.rpcUrl.http),
 })
@@ -184,7 +191,7 @@ describe('behavior: batch gateway http error', () => {
   test('non-strict', async () => {
     const server = await createBatchGatewayErrorServer()
     await expect(
-      getName(client, { address: vitalik, gatewayUrls: [server.url] }),
+      getName(ccipClient, { address: vitalik, gatewayUrls: [server.url] }),
     ).resolves.toBeNull()
     await server.close()
   })
@@ -192,7 +199,7 @@ describe('behavior: batch gateway http error', () => {
   test('strict', async () => {
     const server = await createBatchGatewayErrorServer()
     await expect(
-      getName(client, {
+      getName(ccipClient, {
         address: vitalik,
         gatewayUrls: [server.url],
         strict: true,

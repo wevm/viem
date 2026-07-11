@@ -173,16 +173,18 @@ const blockNumber = await Actions.block.getNumber(client)
 
 ### Configuring CCIP Read
 
-Set `ccipRead` to `false` to disable EIP-3668 offchain lookups. This is useful when you want calls to fail instead of following resolver-provided URLs.
+CCIP Read is disabled by default. Opt in with an explicit request policy. For most applications, route resolver-provided URLs through a trusted HTTPS batch gateway.
 
 ```ts twoslash
-import { Actions, Client, http } from 'viem'
+import { Actions, CcipRead, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({
   chain: mainnet,
   transport: http(),
-  ccipRead: false, // [!code focus]
+  ccipRead: CcipRead.tunnel({ // [!code focus]
+    batchGateways: ['https://ccip-v3.ens.xyz'], // [!code focus]
+  }), // [!code focus]
 })
 
 const { data } = await Actions.call(client, {
@@ -190,6 +192,8 @@ const { data } = await Actions.call(client, {
   to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
 })
 ```
+
+Using `CcipRead.request` directly provides defense in depth, not a complete server-side request forgery boundary. Portable `fetch` implementations cannot pin DNS resolution to the validated connection. Server applications should use a trusted proxy or a custom request implementation with a gateway allowlist.
 
 ### Appending a Data Suffix
 
@@ -367,18 +371,20 @@ const client = Client.create({
 ##### ccipRead
 
 - **Type:** `CcipReadOptions | false`
-- **Optional**
+- **Default:** `false`
 
-[CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) config (`false` disables).
+[CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) configuration. Enabling it requires an explicit request policy.
 
 ```ts twoslash
-import { Client, http } from 'viem'
+import { CcipRead, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 // ---cut---
 const client = Client.create({
   chain: mainnet,
   transport: http('https://eth.merkle.io'),
-  ccipRead: false, // [!code focus]
+  ccipRead: CcipRead.tunnel({ // [!code focus]
+    batchGateways: ['https://ccip-v3.ens.xyz'], // [!code focus]
+  }), // [!code focus]
 })
 ```
 

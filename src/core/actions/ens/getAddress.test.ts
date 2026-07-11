@@ -8,12 +8,19 @@ import {
 } from '~test/ens.js'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
-import { Actions, Chain, Client, http, publicActions } from 'viem'
+import { Actions, CcipRead, Chain, Client, http, publicActions } from 'viem'
 import { mainnet, optimism } from 'viem/chains'
 
 import { getAddress } from './getAddress.js'
 
 const client = Client.create({
+  chain: mainnet,
+  transport: http(anvil.mainnet.rpcUrl.http),
+})
+const unsafeRequest: CcipRead.Request = (options) =>
+  CcipRead.request({ ...options, allowUnsafeUrls: true })
+const ccipClient = Client.create({
+  ccipRead: { request: unsafeRequest },
   chain: mainnet,
   transport: http(anvil.mainnet.rpcUrl.http),
 })
@@ -179,7 +186,7 @@ describe('behavior: batch gateway http error', () => {
   test('non-strict', async () => {
     const server = await createBatchGatewayErrorServer()
     await expect(
-      getAddress(client, {
+      getAddress(ccipClient, {
         gatewayUrls: [server.url],
         name: Ens.normalize('1.offchainexample.eth'),
       }),
@@ -190,7 +197,7 @@ describe('behavior: batch gateway http error', () => {
   test('strict', async () => {
     const server = await createBatchGatewayErrorServer()
     await expect(
-      getAddress(client, {
+      getAddress(ccipClient, {
         gatewayUrls: [server.url],
         name: Ens.normalize('1.offchainexample.eth'),
         strict: true,
@@ -213,7 +220,7 @@ describe('behavior: offchain resolver', () => {
 
   test('resolves offchain record', async () => {
     await expect(
-      getAddress(client, { name: Ens.normalize('jxom.eth') }),
+      getAddress(ccipClient, { name: Ens.normalize('jxom.eth') }),
     ).resolves.toMatchInlineSnapshot(
       `"0x41563129cDbbD0c5D3e1c86cf9563926b243834d"`,
     )
@@ -221,7 +228,7 @@ describe('behavior: offchain resolver', () => {
 
   test('decodes address-encoded coinType response', async () => {
     await expect(
-      getAddress(client, {
+      getAddress(ccipClient, {
         coinType: 60n,
         name: Ens.normalize('jxom.eth'),
       }),
@@ -232,7 +239,7 @@ describe('behavior: offchain resolver', () => {
 
   test('name without record', async () => {
     await expect(
-      getAddress(client, {
+      getAddress(ccipClient, {
         coinType: 61n,
         name: Ens.normalize('jxom.eth'),
       }),
@@ -242,6 +249,7 @@ describe('behavior: offchain resolver', () => {
   test('aggregated', async () => {
     const batched = Client.create({
       batch: { multicall: true },
+      ccipRead: { request: unsafeRequest },
       chain: mainnet,
       transport: http(anvil.mainnet.rpcUrl.http),
     })

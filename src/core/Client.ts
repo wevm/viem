@@ -1,5 +1,6 @@
-import type { Address, Errors, Hex, RpcSchema } from 'ox'
+import type { Address, Errors, RpcSchema } from 'ox'
 
+import type * as CcipRead from '../utils/CcipRead.js'
 import * as Account from './Account.js'
 import type * as Chain from './Chain.js'
 import type * as Token from './Token.js'
@@ -52,7 +53,7 @@ type Base<
   blockTag?: BlockTag | undefined
   /** Time (in ms) cached data stays in memory. */
   cacheTime: number
-  /** [CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) config (`false` disables). */
+  /** [CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) config. Omitted or `false` disables CCIP Read. */
   ccipRead?: CcipReadOptions | false | undefined
   /** Chain for the Client. */
   chain: chain
@@ -100,13 +101,7 @@ export type MulticallOptions = {
 /** [CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) configuration. */
 export type CcipReadOptions = {
   /** Makes the offchain CCIP lookup request. */
-  request?:
-    | ((parameters: {
-        data: Hex.Hex
-        sender: Address.Address
-        urls: readonly string[]
-      }) => Promise<Hex.Hex>)
-    | undefined
+  request: CcipRead.Request
 }
 
 /**
@@ -249,7 +244,7 @@ export declare namespace create {
     blockTag?: BlockTag | undefined
     /** Time (in ms) cached data stays in memory. @default pollingInterval */
     cacheTime?: number | undefined
-    /** [CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) config (`false` disables). */
+    /** [CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) config. Omitted or `false` disables CCIP Read. */
     ccipRead?: CcipReadOptions | false | undefined
     /** Chain for the Client. */
     chain?: chain | undefined

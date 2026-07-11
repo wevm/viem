@@ -500,7 +500,82 @@ The ENS actions were grouped under the `ens` namespace, and CCIP-read (`Offchain
 
 The ENS name primitives live on the `Ens` utility namespace (`Ens.normalize`, `Ens.namehash`, `Ens.labelhash`, `Ens.toCoinType` taking/returning `bigint`).
 
-The CCIP-read callback call now executes at the original call's block context (`blockNumber`/`blockTag`); previously the callback always ran against the latest block.
+CCIP Read was disabled by default and began requiring an explicit request policy.
+
+```diff
+- import { Client, http } from 'viem'
++ import { CcipRead, Client, http } from 'viem'
+
+  const client = Client.create({
++   ccipRead: CcipRead.tunnel({
++     batchGateways: ['https://ccip-v3.ens.xyz'],
++   }),
+    transport: http(),
+  })
+```
+
+A tunnel with a trusted HTTPS batch gateway became the recommended request policy. `CcipRead.request` provided defense in depth only; server applications were directed to a trusted proxy or custom gateway allowlist because portable `fetch` cannot pin DNS results to connections.
+
+The CCIP-read callback call began executing at the original call's block context (`blockNumber`/`blockTag`); previously the callback always ran against the latest block.
+
+CCIP gateway requests and batch tunnels moved to `CcipRead`, tunnel overrides renamed `ccipRequest` to `request`, and transport request options began flowing through tunnels.
+
+```diff
+- import {
+-   ccipFetch,
+-   ccipReadTunnel,
+-   ccipRequest,
+-   type CcipReadTunnelParameters,
+-   type CcipRequestErrorType,
+-   type CcipRequestParameters,
+- } from 'viem'
++ import { CcipRead } from 'viem'
+
+- const data = await ccipRequest(options)
+- const legacyData = await ccipFetch(options)
++ const data = await CcipRead.request(options)
+
+- const ccipRead = ccipReadTunnel({ batchGateways, ccipRequest })
++ const ccipRead = CcipRead.tunnel({
++   batchGateways,
++   request: CcipRead.request,
++ })
+
+- type RequestOptions = CcipRequestParameters
+- type RequestError = CcipRequestErrorType
+- type TunnelOptions = CcipReadTunnelParameters
++ type RequestOptions = CcipRead.request.Options
++ type RequestError = CcipRead.request.ErrorType
++ type TunnelOptions = CcipRead.tunnel.Options
+```
+
+`CcipRead.request` rejected unsafe URL forms and redirects and redacted gateway payloads, while `CcipRead.tunnel` redacted batch failures and rejected malformed success arrays instead of resolving `undefined`.
+
+Raw `offchainLookup` resolution became internal to `Actions.call`, and Ox construction replaced its ABI item and selector constants.
+
+```diff
+- import {
+-   offchainLookup,
+-   offchainLookupAbiItem,
+-   offchainLookupSignature,
+-   type OffchainLookupErrorType,
+- } from 'viem'
++ import { AbiError } from 'ox'
++ import { Actions, CcipRead } from 'viem'
+
+- const data = await offchainLookup(client, { data: revertData, to })
++ const { data } = await Actions.call(client, { data: callData, to })
+
+- offchainLookupAbiItem
+- offchainLookupSignature
++ const abiError = AbiError.from(
++   'error OffchainLookup(address sender, string[] urls, bytes callData, bytes4 callbackFunction, bytes extraData)',
++ )
++ const selector = AbiError.getSelector(abiError)
+
+- type LookupError = OffchainLookupErrorType
++ type LookupError = CcipRead.LookupError
+```
 
 `Actions.transaction.prepare` no longer feeds the fees it derives back into its internal gas estimation (nodes cap estimable gas by `balance / fee`, which broke senders that do not hold the fee themselves, e.g. sponsored transactions); caller-supplied fees are still forwarded.
 

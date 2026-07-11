@@ -53,3 +53,13 @@ export const getUrl = (url: string) => {
     return url
   }
 }
+
+/** Returns only a URL's origin, excluding credentials and request data. */
+export const getUrlOrigin = (url: string) => {
+  try {
+    const parsed = new URL(url)
+    return parsed.origin === 'null' ? parsed.protocol : parsed.origin
+  } catch {
+    return '[invalid URL]'
+  }
+}

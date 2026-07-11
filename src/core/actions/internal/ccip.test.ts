@@ -4,14 +4,24 @@ import * as anvil from '~test/anvil.js'
 import { createCcipServer } from '~test/ccip.js'
 import * as constants from '~test/constants.js'
 import * as contract from '~test/contract.js'
-import { createServer } from '~test/http.js'
 import { describe, expect, test } from 'vitest'
 
-import { Actions, Client, custom } from 'viem'
+import { Actions, CcipRead, Client, custom, RpcError } from 'viem'
 
-import { ccipRequest, offchainLookup, offchainLookupAbiError } from './ccip.js'
+import { offchainLookup } from './ccip.js'
 
 const client = anvil.getClient(anvil.local)
+const offchainLookupAbiError = AbiError.from(
+  'error OffchainLookup(address sender, string[] urls, bytes callData, bytes4 callbackFunction, bytes extraData)',
+)
+const transport = custom(
+  {
+    async request({ method, params }: { method: string; params: unknown }) {
+      return client.request({ method, params })
+    },
+  },
+  { retryCount: 0 },
+)
 
 async function deployExample(urls: readonly string[]) {
   return await contract.deploy(client, {
@@ -32,101 +42,119 @@ function getAddressData(name: string) {
   )
 }
 
+const unsafeRequest: CcipRead.Request = (options) =>
+  CcipRead.request({ ...options, allowUnsafeUrls: true })
+
 describe('call integration', () => {
-  test('resolves an OffchainLookup revert', async () => {
+  test('args: client ccipRead omitted', async () => {
     const server = await createCcipServer()
-    const { address } = await deployExample([`${server.url}/{sender}/{data}`])
+    try {
+      const { address } = await deployExample([`${server.url}/{sender}/{data}`])
 
-    const { data } = await Actions.call(client, {
-      data: getAddressData('jxom.viem'),
-      to: address,
-    })
+      const error = await Actions.call(client, {
+        data: getAddressData('jxom.viem'),
+        to: address,
+      }).catch((error) => error)
 
-    expect(Hex.trimLeft(data!)).toEqual(constants.accounts[0].address)
+      expect(error).toBeInstanceOf(RpcError.ExecutionError)
+      expect(error).not.toBeInstanceOf(CcipRead.LookupError)
+    } finally {
+      await server.close()
+    }
+  })
 
-    await server.close()
+  test('args: client ccipRead request', async () => {
+    const server = await createCcipServer()
+    try {
+      const { address } = await deployExample([`${server.url}/{sender}/{data}`])
+
+      const enabled = Client.create({
+        ccipRead: { request: unsafeRequest },
+        transport,
+      })
+
+      const { data } = await Actions.call(enabled, {
+        data: getAddressData('jxom.viem'),
+        to: address,
+      })
+
+      expect(Hex.trimLeft(data!)).toEqual(constants.accounts[0].address)
+    } finally {
+      await server.close()
+    }
   })
 
   test('args: client ccipRead disabled', async () => {
     const server = await createCcipServer()
-    const { address } = await deployExample([`${server.url}/{sender}/{data}`])
+    try {
+      const { address } = await deployExample([`${server.url}/{sender}/{data}`])
 
-    const disabled = Client.create({
-      ccipRead: false,
-      transport: custom(
-        {
-          async request({
-            method,
-            params,
-          }: {
-            method: string
-            params: unknown
-          }) {
-            return client.request({ method, params })
-          },
-        },
-        { retryCount: 0 },
-      ),
-    })
-
-    await expect(
-      Actions.call(disabled, {
+      const disabled = Client.create({
+        ccipRead: false,
+        transport,
+      })
+      const error = await Actions.call(disabled, {
         data: getAddressData('jxom.viem'),
         to: address,
-      }),
-    ).rejects.toThrowError()
+      }).catch((error) => error)
 
-    await server.close()
+      expect(error).toBeInstanceOf(RpcError.ExecutionError)
+      expect(error).not.toBeInstanceOf(CcipRead.LookupError)
+    } finally {
+      await server.close()
+    }
   })
 
   test('args: client ccipRead request override', async () => {
     const server = await createCcipServer()
-    const { address } = await deployExample([`${server.url}/{sender}/{data}`])
+    try {
+      const { address } = await deployExample([
+        'http://127.0.0.1:1/{sender}/{data}',
+      ])
 
-    const overridden = Client.create({
-      ccipRead: {
-        async request({ data, sender, urls }) {
-          return ccipRequest({ data, sender, urls })
-        },
-      },
-      transport: custom(
-        {
-          async request({
-            method,
-            params,
-          }: {
-            method: string
-            params: unknown
-          }) {
-            return client.request({ method, params })
+      const overridden = Client.create({
+        ccipRead: {
+          async request(options) {
+            return CcipRead.request({
+              ...options,
+              allowUnsafeUrls: true,
+              urls: [`${server.url}/{sender}/{data}`],
+            })
           },
         },
-        { retryCount: 0 },
-      ),
-    })
+        transport,
+      })
 
-    const { data } = await Actions.call(overridden, {
-      data: getAddressData('jxom.viem'),
-      to: address,
-    })
+      const { data } = await Actions.call(overridden, {
+        data: getAddressData('jxom.viem'),
+        to: address,
+      })
 
-    expect(Hex.trimLeft(data!)).toEqual(constants.accounts[0].address)
-
-    await server.close()
+      expect(Hex.trimLeft(data!)).toEqual(constants.accounts[0].address)
+    } finally {
+      await server.close()
+    }
   })
 
   test('behavior: invalid signature reverts through the callback', async () => {
     const server = await createCcipServer()
-    const { address } = await deployExample([`${server.url}/{sender}/{data}`])
+    try {
+      const { address } = await deployExample([`${server.url}/{sender}/{data}`])
 
-    await expect(
-      Actions.call(client, {
-        data: getAddressData('fake.viem'),
-        to: address,
-      }),
-    ).rejects.toThrowError()
+      const enabled = Client.create({
+        ccipRead: { request: unsafeRequest },
+        transport,
+      })
 
-    await server.close()
+      await expect(
+        Actions.call(enabled, {
+          data: getAddressData('fake.viem'),
+          to: address,
+        }),
+      ).rejects.toThrowError()
+    } finally {
+      await server.close()
+    }
   })
 })
 
@@ -140,13 +168,23 @@ describe('offchainLookup', () => {
       '0xdeadbeaf',
     ])
 
-    await expect(
-      offchainLookup(client, {
-        data,
-        to: '0x0000000000000000000000000000000000000001',
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [OffchainLookupError: Reverted sender address does not match target contract address (\`to\`).
+    const error = (await offchainLookup(client, {
+      data,
+      request: CcipRead.request,
+      to: '0x0000000000000000000000000000000000000001',
+    }).catch((error) => error)) as CcipRead.LookupError
+
+    expect(error).toBeInstanceOf(CcipRead.LookupError)
+    expect(error.cause).toBeInstanceOf(CcipRead.SenderMismatchError)
+    expect({ cause: error.cause.name, lookup: error.name })
+      .toMatchInlineSnapshot(`
+        {
+          "cause": "CcipRead.SenderMismatchError",
+          "lookup": "CcipRead.LookupError",
+        }
+      `)
+    expect(error).toMatchInlineSnapshot(`
+      [CcipRead.LookupError: Reverted sender address does not match target contract address (\`to\`).
 
       Contract address: 0x0000000000000000000000000000000000000001
       OffchainLookup sender address: 0x0000000000000000000000000000000000000000
@@ -162,167 +200,5 @@ describe('offchainLookup', () => {
       Details: Reverted sender address does not match target contract address (\`to\`).
       Version: viem@2.52.1]
     `)
-  })
-})
-
-describe('ccipRequest', () => {
-  test('default (GET with substitutions)', async () => {
-    let url: string | undefined
-    const server = await createServer((req, res) => {
-      res.writeHead(200, { 'Content-Type': 'application/json' })
-      url = req.url
-      res.end(JSON.stringify({ data: '0xdeadbeef' }))
-    })
-
-    const result = await ccipRequest({
-      data: '0xdeadbeef',
-      sender: constants.accounts[0].address,
-      urls: [`${server.url}/{sender}/{data}`],
-    })
-
-    expect(result).toEqual('0xdeadbeef')
-    expect(url).toEqual(
-      '/0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266/0xdeadbeef',
-    )
-
-    await server.close()
-  })
-
-  test('behavior: text response', async () => {
-    const server = await createServer((_req, res) => {
-      res.end('0xcafebabe')
-    })
-
-    await expect(
-      ccipRequest({
-        data: '0xdeadbeef',
-        sender: constants.accounts[0].address,
-        urls: [`${server.url}/{sender}/{data}`],
-      }),
-    ).resolves.toEqual('0xcafebabe')
-
-    await server.close()
-  })
-
-  test('behavior: http error', async () => {
-    const server = await createServer((_req, res) => {
-      res.writeHead(500)
-      res.end()
-    })
-
-    await expect(
-      ccipRequest({
-        data: '0xdeadbeef',
-        sender: constants.accounts[0].address,
-        urls: [`${server.url}/{sender}/{data}`],
-      }),
-    ).rejects.toThrowError('HTTP request failed.')
-
-    await server.close()
-  })
-
-  test('behavior: malformed response', async () => {
-    const server = await createServer((_req, res) => {
-      res.writeHead(200, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ data: 'not hex' }))
-    })
-
-    await expect(
-      ccipRequest({
-        data: '0xdeadbeef',
-        sender: constants.accounts[0].address,
-        urls: [`${server.url}/{sender}/{data}`],
-      }),
-    ).rejects.toThrowError(
-      'Offchain gateway response is malformed. Response data must be a hex value.',
-    )
-
-    await server.close()
-  })
-
-  test('behavior: POST method without substitutions', async () => {
-    let body = ''
-    const server = await createServer((req, res) => {
-      req.on('data', (chunk) => {
-        body += chunk
-      })
-      req.on('end', () => {
-        res.writeHead(200, { 'Content-Type': 'application/json' })
-        res.end(JSON.stringify({ data: '0xcafebabe' }))
-      })
-    })
-
-    const result = await ccipRequest({
-      data: '0xdeadbeef',
-      sender: constants.accounts[0].address,
-      urls: [server.url],
-    })
-
-    expect(result).toEqual('0xcafebabe')
-    expect(body).toEqual(
-      '{"data":"0xdeadbeef","sender":"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"}',
-    )
-
-    await server.close()
-  })
-
-  test('behavior: falls through multiple urls', async () => {
-    let count = 0
-    const failing = await createServer((_req, res) => {
-      count++
-      res.writeHead(500)
-      res.end()
-    })
-    const succeeding = await createServer((_req, res) => {
-      count++
-      res.writeHead(200, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ data: '0xcafebabe' }))
-    })
-
-    const result = await ccipRequest({
-      data: '0xdeadbeef',
-      sender: constants.accounts[0].address,
-      urls: [
-        `${failing.url}/{sender}/{data}`,
-        `${succeeding.url}/{sender}/{data}`,
-      ],
-    })
-
-    expect(count).toBe(2)
-    expect(result).toEqual('0xcafebabe')
-
-    await failing.close()
-    await succeeding.close()
-  })
-
-  test('behavior: fetch failure', async () => {
-    await expect(
-      ccipRequest({
-        data: '0xdeadbeef',
-        sender: constants.accounts[0].address,
-        urls: ['fakeurl'],
-      }),
-    ).rejects.toThrowError('Failed to parse URL from fakeurl')
-  })
-
-  test('behavior: aborts via requestOptions signal', async () => {
-    const server = await createServer(async (_req, res) => {
-      await new Promise((resolve) => setTimeout(resolve, 1_000))
-      res.end(JSON.stringify({ data: '0xcafebabe' }))
-    })
-    const controller = new AbortController()
-
-    setTimeout(() => controller.abort(), 50)
-
-    await expect(
-      ccipRequest({
-        data: '0xdeadbeef',
-        requestOptions: { signal: controller.signal },
-        sender: constants.accounts[0].address,
-        urls: [`${server.url}/{sender}/{data}`],
-      }),
-    ).rejects.toThrowError()
-
-    await server.close()
   })
 })

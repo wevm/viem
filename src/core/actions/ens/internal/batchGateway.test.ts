@@ -1,17 +1,22 @@
-import { AbiError, AbiFunction } from 'ox'
+import { Abi, AbiError, AbiFunction } from 'ox'
 import { createServer } from '~test/http.js'
 import { expect, test } from 'vitest'
 
-import { ccipRequest } from '../../internal/ccip.js'
+import { CcipRead } from 'viem'
 import {
-  batchGatewayAbi,
   localBatchGatewayRequest,
   localBatchGatewayUrl,
 } from './batchGateway.js'
 
+const batchGatewayAbi = Abi.from([
+  'function query((address sender, string[] urls, bytes data)[] queries) view returns (bool[] failures, bytes[] responses)',
+  'error HttpError(uint16 status, string message)',
+])
 const query = AbiFunction.fromAbi(batchGatewayAbi, 'query')
 const httpError = AbiError.fromAbi(batchGatewayAbi, 'HttpError')
 const solidityError = AbiError.from('error Error(string message)')
+const unsafeRequest: CcipRead.Request = (options) =>
+  CcipRead.request({ ...options, allowUnsafeUrls: true })
 
 test('default', async () => {
   const sender = '0x0000000000000000000000000000000000000001'
@@ -46,7 +51,10 @@ test('default', async () => {
     ],
   ])
 
-  const result = await localBatchGatewayRequest({ ccipRequest, data })
+  const result = await localBatchGatewayRequest({
+    data,
+    request: unsafeRequest,
+  })
 
   const [failures, responses] = AbiFunction.decodeResult(query, result)
   expect(failures).toEqual([false, false, true, true, true, false])
@@ -56,7 +64,9 @@ test('default', async () => {
     AbiError.encode(solidityError, ['An unknown error occurred.']),
   )
   expect(responses[3]).toBe(
-    AbiError.encode(solidityError, ['HTTP request failed.']),
+    AbiError.encode(solidityError, [
+      'CCIP gateway URL is not allowed. Only standard-port HTTPS hostnames are permitted.',
+    ]),
   )
   expect(responses[4]).toBe(
     AbiError.encode(solidityError, [
@@ -71,8 +81,8 @@ test('default', async () => {
 test('behavior: empty', async () => {
   await expect(
     localBatchGatewayRequest({
-      ccipRequest,
       data: AbiFunction.encodeData(query, [[]]),
+      request: unsafeRequest,
     }),
   ).resolves.toBe(AbiFunction.encodeResult(query, [[], []]))
 })
@@ -84,7 +94,6 @@ test('behavior: http error', async () => {
   })
 
   const result = await localBatchGatewayRequest({
-    ccipRequest,
     data: AbiFunction.encodeData(query, [
       [
         {
@@ -94,6 +103,7 @@ test('behavior: http error', async () => {
         },
       ],
     ]),
+    request: unsafeRequest,
   })
 
   const [failures, responses] = AbiFunction.decodeResult(query, result)

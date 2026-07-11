@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { getAbortError, getUrl, isAbortError } from './errors.js'
+import { getAbortError, getUrl, getUrlOrigin, isAbortError } from './errors.js'
 
 test('passes a credential-free URL through unchanged', () => {
   expect(getUrl('https://example.com/rpc')).toMatchInlineSnapshot(
@@ -34,6 +34,14 @@ test('preserves query string and hash after stripping', () => {
 
 test('returns the input untouched when not a parseable URL', () => {
   expect(getUrl('not-a-url')).toMatchInlineSnapshot(`"not-a-url"`)
+})
+
+test('getUrlOrigin removes credentials, paths, queries, and fragments', () => {
+  expect(
+    getUrlOrigin('https://user:pass@example.com/path?key=value#fragment'),
+  ).toBe('https://example.com')
+  expect(getUrlOrigin('data:text/plain,secret')).toBe('data:')
+  expect(getUrlOrigin('not-a-url')).toBe('[invalid URL]')
 })
 
 test('getAbortError returns the signal reason when present', () => {

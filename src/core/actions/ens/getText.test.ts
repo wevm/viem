@@ -8,12 +8,19 @@ import {
 } from '~test/ens.js'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
-import { Actions, Client, http, publicActions } from 'viem'
+import { Actions, CcipRead, Client, http, publicActions } from 'viem'
 import { linea, mainnet, optimism } from 'viem/chains'
 
 import { getText } from './getText.js'
 
 const client = Client.create({
+  chain: mainnet,
+  transport: http(anvil.mainnet.rpcUrl.http),
+})
+const unsafeRequest: CcipRead.Request = (options) =>
+  CcipRead.request({ ...options, allowUnsafeUrls: true })
+const ccipClient = Client.create({
+  ccipRead: { request: unsafeRequest },
   chain: mainnet,
   transport: http(anvil.mainnet.rpcUrl.http),
 })
@@ -105,7 +112,7 @@ describe('behavior: batch gateway http error', () => {
   test('non-strict', async () => {
     const server = await createBatchGatewayErrorServer()
     await expect(
-      getText(client, {
+      getText(ccipClient, {
         gatewayUrls: [server.url],
         key: 'email',
         name: Ens.normalize('1.offchainexample.eth'),
@@ -117,7 +124,7 @@ describe('behavior: batch gateway http error', () => {
   test('strict', async () => {
     const server = await createBatchGatewayErrorServer()
     await expect(
-      getText(client, {
+      getText(ccipClient, {
         gatewayUrls: [server.url],
         key: 'email',
         name: Ens.normalize('1.offchainexample.eth'),
@@ -141,7 +148,7 @@ describe('behavior: offchain resolver', () => {
 
   test('resolves offchain record', async () => {
     await expect(
-      getText(client, {
+      getText(ccipClient, {
         key: 'com.twitter',
         name: Ens.normalize('jxom.eth'),
       }),
@@ -150,7 +157,7 @@ describe('behavior: offchain resolver', () => {
 
   test('name without record', async () => {
     await expect(
-      getText(client, {
+      getText(ccipClient, {
         key: 'com.does-not-exist',
         name: Ens.normalize('jxom.eth'),
       }),
