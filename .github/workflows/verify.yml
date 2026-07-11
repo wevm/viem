@@ -67,7 +67,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        version: ['5.9.3', 'latest']
+        version: ['5.9.3', '6.0.3', 'latest']
 
     steps:
       - name: Clone repository
@@ -88,6 +88,8 @@ jobs:
         run: pnpm check:types
 
       - name: Bench types
+        # TODO: Re-enable for latest TypeScript when @ark/attest supports its compiler API.
+        if: matrix.version != 'latest'
         run: pnpm bench:types
 
   test:
