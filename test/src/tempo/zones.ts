@@ -25,6 +25,8 @@ const local = nodeEnv === 'localnet' ? await Prool.ensureZone() : undefined
 
 export const zoneId = local?.zoneId ?? 7
 
+export const factoryAddress = local?.factoryAddress
+
 export const portalAddress =
   local?.portalAddress ?? getPortalAddress(tempoModerato.id, zoneId)
 

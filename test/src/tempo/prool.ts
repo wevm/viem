@@ -63,6 +63,8 @@ export async function createServer() {
 export type Zone = {
   /** Zone chain ID (e.g. `421700001`). */
   chainId: number
+  /** ZoneFactory address on the parent (L1) chain. */
+  factoryAddress: `0x${string}`
   /** Portal address on the parent (L1) chain. */
   portalAddress: `0x${string}`
   /** Private (authenticated) zone RPC URL. */
@@ -126,10 +128,13 @@ async function startZone(): Promise<Zone> {
 
   const zoneId = Number(logs.match(/Zone ID:\s+(\d+)/)?.[1])
   const chainId = Number(logs.match(/Chain ID:\s+(\d+)/)?.[1])
+  const factoryAddress = logs.match(
+    /ZoneFactory:\s+(0x[0-9a-fA-F]{40})/,
+  )?.[1] as `0x${string}` | undefined
   const portalAddress = logs.match(/Portal:\s+(0x[0-9a-fA-F]{40})/)?.[1] as
     | `0x${string}`
     | undefined
-  if (!zoneId || !chainId || !portalAddress) {
+  if (!zoneId || !chainId || !factoryAddress || !portalAddress) {
     await instance.stop().catch(() => {})
     throw new Error(`Failed to parse zone provisioning output:\n\n${logs}`)
   }
@@ -144,6 +149,7 @@ async function startZone(): Promise<Zone> {
 
   return {
     chainId,
+    factoryAddress,
     portalAddress,
     privateRpcUrl: `http://${privateRpc.host}:${privateRpc.port}`,
     rpcUrl: `http://${instance.host}:${instance.port}`,
