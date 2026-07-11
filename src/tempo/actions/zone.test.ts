@@ -1,28 +1,53 @@
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
-import { createClient } from 'viem'
+import { createClient, encodeFunctionData, zeroHash } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { tempoModerato } from 'viem/chains'
 import { parseUnits } from 'viem/utils'
-import { describe, expect, test } from 'vitest'
+import { afterEach, describe, expect, test, vi } from 'vitest'
 import { accounts } from '~test/constants.js'
-import { http } from '~test/tempo/config.js'
-import { getClient as getZoneClient } from '~test/tempo/zones.js'
+import { chain, http } from '~test/tempo/config.js'
+import {
+  getClient as getZoneClient,
+  portalAddress,
+  zoneId,
+} from '~test/tempo/zones.js'
+import * as sendTransactionAction from '../../actions/wallet/sendTransaction.js'
 import * as Storage from '../Storage.js'
 import * as zoneActions from './zone.js'
 
 const account = privateKeyToAccount(accounts[0].privateKey)
 const mainnetClient = createClient({
   account,
-  chain: tempoModerato,
+  chain,
   pollingInterval: 100,
   transport: http(),
 })
 const zoneClient = getZoneClient({ account })
+const preparedEncryptedDeposit = {
+  amount: parseUnits('1', 6),
+  bouncebackRecipient: account.address,
+  chainId: chain.id,
+  encrypted: {
+    ciphertext: '0x1234',
+    ephemeralPubkeyX:
+      '0x0000000000000000000000000000000000000000000000000000000000000001',
+    ephemeralPubkeyYParity: 0,
+    nonce: '0x000000000000000000000000',
+    tag: '0x00000000000000000000000000000000',
+  },
+  keyIndex: 0n,
+  portalAddress,
+  token: '0x20c0000000000000000000000000000000000000',
+  zoneId,
+} satisfies zoneActions.PreparedEncryptedDeposit
+
+afterEach(() => vi.restoreAllMocks())
 
 describe('signAuthorizationToken', () => {
   test('behavior: signs and stores token', async () => {
-    const result = await zoneActions.signAuthorizationToken(zoneClient)
+    const result = await zoneActions.signAuthorizationToken(zoneClient, {
+      zoneId,
+    })
 
     expect(result.authentication).toBeDefined()
     expect(result.token).toBeDefined()
@@ -42,6 +67,7 @@ describe('signAuthorizationToken', () => {
       issuedAt,
       expiresAt,
       storage,
+      zoneId,
     })
 
     expect(result.authentication).toBeDefined()
@@ -73,11 +99,11 @@ describe('signAuthorizationToken', () => {
 
 describe('getZoneInfo', () => {
   test('behavior: returns zone metadata', async () => {
-    await zoneActions.signAuthorizationToken(zoneClient)
+    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
 
     const info = await zoneActions.getZoneInfo(zoneClient)
 
-    expect(info.zoneId).toBe(7)
+    expect(info.zoneId).toBe(zoneId)
     expect(info.chainId).toBe(zoneClient.chain.id)
     expect(info.sequencer).toBeDefined()
     expect(info.zoneTokens).toBeDefined()
@@ -86,7 +112,7 @@ describe('getZoneInfo', () => {
 
 describe('getAuthorizationTokenInfo', () => {
   test('behavior: returns account and expiry', async () => {
-    await zoneActions.signAuthorizationToken(zoneClient)
+    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
 
     const info = await zoneActions.getAuthorizationTokenInfo(zoneClient)
 
@@ -97,7 +123,7 @@ describe('getAuthorizationTokenInfo', () => {
 
 describe('getDepositStatus', () => {
   test('behavior: returns deposit status for block', async () => {
-    await zoneActions.signAuthorizationToken(zoneClient)
+    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
 
     const status = await zoneActions.getDepositStatus(zoneClient, {
       tempoBlockNumber: 1n,
@@ -112,7 +138,7 @@ describe('getDepositStatus', () => {
 
 describe('getWithdrawalFee', () => {
   test('behavior: returns withdrawal fee', async () => {
-    await zoneActions.signAuthorizationToken(zoneClient)
+    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
 
     const fee = await zoneActions.getWithdrawalFee(zoneClient)
 
@@ -121,7 +147,7 @@ describe('getWithdrawalFee', () => {
   })
 
   test('behavior: accepts custom gas limit', async () => {
-    await zoneActions.signAuthorizationToken(zoneClient)
+    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
 
     const fee = await zoneActions.getWithdrawalFee(zoneClient, {
       gas: 100_000n,
@@ -138,7 +164,8 @@ describe('encryptedDeposit', () => {
     const result = await zoneActions.encryptedDepositSync(mainnetClient, {
       token: '0x20c0000000000000000000000000000000000000',
       amount: parseUnits('1', 6),
-      zoneId: 7,
+      portalAddress,
+      zoneId,
     })
 
     expect(result.receipt).toBeDefined()
@@ -147,7 +174,7 @@ describe('encryptedDeposit', () => {
 
   test('error: no account', async () => {
     const noAccountClient = createClient({
-      chain: tempoModerato,
+      chain,
       pollingInterval: 100,
       transport: http(),
     })
@@ -157,54 +184,116 @@ describe('encryptedDeposit', () => {
       zoneActions.encryptedDeposit(noAccountClient, {
         token: '0x20c0000000000000000000000000000000000000',
         amount: 1n,
-        zoneId: 7,
+        zoneId,
       }),
     ).rejects.toThrow('`account` is required.')
   })
 
   test('behavior: prepared encrypted deposit payload', async () => {
-    const prepared = {
-      amount: parseUnits('1', 6),
-      chainId: tempoModerato.id,
-      encrypted: {
-        ciphertext: '0x1234',
-        ephemeralPubkeyX:
-          '0x0000000000000000000000000000000000000000000000000000000000000001',
-        ephemeralPubkeyYParity: 0,
-        nonce: '0x000000000000000000000000',
-        tag: '0x00000000000000000000000000000000',
-      },
-      keyIndex: 0n,
-      portalAddress: '0x3F5296303400B56271b476F5A0B9cBF74350D6Ac',
-      token: '0x20c0000000000000000000000000000000000000',
-      zoneId: 7,
-    } satisfies zoneActions.PreparedEncryptedDeposit
+    const calls = zoneActions.encryptedDeposit.calls(preparedEncryptedDeposit)
 
-    const calls = zoneActions.encryptedDeposit.calls(prepared)
-
-    expect(calls[0].args).toEqual([prepared.portalAddress, parseUnits('1', 6)])
-    expect(calls[1].address).toBe(prepared.portalAddress)
+    expect(calls[0].args).toEqual([
+      preparedEncryptedDeposit.portalAddress,
+      parseUnits('1', 6),
+    ])
+    expect(calls[1].address).toBe(preparedEncryptedDeposit.portalAddress)
     expect(calls[1].functionName).toBe('depositEncrypted')
-    expect(calls[1].args[2]).toBe(prepared.keyIndex)
-    expect(calls[1].args[3]).toEqual(prepared.encrypted)
+    expect(calls[1].args).toHaveLength(5)
+    expect(calls[1].args[2]).toBe(preparedEncryptedDeposit.keyIndex)
+    expect(calls[1].args[3]).toEqual(preparedEncryptedDeposit.encrypted)
+    expect(calls[1].args[4]).toBe(account.address)
+    expect(encodeFunctionData(calls[1] as never).slice(0, 10)).toBe(
+      '0xb01f22e4',
+    )
 
     await expect(
       zoneActions.encryptedDeposit(mainnetClient, {
-        ...prepared,
-        chainId: prepared.chainId + 1,
+        ...preparedEncryptedDeposit,
+        chainId: preparedEncryptedDeposit.chainId + 1,
       }),
     ).rejects.toThrow(
       'Prepared encrypted deposit chain ID does not match client chain.',
     )
   })
+
+  test('behavior: defaults bounceback recipient to account', async () => {
+    const client = createClient({ chain, transport: http() })
+    const prepare = vi
+      .spyOn(zoneActions.encryptedDeposit, 'prepare')
+      .mockResolvedValue(preparedEncryptedDeposit)
+    const sendTransaction = vi
+      .spyOn(sendTransactionAction, 'sendTransaction')
+      .mockResolvedValue(zeroHash)
+
+    await zoneActions.encryptedDeposit(client, {
+      account,
+      amount: 1n,
+      portalAddress,
+      token: preparedEncryptedDeposit.token,
+      zoneId,
+    })
+
+    expect(prepare).toHaveBeenCalledWith(
+      client,
+      expect.objectContaining({ bouncebackRecipient: account.address }),
+    )
+    const transaction = sendTransaction.mock.calls[0]![1] as unknown as {
+      account: typeof account
+      calls: ReturnType<typeof zoneActions.encryptedDeposit.calls>
+    }
+    expect(transaction.account).toBe(account)
+    expect(transaction.calls[1].args[4]).toBe(account.address)
+  })
 })
 
 describe('deposit', () => {
+  test('behavior: encodes bounceback recipient', () => {
+    const parameters = {
+      amount: 1n,
+      bouncebackRecipient: account.address,
+      chainId: chain.id,
+      portalAddress,
+      recipient: account.address,
+      token: '0x20c0000000000000000000000000000000000000',
+      zoneId,
+    } satisfies zoneActions.deposit.Args
+
+    const calls = zoneActions.deposit.calls(parameters)
+    expect(calls[1].args).toHaveLength(5)
+    expect(calls[1].args[4]).toBe(account.address)
+    expect(encodeFunctionData(calls[1] as never).slice(0, 10)).toBe(
+      '0x09a0a234',
+    )
+  })
+
+  test('behavior: defaults bounceback recipient to account', async () => {
+    const client = createClient({ chain, transport: http() })
+    const sendTransaction = vi
+      .spyOn(sendTransactionAction, 'sendTransaction')
+      .mockResolvedValue(zeroHash)
+    const parameters = {
+      amount: 1n,
+      portalAddress,
+      token: '0x20c0000000000000000000000000000000000000',
+      zoneId,
+    } as const
+
+    await zoneActions.deposit(client, { ...parameters, account })
+    const transaction = sendTransaction.mock.calls[0]![1] as unknown as {
+      account: typeof account
+      calls: ReturnType<typeof zoneActions.deposit.calls>
+    }
+    expect(transaction.account).toBe(account)
+    expect(transaction.calls[1].args).toHaveLength(5)
+    expect(transaction.calls[1].args[4]).toBe(account.address)
+  })
+
   test('behavior: deposits tokens into zone via parent chain', async () => {
     const result = await zoneActions.depositSync(mainnetClient, {
       token: '0x20c0000000000000000000000000000000000000',
       amount: parseUnits('1', 6),
-      zoneId: 7,
+      portalAddress,
+      zoneId,
     })
 
     expect(result.receipt).toBeDefined()
@@ -213,7 +302,7 @@ describe('deposit', () => {
 
   test('error: no account', async () => {
     const noAccountClient = createClient({
-      chain: tempoModerato,
+      chain,
       pollingInterval: 100,
       transport: http(),
     })
@@ -223,7 +312,7 @@ describe('deposit', () => {
       zoneActions.deposit(noAccountClient, {
         token: '0x20c0000000000000000000000000000000000000',
         amount: 1n,
-        zoneId: 7,
+        zoneId,
       }),
     ).rejects.toThrow('`account` is required.')
   })
@@ -244,7 +333,7 @@ describe('requestWithdrawal', () => {
   })
 
   test.skip('behavior: requests withdrawal from zone to parent chain', async () => {
-    await zoneActions.signAuthorizationToken(zoneClient)
+    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
 
     const info = await zoneActions.getZoneInfo(zoneClient)
     const zoneToken = info.zoneTokens[0]!
@@ -264,6 +353,7 @@ describe('requestWithdrawal', () => {
     const noAccountClient = getZoneClient({})
     await zoneActions.signAuthorizationToken(noAccountClient, {
       account,
+      zoneId,
     })
 
     await expect(
@@ -292,7 +382,7 @@ describe('requestVerifiableWithdrawal', () => {
   })
 
   test.skip('behavior: requests verifiable withdrawal from zone', async () => {
-    await zoneActions.signAuthorizationToken(zoneClient)
+    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
 
     const info = await zoneActions.getZoneInfo(zoneClient)
     const zoneToken = info.zoneTokens[0]!
@@ -320,6 +410,7 @@ describe('requestVerifiableWithdrawal', () => {
     const noAccountClient = getZoneClient({})
     await zoneActions.signAuthorizationToken(noAccountClient, {
       account,
+      zoneId,
     })
 
     await expect(

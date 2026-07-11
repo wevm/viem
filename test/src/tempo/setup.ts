@@ -30,5 +30,6 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (nodeEnv !== 'localnet') return
+  await Prool.stopZone()
   await fetch(`${Prool.rpcUrl}/stop`)
 })

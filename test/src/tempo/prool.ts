@@ -60,6 +60,98 @@ export async function createServer() {
   })
 }
 
+export type Zone = {
+  /** Zone chain ID (e.g. `421700001`). */
+  chainId: number
+  /** Portal address on the parent (L1) chain. */
+  portalAddress: `0x${string}`
+  /** Private (authenticated) zone RPC URL. */
+  privateRpcUrl: string
+  /** Public zone RPC URL. */
+  rpcUrl: string
+  /** Stops the zone container. */
+  stop(): Promise<void>
+  /** Zone ID (e.g. `1`). */
+  zoneId: number
+}
+
+let zone: Promise<Zone> | undefined
+
+/** Lazily provisions a local zone (`tempo-zone dev`) against this worker's L1. */
+export function ensureZone(): Promise<Zone> {
+  zone ??= startZone()
+  return zone
+}
+
+export async function stopZone() {
+  if (!zone) return
+  const instance = await zone.catch(() => undefined)
+  zone = undefined
+  await instance?.stop()
+}
+
+async function startZone(): Promise<Zone> {
+  if (nodeEnv !== 'localnet')
+    throw new Error('Local zones require `VITE_TEMPO_ENV=localnet`.')
+
+  // TODO: default to `latest` once tempoxyz/zones#610 merges.
+  const tag = import.meta.env.VITE_TEMPO_ZONE_TAG ?? 'sha-aae82c4'
+
+  // The zone container reaches this worker's L1 through the prool server
+  // (`host.docker.internal` resolves to the host; the server proxies WS).
+  const l1RpcUrl = rpcUrl.replace(
+    /^http:\/\/localhost/,
+    'ws://host.docker.internal',
+  )
+
+  const instance = TestContainers.Instance.tempoZone({
+    dev: {
+      // anvil #1; the default dev key is anvil #0 (= `accounts[0]`), which
+      // would race nonces with test transactions.
+      key: '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
+    },
+    image: `ghcr.io/tempoxyz/tempo-zone:${tag}`,
+    l1: { rpcUrl: l1RpcUrl },
+    log: import.meta.env.VITE_TEMPO_LOG,
+    startupTimeout: 120_000,
+  })
+
+  // Collect startup logs to parse provisioning metadata.
+  let logs = ''
+  instance.on('message', (message) => {
+    logs += message
+  })
+
+  await instance.start()
+
+  const zoneId = Number(logs.match(/Zone ID:\s+(\d+)/)?.[1])
+  const chainId = Number(logs.match(/Chain ID:\s+(\d+)/)?.[1])
+  const portalAddress = logs.match(/Portal:\s+(0x[0-9a-fA-F]{40})/)?.[1] as
+    | `0x${string}`
+    | undefined
+  if (!zoneId || !chainId || !portalAddress) {
+    await instance.stop().catch(() => {})
+    throw new Error(`Failed to parse zone provisioning output:\n\n${logs}`)
+  }
+
+  const { privateRpc } = instance._internal as {
+    privateRpc?: { host: string; port: number } | undefined
+  }
+  if (!privateRpc) {
+    await instance.stop().catch(() => {})
+    throw new Error('Failed to resolve zone private RPC endpoint.')
+  }
+
+  return {
+    chainId,
+    portalAddress,
+    privateRpcUrl: `http://${privateRpc.host}:${privateRpc.port}`,
+    rpcUrl: `http://${instance.host}:${instance.port}`,
+    stop: () => instance.stop(),
+    zoneId,
+  }
+}
+
 export async function restart(client: Client<Transport, Chain>) {
   if (nodeEnv !== 'localnet') return
   await fetch(`${client.chain.rpcUrls.default.http[0]}/restart`)

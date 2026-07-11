@@ -43,6 +43,8 @@ export type EncryptedPayload = {
 export type PreparedEncryptedDeposit = {
   /** Amount of tokens to deposit. */
   amount: bigint
+  /** Refund recipient on the parent chain if the deposit bounces. */
+  bouncebackRecipient: Address
   /** Parent chain ID (e.g. `42431` for moderato). */
   chainId: number
   /** Encrypted deposit payload. */
@@ -98,14 +100,19 @@ export async function deposit<
   const { account = client.account, ...rest } = parameters
 
   const account_ = account ? parseAccount(account) : undefined
-  if (!account) throw new Error('`account` is required.')
+  if (!account_) throw new Error('`account` is required.')
 
-  const recipient = parameters.recipient ?? account_?.address
-  if (!recipient) throw new Error('`recipient` is required.')
-
-  const args = { ...parameters, chainId, recipient }
+  const recipient = parameters.recipient ?? account_.address
+  const bouncebackRecipient = parameters.bouncebackRecipient ?? account_.address
+  const args = {
+    ...parameters,
+    bouncebackRecipient,
+    chainId,
+    recipient,
+  }
   return sendTransaction(client, {
     ...rest,
+    account,
     calls: deposit.calls(args),
   } as never) as never
 }
@@ -115,7 +122,9 @@ export namespace deposit {
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = WriteParameters<chain, account> &
-    Omit<Args, 'chainId' | 'recipient'> & {
+    Omit<Args, 'bouncebackRecipient' | 'chainId' | 'recipient'> & {
+      /** Refund recipient on the parent chain. @default `account.address` */
+      bouncebackRecipient?: Address | undefined
       /** Recipient address in the zone. @default `account.address` */
       recipient?: Address | undefined
     }
@@ -123,10 +132,14 @@ export namespace deposit {
   export type Args = {
     /** Amount of tokens to deposit. */
     amount: bigint
+    /** Refund recipient on the parent chain if the deposit bounces. */
+    bouncebackRecipient: Address
     /** Parent chain ID (e.g. `42431` for moderato). */
     chainId: number
     /** Optional deposit memo. @default `0x00...00` */
     memo?: Hex.Hex | undefined
+    /** Zone portal address. @default resolved via the portal registry. */
+    portalAddress?: Address | undefined
     /** Recipient address in the zone. */
     recipient: Address
     /** Token address or ID to deposit. */
@@ -147,22 +160,31 @@ export namespace deposit {
    * @returns The calls.
    */
   export function calls(args: Args) {
-    const { amount, chainId, memo = zeroHash, recipient, token, zoneId } = args
-    const portalAddress = getPortalAddress(chainId, zoneId)
-    return [
-      defineCall({
-        address: TokenId.toAddress(token),
-        abi: Abis.tip20,
-        functionName: 'approve',
-        args: [portalAddress, amount],
-      }),
-      defineCall({
-        address: portalAddress,
-        abi: ZoneAbis.zonePortal,
-        functionName: 'deposit',
-        args: [TokenId.toAddress(token), recipient, amount, memo],
-      }),
-    ]
+    const {
+      amount,
+      bouncebackRecipient,
+      chainId,
+      memo = zeroHash,
+      recipient,
+      token,
+      zoneId,
+    } = args
+    const portalAddress =
+      args.portalAddress ?? getPortalAddress(chainId, zoneId)
+    const tokenAddress = TokenId.toAddress(token)
+    const approveCall = defineCall({
+      address: tokenAddress,
+      abi: Abis.tip20,
+      functionName: 'approve',
+      args: [portalAddress, amount],
+    })
+    const depositCall = defineCall({
+      address: portalAddress,
+      abi: ZoneAbis.zonePortal,
+      functionName: 'deposit',
+      args: [tokenAddress, recipient, amount, memo, bouncebackRecipient],
+    })
+    return [approveCall, depositCall]
   }
 }
 
@@ -211,14 +233,19 @@ export async function depositSync<
   } = parameters
 
   const account_ = account ? parseAccount(account) : undefined
-  if (!account) throw new Error('`account` is required.')
+  if (!account_) throw new Error('`account` is required.')
 
-  const recipient = parameters.recipient ?? account_?.address
-  if (!recipient) throw new Error('`recipient` is required.')
-
-  const args = { ...parameters, chainId, recipient }
+  const recipient = parameters.recipient ?? account_.address
+  const bouncebackRecipient = parameters.bouncebackRecipient ?? account_.address
+  const args = {
+    ...parameters,
+    bouncebackRecipient,
+    chainId,
+    recipient,
+  }
   const receipt = await sendTransactionSync(client, {
     ...rest,
+    account,
     throwOnReceiptRevert,
     calls: deposit.calls(args),
   } as never)
@@ -284,7 +311,9 @@ export async function encryptedDeposit<
   const { account = client.account, ...rest } = parameters
 
   const account_ = account ? parseAccount(account) : undefined
-  if (!account) throw new Error('`account` is required.')
+  if (!account_) throw new Error('`account` is required.')
+
+  const bouncebackRecipient = parameters.bouncebackRecipient ?? account_.address
 
   if ('encrypted' in parameters) {
     if (parameters.chainId !== chainId) {
@@ -294,22 +323,27 @@ export async function encryptedDeposit<
     }
     return sendTransaction(client, {
       ...pickWriteParameters(parameters as never),
-      calls: encryptedDeposit.calls(parameters),
+      calls: encryptedDeposit.calls({
+        ...parameters,
+        bouncebackRecipient,
+      }),
     } as never) as never
   }
 
-  const recipient = parameters.recipient ?? account_?.address
-  if (!recipient) throw new Error('`recipient` is required.')
+  const recipient = parameters.recipient ?? account_.address
 
   const prepared = await encryptedDeposit.prepare(client, {
     amount: parameters.amount,
+    bouncebackRecipient,
     memo: parameters.memo,
+    portalAddress: parameters.portalAddress,
     recipient,
     token: parameters.token,
     zoneId: parameters.zoneId,
   })
   return sendTransaction(client, {
     ...rest,
+    account,
     calls: encryptedDeposit.calls(prepared),
   } as never) as never
 }
@@ -320,7 +354,16 @@ export namespace encryptedDeposit {
     account extends Account | undefined = Account | undefined,
   > = WriteParameters<chain, account> &
     (
-      | (Omit<Args, 'chainId' | 'encrypted' | 'keyIndex' | 'recipient'> & {
+      | (Omit<
+          Args,
+          | 'bouncebackRecipient'
+          | 'chainId'
+          | 'encrypted'
+          | 'keyIndex'
+          | 'recipient'
+        > & {
+          /** Refund recipient on the parent chain. @default `account.address` */
+          bouncebackRecipient?: Address | undefined
           /** Recipient address in the zone. @default `account.address` */
           recipient?: Address | undefined
         })
@@ -330,6 +373,8 @@ export namespace encryptedDeposit {
   export type Args = {
     /** Amount of tokens to deposit. */
     amount: bigint
+    /** Refund recipient on the parent chain if the deposit bounces. */
+    bouncebackRecipient: Address
     /** Parent chain ID (e.g. `42431` for moderato). */
     chainId: number
     /** Encrypted deposit payload. */
@@ -338,6 +383,8 @@ export namespace encryptedDeposit {
     keyIndex: bigint
     /** Optional deposit memo. @default `0x00...00` */
     memo?: Hex.Hex | undefined
+    /** Zone portal address. @default resolved via the portal registry. */
+    portalAddress?: Address | undefined
     /** Recipient address in the zone. */
     recipient: Address
     /** Token address or ID to deposit. */
@@ -368,6 +415,7 @@ export namespace encryptedDeposit {
    * const prepared = await Actions.zone.encryptedDeposit.prepare(client, {
    *   token: '0x20c0...0001',
    *   amount: 1_000_000n,
+   *   bouncebackRecipient: '0x...',
    *   recipient: '0x...',
    *   zoneId: 7,
    * })
@@ -387,8 +435,17 @@ export namespace encryptedDeposit {
     const chainId = client.chain?.id
     if (!chainId) throw new Error('`chain` is required.')
 
-    const { amount, memo, recipient, token, zoneId, ...rest } = parameters
-    const portalAddress = getPortalAddress(chainId, zoneId)
+    const {
+      amount,
+      bouncebackRecipient,
+      memo,
+      portalAddress: portalAddress_,
+      recipient,
+      token,
+      zoneId,
+      ...rest
+    } = parameters
+    const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
 
     const [publicKey, keyIndex] = await Promise.all([
       readContract(client, {
@@ -419,6 +476,7 @@ export namespace encryptedDeposit {
 
     return {
       amount,
+      bouncebackRecipient,
       chainId,
       encrypted,
       keyIndex: keyIndex - 1n,
@@ -434,8 +492,12 @@ export namespace encryptedDeposit {
     export type Args = {
       /** Amount of tokens to deposit. */
       amount: bigint
+      /** Refund recipient on the parent chain if the deposit bounces. */
+      bouncebackRecipient: Address
       /** Optional deposit memo. @default `0x00...00` */
       memo?: Hex.Hex | undefined
+      /** Zone portal address. @default resolved via the portal registry. */
+      portalAddress?: Address | undefined
       /** Recipient address in the zone. */
       recipient: Address
       /** Token address or ID to deposit. */
@@ -456,33 +518,44 @@ export namespace encryptedDeposit {
    * @returns The calls.
    */
   export function calls(args: Args | PreparedEncryptedDeposit) {
-    const { amount, chainId, encrypted, keyIndex, token, zoneId } = args
-    const portalAddress = getPortalAddress(chainId, zoneId)
-    return [
-      defineCall({
-        address: TokenId.toAddress(token),
-        abi: Abis.tip20,
-        functionName: 'approve',
-        args: [portalAddress, amount],
-      }),
-      defineCall({
-        address: portalAddress,
-        abi: ZoneAbis.zonePortal,
-        functionName: 'depositEncrypted',
-        args: [
-          TokenId.toAddress(token),
-          amount,
-          keyIndex,
-          {
-            ephemeralPubkeyX: encrypted.ephemeralPubkeyX,
-            ephemeralPubkeyYParity: encrypted.ephemeralPubkeyYParity,
-            ciphertext: encrypted.ciphertext,
-            nonce: encrypted.nonce,
-            tag: encrypted.tag,
-          },
-        ],
-      }),
-    ]
+    const {
+      amount,
+      bouncebackRecipient,
+      chainId,
+      encrypted,
+      keyIndex,
+      token,
+      zoneId,
+    } = args
+    const portalAddress =
+      args.portalAddress ?? getPortalAddress(chainId, zoneId)
+    const tokenAddress = TokenId.toAddress(token)
+    const encryptedPayload = {
+      ephemeralPubkeyX: encrypted.ephemeralPubkeyX,
+      ephemeralPubkeyYParity: encrypted.ephemeralPubkeyYParity,
+      ciphertext: encrypted.ciphertext,
+      nonce: encrypted.nonce,
+      tag: encrypted.tag,
+    }
+    const approveCall = defineCall({
+      address: tokenAddress,
+      abi: Abis.tip20,
+      functionName: 'approve',
+      args: [portalAddress, amount],
+    })
+    const depositCall = defineCall({
+      address: portalAddress,
+      abi: ZoneAbis.zonePortal,
+      functionName: 'depositEncrypted',
+      args: [
+        tokenAddress,
+        amount,
+        keyIndex,
+        encryptedPayload,
+        bouncebackRecipient,
+      ],
+    })
+    return [approveCall, depositCall]
   }
 }
 
@@ -531,7 +604,9 @@ export async function encryptedDepositSync<
   } = parameters
 
   const account_ = account ? parseAccount(account) : undefined
-  if (!account) throw new Error('`account` is required.')
+  if (!account_) throw new Error('`account` is required.')
+
+  const bouncebackRecipient = parameters.bouncebackRecipient ?? account_.address
 
   if ('encrypted' in parameters) {
     if (parameters.chainId !== chainId) {
@@ -542,23 +617,28 @@ export async function encryptedDepositSync<
     const receipt = await sendTransactionSync(client, {
       ...pickWriteParameters(parameters as never),
       throwOnReceiptRevert,
-      calls: encryptedDeposit.calls(parameters),
+      calls: encryptedDeposit.calls({
+        ...parameters,
+        bouncebackRecipient,
+      }),
     } as never)
     return { receipt }
   }
 
-  const recipient = parameters.recipient ?? account_?.address
-  if (!recipient) throw new Error('`recipient` is required.')
+  const recipient = parameters.recipient ?? account_.address
 
   const prepared = await encryptedDeposit.prepare(client, {
     amount: parameters.amount,
+    bouncebackRecipient,
     memo: parameters.memo,
+    portalAddress: parameters.portalAddress,
     recipient,
     token: parameters.token,
     zoneId: parameters.zoneId,
   })
   const receipt = await sendTransactionSync(client, {
     ...rest,
+    account,
     throwOnReceiptRevert,
     calls: encryptedDeposit.calls(prepared),
   } as never)
@@ -1284,6 +1364,8 @@ export async function signAuthorizationToken<
   const chain = parameters.chain ?? client.chain
   if (!chain) throw new Error('`signAuthorizationToken` requires a chain.')
 
+  const zoneId = parameters.zoneId ?? ZoneId.fromChainId(chain.id)
+
   const account_ = account ? parseAccount(account) : undefined
   if (!account_ || !account_.sign)
     throw new Error('`account` with `sign` is required.')
@@ -1294,7 +1376,7 @@ export async function signAuthorizationToken<
     chainId: chain.id,
     expiresAt,
     issuedAt,
-    zoneId: ZoneId.fromChainId(chain.id),
+    zoneId,
   })
 
   const payload = ZoneRpcAuthentication.getSignPayload(authentication)
@@ -1326,6 +1408,8 @@ export namespace signAuthorizationToken {
     issuedAt?: number | undefined
     /** Storage to persist the token. @default sessionStorage (web) or memory (server). */
     storage?: Storage.Storage | undefined
+    /** Zone ID to scope the token to (`0` for unscoped). @default derived from `chain.id`. */
+    zoneId?: number | undefined
   }
 
   export type ReturnType = {
