@@ -78,10 +78,10 @@ const { receipt } = await client.zone.encryptedDepositSync({
 
 :::
 
-### Check Deposit Status
+### Wait for Deposit Processing
 
 After depositing, confirm the funds have landed inside the zone with
-[`zone.getDepositStatus`](/tempo/actions/zone.getDepositStatus), querying by the Mainnet block number
+[`zone.waitForDepositStatus`](/tempo/actions/zone.waitForDepositStatus), querying by the Tempo block number
 of your deposit. This call runs against the zone client.
 
 :::code-group
@@ -90,7 +90,7 @@ of your deposit. This call runs against the zone client.
 // @twoslash-cache: {"v":2,"hash":"1291cbf697bb60877644df577f40983e152248fa587857cb3771f0b2aa87db0f","data":"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"}
 import { client } from './zones.config'
 
-const status = await client.zone.getDepositStatus({
+const status = await client.zone.waitForDepositStatus({
   tempoBlockNumber: 123456n,
 })
 ```
@@ -125,8 +125,9 @@ Validate the public transaction details before broadcasting a prepared payload f
 
 ### Track the Deposit Block Number
 
-`zone.getDepositStatus` is keyed by the Mainnet block number of the deposit. Capture it from the
-deposit receipt so you can reliably poll for processing.
+`zone.waitForDepositStatus` is keyed by the Tempo block number of the deposit. Capture it from the
+deposit receipt so the action can poll for processing. Use
+[`zone.getDepositStatus`](/tempo/actions/zone.getDepositStatus) for a one-shot status read.
 
 ## See More
 

@@ -32,6 +32,7 @@ describe('from', () => {
         default: { http: ['https://rpc-zone-a.testnet.tempo.xyz'] },
       },
       sourceId: tempoModerato.id,
+      supportsTransactionReplacementDetection: false,
     })
   })
 
@@ -43,6 +44,7 @@ describe('from', () => {
         default: { http: ['https://rpc-zone-008.tempo.xyz'] },
       },
       sourceId: tempo.id,
+      supportsTransactionReplacementDetection: false,
     })
   })
 
@@ -54,6 +56,7 @@ describe('from', () => {
         default: { http: ['https://rpc-zone-123.example.com'] },
       },
       sourceId: 1,
+      supportsTransactionReplacementDetection: false,
     })
   })
 })

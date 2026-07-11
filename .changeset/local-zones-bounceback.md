@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Updated Tempo zone deposits to pass a bounceback recipient, defaulting it to the effective transaction account.
+Added Tempo zone encryption-key and deposit-status waiting actions, defaulted bounceback recipients to accounts, and adapted receipt polling for private Zone RPCs.

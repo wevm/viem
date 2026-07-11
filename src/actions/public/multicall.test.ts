@@ -1460,6 +1460,48 @@ test('deployless on client without chain', async () => {
   `)
 })
 
+test('args override client multicall config', async () => {
+  const client = createPublicClient({
+    batch: {
+      multicall: {
+        batchSize: 1,
+        deployless: false,
+      },
+    },
+    transport: http(anvilMainnet.rpcUrl.http),
+  })
+
+  expect(
+    await multicall(client, {
+      batchSize: 0,
+      blockNumber: anvilMainnet.forkBlockNumber,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+      ],
+      deployless: true,
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      {
+        "result": 39507977228957576n,
+        "status": "success",
+      },
+      {
+        "result": 123223706565n,
+        "status": "success",
+      },
+    ]
+  `)
+})
+
 describe('GitHub repros', () => {
   test('https://github.com/wevm/viem/issues/434', async () => {
     const { contractAddress } = await deploy(client, {

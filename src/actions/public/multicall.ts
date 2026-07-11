@@ -149,10 +149,10 @@ export async function multicall<
   } = parameters
   const contracts = parameters.contracts as ContractFunctionParameters[]
 
-  const {
-    batchSize = parameters.batchSize ?? 1024,
-    deployless = parameters.deployless ?? false,
-  } = typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}
+  const batch =
+    typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}
+  const batchSize = parameters.batchSize ?? batch.batchSize ?? 1024
+  const deployless = parameters.deployless ?? batch.deployless ?? false
 
   const multicallAddress = (() => {
     if (parameters.multicallAddress) return parameters.multicallAddress

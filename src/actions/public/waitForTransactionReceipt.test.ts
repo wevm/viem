@@ -481,8 +481,16 @@ describe('replaced transactions', () => {
     expect(replacement.transactionReceipt).toBeDefined()
   })
 
-  test('checkReplacement: false', async () => {
+  test('chain: supportsTransactionReplacementDetection: false', async () => {
     setup()
+
+    const client = {
+      ...anvilMainnet.getClient(),
+      chain: {
+        ...anvilMainnet.chain,
+        supportsTransactionReplacementDetection: false,
+      },
+    }
 
     await mine(client, { blocks: 10 })
 
@@ -504,7 +512,6 @@ describe('replaced transactions', () => {
     let replacementCalled = false
     const receiptPromise = waitForTransactionReceipt(client, {
       hash,
-      checkReplacement: false,
       timeout: 3000,
       onReplaced: () => (replacementCalled = true),
     })

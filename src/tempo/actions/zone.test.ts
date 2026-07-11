@@ -27,8 +27,10 @@ import {
   factoryAddress,
   getClient as getZoneClient,
   portalAddress,
+  http as zoneHttp,
   zoneId,
 } from '~test/tempo/zones.js'
+import { WaitForDepositStatusTimeoutError } from '../errors.js'
 import * as Storage from '../Storage.js'
 import * as ZoneAbis from '../zones/Abis.js'
 import { getPortalAddress } from '../zones/zone.js'
@@ -44,66 +46,6 @@ const mainnetClient = createClient({
 })
 const zoneClient = getZoneClient({ account })
 const parentToken = '0x20c0000000000000000000000000000000000000'
-const zoneFactoryAbi = [
-  {
-    type: 'event',
-    name: 'ZoneCreated',
-    inputs: [
-      { name: 'zoneId', type: 'uint32', indexed: true },
-      { name: 'portal', type: 'address', indexed: true },
-      { name: 'messenger', type: 'address', indexed: true },
-      { name: 'initialToken', type: 'address', indexed: false },
-      { name: 'admin', type: 'address', indexed: false },
-      { name: 'sequencer', type: 'address', indexed: false },
-      { name: 'verifier', type: 'address', indexed: false },
-      { name: 'genesisBlockHash', type: 'bytes32', indexed: false },
-      { name: 'genesisTempoBlockHash', type: 'bytes32', indexed: false },
-      {
-        name: 'genesisTempoBlockNumber',
-        type: 'uint64',
-        indexed: false,
-      },
-    ],
-  },
-  {
-    type: 'function',
-    name: 'createZone',
-    stateMutability: 'nonpayable',
-    inputs: [
-      {
-        name: 'params',
-        type: 'tuple',
-        components: [
-          { name: 'initialToken', type: 'address' },
-          { name: 'admin', type: 'address' },
-          { name: 'sequencer', type: 'address' },
-          { name: 'verifier', type: 'address' },
-          {
-            name: 'zoneParams',
-            type: 'tuple',
-            components: [
-              { name: 'genesisBlockHash', type: 'bytes32' },
-              { name: 'genesisTempoBlockHash', type: 'bytes32' },
-              { name: 'genesisTempoBlockNumber', type: 'uint64' },
-            ],
-          },
-          { name: 'rpcUrl', type: 'string' },
-        ],
-      },
-    ],
-    outputs: [
-      { name: 'zoneId', type: 'uint32' },
-      { name: 'portal', type: 'address' },
-    ],
-  },
-  {
-    type: 'function',
-    name: 'verifier',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ name: '', type: 'address' }],
-  },
-] as const
 const depositParameters = {
   amount: parseUnits('1', 6),
   portalAddress,
@@ -161,24 +103,12 @@ async function ensureZoneBalance(zoneToken: Address, minimumBalance: bigint) {
   throw new Error('Timed out waiting for the zone balance.')
 }
 
-async function waitForDepositStatus(tempoBlockNumber: bigint) {
-  for (let attempt = 0; attempt < 150; attempt++) {
-    const status = await zoneActions.getDepositStatus(zoneClient, {
-      tempoBlockNumber,
-    })
-    if (status.processed && status.deposits.length > 0) return status
-    await sleep(100)
-  }
-
-  throw new Error('Timed out waiting for the zone deposit.')
-}
-
 async function createUnconfiguredZone() {
   if (!factoryAddress) throw new Error('ZoneFactory is unavailable.')
 
   const verifier = await readContract(mainnetClient, {
     address: factoryAddress,
-    abi: zoneFactoryAbi,
+    abi: ZoneAbis.zoneFactory,
     functionName: 'verifier',
   })
   const genesisTempoBlockNumber = BigInt(
@@ -187,7 +117,7 @@ async function createUnconfiguredZone() {
   const hash = await writeContract(mainnetClient, {
     account,
     address: factoryAddress,
-    abi: zoneFactoryAbi,
+    abi: ZoneAbis.zoneFactory,
     functionName: 'createZone',
     args: [
       {
@@ -207,7 +137,7 @@ async function createUnconfiguredZone() {
   })
   const receipt = await waitForTransactionReceipt(mainnetClient, { hash })
   const [event] = parseEventLogs({
-    abi: zoneFactoryAbi,
+    abi: ZoneAbis.zoneFactory,
     eventName: 'ZoneCreated',
     logs: receipt.logs,
     strict: true,
@@ -365,15 +295,28 @@ describe('getDepositStatus', () => {
     expect(typeof status.zoneProcessedThrough).toBe('bigint')
     expect(Array.isArray(status.deposits)).toBe(true)
   })
+})
 
-  test('behavior: converts deposit metadata', async () => {
+describe('waitForDepositStatus', () => {
+  test('behavior: waits for deposit processing', async () => {
     await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
     const { receipt } = await zoneActions.depositSync(
       mainnetClient,
       depositParameters,
     )
 
-    const result = await waitForDepositStatus(receipt.blockNumber)
+    const [result, concurrentResult] = await Promise.all([
+      zoneActions.waitForDepositStatus(zoneClient, {
+        pollingInterval: 100,
+        tempoBlockNumber: receipt.blockNumber,
+        timeout: 0,
+      }),
+      zoneActions.waitForDepositStatus(zoneClient, {
+        pollingInterval: 100,
+        tempoBlockNumber: receipt.blockNumber,
+        timeout: 30_000,
+      }),
+    ])
 
     expect(result.processed).toBe(true)
     expect(result.tempoBlockNumber).toBe(receipt.blockNumber)
@@ -387,7 +330,51 @@ describe('getDepositStatus', () => {
       sender: account.address.toLowerCase(),
       status: 'processed',
     })
-  }, 20_000)
+    expect(concurrentResult).toEqual(result)
+
+    await expect(
+      zoneActions.waitForDepositStatus(zoneClient, {
+        pollingInterval: 100,
+        tempoBlockNumber: receipt.blockNumber,
+        timeout: 2_000,
+      }),
+    ).resolves.toMatchObject({
+      deposits: result.deposits,
+      processed: true,
+      tempoBlockNumber: receipt.blockNumber,
+    })
+  }, 40_000)
+
+  test('error: unprocessed block times out', async () => {
+    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
+    const tempoBlockNumber = BigInt(
+      await mainnetClient.request({ method: 'eth_blockNumber' }),
+    )
+
+    await expect(
+      zoneActions.getDepositStatus(zoneClient, { tempoBlockNumber }),
+    ).resolves.toMatchObject({ processed: false, tempoBlockNumber })
+
+    await expect(
+      zoneActions.waitForDepositStatus(zoneClient, {
+        pollingInterval: 10,
+        tempoBlockNumber,
+        timeout: 100,
+      }),
+    ).rejects.toBeInstanceOf(WaitForDepositStatusTimeoutError)
+  })
+
+  test('error: propagates zone RPC errors', async () => {
+    const client = getZoneClient({
+      transport: zoneHttp(undefined, { storage: Storage.memory() }),
+    })
+
+    await expect(
+      zoneActions.waitForDepositStatus(client, {
+        tempoBlockNumber: 1n,
+      }),
+    ).rejects.toThrow('HTTP request failed')
+  })
 })
 
 describe('getWithdrawalFee', () => {
@@ -410,6 +397,55 @@ describe('getWithdrawalFee', () => {
     expect(typeof fee).toBe('bigint')
     expect(fee).toBeGreaterThanOrEqual(0n)
   })
+})
+
+describe('getEncryptionKey', () => {
+  test('behavior: returns the active encryption key', async () => {
+    const result = await zoneActions.getEncryptionKey(mainnetClient, {
+      portalAddress,
+      zoneId,
+    })
+
+    expect(result.keyIndex).toBeGreaterThanOrEqual(0n)
+    expect(result.publicKey.x).toMatch(/^0x[\da-f]{64}$/)
+    expect([2, 3]).toContain(result.publicKey.yParity)
+  })
+
+  test('error: no chain', async () => {
+    const client = createClient({ transport: http() })
+
+    await expect(
+      zoneActions.getEncryptionKey(client, { zoneId: 7 }),
+    ).rejects.toThrow('`chain` is required.')
+  })
+
+  test.runIf(nodeEnv === 'localnet')(
+    'error: portal without an encryption key',
+    async () => {
+      const unconfiguredZone = await createUnconfiguredZone()
+
+      await expect(
+        zoneActions.getEncryptionKey(mainnetClient, {
+          portalAddress: unconfiguredZone.portalAddress,
+          zoneId: unconfiguredZone.zoneId,
+        }),
+      ).rejects.toThrow('No sequencer encryption key configured.')
+    },
+    20_000,
+  )
+
+  test.runIf(nodeEnv === 'localnet')(
+    'error: registered portal is absent from the local chain',
+    async () => {
+      const client = createClient({ chain: tempoModerato, transport: http() })
+
+      await expect(
+        zoneActions.getEncryptionKey(client, {
+          zoneId: 7,
+        }),
+      ).rejects.toThrow('returned no data')
+    },
+  )
 })
 
 describe('encryptedDeposit', () => {
@@ -515,36 +551,6 @@ describe('encryptedDeposit', () => {
       ),
     ).rejects.toThrow('`chain` is required.')
   })
-
-  test.runIf(nodeEnv === 'localnet')(
-    'error: portal without an encryption key',
-    async () => {
-      const unconfiguredZone = await createUnconfiguredZone()
-
-      await expect(
-        zoneActions.encryptedDeposit.prepare(mainnetClient, {
-          ...prepareEncryptedDepositParameters,
-          portalAddress: unconfiguredZone.portalAddress,
-          zoneId: unconfiguredZone.zoneId,
-        }),
-      ).rejects.toThrow('No sequencer encryption key configured.')
-    },
-    20_000,
-  )
-
-  test.runIf(nodeEnv === 'localnet')(
-    'error: registered portal is absent from the local chain',
-    async () => {
-      const client = createClient({ chain: tempoModerato, transport: http() })
-
-      await expect(
-        zoneActions.encryptedDeposit.prepare(
-          client,
-          prepareEncryptedDepositParameters,
-        ),
-      ).rejects.toThrow('returned no data')
-    },
-  )
 
   test('behavior: defaults bounceback recipient to account', async () => {
     const hash = await zoneActions.encryptedDeposit(
@@ -759,7 +765,6 @@ describe('requestWithdrawal', () => {
       token: zoneToken,
     })
     const receipt = await waitForTransactionReceipt(zoneClient, {
-      checkReplacement: false,
       hash,
     })
 
@@ -858,7 +863,6 @@ describe('requestVerifiableWithdrawal', () => {
       parameters,
     )
     const receipt = await waitForTransactionReceipt(zoneClient, {
-      checkReplacement: false,
       hash,
     })
 

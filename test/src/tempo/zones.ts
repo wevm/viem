@@ -49,6 +49,7 @@ export const zone = local
         },
       },
       sourceId: parentChain.id,
+      supportsTransactionReplacementDetection: false,
     })
   : zoneModerato(zoneId)
 
