@@ -1,6 +1,6 @@
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
-import { createClient, encodeFunctionData, zeroHash } from 'viem'
+import { type Address, createClient, encodeFunctionData, zeroHash } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { parseUnits } from 'viem/utils'
 import { afterEach, describe, expect, test, vi } from 'vitest'
@@ -13,6 +13,7 @@ import {
 } from '~test/tempo/zones.js'
 import * as sendTransactionAction from '../../actions/wallet/sendTransaction.js'
 import * as Storage from '../Storage.js'
+import * as tokenActions from './token.js'
 import * as zoneActions from './zone.js'
 
 const account = privateKeyToAccount(accounts[0].privateKey)
@@ -23,6 +24,7 @@ const mainnetClient = createClient({
   transport: http(),
 })
 const zoneClient = getZoneClient({ account })
+const parentToken = '0x20c0000000000000000000000000000000000000'
 const preparedEncryptedDeposit = {
   amount: parseUnits('1', 6),
   bouncebackRecipient: account.address,
@@ -40,6 +42,32 @@ const preparedEncryptedDeposit = {
   token: '0x20c0000000000000000000000000000000000000',
   zoneId,
 } satisfies zoneActions.PreparedEncryptedDeposit
+
+async function ensureZoneBalance(zoneToken: Address, minimumBalance: bigint) {
+  const balance = await tokenActions.getBalance(zoneClient, {
+    account: account.address,
+    token: zoneToken,
+  })
+  if (balance.amount >= minimumBalance) return
+
+  await zoneActions.depositSync(mainnetClient, {
+    amount: parseUnits('1', 6),
+    portalAddress,
+    token: parentToken,
+    zoneId,
+  })
+
+  await vi.waitFor(
+    async () => {
+      const nextBalance = await tokenActions.getBalance(zoneClient, {
+        account: account.address,
+        token: zoneToken,
+      })
+      expect(nextBalance.amount).toBeGreaterThanOrEqual(minimumBalance)
+    },
+    { interval: 100, timeout: 15_000 },
+  )
+}
 
 afterEach(() => vi.restoreAllMocks())
 
@@ -159,10 +187,9 @@ describe('getWithdrawalFee', () => {
 })
 
 describe('encryptedDeposit', () => {
-  // TODO: unskip once zone contracts support encrypted deposits
-  test.skip('behavior: deposits tokens into zone with encrypted recipient', async () => {
+  test('behavior: deposits tokens into zone with encrypted recipient', async () => {
     const result = await zoneActions.encryptedDepositSync(mainnetClient, {
-      token: '0x20c0000000000000000000000000000000000000',
+      token: parentToken,
       amount: parseUnits('1', 6),
       portalAddress,
       zoneId,
@@ -274,7 +301,7 @@ describe('deposit', () => {
     const parameters = {
       amount: 1n,
       portalAddress,
-      token: '0x20c0000000000000000000000000000000000000',
+      token: parentToken,
       zoneId,
     } as const
 
@@ -290,7 +317,7 @@ describe('deposit', () => {
 
   test('behavior: deposits tokens into zone via parent chain', async () => {
     const result = await zoneActions.depositSync(mainnetClient, {
-      token: '0x20c0000000000000000000000000000000000000',
+      token: parentToken,
       amount: parseUnits('1', 6),
       portalAddress,
       zoneId,
@@ -332,13 +359,14 @@ describe('requestWithdrawal', () => {
     expect(call.args[7]).toBe('0x')
   })
 
-  test.skip('behavior: requests withdrawal from zone to parent chain', async () => {
+  test('behavior: requests withdrawal from zone to parent chain', async () => {
     await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
 
     const info = await zoneActions.getZoneInfo(zoneClient)
     const zoneToken = info.zoneTokens[0]!
 
     const amount = parseUnits('0.01', 6)
+    await ensureZoneBalance(zoneToken, amount)
 
     const result = await zoneActions.requestWithdrawalSync(zoneClient, {
       token: zoneToken,
@@ -347,7 +375,7 @@ describe('requestWithdrawal', () => {
 
     expect(result.receipt).toBeDefined()
     expect(result.receipt.status).toBe('success')
-  })
+  }, 20_000)
 
   test('error: no account', async () => {
     const noAccountClient = getZoneClient({})
@@ -381,7 +409,7 @@ describe('requestVerifiableWithdrawal', () => {
     expect(call.args[7]).toBe(revealTo)
   })
 
-  test.skip('behavior: requests verifiable withdrawal from zone', async () => {
+  test('behavior: requests verifiable withdrawal from zone', async () => {
     await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
 
     const info = await zoneActions.getZoneInfo(zoneClient)
@@ -392,6 +420,7 @@ describe('requestVerifiableWithdrawal', () => {
     const revealTo = PublicKey.toHex(compressed)
 
     const amount = parseUnits('0.01', 6)
+    await ensureZoneBalance(zoneToken, amount)
 
     const result = await zoneActions.requestVerifiableWithdrawalSync(
       zoneClient,
@@ -404,7 +433,7 @@ describe('requestVerifiableWithdrawal', () => {
 
     expect(result.receipt).toBeDefined()
     expect(result.receipt.status).toBe('success')
-  })
+  }, 20_000)
 
   test('error: no account', async () => {
     const noAccountClient = getZoneClient({})
