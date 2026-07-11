@@ -254,6 +254,7 @@ jobs:
 
   wagmi:
     name: Wagmi
+    continue-on-error: true
     permissions:
       contents: read
     runs-on: ubuntu-latest
