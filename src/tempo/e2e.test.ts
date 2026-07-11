@@ -43,12 +43,14 @@ describe.runIf(nodeEnv === 'testnet')('zone.encryptedDeposit.prepare', () => {
     const prepared = await Actions.zone.encryptedDeposit.prepare(client, {
       token: addresses.pathUsd,
       amount: 1n,
+      bouncebackRecipient: accounts[0].address,
       recipient: accounts[0].address,
       memo: Hex.fromNumber(1n, { size: 32 }),
       zoneId: 7,
     })
 
     expect(prepared.amount).toBe(1n)
+    expect(prepared.bouncebackRecipient).toBe(accounts[0].address)
     expect(prepared.chainId).toBe(chain.id)
     expect(prepared.encrypted.ciphertext).toBeDefined()
     expect(prepared.encrypted.ephemeralPubkeyX).toBeDefined()

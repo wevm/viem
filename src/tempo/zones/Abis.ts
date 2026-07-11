@@ -1,3 +1,64 @@
+export const zoneFactory = [
+  {
+    type: 'event',
+    name: 'ZoneCreated',
+    inputs: [
+      { name: 'zoneId', type: 'uint32', indexed: true },
+      { name: 'portal', type: 'address', indexed: true },
+      { name: 'messenger', type: 'address', indexed: true },
+      { name: 'initialToken', type: 'address', indexed: false },
+      { name: 'admin', type: 'address', indexed: false },
+      { name: 'sequencer', type: 'address', indexed: false },
+      { name: 'verifier', type: 'address', indexed: false },
+      { name: 'genesisBlockHash', type: 'bytes32', indexed: false },
+      { name: 'genesisTempoBlockHash', type: 'bytes32', indexed: false },
+      {
+        name: 'genesisTempoBlockNumber',
+        type: 'uint64',
+        indexed: false,
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'createZone',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'params',
+        type: 'tuple',
+        components: [
+          { name: 'initialToken', type: 'address' },
+          { name: 'admin', type: 'address' },
+          { name: 'sequencer', type: 'address' },
+          { name: 'verifier', type: 'address' },
+          {
+            name: 'zoneParams',
+            type: 'tuple',
+            components: [
+              { name: 'genesisBlockHash', type: 'bytes32' },
+              { name: 'genesisTempoBlockHash', type: 'bytes32' },
+              { name: 'genesisTempoBlockNumber', type: 'uint64' },
+            ],
+          },
+          { name: 'rpcUrl', type: 'string' },
+        ],
+      },
+    ],
+    outputs: [
+      { name: 'zoneId', type: 'uint32' },
+      { name: 'portal', type: 'address' },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'verifier',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+  },
+] as const
+
 export const zonePortal = [
   {
     name: 'deposit',
@@ -8,6 +69,7 @@ export const zonePortal = [
       { name: 'to', type: 'address' },
       { name: 'amount', type: 'uint128' },
       { name: 'memo', type: 'bytes32' },
+      { name: 'bouncebackRecipient', type: 'address' },
     ],
     outputs: [{ name: '', type: 'bytes32' }],
   },
@@ -30,6 +92,7 @@ export const zonePortal = [
           { name: 'tag', type: 'bytes16' },
         ],
       },
+      { name: 'bouncebackRecipient', type: 'address' },
     ],
     outputs: [{ name: '', type: 'bytes32' }],
   },

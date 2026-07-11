@@ -18,6 +18,7 @@ test('encryptedDeposit.prepare returns a reusable encrypted deposit payload', as
   const prepared = await zoneActions.encryptedDeposit.prepare(client, {
     token: '0x20c0000000000000000000000000000000000000',
     amount: 1n,
+    bouncebackRecipient: '0x0000000000000000000000000000000000000001',
     recipient: '0x0000000000000000000000000000000000000001',
     zoneId: 7,
   })
@@ -35,4 +36,22 @@ test('encryptedDeposit still accepts plaintext parameters', async () => {
     amount: 1n,
     zoneId: 7,
   })
+})
+
+test('getEncryptionKey returns the active key and index', async () => {
+  const result = await zoneActions.getEncryptionKey(client, { zoneId: 7 })
+
+  expectTypeOf(result).toEqualTypeOf<zoneActions.getEncryptionKey.ReturnValue>()
+  expectTypeOf(result.publicKey.prefix).toEqualTypeOf<2 | 3>()
+  zoneActions.getEncryptionKey.calls({
+    portalAddress: '0x0000000000000000000000000000000000000001',
+  })
+})
+
+test('waitForDepositStatus returns a deposit status', async () => {
+  const result = await zoneActions.waitForDepositStatus(client, {
+    tempoBlockNumber: 1n,
+  })
+
+  expectTypeOf(result).toEqualTypeOf<zoneActions.getDepositStatus.ReturnType>()
 })

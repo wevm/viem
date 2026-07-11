@@ -3069,6 +3069,10 @@ export default defineConfig({
                   link: '/tempo/actions/zone.getDepositStatus',
                 },
                 {
+                  text: 'getEncryptionKey',
+                  link: '/tempo/actions/zone.getEncryptionKey',
+                },
+                {
                   text: 'getWithdrawalFee',
                   link: '/tempo/actions/zone.getWithdrawalFee',
                 },
@@ -3087,6 +3091,10 @@ export default defineConfig({
                 {
                   text: 'signAuthorizationToken',
                   link: '/tempo/actions/zone.signAuthorizationToken',
+                },
+                {
+                  text: 'waitForDepositStatus',
+                  link: '/tempo/actions/zone.waitForDepositStatus',
                 },
               ],
             },
