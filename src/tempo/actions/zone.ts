@@ -447,23 +447,30 @@ export namespace encryptedDeposit {
     } = parameters
     const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
 
-    const keyIndex = await readContract(client, {
-      ...rest,
-      address: portalAddress,
-      abi: ZoneAbis.zonePortal,
-      functionName: 'encryptionKeyCount',
-    })
+    const [keyIndexResult, publicKeyResult] = await Promise.allSettled([
+      readContract(client, {
+        ...rest,
+        address: portalAddress,
+        abi: ZoneAbis.zonePortal,
+        functionName: 'encryptionKeyCount',
+      }),
+      readContract(client, {
+        ...rest,
+        address: portalAddress,
+        abi: ZoneAbis.zonePortal,
+        functionName: 'sequencerEncryptionKey',
+      }),
+    ])
+
+    if (keyIndexResult.status === 'rejected') throw keyIndexResult.reason
+    const keyIndex = keyIndexResult.value
 
     if (keyIndex === 0n) {
       throw new Error('No sequencer encryption key configured.')
     }
 
-    const publicKey = await readContract(client, {
-      ...rest,
-      address: portalAddress,
-      abi: ZoneAbis.zonePortal,
-      functionName: 'sequencerEncryptionKey',
-    })
+    if (publicKeyResult.status === 'rejected') throw publicKeyResult.reason
+    const publicKey = publicKeyResult.value
 
     const encrypted = await encryptDepositPayload(
       { x: publicKey[0], yParity: publicKey[1] },
