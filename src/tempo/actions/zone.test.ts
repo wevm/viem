@@ -21,7 +21,8 @@ import { tempoModerato } from 'viem/chains'
 import { parseUnits } from 'viem/utils'
 import { describe, expect, test } from 'vitest'
 import { accounts } from '~test/constants.js'
-import { chain, http } from '~test/tempo/config.js'
+import { chain, http, nodeEnv } from '~test/tempo/config.js'
+import { defineZone } from '~test/tempo/prool.js'
 import {
   factoryAddress,
   getClient as getZoneClient,
@@ -225,6 +226,53 @@ async function getPortalCall(hash: Hash) {
   if (!call?.data) throw new Error('Portal call is unavailable.')
   return decodeFunctionData({ abi: ZoneAbis.zonePortal, data: call.data })
 }
+
+describe('zone instance', () => {
+  test.runIf(nodeEnv === 'localnet')(
+    'behavior: provisions independent zones',
+    async () => {
+      if (!factoryAddress) throw new Error('ZoneFactory is unavailable.')
+
+      const secondary = defineZone({
+        factoryAddress,
+        key: accounts[2].privateKey,
+      })
+
+      try {
+        const [zone_, sameZone] = await Promise.all([
+          secondary.start(),
+          secondary.start(),
+        ])
+
+        expect(sameZone).toBe(zone_)
+        expect(zone_.zoneId).not.toBe(zoneId)
+        expect(zone_.chainId).not.toBe(zoneClient.chain.id)
+        expect(zone_.portalAddress).not.toBe(portalAddress)
+
+        const response = await fetch(zone_.rpcUrl, {
+          body: JSON.stringify({
+            id: 1,
+            jsonrpc: '2.0',
+            method: 'eth_chainId',
+          }),
+          headers: { 'Content-Type': 'application/json' },
+          method: 'POST',
+        })
+        const result = (await response.json()) as { result: `0x${string}` }
+        expect(BigInt(result.result)).toBe(BigInt(zone_.chainId))
+
+        await Promise.all([secondary.stop(), secondary.stop()])
+
+        await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
+        const info = await zoneActions.getZoneInfo(zoneClient)
+        expect(info.zoneId).toBe(zoneId)
+      } finally {
+        await secondary.stop()
+      }
+    },
+    150_000,
+  )
+})
 
 describe('signAuthorizationToken', () => {
   test('behavior: signs and stores token', async () => {
@@ -468,28 +516,35 @@ describe('encryptedDeposit', () => {
     ).rejects.toThrow('`chain` is required.')
   })
 
-  test('error: portal without an encryption key', async () => {
-    const unconfiguredZone = await createUnconfiguredZone()
+  test.runIf(nodeEnv === 'localnet')(
+    'error: portal without an encryption key',
+    async () => {
+      const unconfiguredZone = await createUnconfiguredZone()
 
-    await expect(
-      zoneActions.encryptedDeposit.prepare(mainnetClient, {
-        ...prepareEncryptedDepositParameters,
-        portalAddress: unconfiguredZone.portalAddress,
-        zoneId: unconfiguredZone.zoneId,
-      }),
-    ).rejects.toThrow('No sequencer encryption key configured.')
-  }, 20_000)
+      await expect(
+        zoneActions.encryptedDeposit.prepare(mainnetClient, {
+          ...prepareEncryptedDepositParameters,
+          portalAddress: unconfiguredZone.portalAddress,
+          zoneId: unconfiguredZone.zoneId,
+        }),
+      ).rejects.toThrow('No sequencer encryption key configured.')
+    },
+    20_000,
+  )
 
-  test('error: registered portal is absent from the local chain', async () => {
-    const client = createClient({ chain: tempoModerato, transport: http() })
+  test.runIf(nodeEnv === 'localnet')(
+    'error: registered portal is absent from the local chain',
+    async () => {
+      const client = createClient({ chain: tempoModerato, transport: http() })
 
-    await expect(
-      zoneActions.encryptedDeposit.prepare(
-        client,
-        prepareEncryptedDepositParameters,
-      ),
-    ).rejects.toThrow('returned no data')
-  })
+      await expect(
+        zoneActions.encryptedDeposit.prepare(
+          client,
+          prepareEncryptedDepositParameters,
+        ),
+      ).rejects.toThrow('returned no data')
+    },
+  )
 
   test('behavior: defaults bounceback recipient to account', async () => {
     const hash = await zoneActions.encryptedDeposit(

@@ -71,28 +71,75 @@ export type Zone = {
   privateRpcUrl: string
   /** Public zone RPC URL. */
   rpcUrl: string
-  /** Stops the zone container. */
-  stop(): Promise<void>
   /** Zone ID (e.g. `1`). */
   zoneId: number
 }
 
-let zone: Promise<Zone> | undefined
-
-/** Lazily provisions a local zone (`tempo-zone dev`) against this worker's L1. */
-export function ensureZone(): Promise<Zone> {
-  zone ??= startZone()
-  return zone
+type StartedZone = Zone & {
+  stop(): Promise<void>
 }
 
-export async function stopZone() {
-  if (!zone) return
-  const instance = await zone.catch(() => undefined)
-  zone = undefined
-  await instance?.stop()
+export type DefineZoneParameters = {
+  /** Existing factory to reuse for unique zone IDs. */
+  factoryAddress?: `0x${string}` | undefined
+  /** L1 provisioning key. Use distinct keys for concurrent instances. */
+  key?: `0x${string}` | undefined
 }
 
-async function startZone(): Promise<Zone> {
+export type ZoneInstance = {
+  start(): Promise<Zone>
+  stop(): Promise<void>
+}
+
+/** Defines a lazily provisioned local zone instance. */
+export function defineZone(
+  parameters: DefineZoneParameters = {},
+): ZoneInstance {
+  const parameters_ = { ...parameters }
+  let zone: Promise<StartedZone> | undefined
+  let stopping: Promise<void> | undefined
+
+  function start(): Promise<Zone> {
+    if (zone) return zone
+
+    const promise = stopping
+      ? stopping.then(() => startZone(parameters_))
+      : startZone(parameters_)
+    zone = promise
+    void promise.then(undefined, () => {
+      if (zone === promise) zone = undefined
+    })
+    return promise
+  }
+
+  function stop(): Promise<void> {
+    if (!zone) return stopping ?? Promise.resolve()
+
+    const zone_ = zone
+    zone = undefined
+    const promise = (async () => {
+      const instance = await zone_.catch(() => undefined)
+      await instance?.stop()
+    })()
+    stopping = promise
+    const clear = () => {
+      if (stopping === promise) stopping = undefined
+    }
+    void promise.then(clear, clear)
+    return promise
+  }
+
+  return {
+    start,
+    stop,
+  }
+}
+
+export const localZone = defineZone()
+
+async function startZone(
+  parameters: DefineZoneParameters,
+): Promise<StartedZone> {
   if (nodeEnv !== 'localnet')
     throw new Error('Local zones require `VITE_TEMPO_ENV=localnet`.')
 
@@ -110,10 +157,15 @@ async function startZone(): Promise<Zone> {
     dev: {
       // anvil #1; the default dev key is anvil #0 (= `accounts[0]`), which
       // would race nonces with test transactions.
-      key: '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
+      key:
+        parameters.key ??
+        '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
     },
     image: `ghcr.io/tempoxyz/tempo-zone:${tag}`,
-    l1: { rpcUrl: l1RpcUrl },
+    l1: {
+      factoryAddress: parameters.factoryAddress,
+      rpcUrl: l1RpcUrl,
+    },
     log: import.meta.env.VITE_TEMPO_LOG,
     startupTimeout: 120_000,
   })
