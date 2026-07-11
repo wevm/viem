@@ -32,6 +32,8 @@ export const rpcUrl = (() => {
   return `http://localhost:${port}/${id}`
 })()
 
+export const zone1 = defineZone()
+
 export async function createServer() {
   const tag = await (async () => {
     if (!import.meta.env.VITE_TEMPO_TAG?.startsWith('http'))
@@ -134,8 +136,6 @@ export function defineZone(
     stop,
   }
 }
-
-export const zone1 = defineZone()
 
 async function startZone(
   parameters: DefineZoneParameters,
