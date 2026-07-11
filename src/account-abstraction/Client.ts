@@ -1,4 +1,4 @@
-import type { Hex } from 'ox'
+import type { Hex, RpcSchema as ox_RpcSchema } from 'ox'
 import type { RpcSchema } from 'ox/erc4337'
 
 import type * as Chain from '../core/Chain.js'
@@ -22,6 +22,7 @@ export type Client<
   executionClient extends viem_Client.Client | undefined =
     | viem_Client.Client
     | undefined,
+  schema extends ox_RpcSchema.Generic = never,
   extended extends object = Decorator<account>,
 > = Prettify<
   Omit<
@@ -30,7 +31,7 @@ export type Client<
       undefined,
       transport,
       undefined,
-      RpcSchema.Bundler<EntryPointVersion<account>>
+      RpcSchema.Bundler<EntryPointVersion<account>> | schema
     >,
     'account' | 'dataSuffix' | 'extend'
   > &
@@ -50,13 +51,21 @@ export type Client<
       /** Extends the Client with another action decorator. */
       extend: <const extension extends object>(
         fn: (
-          client: Client<chain, account, transport, executionClient, extended>,
+          client: Client<
+            chain,
+            account,
+            transport,
+            executionClient,
+            schema,
+            extended
+          >,
         ) => extension,
       ) => Client<
         chain,
         account,
         transport,
         executionClient,
+        schema,
         Prettify<extended & extension>
       >
     }
@@ -114,9 +123,10 @@ export function create<
   account extends SmartAccount.SmartAccount | undefined = undefined,
   transport extends Transport.Transport = Transport.Transport,
   executionClient extends viem_Client.Client | undefined = undefined,
+  schema extends ox_RpcSchema.Schema = never,
 >(
-  options: create.Options<chain, account, transport, executionClient>,
-): create.ReturnType<chain, account, transport, executionClient> {
+  options: create.Options<chain, account, transport, executionClient, schema>,
+): create.ReturnType<chain, account, transport, executionClient, schema> {
   const {
     account,
     chain,
@@ -152,7 +162,10 @@ export function create<
   })
 
   const actionClient = Object.assign({}, client, { userOperation })
-  const actions = accountAbstractionActions()(actionClient)
+  const decorate = accountAbstractionActions() as unknown as (
+    client: typeof actionClient,
+  ) => Decorator<account>
+  const actions = decorate(actionClient)
   const decorated = client.extend(() => actions)
   if (userOperation) {
     decorated.userOperation = {
@@ -165,7 +178,8 @@ export function create<
     chain,
     account,
     transport,
-    executionClient
+    executionClient,
+    schema
   >
 }
 
@@ -180,13 +194,15 @@ export declare namespace create {
     executionClient extends viem_Client.Client | undefined =
       | viem_Client.Client
       | undefined,
+    schema extends ox_RpcSchema.Schema = never,
   > = Pick<
-    viem_Client.create.Options<chain, undefined, transport>,
+    viem_Client.create.Options<chain, undefined, transport, undefined, schema>,
     | 'cacheTime'
     | 'key'
     | 'name'
     | 'pollingInterval'
     | 'retryCount'
+    | 'schema'
     | 'timeout'
     | 'transport'
   > & {
@@ -216,11 +232,13 @@ export declare namespace create {
     executionClient extends viem_Client.Client | undefined =
       | viem_Client.Client
       | undefined,
+    schema extends ox_RpcSchema.Schema = never,
   > = Client<
     ResolvedChain<chain, executionClient>,
     account,
     transport,
-    executionClient
+    executionClient,
+    ox_RpcSchema.ToGeneric<schema>
   >
 
   /** Errors thrown by {@link create}. */

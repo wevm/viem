@@ -1,4 +1,9 @@
-import type { Authorization, Hex, StateOverrides } from 'ox'
+import {
+  type Authorization,
+  type Hex,
+  RpcSchema,
+  type StateOverrides,
+} from 'ox'
 import { expectTypeOf, test } from 'vitest'
 
 import { Client as CoreClient, http } from 'viem'
@@ -129,6 +134,23 @@ test('request: EntryPoint 0.8 schema', async () => {
   expectTypeOf(
     result,
   ).toEqualTypeOf<UserOperation.RpcTransactionInfo<'0.8'> | null>()
+})
+
+test('request: custom Ox schema preserves the Bundler schema', async () => {
+  const schema = RpcSchema.from<{
+    Request: { method: 'eth_wagmi'; params: [value: string] }
+    ReturnType: string
+  }>()
+  const client = Client.create({ account, schema, transport: http() })
+
+  const custom = await client.request({
+    method: 'eth_wagmi',
+    params: ['hello'],
+  })
+  expectTypeOf(custom).toEqualTypeOf<string>()
+
+  const chainId = await client.request({ method: 'eth_chainId' })
+  expectTypeOf(chainId).toEqualTypeOf<Hex.Hex>()
 })
 
 test('paymaster configuration', () => {

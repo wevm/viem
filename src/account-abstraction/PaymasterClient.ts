@@ -1,3 +1,5 @@
+import type { RpcSchema as ox_RpcSchema } from 'ox'
+
 import * as viem_Client from '../core/Client.js'
 import type * as Transport from '../core/Transport.js'
 import type * as EntryPoint from './EntryPoint.js'
@@ -7,12 +9,13 @@ import type * as internal from './actions/paymaster/internal.js'
 /** A Client configured for an ERC-7677 Paymaster service. */
 export type Client<
   transport extends Transport.Transport = Transport.Transport,
+  schema extends ox_RpcSchema.Generic = never,
 > = viem_Client.Client<
   undefined,
   undefined,
   transport,
   undefined,
-  internal.RpcSchema,
+  internal.RpcSchema | schema,
   Decorator
 >
 
@@ -50,49 +53,66 @@ export type Decorator = {
  * @param options - Paymaster Client options.
  * @returns A Paymaster Client.
  */
-export function create<transport extends Transport.Transport>(
-  options: create.Options<transport>,
-): Client<transport> {
+export function create<
+  transport extends Transport.Transport,
+  schema extends ox_RpcSchema.Schema = never,
+>(
+  options: create.Options<transport, schema>,
+): create.ReturnType<transport, schema> {
   const {
     key = 'paymaster',
     name = 'Paymaster Client',
     transport,
     ...rest
   } = options
-  return viem_Client
-    .create<undefined, undefined, transport, undefined, internal.RpcSchema>({
-      ...rest,
-      key,
-      name,
-      transport,
-      type: 'paymaster',
-    })
-    .extend(actions())
+  const base = viem_Client.create<
+    undefined,
+    undefined,
+    transport,
+    undefined,
+    schema
+  >({
+    ...rest,
+    key,
+    name,
+    transport,
+    type: 'paymaster',
+  })
+  const decorate = actions() as unknown as (client: typeof base) => Decorator
+  return base.extend(decorate) as unknown as create.ReturnType<
+    transport,
+    schema
+  >
 }
 
 export declare namespace create {
   /** Options for {@link create}. */
-  type Options<transport extends Transport.Transport = Transport.Transport> =
-    Pick<
-      viem_Client.create.Options<
-        undefined,
-        undefined,
-        transport,
-        undefined,
-        internal.RpcSchema
-      >,
-      | 'cacheTime'
-      | 'key'
-      | 'name'
-      | 'pollingInterval'
-      | 'retryCount'
-      | 'timeout'
-      | 'transport'
-    >
+  type Options<
+    transport extends Transport.Transport = Transport.Transport,
+    schema extends ox_RpcSchema.Schema = never,
+  > = Pick<
+    viem_Client.create.Options<
+      undefined,
+      undefined,
+      transport,
+      undefined,
+      schema
+    >,
+    | 'cacheTime'
+    | 'key'
+    | 'name'
+    | 'pollingInterval'
+    | 'retryCount'
+    | 'schema'
+    | 'timeout'
+    | 'transport'
+  >
 
   /** Return type of {@link create}. */
-  type ReturnType<transport extends Transport.Transport = Transport.Transport> =
-    Client<transport>
+  type ReturnType<
+    transport extends Transport.Transport = Transport.Transport,
+    schema extends ox_RpcSchema.Schema = never,
+  > = Client<transport, ox_RpcSchema.ToGeneric<schema>>
 
   /** Errors thrown by {@link create}. */
   type ErrorType = viem_Client.create.ErrorType
