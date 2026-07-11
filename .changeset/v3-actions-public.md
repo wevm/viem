@@ -102,6 +102,16 @@ Flat public action names were renamed to their namespaced v3 equivalents.
 + Actions.transaction.sign(client, options)
 ```
 
+`defaultPrepareTransactionRequestParameters` moved to `Actions.transaction.defaultParameters`.
+
+```diff
+- import { defaultPrepareTransactionRequestParameters } from 'viem'
++ import { Actions } from 'viem'
+
+- defaultPrepareTransactionRequestParameters
++ Actions.transaction.defaultParameters
+```
+
 Public actions that default to a client block tag read `client.blockTag` instead of `client.experimental_blockTag`.
 
 ```diff
@@ -313,10 +323,11 @@ Wallet JSON-RPC actions were grouped under the `wallet` namespace, and the EIP-7
 + const signed = await Actions.wallet.signAuthorization(client, { address })
 ```
 
-The ERC-7846 connection actions and ERC-7811 `getAssets` were folded in from `viem/experimental` under the `wallet` namespace.
+The ERC-7846 connection actions and ERC-7811 `getAssets` moved from their experimental subpaths to the stable `wallet` namespace.
 
 ```diff
-- import { connect, disconnect, getAssets } from 'viem/experimental'
+- import { getAssets } from 'viem/experimental/erc7811'
+- import { connect, disconnect } from 'viem/experimental/erc7846'
 + import { Actions } from 'viem'
 
 - const { accounts } = await connect(client)
@@ -327,16 +338,65 @@ The ERC-7846 connection actions and ERC-7811 `getAssets` were folded in from `vi
 + const assets = await Actions.wallet.getAssets(client)
 ```
 
-The ERC-7821 executor actions were folded in from `viem/experimental` under the `erc7821` namespace, with an `erc7821Actions()` decorator.
+The ERC-7821 executor actions moved from their experimental subpath to `Actions.erc7821`, while the decorator became root `erc7821Actions()`.
 
 ```diff
 - import { erc7821Actions } from 'viem/experimental'
+- import { execute, executeBatches, supportsExecutionMode } from 'viem/experimental/erc7821'
 + import { Actions, erc7821Actions } from 'viem'
 
 - const hash = await execute(client, { address, calls })
+- const batchHash = await executeBatches(client, { address, batches })
 - const supported = await supportsExecutionMode(client, { address })
 + const hash = await Actions.erc7821.execute(client, { address, calls })
++ const batchHash = await Actions.erc7821.executeBatches(client, { address, batches })
 + const supported = await Actions.erc7821.supportsExecutionMode(client, { address })
+
+- type Decorator = Erc7821Actions
++ type Decorator = erc7821Actions.Decorator
+```
+
+ERC-7821 codecs and errors moved to Ox and `Actions.erc7821`, while `getExecuteError` became internal.
+
+```diff
+- import {
+-   encodeCalls,
+-   encodeExecuteBatchesData,
+-   encodeExecuteData,
+-   getExecuteError,
+-   ExecuteUnsupportedError,
+-   FunctionSelectorNotRecognizedError,
+- } from 'viem/experimental/erc7821'
++ import { Calls, Execute } from 'ox/erc7821'
++ import { Actions } from 'viem'
+
+- encodeCalls(calls)
+- encodeExecuteData({ calls })
+- encodeExecuteBatchesData({ batches })
+- getExecuteError(error, options)
++ // Encode ABI-backed call data first.
++ Calls.encode(calls)
++ Execute.encodeData(calls)
++ Execute.encodeBatchOfBatchesData(batches)
++ Actions.erc7821.ExecuteUnsupportedError
++ Actions.erc7821.FunctionSelectorNotRecognizedError
++ // Error normalization is internal.
+```
+
+The deprecated `writeContracts` and `eip5792Actions` exports were replaced by ABI-aware `Actions.wallet.sendCalls` and `walletActions()`.
+
+```diff
+- import { eip5792Actions, writeContracts } from 'viem/experimental'
++ import { Actions, walletActions } from 'viem'
+
+- client.extend(eip5792Actions())
+- await writeContracts(client, {
+-   contracts: [{ address, abi, functionName, args }],
+- })
++ client.extend(walletActions())
++ await Actions.wallet.sendCalls(client, {
++   calls: [{ to: address, abi, functionName, args }],
++ })
 ```
 
 The EIP-5792 wallet actions were grouped under the `wallet` namespace.
@@ -403,6 +463,19 @@ The onchain verification actions stay flat with their v2 names (`Actions.verifyH
 
 - const valid = await verifySiweMessage(client, { message, signature })
 + const valid = await Actions.verifySiweMessage(client, { message, signature })
+```
+
+Added EIP-1898 block-hash context to the onchain verification actions and chain verification hooks.
+
+```diff
+  await Actions.verifyHash(client, {
+    address,
+-   blockNumber,
++   blockHash,
++   requireCanonical: true,
+    hash,
+    signature,
+  })
 ```
 
 `verifyHash` drops the deprecated `universalSignatureVerifierAddress` alias (use `erc6492VerifierAddress`) and the `chain` override (the client's chain is used); signature objects follow the ox shape (`yParity`, no `v`). The `chain.verifyHash` hook now lives on the `Chain` type for chains with custom account verification.

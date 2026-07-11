@@ -33,3 +33,13 @@ ABI selector and signature hash utilities moved from flat utilities to the ABI i
 + const functionSelector = AbiFunction.getSelector('function balanceOf(address)')
 + const functionHash = AbiItem.getSignatureHash('function balanceOf(address)')
 ```
+
+The zero hash constant moved to `Hash.zero`.
+
+```diff
+- import { zeroHash } from 'viem'
++ import { Hash } from 'viem'
+
+- const hash = zeroHash
++ const hash = Hash.zero
+```

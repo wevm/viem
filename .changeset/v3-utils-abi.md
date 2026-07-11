@@ -79,3 +79,24 @@ ABI parsing and item lookup utilities moved from flat utilities to the `Abi`, `A
 + const parameters = AbiParameters.from('address to, uint256 amount')
 + const transfer = AbiItem.fromAbi(abi, 'transfer')
 ```
+
+Solidity integer bounds moved from flat constants to the `Solidity` namespace.
+
+```diff
+- import { maxInt256, maxUint256, minInt256 } from 'viem'
++ import { Solidity } from 'viem'
+
+- const max = maxUint256
++ const max = Solidity.maxUint256
+```
+
+Preset ABI constants were removed, except ERC-20 and ERC-6492 definitions now owned by dependencies.
+
+```diff
+- import { erc20Abi, erc6492SignatureValidatorAbi } from 'viem'
++ import { erc20Abi } from 'abitype/abis'
++ import { SignatureErc6492 } from 'viem'
+
+- erc6492SignatureValidatorAbi
++ SignatureErc6492.universalSignatureValidatorAbi
+```

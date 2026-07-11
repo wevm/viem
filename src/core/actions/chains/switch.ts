@@ -19,7 +19,7 @@ import type * as Client from '../../Client.js'
  * await Actions.chains.switch(client, { id: optimism.id })
  * ```
  */
-export async function switch_(
+async function switch_(
   client: Client.Client,
   options: switch_.Options,
 ): Promise<void> {
@@ -33,7 +33,7 @@ export async function switch_(
   )
 }
 
-export declare namespace switch_ {
+declare namespace switch_ {
   type Options = {
     /** ID of the chain to switch to. */
     id: Chain.Chain['id']

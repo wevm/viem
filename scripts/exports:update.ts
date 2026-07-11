@@ -7,13 +7,28 @@ import { join } from 'node:path'
 // - `./src/index.ts`             → `.`
 // - `./src/<dir>/index.ts`       → `./<dir>`
 // - `./src/<dir>/<sub>/index.ts` → `./<dir>/<sub>`
-// - explicit file entrypoints (see `fileEntrypoints`), e.g. `./src/<dir>/<file>.ts` → `./<dir>/<file>`
+// - explicit file entrypoints (see `fileEntrypoints`), e.g. `./src/core/Client.ts` → `./Client`
 //
-// Directories without an `index.ts` (e.g. `clients/`, `constants/`, `errors/`, `types/`)
-// are internal and not exported.
+// Directories and files outside these conventions stay internal.
 
 /** Non-`index.ts` file entrypoints. */
-const fileEntrypoints: string[] = []
+const fileEntrypoints = [
+  ['Account', 'core/Account'],
+  ['Actions', 'core/actions/index'],
+  ['Capabilities', 'core/Capabilities'],
+  ['Chain', 'core/Chain'],
+  ['Client', 'core/Client'],
+  ['Contract', 'core/Contract'],
+  ['ContractError', 'core/ContractError'],
+  ['Errors', 'core/Errors'],
+  ['NonceManager', 'core/NonceManager'],
+  ['RpcError', 'core/RpcError'],
+  ['Token', 'core/Token'],
+  ['Transport', 'core/Transport'],
+] as const
+
+/** Nested directory entrypoints. */
+const nestedDirectoryEntrypoints = ['tempo/actions', 'tempo/zones'] as const
 
 const srcDir = join(import.meta.dirname, '../src')
 const packageJsonPath = join(import.meta.dirname, '../package.json')
@@ -45,25 +60,17 @@ for (const dir of readdirSync(srcDir, { withFileTypes: true })) {
   const dirPath = join(srcDir, dir.name)
   if (existsSync(join(dirPath, 'index.ts')))
     exports.push(entry(`./${dir.name}`, `./src/${dir.name}/index.ts`))
-
-  for (const sub of readdirSync(dirPath, { withFileTypes: true })) {
-    if (!sub.isDirectory()) continue
-    if (sub.name.startsWith('_') || sub.name.startsWith('.')) continue
-    if (existsSync(join(dirPath, sub.name, 'index.ts')))
-      exports.push(
-        entry(
-          `./${dir.name}/${sub.name}`,
-          `./src/${dir.name}/${sub.name}/index.ts`,
-        ),
-      )
-  }
 }
 
-for (const file of fileEntrypoints)
-  if (existsSync(join(srcDir, `${file}.ts`)))
-    exports.push(entry(`./${file}`, `./src/${file}.ts`))
+for (const dir of nestedDirectoryEntrypoints)
+  if (existsSync(join(srcDir, dir, 'index.ts')))
+    exports.push(entry(`./${dir}`, `./src/${dir}/index.ts`))
 
-// NOTE: no `./package.json` export — zile treats it as an asset and copies the
+for (const [key, file] of fileEntrypoints)
+  if (existsSync(join(srcDir, `${file}.ts`)))
+    exports.push(entry(`./${key}`, `./src/${file}.ts`))
+
+// NOTE: no `./package.json` export; zile treats it as an asset and copies the
 // (dev) manifest into `dist/`, which breaks publint + ships dev fields.
 exports.sort(([a], [b]) =>
   a === '.' ? -1 : b === '.' ? 1 : a.localeCompare(b),
@@ -72,9 +79,17 @@ exports.sort(([a], [b]) =>
 const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'))
 packageJson.exports = Object.fromEntries(exports)
 packageJson.typesVersions = {
-  '*': {
-    '*': ['./dist/*', './dist/*/index.d.ts'],
-  },
+  '*': Object.fromEntries(
+    exports.flatMap(([key, value]) => {
+      if (key === '.') return []
+      return [
+        [
+          key.replace(/^\.\//, ''),
+          [(value as { types: string }).types],
+        ] as const,
+      ]
+    }),
+  ),
 }
 writeFileSync(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`)
 

@@ -13,6 +13,7 @@ import type {
 import type * as Client from './Client.js'
 import { BaseError } from './Errors.js'
 import type { Assign, MaybePromise, Prettify } from './internal/types.js'
+import type * as Token from './Token.js'
 
 /** An EVM chain. */
 export type Chain = {
@@ -72,6 +73,8 @@ export declare namespace Chain {
     options: {
       /** The address that signed the hash. */
       address: Address.Address
+      /** The block hash the verification runs against (EIP-1898). */
+      blockHash?: Block.Hash | undefined
       /** The block number the verification runs against. */
       blockNumber?: bigint | undefined
       /** The block tag the verification runs against. */
@@ -80,6 +83,8 @@ export declare namespace Chain {
       hash: Hex.Hex
       /** Verification mode requested by the caller. */
       mode?: string | undefined
+      /** Whether the block hash must belong to the canonical chain. */
+      requireCanonical?: boolean | undefined
       /** The signature to verify. */
       signature: Hex.Hex
     },
@@ -472,6 +477,87 @@ export declare namespace extract {
   > = Extract<chains[number], { id: chainId }>
 
   type ErrorType = Errors.GlobalErrorType
+}
+
+/**
+ * Filters a chain registry or array by token support, network type, and sort
+ * order.
+ */
+export function filter<const criteria extends filter.Criteria>(
+  options: filter.Options<criteria>,
+): filter.ReturnType<criteria> {
+  const { chains, sort, testnet, token } = options
+  const values = Array.isArray(chains) ? chains : Object.values(chains)
+  const filtered: Chain[] = []
+
+  for (const chain of values) {
+    if (!isChain(chain)) continue
+    if (token && !(chain.id in token.addresses)) continue
+    if (testnet === true && chain.testnet !== true) continue
+    if (testnet === false && chain.testnet === true) continue
+    filtered.push(chain)
+  }
+
+  if (sort === 'id') filtered.sort((a, b) => a.id - b.id)
+  if (sort === 'name') filtered.sort((a, b) => a.name.localeCompare(b.name))
+
+  return filtered as filter.ReturnType<criteria>
+}
+
+export declare namespace filter {
+  /** Chain registry or array accepted by {@link filter}. */
+  type Chains = Record<string, unknown> | readonly unknown[]
+
+  /** Criteria accepted by {@link filter}. */
+  type Criteria = {
+    /** Sort matching chains. */
+    sort?: 'id' | 'name' | undefined
+    /** Include only testnets (`true`) or mainnets (`false`). */
+    testnet?: boolean | undefined
+    /** Include only chains with an address for this token. */
+    token?: Token.Token | undefined
+  }
+
+  /** Options for {@link filter}. */
+  type Options<criteria extends Criteria = Criteria> = {
+    /** Chain registry or array to filter. */
+    chains: Chains
+  } & criteria
+
+  /** Return type for {@link filter}. */
+  type ReturnType<criteria extends Criteria | undefined> = (Chain &
+    TokenConstraint<criteria> &
+    TestnetConstraint<criteria>)[]
+
+  /** Token-derived chain-id constraint. */
+  type TokenConstraint<criteria extends Criteria | undefined> =
+    criteria extends { token: infer token extends Token.Token }
+      ? { id: Extract<keyof token['addresses'], number> }
+      : unknown
+
+  /** Testnet-derived chain constraint. */
+  type TestnetConstraint<criteria extends Criteria | undefined> =
+    criteria extends { testnet: infer testnet extends boolean }
+      ? testnet extends true
+        ? { testnet: true }
+        : { testnet?: false | undefined }
+      : unknown
+
+  /** Errors thrown by {@link filter}. */
+  type ErrorType = Errors.GlobalErrorType
+}
+
+function isChain(chain: unknown): chain is Chain {
+  return (
+    typeof chain === 'object' &&
+    chain !== null &&
+    'id' in chain &&
+    typeof chain.id === 'number' &&
+    'name' in chain &&
+    typeof chain.name === 'string' &&
+    'nativeCurrency' in chain &&
+    'rpcUrls' in chain
+  )
 }
 
 /** Resolves a named contract address on a chain (optionally at a block). */

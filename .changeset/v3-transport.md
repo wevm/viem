@@ -63,3 +63,10 @@ The HTTP transport-level typed `rpcSchema` option was removed, with request typi
 +   transport: http('https://example.com'),
 + })
 ```
+
+The public `withCache`, `withRetry`, `withTimeout`, and `fallback.shouldThrow` helpers were internalized without replacements.
+
+```diff
+- import { withCache, withRetry, withTimeout } from 'viem'
++ // Compose caching, retries, and timeouts around your transport or client.
+```

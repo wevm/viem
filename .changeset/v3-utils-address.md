@@ -29,3 +29,15 @@ Contract address derivation utilities moved from flat utilities to the `Contract
 + const create2 = ContractAddress.fromCreate2({ from, salt, bytecodeHash })
 + const derived = ContractAddress.from({ from, nonce })
 ```
+
+Address constants moved to the `Address` namespace.
+
+```diff
+- import { ethAddress, zeroAddress } from 'viem'
++ import { Address } from 'viem'
+
+- const recipient = zeroAddress
++ const recipient = Address.zero
+- const native = ethAddress
++ const native = Address.ether
+```

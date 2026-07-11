@@ -43,3 +43,13 @@ Personal message hashing and typed-data hashing moved from flat signature helper
 +const messageHash = PersonalMessage.getSignPayload(Hex.fromString('hello world'))
 +const typedDataHash = TypedData.getSignPayload({ domain, types, primaryType, message })
 ```
+
+The `presignMessagePrefix` constant was removed; `PersonalMessage.encode` now owns prefixing.
+
+```diff
+- import { presignMessagePrefix } from 'viem'
++ import { Hex, PersonalMessage } from 'viem'
+
+- const payload = `${presignMessagePrefix}${message.length}${message}`
++ const payload = PersonalMessage.encode(Hex.fromString(message))
+```

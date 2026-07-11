@@ -9,10 +9,11 @@ export {
 export * as Capabilities from './core/Capabilities.js'
 export * as Chain from './core/Chain.js'
 export * as Client from './core/Client.js'
+export * as Contract from './core/Contract.js'
 export * as ContractError from './core/ContractError.js'
 export * as Errors from './core/Errors.js'
-export * as RpcError from './core/RpcError.js'
 export * as NonceManager from './core/NonceManager.js'
+export * as RpcError from './core/RpcError.js'
 export * as Token from './core/Token.js'
 export * as Transport from './core/Transport.js'
 export {

@@ -8,19 +8,21 @@ Credential creation lives in ox.
 
 ```ts
 import { WebAuthnP256 } from 'ox'
+import { Credential } from 'ox/webauthn'
 import { WebAuthnAccount } from 'viem/account-abstraction'
 
 const credential = await WebAuthnP256.createCredential({ name: 'Example' })
 const account = WebAuthnAccount.from(credential)
 ```
 
-Persist `credential.id` and `credential.publicKey` to restore the account later:
+Use `Credential.serialize` before JSON persistence because the live credential contains bigint and `ArrayBuffer` values. Deserialize it when loading:
 
 ```ts
-const account = WebAuthnAccount.from({
-  id: storedCredential.id,
-  publicKey: storedCredential.publicKey,
-})
+const serialized = Credential.serialize(credential)
+const json = JSON.stringify(serialized)
+
+const restored = Credential.deserialize(JSON.parse(json))
+const account = WebAuthnAccount.from(restored)
 ```
 
 ## Parameters

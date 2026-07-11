@@ -70,6 +70,16 @@ Unit parsing and formatting utilities moved from flat utilities to the `Value` n
 + const formatted = Value.format(units, 6)
 ```
 
+Unit exponent maps were consolidated into `Value.exponents`.
+
+```diff
+- import { etherUnits, gweiUnits, weiUnits } from 'viem'
++ import { Value } from 'viem'
+
+- const decimals = etherUnits.wei
++ const decimals = Value.exponents.ether
+```
+
 JSON stringification moved from the flat `stringify` utility to `Json.stringify`.
 
 ```diff

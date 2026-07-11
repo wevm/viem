@@ -21,6 +21,7 @@ import type { OneOf } from '../internal/types.js'
 import { getCode } from './address/getCode.js'
 import { call } from './call.js'
 import { read } from './contract/read.js'
+import type { RequireCanonicalError } from './internal/blockParameter.js'
 import { multicall3Bytecode } from './internal/constants.js'
 import { toDeploylessCallViaBytecodeData } from './internal/deployless.js'
 import { aggregate3Abi } from './internal/multicall.js'
@@ -147,24 +148,39 @@ export declare namespace verifyHash {
       }
     | {}
   > &
-    (
-      | {
-          /** The block number to verify against. */
-          blockNumber?: bigint | undefined
-          blockTag?: undefined
-        }
-      | {
-          blockNumber?: undefined
-          /** The block tag to verify against. @default 'latest' */
-          blockTag?: Block.Tag | undefined
-        }
-    )
+    BlockOptions
+
+  /** Mutually exclusive block context for signature verification. */
+  type BlockOptions =
+    | {
+        /** The block number to verify against. */
+        blockNumber?: bigint | undefined
+        blockTag?: undefined
+        blockHash?: undefined
+        requireCanonical?: undefined
+      }
+    | {
+        blockNumber?: undefined
+        /** The block tag to verify against. @default 'latest' */
+        blockTag?: Block.Tag | undefined
+        blockHash?: undefined
+        requireCanonical?: undefined
+      }
+    | {
+        blockNumber?: undefined
+        blockTag?: undefined
+        /** The block hash to verify against (EIP-1898). */
+        blockHash: Block.Hash
+        /** Whether the block must belong to the canonical chain. */
+        requireCanonical?: boolean | undefined
+      }
 
   type ReturnType = boolean
 
   type ErrorType =
     | RpcError.ExecutionError
     | ContractError.ContractFunctionExecutionError
+    | RequireCanonicalError
     | Errors.GlobalErrorType
 }
 
@@ -200,12 +216,14 @@ async function verifyErc6492(
 ): Promise<boolean> {
   const {
     address,
+    blockHash,
     blockNumber,
     blockTag,
     factory,
     factoryData,
     hash,
     requestOptions,
+    requireCanonical,
     signature,
     verifierAddress,
   } = options
@@ -250,9 +268,11 @@ async function verifyErc6492(
 
   const { data } = await call(client, {
     ...request,
+    blockHash,
     blockNumber,
     blockTag,
     requestOptions,
+    requireCanonical,
   } as call.Options).catch((error) => {
     if (error instanceof RpcError.ExecutionError) throw new VerificationError()
     throw error
@@ -271,11 +291,13 @@ async function verifyErc8010(
 ): Promise<boolean> {
   const {
     address,
+    blockHash,
     blockNumber,
     blockTag,
     hash,
     multicallAddress,
     requestOptions,
+    requireCanonical,
   } = options
 
   const {
@@ -287,16 +309,21 @@ async function verifyErc8010(
 
   const code = await getCode(client, {
     address,
+    blockHash,
     blockNumber,
     blockTag,
+    requireCanonical,
   } as getCode.Options)
 
   // Already delegated: plain ERC-1271 verification.
   if (code === Hex.concat('0xef0100', authorization.address))
     return await verifyErc1271(client, {
       address,
-      blockNumber,
-      blockTag,
+      ...(blockHash
+        ? { blockHash, requireCanonical }
+        : typeof blockNumber === 'bigint'
+          ? { blockNumber }
+          : { blockTag }),
       hash,
       requestOptions,
       signature,
@@ -343,7 +370,11 @@ async function verifyErc8010(
           }),
         }),
     authorizationList: [authorization],
-    ...(blockNumber ? { blockNumber } : { blockTag: 'pending' }),
+    ...(blockHash
+      ? { blockHash, requireCanonical }
+      : blockNumber
+        ? { blockNumber }
+        : { blockTag: 'pending' }),
     requestOptions,
   } as call.Options).catch((error) => {
     if (error instanceof RpcError.ExecutionError) throw new VerificationError()
@@ -370,24 +401,32 @@ async function verifyErc1271(
   client: Client.Client,
   options: {
     address: Address.Address
-    blockNumber?: bigint | undefined
-    blockTag?: Block.Tag | undefined
     hash: Hex.Hex
     requestOptions?: RequestOptions
     signature: Hex.Hex
-  },
+  } & verifyHash.BlockOptions,
 ): Promise<boolean> {
-  const { address, blockNumber, blockTag, hash, requestOptions, signature } =
-    options
+  const {
+    address,
+    blockHash,
+    blockNumber,
+    blockTag,
+    hash,
+    requestOptions,
+    requireCanonical,
+    signature,
+  } = options
 
   const result = await read(client, {
     abi: erc1271Abi,
     address,
     args: [hash, signature],
+    blockHash,
     blockNumber,
     blockTag,
     functionName: 'isValidSignature',
     requestOptions,
+    requireCanonical,
   }).catch((error) => {
     if (error instanceof ContractError.ContractFunctionExecutionError)
       throw new VerificationError()

@@ -24,17 +24,44 @@
       "viem": [
         "../src/index.ts"
       ],
+      "viem/Account": [
+        "../src/core/Account.ts"
+      ],
       "viem/account-abstraction": [
         "../src/account-abstraction/index.ts"
       ],
-      "viem/account-abstraction/actions": [
-        "../src/account-abstraction/actions/index.ts"
+      "viem/Actions": [
+        "../src/core/actions/index.ts"
+      ],
+      "viem/Capabilities": [
+        "../src/core/Capabilities.ts"
+      ],
+      "viem/Chain": [
+        "../src/core/Chain.ts"
       ],
       "viem/chains": [
         "../src/chains/index.ts"
       ],
+      "viem/Client": [
+        "../src/core/Client.ts"
+      ],
+      "viem/Contract": [
+        "../src/core/Contract.ts"
+      ],
+      "viem/ContractError": [
+        "../src/core/ContractError.ts"
+      ],
+      "viem/Errors": [
+        "../src/core/Errors.ts"
+      ],
       "viem/node": [
         "../src/node/index.ts"
+      ],
+      "viem/NonceManager": [
+        "../src/core/NonceManager.ts"
+      ],
+      "viem/RpcError": [
+        "../src/core/RpcError.ts"
       ],
       "viem/tempo": [
         "../src/tempo/index.ts"
@@ -45,11 +72,20 @@
       "viem/tempo/zones": [
         "../src/tempo/zones/index.ts"
       ],
+      "viem/Token": [
+        "../src/core/Token.ts"
+      ],
       "viem/tokens": [
         "../src/tokens/index.ts"
       ],
+      "viem/Transport": [
+        "../src/core/Transport.ts"
+      ],
       "viem/utils": [
         "../src/utils/index.ts"
+      ],
+      "viem/window": [
+        "../src/window/index.ts"
       ],
       "viem/zod": [
         "../src/zod/index.ts"

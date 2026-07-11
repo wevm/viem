@@ -4,8 +4,8 @@
  * Source: https://github.com/cloudflare/partykit/tree/main/packages/partysocket
  * Derived from `reconnecting-websocket` by Pedro Ladaria (MIT).
  *
- * Only the plain reconnecting WebSocket (`src/ws.ts` + `src/type-helper.ts`) is
- * vendored -- the PartyKit-specific client and React hooks are not included.
+ * Only the plain reconnecting WebSocket is vendored. Its event-target helper
+ * is inlined to keep generated declarations self-contained.
  *
  * Do not edit by hand. Re-sync from the upstream tag when updating. See ./LICENSE.
  */
@@ -18,7 +18,39 @@
  * License MIT
  */
 
-import type { TypedEventTarget } from "./type-helper";
+type TypedEventTarget<EventMap extends object> = {
+  new (): IntermediateEventTarget<EventMap>;
+};
+
+interface IntermediateEventTarget<EventMap> extends EventTarget {
+  addEventListener<K extends keyof EventMap>(
+    type: K,
+    callback: (
+      event: EventMap[K] extends Event ? EventMap[K] : never
+    ) => EventMap[K] extends Event ? void : never,
+    options?: boolean | AddEventListenerOptions
+  ): void;
+
+  addEventListener(
+    type: string,
+    callback: EventListenerOrEventListenerObject | null,
+    options?: EventListenerOptions | boolean
+  ): void;
+
+  removeEventListener<K extends keyof EventMap>(
+    type: K,
+    callback: (
+      event: EventMap[K] extends Event ? EventMap[K] : never
+    ) => EventMap[K] extends Event ? void : never,
+    options?: boolean | AddEventListenerOptions
+  ): void;
+
+  removeEventListener(
+    type: string,
+    callback: EventListenerOrEventListenerObject | null,
+    options?: EventListenerOptions | boolean
+  ): void;
+}
 
 if (!globalThis.EventTarget || !globalThis.Event) {
   console.error(`

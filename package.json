@@ -271,25 +271,70 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./Account": {
+      "src": "./src/core/Account.ts",
+      "types": "./dist/core/Account.d.ts",
+      "default": "./dist/core/Account.js"
+    },
     "./account-abstraction": {
       "src": "./src/account-abstraction/index.ts",
       "types": "./dist/account-abstraction/index.d.ts",
       "default": "./dist/account-abstraction/index.js"
     },
-    "./account-abstraction/actions": {
-      "src": "./src/account-abstraction/actions/index.ts",
-      "types": "./dist/account-abstraction/actions/index.d.ts",
-      "default": "./dist/account-abstraction/actions/index.js"
+    "./Actions": {
+      "src": "./src/core/actions/index.ts",
+      "types": "./dist/core/actions/index.d.ts",
+      "default": "./dist/core/actions/index.js"
+    },
+    "./Capabilities": {
+      "src": "./src/core/Capabilities.ts",
+      "types": "./dist/core/Capabilities.d.ts",
+      "default": "./dist/core/Capabilities.js"
+    },
+    "./Chain": {
+      "src": "./src/core/Chain.ts",
+      "types": "./dist/core/Chain.d.ts",
+      "default": "./dist/core/Chain.js"
     },
     "./chains": {
       "src": "./src/chains/index.ts",
       "types": "./dist/chains/index.d.ts",
       "default": "./dist/chains/index.js"
     },
+    "./Client": {
+      "src": "./src/core/Client.ts",
+      "types": "./dist/core/Client.d.ts",
+      "default": "./dist/core/Client.js"
+    },
+    "./Contract": {
+      "src": "./src/core/Contract.ts",
+      "types": "./dist/core/Contract.d.ts",
+      "default": "./dist/core/Contract.js"
+    },
+    "./ContractError": {
+      "src": "./src/core/ContractError.ts",
+      "types": "./dist/core/ContractError.d.ts",
+      "default": "./dist/core/ContractError.js"
+    },
+    "./Errors": {
+      "src": "./src/core/Errors.ts",
+      "types": "./dist/core/Errors.d.ts",
+      "default": "./dist/core/Errors.js"
+    },
     "./node": {
       "src": "./src/node/index.ts",
       "types": "./dist/node/index.d.ts",
       "default": "./dist/node/index.js"
+    },
+    "./NonceManager": {
+      "src": "./src/core/NonceManager.ts",
+      "types": "./dist/core/NonceManager.d.ts",
+      "default": "./dist/core/NonceManager.js"
+    },
+    "./RpcError": {
+      "src": "./src/core/RpcError.ts",
+      "types": "./dist/core/RpcError.d.ts",
+      "default": "./dist/core/RpcError.js"
     },
     "./tempo": {
       "src": "./src/tempo/index.ts",
@@ -306,15 +351,30 @@
       "types": "./dist/tempo/zones/index.d.ts",
       "default": "./dist/tempo/zones/index.js"
     },
+    "./Token": {
+      "src": "./src/core/Token.ts",
+      "types": "./dist/core/Token.d.ts",
+      "default": "./dist/core/Token.js"
+    },
     "./tokens": {
       "src": "./src/tokens/index.ts",
       "types": "./dist/tokens/index.d.ts",
       "default": "./dist/tokens/index.js"
     },
+    "./Transport": {
+      "src": "./src/core/Transport.ts",
+      "types": "./dist/core/Transport.d.ts",
+      "default": "./dist/core/Transport.js"
+    },
     "./utils": {
       "src": "./src/utils/index.ts",
       "types": "./dist/utils/index.d.ts",
       "default": "./dist/utils/index.js"
+    },
+    "./window": {
+      "src": "./src/window/index.ts",
+      "types": "./dist/window/index.d.ts",
+      "default": "./dist/window/index.js"
     },
     "./zod": {
       "src": "./src/zod/index.ts",
@@ -324,9 +384,71 @@
   },
   "typesVersions": {
     "*": {
-      "*": [
-        "./dist/*",
-        "./dist/*/index.d.ts"
+      "Account": [
+        "./dist/core/Account.d.ts"
+      ],
+      "account-abstraction": [
+        "./dist/account-abstraction/index.d.ts"
+      ],
+      "Actions": [
+        "./dist/core/actions/index.d.ts"
+      ],
+      "Capabilities": [
+        "./dist/core/Capabilities.d.ts"
+      ],
+      "Chain": [
+        "./dist/core/Chain.d.ts"
+      ],
+      "chains": [
+        "./dist/chains/index.d.ts"
+      ],
+      "Client": [
+        "./dist/core/Client.d.ts"
+      ],
+      "Contract": [
+        "./dist/core/Contract.d.ts"
+      ],
+      "ContractError": [
+        "./dist/core/ContractError.d.ts"
+      ],
+      "Errors": [
+        "./dist/core/Errors.d.ts"
+      ],
+      "node": [
+        "./dist/node/index.d.ts"
+      ],
+      "NonceManager": [
+        "./dist/core/NonceManager.d.ts"
+      ],
+      "RpcError": [
+        "./dist/core/RpcError.d.ts"
+      ],
+      "tempo": [
+        "./dist/tempo/index.d.ts"
+      ],
+      "tempo/actions": [
+        "./dist/tempo/actions/index.d.ts"
+      ],
+      "tempo/zones": [
+        "./dist/tempo/zones/index.d.ts"
+      ],
+      "Token": [
+        "./dist/core/Token.d.ts"
+      ],
+      "tokens": [
+        "./dist/tokens/index.d.ts"
+      ],
+      "Transport": [
+        "./dist/core/Transport.d.ts"
+      ],
+      "utils": [
+        "./dist/utils/index.d.ts"
+      ],
+      "window": [
+        "./dist/window/index.d.ts"
+      ],
+      "zod": [
+        "./dist/zod/index.d.ts"
       ]
     }
   }

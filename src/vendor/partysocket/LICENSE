@@ -3,7 +3,7 @@ implementation from `partysocket` (https://github.com/cloudflare/partykit/tree/m
 version 1.2.0, which is MIT licensed and derived from `reconnecting-websocket`
 by Pedro Ladaria (https://github.com/pladaria/reconnecting-websocket).
 
-Only `src/ws.ts` and `src/type-helper.ts` are vendored.
+Only `src/ws.ts` is vendored, with its event-target helper inlined.
 
 ----------------------------------------------------------------------
 

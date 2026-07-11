@@ -69,7 +69,7 @@ Node execution errors were grouped under `RpcError` (mostly keeping their class 
 + error instanceof RpcError.UnknownRpcError
 ```
 
-Contract function errors kept their class names but were grouped under `ContractError`, while `CallExecutionError` and `CounterfactualDeploymentFailedError` were removed.
+Contract function errors moved under `ContractError`, execution wrappers consolidated into `RpcError.ExecutionError`, and `CounterfactualDeploymentFailedError` was removed.
 
 ```diff
 - import {
@@ -78,11 +78,16 @@ Contract function errors kept their class names but were grouped under `Contract
 -   ContractFunctionRevertedError,
 -   ContractFunctionZeroDataError,
 -   CounterfactualDeploymentFailedError,
+-   EstimateGasExecutionError,
 -   RawContractError,
+-   TransactionExecutionError,
 - } from 'viem'
-+ import { ContractError } from 'viem'
++ import { ContractError, RpcError } from 'viem'
 
 - error instanceof CallExecutionError
+- error instanceof EstimateGasExecutionError
+- error instanceof TransactionExecutionError
++ error instanceof RpcError.ExecutionError
 - error instanceof ContractFunctionExecutionError
 - error instanceof ContractFunctionRevertedError
 - error instanceof ContractFunctionZeroDataError
@@ -92,4 +97,55 @@ Contract function errors kept their class names but were grouped under `Contract
 + error instanceof ContractError.ContractFunctionRevertedError
 + error instanceof ContractError.ContractFunctionZeroDataError
 + error instanceof ContractError.RawContractError
+```
+
+Stable action errors moved from the package root into their owning `Actions` namespaces.
+
+```diff
+- import {
+-   AtomicityNotSupportedError,
+-   BaseFeeScalarError,
+-   BlockNotFoundError,
+-   BundleFailedError,
+-   Eip1559FeesNotSupportedError,
+-   EnsAvatarInvalidNftUriError,
+-   EnsAvatarUnsupportedNamespaceError,
+-   EnsAvatarUriResolutionError,
+-   MaxFeePerGasTooLowError,
+-   TransactionNotFoundError,
+-   TransactionReceiptNotFoundError,
+-   UnsupportedNonOptionalCapabilityError,
+-   WaitForCallsStatusTimeoutError,
+-   WaitForTransactionReceiptTimeoutError,
+- } from 'viem'
++ import { Actions } from 'viem'
+
++ Actions.block.BlockNotFoundError
++ Actions.ens.EnsAvatarInvalidNftUriError
++ Actions.ens.EnsAvatarUnsupportedNamespaceError
++ Actions.ens.EnsAvatarUriResolutionError
++ Actions.fee.BaseFeeScalarError
++ Actions.fee.Eip1559FeesNotSupportedError
++ Actions.transaction.MaxFeePerGasTooLowError
++ Actions.transaction.TransactionNotFoundError
++ Actions.transaction.TransactionReceiptNotFoundError
++ Actions.transaction.WaitForReceiptTimeoutError
++ Actions.wallet.AtomicityNotSupportedError
++ Actions.wallet.BundleFailedError
++ Actions.wallet.UnsupportedNonOptionalCapabilityError
++ Actions.wallet.WaitForCallsStatusTimeoutError
+```
+
+JSON-RPC and provider errors moved to Ox `RpcResponse` and `Provider` namespaces.
+
+```diff
+- import { InvalidInputRpcError, ProviderRpcError, UserRejectedRequestError } from 'viem'
++ import { Provider, RpcResponse } from 'ox'
+
+- error instanceof InvalidInputRpcError
++ error instanceof RpcResponse.InvalidInputError
+- error instanceof ProviderRpcError
++ error instanceof Provider.ProviderRpcError
+- error instanceof UserRejectedRequestError
++ error instanceof Provider.UserRejectedRequestError
 ```

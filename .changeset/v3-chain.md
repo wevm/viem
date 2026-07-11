@@ -64,3 +64,32 @@ Experimental and deprecated extension chain fields were renamed or removed from 
 ```
 
 Chain transaction hooks (`toEnvelope`/`getSignPayload`/`serialize`) accept custom envelope types without casts, and the `verifyHash` hook receives the caller's `mode` and block context.
+
+`filterChains` moved to `Chain.filter`, preserving token-support and testnet narrowing.
+
+```diff
+- import { filterChains } from 'viem'
++ import { Chain } from 'viem'
+
+- const supported = filterChains({ chains, token: usdc })
++ const supported = Chain.filter({ chains, token: usdc })
+```
+
+Added Defi Oracle Meta Mainnet and Robinhood mainnet and testnet chain definitions.
+
+```diff
++ import {
++   defiOracleMetaMainnet,
++   robinhood,
++   robinhoodTestnet,
++ } from 'viem/chains'
+```
+
+Removed chain definitions that were not retained for v3; applications can define them locally with `Chain.from`.
+
+```diff
+- import { optimismGoerli, shibarium, shiden, ubiq, zhejiang } from 'viem/chains'
++ import { Chain } from 'viem'
+
++ const chain = Chain.from({ id, name, nativeCurrency, rpcUrls })
+```

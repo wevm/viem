@@ -51,6 +51,18 @@ ERC-6492 and ERC-8010 signature wrapping helpers moved from flat exports to the 
 +const wrapped8010 = SignatureErc8010.wrap(erc8010)
 ```
 
+ERC-6492 magic bytes, validator ABI, and validator bytecode moved to `SignatureErc6492`.
+
+```diff
+- import { erc6492MagicBytes, erc6492SignatureValidatorByteCode } from 'viem'
++ import { SignatureErc6492 } from 'viem'
+
+- erc6492MagicBytes
++ SignatureErc6492.magicBytes
+- erc6492SignatureValidatorByteCode
++ SignatureErc6492.universalSignatureValidatorBytecode
+```
+
 HD key, mnemonic seed, and wordlist utilities moved from account exports to the `HdKey` and `Mnemonic` namespaces.
 
 ```diff

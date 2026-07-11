@@ -2,6 +2,16 @@
 "viem": major
 ---
 
+The `viem/tempo/chains` entrypoint moved to the `Chain` namespace on `viem/tempo`.
+
+```diff
+- import { tempoMainnet } from 'viem/tempo/chains'
++ import { Chain } from 'viem/tempo'
+
+- const chain = tempoMainnet
++ const chain = Chain.tempoMainnet
+```
+
 The `viem/tempo` extension was rebuilt on v3 primitives: module namespaces (`Abis`, `Account`, `Addresses`, `Capabilities`, `Expiry`, `Hardfork`, `KeyAuthorizationManager`, `P256`, `Scopes`, `Selectors`, `Storage`, `WebAuthnP256`, `WebCryptoP256`), chain schema hooks in place of formatters/serializers, a `Client.create` factory decorated with `tempoActions()`, and domain-namespaced actions (`accessKey`, `amm`, `channel`, `dex`, `faucet`, `fee`, `nonce`, `policy`, `receivePolicy`, `token`, `validator`, `virtualAddress`, `wallet`, and `zone`). The zones surface lives at `viem/tempo/zones` (auth-token `http` transport, `zone`/`zoneModerato` chain builders).
 
 ```diff

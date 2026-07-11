@@ -135,9 +135,7 @@ type PrepareAccount = {
 /** Request fields the prepare hook operates on. @internal */
 type PrepareRequest = TransactionRequest & {
   account?: PrepareAccount | undefined
-  chain?:
-    | (Chain.Chain & { feeToken?: Address.Address | undefined })
-    | undefined
+  chain?: (Chain.Chain & { feeToken?: Address.Address | undefined }) | undefined
 }
 
 /**
@@ -426,7 +424,16 @@ export const chainConfig = {
     },
   },
   async verifyHash(client, parameters) {
-    const { address, blockNumber, blockTag, hash, mode, signature } = parameters
+    const {
+      address,
+      blockHash,
+      blockNumber,
+      blockTag,
+      hash,
+      mode,
+      requireCanonical,
+      signature,
+    } = parameters
 
     // `verifyHash` supports "signature envelopes" (a Tempo proposal) to
     // natively verify envelope-compatible (WebAuthn, P256, …) signatures.
@@ -464,9 +471,11 @@ export const chainConfig = {
           abi: Abis.accountKeychain,
           address: Addresses.accountKeychain,
           args: [address, accessKeyAddress],
+          blockHash,
           blockNumber,
           blockTag,
           functionName: 'getKey',
+          requireCanonical,
         })) as { expiry: bigint; isRevoked: boolean }
 
         if (key.isRevoked) return false
@@ -483,8 +492,10 @@ export const chainConfig = {
       if (envelope.type === 'p256' || envelope.type === 'webAuthn') {
         const code = await getCode(client, {
           address,
+          blockHash,
           blockNumber,
           blockTag,
+          requireCanonical,
         } as never)
         if (!code || code === delegationCode)
           return SignatureEnvelope.verify(envelope, {

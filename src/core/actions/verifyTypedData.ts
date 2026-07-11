@@ -38,6 +38,7 @@ export async function verifyTypedData<
 ): Promise<verifyTypedData.ReturnType> {
   const {
     address,
+    blockHash,
     blockNumber,
     blockTag,
     erc6492VerifierAddress,
@@ -46,12 +47,14 @@ export async function verifyTypedData<
     mode,
     multicallAddress,
     requestOptions,
+    requireCanonical,
     signature,
     ...typedData
   } = options as verifyTypedData.Options
 
   return verifyHash(client, {
     address,
+    blockHash,
     blockNumber,
     blockTag,
     erc6492VerifierAddress,
@@ -61,6 +64,7 @@ export async function verifyTypedData<
     mode,
     multicallAddress,
     requestOptions,
+    requireCanonical,
     signature,
   } as verifyHash.Options)
 }

@@ -8,9 +8,17 @@ export { getPermissions } from './getPermissions.js'
 export { prepareAuthorization } from './prepareAuthorization.js'
 export { requestAddresses } from './requestAddresses.js'
 export { requestPermissions } from './requestPermissions.js'
-export { sendCalls } from './sendCalls.js'
+export {
+  AtomicityNotSupportedError,
+  sendCalls,
+  UnsupportedNonOptionalCapabilityError,
+} from './sendCalls.js'
 export { sendCallsSync } from './sendCallsSync.js'
 export { showCallsStatus } from './showCallsStatus.js'
 export { signAuthorization } from './signAuthorization.js'
-export { waitForCallsStatus } from './waitForCallsStatus.js'
+export {
+  BundleFailedError,
+  waitForCallsStatus,
+  WaitForCallsStatusTimeoutError,
+} from './waitForCallsStatus.js'
 export { watchAsset } from './watchAsset.js'

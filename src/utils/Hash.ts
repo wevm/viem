@@ -1,1 +1,5 @@
 export * from 'ox/Hash'
+
+/** Zero hash. */
+export const zero =
+  '0x0000000000000000000000000000000000000000000000000000000000000000' as const

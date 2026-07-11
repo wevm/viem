@@ -272,6 +272,22 @@ describe('erc6492', () => {
     ).resolves.toBe(true)
   })
 
+  test('deployed smart account at block hash', async () => {
+    const { address, blockNumber } = await deployAccount()
+    const block = await Actions.block.get(local, { blockNumber })
+    const signature = await localAccount.sign({ hash: helloHash })
+
+    await expect(
+      Actions.verifyHash(local, {
+        address,
+        blockHash: block.hash,
+        hash: helloHash,
+        requireCanonical: true,
+        signature,
+      }),
+    ).resolves.toBe(true)
+  })
+
   test('deployed smart account, wrong signer', async () => {
     const { address } = await deployAccount()
     const signature = await Account.fromPrivateKey(
