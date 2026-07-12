@@ -34,6 +34,34 @@ export type OnResponseFn = (
   ),
 ) => void
 
+export type FallbackTransportRetryFn = <returnType>(
+  fn: (parameters: {
+    index: number
+    transport: ReturnType<Transport>
+  }) => Promise<returnType>,
+) => Promise<returnType>
+
+/**
+ * Registry mapping a fallback transport's `request` function to its
+ * operation-level retry function, so that multi-request actions (e.g.
+ * `sendTransaction` with a local account) can re-run an entire operation
+ * against each transport in turn instead of falling back per-request.
+ *
+ * Keyed by the `request` function as that is the only part of the transport
+ * an action can reach through a `Client`.
+ */
+const retryByRequest = new WeakMap<
+  ReturnType<Transport>['request'],
+  FallbackTransportRetryFn
+>()
+
+/** @internal */
+export function getFallbackTransportRetry(
+  request: ReturnType<Transport>['request'],
+): FallbackTransportRetryFn | undefined {
+  return retryByRequest.get(request)
+}
+
 type RankOptions = {
   /**
    * The polling interval (in ms) at which the ranker should ping the RPC URL.
@@ -121,6 +149,66 @@ export function fallback<const transports extends readonly Transport[]>(
 
     let onResponse: OnResponseFn = () => {}
 
+    const getTransport = (i: number) => {
+      const transport = transports[i]({
+        ...rest,
+        chain,
+        retryCount: 0,
+        timeout,
+      })
+      return {
+        ...transport,
+        async request({ method, params }: any, options?: any) {
+          try {
+            const response = await transport.request(
+              {
+                method,
+                params,
+              } as any,
+              options,
+            )
+
+            onResponse({
+              method,
+              params: params as unknown[],
+              response,
+              transport,
+              status: 'success',
+            })
+
+            return response
+          } catch (err) {
+            onResponse({
+              error: err as Error,
+              method,
+              params: params as unknown[],
+              transport,
+              status: 'error',
+            })
+
+            throw err
+          }
+        },
+      } as ReturnType<Transport>
+    }
+
+    const retry: FallbackTransportRetryFn = async (fn) => {
+      const attempt = async (i = 0): Promise<any> => {
+        try {
+          return await fn({ index: i, transport: getTransport(i) })
+        } catch (err) {
+          if (shouldThrow_(err as Error)) throw err
+
+          // If we've reached the end of the fallbacks, throw the error.
+          if (i === transports.length - 1) throw err
+
+          // Otherwise, re-run the operation against the next fallback.
+          return attempt(i + 1)
+        }
+      }
+      return attempt()
+    }
+
     const transport = createTransport(
       {
         key,
@@ -129,36 +217,13 @@ export function fallback<const transports extends readonly Transport[]>(
           let includes: boolean | undefined
 
           const fetch = async (i = 0): Promise<any> => {
-            const transport = transports[i]({
-              ...rest,
-              chain,
-              retryCount: 0,
-              timeout,
-            })
+            const transport = getTransport(i)
             try {
-              const response = await transport.request({
+              return await transport.request({
                 method,
                 params,
               } as any)
-
-              onResponse({
-                method,
-                params: params as unknown[],
-                response,
-                transport,
-                status: 'success',
-              })
-
-              return response
             } catch (err) {
-              onResponse({
-                error: err as Error,
-                method,
-                params: params as unknown[],
-                transport,
-                status: 'error',
-              })
-
               if (shouldThrow_(err as Error)) throw err
 
               // If we've reached the end of the fallbacks, throw the error.
@@ -189,6 +254,8 @@ export function fallback<const transports extends readonly Transport[]>(
         transports: transports.map((fn) => fn({ chain, retryCount: 0 })),
       },
     )
+
+    retryByRequest.set(transport.request, retry)
 
     if (rank) {
       const rankOptions = (typeof rank === 'object' ? rank : {}) as RankOptions

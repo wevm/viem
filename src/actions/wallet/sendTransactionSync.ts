@@ -15,6 +15,8 @@ import {
   type AccountTypeNotSupportedErrorType,
 } from '../../errors/account.js'
 import { BaseError } from '../../errors/base.js'
+import { RpcRequestError } from '../../errors/request.js'
+import { RpcError, UnknownRpcError } from '../../errors/rpc.js'
 import {
   TransactionReceiptRevertedError,
   type TransactionReceiptRevertedErrorType,
@@ -56,6 +58,10 @@ import {
   type AssertRequestParameters,
   assertRequest,
 } from '../../utils/transaction/assertRequest.js'
+import {
+  getFallbackRetry,
+  withRetryingTransport,
+} from '../../utils/withRetryingTransport.js'
 import { type GetChainIdErrorType, getChainId } from '../public/getChainId.js'
 import {
   type WaitForTransactionReceiptErrorType,
@@ -349,58 +355,140 @@ export async function sendTransactionSync<
     }
 
     if (account?.type === 'local') {
-      if (account.nonceManager && typeof nonce === 'undefined') {
-        const requestChainId = (rest as unknown as { chainId?: number }).chainId
-        const chainId = await (async () => {
-          if (typeof requestChainId === 'number') return requestChainId
-          if (chain) return chain.id
-          return getAction(client, getChainId, 'getChainId')({})
-        })()
-        nonceManagerParameters = { address: account.address, chainId }
+      // Serialized transaction of an attempt whose submission failed
+      // ambiguously (e.g. a timeout or network error): the transaction may
+      // have reached the node regardless, so subsequent attempts must
+      // re-broadcast the same signed bytes instead of re-signing with a fresh
+      // nonce (which could get both transactions mined).
+      let pendingSerializedTransaction: Hash | undefined
+
+      const retry = getFallbackRetry(client)
+
+      const send = async (
+        client_: Client<Transport, chain, account>,
+      ): Promise<SendTransactionSyncReturnType> => {
+        if (pendingSerializedTransaction)
+          return (await getAction(
+            client_,
+            sendRawTransactionSync,
+            'sendRawTransactionSync',
+          )({
+            serializedTransaction: pendingSerializedTransaction,
+            // When retrying against fallback transports, the revert check is
+            // handled outside the retry loop (see below): a reverted receipt
+            // is an on-chain outcome, not a transport failure.
+            throwOnReceiptRevert: retry ? false : throwOnReceiptRevert,
+            timeout: parameters.timeout,
+          })) as never
+
+        nonceManagerParameters = undefined
+        if (account.nonceManager && typeof nonce === 'undefined') {
+          const requestChainId = (rest as unknown as { chainId?: number })
+            .chainId
+          const chainId = await (async () => {
+            if (typeof requestChainId === 'number') return requestChainId
+            if (chain) return chain.id
+            return getAction(client_, getChainId, 'getChainId')({})
+          })()
+          nonceManagerParameters = { address: account.address, chainId }
+        }
+
+        // Prepare the request for signing (assign appropriate fees, etc.)
+        const request = await getAction(
+          client_,
+          prepareTransactionRequest,
+          'prepareTransactionRequest',
+        )({
+          account,
+          accessList,
+          authorizationList,
+          blobs,
+          chain,
+          data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data,
+          gas,
+          gasPrice,
+          maxFeePerBlobGas,
+          maxFeePerGas,
+          maxPriorityFeePerGas,
+          nonce,
+          nonceManager: account.nonceManager,
+          parameters: [...defaultParameters, 'sidecars'],
+          type,
+          value,
+          ...rest,
+          to,
+        } as any)
+
+        const serializer = chain?.serializers?.transaction
+        const serializedTransaction = (await account.signTransaction(
+          request as never,
+          {
+            serializer,
+          },
+        )) as Hash
+        try {
+          return (await getAction(
+            client_,
+            sendRawTransactionSync,
+            'sendRawTransactionSync',
+          )({
+            serializedTransaction,
+            // When retrying against fallback transports, the revert check is
+            // handled outside the retry loop (see below): a reverted receipt
+            // is an on-chain outcome, not a transport failure.
+            throwOnReceiptRevert: retry ? false : throwOnReceiptRevert,
+            timeout: parameters.timeout,
+          })) as never
+        } catch (err) {
+          // A node that responds with a JSON-RPC error has rejected the
+          // submission, so the transaction is provably not in its mempool and
+          // it is safe to re-prepare & re-sign against the next transport.
+          // Any other failure (e.g. a timeout) is ambiguous – the transaction
+          // may have been broadcast – so subsequent attempts must stick to
+          // the same signed bytes.
+          const rejected =
+            err instanceof BaseError &&
+            Boolean(
+              err.walk(
+                (error) =>
+                  error instanceof RpcRequestError ||
+                  (error instanceof RpcError &&
+                    !(error instanceof UnknownRpcError)),
+              ),
+            )
+          if (!rejected) pendingSerializedTransaction = serializedTransaction
+          throw err
+        }
       }
 
-      // Prepare the request for signing (assign appropriate fees, etc.)
-      const request = await getAction(
-        client,
-        prepareTransactionRequest,
-        'prepareTransactionRequest',
-      )({
-        account,
-        accessList,
-        authorizationList,
-        blobs,
-        chain,
-        data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data,
-        gas,
-        gasPrice,
-        maxFeePerBlobGas,
-        maxFeePerGas,
-        maxPriorityFeePerGas,
-        nonce,
-        nonceManager: account.nonceManager,
-        parameters: [...defaultParameters, 'sidecars'],
-        type,
-        value,
-        ...rest,
-        to,
-      } as any)
+      // If the client is backed by a fallback transport, re-run the whole
+      // operation (nonce assignment, fee estimation, signing, submission)
+      // against one transport at a time, so a single attempt cannot observe
+      // inconsistent chain state across transports.
+      const receipt = await (async () => {
+        if (retry)
+          return await retry(async ({ index, transport }) => {
+            try {
+              return await send(
+                withRetryingTransport(client, { index, transport }) as never,
+              )
+            } catch (err) {
+              if (nonceManagerParameters) {
+                account.nonceManager?.reset(nonceManagerParameters)
+                nonceManagerParameters = undefined
+              }
+              throw err
+            }
+          })
+        return await send(client as never)
+      })()
 
-      const serializer = chain?.serializers?.transaction
-      const serializedTransaction = (await account.signTransaction(
-        request as never,
-        {
-          serializer,
-        },
-      )) as Hash
-      return (await getAction(
-        client,
-        sendRawTransactionSync,
-        'sendRawTransactionSync',
-      )({
-        serializedTransaction,
-        throwOnReceiptRevert,
-        timeout: parameters.timeout,
-      })) as never
+      // A receipt marks the transaction execution as final: a revert is an
+      // on-chain outcome, not a transport failure, so it must never trigger a
+      // fallback retry. The check therefore lives outside the retry loop.
+      if (throwOnReceiptRevert && receipt.status === 'reverted')
+        throw new TransactionReceiptRevertedError({ receipt })
+      return receipt as never
     }
 
     if (account?.type === 'smart')

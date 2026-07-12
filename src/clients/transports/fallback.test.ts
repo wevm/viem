@@ -1,18 +1,24 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { createHttpServer } from '~test/utils.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
-import { localhost } from '../../chains/index.js'
+import { sendTransaction } from '../../actions/wallet/sendTransaction.js'
+import { sendTransactionSync } from '../../actions/wallet/sendTransactionSync.js'
+import { localhost, mainnet } from '../../chains/index.js'
 import {
   InternalRpcError,
   MethodNotSupportedRpcError,
   UserRejectedRequestError,
   WalletConnectSessionSettlementError,
 } from '../../errors/rpc.js'
+import { TransactionReceiptRevertedError } from '../../errors/transaction.js'
 import { wait } from '../../utils/wait.js'
 import { createClient } from '../createClient.js'
 import { createPublicClient } from '../createPublicClient.js'
+import { createWalletClient } from '../createWalletClient.js'
 import type { Transport } from './createTransport.js'
+import { custom } from './custom.js'
 import {
   type FallbackTransport,
   fallback,
@@ -672,6 +678,25 @@ describe('request', () => {
   })
 })
 
+function getRawReceipt(status: '0x0' | '0x1') {
+  return {
+    blockHash: `0x${'22'.repeat(32)}`,
+    blockNumber: '0x1',
+    contractAddress: null,
+    cumulativeGasUsed: '0x5208',
+    effectiveGasPrice: '0x1',
+    from: `0x${'11'.repeat(20)}`,
+    gasUsed: '0x5208',
+    logs: [],
+    logsBloom: `0x${'00'.repeat(256)}`,
+    status,
+    to: `0x${'11'.repeat(20)}`,
+    transactionHash: `0x${'33'.repeat(32)}`,
+    transactionIndex: '0x0',
+    type: '0x2',
+  }
+}
+
 describe('client', () => {
   test('default', () => {
     const alchemy = http('https://alchemy.com/rpc')
@@ -811,6 +836,302 @@ describe('client', () => {
 
     expect(await getBlockNumber(client)).toBe(1n)
     expect(count).toBe(2)
+  })
+
+  test('sendTransaction (local account): re-prepares & re-signs against the next transport when a node rejects the submission', async () => {
+    const account = privateKeyToAccount(
+      '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    )
+    const hash =
+      '0x1111111111111111111111111111111111111111111111111111111111111111'
+
+    const nonceRequests: string[] = []
+    const rawTransactions: Record<'a' | 'b', string[]> = { a: [], b: [] }
+
+    const client = createWalletClient({
+      account,
+      chain: mainnet,
+      transport: fallback([
+        // Transport with a stale view of the chain: hands out an old nonce,
+        // then (correctly) rejects the submission.
+        custom({
+          async request({ method, params }) {
+            if (method === 'eth_getTransactionCount') {
+              nonceRequests.push('a')
+              return '0x0'
+            }
+            if (method === 'eth_sendRawTransaction') {
+              rawTransactions.a.push((params as string[])[0])
+              throw { code: -32000, message: 'nonce too low' }
+            }
+            throw new Error(`unexpected method: ${method}`)
+          },
+        }),
+        custom({
+          async request({ method, params }) {
+            if (method === 'eth_getTransactionCount') {
+              nonceRequests.push('b')
+              return '0x1'
+            }
+            if (method === 'eth_sendRawTransaction') {
+              rawTransactions.b.push((params as string[])[0])
+              return hash
+            }
+            throw new Error(`unexpected method: ${method}`)
+          },
+        }),
+      ]),
+    })
+
+    expect(
+      await sendTransaction(client, {
+        chainId: mainnet.id,
+        gas: 21_000n,
+        maxFeePerGas: 1n,
+        maxPriorityFeePerGas: 1n,
+        to: account.address,
+        type: 'eip1559',
+        value: 1n,
+      }),
+    ).toBe(hash)
+
+    // The operation was re-prepared against the second transport (instead of
+    // re-broadcasting the transaction signed with the first transport's stale
+    // nonce).
+    expect(nonceRequests).toEqual(['a', 'b'])
+    expect(rawTransactions.a).toHaveLength(1)
+    expect(rawTransactions.b).toHaveLength(1)
+    expect(rawTransactions.b[0]).not.toBe(rawTransactions.a[0])
+  })
+
+  test('sendTransaction (local account): re-broadcasts the same signed bytes when the submission failed ambiguously', async () => {
+    const account = privateKeyToAccount(
+      '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    )
+    const hash =
+      '0x1111111111111111111111111111111111111111111111111111111111111111'
+
+    const nonceRequests: string[] = []
+    const rawTransactions: Record<'a' | 'b', string[]> = { a: [], b: [] }
+
+    const client = createWalletClient({
+      account,
+      chain: mainnet,
+      transport: fallback([
+        custom({
+          async request({ method, params }) {
+            if (method === 'eth_getTransactionCount') {
+              nonceRequests.push('a')
+              return '0x0'
+            }
+            if (method === 'eth_sendRawTransaction') {
+              rawTransactions.a.push((params as string[])[0])
+              // A non-JSON-RPC failure: the transaction may have reached the
+              // node regardless.
+              throw new Error('socket closed')
+            }
+            throw new Error(`unexpected method: ${method}`)
+          },
+        }),
+        custom({
+          async request({ method, params }) {
+            if (method === 'eth_getTransactionCount') {
+              nonceRequests.push('b')
+              return '0x1'
+            }
+            if (method === 'eth_sendRawTransaction') {
+              rawTransactions.b.push((params as string[])[0])
+              return hash
+            }
+            throw new Error(`unexpected method: ${method}`)
+          },
+        }),
+      ]),
+    })
+
+    expect(
+      await sendTransaction(client, {
+        chainId: mainnet.id,
+        gas: 21_000n,
+        maxFeePerGas: 1n,
+        maxPriorityFeePerGas: 1n,
+        to: account.address,
+        type: 'eip1559',
+        value: 1n,
+      }),
+    ).toBe(hash)
+
+    // The next transport must re-broadcast the exact same signed bytes: the
+    // first submission may have been broadcast despite the error, and signing
+    // a fresh transaction could get both mined.
+    expect(nonceRequests).toEqual(['a'])
+    expect(rawTransactions.a).toHaveLength(1)
+    expect(rawTransactions.b).toHaveLength(1)
+    expect(rawTransactions.b[0]).toBe(rawTransactions.a[0])
+  })
+
+  test('sendTransactionSync (local account): re-prepares & re-signs against the next transport when a node rejects the submission', async () => {
+    const account = privateKeyToAccount(
+      '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    )
+    const nonceRequests: string[] = []
+    const rawTransactions: Record<'a' | 'b', string[]> = { a: [], b: [] }
+
+    const client = createWalletClient({
+      account,
+      chain: mainnet,
+      transport: fallback([
+        custom({
+          async request({ method, params }) {
+            if (method === 'eth_getTransactionCount') {
+              nonceRequests.push('a')
+              return '0x0'
+            }
+            if (method === 'eth_sendRawTransactionSync') {
+              rawTransactions.a.push((params as string[])[0])
+              throw { code: -32000, message: 'nonce too low' }
+            }
+            throw new Error(`unexpected method: ${method}`)
+          },
+        }),
+        custom({
+          async request({ method, params }) {
+            if (method === 'eth_getTransactionCount') {
+              nonceRequests.push('b')
+              return '0x1'
+            }
+            if (method === 'eth_sendRawTransactionSync') {
+              rawTransactions.b.push((params as string[])[0])
+              return getRawReceipt('0x1')
+            }
+            throw new Error(`unexpected method: ${method}`)
+          },
+        }),
+      ]),
+    })
+
+    const receipt = await sendTransactionSync(client, {
+      chainId: mainnet.id,
+      gas: 21_000n,
+      maxFeePerGas: 1n,
+      maxPriorityFeePerGas: 1n,
+      to: account.address,
+      type: 'eip1559',
+      value: 1n,
+    })
+    expect(receipt.status).toBe('success')
+
+    expect(nonceRequests).toEqual(['a', 'b'])
+    expect(rawTransactions.a).toHaveLength(1)
+    expect(rawTransactions.b).toHaveLength(1)
+    expect(rawTransactions.b[0]).not.toBe(rawTransactions.a[0])
+  })
+
+  test('sendTransactionSync (local account): re-broadcasts the same signed bytes when the submission failed ambiguously', async () => {
+    const account = privateKeyToAccount(
+      '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    )
+    const nonceRequests: string[] = []
+    const rawTransactions: Record<'a' | 'b', string[]> = { a: [], b: [] }
+
+    const client = createWalletClient({
+      account,
+      chain: mainnet,
+      transport: fallback([
+        custom({
+          async request({ method, params }) {
+            if (method === 'eth_getTransactionCount') {
+              nonceRequests.push('a')
+              return '0x0'
+            }
+            if (method === 'eth_sendRawTransactionSync') {
+              rawTransactions.a.push((params as string[])[0])
+              throw new Error('socket closed')
+            }
+            throw new Error(`unexpected method: ${method}`)
+          },
+        }),
+        custom({
+          async request({ method, params }) {
+            if (method === 'eth_getTransactionCount') {
+              nonceRequests.push('b')
+              return '0x1'
+            }
+            if (method === 'eth_sendRawTransactionSync') {
+              rawTransactions.b.push((params as string[])[0])
+              return getRawReceipt('0x1')
+            }
+            throw new Error(`unexpected method: ${method}`)
+          },
+        }),
+      ]),
+    })
+
+    const receipt = await sendTransactionSync(client, {
+      chainId: mainnet.id,
+      gas: 21_000n,
+      maxFeePerGas: 1n,
+      maxPriorityFeePerGas: 1n,
+      to: account.address,
+      type: 'eip1559',
+      value: 1n,
+    })
+    expect(receipt.status).toBe('success')
+
+    expect(nonceRequests).toEqual(['a'])
+    expect(rawTransactions.b[0]).toBe(rawTransactions.a[0])
+  })
+
+  test('sendTransactionSync (local account): a reverted receipt is final and does not fall back to the next transport', async () => {
+    const account = privateKeyToAccount(
+      '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    )
+    const calls: Record<'a' | 'b', string[]> = { a: [], b: [] }
+
+    const client = createWalletClient({
+      account,
+      chain: mainnet,
+      transport: fallback([
+        custom({
+          async request({ method }) {
+            calls.a.push(method)
+            if (method === 'eth_getTransactionCount') return '0x0'
+            if (method === 'eth_sendRawTransactionSync')
+              // The transaction was mined, but reverted: an on-chain outcome,
+              // not a transport failure.
+              return getRawReceipt('0x0')
+            throw new Error(`unexpected method: ${method}`)
+          },
+        }),
+        custom({
+          async request({ method }) {
+            calls.b.push(method)
+            throw new Error(`unexpected method: ${method}`)
+          },
+        }),
+      ]),
+    })
+
+    const error = await sendTransactionSync(client, {
+      chainId: mainnet.id,
+      gas: 21_000n,
+      maxFeePerGas: 1n,
+      maxPriorityFeePerGas: 1n,
+      throwOnReceiptRevert: true,
+      to: account.address,
+      type: 'eip1559',
+      value: 1n,
+    }).catch((error) => error)
+    expect(
+      error.walk((e: unknown) => e instanceof TransactionReceiptRevertedError),
+    ).toBeTruthy()
+
+    // The reverted transaction must not be retried (re-signed OR
+    // re-broadcast) against any other transport.
+    expect(
+      calls.a.filter((m) => m === 'eth_sendRawTransactionSync'),
+    ).toHaveLength(1)
+    expect(calls.b).toEqual([])
   })
 
   test('all error (non deterministic)', async () => {
