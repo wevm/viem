@@ -46,6 +46,23 @@ const hash = await client.zone.requestWithdrawal({
 const receipt = await client.waitForTransactionReceipt({ hash })
 ```
 
+### Prepare a Withdrawal
+
+Use `zone.requestWithdrawal.prepare` to inspect the calls and protocol withdrawal fee without broadcasting. Set `estimateTransactionFee` to also estimate the Zone transaction fee.
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { client } from './zones.config'
+
+const prepared = await client.zone.requestWithdrawal.prepare({
+  amount: parseUnits('100', 6),
+  callbackGas: 10_000_000n,
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log('Total fee:', prepared.totalFee)
+```
+
 ## Return Type
 
 ```ts
@@ -90,12 +107,18 @@ Optional callback data for the recipient.
 
 Fallback address if callback fails.
 
-### gas (optional)
+### callbackGas (optional)
 
 - **Type:** `bigint`
 - **Default:** `0n`
 
 Gas limit reserved for the withdrawal callback on the parent chain.
+
+### gas (optional)
+
+- **Type:** `bigint`
+
+Transaction gas limit on the Zone chain.
 
 ### memo (optional)
 

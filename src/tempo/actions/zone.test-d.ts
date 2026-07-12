@@ -28,6 +28,55 @@ test('encryptedDeposit.prepare returns a reusable encrypted deposit payload', as
   zoneActions.encryptedDeposit.calls(prepared)
   await zoneActions.encryptedDeposit(client, prepared)
   await zoneActions.encryptedDepositSync(client, prepared)
+  await zoneActions.encryptedDepositSync(client, {
+    ...prepared,
+    pollingInterval: 100,
+    timeout: 1_000,
+  })
+})
+
+test('encryptedDeposit.prepareRecipient returns reusable encrypted recipient data', async () => {
+  const prepared = await zoneActions.encryptedDeposit.prepareRecipient(client, {
+    portalAddress: '0x0000000000000000000000000000000000000002',
+    recipient: '0x0000000000000000000000000000000000000001',
+    zoneId: 7,
+  })
+
+  expectTypeOf(
+    prepared,
+  ).toEqualTypeOf<zoneActions.PreparedEncryptedDepositRecipient>()
+})
+
+test('requestWithdrawal.prepare returns calls and fee details', async () => {
+  const prepared = await zoneActions.requestWithdrawal.prepare(client, {
+    token: '0x20c0000000000000000000000000000000000000',
+    amount: 1n,
+    callbackGas: 10_000_000n,
+    to: '0x0000000000000000000000000000000000000001',
+    estimateTransactionFee: true,
+    transactionFeeScale: 1_000_000_000_000n,
+  })
+
+  expectTypeOf(
+    prepared,
+  ).toEqualTypeOf<zoneActions.requestWithdrawal.prepare.ReturnType>()
+
+  // @ts-expect-error transactionFeeScale is required when estimating.
+  await zoneActions.requestWithdrawal.prepare(client, {
+    token: '0x20c0000000000000000000000000000000000000',
+    amount: 1n,
+    to: '0x0000000000000000000000000000000000000001',
+    estimateTransactionFee: true,
+  })
+})
+
+test('withdrawal callback gas is distinct from transaction gas', async () => {
+  await zoneActions.requestWithdrawal(client, {
+    token: '0x20c0000000000000000000000000000000000000',
+    amount: 1n,
+    callbackGas: 10_000_000n,
+    gas: 1_000_000n,
+  })
 })
 
 test('encryptedDeposit still accepts plaintext parameters', async () => {

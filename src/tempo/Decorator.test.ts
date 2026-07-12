@@ -56,6 +56,10 @@ describe('decorator', () => {
     expect(typeof client2.token.transfer.estimateGas).toBe('function')
     expect(typeof client2.token.transfer.simulate).toBe('function')
     expect(typeof client2.zone.encryptedDeposit.prepare).toBe('function')
+    expect(typeof client2.zone.encryptedDeposit.prepareRecipient).toBe(
+      'function',
+    )
+    expect(typeof client2.zone.requestWithdrawal.prepare).toBe('function')
     expect(typeof client2.zone.getEncryptionKey.calls).toBe('function')
   })
 

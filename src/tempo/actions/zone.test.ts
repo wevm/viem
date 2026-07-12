@@ -387,11 +387,11 @@ describe('getWithdrawalFee', () => {
     expect(fee).toBeGreaterThanOrEqual(0n)
   })
 
-  test('behavior: accepts custom gas limit', async () => {
+  test('behavior: accepts custom callback gas limit', async () => {
     await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
 
     const fee = await zoneActions.getWithdrawalFee(zoneClient, {
-      gas: 100_000n,
+      callbackGas: 100_000n,
     })
 
     expect(typeof fee).toBe('bigint')
@@ -539,6 +539,23 @@ describe('encryptedDeposit', () => {
     const receipt = await waitForTransactionReceipt(mainnetClient, { hash })
 
     expect(receipt.status).toBe('success')
+  })
+
+  test('behavior: prepares an encrypted recipient without a deposit', async () => {
+    const prepared = await zoneActions.encryptedDeposit.prepareRecipient(
+      mainnetClient,
+      {
+        portalAddress,
+        recipient: account.address,
+        zoneId,
+      },
+    )
+
+    expect(prepared.chainId).toBe(chain.id)
+    expect(prepared.portalAddress).toBe(portalAddress)
+    expect(prepared.zoneId).toBe(zoneId)
+    expect(prepared.keyIndex).toBeGreaterThanOrEqual(0n)
+    expect(prepared.encrypted.ciphertext).toBeDefined()
   })
 
   test('error: prepare without chain', async () => {
@@ -749,8 +766,36 @@ describe('requestWithdrawal', () => {
 
     expect(call.functionName).toBe('requestWithdrawal')
     expect(call.args).toHaveLength(8)
+    expect(call.args[4]).toBe(0n)
     expect(call.args[6]).toBe('0x')
     expect(call.args[7]).toBe('0x')
+  })
+
+  test('behavior: keeps callback gas separate from transaction gas', () => {
+    const [, call] = zoneActions.requestWithdrawal.calls({
+      amount: 1n,
+      callbackGas: 10_000_000n,
+      to: account.address,
+      token: '0x20c0000000000000000000000000000000000001',
+    })
+
+    expect(call.args[4]).toBe(10_000_000n)
+  })
+
+  test('behavior: prepares a withdrawal without broadcasting', async () => {
+    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
+    const info = await zoneActions.getZoneInfo(zoneClient)
+    const zoneToken = info.zoneTokens[0]!
+
+    const prepared = await zoneActions.requestWithdrawal.prepare(zoneClient, {
+      amount: 1n,
+      callbackGas: 100_000n,
+      token: zoneToken,
+    })
+
+    expect(prepared.calls).toHaveLength(2)
+    expect(prepared.callbackGas).toBe(100_000n)
+    expect(prepared.totalFee).toBe(prepared.withdrawalFee)
   })
 
   test('behavior: requests withdrawal without waiting', async () => {
