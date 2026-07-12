@@ -1,12 +1,14 @@
-import type { Hex } from 'ox'
+import type { Address, Hex } from 'ox'
 import { expectTypeOf, test } from 'vitest'
 
-import { Account } from 'viem'
+import { Account, NonceManager } from 'viem'
 
 test('from: address -> JsonRpc, custom source -> Local', () => {
   expectTypeOf(
     Account.from('0x0000000000000000000000000000000000000000'),
-  ).toEqualTypeOf<Account.JsonRpc>()
+  ).toEqualTypeOf<
+    Account.JsonRpc<'0x0000000000000000000000000000000000000000'>
+  >()
 
   const local = Account.from({
     address: '0x0000000000000000000000000000000000000000',
@@ -41,11 +43,27 @@ test('from: infers passed keyType', () => {
   expectTypeOf(account.type).toEqualTypeOf<'local'>()
 })
 
-test('local accounts resolve sync (sign returns Hex | Promise<Hex>)', () => {
+test('from: preserves an existing Account', () => {
   const account = Account.fromPrivateKey('0x')
+  expectTypeOf(Account.from(account)).toEqualTypeOf<typeof account>()
+})
+
+test('from: accepts an address or existing Account union', () => {
+  const parse = (source: Address.Address | Account.Account) =>
+    Account.from(source)
+  expectTypeOf<ReturnType<typeof parse>>().toMatchTypeOf<Account.Account>()
+})
+
+test('local accounts resolve sync (sign returns Hex | Promise<Hex>)', () => {
+  const account = Account.fromPrivateKey('0x', {
+    nonceManager: NonceManager.nonceManager,
+  })
   expectTypeOf(account.type).toEqualTypeOf<'local'>()
   expectTypeOf(account.keyType).toEqualTypeOf<'secp256k1'>()
   expectTypeOf(account.publicKey).toEqualTypeOf<Hex.Hex>()
+  expectTypeOf(account.nonceManager).toEqualTypeOf<
+    NonceManager.NonceManager | undefined
+  >()
   expectTypeOf(account.sign).returns.toEqualTypeOf<Hex.Hex | Promise<Hex.Hex>>()
 })
 

@@ -9,7 +9,12 @@ import * as Abis from '../../Abis.js'
 import { defineCall, dispatchSend } from '../../internal/utils.js'
 import * as ZoneAbis from '../../zones/Abis.js'
 import { getPortalAddress } from '../../zones/zone.js'
-import { getAccount, getAddress, getChain, type ZoneWriteParameters } from './internal.js'
+import {
+  getAccount,
+  getAddress,
+  getChain,
+  type ZoneWriteParameters,
+} from './internal.js'
 
 const zeroHash =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
@@ -53,10 +58,14 @@ export namespace deposit {
   export type Args = {
     /** Amount of tokens to deposit. */
     amount: bigint
+    /** Refund recipient on the parent chain if the deposit bounces. */
+    bouncebackRecipient: Address.Address
     /** Parent chain ID. */
     chainId: number
     /** Optional deposit memo. */
     memo?: Hex.Hex | undefined
+    /** Zone portal address. Defaults to the configured portal registry. */
+    portalAddress?: Address.Address | undefined
     /** Recipient address in the zone. */
     recipient: Address.Address
     /** Token address to deposit. */
@@ -67,7 +76,9 @@ export namespace deposit {
   export type Options<
     account extends Account.Account | undefined = Account.Account | undefined,
   > = ZoneWriteParameters<account> &
-    Omit<Args, 'chainId' | 'recipient'> & {
+    Omit<Args, 'bouncebackRecipient' | 'chainId' | 'recipient'> & {
+      /** Refund recipient on the parent chain. Defaults to `account.address`. */
+      bouncebackRecipient?: Address.Address | undefined
       /** Recipient address in the zone. Defaults to `account.address`. */
       recipient?: Address.Address | undefined
     }
@@ -86,18 +97,34 @@ export namespace deposit {
   ): Promise<dispatchSend.ReturnType<action>> {
     const chain = getChain(client, options)
     const account = getAccount(options.account ?? client.account)
+    const bouncebackRecipient =
+      options.bouncebackRecipient ?? getAddress(account)
     const recipient = options.recipient ?? getAddress(account)
     return dispatchSend(action, client, {
       ...options,
       account,
-      calls: deposit.calls({ ...options, chainId: chain.id, recipient }),
+      calls: deposit.calls({
+        ...options,
+        bouncebackRecipient,
+        chainId: chain.id,
+        recipient,
+      }),
     })
   }
 
   /** Defines the calls to approve and deposit tokens into a zone. */
   export function calls(args: Args) {
-    const { amount, chainId, memo = zeroHash, recipient, token, zoneId } = args
-    const portalAddress = getPortalAddress(chainId, zoneId)
+    const {
+      amount,
+      bouncebackRecipient,
+      chainId,
+      memo = zeroHash,
+      recipient,
+      token,
+      zoneId,
+    } = args
+    const portalAddress =
+      args.portalAddress ?? getPortalAddress(chainId, zoneId)
     return [
       defineCall({
         address: token,
@@ -109,7 +136,7 @@ export namespace deposit {
         address: portalAddress,
         abi: ZoneAbis.zonePortal,
         functionName: 'deposit',
-        args: [token, recipient, amount, memo],
+        args: [token, recipient, amount, memo, bouncebackRecipient],
       }),
     ] as const
   }

@@ -12,8 +12,7 @@ const zeroHash =
 
 export type ZoneWriteParameters<
   account extends Account.Account | undefined = Account.Account | undefined,
-> = WriteParameters &
-  { account?: account | Account.Account | undefined }
+> = WriteParameters & { account?: account | Account.Account | undefined }
 
 export type ReceiptReturn<receipt> = {
   /** Transaction receipt. */
@@ -24,7 +23,8 @@ export function getChain<chain extends Chain.Chain | undefined>(
   client: Client.Client<chain>,
   options: { chain?: Chain.Chain | null | undefined },
 ) {
-  const chain = options.chain === null ? undefined : (options.chain ?? client.chain)
+  const chain =
+    options.chain === null ? undefined : (options.chain ?? client.chain)
   if (!chain) throw new Error('`chain` is required.')
   return chain
 }
@@ -39,14 +39,14 @@ export function getAddress(account: Account.Account) {
 }
 
 export async function encryptDepositPayload(
-  publicKey: { x: Hex.Hex; yParity: number },
+  publicKey: { prefix: 2 | 3; x: Hex.Hex },
   recipient: Address.Address,
   portalAddress: Address.Address,
   keyIndex: bigint,
   memo: Hex.Hex = zeroHash,
 ): Promise<EncryptedPayload> {
   const sequencerPublicKey = PublicKey.from({
-    prefix: publicKey.yParity,
+    prefix: publicKey.prefix,
     x: publicKey.x,
   })
 
@@ -111,7 +111,11 @@ function buildDepositPlaintext(
   recipient: Address.Address,
   memo: Hex.Hex,
 ): Bytes.Bytes {
-  return Bytes.concat(Bytes.from(recipient), Bytes.from(memo), new Uint8Array(12))
+  return Bytes.concat(
+    Bytes.from(recipient),
+    Bytes.from(memo),
+    new Uint8Array(12),
+  )
 }
 
 function buildDepositHkdfInfo(

@@ -32,6 +32,28 @@ SIWE message creation, parsing, validation, and nonce generation moved from flat
 +const valid = Siwe.validateMessage({ address, message })
 ```
 
+The SIWE invalid-field error moved to the `Siwe` namespace.
+
+```diff
+-import { SiweInvalidMessageFieldError } from 'viem/siwe'
++import { Siwe } from 'viem'
+
+-error instanceof SiweInvalidMessageFieldError
++error instanceof Siwe.InvalidMessageFieldError
+```
+
+ENS avatar-record and packet helpers were internalized; higher-level avatar resolution moved to `Actions.ens.getAvatar`, and the coin-type error moved to `Ens.InvalidChainIdError`.
+
+```diff
+-import { parseAvatarRecord, packetToBytes, ToCoinTypeError } from 'viem/ens'
++import { Actions, Ens } from 'viem'
+
+-const avatar = await parseAvatarRecord(client, { record, gatewayUrls })
+-const packet = packetToBytes(name)
++const avatar = await Actions.ens.getAvatar(client, { name, assetGatewayUrls })
++Ens.InvalidChainIdError
+```
+
 Personal message hashing and typed-data hashing moved from flat signature helpers to `PersonalMessage` and `TypedData` namespaces.
 
 ```diff

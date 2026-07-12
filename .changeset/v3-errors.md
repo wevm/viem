@@ -149,3 +149,16 @@ JSON-RPC and provider errors moved to Ox `RpcResponse` and `Provider` namespaces
 - error instanceof UserRejectedRequestError
 + error instanceof Provider.UserRejectedRequestError
 ```
+
+Primitive utility errors moved to their owning namespaces; flat `*ErrorType` aliases were removed in favor of namespace classes and function error unions.
+
+```diff
+-import { AbiDecodingZeroDataError, InvalidAddressError, type DecodeAbiParametersErrorType } from 'viem'
++import { AbiParameters, Address } from 'viem'
+
+-error instanceof AbiDecodingZeroDataError
+-error instanceof InvalidAddressError
++error instanceof AbiParameters.ZeroDataError
++error instanceof Address.InvalidAddressError
++type DecodeError = AbiParameters.decode.ErrorType
+```

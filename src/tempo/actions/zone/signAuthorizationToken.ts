@@ -40,7 +40,9 @@ export async function signAuthorizationToken<
   const expiresAt = options.expiresAt ?? issuedAt + 86_400
   const chain = options.chain ?? client.chain
   if (!chain) throw new Error('`signAuthorizationToken` requires a chain.')
-  const account = typeof account_ === 'string' ? Account.from(account_) : account_
+  const zoneId = options.zoneId ?? ZoneId.fromChainId(chain.id)
+  const account =
+    typeof account_ === 'string' ? Account.from(account_) : account_
   if (!account || account.type !== 'local')
     throw new Error('`account` with `sign` is required.')
 
@@ -49,7 +51,7 @@ export async function signAuthorizationToken<
     chainId: chain.id,
     expiresAt,
     issuedAt,
-    zoneId: ZoneId.fromChainId(chain.id),
+    zoneId,
   })
   const payload = ZoneRpcAuthentication.getSignPayload(authentication)
   const signature = await account.sign({ hash: payload })
@@ -75,6 +77,8 @@ export namespace signAuthorizationToken {
     issuedAt?: number | undefined
     /** Storage to persist the token. */
     storage?: Storage.Storage | undefined
+    /** Zone ID to scope the token to. Defaults to the zone derived from `chain.id`. */
+    zoneId?: number | undefined
   }
   export type ReturnType = {
     /** Authentication object. */

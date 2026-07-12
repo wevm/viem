@@ -32,3 +32,10 @@ The IPC transport types were renamed: `IpcTransport` is now `Ipc` and `IpcTransp
 - const transport: IpcTransport = ipc('/tmp/geth.ipc')
 + const transport: Ipc = ipc('/tmp/geth.ipc')
 ```
+
+The aggregate `IpcTransportErrorType` alias was removed in favor of concrete transport, RPC response, and socket errors.
+
+```diff
+-import type { IpcTransportErrorType } from 'viem/node'
++import { RpcClient, RpcError, Transport } from 'viem'
+```

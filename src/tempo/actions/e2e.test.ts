@@ -295,7 +295,6 @@ describe('transaction.sendSync', () => {
 
   // Blocked on later waves.
   test.todo('access key periodic spending limits (W5e accessKey.authorize)')
-  test.todo('zone.encryptedDeposit.prepare (W5e zone actions)')
 })
 
 /**

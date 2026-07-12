@@ -281,6 +281,29 @@ Block/event/transaction watchers were renamed to their owning domain namespaces 
 + // later: watch.off()
 ```
 
+Transaction receipt and block-number waiters moved to their owning namespaces and began returning watcher handles.
+
+```diff
+-const receipt = await waitForTransactionReceipt(client, { hash, onReplaced })
++const receiptWatcher = Actions.transaction.waitForReceipt(client, { hash })
++receiptWatcher.onReplaced(onReplaced)
++const receipt = await receiptWatcher.receipt
+
+-const unwatch = watchBlockNumber(client, { onBlockNumber })
++const blockWatcher = Actions.block.watchNumber(client)
++blockWatcher.onBlockNumber(onBlockNumber)
+```
+
+Flat watcher callback aliases were removed in favor of signatures inferred from watcher registration methods.
+
+```diff
+-import type { OnBlockNumberParameter, OnTransactionsParameter, WatchEventOnLogsFn } from 'viem/actions'
++import { Actions } from 'viem'
+
++type OnBlockNumber = Parameters<Actions.block.watchNumber.OnBlockNumberFn>[0]
++type OnTransactions = Parameters<Actions.transaction.watchPending.OnTransactionsFn>[0]
+```
+
 Filter producers were renamed to their owning domain namespaces.
 
 ```diff

@@ -6,6 +6,7 @@ import * as contract from '~test/contract.js'
 import { expect, test } from 'vitest'
 
 import { Actions, Client, custom, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
 
 const client = anvil.getClient(anvil.mainnet)
 
@@ -721,6 +722,44 @@ test('behavior: client batch config supplies aggregate3 defaults', async () => {
 
   expect(results[0]!.status).toBe('success')
   // Deployless multicall executes as a to-less bytecode call.
+  const [call] = requests[0]!.params as [{ to?: string }]
+  expect(call.to).toBeUndefined()
+})
+
+test('behavior: args override client multicall config', async () => {
+  const requests: { method: string; params: unknown }[] = []
+
+  const configured = Client.create({
+    batch: { multicall: { batchSize: 1, deployless: false } },
+    chain: mainnet,
+    transport: custom({
+      async request({ method, params }: { method: string; params: unknown }) {
+        requests.push({ method, params })
+        return client.request({ method, params })
+      },
+    }),
+  })
+
+  const { results } = await Actions.multicall(configured, {
+    batchSize: 0,
+    calls: [
+      {
+        abi: erc20Abi,
+        functionName: 'name',
+        to: usdcAddress,
+      },
+      {
+        abi: erc20Abi,
+        functionName: 'symbol',
+        to: usdcAddress,
+      },
+    ],
+    deployless: true,
+    mode: 'multicall',
+  })
+
+  expect(results.every((result) => result.status === 'success')).toBe(true)
+  expect(requests).toHaveLength(1)
   const [call] = requests[0]!.params as [{ to?: string }]
   expect(call.to).toBeUndefined()
 })

@@ -9,6 +9,7 @@ import type { PreparedEncryptedDeposit } from './types.js'
 
 const prepared = {
   amount: 1_000_000n,
+  bouncebackRecipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   chainId: tempoModerato.id,
   encrypted: {
     ciphertext: '0x1234',
@@ -32,6 +33,8 @@ test('behavior: prepared encrypted deposit payload', async () => {
   expect(calls[1].functionName).toBe('depositEncrypted')
   expect(calls[1].args[2]).toBe(prepared.keyIndex)
   expect(calls[1].args[3]).toEqual(prepared.encrypted)
+  expect(calls[1].args[4]).toBe(prepared.bouncebackRecipient)
+  expect(calls[1].data.slice(0, 10)).toMatchInlineSnapshot('"0xb01f22e4"')
 
   const client = tempo.getClient()
   await expect(
@@ -58,11 +61,3 @@ test('error: no account', async () => {
     }),
   ).rejects.toThrow('`account` is required.')
 })
-
-test.todo(
-  'behavior: deposits tokens into zone with encrypted recipient (blocked: zone contracts do not support encrypted deposits; v2 skipped)',
-)
-
-test.todo(
-  'behavior: prepare against live portal (blocked: dev node lacks zone portal contracts; `portalAddresses` has no localnet entry)',
-)

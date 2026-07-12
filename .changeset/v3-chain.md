@@ -65,6 +65,8 @@ Experimental and deprecated extension chain fields were renamed or removed from 
 
 Chain transaction hooks (`toEnvelope`/`getSignPayload`/`serialize`) accept custom envelope types without casts, and the `verifyHash` hook receives the caller's `mode` and block context.
 
+Added `Chain.supportsTransactionReplacementDetection` to control the default replacement scan in `Actions.transaction.waitForReceipt`; Zone chains disabled it.
+
 `filterChains` moved to `Chain.filter`, preserving token-support and testnet narrowing.
 
 ```diff
@@ -73,6 +75,30 @@ Chain transaction hooks (`toEnvelope`/`getSignPayload`/`serialize`) accept custo
 
 - const supported = filterChains({ chains, token: usdc })
 + const supported = Chain.filter({ chains, token: usdc })
+```
+
+`assertCurrentChain` and its error types moved to the `Chain` namespace.
+
+```diff
+-import { assertCurrentChain, type AssertCurrentChainErrorType } from 'viem/chains/utils'
++import { Chain } from 'viem'
+
+-assertCurrentChain({ chain, currentChainId })
+-type Error = AssertCurrentChainErrorType
++Chain.assertCurrent({ chain, currentChainId })
++type Error = Chain.assertCurrent.ErrorType
++Chain.MismatchError
++Chain.NotFoundError
+```
+
+`ChainDoesNotSupportContract` was renamed to `Chain.DoesNotSupportContract`.
+
+```diff
+-import { ChainDoesNotSupportContract } from 'viem'
++import { Chain } from 'viem'
+
+-throw new ChainDoesNotSupportContract(...)
++throw new Chain.DoesNotSupportContract(...)
 ```
 
 Added Defi Oracle Meta Mainnet and Robinhood mainnet and testnet chain definitions.
@@ -89,6 +115,41 @@ Removed chain definitions that were not retained for v3; applications can define
 
 ```diff
 - import { optimismGoerli, shibarium, shiden, ubiq, zhejiang } from 'viem/chains'
++ import { Chain } from 'viem'
+
++ const chain = Chain.from({ id, name, nativeCurrency, rpcUrls })
+```
+
+Removed 25 additional obsolete or superseded chain definitions without built-in replacements.
+
+```diff
+- import {
+-   astarZkEVM,
+-   astarZkyoto,
+-   celoAlfajores,
+-   fantomSonicTestnet,
+-   flowPreviewnet,
+-   foundry,
+-   kakarotSepolia,
+-   klaytn,
+-   klaytnBaobab,
+-   lineaGoerli,
+-   lineaTestnet,
+-   metisGoerli,
+-   plume,
+-   plumeDevnet,
+-   plumeTestnet,
+-   polygonZkEvmTestnet,
+-   skaleCryptoColosseum,
+-   skaleHumanProtocol,
+-   skaleRazor,
+-   sonicBlazeTestnet,
+-   taikoHekla,
+-   taikoJolnir,
+-   taikoKatla,
+-   taikoTestnetSepolia,
+-   zeroGGalileoTestnet,
+- } from 'viem/chains'
 + import { Chain } from 'viem'
 
 + const chain = Chain.from({ id, name, nativeCurrency, rpcUrls })

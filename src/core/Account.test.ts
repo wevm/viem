@@ -7,6 +7,7 @@ import {
   Authorization,
   Hash,
   Hex,
+  NonceManager,
   PersonalMessage,
   Signature,
   TxEnvelope,
@@ -35,6 +36,13 @@ describe('from', () => {
 
       Details: Address is not a 20 byte (40 hexadecimal character) value.]
     `)
+  })
+
+  test('returns an existing account unchanged', () => {
+    const jsonRpc = Account.from(constants.accounts[0].address)
+    const local = Account.fromPrivateKey(constants.accounts[0].privateKey)
+    expect(Account.from(jsonRpc)).toBe(jsonRpc)
+    expect(Account.from(local)).toBe(local)
   })
 
   test('local account', () => {
@@ -152,6 +160,13 @@ describe('fromPrivateKey', () => {
           "type": "local",
         }
       `)
+  })
+
+  test('args: nonceManager', () => {
+    const account = Account.fromPrivateKey(constants.accounts[0].privateKey, {
+      nonceManager: NonceManager.nonceManager,
+    })
+    expect(account.nonceManager).toBe(NonceManager.nonceManager)
   })
 
   test('sign', async () => {
@@ -294,6 +309,13 @@ describe('fromHdKey', () => {
     const account = Account.fromHdKey(hdKey)
     expect(typeof account.getHdKey().derive).toBe('function')
   })
+
+  test('args: nonceManager', () => {
+    const account = Account.fromHdKey(hdKey, {
+      nonceManager: NonceManager.nonceManager,
+    })
+    expect(account.nonceManager).toBe(NonceManager.nonceManager)
+  })
 })
 
 describe('fromMnemonic', () => {
@@ -332,6 +354,13 @@ describe('fromMnemonic', () => {
         accountIndex: 1,
       }).address,
     ).toMatchInlineSnapshot(`"0x3e6bd720D0659c05CCACf72cf71911780e315c34"`)
+  })
+
+  test('args: nonceManager', () => {
+    const account = Account.fromMnemonic(mnemonic, {
+      nonceManager: NonceManager.nonceManager,
+    })
+    expect(account.nonceManager).toBe(NonceManager.nonceManager)
   })
 })
 

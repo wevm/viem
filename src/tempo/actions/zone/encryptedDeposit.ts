@@ -3,14 +3,14 @@ import type { Address, Errors, Hex } from 'ox'
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
-import { read } from '../../../core/actions/contract/read.js'
 import { send } from '../../../core/actions/transaction/send.js'
 import type { sendSync } from '../../../core/actions/transaction/sendSync.js'
+import type { UnionOmit } from '../../../core/internal/types.js'
 import * as Abis from '../../Abis.js'
-import type { ReadParameters } from '../../internal/types.js'
 import { defineCall, dispatchSend } from '../../internal/utils.js'
 import * as ZoneAbis from '../../zones/Abis.js'
 import { getPortalAddress } from '../../zones/zone.js'
+import { getEncryptionKey } from './getEncryptionKey.js'
 import {
   encryptDepositPayload,
   getAccount,
@@ -59,6 +59,8 @@ export namespace encryptedDeposit {
   export type Args = {
     /** Amount of tokens to deposit. */
     amount: bigint
+    /** Refund recipient on the parent chain if the deposit bounces. */
+    bouncebackRecipient: Address.Address
     /** Parent chain ID. */
     chainId: number
     /** Encrypted deposit payload. */
@@ -67,6 +69,8 @@ export namespace encryptedDeposit {
     keyIndex: bigint
     /** Optional deposit memo. */
     memo?: Hex.Hex | undefined
+    /** Zone portal address. Defaults to the configured portal registry. */
+    portalAddress?: Address.Address | undefined
     /** Recipient address in the zone. */
     recipient: Address.Address
     /** Token address to deposit. */
@@ -77,13 +81,20 @@ export namespace encryptedDeposit {
   export type PlainOptions<
     account extends Account.Account | undefined = Account.Account | undefined,
   > = ZoneWriteParameters<account> &
-    Omit<Args, 'chainId' | 'encrypted' | 'keyIndex' | 'recipient'> & {
+    Omit<
+      Args,
+      'bouncebackRecipient' | 'chainId' | 'encrypted' | 'keyIndex' | 'recipient'
+    > & {
+      /** Refund recipient on the parent chain. Defaults to `account.address`. */
+      bouncebackRecipient?: Address.Address | undefined
       /** Recipient address in the zone. Defaults to `account.address`. */
       recipient?: Address.Address | undefined
     }
   export type Options<
     account extends Account.Account | undefined = Account.Account | undefined,
-  > = PlainOptions<account> | (ZoneWriteParameters<account> & PreparedEncryptedDeposit)
+  > =
+    | PlainOptions<account>
+    | (ZoneWriteParameters<account> & PreparedEncryptedDeposit)
   export type ReturnType = send.ReturnType
   export type ErrorType = Errors.GlobalErrorType
 
@@ -99,20 +110,26 @@ export namespace encryptedDeposit {
   ): Promise<dispatchSend.ReturnType<action>> {
     const chain = getChain(client, options)
     const account = getAccount(options.account ?? client.account)
+    const bouncebackRecipient =
+      options.bouncebackRecipient ?? getAddress(account)
     if ('encrypted' in options) {
       if (options.chainId !== chain.id)
-        throw new Error('Prepared encrypted deposit chain ID does not match client chain.')
+        throw new Error(
+          'Prepared encrypted deposit chain ID does not match client chain.',
+        )
       return dispatchSend(action, client, {
         ...options,
         account,
-        calls: encryptedDeposit.calls(options),
+        calls: encryptedDeposit.calls({ ...options, bouncebackRecipient }),
       })
     }
 
     const recipient = options.recipient ?? getAddress(account)
     const prepared = await encryptedDeposit.prepare(client, {
       amount: options.amount,
+      bouncebackRecipient,
       memo: options.memo,
+      portalAddress: options.portalAddress,
       recipient,
       token: options.token,
       zoneId: options.zoneId,
@@ -131,35 +148,34 @@ export namespace encryptedDeposit {
   ): Promise<prepare.ReturnType> {
     const chain = client.chain
     if (!chain) throw new Error('`chain` is required.')
-    const { amount, memo, recipient, token, zoneId, ...rest } = options
-    const portalAddress = getPortalAddress(chain.id, zoneId)
-    const [publicKey, keyIndex] = await Promise.all([
-      read(client, {
-        ...rest,
-        address: portalAddress,
-        abi: ZoneAbis.zonePortal,
-        functionName: 'sequencerEncryptionKey',
-      }),
-      read(client, {
-        ...rest,
-        address: portalAddress,
-        abi: ZoneAbis.zonePortal,
-        functionName: 'encryptionKeyCount',
-      }),
-    ])
-    if (keyIndex === 0n) throw new Error('No sequencer encryption key configured.')
-    const resolvedKeyIndex = keyIndex - 1n
+    const {
+      amount,
+      bouncebackRecipient,
+      memo,
+      portalAddress: portalAddress_,
+      recipient,
+      token,
+      zoneId,
+      ...rest
+    } = options
+    const portalAddress = portalAddress_ ?? getPortalAddress(chain.id, zoneId)
+    const { keyIndex, publicKey } = await getEncryptionKey(client, {
+      ...rest,
+      portalAddress,
+      zoneId,
+    })
     return {
       amount,
+      bouncebackRecipient,
       chainId: chain.id,
       encrypted: await encryptDepositPayload(
-        { x: publicKey[0], yParity: publicKey[1] },
+        publicKey,
         recipient,
         portalAddress,
-        resolvedKeyIndex,
+        keyIndex,
         memo,
       ),
-      keyIndex: resolvedKeyIndex,
+      keyIndex,
       portalAddress,
       token,
       zoneId,
@@ -170,8 +186,12 @@ export namespace encryptedDeposit {
     export type Args = {
       /** Amount of tokens to deposit. */
       amount: bigint
+      /** Refund recipient on the parent chain if the deposit bounces. */
+      bouncebackRecipient: Address.Address
       /** Optional deposit memo. */
       memo?: Hex.Hex | undefined
+      /** Zone portal address. Defaults to the configured portal registry. */
+      portalAddress?: Address.Address | undefined
       /** Recipient address in the zone. */
       recipient: Address.Address
       /** Token address to deposit. */
@@ -179,15 +199,28 @@ export namespace encryptedDeposit {
       /** Zone ID. */
       zoneId: number
     }
-    export type Options = ReadParameters & Args
+    export type Options = UnionOmit<
+      getEncryptionKey.Options,
+      'portalAddress' | 'zoneId'
+    > &
+      Args
     export type ReturnType = PreparedEncryptedDeposit
     export type ErrorType = Errors.GlobalErrorType
   }
 
   /** Defines the calls to approve and deposit encrypted tokens into a zone. */
   export function calls(args: Args | PreparedEncryptedDeposit) {
-    const { amount, chainId, encrypted, keyIndex, token, zoneId } = args
-    const portalAddress = getPortalAddress(chainId, zoneId)
+    const {
+      amount,
+      bouncebackRecipient,
+      chainId,
+      encrypted,
+      keyIndex,
+      token,
+      zoneId,
+    } = args
+    const portalAddress =
+      args.portalAddress ?? getPortalAddress(chainId, zoneId)
     return [
       defineCall({
         address: token,
@@ -210,6 +243,7 @@ export namespace encryptedDeposit {
             nonce: encrypted.nonce,
             tag: encrypted.tag,
           },
+          bouncebackRecipient,
         ],
       }),
     ] as const

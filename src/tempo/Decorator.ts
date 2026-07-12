@@ -279,6 +279,7 @@ export function tempoActions() {
       getAuthorizationTokenInfo: (options) =>
         zone.getAuthorizationTokenInfo(client, options),
       getDepositStatus: (options) => zone.getDepositStatus(client, options),
+      getEncryptionKey: (options) => zone.getEncryptionKey(client, options),
       getWithdrawalFee: (options) => zone.getWithdrawalFee(client, options),
       getZoneInfo: (options) => zone.getZoneInfo(client, options),
       requestVerifiableWithdrawal: (options) =>
@@ -290,6 +291,8 @@ export function tempoActions() {
         zone.requestWithdrawalSync(client, options),
       signAuthorizationToken: (options) =>
         zone.signAuthorizationToken(client, options),
+      waitForDepositStatus: (options) =>
+        zone.waitForDepositStatus(client, options),
     },
   })
 }
@@ -4487,6 +4490,26 @@ export type Decorator<
       options: zone.encryptedDepositSync.Options<account>,
     ) => Promise<zone.encryptedDepositSync.ReturnType>
     /**
+     * Gets the active sequencer encryption key for a zone.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const { keyIndex, publicKey } = await client.zone.getEncryptionKey({
+     *   zoneId: 7,
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The active encryption key and its zero-based index.
+     */
+    getEncryptionKey: (
+      options: zone.getEncryptionKey.Options,
+    ) => Promise<zone.getEncryptionKey.ReturnType>
+    /**
      * Returns the authenticated account address and authorization token
      * expiry.
      *
@@ -4689,5 +4712,25 @@ export type Decorator<
     signAuthorizationToken: (
       options?: zone.signAuthorizationToken.Options<account>,
     ) => Promise<zone.signAuthorizationToken.ReturnType>
+    /**
+     * Waits for a Tempo block's deposits to be processed by a zone.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const status = await client.zone.waitForDepositStatus({
+     *   tempoBlockNumber: 42n,
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The processed deposit status.
+     */
+    waitForDepositStatus: (
+      options: zone.waitForDepositStatus.Options,
+    ) => Promise<zone.waitForDepositStatus.ReturnType>
   }
 } & ([chain, account] extends [unknown, unknown] ? unknown : never)

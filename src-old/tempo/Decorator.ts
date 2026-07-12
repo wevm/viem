@@ -4891,6 +4891,22 @@ type DecoratorBase<
       parameters: zoneActions.encryptedDepositSync.Parameters<chain, account>,
     ) => Promise<zoneActions.encryptedDepositSync.ReturnValue>
     /**
+     * Gets the active sequencer encryption key for a zone.
+     *
+     * @example
+     * ```ts
+     * const { keyIndex, publicKey } = await client.zone.getEncryptionKey({
+     *   zoneId: 7,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The active encryption key and its zero-based index.
+     */
+    getEncryptionKey: (
+      parameters: zoneActions.getEncryptionKey.Parameters,
+    ) => Promise<zoneActions.getEncryptionKey.ReturnValue>
+    /**
      * Returns the authenticated account address and authorization token expiry.
      *
      * @example
@@ -4935,6 +4951,22 @@ type DecoratorBase<
     getDepositStatus: (
       parameters: zoneActions.getDepositStatus.Parameters,
     ) => Promise<zoneActions.getDepositStatus.ReturnType>
+    /**
+     * Waits for a Tempo block's deposits to be processed by a zone.
+     *
+     * @example
+     * ```ts
+     * const status = await client.zone.waitForDepositStatus({
+     *   tempoBlockNumber: 1n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The processed deposit status.
+     */
+    waitForDepositStatus: (
+      parameters: zoneActions.waitForDepositStatus.Parameters,
+    ) => Promise<zoneActions.waitForDepositStatus.ReturnType>
     /**
      * Returns the withdrawal fee for a given gas limit.
      *
@@ -5470,6 +5502,7 @@ export function decorator() {
         'encryptedDepositSync',
         'getAuthorizationTokenInfo',
         'getDepositStatus',
+        'getEncryptionKey',
         'getWithdrawalFee',
         'getZoneInfo',
         'requestWithdrawal',
@@ -5477,6 +5510,7 @@ export function decorator() {
         'requestVerifiableWithdrawal',
         'requestVerifiableWithdrawalSync',
         'signAuthorizationToken',
+        'waitForDepositStatus',
       ]),
     } as Decorator<chain, account>
   }

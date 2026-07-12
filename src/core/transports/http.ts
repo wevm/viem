@@ -27,6 +27,7 @@ export function http(
       const client = RpcClient.http(url_, {
         fetchFn: options.fetchFn,
         fetchOptions: options.fetchOptions,
+        maxResponseBodySize: options.maxResponseBodySize,
         onRequest: options.onFetchRequest,
         onResponse: options.onFetchResponse,
         timeout: timeout_,
@@ -90,6 +91,10 @@ export declare namespace http {
     fetchOptions?: RpcClient.http.Options['fetchOptions'] | undefined
     /** Transport key. @default 'http' */
     key?: string | undefined
+    /** Maximum response body size in bytes. Set to `false` to disable. @default 10_485_760 */
+    maxResponseBodySize?:
+      | RpcClient.http.Options['maxResponseBodySize']
+      | undefined
     /** RPC methods to include or exclude. */
     methods?: { include?: string[] } | { exclude?: string[] } | undefined
     /** Transport name. @default 'HTTP JSON-RPC' */

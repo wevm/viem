@@ -39,10 +39,12 @@ test('behavior: custom issuedAt/expiresAt/storage', async () => {
     expiresAt,
     issuedAt,
     storage,
+    zoneId: 0,
   })
 
   expect(authentication.issuedAt).toBe(issuedAt)
   expect(authentication.expiresAt).toBe(expiresAt)
+  expect(authentication.zoneId).toBe(0)
 
   const stored = await storage.getItem(`auth:token:${client.chain.id}`)
   expect(stored).toBe(token)

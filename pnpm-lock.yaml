@@ -61,8 +61,8 @@ catalogs:
       specifier: ^0.2.57
       version: 0.2.57
     prool:
-      specifier: ~0.2.5
-      version: 0.2.5
+      specifier: ~0.2.7
+      version: 0.2.7
     publint:
       specifier: ^0.3.21
       version: 0.3.21
@@ -239,7 +239,7 @@ importers:
         version: 0.2.57(ox@1.0.0-beta.22(typescript@5.9.3))
       prool:
         specifier: 'catalog:'
-        version: 0.2.5(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0)
+        version: 0.2.7(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0)
       publint:
         specifier: 'catalog:'
         version: 0.3.21
@@ -5585,8 +5585,8 @@ packages:
     resolution: {integrity: sha512-sF308EhTenb/pDRPakm+WgiN+VdM/T1RaHj1x+MvAuT8UiQP8JmOEbxVqtkbfR4LrvOg5n7ic01kRBDGXjYikA==}
     engines: {node: '>=10'}
 
-  prool@0.2.5:
-    resolution: {integrity: sha512-cBdMA6Ngupd3DkQnvTAmeZefVCQmJAnM8YWiRWTITMbWy0vd2lB2FJQuZXQROfZ8kyPWv0Um+TrQ+W81tbdGfw==}
+  prool@0.2.7:
+    resolution: {integrity: sha512-j59JXGPs6cvib2hM9PFcXSP6U6ZoVYE+OaYt1G+15J08Tc3knV7RidPCim7KabtPSe8oB0wj014MWr2tcWBI9w==}
     engines: {node: '>=22'}
     peerDependencies:
       '@pimlico/alto': '*'
@@ -12500,7 +12500,7 @@ snapshots:
     dependencies:
       tdigest: 0.1.2
 
-  prool@0.2.5(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0):
+  prool@0.2.7(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0):
     dependencies:
       change-case: 5.4.4
       eventemitter3: 5.0.4

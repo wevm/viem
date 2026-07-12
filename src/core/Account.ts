@@ -22,6 +22,8 @@ export type Account<address extends Address.Address = Address.Address> = OneOf<
   JsonRpc<address> | Local<string, address>
 >
 
+type ExistingAccount = Account
+
 /** An account whose signing is delegated to a json-rpc provider (e.g. a browser wallet). */
 export type JsonRpc<address extends Address.Address = Address.Address> = {
   address: address
@@ -99,12 +101,11 @@ export type Hd = Local<'secp256k1'> & {
 export type SignableMessage = string | { raw: Hex.Hex | Bytes.Bytes }
 
 /**
- * Creates an {@link Account} from an address (json-rpc) or custom signing logic (local).
+ * Creates an {@link Account} from an existing Account, address (json-rpc), or custom signing logic (local).
  *
- * Local accounts require a `sign` primitive plus either an `address` or a
- * `publicKey` (the `address` is derived from `publicKey` when omitted); the
- * `signMessage`, `signTransaction`, `signTypedData`, and `signAuthorization`
- * methods are derived from `sign` when omitted.
+ * Existing accounts are returned unchanged. Local definitions require `sign`
+ * and either `address` or `publicKey`; omitted high-level methods are derived
+ * from `sign`.
  *
  * @example
  * ```ts
@@ -117,13 +118,18 @@ export type SignableMessage = string | { raw: Hex.Hex | Bytes.Bytes }
  * })
  * ```
  */
-export function from<const account extends Address.Address | from.Account>(
-  account: account,
-): from.ReturnType<account> {
+export function from<
+  const account extends Address.Address | ExistingAccount | from.Account,
+>(account: account): from.ReturnType<account>
+export function from(
+  account: Address.Address | Account | from.Account,
+): Account {
   if (typeof account === 'string') {
     Address.assert(account, { strict: false })
     return { address: account, type: 'json-rpc' } as never
   }
+
+  if (account.type === 'json-rpc' || account.type === 'local') return account
 
   const { publicKey, sign } = account
   const address =
@@ -193,21 +199,25 @@ export declare namespace from {
     signMessage?: Local['signMessage'] | undefined
     signTransaction?: Local['signTransaction'] | undefined
     signTypedData?: Local['signTypedData'] | undefined
+    type?: never
   } & OneOf<{ address: Address.Address } | { publicKey: Hex.Hex }>
 
-  type ReturnType<account extends Address.Address | Account> =
-    | (account extends Address.Address ? JsonRpc : never)
-    | (account extends Account
-        ? Local<
-            account extends { keyType: infer keyType extends string }
-              ? keyType
-              : 'custom'
-          > &
-            // Carry through a supplied `publicKey` (as a required property).
-            (account extends { publicKey: infer publicKey extends Hex.Hex }
-              ? { publicKey: publicKey }
-              : unknown)
-        : never)
+  type ReturnType<account extends Address.Address | ExistingAccount | Account> =
+    account extends Address.Address
+      ? JsonRpc<account>
+      : account extends ExistingAccount
+        ? account
+        : account extends Account
+          ? Local<
+              account extends { keyType: infer keyType extends string }
+                ? keyType
+                : 'custom'
+            > &
+              // Carry through a supplied `publicKey` (as a required property).
+              (account extends { publicKey: infer publicKey extends Hex.Hex }
+                ? { publicKey: publicKey }
+                : unknown)
+          : never
 
   type ErrorType = Address.assert.ErrorType | Errors.GlobalErrorType
 }
@@ -222,15 +232,29 @@ export declare namespace from {
  * const account = Account.fromPrivateKey('0x…')
  * ```
  */
-export function fromPrivateKey(privateKey: Hex.Hex): PrivateKey {
+export function fromPrivateKey(
+  privateKey: Hex.Hex,
+  options: fromPrivateKey.Options = {},
+): PrivateKey {
   const publicKey = PublicKey.toHex(Secp256k1.getPublicKey({ privateKey }))
   function sign({ hash }: { hash: Hex.Hex }): Hex.Hex {
     return Signature.toHex(Secp256k1.sign({ payload: hash, privateKey }))
   }
-  return from({ keyType: 'secp256k1', publicKey, sign })
+  return from({
+    keyType: 'secp256k1',
+    ...(options.nonceManager ? { nonceManager: options.nonceManager } : {}),
+    publicKey,
+    sign,
+  })
 }
 
 export declare namespace fromPrivateKey {
+  /** Options for {@link fromPrivateKey}. */
+  type Options = {
+    /** Nonce manager attached to the account. */
+    nonceManager?: NonceManager.NonceManager | undefined
+  }
+
   type ErrorType =
     | Secp256k1.getPublicKey.ErrorType
     | Address.fromPublicKey.ErrorType
@@ -253,7 +277,8 @@ export function fromHdKey(
   hdKey: HdKey.HdKey,
   options: fromHdKey.Options = {},
 ): Hd {
-  const { accountIndex, addressIndex, changeIndex, path } = options
+  const { accountIndex, addressIndex, changeIndex, nonceManager, path } =
+    options
   const derived = hdKey.derive(
     path ??
       HdKey.path({
@@ -263,7 +288,7 @@ export function fromHdKey(
       }),
   )
   return {
-    ...fromPrivateKey(derived.privateKey),
+    ...fromPrivateKey(derived.privateKey, { nonceManager }),
     getHdKey: () => derived,
   }
 }
@@ -278,6 +303,8 @@ export declare namespace fromHdKey {
     changeIndex?: number | undefined
     /** The full HD path (overrides the index options). */
     path?: `m/44'/60'/${string}` | undefined
+    /** Nonce manager attached to the account. */
+    nonceManager?: NonceManager.NonceManager | undefined
   }
 
   type ErrorType = fromPrivateKey.ErrorType | Errors.GlobalErrorType

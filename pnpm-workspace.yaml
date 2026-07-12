@@ -21,7 +21,7 @@ catalog:
   knip: ^6.16.1
   micro-eth-signer: ^0.18.1
   permissionless: ^0.2.57
-  prool: ~0.2.5
+  prool: ~0.2.7
   publint: ^0.3.21
   react: ^19.2.7
   react-dom: ^19.2.7

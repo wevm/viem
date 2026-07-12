@@ -12,7 +12,16 @@ const account = Account.fromSecp256k1(
 
 describe('deposit.calls', () => {
   test('default', () => {
-    expect(deposit.calls({ amount: 1n, chainId: tempoModerato.id, recipient: account.address, token: '0x20C0000000000000000000000000000000000001', zoneId: 7 })).toMatchInlineSnapshot(`
+    expect(
+      deposit.calls({
+        amount: 1n,
+        bouncebackRecipient: account.address,
+        chainId: tempoModerato.id,
+        recipient: account.address,
+        token: '0x20C0000000000000000000000000000000000001',
+        zoneId: 7,
+      }),
+    ).toMatchInlineSnapshot(`
       [
         {
           "abi": [
@@ -1174,6 +1183,10 @@ describe('deposit.calls', () => {
                   "name": "memo",
                   "type": "bytes32",
                 },
+                {
+                  "name": "bouncebackRecipient",
+                  "type": "address",
+                },
               ],
               "name": "deposit",
               "outputs": [
@@ -1225,6 +1238,10 @@ describe('deposit.calls', () => {
                   "name": "encrypted",
                   "type": "tuple",
                 },
+                {
+                  "name": "bouncebackRecipient",
+                  "type": "address",
+                },
               ],
               "name": "depositEncrypted",
               "outputs": [
@@ -1271,8 +1288,9 @@ describe('deposit.calls', () => {
             "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
             1n,
             "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           ],
-          "data": "0x1e77625f00000000000000000000000020c0000000000000000000000000000000000001000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
+          "data": "0x09a0a23400000000000000000000000020c0000000000000000000000000000000000001000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "functionName": "deposit",
           "to": "0x3F5296303400B56271b476F5A0B9cBF74350D6Ac",
         },
@@ -1280,6 +1298,35 @@ describe('deposit.calls', () => {
     `)
   })
 
+  test('custom portal and bounceback recipient', () => {
+    const portalAddress = '0x0000000000000000000000000000000000000002'
+    const calls = deposit.calls({
+      amount: 1n,
+      bouncebackRecipient: '0x0000000000000000000000000000000000000003',
+      chainId: tempoModerato.id,
+      portalAddress,
+      recipient: account.address,
+      token: '0x20C0000000000000000000000000000000000001',
+      zoneId: 7,
+    })
+
+    expect(
+      calls.map(({ data, functionName, to }) => ({ data, functionName, to })),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "data": "0x095ea7b300000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001",
+          "functionName": "approve",
+          "to": "0x20C0000000000000000000000000000000000001",
+        },
+        {
+          "data": "0x09a0a23400000000000000000000000020c0000000000000000000000000000000000001000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003",
+          "functionName": "deposit",
+          "to": "0x0000000000000000000000000000000000000002",
+        },
+      ]
+    `)
+  })
 })
 
 test('error: no account', async () => {
@@ -1296,7 +1343,3 @@ test('error: no account', async () => {
     }),
   ).rejects.toThrow('`account` is required.')
 })
-
-test.todo(
-  'behavior: deposits tokens into zone via parent chain (blocked: dev node lacks zone portal contracts; `portalAddresses` has no localnet entry)',
-)

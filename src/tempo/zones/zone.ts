@@ -81,6 +81,7 @@ export function from(options: from.Options) {
         },
       },
       sourceId: options.sourceId,
+      supportsTransactionReplacementDetection: false,
     })
   }
 }

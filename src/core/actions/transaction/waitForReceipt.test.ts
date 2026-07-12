@@ -1,7 +1,7 @@
 import { Value } from 'ox'
 import { expect, test } from 'vitest'
 
-import { Actions, Client, http, testActions } from 'viem'
+import { Actions, Chain, Client, http, testActions } from 'viem'
 
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
@@ -771,8 +771,19 @@ test('repriced: resolves when the replacement is mined across skipped blocks', a
   expect(replacement!.reason).toBe('repriced')
 })
 
-test('checkReplacement: false ignores replacements and times out', async () => {
+test('chain: supportsTransactionReplacementDetection: false', async () => {
   await setup()
+  const chainClient = Client.create({
+    chain: Chain.from({
+      id: 1,
+      name: 'Anvil',
+      nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
+      rpcUrls: { default: { http: [anvil.local.rpcUrl.http] } },
+      supportsTransactionReplacementDetection: false,
+    }),
+    pollingInterval: 100,
+    transport: http(anvil.local.rpcUrl.http),
+  })
   const nonce = await Actions.address.getTransactionCount(client, {
     address: source.address,
   })
@@ -786,8 +797,7 @@ test('checkReplacement: false ignores replacements and times out', async () => {
   })
 
   let replaced = false
-  const watcher = Actions.transaction.waitForReceipt(client, {
-    checkReplacement: false,
+  const watcher = Actions.transaction.waitForReceipt(chainClient, {
     hash,
     timeout: 3_000,
   })
@@ -795,9 +805,7 @@ test('checkReplacement: false ignores replacements and times out', async () => {
     replaced = true
   })
 
-  // Replace the original transaction: with `checkReplacement: false` the
-  // watcher keeps waiting on the original hash and times out instead of
-  // resolving with the replacement's receipt.
+  // Replacement detection is disabled by the chain configuration.
   await whenPendingObserved(hash)
   await Actions.transaction.send(client, {
     account: source.address,

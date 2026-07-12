@@ -122,6 +122,9 @@ export function create<
 }
 
 export declare namespace create {
+  /** Error type for {@link create}. */
+  type ErrorType = viem_Client.create.ErrorType
+
   type Options<
     chain extends Chain.Chain | undefined = Chain.Chain | undefined,
     accountOrAddress extends Account.Account | Address.Address | undefined =

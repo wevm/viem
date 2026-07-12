@@ -67,6 +67,8 @@ export type Chain<
   }
   /** Source Chain ID (ie. the L1 chain) */
   sourceId?: number | undefined
+  /** Whether transaction replacement detection is supported. @default true */
+  supportsTransactionReplacementDetection?: boolean | undefined
   /** Flag for test networks */
   testnet?: boolean | undefined
 } & ChainConfig<formatters, extendSchema>

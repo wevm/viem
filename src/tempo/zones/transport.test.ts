@@ -67,6 +67,22 @@ test('proceeds without header when no token in storage', async () => {
   }
 })
 
+test('proceeds without header when no chain is configured', async () => {
+  const server = await createRpcServer()
+  try {
+    const client = Client.create({
+      chain: undefined,
+      transport: http(server.url, { storage: Storage.memory() }),
+    })
+
+    await client.request({ method: 'eth_blockNumber' })
+
+    expect(server.headers).toEqual([{ custom: undefined, token: undefined }])
+  } finally {
+    await server.close()
+  }
+})
+
 test('behavior: signed token is injected into subsequent requests', async () => {
   const storage = Storage.memory()
   const account = Account.fromSecp256k1(Secp256k1.randomPrivateKey())

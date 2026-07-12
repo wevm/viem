@@ -36,7 +36,3 @@ test('error: no account', async () => {
     }),
   ).rejects.toThrow('`account` is required.')
 })
-
-test.todo(
-  'behavior: requests verifiable withdrawal from zone (blocked: dev node lacks live zone infra; v2 skipped)',
-)

@@ -18,6 +18,8 @@ export type EncryptedPayload = {
 export type PreparedEncryptedDeposit = {
   /** Amount of tokens to deposit. */
   amount: bigint
+  /** Refund recipient on the parent chain if the deposit bounces. */
+  bouncebackRecipient: Address.Address
   /** Parent chain ID. */
   chainId: number
   /** Encrypted deposit payload. */

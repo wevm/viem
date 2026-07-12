@@ -55,7 +55,8 @@ export function waitForReceipt<chain extends Chain.Chain | undefined>(
   options: waitForReceipt.Options,
 ): waitForReceipt.Watcher<chain> {
   const {
-    checkReplacement = true,
+    checkReplacement = client.chain?.supportsTransactionReplacementDetection ??
+      true,
     confirmations = 1,
     hash,
     retryCount = 6,
@@ -376,7 +377,7 @@ export declare namespace waitForReceipt {
   type OnErrorFn = (error: Error) => void
 
   type Options = {
-    /** Whether to check for transaction replacements. @default true */
+    /** Whether to check for transaction replacements. @default client.chain?.supportsTransactionReplacementDetection ?? true */
     checkReplacement?: boolean | undefined
     /** Number of confirmations (blocks passed) to wait for. @default 1 */
     confirmations?: number | undefined

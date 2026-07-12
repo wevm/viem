@@ -15,6 +15,9 @@ import {
 
 const blockedReasons = ['none', 'tokenFilter', 'receivePolicy'] as const
 
+/** Reason an inbound transfer or mint was blocked by a receive policy. */
+export type BlockedReason = ReceivePolicyReceipt.BlockedReason
+
 /** Checks whether a transfer or mint to a receiver is allowed by the receiver's receive policy. */
 export async function validate<chain extends Chain.Chain | undefined>(
   client: Client.Client<chain>,
@@ -45,7 +48,7 @@ export namespace validate {
     /** Whether the transfer is authorized. */
     authorized: boolean
     /** Reason the transfer would be blocked. */
-    blockedReason: ReceivePolicyReceipt.BlockedReason
+    blockedReason: BlockedReason
   }
   // TODO: exhaustive error type
   export type ErrorType = Errors.GlobalErrorType

@@ -5,6 +5,7 @@ export { encryptedDeposit } from './encryptedDeposit.js'
 export { encryptedDepositSync } from './encryptedDepositSync.js'
 export { getAuthorizationTokenInfo } from './getAuthorizationTokenInfo.js'
 export { getDepositStatus } from './getDepositStatus.js'
+export { getEncryptionKey } from './getEncryptionKey.js'
 export { getWithdrawalFee } from './getWithdrawalFee.js'
 export { getZoneInfo } from './getZoneInfo.js'
 export { requestVerifiableWithdrawal } from './requestVerifiableWithdrawal.js'
@@ -12,3 +13,8 @@ export { requestVerifiableWithdrawalSync } from './requestVerifiableWithdrawalSy
 export { requestWithdrawal } from './requestWithdrawal.js'
 export { requestWithdrawalSync } from './requestWithdrawalSync.js'
 export { signAuthorizationToken } from './signAuthorizationToken.js'
+export type { EncryptedPayload, PreparedEncryptedDeposit } from './types.js'
+export {
+  waitForDepositStatus,
+  WaitForDepositStatusTimeoutError,
+} from './waitForDepositStatus.js'

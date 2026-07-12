@@ -42,6 +42,23 @@ Generic account construction was moved from `toAccount` to `Account.from`.
 +const account = Account.from(address)
 ```
 
+Local account definitions began requiring raw `sign` and deriving high-level signing methods; `source` was replaced by `keyType`.
+
+```diff
+ const local = Account.from({
+   address,
+-  source: 'custom',
+-  signMessage,
+-  signTransaction,
+-  signTypedData,
++  keyType: 'custom',
++  sign,
+ })
+
+-account.source // 'privateKey' | 'hd' | 'custom'
++account.keyType // 'secp256k1' | 'custom'
+```
+
 Private key generation was moved from `generatePrivateKey` to `Secp256k1.randomPrivateKey`.
 
 ```diff
@@ -60,4 +77,35 @@ Mnemonic generation was moved from `generateMnemonic` to `Mnemonic.random`.
  
 -const mnemonic = generateMnemonic(english, 256)
 +const mnemonic = Mnemonic.random(Mnemonic.english, { strength: 256 })
+```
+
+Account parsing and private-key address derivation moved to the `Account`, `Address`, and `Secp256k1` namespaces.
+
+```diff
+-import { parseAccount, privateKeyToAddress } from 'viem/accounts'
++import { Account, Address, Secp256k1 } from 'viem'
+
+-const account = parseAccount(source)
+-const address = privateKeyToAddress(privateKey)
++const account = Account.from(source)
++const address = Address.fromPublicKey(Secp256k1.getPublicKey({ privateKey }), { checksum: true })
+```
+
+The global `setSignEntropy` helper was replaced by per-signature `extraEntropy` on `Secp256k1.sign`.
+
+```diff
+-setSignEntropy(true)
++Secp256k1.sign({ payload, privateKey, extraEntropy: true })
+```
+
+Flat account source and HD option types moved to the `Account.from` and constructor namespaces.
+
+```diff
+-import type { AccountSource, CustomSource, HDKeyToAccountErrorType, HDKeyToAccountOptions, HDOptions } from 'viem/accounts'
++import { Account, Address } from 'viem'
+
++type Source = Address.Address | Account.from.Account
++type Custom = Account.from.Account
++type Options = Account.fromHdKey.Options
++type Error = Account.fromHdKey.ErrorType
 ```

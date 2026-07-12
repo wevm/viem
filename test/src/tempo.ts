@@ -12,6 +12,9 @@ export const port = Number(process.env.VITE_TEMPO_PORT ?? 9545)
 /** Pool-scoped RPC URL (one node instance per vitest pool). */
 export const rpcUrl = `http://localhost:${port}/${constants.poolId}`
 
+/** Lazily provisioned zone for the current test file. */
+export const zone = defineZone()
+
 /** Tempo localnet dev accounts (the anvil "test … junk" mnemonic). */
 export const accounts = constants.accounts
 
@@ -141,6 +144,136 @@ export async function setup() {
 /** Restarts the pool's Tempo node instance (fresh genesis state). */
 export async function restart() {
   await fetch(`${rpcUrl}/restart`)
+}
+
+/** Runtime metadata for a provisioned local zone. */
+export type Zone = {
+  /** Zone chain ID. */
+  chainId: number
+  /** Zone factory address on the parent chain. */
+  factoryAddress: `0x${string}`
+  /** Portal address on the parent chain. */
+  portalAddress: `0x${string}`
+  /** Authenticated zone RPC URL. */
+  privateRpcUrl: string
+  /** Public zone RPC URL. */
+  rpcUrl: string
+  /** Zone ID. */
+  zoneId: number
+}
+
+type StartedZone = Zone & { stop(): Promise<void> }
+
+/** Options for {@link defineZone}. */
+export type DefineZoneOptions = {
+  /** Existing factory reused to allocate another zone ID. */
+  factoryAddress?: `0x${string}` | undefined
+  /** Parent-chain provisioning key. */
+  privateKey?: `0x${string}` | undefined
+}
+
+/** Lazily provisioned local zone handle. */
+export type ZoneInstance = {
+  /** Starts the zone once and returns its runtime metadata. */
+  start(): Promise<Zone>
+  /** Stops the zone if it is running. */
+  stop(): Promise<void>
+}
+
+/** Defines a lazily provisioned local zone. */
+export function defineZone(options: DefineZoneOptions = {}): ZoneInstance {
+  const options_ = { ...options }
+  let zone: Promise<StartedZone> | undefined
+  let stopping: Promise<void> | undefined
+
+  function start(): Promise<Zone> {
+    if (zone) return zone
+    const promise = stopping
+      ? stopping.then(() => startZone(options_))
+      : startZone(options_)
+    zone = promise
+    void promise.then(undefined, () => {
+      if (zone === promise) zone = undefined
+    })
+    return promise
+  }
+
+  function stop(): Promise<void> {
+    if (!zone) return stopping ?? Promise.resolve()
+
+    const zone_ = zone
+    zone = undefined
+    const promise = (async () => {
+      const instance = await zone_.catch(() => undefined)
+      await instance?.stop()
+    })()
+    stopping = promise
+    const clear = () => {
+      if (stopping === promise) stopping = undefined
+    }
+    void promise.then(clear, clear)
+    return promise
+  }
+
+  return { start, stop }
+}
+
+async function startZone(options: DefineZoneOptions): Promise<StartedZone> {
+  const tag = process.env.VITE_TEMPO_ZONE_TAG ?? 'sha-aae82c4'
+  const l1RpcUrl = rpcUrl.replace(
+    /^http:\/\/localhost/,
+    'ws://host.docker.internal',
+  )
+  const instance = TestContainers.Instance.tempoZone({
+    dev: {
+      key: options.privateKey ?? accounts[1].privateKey,
+    },
+    image: `ghcr.io/tempoxyz/tempo-zone:${tag}`,
+    l1: {
+      factoryAddress: options.factoryAddress,
+      rpcUrl: l1RpcUrl,
+    },
+    log: process.env.VITE_TEMPO_LOG,
+    startupTimeout: 120_000,
+  })
+
+  let logs = ''
+  instance.on('message', (message) => {
+    logs += message
+  })
+
+  await instance.start()
+
+  const zoneId = Number(logs.match(/Zone ID:\s+(\d+)/)?.[1])
+  const chainId = Number(logs.match(/Chain ID:\s+(\d+)/)?.[1])
+  const factoryAddress = logs.match(
+    /ZoneFactory:\s+(0x[0-9a-fA-F]{40})/,
+  )?.[1] as `0x${string}` | undefined
+  const portalAddress = logs.match(/Portal:\s+(0x[0-9a-fA-F]{40})/)?.[1] as
+    | `0x${string}`
+    | undefined
+  if (!zoneId || !chainId || !factoryAddress || !portalAddress) {
+    await instance.stop().catch(() => {})
+    throw new Error(`Failed to parse zone provisioning output:\n\n${logs}`)
+  }
+
+  const { privateRpc } = instance._internal as {
+    privateRpc?: { host: string; port: number } | undefined
+  }
+  if (!privateRpc) {
+    await instance.stop().catch(() => {})
+    throw new Error('Failed to resolve zone private RPC endpoint.')
+  }
+
+  return {
+    chainId,
+    factoryAddress,
+    portalAddress,
+    privateRpcUrl: `http://${privateRpc.host}:${privateRpc.port}`,
+    rpcUrl: `http://${instance.host}:${instance.port}`,
+    stop: () => instance.stop(),
+    zoneId,
+  }
 }
 
 /** Creates the pooled Tempo node server (Dockerized via testcontainers). */

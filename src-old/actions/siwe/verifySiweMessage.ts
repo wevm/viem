@@ -12,27 +12,27 @@ import {
   validateSiweMessage,
 } from '../../utils/siwe/validateSiweMessage.js'
 import {
+  type BlockParameters,
   type VerifyHashErrorType,
-  type VerifyHashParameters,
   verifyHash,
 } from '../public/verifyHash.js'
 
 export type VerifySiweMessageParameters = Prettify<
-  Pick<VerifyHashParameters, 'blockNumber' | 'blockTag'> &
-    Pick<
-      ValidateSiweMessageParameters,
-      'address' | 'domain' | 'nonce' | 'scheme' | 'time'
-    > & {
-      /**
-       * EIP-4361 formatted message.
-       */
-      message: string
-      /**
-       * Signature to check against.
-       */
-      signature: Hex
-    }
->
+  Pick<
+    ValidateSiweMessageParameters,
+    'address' | 'domain' | 'nonce' | 'scheme' | 'time'
+  > & {
+    /**
+     * EIP-4361 formatted message.
+     */
+    message: string
+    /**
+     * Signature to check against.
+     */
+    signature: Hex
+  }
+> &
+  BlockParameters
 
 export type VerifySiweMessageReturnType = boolean
 

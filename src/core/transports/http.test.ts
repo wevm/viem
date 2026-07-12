@@ -90,6 +90,28 @@ describe('http', () => {
     }
   })
 
+  test('forwards maxResponseBodySize to the RPC client', async () => {
+    const body = ok('0x1')
+    const server = await Http.createServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Length': Buffer.byteLength(body),
+        'Content-Type': 'application/json',
+      })
+      res.end(body)
+    })
+    try {
+      const transport = http(server.url, {
+        maxResponseBodySize: Buffer.byteLength(body) - 1,
+        retryCount: 0,
+      }).setup()
+      await expect(
+        transport.request({ method: 'eth_chainId' }),
+      ).rejects.toBeInstanceOf(RpcClient.ResponseBodyTooLargeError)
+    } finally {
+      await server.close()
+    }
+  })
+
   test('retries a retryable HTTP error', async () => {
     let count = 0
     const server = await Http.createServer((_req, res) => {

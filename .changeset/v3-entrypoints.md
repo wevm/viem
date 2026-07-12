@@ -27,6 +27,34 @@ The `viem/utils` entrypoint now exposes Ox-backed namespaces instead of flat uti
 + const wei = Value.fromEther('1')
 ```
 
+Low-level request composition and action dispatch were internalized; RPC client helpers moved to the `RpcClient` namespace.
+
+```diff
+-import { buildRequest, getAction, getHttpRpcClient, getSocketRpcClient } from 'viem/utils'
++import { RpcClient } from 'viem'
+
+-const rpc = getHttpRpcClient(url)
++const rpc = RpcClient.http(url)
+
+-buildRequest(...)
+-getAction(...)
++// Compose requests and action overrides at the Client or Transport boundary.
+```
+
+Formatter constructors moved to namespace conversions and chain schema hooks; error mappers moved to their namespaces or were folded into action wrappers.
+
+```diff
+-import { defineTransaction, defineTransactionReceipt, getContractError, getNodeError } from 'viem/utils'
++import { Chain, ContractError, RpcError, Transaction, TransactionReceipt } from 'viem'
+
+-const format = defineTransaction(formatter)
++const transaction = Transaction.fromRpc(rpcTransaction)
++const receipt = TransactionReceipt.fromRpc(rpcReceipt)
++const chain = Chain.from({ schema })
++const rpcError = RpcError.fromRpcError(error)
++const contractError = ContractError.fromError(error, options)
+```
+
 Top-level types are now accessed through their namespace rather than as named type exports.
 
 ```diff
@@ -35,6 +63,28 @@ Top-level types are now accessed through their namespace rather than as named ty
 
 - function f(chain: Chain, account: Account, transport: Transport) {}
 + function f(chain: Chain.Chain, account: Account.Account, transport: Transport.Transport) {}
+```
+
+Generic type-composition helpers were internalized without public replacements.
+
+```diff
+-import type { Assign, MaybePromise, OneOf, Prettify, UnionLooseOmit, UnionToTuple } from 'viem'
++type MaybePromise<value> = value | Promise<value>
++type Prettify<value> = { [key in keyof value]: value[key] } & {}
+```
+
+EIP-1193 provider and RPC schema types moved to Ox; wallet method shapes moved beside their owning actions.
+
+```diff
+-import type { EIP1193Provider, PublicRpcSchema, WalletRpcSchema, RequestPermissionsParameters } from 'viem'
++import { Actions } from 'viem'
++import type * as Provider from 'ox/Provider'
++import type * as RpcSchema from 'ox/RpcSchema'
+
++type Eip1193Provider = Provider.Provider
++type PublicSchema = RpcSchema.Eth
++type WalletSchema = RpcSchema.Wallet
++type RequestPermissionsOptions = Actions.wallet.requestPermissions.Options
 ```
 
 Added flattened entrypoints for root core modules such as `viem/Client`, `viem/Chain`, and `viem/Transport`.
