@@ -48,7 +48,9 @@ const receipt = await client.waitForTransactionReceipt({ hash })
 
 ### Prepare a Withdrawal
 
-Use `zone.requestWithdrawal.prepare` to inspect the calls and protocol withdrawal fee without broadcasting. Set `estimateTransactionFee` to also estimate the Zone transaction fee.
+Use `zone.requestWithdrawal.prepare` to populate and inspect the Zone transaction request without broadcasting. The result includes the request, normalized withdrawal details, and a `maxFee` rounded up into fee-token base units using Tempo's fixed gas-price conversion.
+
+Use [`zone.getWithdrawalFee`](/tempo/actions/zone.getWithdrawalFee) separately to inspect the protocol withdrawal fee.
 
 ```ts twoslash
 import { parseUnits } from 'viem'
@@ -60,7 +62,25 @@ const prepared = await client.zone.requestWithdrawal.prepare({
   token: '0x20c0000000000000000000000000000000000001',
 })
 
-console.log('Total fee:', prepared.totalFee)
+console.log('Maximum fee:', prepared.maxFee)
+console.log('Gas limit:', prepared.request.gas)
+console.log('Calls:', prepared.request.calls)
+```
+
+The prepare helper returns:
+
+```ts
+type PreparedWithdrawal = {
+  amount: bigint
+  callbackGas: bigint
+  data: Hex
+  fallbackRecipient: Address
+  maxFee: bigint
+  memo: Hex
+  request: PrepareTransactionRequestReturnType
+  to: Address
+  token: Address | bigint
+}
 ```
 
 ## Return Type

@@ -7,19 +7,17 @@ import { TokenId, ZoneId, ZoneRpcAuthentication } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import {
-  type EstimateGasErrorType,
-  estimateGas,
-} from '../../actions/public/estimateGas.js'
-import {
-  type GetGasPriceErrorType,
-  getGasPrice,
-} from '../../actions/public/getGasPrice.js'
-import {
   type MulticallErrorType,
   type MulticallParameters,
   multicall,
 } from '../../actions/public/multicall.js'
 import { readContract } from '../../actions/public/readContract.js'
+import {
+  type PrepareTransactionRequestErrorType,
+  type PrepareTransactionRequestRequest,
+  type PrepareTransactionRequestReturnType,
+  prepareTransactionRequest,
+} from '../../actions/wallet/prepareTransactionRequest.js'
 import {
   type SendTransactionReturnType,
   sendTransaction,
@@ -29,7 +27,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { zeroHash } from '../../constants/bytes.js'
 import type { BaseErrorType } from '../../errors/base.js'
-import type { Chain } from '../../types/chain.js'
+import type { Chain, GetChainParameter } from '../../types/chain.js'
 import type { Compute, UnionOmit } from '../../types/utils.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
@@ -1397,11 +1395,10 @@ export namespace requestWithdrawal {
   }
 
   /**
-   * Prepares a zone withdrawal without broadcasting it.
+   * Prepares a zone withdrawal transaction request without broadcasting it.
    *
-   * Use this to inspect the ZoneOutbox calls and fees before submitting a
-   * withdrawal. When `estimateTransactionFee` is enabled, viem also estimates
-   * the zone transaction gas and converts it with `transactionFeeScale`.
+   * Use this to inspect or modify the populated ZoneOutbox transaction request
+   * and its maximum transaction fee before submitting a withdrawal.
    *
    * @example
    * ```ts
@@ -1419,30 +1416,40 @@ export namespace requestWithdrawal {
    *   amount: 1_000_000n,
    *   to: '0x...',
    * })
+   *
+   * console.log(prepared.maxFee)
+   * console.log(prepared.request.gas)
    * ```
    *
    * @param client - Zone client.
    * @param parameters - Withdrawal preparation parameters.
-   * @returns Prepared calls and fee details.
+   * @returns The prepared transaction request, maximum fee, and withdrawal details.
    */
   export async function prepare<
     chain extends Chain | undefined,
     account extends Account | undefined,
+    chainOverride extends Chain | undefined = undefined,
+    accountOverride extends Account | Address | undefined = undefined,
   >(
     client: Client<Transport, chain, account>,
-    parameters: prepare.Parameters<chain, account>,
-  ): Promise<prepare.ReturnType> {
+    parameters: prepare.Parameters<
+      chain,
+      account,
+      chainOverride,
+      accountOverride
+    >,
+  ): Promise<
+    prepare.ReturnType<chain, account, chainOverride, accountOverride>
+  > {
     const {
       account = client.account,
       amount,
       callbackGas = 0n,
       data = '0x',
-      estimateTransactionFee = false,
       fallbackRecipient,
       memo = zeroHash,
       to: to_,
       token,
-      transactionFeeScale,
       ...transactionRequest
     } = parameters
 
@@ -1450,115 +1457,97 @@ export namespace requestWithdrawal {
     const to = to_ ?? account_?.address
     if (!to) throw new Error('`to` is required.')
 
-    const calls = requestWithdrawal.calls({
-      amount,
-      callbackGas,
-      data,
-      fallbackRecipient,
-      memo,
-      to,
-      token,
-    })
-
-    const transactionEstimatePromise = estimateTransactionFee
-      ? (async () => {
-          if (!account) throw new Error('`account` is required.')
-          if (transactionFeeScale === undefined)
-            throw new Error(
-              '`transactionFeeScale` is required when `estimateTransactionFee` is `true`.',
-            )
-
-          const [estimatedGas, gasPrice] = await Promise.all([
-            estimateGas(client, {
-              ...transactionRequest,
-              account,
-              calls,
-              prepare: false,
-            } as never),
-            getGasPrice(client),
-          ])
-          return {
-            estimatedGas,
-            gasPrice,
-            transactionFee: ceilDiv(
-              estimatedGas * gasPrice,
-              transactionFeeScale,
-            ),
-          }
-        })()
-      : Promise.resolve(undefined)
-
-    const [transactionEstimate, withdrawalFee] = await Promise.all([
-      transactionEstimatePromise,
-      getWithdrawalFee(client, { callbackGas }),
-    ])
+    const request = await prepareTransactionRequest(client, {
+      ...transactionRequest,
+      account,
+      calls: requestWithdrawal.calls({
+        amount,
+        callbackGas,
+        data,
+        fallbackRecipient,
+        memo,
+        to,
+        token,
+      }),
+    } as never)
+    const feePerGas = request.maxFeePerGas ?? request.gasPrice
+    if (typeof request.gas !== 'bigint' || typeof feePerGas !== 'bigint')
+      throw new Error('Prepared transaction fee parameters are unavailable.')
+    const maxFee = ceilDiv(request.gas * feePerGas, 1_000_000_000_000n)
 
     return {
       amount,
       callbackGas,
-      calls,
       data,
-      estimatedGas: transactionEstimate?.estimatedGas,
       fallbackRecipient: fallbackRecipient ?? to,
-      gasPrice: transactionEstimate?.gasPrice,
+      maxFee,
       memo,
+      request,
       to,
       token,
-      totalFee: withdrawalFee + (transactionEstimate?.transactionFee ?? 0n),
-      transactionFee: transactionEstimate?.transactionFee,
-      withdrawalFee,
-    }
+    } as never
   }
 
   export namespace prepare {
     export type Parameters<
       chain extends Chain | undefined = Chain | undefined,
       account extends Account | undefined = Account | undefined,
+      chainOverride extends Chain | undefined = Chain | undefined,
+      accountOverride extends Account | Address | undefined =
+        | Account
+        | Address
+        | undefined,
     > = UnionOmit<
       WriteParameters<chain, account>,
-      'account' | 'throwOnReceiptRevert'
+      'account' | 'chain' | 'throwOnReceiptRevert'
     > &
-      GetAccountParameter<account, Account | Address, false> &
+      GetAccountParameter<account, accountOverride, false> &
+      GetChainParameter<chain, chainOverride> &
       PrepareArgs
 
     export type PrepareArgs = Omit<Args, 'to'> & {
       /** Recipient address on the parent Tempo chain. @default `account.address` */
       to?: Address | undefined
-    } & (
-        | {
-            /** Whether to estimate and include the zone transaction fee. @default false */
-            estimateTransactionFee?: false | undefined
-            transactionFeeScale?: undefined
-          }
-        | {
-            /** Whether to estimate and include the zone transaction fee. */
-            estimateTransactionFee: true
-            /** Divisor converting `estimatedGas * gasPrice` into fee-token base units. */
-            transactionFeeScale: bigint
-          }
-      )
+    }
 
-    export type ReturnType = Compute<{
+    export type ReturnType<
+      chain extends Chain | undefined = Chain | undefined,
+      account extends Account | undefined = Account | undefined,
+      chainOverride extends Chain | undefined = Chain | undefined,
+      accountOverride extends Account | Address | undefined =
+        | Account
+        | Address
+        | undefined,
+    > = Compute<{
+      /** Amount of tokens to withdraw. */
       amount: bigint
+      /** Gas limit reserved for the callback on the parent chain. */
       callbackGas: bigint
-      calls: WithdrawalCalls
+      /** Callback data for the recipient. */
       data: Hex.Hex
-      estimatedGas?: bigint | undefined
+      /** Fallback address if the callback fails. */
       fallbackRecipient: Address
-      gasPrice?: bigint | undefined
+      /** Maximum Zone transaction fee in fee-token base units. */
+      maxFee: bigint
+      /** Withdrawal memo. */
       memo: Hex.Hex
+      /** Prepared Zone transaction request. */
+      request: PrepareTransactionRequestReturnType<
+        chain,
+        account,
+        chainOverride,
+        accountOverride,
+        PrepareTransactionRequestRequest<chain, chainOverride> & {
+          calls: WithdrawalCalls
+        }
+      >
+      /** Recipient address on the parent Tempo chain. */
       to: Address
+      /** Token address or ID to withdraw. */
       token: TokenId.TokenIdOrAddress
-      totalFee: bigint
-      transactionFee?: bigint | undefined
-      withdrawalFee: bigint
     }>
 
-    export type ErrorType =
-      | EstimateGasErrorType
-      | GetGasPriceErrorType
-      | getWithdrawalFee.ErrorType
-      | BaseErrorType
+    export type ErrorType = PrepareTransactionRequestErrorType | BaseErrorType
   }
 }
 
@@ -2019,6 +2008,5 @@ function buildDepositHkdfInfo(
 }
 
 function ceilDiv(numerator: bigint, denominator: bigint) {
-  if (denominator <= 0n) throw new Error('`denominator` must be positive.')
   return (numerator + denominator - 1n) / denominator
 }
