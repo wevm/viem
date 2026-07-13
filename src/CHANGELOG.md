@@ -1,5 +1,11 @@
 # viem
 
+## 2.55.2
+
+### Patch Changes
+
+- [#4813](https://github.com/wevm/viem/pull/4813) [`3f7f0f6839738de70e2f836b475d589c6f1c68b4`](https://github.com/wevm/viem/commit/3f7f0f6839738de70e2f836b475d589c6f1c68b4) Thanks [@Slokh](https://github.com/Slokh)! - Added Tempo Zone helpers for preparing encrypted deposit recipients and withdrawal requests with normalized details, maximum fees, and distinct callback and Zone transaction gas limits.
+
 ## 2.55.1
 
 ### Patch Changes
