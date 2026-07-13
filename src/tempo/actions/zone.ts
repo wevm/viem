@@ -1476,13 +1476,13 @@ export namespace requestWithdrawal {
     const maxFee = ceilDiv(request.gas * feePerGas, 1_000_000_000_000n)
 
     return {
-      request,
-      maxFee,
       amount,
       callbackGas,
       data,
       fallbackRecipient: fallbackRecipient ?? to,
+      maxFee,
       memo,
+      request,
       to,
       token,
     } as never
