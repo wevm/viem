@@ -67,7 +67,7 @@
     "micro-eth-signer": "^0.14.0",
     "ox": "0.14.30",
     "permissionless": "^0.2.57",
-    "prool": "~0.2.7",
+    "prool": "~0.2.8",
     "publint": "^0.2.12",
     "sherif": "^0.8.4",
     "simple-git-hooks": "^2.13.1",
