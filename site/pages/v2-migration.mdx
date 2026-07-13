@@ -12,7 +12,7 @@ The guide is organized in three layers:
 
 ### Module Namespaces
 
-The `viem/accounts`, `viem/actions`, `viem/ens`, `viem/nonce`, and `viem/siwe` subpath entrypoints were removed in favor of namespaces exported from the package root, and top-level types moved onto those namespaces (`Chain.Chain`, `Account.Account`). The flat `<Fn>Parameters`, `<Fn>ReturnType`, and `<Fn>ErrorType` type exports became `<namespace>.<fn>.Options`, `<namespace>.<fn>.ReturnType`, and `<namespace>.<fn>.ErrorType`. See [Entrypoints & Exports](#entrypoints--exports).
+The `viem/accounts`, `viem/actions`, `viem/ens`, `viem/nonce`, and `viem/siwe` subpath entrypoints were removed in favor of namespaces exported from the package root and `viem/utils`, and top-level types moved onto those namespaces (`Chain.Chain`, `Account.Account`). The flat `<Fn>Parameters`, `<Fn>ReturnType`, and `<Fn>ErrorType` type exports became `<namespace>.<fn>.Options`, `<namespace>.<fn>.ReturnType`, and `<namespace>.<fn>.ErrorType`. See [Entrypoints & Exports](#entrypoints--exports).
 
 ```diff
 - import { privateKeyToAccount } from 'viem/accounts'
@@ -73,11 +73,11 @@ The `watch*` and `waitFor*` actions no longer take callback options or return a 
 
 ### Ox-Backed Utilities
 
-Flat utility functions moved onto Ox-backed primitive namespaces (`Hex`, `Bytes`, `Value`, `AbiParameters`, `Signature`, ...), recovery and verification helpers became synchronous (no `await`), and `abitype` types are imported from `abitype` directly instead of being re-exported. See [Utilities](#utilities).
+Flat utility functions moved onto Ox-backed primitive namespaces (`Hex`, `Bytes`, `Value`, `AbiParameters`, `Signature`, ...) exported from `viem/utils` (not the package root), recovery and verification helpers became synchronous (no `await`), and `abitype` types are imported from `abitype` directly instead of being re-exported. See [Utilities](#utilities).
 
 ```diff
 - import { toHex, parseEther } from 'viem/utils'
-+ import { Hex, Value } from 'viem'
++ import { Hex, Value } from 'viem/utils'
 
 - const hex = toHex(420n)
 - const wei = parseEther('1')
@@ -206,8 +206,8 @@ Several scalar fields widened from `number` to `bigint`: transaction `nonce` val
 CCIP Read (`OffchainLookup` reverts) is disabled by default and requires an explicit request policy on the client; a tunnel with a trusted HTTPS batch gateway is the recommended policy. Resolution now happens inside `call` for any contract, not just ENS lookups. See [ENS & CCIP Read](#ens--ccip-read).
 
 ```diff
-- import { Client, http } from 'viem'
-+ import { CcipRead, Client, http } from 'viem'
+  import { Client, http } from 'viem'
++ import { CcipRead } from 'viem/utils'
 
   const client = Client.create({
 +   ccipRead: CcipRead.tunnel({
@@ -970,20 +970,20 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 
 ### Subpath Entrypoints
 
-Most subpath entrypoints were removed in favor of namespaces exported from the package root:
+Most subpath entrypoints were removed in favor of namespaces exported from the package root (core modules) and `viem/utils` (utility namespaces):
 
 | v2 entrypoint | v3 |
 | --- | --- |
-| `viem/accounts` | Root namespaces: `Account`, `Secp256k1`, `Mnemonic`, `HdKey` ([Accounts](#accounts)) |
+| `viem/accounts` | Root `Account` namespace; `Secp256k1`, `Mnemonic`, `HdKey` from `viem/utils` ([Accounts](#accounts)) |
 | `viem/actions` | Root `Actions` namespace ([Actions](#actions)) |
 | `viem/chains/utils` | `Chain` namespace: `Chain.from`, `Chain.extract`, `Chain.getContractAddress` ([Chains](#chains)) |
-| `viem/ens` | `Ens` namespace and `Actions.ens` ([Messages & ENS](#messages--ens)) |
+| `viem/ens` | `Ens` namespace (from `viem/utils`) and `Actions.ens` ([Messages & ENS](#messages--ens)) |
 | `viem/experimental` (and ERC subpaths) | Graduated or removed ([Deprecated & Experimental Surface](#deprecated--experimental-surface)) |
 | `viem/nonce` | `NonceManager` namespace ([Nonce Manager](#nonce-manager)) |
 | `viem/package.json` | Removed (not exported) |
-| `viem/siwe` | `Siwe` namespace and `Actions.verifySiweMessage` ([Messages & ENS](#messages--ens)) |
+| `viem/siwe` | `Siwe` namespace (from `viem/utils`) and `Actions.verifySiweMessage` ([Messages & ENS](#messages--ens)) |
 | `viem/tokens` | `Token` namespace ([Tokens](#tokens-1)) |
-| `viem/utils` | Ox-backed namespaces ([Utilities](#utilities)); also re-exports `Provider`, `RpcSchema`, `RpcResponse`, `AbiParameter`, `WebAuthnP256` |
+| `viem/utils` | Retained: the home of all Ox-backed utility namespaces, which are not re-exported from the package root ([Utilities](#utilities)) |
 
 Flattened entrypoints were added for the root core modules (`viem/Account`, `viem/Actions`, `viem/Chain`, `viem/Client`, `viem/Contract`, `viem/Transport`, imported as `import * as Client from 'viem/Client'`), and a `viem/zod` entrypoint re-exports the Zod namespace (`z`) used to build typed JSON-RPC schemas for the Client `schema` option.
 
@@ -1199,7 +1199,7 @@ Mnemonic generation was moved from `generateMnemonic` to `Mnemonic.random`, with
 
 ```diff
 - import { generateMnemonic, english } from 'viem/accounts'
-+ import { Mnemonic } from 'viem'
++ import { Mnemonic } from 'viem/utils'
 
 - const mnemonic = generateMnemonic(english, 256)
 + const mnemonic = Mnemonic.random(Mnemonic.english, { strength: 256 })
@@ -1209,7 +1209,7 @@ Private-key address derivation moved to the `Address` and `Secp256k1` namespaces
 
 ```diff
 - import { privateKeyToAddress } from 'viem/accounts'
-+ import { Address, Secp256k1 } from 'viem'
++ import { Address, Secp256k1 } from 'viem/utils'
 
 - const address = privateKeyToAddress(privateKey)
 + const address = Address.fromPublicKey(Secp256k1.getPublicKey({ privateKey }), { checksum: true })
@@ -1451,8 +1451,8 @@ CCIP gateway requests and batch tunnels moved to `CcipRead`, tunnel overrides re
 Raw `offchainLookup` resolution became internal to `Actions.call`, and `AbiError` construction replaced its ABI item and selector constants.
 
 ```diff
-+ import { AbiError } from 'viem/utils'
-+ import { Actions, CcipRead } from 'viem'
++ import { AbiError, CcipRead } from 'viem/utils'
++ import { Actions } from 'viem'
 
 - const data = await offchainLookup(client, { data: revertData, to })
 + const { data } = await Actions.call(client, { data: callData, to })
@@ -2448,7 +2448,7 @@ ABI parsing and parameter coding keep their call shapes on the new namespaces:
 ABI item lookup and the function, event, constructor, and error codecs take the abi and name positionally instead of an options bag.
 
 ```diff
-+ import { AbiConstructor, AbiError, AbiEvent, AbiFunction, AbiItem } from 'viem'
++ import { AbiConstructor, AbiError, AbiEvent, AbiFunction, AbiItem } from 'viem/utils'
 
 - const transfer = getAbiItem({ abi, name: 'transfer' })
 + const transfer = AbiItem.fromAbi(abi, 'transfer')
@@ -2542,7 +2542,7 @@ Preset ABI constants moved: ERC-20 to `abitype/abis`, the ERC-6492 validator ABI
 
 ```diff
 - import { erc20Abi_bytes32, multicall3Abi } from 'viem'
-+ import { AbiFunction } from 'viem'
++ import { AbiFunction } from 'viem/utils'
 
 + const aggregate3 = AbiFunction.from(
 +   'function aggregate3((address target, bool allowFailure, bytes callData)[] calls) payable returns ((bool success, bytes returnData)[] returnData)',
@@ -2584,7 +2584,7 @@ Address checksum, validation, derivation, and constants moved to the `Address` a
 Blob construction, commitment, proof, and versioned-hash helpers moved from flat exports to the `Blobs` and `BlobCells` namespaces, taking positional inputs.
 
 ```diff
-+ import { BlobCells, Blobs } from 'viem'
++ import { BlobCells, Blobs } from 'viem/utils'
 
 - const blobs = toBlobs({ data })
 - const commitments = blobsToCommitments({ blobs, kzg })
@@ -2615,7 +2615,7 @@ Blob decoding moved from `fromBlobs` to `Blobs.to` (with `'Hex' | 'Bytes'` type 
 The per-blob sidecar surface was redesigned for [EIP-7594](https://eips.ethereum.org/EIPS/eip-7594) (PeerDAS): `BlobSidecar`/`BlobSidecars` (array of `{ blob, commitment, proof }`) became the struct-of-arrays `TxEnvelopeEip4844.Sidecars` carrying cell proofs, and `toBlobSidecars`/`sidecarsToVersionedHashes` were removed; sidecars are attached automatically when passing `blobs` + `kzg` to `Actions.transaction.prepare`/`send` or `TransactionRequest.toEnvelope`.
 
 ```diff
-+ import { Blobs, type TxEnvelopeEip4844 } from 'viem'
++ import { Blobs, type TxEnvelopeEip4844 } from 'viem/utils'
 
 - const sidecars = toBlobSidecars({ blobs, kzg })
 - const versionedHashes = sidecarsToVersionedHashes({ sidecars })
@@ -2635,7 +2635,7 @@ Block override, state override, and filter RPC conversions moved to the `BlockOv
 
 ```diff
 - import type { BlockOverrides, Filter, StateOverride } from 'viem'
-+ import { BlockOverrides, Filter, StateOverrides } from 'viem'
++ import { BlockOverrides, Filter, StateOverrides } from 'viem/utils'
 
 - const blockOverrides: BlockOverrides = { baseFeePerGas: 1n }
 - const stateOverride: StateOverride = [{ address, balance: 1n }]
@@ -2669,7 +2669,7 @@ Signature serialization and parsing moved to the `Signature` namespace (the depr
 Message, typed-data, and transaction address recovery moved to their owning namespaces and became synchronous.
 
 ```diff
-+ import { PersonalMessage, TxEnvelope, TypedData } from 'viem'
++ import { PersonalMessage, TxEnvelope, TypedData } from 'viem/utils'
 
 - const address = await recoverMessageAddress({ message, signature })
 - const address = await recoverTypedDataAddress({ ...typedData, signature })
@@ -2682,7 +2682,7 @@ Message, typed-data, and transaction address recovery moved to their owning name
 Low-level secp256k1 signing, verification, and public-key address derivation moved from account and signature helpers to the `Secp256k1` and `Address` namespaces.
 
 ```diff
-+ import { Address, Secp256k1 } from 'viem'
++ import { Address, Secp256k1 } from 'viem/utils'
 
 - const signature = sign({ hash, privateKey })
 - const valid = await verifyHash({ hash, publicKey, signature })
@@ -2708,7 +2708,7 @@ ERC-6492 and ERC-8010 signature wrapping helpers moved from flat exports to the 
 HD key, mnemonic seed, and wordlist utilities moved from account exports to the `HdKey` and `Mnemonic` namespaces.
 
 ```diff
-+ import { HdKey, Mnemonic } from 'viem'
++ import { HdKey, Mnemonic } from 'viem/utils'
 
 - const mnemonic = generateMnemonic(english)
 - const account = hdKeyToAccount(HDKey.fromMasterSeed(seed))
@@ -2749,7 +2749,7 @@ Data padding, slicing, concatenation, and validation utilities moved to the `Hex
 
 ```diff
 - import { concat, concatBytes, concatHex, isBytes, isHex, pad, padBytes, padHex, slice, sliceBytes, sliceHex } from 'viem'
-+ import { Bytes, Hex } from 'viem'
++ import { Bytes, Hex } from 'viem/utils'
 
 - const padded = padHex('0x1', { size: 32 })
 - const paddedRight = padHex('0x1', { dir: 'right', size: 32 })
@@ -2823,7 +2823,7 @@ SIWE message creation, parsing, validation, and nonce generation moved from flat
 
 ```diff
 - import { createSiweMessage, generateSiweNonce, parseSiweMessage, validateSiweMessage, type SiweMessage } from 'viem/siwe'
-+ import { Siwe } from 'viem'
++ import { Siwe } from 'viem/utils'
 
 - const nonce = generateSiweNonce()
 - const message = createSiweMessage({ address, chainId: 1, domain, nonce, uri, version: '1' })
@@ -2844,7 +2844,8 @@ ENS avatar-record and packet helpers were internalized; higher-level avatar reso
 
 ```diff
 - import { parseAvatarRecord, packetToBytes, ToCoinTypeError } from 'viem/ens'
-+ import { Actions, Ens } from 'viem'
++ import { Actions } from 'viem'
++ import { Ens } from 'viem/utils'
 
 - const avatar = await parseAvatarRecord(client, { record, gatewayUrls })
 - const packet = packetToBytes(name)
@@ -2855,7 +2856,7 @@ ENS avatar-record and packet helpers were internalized; higher-level avatar reso
 Personal message hashing and typed-data hashing moved from flat signature helpers to `PersonalMessage` and `TypedData` namespaces.
 
 ```diff
-+ import { Hex, PersonalMessage, TypedData } from 'viem'
++ import { Hex, PersonalMessage, TypedData } from 'viem/utils'
 
 - const messageHash = hashMessage('hello world')
 - const typedDataHash = hashTypedData({ domain, types, primaryType, message })
@@ -2867,7 +2868,7 @@ The `presignMessagePrefix` constant and `toPrefixedMessage` were removed; `Perso
 
 ```diff
 - import { presignMessagePrefix, toPrefixedMessage } from 'viem'
-+ import { Hex, PersonalMessage } from 'viem'
++ import { Hex, PersonalMessage } from 'viem/utils'
 
 - const payload = `${presignMessagePrefix}${message.length}${message}`
 - const payload = toPrefixedMessage(message)
@@ -2877,7 +2878,7 @@ The `presignMessagePrefix` constant and `toPrefixedMessage` were removed; `Perso
 Typed-data utilities moved from flat exports to the `TypedData` namespace, along with their types. Note that `TypedData.validate` returns a boolean; the throwing equivalent of v2 `validateTypedData` is `TypedData.assert`.
 
 ```diff
-+ import { TypedData } from 'viem'
++ import { TypedData } from 'viem/utils'
 
 - const types = getTypesForEIP712Domain({ domain })
 - const serialized = serializeTypedData(definition)
@@ -2924,7 +2925,7 @@ Transaction, receipt, and request formatters moved to the `Transaction`, `Transa
 Access list and authorization conversions moved from flat helpers to the `AccessList` and `Authorization` namespaces.
 
 ```diff
-+ import { AccessList, Authorization } from 'viem'
++ import { AccessList, Authorization } from 'viem/utils'
 
 - const tuple = serializeAccessList(accessList)
 + const tuple = AccessList.toTupleList(accessList)
@@ -2936,7 +2937,7 @@ Access list and authorization conversions moved from flat helpers to the `Access
 The experimental authorization helpers moved to `Authorization`, with bigint nonces, hex-only signing payloads, and synchronous recovery and verification ([bigint Scalars](#bigint-scalars)).
 
 ```diff
-+ import { Authorization, Bytes } from 'viem'
++ import { Authorization, Bytes } from 'viem/utils'
 
 - const payload = hashAuthorization({ contractAddress, chainId, nonce: 1, to: 'bytes' })
 - const recovered = await recoverAuthorizationAddress({ authorization })

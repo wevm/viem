@@ -15,7 +15,7 @@ export type SignableMessage = string | { raw: Hex.Hex | Bytes.Bytes }
  *
  * @example
  * ```ts
- * import { PersonalMessage } from 'viem'
+ * import { PersonalMessage } from 'viem/utils'
  *
  * const address = PersonalMessage.recoverAddress({
  *   message: 'hello world',
@@ -57,7 +57,7 @@ export declare namespace recoverAddress {
  *
  * @example
  * ```ts
- * import { PersonalMessage } from 'viem'
+ * import { PersonalMessage } from 'viem/utils'
  *
  * const valid = PersonalMessage.verify({
  *   message: 'hello world',

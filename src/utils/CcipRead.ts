@@ -20,7 +20,7 @@ type GatewayResponse = {
  *
  * @example
  * ```ts
- * import { CcipRead } from 'viem'
+ * import { CcipRead } from 'viem/utils'
  *
  * const request: CcipRead.Request = CcipRead.request
  * ```
@@ -35,7 +35,7 @@ export type Request = (options: request.Options) => Promise<request.ReturnType>
  *
  * @example
  * ```ts
- * import { CcipRead } from 'viem'
+ * import { CcipRead } from 'viem/utils'
  *
  * const data = await CcipRead.request({
  *   data: '0xdeadbeef',
@@ -193,7 +193,8 @@ function isLocalHostname(hostname: string): boolean {
  *
  * @example
  * ```ts
- * import { CcipRead, Client, http } from 'viem'
+ * import { Client, http } from 'viem'
+ * import { CcipRead } from 'viem/utils'
  *
  * const client = Client.create({
  *   ccipRead: CcipRead.tunnel({
@@ -239,7 +240,7 @@ export declare namespace tunnel {
  *
  * @example
  * ```ts
- * import { CcipRead } from 'viem'
+ * import { CcipRead } from 'viem/utils'
  *
  * if (error instanceof CcipRead.LookupError) console.error(error.cause)
  * ```
@@ -288,7 +289,7 @@ export class LookupError extends Errors.BaseError<Error> {
  *
  * @example
  * ```ts
- * import { CcipRead } from 'viem'
+ * import { CcipRead } from 'viem/utils'
  *
  * if (error instanceof CcipRead.ResponseMalformedError)
  *   console.error(error.message)
@@ -313,7 +314,7 @@ export class ResponseMalformedError extends Errors.BaseError {
  *
  * @example
  * ```ts
- * import { CcipRead } from 'viem'
+ * import { CcipRead } from 'viem/utils'
  *
  * if (error instanceof CcipRead.SenderMismatchError)
  *   console.error(error.message)
@@ -341,7 +342,7 @@ export class SenderMismatchError extends Errors.BaseError {
  *
  * @example
  * ```ts
- * import { CcipRead } from 'viem'
+ * import { CcipRead } from 'viem/utils'
  *
  * if (error instanceof CcipRead.UrlNotAllowedError)
  *   console.error(error.message)

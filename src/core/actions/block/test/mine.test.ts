@@ -1,7 +1,8 @@
 import { expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
-import { Client, Hex, http, Actions, testActions } from 'viem'
+import { Client, http, Actions, testActions } from 'viem'
+import { Hex } from 'viem/utils'
 
 const client = Client.create({
   transport: http(anvil.mainnet.rpcUrl.http),

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import * as constants from '~test/constants.js'
-import { Authorization, Secp256k1 } from 'viem'
+import { Authorization, Secp256k1 } from 'viem/utils'
 
 const account = constants.accounts[0]
 

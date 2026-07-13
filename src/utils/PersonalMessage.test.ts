@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import * as constants from '~test/constants.js'
-import { PersonalMessage, Secp256k1 } from 'viem'
+import { PersonalMessage, Secp256k1 } from 'viem/utils'
 
 const account = constants.accounts[0].address
 const publicKey = Secp256k1.getPublicKey({

@@ -11,7 +11,7 @@ export * from 'ox/Json'
  *
  * @example
  * ```ts
- * import { Json } from 'viem'
+ * import { Json } from 'viem/utils'
  *
  * Json.prettyPrint({
  *   from: '0x0000000000000000000000000000000000000000',

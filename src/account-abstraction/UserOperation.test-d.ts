@@ -1,4 +1,4 @@
-import type { Hex, Signature } from 'viem'
+import type { Hex, Signature } from 'viem/utils'
 import { UserOperation } from 'viem/account-abstraction'
 import { expectTypeOf, test } from 'vitest'
 

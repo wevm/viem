@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { Address } from 'viem'
+import { Address } from 'viem/utils'
 
 test('ether', () => {
   expect(Address.ether).toMatchInlineSnapshot(

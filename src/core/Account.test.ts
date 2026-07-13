@@ -2,17 +2,16 @@ import { HdKey, Secp256k1 } from 'ox'
 import { describe, expect, test } from 'vitest'
 
 import * as constants from '~test/constants.js'
+import { Account, NonceManager } from 'viem'
 import {
-  Account,
   Authorization,
   Hash,
   Hex,
-  NonceManager,
   PersonalMessage,
   Signature,
   TxEnvelope,
   TypedData,
-} from 'viem'
+} from 'viem/utils'
 
 const mnemonic = 'test test test test test test test test test test test junk'
 

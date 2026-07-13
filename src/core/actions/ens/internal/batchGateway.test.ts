@@ -2,7 +2,7 @@ import { Abi, AbiError, AbiFunction } from 'ox'
 import { createServer } from '~test/http.js'
 import { expect, test } from 'vitest'
 
-import { CcipRead } from 'viem'
+import { CcipRead } from 'viem/utils'
 import {
   localBatchGatewayRequest,
   localBatchGatewayUrl,

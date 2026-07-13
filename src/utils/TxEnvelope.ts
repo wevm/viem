@@ -14,7 +14,7 @@ import type { Bytes, Errors, Hex } from 'ox'
  *
  * @example
  * ```ts
- * import { TxEnvelope } from 'viem'
+ * import { TxEnvelope } from 'viem/utils'
  *
  * const address = TxEnvelope.recoverAddress('0x02f8…') // signed, or pass `signature` for unsigned
  * const address = TxEnvelope.recoverAddress(envelope, { signature })

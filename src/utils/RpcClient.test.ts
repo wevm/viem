@@ -3,7 +3,8 @@ import { describe, expect, test } from 'vitest'
 import * as anvil from '~test/anvil.js'
 import * as Http from '~test/http.js'
 import * as Ws from '~test/ws.js'
-import { Actions, RpcClient } from 'viem'
+import { Actions } from 'viem'
+import { RpcClient } from 'viem/utils'
 
 const ok = (result: unknown) =>
   JSON.stringify({ id: 1, jsonrpc: '2.0', result })

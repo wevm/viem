@@ -7,7 +7,8 @@ import {
 } from '~test/ens.js'
 import { beforeAll, describe, expect, test } from 'vitest'
 
-import { Actions, CcipRead, Client, http, publicActions } from 'viem'
+import { Actions, Client, http, publicActions } from 'viem'
+import { CcipRead } from 'viem/utils'
 import { mainnet, optimism } from 'viem/chains'
 
 import { getName } from './getName.js'

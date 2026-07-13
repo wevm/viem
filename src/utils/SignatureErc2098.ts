@@ -16,7 +16,7 @@ export type SignatureErc2098 = {
  *
  * @example
  * ```ts
- * import { SignatureErc2098 } from 'viem'
+ * import { SignatureErc2098 } from 'viem/utils'
  *
  * const compact = SignatureErc2098.from({
  *   r: '0x68a020a209d3d56c46f38cc50a33f704f4a9a10a59377f8dd762ac66910e9b90',
@@ -48,7 +48,7 @@ export declare namespace from {
  *
  * @example
  * ```ts
- * import { SignatureErc2098 } from 'viem'
+ * import { SignatureErc2098 } from 'viem/utils'
  *
  * const compact = SignatureErc2098.fromHex('0x…')
  * ```
@@ -77,7 +77,7 @@ export declare namespace fromHex {
  *
  * @example
  * ```ts
- * import { SignatureErc2098 } from 'viem'
+ * import { SignatureErc2098 } from 'viem/utils'
  *
  * const serialized = SignatureErc2098.toHex(compact)
  * ```
@@ -100,7 +100,7 @@ export declare namespace toHex {
  *
  * @example
  * ```ts
- * import { SignatureErc2098 } from 'viem'
+ * import { SignatureErc2098 } from 'viem/utils'
  *
  * const signature = SignatureErc2098.toSignature({
  *   r: '0x68a020a209d3d56c46f38cc50a33f704f4a9a10a59377f8dd762ac66910e9b90',

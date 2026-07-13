@@ -9,7 +9,7 @@ import type { Bytes, Errors, Hex } from 'ox'
  *
  * @example
  * ```ts
- * import { Authorization } from 'viem'
+ * import { Authorization } from 'viem/utils'
  *
  * const address = Authorization.recoverAddress({
  *   authorization, // signed, or unsigned + explicit `signature`
@@ -51,7 +51,7 @@ export declare namespace recoverAddress {
  *
  * @example
  * ```ts
- * import { Authorization } from 'viem'
+ * import { Authorization } from 'viem/utils'
  *
  * const valid = Authorization.verify({
  *   authorization,

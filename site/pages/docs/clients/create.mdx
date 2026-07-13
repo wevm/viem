@@ -197,7 +197,8 @@ const blockNumber = await Actions.block.getNumber(client)
 CCIP Read is disabled by default. Opt in with an explicit request policy. For most applications, route resolver-provided URLs through a trusted HTTPS batch gateway.
 
 ```ts twoslash
-import { Actions, CcipRead, Client, http } from 'viem'
+import { Actions, Client, http } from 'viem'
+import { CcipRead } from 'viem/utils'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({
@@ -397,7 +398,8 @@ const client = Client.create({
 [CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) configuration. Enabling it requires an explicit request policy.
 
 ```ts twoslash
-import { CcipRead, Client, http } from 'viem'
+import { Client, http } from 'viem'
+import { CcipRead } from 'viem/utils'
 import { mainnet } from 'viem/chains'
 // ---cut---
 const client = Client.create({

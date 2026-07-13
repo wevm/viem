@@ -9,7 +9,7 @@ import type { Bytes, Errors, Hex, Signature } from 'ox'
  *
  * @example
  * ```ts
- * import { TypedData } from 'viem'
+ * import { TypedData } from 'viem/utils'
  *
  * const address = TypedData.recoverAddress({
  *   domain: { name: 'Ether Mail', version: '1', chainId: 1 },
@@ -59,7 +59,7 @@ export declare namespace recoverAddress {
  *
  * @example
  * ```ts
- * import { TypedData } from 'viem'
+ * import { TypedData } from 'viem/utils'
  *
  * const valid = TypedData.verify({
  *   domain: { name: 'Ether Mail', version: '1', chainId: 1 },

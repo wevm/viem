@@ -5,7 +5,7 @@ import { createBatchGatewayErrorServer } from '~test/ens.js'
 import { createServer } from '~test/http.js'
 import { describe, expect, test } from 'vitest'
 
-import { CcipRead, RpcClient } from 'viem'
+import { CcipRead, RpcClient } from 'viem/utils'
 
 import { localBatchGatewayUrl } from '../core/actions/ens/internal/batchGateway.js'
 

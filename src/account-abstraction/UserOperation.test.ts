@@ -1,4 +1,4 @@
-import { Signature } from 'viem'
+import { Signature } from 'viem/utils'
 import { UserOperation } from 'viem/account-abstraction'
 import { expect, test } from 'vitest'
 

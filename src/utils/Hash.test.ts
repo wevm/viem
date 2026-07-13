@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { Hash } from 'viem'
+import { Hash } from 'viem/utils'
 
 test('zero', () => {
   expect(Hash.zero).toMatchInlineSnapshot(

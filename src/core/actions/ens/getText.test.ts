@@ -8,7 +8,8 @@ import {
 } from '~test/ens.js'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
-import { Actions, CcipRead, Client, http, publicActions } from 'viem'
+import { Actions, Client, http, publicActions } from 'viem'
+import { CcipRead } from 'viem/utils'
 import { linea, mainnet, optimism } from 'viem/chains'
 
 import { getText } from './getText.js'

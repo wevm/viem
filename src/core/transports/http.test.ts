@@ -3,7 +3,8 @@ import { describe, expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
 import * as Http from '~test/http.js'
-import { Chain, http, RpcClient, Transport } from 'viem'
+import { Chain, http, Transport } from 'viem'
+import { RpcClient } from 'viem/utils'
 
 const url = anvil.mainnet.rpcUrl.http
 

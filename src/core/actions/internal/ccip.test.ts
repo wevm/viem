@@ -6,7 +6,8 @@ import * as constants from '~test/constants.js'
 import * as contract from '~test/contract.js'
 import { describe, expect, test } from 'vitest'
 
-import { Actions, CcipRead, Client, custom, RpcError } from 'viem'
+import { Actions, Client, custom, RpcError } from 'viem'
+import { CcipRead } from 'viem/utils'
 
 import { offchainLookup } from './ccip.js'
 

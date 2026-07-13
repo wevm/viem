@@ -3,7 +3,8 @@ import { describe, expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
 import * as Ws from '~test/ws.js'
-import { Actions, Chain, RpcClient, Transport, webSocket } from 'viem'
+import { Actions, Chain, Transport, webSocket } from 'viem'
+import { RpcClient } from 'viem/utils'
 
 const url = anvil.mainnet.rpcUrl.ws
 const client = anvil.getClient(anvil.mainnet)
