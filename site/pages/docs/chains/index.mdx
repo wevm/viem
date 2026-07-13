@@ -8,7 +8,7 @@ The **Chain** module describes an EVM chain: its id, name, native currency, RPC 
 
 A `Chain` is plain data plus two optional behavior slots:
 
-- **`schema`**: bidirectional RPC to native codecs.
+- **`codecs`**: bidirectional RPC to native codecs.
 - **`transaction`**: transaction signing & preparation hooks.
 
 ```ts twoslash

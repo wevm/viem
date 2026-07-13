@@ -16,13 +16,13 @@ test('includeTransactions: returns transaction objects', async () => {
   expectTypeOf(block.transactions[0].hash).toEqualTypeOf<Hex.Hex>()
 })
 
-test('chain schema: returns the block converter output', async () => {
+test('chain codecs: returns the block converter output', async () => {
   const chain = Chain.from({
     id: 1,
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-    schema: {
+    codecs: {
       block: {
         fromRpc: (rpc: Block.Rpc): Block.Block => Block.fromRpc(rpc),
       },
@@ -34,13 +34,13 @@ test('chain schema: returns the block converter output', async () => {
   expectTypeOf(block).toEqualTypeOf<Block.Block>()
 })
 
-test('chain schema: infers custom block properties', async () => {
+test('chain codecs: infers custom block properties', async () => {
   const chain = Chain.from({
     id: 1,
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-    schema: {
+    codecs: {
       block: {
         fromRpc: (
           rpc: Block.Rpc,
@@ -66,13 +66,13 @@ test('chain schema: infers custom block properties', async () => {
   expectTypeOf(block.transactions).toEqualTypeOf<readonly Hex.Hex[]>()
 })
 
-test('chain schema: infers custom properties from a transform', async () => {
+test('chain codecs: infers custom properties from a transform', async () => {
   const chain = Chain.from({
     id: 1,
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-    schema: {
+    codecs: {
       block: {
         fromRpc: (rpc: Block.Rpc) => ({
           ...Block.fromRpc(rpc),
@@ -94,7 +94,7 @@ test('decorator: threads custom chain properties through publicActions', async (
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-    schema: {
+    codecs: {
       block: {
         fromRpc: (
           rpc: Block.Rpc,

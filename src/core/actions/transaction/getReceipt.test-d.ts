@@ -9,17 +9,18 @@ test('default: returns a transaction receipt object', async () => {
   expectTypeOf(receipt).toEqualTypeOf<TransactionReceipt.TransactionReceipt>()
 })
 
-test('chain schema: returns the receipt converter output', async () => {
+test('chain codecs: returns the receipt converter output', async () => {
   const chain = Chain.from({
     id: 1,
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-    schema: {
+    codecs: {
       transactionReceipt: {
         fromRpc: (
           rpc: TransactionReceipt.Rpc,
-        ): TransactionReceipt.TransactionReceipt => TransactionReceipt.fromRpc(rpc),
+        ): TransactionReceipt.TransactionReceipt =>
+          TransactionReceipt.fromRpc(rpc),
       },
     },
   })
@@ -31,13 +32,13 @@ test('chain schema: returns the receipt converter output', async () => {
   expectTypeOf(receipt).toEqualTypeOf<TransactionReceipt.TransactionReceipt>()
 })
 
-test('chain schema: infers custom properties from a converter', async () => {
+test('chain codecs: infers custom properties from a converter', async () => {
   const chain = Chain.from({
     id: 1,
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-    schema: {
+    codecs: {
       transactionReceipt: {
         fromRpc: (rpc: TransactionReceipt.Rpc) => ({
           ...TransactionReceipt.fromRpc(rpc),
@@ -60,7 +61,7 @@ test('decorator: threads custom chain properties through publicActions', async (
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-    schema: {
+    codecs: {
       transactionReceipt: {
         fromRpc: (rpc: TransactionReceipt.Rpc) => ({
           ...TransactionReceipt.fromRpc(rpc),

@@ -36,10 +36,10 @@ test('args: hash', async () => {
   `)
 })
 
-test('behavior: decodes via chain schema when declared', async () => {
+test('behavior: decodes via chain codecs when declared', async () => {
   const chain = mainnet.extend({
     rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-    schema: {
+    codecs: {
       transactionReceipt: {
         fromRpc: (rpc: TransactionReceipt.Rpc) =>
           TransactionReceipt.fromRpc(rpc),
@@ -53,10 +53,10 @@ test('behavior: decodes via chain schema when declared', async () => {
   )
 })
 
-test('behavior: decodes custom properties via chain schema', async () => {
+test('behavior: decodes custom properties via chain codecs', async () => {
   const chain = mainnet.extend({
     rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-    schema: {
+    codecs: {
       transactionReceipt: {
         fromRpc: (rpc: TransactionReceipt.Rpc) => ({
           ...TransactionReceipt.fromRpc(rpc),

@@ -19,17 +19,18 @@ test('default: accepts the ox receipt as transactionReceipt', async () => {
   expectTypeOf(confirmations).toEqualTypeOf<bigint>()
 })
 
-test('chain schema: transactionReceipt option reflects the chain converter', async () => {
+test('chain codecs: transactionReceipt option reflects the chain converter', async () => {
   const chain = Chain.from({
     id: 1,
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-    schema: {
+    codecs: {
       transactionReceipt: {
         fromRpc: (
           rpc: TransactionReceipt.Rpc,
-        ): TransactionReceipt.TransactionReceipt => TransactionReceipt.fromRpc(rpc),
+        ): TransactionReceipt.TransactionReceipt =>
+          TransactionReceipt.fromRpc(rpc),
       },
     },
   })

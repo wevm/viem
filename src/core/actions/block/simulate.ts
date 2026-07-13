@@ -68,7 +68,7 @@ export async function simulate<
   try {
     // Chains with a request converter encode calls themselves; nested generic
     // encoding would reject or strip chain-specific fields.
-    const toRpc = client.chain?.schema?.transactionRequest?.toRpc
+    const toRpc = client.chain?.codecs?.transactionRequest?.toRpc
 
     const blockStateCalls = blocks.map((block) => {
       const calls = block.calls.map((call_) => {
@@ -178,7 +178,7 @@ export async function simulate<
       calls?: readonly RpcCallResult[] | undefined
     })[]
 
-    const fromRpc = client.chain?.schema?.block?.fromRpc
+    const fromRpc = client.chain?.codecs?.block?.fromRpc
 
     return result.map((rpcBlock, i) => {
       const { calls: rpcCalls = [], ...blockRpc } = rpcBlock

@@ -35,7 +35,7 @@ export async function getReceipt<chain extends Chain.Chain | undefined>(
 
   if (!receipt) throw new TransactionReceiptNotFoundError({ hash })
 
-  const fromRpc = client.chain?.schema?.transactionReceipt?.fromRpc
+  const fromRpc = client.chain?.codecs?.transactionReceipt?.fromRpc
   return (
     fromRpc ? fromRpc(receipt) : TransactionReceipt.fromRpc(receipt)
   ) as getReceipt.ReturnType<chain>

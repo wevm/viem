@@ -76,7 +76,7 @@ export type Envelope = TxEnvelopeTempo.TxEnvelopeTempo & {
 /**
  * The Tempo chain configuration shape. Codec and hook members are typed
  * nominally so declaration emit references them instead of expanding the
- * (large) inferred schema types.
+ * (large) inferred codec types.
  */
 export type ChainConfig = {
   blockTime: number
@@ -84,7 +84,7 @@ export type ChainConfig = {
     feeToken?: Address.Address | undefined
     hardfork?: Hardfork | undefined
   }
-  schema: {
+  codecs: {
     transaction: {
       fromRpc: (rpc: TransactionTempo.Rpc) => TransactionTempo.Transaction
     }
@@ -149,7 +149,7 @@ export const chainConfig = {
     feeToken?: Address.Address | undefined
     hardfork?: Hardfork | undefined
   }>(),
-  schema: {
+  codecs: {
     transaction: { fromRpc: TransactionTempo.fromRpc },
     transactionReceipt: { fromRpc: TransactionReceiptTempo.fromRpc },
     transactionRequest: {
@@ -509,7 +509,7 @@ export const chainConfig = {
   },
 } satisfies Pick<
   Chain.Chain,
-  'blockTime' | 'extendSchema' | 'schema' | 'transaction' | 'verifyHash'
+  'blockTime' | 'codecs' | 'extendSchema' | 'transaction' | 'verifyHash'
 > as ChainConfig
 
 /** Untyped envelopes are assumed tempo (they flow from `toEnvelope`). @internal */

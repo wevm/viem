@@ -48,7 +48,7 @@ export type Chain = {
   /** Typed chain-extension declaration (see {@link extendSchema}). */
   extendSchema?: Record<string, unknown> | undefined
   /** RPC ↔ native converters. */
-  schema?: Chain.Schema | undefined
+  codecs?: Chain.Codecs | undefined
   /** Source chain id (e.g. the L1 chain). */
   sourceId?: number | undefined
   /** Whether transaction replacement detection is supported. @default true */
@@ -287,15 +287,15 @@ export declare namespace Chain {
    * converts an RPC value into its native (viem-side) shape; `toRpc` converts
    * a native value into its RPC/wire shape.
    */
-  type Schema = {
-    block?: SchemaConverter | undefined
-    transaction?: SchemaConverter | undefined
-    transactionReceipt?: SchemaConverter | undefined
-    transactionRequest?: SchemaConverter | undefined
+  type Codecs = {
+    block?: Codec | undefined
+    transaction?: Codec | undefined
+    transactionReceipt?: Codec | undefined
+    transactionRequest?: Codec | undefined
   }
 
   /** RPC ↔ native converter pair for a chain entity. */
-  type SchemaConverter = {
+  type Codec = {
     /** Converts an RPC value into its native shape. */
     fromRpc?: ((value: any) => unknown) | undefined
     /** Converts a native value into its RPC shape. */
@@ -305,7 +305,7 @@ export declare namespace Chain {
 
 /**
  * Native block type a {@link Chain} produces. Resolves to the return type of
- * the chain's `schema.block.fromRpc` converter when declared, otherwise the
+ * the chain's `codecs.block.fromRpc` converter when declared, otherwise the
  * default {@link Block.Block}.
  */
 export type ExtractBlock<
@@ -313,34 +313,34 @@ export type ExtractBlock<
   includeTransactions extends boolean = false,
   blockTag extends Block.Tag = 'latest',
 > = chain extends {
-  schema: { block: { fromRpc: (value: never) => infer block } }
+  codecs: { block: { fromRpc: (value: never) => infer block } }
 }
   ? block
   : Block.Block<includeTransactions, blockTag>
 
 /**
  * Native transaction type a {@link Chain} produces. Resolves to the return
- * type of the chain's `schema.transaction.fromRpc` converter when declared,
+ * type of the chain's `codecs.transaction.fromRpc` converter when declared,
  * otherwise the default {@link Transaction.Transaction}.
  */
 export type ExtractTransaction<
   chain extends Chain | undefined,
   pending extends boolean = false,
 > = chain extends {
-  schema: { transaction: { fromRpc: (value: never) => infer transaction } }
+  codecs: { transaction: { fromRpc: (value: never) => infer transaction } }
 }
   ? transaction
   : Transaction.Transaction<pending>
 
 /**
  * Native transaction receipt type a {@link Chain} produces. Resolves to the
- * return type of the chain's `schema.transactionReceipt.fromRpc` converter
+ * return type of the chain's `codecs.transactionReceipt.fromRpc` converter
  * when declared, otherwise the default
  * {@link TransactionReceipt.TransactionReceipt}.
  */
 export type ExtractTransactionReceipt<chain extends Chain | undefined> =
   chain extends {
-    schema: {
+    codecs: {
       transactionReceipt: { fromRpc: (value: never) => infer receipt }
     }
   }
@@ -349,13 +349,13 @@ export type ExtractTransactionReceipt<chain extends Chain | undefined> =
 
 /**
  * Native transaction request input a {@link Chain} accepts. Resolves to the
- * parameter type of the chain's `schema.transactionRequest.toRpc` converter
+ * parameter type of the chain's `codecs.transactionRequest.toRpc` converter
  * when declared (the converter's native side), otherwise the default
  * {@link TransactionRequest.toRpc.Input}.
  */
 export type ExtractTransactionRequest<chain extends Chain | undefined> =
   chain extends {
-    schema: {
+    codecs: {
       transactionRequest: { toRpc: (value: infer request) => unknown }
     }
   }

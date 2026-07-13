@@ -18,13 +18,13 @@ test("blockTag 'pending': threads pending into the transaction type", async () =
   expectTypeOf(transaction).toEqualTypeOf<Transaction.Transaction<true>>()
 })
 
-test('chain schema: returns the transaction converter output', async () => {
+test('chain codecs: returns the transaction converter output', async () => {
   const chain = Chain.from({
     id: 1,
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-    schema: {
+    codecs: {
       transaction: {
         fromRpc: (rpc: Transaction.Rpc): Transaction.Transaction =>
           Transaction.fromRpc(rpc),
@@ -39,13 +39,13 @@ test('chain schema: returns the transaction converter output', async () => {
   expectTypeOf(transaction).toEqualTypeOf<Transaction.Transaction>()
 })
 
-test('chain schema: infers custom properties from a transform', async () => {
+test('chain codecs: infers custom properties from a transform', async () => {
   const chain = Chain.from({
     id: 1,
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-    schema: {
+    codecs: {
       transaction: {
         fromRpc: (rpc: Transaction.Rpc) => ({
           ...Transaction.fromRpc(rpc),
@@ -68,7 +68,7 @@ test('decorator: threads custom chain properties through publicActions', async (
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-    schema: {
+    codecs: {
       transaction: {
         fromRpc: (rpc: Transaction.Rpc) => ({
           ...Transaction.fromRpc(rpc),

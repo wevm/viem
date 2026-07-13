@@ -85,7 +85,7 @@ export async function get<
       index,
     })
 
-  const fromRpc = client.chain?.schema?.transaction?.fromRpc
+  const fromRpc = client.chain?.codecs?.transaction?.fromRpc
   return (
     fromRpc ? fromRpc(transaction) : Transaction.fromRpc(transaction)
   ) as get.ReturnType<chain, blockTag>

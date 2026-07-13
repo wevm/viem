@@ -289,7 +289,7 @@ describe('errors', () => {
   })
 })
 
-describe('behavior: chain schema', () => {
+describe('behavior: chain codecs', () => {
   test('encodes the request via the chain request converter', async () => {
     // The generic tuple encoding strips fields it does not know; a chain
     // request converter must own the request encoding so chain-specific fields
@@ -310,7 +310,7 @@ describe('behavior: chain schema', () => {
     })
     try {
       const chain = mainnet.extend({
-        schema: {
+        codecs: {
           transactionRequest: {
             toRpc: (request: any) => ({
               ...TransactionRequest.toRpc(request),

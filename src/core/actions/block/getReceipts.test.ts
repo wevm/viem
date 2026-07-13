@@ -38,10 +38,10 @@ test('args: blockTag (default latest)', async () => {
   expect(receipts).toHaveLength(232)
 })
 
-test('behavior: converts via chain schema when declared', async () => {
+test('behavior: converts via chain codecs when declared', async () => {
   const chain = mainnet.extend({
     rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-    schema: {
+    codecs: {
       transactionReceipt: {
         fromRpc: (rpc: TransactionReceipt.Rpc) =>
           TransactionReceipt.fromRpc(rpc),
@@ -55,10 +55,10 @@ test('behavior: converts via chain schema when declared', async () => {
   ).toEqual(await Actions.block.getReceipts(client, { blockNumber }))
 })
 
-test('behavior: converts custom properties via chain schema', async () => {
+test('behavior: converts custom properties via chain codecs', async () => {
   const chain = mainnet.extend({
     rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-    schema: {
+    codecs: {
       transactionReceipt: {
         fromRpc: (rpc: TransactionReceipt.Rpc) => ({
           ...TransactionReceipt.fromRpc(rpc),

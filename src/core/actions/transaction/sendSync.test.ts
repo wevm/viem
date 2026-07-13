@@ -184,10 +184,10 @@ describe.each(accountCases)('account: %s', (name, account) => {
     expect(receipt.status).toMatchInlineSnapshot(`"success"`)
   })
 
-  test('behavior: chain schema', async () => {
+  test('behavior: chain codecs', async () => {
     await setup()
     const chain = mainnet.extend({
-      schema: {
+      codecs: {
         transactionRequest: {
           toRpc: (request: any) => TransactionRequest.toRpc(request),
         },

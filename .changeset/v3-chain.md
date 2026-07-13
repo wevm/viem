@@ -17,7 +17,7 @@ Chain definitions were moved from `defineChain` to the `Chain` namespace.
  })
 ```
 
-Chain formatter configuration was replaced by RPC/native schema converters. `fromRpc` converters decode wire values to native shapes; `toRpc` converters encode native values to wire shapes (request option types resolve from the parameter type of `schema.transactionRequest.toRpc`). All formatter constructors were removed with the system: `defineFormatter`, `defineBlock`, `defineTransaction`, `defineTransactionReceipt`, and `defineTransactionRequest`, along with the formatter `exclude` feature (`ExtractChainFormatterExclude`) — converters simply omit keys from their return value.
+Chain formatter configuration was replaced by RPC/native codecs. `fromRpc` converters decode wire values to native shapes; `toRpc` converters encode native values to wire shapes (request option types resolve from the parameter type of `codecs.transactionRequest.toRpc`). All formatter constructors were removed with the system: `defineFormatter`, `defineBlock`, `defineTransaction`, `defineTransactionReceipt`, and `defineTransactionRequest`, along with the formatter `exclude` feature (`ExtractChainFormatterExclude`) — converters simply omit keys from their return value.
 
 ```diff
 -import { defineChain, formatters } from 'viem'
@@ -29,7 +29,7 @@ Chain formatter configuration was replaced by RPC/native schema converters. `fro
 -    block: formatters.defineBlock({ format(args) { return args } }),
 -  },
 +const chain = Chain.from({
-+  schema: {
++  codecs: {
 +    block: {
 +      fromRpc: (rpc) => Block.fromRpc(rpc),
 +    },
@@ -37,7 +37,7 @@ Chain formatter configuration was replaced by RPC/native schema converters. `fro
  })
 ```
 
-Chain-aware formatted types moved from the `Formatted*` helpers to `Chain.Extract*`, which infer from the chain's schema converters.
+Chain-aware formatted types moved from the `Formatted*` helpers to `Chain.Extract*`, which infer from the chain's codecs.
 
 ```diff
 - import type {
@@ -313,5 +313,5 @@ Deprecated chain exports were removed: `statusNetworkSepolia`, `statusSepolia`, 
 + import { optimism } from 'viem/chains'
 
 + // Extension serializers have no v3 equivalent; build on `Chain.from`
-+ // with `schema` and `transaction` hooks instead.
++ // with `codecs` and `transaction` hooks instead.
 ```

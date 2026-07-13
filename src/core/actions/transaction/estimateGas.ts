@@ -116,7 +116,7 @@ export async function estimateGas(
       requireCanonical,
     })
 
-    const toRpc = client.chain?.schema?.transactionRequest?.toRpc
+    const toRpc = client.chain?.codecs?.transactionRequest?.toRpc
     // Chain converters are untyped; assert back to the RPC shape produced.
     const request_ = toRpc
       ? (toRpc(request) as TransactionRequest.Rpc)

@@ -44,7 +44,7 @@ test('onError: error is typed; off returns void', () => {
   expectTypeOf(watcher.off()).toEqualTypeOf<void>()
 })
 
-test('chain schema: receipt type reflects the chain codec', async () => {
+test('chain codecs: receipt type reflects the chain codec', async () => {
   const chain = Chain.from({
     id: 1,
     name: 'Ethereum',

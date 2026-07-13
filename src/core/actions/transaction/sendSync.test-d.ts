@@ -18,14 +18,14 @@ const chain = Chain.from({
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-  schema: {
+  codecs: {
     transactionRequest: {
       toRpc: (_request: { custom: string }): TransactionRequest.Rpc => ({}),
     },
   },
 })
 
-test("chain schema: Options use the converter's native request type", () => {
+test("chain codecs: Options use the converter's native request type", () => {
   expectTypeOf<sendSync.Options<typeof chain>>().toMatchTypeOf<{
     custom: string
   }>()

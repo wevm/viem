@@ -319,10 +319,10 @@ test('error: unrecognized node error wraps the original on cause', async () => {
   expect(error.cause.name).toBe('RpcResponse.InvalidParamsError')
 })
 
-test('behavior: encodes/decodes via chain schema when declared', async () => {
-  const schemaChain = mainnet.extend({
+test('behavior: encodes/decodes via chain codecs when declared', async () => {
+  const codecsChain = mainnet.extend({
     rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-    schema: {
+    codecs: {
       transaction: {
         fromRpc: (rpc: Transaction.Rpc<true>) =>
           Transaction.fromRpc(rpc, { pending: true }),
@@ -334,7 +334,7 @@ test('behavior: encodes/decodes via chain schema when declared', async () => {
     },
   })
   const schemaClient = Client.create({
-    chain: schemaChain,
+    chain: codecsChain,
     transport: http(),
   })
 

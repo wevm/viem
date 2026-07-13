@@ -41,7 +41,7 @@ Low-level request composition and action dispatch were internalized; RPC client 
 +// Compose requests and action overrides at the Client or Transport boundary.
 ```
 
-Formatter constructors moved to namespace conversions and chain schema hooks; error mappers moved to their namespaces or were folded into action wrappers.
+Formatter constructors moved to namespace conversions and chain codec hooks; error mappers moved to their namespaces or were folded into action wrappers.
 
 ```diff
 -import { defineTransaction, defineTransactionReceipt, getContractError, getNodeError } from 'viem/utils'
@@ -50,7 +50,7 @@ Formatter constructors moved to namespace conversions and chain schema hooks; er
 -const format = defineTransaction(formatter)
 +const transaction = Transaction.fromRpc(rpcTransaction)
 +const receipt = TransactionReceipt.fromRpc(rpcReceipt)
-+const chain = Chain.from({ schema })
++const chain = Chain.from({ codecs })
 +const rpcError = RpcError.fromRpcError(error)
 +const contractError = ContractError.fromError(error, options)
 ```
@@ -192,7 +192,7 @@ The `viem/package.json` export was removed.
 + // `viem/package.json` is not exported.
 ```
 
-The `viem/celo`, `viem/linea`, `viem/op-stack`, and `viem/zksync` extension entrypoints were removed; their chain definitions remain in `viem/chains` as plain chains, while extension-specific actions, formatters, and serializers have no v3 equivalent (stay on v2, or use third-party packages built on `Chain.from` with `schema` converters and `transaction` hooks such as `transaction.serialize`).
+The `viem/celo`, `viem/linea`, `viem/op-stack`, and `viem/zksync` extension entrypoints were removed; their chain definitions remain in `viem/chains` as plain chains, while extension-specific actions, formatters, and serializers have no v3 equivalent (stay on v2, or use third-party packages built on `Chain.from` with `codecs` and `transaction` hooks such as `transaction.serialize`).
 
 ```diff
 - import { optimism, publicActionsL2 } from 'viem/op-stack'

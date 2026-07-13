@@ -11,7 +11,7 @@ const privateKey =
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 const sender: Address.Address = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
 
-const { fromRpc, toRpc } = chainConfig.schema.transactionRequest
+const { fromRpc, toRpc } = chainConfig.codecs.transactionRequest
 const { transaction } = chainConfig
 const [prepare] = transaction.prepare
 
@@ -67,10 +67,9 @@ const v2 = {
     '0x76f8458205398405f5e100843b9aca00825208d8d79400000000000000000000000000000000000000008080c0800780809420c000000000000000000000000000000000000080c0',
 } as const
 
-describe('schema.transactionRequest', () => {
+describe('codecs.transactionRequest', () => {
   test('encodes a tempo request', () => {
-    expect(toRpc({ ...baseRequest, from: sender }))
-      .toMatchInlineSnapshot(`
+    expect(toRpc({ ...baseRequest, from: sender })).toMatchInlineSnapshot(`
         {
           "calls": [
             {
@@ -268,7 +267,7 @@ describe('schema.transactionRequest', () => {
   })
 
   test('chain definitions carry the converter', () => {
-    const rpc = tempoModerato.schema.transactionRequest.toRpc(
+    const rpc = tempoModerato.codecs.transactionRequest.toRpc(
       baseRequest,
     ) as Record<string, unknown>
     expect(rpc.type).toBe('0x76')

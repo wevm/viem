@@ -73,7 +73,7 @@ export async function fill<chain extends Chain.Chain | undefined>(
   } satisfies TransactionRequest.toRpc.Input
 
   // Chain converters are untyped; assert back to the RPC shape produced.
-  const toRpc = chain?.schema?.transactionRequest?.toRpc
+  const toRpc = chain?.codecs?.transactionRequest?.toRpc
   const rpcRequest: TransactionRequest.Rpc = toRpc
     ? (toRpc(request) as TransactionRequest.Rpc)
     : TransactionRequest.toRpc(request)
@@ -84,7 +84,7 @@ export async function fill<chain extends Chain.Chain | undefined>(
       requestOptions,
     )
 
-    const fromRpc = chain?.schema?.transaction?.fromRpc
+    const fromRpc = chain?.codecs?.transaction?.fromRpc
     const transaction = (
       fromRpc ? fromRpc(response.tx) : Transaction.fromRpc(response.tx)
     ) as Record<string, any>

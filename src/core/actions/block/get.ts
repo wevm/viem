@@ -60,7 +60,7 @@ export async function get<
 
   if (!block) throw new BlockNotFoundError({ blockHash, blockNumber })
 
-  const fromRpc = client.chain?.schema?.block?.fromRpc
+  const fromRpc = client.chain?.codecs?.block?.fromRpc
   return (
     fromRpc ? fromRpc(block) : Block.fromRpc(block, { includeTransactions })
   ) as get.ReturnType<chain, includeTransactions, blockTag>

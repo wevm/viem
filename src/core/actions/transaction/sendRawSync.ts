@@ -44,7 +44,7 @@ export async function sendRawSync<chain extends Chain.Chain | undefined>(
     { ...requestOptions, retryCount: 0 },
   )) as TransactionReceipt.Rpc
 
-  const fromRpc = client.chain?.schema?.transactionReceipt?.fromRpc
+  const fromRpc = client.chain?.codecs?.transactionReceipt?.fromRpc
   const decoded = (
     fromRpc ? fromRpc(receipt) : TransactionReceipt_.fromRpc(receipt)
   ) as sendRawSync.ReturnType<chain>

@@ -138,7 +138,7 @@ test('default', async () => {
       "withdrawalsRoot": "0x7e6f37f2fb74ada6d20947df157b129d1a5209d45d0f803ac88799c3526830f9",
     }
   `)
-  // schema-less default path returns transaction hashes.
+  // codec-less default path returns transaction hashes.
   expect(transactions.every((tx) => typeof tx === 'string')).toBe(true)
 })
 
@@ -202,10 +202,10 @@ test('args: includeTransactions', async () => {
   `)
 })
 
-test('behavior: converts via chain schema when declared', async () => {
+test('behavior: converts via chain codecs when declared', async () => {
   const chain = mainnet.extend({
     rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-    schema: { block: { fromRpc: (rpc: Block.Rpc) => Block.fromRpc(rpc) } },
+    codecs: { block: { fromRpc: (rpc: Block.Rpc) => Block.fromRpc(rpc) } },
   })
   const schemaClient = Client.create({ chain, transport: http() })
 
@@ -218,10 +218,10 @@ test('behavior: converts via chain schema when declared', async () => {
   expect(viaSchema).toEqual(viaDefault)
 })
 
-test('behavior: converts custom properties via chain schema', async () => {
+test('behavior: converts custom properties via chain codecs', async () => {
   const chain = mainnet.extend({
     rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-    schema: {
+    codecs: {
       block: {
         fromRpc: (rpc: Block.Rpc) => ({
           ...Block.fromRpc(rpc),

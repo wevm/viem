@@ -359,9 +359,9 @@ const chain = Chain.from({
 })
 ```
 
-##### chain.schema
+##### chain.codecs
 
-- **Type:** `Chain.Schema`
+- **Type:** `Chain.Codecs`
 - **Optional**
 
 Bidirectional RPC to native codecs.
@@ -374,7 +374,7 @@ const chain = Chain.from({
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-  schema: {}, // [!code focus]
+  codecs: {}, // [!code focus]
 })
 ```
 

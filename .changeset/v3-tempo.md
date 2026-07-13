@@ -47,7 +47,7 @@ Updated Zone deposits for current portals and added dynamic addresses, bouncebac
 +const status = await Actions.zone.waitForDepositStatus(zoneClient, { tempoBlockNumber })
 ```
 
-The `viem/tempo` extension was rebuilt on v3 primitives: module namespaces (`Abis`, `Account`, `Addresses`, `Capabilities`, `Expiry`, `Hardfork`, `KeyAuthorizationManager`, `P256`, `Scopes`, `Selectors`, `Storage`, `WebAuthnP256`, `WebCryptoP256`), chain schema hooks in place of formatters/serializers, a `Client.create` factory decorated with `tempoActions()`, and domain-namespaced actions (`accessKey`, `amm`, `channel`, `dex`, `faucet`, `fee`, `nonce`, `policy`, `receivePolicy`, `token`, `validator`, `virtualAddress`, `wallet`, and `zone`). The zones surface lives at `viem/tempo/zones` (auth-token `http` transport, `zone`/`zoneModerato` chain builders).
+The `viem/tempo` extension was rebuilt on v3 primitives: module namespaces (`Abis`, `Account`, `Addresses`, `Capabilities`, `Expiry`, `Hardfork`, `KeyAuthorizationManager`, `P256`, `Scopes`, `Selectors`, `Storage`, `WebAuthnP256`, `WebCryptoP256`), chain codec hooks in place of formatters/serializers, a `Client.create` factory decorated with `tempoActions()`, and domain-namespaced actions (`accessKey`, `amm`, `channel`, `dex`, `faucet`, `fee`, `nonce`, `policy`, `receivePolicy`, `token`, `validator`, `virtualAddress`, `wallet`, and `zone`). The zones surface lives at `viem/tempo/zones` (auth-token `http` transport, `zone`/`zoneModerato` chain builders).
 
 ```diff
 - import { Account, Actions, createClient } from 'viem/tempo'

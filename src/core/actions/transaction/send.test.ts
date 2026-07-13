@@ -311,11 +311,11 @@ describe('args: chain', () => {
   })
 })
 
-describe('behavior: chain schema', () => {
+describe('behavior: chain codecs', () => {
   test('encodes the json-rpc request via the chain request converter', async () => {
     await setup()
     const chain = mainnet.extend({
-      schema: {
+      codecs: {
         transactionRequest: {
           toRpc: (request: any) => TransactionRequest.toRpc(request),
         },

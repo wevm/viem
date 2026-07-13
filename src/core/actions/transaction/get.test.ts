@@ -83,10 +83,10 @@ test('args: blockNumber + index', async () => {
   expect(transaction).toEqual(byHash)
 })
 
-test('behavior: converts via chain schema when declared', async () => {
+test('behavior: converts via chain codecs when declared', async () => {
   const chain = mainnet.extend({
     rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-    schema: {
+    codecs: {
       transaction: {
         fromRpc: (rpc: Transaction.Rpc) => Transaction.fromRpc(rpc),
       },
@@ -131,10 +131,10 @@ test('behavior: converts via chain schema when declared', async () => {
   `)
 })
 
-test('behavior: converts custom properties via chain schema', async () => {
+test('behavior: converts custom properties via chain codecs', async () => {
   const chain = mainnet.extend({
     rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-    schema: {
+    codecs: {
       transaction: {
         fromRpc: (rpc: Transaction.Rpc) => ({
           ...Transaction.fromRpc(rpc),

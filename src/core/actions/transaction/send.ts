@@ -64,7 +64,7 @@ export async function send<chain extends Chain.Chain | undefined>(
   // the client's chain.
   const chain = chain_ === null ? null : (chain_ ?? client.chain)
   // The chain whose converter encodes the request (the opt-out does not apply).
-  const schemaChain = chain_ ?? client.chain
+  const codecsChain = chain_ ?? client.chain
 
   // Recover the address to reset the nonce against if signing/broadcasting
   // fails after the nonce manager has consumed one.
@@ -121,7 +121,7 @@ export async function send<chain extends Chain.Chain | undefined>(
       transactionRequest.assert(request)
 
       // Chain converters are untyped; assert back to the RPC shape produced.
-      const toRpc = schemaChain?.schema?.transactionRequest?.toRpc
+      const toRpc = codecsChain?.codecs?.transactionRequest?.toRpc
       const rpc: TransactionRequest.Rpc = toRpc
         ? (toRpc(request) as TransactionRequest.Rpc)
         : TransactionRequest.toRpc(request)
@@ -141,7 +141,7 @@ export async function send<chain extends Chain.Chain | undefined>(
     const { request } = await prepare(client, {
       ...rest,
       account,
-      chain: schemaChain,
+      chain: codecsChain,
       data,
       kzg,
       nonceManager,

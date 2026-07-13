@@ -144,14 +144,14 @@ const chainWithSchema = Chain.from({
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-  schema: {
+  codecs: {
     transactionRequest: {
       toRpc: (_request: { custom: string }): TransactionRequest.Rpc => ({}),
     },
   },
 })
 
-test('parameters: chain schema request field threads through Options', () => {
+test('parameters: chain codecs request field threads through Options', () => {
   expectTypeOf<prepare.Options<typeof chainWithSchema>>().toMatchTypeOf<{
     custom: string
   }>()

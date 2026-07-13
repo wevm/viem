@@ -45,7 +45,7 @@ export async function getReceipts<chain extends Chain.Chain | undefined>(
 
   if (!receipts) throw new BlockNotFoundError({ blockHash, blockNumber })
 
-  const fromRpc = client.chain?.schema?.transactionReceipt?.fromRpc
+  const fromRpc = client.chain?.codecs?.transactionReceipt?.fromRpc
   return receipts.map((receipt) =>
     fromRpc ? fromRpc(receipt) : TransactionReceipt.fromRpc(receipt),
   ) as getReceipts.ReturnType<chain>

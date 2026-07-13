@@ -114,8 +114,8 @@ For v3 rewrite work, also read `AGENTS.tmp.md`.
 - **No runtime `z.RpcSchema` in actions**; default action paths convert wire values with ox
   core helpers (`Hex.toBigInt`, `TransactionRequest.toRpc`, `Block.fromRpc`, …), keeping zod
   out of default bundles (~14 kB gzip per action otherwise).
-  - `ox/zod` (`z.encode`/`z.decode`) is reserved for chain schema hooks
-    (`client.chain?.schema?.…`).
+  - `ox/zod` (`z.encode`/`z.decode`) is reserved for chain codec hooks
+    (`client.chain?.codecs?.…`).
   - Build RPC `params` inline in the `client.request` call; hoisted params lose contextual
     tuple typing against the schema's mutable param tuples.
 - **Internal helpers stay internal**; keep helper modules under `internal/` directories unless they are part of the public API.

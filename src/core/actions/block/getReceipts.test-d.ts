@@ -13,13 +13,13 @@ test('default: returns an array of transaction receipts', async () => {
   >()
 })
 
-test('chain schema: returns the transaction receipt converter output', async () => {
+test('chain codecs: returns the transaction receipt converter output', async () => {
   const chain = Chain.from({
     id: 1,
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-    schema: {
+    codecs: {
       transactionReceipt: {
         fromRpc: (
           rpc: TransactionReceipt.Rpc,
@@ -44,7 +44,7 @@ test('decorator: threads custom chain properties through publicActions', async (
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-    schema: {
+    codecs: {
       transactionReceipt: {
         fromRpc: (rpc: TransactionReceipt.Rpc) => ({
           ...TransactionReceipt.fromRpc(rpc),

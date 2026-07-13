@@ -7,17 +7,18 @@ test('return type is a transaction receipt', () => {
   expectTypeOf<Actions.transaction.sendRawSync.ReturnType>().toEqualTypeOf<TransactionReceipt.TransactionReceipt>()
 })
 
-test('chain schema: returns the receipt converter output', async () => {
+test('chain codecs: returns the receipt converter output', async () => {
   const chain = Chain.from({
     id: 1,
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-    schema: {
+    codecs: {
       transactionReceipt: {
         fromRpc: (
           rpc: TransactionReceipt.Rpc,
-        ): TransactionReceipt.TransactionReceipt => TransactionReceipt.fromRpc(rpc),
+        ): TransactionReceipt.TransactionReceipt =>
+          TransactionReceipt.fromRpc(rpc),
       },
     },
   })

@@ -337,21 +337,25 @@ describe('args', () => {
   })
 
   // PeerDAS cell proofs cost ~5s of CPU per blob; raise the timeout.
-  test('blobs derive versionedHashes and sidecars', { timeout: 30_000 }, async () => {
-    const blobs = Blobs.from(Hex.fromString('hello viem'))
-    const { request } = await Actions.transaction.prepare(client, {
-      account,
-      blobs,
-      kzg,
-      parameters: ['blobVersionedHashes', 'sidecars'],
-      to,
-    })
-    expect(Array.isArray(request.blobVersionedHashes)).toBe(true)
-    expect((request.blobVersionedHashes as readonly string[]).length).toBe(
-      blobs.length,
-    )
-    expect(request.sidecars).toBeDefined()
-  })
+  test(
+    'blobs derive versionedHashes and sidecars',
+    { timeout: 30_000 },
+    async () => {
+      const blobs = Blobs.from(Hex.fromString('hello viem'))
+      const { request } = await Actions.transaction.prepare(client, {
+        account,
+        blobs,
+        kzg,
+        parameters: ['blobVersionedHashes', 'sidecars'],
+        to,
+      })
+      expect(Array.isArray(request.blobVersionedHashes)).toBe(true)
+      expect((request.blobVersionedHashes as readonly string[]).length).toBe(
+        blobs.length,
+      )
+      expect(request.sidecars).toBeDefined()
+    },
+  )
 
   test('chainId on chainless client', async () => {
     const chainless = Client.create({
@@ -731,8 +735,8 @@ describe('behavior: fill result', () => {
     }
   })
 
-  test('merges only present fields from a sparse chain schema', async () => {
-    // A custom `schema.transaction.fromRpc` that drops every field except `type`,
+  test('merges only present fields from a sparse chain codecs', async () => {
+    // A custom `codecs.transaction.fromRpc` that drops every field except `type`,
     // combined with a no-account request (so fill yields no `from`), forces the
     // merge to take the "field absent" branch for from/gas/nonce/chainId.
     const fillServer = await createFillServer({
@@ -761,7 +765,7 @@ describe('behavior: fill result', () => {
     })
     const chain = mainnet.extend({
       rpcUrls: { default: { http: [fillServer.url] } },
-      schema: {
+      codecs: {
         transaction: {
           fromRpc: (_rpc: Transaction.Rpc) => ({ type: 'eip1559' as const }),
         },

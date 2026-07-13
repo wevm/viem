@@ -70,7 +70,7 @@ export async function sign<chain extends Chain.Chain | undefined>(
   // the client's chain.
   const chain = chain_ === null ? null : (chain_ ?? client.chain)
   // The chain whose converter encodes the request (the opt-out does not apply).
-  const schemaChain = chain_ ?? client.chain
+  const codecsChain = chain_ ?? client.chain
 
   transactionRequest.assert(rest)
 
@@ -91,7 +91,7 @@ export async function sign<chain extends Chain.Chain | undefined>(
     // A chain hook may produce a custom (opaque) envelope; it round-trips
     // into the same chain's `getSignPayload`/`serialize` via the account.
     // A hook returning `undefined` delegates to the generic default.
-    const envelope = ((await schemaChain?.transaction?.toEnvelope?.(
+    const envelope = ((await codecsChain?.transaction?.toEnvelope?.(
       request as TransactionRequest.TransactionRequest,
       { kzg },
     )) ??
@@ -99,11 +99,11 @@ export async function sign<chain extends Chain.Chain | undefined>(
         request as TransactionRequest.TransactionRequest,
         { kzg },
       )) as TxEnvelope.TxEnvelope
-    return account.signTransaction(envelope, { chain: schemaChain })
+    return account.signTransaction(envelope, { chain: codecsChain })
   }
 
   // Chain converters are untyped; assert back to the RPC shape produced.
-  const toRpc = schemaChain?.schema?.transactionRequest?.toRpc
+  const toRpc = codecsChain?.codecs?.transactionRequest?.toRpc
   const rpc: TransactionRequest.Rpc = toRpc
     ? (toRpc(request) as TransactionRequest.Rpc)
     : TransactionRequest.toRpc(request)
