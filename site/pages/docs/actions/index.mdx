@@ -6,7 +6,7 @@ import { Card, Cards } from 'vocs'
 
 **Actions** are functions that perform JSON-RPC requests against a [Client](/docs/clients). Each action takes a Client as its first argument, and is also available as a method once the matching decorator is attached to the Client via [`.extend()`](/docs/clients/create#extending-a-client).
 
-Decorators (such as [`publicActions`](/docs/actions/public) and `walletActions`) attach a group of actions to a Client as methods. Import them from `viem`, or call each action standalone by passing a Client as the first argument from the `Actions` namespace:
+Decorators (such as [`publicActions`](/docs/actions/public) and [`walletActions`](/docs/actions/wallet)) attach a group of actions to a Client as methods. Import them from `viem`, or call each action standalone by passing a Client as the first argument from the `Actions` namespace:
 
 :::code-group
 
@@ -53,5 +53,11 @@ export const client = Client.create({
     description="Manipulate a local test node (anvil, hardhat, ganache): mine blocks, set balances, manage state, and more."
     icon="lucide:flask-conical"
     to="/docs/actions/test"
+  />
+  <Card
+    title="ERC-7821 Actions"
+    description="Execute call batches through an ERC-7821-compatible contract."
+    icon="lucide:layers"
+    to="/docs/actions/erc7821"
   />
 </Cards>

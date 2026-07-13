@@ -1,0 +1,3544 @@
+# Migrating from v2
+
+This guide covers the breaking changes introduced in viem v3 and how to migrate from viem v2. v3 consolidates the API into module namespaces backed by [Ox](https://oxlib.sh) utilities: flat functions, types, and constants now live on the namespace that owns them (for example `Client.create`, `Account.fromPrivateKey`, and `Hex.fromNumber`).
+
+Each section below covers one area of the API. Code samples show the v2 usage on removed (`-`) lines and the v3 replacement on added (`+`) lines.
+
+## Entrypoints
+
+The `viem/accounts`, `viem/actions`, `viem/ens`, `viem/nonce`, and `viem/siwe` subpath entrypoints were removed in favor of namespaces exported from the package root.
+
+```diff
+- import { privateKeyToAccount } from 'viem/accounts'
+- import { getBalance } from 'viem/actions'
++ import { Account, Actions } from 'viem'
+
+- const account = privateKeyToAccount('0x...')
+- const balance = await getBalance(client, { address: account.address })
++ const account = Account.fromPrivateKey('0x...')
++ const balance = await Actions.address.getBalance(client, { address: account.address })
+```
+
+The `viem/utils` entrypoint now exposes Ox-backed namespaces instead of flat utility functions.
+
+```diff
+- import { toHex, parseEther } from 'viem/utils'
++ import { Hex, Value } from 'viem'
+
+- const hex = toHex(420n)
+- const wei = parseEther('1')
++ const hex = Hex.fromNumber(420n)
++ const wei = Value.fromEther('1')
+```
+
+Low-level request composition and action dispatch were internalized; RPC client helpers moved to the `RpcClient` namespace.
+
+```diff
+-import { buildRequest, getAction, getHttpRpcClient, getSocketRpcClient } from 'viem/utils'
++import { RpcClient } from 'viem'
+
+-const rpc = getHttpRpcClient(url)
++const rpc = RpcClient.http(url)
+
+-buildRequest(...)
+-getAction(...)
++// Compose requests and action overrides at the Client or Transport boundary.
+```
+
+Formatter constructors moved to namespace conversions and chain codec hooks; error mappers moved to their namespaces or were folded into action wrappers.
+
+```diff
+-import { defineTransaction, defineTransactionReceipt, getContractError, getNodeError } from 'viem/utils'
++import { Chain, ContractError, RpcError, Transaction, TransactionReceipt } from 'viem'
+
+-const format = defineTransaction(formatter)
++const transaction = Transaction.fromRpc(rpcTransaction)
++const receipt = TransactionReceipt.fromRpc(rpcReceipt)
++const chain = Chain.from({ codecs })
++const rpcError = RpcError.fromRpcError(error)
++const contractError = ContractError.fromError(error, options)
+```
+
+Top-level types are now accessed through their namespace rather than as named type exports.
+
+```diff
+- import type { Chain, Account, Transport } from 'viem'
++ import { Chain, Account, Transport } from 'viem'
+
+- function f(chain: Chain, account: Account, transport: Transport) {}
++ function f(chain: Chain.Chain, account: Account.Account, transport: Transport.Transport) {}
+```
+
+Generic type-composition helpers were internalized without public replacements. This covers the full v2 family: `Assign`, `Branded`, `Evaluate`, `ExactPartial`, `ExactRequired`, `IsNarrowable`, `IsNever`, `IsUndefined`, `IsUnion`, `LooseOmit`, `MaybePartial`, `MaybePromise`, `MaybeRequired`, `Mutable`, `Narrow`, `NoInfer`, `NoUndefined`, `Omit`, `OneOf`, `Or`, `PartialBy`, `Prettify`, `RequiredBy`, `Some`, `UnionEvaluate`, `UnionLooseOmit`, `UnionOmit`, `UnionPartialBy`, `UnionPick`, `UnionRequiredBy`, `UnionToTuple`, `UnionWiden`, `ValueOf`, and `Widen`.
+
+```diff
+-import type { Assign, MaybePromise, OneOf, Prettify, UnionLooseOmit, UnionToTuple } from 'viem'
++type MaybePromise<value> = value | Promise<value>
++type Prettify<value> = { [key in keyof value]: value[key] } & {}
+```
+
+Derived action and utility types moved onto their owning function namespaces: the flat `<Fn>Parameters`, `<Fn>ReturnType`, and `<Fn>ErrorType` exports are replaced by `<namespace>.<fn>.Options`, `<namespace>.<fn>.ReturnType`, and `<namespace>.<fn>.ErrorType` on the new namespaced functions (error unions exist only where the v3 function declares one).
+
+```diff
+- import type { GetBalanceParameters, GetBalanceReturnType, GetBalanceErrorType } from 'viem'
++ import type { Actions } from 'viem'
+
+- type Options = GetBalanceParameters
+- type Result = GetBalanceReturnType
+- type Error = GetBalanceErrorType
++ type Options = Actions.address.getBalance.Options
++ type Result = Actions.address.getBalance.ReturnType
++ type Error = Actions.address.getBalance.ErrorType
+```
+
+All surface marked `@deprecated` in v2 was removed without dedicated replacements; use each alias's documented canonical form (e.g. `getBytecode` → `Actions.address.getCode`, `signatureToHex` → `Signature.toHex`, `getEventSelector` → `AbiEvent.getSelector`, the `zkSync*` chain casing aliases → `zksync*`).
+
+EIP-1193 provider and RPC schema types moved to the `Provider` and `RpcSchema` namespaces (re-exported from `viem/utils`); wallet method shapes moved beside their owning actions. The same applies to the wider v2 provider/schema surface: `EIP1193EventMap`/`EIP1193Events` map to `Provider.EventMap`/`Provider.Emitter`, the ERC-4337 `BundlerRpcSchema`/`DebugBundlerRpcSchema` map to `RpcSchema.Bundler`/`RpcSchema.BundlerDebug` from `ox/erc4337`, and `EIP1474Methods`, `TestRpcSchema`, `PaymasterRpcSchema`, and `EIP1193RequestOptions` were removed (paymaster and test methods are typed by their owning clients and actions; request options are the second parameter of `Transport.RequestFn`).
+
+```diff
+-import type { EIP1193Provider, PublicRpcSchema, WalletRpcSchema, RequestPermissionsParameters } from 'viem'
++import { Actions } from 'viem'
++import type { Provider, RpcSchema } from 'viem/utils'
+
++type Eip1193Provider = Provider.Provider
++type PublicSchema = RpcSchema.Eth
++type WalletSchema = RpcSchema.Wallet
++type RequestPermissionsOptions = Actions.wallet.requestPermissions.Options
+```
+
+Wire-shape types moved onto their owning namespaces, replacing the flat `Rpc*` exports: `RpcBlock` → `Block.Rpc`, `RpcLog` → `Log.Rpc`, `RpcTransactionReceipt` → `TransactionReceipt.Rpc`, `RpcTransactionRequest` → `TransactionRequest.Rpc`, `RpcFeeHistory` → `Fee.FeeHistoryRpc`, `RpcProof` → `AccountProof.Rpc`, `RpcAuthorization(List)` → `Authorization.Rpc`/`ListRpc`, and `RpcStateMapping` → `StateOverrides.AccountStorage`. State overrides adopt the record shapes (`StateOverrides.StateOverrides`, with per-slot records instead of the `StateMapping` array). The trivial `Quantity` and `Index` aliases were removed (use `Hex.Hex`), `Uncle`/`RpcUncle` fold into `Block.Block`/`Block.Rpc` (the `eth_getUncleByBlock*` fetchers left the typed schema), and `NetworkSync` was removed with no replacement. `BlockNumber` and `BlockTag` live on the `Block` namespace as `Block.Number`/`Block.Tag`.
+
+The wallet capabilities types moved to the `Capabilities` namespace, and the schema-augmentation point moved with them: downstream `declare module` augmentation must target `Capabilities.Register` instead of viem's root `Register`.
+
+```diff
+- declare module 'viem' {
+-   interface Register {
+-     CapabilitiesSchema: MySchema
+-   }
+- }
++ declare module 'viem' {
++   namespace Capabilities {
++     interface Register {
++       Schema: MySchema
++     }
++   }
++ }
+
+- type Capabilities = WalletCapabilities
+- type Extracted = ExtractCapabilities<'sendCalls', 'Request'>
++ type Capabilities = Capabilities.Capabilities
++ type Extracted = Capabilities.Extract<'sendCalls', 'Request'>
+```
+
+Added flattened entrypoints for root core modules such as `viem/Client`, `viem/Chain`, and `viem/Transport`.
+
+```diff
++ import * as Account from 'viem/Account'
++ import * as Actions from 'viem/Actions'
++ import * as Chain from 'viem/Chain'
++ import * as Client from 'viem/Client'
++ import * as Contract from 'viem/Contract'
++ import * as Transport from 'viem/Transport'
+```
+
+`getContract` moved to `Contract.from`, binding one Client, renaming `getEvents` to `getLogs`, and accepting function arguments inside each method's options bag.
+
+```diff
+- import {
+-   getContract,
+-   type GetContractErrorType,
+-   type GetContractParameters,
+-   type GetContractReturnType,
+- } from 'viem'
++ import { Contract } from 'viem'
+
+- const contract = getContract({
+-   abi,
+-   address,
+-   client: { public: publicClient, wallet: walletClient },
+- })
+- const balance = await contract.read.balanceOf([owner])
++ const contract = Contract.from({ abi, address, client })
++ const balance = await contract.read.balanceOf({ args: [owner] })
+
+- const logs = await contract.getEvents.Transfer()
++ const logs = await contract.getLogs.Transfer()
+
+- type Options = GetContractParameters<typeof abi, typeof client, typeof address>
+- type Result = GetContractReturnType<typeof abi, typeof client, typeof address>
+- type Error = GetContractErrorType
++ type Options = Contract.from.Options<typeof abi, typeof address, typeof client>
++ type Result = Contract.from.ReturnType<typeof abi, typeof address, typeof client>
++ type BoundContract = Contract.Contract<typeof abi, typeof address, typeof client>
++ // `GetContractErrorType` has no replacement; use each method's error union.
+```
+
+The `viem/chains/utils` entrypoint was removed. Its members now live on the `Chain` namespace exported from the package root.
+
+```diff
+- import { defineChain, extractChain, getChainContractAddress } from 'viem/chains/utils'
++ import { Chain } from 'viem'
+
+- export const example = defineChain({ /* ... */ })
++ export const example = Chain.from({ /* ... */ })
+
+- const chain = extractChain({ chains, id: 10 })
++ const chain = Chain.extract({ chains, id: 10 })
+
+- const address = getChainContractAddress({ chain, contract: 'multicall3' })
++ const address = Chain.getContractAddress({ chain, contract: 'multicall3' })
+```
+
+The `viem/package.json` export was removed.
+
+```diff
+- import packageJson from 'viem/package.json'
++ // `viem/package.json` is not exported.
+```
+
+The `viem/celo`, `viem/linea`, `viem/op-stack`, and `viem/zksync` extension entrypoints were removed; their chain definitions remain in `viem/chains` as plain chains, while extension-specific actions, formatters, and serializers have no v3 equivalent (stay on v2, or use third-party packages built on `Chain.from` with `codecs` and `transaction` hooks such as `transaction.serialize`).
+
+```diff
+- import { optimism, publicActionsL2 } from 'viem/op-stack'
+- import { zksync } from 'viem/zksync'
+- import { celo } from 'viem/celo'
+- import { linea } from 'viem/linea'
++ import { celo, linea, optimism, zksync } from 'viem/chains'
+```
+
+The `viem/experimental` root and ERC subpaths were removed after surviving APIs graduated or moved behind smart-account implementations.
+
+```diff
+- import { erc7811Actions, erc7821Actions, erc7846Actions } from 'viem/experimental'
+- import { getAssets } from 'viem/experimental/erc7811'
+- import { execute } from 'viem/experimental/erc7821'
+- import { connect } from 'viem/experimental/erc7846'
++ import { Actions, erc7821Actions, walletActions } from 'viem'
+
+- client.extend(erc7811Actions()).extend(erc7846Actions())
++ client.extend(walletActions())
+- await getAssets(client)
+- await connect(client)
+- await execute(client, options)
++ await Actions.wallet.getAssets(client)
++ await Actions.wallet.connect(client)
++ await Actions.erc7821.execute(client, options)
+```
+
+ERC-7715 `grantPermissions` and ERC-7895 `addSubAccount` were removed without v3 replacements.
+
+```diff
+- import { grantPermissions } from 'viem/experimental'
+- import { addSubAccount } from 'viem/experimental/erc7895'
+
+- await grantPermissions(client, options)
+- await addSubAccount(client, options)
++ // No v3 equivalents.
+```
+
+Experimental authorization helpers moved to `Authorization`, with bigint nonces, hex-only signing payloads, and synchronous recovery and verification.
+
+```diff
+- import {
+-   hashAuthorization,
+-   recoverAuthorizationAddress,
+-   serializeAuthorizationList,
+-   verifyAuthorization,
+- } from 'viem/experimental'
++ import { Authorization, Bytes } from 'viem'
+
+- const payload = hashAuthorization({ contractAddress, chainId, nonce: 1, to: 'bytes' })
+- const recovered = await recoverAuthorizationAddress({ authorization })
+- const valid = await verifyAuthorization({ address, authorization })
+- const tuples = serializeAuthorizationList(authorizationList)
++ const payload = Bytes.fromHex(
++   Authorization.getSignPayload({ address: contractAddress, chainId, nonce: 1n }),
++ )
++ const recovered = Authorization.recoverAddress({ authorization })
++ const valid = Authorization.verify({ address, authorization })
++ const tuples = Authorization.toTupleList(authorizationList)
+```
+
+Added the `viem/zod` entrypoint, re-exporting the Zod namespace (`z`) used to build typed JSON-RPC schemas for the Client `schema` option.
+
+```diff
++ import { z } from 'viem/zod'
+
++ const schema = z.RpcSchema.from({
++   abe_foo: { params: z.tuple([z.number()]), returns: z.string() },
++ })
+```
+
+Added `signTransaction` to the `Actions` namespace and the `walletActions()` decorator as an alias of `Actions.transaction.sign`.
+
+```diff
++ import { Actions, walletActions } from 'viem'
+
++ const signature = await Actions.signTransaction(client, options)
++ const wallet = client.extend(walletActions())
+```
+
+## Client
+
+Client factory entrypoints were consolidated into `Client.create`, with public and test actions added via `.extend(...)` decorators.
+
+```diff
+- import { createPublicClient, http } from 'viem'
++ import { Client, http, publicActions } from 'viem'
+  import { mainnet } from 'viem/chains'
+
+- const client = createPublicClient({
++ const client = Client.create({
+    chain: mainnet,
+    transport: http(),
+- })
++ }).extend(publicActions())
+```
+
+Test client mode was moved from `createTestClient` onto `testActions`, which now defaults to Anvil mode when omitted.
+
+```diff
+- import { createTestClient, http } from 'viem'
++ import { Client, http, testActions } from 'viem'
+  import { mainnet } from 'viem/chains'
+
+- const client = createTestClient({
+-   mode: 'anvil',
++ const client = Client.create({
+    chain: mainnet,
+    transport: http(),
+- })
++ }).extend(testActions({ mode: 'anvil' }))
+```
+
+Wallet clients were folded into base client creation, with the default account passed directly to `Client.create`.
+
+```diff
+- import { createWalletClient, http } from 'viem'
++ import { Client, http } from 'viem'
+  import { mainnet } from 'viem/chains'
+  import { privateKeyToAccount } from 'viem/accounts'
+
+- const client = createWalletClient({
++ const client = Client.create({
+    account: privateKeyToAccount('0x...'),
+    chain: mainnet,
+    transport: http(),
+  })
+```
+
+The experimental block tag option was renamed to `blockTag`.
+
+```diff
+- import { createClient, http } from 'viem'
++ import { Client, http } from 'viem'
+  import { mainnet } from 'viem/chains'
+
+- const client = createClient({
++ const client = Client.create({
+    chain: mainnet,
+-   experimental_blockTag: 'pending',
++   blockTag: 'pending',
+    transport: http(),
+  })
+```
+
+The typed RPC schema option was renamed from `rpcSchema` to `schema` and now accepts an `RpcSchema` value (re-exported from `viem/utils`). The `RpcSchemaOverride` per-request override type was removed with it; type custom methods by passing a schema to `Client.create` (untyped methods remain callable).
+
+```diff
+- import { createClient, http, rpcSchema } from 'viem'
++ import { Client, http } from 'viem'
++ import { RpcSchema } from 'viem/utils'
+
+- const client = createClient({
+-   rpcSchema: rpcSchema<[{ Method: 'eth_chainId'; ReturnType: '0x1' }]>(),
++ const client = Client.create({
++   schema: RpcSchema.from<{
++     Request: { method: 'eth_chainId' }
++     ReturnType: '0x1'
++   }>(),
+   transport: http('https://example.com'),
+ })
+```
+
+The named client and decorator-bag types were replaced by `Client.Client`: `PublicClient`, `WalletClient`, and `TestClient` have no named equivalents (every generic defaults to its widest form, so a bare `Client.Client` accepts any client), and `PublicActions`/`WalletActions`/`TestActions` became each decorator's `Decorator` namespace type. When parameterizing, note the generic order is `<chain, account, transport, tokens, schema, extended>` (v2 `Client` was `<transport, chain, account, rpcSchema, extended>`); constrain `extended` (e.g. `publicActions.Decorator`) only when calling decorated methods on the client.
+
+```diff
+- import type { PublicActions, PublicClient, TestClient, WalletClient } from 'viem'
++ import type { Client, publicActions, testActions } from 'viem'
+
+- function takesClient(client: PublicClient) {}
++ function takesClient(client: Client.Client) {}
+
+- type Actions = PublicActions
++ type Actions = publicActions.Decorator
+- type Mode = TestClientMode
++ type Mode = testActions.Options['mode']
+```
+
+`ClientConfig` moved to `Client.create.Options`, and the client-level multicall batch type moved from `MulticallBatchOptions` to `Client.MulticallOptions` (adding `deployless`). The transport-aware `GetPollOptions` helper was removed; watch actions accept a plain `poll?: boolean` and pick subscriptions automatically when the transport supports them.
+
+## Transports
+
+The HTTP transport now caps RPC response bodies at 10 MB by default (configurable via `maxResponseBodySize`, or `false` to disable), throwing `RpcClient.ResponseBodyTooLargeError` when exceeded.
+
+```diff
+  import { http } from 'viem'
+
+- const transport = http('https://example.com')
++ const transport = http('https://example.com', { maxResponseBodySize: 20_971_520 })
+```
+
+Transport instances now expose `setup(...)` instead of being called as functions.
+
+```diff
+  import { http } from 'viem'
+
+- const transport = http('https://example.com')({})
++ const transport = http('https://example.com').setup({})
+```
+
+WebSocket and IPC subscriptions now register data handlers on the returned subscription instead of accepting `onData` in the subscribe call.
+
+```diff
+  import { webSocket } from 'viem'
+
+  const transport = webSocket('wss://example.com').setup()
+- const subscription = await transport.subscribe({
+-   params: ['newHeads'],
+-   onData: (data) => console.log(data),
+- })
++ const subscription = await transport.subscribe({ params: ['newHeads'] })
++ subscription.onData((data) => console.log(data))
+```
+
+The deprecated WebSocket transport `getSocket` helper was removed in favor of `getRpcClient`.
+
+```diff
+  import { webSocket } from 'viem'
+
+  const transport = webSocket('wss://example.com').setup()
+- const socket = await transport.getSocket()
++ const rpcClient = await transport.getRpcClient()
+```
+
+The HTTP transport-level typed `rpcSchema` option was removed, with request typing supplied by the client `schema` option instead.
+
+```diff
+- import { createClient, http, rpcSchema } from 'viem'
++ import { Client, http } from 'viem'
++ import { RpcSchema } from 'viem/utils'
+
+- const transport = http('https://example.com', {
+-   rpcSchema: rpcSchema<[{ Method: 'eth_chainId'; ReturnType: '0x1' }]>(),
+- })
+- const client = createClient({ transport })
++ const client = Client.create({
++   schema: RpcSchema.from<{
++     Request: { method: 'eth_chainId' }
++     ReturnType: '0x1'
++   }>(),
++   transport: http('https://example.com'),
++ })
+```
+
+The public `withCache`, `withRetry`, `withTimeout`, and `fallback.shouldThrow` helpers were internalized without replacements, along with the `socketClientCache` map (cached socket clients evict themselves on `close()`).
+
+```diff
+- import { withCache, withRetry, withTimeout } from 'viem'
++ // Compose caching, retries, and timeouts around your transport or client.
+```
+
+Custom transports are authored with `Transport.from` instead of `createTransport`, and the transport types moved onto the `Transport` namespace and the factory namespaces. `HttpTransport`-style instance types become `Transport.Transport<type>` parameterized by the transport type, `*TransportConfig` option bags become each factory's `Options`, and the single `TransportConfig` bag (formerly at `transport({}).config`) was split between the transport identity and the live `setup()` instance; `GetTransportConfig` is expressible as `ReturnType<transport['setup']>`.
+
+```diff
+- import { createTransport, type CustomTransport, type FallbackTransport, type HttpTransport, type HttpTransportConfig } from 'viem'
++ import { Transport, custom, fallback, http, webSocket } from 'viem'
+
+- const transport: HttpTransport = createTransport({ key, name, request, type: 'http' })
++ const transport: Transport.Transport<'http'> = Transport.from({ key, name, type: 'http', setup })
+
+- type Config = HttpTransportConfig
++ type Config = http.Options
+- type WsConfig = WebSocketTransportConfig
++ type WsConfig = webSocket.Options
+- type CustomConfig = CustomTransportConfig
++ type CustomConfig = custom.Options
+- type FallbackConfig = FallbackTransportConfig
++ type FallbackConfig = fallback.Options
+```
+
+The low-level RPC client helpers keep their `RpcClient` namespace home (`getHttpRpcClient` → `RpcClient.http`, `getWebSocketRpcClient`/`getSocketRpcClient` → `RpcClient.webSocket`), with clients typed as `RpcClient.RpcClient` (the WebSocket transport's live client is `WebSocketRpcClient` from the `webSocket` factory), and the deprecated callback-based `WebSocketOptions`/`WebSocketAsyncOptions` shapes removed.
+
+## Accounts
+
+Private key account construction was moved from `privateKeyToAccount` to `Account.fromPrivateKey`.
+
+```diff
+-import { privateKeyToAccount } from 'viem/accounts'
++import { Account } from 'viem'
+ 
+-const account = privateKeyToAccount(privateKey)
++const account = Account.fromPrivateKey(privateKey)
+```
+
+Mnemonic account construction was moved from `mnemonicToAccount` to `Account.fromMnemonic`.
+
+```diff
+-import { mnemonicToAccount } from 'viem/accounts'
++import { Account } from 'viem'
+ 
+-const account = mnemonicToAccount(mnemonic, { addressIndex: 1 })
++const account = Account.fromMnemonic(mnemonic, { addressIndex: 1 })
+```
+
+HD key account construction was moved from `hdKeyToAccount` to `Account.fromHdKey`.
+
+```diff
+-import { hdKeyToAccount } from 'viem/accounts'
++import { Account } from 'viem'
+ 
+-const account = hdKeyToAccount(hdKey, { addressIndex: 1 })
++const account = Account.fromHdKey(hdKey, { addressIndex: 1 })
+```
+
+Generic account construction was moved from `toAccount` to `Account.from`.
+
+```diff
+-import { toAccount } from 'viem/accounts'
++import { Account } from 'viem'
+ 
+-const account = toAccount(address)
++const account = Account.from(address)
+```
+
+Local account definitions began requiring raw `sign` and deriving high-level signing methods; `source` was replaced by `keyType`.
+
+```diff
+ const local = Account.from({
+   address,
+-  source: 'custom',
+-  signMessage,
+-  signTransaction,
+-  signTypedData,
++  keyType: 'custom',
++  sign,
+ })
+
+-account.source // 'privateKey' | 'hd' | 'custom'
++account.keyType // 'secp256k1' | 'custom'
+```
+
+Private key generation was moved from `generatePrivateKey` to `Secp256k1.randomPrivateKey`.
+
+```diff
+-import { generatePrivateKey } from 'viem/accounts'
++import { Secp256k1 } from 'viem'
+ 
+-const privateKey = generatePrivateKey()
++const privateKey = Secp256k1.randomPrivateKey()
+```
+
+Mnemonic generation was moved from `generateMnemonic` to `Mnemonic.random`.
+
+```diff
+-import { generateMnemonic, english } from 'viem/accounts'
++import { Mnemonic } from 'viem'
+ 
+-const mnemonic = generateMnemonic(english, 256)
++const mnemonic = Mnemonic.random(Mnemonic.english, { strength: 256 })
+```
+
+Account parsing and private-key address derivation moved to the `Account`, `Address`, and `Secp256k1` namespaces.
+
+```diff
+-import { parseAccount, privateKeyToAddress } from 'viem/accounts'
++import { Account, Address, Secp256k1 } from 'viem'
+
+-const account = parseAccount(source)
+-const address = privateKeyToAddress(privateKey)
++const account = Account.from(source)
++const address = Address.fromPublicKey(Secp256k1.getPublicKey({ privateKey }), { checksum: true })
+```
+
+The global `setSignEntropy` helper was replaced by per-signature `extraEntropy` on `Secp256k1.sign`.
+
+```diff
+-setSignEntropy(true)
++Secp256k1.sign({ payload, privateKey, extraEntropy: true })
+```
+
+Flat account source and HD option types moved to the `Account.from` and constructor namespaces.
+
+```diff
+-import type { AccountSource, CustomSource, HDKeyToAccountErrorType, HDKeyToAccountOptions, HDOptions } from 'viem/accounts'
++import { Account, Address } from 'viem'
+
++type Source = Address.Address | Account.from.Account
++type Custom = Account.from.Account
++type Options = Account.fromHdKey.Options
++type Error = Account.fromHdKey.ErrorType
+```
+
+The named account types moved onto the `Account` namespace, with the `source` discriminant (`'privateKey' | 'hd' | 'custom'`) replaced by `keyType` (`'secp256k1' | 'custom'`), `ParseAccount` folded into `Account.from.ReturnType`, and the constructor option types moved onto their constructors.
+
+```diff
+- import type {
+-   HDAccount,
+-   JsonRpcAccount,
+-   LocalAccount,
+-   MnemonicToAccountOptions,
+-   ParseAccount,
+-   PrivateKeyAccount,
+-   PrivateKeyToAccountOptions,
+- } from 'viem'
++ import type { Account } from 'viem'
+
+- type Hd = HDAccount
+- type JsonRpc = JsonRpcAccount<address>
+- type Local = LocalAccount<'custom', address>
+- type PrivateKey = PrivateKeyAccount
+- type Parsed = ParseAccount<accountOrAddress>
+- type MnemonicOptions = MnemonicToAccountOptions
+- type PrivateKeyOptions = PrivateKeyToAccountOptions
++ type Hd = Account.Hd
++ type JsonRpc = Account.JsonRpc<address>
++ type Local = Account.Local<'custom', address>
++ type PrivateKey = Account.PrivateKey
++ type Parsed = Account.from.ReturnType<accountOrAddress>
++ type MnemonicOptions = Account.fromMnemonic.Options
++ type PrivateKeyOptions = Account.fromPrivateKey.Options
+```
+
+## Chains
+
+Chain definitions were moved from `defineChain` to the `Chain` namespace.
+
+```diff
+-import { defineChain } from 'viem'
++import { Chain } from 'viem'
+ 
+-export const example = defineChain({
++export const example = Chain.from({
+   id: 123,
+   name: 'Example',
+   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+   rpcUrls: { default: { http: ['https://example.com'] } },
+ })
+```
+
+Chain formatter configuration was replaced by RPC/native codecs. `fromRpc` converters decode wire values to native shapes; `toRpc` converters encode native values to wire shapes (request option types resolve from the parameter type of `codecs.transactionRequest.toRpc`). All formatter constructors were removed with the system: `defineFormatter`, `defineBlock`, `defineTransaction`, `defineTransactionReceipt`, and `defineTransactionRequest`, along with the formatter `exclude` feature (`ExtractChainFormatterExclude`); converters simply omit keys from their return value.
+
+```diff
+-import { defineChain, formatters } from 'viem'
++import { Chain } from 'viem'
++import { Block } from 'viem/utils'
+ 
+-const chain = defineChain({
+-  formatters: {
+-    block: formatters.defineBlock({ format(args) { return args } }),
+-  },
++const chain = Chain.from({
++  codecs: {
++    block: {
++      fromRpc: (rpc) => Block.fromRpc(rpc),
++    },
++  },
+ })
+```
+
+Chain-aware formatted types moved from the `Formatted*` helpers to `Chain.Extract*`, which infer from the chain's codecs.
+
+```diff
+- import type {
+-   ExtractFormattedTransactionRequest,
+-   FormattedBlock,
+-   FormattedTransaction,
+-   FormattedTransactionReceipt,
+-   FormattedTransactionRequest,
+- } from 'viem'
++ import type { Chain } from 'viem'
+
+- type Block = FormattedBlock<chain>
+- type Transaction = FormattedTransaction<chain>
+- type Receipt = FormattedTransactionReceipt<chain>
+- type Request = FormattedTransactionRequest<chain>
+- type NarrowedRequest = ExtractFormattedTransactionRequest<chain>
++ type Block = Chain.ExtractBlock<chain>
++ type Transaction = Chain.ExtractTransaction<chain>
++ type Receipt = Chain.ExtractTransactionReceipt<chain>
++ type Request = Chain.ExtractTransactionRequest<chain>
++ type NarrowedRequest = Chain.ExtractTransactionRequest<chain>
+```
+
+Deprecated chain fee fields were removed in favor of `maxPriorityFeePerGas`.
+
+```diff
+-const chain = defineChain({
++const chain = Chain.from({
+   fees: {
+-    defaultPriorityFee: 1_000_000_000n,
++    maxPriorityFeePerGas: 1_000_000_000n,
+   },
+ })
+```
+
+Experimental and deprecated extension chain fields were renamed or removed from the chain shape; `extendSchema` moved onto the `Chain` namespace.
+
+```diff
+-const chain = defineChain({
+-  experimental_preconfirmationTime: 1_000,
+-  custom: { slug: 'example' },
+-  extendSchema: extendSchema<{ slug: string }>(),
++const chain = Chain.from({
++  preconfirmationTime: 1_000,
++  extendSchema: Chain.extendSchema<{ slug: string }>(),
++  slug: 'example',
+ })
+```
+
+Chain transaction hooks (`toEnvelope`/`getSignPayload`/`serialize`) accept custom envelope types without casts, and the `verifyHash` hook receives the caller's `mode` and block context.
+
+Added `Chain.supportsTransactionReplacementDetection` to control the default replacement scan in `Actions.transaction.waitForReceipt`; Zone chains disabled it.
+
+`filterChains` moved to `Chain.filter`, preserving token-support and testnet narrowing.
+
+```diff
+- import { filterChains } from 'viem'
++ import { Chain } from 'viem'
+
+- const supported = filterChains({ chains, token: usdc })
++ const supported = Chain.filter({ chains, token: usdc })
+```
+
+`assertCurrentChain` and its error types moved to the `Chain` namespace.
+
+```diff
+-import { assertCurrentChain, type AssertCurrentChainErrorType } from 'viem/chains/utils'
++import { Chain } from 'viem'
+
+-assertCurrentChain({ chain, currentChainId })
+-type Error = AssertCurrentChainErrorType
++Chain.assertCurrent({ chain, currentChainId })
++type Error = Chain.assertCurrent.ErrorType
++Chain.MismatchError
++Chain.NotFoundError
+```
+
+`ChainDoesNotSupportContract` was renamed to `Chain.DoesNotSupportContract`.
+
+```diff
+-import { ChainDoesNotSupportContract } from 'viem'
++import { Chain } from 'viem'
+
+-throw new ChainDoesNotSupportContract(...)
++throw new Chain.DoesNotSupportContract(...)
+```
+
+Added Defi Oracle Meta Mainnet and Robinhood mainnet and testnet chain definitions.
+
+```diff
++ import {
++   defiOracleMetaMainnet,
++   robinhood,
++   robinhoodTestnet,
++ } from 'viem/chains'
+```
+
+Removed chain definitions that were not retained for v3; applications can define them locally with `Chain.from`.
+
+```diff
+- import { optimismGoerli, shibarium, shiden, ubiq, zhejiang } from 'viem/chains'
++ import { Chain } from 'viem'
+
++ const chain = Chain.from({ id, name, nativeCurrency, rpcUrls })
+```
+
+Removed 25 additional obsolete or superseded chain definitions without built-in replacements.
+
+```diff
+- import {
+-   astarZkEVM,
+-   astarZkyoto,
+-   celoAlfajores,
+-   fantomSonicTestnet,
+-   flowPreviewnet,
+-   foundry,
+-   kakarotSepolia,
+-   klaytn,
+-   klaytnBaobab,
+-   lineaGoerli,
+-   lineaTestnet,
+-   metisGoerli,
+-   plume,
+-   plumeDevnet,
+-   plumeTestnet,
+-   polygonZkEvmTestnet,
+-   skaleCryptoColosseum,
+-   skaleHumanProtocol,
+-   skaleRazor,
+-   sonicBlazeTestnet,
+-   taikoHekla,
+-   taikoJolnir,
+-   taikoKatla,
+-   taikoTestnetSepolia,
+-   zeroGGalileoTestnet,
+- } from 'viem/chains'
++ import { Chain } from 'viem'
+
++ const chain = Chain.from({ id, name, nativeCurrency, rpcUrls })
+```
+
+Removed 115 additional chain definitions that were not retained for v3; applications can define them locally with `Chain.from`.
+
+```diff
+- import {
+-   acria,
+-   alephZero,
+-   alephZeroTestnet,
+-   arbitrumGoerli,
+-   areonNetworkTestnet,
+-   arthera,
+-   artheraTestnet,
+-   basecampTestnet,
+-   bitTorrentTestnet,
+-   bronos,
+-   bronosTestnet,
+-   bxn,
+-   bxnTestnet,
+-   chips,
+-   coreTestnet1,
+-   crab,
+-   cyberTestnet,
+-   datahavenTestnet,
+-   defichainEvmTestnet,
+-   dodochainTestnet,
+-   edexaTestnet,
+-   edgeless,
+-   electroneumTestnet,
+-   elysiumTestnet,
+-   eon,
+-   eos,
+-   eosTestnet,
+-   ethernity,
+-   evmos,
+-   exsatTestnet,
+-   fantomTestnet,
+-   filecoinHyperspace,
+-   flame,
+-   fluence,
+-   fluenceStage,
+-   fluenceTestnet,
+-   form,
+-   formTestnet,
+-   funkiSepolia,
+-   fusion,
+-   fusionTestnet,
+-   garnet,
+-   geist,
+-   glideL1Protocol,
+-   glideL2Protocol,
+-   gobi,
+-   ham,
+-   happychainTestnet,
+-   hppSepolia,
+-   huddle01Mainnet,
+-   humanityTestnet,
+-   initVerseGenesis,
+-   jasmyChain,
+-   jasmyChainTestnet,
+-   juneoSocotraTestnet,
+-   kakarotStarknetSepolia,
+-   kardiaChain,
+-   koi,
+-   kroma,
+-   kromaSepolia,
+-   lumozTestnet,
+-   mandala,
+-   mantaTestnet,
+-   mekong,
+-   meld,
+-   metachainIstanbul,
+-   mezo,
+-   mintSepoliaTestnet,
+-   mitosisTestnet,
+-   morphHolesky,
+-   morphSepolia,
+-   nahmii,
+-   nautilus,
+-   nexi,
+-   nexilix,
+-   nitrographTestnet,
+-   otimDevnet,
+-   paseoPassetHub,
+-   phoenix,
+-   playfiAlbireo,
+-   plinga,
+-   polterTestnet,
+-   premiumBlockTestnet,
+-   pumpfiTestnet,
+-   pyrope,
+-   ql1,
+-   real,
+-   redstone,
+-   rivalz,
+-   rolluxTestnet,
+-   rss3Sepolia,
+-   sanko,
+-   satoshiVM,
+-   satoshiVMTestnet,
+-   shardeumSphinx,
+-   shibariumTestnet,
+-   shimmerTestnet,
+-   swellchainTestnet,
+-   taraxa,
+-   taraxaTestnet,
+-   teaSepolia,
+-   thunderTestnet,
+-   tiktrixTestnet,
+-   treasureTopaz,
+-   uniqueQuartz,
+-   unreal,
+-   vision,
+-   visionTestnet,
+-   wmcTestnet,
+-   xoneMainnet,
+-   xrOne,
+-   zilliqaTestnet,
+-   zkLinkNovaSepoliaTestnet,
+-   zkXPLA,
+-   zkXPLATestnet,
+- } from 'viem/chains'
++ import { Chain } from 'viem'
+
++ const chain = Chain.from({ id, name, nativeCurrency, rpcUrls })
+```
+
+Deprecated chain exports were removed: `statusNetworkSepolia`, `statusSepolia`, `storyOdyssey`, `storyTestnet`, `weaveVMAlphanet` (use `loadAlphanet`), `x1Testnet` (use `xLayerTestnet`), `zeroG`, and the `zkSync`, `zkSyncInMemoryNode`, `zkSyncLocalNode`, and `zkSyncSepoliaTestnet` casing aliases (use `zksync`, `zksyncInMemoryNode`, `zksyncLocalNode`, and `zksyncSepoliaTestnet`).
+
+`viem/chains` no longer re-exports extension serializers, assertions, or their types. The celo, op-stack, and zksync chain definitions remain as plain chains, but `assertTransactionCIP42Celo`, `assertTransactionCIP64Celo`, `assertTransactionDepositOpStack`, `serializeTransactionCelo`, `serializeTransactionOpStack`, `serializersCelo`, `serializersOpStack`, and the extension-specific types formerly re-exported through `viem/chains` (`Celo*`, `OpStack*`, `ZkSync*`, `ChainEIP712`, `RpcTransactionCIP42`/`CIP64`, `TransactionCIP42`/`CIP64`, `TransactionSerializableDeposit`/`TransactionSerializedDeposit`, and related request/serializable/serialized shapes) were removed together with the `viem/celo`, `viem/op-stack`, and `viem/zksync` entrypoints.
+
+```diff
+- import { optimism, serializersOpStack } from 'viem/chains'
++ import { optimism } from 'viem/chains'
+
++ // Extension serializers have no v3 equivalent; build on `Chain.from`
++ // with `codecs` and `transaction` hooks instead.
+```
+
+## Actions (Public)
+
+Public actions were moved under the root `Actions` namespace and grouped by domain, and decorator methods were grouped under matching domain objects.
+
+```diff
+- import { getBalance } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const balance = await getBalance(client, { address })
++ const balance = await Actions.address.getBalance(client, { address })
+
+- const balance = await client.getBalance({ address })
++ const balance = await client.address.getBalance({ address })
+```
+
+Flat public action names were renamed to their namespaced v3 equivalents.
+
+```diff
+- getBalance(client, options)
+- getCode(client, options)
+- getDelegation(client, options)
+- getProof(client, options)
+- getStorageAt(client, options)
+- getTransactionCount(client, options)
++ Actions.address.getBalance(client, options)
++ Actions.address.getCode(client, options)
++ Actions.address.getDelegation(client, options)
++ Actions.address.getProof(client, options)
++ Actions.address.getStorageAt(client, options)
++ Actions.address.getTransactionCount(client, options)
+
+- getBlock(client, options)
+- getBlockNumber(client, options)
+- getBlockReceipts(client, options)
+- getBlockTransactionCount(client, options)
++ Actions.block.get(client, options)
++ Actions.block.getNumber(client, options)
++ Actions.block.getReceipts(client, options)
++ Actions.block.getTransactionCount(client, options)
+
+- getChainId(client)
++ Actions.chains.getId(client)
+
+- addChain(client, { chain })
+- switchChain(client, { id })
++ Actions.chains.add(client, { chain })
++ Actions.chains.switch(client, { id })
+
+- signMessage(client, { account, message })
+- signTypedData(client, { account, ...typedData })
++ Actions.signMessage(client, { account, message })
++ Actions.signTypedData(client, { account, ...typedData })
+
+- estimateContractGas(client, options)
+- getEip712Domain(client, options)
+- getContractEvents(client, options)
+- readContract(client, options)
+- simulateContract(client, options)
+- writeContract(client, options)
++ Actions.contract.estimateGas(client, options)
++ Actions.contract.getEip712Domain(client, options)
++ Actions.contract.getLogs(client, options)
++ Actions.contract.read(client, options)
++ Actions.contract.simulate(client, options)
++ Actions.contract.write(client, options)
+
+- estimateFeesPerGas(client, options)
+- estimateMaxPriorityFeePerGas(client, options)
+- getBlobBaseFee(client)
+- getGasPrice(client)
+- getFeeHistory(client, options)
++ Actions.fee.estimateFeesPerGas(client, options)
++ Actions.fee.estimateMaxPriorityFeePerGas(client, options)
++ Actions.fee.getBlobBaseFee(client)
++ Actions.fee.getGasPrice(client)
++ Actions.fee.getHistory(client, options)
+
+- getLogs(client, options)
++ Actions.event.getLogs(client, options)
+
+- createAccessList(client, options)
+- fillTransaction(client, options)
+- getTransaction(client, options)
+- getTransactionConfirmations(client, options)
+- getRawTransaction(client, options)
+- getTransactionReceipt(client, options)
+- prepareTransactionRequest(client, options)
+- sendTransaction(client, options)
+- sendRawTransaction(client, options)
+- signTransaction(client, options)
++ Actions.transaction.createAccessList(client, options)
++ Actions.transaction.fill(client, options)
++ Actions.transaction.get(client, options)
++ Actions.transaction.getConfirmations(client, options)
++ Actions.transaction.getRaw(client, options)
++ Actions.transaction.getReceipt(client, options)
++ Actions.transaction.prepare(client, options)
++ Actions.transaction.send(client, options)
++ Actions.transaction.sendRaw(client, options)
++ Actions.transaction.sign(client, options)
+```
+
+`defaultPrepareTransactionRequestParameters` moved to `Actions.transaction.defaultParameters`.
+
+```diff
+- import { defaultPrepareTransactionRequestParameters } from 'viem'
++ import { Actions } from 'viem'
+
+- defaultPrepareTransactionRequestParameters
++ Actions.transaction.defaultParameters
+```
+
+Public actions that default to a client block tag read `client.blockTag` instead of `client.experimental_blockTag`.
+
+```diff
+  const client = createPublicClient({
+    chain: mainnet,
+-   experimental_blockTag: 'safe',
++   blockTag: 'safe',
+    transport: http(),
+  })
+
+- const block = await getBlock(client)
++ const block = await Actions.block.get(client)
+```
+
+Contract event log reads were renamed from `getContractEvents` to `Actions.contract.getLogs`.
+
+```diff
+- import { getContractEvents } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const logs = await getContractEvents(client, {
++ const logs = await Actions.contract.getLogs(client, {
+    abi,
+    address,
+    eventName: 'Transfer',
+  })
+```
+
+Contract reads were renamed from `readContract` to `Actions.contract.read`.
+
+```diff
+- import { readContract } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const balance = await readContract(client, {
++ const balance = await Actions.contract.read(client, {
+    abi,
+    address,
+    functionName: 'balanceOf',
+    args: [account],
+  })
+```
+
+Contract writes were renamed from `writeContract` to `Actions.contract.write`.
+
+```diff
+- import { writeContract } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const hash = await writeContract(client, {
++ const hash = await Actions.contract.write(client, {
+    abi,
+    address,
+    functionName: 'mint',
+    args: [tokenId],
+  })
+```
+
+Contract simulations were renamed from `simulateContract` to `Actions.contract.simulate`.
+
+```diff
+- import { simulateContract } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const { request, result } = await simulateContract(client, {
++ const { request, result } = await Actions.contract.simulate(client, {
+    abi,
+    address,
+    functionName: 'mint',
+    args: [tokenId],
+  })
+```
+
+Contract deployments were renamed from `deployContract` to `Actions.contract.deploy`.
+
+```diff
+- import { deployContract } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const hash = await deployContract(client, {
++ const hash = await Actions.contract.deploy(client, {
+    abi,
+    bytecode,
+    args,
+  })
+```
+
+Sync transaction and contract writes were renamed to their v3 action namespaces.
+
+```diff
+- import { sendTransactionSync, sendRawTransactionSync, writeContractSync } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const receipt = await sendTransactionSync(client, { to, value })
++ const receipt = await Actions.transaction.sendSync(client, { to, value })
+
+- const receipt = await sendRawTransactionSync(client, { serializedTransaction })
++ const receipt = await Actions.transaction.sendRawSync(client, { transaction })
+
+- const receipt = await writeContractSync(client, {
++ const receipt = await Actions.contract.writeSync(client, {
+    abi,
+    address,
+    functionName,
+  })
+```
+
+`Actions.transaction.send` with a JSON-RPC account no longer throws when the client has no configured `chain`; it sends against the transport's current chain instead of requiring `chain` (or `chain: null`) to opt out of the chain assertion.
+
+```diff
+- // v2: threw ChainNotFoundError without a configured chain
+- const client = createWalletClient({ transport: custom(window.ethereum) })
+- await sendTransaction(client, { account, to, value })
++ // v3: sends against the transport's current chain
++ const client = Client.create({ transport: custom(window.ethereum) })
++ await Actions.transaction.send(client, { account, to, value })
+```
+
+`Actions.transaction.sendRaw`'s `serializedTransaction` option was renamed to `transaction`.
+
+```diff
+- import { sendRawTransaction } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- await sendRawTransaction(client, { serializedTransaction: '0x02f8…' })
++ await Actions.transaction.sendRaw(client, { transaction: '0x02f8…' })
+```
+
+Filter lifecycle actions were renamed to the `filter` namespace.
+
+```diff
+- import { getFilterChanges, getFilterLogs, uninstallFilter } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const changes = await getFilterChanges(client, { filter })
+- const logs = await getFilterLogs(client, { filter })
+- const uninstalled = await uninstallFilter(client, { filter })
++ const changes = await Actions.filter.getChanges(client, { filter })
++ const logs = await Actions.filter.getLogs(client, { filter })
++ const uninstalled = await Actions.filter.uninstall(client, { filter })
+```
+
+Block/event/transaction watchers were renamed to their owning domain namespaces and now return a watcher handle (`onX`/`onError`/`off` + async iterable) instead of a bare unwatch function.
+
+```diff
+- import { watchBlocks } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const unwatch = watchBlocks(client, { onBlock: (block) => console.log(block) })
++ const watch = Actions.block.watch(client)
++ watch.onBlock((block) => console.log(block))
++ // later: watch.off()
+
+- const unwatch = watchPendingTransactions(client, { onTransactions: (hashes) => console.log(hashes) })
++ const watch = Actions.transaction.watchPending(client)
++ watch.onTransactions((hashes) => console.log(hashes))
++ // later: watch.off()
+
+- const unwatch = watchEvent(client, { event, onLogs: (logs) => console.log(logs) })
++ const watch = Actions.event.watch(client, { event })
++ watch.onLogs((logs) => console.log(logs))
++ // later: watch.off()
+
+- const unwatch = watchContractEvent(client, { abi, eventName, onLogs: (logs) => console.log(logs) })
++ const watch = Actions.contract.watchEvent(client, { abi, eventName })
++ watch.onLogs((logs) => console.log(logs))
++ // later: watch.off()
+```
+
+Transaction receipt and block-number waiters moved to their owning namespaces and began returning watcher handles.
+
+```diff
+-const receipt = await waitForTransactionReceipt(client, { hash, onReplaced })
++const receiptWatcher = Actions.transaction.waitForReceipt(client, { hash })
++receiptWatcher.onReplaced(onReplaced)
++const receipt = await receiptWatcher.receipt
+
+-const unwatch = watchBlockNumber(client, { onBlockNumber })
++const blockWatcher = Actions.block.watchNumber(client)
++blockWatcher.onBlockNumber(onBlockNumber)
+```
+
+Flat watcher callback aliases were removed in favor of signatures inferred from watcher registration methods.
+
+```diff
+-import type { OnBlockNumberParameter, OnTransactionsParameter, WatchEventOnLogsFn } from 'viem/actions'
++import { Actions } from 'viem'
+
++type OnBlockNumber = Parameters<Actions.block.watchNumber.OnBlockNumberFn>[0]
++type OnTransactions = Parameters<Actions.transaction.watchPending.OnTransactionsFn>[0]
+```
+
+Filter producers were renamed to their owning domain namespaces.
+
+```diff
+- import { createBlockFilter, createPendingTransactionFilter, createEventFilter, createContractEventFilter } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const blockFilter = await createBlockFilter(client)
+- const txFilter = await createPendingTransactionFilter(client)
+- const eventFilter = await createEventFilter(client, { event })
+- const contractFilter = await createContractEventFilter(client, { abi, eventName })
++ const blockFilter = await Actions.block.createFilter(client)
++ const txFilter = await Actions.transaction.createPendingFilter(client)
++ const eventFilter = await Actions.event.createFilter(client, { event })
++ const contractFilter = await Actions.contract.createEventFilter(client, { abi, eventName })
+```
+
+Wallet JSON-RPC actions were grouped under the `wallet` namespace, and the EIP-7702 authorization actions were folded in from `viem/experimental`.
+
+```diff
+- import { getAddresses, requestAddresses, getPermissions, requestPermissions, watchAsset } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const addresses = await getAddresses(client)
+- const requested = await requestAddresses(client)
+- const permissions = await getPermissions(client)
+- const requestedPermissions = await requestPermissions(client, { eth_accounts: {} })
+- const success = await watchAsset(client, { type: 'ERC20', options })
++ const addresses = await Actions.wallet.getAddresses(client)
++ const requested = await Actions.wallet.requestAddresses(client)
++ const permissions = await Actions.wallet.getPermissions(client)
++ const requestedPermissions = await Actions.wallet.requestPermissions(client, { eth_accounts: {} })
++ const success = await Actions.wallet.watchAsset(client, { type: 'ERC20', options })
+
+- import { prepareAuthorization, signAuthorization } from 'viem/experimental'
++ import { Actions } from 'viem'
+
+- const authorization = await prepareAuthorization(client, { contractAddress })
+- const signed = await signAuthorization(client, { contractAddress })
++ const authorization = await Actions.wallet.prepareAuthorization(client, { address })
++ const signed = await Actions.wallet.signAuthorization(client, { address })
+```
+
+The ERC-7846 connection actions and ERC-7811 `getAssets` moved from their experimental subpaths to the stable `wallet` namespace.
+
+```diff
+- import { getAssets } from 'viem/experimental/erc7811'
+- import { connect, disconnect } from 'viem/experimental/erc7846'
++ import { Actions } from 'viem'
+
+- const { accounts } = await connect(client)
+- await disconnect(client)
+- const assets = await getAssets(client)
++ const { accounts } = await Actions.wallet.connect(client)
++ await Actions.wallet.disconnect(client)
++ const assets = await Actions.wallet.getAssets(client)
+```
+
+The ERC-7821 executor actions moved from their experimental subpath to `Actions.erc7821`, while the decorator became root `erc7821Actions()`.
+
+```diff
+- import { erc7821Actions } from 'viem/experimental'
+- import { execute, executeBatches, supportsExecutionMode } from 'viem/experimental/erc7821'
++ import { Actions, erc7821Actions } from 'viem'
+
+- const hash = await execute(client, { address, calls })
+- const batchHash = await executeBatches(client, { address, batches })
+- const supported = await supportsExecutionMode(client, { address })
++ const hash = await Actions.erc7821.execute(client, { address, calls })
++ const batchHash = await Actions.erc7821.executeBatches(client, { address, batches })
++ const supported = await Actions.erc7821.supportsExecutionMode(client, { address })
+
+- type Decorator = Erc7821Actions
++ type Decorator = erc7821Actions.Decorator
+```
+
+ERC-7821 codecs and errors moved to Ox and `Actions.erc7821`, while `getExecuteError` became internal.
+
+```diff
+- import {
+-   encodeCalls,
+-   encodeExecuteBatchesData,
+-   encodeExecuteData,
+-   getExecuteError,
+-   ExecuteUnsupportedError,
+-   FunctionSelectorNotRecognizedError,
+- } from 'viem/experimental/erc7821'
++ import { Calls, Execute } from 'ox/erc7821'
++ import { Actions } from 'viem'
+
+- encodeCalls(calls)
+- encodeExecuteData({ calls })
+- encodeExecuteBatchesData({ batches })
+- getExecuteError(error, options)
++ // Encode ABI-backed call data first.
++ Calls.encode(calls)
++ Execute.encodeData(calls)
++ Execute.encodeBatchOfBatchesData(batches)
++ Actions.erc7821.ExecuteUnsupportedError
++ Actions.erc7821.FunctionSelectorNotRecognizedError
++ // Error normalization is internal.
+```
+
+The deprecated `writeContracts` and `eip5792Actions` exports were replaced by ABI-aware `Actions.wallet.sendCalls` and `walletActions()`.
+
+```diff
+- import { eip5792Actions, writeContracts } from 'viem/experimental'
++ import { Actions, walletActions } from 'viem'
+
+- client.extend(eip5792Actions())
+- await writeContracts(client, {
+-   contracts: [{ address, abi, functionName, args }],
+- })
++ client.extend(walletActions())
++ await Actions.wallet.sendCalls(client, {
++   calls: [{ to: address, abi, functionName, args }],
++ })
+```
+
+The EIP-5792 wallet actions were grouped under the `wallet` namespace.
+
+```diff
+- import { sendCalls, sendCallsSync, getCallsStatus, getCapabilities, showCallsStatus, waitForCallsStatus } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const { id } = await sendCalls(client, { calls })
+- const status = await sendCallsSync(client, { calls })
+- const callsStatus = await getCallsStatus(client, { id })
+- const capabilities = await getCapabilities(client)
+- await showCallsStatus(client, { id })
+- const confirmed = await waitForCallsStatus(client, { id })
++ const { id } = await Actions.wallet.sendCalls(client, { calls })
++ const status = await Actions.wallet.sendCallsSync(client, { calls })
++ const callsStatus = await Actions.wallet.getCallsStatus(client, { id })
++ const capabilities = await Actions.wallet.getCapabilities(client)
++ await Actions.wallet.showCallsStatus(client, { id })
++ const confirmed = await Actions.wallet.waitForCallsStatus(client, { id })
+```
+
+The `multicall` action was redesigned: it accepts the same typed calls with `contracts` renamed to `calls` and per-item `address` renamed to `to`, and returns a `{ results }` envelope. `allowFailure`, `batchSize`, `multicallAddress`, and `deployless` carry over.
+
+```diff
+  const results = await multicall(client, {
+-   contracts: [
+-     { address, abi, functionName: 'balanceOf', args },
+-     { address, abi, functionName: 'totalSupply' },
+-   ],
+- })
++ const { results } = await Actions.multicall(client, {
++   calls: [
++     { to: address, abi, functionName: 'balanceOf', args },
++     { to: address, abi, functionName: 'totalSupply' },
++   ],
++ })
+```
+
+`multicall` now executes via `eth_simulateV1` by default and transparently falls back to a multicall3 `aggregate3` batch on nodes without support (cached per client). Pin `mode: 'multicall'` for the previous semantics (always `aggregate3`, no detection request, multicall3 `msg.sender`), or `mode: 'simulate'` for deterministic rich results (`block`, per-call `gasUsed`/`logs`, `traceAssetChanges`).
+
+`simulateBlocks` moved under the `block` namespace as `block.simulate`, `multicall` lands flat at `Actions.multicall` (decorator `client.multicall`), and the per-block/state override option is singular `stateOverride` with the record shape.
+
+```diff
+- const result = await simulateBlocks(client, {
++ const result = await Actions.block.simulate(client, {
+    blocks: [{
+      calls,
+-     stateOverrides: [{ address: account, balance: parseEther('10000') }],
++     stateOverride: { [account]: { balance: Value.fromEther('10000') } },
+    }],
+  })
+```
+
+`simulateCalls` folds into `Actions.multicall` with `mode: 'simulate'`: the `traceAssetChanges`/`traceTransfers`/`validation` options and the `{ assetChanges, block, results }` envelope carry over, per-call `address` becomes `to`, and `stateOverrides` becomes the singular record-shaped `stateOverride`.
+
+```diff
+- import { simulateCalls } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const { assetChanges, results } = await simulateCalls(client, {
++ const { assetChanges, results } = await Actions.multicall(client, {
+    account,
+    calls: [
+-     { to: recipient, value: parseEther('1') },
+-     { abi, address: token, functionName: 'transfer', args },
++     { to: recipient, value: Value.fromEther('1') },
++     { abi, to: token, functionName: 'transfer', args },
+    ],
++   mode: 'simulate',
+    traceAssetChanges: true,
+  })
+```
+
+Multicall and request-shape types moved onto their owning namespaces, and the per-call `chainOverride`/account-override generics were dropped (v3 action options type `chain?: Chain.Chain | null` and `account?: Account.Account | Address.Address` directly).
+
+```diff
+- import type {
+-   MulticallBatchOptions,
+-   MulticallContracts,
+-   MulticallResults,
+-   PrepareTransactionRequestParameterType,
+-   SendTransactionRequest,
+-   SignTransactionRequest,
+- } from 'viem'
++ import type { Actions, Chain, Client } from 'viem'
+
+- type BatchOptions = MulticallBatchOptions
++ type BatchOptions = Client.MulticallOptions
+- type Calls = MulticallContracts<contracts>
++ type Calls = Actions.multicall.Options<calls>['calls']
+- type Results = MulticallResults<contracts>
++ type Results = Actions.multicall.ReturnType<chain, calls>['results']
+- type Parameter = PrepareTransactionRequestParameterType
++ type Parameter = Actions.transaction.prepare.Parameter
+- type Request = SendTransactionRequest<chain>
++ type Request = Chain.ExtractTransactionRequest<chain>
+- type SignRequest = SignTransactionRequest<chain>
++ type SignRequest = Chain.ExtractTransactionRequest<chain>
+```
+
+The generic type-derivation helpers behind v2 action signatures were removed without public replacements: `GetChainParameter`, `DeriveChain`, `DeriveAccount`, and `GetValue`. Libraries building generic wrappers should compose each action's `Options`/`ReturnType` namespace types (e.g. `Actions.contract.write.Options<abi, functionName>['value']`) instead. `ParseAccount` moved to `Account.from.ReturnType`, and `FilterType` to `Actions.filter.Type`.
+
+Watcher callback types moved onto their owning action namespaces.
+
+```diff
+- import type { OnBlockParameter, ReplacementReason, WatchEventOnLogsParameter } from 'viem'
++ import type { Actions } from 'viem'
+
+- type OnBlock = OnBlockParameter<chain>
++ type OnBlock = Parameters<Actions.block.watch.OnBlockFn>[0]
+- type OnLogs = WatchEventOnLogsParameter<abiEvent>
++ type OnLogs = Parameters<Actions.event.watch.OnLogsFn>[0]
+- type Reason = ReplacementReason
++ type Reason = Actions.transaction.waitForReceipt.ReplacementReason
+```
+
+Wallet action result types are reachable through their owning namespaces instead of named exports: `WalletCallReceipt` is `Actions.wallet.getCallsStatus.Receipt`, and `WalletPermission`/`WalletPermissionCaveat`/`AddEthereumChainParameter` have no named equivalents; use indexed access on the owning action's `ReturnType`/`Options` (e.g. `Actions.wallet.getPermissions.ReturnType[number]`).
+
+The onchain verification actions stay flat with their v2 names (`Actions.verifyHash` / `Actions.verifyMessage` / `Actions.verifyTypedData`), and `verifySiweMessage` moved out of `viem/siwe` to join them.
+
+```diff
+- import { verifyHash, verifyMessage, verifyTypedData } from 'viem/actions'
+- import { verifySiweMessage } from 'viem/siwe'
++ import { Actions } from 'viem'
+
+- const valid = await verifyHash(client, { address, hash, signature })
++ const valid = await Actions.verifyHash(client, { address, hash, signature })
+
+- const valid = await verifySiweMessage(client, { message, signature })
++ const valid = await Actions.verifySiweMessage(client, { message, signature })
+```
+
+Added EIP-1898 block-hash context to the onchain verification actions and chain verification hooks.
+
+```diff
+  await Actions.verifyHash(client, {
+    address,
+-   blockNumber,
++   blockHash,
++   requireCanonical: true,
+    hash,
+    signature,
+  })
+```
+
+`verifyHash` drops the deprecated `universalSignatureVerifierAddress` alias (use `erc6492VerifierAddress`) and the `chain` override (the client's chain is used); signature objects follow the `Signature` shape (`yParity`, no `v`). The `chain.verifyHash` hook now lives on the `Chain` type for chains with custom account verification.
+
+The ENS actions were grouped under the `ens` namespace, and CCIP-read (`OffchainLookup` reverts) now resolves inside `call` for any contract, honoring the client's `ccipRead` option.
+
+```diff
+- import { getEnsAddress, getEnsAvatar, getEnsName, getEnsResolver, getEnsText } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const address = await getEnsAddress(client, { name })
+- const avatar = await getEnsAvatar(client, { name })
+- const ensName = await getEnsName(client, { address })
+- const resolver = await getEnsResolver(client, { name })
+- const twitter = await getEnsText(client, { name, key: 'com.twitter' })
++ const address = await Actions.ens.getAddress(client, { name })
++ const avatar = await Actions.ens.getAvatar(client, { name })
++ const ensName = await Actions.ens.getName(client, { address })
++ const resolver = await Actions.ens.getResolver(client, { name })
++ const twitter = await Actions.ens.getText(client, { name, key: 'com.twitter' })
+```
+
+The ENS name primitives live on the `Ens` utility namespace (`Ens.normalize`, `Ens.namehash`, `Ens.labelhash`, `Ens.toCoinType` taking/returning `bigint`).
+
+CCIP Read was disabled by default and began requiring an explicit request policy.
+
+```diff
+- import { Client, http } from 'viem'
++ import { CcipRead, Client, http } from 'viem'
+
+  const client = Client.create({
++   ccipRead: CcipRead.tunnel({
++     batchGateways: ['https://ccip-v3.ens.xyz'],
++   }),
+    transport: http(),
+  })
+```
+
+A tunnel with a trusted HTTPS batch gateway became the recommended request policy. `CcipRead.request` provided defense in depth only; server applications were directed to a trusted proxy or custom gateway allowlist because portable `fetch` cannot pin DNS results to connections.
+
+The CCIP-read callback call began executing at the original call's block context (`blockNumber`/`blockTag`); previously the callback always ran against the latest block.
+
+CCIP gateway requests and batch tunnels moved to `CcipRead`, tunnel overrides renamed `ccipRequest` to `request`, and transport request options began flowing through tunnels.
+
+```diff
+- import {
+-   ccipFetch,
+-   ccipReadTunnel,
+-   ccipRequest,
+-   type CcipReadTunnelParameters,
+-   type CcipRequestErrorType,
+-   type CcipRequestParameters,
+- } from 'viem'
++ import { CcipRead } from 'viem'
+
+- const data = await ccipRequest(options)
+- const legacyData = await ccipFetch(options)
++ const data = await CcipRead.request(options)
+
+- const ccipRead = ccipReadTunnel({ batchGateways, ccipRequest })
++ const ccipRead = CcipRead.tunnel({
++   batchGateways,
++   request: CcipRead.request,
++ })
+
+- type RequestOptions = CcipRequestParameters
+- type RequestError = CcipRequestErrorType
+- type TunnelOptions = CcipReadTunnelParameters
++ type RequestOptions = CcipRead.request.Options
++ type RequestError = CcipRead.request.ErrorType
++ type TunnelOptions = CcipRead.tunnel.Options
+```
+
+`CcipRead.request` rejected unsafe URL forms and redirects and redacted gateway payloads, while `CcipRead.tunnel` redacted batch failures and rejected malformed success arrays instead of resolving `undefined`.
+
+Raw `offchainLookup` resolution became internal to `Actions.call`, and `AbiError` construction replaced its ABI item and selector constants.
+
+```diff
+- import {
+-   offchainLookup,
+-   offchainLookupAbiItem,
+-   offchainLookupSignature,
+-   type OffchainLookupErrorType,
+- } from 'viem'
++ import { AbiError } from 'viem/utils'
++ import { Actions, CcipRead } from 'viem'
+
+- const data = await offchainLookup(client, { data: revertData, to })
++ const { data } = await Actions.call(client, { data: callData, to })
+
+- offchainLookupAbiItem
+- offchainLookupSignature
++ const abiError = AbiError.from(
++   'error OffchainLookup(address sender, string[] urls, bytes callData, bytes4 callbackFunction, bytes extraData)',
++ )
++ const selector = AbiError.getSelector(abiError)
+
+- type LookupError = OffchainLookupErrorType
++ type LookupError = CcipRead.LookupError
+```
+
+`Actions.transaction.prepare` no longer feeds the fees it derives back into its internal gas estimation (nodes cap estimable gas by `balance / fee`, which broke senders that do not hold the fee themselves, e.g. sponsored transactions); caller-supplied fees are still forwarded.
+
+`Actions.transaction.estimateGas` encodes the request via the chain's `schema.transactionRequest` codec when declared, so chain-specific request fields reach the node.
+
+Passing `strict: true` to `contract.getLogs`, `contract.watchEvent`, `contract.createEventFilter`, and `event.createFilter` now narrows decoded `log.args` to the required (non-partial) shape at the type level; the widened property type previously defeated the generic's inference.
+
+## Actions (Test)
+
+Test actions were moved from the flat `viem/actions` entrypoint and flat test-client decorator methods into the root `Actions.test` namespace and grouped decorator namespaces.
+
+```diff
+- import { mine, setBalance } from 'viem/actions'
++ import { Actions, testActions } from 'viem'
+
+- await mine(client, { blocks: 1 })
+- await setBalance(client, { address, value })
++ await Actions.test.block.mine(client, { blocks: 1 })
++ await Actions.test.address.setBalance(client, { address, value })
+
+  const client = Client.create({ transport }).extend(testActions())
+- await client.mine({ blocks: 1 })
+- await client.setBalance({ address, value })
++ await client.block.mine({ blocks: 1 })
++ await client.address.setBalance({ address, value })
+```
+
+Test actions were renamed within their new namespaces.
+
+```diff
+- await client.setBlockGasLimit({ gasLimit })
+- await client.setNextBlockBaseFeePerGas({ baseFeePerGas })
+- await client.setNextBlockTimestamp({ timestamp })
+- await client.setBlockTimestampInterval({ interval })
+- await client.removeBlockTimestampInterval()
+- await client.impersonateAccount({ address })
+- await client.stopImpersonatingAccount({ address })
+- await client.dumpState()
+- await client.loadState({ state })
+- await client.getTxpoolStatus()
+- await client.inspectTxpool()
++ await client.block.setGasLimit({ gasLimit })
++ await client.block.setNextBaseFeePerGas({ baseFeePerGas })
++ await client.block.setNextTimestamp({ timestamp })
++ await client.block.setTimestampInterval({ interval })
++ await client.block.removeTimestampInterval()
++ await client.address.impersonate({ address })
++ await client.address.stopImpersonating({ address })
++ await client.state.dump()
++ await client.state.load({ state })
++ await client.txpool.getStatus()
++ await client.txpool.inspect()
+```
+
+Test actions that kept their leaf names were still moved under the `address`, `block`, `node`, `state`, or `txpool` namespaces.
+
+```diff
+- await client.setCode({ address, bytecode })
+- await client.setNonce({ address, nonce })
+- await client.setStorageAt({ address, index, value })
+- await client.getAutomine()
+- await client.setAutomine(true)
+- await client.setIntervalMining({ interval })
+- await client.setCoinbase({ address })
+- await client.increaseTime({ seconds })
+- await client.setRpcUrl('http://127.0.0.1:8545')
+- await client.setLoggingEnabled(true)
+- await client.setMinGasPrice({ gasPrice })
+- await client.snapshot()
+- await client.revert({ id })
+- await client.reset({ blockNumber })
+- await client.dropTransaction({ hash })
++ await client.address.setCode({ address, bytecode })
++ await client.address.setNonce({ address, nonce })
++ await client.address.setStorageAt({ address, index, value })
++ await client.block.getAutomine()
++ await client.block.setAutomine({ enabled: true })
++ await client.block.setIntervalMining({ interval })
++ await client.block.setCoinbase({ address })
++ await client.block.increaseTime({ seconds })
++ await client.node.setRpcUrl({ jsonRpcUrl: 'http://127.0.0.1:8545' })
++ await client.node.setLoggingEnabled({ enabled: true })
++ await client.node.setMinGasPrice({ gasPrice })
++ await client.state.snapshot()
++ await client.state.revert({ id })
++ await client.state.reset({ blockNumber })
++ await client.txpool.dropTransaction({ hash })
+```
+
+The `getTxpoolContent` and `sendUnsignedTransaction` test actions were removed.
+
+```diff
+- import { getTxpoolContent, sendUnsignedTransaction } from 'viem/actions'
+-
+- const content = await getTxpoolContent(client)
+- const hash = await sendUnsignedTransaction(client, { from, to, value })
+```
+
+The test-node mode moved from the client to the decorator (and per-action `mode` options), and is now optional.
+
+```diff
+- const client = createTestClient({ chain, mode: 'hardhat', transport })
++ const client = Client.create({ chain, transport }).extend(
++   testActions({ mode: 'hardhat' }),
++ )
+
+  // Standalone actions take `mode` per call (default 'anvil').
++ await Actions.test.block.mine(client, { blocks: 1, mode: 'hardhat' })
+```
+
+## Errors
+
+Error classes and error configuration were moved from flat root exports into the `Errors`, `RpcError`, and `ContractError` namespaces.
+
+```diff
+- import {
+-   BaseError,
+-   setErrorConfig,
+-   ExecutionRevertedError,
+-   InsufficientFundsError,
+-   ContractFunctionExecutionError,
+-   ContractFunctionRevertedError,
+- } from 'viem'
++ import { ContractError, Errors, RpcError } from 'viem'
+
+- setErrorConfig({ version: 'app@1.0.0' })
+- throw new BaseError('Example')
++ Errors.setConfig({ version: 'app@1.0.0' })
++ throw new Errors.BaseError('Example')
+
+- error instanceof ExecutionRevertedError
+- error instanceof InsufficientFundsError
+- error instanceof ContractFunctionExecutionError
+- error instanceof ContractFunctionRevertedError
++ error instanceof RpcError.ExecutionRevertedError
++ error instanceof RpcError.InsufficientFundsError
++ error instanceof ContractError.ContractFunctionExecutionError
++ error instanceof ContractError.ContractFunctionRevertedError
+```
+
+Node execution errors were grouped under `RpcError` (mostly keeping their class names; `UnknownNodeError` became `RpcError.UnknownRpcError`).
+
+```diff
+- import {
+-   FeeCapTooHighError,
+-   FeeCapTooLowError,
+-   NonceTooHighError,
+-   NonceTooLowError,
+-   NonceMaxValueError,
+-   IntrinsicGasTooHighError,
+-   IntrinsicGasTooLowError,
+-   TransactionTypeNotSupportedError,
+-   TipAboveFeeCapError,
+-   UnknownNodeError,
+- } from 'viem'
++ import { RpcError } from 'viem'
+
+- error instanceof FeeCapTooHighError
+- error instanceof FeeCapTooLowError
+- error instanceof NonceTooHighError
+- error instanceof NonceTooLowError
+- error instanceof NonceMaxValueError
+- error instanceof IntrinsicGasTooHighError
+- error instanceof IntrinsicGasTooLowError
+- error instanceof TransactionTypeNotSupportedError
+- error instanceof TipAboveFeeCapError
+- error instanceof UnknownNodeError
++ error instanceof RpcError.FeeCapTooHighError
++ error instanceof RpcError.FeeCapTooLowError
++ error instanceof RpcError.NonceTooHighError
++ error instanceof RpcError.NonceTooLowError
++ error instanceof RpcError.NonceMaxValueError
++ error instanceof RpcError.IntrinsicGasTooHighError
++ error instanceof RpcError.IntrinsicGasTooLowError
++ error instanceof RpcError.TransactionTypeNotSupportedError
++ error instanceof RpcError.TipAboveFeeCapError
++ error instanceof RpcError.UnknownRpcError
+```
+
+Contract function errors moved under `ContractError`, execution wrappers consolidated into `RpcError.ExecutionError`, and `CounterfactualDeploymentFailedError` was removed.
+
+```diff
+- import {
+-   CallExecutionError,
+-   ContractFunctionExecutionError,
+-   ContractFunctionRevertedError,
+-   ContractFunctionZeroDataError,
+-   CounterfactualDeploymentFailedError,
+-   EstimateGasExecutionError,
+-   RawContractError,
+-   TransactionExecutionError,
+- } from 'viem'
++ import { ContractError, RpcError } from 'viem'
+
+- error instanceof CallExecutionError
+- error instanceof EstimateGasExecutionError
+- error instanceof TransactionExecutionError
++ error instanceof RpcError.ExecutionError
+- error instanceof ContractFunctionExecutionError
+- error instanceof ContractFunctionRevertedError
+- error instanceof ContractFunctionZeroDataError
+- error instanceof CounterfactualDeploymentFailedError
+- error instanceof RawContractError
++ error instanceof ContractError.ContractFunctionExecutionError
++ error instanceof ContractError.ContractFunctionRevertedError
++ error instanceof ContractError.ContractFunctionZeroDataError
++ error instanceof ContractError.RawContractError
+```
+
+Stable action errors moved from the package root into their owning `Actions` namespaces.
+
+```diff
+- import {
+-   AtomicityNotSupportedError,
+-   BaseFeeScalarError,
+-   BlockNotFoundError,
+-   BundleFailedError,
+-   Eip1559FeesNotSupportedError,
+-   EnsAvatarInvalidMetadataError,
+-   EnsAvatarInvalidNftUriError,
+-   EnsAvatarUnsupportedNamespaceError,
+-   EnsAvatarUriResolutionError,
+-   MaxFeePerGasTooLowError,
+-   TransactionNotFoundError,
+-   TransactionReceiptNotFoundError,
+-   UnsupportedNonOptionalCapabilityError,
+-   WaitForCallsStatusTimeoutError,
+-   WaitForTransactionReceiptTimeoutError,
+- } from 'viem'
++ import { Actions } from 'viem'
+
++ Actions.block.BlockNotFoundError
++ Actions.ens.EnsAvatarInvalidMetadataError
++ Actions.ens.EnsAvatarInvalidNftUriError
++ Actions.ens.EnsAvatarUnsupportedNamespaceError
++ Actions.ens.EnsAvatarUriResolutionError
++ Actions.fee.BaseFeeScalarError
++ Actions.fee.Eip1559FeesNotSupportedError
++ Actions.transaction.MaxFeePerGasTooLowError
++ Actions.transaction.TransactionNotFoundError
++ Actions.transaction.TransactionReceiptNotFoundError
++ Actions.transaction.WaitForReceiptTimeoutError
++ Actions.wallet.AtomicityNotSupportedError
++ Actions.wallet.BundleFailedError
++ Actions.wallet.UnsupportedNonOptionalCapabilityError
++ Actions.wallet.WaitForCallsStatusTimeoutError
+```
+
+JSON-RPC and provider errors moved to the `RpcResponse` and `Provider` namespaces (re-exported from `viem/utils`). The EIP-1474 request errors map onto `RpcResponse.*` (note `JsonRpcVersionUnsupportedError` became `RpcResponse.VersionNotSupportedError`), and the EIP-1193/EIP-5792 provider errors map onto `Provider.*`, with `ProviderDisconnectedError` shortened to `Provider.DisconnectedError`. `RpcRequestError` has no direct class; RPC error responses now surface as the matching `RpcResponse.*` error. The `RpcErrorCode` and `ProviderRpcErrorCode` unions were removed; read the static `code` on the error classes instead.
+
+```diff
+- import {
+-   ChainDisconnectedError,
+-   EIP1193ProviderRpcError,
+-   InternalRpcError,
+-   InvalidInputRpcError,
+-   InvalidParamsRpcError,
+-   InvalidRequestRpcError,
+-   JsonRpcVersionUnsupportedError,
+-   LimitExceededRpcError,
+-   MethodNotFoundRpcError,
+-   MethodNotSupportedRpcError,
+-   ParseRpcError,
+-   ProviderDisconnectedError,
+-   ProviderRpcError,
+-   ResourceNotFoundRpcError,
+-   ResourceUnavailableRpcError,
+-   SwitchChainError,
+-   TransactionRejectedRpcError,
+-   UnauthorizedProviderError,
+-   UnsupportedProviderMethodError,
+-   UserRejectedRequestError,
+- } from 'viem'
++ import { Provider, RpcResponse } from 'viem/utils'
+
+- error instanceof ParseRpcError
+- error instanceof InvalidRequestRpcError
+- error instanceof MethodNotFoundRpcError
+- error instanceof InvalidParamsRpcError
+- error instanceof InternalRpcError
+- error instanceof InvalidInputRpcError
+- error instanceof ResourceNotFoundRpcError
+- error instanceof ResourceUnavailableRpcError
+- error instanceof TransactionRejectedRpcError
+- error instanceof MethodNotSupportedRpcError
+- error instanceof LimitExceededRpcError
+- error instanceof JsonRpcVersionUnsupportedError
++ error instanceof RpcResponse.ParseError
++ error instanceof RpcResponse.InvalidRequestError
++ error instanceof RpcResponse.MethodNotFoundError
++ error instanceof RpcResponse.InvalidParamsError
++ error instanceof RpcResponse.InternalError
++ error instanceof RpcResponse.InvalidInputError
++ error instanceof RpcResponse.ResourceNotFoundError
++ error instanceof RpcResponse.ResourceUnavailableError
++ error instanceof RpcResponse.TransactionRejectedError
++ error instanceof RpcResponse.MethodNotSupportedError
++ error instanceof RpcResponse.LimitExceededError
++ error instanceof RpcResponse.VersionNotSupportedError
+
+- error instanceof ProviderRpcError // or EIP1193ProviderRpcError
+- error instanceof UserRejectedRequestError
+- error instanceof UnauthorizedProviderError
+- error instanceof UnsupportedProviderMethodError
+- error instanceof ProviderDisconnectedError
+- error instanceof ChainDisconnectedError
+- error instanceof SwitchChainError
++ error instanceof Provider.ProviderRpcError
++ error instanceof Provider.UserRejectedRequestError
++ error instanceof Provider.UnauthorizedError
++ error instanceof Provider.UnsupportedMethodError
++ error instanceof Provider.DisconnectedError
++ error instanceof Provider.ChainDisconnectedError
++ error instanceof Provider.SwitchChainError
+```
+
+The EIP-5792 wallet-call errors likewise live on `Provider.*`: `AtomicReadyWalletRejectedUpgradeError`, `BundleTooLargeError`, `DuplicateIdError`, `UnknownBundleIdError`, and `UnsupportedChainIdError` keep their names.
+
+ABI lookup, encoding, and log-decoding errors consolidated into the ABI namespaces re-exported by viem. The `*NotFoundError` family folds into `AbiItem.NotFoundError`.
+
+```diff
+- import {
+-   AbiConstructorNotFoundError,
+-   AbiDecodingDataSizeTooSmallError,
+-   AbiEncodingArrayLengthMismatchError,
+-   AbiEncodingBytesSizeMismatchError,
+-   AbiEncodingLengthMismatchError,
+-   AbiErrorNotFoundError,
+-   AbiErrorSignatureNotFoundError,
+-   AbiEventNotFoundError,
+-   AbiEventSignatureEmptyTopicsError,
+-   AbiEventSignatureNotFoundError,
+-   AbiFunctionNotFoundError,
+-   AbiFunctionSignatureNotFoundError,
+-   DecodeLogDataMismatch,
+-   DecodeLogTopicsMismatch,
+-   InvalidAbiDecodingTypeError,
+-   InvalidAbiEncodingTypeError,
+-   UnsupportedPackedAbiType,
+- } from 'viem'
++ import { AbiEvent, AbiItem, AbiParameters } from 'viem'
+
+- error instanceof AbiConstructorNotFoundError // or AbiError/AbiEvent/AbiFunction NotFound / SignatureNotFound
++ error instanceof AbiItem.NotFoundError
+- error instanceof AbiDecodingDataSizeTooSmallError
++ error instanceof AbiParameters.DataSizeTooSmallError
+- error instanceof AbiEncodingArrayLengthMismatchError
++ error instanceof AbiParameters.ArrayLengthMismatchError
+- error instanceof AbiEncodingBytesSizeMismatchError
++ error instanceof AbiParameters.BytesSizeMismatchError
+- error instanceof AbiEncodingLengthMismatchError
++ error instanceof AbiParameters.LengthMismatchError
+- error instanceof InvalidAbiDecodingTypeError // or InvalidAbiEncodingTypeError, UnsupportedPackedAbiType
++ error instanceof AbiParameters.InvalidTypeError
+- error instanceof AbiEventSignatureEmptyTopicsError
++ error instanceof AbiEvent.SelectorTopicNotFoundError
+- error instanceof DecodeLogDataMismatch
++ error instanceof AbiEvent.DataMismatchError
+- error instanceof DecodeLogTopicsMismatch
++ error instanceof AbiEvent.TopicsMismatchError
+```
+
+(`InvalidAbiParameterError` lives on the singular `AbiParameter` namespace, re-exported from `viem/utils`.)
+
+Serialization, signature, and RLP errors moved to their owning namespaces.
+
+```diff
+- import {
+-   InvalidLegacyVError,
+-   InvalidSerializableTransactionError,
+-   InvalidSerializedTransactionError,
+-   InvalidSerializedTransactionTypeError,
+-   RlpDepthLimitExceededError,
+-   RlpListBoundaryExceededError,
+-   RlpTrailingBytesError,
+- } from 'viem'
++ import { Rlp, Signature, TxEnvelope } from 'viem'
+
+- error instanceof InvalidLegacyVError
++ error instanceof Signature.InvalidVError
+- error instanceof InvalidSerializableTransactionError
++ error instanceof TxEnvelope.InvalidTypeError
+- error instanceof InvalidSerializedTransactionError
++ error instanceof TxEnvelope.InvalidSerializedError
+- error instanceof InvalidSerializedTransactionTypeError
++ error instanceof TxEnvelope.InvalidSerializedTypeError
+- error instanceof RlpDepthLimitExceededError
++ error instanceof Rlp.DepthLimitExceededError
+- error instanceof RlpListBoundaryExceededError
++ error instanceof Rlp.ListBoundaryExceededError
+- error instanceof RlpTrailingBytesError
++ error instanceof Rlp.TrailingBytesError
+```
+
+Transport-level request errors moved to `RpcClient`: `HttpRequestError` became `RpcClient.HttpError`, and the `WebSocketRequestError` wrapper was removed in favor of `RpcClient.SocketClosedError`/`RpcClient.TimeoutError` plus the matching `RpcResponse` errors for error responses. `ClientChainNotConfiguredError` folds into `Chain.NotFoundError`.
+
+The action-level error mappers were removed: `getCallError`, `getEstimateGasError`, and `getTransactionError` are replaced by constructing `RpcError.ExecutionError` directly, and `containsNodeError` by checking the result of `RpcError.fromRpcError`.
+
+```diff
+- import { getCallError, getEstimateGasError, getTransactionError, containsNodeError } from 'viem/utils'
++ import { RpcError } from 'viem'
+
+- throw getCallError(err, { docsPath, ...args })
++ throw new RpcError.ExecutionError(err, options)
+- const isNodeError = containsNodeError(err)
++ const isNodeError = !(RpcError.fromRpcError(err) instanceof RpcError.UnknownRpcError)
+```
+
+Seven error conditions were engineered away and their classes removed without replacement: `FeeConflictError` (fee-field exclusivity is now enforced at the type level), `AccountStateConflictError` and `StateAssignmentConflictError` (the record-shaped state overrides make the conflicts unrepresentable), `InvalidDefinitionTypeError` (`AbiItem.getSignature` accepts all item types), `AbiDecodingDataSizeInvalidError` (already unthrown in v2.55), `AbiConstructorParamsNotFoundError` and `AbiErrorInputsNotFoundError` (argument-count mismatches surface as `AbiParameters.LengthMismatchError`), and `AbiFunctionOutputsNotFoundError` (`AbiFunction.decodeResult` returns `undefined` for functions without outputs).
+
+Primitive utility errors moved to their owning namespaces; flat `*ErrorType` aliases were removed in favor of namespace classes and function error unions.
+
+```diff
+-import { AbiDecodingZeroDataError, InvalidAddressError, type DecodeAbiParametersErrorType } from 'viem'
++import { AbiParameters, Address } from 'viem'
+
+-error instanceof AbiDecodingZeroDataError
+-error instanceof InvalidAddressError
++error instanceof AbiParameters.ZeroDataError
++error instanceof Address.InvalidAddressError
++type DecodeError = AbiParameters.decode.ErrorType
+```
+
+## Nonce Manager
+
+Nonce manager construction moved from `createNonceManager` to `NonceManager.from`, and the `jsonRpc` source + default `nonceManager` instance moved onto the `NonceManager` namespace.
+
+```diff
+-import { createNonceManager, jsonRpc, nonceManager } from 'viem'
++import { NonceManager } from 'viem'
+
+-const manager = createNonceManager({ source: jsonRpc() })
++const manager = NonceManager.from({ source: NonceManager.jsonRpc() })
+
+-const defaultManager = nonceManager
++const defaultManager = NonceManager.nonceManager
+```
+
+The `viem/nonce` entrypoint was removed; import the `NonceManager` namespace from the root entrypoint instead.
+
+```diff
+-import { createNonceManager } from 'viem/nonce'
++import { NonceManager } from 'viem'
+```
+
+The `NonceManagerSource` and `CreateNonceManagerParameters` types moved into the `NonceManager` namespace as `NonceManager.Source` and `NonceManager.from.Options`.
+
+```diff
+-import type { CreateNonceManagerParameters, NonceManagerSource } from 'viem'
++import type { NonceManager } from 'viem'
+
+-const options: CreateNonceManagerParameters = { source }
+-const source: NonceManagerSource = { get, set }
++const options: NonceManager.from.Options = { source }
++const source: NonceManager.Source = { get, set }
+```
+
+## Tokens
+
+ERC-20 token actions were grouped under the `token` namespace on the root `Actions` namespace and on the public/wallet decorators.
+
+```diff
+- import { token } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const balance = await token.getBalance(client, { account, token: address })
++ const balance = await Actions.token.getBalance(client, { account, token: address })
+
+- const balance = await client.token.getBalance({ account, token: address })
++ const balance = await client.token.getBalance({ account, token: address })
+```
+
+Token construction moved from `defineToken` (exported from `viem/tokens`) to `Token.from` (exported from `viem`).
+
+```diff
+- import { defineToken } from 'viem/tokens'
++ import { Token } from 'viem'
+
+- const usdc = defineToken({ addresses, currency: 'USD', decimals: 6, name: 'USD Coin', symbol: 'USDC' })
++ const usdc = Token.from({ addresses, currency: 'USD', decimals: 6, name: 'USD Coin', symbol: 'USDC' })
+```
+
+## Account Abstraction
+
+Bundler and Paymaster clients moved to `Client.create` and `PaymasterClient.create`, with custom RPC typing renamed from `rpcSchema` to `schema`.
+
+```diff
+-import { http, rpcSchema } from 'viem'
+-import { createBundlerClient, createPaymasterClient } from 'viem/account-abstraction'
++import { Client, PaymasterClient, http } from 'viem/account-abstraction'
++import { RpcSchema } from 'viem/utils'
+
+-const bundler = createBundlerClient({
+-  rpcSchema: rpcSchema<[{
+-    Method: 'bundler_custom'
+-    Parameters: [id: string]
+-    ReturnType: boolean
+-  }]>(),
++const bundler = Client.create({
++  schema: RpcSchema.from<{
++    Request: { method: 'bundler_custom'; params: [id: string] }
++    ReturnType: boolean
++  }>(),
+   transport: http(bundlerUrl),
+ })
+-const paymaster = createPaymasterClient({ transport: http(paymasterUrl) })
++const paymaster = PaymasterClient.create({ transport: http(paymasterUrl) })
+```
+
+Bundler and Paymaster runtime client types changed to `bundler` and `paymaster`, while Paymaster defaults changed to `paymaster` and `Paymaster Client`.
+
+```diff
+-bundler.type // 'bundlerClient'
+-paymaster.type // 'PaymasterClient'
+-paymaster.key // 'bundler'
+-paymaster.name // 'Bundler Client'
++bundler.type // 'bundler'
++paymaster.type // 'paymaster'
++paymaster.key // 'paymaster'
++paymaster.name // 'Paymaster Client'
+```
+
+Standalone actions moved under `Actions`, while decorated methods moved under the `entryPoint`, `userOperation`, and `paymaster` client namespaces.
+
+```diff
+-await getSupportedEntryPoints(client)
+-await prepareUserOperation(client, options)
+-await estimateUserOperationGas(client, options)
+-await sendUserOperation(client, options)
+-await getUserOperation(client, options)
+-await getUserOperationReceipt(client, options)
+-await waitForUserOperationReceipt(client, options)
+-await getPaymasterData(client, options)
+-await getPaymasterStubData(client, options)
++await Actions.entryPoint.getSupported(client)
++await Actions.userOperation.prepare(client, options)
++await Actions.userOperation.estimateGas(client, options)
++await Actions.userOperation.send(client, options)
++await Actions.userOperation.get(client, options)
++await Actions.userOperation.getReceipt(client, options)
++await Actions.userOperation.waitForReceipt(client, options)
++await Actions.paymaster.getData(client, options)
++await Actions.paymaster.getStubData(client, options)
+
+-await client.sendUserOperation(options)
+-await client.waitForUserOperationReceipt({ hash })
+-await client.getSupportedEntryPoints()
+-await paymasterClient.getPaymasterData(options)
+-await paymasterClient.getPaymasterStubData(options)
++await client.userOperation.send(options)
++await client.userOperation.waitForReceipt({ hash })
++await client.entryPoint.getSupported()
++await paymasterClient.paymaster.getData(options)
++await paymasterClient.paymaster.getStubData(options)
+```
+
+Bundler `getChainId` was removed in favor of the root chain action.
+
+```diff
+-const chainId = await bundlerClient.getChainId()
++import { Actions as CoreActions } from 'viem'
++const chainId = await CoreActions.chains.getId(bundlerClient)
+```
+
+`bundlerActions` became `accountAbstractionActions()`, while `paymasterActions` was replaced by the Paymaster client or standalone Paymaster actions.
+
+```diff
+-client.extend(bundlerActions)
++client.extend(accountAbstractionActions())
+
+-client.extend(paymasterActions)
++const client = PaymasterClient.create({ transport })
++// or Actions.paymaster.getData(client, options)
+
+-type BundlerDecorator = BundlerActions
+-type PaymasterDecorator = PaymasterActions
++type BundlerDecorator = AccountAbstractionActions
++type PaymasterDecorator = PaymasterClient.Decorator
+```
+
+Smart-account constructors moved into the `SmartAccount`, `CoinbaseSmartAccount`, `SoladySmartAccount`, `Simple7702SmartAccount`, and `WebAuthnAccount` namespaces.
+
+```diff
+-toSmartAccount(implementation)
+-toCoinbaseSmartAccount(options)
+-toSoladySmartAccount(options)
+-toSimple7702SmartAccount(options)
+-toWebAuthnAccount({ credential, getFn, rpId })
++SmartAccount.from(implementation)
++CoinbaseSmartAccount.from(options)
++SoladySmartAccount.from(options)
++Simple7702SmartAccount.from(options)
++WebAuthnAccount.from(credential, { getFn, rpId })
+```
+
+Flat client and account types moved beside their namespaced factories, using `Options`, `ReturnType`, `ErrorType`, `Implementation`, and `Account` members.
+
+```diff
+-type Bundler = BundlerClient
+-type BundlerOptions = BundlerClientConfig
+-type BundlerError = CreateBundlerClientErrorType
+-type Paymaster = PaymasterClient
+-type PaymasterOptions = PaymasterClientConfig
+-type PaymasterError = CreatePaymasterClientErrorType
+-type Account = SmartAccount
+-type AccountImplementation = SmartAccountImplementation
+-type AccountOptions = ToSmartAccountParameters
+-type CoinbaseImplementation = CoinbaseSmartAccountImplementation
+-type Simple7702Implementation = Simple7702SmartAccountImplementation
+-type SoladyOptions = ToSoladySmartAccountParameters
+-type SoladyImplementation = SoladySmartAccountImplementation
++type Bundler = Client.Client
++type BundlerOptions = Client.create.Options
++type BundlerError = Client.create.ErrorType
++type Paymaster = PaymasterClient.Client
++type PaymasterOptions = PaymasterClient.create.Options
++type PaymasterError = PaymasterClient.create.ErrorType
++type Account = SmartAccount.SmartAccount
++type AccountImplementation = SmartAccount.Implementation
++type AccountOptions = SmartAccount.Implementation // `SmartAccount.from` takes the implementation positionally.
++type CoinbaseImplementation = CoinbaseSmartAccount.Implementation
++type Simple7702Implementation = Simple7702SmartAccount.Implementation
++type SoladyOptions = SoladySmartAccount.from.Options
++type SoladyImplementation = SoladySmartAccount.Implementation
+```
+
+Flat action parameter, return, and error aliases moved under each action's function namespace.
+
+```diff
+-type EstimateOptions = EstimateUserOperationGasParameters
+-type SupportedResult = GetSupportedEntryPointsReturnType
+-type GetOptions = GetUserOperationParameters
+-type GetResult = GetUserOperationReturnType
+-type ReceiptOptions = GetUserOperationReceiptParameters
+-type ReceiptResult = GetUserOperationReceiptReturnType
+-type PrepareParameter = PrepareUserOperationParameterType
+-type PrepareRequest = PrepareUserOperationRequest
+-type SendOptions = SendUserOperationParameters
+-type SendResult = SendUserOperationReturnType
+-type SendError = SendUserOperationErrorType
+-type WaitOptions = WaitForUserOperationReceiptParameters
+-type PaymasterDataOptions = GetPaymasterDataParameters
+-type PaymasterStubOptions = GetPaymasterStubDataParameters
++type EstimateOptions = Actions.userOperation.estimateGas.Options
++type SupportedResult = Actions.entryPoint.getSupported.ReturnType
++type GetOptions = Actions.userOperation.get.Options
++type GetResult = Actions.userOperation.get.ReturnType
++type ReceiptOptions = Actions.userOperation.getReceipt.Options
++type ReceiptResult = Actions.userOperation.getReceipt.ReturnType
++type PrepareParameter = Actions.userOperation.prepare.Parameter
++type PrepareRequest = Actions.userOperation.prepare.Options
++type SendOptions = Actions.userOperation.send.Options
++type SendResult = Actions.userOperation.send.ReturnType
++type SendError = Actions.userOperation.send.ErrorType
++type WaitOptions = Actions.userOperation.waitForReceipt.Options
++type PaymasterDataOptions = Actions.paymaster.getData.Options
++type PaymasterStubOptions = Actions.paymaster.getStubData.Options
+```
+
+WebAuthn credential creation moved to the `WebAuthnP256` utilities, and account construction changed to `WebAuthnAccount.from(credential, options)`.
+
+```diff
+-import { createWebAuthnCredential, toWebAuthnAccount } from 'viem/account-abstraction'
++import { WebAuthnP256 } from 'viem/utils'
++import { WebAuthnAccount } from 'viem/account-abstraction'
+
+-const credential = await createWebAuthnCredential({ name: 'Example' })
+-const owner = toWebAuthnAccount({ credential, getFn, rpId })
++const credential = await WebAuthnP256.createCredential({ name: 'Example' })
++const owner = WebAuthnAccount.from(credential, { getFn, rpId })
+
+-type Credential = P256Credential
+-type CredentialOptions = CreateWebAuthnCredentialParameters
+-type CredentialResult = CreateWebAuthnCredentialReturnType
+-type Owner = WebAuthnAccount
+-type OwnerSignResult = WebAuthnSignReturnType
+-type OwnerOptions = ToWebAuthnAccountParameters
+-type OwnerResult = ToWebAuthnAccountReturnType
+-type OwnerError = ToWebAuthnAccountErrorType
++type Credential = WebAuthnP256.P256Credential
++type CredentialOptions = WebAuthnP256.createCredential.Options
++type CredentialResult = WebAuthnP256.P256Credential
++type Owner = WebAuthnAccount.Account
++type OwnerSignResult = WebAuthnAccount.SignReturnType
++type OwnerCredential = WebAuthnAccount.from.Credential
++type OwnerOptions = WebAuthnAccount.from.Options
++type OwnerResult = WebAuthnAccount.from.ReturnType
++type OwnerError = WebAuthnAccount.from.ErrorType
+```
+
+WebAuthn credentials adopted structured P256 keys and immediate validation, with `Credential.serialize` (from `viem/account-abstraction`) replacing direct public-key persistence.
+
+```diff
+-const stored = JSON.stringify(credential.publicKey)
++import { Credential } from 'viem/account-abstraction'
++const stored = JSON.stringify(Credential.serialize(credential))
+```
+
+EntryPoint constants and UserOperation utilities moved into the Ox-backed `EntryPoint`, `UserOperation`, `UserOperationGas`, and `UserOperationReceipt` namespaces.
+
+```diff
+-entryPoint06Abi
+-entryPoint06Address
+-entryPoint07Abi
+-entryPoint07Address
+-entryPoint08Abi
+-entryPoint08Address
+-entryPoint09Abi
+-entryPoint09Address
+-getUserOperationHash({ userOperation: operation, ...options })
+-getUserOperationTypedData({ userOperation: operation, ...options })
+-toPackedUserOperation(operation, options)
+-getInitCode(operation, options)
+-toUserOperation(operation)
+-formatUserOperation(operation)
+-formatUserOperationRequest(operation)
+-formatUserOperationGas(gas)
+-formatUserOperationReceipt(receipt)
++EntryPoint.abiV06
++EntryPoint.addressV06
++EntryPoint.abiV07
++EntryPoint.addressV07
++EntryPoint.abiV08
++EntryPoint.addressV08
++EntryPoint.abiV09
++EntryPoint.addressV09
++UserOperation.hash(operation, options)
++UserOperation.toTypedData(operation, options)
++UserOperation.toPacked(operation, options)
++UserOperation.toInitCode(operation)
++UserOperation.from(operation)
++UserOperation.fromRpc(operation)
++UserOperation.toRpc(operation)
++UserOperationGas.fromRpc(gas)
++UserOperationReceipt.fromRpc(receipt)
+```
+
+User-operation and RPC types moved into their corresponding primitive namespaces.
+
+```diff
+-type Version = EntryPointVersion
+-type Operation = UserOperation
+-type RpcOperation = RpcUserOperation
+-type Packed = PackedUserOperation
+-type Gas = RpcEstimateUserOperationGasReturnType
+-type RpcTransaction = RpcGetUserOperationByHashReturnType
+-type Receipt = UserOperationReceipt
+-type RpcReceipt = RpcUserOperationReceipt
+-type RpcRequest = RpcUserOperationRequest
++type Version = EntryPoint.Version
++type Operation = UserOperation.UserOperation
++type RpcOperation = UserOperation.Rpc
++type Packed = UserOperation.Packed
++type Gas = UserOperationGas.Rpc
++type RpcTransaction = UserOperation.RpcTransactionInfo
++type Receipt = UserOperationReceipt.UserOperationReceipt
++type RpcReceipt = UserOperationReceipt.Rpc
++// No public partial RPC request type; use `UserOperation.Request` for native input.
+```
+
+`UserOperationRequest` became `UserOperation.Request`, with partially preparable fields and mutually exclusive `calls` or `callData` inputs.
+
+```diff
+-import type { UserOperationRequest } from 'viem/account-abstraction'
++import type { UserOperation } from 'viem/account-abstraction'
+
+-type Request = UserOperationRequest
++type Request = UserOperation.Request
+
+-const request = { callData, calls }
++const request = { calls }
++// or: const request = { callData }
+```
+
+User-operation generics gained an explicit signed parameter, while receipt generics began accepting a full receipt type instead of a status type.
+
+```diff
+-type Operation = UserOperation<'0.8', bigint, number>
+-type Receipt = UserOperationReceipt<'0.8', bigint, number, 'success'>
++type Operation = UserOperation.UserOperation<'0.8', true, bigint, number>
++type Receipt = UserOperationReceipt.UserOperationReceipt<
++  '0.8',
++  bigint,
++  number,
++  CustomReceipt
++>
+```
+
+EIP-7702 authorization became limited to EntryPoint 0.8 and 0.9, and unsigned native operations began permitting an omitted signature.
+
+```diff
+-type Operation = UserOperation<'0.6'> & { authorization?: Authorization }
++type Operation = UserOperation.UserOperation<'0.8', false>
++// `authorization` is available and `signature` is optional.
+```
+
+`UserOperation.toPacked` dropped EntryPoint 0.6 inputs, and `UserOperation.toInitCode` removed `forHash` while always normalizing EIP-7702 delegation init code.
+
+```diff
+-toPackedUserOperation(operation06)
++UserOperation.toPacked(operation07)
+
+-getInitCode(operation, { forHash: true })
++UserOperation.toInitCode(operation)
+```
+
+Bundler and Paymaster actions became EntryPoint-version-aware, with EntryPoint 0.9 results preserving `paymasterSignature`.
+
+```diff
+-const data = await getPaymasterData(client, options)
++const data = await Actions.paymaster.getData<'0.9'>(client, options)
++data.paymasterSignature
+```
+
+Bundler Paymaster hooks were renamed to `getData` and `getStubData`, and full `PaymasterClient.Client` values became accepted.
+
+```diff
+ const bundler = Client.create({
+-  paymaster: { getPaymasterData, getPaymasterStubData },
++  paymaster: { getData, getStubData },
++  // or: paymaster: PaymasterClient.create({ transport }),
+   transport,
+ })
+```
+
+Pending User Operation lookups made `blockHash`, `blockNumber`, and `transactionHash` nullable.
+
+```diff
+-result.blockHash: Hex
+-result.blockNumber: bigint
+-result.transactionHash: Hex
++result.blockHash: Hex | null
++result.blockNumber: bigint | null
++result.transactionHash: Hex | null
+```
+
+Smart-account methods began accepting synchronous results, while resolved accounts stopped exposing configuration-only `extend` and `nonceKeyManager` members.
+
+```diff
+-account.encodeCalls(calls).then(useCallData)
++useCallData(await account.encodeCalls(calls))
+
+-account.extend
+-account.nonceKeyManager
+```
+
+Generic smart accounts stopped advertising `sign` unless implemented and left the core `Account.Account` union.
+
+```diff
+-import type { Account } from 'viem'
+-function submit(account: Account) {}
++import type { SmartAccount } from 'viem/account-abstraction'
++function submit(account: SmartAccount.SmartAccount) {}
+```
+
+Solady accounts restricted EntryPoint versions to 0.6 and 0.7, required `factoryAddress` with explicit EntryPoints, and returned version-specific ABIs.
+
+```diff
+-const account = await toSoladySmartAccount({ client, entryPoint, owner })
++const account = await SoladySmartAccount.from({
++  client,
++  entryPoint,
++  factoryAddress,
++  owner,
++})
+```
+
+Coinbase accounts began rejecting empty owner lists during construction.
+
+```diff
+-const account = await toCoinbaseSmartAccount({ ...options, owners: [] })
++const account = await CoinbaseSmartAccount.from({ ...options, owners })
++// `owners` must contain at least one owner.
+```
+
+Custom preparation hooks began receiving version-specific partial operations instead of the broad `UserOperationRequest` type.
+
+```diff
+-estimateFeesPerGas({ userOperation: request as UserOperationRequest })
+-getStubSignature(request as UserOperationRequest)
++estimateFeesPerGas({ userOperation: operation as Partial<UserOperation.UserOperation> })
++getStubSignature(operation)
+```
+
+Error classes remained flat, while their `*ErrorType` aliases were removed and action or conversion errors moved under function namespaces.
+
+```diff
+-type SendError = SendUserOperationErrorType
+-type ExecutionError = UserOperationExecutionErrorType
+-type FormatError = FormatUserOperationErrorType
++type SendError = Actions.userOperation.send.ErrorType
++type ExecutionError = UserOperationExecutionError
++type FormatError = UserOperation.fromRpc.ErrorType
+```
+
+Utility option, return, and formatter error aliases without namespace equivalents were removed in favor of direct inputs and inference.
+
+```diff
+-type HashResult = GetUserOperationHashReturnType
+-type TypedDataResult = GetUserOperationTypedDataReturnType
+-type InitCodeOptions = GetInitCodeOptions
+-type GasFormatError = FormatUserOperationGasErrorType
+-type ReceiptFormatError = FormatUserOperationReceiptErrorType
++type HashResult = ReturnType<typeof UserOperation.hash>
++type TypedDataResult = ReturnType<typeof UserOperation.toTypedData>
++// `UserOperation.toInitCode` has no options.
++// `UserOperationGas.fromRpc`/`UserOperationReceipt.fromRpc` declare no error unions.
+```
+
+Bundler error normalization helpers and generic inference helpers were removed from the public API.
+
+```diff
+-getBundlerError(...)
+-getUserOperationError(...)
+-type Account = DeriveSmartAccount<client, account>
+-type AccountParameter = GetSmartAccountParameter<client, account>
+-type Version = DeriveEntryPointVersion<account>
+-type VersionParameter = GetEntryPointVersionParameter<version>
++// Error normalization is internal.
++type Account = SmartAccount.SmartAccount
++type Version = EntryPoint.Version
+```
+
+The standalone `viem/experimental/erc7739` entrypoint was removed, while Solady accounts retained ERC-7739 message and typed-data signing internally.
+
+```diff
+-import { erc7739Actions, signMessage, signTypedData } from 'viem/experimental/erc7739'
++import { SoladySmartAccount } from 'viem/account-abstraction'
+
+-client.extend(erc7739Actions())
++const account = await SoladySmartAccount.from(options)
++await account.signMessage({ message })
++await account.signTypedData(typedData)
+```
+
+## Tempo
+
+The `viem/tempo/chains` entrypoint moved to the `Chain` namespace on `viem/tempo`.
+
+```diff
+- import { tempoMainnet } from 'viem/tempo/chains'
++ import { Chain } from 'viem/tempo'
+
+- const chain = tempoMainnet
++ const chain = Chain.tempoMainnet
+```
+
+The `tempoTestnet` chain moved with the entrypoint and remained an alias of Tempo Moderato.
+
+```diff
+- import { tempoTestnet } from 'viem/tempo/chains'
++ import { Chain } from 'viem/tempo'
+
+- const chain = tempoTestnet
++ const chain = Chain.tempoTestnet
+```
+
+The Zone HTTP transport config moved from `ZoneHttpConfig` to `http.Options`.
+
+```diff
+- import { http, type ZoneHttpConfig } from 'viem/tempo/zones'
++ import { http } from 'viem/tempo/zones'
+
+- const options: ZoneHttpConfig = { retryCount: 1 }
++ const options: http.Options = { retryCount: 1 }
+```
+
+Updated Zone deposits for current portals and added dynamic addresses, bounceback recipients, encryption-key reads, and deposit-status waiting.
+
+```diff
+ await Actions.zone.deposit(client, {
+   amount,
++  bouncebackRecipient,
++  portalAddress,
+   token,
+   zoneId,
+ })
+
++const key = await Actions.zone.getEncryptionKey(client, { portalAddress, zoneId })
++const status = await Actions.zone.waitForDepositStatus(zoneClient, { tempoBlockNumber })
+```
+
+The `viem/tempo` extension was rebuilt on v3 primitives: module namespaces (`Abis`, `Account`, `Addresses`, `Capabilities`, `Expiry`, `Hardfork`, `KeyAuthorizationManager`, `P256`, `Scopes`, `Selectors`, `Storage`, `WebAuthnP256`, `WebCryptoP256`), chain codec hooks in place of formatters/serializers, a `Client.create` factory decorated with `tempoActions()`, and domain-namespaced actions (`accessKey`, `amm`, `channel`, `dex`, `faucet`, `fee`, `nonce`, `policy`, `receivePolicy`, `token`, `validator`, `virtualAddress`, `wallet`, and `zone`). The zones surface lives at `viem/tempo/zones` (auth-token `http` transport, `zone`/`zoneModerato` chain builders).
+
+```diff
+- import { Account, Actions, createClient } from 'viem/tempo'
++ import { Account, Actions, Client } from 'viem/tempo'
+
+- const client = createClient({ account })
++ const client = Client.create({ account })
+
+- await Actions.token.transferSync(client, {
+-   amount: parseUnits('1', 6),
+-   to,
+-   token: 'pathusd',
+- })
++ await client.token.transferSync({
++   amount: { formatted: '1' },
++   to,
++   token: '0x20c0000000000000000000000000000000000000',
++ })
+```
+
+Breaking changes:
+
+- Tokens are selected by address; token ids, the `TokenId` helper namespace, the `TokenIds` constants namespace, and the `TokenIdOrAddress` type were removed (`fee.getUserToken` returns the token address).
+- The flat tempo type aliases formerly re-exported through the chains entrypoints moved to their namespaces: `KeyAuthorizationSigned` → `KeyAuthorization.Signed` (on `viem/tempo`), and `TxEnvelopeTempoCall` → `TxEnvelopeTempo.Call` (from `ox/tempo`).
+- Watcher actions (`token.watch*`, …) return a `Watcher` handle (`watcher.onLogs(fn)` to subscribe, with decoded `log.args`) instead of accepting per-event callback options.
+- `nonce.getNonce` → `nonce.get`; `nonce.watchNonceIncremented` → `nonce.watchIncremented`.
+- `policy.create` now honors an explicit `admin` option (previously the sender was always used).
+- The `reward` actions were removed (reward distribution is hardfork-disabled on-chain).
+- The `simulate` namespace dissolved into core: use `client.block.simulate` or `client.contract.simulate`.
+- `withFeePayer` and `walletNamespaceCompat` transports were removed; `withRelay` remains and gained a `policy` option (`'sign-only'` co-signs via the relay and broadcasts through the default transport; `'sign-and-broadcast'` forwards the submission to the relay).
+- `Account_base` → `Account.Base`; `Account.signAuthorization` takes the `Authorization` shape; `accessKeyAddress`/`resolveAccessKey` return checksummed addresses; the deprecated `z_*` re-exports and `internal_version` option were removed.
+- `TempoAddress` was removed in favor of checksummed `Address.Address` values.
+
+The `withRelay.type` constant was removed; relay transports retained the `'relay'` type discriminant.
+
+```diff
+ const transport = withRelay(defaultTransport, relayTransport)
+-transport.type === withRelay.type
++transport.type === 'relay'
+```
+
+## Node
+
+The `mainnetTrustedSetupPath` export from `viem/node` was replaced by the re-exported Ox `trusted-setups` `Paths`.
+
+```diff
+- import { mainnetTrustedSetupPath } from 'viem/node'
++ import { Paths } from 'viem/node'
+
+- const path = mainnetTrustedSetupPath
++ const path = Paths.mainnet
+```
+
+The `getIpcRpcClient` helper was removed from `viem/node`; obtain the RPC client from the `ipc` transport instead.
+
+```diff
+- import { getIpcRpcClient } from 'viem/node'
++ import { ipc } from 'viem/node'
+
+- const rpcClient = await getIpcRpcClient({ path: '/tmp/geth.ipc' })
++ const transport = ipc('/tmp/geth.ipc')
++ const rpcClient = await transport.setup({}).getRpcClient()
+```
+
+The IPC transport types were renamed: `IpcTransport` is now `Ipc` and `IpcTransportConfig` is now `ipc.Options`.
+
+```diff
+- import { ipc, type IpcTransport, type IpcTransportConfig } from 'viem/node'
++ import { ipc, type Ipc } from 'viem/node'
+
+- const transport: IpcTransport = ipc('/tmp/geth.ipc')
++ const transport: Ipc = ipc('/tmp/geth.ipc')
+```
+
+The aggregate `IpcTransportErrorType` alias was removed in favor of concrete transport, RPC response, and socket errors.
+
+```diff
+-import type { IpcTransportErrorType } from 'viem/node'
++import { RpcClient, RpcError, Transport } from 'viem'
+```
+
+## Utilities
+
+The flat utility exports moved onto module namespaces, grouped below by area.
+
+### ABI
+
+ABI parameter encoding and decoding moved from flat utilities to the `AbiParameters` namespace.
+
+```diff
+- import { encodeAbiParameters, decodeAbiParameters, parseAbiParameters } from 'viem'
++ import { AbiParameters } from 'viem'
+
+- const parameters = parseAbiParameters('address to, uint256 amount')
+- const data = encodeAbiParameters(parameters, [to, amount])
+- const values = decodeAbiParameters(parameters, data)
++ const parameters = AbiParameters.from('address to, uint256 amount')
++ const data = AbiParameters.encode(parameters, [to, amount])
++ const values = AbiParameters.decode(parameters, data)
+```
+
+ABI function data and result utilities moved from flat utilities to the `AbiFunction` namespace.
+
+```diff
+- import { decodeFunctionData, decodeFunctionResult, encodeFunctionData, encodeFunctionResult, parseAbi } from 'viem'
++ import { Abi, AbiFunction } from 'viem'
+
+- const abi = parseAbi(['function balanceOf(address) view returns (uint256)'])
+- const data = encodeFunctionData({ abi, functionName: 'balanceOf', args: [address] })
+- const call = decodeFunctionData({ abi, data })
+- const result = encodeFunctionResult({ abi, functionName: 'balanceOf', result: 1n })
+- const value = decodeFunctionResult({ abi, functionName: 'balanceOf', data: result })
++ const abi = Abi.from(['function balanceOf(address) view returns (uint256)'])
++ const data = AbiFunction.encodeData(abi, 'balanceOf', [address])
++ const call = AbiFunction.decodeData(abi, data)
++ const result = AbiFunction.encodeResult(abi, 'balanceOf', [1n])
++ const value = AbiFunction.decodeResult(abi, 'balanceOf', result)
+```
+
+ABI event topic and log utilities moved from flat utilities to the `AbiEvent` namespace.
+
+```diff
+- import { decodeEventLog, encodeEventTopics, parseAbi } from 'viem'
++ import { Abi, AbiEvent } from 'viem'
+
+- const abi = parseAbi(['event Transfer(address indexed from, address indexed to, uint256 value)'])
+- const topics = encodeEventTopics({ abi, eventName: 'Transfer', args: { from } })
+- const event = decodeEventLog({ abi, data, topics })
++ const abi = Abi.from(['event Transfer(address indexed from, address indexed to, uint256 value)'])
++ const topics = AbiEvent.encode(abi, 'Transfer', { from })
++ const event = AbiEvent.decodeLog(abi, { data, topics })
+```
+
+ABI constructor and error encoding utilities moved from flat utilities to the `AbiConstructor` and `AbiError` namespaces.
+
+```diff
+- import { decodeErrorResult, encodeDeployData, encodeErrorResult, parseAbi } from 'viem'
++ import { Abi, AbiConstructor, AbiError } from 'viem'
+
+- const abi = parseAbi(['constructor(address owner)', 'error Unauthorized(address caller)'])
+- const deployData = encodeDeployData({ abi, bytecode, args: [owner] })
+- const errorData = encodeErrorResult({ abi, errorName: 'Unauthorized', args: [caller] })
+- const error = decodeErrorResult({ abi, data: errorData })
++ const abi = Abi.from(['constructor(address owner)', 'error Unauthorized(address caller)'])
++ const deployData = AbiConstructor.encode(abi, { bytecode, args: [owner] })
++ const errorData = AbiError.encode(abi, 'Unauthorized', [caller])
++ const error = AbiError.extract(abi, errorData)
+```
+
+ABI parsing and item lookup utilities moved from flat utilities to the `Abi`, `AbiItem`, and `AbiParameters` namespaces.
+
+```diff
+- import { getAbiItem, parseAbi, parseAbiItem, parseAbiParameters } from 'viem'
++ import { Abi, AbiItem, AbiParameters } from 'viem'
+
+- const abi = parseAbi(['function transfer(address to, uint256 amount)'])
+- const item = parseAbiItem('function transfer(address to, uint256 amount)')
+- const parameters = parseAbiParameters('address to, uint256 amount')
+- const transfer = getAbiItem({ abi, name: 'transfer' })
++ const abi = Abi.from(['function transfer(address to, uint256 amount)'])
++ const item = AbiItem.from('function transfer(address to, uint256 amount)')
++ const parameters = AbiParameters.from('address to, uint256 amount')
++ const transfer = AbiItem.fromAbi(abi, 'transfer')
+```
+
+Solidity integer bounds moved from flat constants to the `Solidity` namespace.
+
+```diff
+- import { maxInt256, maxUint256, minInt256 } from 'viem'
++ import { Solidity } from 'viem'
+
+- const max = maxUint256
++ const max = Solidity.maxUint256
+```
+
+Event log parsing moved from `parseEventLogs` to `AbiEvent.extractLogs` (same `eventName`/`args`/`strict` semantics, positional abi and logs).
+
+```diff
+- import { parseEventLogs } from 'viem'
++ import { AbiEvent } from 'viem'
+
+- const parsed = parseEventLogs({ abi, logs, eventName: 'Transfer', strict: true })
++ const parsed = AbiEvent.extractLogs(abi, logs, { eventName: 'Transfer', strict: true })
+```
+
+`prepareEncodeFunctionData` was replaced by `AbiFunction.fromAbi` (selector precomputed) plus `AbiFunction.encodeData`, and `decodeDeployData` moved to `AbiConstructor.decode` (returns the decoded args directly, `undefined` when the constructor has none, and throws on bytecode mismatch).
+
+```diff
+- import { decodeDeployData, encodeFunctionData, prepareEncodeFunctionData } from 'viem'
++ import { AbiConstructor, AbiFunction } from 'viem'
+
+- const prepared = prepareEncodeFunctionData({ abi, functionName: 'transfer' })
+- const data = encodeFunctionData({ ...prepared, args: [to, amount] })
++ const transfer = AbiFunction.fromAbi(abi, 'transfer')
++ const data = AbiFunction.encodeData(transfer, [to, amount])
+
+- const { args } = decodeDeployData({ abi, bytecode, data })
++ const args = AbiConstructor.decode(abi, { bytecode, data })
+```
+
+ABI item and parameter formatting moved to `AbiItem.getSignature` and `AbiParameters.format`; `formatAbiItemWithArgs` and the `includeName` formatting variants were removed.
+
+```diff
+- import { formatAbiItem, formatAbiItemWithArgs, formatAbiParams } from 'viem'
++ import { AbiItem, AbiParameters } from 'viem'
+
+- const signature = formatAbiItem(item)
++ const signature = AbiItem.getSignature(item)
+- const params = formatAbiParams(item.inputs)
++ const params = AbiParameters.format(item.inputs)
+- formatAbiItemWithArgs({ abiItem, args })
++ // Removed; debug rendering is internal to error formatting.
+```
+
+ABI item-lookup and log-topic types moved onto their owning namespaces.
+
+```diff
+- import type {
+-   AbiItemName,
+-   ContractErrorName,
+-   ContractEventArgsFromTopics,
+-   ContractEventName,
+-   ContractFunctionName,
+-   ExtractAbiItem,
+-   ExtractAbiItemForArgs,
+-   ExtractAbiItemNames,
+-   LogTopic,
+- } from 'viem'
++ import type { AbiError, AbiEvent, AbiFunction, AbiItem, Filter } from 'viem'
+
+- type ItemName = AbiItemName<abi>
+- type ErrorName = ContractErrorName<abi>
+- type EventName = ContractEventName<abi>
+- type FunctionName = ContractFunctionName<abi>
+- type MutabilityAware = ContractFunctionName<abi, 'view'>
+- type Item = ExtractAbiItem<abi, name>
+- type ItemForArgs = ExtractAbiItemForArgs<abi, name, args>
+- type Names = ExtractAbiItemNames<abi>
+- type EventArgs = ContractEventArgsFromTopics<abi, name>
+- type Topic = LogTopic
++ type ItemName = AbiItem.Name<abi>
++ type ErrorName = AbiError.Name<abi>
++ type EventName = AbiEvent.Name<abi>
++ type FunctionName = AbiFunction.Name<abi>
++ type MutabilityAware = AbiFunction.ExtractNames<abi, 'view'>
++ type Item = AbiItem.FromAbi<abi, name>
++ type ItemForArgs = AbiItem.fromAbi.ReturnType<abi, name, args>
++ type Names = AbiItem.ExtractNames<abi>
++ type EventArgs = AbiEvent.decode.ReturnType<AbiEvent.FromAbi<abi, name>>
++ type Topic = Filter.Topic
+```
+
+`abitype` types are no longer re-exported. Import them from `abitype` directly (a direct dependency of viem), including `AbiParameterKind`, `AbiParameterToPrimitiveType`, `AbiStateMutability`, `ParseAbi`, `ParseAbiItem`, `ParseAbiParameter`, `ResolvedRegister`, and the single-parameter `parseAbiParameter` utility. Type registration via declaration merging on abitype's `Register` continues to work.
+
+```diff
+- import { parseAbiParameter, type ParseAbi, type ResolvedRegister } from 'viem'
++ import { parseAbiParameter, type ParseAbi, type ResolvedRegister } from 'abitype'
+```
+
+Internal ABI type-plumbing helpers were removed without public replacements: `AbiEventParameterToPrimitiveType`, `AbiEventParametersToPrimitiveTypes`, `AbiEventTopicToPrimitiveType`, `AbiItemArgs`, `ContractConstructorArgs`, `ContractErrorArgs`, `ContractEventArgs`, `ContractFunctionArgs`, `EventDefinition`, `GetEventArgs`, `GetMutabilityAwareValue`, `LogTopicType`, `MaybeAbiEventName`, and `MaybeExtractEventArgsFromAbi`. Compose from `abitype` primitives (e.g. `AbiParametersToPrimitiveTypes<ExtractAbiFunction<abi, name>['inputs']>`) or use the owning function's namespace types (e.g. `AbiEvent.encode.Args`, `AbiEvent.extractLogs.Args`).
+
+Preset ABI constants moved: ERC-20 to `abitype/abis`, the ERC-6492 validator ABI to `SignatureErc6492`, and the ERC-721/ERC-1155/ERC-4626 definitions to the `Abis` namespace.
+
+```diff
+- import { erc20Abi, erc721Abi, erc1155Abi, erc4626Abi, erc6492SignatureValidatorAbi } from 'viem'
++ import { erc20Abi } from 'abitype/abis'
++ import { Abis, SignatureErc6492 } from 'viem'
+
+- erc721Abi
++ Abis.erc721
+- erc1155Abi
++ Abis.erc1155
+- erc4626Abi
++ Abis.erc4626
+- erc6492SignatureValidatorAbi
++ SignatureErc6492.universalSignatureValidatorAbi
+```
+
+`erc20Abi_bytes32` (bytes32 `name`/`symbol` ERC-20 variant) and `multicall3Abi` were removed. Inline the bytes32 overrides where needed, and build the aggregate3 signature directly for manual multicall reads (`Actions.multicall` handles aggregation internally).
+
+```diff
+- import { erc20Abi_bytes32, multicall3Abi } from 'viem'
++ import { AbiFunction } from 'viem'
+
++ const aggregate3 = AbiFunction.from(
++   'function aggregate3((address target, bool allowFailure, bytes callData)[] calls) payable returns ((bool success, bytes returnData)[] returnData)',
++ )
+```
+
+The deployless-call bytecode constants were internalized; deployless calls are first-class `Actions.call` options.
+
+```diff
+- import { deploylessCallViaBytecodeBytecode, deploylessCallViaFactoryBytecode } from 'viem'
++ import { Actions } from 'viem'
+
++ await Actions.call(client, { code, data })
++ await Actions.call(client, { factory, factoryData, to, data })
+```
+
+### Address
+
+Address checksum and validation utilities moved from flat utilities to the `Address` namespace. `checksumAddress` folds into `Address.checksum`, which drops the optional EIP-1191 `chainId` parameter, and `IsAddressOptions` moves to `Address.validate.Options`.
+
+```diff
+- import { checksumAddress, getAddress, isAddress, isAddressEqual, type IsAddressOptions } from 'viem'
++ import { Address } from 'viem'
+
+- const address = getAddress('0xa0cf798816d4b9b9866b5330eea46a18382f251e')
+- const checksummed = checksumAddress('0xa0cf798816d4b9b9866b5330eea46a18382f251e')
+- const valid = isAddress(address)
+- const equal = isAddressEqual(address, otherAddress)
++ const address = Address.checksum('0xa0cf798816d4b9b9866b5330eea46a18382f251e')
++ const checksummed = Address.checksum('0xa0cf798816d4b9b9866b5330eea46a18382f251e')
++ const valid = Address.validate(address)
++ const equal = Address.isEqual(address, otherAddress)
+
+- type Options = IsAddressOptions
++ type Options = Address.validate.Options
+```
+
+Contract address derivation utilities moved from flat utilities to the `ContractAddress` namespace, along with their option types. `ContractAddress.from` drops the `opcode` discriminator and dispatches on `salt` presence instead.
+
+```diff
+- import {
+-   getContractAddress,
+-   getCreate2Address,
+-   getCreateAddress,
+-   type GetContractAddressOptions,
+-   type GetCreate2AddressOptions,
+-   type GetCreateAddressOptions,
+- } from 'viem'
++ import { ContractAddress } from 'viem'
+
+- const create = getCreateAddress({ from, nonce })
+- const create2 = getCreate2Address({ from, salt, bytecodeHash })
+- const derived = getContractAddress({ opcode: 'CREATE', from, nonce })
++ const create = ContractAddress.fromCreate({ from, nonce })
++ const create2 = ContractAddress.fromCreate2({ from, salt, bytecodeHash })
++ const derived = ContractAddress.from({ from, nonce })
+
+- type FromOptions = GetContractAddressOptions
+- type CreateOptions = GetCreateAddressOptions
+- type Create2Options = GetCreate2AddressOptions
++ type FromOptions = ContractAddress.from.Options
++ type CreateOptions = ContractAddress.fromCreate.Options
++ type Create2Options = ContractAddress.fromCreate2.Options
+```
+
+Address constants moved to the `Address` namespace.
+
+```diff
+- import { ethAddress, zeroAddress } from 'viem'
++ import { Address } from 'viem'
+
+- const recipient = zeroAddress
++ const recipient = Address.zero
+- const native = ethAddress
++ const native = Address.ether
+```
+
+### Blobs
+
+Blob construction, commitment, proof, and versioned-hash helpers moved from flat exports to the `Blobs` and `BlobCells` namespaces.
+
+```diff
+-import { blobsToCommitments, blobsToProofs, commitmentsToVersionedHashes, toBlobs } from 'viem'
++import { BlobCells, Blobs } from 'viem'
+ 
+-const blobs = toBlobs({ data })
+-const commitments = blobsToCommitments({ blobs, kzg })
+-const proofs = blobsToProofs({ blobs, commitments, kzg })
+-const versionedHashes = commitmentsToVersionedHashes({ commitments })
++const blobs = Blobs.from(data)
++const commitments = Blobs.toCommitments(blobs, { kzg })
++const proofs = Blobs.toCellProofs(blobs, { kzg })
++const versionedHashes = Blobs.commitmentsToVersionedHashes(commitments)
++const cells = BlobCells.fromBlob(blobs[0], { kzg })
+```
+
+KZG setup moved from the flat `setupKzg` and `defineKzg` helpers to the `Kzg` namespace. The `Kzg` interface adopted [EIP-7594](https://eips.ethereum.org/EIPS/eip-7594) cell methods in place of `computeBlobKzgProof`.
+
+```diff
+-import { defineKzg, setupKzg } from 'viem'
++import { Kzg } from 'viem'
+ 
+-const kzg = setupKzg(cKzg, trustedSetup)
+-const kzg = defineKzg(cKzg)
++const kzg = Kzg.from(cKzg)
+```
+
+Blob decoding moved from `fromBlobs` to `Blobs.to`.
+
+```diff
+-import { fromBlobs } from 'viem'
++import { Blobs } from 'viem'
+
+-const data = fromBlobs({ blobs, to: 'hex' })
++const data = Blobs.to(blobs, 'Hex')
+```
+
+The per-blob sidecar surface was redesigned for [EIP-7594](https://eips.ethereum.org/EIPS/eip-7594) (PeerDAS): `BlobSidecar`/`BlobSidecars` (array of `{ blob, commitment, proof }`) became the struct-of-arrays `TxEnvelopeEip4844.Sidecars` carrying cell proofs, and `toBlobSidecars`/`sidecarsToVersionedHashes` were removed; sidecars are attached automatically when passing `blobs` + `kzg` to `Actions.transaction.prepare`/`send` or `TransactionRequest.toEnvelope`.
+
+```diff
+-import { sidecarsToVersionedHashes, toBlobSidecars, type BlobSidecars } from 'viem'
++import { Blobs, type TxEnvelopeEip4844 } from 'viem'
+
+-const sidecars = toBlobSidecars({ blobs, kzg })
+-const versionedHashes = sidecarsToVersionedHashes({ sidecars })
++// Sidecars are built during transaction preparation:
++// Actions.transaction.send(client, { blobs, kzg, ... })
++const versionedHashes = Blobs.commitmentsToVersionedHashes(sidecars.commitments)
+
+- type Sidecars = BlobSidecars
++ type Sidecars = TxEnvelopeEip4844.Sidecars
+```
+
+### Block & Log
+
+Block and log formatters moved from flat formatter exports to the `Block` and `Log` RPC conversion namespaces.
+
+```diff
+-import { formatBlock, formatLog } from 'viem'
++import { Block, Log } from 'viem'
+ 
+-const block = formatBlock(rpcBlock)
+-const log = formatLog(rpcLog)
++const block = Block.fromRpc(rpcBlock)
++const log = Log.fromRpc(rpcLog)
+```
+
+Block override, state override, and filter RPC conversions moved to the `BlockOverrides`, `StateOverrides`, and `Filter` namespaces.
+
+```diff
+-import type { BlockOverrides, Filter, StateOverride } from 'viem'
++import { BlockOverrides, Filter, StateOverrides } from 'viem'
+ 
+-const blockOverrides: BlockOverrides = { baseFeePerGas: 1n }
+-const stateOverride: StateOverride = [{ address, balance: 1n }]
+-const filter: Filter = { fromBlock: 1n, toBlock: 2n }
++const rpcBlockOverrides = BlockOverrides.toRpc({ baseFeePerGas: 1n })
++const rpcStateOverrides = StateOverrides.toRpc([{ address, balance: 1n }])
++const rpcFilter = Filter.toRpc({ fromBlock: 1n, toBlock: 2n })
+```
+
+### Signatures & Keys
+
+Signature serialization, parsing, and recovery utilities moved from flat exports to the `Signature` and `Secp256k1` namespaces. The deprecated `signatureToHex` and `hexToSignature` aliases were removed with them.
+
+```diff
+-import { parseSignature, recoverAddress, recoverPublicKey, serializeSignature } from 'viem'
++import { Secp256k1, Signature } from 'viem'
+ 
+-const signature = parseSignature(hex)
+-const hex = serializeSignature(signature)
+-const address = await recoverAddress({ hash, signature })
+-const publicKey = recoverPublicKey({ hash, signature })
++const signature = Signature.fromHex(hex)
++const hex = Signature.toHex(signature)
++const address = Secp256k1.recoverAddress({ payload: hash, signature })
++const publicKey = Secp256k1.recoverPublicKey({ payload: hash, signature })
+```
+
+[EIP-2098](https://eips.ethereum.org/EIPS/eip-2098) compact signature utilities moved to the `SignatureErc2098` namespace, including the deprecated `compactSignatureToHex` and `hexToCompactSignature` aliases. (`Signature.toCompactBytes`/`Signature.fromCompactBytes` are a plain `r ++ s` encoding that does not carry `yParity`; use `SignatureErc2098` for EIP-2098 semantics.)
+
+```diff
+-import {
+-  type CompactSignature,
+-  compactSignatureToSignature,
+-  parseCompactSignature,
+-  serializeCompactSignature,
+-  signatureToCompactSignature,
+-} from 'viem'
++import { SignatureErc2098 } from 'viem'
+
+-const compact = signatureToCompactSignature(signature)
+-const signature = compactSignatureToSignature(compact)
+-const serialized = serializeCompactSignature(compact)
+-const compact = parseCompactSignature(serialized)
++const compact = SignatureErc2098.from(signature)
++const signature = SignatureErc2098.toSignature(compact)
++const serialized = SignatureErc2098.toHex(compact)
++const compact = SignatureErc2098.fromHex(serialized)
+
+- type Compact = CompactSignature
++ type Compact = SignatureErc2098.SignatureErc2098
+```
+
+Message, typed-data, and transaction address recovery moved to their owning namespaces and became synchronous.
+
+```diff
+-import { recoverMessageAddress, recoverTransactionAddress, recoverTypedDataAddress } from 'viem'
++import { PersonalMessage, TxEnvelope, TypedData } from 'viem'
+
+-const address = await recoverMessageAddress({ message, signature })
+-const address = await recoverTypedDataAddress({ ...typedData, signature })
+-const address = await recoverTransactionAddress({ serializedTransaction, signature })
++const address = PersonalMessage.recoverAddress({ message, signature })
++const address = TypedData.recoverAddress({ ...typedData, signature })
++const address = TxEnvelope.recoverAddress(serializedTransaction, { signature })
+```
+
+Low-level secp256k1 signing, verification, and public-key address derivation moved from account and signature helpers to the `Secp256k1` and `Address` namespaces.
+
+```diff
+-import { verifyHash } from 'viem'
+-import { publicKeyToAddress, sign } from 'viem/accounts'
++import { Address, Secp256k1 } from 'viem'
+ 
+-const signature = sign({ hash, privateKey })
+-const valid = await verifyHash({ hash, publicKey, signature })
+-const address = publicKeyToAddress(publicKey)
++const signature = Secp256k1.sign({ payload: hash, privateKey })
++const valid = Secp256k1.verify({ payload: hash, publicKey, signature })
++const address = Address.fromPublicKey(publicKey)
+```
+
+ERC-6492 and ERC-8010 signature wrapping helpers moved from flat exports to the `SignatureErc6492` and `SignatureErc8010` namespaces.
+
+```diff
+-import { isErc6492Signature, isErc8010Signature, parseErc6492Signature, parseErc8010Signature, serializeErc6492Signature, serializeErc8010Signature } from 'viem'
++import { SignatureErc6492, SignatureErc8010 } from 'viem'
+ 
+-const erc6492 = parseErc6492Signature(wrapped)
+-const wrapped6492 = serializeErc6492Signature(erc6492)
+-const erc8010 = parseErc8010Signature(wrapped)
+-const wrapped8010 = serializeErc8010Signature(erc8010)
+-const is6492 = isErc6492Signature(wrapped)
+-const is8010 = isErc8010Signature(wrapped)
++const erc6492 = SignatureErc6492.unwrap(wrapped)
++const wrapped6492 = SignatureErc6492.wrap(erc6492)
++const erc8010 = SignatureErc8010.unwrap(wrapped)
++const wrapped8010 = SignatureErc8010.wrap(erc8010)
++const is6492 = SignatureErc6492.validate(wrapped)
++const is8010 = SignatureErc8010.validate(wrapped)
+```
+
+ERC-6492 magic bytes, validator ABI, and validator bytecode moved to `SignatureErc6492`. The deprecated `universalSignatureValidatorByteCode` alias was removed with them.
+
+```diff
+- import { erc6492MagicBytes, erc6492SignatureValidatorByteCode } from 'viem'
++ import { SignatureErc6492 } from 'viem'
+
+- erc6492MagicBytes
++ SignatureErc6492.magicBytes
+- erc6492SignatureValidatorByteCode
++ SignatureErc6492.universalSignatureValidatorBytecode
+```
+
+HD key, mnemonic seed, and wordlist utilities moved from account exports to the `HdKey` and `Mnemonic` namespaces.
+
+```diff
+-import { HDKey, english, generateMnemonic, hdKeyToAccount } from 'viem/accounts'
++import { HdKey, Mnemonic } from 'viem'
+ 
+-const mnemonic = generateMnemonic(english)
+-const account = hdKeyToAccount(HDKey.fromMasterSeed(seed))
++const mnemonic = Mnemonic.random(Mnemonic.english)
++const seed = Mnemonic.toSeed(mnemonic)
++const hdKey = HdKey.fromSeed(seed)
+```
+
+### Encoding & Units
+
+Hex conversion utilities moved from flat utilities to the `Hex` namespace.
+
+```diff
+- import { boolToHex, hexToBigInt, hexToBool, hexToBytes, hexToNumber, hexToString, numberToHex, stringToHex, toHex } from 'viem'
++ import { Hex } from 'viem'
+
+- const hex = toHex(420n)
+- const numberHex = numberToHex(420)
+- const stringHex = stringToHex('hello')
+- const boolHex = boolToHex(true)
+- const value = hexToBigInt(hex)
+- const number = hexToNumber(numberHex)
+- const text = hexToString(stringHex)
+- const bytes = hexToBytes(hex)
+- const bool = hexToBool(boolHex)
++ const hex = Hex.fromNumber(420n)
++ const numberHex = Hex.fromNumber(420)
++ const stringHex = Hex.fromString('hello')
++ const boolHex = Hex.fromBoolean(true)
++ const value = Hex.toBigInt(hex)
++ const number = Hex.toNumber(numberHex)
++ const text = Hex.toString(stringHex)
++ const bytes = Hex.toBytes(hex)
++ const bool = Hex.toBoolean(boolHex)
+```
+
+Bytes conversion utilities moved from flat utilities to the `Bytes` namespace, including the typed `bytesTo*`/`*ToBytes` variants (the redundant `bytesToBigint` alias was removed with them). The `ByteArray` type moved to `Bytes.Bytes`.
+
+```diff
+- import { boolToBytes, bytesToBigInt, bytesToBool, bytesToHex, bytesToNumber, bytesToString, fromBytes, numberToBytes, stringToBytes, toBytes, type ByteArray } from 'viem'
++ import { Bytes } from 'viem'
+
+- const bytes = toBytes('hello')
+- const stringBytes = stringToBytes('hello')
+- const numberBytes = numberToBytes(420)
+- const boolBytes = boolToBytes(true)
+- const hex = bytesToHex(bytes)
+- const text = fromBytes(bytes, 'string')
+- const value = bytesToBigInt(bytes)
+- const number = bytesToNumber(numberBytes)
+- const bool = bytesToBool(boolBytes)
+- const text2 = bytesToString(bytes)
++ const bytes = Bytes.fromString('hello')
++ const stringBytes = Bytes.fromString('hello')
++ const numberBytes = Bytes.fromNumber(420)
++ const boolBytes = Bytes.fromBoolean(true)
++ const hex = Bytes.toHex(bytes)
++ const text = Bytes.toString(bytes)
++ const value = Bytes.toBigInt(bytes)
++ const number = Bytes.toNumber(numberBytes)
++ const bool = Bytes.toBoolean(boolBytes)
++ const text2 = Bytes.toString(bytes)
+
+- type Data = ByteArray
++ type Data = Bytes.Bytes
+```
+
+Conversion option types moved onto the owning function namespaces (e.g. `NumberToHexOpts` → `Hex.fromNumber.Options`, `BytesToBigIntOpts` → `Bytes.toBigInt.Options`, `HexToBytesOpts` → `Hex.toBytes.Options`), replacing the flat `*Opts` exports.
+
+Data padding, slicing, concatenation, and validation utilities moved to the `Hex` and `Bytes` namespaces. `pad*` splits into `padLeft`/`padRight` with a positional size, `concat*` takes variadic arguments, and `Hex.validate` defaults `strict` to `false` (v2 `isHex` defaulted to strict validation; pass `{ strict: true }` to match).
+
+```diff
+- import { concat, concatBytes, concatHex, isBytes, isHex, pad, padBytes, padHex, slice, sliceBytes, sliceHex } from 'viem'
++ import { Bytes, Hex } from 'viem'
+
+- const padded = padHex('0x1', { size: 32 })
+- const paddedRight = padHex('0x1', { dir: 'right', size: 32 })
+- const joined = concatHex(['0xdead', '0xbeef'])
+- const sliced = sliceHex('0xdeadbeef', 0, 2)
+- const validHex = isHex('0xdeadbeef')
++ const padded = Hex.padLeft('0x1', 32)
++ const paddedRight = Hex.padRight('0x1', 32)
++ const joined = Hex.concat('0xdead', '0xbeef')
++ const sliced = Hex.slice('0xdeadbeef', 0, 2)
++ const validHex = Hex.validate('0xdeadbeef', { strict: true })
+
+- const paddedBytes = padBytes(bytes, { size: 32 })
+- const joinedBytes = concatBytes([a, b])
+- const slicedBytes = sliceBytes(bytes, 0, 2)
+- const validBytes = isBytes(bytes)
++ const paddedBytes = Bytes.padLeft(bytes, 32)
++ const joinedBytes = Bytes.concat(a, b)
++ const slicedBytes = Bytes.slice(bytes, 0, 2)
++ const validBytes = Bytes.validate(bytes)
+```
+
+RLP utilities moved from flat utilities to the `Rlp` namespace.
+
+```diff
+- import { bytesToRlp, fromRlp, hexToRlp, toRlp } from 'viem'
++ import { Rlp } from 'viem'
+
+- const encoded = toRlp(['0x01', '0x02'])
+- const encodedFromBytes = bytesToRlp(bytes)
+- const encodedFromHex = hexToRlp('0x01')
+- const decoded = fromRlp(encoded)
++ const encoded = Rlp.fromHex(['0x01', '0x02'])
++ const encodedFromBytes = Rlp.fromBytes(bytes)
++ const encodedFromHex = Rlp.fromHex('0x01')
++ const decoded = Rlp.toHex(encoded)
+```
+
+Unit parsing and formatting utilities moved from flat utilities to the `Value` namespace.
+
+```diff
+- import { formatEther, formatGwei, formatUnits, parseEther, parseGwei, parseUnits } from 'viem'
++ import { Value } from 'viem'
+
+- const wei = parseEther('1')
+- const gwei = parseGwei('1')
+- const units = parseUnits('1', 6)
+- const ether = formatEther(wei)
+- const gas = formatGwei(gwei)
+- const formatted = formatUnits(units, 6)
++ const wei = Value.fromEther('1')
++ const gwei = Value.fromGwei('1')
++ const units = Value.from('1', 6)
++ const ether = Value.formatEther(wei)
++ const gas = Value.formatGwei(gwei)
++ const formatted = Value.format(units, 6)
+```
+
+Unit exponent maps were consolidated into `Value.exponents`.
+
+```diff
+- import { etherUnits, gweiUnits, weiUnits } from 'viem'
++ import { Value } from 'viem'
+
+- const decimals = etherUnits.wei
++ const decimals = Value.exponents.ether
+```
+
+JSON stringification moved from the flat `stringify` utility to `Json.stringify`.
+
+```diff
+- import { stringify } from 'viem'
++ import { Json } from 'viem'
+
+- const json = stringify({ value: 1n })
++ const json = Json.stringify({ value: 1n })
+```
+
+### Hashing
+
+Byte hashing utilities moved from flat utilities to the `Hash` namespace, and their return types moved onto the function namespaces (with `'Hex' | 'Bytes'` type parameter casing).
+
+```diff
+- import { isHash, keccak256, ripemd160, sha256 } from 'viem'
++ import { Hash } from 'viem'
+
+- const digest = keccak256('0xdeadbeef')
+- const sha = sha256('0xdeadbeef')
+- const ripe = ripemd160('0xdeadbeef')
+- const valid = isHash(digest)
++ const digest = Hash.keccak256('0xdeadbeef')
++ const sha = Hash.sha256('0xdeadbeef')
++ const ripe = Hash.ripemd160('0xdeadbeef')
++ const valid = Hash.validate(digest)
+
+- type Digest = Keccak256Hash<'hex'>
+- type Sha = Sha256Hash<'hex'>
+- type Ripe = Ripemd160Hash<'hex'>
++ type Digest = Hash.keccak256.ReturnType<'Hex'>
++ type Sha = Hash.sha256.ReturnType<'Hex'>
++ type Ripe = Hash.ripemd160.ReturnType<'Hex'>
+```
+
+ABI selector and signature hash utilities moved from flat utilities to the ABI item namespaces.
+
+```diff
+- import { toEventHash, toEventSelector, toFunctionHash, toFunctionSelector } from 'viem'
++ import { AbiEvent, AbiFunction, AbiItem } from 'viem'
+
+- const eventSelector = toEventSelector('event Transfer(address indexed from, address indexed to, uint256 value)')
+- const eventHash = toEventHash('event Transfer(address indexed from, address indexed to, uint256 value)')
+- const functionSelector = toFunctionSelector('function balanceOf(address)')
+- const functionHash = toFunctionHash('function balanceOf(address)')
++ const eventSelector = AbiEvent.getSelector('event Transfer(address indexed from, address indexed to, uint256 value)')
++ const eventHash = AbiItem.getSignatureHash('event Transfer(address indexed from, address indexed to, uint256 value)')
++ const functionSelector = AbiFunction.getSelector('function balanceOf(address)')
++ const functionHash = AbiItem.getSignatureHash('function balanceOf(address)')
+```
+
+`toEventSignature` and `toFunctionSignature` moved to `AbiItem.getSignature`, and their deprecated `getEventSignature`/`getFunctionSignature` aliases were removed (as were the deprecated `getEventSelector`/`getFunctionSelector` aliases of the selector utilities).
+
+```diff
+- import { toEventSignature, toFunctionSignature } from 'viem'
++ import { AbiItem } from 'viem'
+
+- const eventSignature = toEventSignature('event Transfer(address indexed from, address indexed to, uint256 value)')
+- const functionSignature = toFunctionSignature('function balanceOf(address)')
++ const eventSignature = AbiItem.getSignature('event Transfer(address indexed from, address indexed to, uint256 value)')
++ const functionSignature = AbiItem.getSignature('function balanceOf(address)')
+```
+
+The zero hash constant moved to `Hash.zero`.
+
+```diff
+- import { zeroHash } from 'viem'
++ import { Hash } from 'viem'
+
+- const hash = zeroHash
++ const hash = Hash.zero
+```
+
+### Messages & ENS
+
+ENS name helpers moved from flat exports to the `Ens` namespace.
+
+```diff
+-import { labelhash, namehash, normalize } from 'viem'
++import { Ens } from 'viem'
+ 
+-const node = namehash(name)
+-const label = labelhash('wagmi')
+-const normalized = normalize(name)
++const node = Ens.namehash(name)
++const label = Ens.labelhash('wagmi')
++const normalized = Ens.normalize(name)
+```
+
+SIWE message creation, parsing, validation, and nonce generation moved from flat exports to the `Siwe` namespace. The `SiweMessage` type moved to `Siwe.Message`, and its `chainId` field changed from `number` to `bigint`.
+
+```diff
+-import { createSiweMessage, generateSiweNonce, parseSiweMessage, validateSiweMessage, type SiweMessage } from 'viem/siwe'
++import { Siwe } from 'viem'
+ 
+-const nonce = generateSiweNonce()
+-const message = createSiweMessage({ address, chainId: 1, domain, nonce, uri, version: '1' })
+-const parsed = parseSiweMessage(message)
+-const valid = validateSiweMessage({ address, message })
++const nonce = Siwe.generateNonce()
++const message = Siwe.createMessage({ address, chainId: 1n, domain, nonce, uri, version: '1' })
++const parsed = Siwe.parseMessage(message)
++const valid = Siwe.validateMessage({ address, message })
+
+- type Message = SiweMessage
++ type Message = Siwe.Message
+```
+
+The SIWE invalid-field error moved to the `Siwe` namespace.
+
+```diff
+-import { SiweInvalidMessageFieldError } from 'viem/siwe'
++import { Siwe } from 'viem'
+
+-error instanceof SiweInvalidMessageFieldError
++error instanceof Siwe.InvalidMessageFieldError
+```
+
+ENS avatar-record and packet helpers were internalized; higher-level avatar resolution moved to `Actions.ens.getAvatar`, and the coin-type error moved to `Ens.InvalidChainIdError`.
+
+```diff
+-import { parseAvatarRecord, packetToBytes, ToCoinTypeError } from 'viem/ens'
++import { Actions, Ens } from 'viem'
+
+-const avatar = await parseAvatarRecord(client, { record, gatewayUrls })
+-const packet = packetToBytes(name)
++const avatar = await Actions.ens.getAvatar(client, { name, assetGatewayUrls })
++Ens.InvalidChainIdError
+```
+
+Personal message hashing and typed-data hashing moved from flat signature helpers to `PersonalMessage` and `TypedData` namespaces.
+
+```diff
+-import { hashMessage, hashTypedData } from 'viem'
++import { Hex, PersonalMessage, TypedData } from 'viem'
+ 
+-const messageHash = hashMessage('hello world')
+-const typedDataHash = hashTypedData({ domain, types, primaryType, message })
++const messageHash = PersonalMessage.getSignPayload(Hex.fromString('hello world'))
++const typedDataHash = TypedData.getSignPayload({ domain, types, primaryType, message })
+```
+
+The `presignMessagePrefix` constant and `toPrefixedMessage` were removed; `PersonalMessage.encode` now owns prefixing. It accepts hex or bytes only; convert plain strings first.
+
+```diff
+- import { presignMessagePrefix, toPrefixedMessage } from 'viem'
++ import { Hex, PersonalMessage } from 'viem'
+
+- const payload = `${presignMessagePrefix}${message.length}${message}`
+- const payload = toPrefixedMessage(message)
++ const payload = PersonalMessage.encode(Hex.fromString(message))
+```
+
+Typed-data utilities moved from flat exports to the `TypedData` namespace, along with their types.
+
+```diff
+- import {
+-   getTypesForEIP712Domain,
+-   serializeTypedData,
+-   validateTypedData,
+-   type TypedDataDefinition,
+-   type TypedDataDomain,
+-   type TypedDataParameter,
+- } from 'viem'
++ import { TypedData } from 'viem'
+
+- const types = getTypesForEIP712Domain({ domain })
+- const serialized = serializeTypedData(definition)
+- validateTypedData(definition) // throws on invalid
++ const types = TypedData.extractEip712DomainTypes(domain)
++ const serialized = TypedData.serialize(definition)
++ TypedData.assert(definition) // throws on invalid
+
+- type Definition = TypedDataDefinition<typedData, primaryType>
+- type Domain = TypedDataDomain
+- type Parameter = TypedDataParameter
++ type Definition = TypedData.Definition<typedData, primaryType>
++ type Domain = TypedData.Domain
++ type Parameter = TypedData.Parameter
+```
+
+Note that `TypedData.validate` returns a boolean; the throwing equivalent of v2 `validateTypedData` is `TypedData.assert`.
+
+### Transactions
+
+Transaction envelope serialization, parsing, hashing, and type detection moved from flat helpers to `TxEnvelope` and the per-type envelope namespaces.
+
+```diff
+-import { getSerializedTransactionType, getTransactionType, parseTransaction, serializeTransaction } from 'viem'
++import { TxEnvelope, TxEnvelopeEip1559, TxEnvelopeEip2930, TxEnvelopeEip4844, TxEnvelopeEip7702, TxEnvelopeLegacy } from 'viem'
+ 
+-const serialized = serializeTransaction(transaction)
+-const transaction = parseTransaction(serialized)
+-const type = getTransactionType(transaction)
+-const serializedType = getSerializedTransactionType(serialized)
++const serialized = TxEnvelope.serialize(envelope)
++const envelope = TxEnvelope.from(serialized)
++const type = TxEnvelope.getType(envelope)
++const serializedType = TxEnvelope.getSerializedType(serialized)
++const eip1559 = TxEnvelopeEip1559.from(envelope)
++const eip2930 = TxEnvelopeEip2930.from(envelope)
++const eip4844 = TxEnvelopeEip4844.from(envelope)
++const eip7702 = TxEnvelopeEip7702.from(envelope)
++const legacy = TxEnvelopeLegacy.from(envelope)
+```
+
+Transaction, receipt, and request formatters moved from flat formatter exports to `Transaction`, `TransactionReceipt`, and `TransactionRequest` RPC conversion namespaces.
+
+```diff
+-import { formatTransaction, formatTransactionReceipt, formatTransactionRequest } from 'viem'
++import { Transaction, TransactionReceipt, TransactionRequest } from 'viem'
+ 
+-const transaction = formatTransaction(rpcTransaction)
+-const receipt = formatTransactionReceipt(rpcReceipt)
+-const request = formatTransactionRequest(request)
++const transaction = Transaction.fromRpc(rpcTransaction)
++const receipt = TransactionReceipt.fromRpc(rpcReceipt)
++const rpcRequest = TransactionRequest.toRpc(request)
+```
+
+Access list and authorization conversions moved from flat helpers to the `AccessList` and `Authorization` namespaces.
+
+```diff
+-import { serializeAccessList } from 'viem'
++import { AccessList, Authorization } from 'viem'
+ 
+-const tuple = serializeAccessList(accessList)
++const tuple = AccessList.toTupleList(accessList)
++const accessList = AccessList.fromTupleList(tuple)
++const authorization = Authorization.fromRpc(rpcAuthorization)
++const rpcAuthorization = Authorization.toRpc(authorization)
+```
+
+Withdrawal, fee history, and account proof RPC formatting moved to the `Withdrawal`, `Fee`, and `AccountProof` namespaces.
+
+```diff
++import { AccountProof, Fee, Withdrawal } from 'viem'
++
+-const withdrawal = { ...rpcWithdrawal, amount: BigInt(rpcWithdrawal.amount) }
+-const feeHistory = { ...rpcFeeHistory, baseFeePerGas: rpcFeeHistory.baseFeePerGas.map(BigInt) }
+-const accountProof = { ...rpcAccountProof, balance: BigInt(rpcAccountProof.balance) }
++const withdrawal = Withdrawal.fromRpc(rpcWithdrawal)
++const feeHistory = Fee.fromHistoryRpc(rpcFeeHistory)
++const accountProof = AccountProof.fromRpc(rpcAccountProof)
+```
+
+Per-type transaction assertions moved to the envelope namespaces, and the transaction-type wire maps moved to `Transaction`.
+
+```diff
+-import { assertTransactionEIP1559, assertTransactionEIP2930, assertTransactionLegacy, rpcTransactionType, transactionType } from 'viem'
++import { Transaction, TxEnvelopeEip1559, TxEnvelopeEip2930, TxEnvelopeLegacy } from 'viem'
+
+-assertTransactionEIP1559(transaction)
+-assertTransactionEIP2930(transaction)
+-assertTransactionLegacy(transaction)
++TxEnvelopeEip1559.assert(envelope)
++TxEnvelopeEip2930.assert(envelope)
++TxEnvelopeLegacy.assert(envelope)
+
+-const type = transactionType['0x2']
+-const rpcType = rpcTransactionType.eip1559
++const type = Transaction.fromRpcType['0x2']
++const rpcType = Transaction.toRpcType.eip1559
+```
+
+`assertRequest` was internalized into the `Actions.transaction` pipeline (envelope-level validation remains public via `TxEnvelope.assert`/`TxEnvelope.validate`), and the type-level `GetTransactionRequestKzgParameter` requirement was replaced by a runtime `TransactionRequest.MissingKzgError`.
+
+```diff
+-import { assertRequest, type GetTransactionRequestKzgParameter } from 'viem'
++import { TxEnvelope } from 'viem'
+
+-assertRequest(args)
++TxEnvelope.assert(envelope)
+```

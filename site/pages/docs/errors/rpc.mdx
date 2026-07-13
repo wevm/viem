@@ -1,0 +1,101 @@
+# RPC Errors
+
+## Overview
+
+The **RpcError** module provides the node (execution) error taxonomy: the failure modes a JSON-RPC node surfaces when validating or executing a transaction, such as reverts, underpriced fees, stale nonces, and insufficient funds. Actions map the raw RPC error onto these classes, so you can match failures with `instanceof` instead of parsing node-specific messages (geth, anvil, and friends word them differently).
+
+Execution actions ([`call`](/docs/actions/public/call), [`transaction.estimateGas`](/docs/actions/public/transaction/estimateGas), [`transaction.send`](/docs/actions/wallet/transaction/send), etc.) throw an `RpcError.ExecutionError` that renders the request arguments alongside the failure, with the matched taxonomy error preserved on `cause`.
+
+```ts twoslash
+import { Actions, Client, http, RpcError } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+try {
+  await Actions.transaction.estimateGas(client, {
+    account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: 1n,
+  })
+} catch (error) {
+  if (error instanceof RpcError.ExecutionError)
+    console.log(error.cause)
+}
+```
+
+## Recipes
+
+### Matching a Node Error
+
+Check the `cause` of the thrown `ExecutionError` against the taxonomy classes to branch on the failure mode.
+
+```ts twoslash
+import { Actions, Client, http, RpcError } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+try {
+  await Actions.transaction.estimateGas(client, {
+    account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: 1n,
+  })
+} catch (error) {
+  if (error instanceof RpcError.ExecutionError) { // [!code focus]
+    if (error.cause instanceof RpcError.InsufficientFundsError) // [!code focus]
+      console.log('Top up the account and retry.') // [!code focus]
+    if (error.cause instanceof RpcError.ExecutionRevertedError) // [!code focus]
+      console.log('The call reverted.') // [!code focus]
+  } // [!code focus]
+}
+```
+
+### Retrying Nonce Failures
+
+Nonce errors are a common transient failure when broadcasting concurrently. Match them to re-sync the nonce, for example by resetting a [Nonce Manager](/docs/accounts/nonce-manager).
+
+```ts twoslash
+import { Account, Actions, Client, http, NonceManager, RpcError } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const account = Account.fromPrivateKey('0x...', {
+  nonceManager: NonceManager.nonceManager,
+})
+
+const client = Client.create({ account, chain: mainnet, transport: http() })
+
+try {
+  await Actions.transaction.send(client, {
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: 1n,
+  })
+} catch (error) {
+  if (
+    error instanceof RpcError.ExecutionError &&
+    error.cause instanceof RpcError.NonceTooLowError // [!code focus]
+  )
+    NonceManager.nonceManager.reset({ address: account.address, chainId: 1 }) // [!code focus]
+}
+```
+
+## Error Classes
+
+Each taxonomy class matches the node messages for its failure mode, regardless of node implementation.
+
+| Error | Description |
+| --- | --- |
+| `RpcError.ExecutionError` | Wraps a node execution failure with the request arguments that produced it. The matched taxonomy error (below) is preserved on `cause`. |
+| `RpcError.ExecutionRevertedError` | The contract execution reverted. |
+| `RpcError.FeeCapTooHighError` | The fee cap (`maxFeePerGas`) exceeds the maximum allowed value (2^256-1). |
+| `RpcError.FeeCapTooLowError` | The fee cap (`maxFeePerGas`) is lower than the block base fee. |
+| `RpcError.InsufficientFundsError` | The account has insufficient funds to cover the transaction's total cost (`gas * gas fee + value`). |
+| `RpcError.IntrinsicGasTooHighError` | The transaction gas exceeds the block gas limit. |
+| `RpcError.IntrinsicGasTooLowError` | The transaction gas is too low. |
+| `RpcError.NonceMaxValueError` | The nonce exceeds the maximum allowed value. |
+| `RpcError.NonceTooHighError` | The nonce is higher than the next one expected. |
+| `RpcError.NonceTooLowError` | The nonce is lower than the current nonce of the account. |
+| `RpcError.TipAboveFeeCapError` | The tip (`maxPriorityFeePerGas`) is higher than the fee cap (`maxFeePerGas`). |
+| `RpcError.TransactionTypeNotSupportedError` | The transaction type is not supported by the chain. |
+| `RpcError.UnknownRpcError` | The node error could not be matched to a known taxonomy entry. |

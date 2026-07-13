@@ -1,0 +1,249 @@
+# Defining a Token
+
+## Overview
+
+Use [`Token.from`](/docs/tokens) to define a [Token](/docs/tokens) from shared metadata and a map of per-chain contract addresses. The returned value is callable with a chain id to produce a chain-specific token config, while also exposing the metadata and the full `addresses` map.
+
+```ts twoslash
+import { Token } from 'viem'
+
+const usdc = Token.from({
+  addresses: {
+    1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    8453: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+  },
+  currency: 'USD',
+  decimals: 6,
+  name: 'USD Coin',
+  symbol: 'USDC',
+})
+
+const config = usdc(1)
+// @log: { address: '0xA0b8…eB48', currency: 'USD', decimals: 6, name: 'USD Coin', symbol: 'USDC' }
+
+usdc.addresses[8453]
+// @log: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+```
+
+## Recipes
+
+### Declaring Tokens on a Client
+
+Declare tokens on a [Client](/docs/clients/create)'s `tokens` array. A declared token's symbol becomes usable by [Token Actions](/docs/actions/public/token/getBalance) in place of a contract address (when its `addresses` cover the client's chain), and its `decimals` are used to parse human-readable amounts.
+
+```ts twoslash
+import { Client, http, publicActions, Token } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const usdc = Token.from({
+  addresses: { 1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' },
+  currency: 'USD',
+  decimals: 6,
+  name: 'USD Coin',
+  popular: true,
+  symbol: 'USDC',
+})
+
+const client = Client.create({
+  chain: mainnet,
+  tokens: [usdc], // [!code focus]
+  transport: http(),
+}).extend(publicActions())
+
+const balance = await client.token.getBalance({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  token: 'usdc', // [!code focus]
+})
+```
+
+### Using Predefined Tokens
+
+Viem ships definitions for popular stablecoins and wrapped assets via `viem/tokens`, ready to declare on a client or resolve directly.
+
+```ts twoslash
+import { eurc, usdc } from 'viem/tokens' // [!code focus]
+
+usdc.addresses[1]
+// @log: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+
+eurc(1).address
+// @log: '0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c'
+```
+
+### Resolving a Chain Config
+
+Call the token with a chain id to resolve its config for that chain. Resolving a chain id with no declared address throws a `Token.AddressNotFoundError`.
+
+```ts twoslash
+import { Token } from 'viem'
+
+const usdc = Token.from({
+  addresses: {
+    1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    8453: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+  },
+  decimals: 6,
+  symbol: 'USDC',
+})
+
+const config = usdc(8453) // [!code focus]
+// @log: { address: '0x8335…2913', decimals: 6, symbol: 'USDC' }
+```
+
+### Filtering Chains by Token
+
+Pass a token to `Chain.filter` to narrow a chain registry to the chains the token is deployed on.
+
+```ts twoslash
+import { Chain } from 'viem'
+import * as chains from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+const supported = Chain.filter({ chains, token: usdc }) // [!code focus]
+```
+
+## `Token.from`
+
+Creates a token from shared metadata and a map of per-chain contract addresses.
+
+### Usage
+
+```ts twoslash
+import { Token } from 'viem'
+
+const usdc = Token.from({
+  addresses: {
+    1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    8453: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+  },
+  currency: 'USD',
+  decimals: 6,
+  name: 'USD Coin',
+  popular: true,
+  symbol: 'USDC',
+})
+```
+
+### Parameters
+
+#### token
+
+- **Type:** `Token.from.Parameters`
+
+##### addresses
+
+- **Type:** `Record<number, Address>`
+
+Token contract addresses, keyed by chain id.
+
+```ts twoslash
+import { Token } from 'viem'
+// ---cut---
+const usdc = Token.from({
+  addresses: { // [!code focus]
+    1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
+    8453: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // [!code focus]
+  }, // [!code focus]
+  decimals: 6,
+  symbol: 'USDC',
+})
+```
+
+##### currency
+
+- **Type:** `string`
+- **Optional**
+
+Currency denomination of the token (for example, `'USD'`).
+
+```ts twoslash
+import { Token } from 'viem'
+// ---cut---
+const usdc = Token.from({
+  addresses: { 1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' },
+  currency: 'USD', // [!code focus]
+  decimals: 6,
+  symbol: 'USDC',
+})
+```
+
+##### decimals
+
+- **Type:** `number`
+
+Number of decimals the token uses. Used to parse human-readable amount strings in [Token Actions](/docs/actions/wallet/token/transfer).
+
+```ts twoslash
+import { Token } from 'viem'
+// ---cut---
+const usdc = Token.from({
+  addresses: { 1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' },
+  decimals: 6, // [!code focus]
+  symbol: 'USDC',
+})
+```
+
+##### name
+
+- **Type:** `string`
+- **Optional**
+
+Human-readable name of the token.
+
+```ts twoslash
+import { Token } from 'viem'
+// ---cut---
+const usdc = Token.from({
+  addresses: { 1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' },
+  decimals: 6,
+  name: 'USD Coin', // [!code focus]
+  symbol: 'USDC',
+})
+```
+
+##### popular
+
+- **Type:** `boolean`
+- **Optional**
+
+Whether the token should be treated as popular in token lists.
+
+```ts twoslash
+import { Token } from 'viem'
+// ---cut---
+const usdc = Token.from({
+  addresses: { 1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' },
+  decimals: 6,
+  popular: true, // [!code focus]
+  symbol: 'USDC',
+})
+```
+
+##### symbol
+
+- **Type:** `string`
+- **Optional**
+
+Ticker symbol of the token. When the token is declared on a client, the symbol is accepted by Token Actions in place of a contract address.
+
+```ts twoslash
+import { Token } from 'viem'
+// ---cut---
+const usdc = Token.from({
+  addresses: { 1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' },
+  decimals: 6,
+  symbol: 'USDC', // [!code focus]
+})
+```
+
+### Return Value
+
+`Token`
+
+The token: callable with a chain id to resolve `{ address, currency, decimals, name, popular, symbol }` for that chain, and exposing the metadata and the full `addresses` map as properties. Literal types of the input are preserved.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Token.AddressNotFoundError` | The token was resolved for a chain id with no declared address. |

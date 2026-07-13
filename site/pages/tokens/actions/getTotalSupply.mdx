@@ -1,0 +1,76 @@
+---
+description: Read token total supply.
+---
+
+# token.getTotalSupply
+
+Reads the total supply of a token.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const totalSupply = await client.token.getTotalSupply({ token: 'usdc' })
+// @log: { amount: 30000000000000n, decimals: 6, formatted: '30000000' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### Composing Calls
+
+Use `.call` to build a `totalSupply` contract call, ready to pass to
+[`multicall`](/docs/actions/public/multicall), [`contract.simulate`](/docs/actions/public/contract/simulate), or any
+other Action that accepts a contract call.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const call = client.token.getTotalSupply.call({ token: 'usdc' })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Total supply in the token's base units. */
+  amount: bigint
+  /** Token decimals used to derive `formatted`. */
+  decimals: number
+  /** Total supply formatted with the token's `decimals`. */
+  formatted: string
+}
+```
+
+The token's total supply, both in base units (`amount`) and as a human-readable decimal string
+(`formatted`, derived from the token's `decimals`).
+
+## Parameters
+
+### token
+
+- **Type:** `string`
+
+Token to operate on: a [Client-declared](/tokens/tokens#token-lookup)
+token symbol (resolving its `address` and `decimals`), or a token address.
+
+### decimals (optional)
+
+- **Type:** `number`
+
+Token decimals for converting base units to human-readable amounts. Inferred
+from the Client's `tokens` array, or fetched from the token contract when omitted.

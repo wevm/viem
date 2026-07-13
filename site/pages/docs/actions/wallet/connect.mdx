@@ -1,0 +1,64 @@
+# connect
+
+Requests to connect account(s) with optional capabilities via [ERC-7846 `wallet_connect`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7846.md).
+
+Falls back to [`requestAddresses`](/docs/actions/wallet/requestAddresses) (`eth_requestAccounts`) when the wallet does not support `wallet_connect` and no capabilities were requested.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const { accounts } = await client.wallet.connect()
+// @log: [{ address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', capabilities: {} }]
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const { accounts } = await Actions.wallet.connect(client)
+// @log: [{ address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', capabilities: {} }]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+export const client = Client.create({
+  transport: custom(provider),
+}).extend(walletActions())
+```
+
+:::
+
+## Return Value
+
+`{ accounts: readonly { address: Address; capabilities?: Capabilities }[] }`
+
+The connected accounts, each with its checksummed `address` and any [capabilities](/docs/actions/capabilities) granted or returned by the wallet.
+
+## Parameters
+
+### capabilities
+
+- **Type:** `Capabilities`
+
+[Capabilities](/docs/actions/capabilities) to request from the wallet (for example, sign-in with Ethereum).
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const { accounts } = await Actions.wallet.connect(client, {
+  capabilities: { // [!code focus]
+    signInWithEthereum: { // [!code focus]
+      chainId: 1, // [!code focus]
+      nonce: '12345678', // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
+})
+```

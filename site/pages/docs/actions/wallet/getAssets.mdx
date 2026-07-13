@@ -1,0 +1,143 @@
+# getAssets
+
+Retrieves assets (native currency, ERC-20 and ERC-721 tokens, etc.) held by an account, as known by the connected wallet via [ERC-7811 `wallet_getAssets`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7811.md).
+
+Assets are keyed by chain id. By default, assets are also aggregated across chains under the `0` key.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const assets = await client.wallet.getAssets()
+// @log: {
+// @log:   0: [{ balance: 32000000000n, chainIds: [1, 8453], metadata: { ... }, type: 'erc20', ... }],
+// @log:   1: [{ balance: 12000000000n, metadata: { ... }, type: 'erc20', ... }],
+// @log:   8453: [{ balance: 20000000000n, metadata: { ... }, type: 'erc20', ... }],
+// @log: }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const assets = await Actions.wallet.getAssets(client)
+// @log: {
+// @log:   0: [{ balance: 32000000000n, chainIds: [1, 8453], metadata: { ... }, type: 'erc20', ... }],
+// @log:   1: [{ balance: 12000000000n, metadata: { ... }, type: 'erc20', ... }],
+// @log:   8453: [{ balance: 20000000000n, metadata: { ... }, type: 'erc20', ... }],
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+export const client = Client.create({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  transport: custom(provider),
+}).extend(walletActions())
+```
+
+:::
+
+## Return Value
+
+`{ [chainId: number]: readonly Asset[] }`
+
+The account's assets, keyed by chain id. Each asset carries its `balance`, `type` (`'native'`, `'erc20'`, `'erc721'`, or `{ custom: string }`), and type-specific `metadata` (and `address` for non-native assets). Unless [`aggregate`](#aggregate) is disabled, the `0` key holds assets aggregated across chains, each annotated with the `chainIds` it was aggregated over.
+
+## Parameters
+
+### account
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+The Account (or address) to fetch assets for.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const assets = await Actions.wallet.getAssets(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+})
+```
+
+### aggregate
+
+- **Type:** `boolean | ((asset: Asset) => string)`
+- **Default:** `true`
+
+Whether to aggregate assets across chains under the `0` key. Assets are aggregated by contract address by default. Provide a function to derive a custom aggregation key per asset, or `false` to disable aggregation.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const assets = await Actions.wallet.getAssets(client, {
+  aggregate: false, // [!code focus]
+})
+```
+
+### assets
+
+- **Type:** `{ [chainId: number]: readonly { address: Address | 'native'; type: string }[] }`
+
+Filter the response to specific assets per chain.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const assets = await Actions.wallet.getAssets(client, {
+  assets: { // [!code focus]
+    1: [ // [!code focus]
+      { // [!code focus]
+        address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
+        type: 'erc20', // [!code focus]
+      }, // [!code focus]
+    ], // [!code focus]
+  }, // [!code focus]
+})
+```
+
+### assetTypes
+
+- **Type:** `readonly ('native' | 'erc20' | 'erc721' | string)[]`
+
+Filter the response to specific asset types.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const assets = await Actions.wallet.getAssets(client, {
+  assetTypes: ['native', 'erc20'], // [!code focus]
+})
+```
+
+### chainIds
+
+- **Type:** `readonly number[]`
+
+Filter the response to specific chains.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const assets = await Actions.wallet.getAssets(client, {
+  chainIds: [1, 8453], // [!code focus]
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Account.NotFoundError` | No `account` was provided and the client has no default account. |

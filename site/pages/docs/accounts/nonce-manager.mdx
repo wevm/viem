@@ -1,0 +1,178 @@
+# Nonce Manager
+
+## Overview
+
+A **Nonce Manager** manages and auto-increments transaction nonces for an [Account](/docs/accounts). It tracks a nonce per `(address, chainId)` pair, so multiple transactions can be prepared and broadcast in parallel without nonce collisions.
+
+Create one with [`NonceManager.from`](#noncemanagerfrom), backed by a source that seeds nonces (such as [`NonceManager.jsonRpc`](#noncemanagerjsonrpc), which reads the pending nonce via `eth_getTransactionCount`). A ready-made instance backed by the JSON-RPC source is exported as `NonceManager.nonceManager`.
+
+Attach a nonce manager to a [Local Account](/docs/accounts) and [`transaction.send`](/docs/actions/wallet/transaction/send) consumes nonces from it automatically, or pass one explicitly to [`transaction.fill`](/docs/actions/public/transaction/fill) or [`transaction.prepare`](/docs/actions/public/transaction/prepare).
+
+```ts twoslash
+import { Account, NonceManager } from 'viem'
+
+const account = Account.fromPrivateKey('0x...', {
+  nonceManager: NonceManager.nonceManager,
+})
+```
+
+## Recipes
+
+### Attaching to an Account
+
+Pass a `nonceManager` when creating a [Local Account](/docs/accounts/local/private-key). Actions that send transactions from the account ([`transaction.send`](/docs/actions/wallet/transaction/send), [`transaction.sendSync`](/docs/actions/wallet/transaction/sendSync)) consume a managed nonce for each transaction, so parallel sends do not collide.
+
+```ts twoslash
+import { Account, Actions, Client, http, NonceManager } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const account = Account.fromPrivateKey('0x...', {
+  nonceManager: NonceManager.nonceManager, // [!code focus]
+})
+
+const client = Client.create({ account, chain: mainnet, transport: http() })
+
+const hashes = await Promise.all([ // [!code focus]
+  Actions.transaction.send(client, { // [!code focus]
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+    value: 1n, // [!code focus]
+  }), // [!code focus]
+  Actions.transaction.send(client, { // [!code focus]
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+    value: 2n, // [!code focus]
+  }), // [!code focus]
+]) // [!code focus]
+```
+
+### Filling Transactions with Managed Nonces
+
+Pass a `nonceManager` to [`transaction.fill`](/docs/actions/public/transaction/fill) (or [`transaction.prepare`](/docs/actions/public/transaction/prepare)) to have the `nonce` consumed from the manager instead of fetched per call.
+
+```ts twoslash
+import { Actions, Client, http, NonceManager } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  chain: mainnet,
+  transport: http(),
+})
+
+const request = await Actions.transaction.fill(client, {
+  nonceManager: NonceManager.from({ source: NonceManager.jsonRpc() }), // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+### Consuming Nonces Manually
+
+Use `consume` to get a nonce and increment the tracker in one step. `get`, `increment`, and `reset` give finer-grained control.
+
+```ts twoslash
+import { Client, http, NonceManager } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const nonceManager = NonceManager.from({ source: NonceManager.jsonRpc() })
+
+const nonce = await nonceManager.consume({ // [!code focus]
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  chainId: 1, // [!code focus]
+  client, // [!code focus]
+}) // [!code focus]
+// @log: 420
+
+// Drop local state and re-seed from the source on next use.
+nonceManager.reset({ // [!code focus]
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  chainId: 1, // [!code focus]
+}) // [!code focus]
+```
+
+### Providing a Custom Source
+
+Implement the `Source` interface (`get` and `set`) to seed nonces from your own store, such as a database shared across processes.
+
+```ts twoslash
+import { NonceManager } from 'viem'
+
+const store = new Map<string, number>()
+
+const nonceManager = NonceManager.from({
+  source: { // [!code focus]
+    get({ address, chainId }) { // [!code focus]
+      return store.get(`${address}.${chainId}`) ?? 0 // [!code focus]
+    }, // [!code focus]
+    set({ address, chainId }, nonce) { // [!code focus]
+      store.set(`${address}.${chainId}`, nonce) // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
+})
+```
+
+## `NonceManager.from`
+
+Creates a nonce manager for auto-incrementing transaction nonces.
+
+### Usage
+
+```ts twoslash
+import { NonceManager } from 'viem'
+
+const nonceManager = NonceManager.from({
+  source: NonceManager.jsonRpc(),
+})
+```
+
+### Parameters
+
+#### options
+
+- **Type:** `NonceManager.from.Options`
+
+##### source
+
+- **Type:** `NonceManager.Source`
+
+The backing store the nonce manager reads seed nonces from and writes to, as `{ get, set }`.
+
+```ts twoslash
+import { NonceManager } from 'viem'
+// ---cut---
+const nonceManager = NonceManager.from({
+  source: NonceManager.jsonRpc(), // [!code focus]
+})
+```
+
+### Return Value
+
+`NonceManager`
+
+The nonce manager, exposing:
+
+- **`consume`**: gets and increments a nonce (async, requires a `client`).
+- **`get`**: gets the next nonce without incrementing (async, requires a `client`).
+- **`increment`**: increments the tracked nonce.
+- **`reset`**: resets the tracked nonce, re-seeding from the source on next use.
+
+Each method identifies the tracked nonce by `{ address, chainId }`.
+
+## `NonceManager.jsonRpc`
+
+Creates a JSON-RPC source for a nonce manager that reads the pending nonce via `eth_getTransactionCount`.
+
+### Usage
+
+```ts twoslash
+import { NonceManager } from 'viem'
+
+const source = NonceManager.jsonRpc()
+```
+
+### Return Value
+
+`NonceManager.Source`
+
+A source that seeds nonces from the pending transaction count of the address. Writes are no-ops (the chain itself tracks used nonces).

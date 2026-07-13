@@ -1,0 +1,262 @@
+# Contract Instances
+
+## Overview
+
+Use [`Contract.from`](/docs/contract) to create a contract instance: a type-safe interface bound to an ABI, address, and [Client](/docs/clients). The instance exposes the contract's read functions, write functions, and events as methods, so repeated calls do not need to pass `abi`, `address`, and `functionName` each time.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const contract = Contract.from({
+  abi: Abi.from([
+    'function balanceOf(address owner) view returns (uint256)',
+    'function transfer(address to, uint256 value) returns (bool)',
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ]),
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  client,
+})
+
+const balance = await contract.read.balanceOf({
+  args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+})
+```
+
+If you only call a contract once or twice, the standalone [Contract Actions](/docs/actions/public/contract/read) (`Actions.contract.read`, [`Actions.contract.write`](/docs/actions/wallet/contract/write), etc.) avoid creating an instance. Method options are the matching action's options minus the bound `abi`, `address`, and `functionName`/`eventName`.
+
+## Recipes
+
+These recipes are self-contained. Each constructs its own client and contract instance.
+
+### Reading Contract State
+
+Call methods under `read` for `pure` and `view` functions. They map to [`Actions.contract.read`](/docs/actions/public/contract/read).
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+
+const contract = Contract.from({
+  abi: Abi.from([
+    'function balanceOf(address owner) view returns (uint256)',
+    'function transfer(address to, uint256 value) returns (bool)',
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ]),
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  client,
+})
+
+const balance = await contract.read.balanceOf({ // [!code focus]
+  args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'], // [!code focus]
+}) // [!code focus]
+```
+
+### Writing to a Contract
+
+Call methods under `write` for `payable` and `nonpayable` functions. They map to [`Actions.contract.write`](/docs/actions/wallet/contract/write) and return the transaction hash.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+
+const contract = Contract.from({
+  abi: Abi.from([
+    'function balanceOf(address owner) view returns (uint256)',
+    'function transfer(address to, uint256 value) returns (bool)',
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ]),
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  client,
+})
+
+const hash = await contract.write.transfer({ // [!code focus]
+  args: ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n], // [!code focus]
+}) // [!code focus]
+```
+
+### Simulating and Estimating Gas
+
+Use `simulate` to dry-run a write via [`Actions.contract.simulate`](/docs/actions/public/contract/simulate), and `estimateGas` to estimate its cost via [`Actions.contract.estimateGas`](/docs/actions/public/contract/estimateGas).
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+
+const contract = Contract.from({
+  abi: Abi.from([
+    'function balanceOf(address owner) view returns (uint256)',
+    'function transfer(address to, uint256 value) returns (bool)',
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ]),
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  client,
+})
+
+const { result } = await contract.simulate.transfer({ // [!code focus]
+  args: ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n], // [!code focus]
+}) // [!code focus]
+
+const gas = await contract.estimateGas.transfer({ // [!code focus]
+  args: ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n], // [!code focus]
+}) // [!code focus]
+```
+
+### Working with Events
+
+Fetch historical logs with `getLogs` (via [`Actions.contract.getLogs`](/docs/actions/public/contract/getLogs)), watch incoming logs with `watchEvent` (via [`Actions.contract.watchEvent`](/docs/actions/public/contract/watchEvent)), or install a filter with `createEventFilter` (via [`Actions.contract.createEventFilter`](/docs/actions/public/contract/createEventFilter)).
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+
+const contract = Contract.from({
+  abi: Abi.from([
+    'function balanceOf(address owner) view returns (uint256)',
+    'function transfer(address to, uint256 value) returns (bool)',
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ]),
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  client,
+})
+
+const logs = await contract.getLogs.Transfer({ // [!code focus]
+  args: { from: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e' }, // [!code focus]
+}) // [!code focus]
+
+const watch = contract.watchEvent.Transfer() // [!code focus]
+watch.onLogs((logs) => console.log(logs)) // [!code focus]
+// later: stop watching
+watch.off() // [!code focus]
+```
+
+## `Contract.from`
+
+Creates a type-safe contract interface bound to an ABI, address, and Client.
+
+### Usage
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const contract = Contract.from({
+  abi: Abi.from([
+    'function balanceOf(address owner) view returns (uint256)',
+  ]),
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  client,
+})
+```
+
+### Parameters
+
+#### options
+
+- **Type:** `Contract.from.Options`
+
+##### abi
+
+- **Type:** `Abi`
+
+The contract's ABI. Method names and argument types are derived from it, so pass a literal ABI (for example, via `Abi.from` from `viem/utils`) to preserve inference.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const contract = Contract.from({
+  abi: Abi.from([ // [!code focus]
+    'function balanceOf(address owner) view returns (uint256)', // [!code focus]
+  ]), // [!code focus]
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  client,
+})
+```
+
+##### address
+
+- **Type:** `Address`
+
+The address of the contract.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const contract = Contract.from({
+  abi: Abi.from([
+    'function balanceOf(address owner) view returns (uint256)',
+  ]),
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+  client,
+})
+```
+
+##### client
+
+- **Type:** `Client`
+
+The Client used to execute the contract's actions. Writes require the client (or the method options) to carry an [Account](/docs/accounts).
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const contract = Contract.from({
+  abi: Abi.from([
+    'function balanceOf(address owner) view returns (uint256)',
+  ]),
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  client, // [!code focus]
+})
+```
+
+### Return Value
+
+`Contract`
+
+The contract instance: `{ abi, address }` plus the method groups derived from the ABI. Functions appear under `read` (`pure`/`view`) or under `estimateGas`, `simulate`, and `write` (`nonpayable`/`payable`); events appear under `createEventFilter`, `getLogs`, and `watchEvent`. Groups without a matching ABI item are omitted.

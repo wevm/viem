@@ -1,0 +1,99 @@
+---
+description: Read token balances and supply with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Get Balances
+
+Read token balances and total supply. Read Actions return both the raw `amount` (base units) and a
+human-readable `formatted` string derived from the token's `decimals`.
+
+These recipes assume you have [set up a Client](/tokens) extended with `publicActions`.
+
+## Recipes
+
+### Get a Token Balance
+
+Use [`getBalance`](/tokens/actions/getBalance) to read the balance of an account.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const balance = await client.token.getBalance({
+  account: '0x55FE002aefF02F77364de339a1292923A15844B8',
+  token: 'usdc',
+})
+// @log: { amount: 1234560000n, decimals: 6, formatted: '1234.56' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### Get the Total Supply
+
+Use [`getTotalSupply`](/tokens/actions/getTotalSupply) to read the token's total supply.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const totalSupply = await client.token.getTotalSupply({ token: 'usdc' })
+// @log: { amount: 30000000000000n, decimals: 6, formatted: '30000000' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### Read Multiple Balances at Once
+
+Each read Action exposes a `.call` helper that builds a contract call, ready to pass to
+[`multicall`](/docs/actions/public/multicall) to batch reads in a single request.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const { results: [a, b] } = await Actions.multicall(client, {
+  calls: [
+    client.token.getBalance.call({ account: '0x…', token: 'usdc' }),
+    client.token.getBalance.call({ account: '0x…', token: 'usdc' }),
+  ],
+})
+// @log: a: { result: 1234560000n, status: 'success', ... }
+// @log: b: { result: 2500000000n, status: 'success', ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:wallet"
+    title="getBalance"
+    description="Action reference for reading the token balance of an account."
+    to="/tokens/actions/getBalance"
+  />
+  <Card
+    icon="lucide:chart-pie"
+    title="getTotalSupply"
+    description="Action reference for reading the token's total supply."
+    to="/tokens/actions/getTotalSupply"
+  />
+</Cards>

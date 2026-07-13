@@ -1,0 +1,236 @@
+---
+description: Approve token spending.
+---
+
+# token.approve
+
+Approves a spender to transfer up to `amount` tokens on behalf of the caller, **waits for the
+transaction to be confirmed**, and returns the decoded `Approval` event along with the transaction
+receipt.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { owner, spender, value, formatted, receipt } = await client.token.approveSync({
+  amount: { formatted: '10.5' },
+  spender: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### By Token Address
+
+When passing a token address, include `amount.decimals` so the formatted amount can be parsed.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.approveSync({
+  amount: { decimals: 6, formatted: '10.5' },
+  spender: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### Base Amounts
+
+Pass a `bigint` to use the token's base unit amount directly.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.approveSync({
+  amount: 10500000n,
+  spender: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+The examples above use the `approveSync` variant, which waits for the transaction to be included
+before returning.
+
+If you are optimizing for performance, use the non-sync `approve` action and wait for inclusion
+manually:
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const hash = await client.token.approve({
+  amount: { formatted: '10.5' },
+  spender: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
+
+const { args } = client.token.approve.extractEvent(receipt.logs)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### Estimate Gas & Simulate
+
+The `approve` action exposes `.estimateGas` and `.simulate`, which take the same parameters as the
+Action itself.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const gas = await client.token.approve.estimateGas({
+  amount: { formatted: '1' },
+  spender: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+
+const { result } = await client.token.approve.simulate({
+  amount: { formatted: '1' },
+  spender: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### Composing Calls
+
+Use `.call` to build an `approve` contract call, ready to pass to
+[`sendCalls`](/docs/actions/wallet/sendCalls), [`multicall`](/docs/actions/public/multicall), or any
+other Action that accepts a contract call.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const call = client.token.approve.call({
+  amount: { formatted: '1' },
+  spender: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Token decimals used to derive `formatted`, if known. */
+  decimals?: number | undefined
+  /** Approved amount formatted with the token's `decimals`, if known. */
+  formatted?: string | undefined
+  /** Account that owns the tokens. */
+  owner: Address
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+  /** Account approved to spend the tokens. */
+  spender: Address
+  /** Approved amount, in base units. */
+  value: bigint
+}
+```
+
+The non-sync `approve` action returns the transaction `Hex` hash instead.
+
+## Parameters
+
+### amount
+
+- **Type:** `bigint | { decimals?: number, formatted: string }`
+
+Amount to approve in base units. Use `{ formatted: '10.5' }` to parse a human-readable
+decimal string for a Client-declared token, or include `amount.decimals` when using a
+token address.
+
+### spender
+
+- **Type:** `Address`
+
+Account to approve as a spender of the caller's tokens.
+
+### token
+
+- **Type:** `string`
+
+Token to operate on: a [Client-declared](/tokens/tokens#token-lookup)
+token symbol (resolving its `address` and `decimals`), or a token address.
+
+### throwOnReceiptRevert (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw if the transaction receipt reverts. Only applies to `approveSync`.
+
+### account (optional)
+
+- **Type:** `Account | Address`
+
+Account that will send the transaction. Defaults to the Client's `account`.
+
+### gas (optional)
+
+- **Type:** `bigint`
+
+Gas limit for the transaction.
+
+### maxFeePerGas (optional)
+
+- **Type:** `bigint`
+
+Max fee per gas for the transaction.
+
+### maxPriorityFeePerGas (optional)
+
+- **Type:** `bigint`
+
+Max priority fee per gas for the transaction.
+
+### nonce (optional)
+
+- **Type:** `bigint`
+
+Nonce for the transaction.

@@ -1,0 +1,158 @@
+# executeBatches
+
+Executes batches of call(s) using "batch of batches" mode on an [ERC-7821-compatible contract](https://eips.ethereum.org/EIPS/eip-7821).
+
+Each batch carries its own calls (and optional `opData`), and the batches are executed atomically in a single transaction. Before sending, it verifies the target supports the `batchOfBatches` execution mode via [`supportsExecutionMode`](/docs/actions/erc7821/supportsExecutionMode).
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const hash = await client.erc7821.executeBatches({
+  address: client.account.address,
+  batches: [
+    {
+      calls: [
+        {
+          to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+          value: Value.fromEther('1'),
+        },
+      ],
+    },
+    {
+      calls: [
+        { data: '0xdeadbeef', to: '0xcb98643b8786950F0461f3B0edf99D88F274574D' },
+      ],
+      opData: '0xcafebabe',
+    },
+  ],
+})
+// @log: '0x9d2478f5cb1d21ac4153dbe5da9700e106a06d1cf1b957554fcd51de26eec4ae'
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const hash = await Actions.erc7821.executeBatches(client, {
+  address: client.account.address,
+  batches: [
+    {
+      calls: [
+        {
+          to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+          value: Value.fromEther('1'),
+        },
+      ],
+    },
+    {
+      calls: [
+        { data: '0xdeadbeef', to: '0xcb98643b8786950F0461f3B0edf99D88F274574D' },
+      ],
+      opData: '0xcafebabe',
+    },
+  ],
+})
+// @log: '0x9d2478f5cb1d21ac4153dbe5da9700e106a06d1cf1b957554fcd51de26eec4ae'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, erc7821Actions, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+}).extend(erc7821Actions())
+```
+
+:::
+
+## Return Value
+
+`Hex`
+
+The transaction hash. Wait for inclusion with [`transaction.waitForReceipt`](/docs/actions/public/transaction/waitForReceipt).
+
+## Parameters
+
+Also accepts the remaining [`transaction.send` options](/docs/actions/wallet/transaction/send#parameters) (`authorizationList`, `nonce`, fees, etc.).
+
+### account
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+The Account sending the transaction.
+
+```ts twoslash
+import { Account, Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const account = Account.fromPrivateKey('0x...')
+
+const hash = await Actions.erc7821.executeBatches(client, {
+  account, // [!code focus]
+  address: account.address,
+  batches: [
+    { calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', value: 1n }] },
+  ],
+})
+```
+
+### address
+
+- **Type:** `Address`
+
+The address of the ERC-7821-compatible contract that executes the batches (for example, a delegated account).
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.erc7821.executeBatches(client, {
+  address: client.account.address, // [!code focus]
+  batches: [
+    { calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', value: 1n }] },
+  ],
+})
+```
+
+### batches
+
+- **Type:** `{ calls: Call[]; opData?: Hex }[]`
+
+The batches to execute. Each batch holds its `calls` (raw call data or contract function parameters) and optional `opData`.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const hash = await Actions.erc7821.executeBatches(client, {
+  address: client.account.address,
+  batches: [ // [!code focus]
+    { // [!code focus]
+      calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', value: 1n }], // [!code focus]
+    }, // [!code focus]
+    { // [!code focus]
+      calls: [ // [!code focus]
+        { data: '0xdeadbeef', to: '0xcb98643b8786950F0461f3B0edf99D88F274574D' }, // [!code focus]
+      ], // [!code focus]
+      opData: '0xcafebabe', // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Actions.erc7821.ExecuteUnsupportedError` | The target contract does not support the `batchOfBatches` execution mode. |
+| `ContractError.ContractFunctionExecutionError` | A call reverted while executing the batches. |

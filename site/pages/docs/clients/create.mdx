@@ -71,6 +71,27 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
+### Declaring Tokens
+
+Declare [Tokens](/docs/tokens) on the client to make their symbols usable by [Token Actions](/docs/actions/public/token/getBalance) in place of contract addresses. A declared token also provides the `decimals` used to parse human-readable amounts.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+const client = Client.create({
+  chain: mainnet,
+  tokens: [usdc], // [!code focus]
+  transport: http(),
+}).extend(publicActions())
+
+const balance = await client.token.getBalance({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  token: 'usdc', // [!code focus]
+})
+```
+
 ### Aggregating Calls with Multicall
 
 Enable `batch.multicall` when multiple compatible contract reads should be aggregated into a single multicall request. This reduces RPC round trips when actions support batching.
@@ -531,6 +552,25 @@ const client = Client.create({
   chain: mainnet,
   transport: http('https://eth.merkle.io'),
   timeout: 10_000, // [!code focus]
+})
+```
+
+##### tokens
+
+- **Type:** `readonly Token[]`
+- **Optional**
+
+Collection of [Tokens](/docs/tokens) to declare on the client. A token's symbol becomes usable by [Token Actions](/docs/actions/public/token/getBalance) when its `addresses` cover the client's chain.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+// ---cut---
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://eth.merkle.io'),
+  tokens: [usdc], // [!code focus]
 })
 ```
 
