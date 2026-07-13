@@ -1,18 +1,28 @@
 import { expectTypeOf, test } from 'vitest'
+import { sendTransaction } from '../../actions/wallet/sendTransaction.js'
 import { tempoModerato } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
+import { decorator } from '../Decorator.js'
+import { zoneModerato } from '../zones/index.js'
 import * as zoneActions from './zone.js'
 
+const transport = custom({
+  async request() {
+    return null
+  },
+})
 const client = createClient({
   account: '0x0000000000000000000000000000000000000001',
   chain: tempoModerato,
-  transport: custom({
-    async request() {
-      return null
-    },
-  }),
+  transport,
 })
+const zoneClient = createClient({
+  account: '0x0000000000000000000000000000000000000001',
+  chain: zoneModerato(7),
+  transport,
+})
+const decoratedZoneClient = zoneClient.extend(decorator())
 
 test('encryptedDeposit.prepare returns a reusable encrypted deposit payload', async () => {
   const prepared = await zoneActions.encryptedDeposit.prepare(client, {
@@ -47,36 +57,56 @@ test('encryptedDeposit.prepareRecipient returns reusable encrypted recipient dat
   ).toEqualTypeOf<zoneActions.PreparedEncryptedDepositRecipient>()
 })
 
-test('requestWithdrawal.prepare returns calls and fee details', async () => {
-  const prepared = await zoneActions.requestWithdrawal.prepare(client, {
+test('requestWithdrawal.prepare returns a request, maximum fee, and details', async () => {
+  const prepared = await zoneActions.requestWithdrawal.prepare(zoneClient, {
     token: '0x20c0000000000000000000000000000000000000',
     amount: 1n,
     callbackGas: 10_000_000n,
     to: '0x0000000000000000000000000000000000000001',
-    estimateTransactionFee: true,
-    transactionFeeScale: 1_000_000_000_000n,
   })
 
-  expectTypeOf(
-    prepared,
-  ).toEqualTypeOf<zoneActions.requestWithdrawal.prepare.ReturnType>()
+  expectTypeOf(prepared).toEqualTypeOf<
+    zoneActions.requestWithdrawal.prepare.ReturnType<
+      (typeof zoneClient)['chain'],
+      (typeof zoneClient)['account'],
+      undefined,
+      undefined
+    >
+  >()
+  expectTypeOf(prepared.request.type).toEqualTypeOf<'tempo'>()
+  expectTypeOf(prepared.request.gas).toEqualTypeOf<bigint>()
+  expectTypeOf(prepared.request.nonce).toEqualTypeOf<number>()
+  expectTypeOf(prepared.request.maxFeePerGas).toEqualTypeOf<bigint>()
+  expectTypeOf(prepared.request.maxPriorityFeePerGas).toEqualTypeOf<bigint>()
+  expectTypeOf(prepared.maxFee).toEqualTypeOf<bigint>()
+  expectTypeOf(prepared.amount).toEqualTypeOf<bigint>()
+  expectTypeOf(prepared.callbackGas).toEqualTypeOf<bigint>()
+  expectTypeOf(prepared).not.toHaveProperty('totalFee')
+  expectTypeOf(prepared).not.toHaveProperty('transactionFee')
+  expectTypeOf(prepared).not.toHaveProperty('withdrawalFee')
+  expectTypeOf(prepared).not.toHaveProperty('estimatedGas')
 
-  // @ts-expect-error transactionFeeScale is required when estimating.
-  await zoneActions.requestWithdrawal.prepare(client, {
-    token: '0x20c0000000000000000000000000000000000000',
-    amount: 1n,
-    to: '0x0000000000000000000000000000000000000001',
-    estimateTransactionFee: true,
-  })
+  await sendTransaction(zoneClient, prepared.request)
 })
 
 test('withdrawal callback gas is distinct from transaction gas', async () => {
-  await zoneActions.requestWithdrawal(client, {
+  await zoneActions.requestWithdrawal(zoneClient, {
     token: '0x20c0000000000000000000000000000000000000',
     amount: 1n,
     callbackGas: 10_000_000n,
     gas: 1_000_000n,
   })
+})
+
+test('decorated requestWithdrawal.prepare preserves client types', async () => {
+  const prepared = await decoratedZoneClient.zone.requestWithdrawal.prepare({
+    amount: 1n,
+    token: '0x20c0000000000000000000000000000000000000',
+  })
+
+  expectTypeOf(prepared.maxFee).toEqualTypeOf<bigint>()
+  expectTypeOf(prepared.request.type).toEqualTypeOf<'tempo'>()
+  await sendTransaction(zoneClient, prepared.request)
 })
 
 test('encryptedDeposit still accepts plaintext parameters', async () => {
