@@ -80,6 +80,20 @@ export const broadcaster = client
 
 :::
 
+### Prepare Only the Encrypted Recipient
+
+Use `zone.encryptedDeposit.prepareRecipient` when another contract or service controls token movement and only needs the ZonePortal encryption fields.
+
+```ts twoslash
+import { client } from './viem.config'
+
+const { encrypted, keyIndex } =
+  await client.zone.encryptedDeposit.prepareRecipient({
+    recipient: '0x0000000000000000000000000000000000000001',
+    zoneId: 7,
+  })
+```
+
 ## Return Type
 
 ```ts

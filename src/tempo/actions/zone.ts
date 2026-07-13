@@ -7,6 +7,14 @@ import { TokenId, ZoneId, ZoneRpcAuthentication } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import {
+  type EstimateGasErrorType,
+  estimateGas,
+} from '../../actions/public/estimateGas.js'
+import {
+  type GetGasPriceErrorType,
+  getGasPrice,
+} from '../../actions/public/getGasPrice.js'
+import {
   type MulticallErrorType,
   type MulticallParameters,
   multicall,
@@ -38,8 +46,13 @@ import type {
   GetAccountParameter,
   ReadParameters,
   WriteParameters,
+  WriteSyncParameters,
 } from '../internal/types.js'
-import { defineCall, pickWriteParameters } from '../internal/utils.js'
+import {
+  defineCall,
+  pickWriteParameters,
+  pickWriteSyncParameters,
+} from '../internal/utils.js'
 import * as Storage from '../Storage.js'
 import type { TransactionReceipt } from '../Transaction.js'
 import * as ZoneAbis from '../zones/Abis.js'
@@ -68,6 +81,19 @@ export type PreparedEncryptedDeposit = {
   portalAddress: Address
   /** Token address or ID to deposit. */
   token: TokenId.TokenIdOrAddress
+  /** Zone ID (e.g. `7`). */
+  zoneId: number
+}
+
+export type PreparedEncryptedDepositRecipient = {
+  /** Parent chain ID (e.g. `42431` for moderato). */
+  chainId: number
+  /** Encrypted recipient and memo payload. */
+  encrypted: EncryptedPayload
+  /** Encryption key index from the portal contract. */
+  keyIndex: bigint
+  /** Zone portal address on the parent chain. */
+  portalAddress: Address
   /** Zone ID (e.g. `7`). */
   zoneId: number
 }
@@ -627,6 +653,93 @@ export namespace encryptedDeposit {
   }
 
   /**
+   * Prepares encrypted Zone recipient instructions without constructing a token
+   * deposit.
+   *
+   * Use this when another contract or service controls the token movement and
+   * only needs the ZonePortal `keyIndex` and encrypted recipient payload.
+   *
+   * @example
+   * ```ts
+   * import { createClient, http } from 'viem'
+   * import { tempoModerato } from 'viem/chains'
+   * import { Actions } from 'viem/tempo'
+   *
+   * const client = createClient({
+   *   chain: tempoModerato,
+   *   transport: http(),
+   * })
+   *
+   * const recipient = await Actions.zone.encryptedDeposit.prepareRecipient(client, {
+   *   recipient: '0x...',
+   *   zoneId: 7,
+   * })
+   * ```
+   *
+   * @param client - Public client connected to the parent Tempo chain.
+   * @param parameters - Encrypted recipient preparation parameters.
+   * @returns Prepared encrypted recipient instructions.
+   */
+  export async function prepareRecipient<
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    client: Client<Transport, chain, account>,
+    parameters: prepareRecipient.Parameters,
+  ): Promise<prepareRecipient.ReturnValue> {
+    const chainId = client.chain?.id
+    if (!chainId) throw new Error('`chain` is required.')
+
+    const {
+      memo,
+      portalAddress: portalAddress_,
+      recipient,
+      zoneId,
+      ...rest
+    } = parameters
+    const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
+    const { keyIndex, publicKey } = await getEncryptionKey(client, {
+      ...rest,
+      portalAddress,
+      zoneId,
+    })
+    const encrypted = await encryptDepositPayload(
+      publicKey,
+      recipient,
+      portalAddress,
+      keyIndex,
+      memo,
+    )
+
+    return {
+      chainId,
+      encrypted,
+      keyIndex,
+      portalAddress,
+      zoneId,
+    }
+  }
+
+  export namespace prepareRecipient {
+    export type Parameters = ReadParameters & Args
+
+    export type Args = {
+      /** Optional deposit memo. @default `0x00...00` */
+      memo?: Hex.Hex | undefined
+      /** Zone portal address. @default resolved via the portal registry. */
+      portalAddress?: Address | undefined
+      /** Recipient address in the zone. */
+      recipient: Address
+      /** Zone ID (e.g. `7`). */
+      zoneId: number
+    }
+
+    export type ReturnValue = PreparedEncryptedDepositRecipient
+
+    export type ErrorType = getEncryptionKey.ErrorType | BaseErrorType
+  }
+
+  /**
    * Defines the calls to approve and deposit tokens into a zone (encrypted).
    *
    * @param args - Arguments.
@@ -731,6 +844,7 @@ export async function encryptedDepositSync<
     }
     const receipt = await sendTransactionSync(client, {
       ...pickWriteParameters(parameters as never),
+      ...pickWriteSyncParameters(parameters as never),
       throwOnReceiptRevert,
       calls: encryptedDeposit.calls({
         ...parameters,
@@ -764,7 +878,8 @@ export namespace encryptedDepositSync {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = encryptedDeposit.Parameters<chain, account>
+  > = encryptedDeposit.Parameters<chain, account> &
+    WriteSyncParameters<chain, account>
 
   export type Args = encryptedDeposit.Args
 
@@ -1047,7 +1162,8 @@ export namespace waitForDepositStatus {
 }
 
 /**
- * Returns the fee required for a withdrawal from a zone, given a gas limit.
+ * Returns the fee required for a withdrawal from a zone, given a callback gas
+ * limit.
  *
  * The client must be connected to the **zone chain**.
  *
@@ -1066,7 +1182,7 @@ export namespace waitForDepositStatus {
  * ```
  *
  * @param client - Zone client.
- * @param parameters - Optional gas limit parameter.
+ * @param parameters - Optional callback gas limit parameter.
  * @returns The withdrawal fee as a bigint.
  */
 export async function getWithdrawalFee<
@@ -1076,20 +1192,20 @@ export async function getWithdrawalFee<
   client: Client<Transport, chain, account>,
   parameters: getWithdrawalFee.Parameters = {},
 ): Promise<getWithdrawalFee.ReturnType> {
-  const { gas = 0n, ...rest } = parameters
+  const { callbackGas = 0n, ...rest } = parameters
   return readContract(client, {
     ...rest,
     address: Addresses.zoneOutbox,
     abi: ZoneAbis.zoneOutbox,
     functionName: 'calculateWithdrawalFee',
-    args: [gas],
+    args: [callbackGas],
   })
 }
 
 export namespace getWithdrawalFee {
   export type Parameters = ReadParameters & {
-    /** Gas limit for the withdrawal callback. @default `0n` */
-    gas?: bigint | undefined
+    /** Gas limit reserved for the withdrawal callback on the parent chain. @default `0n` */
+    callbackGas?: bigint | undefined
   }
 
   export type ReturnType = bigint
@@ -1192,7 +1308,7 @@ export async function requestWithdrawal<
   client: Client<Transport, chain, account>,
   parameters: requestWithdrawal.Parameters<chain, account>,
 ): Promise<requestWithdrawal.ReturnValue> {
-  const { account = client.account, ...rest } = parameters
+  const { account = client.account } = parameters
 
   const account_ = account ? parseAccount(account) : undefined
   if (!account) throw new Error('`account` is required.')
@@ -1202,7 +1318,7 @@ export async function requestWithdrawal<
 
   const args = { ...parameters, to }
   return sendTransaction(client, {
-    ...rest,
+    ...pickWriteParameters(parameters as never),
     calls: requestWithdrawal.calls(args),
   } as never) as never
 }
@@ -1220,12 +1336,12 @@ export namespace requestWithdrawal {
   export type Args = {
     /** Amount of tokens to withdraw. */
     amount: bigint
+    /** Gas limit reserved for the withdrawal callback on the parent chain. @default `0n` */
+    callbackGas?: bigint | undefined
     /** Optional callback data for the recipient. @default `'0x'` */
     data?: Hex.Hex | undefined
     /** Fallback address if callback fails. @default `to` */
     fallbackRecipient?: Address | undefined
-    /** Gas limit reserved for the withdrawal callback on the parent chain. @default `0n` */
-    gas?: bigint | undefined
     /** Optional withdrawal memo. @default `0x00...00` */
     memo?: Hex.Hex | undefined
     /** Recipient address on the parent Tempo chain. */
@@ -1248,9 +1364,9 @@ export namespace requestWithdrawal {
   export function calls(args: Args) {
     const {
       amount,
+      callbackGas = 0n,
       data = '0x',
       fallbackRecipient = args.to,
-      gas = 0n,
       memo = zeroHash,
       to,
       token,
@@ -1271,7 +1387,7 @@ export namespace requestWithdrawal {
           to,
           amount,
           memo,
-          gas,
+          callbackGas,
           fallbackRecipient,
           data,
           '0x',
@@ -1279,7 +1395,174 @@ export namespace requestWithdrawal {
       }),
     ]
   }
+
+  /**
+   * Prepares a zone withdrawal without broadcasting it.
+   *
+   * Use this to inspect the ZoneOutbox calls and fees before submitting a
+   * withdrawal. When `estimateTransactionFee` is enabled, viem also estimates
+   * the zone transaction gas and converts it with `transactionFeeScale`.
+   *
+   * @example
+   * ```ts
+   * import { createClient } from 'viem'
+   * import { http, zoneModerato } from 'viem/tempo/zones'
+   * import { Actions } from 'viem/tempo'
+   *
+   * const client = createClient({
+   *   chain: zoneModerato(7),
+   *   transport: http(),
+   * })
+   *
+   * const prepared = await Actions.zone.requestWithdrawal.prepare(client, {
+   *   token: '0x20c0...0001',
+   *   amount: 1_000_000n,
+   *   to: '0x...',
+   * })
+   * ```
+   *
+   * @param client - Zone client.
+   * @param parameters - Withdrawal preparation parameters.
+   * @returns Prepared calls and fee details.
+   */
+  export async function prepare<
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    client: Client<Transport, chain, account>,
+    parameters: prepare.Parameters<chain, account>,
+  ): Promise<prepare.ReturnType> {
+    const {
+      account = client.account,
+      amount,
+      callbackGas = 0n,
+      data = '0x',
+      estimateTransactionFee = false,
+      fallbackRecipient,
+      memo = zeroHash,
+      to: to_,
+      token,
+      transactionFeeScale,
+      ...transactionRequest
+    } = parameters
+
+    const account_ = account ? parseAccount(account) : undefined
+    const to = to_ ?? account_?.address
+    if (!to) throw new Error('`to` is required.')
+
+    const calls = requestWithdrawal.calls({
+      amount,
+      callbackGas,
+      data,
+      fallbackRecipient,
+      memo,
+      to,
+      token,
+    })
+
+    const transactionEstimatePromise = estimateTransactionFee
+      ? (async () => {
+          if (!account) throw new Error('`account` is required.')
+          if (transactionFeeScale === undefined)
+            throw new Error(
+              '`transactionFeeScale` is required when `estimateTransactionFee` is `true`.',
+            )
+
+          const [estimatedGas, gasPrice] = await Promise.all([
+            estimateGas(client, {
+              ...transactionRequest,
+              account,
+              calls,
+              prepare: false,
+            } as never),
+            getGasPrice(client),
+          ])
+          return {
+            estimatedGas,
+            gasPrice,
+            transactionFee: ceilDiv(
+              estimatedGas * gasPrice,
+              transactionFeeScale,
+            ),
+          }
+        })()
+      : Promise.resolve(undefined)
+
+    const [transactionEstimate, withdrawalFee] = await Promise.all([
+      transactionEstimatePromise,
+      getWithdrawalFee(client, { callbackGas }),
+    ])
+
+    return {
+      amount,
+      callbackGas,
+      calls,
+      data,
+      estimatedGas: transactionEstimate?.estimatedGas,
+      fallbackRecipient: fallbackRecipient ?? to,
+      gasPrice: transactionEstimate?.gasPrice,
+      memo,
+      to,
+      token,
+      totalFee: withdrawalFee + (transactionEstimate?.transactionFee ?? 0n),
+      transactionFee: transactionEstimate?.transactionFee,
+      withdrawalFee,
+    }
+  }
+
+  export namespace prepare {
+    export type Parameters<
+      chain extends Chain | undefined = Chain | undefined,
+      account extends Account | undefined = Account | undefined,
+    > = UnionOmit<
+      WriteParameters<chain, account>,
+      'account' | 'throwOnReceiptRevert'
+    > &
+      GetAccountParameter<account, Account | Address, false> &
+      PrepareArgs
+
+    export type PrepareArgs = Omit<Args, 'to'> & {
+      /** Recipient address on the parent Tempo chain. @default `account.address` */
+      to?: Address | undefined
+    } & (
+        | {
+            /** Whether to estimate and include the zone transaction fee. @default false */
+            estimateTransactionFee?: false | undefined
+            transactionFeeScale?: undefined
+          }
+        | {
+            /** Whether to estimate and include the zone transaction fee. */
+            estimateTransactionFee: true
+            /** Divisor converting `estimatedGas * gasPrice` into fee-token base units. */
+            transactionFeeScale: bigint
+          }
+      )
+
+    export type ReturnType = Compute<{
+      amount: bigint
+      callbackGas: bigint
+      calls: WithdrawalCalls
+      data: Hex.Hex
+      estimatedGas?: bigint | undefined
+      fallbackRecipient: Address
+      gasPrice?: bigint | undefined
+      memo: Hex.Hex
+      to: Address
+      token: TokenId.TokenIdOrAddress
+      totalFee: bigint
+      transactionFee?: bigint | undefined
+      withdrawalFee: bigint
+    }>
+
+    export type ErrorType =
+      | EstimateGasErrorType
+      | GetGasPriceErrorType
+      | getWithdrawalFee.ErrorType
+      | BaseErrorType
+  }
 }
+
+type WithdrawalCalls = ReturnType<typeof requestWithdrawal.calls>
 
 /**
  * Requests a withdrawal from a zone to the parent Tempo chain and waits for
@@ -1315,11 +1598,7 @@ export async function requestWithdrawalSync<
   client: Client<Transport, chain, account>,
   parameters: requestWithdrawalSync.Parameters<chain, account>,
 ): Promise<requestWithdrawalSync.ReturnValue> {
-  const {
-    account = client.account,
-    throwOnReceiptRevert = true,
-    ...rest
-  } = parameters
+  const { account = client.account, throwOnReceiptRevert = true } = parameters
 
   const account_ = account ? parseAccount(account) : undefined
   if (!account) throw new Error('`account` is required.')
@@ -1329,7 +1608,8 @@ export async function requestWithdrawalSync<
 
   const args = { ...parameters, to }
   const receipt = await sendTransactionSync(client, {
-    ...rest,
+    ...pickWriteParameters(parameters as never),
+    ...pickWriteSyncParameters(parameters as never),
     calls: requestWithdrawal.calls(args),
     throwOnReceiptRevert,
   } as never)
@@ -1340,7 +1620,8 @@ export namespace requestWithdrawalSync {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = requestWithdrawal.Parameters<chain, account>
+  > = requestWithdrawal.Parameters<chain, account> &
+    WriteSyncParameters<chain, account>
 
   export type Args = requestWithdrawal.Args
 
@@ -1391,7 +1672,7 @@ export async function requestVerifiableWithdrawal<
   client: Client<Transport, chain, account>,
   parameters: requestVerifiableWithdrawal.Parameters<chain, account>,
 ): Promise<requestVerifiableWithdrawal.ReturnValue> {
-  const { account = client.account, ...rest } = parameters
+  const { account = client.account } = parameters
 
   const account_ = account ? parseAccount(account) : undefined
   if (!account) throw new Error('`account` is required.')
@@ -1401,7 +1682,7 @@ export async function requestVerifiableWithdrawal<
 
   const args = { ...parameters, to }
   return sendTransaction(client, {
-    ...rest,
+    ...pickWriteParameters(parameters as never),
     calls: requestVerifiableWithdrawal.calls(args),
   } as never) as never
 }
@@ -1435,9 +1716,9 @@ export namespace requestVerifiableWithdrawal {
   export function calls(args: Args) {
     const {
       amount,
+      callbackGas = 0n,
       data = '0x',
       fallbackRecipient = args.to,
-      gas = 0n,
       memo = zeroHash,
       revealTo,
       to,
@@ -1459,7 +1740,7 @@ export namespace requestVerifiableWithdrawal {
           to,
           amount,
           memo,
-          gas,
+          callbackGas,
           fallbackRecipient,
           data,
           revealTo,
@@ -1504,11 +1785,7 @@ export async function requestVerifiableWithdrawalSync<
   client: Client<Transport, chain, account>,
   parameters: requestVerifiableWithdrawalSync.Parameters<chain, account>,
 ): Promise<requestVerifiableWithdrawalSync.ReturnValue> {
-  const {
-    account = client.account,
-    throwOnReceiptRevert = true,
-    ...rest
-  } = parameters
+  const { account = client.account, throwOnReceiptRevert = true } = parameters
 
   const account_ = account ? parseAccount(account) : undefined
   if (!account) throw new Error('`account` is required.')
@@ -1518,7 +1795,8 @@ export async function requestVerifiableWithdrawalSync<
 
   const args = { ...parameters, to }
   const receipt = await sendTransactionSync(client, {
-    ...rest,
+    ...pickWriteParameters(parameters as never),
+    ...pickWriteSyncParameters(parameters as never),
     calls: requestVerifiableWithdrawal.calls(args),
     throwOnReceiptRevert,
   } as never)
@@ -1529,7 +1807,8 @@ export namespace requestVerifiableWithdrawalSync {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = requestVerifiableWithdrawal.Parameters<chain, account>
+  > = requestVerifiableWithdrawal.Parameters<chain, account> &
+    WriteSyncParameters<chain, account>
 
   export type Args = requestVerifiableWithdrawal.Args
 
@@ -1737,4 +2016,9 @@ function buildDepositHkdfInfo(
     Bytes.fromNumber(keyIndex, { size: 32 }),
     Bytes.from(ephemeralPubkeyX),
   )
+}
+
+function ceilDiv(numerator: bigint, denominator: bigint) {
+  if (denominator <= 0n) throw new Error('`denominator` must be positive.')
+  return (numerator + denominator - 1n) / denominator
 }
