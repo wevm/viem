@@ -171,6 +171,38 @@ jobs:
           VITE_TEMPO_CREDENTIALS: ${{ secrets.VITE_TEMPO_CREDENTIALS }}
           VITE_TEMPO_ENV: ${{ matrix.node-env }}
 
+  test-tempo-zones:
+    name: Test Local Tempo Zones
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Build contracts
+        run: pnpm contracts:build
+
+      - name: Run tests
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: pnpm test --run --bail=1 --project tempo src/tempo/actions/zone.test.ts
+        env:
+          CI: true
+          VITE_TEMPO_ENV: localnet
+          VITE_TEMPO_TAG: latest
+          VITE_TEMPO_ZONES: 'true'
+          VITE_TEMPO_ZONE_TAG: latest
+
   test-envs:
     name: Test Environments
     runs-on: ubuntu-latest
