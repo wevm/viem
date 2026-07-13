@@ -48,7 +48,8 @@ export async function createServer() {
   })()
 
   const args = {
-    blockTime: '2ms',
+    // Match Tempo's production cadence when Zone consumes every L1 block.
+    blockTime: import.meta.env.VITE_TEMPO_ZONES === 'true' ? '500ms' : '2ms',
     log: import.meta.env.VITE_TEMPO_LOG,
     port,
   } satisfies Instance.tempo.Parameters
@@ -143,8 +144,7 @@ async function startZone(
   if (nodeEnv !== 'localnet')
     throw new Error('Local zones require `VITE_TEMPO_ENV=localnet`.')
 
-  // TODO: default to `latest` once tempoxyz/zones#610 merges.
-  const tag = import.meta.env.VITE_TEMPO_ZONE_TAG ?? 'sha-aae82c4'
+  const tag = import.meta.env.VITE_TEMPO_ZONE_TAG ?? 'latest'
 
   // The zone container reaches this worker's L1 through the prool server
   // (`host.docker.internal` resolves to the host; the server proxies WS).
