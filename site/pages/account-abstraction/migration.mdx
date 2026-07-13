@@ -1,6 +1,6 @@
 # Migrate from v2
 
-The v3 API groups actions by resource, moves constructors into module namespaces, and delegates ERC-4337 primitives to ox.
+The v3 API groups actions by resource, moves constructors into module namespaces, and rebuilds ERC-4337 primitives on ox-backed namespaces.
 
 ## Clients and Accounts
 
@@ -13,7 +13,7 @@ The v3 API groups actions by resource, moves constructors into module namespaces
 | `toSoladySmartAccount(options)` | `SoladySmartAccount.from(options)` |
 | `toSimple7702SmartAccount(options)` | `Simple7702SmartAccount.from(options)` |
 | `toWebAuthnAccount({ credential, getFn, rpId })` | `WebAuthnAccount.from(credential, { getFn, rpId })` |
-| `createWebAuthnCredential(options)` | `WebAuthnP256.createCredential(options)` from `ox` |
+| `createWebAuthnCredential(options)` | `WebAuthnP256.createCredential(options)` from `viem/utils` |
 
 ## Actions
 

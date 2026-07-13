@@ -70,14 +70,15 @@ The `viem/tempo` extension was rebuilt on v3 primitives: module namespaces (`Abi
 
 Breaking changes:
 
-- Tokens are selected by address; token ids and the `TokenIds` namespace were removed (`fee.getUserToken` returns the token address).
+- Tokens are selected by address; token ids, the `TokenId` helper namespace, the `TokenIds` constants namespace, and the `TokenIdOrAddress` type were removed (`fee.getUserToken` returns the token address).
+- The flat tempo type aliases formerly re-exported through the chains entrypoints moved to their namespaces: `KeyAuthorizationSigned` → `KeyAuthorization.Signed` (on `viem/tempo`), and `TxEnvelopeTempoCall` → `TxEnvelopeTempo.Call` (from `ox/tempo`).
 - Watcher actions (`token.watch*`, …) return a `Watcher` handle (`watcher.onLogs(fn)` to subscribe, with decoded `log.args`) instead of accepting per-event callback options.
 - `nonce.getNonce` → `nonce.get`; `nonce.watchNonceIncremented` → `nonce.watchIncremented`.
 - `policy.create` now honors an explicit `admin` option (previously the sender was always used).
 - The `reward` actions were removed (reward distribution is hardfork-disabled on-chain).
 - The `simulate` namespace dissolved into core: use `client.block.simulate` or `client.contract.simulate`.
 - `withFeePayer` and `walletNamespaceCompat` transports were removed; `withRelay` remains and gained a `policy` option (`'sign-only'` co-signs via the relay and broadcasts through the default transport; `'sign-and-broadcast'` forwards the submission to the relay).
-- `Account_base` → `Account.Base`; `Account.signAuthorization` takes the ox `Authorization` shape; `accessKeyAddress`/`resolveAccessKey` return checksummed addresses; the deprecated `z_*` re-exports and `internal_version` option were removed.
+- `Account_base` → `Account.Base`; `Account.signAuthorization` takes the `Authorization` shape; `accessKeyAddress`/`resolveAccessKey` return checksummed addresses; the deprecated `z_*` re-exports and `internal_version` option were removed.
 - `TempoAddress` was removed in favor of checksummed `Address.Address` values.
 
 The `withRelay.type` constant was removed; relay transports retained the `'relay'` type discriminant.

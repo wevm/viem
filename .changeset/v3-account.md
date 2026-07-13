@@ -109,3 +109,33 @@ Flat account source and HD option types moved to the `Account.from` and construc
 +type Options = Account.fromHdKey.Options
 +type Error = Account.fromHdKey.ErrorType
 ```
+
+The named account types moved onto the `Account` namespace, with the `source` discriminant (`'privateKey' | 'hd' | 'custom'`) replaced by `keyType` (`'secp256k1' | 'custom'`), `ParseAccount` folded into `Account.from.ReturnType`, and the constructor option types moved onto their constructors.
+
+```diff
+- import type {
+-   HDAccount,
+-   JsonRpcAccount,
+-   LocalAccount,
+-   MnemonicToAccountOptions,
+-   ParseAccount,
+-   PrivateKeyAccount,
+-   PrivateKeyToAccountOptions,
+- } from 'viem'
++ import type { Account } from 'viem'
+
+- type Hd = HDAccount
+- type JsonRpc = JsonRpcAccount<address>
+- type Local = LocalAccount<'custom', address>
+- type PrivateKey = PrivateKeyAccount
+- type Parsed = ParseAccount<accountOrAddress>
+- type MnemonicOptions = MnemonicToAccountOptions
+- type PrivateKeyOptions = PrivateKeyToAccountOptions
++ type Hd = Account.Hd
++ type JsonRpc = Account.JsonRpc<address>
++ type Local = Account.Local<'custom', address>
++ type PrivateKey = Account.PrivateKey
++ type Parsed = Account.from.ReturnType<accountOrAddress>
++ type MnemonicOptions = Account.fromMnemonic.Options
++ type PrivateKeyOptions = Account.fromPrivateKey.Options
+```

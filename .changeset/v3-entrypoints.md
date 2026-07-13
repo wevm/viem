@@ -65,7 +65,7 @@ Top-level types are now accessed through their namespace rather than as named ty
 + function f(chain: Chain.Chain, account: Account.Account, transport: Transport.Transport) {}
 ```
 
-Generic type-composition helpers were internalized without public replacements.
+Generic type-composition helpers were internalized without public replacements. This covers the full v2 family: `Assign`, `Branded`, `Evaluate`, `ExactPartial`, `ExactRequired`, `IsNarrowable`, `IsNever`, `IsUndefined`, `IsUnion`, `LooseOmit`, `MaybePartial`, `MaybePromise`, `MaybeRequired`, `Mutable`, `Narrow`, `NoInfer`, `NoUndefined`, `Omit`, `OneOf`, `Or`, `PartialBy`, `Prettify`, `RequiredBy`, `Some`, `UnionEvaluate`, `UnionLooseOmit`, `UnionOmit`, `UnionPartialBy`, `UnionPick`, `UnionRequiredBy`, `UnionToTuple`, `UnionWiden`, `ValueOf`, and `Widen`.
 
 ```diff
 -import type { Assign, MaybePromise, OneOf, Prettify, UnionLooseOmit, UnionToTuple } from 'viem'
@@ -73,18 +73,57 @@ Generic type-composition helpers were internalized without public replacements.
 +type Prettify<value> = { [key in keyof value]: value[key] } & {}
 ```
 
-EIP-1193 provider and RPC schema types moved to Ox; wallet method shapes moved beside their owning actions.
+Derived action and utility types moved onto their owning function namespaces: the flat `<Fn>Parameters`, `<Fn>ReturnType`, and `<Fn>ErrorType` exports are replaced by `<namespace>.<fn>.Options`, `<namespace>.<fn>.ReturnType`, and `<namespace>.<fn>.ErrorType` on the new namespaced functions (error unions exist only where the v3 function declares one).
+
+```diff
+- import type { GetBalanceParameters, GetBalanceReturnType, GetBalanceErrorType } from 'viem'
++ import type { Actions } from 'viem'
+
+- type Options = GetBalanceParameters
+- type Result = GetBalanceReturnType
+- type Error = GetBalanceErrorType
++ type Options = Actions.address.getBalance.Options
++ type Result = Actions.address.getBalance.ReturnType
++ type Error = Actions.address.getBalance.ErrorType
+```
+
+All surface marked `@deprecated` in v2 was removed without dedicated replacements — use each alias's documented canonical form (e.g. `getBytecode` → `Actions.address.getCode`, `signatureToHex` → `Signature.toHex`, `getEventSelector` → `AbiEvent.getSelector`, the `zkSync*` chain casing aliases → `zksync*`).
+
+EIP-1193 provider and RPC schema types moved to the `Provider` and `RpcSchema` namespaces (re-exported from `viem/utils`); wallet method shapes moved beside their owning actions. The same applies to the wider v2 provider/schema surface: `EIP1193EventMap`/`EIP1193Events` map to `Provider.EventMap`/`Provider.Emitter`, the ERC-4337 `BundlerRpcSchema`/`DebugBundlerRpcSchema` map to `RpcSchema.Bundler`/`RpcSchema.BundlerDebug` from `ox/erc4337`, and `EIP1474Methods`, `TestRpcSchema`, `PaymasterRpcSchema`, and `EIP1193RequestOptions` were removed (paymaster and test methods are typed by their owning clients and actions; request options are the second parameter of `Transport.RequestFn`).
 
 ```diff
 -import type { EIP1193Provider, PublicRpcSchema, WalletRpcSchema, RequestPermissionsParameters } from 'viem'
 +import { Actions } from 'viem'
-+import type * as Provider from 'ox/Provider'
-+import type * as RpcSchema from 'ox/RpcSchema'
++import type { Provider, RpcSchema } from 'viem/utils'
 
 +type Eip1193Provider = Provider.Provider
 +type PublicSchema = RpcSchema.Eth
 +type WalletSchema = RpcSchema.Wallet
 +type RequestPermissionsOptions = Actions.wallet.requestPermissions.Options
+```
+
+Wire-shape types moved onto their owning namespaces, replacing the flat `Rpc*` exports: `RpcBlock` → `Block.Rpc`, `RpcLog` → `Log.Rpc`, `RpcTransactionReceipt` → `TransactionReceipt.Rpc`, `RpcTransactionRequest` → `TransactionRequest.Rpc`, `RpcFeeHistory` → `Fee.FeeHistoryRpc`, `RpcProof` → `AccountProof.Rpc`, `RpcAuthorization(List)` → `Authorization.Rpc`/`ListRpc`, and `RpcStateMapping` → `StateOverrides.AccountStorage`. State overrides adopt the record shapes (`StateOverrides.StateOverrides`, with per-slot records instead of the `StateMapping` array). The trivial `Quantity` and `Index` aliases were removed (use `Hex.Hex`), `Uncle`/`RpcUncle` fold into `Block.Block`/`Block.Rpc` (the `eth_getUncleByBlock*` fetchers left the typed schema), and `NetworkSync` was removed with no replacement. `BlockNumber` and `BlockTag` live on the `Block` namespace as `Block.Number`/`Block.Tag`.
+
+The wallet capabilities types moved to the `Capabilities` namespace, and the schema-augmentation point moved with them — downstream `declare module` augmentation must target `Capabilities.Register` instead of viem's root `Register`.
+
+```diff
+- declare module 'viem' {
+-   interface Register {
+-     CapabilitiesSchema: MySchema
+-   }
+- }
++ declare module 'viem' {
++   namespace Capabilities {
++     interface Register {
++       Schema: MySchema
++     }
++   }
++ }
+
+- type Capabilities = WalletCapabilities
+- type Extracted = ExtractCapabilities<'sendCalls', 'Request'>
++ type Capabilities = Capabilities.Capabilities
++ type Extracted = Capabilities.Extract<'sendCalls', 'Request'>
 ```
 
 Added flattened entrypoints for root core modules such as `viem/Client`, `viem/Chain`, and `viem/Transport`.
@@ -153,7 +192,7 @@ The `viem/package.json` export was removed.
 + // `viem/package.json` is not exported.
 ```
 
-The `viem/celo`, `viem/linea`, `viem/op-stack`, and `viem/zksync` extension entrypoints were removed; their chain definitions remain in `viem/chains` as plain chains, while extension-specific actions, formatters, and serializers have no v3 equivalent (stay on v2, or use third-party packages built on `Chain.from` with `schema`/`serializers`/transaction hooks).
+The `viem/celo`, `viem/linea`, `viem/op-stack`, and `viem/zksync` extension entrypoints were removed; their chain definitions remain in `viem/chains` as plain chains, while extension-specific actions, formatters, and serializers have no v3 equivalent (stay on v2, or use third-party packages built on `Chain.from` with `schema` converters and `transaction` hooks such as `transaction.serialize`).
 
 ```diff
 - import { optimism, publicActionsL2 } from 'viem/op-stack'

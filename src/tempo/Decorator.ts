@@ -308,7 +308,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { P256 } from 'ox'
+     * import { P256 } from 'viem/utils'
      * import { Account, Client, http } from 'viem/tempo'
      *
      * const account = Account.fromSecp256k1('0x…')
@@ -338,7 +338,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { P256 } from 'ox'
+     * import { P256 } from 'viem/utils'
      * import { Account, Client, http } from 'viem/tempo'
      *
      * const account = Account.fromSecp256k1('0x…')
@@ -569,7 +569,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * import { P256 } from 'ox'
+     * import { P256 } from 'viem/utils'
      * import { Account, Client, http } from 'viem/tempo'
      *
      * const account = Account.fromSecp256k1('0x…')

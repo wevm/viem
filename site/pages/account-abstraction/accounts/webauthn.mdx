@@ -4,11 +4,11 @@ Creates an owner account from a WebAuthn P256 credential. The result can own a [
 
 ## Create a Credential
 
-Credential creation lives in ox.
+Create credentials with the `WebAuthnP256` utilities, and serialize them for storage with `Credential`.
 
 ```ts
-import { WebAuthnP256 } from 'ox'
-import { Credential } from 'ox/webauthn'
+import { WebAuthnP256 } from 'viem/utils'
+import { Credential } from 'viem/account-abstraction'
 import { WebAuthnAccount } from 'viem/account-abstraction'
 
 const credential = await WebAuthnP256.createCredential({ name: 'Example' })

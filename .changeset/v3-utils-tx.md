@@ -62,3 +62,32 @@ Withdrawal, fee history, and account proof RPC formatting moved to the `Withdraw
 +const feeHistory = Fee.fromHistoryRpc(rpcFeeHistory)
 +const accountProof = AccountProof.fromRpc(rpcAccountProof)
 ```
+
+Per-type transaction assertions moved to the envelope namespaces, and the transaction-type wire maps moved to `Transaction`.
+
+```diff
+-import { assertTransactionEIP1559, assertTransactionEIP2930, assertTransactionLegacy, rpcTransactionType, transactionType } from 'viem'
++import { Transaction, TxEnvelopeEip1559, TxEnvelopeEip2930, TxEnvelopeLegacy } from 'viem'
+
+-assertTransactionEIP1559(transaction)
+-assertTransactionEIP2930(transaction)
+-assertTransactionLegacy(transaction)
++TxEnvelopeEip1559.assert(envelope)
++TxEnvelopeEip2930.assert(envelope)
++TxEnvelopeLegacy.assert(envelope)
+
+-const type = transactionType['0x2']
+-const rpcType = rpcTransactionType.eip1559
++const type = Transaction.fromRpcType['0x2']
++const rpcType = Transaction.toRpcType.eip1559
+```
+
+`assertRequest` was internalized into the `Actions.transaction` pipeline (envelope-level validation remains public via `TxEnvelope.assert`/`TxEnvelope.validate`), and the type-level `GetTransactionRequestKzgParameter` requirement was replaced by a runtime `TransactionRequest.MissingKzgError`.
+
+```diff
+-import { assertRequest, type GetTransactionRequestKzgParameter } from 'viem'
++import { TxEnvelope } from 'viem'
+
+-assertRequest(args)
++TxEnvelope.assert(envelope)
+```

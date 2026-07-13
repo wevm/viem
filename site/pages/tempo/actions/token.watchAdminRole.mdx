@@ -70,7 +70,7 @@ type Log = {
 }
 ```
 
-Role values are bytes32 role hashes. Compare them against a named role (`defaultAdmin`, `pause`, `unpause`, `issuer`, `burnBlocked`) with `TokenRole.serialize` from `ox/tempo/TokenRole`.
+Role values are bytes32 role hashes. Compare them against a named role (`defaultAdmin`, `pause`, `unpause`, `issuer`, `burnBlocked`) with `TokenRole.serialize` from `viem/tempo`.
 
 ## Parameters
 
@@ -89,7 +89,7 @@ type Args = {
 }
 ```
 
-Indexed argument values to filter logs by. Derive a role hash from a named role with `TokenRole.serialize` from `ox/tempo/TokenRole`, for example `TokenRole.serialize('pause')`.
+Indexed argument values to filter logs by. Derive a role hash from a named role with `TokenRole.serialize` from `viem/tempo`, for example `TokenRole.serialize('pause')`.
 
 ### batch (optional)
 

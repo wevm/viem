@@ -461,7 +461,7 @@ The `multicall` action was redesigned: it accepts the same typed calls with `con
 
 `multicall` now executes via `eth_simulateV1` by default and transparently falls back to a multicall3 `aggregate3` batch on nodes without support (cached per client). Pin `mode: 'multicall'` for the previous semantics (always `aggregate3`, no detection request, multicall3 `msg.sender`), or `mode: 'simulate'` for deterministic rich results (`block`, per-call `gasUsed`/`logs`, `traceAssetChanges`).
 
-`simulateBlocks` moved under the `block` namespace as `block.simulate`, `multicall` lands flat at `Actions.multicall` (decorator `client.multicall`), and the per-block/state override option is singular `stateOverride` with the ox record shape.
+`simulateBlocks` moved under the `block` namespace as `block.simulate`, `multicall` lands flat at `Actions.multicall` (decorator `client.multicall`), and the per-block/state override option is singular `stateOverride` with the record shape.
 
 ```diff
 - const result = await simulateBlocks(client, {
@@ -473,6 +473,71 @@ The `multicall` action was redesigned: it accepts the same typed calls with `con
     }],
   })
 ```
+
+`simulateCalls` folds into `Actions.multicall` with `mode: 'simulate'`: the `traceAssetChanges`/`traceTransfers`/`validation` options and the `{ assetChanges, block, results }` envelope carry over, per-call `address` becomes `to`, and `stateOverrides` becomes the singular record-shaped `stateOverride`.
+
+```diff
+- import { simulateCalls } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const { assetChanges, results } = await simulateCalls(client, {
++ const { assetChanges, results } = await Actions.multicall(client, {
+    account,
+    calls: [
+-     { to: recipient, value: parseEther('1') },
+-     { abi, address: token, functionName: 'transfer', args },
++     { to: recipient, value: Value.fromEther('1') },
++     { abi, to: token, functionName: 'transfer', args },
+    ],
++   mode: 'simulate',
+    traceAssetChanges: true,
+  })
+```
+
+Multicall and request-shape types moved onto their owning namespaces, and the per-call `chainOverride`/account-override generics were dropped (v3 action options type `chain?: Chain.Chain | null` and `account?: Account.Account | Address.Address` directly).
+
+```diff
+- import type {
+-   MulticallBatchOptions,
+-   MulticallContracts,
+-   MulticallResults,
+-   PrepareTransactionRequestParameterType,
+-   SendTransactionRequest,
+-   SignTransactionRequest,
+- } from 'viem'
++ import type { Actions, Chain, Client } from 'viem'
+
+- type BatchOptions = MulticallBatchOptions
++ type BatchOptions = Client.MulticallOptions
+- type Calls = MulticallContracts<contracts>
++ type Calls = Actions.multicall.Options<calls>['calls']
+- type Results = MulticallResults<contracts>
++ type Results = Actions.multicall.ReturnType<chain, calls>['results']
+- type Parameter = PrepareTransactionRequestParameterType
++ type Parameter = Actions.transaction.prepare.Parameter
+- type Request = SendTransactionRequest<chain>
++ type Request = Chain.ExtractTransactionRequest<chain>
+- type SignRequest = SignTransactionRequest<chain>
++ type SignRequest = Chain.ExtractTransactionRequest<chain>
+```
+
+The generic type-derivation helpers behind v2 action signatures were removed without public replacements: `GetChainParameter`, `DeriveChain`, `DeriveAccount`, and `GetValue`. Libraries building generic wrappers should compose each action's `Options`/`ReturnType` namespace types (e.g. `Actions.contract.write.Options<abi, functionName>['value']`) instead. `ParseAccount` moved to `Account.from.ReturnType`, and `FilterType` to `Actions.filter.Type`.
+
+Watcher callback types moved onto their owning action namespaces.
+
+```diff
+- import type { OnBlockParameter, ReplacementReason, WatchEventOnLogsParameter } from 'viem'
++ import type { Actions } from 'viem'
+
+- type OnBlock = OnBlockParameter<chain>
++ type OnBlock = Parameters<Actions.block.watch.OnBlockFn>[0]
+- type OnLogs = WatchEventOnLogsParameter<abiEvent>
++ type OnLogs = Parameters<Actions.event.watch.OnLogsFn>[0]
+- type Reason = ReplacementReason
++ type Reason = Actions.transaction.waitForReceipt.ReplacementReason
+```
+
+Wallet action result types are reachable through their owning namespaces instead of named exports: `WalletCallReceipt` is `Actions.wallet.getCallsStatus.Receipt`, and `WalletPermission`/`WalletPermissionCaveat`/`AddEthereumChainParameter` have no named equivalents — use indexed access on the owning action's `ReturnType`/`Options` (e.g. `Actions.wallet.getPermissions.ReturnType[number]`).
 
 The onchain verification actions stay flat with their v2 names (`Actions.verifyHash` / `Actions.verifyMessage` / `Actions.verifyTypedData`), and `verifySiweMessage` moved out of `viem/siwe` to join them.
 
@@ -501,7 +566,7 @@ Added EIP-1898 block-hash context to the onchain verification actions and chain 
   })
 ```
 
-`verifyHash` drops the deprecated `universalSignatureVerifierAddress` alias (use `erc6492VerifierAddress`) and the `chain` override (the client's chain is used); signature objects follow the ox shape (`yParity`, no `v`). The `chain.verifyHash` hook now lives on the `Chain` type for chains with custom account verification.
+`verifyHash` drops the deprecated `universalSignatureVerifierAddress` alias (use `erc6492VerifierAddress`) and the `chain` override (the client's chain is used); signature objects follow the `Signature` shape (`yParity`, no `v`). The `chain.verifyHash` hook now lives on the `Chain` type for chains with custom account verification.
 
 The ENS actions were grouped under the `ens` namespace, and CCIP-read (`OffchainLookup` reverts) now resolves inside `call` for any contract, honoring the client's `ccipRead` option.
 
@@ -574,7 +639,7 @@ CCIP gateway requests and batch tunnels moved to `CcipRead`, tunnel overrides re
 
 `CcipRead.request` rejected unsafe URL forms and redirects and redacted gateway payloads, while `CcipRead.tunnel` redacted batch failures and rejected malformed success arrays instead of resolving `undefined`.
 
-Raw `offchainLookup` resolution became internal to `Actions.call`, and Ox construction replaced its ABI item and selector constants.
+Raw `offchainLookup` resolution became internal to `Actions.call`, and `AbiError` construction replaced its ABI item and selector constants.
 
 ```diff
 - import {
@@ -583,7 +648,7 @@ Raw `offchainLookup` resolution became internal to `Actions.call`, and Ox constr
 -   offchainLookupSignature,
 -   type OffchainLookupErrorType,
 - } from 'viem'
-+ import { AbiError } from 'ox'
++ import { AbiError } from 'viem/utils'
 + import { Actions, CcipRead } from 'viem'
 
 - const data = await offchainLookup(client, { data: revertData, to })

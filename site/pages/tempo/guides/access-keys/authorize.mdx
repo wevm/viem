@@ -28,7 +28,7 @@ Create an access key bound to a root account, then authorize it onchain with
 :::code-group
 
 ```ts twoslash [example.ts]
-import { P256 } from 'ox'
+import { P256 } from 'viem/utils'
 import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 
@@ -60,7 +60,7 @@ directly, or use [`Scopes`](/tempo/utilities/Scopes) builders for typed selector
 :::code-group
 
 ```ts twoslash [Raw]
-import { P256 } from 'ox'
+import { P256 } from 'viem/utils'
 import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 
@@ -82,7 +82,7 @@ const { receipt } = await client.accessKey.authorizeSync({
 ```
 
 ```ts twoslash [Scopes]
-import { P256 } from 'ox'
+import { P256 } from 'viem/utils'
 import { Account, Scopes } from 'viem/tempo'
 import { client } from './viem.config'
 
@@ -117,7 +117,7 @@ as part of that transaction, so the user does not pay for it upfront.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { P256 } from 'ox'
+import { P256 } from 'viem/utils'
 import { Account, Actions } from 'viem/tempo'
 import { client } from './viem.config'
 

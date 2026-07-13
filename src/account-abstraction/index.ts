@@ -6,6 +6,7 @@ export { webSocket } from '../core/transports/webSocket.js'
 export * as Actions from './actions/index.js'
 export * as Client from './Client.js'
 export * as CoinbaseSmartAccount from './CoinbaseSmartAccount.js'
+export * as Credential from './Credential.js'
 export {
   type Decorator as AccountAbstractionActions,
   accountAbstractionActions,

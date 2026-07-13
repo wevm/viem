@@ -25,7 +25,7 @@ an unrestricted admin key.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { P256 } from 'ox'
+import { P256 } from 'viem/utils'
 import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 
@@ -55,7 +55,7 @@ the admin key.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { P256 } from 'ox'
+import { P256 } from 'viem/utils'
 import { Account } from 'viem/tempo'
 import { account, adminKey, client } from './viem.config'
 
@@ -71,7 +71,7 @@ const { receipt } = await client.accessKey.authorizeSync({
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { P256 } from 'ox'
+import { P256 } from 'viem/utils'
 import { Account, Client } from 'viem/tempo'
 
 // Root account.

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The [`custom`](/docs/transports) transport wraps any [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193)-compatible provider (anything with a `request` method) as a [Transport](/docs/transports). It is the bridge for injected wallets (`window.ethereum`), provider libraries, or a hand-rolled provider. Provider errors are normalized via ox's `Provider.from`.
+The [`custom`](/docs/transports) transport wraps any [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193)-compatible provider (anything with a `request` method) as a [Transport](/docs/transports). It is the bridge for injected wallets (`window.ethereum`), provider libraries, or a hand-rolled provider. Provider errors are normalized via `Provider.from` (from `viem/utils`).
 
 ```ts twoslash
 import { custom } from 'viem'

@@ -8,7 +8,7 @@ Bundler and Paymaster clients moved to `Client.create` and `PaymasterClient.crea
 -import { http, rpcSchema } from 'viem'
 -import { createBundlerClient, createPaymasterClient } from 'viem/account-abstraction'
 +import { Client, PaymasterClient, http } from 'viem/account-abstraction'
-+import * as RpcSchema from 'ox/RpcSchema'
++import { RpcSchema } from 'viem/utils'
 
 -const bundler = createBundlerClient({
 -  rpcSchema: rpcSchema<[{
@@ -124,6 +124,9 @@ Flat client and account types moved beside their namespaced factories, using `Op
 -type PaymasterError = CreatePaymasterClientErrorType
 -type Account = SmartAccount
 -type AccountImplementation = SmartAccountImplementation
+-type AccountOptions = ToSmartAccountParameters
+-type CoinbaseImplementation = CoinbaseSmartAccountImplementation
+-type Simple7702Implementation = Simple7702SmartAccountImplementation
 -type SoladyOptions = ToSoladySmartAccountParameters
 -type SoladyImplementation = SoladySmartAccountImplementation
 +type Bundler = Client.Client
@@ -134,6 +137,9 @@ Flat client and account types moved beside their namespaced factories, using `Op
 +type PaymasterError = PaymasterClient.create.ErrorType
 +type Account = SmartAccount.SmartAccount
 +type AccountImplementation = SmartAccount.Implementation
++type AccountOptions = SmartAccount.Implementation // `SmartAccount.from` takes the implementation positionally.
++type CoinbaseImplementation = CoinbaseSmartAccount.Implementation
++type Simple7702Implementation = Simple7702SmartAccount.Implementation
 +type SoladyOptions = SoladySmartAccount.from.Options
 +type SoladyImplementation = SoladySmartAccount.Implementation
 ```
@@ -171,11 +177,11 @@ Flat action parameter, return, and error aliases moved under each action's funct
 +type PaymasterStubOptions = Actions.paymaster.getStubData.Options
 ```
 
-WebAuthn credential creation moved to Ox, and account construction changed to `WebAuthnAccount.from(credential, options)`.
+WebAuthn credential creation moved to the `WebAuthnP256` utilities, and account construction changed to `WebAuthnAccount.from(credential, options)`.
 
 ```diff
 -import { createWebAuthnCredential, toWebAuthnAccount } from 'viem/account-abstraction'
-+import { WebAuthnP256 } from 'ox'
++import { WebAuthnP256 } from 'viem/utils'
 +import { WebAuthnAccount } from 'viem/account-abstraction'
 
 -const credential = await createWebAuthnCredential({ name: 'Example' })
@@ -202,11 +208,11 @@ WebAuthn credential creation moved to Ox, and account construction changed to `W
 +type OwnerError = WebAuthnAccount.from.ErrorType
 ```
 
-WebAuthn credentials adopted Ox's structured P256 keys and immediate validation, with `Credential.serialize` replacing direct public-key persistence.
+WebAuthn credentials adopted structured P256 keys and immediate validation, with `Credential.serialize` (from `viem/account-abstraction`) replacing direct public-key persistence.
 
 ```diff
 -const stored = JSON.stringify(credential.publicKey)
-+import { Credential } from 'ox/webauthn'
++import { Credential } from 'viem/account-abstraction'
 +const stored = JSON.stringify(Credential.serialize(credential))
 ```
 
@@ -414,9 +420,11 @@ Utility option, return, and formatter error aliases without namespace equivalent
 -type TypedDataResult = GetUserOperationTypedDataReturnType
 -type InitCodeOptions = GetInitCodeOptions
 -type GasFormatError = FormatUserOperationGasErrorType
+-type ReceiptFormatError = FormatUserOperationReceiptErrorType
 +type HashResult = ReturnType<typeof UserOperation.hash>
 +type TypedDataResult = ReturnType<typeof UserOperation.toTypedData>
 +// `UserOperation.toInitCode` has no options.
++// `UserOperationGas.fromRpc`/`UserOperationReceipt.fromRpc` declare no error unions.
 ```
 
 Bundler error normalization helpers and generic inference helpers were removed from the public API.

@@ -25,8 +25,8 @@ type ExtractRequest<
 >
 
 /**
- * An EIP-1193-style request function, typed against an {@link ox#RpcSchema} so
- * the result is inferred from the method (mirrors ox `RpcTransport`).
+ * An EIP-1193-style request function, typed against an `RpcSchema` so
+ * the result is inferred from the method.
  */
 export type RequestFn<schema extends RpcSchema.Generic = RpcSchema.Default> = <
   methodName extends RpcSchema.MethodNameGeneric<schema>,

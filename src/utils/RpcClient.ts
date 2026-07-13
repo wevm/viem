@@ -20,7 +20,7 @@ export type RpcRequest = Omit<
 /**
  * A request body's typed response: a single body maps to one response, a batch
  * maps element-wise to a tuple. Results are typed from each method against the
- * `schema` (defaulting to {@link ox#RpcSchema.Default}), falling back to
+ * `schema` (defaulting to `RpcSchema.Default`), falling back to
  * `unknown`.
  */
 type ResponsesOf<
@@ -48,7 +48,7 @@ type ResponsesOf<
  *
  * The `requestOptions` parameter carries transport-specific per-request options
  * (e.g. `fetchOptions` for HTTP, `timeout` for sockets). The `schema` parameter
- * is the resolved {@link ox#RpcSchema.Generic} used to type request results.
+ * is the resolved `RpcSchema.Generic` used to type request results.
  */
 export type RpcClient<
   requestOptions extends object = {},
@@ -104,7 +104,7 @@ export declare namespace from {
     id?: (() => number) | undefined
     /**
      * RPC schema used to type request results. Accepts an
-     * {@link ox#RpcSchema.Generic} or a Zod namespace (from `ox/zod`).
+     * `RpcSchema.Generic` or a Zod namespace (from `viem/zod`).
      */
     schema?: schema | undefined
   }
@@ -297,7 +297,7 @@ export declare namespace http {
     onResponse?: ((response: Response) => MaybePromise<void>) | undefined
     /**
      * RPC schema used to type request results. Accepts an
-     * {@link ox#RpcSchema.Generic} or a Zod namespace (from `ox/zod`).
+     * `RpcSchema.Generic` or a Zod namespace (from `viem/zod`).
      */
     schema?: schema | undefined
     /** Timeout (in ms) for the request. @default 10_000 */
@@ -696,7 +696,7 @@ export declare namespace fromSocket {
     reconnect?: boolean | undefined
     /**
      * RPC schema used to type request results. Accepts an
-     * {@link ox#RpcSchema.Generic} or a Zod namespace (from `ox/zod`).
+     * `RpcSchema.Generic` or a Zod namespace (from `viem/zod`).
      */
     schema?: schema | undefined
     /** Endpoint URL (or IPC path). */
@@ -774,7 +774,7 @@ export declare namespace webSocket {
     reconnect?: boolean | ReconnectOptions | undefined
     /**
      * RPC schema used to type request results. Accepts an
-     * {@link ox#RpcSchema.Generic} or a Zod namespace (from `ox/zod`).
+     * `RpcSchema.Generic` or a Zod namespace (from `viem/zod`).
      */
     schema?: schema | undefined
   }

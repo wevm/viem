@@ -16,20 +16,23 @@ ENS name helpers moved from flat exports to the `Ens` namespace.
 +const normalized = Ens.normalize(name)
 ```
 
-SIWE message creation, parsing, validation, and nonce generation moved from flat exports to the `Siwe` namespace.
+SIWE message creation, parsing, validation, and nonce generation moved from flat exports to the `Siwe` namespace. The `SiweMessage` type moved to `Siwe.Message`, and its `chainId` field changed from `number` to `bigint`.
 
 ```diff
--import { createSiweMessage, generateSiweNonce, parseSiweMessage, validateSiweMessage } from 'viem/siwe'
+-import { createSiweMessage, generateSiweNonce, parseSiweMessage, validateSiweMessage, type SiweMessage } from 'viem/siwe'
 +import { Siwe } from 'viem'
  
 -const nonce = generateSiweNonce()
--const message = createSiweMessage({ address, chainId, domain, nonce, uri, version: '1' })
+-const message = createSiweMessage({ address, chainId: 1, domain, nonce, uri, version: '1' })
 -const parsed = parseSiweMessage(message)
 -const valid = validateSiweMessage({ address, message })
 +const nonce = Siwe.generateNonce()
-+const message = Siwe.createMessage({ address, chainId, domain, nonce, uri, version: '1' })
++const message = Siwe.createMessage({ address, chainId: 1n, domain, nonce, uri, version: '1' })
 +const parsed = Siwe.parseMessage(message)
 +const valid = Siwe.validateMessage({ address, message })
+
+- type Message = SiweMessage
++ type Message = Siwe.Message
 ```
 
 The SIWE invalid-field error moved to the `Siwe` namespace.
@@ -66,12 +69,43 @@ Personal message hashing and typed-data hashing moved from flat signature helper
 +const typedDataHash = TypedData.getSignPayload({ domain, types, primaryType, message })
 ```
 
-The `presignMessagePrefix` constant was removed; `PersonalMessage.encode` now owns prefixing.
+The `presignMessagePrefix` constant and `toPrefixedMessage` were removed; `PersonalMessage.encode` now owns prefixing. It accepts hex or bytes only — convert plain strings first.
 
 ```diff
-- import { presignMessagePrefix } from 'viem'
+- import { presignMessagePrefix, toPrefixedMessage } from 'viem'
 + import { Hex, PersonalMessage } from 'viem'
 
 - const payload = `${presignMessagePrefix}${message.length}${message}`
+- const payload = toPrefixedMessage(message)
 + const payload = PersonalMessage.encode(Hex.fromString(message))
 ```
+
+Typed-data utilities moved from flat exports to the `TypedData` namespace, along with their types.
+
+```diff
+- import {
+-   getTypesForEIP712Domain,
+-   serializeTypedData,
+-   validateTypedData,
+-   type TypedDataDefinition,
+-   type TypedDataDomain,
+-   type TypedDataParameter,
+- } from 'viem'
++ import { TypedData } from 'viem'
+
+- const types = getTypesForEIP712Domain({ domain })
+- const serialized = serializeTypedData(definition)
+- validateTypedData(definition) // throws on invalid
++ const types = TypedData.extractEip712DomainTypes(domain)
++ const serialized = TypedData.serialize(definition)
++ TypedData.assert(definition) // throws on invalid
+
+- type Definition = TypedDataDefinition<typedData, primaryType>
+- type Domain = TypedDataDomain
+- type Parameter = TypedDataParameter
++ type Definition = TypedData.Definition<typedData, primaryType>
++ type Domain = TypedData.Domain
++ type Parameter = TypedData.Parameter
+```
+
+Note that `TypedData.validate` returns a boolean — the throwing equivalent of v2 `validateTypedData` is `TypedData.assert`.

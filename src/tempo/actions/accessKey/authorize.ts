@@ -16,7 +16,7 @@ import { dispatchSend } from '../../internal/utils.js'
  *
  * @example
  * ```ts
- * import { P256 } from 'ox'
+ * import { P256 } from 'viem/utils'
  * import { Account, Actions, Client, http } from 'viem/tempo'
  *
  * const account = Account.fromSecp256k1('0x…')

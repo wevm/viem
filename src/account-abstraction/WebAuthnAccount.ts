@@ -52,7 +52,7 @@ export type Account<id extends string = string> = {
  *
  * @example
  * ```ts
- * import { WebAuthnP256 } from 'ox'
+ * import { WebAuthnP256 } from 'viem/utils'
  * import { WebAuthnAccount } from 'viem/account-abstraction'
  *
  * const credential = await WebAuthnP256.createCredential({ name: 'Example' })

@@ -88,6 +88,8 @@ type Extended = Prettify<
 // TODO: replace with the shared block-tag type once the block module lands.
 type BlockTag = 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'
 
+export type { DataSuffix } from './internal/dataSuffix.js'
+
 /** Options for `eth_call` multicall aggregation. */
 export type MulticallOptions = {
   /** Max calldata bytes per chunk. @default 1_024 */
@@ -258,7 +260,7 @@ export declare namespace create {
     pollingInterval?: number | undefined
     /** Per-request retry budget passed through to `transport.setup`. */
     retryCount?: number | undefined
-    /** Typed JSON-RPC schema. Accepts an ox `RpcSchema.Generic` or a Zod namespace (`ox/zod`). */
+    /** Typed JSON-RPC schema. Accepts an `RpcSchema.Generic` or a Zod namespace (`viem/zod`). */
     schema?: schema | undefined
     /** Per-request timeout (ms) passed through to `transport.setup`. */
     timeout?: number | undefined

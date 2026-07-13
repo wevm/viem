@@ -27,7 +27,7 @@ amount before it expires.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { P256 } from 'ox'
+import { P256 } from 'viem/utils'
 import { Account, Expiry } from 'viem/tempo'
 import { client } from './viem.config'
 
@@ -61,7 +61,7 @@ Add a `period` (in seconds) to a limit to make it a recurring cap that resets ea
 :::code-group
 
 ```ts twoslash [example.ts]
-import { P256 } from 'ox'
+import { P256 } from 'viem/utils'
 import { Account } from 'viem/tempo'
 import { Value } from 'viem/utils'
 import { client } from './viem.config'
@@ -96,7 +96,7 @@ Use `scopes` to limit which contracts, functions, and recipients an access key c
 :::code-group
 
 ```ts twoslash [raw.ts]
-import { P256 } from 'ox'
+import { P256 } from 'viem/utils'
 import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 
@@ -118,7 +118,7 @@ const { receipt } = await client.accessKey.authorizeSync({
 ```
 
 ```ts twoslash [Scopes]
-import { P256 } from 'ox'
+import { P256 } from 'viem/utils'
 import { Account, Scopes } from 'viem/tempo'
 import { client } from './viem.config'
 

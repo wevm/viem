@@ -11,7 +11,7 @@ Batches an approval and a ZoneOutbox withdrawal request into a single transactio
 :::code-group
 
 ```ts twoslash [example.ts]
-import { PublicKey, Secp256k1 } from 'ox'
+import { PublicKey, Secp256k1 } from 'viem/utils'
 import { client } from './viem.config'
 
 // Generate a keypair for decrypting the sender identity later.
@@ -42,7 +42,7 @@ The example above uses a `*Sync` variant of the action, that will wait for the t
 If you are optimizing for performance, you should use the non-sync `zone.requestVerifiableWithdrawal` action and wait for inclusion manually:
 
 ```ts twoslash
-import { PublicKey, Secp256k1 } from 'ox'
+import { PublicKey, Secp256k1 } from 'viem/utils'
 import { client } from './viem.config'
 
 const { publicKey } = Secp256k1.createKeyPair()

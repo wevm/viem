@@ -49,7 +49,7 @@ The HTTP transport-level typed `rpcSchema` option was removed, with request typi
 ```diff
 - import { createClient, http, rpcSchema } from 'viem'
 + import { Client, http } from 'viem'
-+ import * as RpcSchema from 'ox/RpcSchema'
++ import { RpcSchema } from 'viem/utils'
 
 - const transport = http('https://example.com', {
 -   rpcSchema: rpcSchema<[{ Method: 'eth_chainId'; ReturnType: '0x1' }]>(),
@@ -64,9 +64,30 @@ The HTTP transport-level typed `rpcSchema` option was removed, with request typi
 + })
 ```
 
-The public `withCache`, `withRetry`, `withTimeout`, and `fallback.shouldThrow` helpers were internalized without replacements.
+The public `withCache`, `withRetry`, `withTimeout`, and `fallback.shouldThrow` helpers were internalized without replacements, along with the `socketClientCache` map (cached socket clients evict themselves on `close()`).
 
 ```diff
 - import { withCache, withRetry, withTimeout } from 'viem'
 + // Compose caching, retries, and timeouts around your transport or client.
 ```
+
+Custom transports are authored with `Transport.from` instead of `createTransport`, and the transport types moved onto the `Transport` namespace and the factory namespaces. `HttpTransport`-style instance types become `Transport.Transport<type>` parameterized by the transport type, `*TransportConfig` option bags become each factory's `Options`, and the single `TransportConfig` bag (formerly at `transport({}).config`) was split between the transport identity and the live `setup()` instance — `GetTransportConfig` is expressible as `ReturnType<transport['setup']>`.
+
+```diff
+- import { createTransport, type CustomTransport, type FallbackTransport, type HttpTransport, type HttpTransportConfig } from 'viem'
++ import { Transport, custom, fallback, http, webSocket } from 'viem'
+
+- const transport: HttpTransport = createTransport({ key, name, request, type: 'http' })
++ const transport: Transport.Transport<'http'> = Transport.from({ key, name, type: 'http', setup })
+
+- type Config = HttpTransportConfig
++ type Config = http.Options
+- type WsConfig = WebSocketTransportConfig
++ type WsConfig = webSocket.Options
+- type CustomConfig = CustomTransportConfig
++ type CustomConfig = custom.Options
+- type FallbackConfig = FallbackTransportConfig
++ type FallbackConfig = fallback.Options
+```
+
+The low-level RPC client helpers keep their `RpcClient` namespace home (`getHttpRpcClient` → `RpcClient.http`, `getWebSocketRpcClient`/`getSocketRpcClient` → `RpcClient.webSocket`), with clients typed as `RpcClient.RpcClient` (the WebSocket transport's live client is `WebSocketRpcClient` from the `webSocket` factory), and the deprecated callback-based `WebSocketOptions`/`WebSocketAsyncOptions` shapes removed.

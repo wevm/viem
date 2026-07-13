@@ -65,12 +65,12 @@ The experimental block tag option was renamed to `blockTag`.
   })
 ```
 
-The typed RPC schema option was renamed from `rpcSchema` to `schema` and now accepts an Ox RPC schema value.
+The typed RPC schema option was renamed from `rpcSchema` to `schema` and now accepts an `RpcSchema` value (re-exported from `viem/utils`). The `RpcSchemaOverride` per-request override type was removed with it — type custom methods by passing a schema to `Client.create` (untyped methods remain callable).
 
 ```diff
 - import { createClient, http, rpcSchema } from 'viem'
 + import { Client, http } from 'viem'
-+ import * as RpcSchema from 'ox/RpcSchema'
++ import { RpcSchema } from 'viem/utils'
 
 - const client = createClient({
 -   rpcSchema: rpcSchema<[{ Method: 'eth_chainId'; ReturnType: '0x1' }]>(),
@@ -82,3 +82,20 @@ The typed RPC schema option was renamed from `rpcSchema` to `schema` and now acc
    transport: http('https://example.com'),
  })
 ```
+
+The named client and decorator-bag types were replaced by `Client.Client`: `PublicClient`, `WalletClient`, and `TestClient` have no named equivalents — every generic defaults to its widest form, so a bare `Client.Client` accepts any client — and `PublicActions`/`WalletActions`/`TestActions` became each decorator's `Decorator` namespace type. When parameterizing, note the generic order is `<chain, account, transport, tokens, schema, extended>` (v2 `Client` was `<transport, chain, account, rpcSchema, extended>`); constrain `extended` (e.g. `publicActions.Decorator`) only when calling decorated methods on the client.
+
+```diff
+- import type { PublicActions, PublicClient, TestClient, WalletClient } from 'viem'
++ import type { Client, publicActions, testActions } from 'viem'
+
+- function takesClient(client: PublicClient) {}
++ function takesClient(client: Client.Client) {}
+
+- type Actions = PublicActions
++ type Actions = publicActions.Decorator
+- type Mode = TestClientMode
++ type Mode = testActions.Options['mode']
+```
+
+`ClientConfig` moved to `Client.create.Options`, and the client-level multicall batch type moved from `MulticallBatchOptions` to `Client.MulticallOptions` (adding `deployless`). The transport-aware `GetPollOptions` helper was removed — watch actions accept a plain `poll?: boolean` and pick subscriptions automatically when the transport supports them.
