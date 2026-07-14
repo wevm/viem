@@ -26,11 +26,11 @@ export function defineAnvil(parameters: DefineAnvilParameters) {
     forkUrl: parameters.forkUrl,
     port,
     rpcUrl,
-    async start() {
+    async start(pool: { limit: number }) {
       const instance = initialize
         ? defineInitializedAnvil(options, initialize)
         : Instance.anvil(options)
-      return Server.create({ instance, port }).start()
+      return Server.create({ instance, limit: pool.limit, port }).start()
     },
   }
 }

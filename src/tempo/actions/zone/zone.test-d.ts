@@ -179,7 +179,9 @@ describe('zone action types', () => {
         tempoBlockNumber: 1n,
       }),
     ).toEqualTypeOf<getDepositStatus.ReturnType>()
-    expectTypeOf(await getWithdrawalFee(client)).toEqualTypeOf<bigint>()
+    expectTypeOf(
+      await getWithdrawalFee(client, { callbackGas: 100_000n }),
+    ).toEqualTypeOf<bigint>()
     expectTypeOf(
       await getZoneInfo(client),
     ).toEqualTypeOf<getZoneInfo.ReturnType>()

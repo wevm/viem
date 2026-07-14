@@ -1,12 +1,9 @@
-import { createServer, port } from './src/tempo.js'
+import type { TestProject } from 'vitest/node'
 
-export default async function () {
+import { createServer } from './src/tempo.js'
+
+export default async function (project: TestProject) {
   if (process.env.SKIP_GLOBAL_SETUP) return
-  const server = await createServer()
-  const stop = await server.start()
-
-  // An arbitrary request triggers the Docker image pull + node start.
-  await fetch(`http://localhost:${port}/1/start`)
-
-  return stop
+  const server = createServer({ limit: project.config.maxWorkers })
+  return await server.start()
 }

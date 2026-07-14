@@ -57,6 +57,10 @@ export default defineConfig({
     ],
   },
   test: {
+    fileParallelism: true,
+    maxWorkers: 4,
+    pool: 'forks',
+    teardownTimeout: 60_000,
     alias: [
       { find: '~contracts', replacement: join(root, './contracts') },
       { find: '~test', replacement: join(root, './test/src') },
@@ -94,6 +98,9 @@ export default defineConfig({
           include: ['src/**/*.test.ts'],
           exclude: ['**/node_modules/**', 'src/tempo/actions/**'],
           globalSetup: ['./test/setup.global.ts'],
+          retry: 0,
+          setupFiles: ['./test/setup.core.ts'],
+          testTimeout: 30_000,
         },
       },
       {
@@ -103,10 +110,9 @@ export default defineConfig({
           include: ['src/tempo/actions/**/*.test.ts'],
           globalSetup: ['./test/setup.tempo.global.ts'],
           setupFiles: ['./test/setup.tempo.ts'],
-          // Per-file container boot + liquidity mints run in beforeAll; the
-          // first (cold) boot plus parallel-worker contention can take ~60s.
-          hookTimeout: 120_000,
-          // Parallel per-worker containers slow receipt ceremonies.
+          retry: 0,
+          hookTimeout: 180_000,
+          // Concurrent nodes slow receipt ceremonies.
           testTimeout: 30_000,
         },
       },

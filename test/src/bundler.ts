@@ -42,9 +42,9 @@ export function defineBundler(parameters: defineBundler.Parameters) {
     rpcUrl: { http: url },
     /** Resets the alto instance for this pool id. */
     async restart() {
-      await fetch(`${url}/restart`)
+      await control('restart')
     },
-    async start() {
+    async start(pool: { limit: number }) {
       return Server.create({
         instance: (key) => {
           const options = {
@@ -69,9 +69,18 @@ export function defineBundler(parameters: defineBundler.Parameters) {
           }
           return Instance.alto(options)
         },
+        limit: pool.limit,
         port,
       }).start()
     },
+  }
+
+  async function control(action: 'restart') {
+    const response = await fetch(`${url}/${action}`)
+    if (!response.ok)
+      throw new Error(
+        `Failed to ${action} Alto pool slot: ${await response.text()}`,
+      )
   }
 }
 

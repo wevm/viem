@@ -112,7 +112,7 @@ describe('fallback', () => {
     })
     const transport = fallback
       .fallback([http(server.url)], {
-        rank: { interval: 100 },
+        rank: { interval: 100, ping: async () => true },
       })
       .setup({ chain: undefined })
 

@@ -11,6 +11,7 @@ test('binds zone actions', () => {
       'prepareRecipient' in client.zone.encryptedDeposit,
     getEncryptionKey: typeof client.zone.getEncryptionKey,
     getEncryptionKeyCalls: 'calls' in client.zone.getEncryptionKey,
+    getWithdrawalFee: typeof client.zone.getWithdrawalFee,
     requestWithdrawalPrepare: 'prepare' in client.zone.requestWithdrawal,
     waitForDepositStatus: typeof client.zone.waitForDepositStatus,
   }).toMatchInlineSnapshot(`
@@ -18,6 +19,7 @@ test('binds zone actions', () => {
       "encryptedDepositPrepareRecipient": false,
       "getEncryptionKey": "function",
       "getEncryptionKeyCalls": false,
+      "getWithdrawalFee": "function",
       "requestWithdrawalPrepare": false,
       "waitForDepositStatus": "function",
     }

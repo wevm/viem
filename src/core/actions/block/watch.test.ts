@@ -519,10 +519,13 @@ test('smoke: emits incoming blocks from a live node', async () => {
   const watch = Actions.block.watch(client)
   watch.onBlock((block) => blocks.push(block.number!))
 
-  await wait(150)
-  await testClient.block.mine({ blocks: 1 })
-  await wait(300)
-  watch.off()
-
-  expect(blocks.length).toBeGreaterThanOrEqual(1)
+  try {
+    await wait(150)
+    await testClient.block.mine({ blocks: 1 })
+    await expect
+      .poll(() => blocks.length, { interval: 50, timeout: 2_000 })
+      .toBeGreaterThanOrEqual(1)
+  } finally {
+    watch.off()
+  }
 })

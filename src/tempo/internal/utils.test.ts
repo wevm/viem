@@ -146,10 +146,15 @@ test('pickWriteSyncParameters', () => {
   const picked = utils.pickWriteSyncParameters({
     amount: 1n,
     pollingInterval: 100,
+    throwOnReceiptRevert: false,
     timeout: 1_000,
     token: 1n,
   })
-  expect(picked).toEqual({ pollingInterval: 100, timeout: 1_000 })
+  expect(picked).toEqual({
+    pollingInterval: 100,
+    throwOnReceiptRevert: false,
+    timeout: 1_000,
+  })
   expect(picked).not.toHaveProperty('amount')
   expect(picked).not.toHaveProperty('token')
 })

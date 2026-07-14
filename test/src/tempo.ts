@@ -20,6 +20,7 @@ export const accounts = constants.accounts
 
 export const alphaUsd = '0x20c0000000000000000000000000000000000001'
 export const pathUsd = '0x20c0000000000000000000000000000000000000'
+const fixtureNonceKeyBase = 1n << 255n
 
 /** Genesis token declarations (drive `decimals`/`formatted` inference). */
 const tokens = [
@@ -110,14 +111,14 @@ export async function registerValidator(
     ],
     feeToken: pathUsd,
     functionName: 'addValidator',
-    nonceKey: 'expiring',
+    nonceKey: fixtureNonceKeyBase + 4n,
   })
 }
 
 /** Mints fee-AMM liquidity for `token` (fee-token validity). */
 export async function mintLiquidity(
   client: ReturnType<typeof getClient>,
-  options: { token: string },
+  options: { nonceKey: bigint; token: string },
 ) {
   await Actions.contract.writeSync(client, {
     abi: feeAmmAbi,
@@ -125,7 +126,7 @@ export async function mintLiquidity(
     args: [options.token, pathUsd, 1_000_000_000n, client.account!.address],
     feeToken: pathUsd,
     functionName: 'mint',
-    nonceKey: 'expiring',
+    nonceKey: options.nonceKey,
   } as never)
 }
 
@@ -135,6 +136,7 @@ export async function setup() {
   await Promise.all(
     [1n, 2n, 3n].map((id) =>
       mintLiquidity(client, {
+        nonceKey: fixtureNonceKeyBase + id,
         token: `0x20c000000000000000000000000000000000000${id}`,
       }),
     ),
@@ -143,7 +145,17 @@ export async function setup() {
 
 /** Restarts the pool's Tempo node instance (fresh genesis state). */
 export async function restart() {
-  await fetch(`${rpcUrl}/restart`)
+  await control('restart')
+}
+
+async function control(action: 'restart') {
+  const response = await fetch(`${rpcUrl}/${action}`, {
+    signal: AbortSignal.timeout(150_000),
+  })
+  if (!response.ok)
+    throw new Error(
+      `Failed to ${action} Tempo pool slot: ${await response.text()}`,
+    )
 }
 
 /** Runtime metadata for a provisioned local zone. */
@@ -277,14 +289,17 @@ async function startZone(options: DefineZoneOptions): Promise<StartedZone> {
 }
 
 /** Creates the pooled Tempo node server (Dockerized via testcontainers). */
-export function createServer() {
+export function createServer(options: { limit: number }) {
+  const tag = process.env.VITE_TEMPO_TAG ?? 'sha-e828ab7'
   return Server.create({
     instance: TestContainers.Instance.tempo({
       // Match Tempo's production cadence when Zone consumes every L1 block.
       blockTime: process.env.VITE_TEMPO_ZONES === 'true' ? '500ms' : '2ms',
-      image: 'ghcr.io/tempoxyz/tempo:latest',
+      image: `ghcr.io/tempoxyz/tempo:${tag}`,
       port,
+      startupTimeout: 75_000,
     }),
+    limit: options.limit,
     port,
   })
 }
