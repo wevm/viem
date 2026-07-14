@@ -25,6 +25,7 @@ catalog:
   publint: ^0.3.21
   react: ^19.2.7
   react-dom: ^19.2.7
+  react-server-dom-webpack: 19.2.6
   sherif: ^1.11.1
   simple-git-hooks: ^2.13.1
   size-limit: ^12.1.0
@@ -33,9 +34,9 @@ catalog:
   vite: ^8
   vitest: npm:@voidzero-dev/vite-plus-test@0.1.24
   vite-plus: 0.1.24
-  vocs: ^2.0.14
+  vocs: ^2.5.3
   vp: npm:vite-plus@0.1.24
-  waku: ^1.0.0-beta.0
+  waku: ^1.0.0-beta.6
   zile: ^0.0.29
 
 minimumReleaseAge: 1440

@@ -1,10 +1,22 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { defineConfig, McpSource } from 'vocs/config'
+import {
+  defineConfig,
+  Embedding,
+  McpSource,
+  Reranker,
+  Retriever,
+  VectorStore,
+} from 'vocs/config'
 
 import pkg from '../package.json' with { type: 'json' }
 import * as sidebar from './sidebar.generated'
+
+// Load `site/.env` (e.g. `CLOUDFLARE_*` for AI search). No-op if absent.
+try {
+  process.loadEnvFile(fileURLToPath(new URL('./.env', import.meta.url)))
+} catch {}
 
 // Repo root, as an absolute path. Used for twoslash module resolution so the
 // `viem` → live-source mapping resolves identically in both the rich and
@@ -221,6 +233,17 @@ export default defineConfig({
       return 1
     },
   },
+  ai: {
+    retriever: Retriever.local({
+      embedding: Embedding.cloudflare(),
+      reranker: Reranker.cloudflare(),
+      sources: [
+        { url: 'https://wagmi.sh/llms.txt', label: 'wagmi', weight: 0.8 },
+      ],
+      // Remote store keeps vectors out of the server bundle entirely.
+      vectorStore: VectorStore.cloudflare({ index: 'viem-docs' }),
+    }),
+  },
   sidebar: {
     '/docs': [
       { text: 'Migrating from v2', link: '/docs/v2-migration' },
@@ -255,7 +278,6 @@ export default defineConfig({
         collapsed: true,
         items: [
           { text: 'Overview', link: '/docs/actions' },
-          { text: 'Capabilities', link: '/docs/actions/capabilities' },
           {
             text: 'Address',
             collapsed: true,

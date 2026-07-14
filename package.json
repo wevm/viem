@@ -202,7 +202,7 @@
       "simple-git-hooks"
     ],
     "patchedDependencies": {
-      "vocs@2.0.14": "patches/vocs@2.0.14.patch"
+      "vocs@2.5.3": "patches/vocs@2.5.3.patch"
     }
   },
   "[!start-pkg]": "",
