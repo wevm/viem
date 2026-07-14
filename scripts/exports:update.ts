@@ -7,25 +7,8 @@ import { join } from 'node:path'
 // - `./src/index.ts`             → `.`
 // - `./src/<dir>/index.ts`       → `./<dir>`
 // - `./src/<dir>/<sub>/index.ts` → `./<dir>/<sub>`
-// - explicit file entrypoints (see `fileEntrypoints`), e.g. `./src/core/Client.ts` → `./Client`
 //
 // Directories and files outside these conventions stay internal.
-
-/** Non-`index.ts` file entrypoints. */
-const fileEntrypoints = [
-  ['Account', 'core/Account'],
-  ['Actions', 'core/actions/index'],
-  ['Capabilities', 'core/Capabilities'],
-  ['Chain', 'core/Chain'],
-  ['Client', 'core/Client'],
-  ['Contract', 'core/Contract'],
-  ['ContractError', 'core/ContractError'],
-  ['Errors', 'core/Errors'],
-  ['NonceManager', 'core/NonceManager'],
-  ['RpcError', 'core/RpcError'],
-  ['Token', 'core/Token'],
-  ['Transport', 'core/Transport'],
-] as const
 
 /** Nested directory entrypoints. */
 const nestedDirectoryEntrypoints = ['tempo/actions', 'tempo/zones'] as const
@@ -65,10 +48,6 @@ for (const dir of readdirSync(srcDir, { withFileTypes: true })) {
 for (const dir of nestedDirectoryEntrypoints)
   if (existsSync(join(srcDir, dir, 'index.ts')))
     exports.push(entry(`./${dir}`, `./src/${dir}/index.ts`))
-
-for (const [key, file] of fileEntrypoints)
-  if (existsSync(join(srcDir, `${file}.ts`)))
-    exports.push(entry(`./${key}`, `./src/${file}.ts`))
 
 // NOTE: no `./package.json` export; zile treats it as an asset and copies the
 // (dev) manifest into `dist/`, which breaks publint + ships dev fields.
