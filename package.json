@@ -71,11 +71,8 @@
   "knip": {
     "ignore": [
       ".github/**",
-      "contracts-old/**",
       "environments/**",
-      "src-old/**",
       "src/vendor/**",
-      "test-old/**",
       "src/core/internal/**"
     ],
     "ignoreBinaries": [

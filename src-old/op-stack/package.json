@@ -1,6 +1,0 @@
-{
-  "type": "module",
-  "types": "../_types/op-stack/index.d.ts",
-  "module": "../_esm/op-stack/index.js",
-  "main": "../_cjs/op-stack/index.js"
-}

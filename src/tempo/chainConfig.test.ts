@@ -44,10 +44,7 @@ const baseRequest = {
   feeToken: '0x20c0000000000000000000000000000000000000',
 } as const
 
-// One-shot serialization parity vectors generated from `src-old/tempo`
-// (`Transaction.serialize` + `keccak256(serialize(presign))`). Signed-path
-// vectors cannot be generated: v2's serializer converts signatures to bigint
-// `r`/`s`, which the current ox `Signature` (hex-based) no longer accepts.
+// Signed vectors are unavailable: the reference uses bigints while ox uses hex.
 const v2 = {
   unsigned:
     '0x76f8498205398405f5e100843b9aca00825208dcdb9470997970c51812dc3a010c7d01b50e0d17dc79c84584deadbeefc0800780809420c000000000000000000000000000000000000080c0',

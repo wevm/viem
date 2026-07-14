@@ -2,8 +2,6 @@
 
 This document contains general guidelines for AI agents working on the Viem codebase.
 
-For v3 rewrite work, also read `AGENTS.tmp.md`.
-
 > **Update after learnings or mistakes**; when a correction, new convention, or hard-won lesson
 > emerges during development, append it to the relevant section of this file immediately. AGENTS.md
 > and referenced addenda are the source of truth for project conventions.

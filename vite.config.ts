@@ -11,11 +11,7 @@ export default defineConfig({
     printWidth: 80,
     ignorePatterns: [
       'contracts/**',
-      'contracts-old/**',
-      'site-old/**',
-      'src-old/**',
       'src/vendor/**',
-      'test-old/**',
       'test/tempo/**',
       'site/dist/**',
       'site/pages/**',
@@ -46,11 +42,7 @@ export default defineConfig({
     },
     ignorePatterns: [
       'contracts/**',
-      'contracts-old/**',
-      'site-old/**',
-      'src-old/**',
       'src/vendor/**',
-      'test-old/**',
       'test/tempo/**',
       'site/dist/**',
       '**/generated.ts',
@@ -81,10 +73,6 @@ export default defineConfig({
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
-      'contracts-old/**',
-      'site-old/**',
-      'src-old/**',
-      'test-old/**',
       ...(process.env.VITE_TEMPO_ZONES === 'true'
         ? []
         : ['src/tempo/actions/zone/integration.test.ts']),
