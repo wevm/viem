@@ -17,7 +17,7 @@ import { request } from '../../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * await Actions.test.address.setStorageAt(client, {
+ * await Actions.address.setStorageAt(client, {
  *   address: '0xe846c6fcf817734ca4527b28ccb4aea2b6663c79',
  *   index: 2,
  *   value: '0x0000000000000000000000000000000000000000000000000000000000000069',

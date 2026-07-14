@@ -16,7 +16,7 @@ import { request } from '../../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * await Actions.test.block.increaseTime(client, { seconds: 420 })
+ * await Actions.block.increaseTime(client, { seconds: 420 })
  * ```
  */
 export async function increaseTime(

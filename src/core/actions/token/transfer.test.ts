@@ -32,7 +32,7 @@ describe('transfer', () => {
       to,
       amount: 1000000000n,
     })
-    await Actions.test.block.mine(client, { blocks: 1 })
+    await Actions.block.mine(client, { blocks: 1 })
 
     const receipt = await Actions.transaction.getReceipt(client, { hash })
     const { args } = transfer.extractEvent(receipt.logs)
@@ -101,7 +101,7 @@ describe('transfer', () => {
       to: tokenTo,
       amount: { formatted: '1000' },
     })
-    await Actions.test.block.mine(client, { blocks: 1 })
+    await Actions.block.mine(client, { blocks: 1 })
 
     const receipt = await Actions.transaction.getReceipt(client, { hash })
     const { args } = transfer.extractEvent(receipt.logs)
@@ -194,7 +194,7 @@ describe('transfer: from (allowance)', () => {
       spender,
       amount: { decimals, formatted: '2000' },
     })
-    await Actions.test.block.mine(client, { blocks: 1 })
+    await Actions.block.mine(client, { blocks: 1 })
 
     const before = await getBalance(client, { token: usdc, account: to })
 
@@ -205,7 +205,7 @@ describe('transfer: from (allowance)', () => {
       to,
       amount: { decimals, formatted: '2000' },
     })
-    await Actions.test.block.mine(client, { blocks: 1 })
+    await Actions.block.mine(client, { blocks: 1 })
 
     const receipt = await Actions.transaction.getReceipt(client, { hash })
     const { args } = transfer.extractEvent(receipt.logs)

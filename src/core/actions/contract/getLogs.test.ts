@@ -22,7 +22,7 @@ const { address } = await contract.deploy(client, {
 
 /** Mines pending transactions into a block. */
 async function mine() {
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
 }
 
 async function transfer(

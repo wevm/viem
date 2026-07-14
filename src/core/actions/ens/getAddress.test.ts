@@ -29,7 +29,7 @@ const ccipClient = Client.create({
 // The ENS Universal Resolver deploys after the default fork block; re-pin
 // this file's instance to an ENS-era block.
 beforeAll(async () => {
-  await Actions.test.state.reset(client, {
+  await Actions.state.reset(client, {
     blockNumber: mainnet.contracts!.ensUniversalResolver!.blockCreated
       ? BigInt(mainnet.contracts!.ensUniversalResolver!.blockCreated)
       : undefined,

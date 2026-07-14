@@ -521,7 +521,7 @@ describe('erc6492', () => {
       args: [localAccount.address, salt],
       functionName: 'createAccount',
     })
-    await Actions.test.block.mine(local, { blocks: 1 })
+    await Actions.block.mine(local, { blocks: 1 })
 
     await expect(
       Actions.verifyHash(local, {
@@ -621,7 +621,7 @@ describe('erc8010', () => {
       authorizationList: [authorization],
       to: localAccount.address,
     })
-    await Actions.test.block.mine(local, { blocks: 1 })
+    await Actions.block.mine(local, { blocks: 1 })
 
     const signature = SignatureErc8010.wrap({
       authorization,
@@ -655,7 +655,7 @@ describe('erc8010', () => {
       authorizationList: [authorization],
       to: localAccount.address,
     })
-    await Actions.test.block.mine(local, { blocks: 1 })
+    await Actions.block.mine(local, { blocks: 1 })
 
     // Already delegated: the init data is ignored and plain ERC-1271 runs.
     await expect(
@@ -726,7 +726,7 @@ describe('erc8010', () => {
       }),
     ).resolves.toBe(true)
 
-    await Actions.test.address.setNonce(local, {
+    await Actions.address.setNonce(local, {
       address: account.address,
       nonce: 69,
     })
@@ -779,7 +779,7 @@ describe('erc8010', () => {
       authorizationList: [reAuthorization],
       to: localAccount.address,
     })
-    await Actions.test.block.mine(local, { blocks: 1 })
+    await Actions.block.mine(local, { blocks: 1 })
 
     await expect(
       Actions.verifyHash(local, {

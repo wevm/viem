@@ -16,7 +16,7 @@ import { request } from '../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * await Actions.test.txpool.dropTransaction(client, {
+ * await Actions.txpool.dropTransaction(client, {
  *   hash: '0xe58dceb6b20b03965bb678e27d141e151d7d4efc2334c2d6a49b9fac523f7364',
  * })
  * ```

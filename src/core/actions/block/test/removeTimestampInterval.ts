@@ -16,7 +16,7 @@ import { request } from '../../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * await Actions.test.block.removeTimestampInterval(client)
+ * await Actions.block.removeTimestampInterval(client)
  * ```
  */
 export async function removeTimestampInterval(

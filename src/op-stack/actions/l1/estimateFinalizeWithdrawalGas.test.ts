@@ -19,7 +19,7 @@ const client = Client.create({
 const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 
 beforeEach(async () => {
-  await CoreActions.test.state.reset(client, {
+  await CoreActions.state.reset(client, {
     blockNumber: 16_280_770n,
     jsonRpcUrl: anvil.mainnet.forkUrl,
   })
@@ -57,14 +57,14 @@ liveTest('uses an explicit portal address', async () => {
 })
 
 liveTest('estimates for an external proof submitter', async () => {
-  await CoreActions.test.state.reset(client, {
+  await CoreActions.state.reset(client, {
     blockNumber: 21_165_285n,
     jsonRpcUrl: anvil.mainnet.forkUrl,
   })
-  await CoreActions.test.block.increaseTime(client, {
+  await CoreActions.block.increaseTime(client, {
     seconds: 7 * 24 * 60 * 60 + 1,
   })
-  await CoreActions.test.block.mine(client, { blocks: 1 })
+  await CoreActions.block.mine(client, { blocks: 1 })
   const gas = await Actions.l1.estimateFinalizeWithdrawalGas(client, {
     account: constants.accounts[0].address,
     proofSubmitter: externalProofSubmitter,

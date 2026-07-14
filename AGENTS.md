@@ -65,7 +65,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Exception: facade re-export files (e.g. `src/utils/*.ts`) keep deep `export * from 'ox/<Module>'`.
 - **Actions are imported via the root `Actions` namespace**; use `import { Actions } from 'viem'`.
   - Call standalone actions as `Actions.<action>(client, ...)`.
-  - Test actions live under `Actions.test`.
+  - Test actions live in their domain namespaces, such as `Actions.block.mine`.
   - Decorator usage prefers named imports like `testActions`.
   - Do not use named imports for individual actions.
 - **Minimize `as any`**; avoid new `as any` where a safer assertion is practical, but do not mass-rewrite existing crypto, tuple, and inference glue that already relies on it.

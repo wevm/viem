@@ -17,7 +17,7 @@ const result = await client.txpool.getStatus()
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-const result = await Actions.test.txpool.getStatus(client)
+const result = await Actions.txpool.getStatus(client)
 // @log: { pending: 12, queued: 3 }
 ```
 

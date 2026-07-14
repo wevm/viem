@@ -22,7 +22,7 @@ test('behavior: dedupes concurrent invocations', async () => {
 test('behavior: caches within cacheTime', async () => {
   const client = anvil.getClient(anvil.mainnet)
   const a = await Actions.block.getNumber(client, { cacheTime: 10_000 })
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
   const b = await Actions.block.getNumber(client, { cacheTime: 10_000 })
   expect(b).toBe(a)
 })
@@ -30,7 +30,7 @@ test('behavior: caches within cacheTime', async () => {
 test('behavior: cacheTime of 0 disables the cache', async () => {
   const client = anvil.getClient(anvil.mainnet)
   const a = await Actions.block.getNumber(client, { cacheTime: 10_000 })
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
   const b = await Actions.block.getNumber(client, { cacheTime: 0 })
   expect(b).toBeGreaterThan(a)
 })
@@ -38,7 +38,7 @@ test('behavior: cacheTime of 0 disables the cache', async () => {
 test('behavior: refetches after cacheTime expires', async () => {
   const client = anvil.getClient(anvil.mainnet)
   const a = await Actions.block.getNumber(client, { cacheTime: 1 })
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
   await wait(5)
   const b = await Actions.block.getNumber(client, { cacheTime: 1 })
   expect(b).toBeGreaterThan(a)

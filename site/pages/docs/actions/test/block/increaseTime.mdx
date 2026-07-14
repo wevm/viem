@@ -19,7 +19,7 @@ const result = await client.block.increaseTime({
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-const result = await Actions.test.block.increaseTime(client, {
+const result = await Actions.block.increaseTime(client, {
   seconds: 420,
 })
 // @log: '0x1'
@@ -60,7 +60,7 @@ const client = Client.create({
   transport: http(),
 })
 // ---cut---
-const result = await Actions.test.block.increaseTime(client, {
+const result = await Actions.block.increaseTime(client, {
   seconds: 420, // [!code focus]
 })
 ```

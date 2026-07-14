@@ -73,7 +73,7 @@ test('args: blockNumber + index', async () => {
     to: constants.accounts[1].address,
     value: 1_000_000_000_000_000_000n,
   })
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
 
   const byHash = await Actions.transaction.get(client, { hash })
   const transaction = await Actions.transaction.get(client, {

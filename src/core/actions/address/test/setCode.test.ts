@@ -22,7 +22,7 @@ test('sets account bytecode', async () => {
 })
 
 test('ganache uses evm_setAccountCode', async () => {
-  await Actions.test.address
+  await Actions.address
     .setCode(client, { address, bytecode: '0x', mode: 'ganache' })
     .catch(() => {})
 })

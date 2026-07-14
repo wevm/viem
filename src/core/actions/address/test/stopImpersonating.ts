@@ -17,7 +17,7 @@ import { request } from '../../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * await Actions.test.address.stopImpersonating(client, {
+ * await Actions.address.stopImpersonating(client, {
  *   address: '0xe846c6fcf817734ca4527b28ccb4aea2b6663c79',
  * })
  * ```

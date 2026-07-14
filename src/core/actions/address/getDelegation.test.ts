@@ -13,7 +13,7 @@ const target = constants.accounts[1].address
 test('default: delegated account', async () => {
   // EIP-7702 delegation designator: `0xef0100` + 20-byte target address.
   const designator = `0xef0100${target.slice(2)}` as const
-  await Actions.test.address.setCode(client, {
+  await Actions.address.setCode(client, {
     address: account,
     bytecode: designator,
   })
@@ -24,7 +24,7 @@ test('default: delegated account', async () => {
 })
 
 test('not delegated: no code', async () => {
-  await Actions.test.address.setCode(client, {
+  await Actions.address.setCode(client, {
     address: account,
     bytecode: '0x',
   })
@@ -35,7 +35,7 @@ test('not delegated: no code', async () => {
 })
 
 test('not delegated: non-designator code (wrong size)', async () => {
-  await Actions.test.address.setCode(client, {
+  await Actions.address.setCode(client, {
     address: account,
     bytecode: '0x60806040',
   })
@@ -47,7 +47,7 @@ test('not delegated: non-designator code (wrong size)', async () => {
 
 test('not delegated: 23-byte code without designator prefix', async () => {
   // 3-byte prefix (`0xdeadbe`) + 20-byte address = 23 bytes, but not `0xef0100`.
-  await Actions.test.address.setCode(client, {
+  await Actions.address.setCode(client, {
     address: account,
     bytecode: `0xdeadbe${target.slice(2)}`,
   })

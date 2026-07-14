@@ -27,7 +27,7 @@ describe('approve', () => {
       spender,
       amount: 100000000n,
     })
-    await Actions.test.block.mine(client, { blocks: 1 })
+    await Actions.block.mine(client, { blocks: 1 })
 
     const receipt = await Actions.transaction.getReceipt(client, { hash })
     const { args } = approve.extractEvent(receipt.logs)
@@ -122,7 +122,7 @@ describe('approve', () => {
       spender: tokenSpender,
       amount: { formatted: '100' },
     })
-    await Actions.test.block.mine(client, { blocks: 1 })
+    await Actions.block.mine(client, { blocks: 1 })
 
     const receipt = await Actions.transaction.getReceipt(client, { hash })
     const { args } = approve.extractEvent(receipt.logs)

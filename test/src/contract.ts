@@ -25,7 +25,7 @@ export async function deploy(
     params: [{ from: constants.accounts[0].address, data: options.bytecode }],
   })
 
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
 
   const { blockNumber, contractAddress } = await Actions.transaction.getReceipt(
     client,

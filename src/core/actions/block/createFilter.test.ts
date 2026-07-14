@@ -10,7 +10,7 @@ test('default: creates a block filter that round-trips', async () => {
   expect(filter.type).toBe('block')
   expect(typeof filter.id).toBe('string')
 
-  await Actions.test.block.mine(client, { blocks: 2 })
+  await Actions.block.mine(client, { blocks: 2 })
   const changes = await Actions.filter.getChanges(client, { filter })
   expect(changes.length).toBe(2)
   expect(changes.every((hash) => typeof hash === 'string')).toBe(true)
@@ -23,7 +23,7 @@ test('decorator', async () => {
   const filter = await decorated.block.createFilter()
   expect(filter.type).toBe('block')
 
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
   const changes = await decorated.filter.getChanges({ filter })
   expect(changes.length).toBe(1)
 

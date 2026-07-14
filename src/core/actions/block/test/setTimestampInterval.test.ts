@@ -15,7 +15,7 @@ test('sets the block timestamp interval', async () => {
 })
 
 test('hardhat scales the interval by 1000', async () => {
-  await Actions.test.block
+  await Actions.block
     .setTimestampInterval(client, { interval: 1, mode: 'hardhat' })
     .catch(() => {})
   await client.block.removeTimestampInterval()

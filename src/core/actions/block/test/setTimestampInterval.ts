@@ -18,7 +18,7 @@ import { request } from '../../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * await Actions.test.block.setTimestampInterval(client, { interval: 5 })
+ * await Actions.block.setTimestampInterval(client, { interval: 5 })
  * ```
  */
 export async function setTimestampInterval(

@@ -16,7 +16,7 @@ import { request } from '../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * await Actions.test.state.load(client, { state: '0x...' })
+ * await Actions.state.load(client, { state: '0x...' })
  * ```
  */
 export async function load(

@@ -15,7 +15,7 @@ const client = Client.create({
 const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 
 beforeEach(async () => {
-  await CoreActions.test.state.reset(client, {
+  await CoreActions.state.reset(client, {
     blockNumber: 16_280_770n,
     jsonRpcUrl: anvil.mainnet.forkUrl,
   })

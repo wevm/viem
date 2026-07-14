@@ -19,7 +19,7 @@ await client.block.mine({
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-await Actions.test.block.mine(client, {
+await Actions.block.mine(client, {
   blocks: 1,
   interval: 1,
 })
@@ -54,7 +54,7 @@ const client = Client.create({
   transport: http(),
 })
 // ---cut---
-await Actions.test.block.mine(client, {
+await Actions.block.mine(client, {
   blocks: 1, // [!code focus]
   interval: 1,
   mode: 'hardhat',
@@ -77,7 +77,7 @@ const client = Client.create({
   transport: http(),
 })
 // ---cut---
-await Actions.test.block.mine(client, {
+await Actions.block.mine(client, {
   blocks: 1,
   interval: 1, // [!code focus]
   mode: 'hardhat',
@@ -100,7 +100,7 @@ const client = Client.create({
   transport: http(),
 })
 // ---cut---
-await Actions.test.block.mine(client, {
+await Actions.block.mine(client, {
   blocks: 1,
   interval: 1,
   mode: 'hardhat', // [!code focus]

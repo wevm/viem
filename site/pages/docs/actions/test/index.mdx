@@ -18,7 +18,7 @@ await client.block.mine({ blocks: 1 })
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-await Actions.test.block.mine(client, { blocks: 1 })
+await Actions.block.mine(client, { blocks: 1 })
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

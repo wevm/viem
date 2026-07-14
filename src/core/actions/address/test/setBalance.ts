@@ -17,7 +17,7 @@ import { request } from '../../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * await Actions.test.address.setBalance(client, {
+ * await Actions.address.setBalance(client, {
  *   address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
  *   value: 1_000_000_000_000_000_000n,
  * })

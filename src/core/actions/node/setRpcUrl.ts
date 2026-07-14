@@ -16,7 +16,7 @@ import { request } from '../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * await Actions.test.node.setRpcUrl(client, { jsonRpcUrl: 'https://eth.merkle.io' })
+ * await Actions.node.setRpcUrl(client, { jsonRpcUrl: 'https://eth.merkle.io' })
  * ```
  */
 export async function setRpcUrl(

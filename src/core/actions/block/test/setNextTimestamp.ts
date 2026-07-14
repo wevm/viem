@@ -16,7 +16,7 @@ import { request } from '../../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * await Actions.test.block.setNextTimestamp(client, { timestamp: 1671744314n })
+ * await Actions.block.setNextTimestamp(client, { timestamp: 1671744314n })
  * ```
  */
 export async function setNextTimestamp(

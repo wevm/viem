@@ -15,10 +15,10 @@ test('enables and disables automine', async () => {
 })
 
 test('ganache uses miner_start / miner_stop', async () => {
-  await Actions.test.block
+  await Actions.block
     .setAutomine(client, { enabled: true, mode: 'ganache' })
     .catch(() => {})
-  await Actions.test.block
+  await Actions.block
     .setAutomine(client, { enabled: false, mode: 'ganache' })
     .catch(() => {})
 })

@@ -16,7 +16,7 @@ import { request } from '../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * await Actions.test.state.reset(client, { blockNumber: 69420n })
+ * await Actions.state.reset(client, { blockNumber: 69420n })
  * ```
  */
 export async function reset(

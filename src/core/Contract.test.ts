@@ -86,7 +86,7 @@ test('binds function and event action options', async () => {
   watcher.off()
 
   const hash = await events.write.emitTransfer({ account, args })
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
   const receipt = await Actions.transaction.getReceipt(client, { hash })
 
   const changes = await Actions.filter.getChanges(client, { filter })

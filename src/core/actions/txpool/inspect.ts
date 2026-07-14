@@ -17,7 +17,7 @@ import { request } from '../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const txpool = await Actions.test.txpool.inspect(client)
+ * const txpool = await Actions.txpool.inspect(client)
  * ```
  */
 export async function inspect(

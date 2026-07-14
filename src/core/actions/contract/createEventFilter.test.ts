@@ -25,13 +25,13 @@ async function transfer(from: Hex.Hex, to: Hex.Hex, value: bigint) {
     args: [from, to, value],
     functionName: 'emitTransfer',
   })
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
 }
 
 // Mines past earlier tests' logs; a filter from the returned block only sees
 // logs emitted after it.
 async function nextBlock() {
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
   return await Actions.block.getNumber(client, { cacheTime: 0 })
 }
 

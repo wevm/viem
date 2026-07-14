@@ -38,7 +38,7 @@ export async function getSmartAccounts_09() {
     smartAccounts.push(smartAccount)
   }
 
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
   return smartAccounts
 }
 
@@ -61,7 +61,7 @@ export async function getSmartAccounts_08() {
     smartAccounts.push(smartAccount)
   }
 
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
   return smartAccounts
 }
 
@@ -85,7 +85,7 @@ export async function getSmartAccounts_07() {
     smartAccounts.push(smartAccount)
   }
 
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
   return smartAccounts
 }
 
@@ -114,7 +114,7 @@ export async function getSmartAccounts_06() {
     smartAccounts.push(smartAccount)
   }
 
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
   return smartAccounts
 }
 
@@ -312,7 +312,7 @@ async function deployVerifyingPaymaster(
     functionName: 'deposit',
     value: Value.fromEther('100'),
   })
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
 
   return address
 }

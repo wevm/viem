@@ -24,7 +24,7 @@ test('mines with an interval', async () => {
 })
 
 test('ganache uses evm_mine', async () => {
-  await Actions.test.block
+  await Actions.block
     .mine(client, { blocks: 1, mode: 'ganache' })
     .catch(() => {})
 })

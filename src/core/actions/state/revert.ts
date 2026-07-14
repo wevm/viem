@@ -15,7 +15,7 @@ import { request } from '../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * await Actions.test.state.revert(client, { id: '0x1' })
+ * await Actions.state.revert(client, { id: '0x1' })
  * ```
  */
 export async function revert(

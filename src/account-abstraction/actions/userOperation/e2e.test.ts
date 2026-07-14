@@ -156,7 +156,7 @@ describe.sequential('live EntryPoint flows', () => {
       timeout: 15_000,
     })
     await client.request({ method: 'debug_bundler_sendBundleNow' })
-    await CoreActions.test.block.mine(executionClient, { blocks: 1 })
+    await CoreActions.block.mine(executionClient, { blocks: 1 })
     const receipt = await receiptPromise
     const operation = await Actions.userOperation.get<'0.6'>(client, { hash })
     const transactionHash = getIncludedTransactionHash(operation)
@@ -258,7 +258,7 @@ describe.sequential('live EntryPoint flows', () => {
       timeout: 15_000,
     })
     await client.request({ method: 'debug_bundler_sendBundleNow' })
-    await CoreActions.test.block.mine(executionClient, { blocks: 1 })
+    await CoreActions.block.mine(executionClient, { blocks: 1 })
     const receipt = await receiptPromise
     const operation = await Actions.userOperation.get<'0.7'>(client, { hash })
     const transactionHash = getIncludedTransactionHash(operation)
@@ -378,7 +378,7 @@ describe.sequential('live EntryPoint flows', () => {
       timeout: 15_000,
     })
     await client.request({ method: 'debug_bundler_sendBundleNow' })
-    await CoreActions.test.block.mine(executionClient, { blocks: 1 })
+    await CoreActions.block.mine(executionClient, { blocks: 1 })
     const receipt = await receiptPromise
     const operation = await Actions.userOperation.get<'0.8'>(client, { hash })
     const transactionHash = getIncludedTransactionHash(operation)
@@ -508,7 +508,7 @@ describe.sequential('live EntryPoint flows', () => {
       timeout: 15_000,
     })
     await client.request({ method: 'debug_bundler_sendBundleNow' })
-    await CoreActions.test.block.mine(executionClient, { blocks: 1 })
+    await CoreActions.block.mine(executionClient, { blocks: 1 })
     const receipt = await receiptPromise
     const receipt_ = await Actions.userOperation.getReceipt<'0.9'>(client, {
       hash,
@@ -657,7 +657,7 @@ describe.sequential('live EntryPoint flows', () => {
         },
       )
       await client.request({ method: 'debug_bundler_sendBundleNow' })
-      await CoreActions.test.block.mine(executionClient, { blocks: 1 })
+      await CoreActions.block.mine(executionClient, { blocks: 1 })
       const receipt = await receiptPromise
       const operation = await Actions.userOperation.get<'0.7'>(client, { hash })
       const transactionHash = getIncludedTransactionHash(operation)

@@ -486,7 +486,7 @@ test('deployed account signatures', async () => {
     args: [[Hex.padLeft(owner.address)], 700_070n],
     functionName: 'createAccount',
   })
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
 
   const hash =
     '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68'
@@ -782,7 +782,7 @@ describe.sequential('Bundler actions', () => {
     await fixture.bundlerClient.request({
       method: 'debug_bundler_sendBundleNow',
     })
-    await Actions.test.block.mine(client, { blocks: 1 })
+    await Actions.block.mine(client, { blocks: 1 })
     const receipt = await receiptPromise
 
     expect({
@@ -809,7 +809,7 @@ async function createBundlerFixture() {
     owners: [owner],
     version: '1',
   })
-  await Actions.test.address.setBalance(client, {
+  await Actions.address.setBalance(client, {
     address: account.address,
     value: Value.fromEther('100'),
   })

@@ -421,8 +421,8 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `DeriveEntryPointVersion` | Removed; `EntryPoint.Version` | [AA: Errors & Types](#errors--types) |
 | `DeriveSmartAccount` | Removed; `SmartAccount.SmartAccount` | [AA: Errors & Types](#errors--types) |
 | `disconnect` | `Actions.wallet.disconnect` | [ERC-7846 & ERC-7811](#erc-7846--erc-7811) |
-| `dropTransaction` | `Actions.test.txpool.dropTransaction` | [Test](#test) |
-| `dumpState` | `Actions.test.state.dump` | [Test](#test) |
+| `dropTransaction` | `Actions.txpool.dropTransaction` | [Test](#test) |
+| `dumpState` | `Actions.state.dump` | [Test](#test) |
 | `DuplicateIdError` | `Provider.DuplicateIdError` | [RPC Errors](#rpc-errors) |
 | `EIP1193EventMap` | `Provider.EventMap` | [Type Exports](#type-exports) |
 | `EIP1193Events` | `Provider.Emitter` | [Type Exports](#type-exports) |
@@ -535,7 +535,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `getAddress` | `Address.checksum` | [Utilities: Address](#address-1) |
 | `getAddresses` | `Actions.wallet.getAddresses` | [Wallet & Capabilities](#wallet--capabilities) |
 | `getAssets` | `Actions.wallet.getAssets` | [ERC-7846 & ERC-7811](#erc-7846--erc-7811) |
-| `getAutomine` | `Actions.test.block.getAutomine` | [Test](#test) |
+| `getAutomine` | `Actions.block.getAutomine` | [Test](#test) |
 | `getBalance` | `Actions.address.getBalance` | [Actions: Address](#address) |
 | `GetBalanceErrorType` | `Actions.address.getBalance.ErrorType` | [Type Exports](#type-exports) |
 | `GetBalanceParameters` | `Actions.address.getBalance.Options` | [Type Exports](#type-exports) |
@@ -615,7 +615,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `getTransactionType` | `TxEnvelope.getType` | [Utilities: Transactions](#transactions-1) |
 | `GetTransportConfig` | `ReturnType<transport['setup']>` | [Transports](#transports) |
 | `getTxpoolContent` | Removed | [Test](#test) |
-| `getTxpoolStatus` | `Actions.test.txpool.getStatus` | [Test](#test) |
+| `getTxpoolStatus` | `Actions.txpool.getStatus` | [Test](#test) |
 | `getTypesForEIP712Domain` | `TypedData.extractEip712DomainTypes` (positional) | [Messages & ENS](#messages--ens) |
 | `getUserOperation` | `Actions.userOperation.get` | [AA: Actions & Decorators](#actions--decorators) |
 | `getUserOperationError` | Internalized | [AA: Errors & Types](#errors--types) |
@@ -652,10 +652,10 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `HttpRequestError` | `RpcClient.HttpError` | [Action & Transport Errors](#action--transport-errors) |
 | `HttpTransport` | `Transport.Transport<'http'>` | [Transports](#transports) |
 | `HttpTransportConfig` | `http.Options` | [Transports](#transports) |
-| `impersonateAccount` | `Actions.test.address.impersonate` | [Test](#test) |
-| `increaseTime` | `Actions.test.block.increaseTime` | [Test](#test) |
+| `impersonateAccount` | `Actions.address.impersonate` | [Test](#test) |
+| `increaseTime` | `Actions.block.increaseTime` | [Test](#test) |
 | `Index` | `Hex.Hex` | [Type Exports](#type-exports) |
-| `inspectTxpool` | `Actions.test.txpool.inspect` | [Test](#test) |
+| `inspectTxpool` | `Actions.txpool.inspect` | [Test](#test) |
 | `InsufficientFundsError` | `RpcError.InsufficientFundsError` | [RPC Errors](#rpc-errors) |
 | `InternalRpcError` | `RpcResponse.InternalError` | [RPC Errors](#rpc-errors) |
 | `IntrinsicGasTooHighError` | `RpcError.IntrinsicGasTooHighError` | [RPC Errors](#rpc-errors) |
@@ -691,7 +691,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `KeyAuthorizationSigned` | `KeyAuthorization.Signed` | [Tempo](#tempo) |
 | `labelhash` | `Ens.labelhash` | [Messages & ENS](#messages--ens) |
 | `LimitExceededRpcError` | `RpcResponse.LimitExceededError` | [RPC Errors](#rpc-errors) |
-| `loadState` | `Actions.test.state.load` | [Test](#test) |
+| `loadState` | `Actions.state.load` | [Test](#test) |
 | `LocalAccount` | `Account.Local` | [Accounts](#accounts) |
 | `LogTopic` | `Filter.Topic` | [Utilities: ABI](#abi) |
 | `mainnetTrustedSetupPath` | `Paths.mainnet` (from `viem/node`) | [Node](#node) |
@@ -700,7 +700,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `maxUint256` | `Solidity.maxUint256` | [Utilities: ABI](#abi) |
 | `MethodNotFoundRpcError` | `RpcResponse.MethodNotFoundError` | [RPC Errors](#rpc-errors) |
 | `MethodNotSupportedRpcError` | `RpcResponse.MethodNotSupportedError` | [RPC Errors](#rpc-errors) |
-| `mine` | `Actions.test.block.mine` | [Test](#test) |
+| `mine` | `Actions.block.mine` | [Test](#test) |
 | `minInt256` | `Solidity.minInt256` | [Utilities: ABI](#abi) |
 | `mnemonicToAccount` | `Account.fromMnemonic` | [Accounts](#accounts) |
 | `MnemonicToAccountOptions` | `Account.fromMnemonic.Options` | [Accounts](#accounts) |
@@ -787,15 +787,15 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `recoverTransactionAddress` | `TxEnvelope.recoverAddress` (sync) | [Signatures & Keys](#signatures--keys) |
 | `recoverTypedDataAddress` | `TypedData.recoverAddress` (sync) | [Signatures & Keys](#signatures--keys) |
 | `Register` (capabilities) | `Capabilities.Register` | [Type Exports](#type-exports) |
-| `removeBlockTimestampInterval` | `Actions.test.block.removeTimestampInterval` | [Test](#test) |
+| `removeBlockTimestampInterval` | `Actions.block.removeTimestampInterval` | [Test](#test) |
 | `ReplacementReason` | `Actions.transaction.waitForReceipt.ReplacementReason` | [Events & Filters](#events--filters) |
 | `requestAddresses` | `Actions.wallet.requestAddresses` | [Wallet & Capabilities](#wallet--capabilities) |
 | `requestPermissions` | `Actions.wallet.requestPermissions` | [Wallet & Capabilities](#wallet--capabilities) |
 | `RequestPermissionsParameters` | `Actions.wallet.requestPermissions.Options` | [Type Exports](#type-exports) |
-| `reset` | `Actions.test.state.reset` | [Test](#test) |
+| `reset` | `Actions.state.reset` | [Test](#test) |
 | `ResourceNotFoundRpcError` | `RpcResponse.ResourceNotFoundError` | [RPC Errors](#rpc-errors) |
 | `ResourceUnavailableRpcError` | `RpcResponse.ResourceUnavailableError` | [RPC Errors](#rpc-errors) |
-| `revert` | `Actions.test.state.revert` | [Test](#test) |
+| `revert` | `Actions.state.revert` | [Test](#test) |
 | `ripemd160` | `Hash.ripemd160` | [Hashing](#hashing) |
 | `Ripemd160Hash` | `Hash.ripemd160.ReturnType<'Hex'>` | [Hashing](#hashing) |
 | `RlpDepthLimitExceededError` | `Rlp.DepthLimitExceededError` | [Contract & ABI Errors](#contract--abi-errors) |
@@ -841,22 +841,22 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `serializeSignature` | `Signature.toHex` | [Signatures & Keys](#signatures--keys) |
 | `serializeTransaction` | `TxEnvelope.serialize` | [Utilities: Transactions](#transactions-1) |
 | `serializeTypedData` | `TypedData.serialize` | [Messages & ENS](#messages--ens) |
-| `setAutomine` | `Actions.test.block.setAutomine` (`{ enabled }` bag) | [Test](#test) |
-| `setBalance` | `Actions.test.address.setBalance` | [Test](#test) |
-| `setBlockGasLimit` | `Actions.test.block.setGasLimit` | [Test](#test) |
-| `setBlockTimestampInterval` | `Actions.test.block.setTimestampInterval` | [Test](#test) |
-| `setCode` | `Actions.test.address.setCode` | [Test](#test) |
-| `setCoinbase` | `Actions.test.block.setCoinbase` | [Test](#test) |
+| `setAutomine` | `Actions.block.setAutomine` (`{ enabled }` bag) | [Test](#test) |
+| `setBalance` | `Actions.address.setBalance` | [Test](#test) |
+| `setBlockGasLimit` | `Actions.block.setGasLimit` | [Test](#test) |
+| `setBlockTimestampInterval` | `Actions.block.setTimestampInterval` | [Test](#test) |
+| `setCode` | `Actions.address.setCode` | [Test](#test) |
+| `setCoinbase` | `Actions.block.setCoinbase` | [Test](#test) |
 | `setErrorConfig` | `Errors.setConfig` | [Errors](#errors) |
-| `setIntervalMining` | `Actions.test.block.setIntervalMining` | [Test](#test) |
-| `setLoggingEnabled` | `Actions.test.node.setLoggingEnabled` (`{ enabled }` bag) | [Test](#test) |
-| `setMinGasPrice` | `Actions.test.node.setMinGasPrice` | [Test](#test) |
-| `setNextBlockBaseFeePerGas` | `Actions.test.block.setNextBaseFeePerGas` | [Test](#test) |
-| `setNextBlockTimestamp` | `Actions.test.block.setNextTimestamp` | [Test](#test) |
-| `setNonce` | `Actions.test.address.setNonce` | [Test](#test) |
-| `setRpcUrl` | `Actions.test.node.setRpcUrl` (`{ jsonRpcUrl }` bag) | [Test](#test) |
+| `setIntervalMining` | `Actions.block.setIntervalMining` | [Test](#test) |
+| `setLoggingEnabled` | `Actions.node.setLoggingEnabled` (`{ enabled }` bag) | [Test](#test) |
+| `setMinGasPrice` | `Actions.node.setMinGasPrice` | [Test](#test) |
+| `setNextBlockBaseFeePerGas` | `Actions.block.setNextBaseFeePerGas` | [Test](#test) |
+| `setNextBlockTimestamp` | `Actions.block.setNextTimestamp` | [Test](#test) |
+| `setNonce` | `Actions.address.setNonce` | [Test](#test) |
+| `setRpcUrl` | `Actions.node.setRpcUrl` (`{ jsonRpcUrl }` bag) | [Test](#test) |
 | `setSignEntropy` | `extraEntropy` option on `Secp256k1.sign` | [Accounts](#accounts) |
-| `setStorageAt` | `Actions.test.address.setStorageAt` | [Test](#test) |
+| `setStorageAt` | `Actions.address.setStorageAt` | [Test](#test) |
 | `setupKzg` | `Kzg.from` | [Blobs](#blobs) |
 | `sha256` | `Hash.sha256` | [Hashing](#hashing) |
 | `Sha256Hash` | `Hash.sha256.ReturnType<'Hex'>` | [Hashing](#hashing) |
@@ -881,14 +881,14 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `sliceHex` | `Hex.slice` | [Encoding & Units](#encoding--units) |
 | `SmartAccount` (type) | `SmartAccount.SmartAccount` | [Smart Accounts](#smart-accounts) |
 | `SmartAccountImplementation` | `SmartAccount.Implementation` | [Smart Accounts](#smart-accounts) |
-| `snapshot` | `Actions.test.state.snapshot` | [Test](#test) |
+| `snapshot` | `Actions.state.snapshot` | [Test](#test) |
 | `socketClientCache` | Removed; clients evict themselves on `close()` | [Transports](#transports) |
 | `SoladySmartAccountImplementation` | `SoladySmartAccount.Implementation` | [Smart Accounts](#smart-accounts) |
 | `source` (account property) | `keyType` | [Accounts](#accounts) |
 | `StateAssignmentConflictError` | Removed; unrepresentable with record overrides | [Removed Errors](#removed-errors) |
 | `StateMapping` | `StateOverrides.StateOverrides` (record shape) | [Type Exports](#type-exports) |
 | `StateOverride` | `StateOverrides.StateOverrides` (record shape) | [Block & Log](#block--log) |
-| `stopImpersonatingAccount` | `Actions.test.address.stopImpersonating` | [Test](#test) |
+| `stopImpersonatingAccount` | `Actions.address.stopImpersonating` | [Test](#test) |
 | `stringify` | `Json.stringify` | [Encoding & Units](#encoding--units) |
 | `stringToBytes` | `Bytes.fromString` | [Encoding & Units](#encoding--units) |
 | `stringToHex` | `Hex.fromString` | [Encoding & Units](#encoding--units) |
@@ -1848,7 +1848,7 @@ The token model moved to `Token.from`. See [Tokens](#tokens-1).
 
 ### Test
 
-Test actions moved from flat exports into root test actions and grouped client decorator namespaces.
+Test actions moved from flat exports into their root action categories and grouped client decorator namespaces.
 
 ```ts
 import { mine, setBalance } from 'viem/actions' // [!code --]
@@ -1856,8 +1856,8 @@ import { Actions, testActions } from 'viem' // [!code ++]
 
 await mine(client, { blocks: 1 }) // [!code --]
 await setBalance(client, { address, value }) // [!code --]
-await Actions.test.block.mine(client, { blocks: 1 }) // [!code ++]
-await Actions.test.address.setBalance(client, { address, value }) // [!code ++]
+await Actions.block.mine(client, { blocks: 1 }) // [!code ++]
+await Actions.address.setBalance(client, { address, value }) // [!code ++]
 
 const client = Client.create({ transport }).extend(testActions())
 await client.mine({ blocks: 1 }) // [!code --]
@@ -1866,7 +1866,7 @@ await client.block.mine({ blocks: 1 }) // [!code ++]
 await client.address.setBalance({ address, value }) // [!code ++]
 ```
 
-Test actions were renamed or regrouped within their new namespaces (decorator form shown; the standalone form is `Actions.test.<domain>.<action>`):
+Test actions were renamed or regrouped within their new namespaces (decorator form shown; the standalone form is `Actions.<domain>.<action>`):
 
 | v2 | v3 |
 | --- | --- |
@@ -1923,7 +1923,7 @@ const client = Client.create({ chain, transport }).extend( // [!code ++]
 ) // [!code ++]
 
 // Standalone actions take `mode` per call (default 'anvil').
-await Actions.test.block.mine(client, { blocks: 1, mode: 'hardhat' }) // [!code ++]
+await Actions.block.mine(client, { blocks: 1, mode: 'hardhat' }) // [!code ++]
 ```
 
 ## ERCs

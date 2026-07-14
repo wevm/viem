@@ -16,7 +16,7 @@ import { request } from '../../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const isAutomining = await Actions.test.block.getAutomine(client)
+ * const isAutomining = await Actions.block.getAutomine(client)
  * ```
  */
 export async function getAutomine(

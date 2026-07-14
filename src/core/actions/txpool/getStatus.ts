@@ -18,7 +18,7 @@ import { request } from '../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const status = await Actions.test.txpool.getStatus(client)
+ * const status = await Actions.txpool.getStatus(client)
  * ```
  */
 export async function getStatus(

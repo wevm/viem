@@ -20,7 +20,7 @@ import { request } from '../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * await Actions.test.node.setMinGasPrice(client, { gasPrice: 1_000_000_000n })
+ * await Actions.node.setMinGasPrice(client, { gasPrice: 1_000_000_000n })
  * ```
  */
 export async function setMinGasPrice(

@@ -16,7 +16,7 @@ import { request } from '../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * await Actions.test.node.setLoggingEnabled(client, { enabled: true })
+ * await Actions.node.setLoggingEnabled(client, { enabled: true })
  * ```
  */
 export async function setLoggingEnabled(

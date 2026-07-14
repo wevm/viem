@@ -406,14 +406,14 @@ describe('address and factory args', () => {
       args: [owner.address, Hex.padLeft(salt06)],
       functionName: 'createAccount',
     })
-    await Actions.test.block.mine(client, { blocks: 1 })
+    await Actions.block.mine(client, { blocks: 1 })
     await Actions.contract.write(client, {
       ...account07.factory,
       account: owner,
       args: [owner.address, Hex.padLeft(salt07)],
       functionName: 'createAccount',
     })
-    await Actions.test.block.mine(client, { blocks: 1 })
+    await Actions.block.mine(client, { blocks: 1 })
 
     expect({
       account06: {
@@ -517,7 +517,7 @@ describe('message signing', () => {
       args: [owner.address, Hex.padLeft(salt)],
       functionName: 'createAccount',
     })
-    await Actions.test.block.mine(client, { blocks: 1 })
+    await Actions.block.mine(client, { blocks: 1 })
 
     const messages = [
       'hello world',
@@ -577,7 +577,7 @@ describe('message signing', () => {
       args: [owner.address, Hex.padLeft(salt)],
       functionName: 'createAccount',
     })
-    await Actions.test.block.mine(client, { blocks: 1 })
+    await Actions.block.mine(client, { blocks: 1 })
 
     const value = {
       ...constants.typedData.basic,

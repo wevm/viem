@@ -330,7 +330,7 @@ test('EIP-7702 authorization and owner signatures', async () => {
     authorizationList: [authorization],
     to: sponsor.address,
   })
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
 
   expect(await account.isDeployed()).toMatchInlineSnapshot(`true`)
   expect(await account.getFactoryArgs()).toMatchInlineSnapshot(`

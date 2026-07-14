@@ -99,7 +99,7 @@ describe.sequential('fully formed User Operations', () => {
       )
 
       await rawClient.request({ method: 'debug_bundler_sendBundleNow' })
-      await CoreActions.test.block.mine(executionClient, { blocks: 1 })
+      await CoreActions.block.mine(executionClient, { blocks: 1 })
       const receipt = await receiptPromise
 
       expect({

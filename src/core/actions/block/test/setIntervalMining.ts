@@ -17,7 +17,7 @@ import { request } from '../../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * await Actions.test.block.setIntervalMining(client, { interval: 5 })
+ * await Actions.block.setIntervalMining(client, { interval: 5 })
  * ```
  */
 export async function setIntervalMining(

@@ -20,14 +20,14 @@ const client = Client.create({
 const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 
 beforeEach(async () => {
-  await CoreActions.test.state.reset(client, {
+  await CoreActions.state.reset(client, {
     blockNumber: 16_280_770n,
     jsonRpcUrl: anvil.mainnet.forkUrl,
   })
 }, 30_000)
 
 async function getFinalization(hash: Hex.Hex) {
-  await CoreActions.test.block.mine(client, { blocks: 1 })
+  await CoreActions.block.mine(client, { blocks: 1 })
   const receipt = await CoreActions.transaction.getReceipt(client, { hash })
   return receipt.status
 }
@@ -77,14 +77,14 @@ liveTest('uses an explicit portal address and gas', async () => {
 })
 
 liveTest('finalizes for an external proof submitter', async () => {
-  await CoreActions.test.state.reset(client, {
+  await CoreActions.state.reset(client, {
     blockNumber: 21_165_285n,
     jsonRpcUrl: anvil.mainnet.forkUrl,
   })
-  await CoreActions.test.block.increaseTime(client, {
+  await CoreActions.block.increaseTime(client, {
     seconds: 7 * 24 * 60 * 60 + 1,
   })
-  await CoreActions.test.block.mine(client, { blocks: 1 })
+  await CoreActions.block.mine(client, { blocks: 1 })
   const hash = await Actions.l1.finalizeWithdrawal(client, {
     account: constants.accounts[0].address,
     gas: 4_000_000n,

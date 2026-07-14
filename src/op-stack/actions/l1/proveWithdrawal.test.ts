@@ -16,14 +16,14 @@ const client = Client.create({
 const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 
 beforeEach(async () => {
-  await CoreActions.test.state.reset(client, {
+  await CoreActions.state.reset(client, {
     blockNumber: 16_280_770n,
     jsonRpcUrl: anvil.mainnet.forkUrl,
   })
 }, 30_000)
 
 async function getProof(hash: Hex.Hex) {
-  await CoreActions.test.block.mine(client, { blocks: 1 })
+  await CoreActions.block.mine(client, { blocks: 1 })
   const receipt = await CoreActions.transaction.getReceipt(client, { hash })
   return receipt.status
 }

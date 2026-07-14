@@ -29,18 +29,18 @@ beforeAll(async () => {
   if (process.env.SKIP_GLOBAL_SETUP) return
 
   await Promise.all([
-    CoreActions.test.state.reset(client, {
+    CoreActions.state.reset(client, {
       blockNumber: anvil.mainnet.forkBlockNumber,
       jsonRpcUrl: anvil.mainnet.forkUrl,
     }),
-    CoreActions.test.state.reset(optimismClient, {
+    CoreActions.state.reset(optimismClient, {
       blockNumber: anvil.optimism.forkBlockNumber,
       jsonRpcUrl: optimism.rpcUrls.default.http[0],
     }),
   ])
   await Promise.all(
     constants.accounts.map(({ address }) =>
-      CoreActions.test.address.setCode(client, { address, bytecode: '0x' }),
+      CoreActions.address.setCode(client, { address, bytecode: '0x' }),
     ),
   )
 }, 60_000)

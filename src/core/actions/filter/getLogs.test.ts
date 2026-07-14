@@ -31,7 +31,7 @@ async function transfer(from: Hex.Hex, to: Hex.Hex, value: bigint) {
     args: [from, to, value],
     functionName: 'emitTransfer',
   })
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
 }
 
 test('default: returns all logs for the filter', async () => {

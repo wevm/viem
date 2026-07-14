@@ -17,7 +17,7 @@ import { request } from '../../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * await Actions.test.block.setNextBaseFeePerGas(client, { baseFeePerGas: 1_000_000_000n })
+ * await Actions.block.setNextBaseFeePerGas(client, { baseFeePerGas: 1_000_000_000n })
  * ```
  */
 export async function setNextBaseFeePerGas(

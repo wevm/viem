@@ -15,7 +15,7 @@ import { request } from '../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const id = await Actions.test.state.snapshot(client)
+ * const id = await Actions.state.snapshot(client)
  * ```
  */
 export async function snapshot(

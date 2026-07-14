@@ -16,7 +16,7 @@ import { request } from '../../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * await Actions.test.address.setCode(client, {
+ * await Actions.address.setCode(client, {
  *   address: '0xe846c6fcf817734ca4527b28ccb4aea2b6663c79',
  *   bytecode: '0x60806040...',
  * })

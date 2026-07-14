@@ -17,7 +17,7 @@ test('fallback: binds the filter to the child transport that created it', async 
   const filter = await Actions.block.createFilter(client)
   expect(filter.type).toBe('block')
 
-  await Actions.test.block.mine(client, { blocks: 2 })
+  await Actions.block.mine(client, { blocks: 2 })
   const changes = await Actions.filter.getChanges(client, { filter })
   expect(changes.length).toBe(2)
 

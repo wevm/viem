@@ -28,7 +28,7 @@ const ccipClient = Client.create({
 // Pinned after the ENSIP-19 default-reverse records used by the `coinType`
 // test were set onchain.
 beforeAll(async () => {
-  await Actions.test.state.reset(client, {
+  await Actions.state.reset(client, {
     blockNumber: 23_093_073n,
     jsonRpcUrl: anvil.mainnet.forkUrl,
   })

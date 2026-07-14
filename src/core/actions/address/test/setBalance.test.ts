@@ -21,7 +21,7 @@ test('sets account balance', async () => {
 })
 
 test('ganache uses evm_setAccountBalance', async () => {
-  await Actions.test.address
+  await Actions.address
     .setBalance(client, { address, value: 1n, mode: 'ganache' })
     .catch(() => {})
 })

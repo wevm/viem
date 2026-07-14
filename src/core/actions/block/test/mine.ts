@@ -17,7 +17,7 @@ import { request } from '../../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * await Actions.test.block.mine(client, { blocks: 1 })
+ * await Actions.block.mine(client, { blocks: 1 })
  * ```
  */
 export async function mine(

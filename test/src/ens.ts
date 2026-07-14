@@ -44,7 +44,7 @@ export async function setPrimaryName(
   client: Client.Client,
   options: { name: string },
 ) {
-  await Actions.test.address.impersonate(client, { address: vitalik })
+  await Actions.address.impersonate(client, { address: vitalik })
   await Actions.contract.write(client, {
     abi: reverseRegistrarAbi,
     account: vitalik,
@@ -52,8 +52,8 @@ export async function setPrimaryName(
     args: [options.name],
     functionName: 'setName',
   })
-  await Actions.test.block.mine(client, { blocks: 1 })
-  await Actions.test.address.stopImpersonating(client, { address: vitalik })
+  await Actions.block.mine(client, { blocks: 1 })
+  await Actions.address.stopImpersonating(client, { address: vitalik })
 }
 
 /**
@@ -61,7 +61,7 @@ export async function setPrimaryName(
  * contract) and `vbuterin.eth` at a non-contract resolver (an EOA).
  */
 export async function setVitalikResolver(client: Client.Client) {
-  await Actions.test.address.impersonate(client, { address: vitalik })
+  await Actions.address.impersonate(client, { address: vitalik })
   await Actions.contract.write(client, {
     abi: registryAbi,
     account: vitalik,
@@ -76,8 +76,8 @@ export async function setVitalikResolver(client: Client.Client) {
     args: [Ens.namehash('vbuterin.eth'), vitalik],
     functionName: 'setResolver',
   })
-  await Actions.test.block.mine(client, { blocks: 1 })
-  await Actions.test.address.stopImpersonating(client, { address: vitalik })
+  await Actions.block.mine(client, { blocks: 1 })
+  await Actions.address.stopImpersonating(client, { address: vitalik })
 }
 
 const resolveParameters = /*#__PURE__*/ AbiParameters.from('bytes, bytes')
@@ -175,11 +175,11 @@ export async function setOffchainResolver(
     functionName: 'owner',
   })) as Address.Address
 
-  await Actions.test.address.setBalance(client, {
+  await Actions.address.setBalance(client, {
     address: owner,
     value: 10_000_000_000_000_000_000n,
   })
-  await Actions.test.address.impersonate(client, { address: owner })
+  await Actions.address.impersonate(client, { address: owner })
   await Actions.contract.write(client, {
     abi: registryAbi,
     account: owner,
@@ -187,8 +187,8 @@ export async function setOffchainResolver(
     args: [node, address],
     functionName: 'setResolver',
   })
-  await Actions.test.block.mine(client, { blocks: 1 })
-  await Actions.test.address.stopImpersonating(client, { address: owner })
+  await Actions.block.mine(client, { blocks: 1 })
+  await Actions.address.stopImpersonating(client, { address: owner })
 
   return { address }
 }

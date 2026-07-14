@@ -19,7 +19,7 @@ await client.address.setCode({
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-await Actions.test.address.setCode(client, {
+await Actions.address.setCode(client, {
   address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   bytecode: '0x60806040',
 })
@@ -54,7 +54,7 @@ const client = Client.create({
   transport: http(),
 })
 // ---cut---
-await Actions.test.address.setCode(client, {
+await Actions.address.setCode(client, {
   address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
   bytecode: '0x60806040',
   mode: 'hardhat',
@@ -76,7 +76,7 @@ const client = Client.create({
   transport: http(),
 })
 // ---cut---
-await Actions.test.address.setCode(client, {
+await Actions.address.setCode(client, {
   address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   bytecode: '0x60806040', // [!code focus]
   mode: 'hardhat',
@@ -99,7 +99,7 @@ const client = Client.create({
   transport: http(),
 })
 // ---cut---
-await Actions.test.address.setCode(client, {
+await Actions.address.setCode(client, {
   address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   bytecode: '0x60806040',
   mode: 'hardhat', // [!code focus]

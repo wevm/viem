@@ -30,14 +30,14 @@ async function transfer(from: Hex.Hex, to: Hex.Hex, value: bigint) {
     args: [from, to, value],
     functionName: 'emitTransfer',
   })
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
 }
 
 test('block: returns block hashes since last poll', async () => {
   const id = await client.request({ method: 'eth_newBlockFilter' })
   const filter = { id, request: client.request, type: 'block' } as const
 
-  await Actions.test.block.mine(client, { blocks: 2 })
+  await Actions.block.mine(client, { blocks: 2 })
   const changes = await Actions.filter.getChanges(client, { filter })
   expect(changes.length).toBe(2)
   expect(changes.every((hash) => typeof hash === 'string')).toBe(true)
@@ -98,7 +98,7 @@ describe('event', () => {
   test('returns raw logs when no event', async () => {
     // Isolate from prior tests' logs: a no-topics filter matches every log at
     // `address`, so start from a fresh empty block.
-    await Actions.test.block.mine(client, { blocks: 1 })
+    await Actions.block.mine(client, { blocks: 1 })
     const fromBlock = await Actions.block.getNumber(client, { cacheTime: 0 })
     const item = z.RpcSchema.parseItem(z.RpcSchema.Eth, 'eth_newFilter')
     const id = await client.request({

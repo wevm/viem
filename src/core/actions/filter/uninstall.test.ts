@@ -17,7 +17,7 @@ test('default: uninstalls a block filter', async () => {
 test('behavior: install → changes → uninstall round-trip', async () => {
   const filter = await Actions.block.createFilter(client)
 
-  await Actions.test.block.mine(client, { blocks: 1 })
+  await Actions.block.mine(client, { blocks: 1 })
   const changes = await Actions.filter.getChanges(client, { filter })
   expect(changes.length).toBe(1)
 

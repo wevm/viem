@@ -93,7 +93,7 @@ describe('transferSync: from (allowance)', () => {
       spender,
       amount: { formatted: '750' },
     })
-    await Actions.test.block.mine(client, { blocks: 1 })
+    await Actions.block.mine(client, { blocks: 1 })
 
     const { receipt, ...args } = await transferSync(client, {
       account: spender,

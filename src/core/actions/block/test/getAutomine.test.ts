@@ -13,7 +13,7 @@ test('returns the automine status', async () => {
 })
 
 test('ganache uses eth_mining', async () => {
-  await Actions.test.block
+  await Actions.block
     .getAutomine(client, { mode: 'ganache' })
     .catch(() => {})
 })

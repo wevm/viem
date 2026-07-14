@@ -17,7 +17,7 @@ import { request } from '../internal/test/request.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const state = await Actions.test.state.dump(client)
+ * const state = await Actions.state.dump(client)
  * ```
  */
 export async function dump(

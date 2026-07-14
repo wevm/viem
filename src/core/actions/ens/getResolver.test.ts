@@ -13,7 +13,7 @@ const client = Client.create({
 })
 
 beforeAll(async () => {
-  await Actions.test.state.reset(client, {
+  await Actions.state.reset(client, {
     blockNumber: 23_085_558n,
     jsonRpcUrl: anvil.mainnet.forkUrl,
   })

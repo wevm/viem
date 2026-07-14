@@ -17,18 +17,18 @@ const clientWithoutChain = Client.create({
 const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 
 beforeAll(async () => {
-  await CoreActions.test.state.reset(client, {
+  await CoreActions.state.reset(client, {
     blockNumber: 18_136_086n,
     jsonRpcUrl: anvil.mainnet.forkUrl,
   })
-  await CoreActions.test.address.setBalance(client, {
+  await CoreActions.address.setBalance(client, {
     address: constants.accounts[0].address,
     value: Value.fromEther('10000'),
   })
 }, 30_000)
 
 async function getDeposit(hash: Hex.Hex) {
-  await CoreActions.test.block.mine(client, { blocks: 1 })
+  await CoreActions.block.mine(client, { blocks: 1 })
   const receipt = await CoreActions.transaction.getReceipt(client, { hash })
   const [log] = Deposit.extractTransactionDepositedLogs({
     logs: receipt.logs,

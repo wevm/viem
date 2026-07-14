@@ -14,7 +14,7 @@ test('sets the mining interval', async () => {
 })
 
 test('hardhat scales the interval by 1000', async () => {
-  await Actions.test.block
+  await Actions.block
     .setIntervalMining(client, { interval: 0, mode: 'hardhat' })
     .catch(() => {})
 })
