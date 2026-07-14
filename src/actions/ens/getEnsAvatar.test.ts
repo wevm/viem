@@ -1,9 +1,9 @@
-import { beforeAll, describe, expect, test } from 'vitest'
+import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
 import { ensPublicResolverConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { address } from '~test/constants.js'
-import { deployEnsAvatarTokenUri } from '~test/utils.js'
+import { createHttpServer, deployEnsAvatarTokenUri } from '~test/utils.js'
 
 import { namehash } from '../../utils/ens/namehash.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'
@@ -14,7 +14,25 @@ import { getEnsAvatar } from './getEnsAvatar.js'
 
 const client = anvilMainnet.getClient()
 
+const ipfsContentTypes = {
+  QmNpHFmk4GbJxDon2r2soYpwmrKaz1s6QfGMnBJtjA2ESd: 'application/json',
+  Qma8mnp6xV3J2cRNf3mTth5C8nV11CAnceVinc3y8jSbio: 'image/png',
+  QmbUCe7JMPsG39FRaLaJ9VwSKrE74PzEb1s4DKuEkARepS: 'image/png',
+} as const
+
+let ipfsGateway: Awaited<ReturnType<typeof createHttpServer>>
+
 beforeAll(async () => {
+  ipfsGateway = await createHttpServer((req, res) => {
+    const contentType = Object.entries(ipfsContentTypes).find(([hash]) =>
+      req.url?.includes(hash),
+    )?.[1]
+    res.writeHead(200, {
+      'Content-Type': contentType ?? 'text/plain',
+    })
+    res.end()
+  })
+
   await impersonateAccount(client, {
     address: address.vitalik,
   })
@@ -23,6 +41,8 @@ beforeAll(async () => {
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
 })
+
+afterAll(() => ipfsGateway.close())
 
 test.each([
   {
@@ -94,12 +114,15 @@ test.each([
     expected: null,
   },
 ])('$record -> $expected', async ({ record, expected }) => {
+  const expected_ =
+    expected?.replace('https://ipfs.io', ipfsGateway.url) ?? expected
   await setEnsAvatar(record)
   await expect(
     getEnsAvatar(client, {
+      assetGatewayUrls: { ipfs: ipfsGateway.url },
       name: 'vitalik.eth',
     }),
-  ).resolves.toEqual(expected)
+  ).resolves.toEqual(expected_)
 })
 
 describe('eip155:1 string (erc721)', () => {
@@ -146,13 +169,16 @@ describe('eip155:1 string (erc721)', () => {
       expected: null,
     },
   ])('$tokenId -> $expected', async ({ tokenId, expected }) => {
+    const expected_ =
+      expected?.replace('https://ipfs.io', ipfsGateway.url) ?? expected
     const { contractAddress } = await deployEnsAvatarTokenUri()
     await setEnsAvatar(`eip155:1/erc721:${contractAddress}/${tokenId}`)
     await expect(
       getEnsAvatar(client, {
+        assetGatewayUrls: { ipfs: ipfsGateway.url },
         name: 'vitalik.eth',
       }),
-    ).resolves.toEqual(expected)
+    ).resolves.toEqual(expected_)
   })
 })
 
@@ -171,13 +197,14 @@ describe('args: gateways', async () => {
         'http://ipfs.fleek.co/ipfs/Qma8mnp6xV3J2cRNf3mTth5C8nV11CAnceVinc3y8jSbio',
     },
   ])('$record -> $expected', async ({ record, expected }) => {
+    const expected_ = expected.replace('http://ipfs.fleek.co', ipfsGateway.url)
     await setEnsAvatar(record)
     await expect(
       getEnsAvatar(client, {
         name: 'vitalik.eth',
-        assetGatewayUrls: { ipfs: 'http://ipfs.fleek.co' },
+        assetGatewayUrls: { ipfs: ipfsGateway.url },
       }),
-    ).resolves.toEqual(expected)
+    ).resolves.toEqual(expected_)
   })
 })
 
