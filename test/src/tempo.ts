@@ -290,7 +290,7 @@ async function startZone(options: DefineZoneOptions): Promise<StartedZone> {
 
 /** Creates the pooled Tempo node server (Dockerized via testcontainers). */
 export function createServer(options: { limit: number }) {
-  const tag = process.env.VITE_TEMPO_TAG ?? 'sha-e828ab7'
+  const tag = process.env.VITE_TEMPO_TAG ?? 'latest'
   return Server.create({
     instance: TestContainers.Instance.tempo({
       // Match Tempo's production cadence when Zone consumes every L1 block.

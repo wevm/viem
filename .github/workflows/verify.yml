@@ -133,7 +133,7 @@ jobs:
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
           VITE_SHARD_ID: ${{ matrix.shard }}
           VITE_TEMPO_ENV: localnet
-          VITE_TEMPO_TAG: sha-e828ab7
+          VITE_TEMPO_TAG: latest
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
@@ -197,7 +197,7 @@ jobs:
         env:
           CI: true
           VITE_TEMPO_ENV: localnet
-          VITE_TEMPO_TAG: sha-e828ab7
+          VITE_TEMPO_TAG: latest
           VITE_TEMPO_ZONES: 'true'
           VITE_TEMPO_ZONE_TAG: latest
 
