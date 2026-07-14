@@ -1,8 +1,10 @@
 import * as Chain from '../../core/Chain.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 1 // mainnet
 
 export const megaeth = /*#__PURE__*/ Chain.from({
+  ...chainConfig,
   id: 4326,
   blockTime: 1_000,
   name: 'MegaETH',
@@ -30,6 +32,7 @@ export const megaeth = /*#__PURE__*/ Chain.from({
     },
   },
   contracts: {
+    ...chainConfig.contracts,
     disputeGameFactory: {
       [sourceId]: {
         address: '0x8546840adF796875cD9AAcc5B3B048f6B2c9D563',

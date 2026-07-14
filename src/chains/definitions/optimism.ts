@@ -1,8 +1,10 @@
 import * as Chain from '../../core/Chain.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 1 // mainnet
 
 export const optimism = /*#__PURE__*/ Chain.from({
+  ...chainConfig,
   id: 10,
   name: 'OP Mainnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
@@ -19,6 +21,7 @@ export const optimism = /*#__PURE__*/ Chain.from({
     },
   },
   contracts: {
+    ...chainConfig.contracts,
     disputeGameFactory: {
       [sourceId]: {
         address: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',

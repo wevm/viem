@@ -1,0 +1,324 @@
+import { beforeAll, expect, test } from 'vitest'
+
+import * as anvil from '~test/anvil.js'
+import * as constants from '~test/constants.js'
+import { Account, Actions as CoreActions, Client, http } from 'viem'
+import { base, mainnet, optimism } from 'viem/chains'
+import { Value } from 'viem/utils'
+import { Actions } from 'viem/op-stack'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(anvil.mainnet.rpcUrl.http),
+})
+const clientWithAccount = Client.create({
+  account: constants.accounts[0].address,
+  chain: mainnet,
+  transport: http(anvil.mainnet.rpcUrl.http),
+})
+const optimismClient = Client.create({
+  chain: optimism,
+  transport: http(anvil.optimism.rpcUrl.http),
+})
+const optimismClientWithoutChain = Client.create({
+  transport: http(anvil.optimism.rpcUrl.http),
+})
+const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
+
+beforeAll(async () => {
+  if (process.env.SKIP_GLOBAL_SETUP) return
+
+  await Promise.all([
+    CoreActions.test.state.reset(client, {
+      blockNumber: anvil.mainnet.forkBlockNumber,
+      jsonRpcUrl: anvil.mainnet.forkUrl,
+    }),
+    CoreActions.test.state.reset(optimismClient, {
+      blockNumber: anvil.optimism.forkBlockNumber,
+      jsonRpcUrl: optimism.rpcUrls.default.http[0],
+    }),
+  ])
+  await Promise.all(
+    constants.accounts.map(({ address }) =>
+      CoreActions.test.address.setCode(client, { address, bytecode: '0x' }),
+    ),
+  )
+}, 60_000)
+
+liveTest('default', { timeout: 60_000 }, async () => {
+  const result = await Actions.l2.buildDepositTransaction(optimismClient, {
+    to: constants.accounts[1].address,
+  })
+  const { targetChain, ...rest } = result
+  expect({ targetChainId: targetChain?.id, ...rest }).toMatchInlineSnapshot(`
+    {
+      "account": undefined,
+      "request": {
+        "data": undefined,
+        "gas": 23660n,
+        "isCreation": undefined,
+        "mint": undefined,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "value": undefined,
+      },
+      "targetChainId": 10,
+    }
+  `)
+
+  const hash = await Actions.l1.depositTransaction(clientWithAccount, result)
+  expect(hash).toMatch(/^0x[\da-f]{64}$/)
+})
+
+liveTest('args: account', async () => {
+  const result = await Actions.l2.buildDepositTransaction(optimismClient, {
+    account: constants.accounts[0].address,
+    to: constants.accounts[1].address,
+  })
+  const { targetChain, ...rest } = result
+  expect({ targetChainId: targetChain?.id, ...rest }).toMatchInlineSnapshot(`
+    {
+      "account": {
+        "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "type": "json-rpc",
+      },
+      "request": {
+        "data": undefined,
+        "gas": 23660n,
+        "isCreation": undefined,
+        "mint": undefined,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "value": undefined,
+      },
+      "targetChainId": 10,
+    }
+  `)
+
+  const hash = await Actions.l1.depositTransaction(client, result)
+  expect(hash).toMatch(/^0x[\da-f]{64}$/)
+})
+
+liveTest('args: local account', async () => {
+  const account = Account.fromPrivateKey(constants.accounts[0].privateKey)
+  const result = await Actions.l2.buildDepositTransaction(optimismClient, {
+    account,
+    to: constants.accounts[1].address,
+  })
+  const { targetChain, ...rest } = result
+  expect({ targetChainId: targetChain?.id, ...rest }).toMatchInlineSnapshot(`
+    {
+      "account": {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "keyType": "secp256k1",
+        "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+        "sign": [Function],
+        "signAuthorization": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "type": "local",
+      },
+      "request": {
+        "data": undefined,
+        "gas": 23660n,
+        "isCreation": undefined,
+        "mint": undefined,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "value": undefined,
+      },
+      "targetChainId": 10,
+    }
+  `)
+
+  const hash = await Actions.l1.depositTransaction(client, result)
+  expect(hash).toMatch(/^0x[\da-f]{64}$/)
+})
+
+liveTest('args: chain', async () => {
+  const result = await Actions.l2.buildDepositTransaction(
+    optimismClientWithoutChain,
+    {
+      account: constants.accounts[0].address,
+      chain: base,
+      to: constants.accounts[1].address,
+    },
+  )
+  const { targetChain, ...rest } = result
+  expect({ targetChainId: targetChain?.id, ...rest }).toMatchInlineSnapshot(`
+    {
+      "account": {
+        "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "type": "json-rpc",
+      },
+      "request": {
+        "data": undefined,
+        "gas": 23660n,
+        "isCreation": undefined,
+        "mint": undefined,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "value": undefined,
+      },
+      "targetChainId": 8453,
+    }
+  `)
+
+  const hash = await Actions.l1.depositTransaction(client, result)
+  expect(hash).toMatch(/^0x[\da-f]{64}$/)
+})
+
+liveTest('args: data', async () => {
+  const result = await Actions.l2.buildDepositTransaction(optimismClient, {
+    account: constants.accounts[0].address,
+    data: '0xdeadbeef',
+    to: constants.accounts[1].address,
+  })
+  const { targetChain, ...rest } = result
+  expect({ targetChainId: targetChain?.id, ...rest }).toMatchInlineSnapshot(`
+    {
+      "account": {
+        "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "type": "json-rpc",
+      },
+      "request": {
+        "data": "0xdeadbeef",
+        "gas": 23838n,
+        "isCreation": undefined,
+        "mint": undefined,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "value": undefined,
+      },
+      "targetChainId": 10,
+    }
+  `)
+
+  const hash = await Actions.l1.depositTransaction(client, result)
+  expect(hash).toMatch(/^0x[\da-f]{64}$/)
+})
+
+liveTest('args: gas', async () => {
+  const result = await Actions.l2.buildDepositTransaction(optimismClient, {
+    account: constants.accounts[0].address,
+    gas: 100_000n,
+    to: constants.accounts[1].address,
+  })
+  const { targetChain, ...rest } = result
+  expect({ targetChainId: targetChain?.id, ...rest }).toMatchInlineSnapshot(`
+    {
+      "account": {
+        "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "type": "json-rpc",
+      },
+      "request": {
+        "data": undefined,
+        "gas": 100000n,
+        "isCreation": undefined,
+        "mint": undefined,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "value": undefined,
+      },
+      "targetChainId": 10,
+    }
+  `)
+
+  const hash = await Actions.l1.depositTransaction(client, result)
+  expect(hash).toMatch(/^0x[\da-f]{64}$/)
+})
+
+liveTest('args: isCreation', async () => {
+  const result = await Actions.l2.buildDepositTransaction(optimismClient, {
+    account: constants.accounts[0].address,
+    data: '0x60006000f3',
+    isCreation: true,
+  })
+  const { targetChain, ...rest } = result
+  expect({ targetChainId: targetChain?.id, ...rest }).toMatchInlineSnapshot(`
+    {
+      "account": {
+        "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "type": "json-rpc",
+      },
+      "request": {
+        "data": "0x60006000f3",
+        "gas": 53064n,
+        "isCreation": true,
+        "mint": undefined,
+        "to": undefined,
+        "value": undefined,
+      },
+      "targetChainId": 10,
+    }
+  `)
+
+  const hash = await Actions.l1.depositTransaction(client, result)
+  expect(hash).toMatch(/^0x[\da-f]{64}$/)
+})
+
+liveTest('args: mint', async () => {
+  const result = await Actions.l2.buildDepositTransaction(optimismClient, {
+    account: constants.accounts[0].address,
+    mint: Value.fromEther('1'),
+    to: constants.accounts[1].address,
+  })
+  const { targetChain, ...rest } = result
+  expect({ targetChainId: targetChain?.id, ...rest }).toMatchInlineSnapshot(`
+    {
+      "account": {
+        "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "type": "json-rpc",
+      },
+      "request": {
+        "data": undefined,
+        "gas": 23660n,
+        "isCreation": undefined,
+        "mint": 1000000000000000000n,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "value": undefined,
+      },
+      "targetChainId": 10,
+    }
+  `)
+
+  const hash = await Actions.l1.depositTransaction(client, result)
+  expect(hash).toMatch(/^0x[\da-f]{64}$/)
+})
+
+liveTest('args: value', async () => {
+  const result = await Actions.l2.buildDepositTransaction(optimismClient, {
+    account: constants.accounts[0].address,
+    to: constants.accounts[1].address,
+    value: Value.fromEther('1'),
+  })
+  const { targetChain, ...rest } = result
+  expect({ targetChainId: targetChain?.id, ...rest }).toMatchInlineSnapshot(`
+    {
+      "account": {
+        "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "type": "json-rpc",
+      },
+      "request": {
+        "data": undefined,
+        "gas": 32646n,
+        "isCreation": undefined,
+        "mint": undefined,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "value": 1000000000000000000n,
+      },
+      "targetChainId": 10,
+    }
+  `)
+
+  const hash = await Actions.l1.depositTransaction(client, result)
+  expect(hash).toMatch(/^0x[\da-f]{64}$/)
+})
+
+test('errors: invalid account', async () => {
+  await expect(
+    Actions.l2.buildDepositTransaction(optimismClient, {
+      account: '0x1',
+      to: constants.accounts[1].address,
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [Address.InvalidAddressError: Address "0x1" is invalid.
+
+    Details: Address is not a 20 byte (40 hexadecimal character) value.]
+  `)
+})

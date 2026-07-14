@@ -1,8 +1,10 @@
 import * as Chain from '../../core/Chain.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 97 // bsc testnet
 
 export const opBNBTestnet = /*#__PURE__*/ Chain.from({
+  ...chainConfig,
   id: 5611,
   name: 'opBNB Testnet',
   nativeCurrency: {
@@ -20,6 +22,7 @@ export const opBNBTestnet = /*#__PURE__*/ Chain.from({
     },
   },
   contracts: {
+    ...chainConfig.contracts,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 3705108,

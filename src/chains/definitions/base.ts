@@ -1,8 +1,10 @@
 import * as Chain from '../../core/Chain.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 1 // mainnet
 
 export const base = /*#__PURE__*/ Chain.from({
+  ...chainConfig,
   id: 8453,
   name: 'Base',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
@@ -19,6 +21,7 @@ export const base = /*#__PURE__*/ Chain.from({
     },
   },
   contracts: {
+    ...chainConfig.contracts,
     disputeGameFactory: {
       [sourceId]: {
         address: '0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e',

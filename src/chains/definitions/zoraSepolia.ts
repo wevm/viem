@@ -1,8 +1,10 @@
 import * as Chain from '../../core/Chain.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 11_155_111 // sepolia
 
 export const zoraSepolia = /*#__PURE__*/ Chain.from({
+  ...chainConfig,
   id: 999999999,
   name: 'Zora Sepolia',
   nativeCurrency: {
@@ -24,6 +26,7 @@ export const zoraSepolia = /*#__PURE__*/ Chain.from({
     },
   },
   contracts: {
+    ...chainConfig.contracts,
     l2OutputOracle: {
       [sourceId]: {
         address: '0x2615B481Bd3E5A1C0C7Ca3Da1bdc663E8615Ade9',

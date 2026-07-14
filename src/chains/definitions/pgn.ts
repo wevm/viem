@@ -1,8 +1,10 @@
 import * as Chain from '../../core/Chain.js'
+import { codecs } from '../../op-stack/chainConfig.js'
 
 const sourceId = 1 // mainnet
 
 export const pgn = /*#__PURE__*/ Chain.from({
+  codecs,
   id: 424,
   name: 'PGN',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },

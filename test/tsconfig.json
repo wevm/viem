@@ -33,6 +33,9 @@
       "viem/node": [
         "../src/node/index.ts"
       ],
+      "viem/op-stack": [
+        "../src/op-stack/index.ts"
+      ],
       "viem/tempo": [
         "../src/tempo/index.ts"
       ],

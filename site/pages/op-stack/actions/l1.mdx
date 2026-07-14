@@ -1,0 +1,95 @@
+---
+description: Call OP Stack portal, output, and dispute-game actions through an L1 Viem Client.
+---
+
+# L1 Actions
+
+## Overview
+
+`Actions.l1` contains standalone actions that read and write OP Stack contracts on L1. Most actions accept `targetChain`, an OP Stack chain imported from `viem/chains`, to resolve the corresponding portal, output oracle, and dispute game factory addresses.
+
+Use these actions directly or bind the same methods under `client.opStack` with [`opStackL1Actions()`](/op-stack/client).
+
+## Recipes
+
+### Read Recent Dispute Games
+
+Pass the OP Stack L2 as `targetChain` while the Client remains connected to its L1.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+import { Actions } from 'viem/op-stack'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+
+const games = await Actions.l1.getGames(client, {
+  targetChain: optimism, // [!code focus]
+})
+// @log: []
+```
+
+### Estimate a Deposit
+
+Estimate the L1 gas required to submit a prepared L2 deposit request.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+import { Actions } from 'viem/op-stack'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const gas = await Actions.l1.estimateDepositTransactionGas(client, {
+  account: '0x0000000000000000000000000000000000000001',
+  request: { // [!code focus]
+    gas: 21_000n,
+    mint: 1n,
+    to: '0x0000000000000000000000000000000000000001',
+  }, // [!code focus]
+  targetChain: optimism, // [!code focus]
+})
+// @log: 72483n
+```
+
+## Action Catalog
+
+### Deposits
+
+| Action | Purpose |
+| --- | --- |
+| `Actions.l1.depositTransaction` | Submits a deposit through the L1 portal. |
+| `Actions.l1.estimateDepositTransactionGas` | Estimates the L1 gas for a portal deposit. |
+
+### Withdrawals
+
+| Action | Purpose |
+| --- | --- |
+| `Actions.l1.buildInitiateWithdrawal` | Prepares the request later submitted to the L2 message passer. |
+| `Actions.l1.estimateFinalizeWithdrawalGas` | Estimates gas for withdrawal finalization. |
+| `Actions.l1.estimateProveWithdrawalGas` | Estimates gas for a withdrawal proof. |
+| `Actions.l1.finalizeWithdrawal` | Finalizes a proven withdrawal. |
+| `Actions.l1.getTimeToFinalize` | Returns the remaining finalization delay. |
+| `Actions.l1.getTimeToProve` | Returns the remaining delay before proving. |
+| `Actions.l1.getWithdrawalStatus` | Returns the current withdrawal lifecycle state. |
+| `Actions.l1.proveWithdrawal` | Submits a withdrawal proof. |
+| `Actions.l1.waitToFinalize` | Waits until a withdrawal can be finalized. |
+| `Actions.l1.waitToProve` | Waits for a covering output or dispute game. |
+
+### Outputs and Dispute Games
+
+| Action | Purpose |
+| --- | --- |
+| `Actions.l1.getGame` | Finds the respected dispute game covering an L2 position. |
+| `Actions.l1.getGames` | Reads recent respected dispute games. |
+| `Actions.l1.getL2Output` | Reads the legacy output covering an L2 block. |
+| `Actions.l1.getPortalVersion` | Reads the Optimism Portal semantic version. |
+| `Actions.l1.getTimeToNextGame` | Estimates when the next dispute game is expected. |
+| `Actions.l1.getTimeToNextL2Output` | Estimates when the next legacy output is expected. |
+| `Actions.l1.waitForNextGame` | Waits for a dispute game covering an L2 position. |
+| `Actions.l1.waitForNextL2Output` | Waits for a legacy output covering an L2 block. |
+
+L1 actions can use explicit contract address options instead of `targetChain` when integrating a custom deployment.

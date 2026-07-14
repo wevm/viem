@@ -1,8 +1,10 @@
 import * as Chain from '../../core/Chain.js'
+import { codecs } from '../../op-stack/chainConfig.js'
 
 const sourceId = 11_155_111 // sepolia
 
 export const pgnTestnet = /*#__PURE__*/ Chain.from({
+  codecs,
   id: 58008,
   name: 'PGN',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },

@@ -1,0 +1,118 @@
+---
+description: Extend Viem Clients with OP Stack L1 or L2 actions.
+---
+
+# Client Decorators
+
+## Overview
+
+The OP Stack extension provides separate decorators for L1 and L2 Clients. Both attach their methods under `client.opStack`, keeping extension actions separate from core Viem actions.
+
+Use `opStackL1Actions()` with the L1 Client that reads and writes portal contracts. Use `opStackL2Actions()` with the OP Stack L2 Client that estimates fees, builds deposits and proofs, and initiates withdrawals.
+
+## Recipes
+
+### Extend an L1 Client
+
+Create an Ethereum Client and extend it with `opStackL1Actions()`. L1 actions that resolve bridge contracts accept the target OP Stack chain.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+import { opStackL1Actions } from 'viem/op-stack'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(opStackL1Actions()) // [!code focus]
+
+const games = await client.opStack.getGames({ // [!code focus]
+  targetChain: optimism, // [!code focus]
+}) // [!code focus]
+// @log: []
+```
+
+### Extend an L2 Client
+
+Use an OP Stack chain from `viem/chains` so the Client can decode OP-specific blocks, transactions, and receipts.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { base } from 'viem/chains'
+import { opStackL2Actions } from 'viem/op-stack'
+
+const client = Client.create({
+  chain: base, // [!code focus]
+  transport: http(),
+}).extend(opStackL2Actions()) // [!code focus]
+
+const fee = await client.opStack.estimateL1Fee({
+  to: '0x0000000000000000000000000000000000000000',
+  value: 1n,
+})
+// @log: 204276000000n
+```
+
+### Use Standalone Actions
+
+Decorators are optional. Call the same implementation through the `Actions` namespace when a Client should remain undecorated.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { optimism } from 'viem/chains'
+import { Actions } from 'viem/op-stack'
+
+const client = Client.create({
+  chain: optimism,
+  transport: http(),
+})
+
+const fee = await Actions.l2.getL1BaseFee(client) // [!code focus]
+// @log: 35229945916n
+```
+
+## `opStackL1Actions`
+
+Creates the OP Stack L1 decorator.
+
+### Usage
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { opStackL1Actions } from 'viem/op-stack'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(opStackL1Actions())
+```
+
+### Return Value
+
+`OpStackL1Actions`
+
+An extension that binds L1 actions under `client.opStack`.
+
+## `opStackL2Actions`
+
+Creates the OP Stack L2 decorator.
+
+### Usage
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { optimism } from 'viem/chains'
+import { opStackL2Actions } from 'viem/op-stack'
+
+const client = Client.create({
+  chain: optimism,
+  transport: http(),
+}).extend(opStackL2Actions())
+```
+
+### Return Value
+
+`OpStackL2Actions`
+
+An extension that binds L2 actions under `client.opStack`.

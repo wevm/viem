@@ -1,0 +1,158 @@
+---
+description: Initiate, prove, and finalize an OP Stack withdrawal from L2 to L1.
+---
+
+# Withdrawals
+
+## Overview
+
+An OP Stack withdrawal moves from L2 to L1 through three transactions: initiate on L2, prove on L1 after a covering output or dispute game is available, then finalize on L1 after the finalization delay.
+
+The L2 message passer emits a `MessagePassed` event when a withdrawal is initiated. The `Withdrawal` namespace extracts its typed data, while the L1 and L2 action namespaces coordinate the proof and finalization lifecycle.
+
+## Recipes
+
+These recipes use OP Mainnet as the target L2. The waiting actions use the portal version to support both legacy output proposals and fault-proof dispute games.
+
+### Initiate a Withdrawal
+
+Build the withdrawal request through the L1 Client, then submit it to the L2 message passer.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+import {
+  opStackL1Actions,
+  opStackL2Actions,
+} from 'viem/op-stack'
+import { Value } from 'viem/utils'
+
+const account = '0x0000000000000000000000000000000000000001'
+
+const l1Client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(opStackL1Actions())
+
+const l2Client = Client.create({
+  account,
+  chain: optimism,
+  transport: http(),
+}).extend(opStackL2Actions())
+
+const { request } = await l1Client.opStack.buildInitiateWithdrawal({
+  account,
+  to: account, // [!code focus]
+  value: Value.fromEther('1'), // [!code focus]
+})
+
+const hash = await l2Client.opStack.initiateWithdrawal({
+  request, // [!code focus]
+})
+// @log: 0xf8e81c7d...
+```
+
+### Prove and Finalize a Withdrawal
+
+Wait for a covering output or dispute game, build the storage proof on L2, submit it on L1, then wait through the finalization period.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+import { opStackL1Actions, opStackL2Actions } from 'viem/op-stack'
+
+const account = '0x0000000000000000000000000000000000000001'
+const withdrawalHash =
+  '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
+
+const l1Client = Client.create({
+  account,
+  chain: mainnet,
+  transport: http(),
+}).extend(opStackL1Actions())
+
+const l2Client = Client.create({
+  chain: optimism,
+  transport: http(),
+}).extend(opStackL2Actions())
+
+const { receipt: receiptPromise } = Actions.transaction.waitForReceipt(l2Client, {
+  hash: withdrawalHash,
+})
+const receipt = await receiptPromise
+
+const { game, withdrawal } = await l1Client.opStack.waitToProve({
+  receipt, // [!code focus]
+  targetChain: optimism, // [!code focus]
+})
+
+const proof = await l2Client.opStack.buildProveWithdrawal({
+  game, // [!code focus]
+  withdrawal, // [!code focus]
+})
+
+await l1Client.opStack.proveWithdrawal({
+  ...proof,
+  targetChain: optimism,
+})
+
+await l1Client.opStack.waitToFinalize({
+  targetChain: optimism,
+  withdrawalHash: withdrawal.withdrawalHash,
+})
+
+const finalizeHash = await l1Client.opStack.finalizeWithdrawal({
+  targetChain: optimism,
+  withdrawal,
+})
+// @log: 0x9b47d3fa...
+```
+
+### Read the Withdrawal Status
+
+Use the L2 receipt while following a withdrawal, or provide the sender, withdrawal hash, and L2 block number after persisting those values.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+import { Actions as OpStackActions } from 'viem/op-stack'
+
+const l1Client = Client.create({ chain: mainnet, transport: http() })
+const l2Client = Client.create({ chain: optimism, transport: http() })
+const { receipt: receiptPromise } = Actions.transaction.waitForReceipt(l2Client, {
+  hash: '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+})
+const receipt = await receiptPromise
+
+const status = await OpStackActions.l1.getWithdrawalStatus(l1Client, {
+  receipt, // [!code focus]
+  targetChain: optimism, // [!code focus]
+})
+// @log: waiting-to-prove
+```
+
+## `Withdrawal`
+
+The `Withdrawal` namespace models initiated withdrawals and decodes message passer events.
+
+### Functions
+
+| Function | Purpose |
+| --- | --- |
+| `Withdrawal.extractWithdrawalMessageLogs` | Extracts typed `MessagePassed` events from L2 logs. |
+| `Withdrawal.getWithdrawalHashStorageSlot` | Computes the message passer storage slot for a withdrawal hash. |
+| `Withdrawal.getWithdrawals` | Extracts withdrawal objects from L2 receipt logs. |
+
+### Types
+
+| Type | Purpose |
+| --- | --- |
+| `Withdrawal.Request` | Describes the request submitted to the L2 message passer. |
+| `Withdrawal.Withdrawal` | Contains the canonical withdrawal fields and hash. |
+| `Withdrawal.MessagePassedLog` | Represents a decoded message passer event. |
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Withdrawal.ReceiptContainsNoWithdrawalsError` | The supplied L2 receipt contains no withdrawal events. |

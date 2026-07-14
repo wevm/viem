@@ -1,0 +1,62 @@
+---
+description: Build applications for OP Stack chains with Viem's chain codecs, actions, and deposit and withdrawal primitives.
+---
+
+import { Card, Cards } from 'vocs'
+
+# OP Stack
+
+## Overview
+
+The OP Stack extension adds cross-layer actions, OP-specific transaction and receipt codecs, deposit envelopes, and withdrawal primitives to Viem. Use it when an application reads from or writes to an OP Stack chain such as OP Mainnet, Base, or Zora.
+
+Import the L2 chain from [`viem/chains`](/docs/chains). Its definition includes the OP Stack codecs, predeploy addresses, block time, and L1 contract metadata used by the extension.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { optimism } from 'viem/chains'
+import { opStackL2Actions } from 'viem/op-stack'
+
+const client = Client.create({
+  chain: optimism,
+  transport: http(),
+}).extend(opStackL2Actions())
+
+const l1BaseFee = await client.opStack.getL1BaseFee()
+// @log: 35229945916n
+```
+
+The extension keeps L1 and L2 behavior explicit. [`Actions.l1`](/op-stack/actions/l1) operates through an L1 Client and accepts a target OP Stack chain when contract metadata is needed. [`Actions.l2`](/op-stack/actions/l2) operates directly through an OP Stack L2 Client.
+
+<Cards>
+  <Card
+    title="Client Decorators"
+    description="Attach OP Stack actions under client.opStack."
+    icon="lucide:plug"
+    to="/op-stack/client"
+  />
+  <Card
+    title="Deposits"
+    description="Send transactions from L1 to an OP Stack L2."
+    icon="lucide:arrow-down-to-line"
+    to="/op-stack/deposits"
+  />
+  <Card
+    title="Withdrawals"
+    description="Initiate, prove, and finalize L2 withdrawals."
+    icon="lucide:arrow-up-from-line"
+    to="/op-stack/withdrawals"
+  />
+  <Card
+    title="L1 Actions"
+    description="Read and write OP Stack bridge contracts on L1."
+    icon="lucide:layers"
+    to="/op-stack/actions/l1"
+  />
+  <Card
+    title="L2 Actions"
+    description="Estimate fees and prepare bridge transactions on L2."
+    icon="lucide:layers"
+    to="/op-stack/actions/l2"
+  />
+</Cards>

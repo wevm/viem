@@ -1,8 +1,10 @@
 import * as Chain from '../../core/Chain.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 1 // mainnet
 
 export const lisk = /*#__PURE__*/ Chain.from({
+  ...chainConfig,
   id: 1135,
   name: 'Lisk',
   nativeCurrency: {
@@ -23,6 +25,7 @@ export const lisk = /*#__PURE__*/ Chain.from({
     },
   },
   contracts: {
+    ...chainConfig.contracts,
     disputeGameFactory: {
       [sourceId]: {
         address: '0x0CF7D3706a27CCE2017aEB11E8a9c8b5388c282C',

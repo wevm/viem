@@ -1,8 +1,10 @@
 import * as Chain from '../../core/Chain.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 17000 // holesky
 
 export const fraxtalTestnet = /*#__PURE__*/ Chain.from({
+  ...chainConfig,
   id: 2522,
   name: 'Fraxtal Testnet',
   nativeCurrency: { name: 'Frax', symbol: 'FRAX', decimals: 18 },
@@ -19,6 +21,7 @@ export const fraxtalTestnet = /*#__PURE__*/ Chain.from({
     },
   },
   contracts: {
+    ...chainConfig.contracts,
     l2OutputOracle: {
       [sourceId]: {
         address: '0x715EA64DA13F4d0831ece4Ad3E8c1aa013167F32',

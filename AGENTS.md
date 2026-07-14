@@ -97,6 +97,7 @@ For v3 rewrite work, also read `AGENTS.tmp.md`.
 ## Type Inference Conventions
 
 - **Preserve literals**; use `const` generics and narrow helper signatures when an API should preserve literal inputs.
+- **Builder outputs compose**; preserve account and chain override generics so builder results pass directly to their downstream actions.
 - **Type tests in `.test-d.ts`**; use Vitest's `expectTypeOf` in colocated `.test-d.ts` files to assert generic inference works. Type tests are first-class; write them alongside implementation. Run via `pnpm test:typecheck`.
 - **Snapshot inferred public types**; use type snapshots for migrated public surfaces.
 - **No `any` leakage**; user-facing callback, return, and option types should not leak `any` unless the surrounding API already intentionally does.
@@ -146,6 +147,7 @@ For v3 rewrite work, also read `AGENTS.tmp.md`.
 - **Decorator methods get JSDoc**; every method on a decorator's `Decorator` type gets JSDoc.
   - Use the same docs as the underlying action.
   - Rewrite examples for client-extension calls.
+- **JSDoc annotations**; include `@example`, `@param`, and `@returns` when appropriate.
 - **Examples should be small**; public examples should show the minimum useful shape and avoid unrelated setup.
 - **Source docs first**; public API documentation usually belongs in TSDoc near the exported source.
 - **Site pages**; human-written docs live under `site/pages/`.

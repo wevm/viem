@@ -1,8 +1,10 @@
 import * as Chain from '../../core/Chain.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 11_155_111 // sepolia
 
 export const modeTestnet = /*#__PURE__*/ Chain.from({
+  ...chainConfig,
   id: 919,
   name: 'Mode Testnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
@@ -19,6 +21,7 @@ export const modeTestnet = /*#__PURE__*/ Chain.from({
     },
   },
   contracts: {
+    ...chainConfig.contracts,
     l2OutputOracle: {
       [sourceId]: {
         address: '0x2634BD65ba27AB63811c74A63118ACb312701Bfa',

@@ -1,8 +1,10 @@
 import * as Chain from '../../core/Chain.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 1 // mainnet
 
 export const ancient8 = /*#__PURE__*/ Chain.from({
+  ...chainConfig,
   id: 888888888,
   name: 'Ancient8',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
@@ -19,6 +21,7 @@ export const ancient8 = /*#__PURE__*/ Chain.from({
     },
   },
   contracts: {
+    ...chainConfig.contracts,
     l2OutputOracle: {
       [sourceId]: {
         address: '0xB09DC08428C8b4EFB4ff9C0827386CDF34277996',

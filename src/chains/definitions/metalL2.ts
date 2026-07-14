@@ -1,8 +1,10 @@
 import * as Chain from '../../core/Chain.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 1 // mainnet
 
 export const metalL2 = /*#__PURE__*/ Chain.from({
+  ...chainConfig,
   id: 1750,
   name: 'Metal L2',
   nativeCurrency: {
@@ -24,6 +26,7 @@ export const metalL2 = /*#__PURE__*/ Chain.from({
     },
   },
   contracts: {
+    ...chainConfig.contracts,
     l2OutputOracle: {
       [sourceId]: {
         address: '0x3B1F7aDa0Fcc26B13515af752Dd07fB1CAc11426',

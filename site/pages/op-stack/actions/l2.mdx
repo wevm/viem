@@ -1,0 +1,104 @@
+---
+description: Estimate OP Stack fees and prepare deposits and withdrawals through an L2 Viem Client.
+---
+
+# L2 Actions
+
+## Overview
+
+`Actions.l2` contains standalone actions that run against an OP Stack L2. They prepare deposit and withdrawal data, build withdrawal proofs from L2 state, and estimate the L1 data, L2 execution, and operator components of a transaction.
+
+Use an OP Stack chain from `viem/chains` so the Client receives the correct codecs and predeploy addresses. Bind the same actions under `client.opStack` with [`opStackL2Actions()`](/op-stack/client).
+
+Operator and total-fee estimates require an Isthmus-compatible `GasPriceOracle.getOperatorFee` implementation. Older deployments reject instead of returning a guessed zero fee.
+
+## Recipes
+
+### Estimate Transaction Fees
+
+Estimate each fee component together with `estimateTotalFee`.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { base } from 'viem/chains'
+import { Actions } from 'viem/op-stack'
+
+const client = Client.create({
+  chain: base,
+  transport: http(),
+})
+
+const fee = await Actions.l2.estimateTotalFee(client, {
+  to: '0x0000000000000000000000000000000000000001', // [!code focus]
+  value: 1n, // [!code focus]
+})
+// @log: 2189746000000n
+```
+
+### Estimate a Contract Write
+
+Contract variants encode the function call before estimating its L1 or total cost.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { optimism } from 'viem/chains'
+import { Actions } from 'viem/op-stack'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: optimism, transport: http() })
+const abi = Abi.from(['function mint(address to, uint256 amount)'])
+
+const fee = await Actions.l2.estimateContractTotalFee(client, { // [!code focus]
+  abi, // [!code focus]
+  address: '0x0000000000000000000000000000000000000002', // [!code focus]
+  args: ['0x0000000000000000000000000000000000000001', 100n], // [!code focus]
+  functionName: 'mint', // [!code focus]
+}) // [!code focus]
+// @log: 2441018000000n
+```
+
+### Read the L1 Base Fee
+
+Read the L1 base fee currently reported by the L2 gas price oracle.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { optimism } from 'viem/chains'
+import { Actions } from 'viem/op-stack'
+
+const client = Client.create({ chain: optimism, transport: http() })
+
+const l1BaseFee = await Actions.l2.getL1BaseFee(client) // [!code focus]
+// @log: 35229945916n
+```
+
+## Action Catalog
+
+### Deposits and Withdrawals
+
+| Action | Purpose |
+| --- | --- |
+| `Actions.l2.buildDepositTransaction` | Prepares an L2 deposit request for submission on L1. |
+| `Actions.l2.buildProveWithdrawal` | Builds the L2 state proof needed on L1. |
+| `Actions.l2.estimateInitiateWithdrawalGas` | Estimates gas for the L2 withdrawal transaction. |
+| `Actions.l2.initiateWithdrawal` | Submits a request to the L2 message passer. |
+
+### Transaction Fees
+
+| Action | Purpose |
+| --- | --- |
+| `Actions.l2.estimateL1Fee` | Estimates the L1 data fee. |
+| `Actions.l2.estimateL1Gas` | Estimates the L1 data gas. |
+| `Actions.l2.estimateOperatorFee` | Estimates the OP Stack operator fee. |
+| `Actions.l2.estimateTotalFee` | Estimates L1 data, L2 execution, and operator fees. |
+| `Actions.l2.estimateTotalGas` | Estimates L1 data gas plus L2 execution gas. |
+| `Actions.l2.getL1BaseFee` | Reads the L1 base fee reported on L2. |
+
+### Contract Fees
+
+| Action | Purpose |
+| --- | --- |
+| `Actions.l2.estimateContractL1Fee` | Estimates the L1 data fee for a contract write. |
+| `Actions.l2.estimateContractL1Gas` | Estimates the L1 data gas for a contract write. |
+| `Actions.l2.estimateContractTotalFee` | Estimates the total fee for a contract write. |
+| `Actions.l2.estimateContractTotalGas` | Estimates the total gas for a contract write. |

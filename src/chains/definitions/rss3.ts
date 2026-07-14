@@ -1,8 +1,10 @@
 import * as Chain from '../../core/Chain.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 1 // mainnet
 
 export const rss3 = /*#__PURE__*/ Chain.from({
+  ...chainConfig,
   id: 12_553,
   name: 'RSS3 VSL Mainnet',
   nativeCurrency: { name: 'RSS3', symbol: 'RSS3', decimals: 18 },
@@ -19,6 +21,7 @@ export const rss3 = /*#__PURE__*/ Chain.from({
     },
   },
   contracts: {
+    ...chainConfig.contracts,
     l2OutputOracle: {
       [sourceId]: {
         address: '0xE6f24d2C32B3109B18ed33cF08eFb490b1e09C10',

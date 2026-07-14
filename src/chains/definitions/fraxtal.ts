@@ -1,8 +1,10 @@
 import * as Chain from '../../core/Chain.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 1 // mainnet
 
 export const fraxtal = /*#__PURE__*/ Chain.from({
+  ...chainConfig,
   id: 252,
   name: 'Fraxtal',
   nativeCurrency: { name: 'Frax', symbol: 'FRAX', decimals: 18 },
@@ -19,6 +21,7 @@ export const fraxtal = /*#__PURE__*/ Chain.from({
     },
   },
   contracts: {
+    ...chainConfig.contracts,
     l2OutputOracle: {
       [sourceId]: {
         address: '0x66CC916Ed5C6C2FA97014f7D1cD141528Ae171e4',

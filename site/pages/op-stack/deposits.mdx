@@ -1,0 +1,176 @@
+---
+description: Deposit ETH or contract calls from L1 onto an OP Stack L2 and inspect deposit transactions.
+---
+
+# Deposits
+
+## Overview
+
+An OP Stack deposit starts with a transaction to the Optimism Portal on L1. The portal emits a `TransactionDeposited` event, which the L2 derives into a deposit transaction with type `0x7e`.
+
+Viem exposes the cross-layer workflow through [`Actions.l2.buildDepositTransaction`](/op-stack/actions/l2) and [`Actions.l1.depositTransaction`](/op-stack/actions/l1). The `Deposit` namespace extracts deposit logs and derives L2 transaction hashes. `TxEnvelopeDeposit` handles the typed deposit envelope directly.
+
+## Recipes
+
+These recipes assume the sending account is available to the L1 Client.
+
+### Deposit ETH
+
+Prepare the L2 request through the L2 Client, then submit it through the L1 Client. Pass the L2 chain as `targetChain` so the L1 action resolves its portal address.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+import {
+  opStackL1Actions,
+  opStackL2Actions,
+} from 'viem/op-stack'
+import { Value } from 'viem/utils'
+
+const account = '0x0000000000000000000000000000000000000001'
+
+const l1Client = Client.create({
+  account,
+  chain: mainnet,
+  transport: http(),
+}).extend(opStackL1Actions())
+
+const l2Client = Client.create({
+  chain: optimism,
+  transport: http(),
+}).extend(opStackL2Actions())
+
+const { request } = await l2Client.opStack.buildDepositTransaction({
+  account,
+  mint: Value.fromEther('1'), // [!code focus]
+  to: account, // [!code focus]
+})
+
+const hash = await l1Client.opStack.depositTransaction({
+  request, // [!code focus]
+  targetChain: optimism, // [!code focus]
+})
+// @log: 0x2b6f0f5e...
+```
+
+### Find the L2 Transaction
+
+Derive every L2 transaction hash from the L1 receipt logs, then wait for each transaction on the L2.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { optimism } from 'viem/chains'
+import { Deposit } from 'viem/op-stack'
+
+const l1Client = Client.create({ transport: http('https://eth.example') })
+const l2Client = Client.create({
+  chain: optimism,
+  transport: http('https://optimism.example'),
+})
+
+const { receipt: receiptPromise } = Actions.transaction.waitForReceipt(l1Client, {
+  hash: '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+})
+const receipt = await receiptPromise
+
+const hashes = Deposit.getL2TransactionHashes({ // [!code focus]
+  logs: receipt.logs, // [!code focus]
+}) // [!code focus]
+
+const l2Receipts = await Promise.all(
+  hashes.map((hash) =>
+    Actions.transaction.waitForReceipt(l2Client, { hash }).receipt,
+  ),
+)
+```
+
+### Decode Deposit Event Data
+
+Decode the opaque portal event payload into the values carried by the L2 transaction.
+
+```ts twoslash
+import { Deposit } from 'viem/op-stack'
+
+const deposit = Deposit.opaqueDataToDepositData( // [!code focus]
+  '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000520800',
+) // [!code focus]
+// @log: { data: '0x', gas: 21000n, isCreation: false, mint: 0n, value: 1n }
+```
+
+### Compute an Upgrade Deposit Source Hash
+
+Upgrade deposits derive their source hash from a UTF-8 intent and the upgrade domain.
+
+```ts twoslash
+import { Deposit } from 'viem/op-stack'
+
+const sourceHash = Deposit.getSourceHash({ // [!code focus]
+  domain: 'upgradeDeposit', // [!code focus]
+  intent: 'Interop: CrossL2Inbox Proxy Update', // [!code focus]
+}) // [!code focus]
+// @log: 0x88c6b48354c367125a59792a93a7b60ad7cd66e516157dbba16558c68a46d3cb
+```
+
+### Serialize a Deposit Envelope
+
+Use `TxEnvelopeDeposit` when reading or writing the raw EIP-2718 envelope. OP Stack chain definitions call this serializer automatically for deposit envelopes.
+
+```ts twoslash
+import { TxEnvelopeDeposit } from 'viem/op-stack'
+
+const serialized = TxEnvelopeDeposit.serialize({ // [!code focus]
+  from: '0x0000000000000000000000000000000000000001',
+  gas: 21_000n,
+  mint: 1n,
+  sourceHash:
+    '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+  to: '0x0000000000000000000000000000000000000002',
+  type: 'deposit',
+  value: 1n,
+}) // [!code focus]
+
+const envelope = TxEnvelopeDeposit.deserialize(serialized) // [!code focus]
+```
+
+## `Deposit`
+
+The `Deposit` namespace contains the request type and helpers for portal deposit events.
+
+### Functions
+
+| Function | Purpose |
+| --- | --- |
+| `Deposit.extractTransactionDepositedLogs` | Extracts typed `TransactionDeposited` events from L1 logs. |
+| `Deposit.getL2TransactionHash` | Computes the derived L2 transaction hash for one deposit event. |
+| `Deposit.getL2TransactionHashes` | Extracts all deposit events and computes their L2 hashes. |
+| `Deposit.getSourceHash` | Computes the source hash for a user, L1 information, or upgrade deposit. |
+| `Deposit.opaqueDataToDepositData` | Decodes the opaque portal event payload. |
+
+### Types
+
+| Type | Purpose |
+| --- | --- |
+| `Deposit.Request` | Describes the L2 request submitted through the portal. |
+| `Deposit.TransactionDepositedLog` | Represents a decoded portal deposit event. |
+
+## `TxEnvelopeDeposit`
+
+The `TxEnvelopeDeposit` namespace models the OP Stack deposit transaction envelope.
+
+### Functions
+
+| Function | Purpose |
+| --- | --- |
+| `TxEnvelopeDeposit.assert` | Validates a deposit envelope. |
+| `TxEnvelopeDeposit.deserialize` | Parses a serialized type `0x7e` envelope. |
+| `TxEnvelopeDeposit.is` | Narrows an unknown value to a deposit envelope. |
+| `TxEnvelopeDeposit.serialize` | Serializes a deposit envelope with its `0x7e` type prefix. |
+
+### Constants and Types
+
+| Export | Purpose |
+| --- | --- |
+| `TxEnvelopeDeposit.serializedType` | The serialized transaction prefix, `0x7e`. |
+| `TxEnvelopeDeposit.type` | The native transaction discriminant, `deposit`. |
+| `TxEnvelopeDeposit.TxEnvelopeDeposit` | The native envelope shape. |
+| `TxEnvelopeDeposit.Serialized` | A serialized deposit transaction. |

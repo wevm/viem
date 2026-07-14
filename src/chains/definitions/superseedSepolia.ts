@@ -1,8 +1,10 @@
 import * as Chain from '../../core/Chain.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 11155111 // sepolia
 
 export const superseedSepolia = /*#__PURE__*/ Chain.from({
+  ...chainConfig,
   id: 53302,
   name: 'Superseed Sepolia',
   nativeCurrency: {
@@ -23,6 +25,7 @@ export const superseedSepolia = /*#__PURE__*/ Chain.from({
     },
   },
   contracts: {
+    ...chainConfig.contracts,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
     },

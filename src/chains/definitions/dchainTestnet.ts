@@ -1,6 +1,8 @@
 import * as Chain from '../../core/Chain.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 
 export const dchainTestnet = /*#__PURE__*/ Chain.from({
+  ...chainConfig,
   id: 2713017997578000,
   name: 'Dchain Testnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
@@ -19,6 +21,6 @@ export const dchainTestnet = /*#__PURE__*/ Chain.from({
         'https://api-dchaintestnet-2713017997578000-1.testnet.sagaexplorer.io/api',
     },
   },
-  contracts: {},
+  contracts: chainConfig.contracts,
   testnet: true,
 })

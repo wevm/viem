@@ -205,6 +205,19 @@ export const history = defineAnvil({
   port: Number(getEnv('VITE_ANVIL_PORT_HISTORY', '8745')),
 })
 
+/** Optimism fork for OP Stack codec and action tests. */
+export const optimism = defineAnvil({
+  chainId: 10,
+  forkBlockNumber: 147_000_000n,
+  forkUrl: getEnv(
+    'VITE_ANVIL_FORK_URL_OPTIMISM',
+    'https://mainnet.optimism.io',
+  ),
+  hardfork: 'Prague',
+  noMining: true,
+  port: Number(getEnv('VITE_ANVIL_PORT_OPTIMISM', '8845')),
+})
+
 function getEnv(key: string, fallback: string): string {
   if (typeof process.env[key] === 'string') return process.env[key] as string
   return fallback

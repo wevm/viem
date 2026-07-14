@@ -1,8 +1,10 @@
 import * as Chain from '../../core/Chain.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 11_155_111 // sepolia
 
 export const soneiumMinato = /*#__PURE__*/ Chain.from({
+  ...chainConfig,
   id: 1946,
   name: 'Soneium Minato Testnet',
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
@@ -19,6 +21,7 @@ export const soneiumMinato = /*#__PURE__*/ Chain.from({
     },
   },
   contracts: {
+    ...chainConfig.contracts,
     disputeGameFactory: {
       [sourceId]: {
         address: '0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01',

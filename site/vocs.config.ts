@@ -1257,6 +1257,19 @@ export default defineConfig({
       },
       { text: 'Migrate from v2', link: '/account-abstraction/migration' },
     ],
+    '/op-stack': [
+      { text: 'Overview', link: '/op-stack' },
+      { text: 'Client Decorators', link: '/op-stack/client' },
+      { text: 'Deposits', link: '/op-stack/deposits' },
+      { text: 'Withdrawals', link: '/op-stack/withdrawals' },
+      {
+        text: 'Actions',
+        items: [
+          { text: 'L1 Actions', link: '/op-stack/actions/l1' },
+          { text: 'L2 Actions', link: '/op-stack/actions/l2' },
+        ],
+      },
+    ],
     '/tempo': [
       { text: 'Getting Started', link: '/tempo' },
       { text: 'Chains', link: '/tempo/chains' },

@@ -1,8 +1,10 @@
 import * as Chain from '../../core/Chain.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 1 // mainnet
 
 export const zora = /*#__PURE__*/ Chain.from({
+  ...chainConfig,
   id: 7777777,
   name: 'Zora',
   nativeCurrency: {
@@ -24,6 +26,7 @@ export const zora = /*#__PURE__*/ Chain.from({
     },
   },
   contracts: {
+    ...chainConfig.contracts,
     disputeGameFactory: {
       [sourceId]: {
         address: '0xB0F15106fa1e473Ddb39790f197275BC979Aa37e',
