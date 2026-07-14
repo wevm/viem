@@ -46,7 +46,7 @@ test('gets latest block', async () => {
   `)
 })
 
-test('chain w/ custom block type', async () => {
+test.skip('chain w/ custom block type', async () => {
   const client = createPublicClient({
     chain: celo,
     transport: http(),

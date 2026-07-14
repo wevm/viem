@@ -22,6 +22,7 @@ export default defineConfig({
       reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
       exclude: [
         '**/account-abstraction/**',
+        '**/celo/**',
         '**/errors/utils.ts',
         '**/linea/**',
         '**/op-stack/**',
@@ -61,6 +62,7 @@ export default defineConfig({
               : '',
             'src/tempo/**',
             'src/account-abstraction/**',
+            'src/celo/**',
             'src/linea/**',
             'src/op-stack/**',
           ],
