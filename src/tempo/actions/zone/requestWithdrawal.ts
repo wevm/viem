@@ -159,7 +159,15 @@ export namespace requestWithdrawal {
     const to = to_ ?? (account ? getAddress(account) : undefined)
     if (!to) throw new Error('`to` is required.')
 
-    const request = await prepareWithdrawalRequest<account, options>(client, {
+    type Action = (
+      client: Client.Client,
+      options: object,
+    ) => Promise<{
+      request: PreparedWithdrawalRequest<account, options>
+    }>
+    // Bridges fixed Zone options to the Client chain-derived prepare signature.
+    const action = prepareTransaction as unknown as Action
+    const { request } = await action(client, {
       ...pickWriteParameters(options),
       account,
       calls: requestWithdrawal.calls({
@@ -308,20 +316,6 @@ type PreparedAccountFields<
       account: Exclude<resolved, undefined>
       from: Address.Address
     }
-
-async function prepareWithdrawalRequest<
-  account extends Account.Account | undefined,
-  const options extends requestWithdrawal.prepare.Options<account>,
->(
-  client: Client.Client,
-  parameters: object,
-): Promise<PreparedWithdrawalRequest<account, options>> {
-  const action = prepareTransaction as unknown as (
-    client: Client.Client,
-    options: object,
-  ) => Promise<{ request: PreparedWithdrawalRequest<account, options> }>
-  return (await action(client, parameters)).request
-}
 
 function ceilDiv(numerator: bigint, denominator: bigint) {
   return (numerator + denominator - 1n) / denominator
