@@ -47,23 +47,6 @@ const unsafeRequest: CcipRead.Request = (options) =>
   CcipRead.request({ ...options, allowUnsafeUrls: true })
 
 describe('call integration', () => {
-  test('args: client ccipRead omitted', async () => {
-    const server = await createCcipServer()
-    try {
-      const { address } = await deployExample([`${server.url}/{sender}/{data}`])
-
-      const error = await Actions.call(client, {
-        data: getAddressData('jxom.viem'),
-        to: address,
-      }).catch((error) => error)
-
-      expect(error).toBeInstanceOf(RpcError.ExecutionError)
-      expect(error).not.toBeInstanceOf(CcipRead.LookupError)
-    } finally {
-      await server.close()
-    }
-  })
-
   test('args: client ccipRead request', async () => {
     const server = await createCcipServer()
     try {
@@ -157,6 +140,26 @@ describe('call integration', () => {
       await server.close()
     }
   })
+
+  test('behavior: limits recursive lookups', async () => {
+    const { address } = await deployExample([
+      'data:application/json,{"data":"0x"}',
+    ])
+    const enabled = Client.create({
+      ccipRead: { request: unsafeRequest },
+      transport,
+    })
+    const data = AbiFunction.encodeData(
+      AbiFunction.fromAbi(generated.OffchainLookupExample.abi, 'loop'),
+    )
+
+    const error = await Actions.call(enabled, { data, to: address }).catch(
+      (error) => error,
+    )
+
+    expect(error).toBeInstanceOf(CcipRead.LookupLimitExceededError)
+    expect(error.limit).toBe(4)
+  })
 })
 
 describe('offchainLookup', () => {
@@ -169,8 +172,10 @@ describe('offchainLookup', () => {
       '0xdeadbeaf',
     ])
 
-    const error = (await offchainLookup(client, {
+    const error = (await offchainLookup({
+      call: (options) => Actions.call(client, options),
       data,
+      lookupCount: 0,
       request: CcipRead.request,
       to: '0x0000000000000000000000000000000000000001',
     }).catch((error) => error)) as CcipRead.LookupError

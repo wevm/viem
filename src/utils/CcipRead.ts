@@ -15,6 +15,9 @@ type GatewayResponse = {
   data?: unknown
 }
 
+const defaultMaxResponseBodySize = 10_485_760
+const defaultTimeout = 10_000
+
 /**
  * A function that requests CCIP data from gateway URLs.
  *
@@ -50,84 +53,119 @@ export async function request(
   const {
     allowUnsafeUrls = false,
     data,
+    maxResponseBodySize = defaultMaxResponseBodySize,
     requestOptions,
     sender,
+    timeout = defaultTimeout,
     urls,
   } = options
 
   let error = new Error('An unknown error occurred.')
+  let timedOut = false
 
-  for (const url of urls) {
-    if (requestOptions?.signal?.aborted)
-      throw getAbortError(requestOptions.signal)
+  const signal = requestOptions?.signal
+  if (signal?.aborted) throw getAbortError(signal)
 
-    const method = url.includes('{data}') ? 'GET' : 'POST'
-    const body = method === 'POST' ? { data, sender } : undefined
-    const headers: HeadersInit =
-      method === 'POST' ? { 'Content-Type': 'application/json' } : {}
-    const requestUrl = url
-      .replace('{sender}', sender.toLowerCase())
-      .replace('{data}', data)
+  const controller = new AbortController()
+  const abort = () => controller.abort()
+  const timeoutId =
+    timeout > 0
+      ? setTimeout(() => {
+          timedOut = true
+          controller.abort()
+        }, timeout)
+      : undefined
 
-    let parsedUrl: URL
-    try {
-      parsedUrl = parseUrl(requestUrl, { allowUnsafeUrls })
-    } catch (err) {
-      if (!(err instanceof UrlNotAllowedError)) throw err
-      error = err
-      continue
-    }
+  signal?.addEventListener('abort', abort, { once: true })
 
-    try {
-      const response = await fetch(parsedUrl, {
-        body: JSON.stringify(body),
-        credentials: 'omit',
-        headers,
-        method,
-        redirect: 'error',
-        referrerPolicy: 'no-referrer',
-        ...(requestOptions?.signal ? { signal: requestOptions.signal } : {}),
-      })
+  try {
+    for (const url of urls) {
+      if (signal?.aborted) throw getAbortError(signal)
+      if (timedOut)
+        throw new RpcClient.TimeoutError({ body: {}, url: getUrlOrigin(url) })
 
-      if (!response.ok) {
-        await response.body?.cancel()
+      const method = url.includes('{data}') ? 'GET' : 'POST'
+      const body = method === 'POST' ? { data, sender } : undefined
+      const headers: HeadersInit =
+        method === 'POST' ? { 'Content-Type': 'application/json' } : {}
+      const requestUrl = url
+        .replace('{sender}', sender.toLowerCase())
+        .replace('{data}', data)
+
+      let parsedUrl: URL
+      try {
+        parsedUrl = parseUrl(requestUrl, { allowUnsafeUrls })
+      } catch (err) {
+        if (!(err instanceof UrlNotAllowedError)) throw err
+        error = err
+        continue
+      }
+
+      try {
+        const response = await fetch(parsedUrl, {
+          body: JSON.stringify(body),
+          credentials: 'omit',
+          headers,
+          method,
+          redirect: 'error',
+          referrerPolicy: 'no-referrer',
+          signal: controller.signal,
+        })
+
+        if (!response.ok) {
+          await response.body?.cancel()
+          error = new RpcClient.HttpError({
+            body,
+            status: response.status,
+            url: getUrlOrigin(url),
+          })
+          continue
+        }
+
+        const isJson = response.headers
+          .get('Content-Type')
+          ?.startsWith('application/json')
+        const body_ = await readResponseBody(response, {
+          maxResponseBodySize,
+        })
+        const payload = isJson ? JSON.parse(body_) : body_
+        const gatewayResponse =
+          isJson && payload && typeof payload === 'object'
+            ? (payload as GatewayResponse)
+            : undefined
+        const result = isJson ? gatewayResponse?.data : payload
+
+        if (!Hex.validate(result as string)) {
+          error = new ResponseMalformedError({ url })
+          continue
+        }
+
+        return result as Hex.Hex
+      } catch (err) {
+        if (signal?.aborted) throw getAbortError(signal)
+        if (timedOut)
+          throw new RpcClient.TimeoutError({
+            body: {},
+            url: getUrlOrigin(url),
+          })
+        if (isAbortError(err)) throw err
+        if (err instanceof RpcClient.ResponseBodyTooLargeError) {
+          error = err
+          continue
+        }
+
         error = new RpcClient.HttpError({
           body,
-          status: response.status,
           url: getUrlOrigin(url),
         })
-        continue
       }
-
-      const isJson = response.headers
-        .get('Content-Type')
-        ?.startsWith('application/json')
-      const payload = isJson ? await response.json() : await response.text()
-      const gatewayResponse =
-        isJson && payload && typeof payload === 'object'
-          ? (payload as GatewayResponse)
-          : undefined
-      const result = isJson ? gatewayResponse?.data : payload
-
-      if (!Hex.validate(result as string)) {
-        error = new ResponseMalformedError({ url })
-        continue
-      }
-
-      return result as Hex.Hex
-    } catch (err) {
-      if (requestOptions?.signal?.aborted)
-        throw getAbortError(requestOptions.signal)
-      if (isAbortError(err)) throw err
-
-      error = new RpcClient.HttpError({
-        body,
-        url: getUrlOrigin(url),
-      })
     }
-  }
 
-  throw error
+    throw error
+  } finally {
+    if (timeoutId !== undefined) clearTimeout(timeoutId)
+    signal?.removeEventListener('abort', abort)
+  }
 }
 
 export declare namespace request {
@@ -136,10 +174,14 @@ export declare namespace request {
     allowUnsafeUrls?: boolean | undefined
     /** The call data to pass to the gateway. */
     data: Hex.Hex
+    /** Maximum response body size in bytes. Set to `false` to disable. @default 10_485_760 */
+    maxResponseBodySize?: number | false | undefined
     /** Per-request transport options. */
     requestOptions?: RequestOptions | undefined
     /** The address of the reverting contract. */
     sender: Address.Address
+    /** Total request timeout in milliseconds. Set to `0` to disable. @default 10_000 */
+    timeout?: number | undefined
     /** Gateway URLs to try in order. */
     urls: readonly string[]
   }
@@ -148,9 +190,67 @@ export declare namespace request {
 
   type ErrorType =
     | RpcClient.HttpError
+    | RpcClient.ResponseBodyTooLargeError
+    | RpcClient.TimeoutError
     | ResponseMalformedError
     | UrlNotAllowedError
     | OxErrors.GlobalErrorType
+}
+
+async function readResponseBody(
+  response: Response,
+  options: { maxResponseBodySize: number | false },
+): Promise<string> {
+  const { maxResponseBodySize } = options
+  if (maxResponseBodySize === false) return response.text()
+
+  const contentLength = response.headers.get('Content-Length')
+  if (contentLength) {
+    const size = Number(contentLength)
+    if (size > maxResponseBodySize) {
+      await response.body?.cancel()
+      throw new RpcClient.ResponseBodyTooLargeError({
+        maxSize: maxResponseBodySize,
+        size,
+      })
+    }
+  }
+
+  if (!response.body) {
+    const body = await response.text()
+    const size = new TextEncoder().encode(body).length
+    if (size > maxResponseBodySize)
+      throw new RpcClient.ResponseBodyTooLargeError({
+        maxSize: maxResponseBodySize,
+        size,
+      })
+    return body
+  }
+
+  const reader = response.body.getReader()
+  const decoder = new TextDecoder()
+  let body = ''
+  let size = 0
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      size += value.byteLength
+      if (size > maxResponseBodySize) {
+        await reader.cancel()
+        throw new RpcClient.ResponseBodyTooLargeError({
+          maxSize: maxResponseBodySize,
+          size,
+        })
+      }
+      body += decoder.decode(value, { stream: true })
+    }
+    body += decoder.decode()
+    return body
+  } finally {
+    reader.releaseLock()
+  }
 }
 
 function parseUrl(url: string, options: { allowUnsafeUrls: boolean }): URL {
@@ -281,6 +381,31 @@ export class LookupError extends Errors.BaseError<Error> {
         ].flat(),
       },
     )
+  }
+}
+
+/**
+ * Thrown when a CCIP Read call exceeds its lookup limit.
+ *
+ * @example
+ * ```ts
+ * import { CcipRead } from 'viem/utils'
+ *
+ * if (error instanceof CcipRead.LookupLimitExceededError)
+ *   console.error(error.limit)
+ * ```
+ */
+export class LookupLimitExceededError extends Errors.BaseError {
+  override readonly name = 'CcipRead.LookupLimitExceededError'
+
+  limit: number
+
+  constructor(options: { limit: number }) {
+    const { limit } = options
+    super('CCIP Read lookup limit exceeded.', {
+      metaMessages: [`Limit: ${limit}`],
+    })
+    this.limit = limit
   }
 }
 

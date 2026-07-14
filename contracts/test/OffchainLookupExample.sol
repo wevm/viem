@@ -39,6 +39,29 @@ contract OffchainLookupExample {
         return signer;
     }
 
+    function loop() external view returns (bytes memory) {
+        revert OffchainLookup(
+            address(this),
+            urls,
+            "",
+            OffchainLookupExample.loopWithProof.selector,
+            ""
+        );
+    }
+
+    function loopWithProof(
+        bytes calldata,
+        bytes calldata
+    ) external view returns (bytes memory) {
+        revert OffchainLookup(
+            address(this),
+            urls,
+            "",
+            OffchainLookupExample.loopWithProof.selector,
+            ""
+        );
+    }
+
     function recoverSigner(
         bytes32 _ethSignedMessageHash,
         bytes memory _signature

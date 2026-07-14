@@ -2,9 +2,9 @@
 
 ## Overview
 
-`Errors.BaseError` is the base error class inherited by all errors thrown by viem.
+`Errors.BaseError` is the base error class inherited by all errors thrown by Viem.
 
-It extends ox's `BaseError`, so every viem error is also an ox error (`instanceof Errors.BaseError` holds across the stack) and ox errors compose as `cause` without wrapping. Docs origin and version attribution default to the values set via [`Errors.setConfig`](/docs/errors/configuration).
+It extends ox's `BaseError`, so every Viem error is also an ox error (`instanceof Errors.BaseError` holds across the stack) and ox errors compose as `cause` without wrapping. Docs origin and version attribution default to the values set via [`Errors.setConfig`](/docs/errors/configuration).
 
 ```ts twoslash
 import { Errors } from 'viem'
@@ -67,7 +67,7 @@ throw new Errors.BaseError('An error occurred.', {
 
 ## `Errors.BaseError`
 
-The base error class inherited by all errors thrown by viem.
+The base error class inherited by all errors thrown by Viem.
 
 ### Usage
 
@@ -102,7 +102,7 @@ throw new Errors.BaseError('An error occurred.') // [!code focus]
 
 - **Type:** `Error`
 
-An error (viem, ox, or foreign) to attach as the failure cause.
+An error (Viem, ox, or foreign) to attach as the failure cause.
 
 ```ts twoslash
 import { Errors } from 'viem'

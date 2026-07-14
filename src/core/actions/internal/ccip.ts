@@ -1,16 +1,17 @@
 import { AbiError, AbiParameters, Address, Hex } from 'ox'
 import type { Errors } from 'ox'
 
-import type * as Client from '../../Client.js'
 import { getAbortError, isAbortError } from '../../internal/errors.js'
 import * as CcipRead from '../../../utils/CcipRead.js'
-import { call } from '../call.js'
+import type { call } from '../call.js'
 import {
   localBatchGatewayRequest,
   localBatchGatewayUrl,
 } from '../ens/internal/batchGateway.js'
 
-type RequestOptions = Parameters<Client.Client['request']>[1]
+type RequestOptions = NonNullable<call.Options['requestOptions']>
+
+const maxLookupCount = 4
 
 const offchainLookupAbiError = /*#__PURE__*/ AbiError.from(
   'error OffchainLookup(address sender, string[] urls, bytes callData, bytes4 callbackFunction, bytes extraData)',
@@ -24,10 +25,18 @@ const responseParameters = /*#__PURE__*/ AbiParameters.from('bytes, bytes')
  * and re-executes the call through its callback function.
  */
 export async function offchainLookup(
-  client: Client.Client,
   options: offchainLookup.Options,
 ): Promise<Hex.Hex | undefined> {
-  const { blockNumber, blockTag, data, request, requestOptions, to } = options
+  const {
+    blockNumber,
+    blockTag,
+    call,
+    data,
+    lookupCount,
+    request,
+    requestOptions,
+    to,
+  } = options
 
   const [sender, urls, callData, callbackSelector, extraData] = AbiError.decode(
     offchainLookupAbiError,
@@ -35,6 +44,10 @@ export async function offchainLookup(
   ) as [Address.Address, readonly string[], Hex.Hex, Hex.Hex, Hex.Hex]
 
   try {
+    if (lookupCount >= maxLookupCount)
+      throw new CcipRead.LookupLimitExceededError({
+        limit: maxLookupCount,
+      })
     if (!Address.isEqual(to, sender))
       throw new CcipRead.SenderMismatchError({ sender, to })
 
@@ -45,7 +58,7 @@ export async function offchainLookup(
         })
       : await request({ data: callData, requestOptions, sender, urls })
 
-    const { data: response } = await call(client, {
+    const { data: response } = await call({
       blockNumber,
       blockTag,
       data: Hex.concat(
@@ -61,6 +74,7 @@ export async function offchainLookup(
     if (requestOptions?.signal?.aborted)
       throw getAbortError(requestOptions.signal)
     if (isAbortError(err)) throw err
+    if (err instanceof CcipRead.LookupLimitExceededError) throw err
 
     throw new CcipRead.LookupError({
       callbackSelector,
@@ -79,8 +93,12 @@ export declare namespace offchainLookup {
     blockNumber?: bigint | undefined
     /** The block tag the original call executed against. */
     blockTag?: string | undefined
+    /** Executes the callback call. */
+    call: (options: call.Options) => Promise<call.ReturnType>
     /** The `OffchainLookup` revert data. */
     data: Hex.Hex
+    /** Completed lookup count. */
+    lookupCount: number
     /** Makes the offchain gateway request. */
     request: CcipRead.Request
     /** Per-request transport options. */
@@ -92,5 +110,6 @@ export declare namespace offchainLookup {
   type ErrorType =
     | AbiError.decode.ErrorType
     | CcipRead.LookupError
+    | CcipRead.LookupLimitExceededError
     | Errors.GlobalErrorType
 }

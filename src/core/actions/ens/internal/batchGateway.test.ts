@@ -1,8 +1,10 @@
-import { Abi, AbiError, AbiFunction } from 'ox'
+import type { IncomingMessage } from 'node:http'
+import { Abi, AbiError, AbiFunction, Hex } from 'ox'
 import { createServer } from '~test/http.js'
 import { expect, test } from 'vitest'
 
 import { CcipRead } from 'viem/utils'
+import { withResolvers } from '../../../internal/promise.js'
 import {
   localBatchGatewayRequest,
   localBatchGatewayUrl,
@@ -113,4 +115,121 @@ test('behavior: http error', async () => {
   )
 
   await server.close()
+})
+
+test('behavior: limits nested local batches', async () => {
+  const sender = '0x0000000000000000000000000000000000000001'
+  let data: Hex.Hex = '0x'
+  for (let depth = 0; depth < 4; depth++)
+    data = AbiFunction.encodeData(query, [
+      [{ data, sender, urls: [localBatchGatewayUrl] }],
+    ])
+
+  let result = await localBatchGatewayRequest({
+    data,
+    request: unsafeRequest,
+  })
+
+  for (let depth = 0; depth < 3; depth++) {
+    const [failures, responses] = AbiFunction.decodeResult(query, result)
+    expect(failures).toEqual([false])
+    result = responses[0]!
+  }
+
+  const [failures, responses] = AbiFunction.decodeResult(query, result)
+  expect(failures).toEqual([true])
+  expect(responses[0]).toBe(
+    AbiError.encode(solidityError, [
+      'CCIP batch gateway nesting limit exceeded.',
+    ]),
+  )
+})
+
+test('behavior: limits total nested queries', async () => {
+  const sender = '0x0000000000000000000000000000000000000001'
+  const nested = AbiFunction.encodeData(query, [
+    Array.from(
+      { length: 64 },
+      () =>
+        ({
+          data: '0x',
+          sender,
+          urls: ['data:application/json,{"data":"0x"}'],
+        }) as const,
+    ),
+  ])
+  const data = AbiFunction.encodeData(query, [
+    [{ data: nested, sender, urls: [localBatchGatewayUrl] }],
+  ])
+
+  const result = await localBatchGatewayRequest({
+    data,
+    request: unsafeRequest,
+  })
+
+  const [failures, responses] = AbiFunction.decodeResult(query, result)
+  expect(failures).toEqual([true])
+  expect(responses[0]).toBe(
+    AbiError.encode(solidityError, [
+      'CCIP batch gateway query limit exceeded.',
+    ]),
+  )
+})
+
+test('behavior: limits concurrent requests', async () => {
+  const active = new Set<IncomingMessage>()
+  const barrier = withResolvers<void>()
+  const server = await createServer(async (request, response) => {
+    active.add(request)
+    if (active.size === 4) barrier.resolve()
+    await barrier.promise
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    const data = Hex.fromNumber(active.size, { size: 1 })
+    active.delete(request)
+    response.writeHead(200, { 'Content-Type': 'application/json' })
+    response.end(JSON.stringify({ data }))
+  })
+  const sender = '0x0000000000000000000000000000000000000001'
+  const data = AbiFunction.encodeData(query, [
+    Array.from(
+      { length: 8 },
+      () =>
+        ({
+          data: '0x',
+          sender,
+          urls: [server.url],
+        }) as const,
+    ),
+  ])
+
+  try {
+    const result = await localBatchGatewayRequest({
+      data,
+      request: unsafeRequest,
+    })
+    const [failures, responses] = AbiFunction.decodeResult(query, result)
+
+    expect({
+      failures,
+      maxConcurrency: Math.max(
+        ...responses.map((response) => Hex.toNumber(response)),
+      ),
+    }).toMatchInlineSnapshot(`
+      {
+        "failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+        ],
+        "maxConcurrency": 4,
+      }
+    `)
+  } finally {
+    await server.close()
+  }
 })

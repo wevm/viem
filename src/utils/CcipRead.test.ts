@@ -221,6 +221,10 @@ describe('request', () => {
       response.writeHead(200, { 'Content-Type': 'application/json' })
       response.end(JSON.stringify({ data: 'not hex' }))
     })
+    const oversized = await createServer((_request, response) => {
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(JSON.stringify({ data: `0x${'aa'.repeat(32)}` }))
+    })
     const succeeding = await createServer((_request, response) => {
       response.writeHead(200, { 'Content-Type': 'application/json' })
       response.end(JSON.stringify({ data: '0xcafebabe' }))
@@ -230,14 +234,16 @@ describe('request', () => {
       await expect(
         requestUnsafe({
           data: '0xdeadbeef',
+          maxResponseBodySize: 30,
           sender,
-          urls: [failing.url, malformed.url, succeeding.url],
+          urls: [failing.url, malformed.url, oversized.url, succeeding.url],
         }),
       ).resolves.toMatchInlineSnapshot(`"0xcafebabe"`)
     } finally {
       await Promise.all([
         failing.close(),
         malformed.close(),
+        oversized.close(),
         succeeding.close(),
       ])
     }
@@ -487,6 +493,86 @@ describe('request', () => {
       await server.close()
     }
   })
+
+  test('options: limits response body size', async () => {
+    const server = await createResultServer('0xdeadbeef')
+
+    try {
+      const error = await requestUnsafe({
+        data: '0xdeadbeef',
+        maxResponseBodySize: 10,
+        sender,
+        urls: [server.url],
+      }).catch((error) => error)
+
+      expect(error).toBeInstanceOf(RpcClient.ResponseBodyTooLargeError)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('options: rejects a declared oversized response', async () => {
+    const server = await createServer((_request, response) => {
+      response.writeHead(200, {
+        'Content-Length': '100',
+        'Content-Type': 'application/json',
+      })
+      response.end(JSON.stringify({ data: '0xdeadbeef' }))
+    })
+
+    try {
+      const error = await requestUnsafe({
+        data: '0xdeadbeef',
+        maxResponseBodySize: 10,
+        sender,
+        urls: [server.url],
+      }).catch((error) => error)
+
+      expect(error).toBeInstanceOf(RpcClient.ResponseBodyTooLargeError)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('options: times out the full gateway request', async () => {
+    const server = await createServer(async (_request, response) => {
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.write('{"data":"0x')
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      response.end('cafebabe"}')
+    })
+
+    try {
+      const error = await requestUnsafe({
+        data: '0xdeadbeef',
+        sender,
+        timeout: 20,
+        urls: [server.url],
+      }).catch((error) => error)
+
+      expect(error).toBeInstanceOf(RpcClient.TimeoutError)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('options: disables request limits', async () => {
+    const server = await createResultServer('0xdeadbeef')
+
+    try {
+      await expect(
+        requestUnsafe({
+          data: '0xdeadbeef',
+          maxResponseBodySize: false,
+          sender,
+          timeout: 0,
+          urls: [server.url],
+        }),
+      ).resolves.toMatchInlineSnapshot(`"0xdeadbeef"`)
+    } finally {
+      await server.close()
+    }
+  })
 })
 
 describe('tunnel', () => {
@@ -590,6 +676,72 @@ describe('tunnel', () => {
           urls: ['https://example.com/{sender}/{data}'],
         }),
       ).resolves.toMatchInlineSnapshot(`"0xdeadbeef"`)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test.each([
+    ['local passthrough', [localBatchGatewayUrl]],
+    ['hosted query', ['https://example.com/{sender}/{data}']],
+  ])('options: forwards the response limit for %s', async (_name, urls) => {
+    const server = await createResultServer(
+      encodeBatchResult([false], ['0xdeadbeef']),
+    )
+    const tunnel = CcipRead.tunnel({
+      batchGateways: ['fakeurl'],
+      request(options) {
+        return requestUnsafe({ ...options, urls: [server.url] })
+      },
+    })
+
+    try {
+      const error = await tunnel
+        .request({
+          data: '0xcafebabe',
+          maxResponseBodySize: 10,
+          sender,
+          urls,
+        })
+        .catch((error) => error)
+
+      expect(error).toBeInstanceOf(RpcClient.ResponseBodyTooLargeError)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test.each([
+    ['local passthrough', [localBatchGatewayUrl]],
+    ['hosted query', ['https://example.com/{sender}/{data}']],
+  ])('options: forwards the timeout for %s', async (_name, urls) => {
+    const server = await createServer(async (_request, response) => {
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      response.writeHead(200, { 'Content-Type': 'application/json' })
+      response.end(
+        JSON.stringify({
+          data: encodeBatchResult([false], ['0xdeadbeef']),
+        }),
+      )
+    })
+    const tunnel = CcipRead.tunnel({
+      batchGateways: ['fakeurl'],
+      request(options) {
+        return requestUnsafe({ ...options, urls: [server.url] })
+      },
+    })
+
+    try {
+      const error = await tunnel
+        .request({
+          data: '0xcafebabe',
+          sender,
+          timeout: 20,
+          urls,
+        })
+        .catch((error) => error)
+
+      expect(error).toBeInstanceOf(RpcClient.TimeoutError)
     } finally {
       await server.close()
     }

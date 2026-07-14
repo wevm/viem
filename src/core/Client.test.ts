@@ -22,6 +22,19 @@ describe('create', () => {
     expect(typeof client.uid).toBe('string')
     expect(client.account).toBeUndefined()
     expect(client.blockTag).toBeUndefined()
+    expect(client.ccipRead && typeof client.ccipRead.request).toBe('function')
+  })
+
+  test('honors CCIP Read overrides', () => {
+    const request = async () => '0xdeadbeef' as const
+    const enabled = Client.create({
+      ccipRead: { request },
+      transport: http(url),
+    })
+    const disabled = Client.create({ ccipRead: false, transport: http(url) })
+
+    expect(enabled.ccipRead && enabled.ccipRead.request).toBe(request)
+    expect(disabled.ccipRead).toBe(false)
   })
 
   test('derives pollingInterval and cacheTime from chain blockTime', () => {

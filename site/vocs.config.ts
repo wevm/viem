@@ -52,6 +52,13 @@ export default defineConfig({
     // Strip legacy `.html` suffix from old bookmarked URLs.
     { source: '/:path*.html', destination: '/:path', status: 308 },
 
+    // Migration guide moved under docs.
+    {
+      source: '/v2-migration',
+      destination: '/docs/v2-migration',
+      status: 308,
+    },
+
     // Tempo Zones page moved into the Guides section.
     {
       source: '/tempo/zones',
@@ -216,9 +223,10 @@ export default defineConfig({
   },
   sidebar: {
     '/docs': [
+      { text: 'Migrating from v2', link: '/docs/v2-migration' },
       {
         text: 'Clients & Transports',
-        collapsed: true,
+        collapsed: false,
         items: [
           {
             text: 'Client',
@@ -1038,7 +1046,6 @@ export default defineConfig({
         ],
       },
       { ...sidebar.utilities, collapsed: true },
-      { text: 'Migrating from v2', link: '/v2-migration' },
     ],
     '/tokens': [
       {
@@ -1995,7 +2002,7 @@ export default defineConfig({
       items: [
         {
           text: 'Migrating from v2',
-          link: '/v2-migration',
+          link: '/docs/v2-migration',
         },
         {
           text: 'Changelog',

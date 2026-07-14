@@ -194,19 +194,16 @@ const blockNumber = await Actions.block.getNumber(client)
 
 ### Configuring CCIP Read
 
-CCIP Read is disabled by default. Opt in with an explicit request policy. For most applications, route resolver-provided URLs through a trusted HTTPS batch gateway.
+CCIP Read is enabled by default through an allowlisted HTTPS batch gateway. Set it to `false` when calls should surface `OffchainLookup` reverts.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
-import { CcipRead } from 'viem/utils'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({
   chain: mainnet,
   transport: http(),
-  ccipRead: CcipRead.tunnel({ // [!code focus]
-    batchGateways: ['https://ccip-v3.ens.xyz'], // [!code focus]
-  }), // [!code focus]
+  ccipRead: false, // [!code focus]
 })
 
 const { data } = await Actions.call(client, {
@@ -215,7 +212,15 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-Using `CcipRead.request` directly provides defense in depth, not a complete server-side request forgery boundary. Portable `fetch` implementations cannot pin DNS resolution to the validated connection. Server applications should use a trusted proxy or a custom request implementation with a gateway allowlist.
+The default [ENSIP-21 batch gateway](https://docs.ens.domains/ensip/21/) is operated by ENS Labs. It observes request metadata and affects availability.
+
+Contract callbacks validate responses, so the gateway is not trusted for correctness.
+
+Local batches allow 64 total queries, four concurrent requests, and four nesting levels per lookup.
+
+Using `CcipRead.request` directly provides defense in depth, not a complete server-side request forgery boundary. Portable `fetch` implementations cannot pin DNS resolution to connections.
+
+Server applications making direct requests should use a proxy or custom gateway allowlist.
 
 ### Appending a Data Suffix
 
@@ -393,21 +398,18 @@ const client = Client.create({
 ##### ccipRead
 
 - **Type:** `CcipReadOptions | false`
-- **Default:** `false`
+- **Default:** ENS Labs batch gateway
 
-[CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) configuration. Enabling it requires an explicit request policy.
+[CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) configuration. Set it to `false` to disable lookups, or provide a request policy to override the default gateway.
 
 ```ts twoslash
 import { Client, http } from 'viem'
-import { CcipRead } from 'viem/utils'
 import { mainnet } from 'viem/chains'
 // ---cut---
 const client = Client.create({
   chain: mainnet,
   transport: http('https://eth.merkle.io'),
-  ccipRead: CcipRead.tunnel({ // [!code focus]
-    batchGateways: ['https://ccip-v3.ens.xyz'], // [!code focus]
-  }), // [!code focus]
+  ccipRead: false, // [!code focus]
 })
 ```
 

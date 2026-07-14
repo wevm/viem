@@ -22,6 +22,12 @@ test('request: accepts readonly urls, requestOptions, and unsafe opt-in', () => 
   expectTypeOf<CcipRead.request.Options['allowUnsafeUrls']>().toEqualTypeOf<
     boolean | undefined
   >()
+  expectTypeOf<CcipRead.request.Options['maxResponseBodySize']>().toEqualTypeOf<
+    number | false | undefined
+  >()
+  expectTypeOf<CcipRead.request.Options['timeout']>().toEqualTypeOf<
+    number | undefined
+  >()
   expectTypeOf<CcipRead.request.Options['urls']>().toEqualTypeOf<
     readonly string[]
   >()
@@ -29,8 +35,10 @@ test('request: accepts readonly urls, requestOptions, and unsafe opt-in', () => 
   const options = {
     allowUnsafeUrls: true,
     data: '0xdeadbeef',
+    maxResponseBodySize: 1_024,
     requestOptions: { signal: new AbortController().signal },
     sender,
+    timeout: 5_000,
     urls: ['https://example.com/{sender}/{data}'] as const,
   } satisfies CcipRead.request.Options
 
@@ -55,7 +63,7 @@ test('tunnel: returns a client-compatible request', () => {
 })
 
 test('Client: contextually types requestOptions', () => {
-  Client.create({
+  const client = Client.create({
     ccipRead: {
       async request({ requestOptions }) {
         expectTypeOf(requestOptions).toEqualTypeOf<
@@ -66,6 +74,10 @@ test('Client: contextually types requestOptions', () => {
     },
     transport: http(),
   })
+
+  expectTypeOf(client.ccipRead).toEqualTypeOf<
+    Client.CcipReadOptions | false | undefined
+  >()
 })
 
 test('Client: requires a CCIP request implementation', () => {

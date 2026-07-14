@@ -428,7 +428,7 @@ function helpersSection(
       return `| [\`${name}.${helper}\`](/docs/utilities/${slug}/${helper}) | ${description ?? ''} |`
     })
     .join('\n')
-  return `\n## Viem Helpers\n\nFunctions added by viem on top of the \`${name}\` module.\n\n| Name | Description |\n| ---- | ----------- |\n${rows}\n`
+  return `\n## Viem Helpers\n\nFunctions added by Viem on top of the \`${name}\` module.\n\n| Name | Description |\n| ---- | ----------- |\n${rows}\n`
 }
 
 type Synced = {

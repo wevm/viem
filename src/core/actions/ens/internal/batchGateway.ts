@@ -4,6 +4,7 @@ import type { Hex } from 'ox'
 import type * as CcipRead from '../../../../utils/CcipRead.js'
 import { HttpError } from '../../../../utils/RpcClient.js'
 import { getUrlOrigin } from '../../../internal/errors.js'
+import * as queue from '../../../internal/queue.js'
 
 /**
  * Sentinel gateway URL resolved client-side: batch queries fan out through
@@ -19,6 +20,15 @@ const batchGatewayAbi = /*#__PURE__*/ Abi.from([
 const solidityError = /*#__PURE__*/ AbiError.from('error Error(string message)')
 const query = /*#__PURE__*/ AbiFunction.fromAbi(batchGatewayAbi, 'query')
 const httpError = /*#__PURE__*/ AbiError.fromAbi(batchGatewayAbi, 'HttpError')
+const maxLocalBatchConcurrency = 4
+const maxLocalBatchDepth = 4
+const maxLocalBatchQueries = 64
+
+type Query = CcipRead.request.Options
+type LocalBatchContext = {
+  queryCount: number
+  scheduler: queue.Queue<Query, Hex.Hex>
+}
 
 /** Routes one CCIP request through a hosted batch gateway. @internal */
 export async function tunnelRequest(
@@ -31,9 +41,11 @@ export async function tunnelRequest(
     allowUnsafeUrls,
     batchGateways,
     data,
+    maxResponseBodySize,
     request,
     requestOptions,
     sender,
+    timeout,
     urls,
   } = options
 
@@ -41,16 +53,20 @@ export async function tunnelRequest(
     return await request({
       allowUnsafeUrls,
       data,
+      maxResponseBodySize,
       requestOptions,
       sender,
+      timeout,
       urls: batchGateways,
     })
 
   const result = await request({
     allowUnsafeUrls,
     data: AbiFunction.encodeData(query, [[{ data, sender, urls }]]),
+    maxResponseBodySize,
     requestOptions,
     sender,
+    timeout,
     urls: batchGateways,
   })
   const [failures, responses] = AbiFunction.decodeResult(query, result)
@@ -82,28 +98,46 @@ export async function localBatchGatewayRequest(options: {
   request: CcipRead.Request
 }): Promise<Hex.Hex> {
   const { data, request } = options
+  return localBatchGatewayRequest_(data, 0, {
+    queryCount: 0,
+    scheduler: queue.createQueue({
+      concurrency: maxLocalBatchConcurrency,
+      worker: async (options) => request(options),
+    }),
+  })
+}
 
-  const [queries] = AbiFunction.decodeData(query, data) as [
-    readonly { data: Hex.Hex; sender: Hex.Hex; urls: readonly string[] }[],
-  ]
+async function localBatchGatewayRequest_(
+  data: Hex.Hex,
+  depth: number,
+  context: LocalBatchContext,
+): Promise<Hex.Hex> {
+  if (depth >= maxLocalBatchDepth)
+    throw new Error('CCIP batch gateway nesting limit exceeded.')
 
-  const failures: boolean[] = []
-  const responses: Hex.Hex[] = []
-  await Promise.all(
-    queries.map(async (query, i) => {
+  const [queries] = AbiFunction.decodeData(query, data) as [readonly Query[]]
+  const queryCount = context.queryCount + queries.length
+  if (queryCount > maxLocalBatchQueries)
+    throw new Error('CCIP batch gateway query limit exceeded.')
+  context.queryCount = queryCount
+
+  const results = await Promise.all(
+    queries.map(async (query) => {
       try {
-        responses[i] = query.urls.includes(localBatchGatewayUrl)
-          ? await localBatchGatewayRequest({ data: query.data, request })
-          : await request(query)
-        failures[i] = false
+        const response = query.urls.includes(localBatchGatewayUrl)
+          ? await localBatchGatewayRequest_(query.data, depth + 1, context)
+          : await context.scheduler.add(query)
+        return { failure: false, response }
       } catch (err) {
-        failures[i] = true
-        responses[i] = encodeError(err as Error)
+        return { failure: true, response: encodeError(err as Error) }
       }
     }),
   )
 
-  return AbiFunction.encodeResult(query, [failures, responses])
+  return AbiFunction.encodeResult(query, [
+    results.map(({ failure }) => failure),
+    results.map(({ response }) => response),
+  ])
 }
 
 function encodeError(error: Error): Hex.Hex {

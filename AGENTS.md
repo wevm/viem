@@ -111,6 +111,7 @@ For v3 rewrite work, also read `AGENTS.tmp.md`.
 - **Package exports are generated**; run `pnpm exports:update` only when intentionally adding, removing, or renaming public subpath exports.
 - **Keep public APIs lean**; avoid exposing options for values the library can derive from existing inputs.
 - **Wire formats stay explicit**; serialization, RPC, RLP, ABI, and transaction-envelope code should keep wire-order and field-shape decisions visible at the call site.
+- **Bound CCIP batch fan-out**; cap total queries, nesting, and concurrent requests. Share one budget across recursive local batches.
 - **No runtime `z.RpcSchema` in actions**; default action paths convert wire values with ox
   core helpers (`Hex.toBigInt`, `TransactionRequest.toRpc`, `Block.fromRpc`, …), keeping zod
   out of default bundles (~14 kB gzip per action otherwise).
@@ -122,6 +123,8 @@ For v3 rewrite work, also read `AGENTS.tmp.md`.
 
 ## Documentation Conventions
 
+- **Capitalize Viem in prose**; write `Viem` when referring to the product or project.
+  - Keep `viem` lowercase in package names, import paths, code identifiers, filenames, and URLs.
 - **Docs immediately after a module**; write site docs before moving to the next module.
   - Include the sub-page and sidebar wiring.
 - **Show example responses with `// @log:`**; annotate action doc Usage examples that return values.

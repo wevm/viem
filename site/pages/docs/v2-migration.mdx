@@ -1,6 +1,10 @@
+---
+outline: 1
+---
+
 # Migrating from v2
 
-This guide covers viem v3 breaking changes and migration from viem v2.
+This guide covers Viem v3 breaking changes and migration from Viem v2.
 
 v3 consolidates flat functions, types, and constants into module namespaces backed by [Ox](https://oxlib.sh) utilities.
 
@@ -237,18 +241,15 @@ const payload = Authorization.getSignPayload({ address: contractAddress, chainId
 
 ### CCIP Read Policy
 
-CCIP Read is disabled by default and requires an explicit client policy. A tunnel with a trusted HTTPS batch gateway is recommended.
+CCIP Read remains enabled by default, but requests use an allowlisted HTTPS batch gateway. Set `ccipRead` to `false` to disable it.
 
 Resolution now occurs inside contract calls, not only ENS lookups. See [ENS & CCIP Read](#ens--ccip-read).
 
 ```ts
 import { Client, http } from 'viem'
-import { CcipRead } from 'viem/utils' // [!code ++]
 
 const client = Client.create({
-  ccipRead: CcipRead.tunnel({ // [!code ++]
-    batchGateways: ['https://ccip-v3.ens.xyz'], // [!code ++]
-  }), // [!code ++]
+  ccipRead: false, // [!code ++]
   transport: http(),
 })
 ```
@@ -1126,7 +1127,7 @@ Quantity and index aliases were removed in favor of `Hex.Hex`. Uncle types folde
 
 Block number and tag types moved onto the `Block` namespace. Network sync types were removed.
 
-Wallet capability types moved to the `Capabilities` namespace. Schema augmentation must now target `Capabilities.Register` instead of viem's root register.
+Wallet capability types moved to the `Capabilities` namespace. Schema augmentation must now target `Capabilities.Register` instead of Viem's root register.
 
 ```ts
 declare module 'viem' { // [!code --]
@@ -1593,13 +1594,21 @@ ENS name primitives live on the `Ens` utility namespace. Coin type conversion no
 
 See [Messages & ENS](#messages--ens).
 
-CCIP Read is disabled by default and requires an explicit client policy. It now resolves inside calls for any contract.
+CCIP Read remains enabled by default, but resolver URLs are routed through an allowlisted batch gateway. It now resolves inside calls for any contract.
 
-A tunnel with a trusted HTTPS batch gateway is recommended. Direct requests provide defense in depth only.
+Set `ccipRead` to `false` to disable it. Provide a custom policy to change the gateway or request behavior.
 
-Server applications should use a trusted proxy or gateway allowlist. Portable fetch implementations cannot pin DNS results to connections.
+The default [ENSIP-21 batch gateway](https://docs.ens.domains/ensip/21/) is operated by ENS Labs. It observes request metadata and affects availability.
 
-The CCIP-read callback call began executing at the original call's block context (`blockNumber`/`blockTag`); previously the callback always ran against the latest block.
+Contract callbacks validate responses, so gateways are not trusted for correctness.
+
+Direct requests provide defense in depth only. Server applications should use a proxy or gateway allowlist because portable fetch cannot pin DNS results.
+
+Callbacks now use the original block context and stop after four lookups. Previously, callbacks used the latest block without a limit.
+
+`CcipRead.request` now has a 10-second timeout and 10 MiB response cap. Set `timeout: 0` or `maxResponseBodySize: false` to disable them.
+
+Local batches allow 64 total queries, four concurrent requests, and four nesting levels per lookup.
 
 CCIP gateway requests and batch tunnels moved to `CcipRead`, tunnel overrides renamed `ccipRequest` to `request`, and transport request options began flowing through tunnels.
 
@@ -2070,7 +2079,7 @@ Contract function errors moved under `ContractError`:
 | `ContractFunctionZeroDataError` | `ContractError.ContractFunctionZeroDataError` |
 | `RawContractError` | `ContractError.RawContractError` |
 
-ABI lookup, encoding, and log-decoding errors consolidated into the ABI namespaces re-exported by viem. The `*NotFoundError` family folds into `AbiItem.NotFoundError`:
+ABI lookup, encoding, and log-decoding errors consolidated into the ABI namespaces re-exported by Viem. The `*NotFoundError` family folds into `AbiItem.NotFoundError`:
 
 | v2 | v3 |
 | --- | --- |

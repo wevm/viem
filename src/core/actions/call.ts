@@ -23,6 +23,9 @@ import {
 } from './internal/multicall.js'
 
 type RequestOptions = Parameters<Client.Client['request']>[1]
+type Context = {
+  ccipReadLookupCount: number
+}
 
 /**
  * Executes a new message call without submitting a transaction to the network
@@ -43,9 +46,17 @@ type RequestOptions = Parameters<Client.Client['request']>[1]
  * })
  * ```
  */
-export async function call(
+export function call(
   client: Client.Client,
   options: call.Options = {},
+): Promise<call.ReturnType> {
+  return call_(client, options, { ccipReadLookupCount: 0 })
+}
+
+async function call_(
+  client: Client.Client,
+  options: call.Options,
+  context: Context,
 ): Promise<call.ReturnType> {
   const {
     account: account_ = client.account,
@@ -174,10 +185,15 @@ export async function call(
     if (client.ccipRead && data?.slice(0, 10) === '0x556f1830' && to) {
       const { offchainLookup } = await import('./internal/ccip.js')
       return {
-        data: await offchainLookup(client, {
+        data: await offchainLookup({
           blockNumber,
           blockTag,
+          call: (options) =>
+            call_(client, options, {
+              ccipReadLookupCount: context.ccipReadLookupCount + 1,
+            }),
           data,
+          lookupCount: context.ccipReadLookupCount,
           request: client.ccipRead.request,
           requestOptions,
           to,

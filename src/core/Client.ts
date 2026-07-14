@@ -10,7 +10,7 @@ import { uid } from './internal/uid.js'
 import type { Prettify } from './internal/types.js'
 
 /**
- * A viem Client: the composition root binding a {@link Chain} (config/converters), a
+ * A Viem Client: the composition root binding a {@link Chain} (config/converters), a
  * {@link Transport} (wire), and an optional {@link Account} (signer). Extend it
  * with action decorators via `.extend`.
  */
@@ -143,7 +143,6 @@ export function create<
 export function create(options: create.Options): Client {
   const {
     batch,
-    ccipRead,
     chain,
     dataSuffix,
     key = 'base',
@@ -151,6 +150,14 @@ export function create(options: create.Options): Client {
     tokens,
     type = 'base',
   } = options
+  const ccipRead: CcipReadOptions | false = options.ccipRead ?? {
+    async request(options) {
+      const { tunnel } = await import('../utils/CcipRead.js')
+      return tunnel({
+        batchGateways: ['https://ccip-v3.ens.xyz'],
+      }).request(options)
+    },
+  }
 
   const blockTag =
     options.blockTag ??
@@ -246,7 +253,7 @@ export declare namespace create {
     blockTag?: BlockTag | undefined
     /** Time (in ms) cached data stays in memory. @default pollingInterval */
     cacheTime?: number | undefined
-    /** [CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) config. Omitted or `false` disables CCIP Read. */
+    /** [CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) config. `false` disables CCIP Read. @default allowlisted batch gateway */
     ccipRead?: CcipReadOptions | false | undefined
     /** Chain for the Client. */
     chain?: chain | undefined

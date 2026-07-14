@@ -4,9 +4,9 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-The **Errors** module provides the base error class inherited by every error thrown by viem, plus configuration for how those errors are attributed.
+The **Errors** module provides the base error class inherited by every error thrown by Viem, plus configuration for how those errors are attributed.
 
-`Errors.BaseError` extends ox's `BaseError`, so every viem error is also an ox error (`instanceof` holds across the stack) and ox errors compose as `cause` without wrapping.
+`Errors.BaseError` extends ox's `BaseError`, so every Viem error is also an ox error (`instanceof` holds across the stack) and ox errors compose as `cause` without wrapping.
 
 ```ts twoslash
 import { Errors } from 'viem'
@@ -20,13 +20,13 @@ throw new Errors.BaseError('An error occurred.', {
 <Cards>
   <Card
     title="Base Error"
-    description="The base error class inherited by all errors thrown by viem."
+    description="The base error class inherited by all errors thrown by Viem."
     icon="lucide:circle-alert"
     to="/docs/errors/base-error"
   />
   <Card
     title="Configuration"
-    description="Set viem-scoped defaults (docs origin, version) applied to every error."
+    description="Set Viem-scoped defaults (docs origin, version) applied to every error."
     icon="lucide:settings"
     to="/docs/errors/configuration"
   />
