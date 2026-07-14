@@ -1,5 +1,19 @@
 # viem
 
+## 2.55.2
+
+### Patch Changes
+
+- [#4813](https://github.com/wevm/viem/pull/4813) [`3f7f0f6839738de70e2f836b475d589c6f1c68b4`](https://github.com/wevm/viem/commit/3f7f0f6839738de70e2f836b475d589c6f1c68b4) Thanks [@Slokh](https://github.com/Slokh)! - Added Tempo Zone helpers for preparing encrypted deposit recipients and withdrawal requests with normalized details, maximum fees, and distinct callback and Zone transaction gas limits.
+
+## 2.55.1
+
+### Patch Changes
+
+- [#4828](https://github.com/wevm/viem/pull/4828) [`765e19b99b97567ef7b3446bc196353cdaa281a3`](https://github.com/wevm/viem/commit/765e19b99b97567ef7b3446bc196353cdaa281a3) Thanks [@jxom](https://github.com/jxom)! - Added Tempo zone encryption-key and deposit-status waiting actions, defaulted bounceback recipients to accounts, and adapted receipt polling for private Zone RPCs.
+
+- [#4823](https://github.com/wevm/viem/pull/4823) [`c31e0bd376bf41250c1833cd741e9a93bfe75398`](https://github.com/wevm/viem/commit/c31e0bd376bf41250c1833cd741e9a93bfe75398) Thanks [@jxom](https://github.com/jxom)! - Added `blockHash` and `requireCanonical` parameters to `verifyHash`, `verifyMessage`, `verifyTypedData`, and `verifySiweMessage`, allowing onchain signature verification to be pinned to a specific block via EIP-1898.
+
 ## 2.55.0
 
 ### Minor Changes

@@ -219,7 +219,7 @@ export function defineZone(options: DefineZoneOptions = {}): ZoneInstance {
 }
 
 async function startZone(options: DefineZoneOptions): Promise<StartedZone> {
-  const tag = process.env.VITE_TEMPO_ZONE_TAG ?? 'sha-aae82c4'
+  const tag = process.env.VITE_TEMPO_ZONE_TAG ?? 'latest'
   const l1RpcUrl = rpcUrl.replace(
     /^http:\/\/localhost/,
     'ws://host.docker.internal',
@@ -280,7 +280,8 @@ async function startZone(options: DefineZoneOptions): Promise<StartedZone> {
 export function createServer() {
   return Server.create({
     instance: TestContainers.Instance.tempo({
-      blockTime: '2ms',
+      // Match Tempo's production cadence when Zone consumes every L1 block.
+      blockTime: process.env.VITE_TEMPO_ZONES === 'true' ? '500ms' : '2ms',
       image: 'ghcr.io/tempoxyz/tempo:latest',
       port,
     }),

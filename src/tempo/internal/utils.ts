@@ -139,3 +139,9 @@ export function pickWriteParameters(parameters: Record<string, unknown>) {
     validBefore,
   }
 }
+
+/** Picks receipt-waiting fields shared by synchronous Tempo write actions. */
+export function pickWriteSyncParameters(parameters: Record<string, unknown>) {
+  const { pollingInterval, timeout } = parameters
+  return { pollingInterval, timeout }
+}

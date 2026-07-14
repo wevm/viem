@@ -4549,8 +4549,8 @@ export type Decorator<
       options: zone.getDepositStatus.Options,
     ) => Promise<zone.getDepositStatus.ReturnType>
     /**
-     * Returns the fee required for a withdrawal from a zone, given a gas
-     * limit.
+     * Returns the fee required for a withdrawal from a zone, given a callback
+     * gas limit.
      *
      * @example
      * ```ts

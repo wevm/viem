@@ -81,6 +81,9 @@ export default defineConfig({
       'site-old/**',
       'src-old/**',
       'test-old/**',
+      ...(process.env.VITE_TEMPO_ZONES === 'true'
+        ? []
+        : ['src/tempo/actions/zone/integration.test.ts']),
     ],
     retry: 3,
     projects: [

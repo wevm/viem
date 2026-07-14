@@ -22,6 +22,18 @@ test('behavior: encodes the outbox requestWithdrawal call with revealTo', () => 
   expect(call.args[7]).toBe(revealTo)
 })
 
+test('behavior: encodes callback gas', () => {
+  const [, call] = requestVerifiableWithdrawal.calls({
+    amount: 1n,
+    callbackGas: 10_000_000n,
+    revealTo: '0x02abc',
+    to: account.address,
+    token: '0x20c0000000000000000000000000000000000001',
+  })
+
+  expect(call.args[4]).toBe(10_000_000n)
+})
+
 test('error: no account', async () => {
   const client = Client.create({
     chain: tempoLocalnet,

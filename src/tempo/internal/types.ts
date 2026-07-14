@@ -41,3 +41,9 @@ export type WriteParameters = UnionPick<
     | 'validAfter'
     | 'validBefore'
   >
+
+/** Receipt-waiting fields shared by synchronous Tempo write actions. */
+export type WriteSyncParameters = UnionPick<
+  writeSync.Options,
+  'pollingInterval' | 'timeout'
+>

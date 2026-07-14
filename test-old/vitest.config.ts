@@ -1,6 +1,10 @@
 import { join } from 'node:path'
 import { defineConfig, type TestProjectConfiguration } from 'vitest/config'
 
+const zoneNodeConfigured =
+  (process.env.VITE_TEMPO_ENV || 'localnet') !== 'localnet' ||
+  process.env.VITE_TEMPO_ZONES === 'true'
+
 export default defineConfig({
   test: {
     alias: [
@@ -72,6 +76,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'tempo',
+          exclude: [zoneNodeConfigured ? '' : 'src/tempo/actions/zone.test.ts'],
           include: ['src/tempo/**/*.test.ts'],
           setupFiles: [join(__dirname, './src/tempo/setup.ts')],
           globalSetup: [join(__dirname, './src/tempo/setup.global.ts')],

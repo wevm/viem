@@ -9,7 +9,7 @@ import type { ReadParameters } from '../../internal/types.js'
 import * as ZoneAbis from '../../zones/Abis.js'
 
 /**
- * Returns the fee required for a withdrawal from a zone, given a gas limit.
+ * Returns the fee required for a withdrawal from a zone, given a callback gas limit.
  *
  * @example
  * ```ts
@@ -31,20 +31,20 @@ export async function getWithdrawalFee<
   client: Client.Client<chain, account>,
   options: getWithdrawalFee.Options = {},
 ): Promise<getWithdrawalFee.ReturnType> {
-  const { gas = 0n, ...rest } = options
+  const { callbackGas = 0n, ...rest } = options
   return read(client, {
     ...rest,
     address: Addresses.zoneOutbox,
     abi: ZoneAbis.zoneOutbox,
     functionName: 'calculateWithdrawalFee',
-    args: [gas],
+    args: [callbackGas],
   })
 }
 
 export namespace getWithdrawalFee {
   export type Options = ReadParameters & {
-    /** Gas limit for the withdrawal callback. */
-    gas?: bigint | undefined
+    /** Gas limit reserved for the withdrawal callback on the parent chain. */
+    callbackGas?: bigint | undefined
   }
   export type ReturnType = bigint
   export type ErrorType = Errors.GlobalErrorType

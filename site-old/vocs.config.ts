@@ -3400,7 +3400,6 @@ export default defineConfig({
   ],
   twoslash: {
     checkOnly: true,
-    // Persist twoslash results inline in the markdown source as
     // This lets cold Vercel builds skip twoslash entirely instead of
     // re-resolving every snippet from scratch.
     inlineCache: true,

@@ -9,7 +9,7 @@ Returns the fee required for a withdrawal from a zone, given a callback gas limi
 :::code-group
 
 ```ts twoslash [example.ts]
-import { client } from './viem.config'
+import { client } from './zones.config'
 
 const fee = await client.zone.getWithdrawalFee()
 
@@ -17,11 +17,21 @@ console.log('Fee:', fee)
 // @log: Fee: 0n
 ```
 
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
 ```
 
 :::
+
+### Callback Gas
+
+```ts twoslash
+import { client } from './zones.config'
+
+const fee = await client.zone.getWithdrawalFee({
+  callbackGas: 100_000n,
+})
+```
 
 ## Return Type
 
@@ -33,7 +43,7 @@ The withdrawal fee.
 
 ## Parameters
 
-### gas (optional)
+### callbackGas (optional)
 
 - **Type:** `bigint`
 - **Default:** `0n`

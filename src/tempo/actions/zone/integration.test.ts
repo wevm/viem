@@ -47,6 +47,20 @@ describe.skipIf(Boolean(process.env.SKIP_GLOBAL_SETUP))('local zone', () => {
       expect(encryptionKey.publicKey.x).toMatch(/^0x[\da-f]{64}$/)
       expect([2, 3]).toContain(encryptionKey.publicKey.prefix)
 
+      const preparedRecipient =
+        await Actions.zone.encryptedDeposit.prepareRecipient(parentClient, {
+          portalAddress: tempoZone.portalAddress,
+          recipient: account.address,
+          zoneId: tempoZone.zoneId,
+        })
+      expect(preparedRecipient).toMatchObject({
+        chainId: parentClient.chain.id,
+        keyIndex: encryptionKey.keyIndex,
+        portalAddress: tempoZone.portalAddress,
+        zoneId: tempoZone.zoneId,
+      })
+      expect(preparedRecipient.encrypted.ciphertext).toMatch(/^0x[\da-f]+$/)
+
       if (!tempoZone.factoryAddress)
         throw new Error('Zone factory address is unavailable.')
       const verifier = await CoreActions.contract.read(parentClient, {
@@ -141,7 +155,9 @@ describe.skipIf(Boolean(process.env.SKIP_GLOBAL_SETUP))('local zone', () => {
         parentClient,
         {
           amount: 1_000_000n,
+          pollingInterval: 100,
           portalAddress: tempoZone.portalAddress,
+          timeout: 30_000,
           token: tempo.pathUsd,
           zoneId: tempoZone.zoneId,
         },
@@ -171,16 +187,48 @@ describe.skipIf(Boolean(process.env.SKIP_GLOBAL_SETUP))('local zone', () => {
         Actions.zone.getWithdrawalFee(zoneClient),
       ).resolves.toBeGreaterThanOrEqual(0n)
       await expect(
-        Actions.zone.getWithdrawalFee(zoneClient, { gas: 100_000n }),
+        Actions.zone.getWithdrawalFee(zoneClient, {
+          callbackGas: 100_000n,
+        }),
       ).resolves.toBeGreaterThanOrEqual(0n)
 
       const token = zoneInfo.zoneTokens[0]
       if (!token) throw new Error('Zone token is unavailable.')
 
-      const withdrawalHash = await Actions.zone.requestWithdrawal(zoneClient, {
+      const preparedWithdrawal = await Actions.zone.requestWithdrawal.prepare(
+        zoneClient,
+        {
+          amount: 10_000n,
+          callbackGas: 100_000n,
+          token,
+        },
+      )
+      expect(preparedWithdrawal).toMatchObject({
         amount: 10_000n,
+        callbackGas: 100_000n,
+        data: '0x',
+        fallbackRecipient: account.address,
+        memo: zeroHash,
+        to: account.address,
         token,
       })
+      expect(preparedWithdrawal.request).toMatchObject({
+        type: 'tempo',
+      })
+      expect(preparedWithdrawal.request.calls).toHaveLength(2)
+      const feePerGas =
+        preparedWithdrawal.request.maxFeePerGas ??
+        preparedWithdrawal.request.gasPrice
+      if (typeof feePerGas !== 'bigint')
+        throw new Error('Prepared fee per gas is unavailable.')
+      expect(preparedWithdrawal.maxFee).toBe(
+        (preparedWithdrawal.request.gas * feePerGas + 1_000_000_000_000n - 1n) /
+          1_000_000_000_000n,
+      )
+      const withdrawalHash = await CoreActions.transaction.send(
+        zoneClient,
+        preparedWithdrawal.request,
+      )
       await expect(
         CoreActions.transaction.waitForReceipt(zoneClient, {
           checkReplacement: false,
@@ -193,7 +241,9 @@ describe.skipIf(Boolean(process.env.SKIP_GLOBAL_SETUP))('local zone', () => {
       const verifiableWithdrawal =
         await Actions.zone.requestVerifiableWithdrawalSync(zoneClient, {
           amount: 10_000n,
+          pollingInterval: 100,
           revealTo,
+          timeout: 30_000,
           token,
         })
       expect(verifiableWithdrawal.receipt.status).toBe('success')

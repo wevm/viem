@@ -4,10 +4,15 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { send } from '../../../core/actions/transaction/send.js'
-import type { sendSync } from '../../../core/actions/transaction/sendSync.js'
+import { sendSync } from '../../../core/actions/transaction/sendSync.js'
 import * as Abis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
-import { defineCall, dispatchSend } from '../../internal/utils.js'
+import {
+  defineCall,
+  dispatchSend,
+  pickWriteParameters,
+  pickWriteSyncParameters,
+} from '../../internal/utils.js'
 import * as ZoneAbis from '../../zones/Abis.js'
 import { getAccount, getAddress, type ZoneWriteParameters } from './internal.js'
 import type { requestWithdrawal } from './requestWithdrawal.js'
@@ -78,7 +83,8 @@ export namespace requestVerifiableWithdrawal {
     const account = getAccount(options.account ?? client.account)
     const to = options.to ?? getAddress(account)
     return dispatchSend(action, client, {
-      ...options,
+      ...pickWriteParameters(options),
+      ...(action === sendSync ? pickWriteSyncParameters(options) : {}),
       account,
       calls: requestVerifiableWithdrawal.calls({ ...options, to }),
     })
@@ -88,9 +94,9 @@ export namespace requestVerifiableWithdrawal {
   export function calls(args: Args) {
     const {
       amount,
+      callbackGas = 0n,
       data = '0x',
       fallbackRecipient = args.to,
-      gas = 0n,
       memo = zeroHash,
       revealTo,
       to,
@@ -112,7 +118,7 @@ export namespace requestVerifiableWithdrawal {
           to,
           amount,
           memo,
-          gas,
+          callbackGas,
           fallbackRecipient,
           data,
           revealTo,

@@ -1,8 +1,10 @@
 import type { Hex } from 'ox'
 import { describe, expectTypeOf, test } from 'vitest'
 
+import { Actions as CoreActions } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
 import { Account, Actions, Client, http } from 'viem/tempo'
+import { zoneModerato } from 'viem/tempo/zones'
 
 import { deposit } from './deposit.js'
 import { depositSync } from './depositSync.js'
@@ -26,6 +28,15 @@ const client = Client.create({
   chain: tempoLocalnet,
   transport: http(),
 })
+const zoneClient = Client.create({
+  account,
+  chain: zoneModerato(7),
+  transport: http(),
+})
+const publicZoneClient = Client.create({
+  chain: zoneModerato(7),
+  transport: http(),
+})
 
 describe('zone action types', () => {
   test('write action return types', async () => {
@@ -46,12 +57,16 @@ describe('zone action types', () => {
     expectTypeOf(
       requestWithdrawal(client, {
         amount: 1n,
+        callbackGas: 10_000_000n,
+        gas: 1_000_000n,
         token: '0x20C0000000000000000000000000000000000001',
       }),
     ).resolves.toEqualTypeOf<Hex.Hex>()
     expectTypeOf(
       requestVerifiableWithdrawal(client, {
         amount: 1n,
+        callbackGas: 10_000_000n,
+        gas: 1_000_000n,
         revealTo: '0x02',
         token: '0x20C0000000000000000000000000000000000001',
       }),
@@ -70,6 +85,8 @@ describe('zone action types', () => {
       (
         await encryptedDepositSync(client, {
           amount: 1n,
+          pollingInterval: 100,
+          timeout: 1_000,
           token: '0x20C0000000000000000000000000000000000001',
           zoneId: 7,
         })
@@ -79,6 +96,8 @@ describe('zone action types', () => {
       (
         await requestWithdrawalSync(client, {
           amount: 1n,
+          pollingInterval: 100,
+          timeout: 1_000,
           token: '0x20C0000000000000000000000000000000000001',
         })
       ).receipt,
@@ -87,11 +106,61 @@ describe('zone action types', () => {
       (
         await requestVerifiableWithdrawalSync(client, {
           amount: 1n,
+          pollingInterval: 100,
           revealTo: '0x02',
+          timeout: 1_000,
           token: '0x20C0000000000000000000000000000000000001',
         })
       ).receipt,
     ).not.toBeAny()
+  })
+
+  test('preparation helper types', async () => {
+    const recipient = await Actions.zone.encryptedDeposit.prepareRecipient(
+      client,
+      {
+        portalAddress: '0x3F5296303400B56271b476F5A0B9cBF74350D6Ac',
+        recipient: account.address,
+        zoneId: 7,
+      },
+    )
+    expectTypeOf(
+      recipient,
+    ).toEqualTypeOf<Actions.zone.PreparedEncryptedDepositRecipient>()
+
+    const prepared = await Actions.zone.requestWithdrawal.prepare(zoneClient, {
+      amount: 1n,
+      callbackGas: 10_000_000n,
+      gas: 1_000_000n,
+      nonce: 7,
+      token: '0x20C0000000000000000000000000000000000001',
+    })
+    expectTypeOf(prepared.request.account).toEqualTypeOf<typeof account>()
+    expectTypeOf(prepared.request.gas).toEqualTypeOf<1_000_000n>()
+    expectTypeOf(prepared.request.nonce).toEqualTypeOf<7>()
+    expectTypeOf(prepared.request.maxFeePerGas).toEqualTypeOf<bigint>()
+    expectTypeOf(prepared.request.maxPriorityFeePerGas).toEqualTypeOf<bigint>()
+    expectTypeOf(prepared.maxFee).toEqualTypeOf<bigint>()
+    expectTypeOf(prepared.callbackGas).toEqualTypeOf<bigint>()
+    expectTypeOf(prepared).not.toHaveProperty('totalFee')
+    expectTypeOf(prepared).not.toHaveProperty('transactionFee')
+    expectTypeOf(prepared).not.toHaveProperty('withdrawalFee')
+    expectTypeOf(prepared).not.toHaveProperty('estimatedGas')
+
+    await CoreActions.transaction.send(zoneClient, prepared.request)
+
+    const feeToken = '0x20C0000000000000000000000000000000000002'
+    const overridden = await Actions.zone.requestWithdrawal.prepare(
+      publicZoneClient,
+      {
+        account,
+        amount: 1n,
+        feeToken,
+        token: '0x20C0000000000000000000000000000000000001',
+      },
+    )
+    expectTypeOf(overridden.request.account).toEqualTypeOf<typeof account>()
+    expectTypeOf(overridden.request.feeToken).toEqualTypeOf<typeof feeToken>()
   })
 
   test('read action return types', async () => {
@@ -122,5 +191,6 @@ describe('zone action types', () => {
   test('public payload types', () => {
     expectTypeOf<Actions.zone.EncryptedPayload>().not.toBeAny()
     expectTypeOf<Actions.zone.PreparedEncryptedDeposit>().not.toBeAny()
+    expectTypeOf<Actions.zone.PreparedEncryptedDepositRecipient>().not.toBeAny()
   })
 })

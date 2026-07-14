@@ -27,7 +27,7 @@ console.log('Fee:', fee)
 import { client } from './zones.config'
 
 const fee = await client.zone.getWithdrawalFee({
-  gas: 100_000n,
+  callbackGas: 100_000n,
 })
 ```
 
@@ -41,7 +41,7 @@ The withdrawal fee as a bigint.
 
 ## Parameters
 
-### gas (optional)
+### callbackGas (optional)
 
 - **Type:** `bigint`
 - **Default:** `0n`

@@ -77,3 +77,11 @@ export type WriteParameters<
     | 'validAfter'
     | 'validBefore'
   >
+
+export type WriteSyncParameters<
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
+> = UnionPick<
+  viem_WriteContractSyncParameters<never, never, never, chain, account>,
+  'pollingInterval' | 'timeout'
+>

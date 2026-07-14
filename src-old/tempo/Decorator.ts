@@ -5036,9 +5036,25 @@ type DecoratorBase<
      * @param parameters - Parameters.
      * @returns The transaction hash.
      */
-    requestWithdrawal: (
+    requestWithdrawal: ((
       parameters: zoneActions.requestWithdrawal.Parameters<chain, account>,
-    ) => Promise<zoneActions.requestWithdrawal.ReturnValue>
+    ) => Promise<zoneActions.requestWithdrawal.ReturnValue>) & {
+      prepare: (
+        parameters: zoneActions.requestWithdrawal.prepare.Parameters<
+          chain,
+          account,
+          undefined,
+          undefined
+        >,
+      ) => Promise<
+        zoneActions.requestWithdrawal.prepare.ReturnType<
+          chain,
+          account,
+          undefined,
+          undefined
+        >
+      >
+    }
     /**
      * Requests a withdrawal and waits for the transaction receipt.
      *
@@ -5163,6 +5179,9 @@ type BoundActionHelpers<action> = (action extends { call: infer helper }
     : {}) &
   (action extends { prepare: infer helper }
     ? { prepare: BoundHelper<helper> }
+    : {}) &
+  (action extends { prepareRecipient: infer helper }
+    ? { prepareRecipient: BoundHelper<helper> }
     : {}) &
   (action extends { simulate: infer helper }
     ? { simulate: BoundHelper<helper> }

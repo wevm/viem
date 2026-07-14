@@ -43,6 +43,43 @@ const hash = await client.zone.requestWithdrawal({
 const receipt = await client.waitForTransactionReceipt({ hash })
 ```
 
+### Prepare a Withdrawal
+
+Use `zone.requestWithdrawal.prepare` to populate and inspect the Zone transaction request without broadcasting. The result includes the request, normalized withdrawal details, and a `maxFee` rounded up into fee-token base units using Tempo's fixed gas-price conversion.
+
+Use [`zone.getWithdrawalFee`](/tempo/actions/zone.getWithdrawalFee) separately to inspect the protocol withdrawal fee.
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { client } from './zones.config'
+
+const prepared = await client.zone.requestWithdrawal.prepare({
+  amount: parseUnits('100', 6),
+  callbackGas: 10_000_000n,
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log('Maximum fee:', prepared.maxFee)
+console.log('Gas limit:', prepared.request.gas)
+console.log('Calls:', prepared.request.calls)
+```
+
+The prepare helper returns:
+
+```ts
+type PreparedWithdrawal = {
+  amount: bigint
+  callbackGas: bigint
+  data: Hex
+  fallbackRecipient: Address
+  maxFee: bigint
+  memo: Hex
+  request: PrepareTransactionRequestReturnType
+  to: Address
+  token: Address | bigint
+}
+```
+
 ## Return Type
 
 ```ts
@@ -87,12 +124,18 @@ Optional callback data for the recipient.
 
 Fallback address if callback fails.
 
-### gas (optional)
+### callbackGas (optional)
 
 - **Type:** `bigint`
 - **Default:** `0n`
 
 Gas limit reserved for the withdrawal callback on the parent chain.
+
+### gas (optional)
+
+- **Type:** `bigint`
+
+Transaction gas limit on the Zone chain.
 
 ### memo (optional)
 

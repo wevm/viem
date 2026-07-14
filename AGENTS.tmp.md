@@ -6,8 +6,8 @@ when porting or reshaping v2 surface area.
 ## Source Boundaries
 
 - **Clean slate**; the old sources live under `src-old/` and `test-old/`.
-  - `src-old/` is a snapshot of upstream `wevm/viem` **main @ v2.55.0** (`765e19b99`, refreshed
-    2026-07-11 from `origin/main`), not the original v2 freeze. It is the parity baseline and
+  - `src-old/` is a snapshot of upstream `wevm/viem` **main @ v2.55.2** (`165d8c2ad`, refreshed
+    2026-07-14 from `origin/main`), not the original v2 freeze. It is the parity baseline and
     includes later-landed features (e.g. `viem/tokens`, the `token` action namespace, the
     `tokens` Client option, new chains, tempo `Client`/`Scopes`/`Selectors`, storage credits,
     client-less token `.call` builders).

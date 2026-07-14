@@ -141,3 +141,15 @@ test('pickWriteParameters', () => {
   expect(picked).not.toHaveProperty('amount')
   expect(picked).not.toHaveProperty('to')
 })
+
+test('pickWriteSyncParameters', () => {
+  const picked = utils.pickWriteSyncParameters({
+    amount: 1n,
+    pollingInterval: 100,
+    timeout: 1_000,
+    token: 1n,
+  })
+  expect(picked).toEqual({ pollingInterval: 100, timeout: 1_000 })
+  expect(picked).not.toHaveProperty('amount')
+  expect(picked).not.toHaveProperty('token')
+})

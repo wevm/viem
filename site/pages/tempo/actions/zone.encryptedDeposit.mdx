@@ -64,6 +64,23 @@ const prepared = await Actions.zone.encryptedDeposit.prepare(client, {
 const hash = await client.zone.encryptedDeposit(prepared)
 ```
 
+### Prepared Recipient Usage
+
+Use `Actions.zone.encryptedDeposit.prepareRecipient` when another contract or service handles token movement and only needs the ZonePortal encryption fields.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { encrypted, keyIndex } =
+  await Actions.zone.encryptedDeposit.prepareRecipient(client, {
+    recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+    zoneId: 7,
+  })
+```
+
+The helper returns the encrypted payload and its key index together with the parent chain ID, portal address, and zone ID.
+
 ## Return Type
 
 ```ts

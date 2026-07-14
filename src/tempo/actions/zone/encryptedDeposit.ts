@@ -4,10 +4,15 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { send } from '../../../core/actions/transaction/send.js'
-import type { sendSync } from '../../../core/actions/transaction/sendSync.js'
+import { sendSync } from '../../../core/actions/transaction/sendSync.js'
 import type { UnionOmit } from '../../../core/internal/types.js'
 import * as Abis from '../../Abis.js'
-import { defineCall, dispatchSend } from '../../internal/utils.js'
+import {
+  defineCall,
+  dispatchSend,
+  pickWriteParameters,
+  pickWriteSyncParameters,
+} from '../../internal/utils.js'
 import * as ZoneAbis from '../../zones/Abis.js'
 import { getPortalAddress } from '../../zones/zone.js'
 import { getEncryptionKey } from './getEncryptionKey.js'
@@ -18,7 +23,11 @@ import {
   getChain,
   type ZoneWriteParameters,
 } from './internal.js'
-import type { EncryptedPayload, PreparedEncryptedDeposit } from './types.js'
+import type {
+  EncryptedPayload,
+  PreparedEncryptedDeposit,
+  PreparedEncryptedDepositRecipient,
+} from './types.js'
 
 /**
  * Deposits tokens into a zone on the parent Tempo chain with encrypted recipient and memo.
@@ -118,7 +127,8 @@ export namespace encryptedDeposit {
           'Prepared encrypted deposit chain ID does not match client chain.',
         )
       return dispatchSend(action, client, {
-        ...options,
+        ...pickWriteParameters(options),
+        ...(action === sendSync ? pickWriteSyncParameters(options) : {}),
         account,
         calls: encryptedDeposit.calls({ ...options, bouncebackRecipient }),
       })
@@ -135,7 +145,8 @@ export namespace encryptedDeposit {
       zoneId: options.zoneId,
     })
     return dispatchSend(action, client, {
-      ...options,
+      ...pickWriteParameters(options),
+      ...(action === sendSync ? pickWriteSyncParameters(options) : {}),
       account,
       calls: encryptedDeposit.calls(prepared),
     })
@@ -206,6 +217,65 @@ export namespace encryptedDeposit {
       Args
     export type ReturnType = PreparedEncryptedDeposit
     export type ErrorType = Errors.GlobalErrorType
+  }
+
+  /** Prepares encrypted recipient instructions without constructing a deposit. */
+  export async function prepareRecipient<chain extends Chain.Chain | undefined>(
+    client: Client.Client<chain>,
+    options: prepareRecipient.Options,
+  ): Promise<prepareRecipient.ReturnType> {
+    const chain = client.chain
+    if (!chain) throw new Error('`chain` is required.')
+    const {
+      memo,
+      portalAddress: portalAddress_,
+      recipient,
+      zoneId,
+      ...rest
+    } = options
+    const portalAddress = portalAddress_ ?? getPortalAddress(chain.id, zoneId)
+    const { keyIndex, publicKey } = await getEncryptionKey(client, {
+      ...rest,
+      portalAddress,
+      zoneId,
+    })
+    return {
+      chainId: chain.id,
+      encrypted: await encryptDepositPayload(
+        publicKey,
+        recipient,
+        portalAddress,
+        keyIndex,
+        memo,
+      ),
+      keyIndex,
+      portalAddress,
+      zoneId,
+    }
+  }
+
+  export namespace prepareRecipient {
+    /** Arguments for preparing encrypted recipient instructions. */
+    export type Args = {
+      /** Optional deposit memo. */
+      memo?: Hex.Hex | undefined
+      /** Zone portal address. Defaults to the configured portal registry. */
+      portalAddress?: Address.Address | undefined
+      /** Recipient address in the zone. */
+      recipient: Address.Address
+      /** Zone ID. */
+      zoneId: number
+    }
+    /** Options for {@link prepareRecipient}. */
+    export type Options = UnionOmit<
+      getEncryptionKey.Options,
+      'portalAddress' | 'zoneId'
+    > &
+      Args
+    /** Return value for {@link prepareRecipient}. */
+    export type ReturnType = PreparedEncryptedDepositRecipient
+    /** Errors thrown by {@link prepareRecipient}. */
+    export type ErrorType = getEncryptionKey.ErrorType | Errors.GlobalErrorType
   }
 
   /** Defines the calls to approve and deposit encrypted tokens into a zone. */

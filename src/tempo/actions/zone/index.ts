@@ -13,7 +13,11 @@ export { requestVerifiableWithdrawalSync } from './requestVerifiableWithdrawalSy
 export { requestWithdrawal } from './requestWithdrawal.js'
 export { requestWithdrawalSync } from './requestWithdrawalSync.js'
 export { signAuthorizationToken } from './signAuthorizationToken.js'
-export type { EncryptedPayload, PreparedEncryptedDeposit } from './types.js'
+export type {
+  EncryptedPayload,
+  PreparedEncryptedDeposit,
+  PreparedEncryptedDepositRecipient,
+} from './types.js'
 export {
   waitForDepositStatus,
   WaitForDepositStatusTimeoutError,

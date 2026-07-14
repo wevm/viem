@@ -12,7 +12,7 @@ Batches an approval and a ZoneOutbox withdrawal request into a single transactio
 
 ```ts twoslash [example.ts]
 import { PublicKey, Secp256k1 } from 'viem/utils'
-import { client } from './viem.config'
+import { client } from './zones.config'
 
 // Generate a keypair for decrypting the sender identity later.
 // Store the private key securely: the holder can reveal the sender.
@@ -29,8 +29,8 @@ console.log('Transaction hash:', receipt.transactionHash)
 // @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
 ```
 
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
 ```
 
 :::
@@ -43,7 +43,7 @@ If you are optimizing for performance, you should use the non-sync `zone.request
 
 ```ts twoslash
 import { PublicKey, Secp256k1 } from 'viem/utils'
-import { client } from './viem.config'
+import { client } from './zones.config'
 
 const { publicKey } = Secp256k1.createKeyPair()
 const revealTo = PublicKey.toHex(PublicKey.compress(publicKey))
@@ -75,6 +75,13 @@ The transaction receipt. The non-sync `zone.requestVerifiableWithdrawal` action 
 
 Amount of tokens to withdraw.
 
+### callbackGas (optional)
+
+- **Type:** `bigint`
+- **Default:** `0n`
+
+Gas limit reserved for the withdrawal callback on the parent chain.
+
 ### data (optional)
 
 - **Type:** `Hex`
@@ -87,13 +94,6 @@ Callback data for the recipient on the parent chain.
 - **Default:** `to`
 
 Fallback address if the callback fails.
-
-### gas (optional)
-
-- **Type:** `bigint`
-- **Default:** `0n`
-
-Gas limit reserved for the withdrawal callback on the parent chain.
 
 ### memo (optional)
 

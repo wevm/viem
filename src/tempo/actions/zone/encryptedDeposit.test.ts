@@ -1,6 +1,7 @@
 import * as tempo from '~test/tempo.js'
 import { expect, test } from 'vitest'
 
+import { Client as CoreClient } from 'viem'
 import { Client, http } from 'viem/tempo'
 import { tempoLocalnet, tempoModerato } from 'viem/chains'
 
@@ -60,4 +61,16 @@ test('error: no account', async () => {
       zoneId: 7,
     }),
   ).rejects.toThrow('`account` is required.')
+})
+
+test('error: prepare recipient without chain', async () => {
+  const client = CoreClient.create({ transport: http(tempo.rpcUrl) })
+
+  await expect(
+    encryptedDeposit.prepareRecipient(client, {
+      portalAddress: prepared.portalAddress,
+      recipient: prepared.bouncebackRecipient,
+      zoneId: prepared.zoneId,
+    }),
+  ).rejects.toThrow('`chain` is required.')
 })

@@ -33,3 +33,17 @@ export type PreparedEncryptedDeposit = {
   /** Zone ID. */
   zoneId: number
 }
+
+/** Prepared encrypted recipient payload. */
+export type PreparedEncryptedDepositRecipient = {
+  /** Parent chain ID. */
+  chainId: number
+  /** Encrypted recipient and memo payload. */
+  encrypted: EncryptedPayload
+  /** Encryption key index from the portal contract. */
+  keyIndex: bigint
+  /** Zone portal address on the parent chain. */
+  portalAddress: Address.Address
+  /** Zone ID. */
+  zoneId: number
+}
