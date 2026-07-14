@@ -35,6 +35,7 @@ test('exports', () => {
       "usdc",
       "usdce",
       "usde",
+      "usdt",
       "usdt0",
       "usyc",
       "wsrusd",
