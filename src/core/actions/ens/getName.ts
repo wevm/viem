@@ -44,14 +44,14 @@ export async function getName(
   })
 
   try {
-    const [name] = (await read(client, {
+    const { resolvedName: name } = await read(client, {
       abi: universalResolverReverseAbi,
       address: universalResolverAddress,
       args: [address, coinType, gatewayUrls ?? [localBatchGatewayUrl]],
       blockNumber,
       blockTag,
       functionName: 'reverseWithGateways',
-    })) as [string, Address.Address, Address.Address]
+    })
 
     return name || null
   } catch (err) {

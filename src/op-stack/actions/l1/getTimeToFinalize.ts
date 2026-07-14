@@ -46,7 +46,7 @@ export async function getTimeToFinalize<chain extends Chain.Chain | undefined>(
         },
       ] as const,
     })
-    const [[, proveTimestamp], period] = results
+    const [{ timestamp: proveTimestamp }, period] = results
     return getTime({ period, proveTimestamp })
   }
 
@@ -77,7 +77,7 @@ export async function getTimeToFinalize<chain extends Chain.Chain | undefined>(
       return undefined
     }
   })()
-  const [[, proveTimestamp], period] = await Promise.all([
+  const [{ timestamp: proveTimestamp }, period] = await Promise.all([
     proofSubmitter
       ? read(client, {
           abi: portal2Abi,
@@ -85,7 +85,10 @@ export async function getTimeToFinalize<chain extends Chain.Chain | undefined>(
           args: [withdrawalHash, proofSubmitter],
           functionName: 'provenWithdrawals',
         })
-      : Promise.resolve([zeroHex, 0n] as const),
+      : Promise.resolve({
+          disputeGameProxy: zeroHex,
+          timestamp: 0n,
+        } as const),
     read(client, {
       abi: portal2Abi,
       address: portalAddress,

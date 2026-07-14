@@ -1,6 +1,7 @@
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as contract from '~test/contract.js'
+import { Abi } from 'ox'
 import { describe, expect, test } from 'vitest'
 
 import { Actions, ContractError } from 'viem'
@@ -20,6 +21,13 @@ const errors = {
   ).address,
 }
 
+const valuesAbi = Abi.from([
+  'function mixedValues() view returns (uint256 foo, uint256)',
+  'function unnamedValues() view returns (uint256, uint256)',
+  'function values() view returns (uint256 foo, uint256 bar)',
+])
+const valuesCode = '0x600f600c600039600f6000f3602a600052604560205260406000f3'
+
 test('default', async () => {
   expect(
     await Actions.contract.read(client, {
@@ -28,6 +36,65 @@ test('default', async () => {
       functionName: 'name',
     }),
   ).toBe('wagmi')
+})
+
+test('return shape', async () => {
+  expect(
+    await Actions.contract.read(client, {
+      abi: valuesAbi,
+      code: valuesCode,
+      functionName: 'values',
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "bar": 69n,
+      "foo": 42n,
+    }
+  `)
+
+  expect(
+    await Actions.contract.read(client, {
+      abi: valuesAbi,
+      as: 'Array',
+      code: valuesCode,
+      functionName: 'values',
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      42n,
+      69n,
+    ]
+  `)
+})
+
+test('return shape: unnamed outputs', async () => {
+  expect(
+    await Actions.contract.read(client, {
+      abi: valuesAbi,
+      code: valuesCode,
+      functionName: 'unnamedValues',
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "0": 42n,
+      "1": 69n,
+    }
+  `)
+})
+
+test('return shape: mixed outputs', async () => {
+  expect(
+    await Actions.contract.read(client, {
+      abi: valuesAbi,
+      code: valuesCode,
+      functionName: 'mixedValues',
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "1": 69n,
+      "foo": 42n,
+    }
+  `)
 })
 
 test('args: function with return value', async () => {

@@ -24,7 +24,7 @@ export async function validate<chain extends Chain.Chain | undefined>(
   options: validate.Options,
 ): Promise<validate.ReturnType> {
   const { receiver, sender, token, ...rest } = options
-  const [authorized, blockedReason] = await read(client, {
+  const { authorized, blockedReason } = await read(client, {
     ...rest,
     ...validate.call({ receiver, sender, token }),
   })

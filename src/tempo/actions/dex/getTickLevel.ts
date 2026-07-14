@@ -18,7 +18,7 @@ export async function getTickLevel<chain extends Chain.Chain | undefined>(
   options: getTickLevel.Options,
 ): Promise<getTickLevel.ReturnType> {
   const { base, isBid, tick, ...rest } = options
-  const [head, tail, totalLiquidity] = await read(client, {
+  const { head, tail, totalLiquidity } = await read(client, {
     ...rest,
     ...getTickLevel.call(client, { base, isBid, tick }),
   })

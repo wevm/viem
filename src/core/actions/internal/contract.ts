@@ -8,7 +8,7 @@ import type {
   ExtractAbiFunctionNames,
   ResolvedRegister,
 } from 'abitype'
-import type { Hex } from 'ox'
+import type { AbiFunction as ox_AbiFunction, Hex } from 'ox'
 
 import type {
   IsNarrowable,
@@ -213,23 +213,12 @@ export type ContractFunctionReturnType<
     ContractFunctionName<abi, mutability>,
   args extends ContractFunctionArgs<abi, mutability, functionName> =
     ContractFunctionArgs<abi, mutability, functionName>,
+  as extends 'Object' | 'Array' = 'Object',
 > = abi extends Abi
   ? Abi extends abi
     ? unknown
-    : AbiParametersToPrimitiveTypes<
-          ExtractAbiFunctionForArgs<
-            abi,
-            mutability,
-            functionName,
-            args
-          >['outputs'],
-          'outputs',
-          true
-        > extends infer types
-      ? types extends readonly []
-        ? void
-        : types extends readonly [infer type]
-          ? type
-          : types
-      : never
+    : ox_AbiFunction.decodeResult.ReturnType<
+        ExtractAbiFunctionForArgs<abi, mutability, functionName, args>,
+        as
+      >
   : unknown

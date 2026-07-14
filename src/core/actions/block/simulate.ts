@@ -73,7 +73,15 @@ export async function simulate<
     const blockStateCalls = blocks.map((block) => {
       const calls = block.calls.map((call_) => {
         const call = call_ as Call<unknown, simulate.CallExtraProperties>
-        const { abi, account, args, dataSuffix, functionName, ...rest } = call
+        const {
+          abi,
+          account,
+          args,
+          as: _,
+          dataSuffix,
+          functionName,
+          ...rest
+        } = call
 
         const from = (() => {
           if (call.from) return call.from
@@ -187,10 +195,13 @@ export async function simulate<
       ) as Block.Block
 
       const calls = rpcCalls.map((call, j) => {
-        const { abi, args, functionName, to } = blocks[i]!.calls[j]! as Call<
-          unknown,
-          simulate.CallExtraProperties
-        >
+        const {
+          abi,
+          args,
+          as = 'Object',
+          functionName,
+          to,
+        } = blocks[i]!.calls[j]! as Call<unknown, simulate.CallExtraProperties>
 
         const data = call.error?.data ?? call.returnData
         const gasUsed = Hex.toBigInt(call.gasUsed)
@@ -204,6 +215,7 @@ export async function simulate<
                   args: args,
                 }),
                 data,
+                { as },
               )
             : null
 

@@ -9,6 +9,7 @@ const wagmiAbi = Abi.from([
   'function mint(uint256 tokenId)',
   'function name() view returns (string)',
   'function balanceOf(address owner) view returns (uint256)',
+  'function metadata() view returns (string name, string symbol)',
 ])
 
 test('per-call results discriminate on status and infer abi return types', async () => {
@@ -74,6 +75,37 @@ test('block fields are typed', async () => {
 
   expectTypeOf(result[0]!.number).toEqualTypeOf<bigint>()
   expectTypeOf(result[0]!.baseFeePerGas).toEqualTypeOf<bigint | undefined>()
+})
+
+test('per-call object and array return shapes', async () => {
+  const result = await Actions.block.simulate(client, {
+    blocks: [
+      {
+        calls: [
+          {
+            abi: wagmiAbi,
+            functionName: 'metadata',
+            to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+          },
+          {
+            abi: wagmiAbi,
+            as: 'Array',
+            functionName: 'metadata',
+            to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+          },
+        ],
+      },
+    ],
+  })
+
+  const [object, array] = result[0]!.calls
+  if (object.status === 'success')
+    expectTypeOf(object.result).toEqualTypeOf<{
+      name: string
+      symbol: string
+    }>()
+  if (array.status === 'success')
+    expectTypeOf(array.result).toEqualTypeOf<readonly [string, string]>()
 })
 
 test('decorator mirrors the standalone signature', async () => {

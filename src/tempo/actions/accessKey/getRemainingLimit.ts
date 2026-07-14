@@ -58,7 +58,7 @@ export async function getRemainingLimit<
     return { periodEnd: undefined, remaining }
   }
 
-  const [remaining, periodEnd] = await read(client, {
+  const { periodEnd, remaining } = await read(client, {
     ...rest,
     ...getRemainingLimit.callWithPeriod(client, { accessKey, account, token }),
   })

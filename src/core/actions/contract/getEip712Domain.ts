@@ -49,7 +49,7 @@ export async function getEip712Domain(
   const { address, factory, factoryData } = options
 
   try {
-    const [
+    const {
       fields,
       name,
       version,
@@ -57,7 +57,7 @@ export async function getEip712Domain(
       verifyingContract,
       salt,
       extensions,
-    ] = await read(client, {
+    } = await read(client, {
       abi,
       address,
       factory,

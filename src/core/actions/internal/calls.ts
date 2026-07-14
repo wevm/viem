@@ -31,6 +31,8 @@ export type Call<
         >,
         'address'
       > & {
+        /** Return multiple values as an object keyed by output name or as an array. @default 'Object' */
+        as?: 'Object' | 'Array' | undefined
         data?: Hex.Hex | undefined
         dataSuffix?: Hex.Hex | undefined
         to: Address.Address
@@ -180,7 +182,31 @@ type CallReturnType<
           functionName
         >
       }
-      ? ContractFunctionReturnType<abi, mutability, functionName, args>
-      : ContractFunctionReturnType<abi, mutability, functionName>
-    : ContractFunctionReturnType<abi, mutability>
+      ? ContractFunctionReturnType<
+          abi,
+          mutability,
+          functionName,
+          args,
+          CallReturnAs<call>
+        >
+      : ContractFunctionReturnType<
+          abi,
+          mutability,
+          functionName,
+          ContractFunctionArgs<abi, mutability, functionName>,
+          CallReturnAs<call>
+        >
+    : ContractFunctionReturnType<
+        abi,
+        mutability,
+        ContractFunctionName<abi, mutability>,
+        ContractFunctionArgs<abi, mutability>,
+        CallReturnAs<call>
+      >
   : unknown
+
+type CallReturnAs<call> = call extends { as?: infer as_ }
+  ? undefined extends as_
+    ? Extract<as_, 'Object' | 'Array'> | 'Object'
+    : Extract<as_, 'Object' | 'Array'>
+  : 'Object'

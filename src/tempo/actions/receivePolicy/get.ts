@@ -39,14 +39,14 @@ export async function get<
   const { account: account_ = client.account, ...rest } = options
   if (!account_) throw new Account.NotFoundError()
   const address = typeof account_ === 'string' ? account_ : account_.address
-  const [
+  const {
     hasReceivePolicy,
     senderPolicyId,
     senderPolicyType,
-    tokenPolicyId,
-    tokenPolicyType,
+    tokenFilterId: tokenPolicyId,
+    tokenFilterType: tokenPolicyType,
     recoveryAuthority,
-  ] = await read(client, {
+  } = await read(client, {
     ...rest,
     ...get.call({ account: address }),
   })

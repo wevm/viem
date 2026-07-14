@@ -24,8 +24,8 @@ export async function getData<chain extends Chain.Chain | undefined>(
     ...getData.call({ policyId }),
   })
   return {
-    admin: result[1],
-    type: result[0] === 0 ? 'whitelist' : 'blacklist',
+    admin: result.admin,
+    type: result.policyType === 0 ? 'whitelist' : 'blacklist',
   }
 }
 

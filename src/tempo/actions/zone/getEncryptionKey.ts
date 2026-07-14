@@ -55,7 +55,7 @@ export async function getEncryptionKey<chain extends Chain.Chain | undefined>(
       ? new Error('No sequencer encryption key configured.')
       : publicKeyResult.error
 
-  const [x, prefix] = publicKeyResult.result
+  const { x, yParity: prefix } = publicKeyResult.result
   PublicKey.assert({ prefix, x }, { compressed: true })
   return {
     keyIndex: keyCount - 1n,

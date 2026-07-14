@@ -39,11 +39,19 @@ export async function read<
   const abi extends Abi | readonly unknown[],
   functionName extends ContractFunctionName<abi, 'pure' | 'view'>,
   const args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+  as extends 'Object' | 'Array' = 'Object',
 >(
   client: Client.Client,
-  options: read.Options<abi, functionName, args>,
-): Promise<read.ReturnType<abi, functionName, args>> {
-  const { abi, address, args, functionName, ...rest } = options as read.Options
+  options: read.Options<abi, functionName, args, as>,
+): Promise<read.ReturnType<abi, functionName, args, as>> {
+  const {
+    abi,
+    address,
+    args,
+    as = 'Object',
+    functionName,
+    ...rest
+  } = options as read.Options
 
   const abiItem = AbiFunction.fromAbi(abi, functionName, {
     args: args,
@@ -56,10 +64,9 @@ export async function read<
       data,
       to: address,
     } as call.Options)
-    return AbiFunction.decodeResult(
-      abiItem,
-      response.data ?? '0x',
-    ) as read.ReturnType<abi, functionName, args>
+    return AbiFunction.decodeResult(abiItem, response.data ?? '0x', {
+      as,
+    }) as read.ReturnType<abi, functionName, args, as>
   } catch (error) {
     if (isAbortError(error)) throw error
     throw ContractError.fromError(error as Error, {
@@ -78,14 +85,17 @@ export declare namespace read {
       ContractFunctionName<abi, 'pure' | 'view'>,
     args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName> =
       ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+    as extends 'Object' | 'Array' = 'Object',
   > = ContractFunctionParameters<
     abi,
     'pure' | 'view',
     functionName,
     args,
     boolean
-  > &
-    Pick<
+  > & {
+    /** Return multiple values as an object keyed by output name or as an array. @default 'Object' */
+    as?: as | 'Object' | 'Array' | undefined
+  } & Pick<
       call.Options,
       | 'account'
       | 'authorizationList'
@@ -103,7 +113,8 @@ export declare namespace read {
       ContractFunctionName<abi, 'pure' | 'view'>,
     args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName> =
       ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
-  > = ContractFunctionReturnType<abi, 'pure' | 'view', functionName, args>
+    as extends 'Object' | 'Array' = 'Object',
+  > = ContractFunctionReturnType<abi, 'pure' | 'view', functionName, args, as>
 
   type ErrorType =
     | ContractError.fromError.ErrorType

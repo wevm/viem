@@ -132,7 +132,7 @@ export async function getWithdrawalStatus<
       errors.includes('OptimismPortal_InvalidRootClaim') ||
       errors.includes('OptimismPortal_ProofNotOldEnough')
     ) {
-      const disputeGameAddress = provenResult.value[0]
+      const disputeGameAddress = provenResult.value.disputeGameProxy
       const anchorStateRegistry = await read(client, {
         abi: portal2Abi,
         address: portalAddress,
@@ -269,7 +269,7 @@ async function getLegacyStatus<chain extends Chain.Chain | undefined>(
   if (finalizedResult.status === 'rejected') throw finalizedResult.reason
   if (timeResult.status === 'rejected') throw timeResult.reason
 
-  const [, proveTimestamp] = provenResult.value
+  const { timestamp: proveTimestamp } = provenResult.value
   if (proveTimestamp === 0n) return 'ready-to-prove'
   if (finalizedResult.value) return 'finalized'
   return timeResult.value.seconds > 0

@@ -51,12 +51,19 @@ export async function simulate<
     'nonpayable' | 'payable',
     functionName
   >,
+  as extends 'Object' | 'Array' = 'Object',
 >(
   client: Client.Client,
-  options: simulate.Options<abi, functionName, args>,
-): Promise<simulate.ReturnType<abi, functionName, args>> {
-  const { abi, address, args, functionName, ...rest } =
-    options as simulate.Options
+  options: simulate.Options<abi, functionName, args, as>,
+): Promise<simulate.ReturnType<abi, functionName, args, as>> {
+  const {
+    abi,
+    address,
+    args,
+    as = 'Object',
+    functionName,
+    ...rest
+  } = options as simulate.Options
 
   const abiItem = AbiFunction.fromAbi(abi, functionName, {
     args: args,
@@ -76,7 +83,9 @@ export async function simulate<
       data,
       to: address,
     } as call.Options)
-    const result = AbiFunction.decodeResult(abiItem, response.data ?? '0x')
+    const result = AbiFunction.decodeResult(abiItem, response.data ?? '0x', {
+      as,
+    })
 
     // Minimize the ABI to the called function so the returned `request` decodes
     // unambiguously when handed to `write`.
@@ -93,7 +102,7 @@ export async function simulate<
         functionName,
       },
       result,
-    } as unknown as simulate.ReturnType<abi, functionName, args>
+    } as unknown as simulate.ReturnType<abi, functionName, args, as>
   } catch (error) {
     if (isAbortError(error)) throw error
     throw ContractError.fromError(error as Error, {
@@ -116,14 +125,17 @@ export declare namespace simulate {
       'nonpayable' | 'payable',
       functionName
     > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
+    as extends 'Object' | 'Array' = 'Object',
   > = ContractFunctionParameters<
     abi,
     'nonpayable' | 'payable',
     functionName,
     args,
     boolean
-  > &
-    Pick<
+  > & {
+    /** Return multiple values as an object keyed by output name or as an array. @default 'Object' */
+    as?: as | 'Object' | 'Array' | undefined
+  } & Pick<
       call.Options,
       | 'account'
       | 'authorizationList'
@@ -151,15 +163,17 @@ export declare namespace simulate {
       'nonpayable' | 'payable',
       functionName
     > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
+    as extends 'Object' | 'Array' = 'Object',
   > = {
     /** Request that can be passed to {@link write}. */
-    request: Options<abi, functionName, args>
+    request: OmitAs<Options<abi, functionName, args, as>>
     /** Decoded return value of the simulated call. */
     result: ContractFunctionReturnType<
       abi,
       'nonpayable' | 'payable',
       functionName,
-      args
+      args,
+      as
     >
   }
 
@@ -176,3 +190,5 @@ type blockOptions = Pick<
   call.Options,
   'blockHash' | 'blockNumber' | 'blockTag' | 'requireCanonical'
 >
+
+type OmitAs<options> = options extends unknown ? Omit<options, 'as'> : never

@@ -8,6 +8,7 @@ const client = Client.create({ transport: http() })
 const abi = Abi.from([
   'function approve(address, uint256) returns (bool)',
   'function mint(uint256 tokenId) payable returns (uint256)',
+  'function quote() returns (uint256 amount, bool valid)',
   'function balanceOf(address) view returns (uint256)',
 ])
 
@@ -21,10 +22,31 @@ test('infers result type from functionName', async () => {
   expectTypeOf(result).toEqualTypeOf<boolean>()
 })
 
+test('infers object and array result shapes', async () => {
+  const object = await Actions.contract.simulate(client, {
+    abi,
+    address: '0x',
+    functionName: 'quote',
+  })
+  expectTypeOf(object.result).toEqualTypeOf<{
+    amount: bigint
+    valid: boolean
+  }>()
+
+  const array = await Actions.contract.simulate(client, {
+    abi,
+    address: '0x',
+    as: 'Array',
+    functionName: 'quote',
+  })
+  expectTypeOf(array.result).toEqualTypeOf<readonly [bigint, boolean]>()
+  expectTypeOf(array.request).not.toHaveProperty('as')
+})
+
 test('infers functionName from nonpayable/payable functions', () => {
   expectTypeOf<
     Actions.contract.simulate.Options<typeof abi>['functionName']
-  >().toEqualTypeOf<'approve' | 'mint'>()
+  >().toEqualTypeOf<'approve' | 'mint' | 'quote'>()
 })
 
 test('infers args from functionName', async () => {

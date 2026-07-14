@@ -8,6 +8,7 @@ const client = Client.create({ transport: http() })
 const erc20Abi = Abi.from([
   'function name() view returns (string)',
   'function balanceOf(address owner) view returns (uint256)',
+  'function metadata() view returns (string name, string symbol)',
 ])
 
 const to = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
@@ -124,4 +125,20 @@ test('allowFailure: false returns bare results', async () => {
   const [name, balance] = result.results
   expectTypeOf(name).toEqualTypeOf<string>()
   expectTypeOf(balance).toEqualTypeOf<bigint>()
+})
+
+test('per-call object and array return shapes', async () => {
+  const result = await Actions.multicall(client, {
+    allowFailure: false,
+    calls: [
+      { abi: erc20Abi, functionName: 'metadata', to },
+      { abi: erc20Abi, as: 'Array', functionName: 'metadata', to },
+    ],
+  })
+
+  expectTypeOf(result.results[0]).toEqualTypeOf<{
+    name: string
+    symbol: string
+  }>()
+  expectTypeOf(result.results[1]).toEqualTypeOf<readonly [string, string]>()
 })

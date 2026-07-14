@@ -585,6 +585,7 @@ async function executeMulticall(
                 args: args,
               }),
               returnData,
+              { as: call.as ?? 'Object' },
             )
           : returnData
         results.push({ error: undefined, result, status: 'success' })
