@@ -21,7 +21,7 @@ Select it when creating a Simple7702 account:
 import { Simple7702SmartAccount } from 'viem/account-abstraction'
 
 const account = await Simple7702SmartAccount.from({
-  client: executionClient,
+  client,
   entryPoint: '0.9',
   owner,
 })

@@ -33,7 +33,7 @@ const webAuthnPrivateKey =
 const webAuthnPublicKey = P256.getPublicKey({
   privateKey: webAuthnPrivateKey,
 })
-type GetFn = NonNullable<WebAuthnAccount.from.Options['getFn']>
+type GetFn = NonNullable<WebAuthnAccount.fromCredential.Options['getFn']>
 const getFn: GetFn = async (options) => {
   if (!options?.publicKey) throw new Error('Public key options are required.')
   const source = options.publicKey.challenge
@@ -65,7 +65,7 @@ const getFn: GetFn = async (options) => {
     type: 'public-key',
   } as unknown as WebAuthnP256.Credential
 }
-const webAuthnOwner = WebAuthnAccount.from(
+const webAuthnOwner = WebAuthnAccount.fromCredential(
   { id: 'test-credential', publicKey: webAuthnPublicKey },
   { getFn, rpId: 'example.com' },
 )

@@ -1,132 +1,376 @@
-# `Client.create`
+# `BundlerClient.create`
 
-Creates an ERC-4337 Bundler Client. The Client carries an optional Smart Account and execution Client, and exposes `entryPoint` and `userOperation` actions.
+A Bundler Client is an interface to interact with **ERC-4337 Bundlers** and provides the ability to send and retrieve **User Operations** through **Bundler Actions**.
+
+## Import
+
+```ts twoslash
+import { Client as BundlerClient } from 'viem/account-abstraction'
+```
 
 ## Usage
 
-```ts
-import { Client, http } from 'viem/account-abstraction'
+```ts twoslash
+import { Client, http } from 'viem'
+import { Client as BundlerClient } from 'viem/account-abstraction' // [!code focus]
+import { mainnet } from 'viem/chains' // [!code focus]
 
-const bundlerClient = Client.create({
-  account,
-  client: executionClient,
-  transport: http('https://bundler.example'),
+const client = Client.create({
+  chain: mainnet,
+  transport: http()
 })
 
-const hash = await bundlerClient.userOperation.send({
-  calls: [{ to: '0x0000000000000000000000000000000000000000' }],
-})
+const bundlerClient = BundlerClient.create({ // [!code focus]
+  client, // [!code focus]
+  transport: http('https://public.pimlico.io/v2/1/rpc') // [!code focus]
+}) // [!code focus]
 ```
 
-The execution Client supplies chain reads and fee estimation. The Bundler transport handles ERC-4337 RPC methods.
-
-For EntryPoint 0.9, confirm the Bundler advertises `EntryPoint.addressV09`. EntryPoint 0.9 operations can carry a separate `paymasterSignature` for parallel account and Paymaster signing.
-
-## Paymaster
-
-Attach ERC-7677 methods from a [Paymaster Client](/account-abstraction/clients/paymaster) when the User Operation should be sponsored.
-
-```ts
-const bundlerClient = Client.create({
-  account,
-  client: executionClient,
-  paymaster: paymasterClient,
-  paymasterContext: { policyId: 'checkout' },
-  transport: http('https://bundler.example'),
-})
-```
+:::info
+The Bundler URL above is a public endpoint. Please do not use it in production as you will likely be rate-limited. Consider using [Pimlico's Bundler](https://www.pimlico.io), [Biconomy's Bundler](https://www.biconomy.io), or another Bundler service.
+:::
 
 ## Parameters
 
-### options
-
-#### options.account (optional)
+### account (Optional)
 
 - **Type:** `SmartAccount`
 
-Default Smart Account for User Operation actions.
+The [Smart Account](/account-abstraction/accounts/smart) to use for the Bundler Client. This will be used for Actions that require an `account` as an argument.
 
-#### options.cacheTime (optional)
+```ts twoslash
+import { Account, Client, http } from 'viem'
+import {
+  Client as BundlerClient,
+  CoinbaseSmartAccount,
+} from 'viem/account-abstraction'
+import { mainnet } from 'viem/chains'
 
-- **Type:** `number`
+const client = Client.create({
+  chain: mainnet,
+  transport: http()
+})
 
-Time in milliseconds that cacheable RPC responses are retained.
+const owner = Account.fromPrivateKey('0x...')
 
-#### options.chain (optional)
+const account = await CoinbaseSmartAccount.from({ // [!code focus]
+  client, // [!code focus]
+  owners: [owner], // [!code focus]
+  version: '1.1', // [!code focus]
+}) // [!code focus]
 
-- **Type:** `Chain`
-- **Default:** `options.client.chain`
+const bundlerClient = BundlerClient.create({
+  account, // [!code focus]
+  client,
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
+})
+```
 
-Chain used by the Bundler.
+### chain (Optional)
 
-#### options.client (optional)
+- **Type:** [Chain](/docs/chains)
 
-- **Type:** `Client`
+The [Chain](/docs/chains) of the Bundler Client.
 
-Execution RPC Client used for chain reads and fee estimation.
+```ts twoslash
+import { http } from 'viem'
+import { Client as BundlerClient } from 'viem/account-abstraction'
+import { mainnet } from 'viem/chains'
 
-#### options.dataSuffix (optional)
+const bundlerClient = BundlerClient.create({
+  chain: mainnet, // [!code focus]
+  transport: http('https://public.pimlico.io/v2/1/rpc')
+})
+```
+
+### dataSuffix (Optional)
 
 - **Type:** `Hex`
 
-Data appended to encoded Smart Account calls.
+Data to append to the end of User Operation calldata. Useful for adding [transaction attribution](https://oxlib.sh/ercs/erc8021/Attribution).
 
-#### options.key (optional)
+The bundler client will also inherit `dataSuffix` from the underlying client (e.g., wallet client) if not explicitly set.
+
+Applies to `userOperation.prepare` and `userOperation.send` actions.
+
+```ts twoslash
+import { Client as BundlerClient } from 'viem/account-abstraction'
+import { http } from 'viem'
+const bundlerClient = BundlerClient.create({
+  dataSuffix: '0xdeadbeef', // [!code focus]
+  transport: http('https://public.pimlico.io/v2/1/rpc')
+})
+```
+
+### client (Optional)
+
+- **Type:** `Client`
+
+The [Client](/docs/clients/create) (pointing to execution RPC) of the Bundler Client.
+
+```ts twoslash
+import { Client as BundlerClient } from 'viem/account-abstraction'
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ // [!code focus]
+  chain: mainnet, // [!code focus]
+  transport: http() // [!code focus]
+}) // [!code focus]
+
+const bundlerClient = BundlerClient.create({
+  client, // [!code focus]
+  transport: http('https://public.pimlico.io/v2/1/rpc')
+})
+```
+
+### key (Optional)
 
 - **Type:** `string`
-- **Default:** `'bundler'`
+- **Default:** `"bundler"`
 
-Client key.
+A key for the Bundler Client.
 
-#### options.name (optional)
+```ts twoslash
+import { Client as BundlerClient } from 'viem/account-abstraction'
+import { http } from 'viem'
+const bundlerClient = BundlerClient.create({
+  key: 'foo', // [!code focus]
+  transport: http('https://public.pimlico.io/v2/1/rpc')
+})
+```
+
+### name (Optional)
 
 - **Type:** `string`
-- **Default:** `'Bundler Client'`
+- **Default:** `"Bundler Client"`
 
-Client name.
+A name for the Bundler Client.
 
-#### options.paymaster (optional)
+```ts twoslash
+import { Client as BundlerClient } from 'viem/account-abstraction'
+import { http } from 'viem'
+const bundlerClient = BundlerClient.create({
+  name: 'Foo Bundler Client', // [!code focus]
+  transport: http('https://public.pimlico.io/v2/1/rpc')
+})
+```
 
-- **Type:** `true | PaymasterClient | { getData?, getStubData? }`
+### paymaster (Optional)
 
-Paymaster configuration used while preparing User Operations.
+- **Type:** `true | PaymasterClient | { getData?: Function, getStubData?: Function }`
 
-#### options.paymasterContext (optional)
+Sets Paymaster configuration for the Bundler Client to be utilized on User Operations.
+
+- If `paymaster: PaymasterClient`, it will use the provided [Paymaster Client](/account-abstraction/clients/paymaster) for User Operation sponsorship.
+- If `paymaster: true`, it will be assumed that the Bundler Client also supports Paymaster RPC methods (e.g. `pm_getPaymasterData`), and use them for User Operation sponsorship.
+- If [custom functions](#paymastergetdata-optional) are provided to `paymaster`, it will use them for User Operation sponsorship.
+
+#### Using a Paymaster Client
+
+```ts twoslash
+import { PaymasterClient, Client as BundlerClient } from 'viem/account-abstraction'
+import { http } from 'viem'
+import { sepolia } from 'viem/chains'
+const paymasterClient = PaymasterClient.create({ // [!code focus]
+  transport: http('https://public.pimlico.io/v2/11155111/rpc') // [!code focus]
+}) // [!code focus]
+
+const bundlerClient = BundlerClient.create({
+  chain: sepolia,
+  paymaster: paymasterClient, // [!code focus]
+  transport: http('https://public.pimlico.io/v2/11155111/rpc'),
+})
+```
+
+#### Using the Bundler Client as Paymaster
+
+```ts twoslash
+import { Client as BundlerClient } from 'viem/account-abstraction'
+import { http } from 'viem'
+import { mainnet } from 'viem/chains'
+const bundlerClient = BundlerClient.create({
+  chain: mainnet,
+  paymaster: true, // [!code focus]
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
+})
+```
+
+#### Using Custom Paymaster Functions
+
+See the [properties below](#paymastergetdata-optional) for more information on how to use custom Paymaster functions.
+
+### paymaster.getData (Optional)
+
+- **Type:** `PaymasterClient['paymaster']['getData']`
+
+Retrieves paymaster-related User Operation properties to be used for sending the User Operation.
+
+[Read more](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7677.md#pm_getpaymasterdata)
+
+```ts twoslash
+import {
+  Client as BundlerClient,
+  PaymasterClient,
+} from 'viem/account-abstraction'
+import { http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const paymasterClient = PaymasterClient.create({
+  transport: http('https://api.pimlico.io/v2/1/rpc?apikey={API_KEY}')
+})
+
+const bundlerClient = BundlerClient.create({
+  chain: mainnet,
+  paymaster: { // [!code focus]
+    async getData(options) { // [!code focus]
+      return paymasterClient.paymaster.getData(options) // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
+})
+```
+
+### paymaster.getStubData (Optional)
+
+- **Type:** `PaymasterClient['paymaster']['getStubData']`
+
+Retrieves paymaster-related User Operation properties to be used for gas estimation.
+
+[Read more](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7677.md#pm_getpaymasterstubdata)
+
+```ts twoslash
+import {
+  Client as BundlerClient,
+  PaymasterClient,
+} from 'viem/account-abstraction'
+import { http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const paymasterClient = PaymasterClient.create({
+  transport: http('https://api.pimlico.io/v2/1/rpc?apikey={API_KEY}')
+})
+
+const bundlerClient = BundlerClient.create({
+  chain: mainnet,
+  paymaster: {
+    async getStubData(options) { // [!code focus]
+      return paymasterClient.paymaster.getStubData(options) // [!code focus]
+    }, // [!code focus]
+    async getData(options) {
+      return paymasterClient.paymaster.getData(options)
+    }
+  },
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
+})
+```
+
+### paymasterContext (Optional)
 
 - **Type:** `unknown`
 
-Service-specific context passed to Paymaster methods.
+Paymaster specific fields.
 
-#### options.pollingInterval (optional)
+```ts twoslash
+import { PaymasterClient, Client as BundlerClient } from 'viem/account-abstraction'
+import { http } from 'viem'
+import { mainnet } from 'viem/chains'
+const paymasterClient = PaymasterClient.create({
+  transport: http('https://public.pimlico.io/v2/1/rpc')
+})
+
+const bundlerClient = BundlerClient.create({
+  chain: mainnet,
+  paymaster: paymasterClient,
+  paymasterContext: { // [!code focus]
+    policyId: 'abc123' // [!code focus]
+  }, // [!code focus]
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
+})
+```
+
+### pollingInterval (Optional)
 
 - **Type:** `number`
+- **Default:** `4_000`
 
-Polling interval in milliseconds.
+Frequency (in ms) for polling enabled Actions.
 
-#### options.retryCount (optional)
+```ts twoslash
+import { Client as BundlerClient } from 'viem/account-abstraction'
+import { http } from 'viem'
+const bundlerClient = BundlerClient.create({
+  pollingInterval: 10_000, // [!code focus]
+  transport: http('https://public.pimlico.io/v2/1/rpc')
+})
+```
 
-- **Type:** `number`
+### schema (Optional)
 
-Default transport retry count.
+- **Type:** `RpcSchema`
+- **Default:** `BundlerRpcSchema`
 
-#### options.timeout (optional)
+Typed JSON-RPC schema for the client.
 
-- **Type:** `number`
+```ts twoslash
+import { Client as BundlerClient } from 'viem/account-abstraction'
+import { http } from 'viem'
+import { z } from 'viem/zod'
 
-Transport timeout in milliseconds.
+const bundlerClient = BundlerClient.create({
+  schema: z.RpcSchema.from({ // [!code focus]
+    eth_wagmi: { params: z.tuple([z.string()]), returns: z.string() }, // [!code focus]
+  }), // [!code focus]
+  transport: http('https://public.pimlico.io/v2/1/rpc')
+})
 
-#### options.transport
+const result = await bundlerClient.request({ // [!code focus]
+  method: 'eth_wagmi', // [!code focus]
+  params: ['hello'], // [!code focus]
+}) // [!code focus]
+```
+
+### transport
 
 - **Type:** `Transport`
 
-Transport connected to the Bundler RPC endpoint.
+The Transport of the Bundler Client.
 
-#### options.userOperation (optional)
+```ts twoslash
+import { Client as BundlerClient } from 'viem/account-abstraction'
+import { http } from 'viem'
+import { mainnet } from 'viem/chains'
+const bundlerClient = BundlerClient.create({
+  chain: mainnet,
+  transport: http('https://public.pimlico.io/v2/1/rpc'), // [!code focus]
+})
+```
 
-- **Type:** `{ estimateFeesPerGas? }`
+### userOperation (Optional)
 
-User Operation preparation hooks. `estimateFeesPerGas` can override fee estimation for the attached account.
+Configuration for User Operations.
 
-## Return Type
+#### userOperation.estimateFeesPerGas
 
-`Client.Client`
+- **Type:** `({ account: Account, bundlerClient: BundlerClient, userOperation: UserOperationRequest }) => Promise<{ maxFeePerGas: bigint, maxPriorityFeePerGas: bigint }>`
+
+Prepares fee properties for the User Operation request.
+
+```ts twoslash
+import { Client as BundlerClient } from 'viem/account-abstraction'
+import { http } from 'viem'
+import { mainnet } from 'viem/chains'
+const bundlerClient = BundlerClient.create({
+  chain: mainnet,
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
+  userOperation: { // [!code focus]
+    async estimateFeesPerGas({ account, bundlerClient, userOperation }) { // [!code focus]
+      // Estimate fees per gas for the User Operation. // [!code focus]
+      return { // [!code focus]
+        maxFeePerGas: 3_000_000_000n, // [!code focus]
+        maxPriorityFeePerGas: 2_000_000_000n, // [!code focus]
+      } // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
+})
+```

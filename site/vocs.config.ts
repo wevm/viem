@@ -86,6 +86,109 @@ export default defineConfig({
       status: 308,
     },
 
+    // Account Abstraction v2 routes moved to v3 module namespaces.
+    {
+      source: '/account-abstraction/accounts/smart/toCoinbaseSmartAccount',
+      destination: '/account-abstraction/accounts/coinbase',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/accounts/smart/toSoladySmartAccount',
+      destination: '/account-abstraction/accounts/solady',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/accounts/smart/toSmartAccount',
+      destination: '/account-abstraction/accounts/custom',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/accounts/smart/signMessage',
+      destination: '/account-abstraction/accounts/custom#signmessage',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/accounts/smart/signTypedData',
+      destination: '/account-abstraction/accounts/custom#signtypeddata',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/accounts/smart/signUserOperation',
+      destination: '/account-abstraction/accounts/custom#signuseroperation',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/accounts/webauthn/toWebAuthnAccount',
+      destination: '/account-abstraction/accounts/webauthn/fromCredential',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/accounts/webauthn/from',
+      destination: '/account-abstraction/accounts/webauthn/fromCredential',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/accounts/webauthn/createWebAuthnCredential',
+      destination: '/account-abstraction/accounts/webauthn/createCredential',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/bundler/estimateUserOperationGas',
+      destination: '/account-abstraction/actions/userOperation.estimateGas',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/bundler/introduction',
+      destination: '/account-abstraction',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/bundler/getChainId',
+      destination: '/docs/actions/public/chains/getId',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/bundler/getSupportedEntryPoints',
+      destination: '/account-abstraction/actions/entryPoint.getSupported',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/bundler/getUserOperation',
+      destination: '/account-abstraction/actions/userOperation.get',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/bundler/getUserOperationReceipt',
+      destination: '/account-abstraction/actions/userOperation.getReceipt',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/bundler/prepareUserOperation',
+      destination: '/account-abstraction/actions/userOperation.prepare',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/bundler/sendUserOperation',
+      destination: '/account-abstraction/actions/userOperation.send',
+      status: 308,
+    },
+    {
+      source:
+        '/account-abstraction/actions/bundler/waitForUserOperationReceipt',
+      destination: '/account-abstraction/actions/userOperation.waitForReceipt',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/paymaster/getPaymasterData',
+      destination: '/account-abstraction/actions/paymaster.getData',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/paymaster/getPaymasterStubData',
+      destination: '/account-abstraction/actions/paymaster.getStubData',
+      status: 308,
+    },
+
     // Tempo Zones page moved into the Guides section.
     {
       source: '/tempo/zones',
@@ -1246,10 +1349,28 @@ export default defineConfig({
       },
     ],
     '/account-abstraction': [
-      { text: 'Getting Started', link: '/account-abstraction' },
       {
-        text: 'EntryPoint Versions',
-        link: '/account-abstraction/entry-point-versions',
+        text: 'Account Abstraction',
+        items: [
+          { text: 'Getting Started', link: '/account-abstraction' },
+          {
+            text: 'EntryPoint Versions',
+            link: '/account-abstraction/entry-point-versions',
+          },
+          {
+            text: 'Migrate from v2',
+            link: '/account-abstraction/migration',
+          },
+        ],
+      },
+      {
+        text: 'Guides',
+        items: [
+          {
+            text: 'Sending User Operations',
+            link: '/account-abstraction/guides/sending-user-operations',
+          },
+        ],
       },
       {
         text: 'Clients',
@@ -1268,74 +1389,131 @@ export default defineConfig({
         text: 'Accounts',
         items: [
           {
-            text: 'SmartAccount.from',
+            text: 'Smart Accounts',
             link: '/account-abstraction/accounts/smart',
+            items: [
+              {
+                text: 'Coinbase',
+                link: '/account-abstraction/accounts/coinbase',
+              },
+              {
+                text: 'MetaMask',
+                link: '/account-abstraction/accounts/smart/toMetaMaskSmartAccount',
+              },
+              {
+                text: 'Thirdweb',
+                link: '/account-abstraction/accounts/smart/toThirdwebSmartAccount',
+              },
+              {
+                text: 'Biconomy',
+                link: '/account-abstraction/accounts/smart/toNexusSmartAccount',
+              },
+              {
+                text: 'Alchemy',
+                link: '/account-abstraction/accounts/smart/toLightSmartAccount',
+              },
+              {
+                text: 'Kernel (ZeroDev)',
+                link: '/account-abstraction/accounts/smart/toEcdsaKernelSmartAccount',
+              },
+              {
+                text: 'Safe',
+                link: '/account-abstraction/accounts/smart/toSafeSmartAccount',
+              },
+              {
+                text: 'Simple',
+                link: '/account-abstraction/accounts/smart/toSimpleSmartAccount',
+              },
+              {
+                text: 'Solady',
+                link: '/account-abstraction/accounts/solady',
+              },
+              {
+                text: 'Simple7702',
+                link: '/account-abstraction/accounts/simple-7702',
+              },
+              {
+                text: 'Trust',
+                link: '/account-abstraction/accounts/smart/toTrustSmartAccount',
+              },
+              {
+                text: 'Custom',
+                link: '/account-abstraction/accounts/custom',
+              },
+            ],
           },
           {
-            text: 'CoinbaseSmartAccount.from',
-            link: '/account-abstraction/accounts/coinbase',
-          },
-          {
-            text: 'SoladySmartAccount.from',
-            link: '/account-abstraction/accounts/solady',
-          },
-          {
-            text: 'Simple7702SmartAccount.from',
-            link: '/account-abstraction/accounts/simple-7702',
-          },
-          {
-            text: 'WebAuthnAccount.from',
+            text: 'WebAuthn Account',
             link: '/account-abstraction/accounts/webauthn',
+            items: [
+              {
+                text: 'fromCredential',
+                link: '/account-abstraction/accounts/webauthn/fromCredential',
+              },
+              {
+                text: 'createCredential',
+                link: '/account-abstraction/accounts/webauthn/createCredential',
+              },
+            ],
           },
         ],
       },
       {
-        text: 'Bundler Actions',
+        text: 'Actions',
         items: [
           {
-            text: 'entryPoint.getSupported',
-            link: '/account-abstraction/actions/entryPoint.getSupported',
+            text: 'EntryPoint',
+            items: [
+              {
+                text: 'getSupported',
+                link: '/account-abstraction/actions/entryPoint.getSupported',
+              },
+            ],
           },
           {
-            text: 'userOperation.prepare',
-            link: '/account-abstraction/actions/userOperation.prepare',
+            text: 'Paymaster',
+            items: [
+              {
+                text: 'getData',
+                link: '/account-abstraction/actions/paymaster.getData',
+              },
+              {
+                text: 'getStubData',
+                link: '/account-abstraction/actions/paymaster.getStubData',
+              },
+            ],
           },
           {
-            text: 'userOperation.estimateGas',
-            link: '/account-abstraction/actions/userOperation.estimateGas',
-          },
-          {
-            text: 'userOperation.send',
-            link: '/account-abstraction/actions/userOperation.send',
-          },
-          {
-            text: 'userOperation.get',
-            link: '/account-abstraction/actions/userOperation.get',
-          },
-          {
-            text: 'userOperation.getReceipt',
-            link: '/account-abstraction/actions/userOperation.getReceipt',
-          },
-          {
-            text: 'userOperation.waitForReceipt',
-            link: '/account-abstraction/actions/userOperation.waitForReceipt',
+            text: 'UserOperation',
+            items: [
+              {
+                text: 'prepare',
+                link: '/account-abstraction/actions/userOperation.prepare',
+              },
+              {
+                text: 'estimateGas',
+                link: '/account-abstraction/actions/userOperation.estimateGas',
+              },
+              {
+                text: 'send',
+                link: '/account-abstraction/actions/userOperation.send',
+              },
+              {
+                text: 'get',
+                link: '/account-abstraction/actions/userOperation.get',
+              },
+              {
+                text: 'getReceipt',
+                link: '/account-abstraction/actions/userOperation.getReceipt',
+              },
+              {
+                text: 'waitForReceipt',
+                link: '/account-abstraction/actions/userOperation.waitForReceipt',
+              },
+            ],
           },
         ],
       },
-      {
-        text: 'Paymaster Actions',
-        items: [
-          {
-            text: 'paymaster.getData',
-            link: '/account-abstraction/actions/paymaster.getData',
-          },
-          {
-            text: 'paymaster.getStubData',
-            link: '/account-abstraction/actions/paymaster.getStubData',
-          },
-        ],
-      },
-      { text: 'Migrate from v2', link: '/account-abstraction/migration' },
     ],
     '/op-stack': [
       { text: 'Overview', link: '/op-stack' },

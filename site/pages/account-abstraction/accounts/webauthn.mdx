@@ -1,55 +1,56 @@
-# `WebAuthnAccount.from`
+# WebAuthn Account
 
-Creates an owner account from a WebAuthn P256 credential. The result can own a [`CoinbaseSmartAccount`](/account-abstraction/accounts/coinbase).
+A WebAuthn Account is nearly identical to a [Local Account](/docs/accounts), but with the following differences:
 
-## Create a Credential
+- uses the **secp256r1** curve for signatures
+- returns a `signature` as well as `webauthn` data in its signing methods
+- cannot sign transactions (transactions do not support **secp256r1** signatures)
+- does not have an Ethereum `address`
 
-Create credentials with the `WebAuthnP256` utilities, and serialize them for storage with `Credential`.
+WebAuthn Accounts are commonly used for **[Smart Account](/account-abstraction/accounts/smart) Owners** to sign User Operations and messages on behalf of the Smart Account.
 
-```ts
+:::note
+WebAuthn Account owners are currently supported on the following Smart Account implementations:
+
+- [`CoinbaseSmartAccount.from`](/account-abstraction/accounts/coinbase#owners)
+:::
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import {
+  CoinbaseSmartAccount,
+  WebAuthnAccount,
+} from 'viem/account-abstraction'
 import { WebAuthnP256 } from 'viem/utils'
-import { Credential } from 'viem/account-abstraction'
-import { WebAuthnAccount } from 'viem/account-abstraction'
+import { client } from './client'
 
-const credential = await WebAuthnP256.createCredential({ name: 'Example' })
-const account = WebAuthnAccount.from(credential)
+// 1. Register a credential (ie. passkey).
+const credential = await WebAuthnP256.createCredential({
+  name: 'Example',
+})
+
+// 2. Create a WebAuthn owner account from the credential.
+const owner = WebAuthnAccount.fromCredential(credential)
+
+// 3. Hook up the owner to a WebAuthn-compatible Smart Account.
+const account = CoinbaseSmartAccount.from({
+  client,
+  owners: [owner],
+  version: '1.1',
+})
 ```
 
-Use `Credential.serialize` before JSON persistence because the live credential contains bigint and `ArrayBuffer` values. Deserialize it when loading:
+```ts twoslash [client.ts] filename="client.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
-```ts
-const serialized = Credential.serialize(credential)
-const json = JSON.stringify(serialized)
-
-const restored = Credential.deserialize(JSON.parse(json))
-const account = WebAuthnAccount.from(restored)
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
-## Parameters
-
-### credential
-
-- **Type:** `{ id: string, publicKey: P256PublicKey | Hex }`
-
-WebAuthn credential or its persisted identity.
-
-### options (optional)
-
-#### options.getFn (optional)
-
-- **Type:** `WebAuthnP256.sign.Options['getFn']`
-- **Default:** `window.navigator.credentials.get`
-
-Credential request function for custom runtimes and tests.
-
-#### options.rpId (optional)
-
-- **Type:** `string`
-
-Relying Party ID supplied during authentication.
-
-## Return Type
-
-`WebAuthnAccount.Account`
-
-The account exposes `id`, `publicKey`, `sign`, `signMessage`, `signTypedData`, and `type: 'webAuthn'`.
+:::

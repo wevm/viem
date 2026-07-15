@@ -5,18 +5,24 @@ Creates a Simple7702 Smart Account for EntryPoint 0.8 or 0.9. EntryPoint 0.8 is 
 ## Usage
 
 ```ts
-import { Account, Actions } from 'viem'
+import { Account, Actions, Client, http } from 'viem'
 import { Simple7702SmartAccount } from 'viem/account-abstraction'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 
 const owner = Account.fromPrivateKey('0x…')
 
 const account = await Simple7702SmartAccount.from({
-  client: executionClient,
+  client,
   owner,
 })
 
 const authorization = await Actions.wallet.signAuthorization(
-  executionClient,
+  client,
   account.authorization,
 )
 
@@ -32,7 +38,7 @@ Pass the signed authorization with the first User Operation. It can be omitted a
 
 ```ts
 const account = await Simple7702SmartAccount.from({
-  client: executionClient,
+  client,
   entryPoint: '0.9',
   owner,
 })
@@ -48,22 +54,22 @@ This selects `EntryPoint.addressV09` and the canonical EntryPoint 0.9 Simple7702
 
 - **Type:** `Client`
 
-Execution Client used to read account and EntryPoint state.
+Client used to read account and EntryPoint state.
 
-#### options.entryPoint (optional)
+#### options.entryPoint (Optional)
 
 - **Type:** `'0.8' | '0.9' | { abi: Abi, address: Address, version: EntryPoint.Version }`
 - **Default:** `'0.8'`
 
 EntryPoint used by the account. A custom EntryPoint requires a compatible Simple7702 implementation.
 
-#### options.getNonce (optional)
+#### options.getNonce (Optional)
 
 - **Type:** `SmartAccount.Implementation['getNonce']`
 
 Overrides the account nonce resolver.
 
-#### options.implementation (optional)
+#### options.implementation (Optional)
 
 - **Type:** `Address`
 

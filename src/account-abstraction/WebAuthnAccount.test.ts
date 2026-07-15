@@ -20,7 +20,7 @@ const privateKey =
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 const publicKey = P256.getPublicKey({ privateKey })
 
-type GetFn = NonNullable<WebAuthnAccount.from.Options['getFn']>
+type GetFn = NonNullable<WebAuthnAccount.fromCredential.Options['getFn']>
 
 const getFn: GetFn = async (options) => {
   if (!options?.publicKey) throw new Error('Public key options are required.')
@@ -56,7 +56,7 @@ const getFn: GetFn = async (options) => {
 }
 
 test('default', () => {
-  const account = WebAuthnAccount.from({
+  const account = WebAuthnAccount.fromCredential({
     id: credentialId,
     publicKey,
   })
@@ -74,7 +74,7 @@ test('default', () => {
 })
 
 test('behavior: persisted credential', () => {
-  const account = WebAuthnAccount.from({
+  const account = WebAuthnAccount.fromCredential({
     id: credentialId,
     publicKey: PublicKey.toHex(publicKey),
   })
@@ -86,7 +86,7 @@ test('behavior: persisted credential', () => {
 
 test('behavior: compressed public key', () => {
   expect(() =>
-    WebAuthnAccount.from({
+    WebAuthnAccount.fromCredential({
       id: credentialId,
       publicKey: PublicKey.toHex(PublicKey.compress(publicKey)),
     }),
@@ -96,7 +96,7 @@ test('behavior: compressed public key', () => {
 })
 
 test('sign', async () => {
-  const account = WebAuthnAccount.from(
+  const account = WebAuthnAccount.fromCredential(
     {
       id: credentialId,
       publicKey: PublicKey.toHex(publicKey, { includePrefix: false }),
@@ -134,7 +134,7 @@ test('sign', async () => {
 })
 
 test('signMessage', async () => {
-  const account = WebAuthnAccount.from(
+  const account = WebAuthnAccount.fromCredential(
     { id: credentialId, publicKey },
     { getFn, rpId: 'localhost' },
   )
@@ -151,7 +151,7 @@ test('signMessage', async () => {
 })
 
 test('signMessage: raw', async () => {
-  const account = WebAuthnAccount.from(
+  const account = WebAuthnAccount.fromCredential(
     { id: credentialId, publicKey },
     { getFn, rpId: 'localhost' },
   )
@@ -169,7 +169,7 @@ test('signMessage: raw', async () => {
 })
 
 test('signTypedData', async () => {
-  const account = WebAuthnAccount.from(
+  const account = WebAuthnAccount.fromCredential(
     { id: credentialId, publicKey },
     { getFn, rpId: 'localhost' },
   )

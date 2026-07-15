@@ -927,10 +927,10 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `toSoladySmartAccount` | `SoladySmartAccount.from` (requires `factoryAddress`) | [Smart Accounts](#smart-accounts) |
 | `ToSoladySmartAccountParameters` | `SoladySmartAccount.from.Options` | [Smart Accounts](#smart-accounts) |
 | `toUserOperation` | `UserOperation.from` | [User Operations](#user-operations) |
-| `toWebAuthnAccount` | `WebAuthnAccount.from(credential, options)` | [Smart Accounts](#smart-accounts) |
-| `ToWebAuthnAccountErrorType` | `WebAuthnAccount.from.ErrorType` | [Smart Accounts](#smart-accounts) |
-| `ToWebAuthnAccountParameters` | `WebAuthnAccount.from.Options` | [Smart Accounts](#smart-accounts) |
-| `ToWebAuthnAccountReturnType` | `WebAuthnAccount.from.ReturnType` | [Smart Accounts](#smart-accounts) |
+| `toWebAuthnAccount` | `WebAuthnAccount.fromCredential(credential, options)` | [Smart Accounts](#smart-accounts) |
+| `ToWebAuthnAccountErrorType` | `WebAuthnAccount.fromCredential.ErrorType` | [Smart Accounts](#smart-accounts) |
+| `ToWebAuthnAccountParameters` | `WebAuthnAccount.fromCredential.Options` | [Smart Accounts](#smart-accounts) |
+| `ToWebAuthnAccountReturnType` | `WebAuthnAccount.fromCredential.ReturnType` | [Smart Accounts](#smart-accounts) |
 | `TransactionExecutionError` | `RpcError.ExecutionError` | [RPC Errors](#rpc-errors) |
 | `TransactionNotFoundError` | `Actions.transaction.Errors.TransactionNotFoundError` | [Action & Transport Errors](#action--transport-errors) |
 | `TransactionReceiptNotFoundError` | `Actions.transaction.Errors.TransactionReceiptNotFoundError` | [Action & Transport Errors](#action--transport-errors) |
@@ -2343,7 +2343,7 @@ Smart-account constructors moved into namespaces, and WebAuthn credential creati
 | `toSimple7702SmartAccount(options)` | `Simple7702SmartAccount.from(options)` |
 | `toSmartAccount(implementation)` | `SmartAccount.from(implementation)` |
 | `toSoladySmartAccount(options)` | `SoladySmartAccount.from(options)` |
-| `toWebAuthnAccount({ credential, getFn, rpId })` | `WebAuthnAccount.from(credential, { getFn, rpId })` |
+| `toWebAuthnAccount({ credential, getFn, rpId })` | `WebAuthnAccount.fromCredential(credential, { getFn, rpId })` |
 
 The account and credential types moved with them:
 
@@ -2359,13 +2359,13 @@ The account and credential types moved with them:
 | `SoladySmartAccountImplementation` | `SoladySmartAccount.Implementation` |
 | `ToSmartAccountParameters` | `SmartAccount.Implementation` (`SmartAccount.from` takes the implementation positionally) |
 | `ToSoladySmartAccountParameters` | `SoladySmartAccount.from.Options` |
-| `ToWebAuthnAccountErrorType` | `WebAuthnAccount.from.ErrorType` |
-| `ToWebAuthnAccountParameters` | `WebAuthnAccount.from.Options` |
-| `ToWebAuthnAccountReturnType` | `WebAuthnAccount.from.ReturnType` |
+| `ToWebAuthnAccountErrorType` | `WebAuthnAccount.fromCredential.ErrorType` |
+| `ToWebAuthnAccountParameters` | `WebAuthnAccount.fromCredential.Options` |
+| `ToWebAuthnAccountReturnType` | `WebAuthnAccount.fromCredential.ReturnType` |
 | `WebAuthnAccount` | `WebAuthnAccount.Account` |
 | `WebAuthnSignReturnType` | `WebAuthnAccount.SignReturnType` |
 
-The `WebAuthnAccount.from.Credential` type describes the credential input. WebAuthn credentials adopted structured P256 keys and immediate validation, with `Credential.serialize` (from `viem/account-abstraction`) replacing direct public-key persistence.
+The `WebAuthnAccount.fromCredential.Credential` type describes the credential input. WebAuthn credentials adopted structured P256 keys and immediate validation, with `Credential.serialize` (from `viem/account-abstraction`) replacing direct public-key persistence.
 
 ```ts
 const stored = JSON.stringify(credential.publicKey) // [!code --]

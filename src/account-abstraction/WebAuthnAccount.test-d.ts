@@ -8,22 +8,22 @@ const types = {
   Mail: [{ name: 'contents', type: 'string' }],
 } as const
 
-test('from: accepts an ox credential', () => {
+test('fromCredential: accepts an ox credential', () => {
   const credential = {} as WebAuthnP256.P256Credential
   expectTypeOf(
-    WebAuthnAccount.from(credential),
+    WebAuthnAccount.fromCredential(credential),
   ).toEqualTypeOf<WebAuthnAccount.Account>()
 })
 
-test('from: accepts a serialized ox credential', () => {
+test('fromCredential: accepts a serialized ox credential', () => {
   const credential = {} as Credential.Credential<true>
   expectTypeOf(
-    WebAuthnAccount.from(credential),
+    WebAuthnAccount.fromCredential(credential),
   ).toEqualTypeOf<WebAuthnAccount.Account>()
 })
 
-test('from: accepts persisted credential fields and preserves the id', () => {
-  const account = WebAuthnAccount.from({
+test('fromCredential: accepts persisted credential fields and preserves the id', () => {
+  const account = WebAuthnAccount.fromCredential({
     id: 'test-credential',
     publicKey: '0x' as Hex.Hex,
   })
@@ -39,15 +39,15 @@ test('from: accepts persisted credential fields and preserves the id', () => {
   >()
 })
 
-test('from: requires a credential id and public key', () => {
+test('fromCredential: requires a credential id and public key', () => {
   // @ts-expect-error missing `id`
-  WebAuthnAccount.from({ publicKey: '0x' as Hex.Hex })
+  WebAuthnAccount.fromCredential({ publicKey: '0x' as Hex.Hex })
   // @ts-expect-error missing `publicKey`
-  WebAuthnAccount.from({ id: 'test-credential' })
+  WebAuthnAccount.fromCredential({ id: 'test-credential' })
 })
 
 test('signTypedData: infers typed data', async () => {
-  const account = WebAuthnAccount.from({
+  const account = WebAuthnAccount.fromCredential({
     id: 'test-credential',
     publicKey: '0x' as Hex.Hex,
   })

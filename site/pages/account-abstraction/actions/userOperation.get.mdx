@@ -1,46 +1,65 @@
+---
+description: Retrieves information about a User Operation given a hash.
+---
+
 # `userOperation.get`
 
-Returns a User Operation and its available inclusion information for a hash.
+Retrieves information about a User Operation given a hash.
 
 ## Usage
 
-```ts
-import { Actions } from 'viem/account-abstraction'
+:::code-group
 
-const userOperation = await Actions.userOperation.get(bundlerClient, {
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+```ts twoslash [example.ts]
+import { bundlerClient } from './client'
+
+const result = await bundlerClient.userOperation.get({ // [!code focus:99]
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
 })
-// @log: {
-//   blockHash: '0x...',
-//   blockNumber: 21000000n,
-//   entryPoint: '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
-//   transactionHash: '0x...',
-//   userOperation: { sender: '0x...', nonce: 0n, ... },
-// }
 ```
 
-The Bundler Client also exposes `bundlerClient.userOperation.get(options)`.
+```ts twoslash [client.ts] filename="client.ts"
+import { http } from 'viem'
+import { Client as BundlerClient } from 'viem/account-abstraction'
+import { mainnet } from 'viem/chains'
+
+export const bundlerClient = BundlerClient.create({
+  chain: mainnet,
+  transport: http('https://public.pimlico.io/v2/1/rpc')
+})
+```
+
+:::
+
+:::info
+The Bundler URL above is a public endpoint. Please do not use it in production as you will likely be rate-limited. Consider using [Pimlico's Bundler](https://www.pimlico.io), [Biconomy's Bundler](https://www.biconomy.io), or another Bundler service.
+:::
+
+## Returns
+
+```ts
+type Result = {
+  blockHash: Hash
+  blockNumber: bigint
+  entryPoint: Address
+  transactionHash: Hash
+  userOperation: UserOperation
+}
+```
+
+User Operation information.
 
 ## Parameters
 
-### client
+### hash
 
-- **Type:** `Client.Client`
+- **Type:** `'0x${string}'`
 
-Bundler Client used for the lookup.
+A User Operation hash.
 
-### options
-
-#### options.hash
-
-- **Type:** `Hex`
-
-User Operation hash.
-
-## Return Type
-
-`get.ReturnType`
-
-`blockHash`, `blockNumber`, and `transactionHash` are `null` while the User Operation is pending.
-
-Throws `UserOperationNotFoundError` when the Bundler returns `null`.
+```ts twoslash
+import { bundlerClient } from './client'
+const result = await bundlerClient.userOperation.get({
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d' // [!code focus]
+})
+```

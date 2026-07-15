@@ -1,32 +1,53 @@
-# `SoladySmartAccount.from`
+# Solady Smart Account
 
-Creates a Solady Smart Account. EntryPoint 0.7 and its compatible factory are used by default. Supplying an EntryPoint requires a matching factory deployment.
+The `SoladySmartAccount.from` implementation references [Solady's `ERC4337.sol`](https://github.com/Vectorized/solady/blob/main/src/accounts/ERC4337.sol) Smart Account contract.
 
 :::info
 `signMessage` and `signTypedData` use ERC-7739 nested signing. Counterfactual account signatures are wrapped with ERC-6492. The default EntryPoint 0.7 factory supports ERC-7739; custom factories must deploy a compatible implementation.
 :::
 
+:::warning
+This implementation is unaudited. It is intended to be used for testing purposes or as a reference to implement a [Custom Account](/account-abstraction/accounts/custom).
+:::
+
 ## Usage
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
+import { SoladySmartAccount } from 'viem/account-abstraction' // [!code focus]
+import { client, owner } from './config.js'
+
+const account = await SoladySmartAccount.from({ // [!code focus]
+  client, // [!code focus]
+  owner, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import { http, Client } from 'viem'
 import { Account } from 'viem'
-import { SoladySmartAccount } from 'viem/account-abstraction'
+import { mainnet } from 'viem/chains'
 
-const owner = Account.fromPrivateKey('0x…')
+export const owner = Account.fromPrivateKey('0x...')
 
-const account = await SoladySmartAccount.from({
-  client: executionClient,
-  owner,
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
 })
 ```
 
+:::
+
 ### EntryPoint 0.6
+
+Supplying an EntryPoint requires a matching factory deployment.
 
 ```ts
 import { EntryPoint, SoladySmartAccount } from 'viem/account-abstraction'
 
 const account = await SoladySmartAccount.from({
-  client: executionClient,
+  client,
   entryPoint: {
     abi: EntryPoint.abiV06,
     address: EntryPoint.addressV06,
@@ -37,57 +58,91 @@ const account = await SoladySmartAccount.from({
 })
 ```
 
-`factoryAddress` must deploy a Solady account implementation whose `entryPoint()` targets the selected EntryPoint. Solady's canonical implementation and the default factory target EntryPoint 0.7.
+The factory must deploy a Solady account implementation whose `entryPoint()` targets the selected EntryPoint.
+
+## Returns
+
+`SmartAccount<SoladySmartAccountImplementation>`
 
 ## Parameters
 
-### options
-
-#### options.address (optional)
+### address (Optional)
 
 - **Type:** `Address`
 
 Existing account address. When omitted, it is derived from the factory.
 
-#### options.client
+### entryPoint (Optional)
 
-- **Type:** `Client`
-
-Execution Client used to read account and EntryPoint state.
-
-#### options.entryPoint (optional)
-
-- **Type:** `{ abi: Abi, address: Address, version: '0.6' | '0.7' }`
+- **Type:** `{ abi: Abi, address: Address, version: EntryPointVersion }`
 - **Default:** EntryPoint 0.7
 
-EntryPoint supported by the account deployment.
+Compatible EntryPoint for the Smart Account to reference. The EntryPoint is used
+to:
 
-#### options.factoryAddress (optional)
+- Determine the target EntryPoint address for the User Operation
+- Compute User Operation hashes
+- Retrieve the Smart Account nonce
+- Distinguish which type of `UserOperation` structure to use
+
+```ts
+const account = await SoladySmartAccount.from({
+  client,
+  entryPoint: { // [!code focus]
+    abi: [/* ... */], // [!code focus]
+    address: '0x0000000071727De22E5E9d8BAf0edAc6f37da032', // [!code focus]
+    version: '0.7', // [!code focus]
+  }, // [!code focus]
+  factoryAddress: '0x…',
+  owner,
+})
+```
+
+### factoryAddress (Optional)
 
 - **Type:** `Address`
 - **Default:** Solady EntryPoint 0.7 factory
 
-Solady Smart Account factory address. Required whenever `options.entryPoint` is supplied.
+Factory address of the Smart Account. Required whenever `entryPoint` is supplied.
 
-#### options.getNonce (optional)
+```ts
+const account = await SoladySmartAccount.from({
+  client,
+  factoryAddress: '0xda4b37208c41c4f6d1b101cac61e182fe1da0754', // [!code focus]
+  owner,
+})
+```
+
+### getNonce (Optional)
 
 - **Type:** `SmartAccount.Implementation['getNonce']`
 
 Overrides the account nonce resolver.
 
-#### options.owner
+### owner
 
 - **Type:** `Address | Account`
 
-Account owner. Address owners sign through the execution Client; local owners sign locally.
+Owner of the Smart Account. Address owners sign through the Client, while local owners sign locally.
 
-#### options.salt (optional)
+```ts
+const account = await SoladySmartAccount.from({
+  client,
+  owner: Account.fromPrivateKey('0x...'), // [!code focus]
+})
+```
+
+### salt (Optional)
 
 - **Type:** `Hex`
 - **Default:** `'0x0'`
 
-Account deployment salt.
+Salt to use for Smart Account deployment.
 
-## Return Type
-
-`SoladySmartAccount.Account`
+```ts
+const account = await SoladySmartAccount.from({
+  client,
+  owner,
+  salt: '0x5', // [!code focus]
+})
+```

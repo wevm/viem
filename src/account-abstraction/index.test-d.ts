@@ -25,7 +25,7 @@ test('public surface', () => {
   expectTypeOf(CoinbaseSmartAccount.from).toBeFunction()
   expectTypeOf(Simple7702SmartAccount.from).toBeFunction()
   expectTypeOf(SoladySmartAccount.from).toBeFunction()
-  expectTypeOf(WebAuthnAccount.from).toBeFunction()
+  expectTypeOf(WebAuthnAccount.fromCredential).toBeFunction()
   expectTypeOf(UserOperation.from).toBeFunction()
   expectTypeOf(UserOperationGas.fromRpc).toBeFunction()
   expectTypeOf(UserOperationReceipt.fromRpc).toBeFunction()

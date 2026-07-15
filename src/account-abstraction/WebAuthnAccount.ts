@@ -56,17 +56,19 @@ export type Account<id extends string = string> = {
  * import { WebAuthnAccount } from 'viem/account-abstraction'
  *
  * const credential = await WebAuthnP256.createCredential({ name: 'Example' })
- * const account = WebAuthnAccount.from(credential)
+ * const account = WebAuthnAccount.fromCredential(credential)
  * ```
  *
  * @param credential WebAuthn P256 credential or its persisted identity.
  * @param options Credential request options.
  * @returns A WebAuthn owner account.
  */
-export function from<const credential extends from.Credential>(
+export function fromCredential<
+  const credential extends fromCredential.Credential,
+>(
   credential: credential,
-  options: from.Options = {},
-): from.ReturnType<credential> {
+  options: fromCredential.Options = {},
+): fromCredential.ReturnType<credential> {
   const { id } = credential
   const key = PublicKey.from(credential.publicKey)
   PublicKey.assert(key, { compressed: false })
@@ -109,8 +111,8 @@ export function from<const credential extends from.Credential>(
   }
 }
 
-export declare namespace from {
-  /** WebAuthn credential fields required by {@link from}. */
+export declare namespace fromCredential {
+  /** WebAuthn credential fields required by {@link fromCredential}. */
   type Credential = {
     /** WebAuthn credential identifier. */
     id: WebAuthnP256.P256Credential['id']
@@ -118,7 +120,7 @@ export declare namespace from {
     publicKey: WebAuthnP256.P256Credential['publicKey'] | Hex.Hex
   }
 
-  /** Credential request options for {@link from}. */
+  /** Credential request options for {@link fromCredential}. */
   type Options = {
     /**
      * Credential request function. Useful in environments without a native
@@ -131,7 +133,7 @@ export declare namespace from {
     rpId?: WebAuthnP256.sign.Options['rpId'] | undefined
   }
 
-  /** WebAuthn owner account returned by {@link from}. */
+  /** WebAuthn owner account returned by {@link fromCredential}. */
   type ReturnType<credential extends Credential = Credential> = Account<
     credential['id']
   >

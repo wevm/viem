@@ -6,13 +6,13 @@ The v3 API groups actions by resource, moves constructors into module namespaces
 
 | v2 | v3 |
 | --- | --- |
-| `createBundlerClient(options)` | `Client.create(options)` |
+| `createBundlerClient(options)` | `BundlerClient.create(options)` |
 | `createPaymasterClient(options)` | `PaymasterClient.create(options)` |
 | `toSmartAccount(implementation)` | `SmartAccount.from(implementation)` |
 | `toCoinbaseSmartAccount(options)` | `CoinbaseSmartAccount.from(options)` |
 | `toSoladySmartAccount(options)` | `SoladySmartAccount.from(options)` |
 | `toSimple7702SmartAccount(options)` | `Simple7702SmartAccount.from(options)` |
-| `toWebAuthnAccount({ credential, getFn, rpId })` | `WebAuthnAccount.from(credential, { getFn, rpId })` |
+| `toWebAuthnAccount({ credential, getFn, rpId })` | `WebAuthnAccount.fromCredential(credential, { getFn, rpId })` |
 | `createWebAuthnCredential(options)` | `WebAuthnP256.createCredential(options)` from `viem/utils` |
 
 ## Actions

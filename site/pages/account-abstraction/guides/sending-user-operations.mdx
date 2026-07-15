@@ -1,42 +1,64 @@
----
-description: Getting Started with Account Abstraction in Viem
----
+# Sending User Operations
 
-# Getting Started with Account Abstraction
+The guide below demonstrates how to send User Operations with a [Smart Account](/account-abstraction/accounts/smart).
 
-**[Account Abstraction (ERC-4337)](https://eips.ethereum.org/EIPS/eip-4337)** is a proposal within the Ethereum ecosystem which aims to standardize Smart Contract Accounts (SCA) and their operations without the need to modify or upgrade the protocol.
+## Overview
 
-Smart Contract Accounts can send calls on the Network via a "meta-transaction" called a **User Operation.** Users can send User Operations to **Bundlers** which aggregate User Operations into single transactions and submit them to the Network via an **EntryPoint** contract.
+Here is an end-to-end overview of how to broadcast a User Operation with a Smart Account. The [recipe](#send-a-user-operation) below breaks down each part.
 
-Key features that Account Abstraction enables are:
+:::code-group
 
-- **Batching:** Group multiple calls into a single transaction.
-- **Fee Sponsorship:** Allow third parties to pay for gas fees, or pay for gas via ERC20 tokens.
-- **Arbitrary Signature Verification:** Smart Contract Accounts can contain arbitrary signature verification logic (e.g. WebAuthn, secp256r1, secp256k1, ed25519, etc).
-- **Multi-Owner Wallets:** Enable multiple owners to control a single account, and set rules for the owners.
-- **Recovery Mechanisms:** A Smart Contract Account can assign multiple entities or services as trusted recovery agents for the Account.
-- and many more...
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { account, bundlerClient } from './config.js'
 
-:::note
-**Compatibility Note**
+const hash = await bundlerClient.userOperation.send({
+  account,
+  calls: [{
+    to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
+    value: Value.fromEther('0.001')
+  }]
+})
 
-As ERC-4337 is not enshrined on the protocol, this means that Smart Accounts are incompatible with Viem's Transaction APIs such as `sendTransaction` and `writeContract`.
+const receipt = await bundlerClient.userOperation.waitForReceipt({ hash })
+```
 
-Sending "transactions" can be achieved by broadcasting a **User Operation** to a **Bundler**, which will then broadcast it to the Network shortly after.
+```ts twoslash [config.ts] filename="config.ts"
+import { Client, http } from 'viem'
+import {
+  Client as BundlerClient,
+  CoinbaseSmartAccount
+} from 'viem/account-abstraction'
+import { mainnet } from 'viem/chains'
+import { Account } from 'viem'
 
-The most common Actions for **User Operations** are:
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 
-- [`userOperation.send`](/account-abstraction/actions/userOperation.send) (also supports [Contract Writes](/account-abstraction/actions/userOperation.send#contract-calls))
-- [`userOperation.estimateGas`](/account-abstraction/actions/userOperation.estimateGas)
-- [`userOperation.get`](/account-abstraction/actions/userOperation.get)
-- [`userOperation.getReceipt`](/account-abstraction/actions/userOperation.getReceipt)
+const owner = Account.fromPrivateKey('0x...')
 
-Once Account Abstraction is enshrined on the protocol, we anticipate the above Actions will become redundant in favor of Viem's Transaction APIs.
+export const account = await CoinbaseSmartAccount.from({
+  client,
+  owners: [owner],
+  version: '1.1',
+})
+
+export const bundlerClient = BundlerClient.create({
+  account,
+  client,
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
+})
+```
+
 :::
 
-## Sending Your First User Operation
+## Recipes
 
-### 1. Set Up a Client
+### Send a User Operation
+
+#### 1. Set Up a Client
 
 A Smart Account needs access to the Network to query for information about its state (e.g. nonce, address, etc). Let's set up a Client that we can use for the Smart Account:
 
@@ -52,13 +74,13 @@ const client = Client.create({
 
 [See `Client.create` Docs](/docs/clients/create)
 
-### 2. Set Up a Bundler Client
+#### 2. Set Up a Bundler Client
 
-Next, we need to set up a Bundler Client. A Bundler is required to submit User Operations to the Network for the Smart Account.
+Next, we will need to set up a Bundler Client. A Bundler is required to submit User Operations to the Blockchain for the Smart Account.
 
 ```ts twoslash
 import { Client, http } from 'viem'
-import { Client as BundlerClient } from 'viem/account-abstraction' // [!code focus]
+import { Client as BundlerClient } from 'viem/account-abstraction' // [!code ++] // [!code focus]
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({
@@ -66,10 +88,10 @@ const client = Client.create({
   transport: http(),
 })
 
-const bundlerClient = BundlerClient.create({ // [!code focus]
-  client, // [!code focus]
-  transport: http('https://public.pimlico.io/v2/1/rpc'), // [!code focus]
-}) // [!code focus]
+const bundlerClient = BundlerClient.create({ // [!code ++] // [!code focus]
+  client, // [!code ++] // [!code focus]
+  transport: http('https://public.pimlico.io/v2/1/rpc'), // [!code ++] // [!code focus]
+}) // [!code ++] // [!code focus]
 ```
 
 :::info
@@ -78,15 +100,15 @@ The Bundler URL above is a public endpoint. Please do not use it in production a
 
 [See `BundlerClient.create` Docs](/account-abstraction/clients/bundler)
 
-### 3. Set Up an Owner
+#### 3. Set Up an Owner
 
-We also need to set up an Owner for the Smart Account which will be used to sign User Operations (transactions) for the Smart Account.
+We will also need to set up an Owner for the Smart Account which will be used to sign User Operations (transactions) for the Smart Account.
 
 ```ts twoslash
 import { Client, http } from 'viem'
 import { Client as BundlerClient } from 'viem/account-abstraction'
 import { mainnet } from 'viem/chains'
-import { Account } from 'viem' // [!code focus]
+import { Account } from 'viem' // [!code ++] // [!code focus]
 
 const client = Client.create({
   chain: mainnet,
@@ -98,21 +120,21 @@ const bundlerClient = BundlerClient.create({
   transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 
-const owner = Account.fromPrivateKey('0x...') // [!code focus]
+const owner = Account.fromPrivateKey('0x...') // [!code ++] // [!code focus]
 ```
 
 [See `Account.fromPrivateKey` Docs](/docs/accounts/local/private-key)
 
-### 4. Create a Smart Account
+#### 4. Create a Smart Account
 
-Next, we instantiate a Smart Account. For this example, we will use [`CoinbaseSmartAccount.from`](/account-abstraction/accounts/coinbase) (Coinbase Smart Wallet).
+Next, we will instantiate a Smart Account. For this example, we will use [`CoinbaseSmartAccount.from`](/account-abstraction/accounts/coinbase) (Coinbase Smart Wallet).
 
 ```ts twoslash
 import { Client, http } from 'viem'
-import { // [!code focus]
-  Client as BundlerClient, // [!code focus]
-  CoinbaseSmartAccount // [!code focus]
-} from 'viem/account-abstraction' // [!code focus]
+import { // [!code ++] // [!code focus]
+  Client as BundlerClient, // [!code ++] // [!code focus]
+  CoinbaseSmartAccount // [!code ++] // [!code focus]
+} from 'viem/account-abstraction' // [!code ++] // [!code focus]
 import { mainnet } from 'viem/chains'
 import { Account } from 'viem'
 
@@ -128,11 +150,11 @@ const bundlerClient = BundlerClient.create({
 
 const owner = Account.fromPrivateKey('0x...')
 
-const account = await CoinbaseSmartAccount.from({ // [!code focus]
-  client, // [!code focus]
-  owners: [owner], // [!code focus]
-  version: '1.1', // [!code focus]
-}) // [!code focus]
+const account = await CoinbaseSmartAccount.from({ // [!code ++] // [!code focus]
+  client, // [!code ++] // [!code focus]
+  owners: [owner], // [!code ++] // [!code focus]
+  version: '1.1', // [!code ++] // [!code focus]
+}) // [!code ++] // [!code focus]
 ```
 
 :::tip
@@ -141,9 +163,9 @@ const account = await CoinbaseSmartAccount.from({ // [!code focus]
 
 [See `CoinbaseSmartAccount.from` Docs](/account-abstraction/accounts/coinbase)
 
-### 5. Send User Operation
+#### 5. Send User Operation
 
-Next, we send a User Operation to the Bundler. For the example below, we will send 0.001 ETH to a random address.
+Next, we will send a User Operation to the Bundler. For the example below, we will send 0.001 ETH to a random address.
 
 ```ts twoslash
 import { Client, http } from 'viem'
@@ -173,24 +195,24 @@ const account = await CoinbaseSmartAccount.from({
   version: '1.1',
 })
 
-const hash = await bundlerClient.userOperation.send({ // [!code focus]
-  account, // [!code focus]
-  calls: [{ // [!code focus]
-    to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', // [!code focus]
-    value: Value.fromEther('0.001') // [!code focus]
-  }] // [!code focus]
-}) // [!code focus]
+const hash = await bundlerClient.userOperation.send({ // [!code ++] // [!code focus]
+  account, // [!code ++] // [!code focus]
+  calls: [{ // [!code ++] // [!code focus]
+    to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', // [!code ++] // [!code focus]
+    value: Value.fromEther('0.001') // [!code ++] // [!code focus]
+  }] // [!code ++] // [!code focus]
+}) // [!code ++] // [!code focus]
 
-const receipt = await bundlerClient.userOperation.waitForReceipt({ hash }) // [!code focus]
+const receipt = await bundlerClient.userOperation.waitForReceipt({ hash }) // [!code ++] // [!code focus]
 ```
 
 :::tip
-**Tip:** The `calls` property also accepts [Contract Write calls](/account-abstraction/actions/userOperation.send).
+**Tip:** The `calls` property also accepts [Contract Write calls](/account-abstraction/actions/userOperation.send#contract-calls).
 :::
 
 [See `userOperation.send` Docs](/account-abstraction/actions/userOperation.send)
 
-### 6. Optional: Hoist the Account
+#### 6. Optional: Hoist the Account
 
 If you do not wish to pass an account around to every Action that requires an `account`, you can also hoist the account onto a Bundler Client.
 
@@ -229,7 +251,7 @@ const hash = await bundlerClient.userOperation.send({
 })
 ```
 
-### 7. Optional: Sponsor User Operation
+#### 7. Optional: Sponsor User Operation
 
 By using a Paymaster, we can add sponsorship of User Operation fees.
 
@@ -321,7 +343,7 @@ export const account = await CoinbaseSmartAccount.from({
 :::
 
 ::::tip
-If your Bundler also accepts Paymaster sponsorship (like [Pimlico](https://www.pimlico.io)), you can set `paymaster: true` instead of declaring a separate Paymaster Client.
+If your Bundler also supports Paymaster sponsorship (`pm_` JSON-RPC methods), you can set `paymaster: true` instead of declaring a separate Paymaster Client.
 
 :::code-group
 
@@ -334,7 +356,7 @@ const bundlerClient = BundlerClient.create({
   account,
   client,
   paymaster: true, // [!code ++]
-  transport: http('https://api.pimlico.io/v2/1/rpc?apikey={API_KEY}'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 ```
 
@@ -347,7 +369,7 @@ import { account, client } from './config'
 const bundlerClient = BundlerClient.create({
   account,
   client,
-  transport: http('https://api.pimlico.io/v2/1/rpc?apikey={API_KEY}'),
+  transport: http('https://public.pimlico.io/v2/1/rpc'),
 })
 
 const hash = await bundlerClient.userOperation.send({
@@ -381,3 +403,13 @@ export const account = await CoinbaseSmartAccount.from({
 :::
 
 ::::
+
+## Best Practices
+
+Use authenticated Bundler and Paymaster endpoints in production. Hoist the Smart Account when one account is shared across Actions, and pass it per Action when account selection is dynamic.
+
+## See More
+
+- [Bundler Client](/account-abstraction/clients/bundler)
+- [`userOperation.send`](/account-abstraction/actions/userOperation.send)
+- [Paymaster Client](/account-abstraction/clients/paymaster)
