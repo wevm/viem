@@ -1,0 +1,144 @@
+---
+description: Extend a Viem Client with composable, namespaced, type-safe application methods.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Extend a Client
+
+## Overview
+
+[`client.extend`](/docs/clients/create#extending-a-client) returns a new Client with the decorator's
+methods merged into its type. Extensions can be layered, and plain-object namespaces merge across
+decorators.
+
+## Recipes
+
+These recipes keep the base Client configuration separate from application behavior.
+
+### Add an Application Method
+
+Return a method that closes over the Client supplied to the decorator.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const healthy = await client.health.check()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const base = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+
+export const client = base.extend((client) => ({
+  health: {
+    async check() {
+      await Actions.block.getNumber(client)
+      return true
+    },
+  },
+}))
+```
+
+:::
+
+### Merge a Namespace
+
+Separate decorators can add methods to the same namespace. Viem deep-merges their plain objects.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const [blockNumber, gasPrice] = await Promise.all([
+  client.metrics.getBlockNumber(),
+  client.metrics.getGasPrice(),
+])
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const base = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+
+export const client = base
+  .extend((client) => ({
+    metrics: {
+      getBlockNumber: () => Actions.block.getNumber(client),
+    },
+  }))
+  .extend((client) => ({
+    metrics: {
+      getGasPrice: () => Actions.fee.getGasPrice(client),
+    },
+  }))
+```
+
+:::
+
+### Layer Official and Custom Decorators
+
+Compose [`publicActions`](/docs/actions/public), [`walletActions`](/docs/actions/wallet), and custom
+decorators around one Client instead of constructing separate clients for each capability.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const blockNumber = await client.block.getNumber()
+const ready = await client.app.isReady()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import {
+  Account,
+  Client,
+  http,
+  publicActions,
+  walletActions,
+} from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+  .extend(publicActions())
+  .extend(walletActions())
+  .extend(() => ({ app: { isReady: async () => true } }))
+```
+
+:::
+
+## Best Practices
+
+### Use Domain Namespaces
+
+Group related methods under a stable namespace instead of adding many top-level names. Namespaces
+remain discoverable and reduce collisions with other extensions.
+
+### Do Not Override Client State
+
+Extensions cannot redefine base fields such as `chain`, `account`, `request`, or `transport`. Add a
+new capability rather than shadowing the Client's source of truth.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:square-function" title="Build Actions and Decorators" description="Pair reusable standalone logic with a method-style adapter." to="/docs/guides/extending/actions-decorators" />
+  <Card icon="lucide:brackets" title="Type Composition" description="Forward Client generics through custom helpers." to="/docs/guides/extending/type-composition" />
+</Cards>

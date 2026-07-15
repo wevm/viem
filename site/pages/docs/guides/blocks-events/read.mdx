@@ -1,0 +1,97 @@
+---
+description: Read Ethereum blocks, transactions, receipts, and block activity with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Read and Inspect Blocks
+
+## Overview
+
+[`block.get`](/docs/actions/public/block/get) reads a block by number, hash, or tag. Related Actions
+return the block's receipts and transaction count without requiring applications to issue and decode
+raw RPC requests.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with `publicActions`.
+
+### Read the Latest Block
+
+Request full transaction objects only when the application needs them.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const block = await client.block.get({
+  includeTransactions: true,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Read a Finalized Block
+
+Use a block tag when the workflow needs a particular finality level.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const block = await client.block.get({ blockTag: 'finalized' })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Inspect Receipts and Counts
+
+Use [`block.getReceipts`](/docs/actions/public/block/getReceipts) and
+[`block.getTransactionCount`](/docs/actions/public/block/getTransactionCount) for block-level
+processing.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const blockNumber = 20_000_000n
+
+const receipts = await client.block.getReceipts({ blockNumber })
+const count = await client.block.getTransactionCount({ blockNumber })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Identify Blocks by Hash
+
+Store the block hash with processed data. A number can refer to a different block after a chain
+reorganization.
+
+### Request Only Needed Data
+
+Full transactions and all receipts can make block responses large. Prefer hashes and targeted
+transaction reads when processing a small subset.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:radio" title="Watch & Simulate Blocks" description="React to new heads or model future block state." to="/docs/guides/blocks-events/watch-simulate" />
+  <Card icon="lucide:scroll-text" title="Query Logs" description="Read event activity over a block range." to="/docs/guides/blocks-events/logs" />
+</Cards>

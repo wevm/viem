@@ -23,10 +23,9 @@ Any object with an EIP-1193 `request` method works, such as an injected wallet p
 
 ```ts twoslash
 import { custom } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 // ---cut---
-const transport = custom(provider) // [!code focus]
+const transport = custom(window.ethereum!) // [!code focus]
 ```
 
 ### Restricting RPC Methods
@@ -35,10 +34,9 @@ Limit a custom provider to specific RPC methods when it should only handle part 
 
 ```ts twoslash
 import { custom } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 // ---cut---
-const transport = custom(provider, {
+const transport = custom(window.ethereum!, {
   methods: { include: ['eth_call'] }, // [!code focus]
 })
 ```
@@ -49,10 +47,9 @@ Tune retry behavior when the wrapped provider needs a different retry budget or 
 
 ```ts twoslash
 import { custom } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 // ---cut---
-const transport = custom(provider, {
+const transport = custom(window.ethereum!, {
   retryCount: 5, // [!code focus]
   retryDelay: 200, // [!code focus]
 })
@@ -85,10 +82,9 @@ An EIP-1193-compatible provider.
 
 ```ts twoslash
 import { custom } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 // ---cut---
-const transport = custom(provider) // [!code focus]
+const transport = custom(window.ethereum!) // [!code focus]
 ```
 
 #### options
@@ -104,10 +100,9 @@ Transport key.
 
 ```ts twoslash
 import { custom } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 // ---cut---
-const transport = custom(provider, {
+const transport = custom(window.ethereum!, {
   key: 'custom', // [!code focus]
 })
 ```
@@ -120,10 +115,9 @@ RPC methods to include or exclude.
 
 ```ts twoslash
 import { custom } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 // ---cut---
-const transport = custom(provider, {
+const transport = custom(window.ethereum!, {
   methods: { include: ['eth_call'] }, // [!code focus]
 })
 ```
@@ -137,10 +131,9 @@ Transport name.
 
 ```ts twoslash
 import { custom } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 // ---cut---
-const transport = custom(provider, {
+const transport = custom(window.ethereum!, {
   name: 'Custom Provider', // [!code focus]
 })
 ```
@@ -154,10 +147,9 @@ Max retries per request.
 
 ```ts twoslash
 import { custom } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 // ---cut---
-const transport = custom(provider, {
+const transport = custom(window.ethereum!, {
   retryCount: 5, // [!code focus]
 })
 ```
@@ -171,10 +163,9 @@ Base delay (ms) between retries.
 
 ```ts twoslash
 import { custom } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 // ---cut---
-const transport = custom(provider, {
+const transport = custom(window.ethereum!, {
   retryDelay: 200, // [!code focus]
 })
 ```

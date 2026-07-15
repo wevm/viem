@@ -1,0 +1,21 @@
+---
+description: Build reliable Ethereum RPC connections with composable Viem Transports.
+---
+
+import { Card, Cards } from 'vocs'
+
+# RPC and Reliability
+
+## Overview
+
+Viem Transports own RPC communication. Compose fallback, load-balancing, rate-limiting, HTTP,
+WebSocket, IPC, or EIP-1193 Transports while keeping the Client and its Actions unchanged.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:shield-check" title="Resilient Transports" description="Fail over between RPC providers and rank them by health and latency." to="/docs/guides/rpc/resilient-transports" />
+  <Card icon="lucide:shuffle" title="Rate Limit & Load Balance" description="Control request throughput and distribute traffic across providers." to="/docs/guides/rpc/rate-limit-load-balance" />
+  <Card icon="lucide:radio-tower" title="WebSocket Subscriptions" description="Use WebSocket subscriptions for blocks, pending transactions, and events." to="/docs/guides/rpc/websockets" />
+  <Card icon="lucide:braces" title="Custom RPC & Errors" description="Add typed RPC methods and classify provider failures." to="/docs/guides/rpc/custom-rpc-errors" />
+</Cards>

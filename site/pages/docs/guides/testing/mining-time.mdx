@@ -1,0 +1,163 @@
+---
+description: Control Anvil block production, timestamps, and time-dependent Ethereum behavior with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Control Mining and Time
+
+## Overview
+
+Mining Actions make block production deterministic. Pause automatic mining to inspect pending
+transactions, mine an exact number of blocks, or advance time to test expiries and time locks.
+
+## Recipes
+
+These recipes assume you have [set up an Anvil Client](/docs/guides/testing/anvil).
+
+### Mine on Demand
+
+Disable automining, broadcast an operation, then use [`block.mine`](/docs/actions/test/block/mine)
+to include it in a new block.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+await client.block.setAutomine({ enabled: false })
+
+try {
+  const hash = await client.transaction.send({
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: Value.fromEther('1'),
+  })
+  await client.block.mine({ blocks: 1 })
+} finally {
+  await client.block.setAutomine({ enabled: true })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/test.config.ts:setup]
+```
+
+:::
+
+### Advance Time
+
+Use [`block.increaseTime`](/docs/actions/test/block/increaseTime) to move the node clock forward,
+then mine a block to make the new time observable onchain.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+await client.block.increaseTime({ seconds: 60 * 60 })
+await client.block.mine({ blocks: 1 })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/test.config.ts:setup]
+```
+
+:::
+
+### Set the Next Block Timestamp
+
+Use [`block.setNextTimestamp`](/docs/actions/test/block/setNextTimestamp) when a test needs one exact
+Unix timestamp.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+await client.block.setNextTimestamp({ timestamp: 2_000_000_000n })
+await client.block.mine({ blocks: 1 })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/test.config.ts:setup]
+```
+
+:::
+
+### Mine at an Interval
+
+Use [`block.setIntervalMining`](/docs/actions/test/block/setIntervalMining) to produce blocks at a
+fixed interval while testing polling or subscription behavior.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+await client.block.setAutomine({ enabled: false })
+await client.block.setIntervalMining({ interval: 2 })
+
+// After the interval-mining assertion:
+await client.block.setIntervalMining({ interval: 0 })
+await client.block.setAutomine({ enabled: true })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/test.config.ts:setup]
+```
+
+:::
+
+### Customize the Next Block
+
+Use [`block.setCoinbase`](/docs/actions/test/block/setCoinbase),
+[`block.setGasLimit`](/docs/actions/test/block/setGasLimit), and
+[`block.setNextBaseFeePerGas`](/docs/actions/test/block/setNextBaseFeePerGas) to exercise contracts
+whose behavior depends on block fields.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const id = await client.state.snapshot()
+
+try {
+  await client.block.setCoinbase({
+    address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  })
+  await client.block.setGasLimit({ gasLimit: 30_000_000n })
+  await client.block.setNextBaseFeePerGas({
+    baseFeePerGas: 1_000_000_000n,
+  })
+  await client.block.mine({ blocks: 1 })
+} finally {
+  await client.state.revert({ id })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/test.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Restore Mining Settings
+
+Re-enable automining and clear interval settings after each test. Leaked node settings make later
+tests order-dependent.
+
+### Assert Onchain Time
+
+Read the resulting block timestamp instead of comparing only with the host clock. The node controls
+the timestamp contracts observe.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:list-ordered" title="Inspect the Transaction Pool" description="Observe transactions while automatic mining is paused." to="/docs/guides/testing/txpool" />
+  <Card icon="lucide:undo-2" title="Snapshot and Restore" description="Reset mining and state changes between tests." to="/docs/guides/testing/snapshots" />
+</Cards>

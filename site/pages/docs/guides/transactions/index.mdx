@@ -1,0 +1,49 @@
+---
+description: Send, prepare, sign, estimate, and track Ethereum transactions with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Transactions
+
+## Overview
+
+Viem provides a complete transaction lifecycle through the
+[`Actions.transaction`](/docs/actions/wallet/transaction/send) namespace. Build a request, estimate
+its cost, sign locally or through a wallet, broadcast it, and wait for confirmation without losing
+the Chain and Account types established by your Client.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:send"
+    title="Send Transactions"
+    description="Send native value or calldata and choose whether to wait for a receipt."
+    to="/docs/guides/transactions/send"
+  />
+  <Card
+    icon="lucide:pen-line"
+    title="Prepare & Sign Transactions"
+    description="Resolve transaction fields, sign locally, and broadcast raw transactions."
+    to="/docs/guides/transactions/prepare-sign"
+  />
+  <Card
+    icon="lucide:fuel"
+    title="Estimate Gas & Fees"
+    description="Estimate gas, EIP-1559 fees, and fee history before sending."
+    to="/docs/guides/transactions/gas-fees"
+  />
+  <Card
+    icon="lucide:scan-search"
+    title="Track Transactions & Nonces"
+    description="Read receipts and confirmations, handle replacements, and coordinate nonces."
+    to="/docs/guides/transactions/track"
+  />
+  <Card
+    icon="lucide:binary"
+    title="Blob Transactions"
+    description="Encode data into blobs and send an EIP-4844 transaction."
+    to="/docs/guides/transactions/blobs"
+  />
+</Cards>

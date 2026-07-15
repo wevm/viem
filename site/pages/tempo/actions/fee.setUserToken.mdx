@@ -25,26 +25,6 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 :::
 
-### Token IDs
-
-Pass a TIP-20 token id to select the fee token by id.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const { receipt } = await client.fee.setUserTokenSync({
-  token: 1n,
-})
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ### Asynchronous Usage
 
 The examples above use a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
@@ -80,8 +60,8 @@ type ReturnType = {
 
 ### token
 
-- **Type:** `Address | bigint`
+- **Type:** `Address`
 
-Token to set as the default fee token: a TIP-20 token id or a contract address.
+Token address to set as the default fee token.
 
 <WriteParameters />

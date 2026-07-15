@@ -1,0 +1,95 @@
+---
+description: Connect an EIP-1193 wallet, request Accounts, and disconnect with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Connect a Wallet
+
+## Overview
+
+Create a Client with a [`custom` Transport](/docs/transports/custom) around an EIP-1193 provider.
+[`wallet.connect`](/docs/actions/wallet/connect) requests Accounts through `wallet_connect` and falls
+back to `eth_requestAccounts` when no capabilities were requested.
+
+## Recipes
+
+These recipes assume an EIP-1193 provider is available in the application.
+
+### Connect to the Wallet
+
+The result contains the connected addresses and any capabilities granted to each Account.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { accounts } = await client.wallet.connect()
+const account = accounts[0]
+
+if (!account) throw new Error('No Account was returned.')
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/wallet.config.ts:setup]
+```
+
+:::
+
+### Request Addresses Directly
+
+Use [`wallet.requestAddresses`](/docs/actions/wallet/requestAddresses) when only the legacy
+`eth_requestAccounts` flow is needed.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const addresses = await client.wallet.requestAddresses()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/wallet.config.ts:setup]
+```
+
+:::
+
+### Disconnect
+
+[`wallet.disconnect`](/docs/actions/wallet/disconnect) asks wallets that support `wallet_disconnect`
+to end the connection.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+await client.wallet.disconnect()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/wallet.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Treat Connection as User Intent
+
+Do not request Accounts during page load. Connect from a clear user action and explain any
+capabilities requested at the same time.
+
+### Recheck Existing Access
+
+Use [`wallet.getAddresses`](/docs/actions/wallet/getAddresses) to restore already-authorized Accounts
+without presenting another connection prompt.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:radio-tower" title="JSON-RPC Accounts" description="Use a connected address as the Client's default Account." to="/docs/guides/wallets/json-rpc-accounts" />
+  <Card icon="lucide:network" title="Manage Chains" description="Add or switch networks in the connected wallet." to="/docs/guides/wallets/permissions-chains" />
+</Cards>

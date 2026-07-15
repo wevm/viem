@@ -1,0 +1,25 @@
+---
+description: Read, simulate, write, deploy, batch, and observe Ethereum contracts with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Contract Interactions
+
+## Overview
+
+Contract Actions combine an ABI, address, and Client to provide end-to-end type inference. Viem
+infers function names, positional arguments, event names, and return values from the ABI while
+keeping reads, simulations, writes, deployments, and logs as separate operations.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:book-open" title="Read Contracts" description="Call view and pure functions without sending a transaction." to="/docs/guides/contracts/read" />
+  <Card icon="lucide:send" title="Write & Simulate Contracts" description="Simulate a write, submit it, and wait for its receipt." to="/docs/guides/contracts/write-simulate" />
+  <Card icon="lucide:rocket" title="Deploy Contracts" description="Encode constructor arguments and deploy contract bytecode." to="/docs/guides/contracts/deploy" />
+  <Card icon="lucide:list-tree" title="Batch Contract Reads" description="Read several contracts in one multicall operation." to="/docs/guides/contracts/batch-reads" />
+  <Card icon="lucide:box" title="Contract Instances" description="Bind an ABI, address, and Client to a reusable interface." to="/docs/guides/contracts/instances" />
+  <Card icon="lucide:radio" title="Contract Events" description="Query historical logs and watch newly emitted events." to="/docs/guides/contracts/events" />
+  <Card icon="lucide:braces" title="Low-Level Calls" description="Use raw calldata when an ABI is unavailable or unnecessary." to="/docs/guides/contracts/calls" />
+</Cards>

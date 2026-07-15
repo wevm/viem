@@ -147,6 +147,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Rewrite examples for client-extension calls.
 - **JSDoc annotations**; include `@example`, `@param`, and `@returns` when appropriate.
 - **Examples should be small**; public examples should show the minimum useful shape and avoid unrelated setup.
+- **Callouts follow code examples**; place callouts immediately below the code snippet or code group they supplement.
 - **Source docs first**; public API documentation usually belongs in TSDoc near the exported source.
 - **Site pages**; human-written docs live under `site/pages/`.
   - Generated site page files are not edited by hand.

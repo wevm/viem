@@ -1,0 +1,106 @@
+---
+description: Read Ethereum balances, bytecode, transaction counts, and contract storage with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Address and Contract State
+
+## Overview
+
+Address Actions read state without an ABI. Inspect native balances, deployed code, transaction
+counts, storage slots, and EIP-7702 delegations at the latest state or a selected historical block.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with `publicActions`.
+
+### Read Balance, Code, and Nonce
+
+Use [`address.getBalance`](/docs/actions/public/address/getBalance),
+[`address.getCode`](/docs/actions/public/address/getCode), and
+[`address.getTransactionCount`](/docs/actions/public/address/getTransactionCount) for account-level
+state.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const address = '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
+
+const [balance, code, transactionCount] = await Promise.all([
+  client.address.getBalance({ address }),
+  client.address.getCode({ address }),
+  client.address.getTransactionCount({ address }),
+])
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Read a Storage Slot
+
+[`address.getStorageAt`](/docs/actions/public/address/getStorageAt) returns the 32-byte value stored
+at a contract slot.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const value = await client.address.getStorageAt({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  slot: '0x0',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Pin State to a Block
+
+Use a block hash and `requireCanonical` when the read must reject an orphaned block.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const balance = await client.address.getBalance({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+  requireCanonical: true,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Derive Storage Slots Correctly
+
+Solidity mappings and dynamic values do not occupy a simple sequential slot. Derive their location
+from the compiler layout and Solidity storage rules before reading.
+
+### Share a Block Context
+
+Pass the same block number or hash to related reads that feed one decision. Independent latest-state
+requests can span different blocks.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:shield-check" title="State Proofs" description="Request Merkle proofs for account and storage values." to="/docs/guides/chain-data/proofs" />
+  <Card icon="lucide:badge-check" title="Inspect Delegations" description="Read EIP-7702 delegated code at a selected block." to="/docs/guides/authorizations/delegations" />
+</Cards>

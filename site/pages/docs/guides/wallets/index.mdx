@@ -1,0 +1,26 @@
+---
+description: Connect Ethereum wallets, manage Accounts, request permissions, batch calls, and sign data with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Wallets & Accounts
+
+## Overview
+
+Viem separates Accounts from Transports. A JSON-RPC Account asks a connected wallet to sign, while
+a Local Account signs inside your application. Wallet Actions cover connection, permissions,
+capability discovery, batched calls, chain management, and asset discovery.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:plug" title="Connect a Wallet" description="Connect through an EIP-1193 provider and request an Account." to="/docs/guides/wallets/connect" />
+  <Card icon="lucide:radio-tower" title="JSON-RPC Accounts" description="Delegate signing to a browser or remote JSON-RPC wallet." to="/docs/guides/wallets/json-rpc-accounts" />
+  <Card icon="lucide:key-round" title="Local Accounts" description="Create Accounts from private keys, mnemonics, HD keys, or custom signers." to="/docs/guides/wallets/local-accounts" />
+  <Card icon="lucide:network" title="Manage Chains" description="Add or switch networks in a connected wallet." to="/docs/guides/wallets/permissions-chains" />
+  <Card icon="lucide:signature" title="Signatures & SIWE" description="Sign and verify messages, typed data, and Sign-In with Ethereum payloads." to="/docs/guides/wallets/signatures" />
+  <Card icon="lucide:layers-3" title="Capabilities & Calls" description="Discover wallet capabilities and submit batched calls." to="/docs/guides/wallets/capabilities" />
+  <Card icon="lucide:list-plus" title="Batch Calls" description="Submit several calls through a capable wallet and track their status." to="/docs/guides/wallets/batch-calls" />
+  <Card icon="lucide:coins" title="Wallet Assets" description="Read wallet assets and suggest tokens for the wallet to track." to="/docs/guides/wallets/assets" />
+</Cards>

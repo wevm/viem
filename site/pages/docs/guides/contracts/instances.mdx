@@ -1,0 +1,95 @@
+---
+description: Bind an Ethereum contract ABI, address, and Client to a reusable typed interface.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Contract Instances
+
+## Overview
+
+[`Contract.from`](/docs/contract/instances) creates an interface bound to an ABI, address, and Client.
+Its `read`, `write`, `simulate`, `estimateGas`, and event methods are derived from the ABI, which
+removes repeated configuration from code that uses the same contract many times.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with public and wallet Actions.
+
+### Create an Instance
+
+The instance retains the literal ABI and the capabilities of the supplied Client.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Contract } from 'viem'
+import { Abis } from 'viem/utils'
+import { client } from './viem.config'
+
+const usdc = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+
+const balance = await usdc.read.balanceOf({
+  args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+### Simulate Through an Instance
+
+Instance methods omit the ABI, address, and function name that are already bound.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Contract } from 'viem'
+import { Abis, Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const usdc = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+
+const { result } = await usdc.simulate.transfer({
+  args: [
+    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    Value.from('1', 6),
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Use Instances for Repeated Interactions
+
+Prefer direct Contract Actions for one-off calls. Use an instance when a module repeatedly uses the
+same ABI and address or needs to expose a cohesive contract interface.
+
+### Keep Client Ownership Outside
+
+Pass a caller-owned Client into the module that creates the instance. This preserves the
+application's Account, Transport, Chain, and extension configuration.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:file-code-2" title="Contract Module" description="See every method exposed by Contract.from." to="/docs/contract" />
+  <Card icon="lucide:package-open" title="Distribute a Viem Library" description="Expose contract integrations without creating hidden Clients." to="/docs/guides/extending/libraries" />
+</Cards>

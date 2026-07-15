@@ -82,9 +82,8 @@ corresponding setup patterns.
 
 ## Why Are Multiple Return Values Arrays?
 
-Multiple top-level contract outputs also follow ABI order. Viem returns them as an inferred tuple,
-even when the ABI supplies output names, so adding or removing labels does not change the runtime
-shape. Destructure the values by position:
+Set `as` to `'Array'` to return multiple top-level contract outputs as an inferred tuple. The
+values follow ABI order even when the outputs are named, so destructure them by position:
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -99,6 +98,7 @@ const abi = Abi.from([
 const reserves = await Actions.contract.read(client, {
   abi,
   address: '0x0000000000000000000000000000000000000001',
+  as: 'Array',
   functionName: 'reserves',
 })
 // @log: [1000000n, 2000000n]

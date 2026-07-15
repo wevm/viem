@@ -8,11 +8,10 @@ This action invokes the `wallet_swap` JSON-RPC method on the connected wallet, p
 
 ```ts twoslash [example.ts]
 import { Client, custom } from 'viem/tempo'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 
 const client = Client.create({
-  transport: custom(provider),
+  transport: custom(window.ethereum!),
 })
 
 const { receipt } = await client.wallet.swap({

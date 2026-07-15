@@ -1,0 +1,117 @@
+---
+description: Attach EIP-7702 authorizations to Ethereum transactions and contract writes with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Send and Write with Authorizations
+
+## Overview
+
+A signed authorization becomes active when it is included in an EIP-7702 transaction. Pass it in
+`authorizationList` to [`transaction.send`](/docs/actions/wallet/transaction/send) or a Contract
+write. After the transaction confirms, the delegated code remains active on the Account until it is
+replaced or cleared. Later transactions can call its functions without passing `authorizationList`
+again. The execution target and calldata determine what happens after delegation is installed.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with a Local Account and have reviewed the
+delegation implementation.
+
+### Send an Authorized Transaction
+
+When the EOA is the executor, sign with `executor: 'self'` and include the result in the transaction.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const authorization = await client.wallet.signAuthorization({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  executor: 'self',
+})
+
+const hash = await client.transaction.send({
+  authorizationList: [authorization],
+  data: '0xdeadbeef',
+  to: client.account.address,
+  type: 'eip7702',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+### Write Through Delegated Code
+
+Use a typed Contract Action when the delegated implementation exposes a known ABI. After the first
+write confirms, call the delegated function again without passing `authorizationList`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abi } from 'viem/utils'
+import { client } from './viem.config'
+
+const abi = Abi.from(['function execute(address target, bytes data)'])
+
+const authorization = await client.wallet.signAuthorization({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  executor: 'self',
+})
+
+const hash = await client.contract.write({
+  abi,
+  address: client.account.address,
+  args: [
+    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    '0xdeadbeef',
+  ],
+  authorizationList: [authorization],
+  functionName: 'execute',
+})
+
+const { receipt } = client.transaction.waitForReceipt({ hash })
+await receipt
+
+// No authorizationList is required.
+const nextHash = await client.contract.write({
+  abi,
+  address: client.account.address,
+  args: [
+    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    '0xcafebabe',
+  ],
+  functionName: 'execute',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Simulate the Complete Request
+
+Include the authorization list, executor, target, calldata, and value in simulation. A simulation
+without the pending delegation does not exercise the same code path.
+
+### Separate Authorization from Intent
+
+The authorization selects delegated code. The transaction still defines the immediate call. Present
+both pieces clearly when asking a user to approve the operation.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:list-tree" title="ERC-7821 Execution" description="Execute calls through a compatible delegated Account." to="/docs/guides/authorizations/erc7821" />
+  <Card icon="lucide:scan-search" title="Track Transactions" description="Wait for the EIP-7702 transaction receipt." to="/docs/guides/transactions/track" />
+</Cards>

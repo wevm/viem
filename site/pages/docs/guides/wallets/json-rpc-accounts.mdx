@@ -1,0 +1,76 @@
+---
+description: Delegate Ethereum signing to a browser or remote JSON-RPC wallet with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# JSON-RPC Accounts
+
+## Overview
+
+A [JSON-RPC Account](/docs/accounts/json-rpc) contains an address and delegates signing to the
+Client's Transport. Transaction, message, typed-data, and authorization requests are forwarded to
+the connected wallet instead of accessing private key material in the application.
+
+## Recipes
+
+These recipes assume you have [connected an EIP-1193 wallet](/docs/guides/wallets/connect).
+
+### Create a JSON-RPC Account
+
+Pass an address to [`Account.from`](/docs/accounts) and attach the result to the Client.
+
+```ts twoslash
+import { Account, Client, custom, walletActions } from 'viem'
+import 'viem/window'
+
+const account = Account.from(
+  '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+)
+
+const client = Client.create({
+  account,
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+```
+
+### Send Through the Wallet
+
+The Client forwards the request through `eth_sendTransaction` for wallet approval and signing.
+
+```ts twoslash
+import { Account, Client, custom, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Value } from 'viem/utils'
+import 'viem/window'
+
+const client = Client.create({
+  account: Account.from('0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'),
+  chain: mainnet,
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+
+const hash = await client.transaction.send({
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: Value.fromEther('1'),
+})
+```
+
+## Best Practices
+
+### Keep the Address and Provider Paired
+
+An address returned by one provider is not evidence that another provider can sign for it. Recreate
+the Client when the connected provider or selected Account changes.
+
+### Expect User Rejection
+
+Every signing request can be rejected or interrupted. Handle provider rejection separately from
+invalid transaction and RPC failures.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:key-round" title="Local Accounts" description="Sign inside the application without a JSON-RPC wallet." to="/docs/guides/wallets/local-accounts" />
+  <Card icon="lucide:send" title="Send Transactions" description="Send with either a Local or JSON-RPC Account." to="/docs/guides/transactions/send" />
+</Cards>

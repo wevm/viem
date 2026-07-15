@@ -1,0 +1,22 @@
+---
+description: Read and watch Ethereum blocks, query logs, and consume event filters with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Blocks and Events
+
+## Overview
+
+Block Actions expose canonical chain history and new block notifications. Event and Filter Actions
+query logs, subscribe to matching events, and consume node-managed filters for applications that
+need incremental updates.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:box" title="Read & Inspect Blocks" description="Read blocks, receipts, and transaction counts at a selected height." to="/docs/guides/blocks-events/read" />
+  <Card icon="lucide:radio" title="Watch & Simulate Blocks" description="Observe new blocks or simulate calls against future block state." to="/docs/guides/blocks-events/watch-simulate" />
+  <Card icon="lucide:scroll-text" title="Query Logs" description="Query raw or typed event logs over a block range." to="/docs/guides/blocks-events/logs" />
+  <Card icon="lucide:filter" title="Use Filters" description="Create filters, consume changes, and uninstall them when finished." to="/docs/guides/blocks-events/filters" />
+</Cards>

@@ -1,0 +1,132 @@
+---
+description: Watch new Ethereum blocks and simulate future block sequences with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Watch and Simulate Blocks
+
+## Overview
+
+[`block.watch`](/docs/actions/public/block/watch) observes new blocks through a subscription or
+polling. [`block.simulate`](/docs/actions/public/block/simulate) executes calls across one or more
+future blocks with optional block and state overrides.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with `publicActions`.
+
+### Watch New Blocks
+
+Attach listeners to the watcher and tear it down when the owning component stops.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watch = client.block.watch()
+
+watch.onBlock((block, previousBlock) => {
+  console.log(block.number, previousBlock?.number)
+})
+
+// Later
+watch.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+The watcher is also an async iterable. It yields the latest update and may skip intermediate values
+if the consumer is slow.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watch = client.block.watch()
+
+for await (const { block, prevBlock } of watch) {
+  console.log(block.number, prevBlock?.number)
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Watch Block Numbers Only
+
+Use [`block.watchNumber`](/docs/actions/public/block/watchNumber) when headers are unnecessary.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watch = client.block.watchNumber()
+watch.onBlockNumber((blockNumber) => console.log(blockNumber))
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Simulate a Future Block
+
+Calls in later simulated blocks observe the state produced by earlier ones.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const [block] = await client.block.simulate({
+  blocks: [
+    {
+      calls: [
+        {
+          account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+          to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+          value: Value.fromEther('1'),
+        },
+      ],
+    },
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Make Watchers Lifecycle-Bound
+
+Keep the watcher handle beside the component, worker, or service that owns it. Always call `off` to
+release subscriptions and polling when that owner stops.
+
+### Treat Simulation as a Forecast
+
+Simulation uses a selected state snapshot and assumptions about the future block. Another
+transaction can change the actual execution result before inclusion.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:radio-tower" title="WebSocket Subscriptions" description="Configure a subscription-capable Transport." to="/docs/guides/rpc/websockets" />
+  <Card icon="lucide:file-check-2" title="Write & Simulate Contracts" description="Simulate one typed contract write before sending it." to="/docs/guides/contracts/write-simulate" />
+</Cards>

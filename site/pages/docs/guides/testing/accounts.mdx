@@ -1,0 +1,120 @@
+---
+description: Impersonate Ethereum Accounts and modify balances, nonces, code, or storage with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Manipulate Account State
+
+## Overview
+
+Test Actions can arrange Account and contract state without replaying every transaction that
+produced it. Use these controls only against a local test node.
+
+## Recipes
+
+These recipes assume you have [set up an Anvil Client](/docs/guides/testing/anvil).
+
+### Impersonate an Account
+
+[`address.impersonate`](/docs/actions/test/address/impersonate) lets the node send from an address
+whose private key is unavailable. Stop impersonating it after the operation.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem'
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const address = '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
+
+await client.address.impersonate({ address })
+try {
+  await client.transaction.send({
+    account: Account.from(address),
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: Value.fromEther('1'),
+  })
+} finally {
+  await client.address.stopImpersonating({ address })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/test.config.ts:setup]
+```
+
+:::
+
+### Seed a Balance and Nonce
+
+Use [`address.setBalance`](/docs/actions/test/address/setBalance) and
+[`address.setNonce`](/docs/actions/test/address/setNonce) to place an Account at the exact starting
+state a test expects.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const address = '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
+
+await client.address.setBalance({
+  address,
+  value: Value.fromEther('10'),
+})
+await client.address.setNonce({ address, nonce: 42 })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/test.config.ts:setup]
+```
+
+:::
+
+### Modify Contract State
+
+Use [`address.setCode`](/docs/actions/test/address/setCode) to replace runtime bytecode, or
+[`address.setStorageAt`](/docs/actions/test/address/setStorageAt) to write one known storage slot.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const address = '0xe846c6fcf817734ca4527b28ccb4aea2b6663c79'
+
+await client.address.setCode({ address, bytecode: '0x60006000f3' })
+await client.address.setStorageAt({
+  address,
+  index: 0,
+  value: '0x000000000000000000000000000000000000000000000000000000000000002a',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/test.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Restore Every Mutation
+
+Wrap stateful tests in a snapshot and revert it after the assertion. This prevents one test from
+changing the starting state of another.
+
+### Derive Storage Slots
+
+Use the contract layout and encoding rules to calculate storage positions. Guessing a slot can
+silently alter unrelated state.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:undo-2" title="Snapshot and Restore" description="Isolate every state mutation behind a reversible checkpoint." to="/docs/guides/testing/snapshots" />
+  <Card icon="lucide:file-check-2" title="Test Contract Interactions" description="Exercise typed reads and writes against a fork." to="/docs/guides/testing/contracts" />
+</Cards>

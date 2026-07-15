@@ -1,0 +1,162 @@
+---
+description: Send Ethereum transactions with Local or JSON-RPC Accounts and optionally wait for confirmation.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Send Transactions
+
+## Overview
+
+[`transaction.send`](/docs/actions/wallet/transaction/send) creates, signs, and broadcasts a
+transaction. A Local Account signs inside the application, while a JSON-RPC Account forwards the
+request to its wallet. Use [`transaction.sendSync`](/docs/actions/wallet/transaction/sendSync) when
+the next operation needs the confirmed receipt.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with an Account and `walletActions`.
+
+### Send Native Token
+
+Pass a recipient and a value in wei.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const hash = await client.transaction.send({
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: Value.fromEther('1'),
+})
+// @log: '0x...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+:::tip
+Looking to transfer ERC-20 tokens? See the [Transfer Tokens guide](/tokens/guides/transfer-tokens).
+:::
+
+### Send Calldata
+
+Pass pre-encoded calldata through `data` when it is already available.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const hash = await client.transaction.send({
+  data: '0xa9059cbb00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c800000000000000000000000000000000000000000000000000000000000f4240',
+  to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+Use [`AbiFunction.encodeData`](/docs/utilities/abifunction/encodeData) to encode calldata from a
+contract ABI.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { AbiFunction, Abis, Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const hash = await client.transaction.send({
+  data: AbiFunction.encodeData(Abis.erc20, 'transfer', [
+    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    Value.from('1', 6),
+  ]),
+  to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+:::tip
+Use [`contract.write`](/docs/actions/wallet/contract/write) to encode and send the call directly.
+:::
+
+### Send and Wait for a Receipt
+
+Use the sync variant when the workflow needs the receipt before continuing.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const receipt = await client.transaction.sendSync({
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: Value.fromEther('1'),
+})
+// @log: { status: 'success', transactionHash: '0x...', ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+Alternatively, use [`transaction.send`](/docs/actions/wallet/transaction/send) and
+[`transaction.waitForReceipt`](/docs/actions/public/transaction/waitForReceipt) separately when the
+transaction hash is needed before confirmation.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const hash = await client.transaction.send({
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: Value.fromEther('1'),
+})
+
+const { receipt } = client.transaction.waitForReceipt({ hash })
+const result = await receipt
+// @log: { status: 'success', transactionHash: '0x...', ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Keep Ownership Explicit
+
+Configure the default Account on the Client for application-wide ownership. Pass `account` to an
+individual call only when the operation deliberately uses another signer.
+
+### Wait Only When Required
+
+Use `transaction.send` when independent work can continue after broadcast. Use
+`transaction.sendSync` before reading state that depends on the transaction.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:pen-line" title="Prepare & Sign Transactions" description="Inspect and sign the complete request before broadcasting it." to="/docs/guides/transactions/prepare-sign" />
+  <Card icon="lucide:scan-search" title="Track Transactions & Nonces" description="Wait for receipts and handle replacements or confirmations." to="/docs/guides/transactions/track" />
+</Cards>

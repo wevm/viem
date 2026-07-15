@@ -18,12 +18,11 @@ await client.chains.switch({ id: optimism.id })
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 import { Client, custom, walletActions } from 'viem'
 import { mainnet } from 'viem/chains'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 
 export const client = Client.create({
   chain: mainnet,
-  transport: custom(provider),
+  transport: custom(window.ethereum!),
 }).extend(walletActions())
 ```
 
@@ -46,12 +45,11 @@ await Actions.chains.switch(client, { id: optimism.id })
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 import { Client, custom } from 'viem'
 import { mainnet } from 'viem/chains'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 
 export const client = Client.create({
   chain: mainnet,
-  transport: custom(provider),
+  transport: custom(window.ethereum!),
 })
 ```
 

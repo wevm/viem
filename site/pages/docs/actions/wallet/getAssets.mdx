@@ -23,12 +23,11 @@ const assets = await client.wallet.getAssets()
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 import { Client, custom, walletActions } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 
 export const client = Client.create({
   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  transport: custom(provider),
+  transport: custom(window.ethereum!),
 }).extend(walletActions())
 ```
 
@@ -54,12 +53,11 @@ const assets = await Actions.wallet.getAssets(client)
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 import { Client, custom } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 
 export const client = Client.create({
   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  transport: custom(provider),
+  transport: custom(window.ethereum!),
 })
 ```
 

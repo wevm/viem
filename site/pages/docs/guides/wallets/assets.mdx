@@ -1,0 +1,82 @@
+---
+description: Read assets known by an Ethereum wallet and suggest ERC-20 tokens to track with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Wallet Assets
+
+## Overview
+
+[`wallet.getAssets`](/docs/actions/wallet/getAssets) reads native, ERC-20, ERC-721, or custom assets
+known by a wallet through ERC-7811. [`wallet.watchAsset`](/docs/actions/wallet/watchAsset) asks a
+wallet to add token metadata to its tracked asset list.
+
+## Recipes
+
+These recipes assume you have [connected a wallet](/docs/guides/wallets/connect).
+
+### Read Known Assets
+
+Filter by Account and asset type when the application only needs part of the wallet inventory.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const assets = await client.wallet.getAssets({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  assetTypes: ['native', 'erc20'],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/wallet.config.ts:setup]
+```
+
+:::
+
+### Suggest an ERC-20 Token
+
+The wallet decides whether to accept the suggestion and how to display it.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const added = await client.wallet.watchAsset({
+  type: 'ERC20',
+  options: {
+    address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    decimals: 6,
+    symbol: 'USDC',
+  },
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/wallet.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Treat Wallet Assets as a View
+
+The wallet inventory may be incomplete or stale. Use onchain reads for balances that control
+application behavior and use wallet assets for discovery and display.
+
+### Verify Token Metadata
+
+Do not trust a symbol or image as identity. Pair displayed metadata with the Chain ID and contract
+address.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:coins" title="Token Guides" description="Read balances, transfer tokens, and manage allowances onchain." to="/tokens/guides" />
+  <Card icon="lucide:package" title="Importing Tokens" description="Use canonical token definitions with a Client." to="/tokens/guides/importing-tokens" />
+</Cards>

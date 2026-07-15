@@ -16,11 +16,10 @@ await client.wallet.disconnect()
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 import { Client, custom, walletActions } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 
 export const client = Client.create({
-  transport: custom(provider),
+  transport: custom(window.ethereum!),
 }).extend(walletActions())
 ```
 
@@ -41,11 +40,10 @@ await Actions.wallet.disconnect(client)
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 import { Client, custom } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 
 export const client = Client.create({
-  transport: custom(provider),
+  transport: custom(window.ethereum!),
 })
 ```
 

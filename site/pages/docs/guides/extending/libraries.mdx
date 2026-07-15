@@ -1,0 +1,139 @@
+---
+description: Distribute a Viem-based library with caller-owned Clients, peer dependencies, tree-shakable Actions, and optional decorators.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Distribute a Viem Library
+
+## Overview
+
+A library should usually extend a caller-owned Client instead of constructing its own. This keeps
+the application in control of its Chain, Account, Transport, RPC credentials, retries, and polling
+policy.
+
+## Recipes
+
+These recipes define a small extension package with standalone and method-style entrypoints.
+
+### Accept a Client
+
+Expose a standalone Action as the primary behavior. It works with any compatible Client and does
+not create a second connection.
+
+```ts twoslash
+import { Actions, type Client } from 'viem'
+import { Address } from 'viem/utils'
+
+export async function getAccountLabel(
+  client: Client.Client,
+  options: getAccountLabel.Options,
+): Promise<getAccountLabel.ReturnType> {
+  const code = await Actions.address.getCode(client, options)
+  return code ? 'Contract' : 'Account'
+}
+
+export namespace getAccountLabel {
+  export type Options = { address: Address.Address }
+  export type ReturnType = 'Account' | 'Contract'
+  export type ErrorType = Actions.address.getCode.ErrorType
+}
+```
+
+### Offer an Optional Decorator
+
+Bind the standalone Action with a thin decorator. Applications choose whether the method belongs on
+their Client.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const label = await client.accountLabels.get({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Actions, Client, http, type Client as ClientType } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Address } from 'viem/utils'
+
+async function getAccountLabel(
+  client: ClientType.Client,
+  options: { address: Address.Address },
+) {
+  const code = await Actions.address.getCode(client, options)
+  return code ? ('Contract' as const) : ('Account' as const)
+}
+
+function accountLabelActions() {
+  return (client: ClientType.Client) => ({
+    accountLabels: {
+      get: (options: { address: Address.Address }) =>
+        getAccountLabel(client, options),
+    },
+  })
+}
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(accountLabelActions())
+```
+
+:::
+
+### Declare Viem as a Peer Dependency
+
+Use a peer dependency so the application supplies the compatible Viem runtime and its Client types.
+
+```json
+{
+  "peerDependencies": {
+    "viem": "^3.0.0"
+  },
+  "sideEffects": false
+}
+```
+
+Mark the package as side-effect free only when importing every exported module is actually safe.
+
+### Publish Focused Entrypoints
+
+Export standalone Actions separately from decorators so consumers can select the narrowest surface.
+
+```json
+{
+  "exports": {
+    ".": "./dist/index.js",
+    "./actions": "./dist/actions.js",
+    "./decorators": "./dist/decorators.js"
+  }
+}
+```
+
+## Best Practices
+
+### Never Hide Configuration
+
+Do not read a global provider, private key, or RPC URL inside the library. Accept the Client and
+explicit operation options from the application.
+
+### Test Runtime and Types
+
+Test Actions against a local node and add type tests for supported Client, Chain, and Account
+combinations. Run those tests against the oldest and newest compatible Viem versions.
+
+### Document Ownership
+
+State which capabilities the Client must provide and whether an Account is required. Do not silently
+extend or mutate a Client received from the caller.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:square-function" title="Build Actions and Decorators" description="Structure the implementation shared by both package entrypoints." to="/docs/guides/extending/actions-decorators" />
+  <Card icon="lucide:brackets" title="Type Composition" description="Preserve caller types through public library generics." to="/docs/guides/extending/type-composition" />
+</Cards>

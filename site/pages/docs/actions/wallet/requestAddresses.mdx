@@ -18,11 +18,10 @@ const addresses = await client.wallet.requestAddresses()
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 import { Client, custom, walletActions } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 
 export const client = Client.create({
-  transport: custom(provider),
+  transport: custom(window.ethereum!),
 }).extend(walletActions())
 ```
 
@@ -43,11 +42,10 @@ const addresses = await Actions.wallet.requestAddresses(client)
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 import { Client, custom } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 
 export const client = Client.create({
-  transport: custom(provider),
+  transport: custom(window.ethereum!),
 })
 ```
 

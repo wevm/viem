@@ -1,0 +1,106 @@
+---
+description: Discover EIP-5792 wallet capabilities, submit call batches, and track their status with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Capabilities and Calls
+
+## Overview
+
+[`wallet.getCapabilities`](/docs/actions/wallet/getCapabilities) reports optional wallet behavior by
+Chain and Account. EIP-5792 call Actions use those capabilities to submit and track batches without
+assuming how the wallet represents them onchain.
+
+## Recipes
+
+These recipes assume you have [connected a wallet](/docs/guides/wallets/connect).
+
+### Read Capabilities for a Chain
+
+Scope the request when the UI is concerned with one Chain.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const capabilities = await client.wallet.getCapabilities({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  chainId: 1,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/wallet.config.ts:setup]
+```
+
+:::
+
+### Send and Track Calls
+
+Submit through [`wallet.sendCalls`](/docs/actions/wallet/sendCalls), then wait with
+[`wallet.waitForCallsStatus`](/docs/actions/wallet/waitForCallsStatus).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const { id } = await client.wallet.sendCalls({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: Value.fromEther('1'),
+    },
+  ],
+})
+
+const status = await client.wallet.waitForCallsStatus({ id })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/wallet.config.ts:setup]
+```
+
+:::
+
+### Show Status in the Wallet
+
+Use [`wallet.showCallsStatus`](/docs/actions/wallet/showCallsStatus) to ask the wallet to present its
+native status interface for a batch.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+await client.wallet.showCallsStatus({ id: '0xdeadbeef' })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/wallet.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Detect, Then Adapt
+
+Capability availability can differ across Accounts and Chains in the same wallet. Branch on the
+returned capability instead of identifying wallets by brand or provider metadata.
+
+### Keep a Non-Batched Path
+
+Offer a sequential transaction path when call batching is optional. Make any loss of atomicity or
+sponsorship clear to the user.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:layers-3" title="Batch Calls" description="Build complete EIP-5792 submission and tracking flows." to="/docs/guides/wallets/batch-calls" />
+  <Card icon="lucide:braces" title="Capabilities" description="Define and compose wallet capability types." to="/docs/actions/capabilities" />
+</Cards>

@@ -1,0 +1,116 @@
+---
+description: Type custom Ethereum JSON-RPC methods, wrap EIP-1193 providers, and classify Viem errors.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Custom RPC and Errors
+
+## Overview
+
+Client schemas add type-safe custom RPC methods without changing the Transport. Error namespaces
+keep transport, execution, contract, and Action failures beside the domain that owns them.
+
+## Recipes
+
+These recipes assume you understand the provider's custom RPC contract and error behavior.
+
+### Type a Custom RPC Method
+
+Pass a Zod RPC schema to [`Client.create`](/docs/clients/create#typing-a-custom-rpc-schema). The
+schema validates and types the method parameters and return value used by
+[`client.request`](/docs/clients/create#typing-a-custom-rpc-schema).
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { z } from 'viem/zod'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://rpc.example'),
+  schema: z.RpcSchema.from({ // [!code focus:6]
+    app_getLabel: {
+      params: z.tuple([z.string()]),
+      returns: z.string(),
+    },
+  }),
+})
+
+const label = await client.request({ // [!code focus:4]
+  method: 'app_getLabel',
+  params: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+})
+```
+
+### Wrap an EIP-1193 Provider
+
+Use the [`custom`](/docs/transports/custom) Transport to connect an injected wallet or another
+EIP-1193 provider to a Client.
+
+```ts twoslash
+import { Client, custom, walletActions } from 'viem'
+
+declare const provider: {
+  request(args: { method: string; params?: unknown }): Promise<unknown>
+}
+
+const client = Client.create({
+  transport: custom(provider), // [!code focus]
+}).extend(walletActions())
+
+const addresses = await client.wallet.requestAddresses() // [!code focus]
+```
+
+### Match a Nested RPC Error
+
+Every Viem [`Errors.BaseError`](/docs/errors) preserves its cause chain. Use `walk` to find the
+specific [`RpcError`](/docs/errors/rpc) when an Action adds useful context around it.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Errors, RpcError } from 'viem'
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+try {
+  await client.transaction.send({
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: Value.fromEther('1'),
+  })
+} catch (error) {
+  if (error instanceof Errors.BaseError) { // [!code focus:6]
+    const nonceError = error.walk(
+      (cause) => cause instanceof RpcError.NonceTooLowError,
+    )
+    if (nonceError) console.error('Refresh the nonce and retry.')
+  }
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Preserve the Cause
+
+When translating a Viem failure into an application error, attach the original error as `cause`.
+Callers can still inspect its namespace and contextual fields.
+
+### Match Concrete Errors
+
+Avoid parsing error messages. Match the owning error class, such as
+[`RpcError.ExecutionRevertedError`](/docs/errors/rpc) or
+[`Transport.TimeoutError`](/docs/transports/http#errors).
+
+## See More
+
+<Cards>
+  <Card icon="lucide:shield-check" title="Build Resilient Transports" description="Recover from transport failures without retrying terminal execution errors." to="/docs/guides/rpc/resilient-transports" />
+  <Card icon="lucide:network" title="Custom Chains and Transports" description="Implement a new transport and chain definition." to="/docs/guides/extending/chains-transports" />
+</Cards>

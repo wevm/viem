@@ -1,0 +1,78 @@
+---
+description: Create Viem Local Accounts from private keys, mnemonics, HD keys, and custom signers.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Local Accounts
+
+## Overview
+
+A [Local Account](/docs/accounts/local/private-key) signs inside the application. Viem can derive one
+from a private key, mnemonic, HD key, or custom signing primitive and then use it for transactions,
+messages, typed data, and EIP-7702 authorizations.
+
+## Recipes
+
+These recipes create Accounts independently of a Client.
+
+### Create from a Private Key
+
+Use [`Account.fromPrivateKey`](/docs/accounts/local/private-key) for an existing secp256k1 key.
+
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.fromPrivateKey('0x...')
+```
+
+### Create from a Mnemonic
+
+Use [`Account.fromMnemonic`](/docs/accounts/local/mnemonic) and select an HD address index when one
+phrase controls several Accounts.
+
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  { addressIndex: 1 },
+)
+```
+
+### Adapt a Custom Signer
+
+Use [`Account.from`](/docs/accounts/local/custom) around a KMS, secure enclave, hardware device, or
+another signing implementation. Viem derives the higher-level signing methods from `sign`.
+
+```ts twoslash
+import { Account } from 'viem'
+
+declare const kms: {
+  sign(hash: `0x${string}`): Promise<`0x${string}`>
+}
+
+const account = Account.from({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  sign: ({ hash }) => kms.sign(hash),
+})
+```
+
+## Best Practices
+
+### Keep Keys Out of Source
+
+Load production keys from a dedicated secret manager or signing service. Example keys and Anvil
+defaults must never be reused for funded Accounts.
+
+### Prefer a Signing Boundary
+
+Expose the narrow signing interface required by `Account.from`. Avoid giving unrelated application
+code access to raw private key bytes.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:list-ordered" title="Nonce Manager" description="Attach managed nonces to a Local Account." to="/docs/accounts/nonce-manager" />
+  <Card icon="lucide:signature" title="Signatures & SIWE" description="Sign messages and typed data with the Account." to="/docs/guides/wallets/signatures" />
+</Cards>

@@ -1,0 +1,78 @@
+---
+description: Prepare and sign EIP-7702 authorizations with a Viem Local Account.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Prepare and Sign Authorizations
+
+## Overview
+
+[`wallet.prepareAuthorization`](/docs/actions/wallet/prepareAuthorization) resolves the Chain ID and
+authorization nonce for an EIP-7702 delegation. [`wallet.signAuthorization`](/docs/actions/wallet/signAuthorization)
+signs the authorization with a Local Account.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with a Local Account and `walletActions`.
+
+### Prepare an Authorization
+
+The `address` is the implementation contract the EOA authorizes as its delegated code.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const authorization = await client.wallet.prepareAuthorization({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  executor: 'self',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+### Sign an Authorization
+
+The Action can prepare and sign in one call.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const authorization = await client.wallet.signAuthorization({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  executor: 'self',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Set the Executor Correctly
+
+Use `executor: 'self'` when the authorizing EOA also submits the EIP-7702 transaction. Viem accounts
+for the transaction's nonce increment while preparing the authorization nonce.
+
+### Review the Delegation Target
+
+Delegation grants the implementation code authority over the EOA. Verify the implementation address,
+Chain, bytecode, and upgrade behavior before requesting a signature.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:send" title="Send & Write" description="Attach the signed authorization to a transaction." to="/docs/guides/authorizations/send-write" />
+  <Card icon="lucide:search-check" title="Inspect Delegations" description="Read the active implementation and verify the signature." to="/docs/guides/authorizations/delegations" />
+</Cards>

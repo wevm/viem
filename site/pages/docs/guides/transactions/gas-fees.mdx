@@ -1,0 +1,126 @@
+---
+description: Estimate transaction gas, EIP-1559 fees, legacy gas prices, and fee history with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Estimate Gas and Fees
+
+## Overview
+
+Gas estimates predict execution units, while fee estimates price each unit. Use
+[`transaction.estimateGas`](/docs/actions/public/transaction/estimateGas) for a specific request and
+[`fee.estimateFeesPerGas`](/docs/actions/public/fee/estimateFeesPerGas) for EIP-1559 or legacy fee
+parameters.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with `publicActions`.
+
+### Estimate Transaction Gas
+
+Include the sender when execution depends on `msg.sender` or the sender's balance.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const gas = await client.transaction.estimateGas({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: Value.fromEther('1'),
+})
+// @log: 21000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Estimate EIP-1559 Fees
+
+The result contains the maximum total fee and priority fee per gas.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const fees = await client.fee.estimateFeesPerGas()
+// @log: { maxFeePerGas: 15040000000n, maxPriorityFeePerGas: 1000000000n }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Inspect Fee History
+
+Use [`fee.getHistory`](/docs/actions/public/fee/getHistory) to build a custom fee strategy from
+recent base fees, gas usage, and priority fee rewards.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const history = await client.fee.getHistory({
+  blockCount: 4,
+  rewardPercentiles: [25, 50, 75],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Read Priority and Blob Fees
+
+Use
+[`fee.estimateMaxPriorityFeePerGas`](/docs/actions/public/fee/estimateMaxPriorityFeePerGas) for the
+likely inclusion tip and [`fee.getBlobBaseFee`](/docs/actions/public/fee/getBlobBaseFee) for the
+current blob-gas base fee.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const [maxPriorityFeePerGas, blobBaseFee] = await Promise.all([
+  client.fee.estimateMaxPriorityFeePerGas(),
+  client.fee.getBlobBaseFee(),
+])
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Estimate the Final Request
+
+Estimate with the same sender, recipient, value, calldata, and authorization list that will be
+submitted. Small request changes can produce materially different gas usage.
+
+### Use Chain Fee Configuration
+
+Prefer Chain-level fee hooks for network-specific behavior. Keep per-request overrides for user
+choices or exceptional transactions.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:send" title="Send Transactions" description="Apply fee estimates to a transaction request." to="/docs/guides/transactions/send" />
+  <Card icon="lucide:settings" title="Chain Fees" description="Configure network-specific fee estimation behavior." to="/docs/chains/fees" />
+</Cards>

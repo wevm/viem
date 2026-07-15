@@ -1,0 +1,138 @@
+---
+description: Compose Viem functions and generics while preserving inferred Action, Chain, Client, ABI, and receipt types.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Type Composition
+
+## Overview
+
+Viem exposes Options, ReturnType, and ErrorType from each Action namespace. Reuse those types and
+forward generic inputs so wrappers preserve the information already carried by a Client, Chain, or
+ABI.
+
+## Recipes
+
+These recipes focus on type flow. Runtime behavior still comes from the referenced Action.
+
+### Reuse Action Types
+
+Derive a wrapper's contract from [`Actions.address.getBalance`](/docs/actions/public/address/getBalance)
+instead of restating its fields.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions, type Client } from 'viem'
+import { client } from './viem.config'
+
+function getBalance(
+  client: Client.Client,
+  options: Actions.address.getBalance.Options,
+): Promise<Actions.address.getBalance.ReturnType> {
+  return Actions.address.getBalance(client, options)
+}
+
+const balance = await getBalance(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+### Forward the Chain Generic
+
+The Chain can customize a transaction receipt. Forward its generic through
+[`Actions.transaction.sendSync`](/docs/actions/wallet/transaction/sendSync) so the wrapper returns
+the correct receipt for the caller's Client.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions, Chain, type Client } from 'viem'
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+function sendAndWait<chain extends Chain.Chain | undefined>(
+  client: Client.Client<chain>,
+  options: Actions.transaction.sendSync.Options<chain>,
+): Promise<Actions.transaction.sendSync.ReturnType<chain>> {
+  return Actions.transaction.sendSync(client, options)
+}
+
+const receipt = await sendAndWait(client, {
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: Value.fromEther('1'),
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+### Preserve Literal ABI Types
+
+Use `const` type parameters when a helper binds a literal ABI, address, and Client through
+[`Contract.from`](/docs/contract).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Contract, type Client } from 'viem'
+import { Abis, Address } from 'viem/utils'
+import { client } from './viem.config'
+
+function bindContract<
+  const abi extends readonly unknown[],
+  const address extends Address.Address,
+  const client extends Client.Client,
+>(options: { abi: abi; address: address; client: client }) {
+  return Contract.from(options)
+}
+
+const token = bindContract({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+
+const symbol = await token.read.symbol()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Infer Before Annotating
+
+Let Viem infer the concrete Client and ABI at the call site. Add annotations at public boundaries,
+then express them in terms of Viem's exported namespace types.
+
+### Avoid Broad Casts
+
+An `as Client.Client` or generic ABI cast can discard the Chain, Account, Transport, and function
+information a caller supplied. Forward a generic parameter instead.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:blocks" title="Extend a Client" description="Preserve inferred Client types while adding methods." to="/docs/guides/extending/client" />
+  <Card icon="lucide:square-function" title="Build Actions and Decorators" description="Define stable Options, ReturnType, and ErrorType namespaces." to="/docs/guides/extending/actions-decorators" />
+</Cards>

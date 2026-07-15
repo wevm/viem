@@ -1,0 +1,51 @@
+---
+description: Add and switch Ethereum chains in a connected wallet with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Manage Chains
+
+## Overview
+
+Chain Actions manage the network selected by the wallet. Add a Chain when the wallet does not know
+it, then switch to it before sending requests against that network.
+
+## Recipes
+
+These recipes assume you have [connected a wallet](/docs/guides/wallets/connect).
+
+### Add and Switch Chains
+
+Use [`chains.add`](/docs/actions/wallet/chains/add) when the wallet does not know the Chain, then
+[`chains.switch`](/docs/actions/wallet/chains/switch) to select it.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { optimism } from 'viem/chains'
+import { client } from './viem.config'
+
+await client.chains.add({ chain: optimism })
+await client.chains.switch({ id: optimism.id })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/wallet.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Handle Chain Changes
+
+Recreate or update Chain-bound application state after a successful switch. Cached addresses,
+tokens, contracts, and fee assumptions may no longer apply.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:plug" title="Connect a Wallet" description="Establish the provider connection before managing its network." to="/docs/guides/wallets/connect" />
+  <Card icon="lucide:network" title="Chains" description="Create and extend typed Chain definitions." to="/docs/chains" />
+</Cards>

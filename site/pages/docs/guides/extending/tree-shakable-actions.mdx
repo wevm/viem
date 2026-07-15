@@ -1,0 +1,129 @@
+---
+description: Use Viem standalone Actions to keep dependencies explicit and application bundles tree-shakable.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Tree-Shakable Actions
+
+## Overview
+
+Standalone [`Actions`](/docs/actions) receive a Client as their first argument. They make network
+dependencies explicit and let a bundler retain only the modules used by an application path.
+
+## Recipes
+
+These recipes use a base Client without an Action decorator.
+
+### Call One Standalone Action
+
+Call the namespaced Action directly when a module only needs one operation.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const balance = await Actions.address.getBalance(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+### Compose a Focused Function
+
+Build application behavior from standalone Actions while keeping the Client owned by the caller.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions, type Client } from 'viem'
+import { client } from './viem.config'
+
+async function getAccountState(
+  client: Client.Client,
+  address: `0x${string}`,
+) {
+  const [balance, nonce] = await Promise.all([
+    Actions.address.getBalance(client, { address }),
+    Actions.address.getTransactionCount(client, { address }),
+  ])
+  return { balance, nonce }
+}
+
+const state = await getAccountState(
+  client,
+  '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+### Use a Decorator for Repeated Methods
+
+Add [`publicActions`](/docs/actions/public) when a module repeatedly uses the method form and the
+broader public Action group belongs in that application boundary.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const [blockNumber, gasPrice] = await Promise.all([
+  client.block.getNumber(),
+  client.fee.getGasPrice(),
+])
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Best Practices
+
+### Prefer Standalone Actions in Libraries
+
+Accept a Client and call only the Actions the library needs. Do not create a hidden Client or force
+consumers to install a broad decorator.
+
+### Measure the Production Bundle
+
+Tree shaking depends on the bundler and its configuration. Compare production output after changing
+imports instead of estimating from source structure.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:square-function" title="Build Actions and Decorators" description="Expose one implementation through standalone and method forms." to="/docs/guides/extending/actions-decorators" />
+  <Card icon="lucide:package-open" title="Distribute a Viem Library" description="Ship client-agnostic extensions with a peer dependency on Viem." to="/docs/guides/extending/libraries" />
+</Cards>

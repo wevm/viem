@@ -1,0 +1,21 @@
+---
+description: Inspect Ethereum addresses, contract storage, state proofs, and ENS records with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Chain Data
+
+## Overview
+
+Address and ENS Actions expose account state without requiring a contract ABI. Read native balances,
+bytecode, nonces, and storage slots, verify Merkle proofs, or resolve human-readable ENS names and
+records.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:database" title="Address & Contract State" description="Read balances, code, nonces, and contract storage." to="/docs/guides/chain-data/state" />
+  <Card icon="lucide:shield-check" title="State Proofs" description="Request account and storage proofs for independent verification." to="/docs/guides/chain-data/proofs" />
+  <Card icon="lucide:at-sign" title="ENS" description="Resolve names, addresses, avatars, resolvers, and text records." to="/docs/guides/chain-data/ens" />
+</Cards>

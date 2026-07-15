@@ -1,0 +1,175 @@
+---
+description: Track Ethereum transactions, confirmations, replacements, pending activity, and nonces with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Track Transactions and Nonces
+
+## Overview
+
+[`transaction.waitForReceipt`](/docs/actions/public/transaction/waitForReceipt) observes a submitted
+transaction until it is included and detects replacements with the same sender and nonce. Transaction
+read Actions expose the request, raw bytes, receipt, and confirmation count. A Nonce Manager safely
+coordinates parallel sends from a Local Account.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with public and wallet Actions.
+
+### Wait for Confirmation
+
+The watcher exposes a receipt promise and optional listeners for replacements or errors.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const hash = await client.transaction.send({
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: Value.fromEther('1'),
+})
+
+const watch = client.transaction.waitForReceipt({ hash })
+watch.onReplaced(({ reason }) => console.log(reason))
+
+const receipt = await watch.receipt
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+### Read Transaction Status
+
+Use [`transaction.get`](/docs/actions/public/transaction/get),
+[`transaction.getReceipt`](/docs/actions/public/transaction/getReceipt), and
+[`transaction.getConfirmations`](/docs/actions/public/transaction/getConfirmations) when polling is
+managed elsewhere. [`transaction.getRaw`](/docs/actions/public/transaction/getRaw) returns the
+serialized transaction.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const hash = '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
+
+const transaction = await client.transaction.get({ hash })
+const receipt = await client.transaction.getReceipt({ hash })
+const confirmations = await client.transaction.getConfirmations({ hash })
+const raw = await client.transaction.getRaw({ hash })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Watch Pending Transactions
+
+[`transaction.watchPending`](/docs/actions/public/transaction/watchPending) subscribes or polls for
+transaction hashes entering the connected node's pool.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watch = client.transaction.watchPending()
+watch.onTransactions((hashes) => console.log(hashes))
+
+// Later:
+watch.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+The watcher is also an async iterable. It yields the latest update and may skip intermediate values
+if the consumer is slow.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watch = client.transaction.watchPending()
+
+for await (const { hashes } of watch) {
+  console.log(hashes)
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Send Concurrent Transactions
+
+Attach [`NonceManager.jsonRpc`](/docs/accounts/nonce-manager#noncemanagerjsonrpc) to a Local Account before sending
+several transactions concurrently.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const hashes = await Promise.all([
+  client.transaction.send({
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: Value.fromEther('1'),
+  }),
+  client.transaction.send({
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: Value.fromEther('2'),
+  }),
+])
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, NonceManager, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const account = Account.fromPrivateKey('0x...', {
+  nonceManager: NonceManager.jsonRpc(),
+})
+
+export const client = Client.create({
+  account,
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+## Best Practices
+
+### Track by Hash
+
+Persist the hash immediately after broadcast. It is the stable identifier for recovering status
+after a process restart.
+
+### Treat Replacement as a Result
+
+A repriced, replaced, or cancelled transaction is part of the lifecycle. Record the replacement
+hash and receipt instead of treating every replacement as an application failure.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:list-ordered" title="Nonce Manager" description="Customize how transaction nonces are seeded and stored." to="/docs/accounts/nonce-manager" />
+  <Card icon="lucide:radio" title="Watch Pending Transactions" description="Observe hashes entering the node's pending transaction pool." to="/docs/actions/public/transaction/watchPending" />
+</Cards>

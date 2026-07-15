@@ -1,0 +1,123 @@
+---
+description: Define custom Ethereum Chains and Transports while preserving Viem Client inference.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Custom Chains and Transports
+
+## Overview
+
+A Chain describes network metadata and codecs. A Transport owns JSON-RPC communication. Keep these
+responsibilities separate so applications can reuse a Chain with HTTP, WebSocket, injected, or
+custom infrastructure.
+
+## Recipes
+
+These recipes create configuration objects that can be passed directly to
+[`Client.create`](/docs/clients/create).
+
+### Define a Chain
+
+Use [`Chain.from`](/docs/chains/create) with a literal ID, native currency, and default RPC URLs.
+
+```ts twoslash
+import { Chain } from 'viem'
+
+export const appChain = Chain.from({
+  id: 4_242,
+  name: 'App Chain',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'App Ether',
+    symbol: 'AETH',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.app-chain.example'],
+      webSocket: ['wss://rpc.app-chain.example'],
+    },
+  },
+})
+```
+
+### Derive an Environment
+
+Use [`chain.extend`](/docs/chains/extend) to override environment-specific fields while preserving
+the base Chain definition.
+
+```ts twoslash
+import { mainnet } from 'viem/chains'
+
+export const staging = mainnet.extend({
+  name: 'Mainnet Staging Fork',
+  rpcUrls: {
+    default: { http: ['https://staging-rpc.example'] },
+  },
+})
+```
+
+### Build a Transport
+
+Use [`Transport.from`](/docs/transports) when existing Transport factories cannot express the
+required communication policy. This wrapper records the duration of requests from any inner
+Transport.
+
+```ts twoslash
+import { Client, http, publicActions, Transport } from 'viem'
+import { mainnet } from 'viem/chains'
+
+function instrumented(
+  transport: Transport.Transport,
+  onResponse: (options: { duration: number; method: string }) => void,
+) {
+  return Transport.from({
+    key: 'instrumented',
+    name: 'Instrumented',
+    type: 'instrumented',
+    setup(options) {
+      const inner = transport.setup({ ...options, retryCount: 0 })
+      return {
+        retryCount: options.retryCount,
+        async request(args, requestOptions) {
+          const start = performance.now()
+          try {
+            return await inner.request(args, requestOptions)
+          } finally {
+            onResponse({
+              duration: performance.now() - start,
+              method: args.method,
+            })
+          }
+        },
+      }
+    },
+  })
+}
+
+const client = Client.create({
+  chain: mainnet,
+  transport: instrumented(http('https://rpc.example'), console.log),
+}).extend(publicActions())
+
+const chainId = await client.chains.getId()
+```
+
+## Best Practices
+
+### Prefer Existing Transport Combinators
+
+Compose HTTP, WebSocket, fallback, load-balance, and rate-limit Transports before implementing a new
+wire protocol or retry layer.
+
+### Keep Secrets Outside Chains
+
+Chain definitions are public metadata. Supply credentials to the Transport at application setup
+instead of embedding them in a Chain's default URLs.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:shield-check" title="Build Resilient Transports" description="Compose fallback, ranking, retries, and timeouts." to="/docs/guides/rpc/resilient-transports" />
+  <Card icon="lucide:shuffle" title="Rate Limit and Load Balance" description="Control request budgets across RPC providers." to="/docs/guides/rpc/rate-limit-load-balance" />
+</Cards>

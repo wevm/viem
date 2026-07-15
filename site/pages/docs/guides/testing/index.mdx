@@ -1,0 +1,24 @@
+---
+description: Test Ethereum applications against Anvil by controlling accounts, blocks, state, and transactions.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Testing
+
+## Overview
+
+[`testActions`](/docs/actions/test) extends a Client with methods for Anvil, Hardhat, or Ganache.
+Tests can fork live networks, impersonate Accounts, manipulate balances and storage, control mining
+and time, snapshot state, and inspect the transaction pool.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:flask-conical" title="Set Up Anvil & Fork" description="Connect a test Client to Anvil and optionally fork a live network." to="/docs/guides/testing/anvil" />
+  <Card icon="lucide:user-cog" title="Manipulate Account State" description="Impersonate Accounts and modify balances, code, nonces, or storage." to="/docs/guides/testing/accounts" />
+  <Card icon="lucide:clock-3" title="Control Mining & Time" description="Mine blocks, move time forward, and configure automatic mining." to="/docs/guides/testing/mining-time" />
+  <Card icon="lucide:undo-2" title="Snapshot & Restore" description="Isolate tests by snapshotting, reverting, dumping, or loading state." to="/docs/guides/testing/snapshots" />
+  <Card icon="lucide:list-ordered" title="Inspect the Transaction Pool" description="Inspect pending transactions and deliberately drop one." to="/docs/guides/testing/txpool" />
+  <Card icon="lucide:file-check-2" title="Test Contract Interactions" description="Combine test, public, and wallet Actions in deterministic contract tests." to="/docs/guides/testing/contracts" />
+</Cards>

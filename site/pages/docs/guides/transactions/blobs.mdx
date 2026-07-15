@@ -1,0 +1,87 @@
+---
+description: Encode data into blobs and send EIP-4844 blob transactions with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Blob Transactions
+
+## Overview
+
+EIP-4844 transactions carry temporary blob data outside normal EVM calldata. Viem accepts encoded
+blobs and a KZG implementation, derives commitments and versioned hashes, signs the transaction,
+and broadcasts it through [`transaction.send`](/docs/actions/wallet/transaction/send).
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with a Local Account.
+
+### Encode Blob Data
+
+Use [`Blobs.from`](/docs/utilities/blobs/from) to split arbitrary bytes into correctly encoded blobs.
+
+```ts twoslash
+import { Blobs, Hex } from 'viem/utils'
+
+const blobs = Blobs.from(Hex.fromString('Hello from a blob'))
+```
+
+### Configure KZG
+
+Create a [`Kzg`](/docs/utilities/kzg/from) adapter from a compatible implementation and load the
+trusted setup required by that implementation.
+
+```ts twoslash
+// @noErrors
+import * as cKzg from 'c-kzg'
+import { Kzg } from 'viem/utils'
+
+cKzg.loadTrustedSetup('/path/to/trusted-setup.txt')
+const kzg = Kzg.from(cKzg)
+```
+
+### Send a Blob Transaction
+
+Pass the blobs and KZG adapter. Viem derives the remaining blob fields during preparation.
+
+:::code-group
+
+```ts twoslash [example.ts]
+// @noErrors
+import * as cKzg from 'c-kzg'
+import { Blobs, Hex, Kzg } from 'viem/utils'
+import { client } from './viem.config'
+
+cKzg.loadTrustedSetup('/path/to/trusted-setup.txt')
+
+const hash = await client.transaction.send({
+  blobs: Blobs.from(Hex.fromString('Hello from a blob')),
+  kzg: Kzg.from(cKzg),
+  to: '0x0000000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Keep KZG Setup Out of Request Paths
+
+Load the trusted setup once during process initialization. Reusing the adapter avoids repeated file
+I/O and setup work for each transaction.
+
+### Use Blobs for Data Availability
+
+Blob data is temporary and unavailable to EVM execution. Put values required by a contract in
+calldata or contract storage instead.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:binary" title="Blobs" description="Encode blobs and derive commitments, proofs, or versioned hashes." to="/docs/utilities/blobs" />
+  <Card icon="lucide:key-round" title="KZG" description="Configure the commitment interface used by blob transactions." to="/docs/utilities/kzg" />
+</Cards>

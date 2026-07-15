@@ -1,0 +1,85 @@
+---
+description: Deploy Ethereum contract bytecode with typed constructor arguments using Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Deploy Contracts
+
+## Overview
+
+[`contract.deploy`](/docs/actions/wallet/contract/deploy) ABI-encodes constructor arguments after the
+deployment bytecode and broadcasts a contract-creation transaction. The sync variant returns the
+receipt, including the deployed contract address.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with an Account and `walletActions`.
+
+### Deploy and Return the Hash
+
+Use the asynchronous variant when deployment tracking happens elsewhere.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abi } from 'viem/utils'
+import { client } from './viem.config'
+
+const hash = await client.contract.deploy({
+  abi: Abi.from(['constructor(address owner)']),
+  args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+  bytecode: '0x608060405260405161083e38038061083e8339810160408190',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+### Deploy and Read the Address
+
+[`contract.deploySync`](/docs/actions/wallet/contract/deploySync) waits for inclusion and returns the
+deployment receipt.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abi } from 'viem/utils'
+import { client } from './viem.config'
+
+const receipt = await client.contract.deploySync({
+  abi: Abi.from(['constructor(address owner)']),
+  args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+  bytecode: '0x608060405260405161083e38038061083e8339810160408190',
+})
+
+const address = receipt.contractAddress
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Verify the Artifact Pair
+
+Use the ABI and bytecode emitted by the same compiler build. A constructor ABI from another artifact
+can encode valid bytes that the deployment bytecode interprets incorrectly.
+
+### Persist the Receipt
+
+Record the transaction hash, deployed address, Chain ID, and artifact version together. This makes
+later verification and incident investigation much easier.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:scan-search" title="Track Transactions" description="Recover the deployment receipt from its transaction hash." to="/docs/guides/transactions/track" />
+  <Card icon="lucide:box" title="Contract Instances" description="Bind the deployed address to its ABI and Client." to="/docs/guides/contracts/instances" />
+</Cards>

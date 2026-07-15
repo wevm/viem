@@ -1,0 +1,118 @@
+---
+description: Query historical Ethereum contract logs and watch typed events with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Contract Events
+
+## Overview
+
+[`contract.getLogs`](/docs/actions/public/contract/getLogs) queries and decodes historical events.
+[`contract.watchEvent`](/docs/actions/public/contract/watchEvent) emits new matching logs through a
+WebSocket subscription when available, then falls back to filters or block-range polling.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with `publicActions`.
+
+### Query Historical Transfers
+
+Filter indexed event arguments and bound the request to a known block range.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abis } from 'viem/utils'
+import { client } from './viem.config'
+
+const logs = await client.contract.getLogs({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  args: {
+    from: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  },
+  eventName: 'Transfer',
+  fromBlock: 20_000_000n,
+  toBlock: 20_000_100n,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Watch New Events
+
+Register listeners on the watcher and call `off` when the owning component is disposed.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abis } from 'viem/utils'
+import { client } from './viem.config'
+
+const watch = client.contract.watchEvent({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  eventName: 'Transfer',
+})
+
+watch.onLogs((logs) => console.log(logs))
+
+// Later
+watch.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+The watcher is also an async iterable. It yields the latest update and may skip intermediate values
+if the consumer is slow.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abis } from 'viem/utils'
+import { client } from './viem.config'
+
+const watch = client.contract.watchEvent({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  eventName: 'Transfer',
+})
+
+for await (const { logs } of watch) {
+  console.log(logs)
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Bound Historical Queries
+
+Providers often limit log ranges or result counts. Paginate large histories by block range and
+persist the last fully processed block.
+
+### Make Event Processing Idempotent
+
+Identify a log by block hash, transaction hash, and log index. Consumers should tolerate replayed
+logs and account for logs marked as removed after a reorganization.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:scroll-text" title="Query Logs" description="Query events without binding them to one contract ABI." to="/docs/guides/blocks-events/logs" />
+  <Card icon="lucide:radio-tower" title="WebSocket Subscriptions" description="Use subscriptions instead of polling when the provider supports them." to="/docs/guides/rpc/websockets" />
+</Cards>

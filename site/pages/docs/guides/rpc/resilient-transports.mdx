@@ -1,0 +1,107 @@
+---
+description: Build resilient Ethereum RPC Clients with ordered fallback, endpoint ranking, retries, and timeouts.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Build Resilient Transports
+
+## Overview
+
+The [`fallback`](/docs/transports/fallback) Transport attempts RPC endpoints in order and moves to
+the next compatible endpoint when a request fails. Optional ranking reorders endpoints by latency
+and stability.
+
+## Recipes
+
+These recipes compose Transports before passing them to [`Client.create`](/docs/clients/create).
+
+### Fall Back Across Providers
+
+List independent providers in preferred order. Configure a request timeout so an unresponsive
+endpoint does not stall the fallback chain.
+
+```ts twoslash [example.ts]
+import { Client, fallback, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  timeout: 10_000, // [!code focus:5]
+  transport: fallback([
+    http('https://1.rpc.example'),
+    http('https://2.rpc.example'),
+  ]),
+}).extend(publicActions())
+
+const blockNumber = await client.block.getNumber()
+```
+
+### Rank Endpoints
+
+Enable `rank` to periodically prefer endpoints with better latency and stability instead of keeping
+the original order forever.
+
+```ts twoslash [example.ts]
+import { Client, fallback, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: fallback(
+    [http('https://1.rpc.example'), http('https://2.rpc.example')],
+    {
+      rank: { // [!code focus:5]
+        interval: 10_000,
+        sampleCount: 10,
+        timeout: 1_000,
+      },
+    },
+  ),
+}).extend(publicActions())
+
+const block = await client.block.get({ blockTag: 'latest' })
+```
+
+### Observe Fallback Attempts
+
+The resolved fallback instance exposes `onResponse`, which reports the method and outcome for each
+attempt.
+
+```ts twoslash [example.ts]
+import { Client, fallback, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: fallback([
+    http('https://1.rpc.example', { name: 'Primary' }),
+    http('https://2.rpc.example', { name: 'Secondary' }),
+  ]),
+}).extend(publicActions())
+
+client.transport.onResponse(({ method, status }) => { // [!code focus:3]
+  console.log(status, method)
+})
+
+await client.block.getNumber()
+```
+
+## Best Practices
+
+### Use Independent Failure Domains
+
+Fallback endpoints should not all depend on the same provider, region, or credentials. Otherwise
+one outage can remove every route.
+
+### Do Not Retry Terminal Errors
+
+User rejection and execution reverts are terminal by default. Retrying them against another
+provider adds latency without changing the result.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:shuffle" title="Rate Limit and Load Balance" description="Control throughput and distribute successful traffic." to="/docs/guides/rpc/rate-limit-load-balance" />
+  <Card icon="lucide:braces" title="Custom RPC and Errors" description="Type custom methods and classify failures." to="/docs/guides/rpc/custom-rpc-errors" />
+</Cards>

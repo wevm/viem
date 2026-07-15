@@ -1,0 +1,96 @@
+---
+description: Inspect, count, and drop pending Anvil transactions with Viem test Actions.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Inspect the Transaction Pool
+
+## Overview
+
+Transaction-pool Actions expose transactions that have been accepted by a node but not yet mined.
+Pause automining before using them so pending work remains observable.
+
+## Recipes
+
+These recipes assume you have [set up an Anvil Client](/docs/guides/testing/anvil).
+
+### Inspect Pending Transactions
+
+Use [`txpool.inspect`](/docs/actions/test/txpool/inspect) for the transaction summaries and
+[`txpool.getStatus`](/docs/actions/test/txpool/getStatus) for pending and queued counts.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+await client.block.setAutomine({ enabled: false })
+
+try {
+  const hash = await client.transaction.send({
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: Value.fromEther('1'),
+  })
+
+  const status = await client.txpool.getStatus()
+  const transactions = await client.txpool.inspect()
+} finally {
+  await client.block.setAutomine({ enabled: true })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/test.config.ts:setup]
+```
+
+:::
+
+### Drop a Transaction
+
+Use [`txpool.dropTransaction`](/docs/actions/test/txpool/dropTransaction) to model cancellation or a
+transaction disappearing before inclusion.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+await client.block.setAutomine({ enabled: false })
+
+try {
+  const hash = await client.transaction.send({
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: Value.fromEther('1'),
+  })
+  await client.txpool.dropTransaction({ hash })
+} finally {
+  await client.block.setAutomine({ enabled: true })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/test.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Use Fresh Nonces
+
+Pending transactions from the same Account can become queued when a nonce is missing. Set the
+starting nonce deliberately when testing replacement and ordering behavior.
+
+### Restore Automining
+
+Re-enable automining after the assertion, even when the test fails.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:clock-3" title="Control Mining and Time" description="Mine selected pending transactions on demand." to="/docs/guides/testing/mining-time" />
+  <Card icon="lucide:scan-search" title="Track Transactions and Nonces" description="Handle receipts, confirmations, and replacements in applications." to="/docs/guides/transactions/track" />
+</Cards>

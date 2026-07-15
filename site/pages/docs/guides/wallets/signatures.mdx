@@ -1,0 +1,163 @@
+---
+description: Sign and verify raw hashes, Ethereum messages, typed data, and Sign-In with Ethereum payloads using Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Signatures and SIWE
+
+## Overview
+
+Viem supports raw hashes, EIP-191 messages, EIP-712 typed data, and EIP-4361 Sign-In with Ethereum.
+A Local Account can sign each format, while a JSON-RPC Account supports message and typed data
+signing. Verification supports EOAs and compatible contract Accounts through
+[`verifyHash`](/docs/actions/public/verifyHash).
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with public and wallet Actions.
+
+### Sign and Verify a Raw Hash
+
+A [Local Account](/docs/accounts/local/private-key) can sign a 32-byte hash directly with
+`account.sign`. Verify the signature against the same hash and address with
+[`verifyHash`](/docs/actions/public/verifyHash).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const hash =
+  '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68'
+const signature = await client.account.sign({ hash })
+
+const valid = await client.verifyHash({
+  address: client.account.address,
+  hash,
+  signature,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+:::warning
+Raw signing adds no message prefix or domain separation. Use it only when a protocol defines the
+exact hash to sign.
+:::
+
+### Sign and Verify a Message
+
+[`signMessage`](/docs/actions/wallet/signMessage) signs the EIP-191 payload. Verify the same string,
+signature, and expected address with [`verifyMessage`](/docs/actions/public/verifyMessage).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const message = 'Confirm account ownership'
+const signature = await client.signMessage({ message })
+
+const valid = await client.verifyMessage({
+  address: client.account.address,
+  message,
+  signature,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+### Sign and Verify Typed Data
+
+[`signTypedData`](/docs/actions/wallet/signTypedData) binds structured data to a domain. Use
+[`verifyTypedData`](/docs/actions/public/verifyTypedData) with the same domain, types, and message.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const typedData = {
+  domain: { chainId: 1, name: 'Example', version: '1' },
+  message: { contents: 'Hello' },
+  primaryType: 'Mail',
+  types: { Mail: [{ name: 'contents', type: 'string' }] },
+} as const
+
+const signature = await client.signTypedData(typedData)
+const valid = await client.verifyTypedData({
+  address: client.account.address,
+  signature,
+  ...typedData,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+### Verify Sign-In with Ethereum
+
+Create a message with [`Siwe.createMessage`](/docs/utilities/siwe/createMessage), sign it, then
+validate the expected domain and nonce with
+[`verifySiweMessage`](/docs/actions/public/verifySiweMessage).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Siwe } from 'viem/utils'
+import { client } from './viem.config'
+
+const message = Siwe.createMessage({
+  address: client.account.address,
+  chainId: 1n,
+  domain: 'example.com',
+  nonce: 'foobarbaz12',
+  uri: 'https://example.com/login',
+  version: '1',
+})
+const signature = await client.signMessage({ message })
+
+const valid = await client.verifySiweMessage({
+  domain: 'example.com',
+  message,
+  nonce: 'foobarbaz12',
+  signature,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Bind Signatures to Context
+
+Use a nonce, domain, Chain ID, expiry, and human-readable purpose where the format supports them.
+Never treat an unscoped signature as permanent authentication.
+
+### Verify on the Intended Chain
+
+Contract Account verification can depend on deployed code and state. Verify against the Chain and
+block context where the signature is meant to be valid.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:log-in" title="SIWE Utilities" description="Create, parse, validate, and inspect EIP-4361 messages." to="/docs/utilities/siwe" />
+  <Card icon="lucide:shield-check" title="verifyHash" description="Verify EOA and contract Account signatures over a hash." to="/docs/actions/public/verifyHash" />
+</Cards>

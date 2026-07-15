@@ -18,11 +18,10 @@ const { receipts, status } = await client.wallet.waitForCallsStatus({
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 import { Client, custom, walletActions } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 
 export const client = Client.create({
-  transport: custom(provider),
+  transport: custom(window.ethereum!),
 }).extend(walletActions())
 ```
 
@@ -45,11 +44,10 @@ const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 import { Client, custom } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 
 export const client = Client.create({
-  transport: custom(provider),
+  transport: custom(window.ethereum!),
 })
 ```
 

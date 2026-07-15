@@ -1,0 +1,93 @@
+---
+description: Connect Viem to Anvil, fork a live network, and reset the fork between tests.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Set Up Anvil and Fork
+
+## Overview
+
+[`testActions`](/docs/actions/test) adds test-node controls to a Client. The default mode targets
+Anvil, while `mode: 'hardhat'` and `mode: 'ganache'` adapt supported Actions to those nodes.
+
+## Recipes
+
+These recipes assume [Anvil](https://book.getfoundry.sh/anvil/) is installed and listening on its
+default port.
+
+### Connect to Anvil
+
+Extend the same Client with public, wallet, and test Actions so a test can arrange state, perform an
+operation, and assert its result.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const blockNumber = await client.block.getNumber()
+// @log: 0n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/test.config.ts:setup]
+```
+
+:::
+
+### Start a Mainnet Fork
+
+Pass an authenticated production RPC URL to Anvil when the test needs deployed contracts or live
+chain state.
+
+```sh
+anvil --fork-url "$MAINNET_RPC_URL"
+```
+
+Pin the fork for reproducible tests.
+
+```sh
+anvil --fork-url "$MAINNET_RPC_URL" --fork-block-number 20000000
+```
+
+### Reset a Fork
+
+Use [`state.reset`](/docs/actions/test/state/reset) to restore the configured fork, or select a new
+RPC URL and block without restarting Anvil.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+await client.state.reset({
+  blockNumber: 20_000_000n,
+  jsonRpcUrl: 'https://eth.merkle.io',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/test.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Pin Fork Inputs
+
+Pin the block number and control the RPC URL in test configuration. Assertions against an unpinned
+fork change as mainnet advances.
+
+### Keep Test Nodes Private
+
+Test Actions can overwrite balances, code, storage, and chain state. Never expose an Anvil RPC
+endpoint to an untrusted network.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:user-cog" title="Manipulate Account State" description="Impersonate Accounts and seed the state a test needs." to="/docs/guides/testing/accounts" />
+  <Card icon="lucide:undo-2" title="Snapshot and Restore" description="Return to a known state without restarting the node." to="/docs/guides/testing/snapshots" />
+</Cards>

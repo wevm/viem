@@ -1,0 +1,22 @@
+---
+description: Delegate Ethereum accounts with EIP-7702 and execute calls through ERC-7821.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Authorizations
+
+## Overview
+
+EIP-7702 lets an externally owned account authorize contract code to execute on its behalf. Viem
+can prepare and sign an authorization, include it in a transaction, inspect the resulting
+delegation, and call an ERC-7821 execution interface exposed by the delegated account.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:pen-line" title="Prepare & Sign" description="Prepare an EIP-7702 authorization and sign it with a wallet or Local Account." to="/docs/guides/authorizations/prepare-sign" />
+  <Card icon="lucide:send" title="Send & Write" description="Attach an authorization to transactions and contract writes." to="/docs/guides/authorizations/send-write" />
+  <Card icon="lucide:search-check" title="Inspect Delegations" description="Read delegated code and verify signed authorizations." to="/docs/guides/authorizations/delegations" />
+  <Card icon="lucide:list-tree" title="ERC-7821 Execution" description="Execute individual or batched calls through a delegated account." to="/docs/guides/authorizations/erc7821" />
+</Cards>

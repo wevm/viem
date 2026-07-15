@@ -1,0 +1,93 @@
+---
+description: Inspect EIP-7702 delegated code and verify authorization signatures with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Inspect Delegations
+
+## Overview
+
+[`address.getDelegation`](/docs/actions/public/address/getDelegation) returns the implementation
+address currently delegated by an EOA. Authorization utilities recover the signer or verify that a
+signed authorization belongs to an expected address before it is submitted.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with `publicActions`.
+
+### Read the Active Delegation
+
+An undefined result means the address has no EIP-7702 delegation at the selected block.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const implementation = await client.address.getDelegation({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Verify a Signed Authorization
+
+Use [`Authorization.verify`](/docs/utilities/authorization/verify) before relaying an authorization
+received from another process or user.
+
+```ts twoslash
+import { Authorization } from 'viem/utils'
+
+declare const authorization: Authorization.Authorization<true>
+
+const valid = Authorization.verify({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  authorization,
+})
+```
+
+### Inspect Historical Delegation
+
+Pin `blockNumber` or `blockHash` when auditing the implementation active for a past transaction.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const implementation = await client.address.getDelegation({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  blockNumber: 22_000_000n,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Verify Code, Not Only the Address
+
+An implementation address identifies code at one point in time. Inspect its bytecode, proxy targets,
+and upgrade controls before relying on its behavior.
+
+### Pin Audit Reads
+
+Use the relevant block hash or number when investigating an authorization or execution. Reading only
+latest state can hide later delegation changes.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:pen-line" title="Prepare & Sign" description="Create the authorization being inspected." to="/docs/guides/authorizations/prepare-sign" />
+  <Card icon="lucide:database" title="Address State" description="Read bytecode, storage, and other address state." to="/docs/guides/chain-data/state" />
+</Cards>

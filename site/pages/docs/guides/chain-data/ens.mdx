@@ -1,0 +1,102 @@
+---
+description: Resolve ENS names, addresses, avatars, resolvers, and text records with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# ENS
+
+## Overview
+
+ENS Actions use the Universal Resolver to resolve names and records. Normalize user input before a
+forward lookup, and independently verify reverse-resolution results when identity decisions depend
+on the name.
+
+## Recipes
+
+These recipes assume you have [set up a mainnet Client](/docs) with `publicActions`.
+
+### Resolve a Name to an Address
+
+Normalize the name with [`Ens.normalize`](/docs/utilities/ens/normalize), then call
+[`ens.getAddress`](/docs/actions/public/ens/getAddress).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Ens } from 'viem/utils'
+import { client } from './viem.config'
+
+const address = await client.ens.getAddress({
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Reverse-Resolve an Address
+
+[`ens.getName`](/docs/actions/public/ens/getName) returns the primary name configured for an address.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const name = await client.ens.getName({
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Read Profile Records
+
+Use [`ens.getResolver`](/docs/actions/public/ens/getResolver) to inspect the resolver, then
+[`ens.getAvatar`](/docs/actions/public/ens/getAvatar) and
+[`ens.getText`](/docs/actions/public/ens/getText) for profile metadata.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Ens } from 'viem/utils'
+import { client } from './viem.config'
+
+const name = Ens.normalize('wevm.eth')
+const resolver = await client.ens.getResolver({ name })
+const avatar = await client.ens.getAvatar({ name })
+const url = await client.ens.getText({ key: 'url', name })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Normalize Before Resolving
+
+Normalization protects against invalid label sequences and ensures the name hashes to the intended
+record. Do not silently fall back to the unnormalized input.
+
+### Forward-Verify Reverse Names
+
+For identity display, resolve the returned name back to an address and compare it with the original.
+Reverse records alone are controlled by the address owner and may point to an unrelated name.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:at-sign" title="ENS Utilities" description="Normalize names and derive namehash or coin types." to="/docs/utilities/ens" />
+  <Card icon="lucide:database" title="Address State" description="Inspect the address returned by ENS." to="/docs/guides/chain-data/state" />
+</Cards>

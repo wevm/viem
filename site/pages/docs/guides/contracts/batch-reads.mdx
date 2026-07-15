@@ -1,0 +1,155 @@
+---
+description: Read several Ethereum contracts against one block with Viem multicall.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Batch Contract Reads
+
+## Overview
+
+[`multicall`](/docs/actions/public/multicall) simulates several calls together and preserves each
+call's decoded result type. It uses `eth_simulateV1` when available and can fall back to Multicall3
+for compatible read batches.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with `publicActions`.
+
+### Read Multiple Functions
+
+Use `Promise.allSettled` to run contract reads concurrently while preserving each success or
+failure.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abis } from 'viem/utils'
+import { client } from './viem.config'
+
+const token = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+
+const results = await Promise.allSettled([
+  client.contract.read({
+    abi: Abis.erc20,
+    address: token,
+    args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+    functionName: 'balanceOf',
+  }),
+  client.contract.read({
+    abi: Abis.erc20,
+    address: token,
+    functionName: 'totalSupply',
+  }),
+])
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  batch: { multicall: true },
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+:::tip
+With [`batch.multicall`](/docs/clients/create#batch) enabled, Viem uses Multicall under the hood to
+batch concurrent `contract.read` calls from the same event-loop tick into one RPC request.
+:::
+
+Use [`multicall`](/docs/actions/public/multicall) when you want to construct the batch explicitly.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abis } from 'viem/utils'
+import { client } from './viem.config'
+
+const token = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+
+const { results } = await client.multicall({
+  calls: [
+    {
+      abi: Abis.erc20,
+      args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+      functionName: 'balanceOf',
+      to: token,
+    },
+    {
+      abi: Abis.erc20,
+      functionName: 'totalSupply',
+      to: token,
+    },
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Require Every Call to Succeed
+
+Use `Promise.all` when every result is required. It rejects when any contract read fails.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abis } from 'viem/utils'
+import { client } from './viem.config'
+
+const token = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+
+const [balance, totalSupply] = await Promise.all([
+  client.contract.read({
+    abi: Abis.erc20,
+    address: token,
+    args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+    functionName: 'balanceOf',
+  }),
+  client.contract.read({
+    abi: Abis.erc20,
+    address: token,
+    functionName: 'totalSupply',
+  }),
+])
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  batch: { multicall: true },
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Best Practices
+
+### Keep Batches Cohesive
+
+Batch values that belong to the same view or decision. Very large unrelated batches are harder to
+retry and can exceed provider or contract calldata limits.
+
+### Choose the Execution Mode Deliberately
+
+Pin simulate mode when `msg.sender`, asset tracing, or simulation-only fields matter. Multicall3
+fallbacks do not reproduce every simulation behavior.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:book-open" title="Read Contracts" description="Read one typed contract function at a time." to="/docs/guides/contracts/read" />
+  <Card icon="lucide:layers-3" title="Batch Calls" description="Ask a wallet to submit several state-changing calls." to="/docs/guides/wallets/batch-calls" />
+</Cards>

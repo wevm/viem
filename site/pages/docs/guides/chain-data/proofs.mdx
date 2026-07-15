@@ -1,0 +1,81 @@
+---
+description: Request Ethereum account and storage Merkle proofs for independent verification with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# State Proofs
+
+## Overview
+
+[`address.getProof`](/docs/actions/public/address/getProof) calls `eth_getProof` and returns the
+account fields, account proof nodes, and proofs for requested storage keys. Consumers can verify the
+result against the state root of the selected block.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with `publicActions`.
+
+### Request an Account Proof
+
+Pass an empty storage-key list when only the account proof is needed.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const proof = await client.address.getProof({
+  address: '0x4200000000000000000000000000000000000016',
+  storageKeys: [],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Include Storage Proofs
+
+Each requested key produces an entry containing the stored value and its Merkle proof.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const proof = await client.address.getProof({
+  address: '0x4200000000000000000000000000000000000016',
+  blockNumber: 20_000_000n,
+  storageKeys: [
+    '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Verify Against an Authenticated Header
+
+A proof only establishes consistency with a state root. Obtain the corresponding block header from
+a source whose canonicality and finality meet the application's trust requirements.
+
+### Pin the Block
+
+Persist the selected block hash or number with the proof. A proof without its state root context
+cannot be verified later.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:database" title="Account Proof Utilities" description="Convert account proof values between RPC and application shapes." to="/docs/utilities/accountproof" />
+  <Card icon="lucide:box" title="Read Blocks" description="Read the header containing the proof's state root." to="/docs/guides/blocks-events/read" />
+</Cards>

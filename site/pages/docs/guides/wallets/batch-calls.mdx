@@ -1,0 +1,116 @@
+---
+description: Submit and track EIP-5792 call batches through connected wallets with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Batch Calls
+
+## Overview
+
+[`wallet.sendCalls`](/docs/actions/wallet/sendCalls) asks a connected wallet to submit several calls
+through EIP-5792. The wallet decides how the calls are represented onchain. Use capability discovery
+before depending on atomicity, sponsorship, or other wallet-specific behavior.
+
+## Recipes
+
+These recipes assume you have [connected a wallet](/docs/guides/wallets/connect).
+
+### Send a Call Batch
+
+Calls can contain native value, raw calldata, or ABI-backed contract parameters.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const { id } = await client.wallet.sendCalls({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: Value.fromEther('1'),
+    },
+    {
+      data: '0xdeadbeef',
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+    },
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/wallet.config.ts:setup]
+```
+
+:::
+
+### Send and Wait
+
+[`wallet.sendCallsSync`](/docs/actions/wallet/sendCallsSync) submits the batch and waits until the
+wallet reports a terminal status.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const status = await client.wallet.sendCallsSync({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: Value.fromEther('1'),
+    },
+  ],
+  throwOnFailure: true,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/wallet.config.ts:setup]
+```
+
+:::
+
+### Track an Existing Batch
+
+Pass the returned ID to [`wallet.waitForCallsStatus`](/docs/actions/wallet/waitForCallsStatus) when
+submission and tracking happen in different components.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const status = await client.wallet.waitForCallsStatus({
+  id: '0xdeadbeef',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/wallet.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Inspect Capabilities First
+
+Use [`wallet.getCapabilities`](/docs/actions/wallet/getCapabilities) before promising atomic execution
+or optional wallet services. Capabilities vary by wallet, Account, and Chain.
+
+### Persist the Batch ID
+
+The batch ID is required to recover status after navigation or a process restart.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:wallet" title="Wallet Capabilities & Calls" description="Discover wallet support and present call status to users." to="/docs/guides/wallets/capabilities" />
+  <Card icon="lucide:badge-check" title="ERC-7821 Execution" description="Execute calls directly through an ERC-7821 account." to="/docs/guides/authorizations/erc7821" />
+</Cards>

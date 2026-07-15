@@ -1,0 +1,127 @@
+---
+description: Execute individual and batched calls through ERC-7821-compatible Ethereum Accounts with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# ERC-7821 Execution
+
+## Overview
+
+ERC-7821 defines a minimal call-execution interface commonly exposed by delegated Accounts.
+[`erc7821Actions`](/docs/actions/erc7821) adds support checks and methods for executing one call
+batch or a batch of batches.
+
+## Recipes
+
+These recipes assume the target Account delegates to an ERC-7821-compatible implementation and
+you have [set up a Client](/docs) with `erc7821Actions`.
+
+### Check the Execution Mode
+
+[`erc7821.supportsExecutionMode`](/docs/actions/erc7821/supportsExecutionMode) checks and caches
+support for the requested mode.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const supported = await client.erc7821.supportsExecutionMode({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/erc7821.config.ts:setup]
+```
+
+:::
+
+### Execute Calls
+
+[`erc7821.execute`](/docs/actions/erc7821/execute) verifies support, encodes the calls, and broadcasts
+the execution transaction.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const hash = await client.erc7821.execute({
+  address: client.account.address,
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: Value.fromEther('1'),
+    },
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/erc7821.config.ts:setup]
+```
+
+:::
+
+### Execute a Batch of Batches
+
+[`erc7821.executeBatches`](/docs/actions/erc7821/executeBatches) groups several call batches, each
+with optional operation data, into one atomic transaction.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const hash = await client.erc7821.executeBatches({
+  address: client.account.address,
+  batches: [
+    {
+      calls: [
+        {
+          to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+          value: Value.fromEther('1'),
+        },
+      ],
+    },
+    {
+      calls: [
+        {
+          data: '0xdeadbeef',
+          to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
+        },
+      ],
+      opData: '0xcafebabe',
+    },
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/erc7821.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Check the Exact Mode
+
+Default, `opData`, and batch-of-batches modes are separate capabilities. Check the mode used by the
+request rather than treating ERC-7821 support as one boolean.
+
+### Treat Batches as Atomic
+
+An execution reverts when one of its calls fails. Order dependent calls deliberately and simulate
+the complete batch when the implementation supports it.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:badge-check" title="Authorizations" description="Delegate an EOA to the ERC-7821 implementation." to="/docs/guides/authorizations" />
+  <Card icon="lucide:layers-3" title="Batch Calls" description="Use the wallet-managed EIP-5792 batching flow." to="/docs/guides/wallets/batch-calls" />
+</Cards>

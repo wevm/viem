@@ -1,0 +1,24 @@
+---
+description: Extend Viem with tree-shakable Actions, type-safe Client decorators, Chains, Transports, and libraries.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Extending Viem
+
+## Overview
+
+Viem is designed for composition. Build a standalone Action around a Client, bind it through a
+decorator when method syntax is useful, preserve the caller's inferred types, or provide new Chain
+and Transport behavior without taking ownership of application configuration.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:scissors" title="Tree-Shakable Actions" description="Call only the standalone Actions an application needs." to="/docs/guides/extending/tree-shakable-actions" />
+  <Card icon="lucide:brackets" title="Type Composition" description="Preserve Chain, Account, Transport, token, RPC, and extension types." to="/docs/guides/extending/type-composition" />
+  <Card icon="lucide:blocks" title="Extend a Client" description="Add composable methods and namespaces with Client.extend." to="/docs/guides/extending/client" />
+  <Card icon="lucide:square-function" title="Build Actions & Decorators" description="Design a standalone Action and an optional method-style adapter." to="/docs/guides/extending/actions-decorators" />
+  <Card icon="lucide:network" title="Custom Chains & Transports" description="Add chain-specific behavior and custom RPC communication." to="/docs/guides/extending/chains-transports" />
+  <Card icon="lucide:package-open" title="Distribute a Viem Library" description="Accept caller-owned Clients and publish tree-shakable, type-safe extensions." to="/docs/guides/extending/libraries" />
+</Cards>

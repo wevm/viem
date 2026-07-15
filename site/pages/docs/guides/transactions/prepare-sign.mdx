@@ -1,0 +1,155 @@
+---
+description: Prepare, sign, and broadcast serialized Ethereum transactions with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Prepare and Sign Transactions
+
+## Overview
+
+[`transaction.prepare`](/docs/actions/public/transaction/prepare) resolves the nonce, chain ID,
+transaction type, gas, and fees required for signing. [`transaction.sign`](/docs/actions/wallet/transaction/sign)
+then produces a serialized signed transaction that can be stored, inspected, or broadcast with
+[`transaction.sendRaw`](/docs/actions/wallet/transaction/sendRaw).
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with public and wallet Actions.
+
+### Prepare a Complete Request
+
+Prepare a request when signing happens in a later step or another component.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const { request } = await client.transaction.prepare({
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: Value.fromEther('1'),
+})
+// @log: { chainId: 1, gas: 21000n, nonce: 0, type: 'eip1559', ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+### Sign and Broadcast
+
+Sign locally, then submit the serialized transaction to any compatible RPC provider.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const { request } = await client.transaction.prepare({
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: Value.fromEther('1'),
+})
+const transaction = await client.transaction.sign(request)
+
+const hash = await client.transaction.sendRaw({ transaction })
+// @log: '0x...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+Alternatively, set `prepare: true` to prepare and sign the transaction in one call.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const transaction = await client.transaction.sign({
+  prepare: true,
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: Value.fromEther('1'),
+})
+
+const hash = await client.transaction.sendRaw({ transaction })
+// @log: '0x...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+### Create an Access List
+
+Use [`transaction.createAccessList`](/docs/actions/public/transaction/createAccessList) to discover
+the Accounts and storage slots a transaction touches before preparing it.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { accessList, gasUsed } = await client.transaction.createAccessList({
+  data: '0x06fdde03',
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Let the Node Fill the Request
+
+Use [`transaction.fill`](/docs/actions/public/transaction/fill) when the connected node supports
+`eth_fillTransaction` and should choose the final transaction fields.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const { raw, transaction } = await client.transaction.fill({
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: Value.fromEther('1'),
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Prepare Near the Signing Boundary
+
+Nonces and fees change over time. Prepare a request shortly before signing, especially when several
+transactions can be submitted from the same Account.
+
+### Treat Serialized Transactions as Credentials
+
+Anyone holding a signed serialized transaction can broadcast it. Do not log or expose signed
+transactions unless that is an intentional part of the workflow.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:fuel" title="Estimate Gas & Fees" description="Understand and override the values selected during preparation." to="/docs/guides/transactions/gas-fees" />
+  <Card icon="lucide:list-ordered" title="Nonce Manager" description="Coordinate nonces across concurrent transaction sends." to="/docs/accounts/nonce-manager" />
+</Cards>

@@ -1,0 +1,107 @@
+---
+description: Rate limit Ethereum JSON-RPC requests and load balance traffic across providers with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Rate Limit and Load Balance
+
+## Overview
+
+[`rateLimit`](/docs/transports/rate-limit) queues requests above a throughput budget.
+[`loadBalance`](/docs/transports/load-balance) sends each request to the next Transport in a
+round-robin sequence.
+
+## Recipes
+
+These recipes compose Transports before passing them to [`Client.create`](/docs/clients/create).
+
+### Enforce One Global Budget
+
+Wrap a load-balanced Transport in a rate limiter when all providers share one application-level
+request budget.
+
+```ts twoslash [example.ts]
+import { Client, http, loadBalance, publicActions, rateLimit } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: rateLimit( // [!code focus:7]
+    loadBalance([
+      http('https://1.rpc.example'),
+      http('https://2.rpc.example'),
+    ]),
+    { requestsPerSecond: 50 },
+  ),
+}).extend(publicActions())
+
+const blockNumber = await client.block.getNumber()
+```
+
+### Enforce Per-Provider Budgets
+
+Rate limit each endpoint before load balancing when providers have separate quotas.
+
+```ts twoslash [example.ts]
+import { Client, http, loadBalance, publicActions, rateLimit } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: loadBalance([ // [!code focus:4]
+    rateLimit(http('https://1.rpc.example'), { requestsPerSecond: 25 }),
+    rateLimit(http('https://2.rpc.example'), { requestsPerSecond: 10 }),
+  ]),
+}).extend(publicActions())
+
+const [blockNumber, gasPrice] = await Promise.all([
+  client.block.getNumber(),
+  client.fee.getGasPrice(),
+])
+```
+
+### Limit Selected Methods
+
+Use the `methods` option with [`fallback`](/docs/transports/fallback) when only expensive or
+quota-sensitive methods should consume the limited route. Other methods continue through the next
+Transport.
+
+```ts twoslash [example.ts]
+import { Client, fallback, http, publicActions, rateLimit } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: fallback([ // [!code focus:7]
+    rateLimit(http('https://archive.rpc.example'), {
+      methods: { include: ['eth_call', 'eth_getBalance'] },
+      requestsPerSecond: 20,
+    }),
+    http('https://rpc.example'),
+  ]),
+}).extend(publicActions())
+
+const balance = await client.address.getBalance({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+```
+
+## Best Practices
+
+### Match the Provider Contract
+
+Set budgets below the provider's sustained limit and account for other processes using the same
+credentials.
+
+### Separate Distribution from Recovery
+
+Load balancing distributes normal traffic. Use a fallback Transport when a failed request must be
+retried through another endpoint.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:shield-check" title="Build Resilient Transports" description="Recover from endpoint failures with ordered fallback." to="/docs/guides/rpc/resilient-transports" />
+  <Card icon="lucide:radio" title="Use WebSocket Subscriptions" description="Receive new blocks and logs without polling." to="/docs/guides/rpc/websockets" />
+</Cards>

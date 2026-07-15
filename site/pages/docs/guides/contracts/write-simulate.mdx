@@ -1,0 +1,136 @@
+---
+description: Simulate typed contract writes, submit transactions, and wait for receipts with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Write and Simulate Contracts
+
+## Overview
+
+[`contract.simulate`](/docs/actions/public/contract/simulate) executes a write function against the
+current state without broadcasting it. The returned request can be passed directly to
+[`contract.write`](/docs/actions/wallet/contract/write), preserving the call that was validated.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with public and wallet Actions.
+
+### Simulate and Write
+
+Simulation exposes the decoded return value and contract revert before the transaction is sent.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abis, Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const { request, result } = await client.contract.simulate({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  args: [
+    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    Value.from('1', 6),
+  ],
+  functionName: 'transfer',
+})
+
+console.log(result)
+//          ^?
+// @log: true
+
+const hash = await client.contract.write(request)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+:::info
+`result` is the boolean returned by ERC-20 `transfer`. `true` means the simulated call reported
+success. It does not mean a transaction was broadcast.
+:::
+
+### Write and Wait for Confirmation
+
+Use [`contract.writeSync`](/docs/actions/wallet/contract/writeSync) when the workflow needs the
+receipt before it continues.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abis, Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const receipt = await client.contract.writeSync({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  args: [
+    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    Value.from('1', 6),
+  ],
+  functionName: 'transfer',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+:::tip
+You can also call [`contract.write`](/docs/actions/wallet/contract/write) and pass its transaction
+hash to [`transaction.waitForReceipt`](/docs/actions/public/transaction/waitForReceipt) when you
+need the hash before confirmation.
+:::
+
+### Estimate Contract Gas
+
+Use [`contract.estimateGas`](/docs/actions/public/contract/estimateGas) when displaying a cost or
+preparing a transaction manually.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abis, Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const gas = await client.contract.estimateGas({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  args: [
+    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    Value.from('1', 6),
+  ],
+  functionName: 'transfer',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Simulate with the Final Account
+
+Contract behavior can depend on `msg.sender`, allowances, balances, and delegated code. Simulate
+with the same Account and request parameters used for the write.
+
+### Handle Reverts as Contract Errors
+
+Simulation errors retain decoded revert context. Inspect the error chain rather than replacing it
+with a generic failure message.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:triangle-alert" title="Contract Errors" description="Inspect decoded revert data and the underlying RPC cause." to="/docs/errors/contract" />
+  <Card icon="lucide:scan-search" title="Track Transactions" description="Wait for a submitted write and detect replacements." to="/docs/guides/transactions/track" />
+</Cards>

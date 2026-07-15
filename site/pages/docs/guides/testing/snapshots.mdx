@@ -1,0 +1,109 @@
+---
+description: Isolate Ethereum tests with Anvil snapshots, reverts, state dumps, and fork resets.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Snapshot and Restore
+
+## Overview
+
+Snapshots provide fast test isolation within one node process. State dumps are portable blobs that
+can be restored later, while fork resets return to a configured upstream block.
+
+## Recipes
+
+These recipes assume you have [set up an Anvil Client](/docs/guides/testing/anvil).
+
+### Revert a Test Mutation
+
+Capture [`state.snapshot`](/docs/actions/test/state/snapshot) before arranging state and always call
+[`state.revert`](/docs/actions/test/state/revert) in `finally`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const id = await client.state.snapshot()
+
+try {
+  await client.address.setBalance({
+    address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    value: Value.fromEther('1'),
+  })
+} finally {
+  await client.state.revert({ id })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/test.config.ts:setup]
+```
+
+:::
+
+### Dump and Load State
+
+Use [`state.dump`](/docs/actions/test/state/dump) to serialize Accounts, bytecode, and storage. Pass
+the result to [`state.load`](/docs/actions/test/state/load) to restore it.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const state = await client.state.dump()
+
+await client.address.setBalance({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  value: Value.fromEther('0'),
+})
+
+await client.state.load({ state })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/test.config.ts:setup]
+```
+
+:::
+
+### Reset a Fork
+
+Use [`state.reset`](/docs/actions/test/state/reset) when a test suite must discard the entire local
+fork history and return to a pinned upstream block.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+await client.state.reset({ blockNumber: 20_000_000n })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/test.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Pair Snapshots with `finally`
+
+Assertions and RPC calls can throw. A `finally` block ensures cleanup still runs.
+
+### Avoid Sharing Snapshot IDs
+
+Snapshot IDs belong to one node state and may be invalid after a reset or revert. Keep each ID local
+to the test that created it.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:flask-conical" title="Set Up Anvil and Fork" description="Start from a reproducible upstream block." to="/docs/guides/testing/anvil" />
+  <Card icon="lucide:user-cog" title="Manipulate Account State" description="Arrange balances, nonces, code, and storage inside a snapshot." to="/docs/guides/testing/accounts" />
+</Cards>

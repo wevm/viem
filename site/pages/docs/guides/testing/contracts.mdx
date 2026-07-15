@@ -1,0 +1,114 @@
+---
+description: Test typed Ethereum contract reads, simulations, writes, and state changes against an Anvil fork.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Test Contract Interactions
+
+## Overview
+
+A fork test combines test Actions for arranging state with the same typed public and wallet Actions
+used by the application. This catches ABI encoding, simulation, signing, and receipt handling in one
+workflow.
+
+## Recipes
+
+These recipes assume Anvil is [forking mainnet](/docs/guides/testing/anvil) and your test Account is
+funded.
+
+### Simulate and Write a Contract Call
+
+Read the precondition, use [`contract.simulate`](/docs/actions/public/contract/simulate) to validate
+the write, then submit it with [`contract.writeSync`](/docs/actions/wallet/contract/writeSync).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abi, Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const abi = Abi.from([
+  'function balanceOf(address owner) view returns (uint256)',
+  'function deposit() payable',
+])
+const address = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
+
+const before = await client.contract.read({
+  abi,
+  address,
+  args: [client.account.address],
+  functionName: 'balanceOf',
+})
+
+const { request } = await client.contract.simulate({
+  abi,
+  address,
+  functionName: 'deposit',
+  value: Value.fromEther('1'),
+})
+
+const receipt = await client.contract.writeSync(request)
+const after = await client.contract.read({
+  abi,
+  address,
+  args: [client.account.address],
+  functionName: 'balanceOf',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/test.config.ts:setup]
+```
+
+:::
+
+### Isolate the Contract Test
+
+Snapshot before the write and revert afterward so the same fork state can serve every test.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abi, Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const abi = Abi.from(['function deposit() payable'])
+const id = await client.state.snapshot()
+
+try {
+  await client.contract.writeSync({
+    abi,
+    address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    functionName: 'deposit',
+    value: Value.fromEther('1'),
+  })
+} finally {
+  await client.state.revert({ id })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/test.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Assert State and Receipts
+
+Check the receipt status and the resulting contract state. Either assertion alone can miss a bug in
+event decoding or downstream state assumptions.
+
+### Keep Unit Tests Too
+
+Fork tests cover integration boundaries but are slower and depend on upstream RPC data. Keep pure
+encoding and transformation behavior in focused unit tests.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:pen-line" title="Write and Simulate Contracts" description="Use the production contract workflow exercised by the test." to="/docs/guides/contracts/write-simulate" />
+  <Card icon="lucide:undo-2" title="Snapshot and Restore" description="Keep fork tests deterministic and independent." to="/docs/guides/testing/snapshots" />
+</Cards>

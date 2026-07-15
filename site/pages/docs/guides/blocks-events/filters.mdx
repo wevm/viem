@@ -1,0 +1,107 @@
+---
+description: Create Ethereum block and event filters, consume changes, and uninstall them with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Use Filters
+
+## Overview
+
+Filters store incremental block or log changes inside the connected node. Create one for a block or
+event, poll it through [`filter.getChanges`](/docs/actions/public/filter/getChanges), then uninstall
+it when the consumer stops.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with `publicActions` and a provider that
+supports filters.
+
+### Poll an Event Filter
+
+[`event.createFilter`](/docs/actions/public/event/createFilter) creates a typed filter from one event.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { AbiEvent } from 'viem/utils'
+import { client } from './viem.config'
+
+const filter = await client.event.createFilter({
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
+})
+
+const logs = await client.filter.getChanges({ filter })
+await client.filter.uninstall({ filter })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Poll a Block Filter
+
+[`block.createFilter`](/docs/actions/public/block/createFilter) produces block hashes as new blocks
+arrive.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const filter = await client.block.createFilter()
+const hashes = await client.filter.getChanges({ filter })
+
+await client.filter.uninstall({ filter })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Poll a Pending Transaction Filter
+
+[`transaction.createPendingFilter`](/docs/actions/public/transaction/createPendingFilter) produces
+transaction hashes as they enter the connected node's pool.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const filter = await client.transaction.createPendingFilter()
+const hashes = await client.filter.getChanges({ filter })
+
+await client.filter.uninstall({ filter })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Treat Filters as Ephemeral
+
+Filters are node-local and may expire after inactivity. Do not persist a filter ID as durable
+application state. Recreate it and recover missed data from a known block range.
+
+### Prefer Watchers for Application Lifecycles
+
+Viem watchers manage subscriptions, filter polling, and fallbacks. Use raw filters when the
+application needs explicit control over the polling loop.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:scroll-text" title="Query Logs" description="Recover missed logs from a known block range." to="/docs/guides/blocks-events/logs" />
+  <Card icon="lucide:radio-tower" title="WebSocket Subscriptions" description="Avoid filter polling when subscriptions are available." to="/docs/guides/rpc/websockets" />
+</Cards>

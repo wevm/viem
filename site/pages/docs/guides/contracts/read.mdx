@@ -1,0 +1,110 @@
+---
+description: Read typed Ethereum contract state at the latest or a historical block with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Read Contracts
+
+## Overview
+
+[`contract.read`](/docs/actions/public/contract/read) calls a `view` or `pure` function without
+sending a transaction. The ABI determines valid function names, positional argument tuples, and the
+decoded return type.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with `publicActions`.
+
+### Read a Contract Function
+
+Pass a literal ABI to preserve function and return-value inference.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abis } from 'viem/utils'
+import { client } from './viem.config'
+
+const balance = await client.contract.read({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+  functionName: 'balanceOf',
+})
+
+console.log(balance)
+//          ^?
+// @log: 424122n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Read Historical State
+
+Pass `blockNumber`, `blockHash`, or `blockTag` to select the state used by the call.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abis } from 'viem/utils'
+import { client } from './viem.config'
+
+const supply = await client.contract.read({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  blockNumber: 20_000_000n,
+  functionName: 'totalSupply',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Read a Contract's EIP-712 Domain
+
+[`contract.getEip712Domain`](/docs/actions/public/contract/getEip712Domain) reads the domain a
+contract exposes through ERC-5267 before an application constructs typed data for it.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { domain, extensions, fields } =
+  await client.contract.getEip712Domain({
+    address: '0x57ba3ec8df619d4d243ce439551cce713bb17411',
+  })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Preserve ABI Literals
+
+Import a generated ABI or construct one with [`Abi.from`](/docs/utilities/abi/from). Avoid widening
+it to a generic `Abi`, which removes function-specific inference.
+
+### Pin a Block for Consistent Reads
+
+Related reads can observe different state when a block arrives between requests. Use the same block
+number or a multicall when the values must share one state snapshot.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:list-tree" title="Batch Contract Reads" description="Read several functions against one block in a multicall." to="/docs/guides/contracts/batch-reads" />
+  <Card icon="lucide:box" title="Contract Instances" description="Bind the ABI and address for repeated reads." to="/docs/guides/contracts/instances" />
+</Cards>

@@ -8,11 +8,10 @@ Actions such as [`wallet.connect`](/docs/actions/wallet/connect), [`wallet.sendC
 
 ```ts twoslash
 import { Actions, Client, custom, walletActions } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 
 const client = Client.create({
-  transport: custom(provider),
+  transport: custom(window.ethereum!),
 }).extend(walletActions())
 
 const { id } = await client.wallet.sendCalls({
@@ -46,11 +45,10 @@ declare module 'viem' { // [!code focus]
 } // [!code focus]
 
 import { Actions, Client, custom, walletActions } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 
 const client = Client.create({
-  transport: custom(provider),
+  transport: custom(window.ethereum!),
 }).extend(walletActions())
 
 const { id } = await client.wallet.sendCalls({
@@ -68,11 +66,10 @@ Pass a `capabilities` bag to [`wallet.connect`](/docs/actions/wallet/connect) to
 
 ```ts twoslash
 import { Client, custom, walletActions } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 
 const client = Client.create({
-  transport: custom(provider),
+  transport: custom(window.ethereum!),
 }).extend(walletActions())
 
 const { accounts } = await client.wallet.connect({
@@ -91,11 +88,10 @@ Use [`wallet.getCapabilities`](/docs/actions/wallet/getCapabilities) to read the
 
 ```ts twoslash
 import { Client, custom, walletActions } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 
 const client = Client.create({
-  transport: custom(provider),
+  transport: custom(window.ethereum!),
 }).extend(walletActions())
 
 const capabilities = await client.wallet.getCapabilities({ chainId: 1 }) // [!code focus]

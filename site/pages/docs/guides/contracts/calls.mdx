@@ -1,0 +1,80 @@
+---
+description: Execute low-level Ethereum calls with raw calldata, state overrides, and block selection using Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Low-Level Calls
+
+## Overview
+
+[`call`](/docs/actions/public/call) executes `eth_call` with raw calldata and returns raw response
+bytes. It is useful for protocols without an ABI, already encoded payloads, deployless code, or
+advanced overrides. Prefer Contract Actions when an ABI is available.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with `publicActions`.
+
+### Execute Raw Calldata
+
+The `name()` selector is `0x06fdde03`. Decode the returned bytes according to the contract's ABI.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { data } = await client.call({
+  data: '0x06fdde03',
+  to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Call from a Specific Address
+
+Set `account` when contract behavior depends on `msg.sender`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { data } = await client.call({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  data: '0x06fdde03',
+  to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Keep Encoding and Decoding Together
+
+Wrap low-level calls in a small domain function that owns both the request encoding and response
+decoding. This prevents callers from interpreting the same raw bytes differently.
+
+### Prefer Typed Contract Actions
+
+Use [`contract.read`](/docs/actions/public/contract/read) or
+[`contract.simulate`](/docs/actions/public/contract/simulate) when an ABI exists. They provide
+argument validation, decoded results, and structured contract errors.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:book-open" title="Read Contracts" description="Read contract functions with ABI-derived types." to="/docs/guides/contracts/read" />
+  <Card icon="lucide:code-xml" title="ABI Functions" description="Encode call data and decode return values manually." to="/docs/utilities/abifunction" />
+</Cards>

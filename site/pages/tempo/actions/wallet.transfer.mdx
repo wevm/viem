@@ -8,11 +8,10 @@ This action invokes the `wallet_transfer` JSON-RPC method on the connected walle
 
 ```ts twoslash [example.ts]
 import { Client, custom } from 'viem/tempo'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 
 const client = Client.create({
-  transport: custom(provider),
+  transport: custom(window.ethereum!),
 })
 
 const { receipt } = await client.wallet.transfer({
@@ -31,11 +30,10 @@ Pass `editable: true` to open the wallet send UI for the user to confirm or edit
 
 ```ts twoslash
 import { Client, custom } from 'viem/tempo'
-
-declare const provider: { request(...args: any): Promise<any> }
+import 'viem/window'
 
 const client = Client.create({
-  transport: custom(provider),
+  transport: custom(window.ethereum!),
 })
 
 const { receipt } = await client.wallet.transfer({
