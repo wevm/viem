@@ -4,20 +4,14 @@ Returns the number of the most recent block seen.
 
 ## Usage
 
+This example returns the number of the most recent block seen.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const blockNumber = await client.block.getNumber()
-// @log: 19868020n
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const blockNumber = await Actions.block.getNumber(client)
 // @log: 19868020n
 ```
 
@@ -29,6 +23,32 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.block.getNumber` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const blockNumber = await Actions.block.getNumber(client)
+// @log: 19868020n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

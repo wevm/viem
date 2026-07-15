@@ -4,19 +4,14 @@ Requests to disconnect connected account(s) via [ERC-7846 `wallet_disconnect`](h
 
 ## Usage
 
+This example requests to disconnect connected account(s) via [ERC-7846 `wallet_disconnect`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7846.md).
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 await client.wallet.disconnect()
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-await Actions.wallet.disconnect(client)
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -27,6 +22,31 @@ declare const provider: { request(...args: any): Promise<any> }
 export const client = Client.create({
   transport: custom(provider),
 }).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.wallet.disconnect` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+await Actions.wallet.disconnect(client)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+export const client = Client.create({
+  transport: custom(provider),
+})
 ```
 
 :::

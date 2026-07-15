@@ -4,23 +4,14 @@ Gets the ERC-20 token balance of an account, returned in base units and human-re
 
 ## Usage
 
+This example gets the ERC-20 token balance of an account, returned in base units and human-readable form.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const balance = await client.token.getBalance({
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-})
-// @log: { amount: 424122000000n, decimals: 6, formatted: '424122' }
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const balance = await Actions.token.getBalance(client, {
   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
 })
@@ -37,6 +28,37 @@ export const client = Client.create({
   tokens: [usdc],
   transport: http(),
 }).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.token.getBalance` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const balance = await Actions.token.getBalance(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+// @log: { amount: 424122000000n, decimals: 6, formatted: '424122' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+export const client = Client.create({
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+})
 ```
 
 :::

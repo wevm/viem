@@ -6,9 +6,11 @@ Poll the filter with [`Actions.filter.getChanges`](/docs/actions/public/filter/g
 
 ## Usage
 
+This example creates a filter to listen for new event logs emitted by a contract.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { Abis } from 'viem/utils'
 import { client } from './viem.config'
 
@@ -20,7 +22,25 @@ const filter = await client.contract.createEventFilter({
 const logs = await client.filter.getChanges({ filter })
 ```
 
-```ts twoslash [Standalone]
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.contract.createEventFilter` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
 import { Actions } from 'viem'
 import { Abis } from 'viem/utils'
 import { client } from './viem.config'
@@ -34,13 +54,13 @@ const logs = await Actions.filter.getChanges(client, { filter })
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http, publicActions } from 'viem'
+import { Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 export const client = Client.create({
   chain: mainnet,
   transport: http(),
-}).extend(publicActions())
+})
 ```
 
 :::

@@ -4,20 +4,14 @@ Returns the number of transactions currently pending for inclusion in the next b
 
 ## Usage
 
+This example returns the number of transactions currently pending for inclusion in the next block(s), as well as the ones being scheduled for future execution.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const result = await client.txpool.getStatus()
-// @log: { pending: 12, queued: 3 }
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const result = await Actions.txpool.getStatus(client)
 // @log: { pending: 12, queued: 3 }
 ```
 
@@ -29,6 +23,32 @@ export const client = Client.create({
   chain: anvil,
   transport: http(),
 }).extend(testActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.txpool.getStatus` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const result = await Actions.txpool.getStatus(client)
+// @log: { pending: 12, queued: 3 }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+})
 ```
 
 :::

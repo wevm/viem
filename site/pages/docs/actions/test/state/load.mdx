@@ -4,21 +4,14 @@ Adds state previously dumped with `dump` to the current chain.
 
 ## Usage
 
+This example adds state previously dumped with `dump` to the current chain.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 await client.state.load({
-  state: '0x...',
-})
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-await Actions.state.load(client, {
   state: '0x...',
 })
 ```
@@ -31,6 +24,33 @@ export const client = Client.create({
   chain: anvil,
   transport: http(),
 }).extend(testActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.state.load` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+await Actions.state.load(client, {
+  state: '0x...',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+})
 ```
 
 :::

@@ -7,26 +7,14 @@ Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data.
 
 ## Usage
 
+This example signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const signature = await client.signTypedData({
-  domain: { name: 'Ether Mail', version: '1' },
-  types: {
-    Mail: [{ name: 'contents', type: 'string' }],
-  },
-  primaryType: 'Mail',
-  message: { contents: 'hello world' },
-})
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const signature = await Actions.signTypedData(client, {
   domain: { name: 'Ether Mail', version: '1' },
   types: {
     Mail: [{ name: 'contents', type: 'string' }],
@@ -45,6 +33,39 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.signTypedData` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const signature = await Actions.signTypedData(client, {
+  domain: { name: 'Ether Mail', version: '1' },
+  types: {
+    Mail: [{ name: 'contents', type: 'string' }],
+  },
+  primaryType: 'Mail',
+  message: { contents: 'hello world' },
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

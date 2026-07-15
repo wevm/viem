@@ -8,21 +8,14 @@ Changes the minimum gas price (in wei) accepted by the network.
 
 ## Usage
 
+This example changes the minimum gas price (in wei) accepted by the network.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 await client.node.setMinGasPrice({
-  gasPrice: 1_000_000_000n,
-})
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-await Actions.node.setMinGasPrice(client, {
   gasPrice: 1_000_000_000n,
 })
 ```
@@ -35,6 +28,33 @@ export const client = Client.create({
   chain: anvil,
   transport: http(),
 }).extend(testActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.node.setMinGasPrice` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+await Actions.node.setMinGasPrice(client, {
+  gasPrice: 1_000_000_000n,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+})
 ```
 
 :::

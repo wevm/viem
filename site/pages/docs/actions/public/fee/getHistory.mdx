@@ -4,28 +4,14 @@ Returns a collection of historical gas information.
 
 ## Usage
 
+This example returns a collection of historical gas information.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const feeHistory = await client.fee.getHistory({
-  blockCount: 4,
-  rewardPercentiles: [25, 75],
-})
-// @log: {
-// @log:   baseFeePerGas: [12952210265n, 13007005941n, 12914819642n, 12832378110n, 12832378110n],
-// @log:   gasUsedRatio: [0.5232, 0.4283, 0.4291, 0.4869],
-// @log:   oldestBlock: 19868015n,
-// @log:   reward: [[1000000000n, 2000000000n], ...],
-// @log: }
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const feeHistory = await Actions.fee.getHistory(client, {
   blockCount: 4,
   rewardPercentiles: [25, 75],
 })
@@ -45,6 +31,40 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.fee.getHistory` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const feeHistory = await Actions.fee.getHistory(client, {
+  blockCount: 4,
+  rewardPercentiles: [25, 75],
+})
+// @log: {
+// @log:   baseFeePerGas: [12952210265n, 13007005941n, 12914819642n, 12832378110n, 12832378110n],
+// @log:   gasUsedRatio: [0.5232, 0.4283, 0.4291, 0.4869],
+// @log:   oldestBlock: 19868015n,
+// @log:   reward: [[1000000000n, 2000000000n], ...],
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

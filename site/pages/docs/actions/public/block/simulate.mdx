@@ -6,32 +6,14 @@ Each block executes its calls against the state produced by the previous one, so
 
 ## Usage
 
+This example simulates a sequence of blocks with optional block and state overrides (`eth_simulateV1`).
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const [block] = await client.block.simulate({
-  blocks: [{
-    calls: [{
-      account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-      value: 1n,
-    }],
-  }],
-})
-// @log: {
-// @log:   number: 23139774n,
-// @log:   ...
-// @log:   calls: [{ data: '0x', gasUsed: 21000n, logs: [], result: null, status: 'success' }],
-// @log: }
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const [block] = await Actions.block.simulate(client, {
   blocks: [{
     calls: [{
       account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
@@ -55,6 +37,44 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.block.simulate` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const [block] = await Actions.block.simulate(client, {
+  blocks: [{
+    calls: [{
+      account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    }],
+  }],
+})
+// @log: {
+// @log:   number: 23139774n,
+// @log:   ...
+// @log:   calls: [{ data: '0x', gasUsed: 21000n, logs: [], result: null, status: 'success' }],
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

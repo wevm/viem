@@ -4,22 +4,14 @@
 
 **Public Actions** map one-to-one with "public" Ethereum RPC methods (`eth_call`, `eth_getBalance`, `eth_getBlockByNumber`, etc.). They read state and simulate calls against a node, decoding the JSON-RPC response into ergonomic, typed values.
 
-Attach [`publicActions`](#publicactions) to a Client to call them as methods, or call each action standalone by passing a Client as the first argument from the `Actions` namespace:
+Attach [`publicActions`](#publicactions) to a Client to call them as methods:
 
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const block = await client.block.get()
-// @log: { number: 19868020n, hash: '0x89644b...', timestamp: 1715852123n, ... }
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const block = await Actions.block.get(client)
 // @log: { number: 19868020n, hash: '0x89644b...', timestamp: 1715852123n, ... }
 ```
 
@@ -31,6 +23,32 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.block.get` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const block = await Actions.block.get(client)
+// @log: { number: 19868020n, hash: '0x89644b...', timestamp: 1715852123n, ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

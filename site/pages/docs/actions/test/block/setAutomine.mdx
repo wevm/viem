@@ -4,21 +4,14 @@ Enables or disables the automatic mining of new blocks with each new transaction
 
 ## Usage
 
+This example enables or disables the automatic mining of new blocks with each new transaction submitted to the network.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 await client.block.setAutomine({
-  enabled: true,
-})
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-await Actions.block.setAutomine(client, {
   enabled: true,
 })
 ```
@@ -31,6 +24,33 @@ export const client = Client.create({
   chain: anvil,
   transport: http(),
 }).extend(testActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.block.setAutomine` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+await Actions.block.setAutomine(client, {
+  enabled: true,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+})
 ```
 
 :::

@@ -4,21 +4,14 @@ Sets the next block's timestamp.
 
 ## Usage
 
+This example sets the next block's timestamp.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 await client.block.setNextTimestamp({
-  timestamp: 1_700_000_000n,
-})
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-await Actions.block.setNextTimestamp(client, {
   timestamp: 1_700_000_000n,
 })
 ```
@@ -31,6 +24,33 @@ export const client = Client.create({
   chain: anvil,
   transport: http(),
 }).extend(testActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.block.setNextTimestamp` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+await Actions.block.setNextTimestamp(client, {
+  timestamp: 1_700_000_000n,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+})
 ```
 
 :::

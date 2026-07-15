@@ -4,21 +4,14 @@ Returns the status & receipts of a call batch that was sent via [`sendCalls`](/d
 
 ## Usage
 
+This example gets a call batch's status and receipts.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const { receipts, status } = await client.wallet.getCallsStatus({
-  id: '0xdeadbeef',
-})
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const { receipts, status } = await Actions.wallet.getCallsStatus(client, {
   id: '0xdeadbeef',
 })
 ```
@@ -31,6 +24,33 @@ declare const provider: { request(...args: any): Promise<any> }
 export const client = Client.create({
   transport: custom(provider),
 }).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.wallet.getCallsStatus` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const { receipts, status } = await Actions.wallet.getCallsStatus(client, {
+  id: '0xdeadbeef',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+export const client = Client.create({
+  transport: custom(provider),
+})
 ```
 
 :::

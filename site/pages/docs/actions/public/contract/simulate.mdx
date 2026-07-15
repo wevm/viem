@@ -6,9 +6,11 @@ Unlike [write](/docs/actions/wallet/contract/write), this validates the call aga
 
 ## Usage
 
+This example simulates a write function on a contract without broadcasting a transaction.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { Abi } from 'viem/utils'
 import { client } from './viem.config'
 
@@ -23,7 +25,28 @@ const { request, result } = await client.contract.simulate({
 const hash = await client.contract.write(request)
 ```
 
-```ts twoslash [Standalone]
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, publicActions, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+})
+  .extend(publicActions())
+  .extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.contract.simulate` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
 import { Actions } from 'viem'
 import { Abi } from 'viem/utils'
 import { client } from './viem.config'
@@ -40,7 +63,7 @@ const hash = await Actions.contract.write(client, request)
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Account, Client, http, publicActions, walletActions } from 'viem'
+import { Account, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 export const client = Client.create({
@@ -48,8 +71,6 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 })
-  .extend(publicActions())
-  .extend(walletActions())
 ```
 
 :::

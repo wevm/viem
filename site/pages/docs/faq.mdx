@@ -7,9 +7,17 @@ description: Answers to common questions about Viem's v3 API design and migratio
 ## Why Does Viem Use Module Namespaces?
 
 Module namespaces keep runtime functions, types, and errors beside the concept that owns them. For
-example, [`Actions.block.getNumber`](/docs/actions/public/block/getNumber) is accompanied by
-`Actions.block.getNumber.Options`, `Actions.block.getNumber.ReturnType`, and
-`Actions.block.getNumber.ErrorType`.
+example, [`Actions.transaction`](/docs/actions) groups Actions for estimating, preparing, signing,
+sending, retrieving, and watching transactions, with related errors under
+`Actions.transaction.Errors`.
+
+```ts twoslash
+// @noErrors
+import { Actions } from 'viem'
+
+Actions.transaction.
+//                  ^|
+```
 
 The same pattern applies to [Accounts](/docs/accounts), [Clients](/docs/clients), and the Ox-backed
 utilities exported from `viem/utils`. This structure avoids collisions between similarly named APIs
@@ -71,36 +79,6 @@ const jsonRpcAccount = Account.from(
 See [Local Accounts](/docs/accounts/local/private-key),
 [JSON-RPC Accounts](/docs/accounts/json-rpc), and [Wallet Actions](/docs/actions/wallet) for the
 corresponding setup patterns.
-
-## Why Are Contract Arguments Positional?
-
-Contract calls encode inputs in ABI order. Parameter names may be missing or duplicated, so Viem
-represents function arguments as a typed tuple instead of an object keyed by those names.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abi.from([
-  'function allowance(address owner, address spender) view returns (uint256)',
-])
-
-const allowance = await Actions.contract.read(client, {
-  abi,
-  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-  args: [
-    '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-    '0x0000000000000000000000000000000000000001',
-  ],
-  functionName: 'allowance',
-})
-// @log: 1000000n
-```
-
-TypeScript infers the tuple's length and each position from the ABI. A Solidity tuple or struct
-remains one value within that ordered argument list.
 
 ## Why Are Multiple Return Values Arrays?
 

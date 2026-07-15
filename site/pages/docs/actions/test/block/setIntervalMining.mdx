@@ -4,21 +4,14 @@ Sets the automatic mining interval (in seconds) of blocks. Setting the interval 
 
 ## Usage
 
+This example sets the automatic mining interval (in seconds) of blocks.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 await client.block.setIntervalMining({
-  interval: 5,
-})
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-await Actions.block.setIntervalMining(client, {
   interval: 5,
 })
 ```
@@ -31,6 +24,33 @@ export const client = Client.create({
   chain: anvil,
   transport: http(),
 }).extend(testActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.block.setIntervalMining` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+await Actions.block.setIntervalMining(client, {
+  interval: 5,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+})
 ```
 
 :::

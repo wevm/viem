@@ -4,21 +4,14 @@
 
 **Test Actions** manipulate a local test node such as [Anvil](https://book.getfoundry.sh/anvil/), [Hardhat](https://hardhat.org/), or [Ganache](https://github.com/trufflesuite/ganache). They let you mine blocks, set account balances and code, snapshot and revert state, impersonate accounts, and more, which is invaluable when writing tests.
 
-Attach [`testActions`](#testactions) to a Client to call them as methods, or call each action standalone by passing a Client as the first argument from the `Actions` namespace:
+Attach [`testActions`](#testactions) to a Client to call them as methods:
 
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 await client.block.mine({ blocks: 1 })
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-await Actions.block.mine(client, { blocks: 1 })
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -29,6 +22,31 @@ export const client = Client.create({
   chain: anvil,
   transport: http(),
 }).extend(testActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.block.mine` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+await Actions.block.mine(client, { blocks: 1 })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+})
 ```
 
 :::

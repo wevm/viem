@@ -6,9 +6,11 @@ Unlike `getChanges`, this action is not drained by polling. It returns all logs 
 
 ## Usage
 
+This example returns the logs matching an event filter.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { Actions } from 'viem'
 import { AbiEvent } from 'viem/utils'
 import { client } from './viem.config'
@@ -35,7 +37,25 @@ const logs = await client.filter.getLogs({ filter })
 // @log: ]
 ```
 
-```ts twoslash [Standalone]
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.event.createFilter` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
 import { Actions } from 'viem'
 import { AbiEvent } from 'viem/utils'
 import { client } from './viem.config'
@@ -63,13 +83,13 @@ const logs = await Actions.filter.getLogs(client, { filter })
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http, publicActions } from 'viem'
+import { Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 export const client = Client.create({
   chain: mainnet,
   transport: http(),
-}).extend(publicActions())
+})
 ```
 
 :::

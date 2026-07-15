@@ -4,24 +4,14 @@ Approves a spender to transfer an amount of an ERC-20 token on behalf of the cal
 
 ## Usage
 
+This example approves a spender to transfer an amount of an ERC-20 token on behalf of the caller, and returns the transaction hash.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const hash = await client.token.approve({
-  amount: 250000000n,
-  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
-  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-})
-// @log: "0x4ca7ee652d57678f26e887c19671f76c1aff..."
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const hash = await Actions.token.approve(client, {
   amount: 250000000n,
   spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
   token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -40,6 +30,39 @@ export const client = Client.create({
   tokens: [usdc],
   transport: http(),
 }).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.token.approve` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const hash = await Actions.token.approve(client, {
+  amount: 250000000n,
+  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+// @log: "0x4ca7ee652d57678f26e887c19671f76c1aff..."
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+})
 ```
 
 :::

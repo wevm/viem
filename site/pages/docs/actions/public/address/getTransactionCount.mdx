@@ -4,22 +4,14 @@ Returns the number of transactions an Account has broadcast / sent (its nonce).
 
 ## Usage
 
+This example returns the number of transactions an Account has broadcast / sent (its nonce).
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const count = await client.address.getTransactionCount({
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-})
-// @log: 420
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const count = await Actions.address.getTransactionCount(client, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 })
 // @log: 420
@@ -33,6 +25,34 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.address.getTransactionCount` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const count = await Actions.address.getTransactionCount(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+// @log: 420
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

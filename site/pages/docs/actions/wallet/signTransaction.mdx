@@ -4,23 +4,14 @@ Signs a transaction. Alias of [`transaction.sign`](/docs/actions/wallet/transact
 
 ## Usage
 
+This example signs a transaction.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const signed = await client.signTransaction({
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1n,
-})
-// @log: '0x02f86b0180843b9aca008502540be400825208...'
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const signed = await Actions.signTransaction(client, {
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1n,
 })
@@ -36,6 +27,36 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.signTransaction` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const signed = await Actions.signTransaction(client, {
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: '0x02f86b0180843b9aca008502540be400825208...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

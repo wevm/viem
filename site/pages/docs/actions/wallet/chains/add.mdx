@@ -4,21 +4,15 @@ Adds an EVM chain to the wallet.
 
 ## Usage
 
+This example adds an EVM chain to the wallet.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { optimism } from 'viem/chains'
 import { client } from './viem.config'
 
 await client.chains.add({ chain: optimism })
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { optimism } from 'viem/chains'
-import { client } from './viem.config'
-
-await Actions.chains.add(client, { chain: optimism })
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -29,6 +23,32 @@ declare const provider: { request(...args: any): Promise<any> }
 export const client = Client.create({
   transport: custom(provider),
 }).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.chains.add` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { optimism } from 'viem/chains'
+import { client } from './viem.config'
+
+await Actions.chains.add(client, { chain: optimism })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+export const client = Client.create({
+  transport: custom(provider),
+})
 ```
 
 :::

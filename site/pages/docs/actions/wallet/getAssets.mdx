@@ -6,24 +6,14 @@ Assets are keyed by chain id. By default, assets are also aggregated across chai
 
 ## Usage
 
+This example retrieves the assets held by an account.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const assets = await client.wallet.getAssets()
-// @log: {
-// @log:   0: [{ balance: 32000000000n, chainIds: [1, 8453], metadata: { ... }, type: 'erc20', ... }],
-// @log:   1: [{ balance: 12000000000n, metadata: { ... }, type: 'erc20', ... }],
-// @log:   8453: [{ balance: 20000000000n, metadata: { ... }, type: 'erc20', ... }],
-// @log: }
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const assets = await Actions.wallet.getAssets(client)
 // @log: {
 // @log:   0: [{ balance: 32000000000n, chainIds: [1, 8453], metadata: { ... }, type: 'erc20', ... }],
 // @log:   1: [{ balance: 12000000000n, metadata: { ... }, type: 'erc20', ... }],
@@ -40,6 +30,37 @@ export const client = Client.create({
   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   transport: custom(provider),
 }).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.wallet.getAssets` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const assets = await Actions.wallet.getAssets(client)
+// @log: {
+// @log:   0: [{ balance: 32000000000n, chainIds: [1, 8453], metadata: { ... }, type: 'erc20', ... }],
+// @log:   1: [{ balance: 12000000000n, metadata: { ... }, type: 'erc20', ... }],
+// @log:   8453: [{ balance: 20000000000n, metadata: { ... }, type: 'erc20', ... }],
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+export const client = Client.create({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  transport: custom(provider),
+})
 ```
 
 :::

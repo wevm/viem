@@ -4,32 +4,14 @@ Reads the EIP-712 domain from a contract, based on the [ERC-5267](https://eips.e
 
 ## Usage
 
+This example reads the EIP-712 domain from a contract, based on the [ERC-5267](https://eips.ethereum.org/EIPS/eip-5267) specification.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const { domain, extensions, fields } = await client.contract.getEip712Domain({
-  address: '0x57ba3ec8df619d4d243ce439551cce713bb17411',
-})
-// @log: {
-// @log:   domain: {
-// @log:     chainId: 1,
-// @log:     name: 'ExampleContract',
-// @log:     salt: '0x0000...0000',
-// @log:     verifyingContract: '0x57bA3ec8DF619d4d243Ce439551cCE713bB17411',
-// @log:     version: '1',
-// @log:   },
-// @log:   extensions: [],
-// @log:   fields: '0x0f',
-// @log: }
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const { domain, extensions, fields } = await Actions.contract.getEip712Domain(client, {
   address: '0x57ba3ec8df619d4d243ce439551cce713bb17411',
 })
 // @log: {
@@ -53,6 +35,44 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.contract.getEip712Domain` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const { domain, extensions, fields } = await Actions.contract.getEip712Domain(client, {
+  address: '0x57ba3ec8df619d4d243ce439551cce713bb17411',
+})
+// @log: {
+// @log:   domain: {
+// @log:     chainId: 1,
+// @log:     name: 'ExampleContract',
+// @log:     salt: '0x0000...0000',
+// @log:     verifyingContract: '0x57bA3ec8DF619d4d243Ce439551cCE713bB17411',
+// @log:     version: '1',
+// @log:   },
+// @log:   extensions: [],
+// @log:   fields: '0x0f',
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

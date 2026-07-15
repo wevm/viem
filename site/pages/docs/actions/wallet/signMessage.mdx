@@ -7,21 +7,14 @@ Calculates an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) signature over a
 
 ## Usage
 
+This example calculates an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) signature over a personal message.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const signature = await client.signMessage({
-  message: 'hello world',
-})
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const signature = await Actions.signMessage(client, {
   message: 'hello world',
 })
 ```
@@ -35,6 +28,34 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.signMessage` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const signature = await Actions.signMessage(client, {
+  message: 'hello world',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

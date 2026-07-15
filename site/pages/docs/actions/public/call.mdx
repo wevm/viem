@@ -4,23 +4,14 @@ Executes a new message call without submitting a transaction to the network (`et
 
 ## Usage
 
+This example executes a new message call without submitting a transaction to the network (`eth_call`).
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const { data } = await client.call({
-  data: '0x06fdde03',
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-})
-// @log: data: '0x...'
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const { data } = await Actions.call(client, {
   data: '0x06fdde03',
   to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
 })
@@ -35,6 +26,35 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.call` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const { data } = await Actions.call(client, {
+  data: '0x06fdde03',
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+// @log: data: '0x...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

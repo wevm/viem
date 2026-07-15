@@ -39,46 +39,63 @@ coding harness.
 
 ```ts twoslash
 // @noErrors
-import { Account } from 'viem'
+import { Actions } from 'viem'
 
-Account.f
-//       ^|
+Actions.transaction.
+//                  ^|
 ```
 
-The Actions namespace also keeps dependencies explicit.
-[`Actions.block.getNumber`](/docs/actions/public/block/getNumber) receives its Client directly
-(Standalone), while applications that prefer methods can opt into
-[`publicActions`](/docs/actions/public) and [`.extend()`](/docs/clients/create#extending-a-client)
-(Decorator).
+Applications can opt into concise methods with [`publicActions`](/docs/actions/public) and
+[`.extend()`](/docs/clients/create#extending-a-client).
 
 :::code-group
 
-```ts twoslash [Standalone]
+```ts twoslash [example.ts]
 // @noErrors
-import { Actions, Client, http } from 'viem'
+import { client } from './viem.config'
+
+const blockNumber = await client.block.getNumber()
+// @log: 19868020n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// @noErrors
+import { Client, http, publicActions } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = Client.create({
+export const client = Client.create({
   chain: mainnet,
   transport: http(),
-})
+}).extend(publicActions())
+```
+
+:::
+
+#### Standalone Action
+
+The Actions namespace also keeps dependencies explicit.
+[`Actions.block.getNumber`](/docs/actions/public/block/getNumber) receives its Client directly.
+
+:::code-group
+
+```ts twoslash [example.ts]
+// @noErrors
+import { Actions } from 'viem'
+import { client } from './viem.config'
 
 const blockNumber = await Actions.block.getNumber(client)
 // @log: 19868020n
 ```
 
-```ts twoslash [Decorator]
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
 // @noErrors
-import { Client, http, publicActions } from 'viem'
+import { Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = Client.create({
+export const client = Client.create({
   chain: mainnet,
   transport: http(),
-}).extend(publicActions())
-
-const blockNumber = await client.block.getNumber()
-// @log: 19868020n
+})
 ```
 
 :::

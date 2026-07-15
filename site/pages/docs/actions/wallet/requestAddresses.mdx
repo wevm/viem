@@ -6,19 +6,14 @@ Sends a request to the wallet asking for permission to access the user's account
 
 ## Usage
 
+This example requests a list of accounts managed by a wallet.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const addresses = await client.wallet.requestAddresses()
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const addresses = await Actions.wallet.requestAddresses(client)
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -29,6 +24,31 @@ declare const provider: { request(...args: any): Promise<any> }
 export const client = Client.create({
   transport: custom(provider),
 }).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.wallet.requestAddresses` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const addresses = await Actions.wallet.requestAddresses(client)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+export const client = Client.create({
+  transport: custom(provider),
+})
 ```
 
 :::

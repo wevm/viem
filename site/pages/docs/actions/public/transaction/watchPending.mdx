@@ -6,25 +6,14 @@ The watcher uses a WebSocket / IPC subscription (`eth_subscribe` over `newPendin
 
 ## Usage
 
+This example watches incoming pending transaction hashes, returning a watcher handle.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const watch = client.transaction.watchPending()
-
-watch.onTransactions((hashes) => console.log(hashes))
-// @log: ['0xcfa5...6e93', '0x4ca7...b74d']
-
-// later: stop watching
-watch.off()
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const watch = Actions.transaction.watchPending(client)
 
 watch.onTransactions((hashes) => console.log(hashes))
 // @log: ['0xcfa5...6e93', '0x4ca7...b74d']
@@ -41,6 +30,37 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.transaction.watchPending` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const watch = Actions.transaction.watchPending(client)
+
+watch.onTransactions((hashes) => console.log(hashes))
+// @log: ['0xcfa5...6e93', '0x4ca7...b74d']
+
+// later: stop watching
+watch.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

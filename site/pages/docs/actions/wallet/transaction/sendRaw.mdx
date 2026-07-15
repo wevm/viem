@@ -4,22 +4,14 @@ Sends a **signed** serialized transaction to the network (`eth_sendRawTransactio
 
 ## Usage
 
+This example sends a **signed** serialized transaction to the network (`eth_sendRawTransaction`).
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const hash = await client.transaction.sendRaw({
-  transaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33',
-})
-// @log: '0x...'
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const hash = await Actions.transaction.sendRaw(client, {
   transaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33',
 })
 // @log: '0x...'
@@ -33,6 +25,34 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.transaction.sendRaw` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const hash = await Actions.transaction.sendRaw(client, {
+  transaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33',
+})
+// @log: '0x...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

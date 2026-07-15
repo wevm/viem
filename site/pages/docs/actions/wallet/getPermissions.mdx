@@ -4,19 +4,14 @@ Gets the wallet's current permissions.
 
 ## Usage
 
+This example gets the wallet's current permissions.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const permissions = await client.wallet.getPermissions()
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const permissions = await Actions.wallet.getPermissions(client)
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -27,6 +22,31 @@ declare const provider: { request(...args: any): Promise<any> }
 export const client = Client.create({
   transport: custom(provider),
 }).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.wallet.getPermissions` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const permissions = await Actions.wallet.getPermissions(client)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+export const client = Client.create({
+  transport: custom(provider),
+})
 ```
 
 :::

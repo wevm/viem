@@ -4,22 +4,14 @@ Checks if a contract supports an [ERC-7821](https://eips.ethereum.org/EIPS/eip-7
 
 ## Usage
 
+This example checks if a contract supports an [ERC-7821](https://eips.ethereum.org/EIPS/eip-7821) execution mode.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const supported = await client.erc7821.supportsExecutionMode({
-  address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-})
-// @log: true
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const supported = await Actions.erc7821.supportsExecutionMode(client, {
   address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
 })
 // @log: true
@@ -33,6 +25,34 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(erc7821Actions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.erc7821.supportsExecutionMode` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const supported = await Actions.erc7821.supportsExecutionMode(client, {
+  address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+})
+// @log: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

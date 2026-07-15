@@ -6,34 +6,14 @@ Computes the typed-data sign payload and delegates to [`verifyHash`](/docs/actio
 
 ## Usage
 
+This example verifies that typed data was signed by an address.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const valid = await client.verifyTypedData({
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  domain: {
-    chainId: 1,
-    name: 'Ether Mail',
-    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
-    version: '1',
-  },
-  types: {
-    Mail: [{ name: 'contents', type: 'string' }],
-  },
-  primaryType: 'Mail',
-  message: { contents: 'Hello, Bob!' },
-  signature: '0x…',
-})
-// @log: true
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const valid = await Actions.verifyTypedData(client, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   domain: {
     chainId: 1,
@@ -59,6 +39,46 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.verifyTypedData` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const valid = await Actions.verifyTypedData(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  domain: {
+    chainId: 1,
+    name: 'Ether Mail',
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+    version: '1',
+  },
+  types: {
+    Mail: [{ name: 'contents', type: 'string' }],
+  },
+  primaryType: 'Mail',
+  message: { contents: 'Hello, Bob!' },
+  signature: '0x…',
+})
+// @log: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

@@ -4,39 +4,15 @@ Returns a list of event logs emitted by a contract.
 
 ## Usage
 
+This example returns a list of event logs emitted by a contract.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { Abis } from 'viem/utils'
 import { client } from './viem.config'
 
 const logs = await client.contract.getLogs({
-  abi: Abis.erc20,
-  eventName: 'Transfer',
-})
-// @log: [
-// @log:   {
-// @log:     address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
-// @log:     args: { from: '0xd8da...', to: '0xa5cc...', value: 420n },
-// @log:     blockHash: '0xabe6...01a4',
-// @log:     blockNumber: 19760236n,
-// @log:     data: '0x0000...01a4',
-// @log:     eventName: 'Transfer',
-// @log:     logIndex: 271,
-// @log:     removed: false,
-// @log:     topics: ['0xddf2...b3ef', '0x0000...d8da', '0x0000...a5cc'],
-// @log:     transactionHash: '0xcfa5...6e93',
-// @log:     transactionIndex: 145,
-// @log:   },
-// @log: ]
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { Abis } from 'viem/utils'
-import { client } from './viem.config'
-
-const logs = await Actions.contract.getLogs(client, {
   abi: Abis.erc20,
   eventName: 'Transfer',
 })
@@ -65,6 +41,50 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.contract.getLogs` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { Abis } from 'viem/utils'
+import { client } from './viem.config'
+
+const logs = await Actions.contract.getLogs(client, {
+  abi: Abis.erc20,
+  eventName: 'Transfer',
+})
+// @log: [
+// @log:   {
+// @log:     address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
+// @log:     args: { from: '0xd8da...', to: '0xa5cc...', value: 420n },
+// @log:     blockHash: '0xabe6...01a4',
+// @log:     blockNumber: 19760236n,
+// @log:     data: '0x0000...01a4',
+// @log:     eventName: 'Transfer',
+// @log:     logIndex: 271,
+// @log:     removed: false,
+// @log:     topics: ['0xddf2...b3ef', '0x0000...d8da', '0x0000...a5cc'],
+// @log:     transactionHash: '0xcfa5...6e93',
+// @log:     transactionIndex: 145,
+// @log:   },
+// @log: ]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

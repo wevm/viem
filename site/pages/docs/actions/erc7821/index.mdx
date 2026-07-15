@@ -4,28 +4,14 @@
 
 **ERC-7821 Actions** execute call batches through a contract that implements the [ERC-7821](https://eips.ethereum.org/EIPS/eip-7821) minimal batch executor interface, such as a delegated [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) account. They encode the calls for the contract's `execute` function, check the requested execution mode is supported, and send the transaction.
 
-Attach [`erc7821Actions`](#erc7821actions) to a Client to call them as methods, or call each action standalone by passing a Client as the first argument from the `Actions` namespace:
+Attach [`erc7821Actions`](#erc7821actions) to a Client to call them as methods:
 
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const hash = await client.erc7821.execute({
-  address: client.account.address,
-  calls: [
-    { data: '0xdeadbeef', to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' },
-    { to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', value: 69420n },
-  ],
-})
-// @log: '0x9d2478f5cb1d21ac4153dbe5da9700e106a06d1cf1b957554fcd51de26eec4ae'
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const hash = await Actions.erc7821.execute(client, {
   address: client.account.address,
   calls: [
     { data: '0xdeadbeef', to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' },
@@ -44,6 +30,39 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(erc7821Actions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.erc7821.execute` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const hash = await Actions.erc7821.execute(client, {
+  address: client.account.address,
+  calls: [
+    { data: '0xdeadbeef', to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' },
+    { to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', value: 69420n },
+  ],
+})
+// @log: '0x9d2478f5cb1d21ac4153dbe5da9700e106a06d1cf1b957554fcd51de26eec4ae'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

@@ -6,20 +6,14 @@ Falls back to [`requestAddresses`](/docs/actions/wallet/requestAddresses) (`eth_
 
 ## Usage
 
+This example connects to wallet accounts with optional capabilities.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const { accounts } = await client.wallet.connect()
-// @log: [{ address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', capabilities: {} }]
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const { accounts } = await Actions.wallet.connect(client)
 // @log: [{ address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', capabilities: {} }]
 ```
 
@@ -31,6 +25,32 @@ declare const provider: { request(...args: any): Promise<any> }
 export const client = Client.create({
   transport: custom(provider),
 }).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.wallet.connect` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const { accounts } = await Actions.wallet.connect(client)
+// @log: [{ address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', capabilities: {} }]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+export const client = Client.create({
+  transport: custom(provider),
+})
 ```
 
 :::

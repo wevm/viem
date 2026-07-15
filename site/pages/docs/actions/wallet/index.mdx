@@ -9,25 +9,14 @@ Wallet Actions work with both kinds of Accounts:
 - A [JSON-RPC Account](/docs/accounts/json-rpc) defers to the wallet (for example, a browser extension) over a [`custom` transport](/docs/transports/custom).
 - A [Local Account](/docs/accounts) signs locally (for example, with a private key) and broadcasts over any transport.
 
-Attach [`walletActions`](#walletactions) to a Client to call them as methods, or call each action standalone by passing a Client as the first argument from the `Actions` namespace:
+Attach [`walletActions`](#walletactions) to a Client to call them as methods:
 
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const hash = await client.transaction.send({
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1n,
-})
-// @log: '0x9d2478f5cb1d21ac4153dbe5da9700e106a06d1cf1b957554fcd51de26eec4ae'
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const hash = await Actions.transaction.send(client, {
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1n,
 })
@@ -43,6 +32,36 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.transaction.send` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const hash = await Actions.transaction.send(client, {
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: '0x9d2478f5cb1d21ac4153dbe5da9700e106a06d1cf1b957554fcd51de26eec4ae'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

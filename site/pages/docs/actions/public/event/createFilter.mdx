@@ -6,26 +6,15 @@ Poll the filter with [`Actions.filter.getChanges`](/docs/actions/public/filter/g
 
 ## Usage
 
+This example creates a filter to listen for new event logs.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { AbiEvent } from 'viem/utils'
 import { client } from './viem.config'
 
 const filter = await client.event.createFilter({
-  event: AbiEvent.from(
-    'event Transfer(address indexed from, address indexed to, uint256 value)',
-  ),
-})
-// @log: { abiEvent: [...], id: '0x...', request: ƒ, strict: false, type: 'event' }
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { AbiEvent } from 'viem/utils'
-import { client } from './viem.config'
-
-const filter = await Actions.event.createFilter(client, {
   event: AbiEvent.from(
     'event Transfer(address indexed from, address indexed to, uint256 value)',
   ),
@@ -41,6 +30,37 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.event.createFilter` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { AbiEvent } from 'viem/utils'
+import { client } from './viem.config'
+
+const filter = await Actions.event.createFilter(client, {
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
+})
+// @log: { abiEvent: [...], id: '0x...', request: ƒ, strict: false, type: 'event' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

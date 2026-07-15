@@ -4,19 +4,14 @@ Requests for the wallet to show information about a call batch that was sent via
 
 ## Usage
 
+This example asks the wallet to display the status of a call batch.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 await client.wallet.showCallsStatus({ id: '0xdeadbeef' })
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-await Actions.wallet.showCallsStatus(client, { id: '0xdeadbeef' })
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -27,6 +22,31 @@ declare const provider: { request(...args: any): Promise<any> }
 export const client = Client.create({
   transport: custom(provider),
 }).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.wallet.showCallsStatus` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+await Actions.wallet.showCallsStatus(client, { id: '0xdeadbeef' })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+export const client = Client.create({
+  transport: custom(provider),
+})
 ```
 
 :::

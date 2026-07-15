@@ -4,22 +4,14 @@ Modifies (overrides) the nonce of an account.
 
 ## Usage
 
+This example modifies (overrides) the nonce of an account.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 await client.address.setNonce({
-  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  nonce: 420,
-})
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-await Actions.address.setNonce(client, {
   address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   nonce: 420,
 })
@@ -33,6 +25,34 @@ export const client = Client.create({
   chain: anvil,
   transport: http(),
 }).extend(testActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.address.setNonce` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+await Actions.address.setNonce(client, {
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  nonce: 420,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+})
 ```
 
 :::

@@ -4,19 +4,14 @@ Extracts capabilities that a connected wallet supports (e.g. paymasters, session
 
 ## Usage
 
+This example gets the capabilities supported by a connected wallet.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const capabilities = await client.wallet.getCapabilities()
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const capabilities = await Actions.wallet.getCapabilities(client)
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -27,6 +22,31 @@ declare const provider: { request(...args: any): Promise<any> }
 export const client = Client.create({
   transport: custom(provider),
 }).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.wallet.getCapabilities` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const capabilities = await Actions.wallet.getCapabilities(client)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+export const client = Client.create({
+  transport: custom(provider),
+})
 ```
 
 :::

@@ -4,9 +4,11 @@ Creates an EIP-2930 access list covering the storage a transaction touches (`eth
 
 ## Usage
 
+This example creates an EIP-2930 access list covering the storage a transaction touches (`eth_createAccessList`).
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const { accessList, gasUsed } = await client.transaction.createAccessList({
@@ -26,7 +28,25 @@ const { accessList, gasUsed } = await client.transaction.createAccessList({
 // @log: }
 ```
 
-```ts twoslash [Standalone]
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.transaction.createAccessList` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
@@ -51,13 +71,13 @@ const { accessList, gasUsed } = await Actions.transaction.createAccessList(
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http, publicActions } from 'viem'
+import { Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 export const client = Client.create({
   chain: mainnet,
   transport: http(),
-}).extend(publicActions())
+})
 ```
 
 :::

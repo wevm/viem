@@ -4,22 +4,14 @@ Resets the fork back to its original state.
 
 ## Usage
 
+This example resets the fork back to its original state.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 await client.state.reset({
-  blockNumber: 19_868_020n,
-  jsonRpcUrl: 'https://eth.merkle.io',
-})
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-await Actions.state.reset(client, {
   blockNumber: 19_868_020n,
   jsonRpcUrl: 'https://eth.merkle.io',
 })
@@ -33,6 +25,34 @@ export const client = Client.create({
   chain: anvil,
   transport: http(),
 }).extend(testActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.state.reset` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+await Actions.state.reset(client, {
+  blockNumber: 19_868_020n,
+  jsonRpcUrl: 'https://eth.merkle.io',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+})
 ```
 
 :::

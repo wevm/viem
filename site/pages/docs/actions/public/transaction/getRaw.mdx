@@ -4,22 +4,14 @@ Returns the raw, serialized transaction for a given transaction hash.
 
 ## Usage
 
+This example returns the raw, serialized transaction for a given transaction hash.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const rawTransaction = await client.transaction.getRaw({
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
-})
-// @log: '0x02f8d4018307d45c843b9aca0085070e98ce8383…'
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const rawTransaction = await Actions.transaction.getRaw(client, {
   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
 })
 // @log: '0x02f8d4018307d45c843b9aca0085070e98ce8383…'
@@ -33,6 +25,34 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.transaction.getRaw` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const rawTransaction = await Actions.transaction.getRaw(client, {
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+})
+// @log: '0x02f8d4018307d45c843b9aca0085070e98ce8383…'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

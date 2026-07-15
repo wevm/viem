@@ -6,26 +6,14 @@ Local Accounts broadcast via `eth_sendRawTransactionSync`. JSON-RPC Accounts bro
 
 ## Usage
 
+This example creates, signs, and sends a new transaction to the network synchronously, and returns the transaction receipt.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const receipt = await client.transaction.sendSync({
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1n,
-})
-// @log: {
-// @log:   status: 'success',
-// @log:   transactionHash: '0x...',
-// @log: }
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const receipt = await Actions.transaction.sendSync(client, {
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1n,
 })
@@ -44,6 +32,39 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.transaction.sendSync` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const receipt = await Actions.transaction.sendSync(client, {
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: {
+// @log:   status: 'success',
+// @log:   transactionHash: '0x...',
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

@@ -4,22 +4,14 @@ Modifies the bytecode stored at an account's address.
 
 ## Usage
 
+This example modifies the bytecode stored at an account's address.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 await client.address.setCode({
-  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  bytecode: '0x60806040',
-})
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-await Actions.address.setCode(client, {
   address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   bytecode: '0x60806040',
 })
@@ -33,6 +25,34 @@ export const client = Client.create({
   chain: anvil,
   transport: http(),
 }).extend(testActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.address.setCode` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+await Actions.address.setCode(client, {
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  bytecode: '0x60806040',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+})
 ```
 
 :::

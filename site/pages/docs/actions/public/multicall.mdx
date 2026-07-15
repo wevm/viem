@@ -6,38 +6,14 @@ Calls execute via `eth_simulateV1` by default. On nodes without support (and wit
 
 ## Usage
 
+This example simulates execution of a batch of calls, returning typed per-call results.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const { results } = await client.multicall({
-  account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
-  calls: [
-    {
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-      value: 1n,
-    },
-    {
-      data: '0xdeadbeef',
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-    },
-  ],
-})
-// @log: {
-// @log:   block: { number: 23139774n, ... },
-// @log:   results: [
-// @log:     { data: '0x', gasUsed: 21000n, logs: [], result: null, status: 'success' },
-// @log:     { data: '0x', gasUsed: 21070n, logs: [], result: null, status: 'success' },
-// @log:   ],
-// @log: }
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const { results } = await Actions.multicall(client, {
   account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
   calls: [
     {
@@ -67,6 +43,50 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 }).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.multicall` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const { results } = await Actions.multicall(client, {
+  account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    },
+    {
+      data: '0xdeadbeef',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    },
+  ],
+})
+// @log: {
+// @log:   block: { number: 23139774n, ... },
+// @log:   results: [
+// @log:     { data: '0x', gasUsed: 21000n, logs: [], result: null, status: 'success' },
+// @log:     { data: '0x', gasUsed: 21070n, logs: [], result: null, status: 'success' },
+// @log:   ],
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 ```
 
 :::

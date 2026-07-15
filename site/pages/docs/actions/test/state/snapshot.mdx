@@ -4,20 +4,14 @@ Snapshots the state of the blockchain at the current block.
 
 ## Usage
 
+This example snapshots the state of the blockchain at the current block.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const result = await client.state.snapshot()
-// @log: '0x1'
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const result = await Actions.state.snapshot(client)
 // @log: '0x1'
 ```
 
@@ -29,6 +23,32 @@ export const client = Client.create({
   chain: anvil,
   transport: http(),
 }).extend(testActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.state.snapshot` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const result = await Actions.state.snapshot(client)
+// @log: '0x1'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+})
 ```
 
 :::

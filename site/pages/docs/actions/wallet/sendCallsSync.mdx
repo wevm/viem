@@ -6,27 +6,14 @@ This is a convenience action that combines [`sendCalls`](/docs/actions/wallet/se
 
 ## Usage
 
+This example sends a batch of calls and waits for their receipts.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const status = await client.wallet.sendCallsSync({
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  calls: [
-    {
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-      value: 69420n,
-    },
-  ],
-})
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const status = await Actions.wallet.sendCallsSync(client, {
   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   calls: [
     {
@@ -45,6 +32,39 @@ declare const provider: { request(...args: any): Promise<any> }
 export const client = Client.create({
   transport: custom(provider),
 }).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.wallet.sendCallsSync` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const status = await Actions.wallet.sendCallsSync(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 69420n,
+    },
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+export const client = Client.create({
+  transport: custom(provider),
+})
 ```
 
 :::

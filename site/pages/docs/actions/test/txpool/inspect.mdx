@@ -4,27 +4,14 @@ Returns a textual summary of all transactions currently pending for inclusion in
 
 ## Usage
 
+This example gets a textual summary of pending and queued transactions.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const result = await client.txpool.inspect()
-// @log: {
-// @log:   pending: {
-// @log:     '0xa0cf798816d4b9b9866b5330eea46a18382f251e': {
-// @log:       '42': '0x...: 1 wei + 21000 gas × 1 wei',
-// @log:     },
-// @log:   },
-// @log:   queued: {},
-// @log: }
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const result = await Actions.txpool.inspect(client)
 // @log: {
 // @log:   pending: {
 // @log:     '0xa0cf798816d4b9b9866b5330eea46a18382f251e': {
@@ -43,6 +30,39 @@ export const client = Client.create({
   chain: anvil,
   transport: http(),
 }).extend(testActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.txpool.inspect` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const result = await Actions.txpool.inspect(client)
+// @log: {
+// @log:   pending: {
+// @log:     '0xa0cf798816d4b9b9866b5330eea46a18382f251e': {
+// @log:       '42': '0x...: 1 wei + 21000 gas × 1 wei',
+// @log:     },
+// @log:   },
+// @log:   queued: {},
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+})
 ```
 
 :::

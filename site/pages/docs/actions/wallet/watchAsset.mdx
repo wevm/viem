@@ -4,26 +4,14 @@ Adds an EVM token to the wallet's watchlist so its balance is tracked.
 
 ## Usage
 
+This example adds an EVM token to the wallet's watchlist so its balance is tracked.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const success = await client.wallet.watchAsset({
-  type: 'ERC20',
-  options: {
-    address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-    decimals: 18,
-    symbol: 'WETH',
-  },
-})
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const success = await Actions.wallet.watchAsset(client, {
   type: 'ERC20',
   options: {
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -41,6 +29,38 @@ declare const provider: { request(...args: any): Promise<any> }
 export const client = Client.create({
   transport: custom(provider),
 }).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.wallet.watchAsset` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const success = await Actions.wallet.watchAsset(client, {
+  type: 'ERC20',
+  options: {
+    address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    decimals: 18,
+    symbol: 'WETH',
+  },
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+export const client = Client.create({
+  transport: custom(provider),
+})
 ```
 
 :::

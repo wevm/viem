@@ -4,20 +4,14 @@ Serializes the current state (contract code, contract storage, account propertie
 
 ## Usage
 
+This example serializes the current state (contract code, contract storage, account properties, etc.) into a savable data blob.
+
 :::code-group
 
-```ts twoslash [Decorator]
+```ts twoslash [example.ts]
 import { client } from './viem.config'
 
 const result = await client.state.dump()
-// @log: '0x1f8b08000000000000ff...'
-```
-
-```ts twoslash [Standalone]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const result = await Actions.state.dump(client)
 // @log: '0x1f8b08000000000000ff...'
 ```
 
@@ -29,6 +23,32 @@ export const client = Client.create({
   chain: anvil,
   transport: http(),
 }).extend(testActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.state.dump` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const result = await Actions.state.dump(client)
+// @log: '0x1f8b08000000000000ff...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+})
 ```
 
 :::
