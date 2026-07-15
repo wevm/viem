@@ -1,3 +1,8 @@
+import { erc20Abi } from 'abitype/abis'
+
+/** [ERC-20](https://eips.ethereum.org/EIPS/eip-20) Token Standard ABI. */
+export const erc20 = erc20Abi
+
 /** [ERC-721](https://eips.ethereum.org/EIPS/eip-721) Non-Fungible Token Standard ABI. */
 export const erc721 = [
   {

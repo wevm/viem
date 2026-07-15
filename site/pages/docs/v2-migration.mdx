@@ -457,7 +457,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `EntryPointVersion` | `EntryPoint.Version` | [User Operations](#user-operations) |
 | `erc1155Abi` | `Abis.erc1155` | [Utilities: ABI](#abi) |
 | `erc20Abi_bytes32` | Removed; inline the bytes32 overrides | [Utilities: ABI](#abi) |
-| `erc20Abi` | `erc20Abi` (from `abitype/abis`) | [Utilities: ABI](#abi) |
+| `erc20Abi` | `Abis.erc20` | [Utilities: ABI](#abi) |
 | `erc4626Abi` | `Abis.erc4626` | [Utilities: ABI](#abi) |
 | `erc6492MagicBytes` | `SignatureErc6492.magicBytes` | [Signatures & Keys](#signatures--keys) |
 | `erc6492SignatureValidatorAbi` | `SignatureErc6492.universalSignatureValidatorAbi` | [Utilities: ABI](#abi) |
@@ -2745,12 +2745,12 @@ import { parseAbiParameter, type ParseAbi, type ResolvedRegister } from 'abitype
 
 Internal ABI type-plumbing helpers were removed without public replacements. Compose from `abitype` primitives or use the owning function's namespace types.
 
-Preset ABI constants moved: ERC-20 to `abitype/abis`, the ERC-6492 validator ABI to `SignatureErc6492`, and the ERC-721/ERC-1155/ERC-4626 definitions to the `Abis` namespace.
+Preset ABI constants moved into domain namespaces: ERC-20/ERC-721/ERC-1155/ERC-4626 to `Abis`, and the ERC-6492 validator ABI to `SignatureErc6492`.
 
 | v2 | v3 |
 | --- | --- |
 | `erc1155Abi` | `Abis.erc1155` |
-| `erc20Abi` | `erc20Abi` (from `abitype/abis`) |
+| `erc20Abi` | `Abis.erc20` |
 | `erc4626Abi` | `Abis.erc4626` |
 | `erc6492SignatureValidatorAbi` | `SignatureErc6492.universalSignatureValidatorAbi` |
 | `erc721Abi` | `Abis.erc721` |
