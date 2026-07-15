@@ -1,5 +1,7 @@
 export { buildInitiateWithdrawal } from './buildInitiateWithdrawal.js'
 export { depositTransaction } from './depositTransaction.js'
+/** Errors thrown by L1 Actions. */
+export * as Errors from './Errors.js'
 export { estimateDepositTransactionGas } from './estimateDepositTransactionGas.js'
 export { estimateFinalizeWithdrawalGas } from './estimateFinalizeWithdrawalGas.js'
 export { estimateProveWithdrawalGas } from './estimateProveWithdrawalGas.js'

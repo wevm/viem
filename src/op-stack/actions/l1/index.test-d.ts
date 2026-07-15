@@ -56,3 +56,19 @@ test('buildInitiateWithdrawal preserves an account override', async () => {
   )
   expectTypeOf(resultWithoutAccount.account).toEqualTypeOf<undefined>()
 })
+
+test('exports errors under Actions.l1.Errors', () => {
+  expectTypeOf(
+    new Actions.l1.Errors.GameSequenceNotFoundError(),
+  ).toEqualTypeOf<Actions.l1.Errors.GameSequenceNotFoundError>()
+  expectTypeOf(
+    new Actions.l1.Errors.WithdrawalNotProvenError(),
+  ).toEqualTypeOf<Actions.l1.Errors.WithdrawalNotProvenError>()
+  expectTypeOf(
+    new Actions.l1.Errors.WithdrawalPreparationError(),
+  ).toEqualTypeOf<Actions.l1.Errors.WithdrawalPreparationError>()
+
+  type FlatErrorKey = Extract<keyof typeof Actions.l1, `${string}Error`>
+
+  expectTypeOf<FlatErrorKey>().toEqualTypeOf<never>()
+})

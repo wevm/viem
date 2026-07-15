@@ -307,21 +307,21 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `assertTransactionEIP1559` | `TxEnvelopeEip1559.assert` | [Utilities: Transactions](#transactions-1) |
 | `assertTransactionEIP2930` | `TxEnvelopeEip2930.assert` | [Utilities: Transactions](#transactions-1) |
 | `assertTransactionLegacy` | `TxEnvelopeLegacy.assert` | [Utilities: Transactions](#transactions-1) |
-| `AtomicityNotSupportedError` | `Errors.wallet.AtomicityNotSupportedError` | [Action & Transport Errors](#action--transport-errors) |
+| `AtomicityNotSupportedError` | `Actions.wallet.Errors.AtomicityNotSupportedError` | [Action & Transport Errors](#action--transport-errors) |
 | `AtomicReadyWalletRejectedUpgradeError` | `Provider.AtomicReadyWalletRejectedUpgradeError` | [RPC Errors](#rpc-errors) |
 | `BaseError` | `Errors.BaseError` | [Errors](#errors) |
-| `BaseFeeScalarError` | `Errors.fee.BaseFeeScalarError` | [Action & Transport Errors](#action--transport-errors) |
+| `BaseFeeScalarError` | `Actions.fee.Errors.BaseFeeScalarError` | [Action & Transport Errors](#action--transport-errors) |
 | `BlobSidecar` / `BlobSidecars` | `TxEnvelopeEip4844.Sidecars` (struct of arrays) | [Blobs](#blobs) |
 | `blobsToCommitments` | `Blobs.toCommitments` | [Blobs](#blobs) |
 | `blobsToProofs` | `Blobs.toCellProofs` | [Blobs](#blobs) |
-| `BlockNotFoundError` | `Errors.block.NotFoundError` | [Action & Transport Errors](#action--transport-errors) |
+| `BlockNotFoundError` | `Actions.block.Errors.BlockNotFoundError` | [Action & Transport Errors](#action--transport-errors) |
 | `BlockNumber` | `Block.Number` | [Type Exports](#type-exports) |
 | `BlockOverrides` (type) | `BlockOverrides` namespace (`toRpc` conversions) | [Block & Log](#block--log) |
 | `BlockTag` | `Block.Tag` | [Type Exports](#type-exports) |
 | `boolToBytes` | `Bytes.fromBoolean` | [Encoding & Units](#encoding--units) |
 | `boolToHex` | `Hex.fromBoolean` | [Encoding & Units](#encoding--units) |
 | `buildRequest` | Internalized; compose at the Client or Transport boundary | [Subpath Entrypoints](#subpath-entrypoints) |
-| `BundleFailedError` | `Errors.wallet.BundleFailedError` | [Action & Transport Errors](#action--transport-errors) |
+| `BundleFailedError` | `Actions.wallet.Errors.BundleFailedError` | [Action & Transport Errors](#action--transport-errors) |
 | `bundlerActions` | `accountAbstractionActions()` | [AA: Actions & Decorators](#actions--decorators) |
 | `BundlerActions` | `AccountAbstractionActions` | [AA: Actions & Decorators](#actions--decorators) |
 | `bundlerClient.getChainId` | `Actions.chains.getId(bundlerClient)` (core action) | [AA: Actions & Decorators](#actions--decorators) |
@@ -430,7 +430,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `EIP1193ProviderRpcError` | `Provider.ProviderRpcError` | [RPC Errors](#rpc-errors) |
 | `EIP1193RequestOptions` | Removed; second parameter of `Transport.RequestFn` | [Type Exports](#type-exports) |
 | `EIP1474Methods` | Removed | [Type Exports](#type-exports) |
-| `Eip1559FeesNotSupportedError` | `Errors.fee.Eip1559FeesNotSupportedError` | [Action & Transport Errors](#action--transport-errors) |
+| `Eip1559FeesNotSupportedError` | `Actions.fee.Errors.Eip1559FeesNotSupportedError` | [Action & Transport Errors](#action--transport-errors) |
 | `eip5792Actions` | `walletActions()` | [Wallet & Capabilities](#wallet--capabilities) |
 | `encodeAbiParameters` | `AbiParameters.encode` | [Utilities: ABI](#abi) |
 | `encodeCalls` | `Calls.encode` (from `ox/erc7821`) | [ERC-7821](#erc-7821) |
@@ -442,10 +442,10 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `encodeFunctionData` | `AbiFunction.encodeData` (positional) | [Utilities: ABI](#abi) |
 | `encodeFunctionResult` | `AbiFunction.encodeResult` (positional) | [Utilities: ABI](#abi) |
 | `english` | `Mnemonic.english` | [Accounts](#accounts) |
-| `EnsAvatarInvalidMetadataError` | `Errors.ens.AvatarInvalidMetadataError` | [Action & Transport Errors](#action--transport-errors) |
-| `EnsAvatarInvalidNftUriError` | `Errors.ens.AvatarInvalidNftUriError` | [Action & Transport Errors](#action--transport-errors) |
-| `EnsAvatarUnsupportedNamespaceError` | `Errors.ens.AvatarUnsupportedNamespaceError` | [Action & Transport Errors](#action--transport-errors) |
-| `EnsAvatarUriResolutionError` | `Errors.ens.AvatarUriResolutionError` | [Action & Transport Errors](#action--transport-errors) |
+| `EnsAvatarInvalidMetadataError` | `Actions.ens.Errors.EnsAvatarInvalidMetadataError` | [Action & Transport Errors](#action--transport-errors) |
+| `EnsAvatarInvalidNftUriError` | `Actions.ens.Errors.EnsAvatarInvalidNftUriError` | [Action & Transport Errors](#action--transport-errors) |
+| `EnsAvatarUnsupportedNamespaceError` | `Actions.ens.Errors.EnsAvatarUnsupportedNamespaceError` | [Action & Transport Errors](#action--transport-errors) |
+| `EnsAvatarUriResolutionError` | `Actions.ens.Errors.EnsAvatarUriResolutionError` | [Action & Transport Errors](#action--transport-errors) |
 | `entryPoint06Abi` | `EntryPoint.abiV06` | [User Operations](#user-operations) |
 | `entryPoint06Address` | `EntryPoint.addressV06` | [User Operations](#user-operations) |
 | `entryPoint07Abi` | `EntryPoint.abiV07` | [User Operations](#user-operations) |
@@ -478,7 +478,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `etherUnits` / `gweiUnits` / `weiUnits` | `Value.exponents` | [Encoding & Units](#encoding--units) |
 | `execute` | `Actions.erc7821.execute` | [ERC-7821](#erc-7821) |
 | `executeBatches` | `Actions.erc7821.executeBatches` | [ERC-7821](#erc-7821) |
-| `ExecuteUnsupportedError` | `Errors.erc7821.ExecuteUnsupportedError` | [ERC-7821](#erc-7821) |
+| `ExecuteUnsupportedError` | `Actions.erc7821.Errors.ExecuteUnsupportedError` | [ERC-7821](#erc-7821) |
 | `ExecutionRevertedError` | `RpcError.ExecutionRevertedError` | [RPC Errors](#rpc-errors) |
 | `experimental_blockTag` (client option) | `blockTag` | [Client](#client) |
 | `experimental_preconfirmationTime` (chain field) | `preconfirmationTime` | [Chains](#chains) |
@@ -526,7 +526,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `fromBlobs` | `Blobs.to(blobs, 'Hex')` | [Blobs](#blobs) |
 | `fromBytes` | Typed `Bytes.to*` variants (e.g. `Bytes.toString`) | [Encoding & Units](#encoding--units) |
 | `fromRlp` | `Rlp.toHex` | [Encoding & Units](#encoding--units) |
-| `FunctionSelectorNotRecognizedError` | `Errors.erc7821.FunctionSelectorNotRecognizedError` | [ERC-7821](#erc-7821) |
+| `FunctionSelectorNotRecognizedError` | `Actions.erc7821.Errors.FunctionSelectorNotRecognizedError` | [ERC-7821](#erc-7821) |
 | `generateMnemonic` | `Mnemonic.random` (options bag) | [Accounts](#accounts) |
 | `generatePrivateKey` | `Secp256k1.randomPrivateKey` | [Accounts](#accounts) |
 | `generateSiweNonce` | `Siwe.generateNonce` | [Messages & ENS](#messages--ens) |
@@ -695,7 +695,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `LocalAccount` | `Account.Local` | [Accounts](#accounts) |
 | `LogTopic` | `Filter.Topic` | [Utilities: ABI](#abi) |
 | `mainnetTrustedSetupPath` | `Paths.mainnet` (from `viem/node`) | [Node](#node) |
-| `MaxFeePerGasTooLowError` | `Errors.transaction.MaxFeePerGasTooLowError` | [Action & Transport Errors](#action--transport-errors) |
+| `MaxFeePerGasTooLowError` | `Actions.transaction.Errors.MaxFeePerGasTooLowError` | [Action & Transport Errors](#action--transport-errors) |
 | `maxInt256` | `Solidity.maxInt256` (all integer bounds on `Solidity`) | [Utilities: ABI](#abi) |
 | `maxUint256` | `Solidity.maxUint256` | [Utilities: ABI](#abi) |
 | `MethodNotFoundRpcError` | `RpcResponse.MethodNotFoundError` | [RPC Errors](#rpc-errors) |
@@ -932,8 +932,8 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `ToWebAuthnAccountParameters` | `WebAuthnAccount.from.Options` | [Smart Accounts](#smart-accounts) |
 | `ToWebAuthnAccountReturnType` | `WebAuthnAccount.from.ReturnType` | [Smart Accounts](#smart-accounts) |
 | `TransactionExecutionError` | `RpcError.ExecutionError` | [RPC Errors](#rpc-errors) |
-| `TransactionNotFoundError` | `Errors.transaction.NotFoundError` | [Action & Transport Errors](#action--transport-errors) |
-| `TransactionReceiptNotFoundError` | `Errors.transactionReceipt.NotFoundError` | [Action & Transport Errors](#action--transport-errors) |
+| `TransactionNotFoundError` | `Actions.transaction.Errors.TransactionNotFoundError` | [Action & Transport Errors](#action--transport-errors) |
+| `TransactionReceiptNotFoundError` | `Actions.transaction.Errors.TransactionReceiptNotFoundError` | [Action & Transport Errors](#action--transport-errors) |
 | `TransactionRejectedRpcError` | `RpcResponse.TransactionRejectedError` | [RPC Errors](#rpc-errors) |
 | `transactionType` | `Transaction.fromRpcType` | [Utilities: Transactions](#transactions-1) |
 | `TransactionTypeNotSupportedError` | `RpcError.TransactionTypeNotSupportedError` | [RPC Errors](#rpc-errors) |
@@ -951,7 +951,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `UnknownBundleIdError` | `Provider.UnknownBundleIdError` | [RPC Errors](#rpc-errors) |
 | `UnknownNodeError` | `RpcError.UnknownRpcError` | [RPC Errors](#rpc-errors) |
 | `UnsupportedChainIdError` | `Provider.UnsupportedChainIdError` | [RPC Errors](#rpc-errors) |
-| `UnsupportedNonOptionalCapabilityError` | `Errors.wallet.UnsupportedNonOptionalCapabilityError` | [Action & Transport Errors](#action--transport-errors) |
+| `UnsupportedNonOptionalCapabilityError` | `Actions.wallet.Errors.UnsupportedNonOptionalCapabilityError` | [Action & Transport Errors](#action--transport-errors) |
 | `UnsupportedPackedAbiType` | `AbiParameters.InvalidTypeError` | [Contract & ABI Errors](#contract--abi-errors) |
 | `UnsupportedProviderMethodError` | `Provider.UnsupportedMethodError` | [RPC Errors](#rpc-errors) |
 | `UserOperation` (type) | `UserOperation.UserOperation` (explicit signed parameter) | [User Operations](#user-operations) |
@@ -969,9 +969,9 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `verifyTypedData` | `Actions.verifyTypedData` | [Signing & Verification](#signing--verification) |
 | `viem/package.json` | Removed (not exported) | [Subpath Entrypoints](#subpath-entrypoints) |
 | `waitForCallsStatus` | `Actions.wallet.waitForCallsStatus` | [Wallet & Capabilities](#wallet--capabilities) |
-| `WaitForCallsStatusTimeoutError` | `Errors.wallet.WaitForCallsStatusTimeoutError` | [Action & Transport Errors](#action--transport-errors) |
+| `WaitForCallsStatusTimeoutError` | `Actions.wallet.Errors.WaitForCallsStatusTimeoutError` | [Action & Transport Errors](#action--transport-errors) |
 | `waitForTransactionReceipt` | `Actions.transaction.waitForReceipt` (returns handle) | [Actions: Transactions](#transactions) |
-| `WaitForTransactionReceiptTimeoutError` | `Errors.transaction.WaitForReceiptTimeoutError` | [Action & Transport Errors](#action--transport-errors) |
+| `WaitForTransactionReceiptTimeoutError` | `Actions.transaction.Errors.WaitForReceiptTimeoutError` | [Action & Transport Errors](#action--transport-errors) |
 | `waitForUserOperationReceipt` | `Actions.userOperation.waitForReceipt` | [AA: Actions & Decorators](#actions--decorators) |
 | `WaitForUserOperationReceiptParameters` | `Actions.userOperation.waitForReceipt.Options` | [AA: Actions & Decorators](#actions--decorators) |
 | `WalletActions` | `walletActions.Decorator` | [Client](#client) |
@@ -1948,11 +1948,11 @@ type Decorator = Erc7821Actions // [!code --]
 type Decorator = erc7821Actions.Decorator // [!code ++]
 ```
 
-ERC-7821 codecs moved to Ox, actions moved to `Actions.erc7821`, and errors moved to `Errors.erc7821`, while `getExecuteError` became internal.
+ERC-7821 codecs moved to Ox, while actions and errors moved to `Actions.erc7821`. The `getExecuteError` utility became internal.
 
 ```ts
 import { Calls, Execute } from 'ox/erc7821' // [!code ++]
-import { Actions, Errors } from 'viem' // [!code ++]
+import { Actions } from 'viem' // [!code ++]
 
 encodeCalls(calls) // [!code --]
 encodeExecuteData({ calls }) // [!code --]
@@ -1962,8 +1962,8 @@ getExecuteError(error, options) // [!code --]
 Calls.encode(calls) // [!code ++]
 Execute.encodeData(calls) // [!code ++]
 Execute.encodeBatchOfBatchesData(batches) // [!code ++]
-Errors.erc7821.ExecuteUnsupportedError // [!code ++]
-Errors.erc7821.FunctionSelectorNotRecognizedError // [!code ++]
+Actions.erc7821.Errors.ExecuteUnsupportedError // [!code ++]
+Actions.erc7821.Errors.FunctionSelectorNotRecognizedError // [!code ++]
 // Error normalization is internal. // [!code ++]
 ```
 
@@ -2119,25 +2119,25 @@ Serialization, signature, and RLP errors moved to their owning namespaces:
 
 ### Action & Transport Errors
 
-Stable action errors moved from the package root into semantic `Errors` namespaces:
+Stable action errors moved from the package root into an `Errors` namespace under their owning Action domain:
 
 | v2 | v3 |
 | --- | --- |
-| `AtomicityNotSupportedError` | `Errors.wallet.AtomicityNotSupportedError` |
-| `BaseFeeScalarError` | `Errors.fee.BaseFeeScalarError` |
-| `BlockNotFoundError` | `Errors.block.NotFoundError` |
-| `BundleFailedError` | `Errors.wallet.BundleFailedError` |
-| `Eip1559FeesNotSupportedError` | `Errors.fee.Eip1559FeesNotSupportedError` |
-| `EnsAvatarInvalidMetadataError` | `Errors.ens.AvatarInvalidMetadataError` |
-| `EnsAvatarInvalidNftUriError` | `Errors.ens.AvatarInvalidNftUriError` |
-| `EnsAvatarUnsupportedNamespaceError` | `Errors.ens.AvatarUnsupportedNamespaceError` |
-| `EnsAvatarUriResolutionError` | `Errors.ens.AvatarUriResolutionError` |
-| `MaxFeePerGasTooLowError` | `Errors.transaction.MaxFeePerGasTooLowError` |
-| `TransactionNotFoundError` | `Errors.transaction.NotFoundError` |
-| `TransactionReceiptNotFoundError` | `Errors.transactionReceipt.NotFoundError` |
-| `UnsupportedNonOptionalCapabilityError` | `Errors.wallet.UnsupportedNonOptionalCapabilityError` |
-| `WaitForCallsStatusTimeoutError` | `Errors.wallet.WaitForCallsStatusTimeoutError` |
-| `WaitForTransactionReceiptTimeoutError` | `Errors.transaction.WaitForReceiptTimeoutError` |
+| `AtomicityNotSupportedError` | `Actions.wallet.Errors.AtomicityNotSupportedError` |
+| `BaseFeeScalarError` | `Actions.fee.Errors.BaseFeeScalarError` |
+| `BlockNotFoundError` | `Actions.block.Errors.BlockNotFoundError` |
+| `BundleFailedError` | `Actions.wallet.Errors.BundleFailedError` |
+| `Eip1559FeesNotSupportedError` | `Actions.fee.Errors.Eip1559FeesNotSupportedError` |
+| `EnsAvatarInvalidMetadataError` | `Actions.ens.Errors.EnsAvatarInvalidMetadataError` |
+| `EnsAvatarInvalidNftUriError` | `Actions.ens.Errors.EnsAvatarInvalidNftUriError` |
+| `EnsAvatarUnsupportedNamespaceError` | `Actions.ens.Errors.EnsAvatarUnsupportedNamespaceError` |
+| `EnsAvatarUriResolutionError` | `Actions.ens.Errors.EnsAvatarUriResolutionError` |
+| `MaxFeePerGasTooLowError` | `Actions.transaction.Errors.MaxFeePerGasTooLowError` |
+| `TransactionNotFoundError` | `Actions.transaction.Errors.TransactionNotFoundError` |
+| `TransactionReceiptNotFoundError` | `Actions.transaction.Errors.TransactionReceiptNotFoundError` |
+| `UnsupportedNonOptionalCapabilityError` | `Actions.wallet.Errors.UnsupportedNonOptionalCapabilityError` |
+| `WaitForCallsStatusTimeoutError` | `Actions.wallet.Errors.WaitForCallsStatusTimeoutError` |
+| `WaitForTransactionReceiptTimeoutError` | `Actions.transaction.Errors.WaitForReceiptTimeoutError` |
 
 Transport request errors moved to `RpcClient`. WebSocket failures now use socket, timeout, or matching RPC response errors.
 

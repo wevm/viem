@@ -1,0 +1,4 @@
+export { MaxFeePerGasTooLowError } from './prepare.js'
+export { TransactionNotFoundError } from './get.js'
+export { TransactionReceiptNotFoundError } from './getReceipt.js'
+export { WaitForReceiptTimeoutError } from './waitForReceipt.js'

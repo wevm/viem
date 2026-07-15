@@ -1,4 +1,6 @@
 export { createFilter } from './createFilter.js'
+/** Errors thrown by Block Actions. */
+export * as Errors from './Errors.js'
 export { get } from './get.js'
 export { getAutomine } from './test/getAutomine.js'
 export { getNumber } from './getNumber.js'

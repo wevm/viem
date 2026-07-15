@@ -74,3 +74,19 @@ test('buildProveWithdrawal preserves account and chain overrides', async () => {
   expectTypeOf(resultFromClient.targetChain).toEqualTypeOf<typeof optimism>()
   Actions.l1.proveWithdrawal(client, resultFromClient)
 })
+
+test('exports errors under Actions.l2.Errors', () => {
+  expectTypeOf(
+    new Actions.l2.Errors.StorageProofNotFoundError(),
+  ).toEqualTypeOf<Actions.l2.Errors.StorageProofNotFoundError>()
+  expectTypeOf(
+    new Actions.l2.Errors.TimestampMismatchError({
+      blockTimestamp: 1n,
+      gameTimestamp: 2n,
+    }),
+  ).toEqualTypeOf<Actions.l2.Errors.TimestampMismatchError>()
+
+  type FlatErrorKey = Extract<keyof typeof Actions.l2, `${string}Error`>
+
+  expectTypeOf<FlatErrorKey>().toEqualTypeOf<never>()
+})

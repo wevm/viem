@@ -1,5 +1,7 @@
 export { createAccessList } from './createAccessList.js'
 export { createPendingFilter } from './createPendingFilter.js'
+/** Errors thrown by Transaction Actions. */
+export * as Errors from './Errors.js'
 export { estimateGas } from './estimateGas.js'
 export { fill } from './fill.js'
 export { get } from './get.js'

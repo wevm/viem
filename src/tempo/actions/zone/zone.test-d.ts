@@ -195,4 +195,16 @@ describe('zone action types', () => {
     expectTypeOf<Actions.zone.PreparedEncryptedDeposit>().not.toBeAny()
     expectTypeOf<Actions.zone.PreparedEncryptedDepositRecipient>().not.toBeAny()
   })
+
+  test('error exports', () => {
+    expectTypeOf(
+      new Actions.zone.Errors.WaitForDepositStatusTimeoutError({
+        tempoBlockNumber: 1n,
+      }),
+    ).toEqualTypeOf<Actions.zone.Errors.WaitForDepositStatusTimeoutError>()
+
+    type FlatErrorKey = Extract<keyof typeof Actions.zone, `${string}Error`>
+
+    expectTypeOf<FlatErrorKey>().toEqualTypeOf<never>()
+  })
 })

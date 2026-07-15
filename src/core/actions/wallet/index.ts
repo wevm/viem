@@ -1,5 +1,7 @@
 export { connect } from './connect.js'
 export { disconnect } from './disconnect.js'
+/** Errors thrown by Wallet Actions. */
+export * as Errors from './Errors.js'
 export { getAddresses } from './getAddresses.js'
 export { getAssets } from './getAssets.js'
 export { getCallsStatus } from './getCallsStatus.js'

@@ -3,6 +3,8 @@ export { deposit } from './deposit.js'
 export { depositSync } from './depositSync.js'
 export { encryptedDeposit } from './encryptedDeposit.js'
 export { encryptedDepositSync } from './encryptedDepositSync.js'
+/** Errors thrown by Zone Actions. */
+export * as Errors from './Errors.js'
 export { getAuthorizationTokenInfo } from './getAuthorizationTokenInfo.js'
 export { getDepositStatus } from './getDepositStatus.js'
 export { getEncryptionKey } from './getEncryptionKey.js'

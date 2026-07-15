@@ -1,5 +1,7 @@
 export { buildDepositTransaction } from './buildDepositTransaction.js'
 export { buildProveWithdrawal } from './buildProveWithdrawal.js'
+/** Errors thrown by L2 Actions. */
+export * as Errors from './Errors.js'
 export { estimateContractL1Fee } from './estimateContractL1Fee.js'
 export { estimateContractL1Gas } from './estimateContractL1Gas.js'
 export { estimateContractTotalFee } from './estimateContractTotalFee.js'
