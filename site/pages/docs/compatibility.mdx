@@ -1,0 +1,75 @@
+---
+description: Platforms, runtime APIs, and entrypoints supported by Viem.
+---
+
+# Platform Compatibility
+
+Viem targets modern ESM runtimes. The package declares Node.js `>=24.5` and includes integration
+tests for Bun, Next.js, Node.js, and Vite.
+
+## Supported Platforms
+
+| Platform | Support | Notes |
+| --- | --- | --- |
+| Modern browsers | Supported | Current Chrome, Edge, Firefox, and Safari releases with the required Web APIs. |
+| Node.js | `>=24.5` | Matches the package `engines` requirement. |
+| Bun | Supported | Covered by the Viem runtime environment tests. |
+| Next.js | Supported | Covered by the Viem framework integration tests. |
+| Vite | Supported | Covered by the Viem browser integration tests. |
+| Deno | npm/ESM compatibility | Install from npm with `deno add viem`. See the compatibility caveat below. |
+
+:::warning
+Deno support is based on its npm and ESM compatibility and is not currently covered by Viem v3
+continuous integration. Test your application against its target Deno release.
+:::
+
+Deno restricts network access by default. Grant only the RPC hosts your application needs with
+[`--allow-net`](https://docs.deno.com/runtime/reference/permissions/).
+
+## Runtime APIs
+
+The APIs Viem needs depend on the modules and transports your application uses.
+
+| API | Usage |
+| --- | --- |
+| `BigInt` | Ethereum quantities, balances, fees, and block numbers. |
+| `TextEncoder` and `TextDecoder` | String, byte, and hexadecimal encoding. |
+| `fetch`, `Headers`, and `Response` | HTTP JSON-RPC, offchain reads, and fetched metadata. |
+| `AbortController` and `AbortSignal` | Request cancellation and timeouts. |
+| `crypto.getRandomValues` | Random keys and bytes. |
+
+Modern browsers, Node.js `>=24.5`, Bun, and current Deno releases provide these APIs. A different
+runtime must provide standards-compatible implementations for the features it uses.
+
+## Feature Requirements
+
+### WebSocket Transport
+
+The [`webSocket`](/docs/transports/websocket) transport requires a global `WebSocket`
+implementation. Modern browsers, Node.js `>=24.5`, Bun, and Deno provide one.
+
+### WebAuthn and Web Crypto
+
+Browser passkey creation and signing require `navigator.credentials`, `PublicKeyCredential`, and a
+[secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts). Support
+varies by browser and authenticator. See the
+[Web Authentication API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API)
+compatibility data before choosing passkey features.
+
+Features that use Web Crypto P256 or encryption also require `globalThis.crypto.subtle`.
+
+## Runtime Entrypoints
+
+| Entrypoint | Purpose |
+| --- | --- |
+| `viem` | Portable Clients, Actions, transports, accounts, chains, and types. |
+| `viem/node` | Node.js IPC transport and trusted setup helpers. Do not import it into browser bundles. |
+| `viem/window` | TypeScript augmentation for `window.ethereum`. It does not install a wallet provider at runtime. |
+
+Import `viem/window` once when a browser TypeScript project needs the injected provider typed:
+
+```ts
+import 'viem/window'
+
+window.ethereum?.request({ method: 'eth_chainId' })
+```

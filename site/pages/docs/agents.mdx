@@ -1,0 +1,72 @@
+---
+description: Connect coding agents to the Viem MCP server for current documentation and source code.
+---
+
+# AI Agents
+
+## Overview
+
+Connect the Viem MCP server to give coding agents direct access to current Viem documentation and
+source code. The server is read-only, uses Streamable HTTP at
+[`https://viem.sh/api/mcp`](https://viem.sh/api/mcp), and requires no authentication.
+
+Agents can search and read the documentation, then inspect source across Viem, Wagmi, Ox, and
+Tempo.
+
+## Set Up the Viem MCP Server
+
+::::steps
+
+### Add the Server
+
+Choose your coding agent, or copy the setup prompt into another agent.
+
+:::code-group
+
+```text [Prompt]
+Set up the Viem MCP server for this coding agent. Use `https://viem.sh/api/mcp` as a user-level Streamable HTTP server named `viem`, then verify the connection. No authentication is required.
+```
+
+```bash [Codex]
+codex mcp add viem --url https://viem.sh/api/mcp
+```
+
+```bash [Claude Code]
+claude mcp add --transport http --scope user viem https://viem.sh/api/mcp
+```
+
+```json [Cursor]
+{
+  "mcpServers": {
+    "viem": {
+      "url": "https://viem.sh/api/mcp"
+    }
+  }
+}
+```
+
+:::
+
+### Start a New Session
+
+Start a new agent session after adding the server. If the Codex desktop app or IDE extension is
+already open, restart it. In Codex or Claude Code, run `/mcp` to confirm that `viem` is connected.
+
+### Test the Connection
+
+Ask your agent to use both the documentation and source tools:
+
+```text
+Use the Viem MCP server to find how to read a smart contract, then inspect the implementation of Actions.contract.read.
+```
+
+::::
+
+## Available Tools
+
+| Resource | Tools |
+| --- | --- |
+| Documentation | `list_pages`, `read_page`, `search_docs` |
+| Source code | `list_sources`, `list_source_files`, `read_source_file`, `get_file_tree`, `search_source` |
+
+All tools are read-only. They do not modify repositories, wallets, or onchain state.

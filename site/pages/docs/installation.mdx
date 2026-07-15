@@ -1,0 +1,110 @@
+---
+description: Install Viem with a package manager, CDN, preview build, or source checkout.
+---
+
+# Installation
+
+Install Viem with your package manager for version locking, type declarations, and tree shaking.
+For small prototypes, you can also load Viem from an ESM CDN.
+
+## Package Manager
+
+:::code-group
+
+```bash [pnpm]
+pnpm add viem
+```
+
+```bash [npm]
+npm install viem
+```
+
+```bash [Yarn]
+yarn add viem
+```
+
+```bash [Bun]
+bun add viem
+```
+
+```bash [Deno]
+deno add viem
+```
+
+:::
+
+Unprefixed package names resolve to npm packages in current Deno releases. See the
+[`deno add` reference](https://docs.deno.com/runtime/reference/cli/add/) for configuration options.
+
+## CDN
+
+Use an ESM-compatible CDN such as [esm.sh](https://esm.sh) when a package manager is not
+available. Pin the Viem major version in the URL to avoid unexpected breaking changes.
+
+```html
+<script type="module">
+  import { Actions, Client, http } from 'https://esm.sh/viem@3'
+  import { mainnet } from 'https://esm.sh/viem@3/chains'
+
+  const client = Client.create({
+    chain: mainnet,
+    transport: http(),
+  })
+
+  const blockNumber = await Actions.block.getNumber(client)
+  console.log(blockNumber)
+</script>
+```
+
+## Preview Releases
+
+Pull requests and commits are published through [pkg.pr.new](https://pkg.pr.new). Copy the
+install URL from the pull request or workflow output, or replace `123` below with a pull request
+number or short commit ID.
+
+:::code-group
+
+```bash [pnpm]
+pnpm add https://pkg.pr.new/viem@123
+```
+
+```bash [npm]
+npm install https://pkg.pr.new/viem@123
+```
+
+```bash [Yarn]
+yarn add https://pkg.pr.new/viem@123
+```
+
+```bash [Bun]
+bun add https://pkg.pr.new/viem@123
+```
+
+:::
+
+Preview packages are temporary and may contain unreviewed changes. Use a stable release in
+production.
+
+## Contribute from Source
+
+Clone the repository with its submodules, then install and build the workspace with the versions
+specified in `package.json`.
+
+```bash
+git clone https://github.com/wevm/viem.git --recurse-submodules
+cd viem
+pnpm install
+pnpm build
+```
+
+Read the [contribution guide](https://github.com/wevm/viem/blob/main/.github/CONTRIBUTING.md)
+before proposing an API or implementation change.
+
+## Security
+
+- Commit your lockfile, review dependency changes, and audit upgrades before deployment.
+- Pin production versions and consider a package-manager release-age policy, such as
+  [npm `min-release-age`](https://docs.npmjs.com/cli/v11/using-npm/config#min-release-age) or
+  [pnpm `minimumReleaseAge`](https://pnpm.io/settings#minimumreleaseage).
+- Avoid preview packages and floating CDN URLs in production. Restrict CDN origins with a
+  [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP).

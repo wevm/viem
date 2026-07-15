@@ -1,0 +1,138 @@
+---
+description: Answers to common questions about Viem's v3 API design and migration.
+---
+
+# Frequently Asked Questions
+
+## Why Does Viem Use Module Namespaces?
+
+Module namespaces keep runtime functions, types, and errors beside the concept that owns them. For
+example, [`Actions.block.getNumber`](/docs/actions/public/block/getNumber) is accompanied by
+`Actions.block.getNumber.Options`, `Actions.block.getNumber.ReturnType`, and
+`Actions.block.getNumber.ErrorType`.
+
+The same pattern applies to [Accounts](/docs/accounts), [Clients](/docs/clients), and the Ox-backed
+utilities exported from `viem/utils`. This structure avoids collisions between similarly named APIs
+and makes the package easier to explore through editor autocomplete.
+
+## Should I Use Standalone Actions or Decorators?
+
+Prefer standalone [Actions](/docs/actions) when you want dependencies to remain explicit, especially
+in shared functions and libraries. Pass the Client as the first argument:
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const blockNumber = await Actions.block.getNumber(client)
+// @log: 19868020n
+```
+
+Use a decorator when an application repeatedly uses the same group of Actions and benefits from
+shorter method calls:
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const blockNumber = await client.block.getNumber()
+// @log: 19868020n
+```
+
+[`publicActions`](/docs/actions/public) and the other decorators bind the same Action
+implementations and preserve the Client's chain, Account, and transport types.
+
+## What Are Wallets, Accounts, and Signers?
+
+A **wallet** is software or hardware that manages Accounts and often exposes a JSON-RPC provider.
+An [Account](/docs/accounts) is Viem's value for the Ethereum identity used by signing Actions. A
+Local Account signs in your process, while a JSON-RPC Account delegates signing to a provider such
+as a browser wallet.
+
+**Signer** is a common ecosystem term, not a separate Viem abstraction. Represent signing authority
+as an Account, then pass it to a Client or directly to an Action.
+
+```ts twoslash
+import { Account } from 'viem'
+
+const localAccount = Account.fromPrivateKey('0x...')
+const jsonRpcAccount = Account.from(
+  '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+)
+```
+
+See [Local Accounts](/docs/accounts/local/private-key),
+[JSON-RPC Accounts](/docs/accounts/json-rpc), and [Wallet Actions](/docs/actions/wallet) for the
+corresponding setup patterns.
+
+## Why Are Contract Arguments Positional?
+
+Contract calls encode inputs in ABI order. Parameter names may be missing or duplicated, so Viem
+represents function arguments as a typed tuple instead of an object keyed by those names.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from([
+  'function allowance(address owner, address spender) view returns (uint256)',
+])
+
+const allowance = await Actions.contract.read(client, {
+  abi,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  args: [
+    '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    '0x0000000000000000000000000000000000000001',
+  ],
+  functionName: 'allowance',
+})
+// @log: 1000000n
+```
+
+TypeScript infers the tuple's length and each position from the ABI. A Solidity tuple or struct
+remains one value within that ordered argument list.
+
+## Why Are Multiple Return Values Arrays?
+
+Multiple top-level contract outputs also follow ABI order. Viem returns them as an inferred tuple,
+even when the ABI supplies output names, so adding or removing labels does not change the runtime
+shape. Destructure the values by position:
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from([
+  'function reserves() view returns (uint256 reserve0, uint256 reserve1)',
+])
+
+const reserves = await Actions.contract.read(client, {
+  abi,
+  address: '0x0000000000000000000000000000000000000001',
+  functionName: 'reserves',
+})
+// @log: [1000000n, 2000000n]
+
+const [reserve0, reserve1] = reserves
+```
+
+Single return values are returned directly rather than wrapped in a one-element array.
+
+## How Do I Migrate from v2?
+
+Follow the [v2 Migration Guide](/docs/v2-migration) for package entrypoints and before-and-after
+examples. Start with Client construction, standalone Actions and decorators, the Account model, and
+Ox-backed utility namespaces, then use TypeScript errors to find application-specific call-shape
+changes.

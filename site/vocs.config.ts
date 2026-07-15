@@ -41,6 +41,9 @@ export default defineConfig({
   titleTemplate: '%s · Viem',
   description:
     'Build reliable Ethereum apps & libraries with lightweight, composable, & type-safe modules from viem.',
+  head: {
+    style: [{ textContent: 'strong[data-v] { font-weight: 500; }' }],
+  },
   editLink: {
     link: 'https://github.com/wevm/viem/edit/main/site/pages/:path',
     text: 'Suggest changes to this page',
@@ -68,6 +71,18 @@ export default defineConfig({
     {
       source: '/v2-migration',
       destination: '/docs/v2-migration',
+      status: 308,
+    },
+
+    // Introduction pages moved.
+    {
+      source: '/docs/introduction',
+      destination: '/docs/why-viem',
+      status: 308,
+    },
+    {
+      source: '/docs/getting-started',
+      destination: '/docs',
       status: 308,
     },
 
@@ -246,7 +261,18 @@ export default defineConfig({
   },
   sidebar: {
     '/docs': [
-      { text: 'Migrating from v2', link: '/docs/v2-migration' },
+      {
+        text: 'Introduction',
+        items: [
+          { text: 'Why Viem', link: '/docs/why-viem' },
+          { text: 'Getting Started', link: '/docs' },
+          { text: 'Installation', link: '/docs/installation' },
+          { text: 'Platform Compatibility', link: '/docs/compatibility' },
+          { text: 'AI Agents', link: '/docs/agents' },
+          { text: 'FAQ', link: '/docs/faq' },
+          { text: 'Migrating from v2', link: '/docs/v2-migration' },
+        ],
+      },
       {
         text: 'Clients & Transports',
         collapsed: false,
@@ -1161,10 +1187,18 @@ export default defineConfig({
                 link: '/tokens/tempo/changeTransferPolicy',
               },
               { text: 'create', link: '/tokens/tempo/create' },
+              {
+                text: 'getRoleAdmin',
+                link: '/tokens/tempo/getRoleAdmin',
+              },
               { text: 'grantRoles', link: '/tokens/tempo/grantRoles' },
               { text: 'hasRole', link: '/tokens/tempo/hasRole' },
               { text: 'mint', link: '/tokens/tempo/mint' },
               { text: 'pause', link: '/tokens/tempo/pause' },
+              {
+                text: 'prepareUpdateQuoteToken',
+                link: '/tokens/tempo/prepareUpdateQuoteToken',
+              },
               {
                 text: 'renounceRoles',
                 link: '/tokens/tempo/renounceRoles',
@@ -1182,6 +1216,30 @@ export default defineConfig({
                 link: '/tokens/tempo/setSupplyCap',
               },
               { text: 'unpause', link: '/tokens/tempo/unpause' },
+              {
+                text: 'updateQuoteToken',
+                link: '/tokens/tempo/updateQuoteToken',
+              },
+              {
+                text: 'watchAdminRole',
+                link: '/tokens/tempo/watchAdminRole',
+              },
+              {
+                text: 'watchApprove',
+                link: '/tokens/tempo/watchApprove',
+              },
+              { text: 'watchBurn', link: '/tokens/tempo/watchBurn' },
+              { text: 'watchCreate', link: '/tokens/tempo/watchCreate' },
+              { text: 'watchMint', link: '/tokens/tempo/watchMint' },
+              { text: 'watchRole', link: '/tokens/tempo/watchRole' },
+              {
+                text: 'watchTransfer',
+                link: '/tokens/tempo/watchTransfer',
+              },
+              {
+                text: 'watchUpdateQuoteToken',
+                link: '/tokens/tempo/watchUpdateQuoteToken',
+              },
             ],
           },
         ],
@@ -2026,12 +2084,14 @@ export default defineConfig({
   topNav: [
     { text: 'Docs', link: '/docs' },
     { text: 'Tokens', link: '/tokens', match: '/tokens' },
-    {
-      text: 'Account Abstraction',
-      link: '/account-abstraction',
-      match: '/account-abstraction',
-    },
     { text: 'Tempo', link: '/tempo', match: '/tempo' },
+    {
+      text: 'Extensions',
+      items: [
+        { text: 'Account Abstraction', link: '/account-abstraction' },
+        { text: 'OP Stack', link: '/op-stack' },
+      ],
+    },
     {
       text: pkg.version,
       items: [

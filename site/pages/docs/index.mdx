@@ -1,1 +1,140 @@
-# TODO
+---
+description: Install Viem, create a Client, and read data from Ethereum.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Getting Started
+
+## Overview
+
+Viem is a TypeScript interface for Ethereum. It provides typed, composable building blocks for
+Clients, Transports, Accounts, Actions, and protocol utilities.
+
+This guide installs Viem, creates a [Client](/docs/clients), and reads the latest block number. See
+[Why Viem](/docs/why-viem) for the design principles behind the library.
+
+## Quick Prompt
+
+Paste this prompt into your coding agent:
+
+```text
+Read viem.sh and help me build my project with Viem. Add https://viem.sh/api/mcp as an MCP server.
+```
+
+## Quick Start
+
+::::steps
+
+### Install Viem
+
+Install Viem with your package manager.
+
+:::code-group
+
+```bash [pnpm]
+pnpm add viem
+```
+
+```bash [npm]
+npm install viem
+```
+
+```bash [Yarn]
+yarn add viem
+```
+
+```bash [Bun]
+bun add viem
+```
+
+:::
+
+See [Installation](/docs/installation) for Deno, CDN, and preview-release options.
+
+### Create a Client
+
+Create a [Client](/docs/clients) with a [Chain](/docs/chains) and an HTTP
+[Transport](/docs/transports/http).
+
+```ts twoslash filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::info
+`http()` uses the Chain's public RPC URL. Use an authenticated RPC URL in production to avoid
+public rate limits.
+:::
+
+### Read the Latest Block Number
+
+Call [`Actions.block.getNumber`](/docs/actions/public/block/getNumber) by passing the Client as its
+first argument. To use Actions as Client methods, extend the Client with a decorator such as
+[`publicActions`](/docs/actions/public).
+
+:::code-group
+
+```ts twoslash [Standalone]
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+
+const blockNumber = await Actions.block.getNumber(client)
+// @log: 22_000_000n
+```
+
+```ts twoslash [Decorator]
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const blockNumber = await client.block.getNumber()
+// @log: 22_000_000n
+```
+
+:::
+
+::::
+
+## Next Steps
+
+<Cards>
+  <Card
+    title="Installation"
+    description="Install Viem across package managers and runtime environments."
+    icon="lucide:package"
+    to="/docs/installation"
+  />
+  <Card
+    title="Clients"
+    description="Compose Chains, Transports, Accounts, and Actions."
+    icon="lucide:boxes"
+    to="/docs/clients"
+  />
+  <Card
+    title="Actions"
+    description="Read chain state, connect wallets, and send transactions."
+    icon="lucide:zap"
+    to="/docs/actions"
+  />
+  <Card
+    title="Chains"
+    description="Use a built-in Chain or define your own."
+    icon="lucide:blocks"
+    to="/docs/chains"
+  />
+</Cards>

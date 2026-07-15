@@ -56,3 +56,166 @@ Client.
     to="/tokens/actions/transfer"
   />
 </Cards>
+
+## TIP-20 Actions
+
+Tempo Clients expose the shared Token Actions above and these additional TIP-20 Actions.
+
+### Read Actions
+
+<Cards>
+  <Card
+    icon="lucide:badge-info"
+    title="token.getRoleAdmin"
+    description="Reads the admin role that controls a TIP-20 role."
+    to="/tokens/tempo/getRoleAdmin"
+  />
+  <Card
+    icon="lucide:badge-info"
+    title="token.hasRole"
+    description="Checks whether an account has a TIP-20 role."
+    to="/tokens/tempo/hasRole"
+  />
+</Cards>
+
+### Write Actions
+
+<Cards>
+  <Card
+    icon="lucide:coins"
+    title="token.burn"
+    description="Burns TIP-20 tokens from the caller's balance."
+    to="/tokens/tempo/burn"
+  />
+  <Card
+    icon="lucide:coins"
+    title="token.burnBlocked"
+    description="Burns TIP-20 tokens from a blocked address."
+    to="/tokens/tempo/burnBlocked"
+  />
+  <Card
+    icon="lucide:coins"
+    title="token.changeTransferPolicy"
+    description="Changes the transfer policy for a TIP-20 token."
+    to="/tokens/tempo/changeTransferPolicy"
+  />
+  <Card
+    icon="lucide:coins"
+    title="token.create"
+    description="Creates a TIP-20 token."
+    to="/tokens/tempo/create"
+  />
+  <Card
+    icon="lucide:coins"
+    title="token.grantRoles"
+    description="Grants roles for a TIP-20 token."
+    to="/tokens/tempo/grantRoles"
+  />
+  <Card
+    icon="lucide:coins"
+    title="token.mint"
+    description="Mints TIP-20 tokens to an address."
+    to="/tokens/tempo/mint"
+  />
+  <Card
+    icon="lucide:coins"
+    title="token.pause"
+    description="Pauses transfers for a TIP-20 token."
+    to="/tokens/tempo/pause"
+  />
+  <Card
+    icon="lucide:coins"
+    title="token.prepareUpdateQuoteToken"
+    description="Prepares a quote token update for a TIP-20 token."
+    to="/tokens/tempo/prepareUpdateQuoteToken"
+  />
+  <Card
+    icon="lucide:coins"
+    title="token.renounceRoles"
+    description="Removes TIP-20 roles from the caller."
+    to="/tokens/tempo/renounceRoles"
+  />
+  <Card
+    icon="lucide:coins"
+    title="token.revokeRoles"
+    description="Revokes roles for a TIP-20 token."
+    to="/tokens/tempo/revokeRoles"
+  />
+  <Card
+    icon="lucide:coins"
+    title="token.setRoleAdmin"
+    description="Sets the admin role for a TIP-20 role."
+    to="/tokens/tempo/setRoleAdmin"
+  />
+  <Card
+    icon="lucide:coins"
+    title="token.setSupplyCap"
+    description="Sets the supply cap for a TIP-20 token."
+    to="/tokens/tempo/setSupplyCap"
+  />
+  <Card
+    icon="lucide:coins"
+    title="token.unpause"
+    description="Resumes transfers for a TIP-20 token."
+    to="/tokens/tempo/unpause"
+  />
+  <Card
+    icon="lucide:coins"
+    title="token.updateQuoteToken"
+    description="Completes a prepared quote token update."
+    to="/tokens/tempo/updateQuoteToken"
+  />
+</Cards>
+
+### Event Actions
+
+<Cards>
+  <Card
+    icon="lucide:radio"
+    title="token.watchAdminRole"
+    description="Watches TIP-20 role admin updates."
+    to="/tokens/tempo/watchAdminRole"
+  />
+  <Card
+    icon="lucide:radio"
+    title="token.watchApprove"
+    description="Watches TIP-20 approval events."
+    to="/tokens/tempo/watchApprove"
+  />
+  <Card
+    icon="lucide:radio"
+    title="token.watchBurn"
+    description="Watches TIP-20 burn events."
+    to="/tokens/tempo/watchBurn"
+  />
+  <Card
+    icon="lucide:radio"
+    title="token.watchCreate"
+    description="Watches TIP-20 token creation events."
+    to="/tokens/tempo/watchCreate"
+  />
+  <Card
+    icon="lucide:radio"
+    title="token.watchMint"
+    description="Watches TIP-20 mint events."
+    to="/tokens/tempo/watchMint"
+  />
+  <Card
+    icon="lucide:radio"
+    title="token.watchRole"
+    description="Watches TIP-20 role membership updates."
+    to="/tokens/tempo/watchRole"
+  />
+  <Card
+    icon="lucide:radio"
+    title="token.watchTransfer"
+    description="Watches TIP-20 transfer events."
+    to="/tokens/tempo/watchTransfer"
+  />
+  <Card
+    icon="lucide:radio"
+    title="token.watchUpdateQuoteToken"
+    description="Watches TIP-20 quote token update events."
+    to="/tokens/tempo/watchUpdateQuoteToken"
+  />
+</Cards>
