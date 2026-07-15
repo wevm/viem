@@ -49,7 +49,12 @@ export declare namespace NonceManager {
  * import { NonceManager } from 'viem'
  *
  * const nonceManager = NonceManager.from({
- *   source: NonceManager.jsonRpc(),
+ *   source: {
+ *     get() {
+ *       return 0
+ *     },
+ *     set() {},
+ *   },
  * })
  * ```
  */
@@ -124,30 +129,27 @@ export declare namespace from {
 }
 
 /**
- * Creates a JSON-RPC source for a {@link NonceManager} that reads the pending
- * nonce via `eth_getTransactionCount`.
+ * Creates a {@link NonceManager} backed by a JSON-RPC source that reads the
+ * pending nonce via `eth_getTransactionCount`.
  *
  * @example
  * ```ts
  * import { NonceManager } from 'viem'
  *
- * const source = NonceManager.jsonRpc()
+ * const nonceManager = NonceManager.jsonRpc()
  * ```
  */
-export function jsonRpc(): NonceManager.Source {
-  return {
-    async get(options) {
-      const { address, client } = options
-      return getTransactionCount(client, {
-        address,
-        blockTag: 'pending',
-      })
+export function jsonRpc(): NonceManager {
+  return from({
+    source: {
+      async get(options) {
+        const { address, client } = options
+        return getTransactionCount(client, {
+          address,
+          blockTag: 'pending',
+        })
+      },
+      set() {},
     },
-    set() {},
-  }
+  })
 }
-
-/** Default {@link NonceManager} backed by a JSON-RPC source. */
-export const nonceManager: NonceManager = /*#__PURE__*/ from({
-  source: /*#__PURE__*/ jsonRpc(),
-})

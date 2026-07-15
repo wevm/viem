@@ -4,7 +4,7 @@
 
 A **Nonce Manager** manages and auto-increments transaction nonces for an [Account](/docs/accounts). It tracks a nonce per `(address, chainId)` pair, so multiple transactions can be prepared and broadcast in parallel without nonce collisions.
 
-Create one with [`NonceManager.from`](#noncemanagerfrom), backed by a source that seeds nonces (such as [`NonceManager.jsonRpc`](#noncemanagerjsonrpc), which reads the pending nonce via `eth_getTransactionCount`). A ready-made instance backed by the JSON-RPC source is exported as `NonceManager.nonceManager`.
+Create a JSON-RPC-backed manager with [`NonceManager.jsonRpc`](#noncemanagerjsonrpc), which seeds nonces from the pending transaction count. Use [`NonceManager.from`](#noncemanagerfrom) to provide a custom source.
 
 Attach a nonce manager to a [Local Account](/docs/accounts) and [`transaction.send`](/docs/actions/wallet/transaction/send) consumes nonces from it automatically, or pass one explicitly to [`transaction.fill`](/docs/actions/public/transaction/fill) or [`transaction.prepare`](/docs/actions/public/transaction/prepare).
 
@@ -12,7 +12,7 @@ Attach a nonce manager to a [Local Account](/docs/accounts) and [`transaction.se
 import { Account, NonceManager } from 'viem'
 
 const account = Account.fromPrivateKey('0x...', {
-  nonceManager: NonceManager.nonceManager,
+  nonceManager: NonceManager.jsonRpc(),
 })
 ```
 
@@ -27,7 +27,7 @@ import { Account, Actions, Client, http, NonceManager } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const account = Account.fromPrivateKey('0x...', {
-  nonceManager: NonceManager.nonceManager, // [!code focus]
+  nonceManager: NonceManager.jsonRpc(), // [!code focus]
 })
 
 const client = Client.create({ account, chain: mainnet, transport: http() })
@@ -59,7 +59,7 @@ const client = Client.create({
 })
 
 const request = await Actions.transaction.fill(client, {
-  nonceManager: NonceManager.from({ source: NonceManager.jsonRpc() }), // [!code focus]
+  nonceManager: NonceManager.jsonRpc(), // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1n,
 })
@@ -75,7 +75,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 
-const nonceManager = NonceManager.from({ source: NonceManager.jsonRpc() })
+const nonceManager = NonceManager.jsonRpc()
 
 const nonce = await nonceManager.consume({ // [!code focus]
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
@@ -122,7 +122,12 @@ Creates a nonce manager for auto-incrementing transaction nonces.
 import { NonceManager } from 'viem'
 
 const nonceManager = NonceManager.from({
-  source: NonceManager.jsonRpc(),
+  source: {
+    get() {
+      return 0
+    },
+    set() {},
+  },
 })
 ```
 
@@ -142,7 +147,12 @@ The backing store the nonce manager reads seed nonces from and writes to, as `{ 
 import { NonceManager } from 'viem'
 // ---cut---
 const nonceManager = NonceManager.from({
-  source: NonceManager.jsonRpc(), // [!code focus]
+  source: { // [!code focus]
+    get() { // [!code focus]
+      return 0 // [!code focus]
+    }, // [!code focus]
+    set() {}, // [!code focus]
+  }, // [!code focus]
 })
 ```
 
@@ -161,18 +171,18 @@ Each method identifies the tracked nonce by `{ address, chainId }`.
 
 ## `NonceManager.jsonRpc`
 
-Creates a JSON-RPC source for a nonce manager that reads the pending nonce via `eth_getTransactionCount`.
+Creates a nonce manager backed by a JSON-RPC source that reads the pending nonce via `eth_getTransactionCount`.
 
 ### Usage
 
 ```ts twoslash
 import { NonceManager } from 'viem'
 
-const source = NonceManager.jsonRpc()
+const nonceManager = NonceManager.jsonRpc()
 ```
 
 ### Return Value
 
-`NonceManager.Source`
+`NonceManager`
 
-A source that seeds nonces from the pending transaction count of the address. Writes are no-ops (the chain itself tracks used nonces).
+A nonce manager that seeds nonces from the pending transaction count of the address.

@@ -364,7 +364,7 @@ describe('args', () => {
     const { request } = await Actions.transaction.prepare(chainless, {
       account,
       chainId: 1,
-      nonceManager: NonceManager.from({ source: NonceManager.jsonRpc() }),
+      nonceManager: NonceManager.jsonRpc(),
       to,
       value: 1n,
     })
@@ -1216,7 +1216,7 @@ describe('behavior: fees', () => {
 
 describe('behavior: nonceManager', () => {
   test('nonceManager', async () => {
-    const nonceManager = NonceManager.from({ source: NonceManager.jsonRpc() })
+    const nonceManager = NonceManager.jsonRpc()
 
     const first = await Actions.transaction.prepare(client, {
       account,
@@ -1238,7 +1238,7 @@ describe('behavior: nonceManager', () => {
   })
 
   test('nonceManager (concurrent)', async () => {
-    const nonceManager = NonceManager.from({ source: NonceManager.jsonRpc() })
+    const nonceManager = NonceManager.jsonRpc()
     const options = {
       account,
       nonceManager,
@@ -1287,7 +1287,7 @@ describe('behavior: misc', () => {
     })
     const { request } = await Actions.transaction.prepare(chainless, {
       account,
-      nonceManager: NonceManager.from({ source: NonceManager.jsonRpc() }),
+      nonceManager: NonceManager.jsonRpc(),
       to,
       value: 1n,
     })

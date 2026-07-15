@@ -397,7 +397,7 @@ A nonce manager attached to a Local Account, used to derive and auto-increment t
 import { Account, Actions, Client, http, NonceManager } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const nonceManager = NonceManager.from({ source: NonceManager.jsonRpc() })
+const nonceManager = NonceManager.jsonRpc()
 const account = {
   ...Account.fromPrivateKey('0x…'),
   nonceManager, // [!code focus]

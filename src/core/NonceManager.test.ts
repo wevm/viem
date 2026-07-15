@@ -9,7 +9,7 @@ const address = accounts[0].address
 const chainId = 1
 
 test('default', () => {
-  const manager = NonceManager.from({ source: NonceManager.jsonRpc() })
+  const manager = NonceManager.jsonRpc()
   expect(manager).toMatchInlineSnapshot(`
     {
       "consume": [Function],
@@ -21,13 +21,13 @@ test('default', () => {
 })
 
 test('jsonRpc: get reads pending nonce', async () => {
-  const manager = NonceManager.from({ source: NonceManager.jsonRpc() })
+  const manager = NonceManager.jsonRpc()
   const nonce = await manager.get({ address, chainId, client })
   expect(nonce).toBeTypeOf('number')
 })
 
 test('consume increments sequentially', async () => {
-  const manager = NonceManager.from({ source: NonceManager.jsonRpc() })
+  const manager = NonceManager.jsonRpc()
 
   const base = await manager.get({ address, chainId, client })
   const first = await manager.consume({ address, chainId, client })
@@ -38,7 +38,7 @@ test('consume increments sequentially', async () => {
 })
 
 test('parallel consume returns sequential nonces', async () => {
-  const manager = NonceManager.from({ source: NonceManager.jsonRpc() })
+  const manager = NonceManager.jsonRpc()
 
   const base = await manager.get({ address, chainId, client })
   const nonces = await Promise.all([
@@ -51,7 +51,7 @@ test('parallel consume returns sequential nonces', async () => {
 })
 
 test('increment then get reflects the delta', async () => {
-  const manager = NonceManager.from({ source: NonceManager.jsonRpc() })
+  const manager = NonceManager.jsonRpc()
 
   const base = await manager.get({ address, chainId, client })
   manager.increment({ address, chainId })
@@ -61,7 +61,7 @@ test('increment then get reflects the delta', async () => {
 })
 
 test('reset clears tracked nonce', async () => {
-  const manager = NonceManager.from({ source: NonceManager.jsonRpc() })
+  const manager = NonceManager.jsonRpc()
 
   const base = await manager.get({ address, chainId, client })
   await manager.consume({ address, chainId, client })
@@ -91,11 +91,12 @@ test('custom source: reset clears consumed nonce cache', async () => {
   expect(await manager.consume({ address, chainId, client })).toBe(1)
 })
 
-test('default nonceManager export', async () => {
-  const nonce = await NonceManager.nonceManager.get({
-    address,
-    chainId,
-    client,
-  })
-  expect(nonce).toBeTypeOf('number')
+test('jsonRpc returns independent managers', async () => {
+  const manager = NonceManager.jsonRpc()
+  const other = NonceManager.jsonRpc()
+
+  const base = await manager.consume({ address, chainId, client })
+
+  expect(await manager.get({ address, chainId, client })).toBe(base + 1)
+  expect(await other.get({ address, chainId, client })).toBe(base)
 })

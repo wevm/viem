@@ -120,7 +120,7 @@ describe.each([
 })
 
 test('args: nonceManager', async () => {
-  const nonceManager = NonceManager.from({ source: NonceManager.jsonRpc() })
+  const nonceManager = NonceManager.jsonRpc()
   const base = await nonceManager.get({ address: account, chainId: 1, client })
 
   const { transaction } = await Actions.transaction.fill(client, {
@@ -134,7 +134,7 @@ test('args: nonceManager', async () => {
 })
 
 test('args: account object with nonceManager and chain', async () => {
-  const nonceManager = NonceManager.from({ source: NonceManager.jsonRpc() })
+  const nonceManager = NonceManager.jsonRpc()
   const base = await nonceManager.get({ address: account, chainId: 1, client })
 
   const { transaction } = await Actions.transaction.fill(client, {
@@ -149,7 +149,7 @@ test('args: account object with nonceManager and chain', async () => {
 })
 
 test('behavior: nonceManager not used without account', async () => {
-  const nonceManager = NonceManager.from({ source: NonceManager.jsonRpc() })
+  const nonceManager = NonceManager.jsonRpc()
   const { transaction } = await Actions.transaction.fill(client, {
     data: '0xdeadbeef',
     nonceManager,
@@ -159,7 +159,7 @@ test('behavior: nonceManager not used without account', async () => {
 })
 
 test('behavior: nonceManager not used with explicit nonce', async () => {
-  const nonceManager = NonceManager.from({ source: NonceManager.jsonRpc() })
+  const nonceManager = NonceManager.jsonRpc()
   const { transaction } = await Actions.transaction.fill(client, {
     account,
     data: '0xdeadbeef',

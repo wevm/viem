@@ -548,7 +548,7 @@ test('behavior: eip7702 infers `to` from the authorization list', async () => {
 describe('behavior: nonceManager', () => {
   test('derives the nonce from the account nonce manager', async () => {
     await setup()
-    const nonceManager = NonceManager.from({ source: NonceManager.jsonRpc() })
+    const nonceManager = NonceManager.jsonRpc()
     const account = {
       ...Account.fromPrivateKey(constants.accounts[0].privateKey),
       nonceManager,
@@ -567,7 +567,7 @@ describe('behavior: nonceManager', () => {
 
   test('resets the nonce when the send fails', async () => {
     await setup()
-    const nonceManager = NonceManager.from({ source: NonceManager.jsonRpc() })
+    const nonceManager = NonceManager.jsonRpc()
     const account = {
       ...Account.fromPrivateKey(constants.accounts[3].privateKey),
       nonceManager,

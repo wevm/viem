@@ -473,7 +473,7 @@ describe('behavior: eip7702', () => {
 
 describe('behavior: nonceManager', () => {
   test('derives the nonce from the account nonce manager', async () => {
-    const nonceManager = NonceManager.from({ source: NonceManager.jsonRpc() })
+    const nonceManager = NonceManager.jsonRpc()
     const account = {
       ...Account.fromPrivateKey(constants.accounts[0].privateKey),
       nonceManager,
@@ -492,7 +492,7 @@ describe('behavior: nonceManager', () => {
   })
 
   test('resets the nonce when the send fails', async () => {
-    const nonceManager = NonceManager.from({ source: NonceManager.jsonRpc() })
+    const nonceManager = NonceManager.jsonRpc()
     const account = {
       ...Account.fromPrivateKey(constants.accounts[3].privateKey),
       nonceManager,
@@ -517,7 +517,7 @@ describe('behavior: nonceManager', () => {
       chain: mainnet,
       transport: http(anvil.mainnet.rpcUrl.http),
     })
-    const nonceManager = NonceManager.from({ source: NonceManager.jsonRpc() })
+    const nonceManager = NonceManager.jsonRpc()
     const account = {
       ...Account.fromPrivateKey(constants.accounts[2].privateKey),
       nonceManager,

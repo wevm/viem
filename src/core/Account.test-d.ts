@@ -56,7 +56,7 @@ test('from: accepts an address or existing Account union', () => {
 
 test('local accounts resolve sync (sign returns Hex | Promise<Hex>)', () => {
   const account = Account.fromPrivateKey('0x', {
-    nonceManager: NonceManager.nonceManager,
+    nonceManager: NonceManager.jsonRpc(),
   })
   expectTypeOf(account.type).toEqualTypeOf<'local'>()
   expectTypeOf(account.keyType).toEqualTypeOf<'secp256k1'>()

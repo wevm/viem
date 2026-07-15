@@ -162,10 +162,11 @@ describe('fromPrivateKey', () => {
   })
 
   test('args: nonceManager', () => {
+    const nonceManager = NonceManager.jsonRpc()
     const account = Account.fromPrivateKey(constants.accounts[0].privateKey, {
-      nonceManager: NonceManager.nonceManager,
+      nonceManager,
     })
-    expect(account.nonceManager).toBe(NonceManager.nonceManager)
+    expect(account.nonceManager).toBe(nonceManager)
   })
 
   test('sign', async () => {
@@ -310,10 +311,11 @@ describe('fromHdKey', () => {
   })
 
   test('args: nonceManager', () => {
+    const nonceManager = NonceManager.jsonRpc()
     const account = Account.fromHdKey(hdKey, {
-      nonceManager: NonceManager.nonceManager,
+      nonceManager,
     })
-    expect(account.nonceManager).toBe(NonceManager.nonceManager)
+    expect(account.nonceManager).toBe(nonceManager)
   })
 })
 
@@ -356,10 +358,11 @@ describe('fromMnemonic', () => {
   })
 
   test('args: nonceManager', () => {
+    const nonceManager = NonceManager.jsonRpc()
     const account = Account.fromMnemonic(mnemonic, {
-      nonceManager: NonceManager.nonceManager,
+      nonceManager,
     })
-    expect(account.nonceManager).toBe(NonceManager.nonceManager)
+    expect(account.nonceManager).toBe(nonceManager)
   })
 })
 

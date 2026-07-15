@@ -713,7 +713,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `NetworkSync` | Removed | [Type Exports](#type-exports) |
 | `nonce.getNonce` (tempo) | `nonce.get` | [Tempo](#tempo) |
 | `nonce.watchNonceIncremented` (tempo) | `nonce.watchIncremented` | [Tempo](#tempo) |
-| `nonceManager` | `NonceManager.nonceManager` | [Nonce Manager](#nonce-manager) |
+| `nonceManager` | `NonceManager.jsonRpc()` | [Nonce Manager](#nonce-manager) |
 | `NonceManagerSource` | `NonceManager.Source` | [Nonce Manager](#nonce-manager) |
 | `NonceMaxValueError` | `RpcError.NonceMaxValueError` | [RPC Errors](#rpc-errors) |
 | `NonceTooHighError` | `RpcError.NonceTooHighError` | [RPC Errors](#rpc-errors) |
@@ -2178,7 +2178,7 @@ The `viem/nonce` entrypoint was removed; the `NonceManager` namespace is exporte
 | `createNonceManager({ source })` | `NonceManager.from({ source })` |
 | `CreateNonceManagerParameters` | `NonceManager.from.Options` |
 | `jsonRpc()` | `NonceManager.jsonRpc()` |
-| `nonceManager` | `NonceManager.nonceManager` |
+| `nonceManager` | `NonceManager.jsonRpc()` |
 | `NonceManagerSource` | `NonceManager.Source` |
 
 ```ts
@@ -2186,7 +2186,7 @@ import { createNonceManager, jsonRpc, nonceManager } from 'viem/nonce' // [!code
 import { NonceManager } from 'viem' // [!code ++]
 
 const manager = createNonceManager({ source: jsonRpc() }) // [!code --]
-const manager = NonceManager.from({ source: NonceManager.jsonRpc() }) // [!code ++]
+const manager = NonceManager.jsonRpc() // [!code ++]
 ```
 
 ## Tokens
