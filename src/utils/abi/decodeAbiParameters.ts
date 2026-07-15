@@ -22,7 +22,7 @@ import {
 } from '../cursor.js'
 import { type SizeErrorType, size } from '../data/size.js'
 import { type SliceBytesErrorType, sliceBytes } from '../data/slice.js'
-import { type TrimErrorType, trim } from '../data/trim.js'
+import type { TrimErrorType } from '../data/trim.js'
 import {
   type BytesToBigIntErrorType,
   type BytesToBoolErrorType,
@@ -378,7 +378,7 @@ function decodeString(
   }
 
   const data = cursor.readBytes(length, 32)
-  const value = bytesToString(trim(data))
+  const value = bytesToString(data)
 
   // As we have gone wondering, restore to the original position + next slot.
   cursor.setPosition(staticPosition + 32)

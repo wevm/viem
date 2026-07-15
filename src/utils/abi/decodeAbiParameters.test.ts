@@ -466,6 +466,28 @@ describe('dynamic', () => {
       `,
       )
     })
+
+    test('leading zero bytes (round-trip)', () => {
+      // The ABI length prefix is authoritative, so leading NUL (0x00) bytes
+      // of a string payload must be preserved, not trimmed.
+      for (const value of ['\x00ab', '\x00\x00x', 'a\x00b', '\x00']) {
+        expect(
+          decodeAbiParameters(
+            parseAbiParameters('string'),
+            encodeAbiParameters(parseAbiParameters('string'), [value]),
+          ),
+        ).toEqual([value])
+      }
+    })
+
+    test('leading zero bytes (hand-crafted)', () => {
+      // offset 0x20, length 3, payload 0x00 'a' 'b' right-padded.
+      const result = decodeAbiParameters(
+        parseAbiParameters('string'),
+        '0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000030061620000000000000000000000000000000000000000000000000000000000',
+      )
+      expect(result).toEqual(['\x00ab'])
+    })
   })
 
   describe('string,uint,bool', () => {
