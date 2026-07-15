@@ -1,9 +1,5 @@
 export { buildDepositTransaction } from './buildDepositTransaction.js'
-export {
-  buildProveWithdrawal,
-  StorageProofNotFoundError,
-  TimestampMismatchError,
-} from './buildProveWithdrawal.js'
+export { buildProveWithdrawal } from './buildProveWithdrawal.js'
 export { estimateContractL1Fee } from './estimateContractL1Fee.js'
 export { estimateContractL1Gas } from './estimateContractL1Gas.js'
 export { estimateContractTotalFee } from './estimateContractTotalFee.js'

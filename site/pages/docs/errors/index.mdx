@@ -4,9 +4,14 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-The **Errors** module provides the base error class inherited by every error thrown by Viem, plus configuration for how those errors are attributed.
+The **Errors** module provides the base error class inherited by every error thrown by Viem,
+domain-grouped Action errors, and configuration for how those errors are attributed.
 
-`Errors.BaseError` extends ox's `BaseError`, so every Viem error is also an ox error (`instanceof` holds across the stack) and ox errors compose as `cause` without wrapping.
+`Errors.BaseError` extends ox's `BaseError`, so every Viem error is also an ox error (`instanceof`
+holds across the stack) and ox errors compose as `cause` without wrapping.
+
+Action errors live under semantic modules such as `Errors.block.NotFoundError` and
+`Errors.transaction.NotFoundError`, keeping the `Actions` namespace focused on executable APIs.
 
 ```ts twoslash
 import { Errors } from 'viem'

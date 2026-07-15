@@ -1,5 +1,5 @@
 export { createFilter } from './createFilter.js'
-export { BlockNotFoundError, get } from './get.js'
+export { get } from './get.js'
 export { getAutomine } from './test/getAutomine.js'
 export { getNumber } from './getNumber.js'
 export { getReceipts } from './getReceipts.js'

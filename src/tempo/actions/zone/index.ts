@@ -18,7 +18,4 @@ export type {
   PreparedEncryptedDeposit,
   PreparedEncryptedDepositRecipient,
 } from './types.js'
-export {
-  waitForDepositStatus,
-  WaitForDepositStatusTimeoutError,
-} from './waitForDepositStatus.js'
+export { waitForDepositStatus } from './waitForDepositStatus.js'

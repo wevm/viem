@@ -3,6 +3,7 @@ export * as Actions from './actions/index.js'
 export * as Block from './Block.js'
 export { chainConfig } from './chainConfig.js'
 export * as Deposit from './Deposit.js'
+export * as Errors from './Errors.js'
 export * as Game from './Game.js'
 export {
   type L1Decorator as OpStackL1Actions,

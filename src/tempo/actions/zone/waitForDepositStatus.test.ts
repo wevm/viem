@@ -1,10 +1,5 @@
 import type { ServerResponse } from 'node:http'
-import {
-  Actions,
-  Client,
-  WaitForDepositStatusTimeoutError,
-  http,
-} from 'viem/tempo'
+import { Actions, Client, Errors, http } from 'viem/tempo'
 import { expect, test } from 'vitest'
 import { createServer } from '~test/http.js'
 
@@ -91,7 +86,9 @@ test('throws when the timeout elapses', async () => {
       tempoBlockNumber: 42n,
       timeout: 25,
     })
-    await expect(pending).rejects.toThrow(WaitForDepositStatusTimeoutError)
+    await expect(pending).rejects.toThrow(
+      Errors.zone.WaitForDepositStatusTimeoutError,
+    )
     await expect(pending).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Actions.zone.waitForDepositStatus.TimeoutError: Timed out while waiting for deposits from Tempo block "42" to be processed.
 
