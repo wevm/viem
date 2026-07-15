@@ -78,14 +78,11 @@ Typed contract calls decode into typed `result` values, making `multicall` the b
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 
-const abi = Abi.from([
-  'function balanceOf(address) view returns (uint256)',
-  'function totalSupply() view returns (uint256)',
-])
+const abi = Abis.erc20
 
 const { results } = await Actions.multicall(client, {
   calls: [
@@ -183,10 +180,10 @@ Whether to return per-call `{ status, result | error }` objects. When `false`, `
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+const abi = Abis.erc20
 // ---cut---
 const { results } = await Actions.multicall(client, {
   allowFailure: false, // [!code focus]
@@ -215,10 +212,10 @@ Execution mode.
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+const abi = Abis.erc20
 // ---cut---
 const { results } = await Actions.multicall(client, {
   mode: 'multicall', // [!code focus]
@@ -242,10 +239,10 @@ Max calldata bytes per `aggregate3` chunk (fallback and `'multicall'` paths).
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+const abi = Abis.erc20
 // ---cut---
 const { results } = await Actions.multicall(client, {
   mode: 'multicall',
@@ -316,14 +313,14 @@ The calls to simulate. Each call is either a raw call (`to`, `data`, `value`) or
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
 const { results } = await Actions.multicall(client, {
   calls: [ // [!code focus]
     { // [!code focus]
-      abi: Abi.from(['function name() view returns (string)']), // [!code focus]
+      abi: Abis.erc20, // [!code focus]
       functionName: 'name', // [!code focus]
       to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
     }, // [!code focus]
@@ -344,10 +341,10 @@ Forces a deployless multicall (bytecode `eth_call`) on the `aggregate3` path, fo
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+const abi = Abis.erc20
 // ---cut---
 const { results } = await Actions.multicall(client, {
   mode: 'multicall',
@@ -372,10 +369,10 @@ Multicall3 address override for the `aggregate3` path.
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+const abi = Abis.erc20
 // ---cut---
 const { results } = await Actions.multicall(client, {
   mode: 'multicall',

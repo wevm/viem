@@ -13,16 +13,14 @@ import { getLogs as getEventLogs } from '../event/getLogs.js'
  * ```ts
  * import { Actions, Client, http } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { Abi } from 'viem/utils'
+ * import { Abis } from 'viem/utils'
  *
  * const client = Client.create({
  *   chain: mainnet,
  *   transport: http(),
  * })
  * const logs = await Actions.contract.getLogs(client, {
- *   abi: Abi.from([
- *     'event Transfer(address indexed from, address indexed to, uint256 value)',
- *   ]),
+ *   abi: Abis.erc20,
  *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
  *   eventName: 'Transfer',
  * })

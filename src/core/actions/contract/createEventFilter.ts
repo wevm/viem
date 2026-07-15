@@ -19,16 +19,14 @@ import { createFilter as createEventFilter_ } from '../event/createFilter.js'
  * ```ts
  * import { Actions, Client, http } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { Abi } from 'viem/utils'
+ * import { Abis } from 'viem/utils'
  *
  * const client = Client.create({
  *   chain: mainnet,
  *   transport: http(),
  * })
  * const filter = await Actions.contract.createEventFilter(client, {
- *   abi: Abi.from([
- *     'event Transfer(address indexed from, address indexed to, uint256 value)',
- *   ]),
+ *   abi: Abis.erc20,
  *   eventName: 'Transfer',
  * })
  * const logs = await Actions.filter.getChanges(client, { filter })

@@ -7,16 +7,12 @@ Use [`Contract.from`](/docs/contract) to create a contract instance: a type-safe
 ```ts twoslash
 import { Client, Contract, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 
 const contract = Contract.from({
-  abi: Abi.from([
-    'function balanceOf(address owner) view returns (uint256)',
-    'function transfer(address to, uint256 value) returns (bool)',
-    'event Transfer(address indexed from, address indexed to, uint256 value)',
-  ]),
+  abi: Abis.erc20,
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   client,
 })
@@ -39,7 +35,7 @@ Call methods under `read` for `pure` and `view` functions. They map to [`Actions
 ```ts twoslash
 import { Account, Client, Contract, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({
   account: Account.fromPrivateKey('0x...'),
@@ -48,11 +44,7 @@ const client = Client.create({
 })
 
 const contract = Contract.from({
-  abi: Abi.from([
-    'function balanceOf(address owner) view returns (uint256)',
-    'function transfer(address to, uint256 value) returns (bool)',
-    'event Transfer(address indexed from, address indexed to, uint256 value)',
-  ]),
+  abi: Abis.erc20,
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   client,
 })
@@ -69,7 +61,7 @@ Call methods under `write` for `payable` and `nonpayable` functions. They map to
 ```ts twoslash
 import { Account, Client, Contract, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({
   account: Account.fromPrivateKey('0x...'),
@@ -78,11 +70,7 @@ const client = Client.create({
 })
 
 const contract = Contract.from({
-  abi: Abi.from([
-    'function balanceOf(address owner) view returns (uint256)',
-    'function transfer(address to, uint256 value) returns (bool)',
-    'event Transfer(address indexed from, address indexed to, uint256 value)',
-  ]),
+  abi: Abis.erc20,
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   client,
 })
@@ -99,7 +87,7 @@ Use `simulate` to dry-run a write via [`Actions.contract.simulate`](/docs/action
 ```ts twoslash
 import { Account, Client, Contract, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({
   account: Account.fromPrivateKey('0x...'),
@@ -108,11 +96,7 @@ const client = Client.create({
 })
 
 const contract = Contract.from({
-  abi: Abi.from([
-    'function balanceOf(address owner) view returns (uint256)',
-    'function transfer(address to, uint256 value) returns (bool)',
-    'event Transfer(address indexed from, address indexed to, uint256 value)',
-  ]),
+  abi: Abis.erc20,
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   client,
 })
@@ -133,7 +117,7 @@ Fetch historical logs with `getLogs` (via [`Actions.contract.getLogs`](/docs/act
 ```ts twoslash
 import { Account, Client, Contract, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({
   account: Account.fromPrivateKey('0x...'),
@@ -142,11 +126,7 @@ const client = Client.create({
 })
 
 const contract = Contract.from({
-  abi: Abi.from([
-    'function balanceOf(address owner) view returns (uint256)',
-    'function transfer(address to, uint256 value) returns (bool)',
-    'event Transfer(address indexed from, address indexed to, uint256 value)',
-  ]),
+  abi: Abis.erc20,
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   client,
 })
@@ -170,14 +150,12 @@ Creates a type-safe contract interface bound to an ABI, address, and Client.
 ```ts twoslash
 import { Client, Contract, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 
 const contract = Contract.from({
-  abi: Abi.from([
-    'function balanceOf(address owner) view returns (uint256)',
-  ]),
+  abi: Abis.erc20,
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   client,
 })
@@ -193,19 +171,17 @@ const contract = Contract.from({
 
 - **Type:** `Abi`
 
-The contract's ABI. Method names and argument types are derived from it, so pass a literal ABI (for example, via `Abi.from` from `viem/utils`) to preserve inference.
+The contract's ABI. Method names and argument types are derived from it, so pass a literal ABI such as `Abis.erc20` to preserve inference.
 
 ```ts twoslash
 import { Client, Contract, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
 const contract = Contract.from({
-  abi: Abi.from([ // [!code focus]
-    'function balanceOf(address owner) view returns (uint256)', // [!code focus]
-  ]), // [!code focus]
+  abi: Abis.erc20, // [!code focus]
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   client,
 })
@@ -220,14 +196,12 @@ The address of the contract.
 ```ts twoslash
 import { Client, Contract, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
 const contract = Contract.from({
-  abi: Abi.from([
-    'function balanceOf(address owner) view returns (uint256)',
-  ]),
+  abi: Abis.erc20,
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
   client,
 })
@@ -242,14 +216,12 @@ The Client used to execute the contract's actions. Writes require the client (or
 ```ts twoslash
 import { Client, Contract, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
 const contract = Contract.from({
-  abi: Abi.from([
-    'function balanceOf(address owner) view returns (uint256)',
-  ]),
+  abi: Abis.erc20,
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   client, // [!code focus]
 })

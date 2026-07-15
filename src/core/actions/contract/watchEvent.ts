@@ -24,7 +24,7 @@ import type { getLogs } from './getLogs.js'
  * ```ts
  * import { Actions, Client, http } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { Abi } from 'viem/utils'
+ * import { Abis } from 'viem/utils'
  *
  * const client = Client.create({
  *   chain: mainnet,
@@ -32,9 +32,7 @@ import type { getLogs } from './getLogs.js'
  * })
  *
  * const watch = Actions.contract.watchEvent(client, {
- *   abi: Abi.from([
- *     'event Transfer(address indexed from, address indexed to, uint256 value)',
- *   ]),
+ *   abi: Abis.erc20,
  *   eventName: 'Transfer',
  * })
  * watch.onLogs((logs) => console.log(logs))

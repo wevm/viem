@@ -494,16 +494,14 @@ export declare namespace publicActions {
        * ```ts
        * import { Client, http, publicActions } from 'viem'
        * import { mainnet } from 'viem/chains'
-       * import { Abi } from 'viem/utils'
+       * import { Abis } from 'viem/utils'
        *
        * const client = Client.create({
        *   chain: mainnet,
        *   transport: http(),
        * }).extend(publicActions())
        * const filter = await client.contract.createEventFilter({
-       *   abi: Abi.from([
-       *     'event Transfer(address indexed from, address indexed to, uint256 value)',
-       *   ]),
+       *   abi: Abis.erc20,
        *   eventName: 'Transfer',
        * })
        * ```
@@ -596,16 +594,14 @@ export declare namespace publicActions {
        * ```ts
        * import { Client, http, publicActions } from 'viem'
        * import { mainnet } from 'viem/chains'
-       * import { Abi } from 'viem/utils'
+       * import { Abis } from 'viem/utils'
        *
        * const client = Client.create({
        *   chain: mainnet,
        *   transport: http(),
        * }).extend(publicActions())
        * const logs = await client.contract.getLogs({
-       *   abi: Abi.from([
-       *     'event Transfer(address indexed from, address indexed to, uint256 value)',
-       *   ]),
+       *   abi: Abis.erc20,
        *   eventName: 'Transfer',
        * })
        * ```
@@ -636,14 +632,14 @@ export declare namespace publicActions {
        * ```ts
        * import { Client, http, publicActions } from 'viem'
        * import { mainnet } from 'viem/chains'
-       * import { Abi } from 'viem/utils'
+       * import { Abis } from 'viem/utils'
        *
        * const client = Client.create({
        *   chain: mainnet,
        *   transport: http(),
        * }).extend(publicActions())
        * const balance = await client.contract.read({
-       *   abi: Abi.from(['function balanceOf(address) view returns (uint256)']),
+       *   abi: Abis.erc20,
        *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
        *   args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
        *   functionName: 'balanceOf',
@@ -707,7 +703,7 @@ export declare namespace publicActions {
        * ```ts
        * import { Client, http, publicActions } from 'viem'
        * import { mainnet } from 'viem/chains'
-       * import { Abi } from 'viem/utils'
+       * import { Abis } from 'viem/utils'
        *
        * const client = Client.create({
        *   chain: mainnet,
@@ -715,9 +711,7 @@ export declare namespace publicActions {
        * }).extend(publicActions())
        *
        * const watch = client.contract.watchEvent({
-       *   abi: Abi.from([
-       *     'event Transfer(address indexed from, address indexed to, uint256 value)',
-       *   ]),
+       *   abi: Abis.erc20,
        *   eventName: 'Transfer',
        * })
        * watch.onLogs((logs) => console.log(logs))

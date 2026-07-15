@@ -7,11 +7,11 @@ Calls a read-only (`pure`/`view`) function on a contract, and returns the decode
 :::code-group
 
 ```ts twoslash [Decorator]
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 import { client } from './viem.config'
 
 const balance = await client.contract.read({
-  abi: Abi.from(['function balanceOf(address) view returns (uint256)']),
+  abi: Abis.erc20,
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
   functionName: 'balanceOf',
@@ -21,11 +21,11 @@ const balance = await client.contract.read({
 
 ```ts twoslash [Standalone]
 import { Actions } from 'viem'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 import { client } from './viem.config'
 
 const balance = await Actions.contract.read(client, {
-  abi: Abi.from(['function balanceOf(address) view returns (uint256)']),
+  abi: Abis.erc20,
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
   functionName: 'balanceOf',
@@ -60,12 +60,12 @@ The contract's ABI. The `functionName` and `args` are inferred from it.
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
 const supply = await Actions.contract.read(client, {
-  abi: Abi.from(['function totalSupply() view returns (uint256)']), // [!code focus]
+  abi: Abis.erc20, // [!code focus]
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   functionName: 'totalSupply',
 })
@@ -80,10 +80,10 @@ The address of the contract.
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+const abi = Abis.erc20
 // ---cut---
 const supply = await Actions.contract.read(client, {
   abi,
@@ -101,12 +101,12 @@ The arguments to pass to the contract function.
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
 const balance = await Actions.contract.read(client, {
-  abi: Abi.from(['function balanceOf(address) view returns (uint256)']),
+  abi: Abis.erc20,
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'], // [!code focus]
   functionName: 'balanceOf',
@@ -122,10 +122,10 @@ Reads the contract at the block with the given hash ([EIP-1898](https://eips.eth
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+const abi = Abis.erc20
 // ---cut---
 const supply = await Actions.contract.read(client, {
   abi,
@@ -144,10 +144,10 @@ Reads the contract at a given block number.
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+const abi = Abis.erc20
 // ---cut---
 const supply = await Actions.contract.read(client, {
   abi,
@@ -167,10 +167,10 @@ Reads the contract at a given block tag.
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+const abi = Abis.erc20
 // ---cut---
 const supply = await Actions.contract.read(client, {
   abi,
@@ -189,10 +189,10 @@ Reads against contract bytecode that is not yet deployed (deployless read). Prov
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+const abi = Abis.erc20
 // ---cut---
 const supply = await Actions.contract.read(client, {
   abi,
@@ -210,10 +210,10 @@ The name of the function to call on the contract.
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+const abi = Abis.erc20
 // ---cut---
 const supply = await Actions.contract.read(client, {
   abi,
@@ -232,10 +232,10 @@ Whether the block given via [`blockHash`](#blockhash) must be in the canonical c
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+const abi = Abis.erc20
 // ---cut---
 const supply = await Actions.contract.read(client, {
   abi,
@@ -255,10 +255,10 @@ The [state overrides](/docs/actions/public/call#stateoverride) to apply for the 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abi.from(['function totalSupply() view returns (uint256)'])
+const abi = Abis.erc20
 // ---cut---
 const supply = await Actions.contract.read(client, {
   abi,

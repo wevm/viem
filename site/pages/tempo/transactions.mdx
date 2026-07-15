@@ -254,12 +254,11 @@ such as `feeToken`.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 import { client } from './viem.config'
-const abi = Abi.from(['function approve(address, uint256) returns (bool)'])
 
 const receipt = await client.contract.writeSync({
-  abi,
+  abi: Abis.erc20,
   address: '0x20c0000000000000000000000000000000000001',
   functionName: 'approve',
   args: ['0xcafebabecafebabecafebabecafebabecafebabe', 100n],

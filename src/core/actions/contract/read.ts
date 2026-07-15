@@ -21,14 +21,14 @@ import { call } from '../call.js'
  * ```ts
  * import { Actions, Client, http } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { Abi } from 'viem/utils'
+ * import { Abis } from 'viem/utils'
  *
  * const client = Client.create({
  *   chain: mainnet,
  *   transport: http(),
  * })
  * const balance = await Actions.contract.read(client, {
- *   abi: Abi.from(['function balanceOf(address) view returns (uint256)']),
+ *   abi: Abis.erc20,
  *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
  *   args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
  *   functionName: 'balanceOf',

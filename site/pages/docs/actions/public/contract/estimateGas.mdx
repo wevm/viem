@@ -129,12 +129,12 @@ The arguments to pass to the contract function.
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
 const gas = await Actions.contract.estimateGas(client, {
-  abi: Abi.from(['function transfer(address, uint256)']),
+  abi: Abis.erc20,
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', 1n], // [!code focus]

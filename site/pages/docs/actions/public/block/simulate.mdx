@@ -64,14 +64,14 @@ Calls can also be typed contract calls. When `abi` is provided, `result` holds t
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 
 const [block] = await Actions.block.simulate(client, {
   blocks: [{
     calls: [{
-      abi: Abi.from(['function name() view returns (string)']),
+      abi: Abis.erc20,
       functionName: 'name',
       to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
     }],
