@@ -22,7 +22,6 @@ import {
 } from '../cursor.js'
 import { type SizeErrorType, size } from '../data/size.js'
 import { type SliceBytesErrorType, sliceBytes } from '../data/slice.js'
-import type { TrimErrorType } from '../data/trim.js'
 import {
   type BytesToBigIntErrorType,
   type BytesToBoolErrorType,
@@ -355,7 +354,6 @@ function decodeTuple(
 type DecodeStringErrorType =
   | BytesToNumberErrorType
   | BytesToStringErrorType
-  | TrimErrorType
   | ErrorType
 
 function decodeString(
