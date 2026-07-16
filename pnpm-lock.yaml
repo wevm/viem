@@ -673,8 +673,8 @@ importers:
         specifier: 1.6.0
         version: 1.6.0
       abitype:
-        specifier: 1.2.3
-        version: 1.2.3(typescript@5.9.3)(zod@4.4.3)
+        specifier: 1.3.0
+        version: 1.3.0(typescript@5.9.3)(zod@4.4.3)
       isows:
         specifier: 1.0.7
         version: 1.0.7(ws@8.21.0)
@@ -3296,6 +3296,17 @@ packages:
 
   abitype@1.2.3:
     resolution: {integrity: sha512-Ofer5QUnuUdTFsBRwARMoWKOH1ND5ehwYhJ3OJ/BQO+StkwQjHw0XyVh4vDttzHB7QOFhPHa/o413PJ82gU/Tg==}
+    peerDependencies:
+      typescript: ^5.9.3
+      zod: ^3.22.0 || ^4.0.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+      zod:
+        optional: true
+
+  abitype@1.3.0:
+    resolution: {integrity: sha512-fk6Te+bojIFrMvMZrnOO+SxCB+RUksTGOzq/60ZRvs1L+BVzvi2bqt9L3W/17ZLdZsyM1FuYf65P5nlmoiH1Bg==}
     peerDependencies:
       typescript: ^5.9.3
       zod: ^3.22.0 || ^4.0.0
@@ -10267,6 +10278,11 @@ snapshots:
       zod: 4.3.6
 
   abitype@1.2.3(typescript@5.9.3)(zod@4.4.3):
+    optionalDependencies:
+      typescript: 5.9.3
+      zod: 4.4.3
+
+  abitype@1.3.0(typescript@5.9.3)(zod@4.4.3):
     optionalDependencies:
       typescript: 5.9.3
       zod: 4.4.3
