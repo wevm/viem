@@ -1,3 +1,17 @@
-TODO
+---
+layout: blank
+description: 'A type-safe TypeScript interface for Ethereum.'
+---
 
-[Docs](/docs)
+import { Landing } from './components/Landing'
+import {
+  installCommands,
+  installHtml,
+} from './components/install-highlight'
+import Modules from './snippets/modules.mdx'
+
+<Landing
+  installCommands={installCommands}
+  installHtml={installHtml}
+  snippet={<Modules />}
+/>

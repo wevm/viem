@@ -264,6 +264,40 @@ body > div:has(> div > .twoslash-completion-list) {
   padding-block: 0 !important;
 }
 
+/* Match the fixed module snippet in pages/snippets/modules.mdx. */
+.module-snippet[data-active-module] pre.shiki > code > .line,
+.module-snippet[data-active-module]
+  pre.shiki
+  > code
+  > .twoslash-tag-log-line {
+  opacity: 0.3;
+  transition: opacity 200ms;
+}
+
+.module-snippet[data-active-module='clients']
+  pre.shiki
+  > code
+  > .line:nth-child(n + 4):nth-child(-n + 7),
+.module-snippet[data-active-module='chains']
+  pre.shiki
+  > code
+  > .line:nth-child(5),
+.module-snippet[data-active-module='transports']
+  pre.shiki
+  > code
+  > .line:nth-child(6),
+.module-snippet[data-active-module='actions']
+  pre.shiki
+  > code
+  > .line:nth-child(7),
+.module-snippet[data-active-module='actions']
+  pre.shiki
+  > code
+  > .line:nth-child(9),
+.module-snippet[data-active-module] pre.shiki:hover > code > .line {
+  opacity: 1;
+}
+
 .twoslash-popup-container code {
   background-color: transparent;
 }
