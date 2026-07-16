@@ -385,13 +385,11 @@ export function from<const chain extends Chain & Record<string, unknown>>(
 }
 
 export declare namespace from {
-  type ReturnType<chain> = Prettify<
-    chain & {
-      extend: <const extended extends Partial<Chain> & Record<string, unknown>>(
-        extended: extended,
-      ) => from.ReturnType<Assign<chain, extended>>
-    }
-  >
+  type ReturnType<chain> = chain & {
+    extend: <const extended extends Partial<Chain> & Record<string, unknown>>(
+      extended: extended,
+    ) => from.ReturnType<Assign<chain, extended>>
+  }
 }
 
 /** Builds the chainable `extend` for a base chain. @internal */
