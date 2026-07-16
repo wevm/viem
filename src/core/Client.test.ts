@@ -3,6 +3,7 @@ import { describe, expect, test } from 'vitest'
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
 import { mainnet } from '../chains/definitions/mainnet.js'
+import { optimism } from '../chains/definitions/optimism.js'
 import { Account, Client, http } from 'viem'
 
 const url = anvil.mainnet.rpcUrl.http
@@ -98,6 +99,165 @@ describe('create', () => {
     const a = Client.create({ transport: http(url) })
     const b = Client.create({ transport: http(url) })
     expect(a.uid).not.toBe(b.uid)
+  })
+})
+
+describe('createResolver', () => {
+  test('resolves and memoizes Clients from a transport map', () => {
+    const resolver = Client.createResolver({
+      chains: [mainnet, optimism],
+      transport: {
+        [mainnet.id]: http('https://mainnet.example'),
+        [optimism.id]: http('https://optimism.example'),
+      },
+    })
+
+    const mainnetClient = resolver.getClient({ chainId: mainnet.id })
+    const optimismClient = resolver.getClient({ chainId: optimism.id })
+
+    expect({
+      mainnet: {
+        chainId: mainnetClient.chain.id,
+        url: mainnetClient.transport.url,
+      },
+      optimism: {
+        chainId: optimismClient.chain.id,
+        url: optimismClient.transport.url,
+      },
+    }).toMatchInlineSnapshot(`
+      {
+        "mainnet": {
+          "chainId": 1,
+          "url": "https://mainnet.example",
+        },
+        "optimism": {
+          "chainId": 10,
+          "url": "https://optimism.example",
+        },
+      }
+    `)
+    expect(resolver.getClient({ chainId: mainnet.id })).toBe(mainnetClient)
+    expect(optimismClient).not.toBe(mainnetClient)
+  })
+
+  test('resolves a transport from a callback', () => {
+    const resolver = Client.createResolver({
+      chains: [mainnet, optimism],
+      transport: ({ chainId }) => http(`https://${chainId}.example`),
+    })
+
+    const client = resolver.getClient({ chainId: optimism.id })
+    expect({
+      chainId: client.chain.id,
+      url: client.transport.url,
+    }).toMatchInlineSnapshot(`
+      {
+        "chainId": 10,
+        "url": "https://10.example",
+      }
+    `)
+    expect(resolver.getClient({ chainId: optimism.id })).toBe(client)
+  })
+
+  test('lazily resolves transports', () => {
+    const resolver = Client.createResolver({
+      chains: [mainnet, optimism],
+      transport: ({ chainId }) => {
+        if (chainId === optimism.id) throw new Error('unexpected chain')
+        return http('https://mainnet.example')
+      },
+    })
+
+    const client = resolver.getClient({ chainId: mainnet.id })
+    expect({
+      chainId: client.chain.id,
+      url: client.transport.url,
+    }).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "url": "https://mainnet.example",
+      }
+    `)
+  })
+
+  test('applies shared Client options', () => {
+    const resolver = Client.createResolver({
+      account: address,
+      chains: [mainnet, optimism],
+      key: 'resolved',
+      pollingInterval: 1_000,
+      transport: {
+        [mainnet.id]: http('https://mainnet.example'),
+        [optimism.id]: http('https://optimism.example'),
+      },
+    })
+
+    const mainnetClient = resolver.getClient({ chainId: mainnet.id })
+    const optimismClient = resolver.getClient({ chainId: optimism.id })
+    expect({
+      mainnet: {
+        account: mainnetClient.account,
+        key: mainnetClient.key,
+        pollingInterval: mainnetClient.pollingInterval,
+      },
+      optimism: {
+        account: optimismClient.account,
+        key: optimismClient.key,
+        pollingInterval: optimismClient.pollingInterval,
+      },
+    }).toMatchInlineSnapshot(`
+      {
+        "mainnet": {
+          "account": {
+            "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+            "type": "json-rpc",
+          },
+          "key": "resolved",
+          "pollingInterval": 1000,
+        },
+        "optimism": {
+          "account": {
+            "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+            "type": "json-rpc",
+          },
+          "key": "resolved",
+          "pollingInterval": 1000,
+        },
+      }
+    `)
+  })
+
+  test('throws when the chain is not configured', () => {
+    const resolver = Client.createResolver({
+      chains: [mainnet, optimism],
+      transport: ({ chainId }) => http(`https://${chainId}.example`),
+    })
+
+    expect(() => resolver.getClient({ chainId: 8453 as typeof mainnet.id }))
+      .toThrowErrorMatchingInlineSnapshot(`
+      [Client.ChainNotConfiguredError: Chain with id 8453 is not configured.
+
+      Version: viem@2.52.1]
+    `)
+  })
+
+  test('throws when the transport is not configured', () => {
+    const transport = {
+      [mainnet.id]: http('https://mainnet.example'),
+      [optimism.id]: http('https://optimism.example'),
+    }
+    const resolver = Client.createResolver({
+      chains: [mainnet, optimism],
+      transport,
+    })
+    Reflect.deleteProperty(transport, optimism.id)
+
+    expect(() => resolver.getClient({ chainId: optimism.id }))
+      .toThrowErrorMatchingInlineSnapshot(`
+      [Client.TransportNotConfiguredError: Transport for chain with id 10 is not configured.
+
+      Version: viem@2.52.1]
+    `)
   })
 })
 

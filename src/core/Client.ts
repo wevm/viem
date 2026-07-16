@@ -1,13 +1,14 @@
-import type { Address, Errors, RpcSchema } from 'ox'
+import type { Address, Errors as ox_Errors, RpcSchema } from 'ox'
 
 import type * as CcipRead from '../utils/CcipRead.js'
 import * as Account from './Account.js'
 import type * as Chain from './Chain.js'
+import * as Errors from './Errors.js'
 import type * as Token from './Token.js'
 import * as Transport from './Transport.js'
 import type { DataSuffix } from './internal/dataSuffix.js'
 import { uid } from './internal/uid.js'
-import type { Prettify } from './internal/types.js'
+import type { NoInfer, Prettify } from './internal/types.js'
 
 /**
  * A Viem Client: the composition root binding a {@link Chain} (config/converters), a
@@ -214,6 +215,85 @@ export function create(options: create.Options): Client {
   return Object.assign(client, { extend: extend(client) }) as unknown as Client
 }
 
+/**
+ * Creates a resolver that lazily constructs a {@link Client} for each configured
+ * {@link Chain}.
+ *
+ * @example
+ * ```ts
+ * import { Client, http } from 'viem'
+ * import { mainnet, optimism } from 'viem/chains'
+ *
+ * const resolver = Client.createResolver({
+ *   chains: [mainnet, optimism],
+ *   transport: {
+ *     [mainnet.id]: http(),
+ *     [optimism.id]: http(),
+ *   },
+ * })
+ *
+ * const client = resolver.getClient({ chainId: optimism.id })
+ * ```
+ *
+ * @param options - Resolver options.
+ * @returns A resolver for the configured chains.
+ */
+export function createResolver<
+  const chains extends ResolverChains,
+  accountOrAddress extends Account.Account | Address.Address | undefined =
+    undefined,
+  const transport extends ResolverTransportConfig<NoInfer<chains>> =
+    ResolverTransportConfig<NoInfer<chains>>,
+  const tokens extends Token.Tokens | undefined = undefined,
+  schema extends RpcSchema.Schema = RpcSchema.Default,
+>(
+  options: createResolver.Options<
+    chains,
+    accountOrAddress,
+    transport,
+    tokens,
+    schema
+  >,
+): createResolver.ReturnType<
+  chains,
+  accountOrAddress,
+  transport,
+  tokens,
+  schema
+> {
+  const { chains, transport, ...rest } = options
+  const clients = new Map<number, unknown>()
+
+  // The chain and transport are selected from the same chain ID.
+  return {
+    getClient({ chainId }) {
+      const cached = clients.get(chainId)
+      if (cached) return cached
+
+      const chain = chains.find((chain) => chain.id === chainId)
+      if (!chain) throw new ChainNotConfiguredError({ chainId })
+      const transport_ =
+        typeof transport === 'function'
+          ? transport({ chainId })
+          : (transport as ResolverTransportMap<chains>)[chainId]
+      if (!transport_) throw new TransportNotConfiguredError({ chainId })
+      const client = create({
+        ...rest,
+        chain,
+        transport: transport_,
+      })
+      clients.set(chainId, client)
+      return client
+    },
+  } as createResolver.ReturnType<
+    chains,
+    accountOrAddress,
+    transport,
+    tokens,
+    schema
+  >
+}
+
 /** Deep-merges decorator namespaces so colliding bags (e.g. `block`) combine. */
 function merge(
   base: Record<string, unknown>,
@@ -282,5 +362,122 @@ export declare namespace create {
     type?: string | undefined
   }
 
-  type ErrorType = Account.from.ErrorType | Errors.GlobalErrorType
+  type ErrorType = Account.from.ErrorType | ox_Errors.GlobalErrorType
+}
+
+type ResolverChains = readonly [Chain.Chain, ...Chain.Chain[]]
+
+type ResolverTransportConfig<chains extends ResolverChains> =
+  | ResolverTransportMap<chains>
+  | ResolverTransportFactory<chains>
+
+type ResolverTransportFactory<chains extends ResolverChains> = (options: {
+  chainId: chains[number]['id']
+}) => Transport.Transport
+
+type ResolverTransportMap<chains extends ResolverChains> = {
+  readonly [chainId in chains[number]['id']]: Transport.Transport
+}
+
+export declare namespace createResolver {
+  /** Options for {@link createResolver}. */
+  type Options<
+    chains extends ResolverChains = ResolverChains,
+    accountOrAddress extends Account.Account | Address.Address | undefined =
+      | Account.Account
+      | Address.Address
+      | undefined,
+    transport extends ResolverTransportConfig<chains> =
+      ResolverTransportConfig<chains>,
+    tokens extends Token.Tokens | undefined = Token.Tokens | undefined,
+    schema extends RpcSchema.Schema = RpcSchema.Default,
+  > = Prettify<
+    Omit<
+      create.Options<
+        undefined,
+        accountOrAddress,
+        Transport.Transport,
+        tokens,
+        schema
+      >,
+      'chain' | 'transport'
+    > & {
+      /** Chains available to the resolver. */
+      chains: chains
+      /** Transports indexed or resolved by chain ID. */
+      transport: transport
+    }
+  >
+
+  /** Return type of {@link createResolver}. */
+  type ReturnType<
+    chains extends ResolverChains = ResolverChains,
+    accountOrAddress extends Account.Account | Address.Address | undefined =
+      | Account.Account
+      | Address.Address
+      | undefined,
+    transport extends ResolverTransportConfig<chains> =
+      ResolverTransportConfig<chains>,
+    tokens extends Token.Tokens | undefined = Token.Tokens | undefined,
+    schema extends RpcSchema.Schema = RpcSchema.Default,
+  > = {
+    /** Returns the memoized Client configured for `chainId`. */
+    getClient<const chainId extends chains[number]['id']>(options: {
+      /** ID of a configured chain. */
+      chainId: chainId
+    }): Client<
+      ResolvedChain<chains, chainId>,
+      accountOrAddress extends Address.Address
+        ? Account.JsonRpc<accountOrAddress>
+        : accountOrAddress,
+      ResolvedTransport<chains, transport, chainId>,
+      tokens,
+      RpcSchema.ToGeneric<schema>
+    >
+  }
+
+  /** Errors thrown while resolving a Client. */
+  type ErrorType =
+    | ChainNotConfiguredError
+    | TransportNotConfiguredError
+    | create.ErrorType
+}
+
+type ResolvedChain<
+  chains extends ResolverChains,
+  chainId extends chains[number]['id'],
+> = number extends chains[number]['id']
+  ? chains[number]
+  : Extract<chains[number], { id: chainId }>
+
+type ResolvedTransport<
+  chains extends ResolverChains,
+  transport extends ResolverTransportConfig<chains>,
+  chainId extends chains[number]['id'],
+> = transport extends (...args: never[]) => infer resolved
+  ? resolved extends Transport.Transport
+    ? resolved
+    : never
+  : transport extends Record<chainId, infer resolved>
+    ? resolved extends Transport.Transport
+      ? resolved
+      : never
+    : never
+
+/** Thrown when a Client is requested for an unconfigured chain. */
+export class ChainNotConfiguredError extends Errors.BaseError {
+  override readonly name = 'Client.ChainNotConfiguredError'
+
+  constructor({ chainId }: { chainId: number }) {
+    super(`Chain with id ${chainId} is not configured.`)
+  }
+}
+
+/** Thrown when a configured chain has no transport. */
+export class TransportNotConfiguredError extends Errors.BaseError {
+  override readonly name = 'Client.TransportNotConfiguredError'
+
+  constructor({ chainId }: { chainId: number }) {
+    super(`Transport for chain with id ${chainId} is not configured.`)
+  }
 }

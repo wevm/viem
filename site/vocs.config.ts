@@ -844,6 +844,7 @@ export default defineConfig({
             items: [
               { text: 'Overview', link: '/docs/clients' },
               { text: 'Creating a Client', link: '/docs/clients/create' },
+              { text: 'Resolving Clients', link: '/docs/clients/resolve' },
             ],
           },
           {

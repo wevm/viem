@@ -1,0 +1,522 @@
+# Resolving Clients
+
+## Overview
+
+Use [`Client.createResolver`](#clientcreateresolver) to configure several [Chains](/docs/chains) and resolve a typed [Client](/docs/clients) for one chain at a time. Each Client is created on first use and reused for later requests with the same chain ID.
+
+Provide `transport` as either an exhaustive chain-ID map or a callback that returns a [Transport](/docs/transports) for the requested chain.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+
+const resolver = Client.createResolver({
+  chains: [mainnet, optimism],
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+
+const client = resolver.getClient({ chainId: optimism.id })
+//    ^?
+```
+
+## Recipes
+
+These recipes configure their own Client resolver.
+
+### Resolve Transports with a Callback
+
+Use a callback when transport selection needs logic beyond a static map. Its `chainId` is typed as the IDs declared in `chains`.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+
+const urls = {
+  [mainnet.id]: 'https://eth.merkle.io',
+  [optimism.id]: 'https://mainnet.optimism.io',
+}
+
+const resolver = Client.createResolver({
+  chains: [mainnet, optimism],
+  transport: ({ chainId }) => http(urls[chainId]), // [!code focus]
+})
+```
+
+### Call Actions on a Resolved Client
+
+Resolve the chain-specific Client before passing it to an [Action](/docs/actions). The selected chain remains available to the Action's type inference.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+
+const resolver = Client.createResolver({
+  chains: [mainnet, optimism],
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+
+const client = resolver.getClient({ chainId: optimism.id }) // [!code focus]
+const blockNumber = await Actions.block.getNumber(client) // [!code focus]
+```
+
+### Extend a Resolved Client
+
+Attach Actions to a resolved Client with [`.extend()`](/docs/clients/create#extending-a-client). The extended Client preserves the chain selected by `getClient`.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+
+const resolver = Client.createResolver({
+  chains: [mainnet, optimism],
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+
+const client = resolver
+  .getClient({ chainId: optimism.id }) // [!code focus]
+  .extend(publicActions()) // [!code focus]
+
+const blockNumber = await client.block.getNumber()
+```
+
+## `Client.createResolver`
+
+Creates a resolver that lazily constructs a typed Client for each configured chain.
+
+### Usage
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+
+const resolver = Client.createResolver({
+  chains: [mainnet, optimism],
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+```
+
+### Parameters
+
+#### options
+
+- **Type:** `Client.createResolver.Options`
+
+The resolver accepts the shared [`Client.create` options](/docs/clients/create#parameters). Shared options apply to every resolved Client.
+
+##### account
+
+- **Type:** `Account | Address`
+- **Optional**
+
+The Account (or address) that Actions requiring an Account default to. An address string is coerced to a [JSON-RPC Account](/docs/accounts/json-rpc).
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+// ---cut---
+const resolver = Client.createResolver({
+  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+  chains: [mainnet, optimism],
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+```
+
+##### batch
+
+- **Type:** `{ multicall?: boolean | MulticallOptions }`
+- **Optional**
+
+`eth_call` multicall aggregation flags for every resolved Client.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+// ---cut---
+const resolver = Client.createResolver({
+  batch: { multicall: true }, // [!code focus]
+  chains: [mainnet, optimism],
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+```
+
+##### blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'pending'` when the chain preconfirms, otherwise `'latest'`
+
+Default block tag for RPC requests.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+// ---cut---
+const resolver = Client.createResolver({
+  blockTag: 'latest', // [!code focus]
+  chains: [mainnet, optimism],
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+```
+
+##### cacheTime
+
+- **Type:** `number`
+- **Default:** `pollingInterval`
+
+Time (ms) cached data stays in memory.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+// ---cut---
+const resolver = Client.createResolver({
+  cacheTime: 4_000, // [!code focus]
+  chains: [mainnet, optimism],
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+```
+
+##### ccipRead
+
+- **Type:** `CcipReadOptions | false`
+- **Default:** ENS Labs batch gateway
+
+[CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) configuration. Set it to `false` to disable lookups, or provide a request policy to override the default gateway.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+// ---cut---
+const resolver = Client.createResolver({
+  ccipRead: false, // [!code focus]
+  chains: [mainnet, optimism],
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+```
+
+##### chains
+
+- **Type:** `readonly [Chain, ...Chain[]]`
+
+The non-empty list of chains available to the resolver.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+// ---cut---
+const resolver = Client.createResolver({
+  chains: [mainnet, optimism], // [!code focus]
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+```
+
+##### dataSuffix
+
+- **Type:** `Hex`
+- **Optional**
+
+Data suffix appended to transaction calldata.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+// ---cut---
+const resolver = Client.createResolver({
+  chains: [mainnet, optimism],
+  dataSuffix: '0xdeadbeef', // [!code focus]
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+```
+
+##### key
+
+- **Type:** `string`
+- **Default:** `'base'`
+
+A key for every resolved Client.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+// ---cut---
+const resolver = Client.createResolver({
+  chains: [mainnet, optimism],
+  key: 'base', // [!code focus]
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+```
+
+##### name
+
+- **Type:** `string`
+- **Default:** `'Base Client'`
+
+A name for every resolved Client.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+// ---cut---
+const resolver = Client.createResolver({
+  chains: [mainnet, optimism],
+  name: 'Base Client', // [!code focus]
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+```
+
+##### pollingInterval
+
+- **Type:** `number`
+- **Default:** derived from each chain's block time
+
+Polling frequency (ms) for Actions and events.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+// ---cut---
+const resolver = Client.createResolver({
+  chains: [mainnet, optimism],
+  pollingInterval: 4_000, // [!code focus]
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+```
+
+##### retryCount
+
+- **Type:** `number`
+- **Optional**
+
+Per-request retry budget passed through to each transport.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+// ---cut---
+const resolver = Client.createResolver({
+  chains: [mainnet, optimism],
+  retryCount: 5, // [!code focus]
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+```
+
+##### schema
+
+- **Type:** `RpcSchema.Generic | z.RpcSchema`
+- **Optional**
+
+Typed JSON-RPC schema shared by every resolved Client.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+import { z } from 'viem/zod'
+// ---cut---
+const resolver = Client.createResolver({
+  chains: [mainnet, optimism],
+  schema: z.RpcSchema.from({ // [!code focus]
+    abe_foo: { params: z.tuple([z.number()]), returns: z.string() }, // [!code focus]
+  }), // [!code focus]
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+```
+
+##### timeout
+
+- **Type:** `number`
+- **Optional**
+
+Per-request timeout (ms) passed through to each transport.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+// ---cut---
+const resolver = Client.createResolver({
+  chains: [mainnet, optimism],
+  timeout: 10_000, // [!code focus]
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+```
+
+##### tokens
+
+- **Type:** `readonly Token[]`
+- **Optional**
+
+Collection of [Tokens](/docs/tokens) declared on every resolved Client.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+// ---cut---
+const resolver = Client.createResolver({
+  chains: [mainnet, optimism],
+  tokens: [usdc], // [!code focus]
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+```
+
+##### transport
+
+- **Type:** `Record<chains[number]['id'], Transport> | ((options: { chainId: chains[number]['id'] }) => Transport)`
+
+An exhaustive transport map or callback keyed by the configured chain IDs.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+// ---cut---
+const resolver = Client.createResolver({
+  chains: [mainnet, optimism],
+  transport: { // [!code focus]
+    [mainnet.id]: http(), // [!code focus]
+    [optimism.id]: http(), // [!code focus]
+  }, // [!code focus]
+})
+```
+
+##### type
+
+- **Type:** `string`
+- **Default:** `'base'`
+
+The type of every resolved Client.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+// ---cut---
+const resolver = Client.createResolver({
+  chains: [mainnet, optimism],
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+  type: 'base', // [!code focus]
+})
+```
+
+### Return Value
+
+`Client.createResolver.ReturnType`
+
+A resolver with a typed `getClient` method.
+
+## `resolver.getClient`
+
+Returns the memoized Client for a configured chain ID.
+
+### Usage
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+
+const resolver = Client.createResolver({
+  chains: [mainnet, optimism],
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+
+const client = resolver.getClient({ chainId: optimism.id })
+```
+
+### Parameters
+
+#### options
+
+- **Type:** `{ chainId: chains[number]['id'] }`
+
+##### chainId
+
+- **Type:** `chains[number]['id']`
+
+The ID of a chain configured on the resolver.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+// ---cut---
+const resolver = Client.createResolver({
+  chains: [mainnet, optimism],
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+
+const client = resolver.getClient({
+  chainId: optimism.id, // [!code focus]
+})
+```
+
+### Return Value
+
+`Client`
+
+The Client whose chain type corresponds to `chainId`. Transport maps also preserve the transport type for that ID, while callbacks preserve their overall return type.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Address.InvalidAddressError` | The shared `account` address failed validation. |
+| `Client.ChainNotConfiguredError` | The requested chain ID is not configured. |
+| `Client.TransportNotConfiguredError` | The configured chain has no transport. |

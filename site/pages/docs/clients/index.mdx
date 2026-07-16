@@ -10,7 +10,7 @@ The **Client** is the composition root of Viem. It binds together the three piec
 - **[Transport](/docs/transports)**: the wire that carries JSON-RPC requests.
 - **[Account](/docs/accounts)** (optional): the Account that Actions requiring one default to.
 
-[`Client.create`](/docs/clients/create) is the only construction path. A bare client exposes a typed [`request`](/docs/clients/create) function and the resolved chain, account, and transport. Actions are attached with the chainable [`.extend()`](/docs/clients/create), so the client only carries the behavior you opt into.
+[`Client.create`](/docs/clients/create) constructs one Client. [`Client.createResolver`](/docs/clients/resolve) lazily constructs typed Clients across a configured set of chains. A bare client exposes a typed [`request`](/docs/clients/create) function and the resolved chain, account, and transport. Actions are attached with the chainable [`.extend()`](/docs/clients/create), so the client only carries the behavior you opt into.
 
 ```ts twoslash
 import { Client, http } from 'viem'
@@ -28,5 +28,11 @@ const client = Client.create({
     description="Compose a chain, transport, and account with Client.create, then extend it."
     icon="lucide:hammer"
     to="/docs/clients/create"
+  />
+  <Card
+    title="Resolving Clients"
+    description="Resolve a typed Client for each configured chain."
+    icon="lucide:route"
+    to="/docs/clients/resolve"
   />
 </Cards>
