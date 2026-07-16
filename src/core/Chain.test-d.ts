@@ -24,11 +24,14 @@ test('extend: merges and preserves literals', () => {
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://localhost:8545'] } },
   }).extend({ testnet: true })
+  const chained = chain.extend({ sourceId: 10 })
 
   expectTypeOf(chain.id).toEqualTypeOf<1>()
   expectTypeOf(chain.testnet).toEqualTypeOf<true>()
-  // chainable
-  expectTypeOf(chain.extend).toBeFunction()
+  expectTypeOf(chained.id).toEqualTypeOf<1>()
+  expectTypeOf(chained.testnet).toEqualTypeOf<true>()
+  expectTypeOf(chained.sourceId).toEqualTypeOf<10>()
+  expectTypeOf(chained.extend).toBeFunction()
 })
 
 test('extendSchema: declares and types extension fields', () => {
