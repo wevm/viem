@@ -58,7 +58,7 @@ Next, we need to set up a Bundler Client. A Bundler is required to submit User O
 
 ```ts twoslash
 import { Client, http } from 'viem'
-import { Client as BundlerClient } from 'viem/account-abstraction' // [!code focus]
+import { BundlerClient } from 'viem/erc4337' // [!code focus]
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({
@@ -84,7 +84,7 @@ We also need to set up an Owner for the Smart Account which will be used to sign
 
 ```ts twoslash
 import { Client, http } from 'viem'
-import { Client as BundlerClient } from 'viem/account-abstraction'
+import { BundlerClient } from 'viem/erc4337'
 import { mainnet } from 'viem/chains'
 import { Account } from 'viem' // [!code focus]
 
@@ -110,9 +110,9 @@ Next, we instantiate a Smart Account. For this example, we will use [`CoinbaseSm
 ```ts twoslash
 import { Client, http } from 'viem'
 import { // [!code focus]
-  Client as BundlerClient, // [!code focus]
+  BundlerClient, // [!code focus]
   CoinbaseSmartAccount // [!code focus]
-} from 'viem/account-abstraction' // [!code focus]
+} from 'viem/erc4337' // [!code focus]
 import { mainnet } from 'viem/chains'
 import { Account } from 'viem'
 
@@ -149,9 +149,9 @@ Next, we send a User Operation to the Bundler. For the example below, we will se
 import { Client, http } from 'viem'
 import { Value } from 'viem/utils'
 import {
-  Client as BundlerClient,
+  BundlerClient,
   CoinbaseSmartAccount
-} from 'viem/account-abstraction'
+} from 'viem/erc4337'
 import { mainnet } from 'viem/chains'
 import { Account } from 'viem'
 
@@ -197,7 +197,7 @@ If you do not wish to pass an account around to every Action that requires an `a
 ```ts twoslash
 import { Client, http } from 'viem'
 import { Value } from 'viem/utils'
-import { Client as BundlerClient, CoinbaseSmartAccount } from 'viem/account-abstraction'
+import { BundlerClient, CoinbaseSmartAccount } from 'viem/erc4337'
 import { mainnet } from 'viem/chains'
 import { Account } from 'viem'
 
@@ -247,9 +247,9 @@ The example below uses [Pimlico's Paymaster API](https://docs.pimlico.io/infra/p
 import { http } from 'viem'
 import { Value } from 'viem/utils'
 import {
-  Client as BundlerClient,
+  BundlerClient,
   PaymasterClient,
-} from 'viem/account-abstraction'
+} from 'viem/erc4337'
 import { account, client } from './config'
 
 const paymasterClient = PaymasterClient.create({ // [!code ++]
@@ -275,9 +275,9 @@ const hash = await bundlerClient.userOperation.send({
 import { http } from 'viem'
 import { Value } from 'viem/utils'
 import {
-  Client as BundlerClient,
+  BundlerClient,
   PaymasterClient,
-} from 'viem/account-abstraction'
+} from 'viem/erc4337'
 import { account, client } from './config'
 
 const paymasterClient = PaymasterClient.create({ // [!code ++]
@@ -301,7 +301,7 @@ const hash = await bundlerClient.userOperation.send({
 
 ```ts twoslash [config.ts] filename="config.ts"
 import { Account, Client, http } from 'viem'
-import { CoinbaseSmartAccount } from 'viem/account-abstraction'
+import { CoinbaseSmartAccount } from 'viem/erc4337'
 import { mainnet } from 'viem/chains'
 
 export const client = Client.create({
@@ -327,7 +327,7 @@ If your Bundler also accepts Paymaster sponsorship (like [Pimlico](https://www.p
 
 ```ts twoslash [example.ts (on Client)]
 import { http } from 'viem'
-import { Client as BundlerClient } from 'viem/account-abstraction'
+import { BundlerClient } from 'viem/erc4337'
 import { account, client } from './config'
 
 const bundlerClient = BundlerClient.create({
@@ -341,7 +341,7 @@ const bundlerClient = BundlerClient.create({
 ```ts twoslash [example.ts (on Action)]
 import { http } from 'viem'
 import { Value } from 'viem/utils'
-import { Client as BundlerClient } from 'viem/account-abstraction'
+import { BundlerClient } from 'viem/erc4337'
 import { account, client } from './config'
 
 const bundlerClient = BundlerClient.create({
@@ -361,7 +361,7 @@ const hash = await bundlerClient.userOperation.send({
 
 ```ts twoslash [config.ts] filename="config.ts"
 import { Account, Client, http } from 'viem'
-import { CoinbaseSmartAccount } from 'viem/account-abstraction'
+import { CoinbaseSmartAccount } from 'viem/erc4337'
 import { mainnet } from 'viem/chains'
 
 export const client = Client.create({

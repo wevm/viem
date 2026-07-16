@@ -17,7 +17,7 @@ The v3 API groups actions by resource, moves constructors into module namespaces
 
 ## Actions
 
-Import `Actions` from `viem/account-abstraction`, or call the same methods on a Bundler or Paymaster Client.
+Import `Actions` from `viem/erc4337`, or call the same methods on a Bundler or Paymaster Client.
 
 | v2 | v3 |
 | --- | --- |
@@ -34,7 +34,7 @@ Import `Actions` from `viem/account-abstraction`, or call the same methods on a 
 
 ## ERC-4337 Primitives
 
-Viem exposes `EntryPoint`, `UserOperation`, `UserOperationGas`, and `UserOperationReceipt` modules from `viem/account-abstraction`. The `UserOperation` RPC codec uses the Bundler wire field `eip7702Auth`, preserves EntryPoint 0.6 `paymasterAndData`, and carries EntryPoint 0.9 `paymasterSignature`.
+Viem exposes `EntryPoint`, `UserOperation`, `UserOperationGas`, and `UserOperationReceipt` modules from `viem/erc4337`. The `UserOperation` RPC codec uses the Bundler wire field `eip7702Auth`, preserves EntryPoint 0.6 `paymasterAndData`, and carries EntryPoint 0.9 `paymasterSignature`.
 
 | v2 | Replacement |
 | --- | --- |

@@ -31,7 +31,7 @@ const paymasterArgs = await paymasterClient.paymaster.getStubData({
 
 ```ts twoslash [config.ts] filename="config.ts"
 import { http } from 'viem'
-import { PaymasterClient } from 'viem/account-abstraction'
+import { PaymasterClient } from 'viem/erc4337'
 
 export const paymasterClient = PaymasterClient.create({
   transport: http('https://public.pimlico.io/v2/11155111/rpc'),

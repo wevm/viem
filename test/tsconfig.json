@@ -24,11 +24,11 @@
       "viem": [
         "../src/index.ts"
       ],
-      "viem/account-abstraction": [
-        "../src/account-abstraction/index.ts"
-      ],
       "viem/chains": [
         "../src/chains/index.ts"
+      ],
+      "viem/erc4337": [
+        "../src/erc4337/index.ts"
       ],
       "viem/node": [
         "../src/node/index.ts"

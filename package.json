@@ -268,15 +268,15 @@
       "src": "./src/index.ts",
       "default": "./dist/index.js"
     },
-    "./account-abstraction": {
-      "types": "./dist/account-abstraction/index.d.ts",
-      "src": "./src/account-abstraction/index.ts",
-      "default": "./dist/account-abstraction/index.js"
-    },
     "./chains": {
       "types": "./dist/chains/index.d.ts",
       "src": "./src/chains/index.ts",
       "default": "./dist/chains/index.js"
+    },
+    "./erc4337": {
+      "types": "./dist/erc4337/index.d.ts",
+      "src": "./src/erc4337/index.ts",
+      "default": "./dist/erc4337/index.js"
     },
     "./node": {
       "types": "./dist/node/index.d.ts",
@@ -326,11 +326,11 @@
   },
   "typesVersions": {
     "*": {
-      "account-abstraction": [
-        "./dist/account-abstraction/index.d.ts"
-      ],
       "chains": [
         "./dist/chains/index.d.ts"
+      ],
+      "erc4337": [
+        "./dist/erc4337/index.d.ts"
       ],
       "node": [
         "./dist/node/index.d.ts"

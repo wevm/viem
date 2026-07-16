@@ -11,7 +11,7 @@ Read more on **ERC-7677 Paymasters**:
 ## Import
 
 ```ts twoslash
-import { PaymasterClient } from 'viem/account-abstraction'
+import { PaymasterClient } from 'viem/erc4337'
 ```
 
 ## Usage
@@ -19,9 +19,9 @@ import { PaymasterClient } from 'viem/account-abstraction'
 ```ts twoslash
 import { http } from 'viem'
 import {
-  Client as BundlerClient,
+  BundlerClient,
   PaymasterClient,
-} from 'viem/account-abstraction'
+} from 'viem/erc4337'
 import { sepolia } from 'viem/chains'
 
 const paymasterClient = PaymasterClient.create({ // [!code focus]
@@ -53,7 +53,7 @@ You can see an example of end-to-end Paymaster Client usage on the [Sending User
 A key for the Paymaster Client.
 
 ```ts twoslash
-import { PaymasterClient } from 'viem/account-abstraction'
+import { PaymasterClient } from 'viem/erc4337'
 import { http } from 'viem'
 const paymasterClient = PaymasterClient.create({
   key: 'foo', // [!code focus]
@@ -69,7 +69,7 @@ const paymasterClient = PaymasterClient.create({
 A name for the Paymaster Client.
 
 ```ts twoslash
-import { PaymasterClient } from 'viem/account-abstraction'
+import { PaymasterClient } from 'viem/erc4337'
 import { http } from 'viem'
 const paymasterClient = PaymasterClient.create({
   name: 'Foo Paymaster Client', // [!code focus]
@@ -85,7 +85,7 @@ const paymasterClient = PaymasterClient.create({
 Frequency (in ms) for polling enabled Actions.
 
 ```ts twoslash
-import { PaymasterClient } from 'viem/account-abstraction'
+import { PaymasterClient } from 'viem/erc4337'
 import { http } from 'viem'
 const paymasterClient = PaymasterClient.create({
   pollingInterval: 10_000, // [!code focus]
@@ -101,7 +101,7 @@ const paymasterClient = PaymasterClient.create({
 Typed JSON-RPC schema for the client.
 
 ```ts twoslash
-import { PaymasterClient } from 'viem/account-abstraction'
+import { PaymasterClient } from 'viem/erc4337'
 import { http } from 'viem'
 import { z } from 'viem/zod'
 
@@ -125,7 +125,7 @@ const result = await paymasterClient.request({ // [!code focus]
 The Transport of the Paymaster Client.
 
 ```ts twoslash
-import { PaymasterClient } from 'viem/account-abstraction'
+import { PaymasterClient } from 'viem/erc4337'
 import { http } from 'viem'
 const paymasterClient = PaymasterClient.create({
   transport: http('https://public.pimlico.io/v2/11155111/rpc'), // [!code focus]

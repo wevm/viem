@@ -2,8 +2,8 @@ import { AbiConstructor, AbiParameters, type Address, Hex, Value } from 'ox'
 import { EntryPoint, UserOperation } from 'ox/erc4337'
 
 import { Account, Actions, Client } from 'viem'
-import * as Simple7702SmartAccount from '../../src/account-abstraction/Simple7702SmartAccount.js'
-import * as SoladySmartAccount from '../../src/account-abstraction/SoladySmartAccount.js'
+import * as Simple7702SmartAccount from '../../src/erc4337/Simple7702SmartAccount.js'
+import * as SoladySmartAccount from '../../src/erc4337/SoladySmartAccount.js'
 import {
   Simple7702Account08,
   SoladyAccount06,

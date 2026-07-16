@@ -19,7 +19,7 @@ const entryPoints = await bundlerClient.entryPoint.getSupported() // [!code focu
 
 ```ts twoslash [client.ts] filename="client.ts"
 import { http } from 'viem'
-import { Client as BundlerClient } from 'viem/account-abstraction'
+import { BundlerClient } from 'viem/erc4337'
 
 export const bundlerClient = BundlerClient.create({
   transport: http('https://public.pimlico.io/v2/1/rpc')

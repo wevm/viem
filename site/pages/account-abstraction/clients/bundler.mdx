@@ -5,14 +5,14 @@ A Bundler Client is an interface to interact with **ERC-4337 Bundlers** and prov
 ## Import
 
 ```ts twoslash
-import { Client as BundlerClient } from 'viem/account-abstraction'
+import { BundlerClient } from 'viem/erc4337'
 ```
 
 ## Usage
 
 ```ts twoslash
 import { Client, http } from 'viem'
-import { Client as BundlerClient } from 'viem/account-abstraction' // [!code focus]
+import { BundlerClient } from 'viem/erc4337' // [!code focus]
 import { mainnet } from 'viem/chains' // [!code focus]
 
 const client = Client.create({
@@ -41,9 +41,9 @@ The [Smart Account](/account-abstraction/accounts/smart) to use for the Bundler 
 ```ts twoslash
 import { Account, Client, http } from 'viem'
 import {
-  Client as BundlerClient,
+  BundlerClient,
   CoinbaseSmartAccount,
-} from 'viem/account-abstraction'
+} from 'viem/erc4337'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({
@@ -74,7 +74,7 @@ The [Chain](/docs/chains) of the Bundler Client.
 
 ```ts twoslash
 import { http } from 'viem'
-import { Client as BundlerClient } from 'viem/account-abstraction'
+import { BundlerClient } from 'viem/erc4337'
 import { mainnet } from 'viem/chains'
 
 const bundlerClient = BundlerClient.create({
@@ -94,7 +94,7 @@ The bundler client will also inherit `dataSuffix` from the underlying client (e.
 Applies to `userOperation.prepare` and `userOperation.send` actions.
 
 ```ts twoslash
-import { Client as BundlerClient } from 'viem/account-abstraction'
+import { BundlerClient } from 'viem/erc4337'
 import { http } from 'viem'
 const bundlerClient = BundlerClient.create({
   dataSuffix: '0xdeadbeef', // [!code focus]
@@ -109,7 +109,7 @@ const bundlerClient = BundlerClient.create({
 The [Client](/docs/clients/create) (pointing to execution RPC) of the Bundler Client.
 
 ```ts twoslash
-import { Client as BundlerClient } from 'viem/account-abstraction'
+import { BundlerClient } from 'viem/erc4337'
 import { Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -132,7 +132,7 @@ const bundlerClient = BundlerClient.create({
 A key for the Bundler Client.
 
 ```ts twoslash
-import { Client as BundlerClient } from 'viem/account-abstraction'
+import { BundlerClient } from 'viem/erc4337'
 import { http } from 'viem'
 const bundlerClient = BundlerClient.create({
   key: 'foo', // [!code focus]
@@ -148,7 +148,7 @@ const bundlerClient = BundlerClient.create({
 A name for the Bundler Client.
 
 ```ts twoslash
-import { Client as BundlerClient } from 'viem/account-abstraction'
+import { BundlerClient } from 'viem/erc4337'
 import { http } from 'viem'
 const bundlerClient = BundlerClient.create({
   name: 'Foo Bundler Client', // [!code focus]
@@ -169,7 +169,7 @@ Sets Paymaster configuration for the Bundler Client to be utilized on User Opera
 #### Using a Paymaster Client
 
 ```ts twoslash
-import { PaymasterClient, Client as BundlerClient } from 'viem/account-abstraction'
+import { PaymasterClient, BundlerClient } from 'viem/erc4337'
 import { http } from 'viem'
 import { sepolia } from 'viem/chains'
 const paymasterClient = PaymasterClient.create({ // [!code focus]
@@ -186,7 +186,7 @@ const bundlerClient = BundlerClient.create({
 #### Using the Bundler Client as Paymaster
 
 ```ts twoslash
-import { Client as BundlerClient } from 'viem/account-abstraction'
+import { BundlerClient } from 'viem/erc4337'
 import { http } from 'viem'
 import { mainnet } from 'viem/chains'
 const bundlerClient = BundlerClient.create({
@@ -210,9 +210,9 @@ Retrieves paymaster-related User Operation properties to be used for sending the
 
 ```ts twoslash
 import {
-  Client as BundlerClient,
+  BundlerClient,
   PaymasterClient,
-} from 'viem/account-abstraction'
+} from 'viem/erc4337'
 import { http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -241,9 +241,9 @@ Retrieves paymaster-related User Operation properties to be used for gas estimat
 
 ```ts twoslash
 import {
-  Client as BundlerClient,
+  BundlerClient,
   PaymasterClient,
-} from 'viem/account-abstraction'
+} from 'viem/erc4337'
 import { http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -272,7 +272,7 @@ const bundlerClient = BundlerClient.create({
 Paymaster specific fields.
 
 ```ts twoslash
-import { PaymasterClient, Client as BundlerClient } from 'viem/account-abstraction'
+import { PaymasterClient, BundlerClient } from 'viem/erc4337'
 import { http } from 'viem'
 import { mainnet } from 'viem/chains'
 const paymasterClient = PaymasterClient.create({
@@ -297,7 +297,7 @@ const bundlerClient = BundlerClient.create({
 Frequency (in ms) for polling enabled Actions.
 
 ```ts twoslash
-import { Client as BundlerClient } from 'viem/account-abstraction'
+import { BundlerClient } from 'viem/erc4337'
 import { http } from 'viem'
 const bundlerClient = BundlerClient.create({
   pollingInterval: 10_000, // [!code focus]
@@ -313,7 +313,7 @@ const bundlerClient = BundlerClient.create({
 Typed JSON-RPC schema for the client.
 
 ```ts twoslash
-import { Client as BundlerClient } from 'viem/account-abstraction'
+import { BundlerClient } from 'viem/erc4337'
 import { http } from 'viem'
 import { z } from 'viem/zod'
 
@@ -337,7 +337,7 @@ const result = await bundlerClient.request({ // [!code focus]
 The Transport of the Bundler Client.
 
 ```ts twoslash
-import { Client as BundlerClient } from 'viem/account-abstraction'
+import { BundlerClient } from 'viem/erc4337'
 import { http } from 'viem'
 import { mainnet } from 'viem/chains'
 const bundlerClient = BundlerClient.create({
@@ -357,7 +357,7 @@ Configuration for User Operations.
 Prepares fee properties for the User Operation request.
 
 ```ts twoslash
-import { Client as BundlerClient } from 'viem/account-abstraction'
+import { BundlerClient } from 'viem/erc4337'
 import { http } from 'viem'
 import { mainnet } from 'viem/chains'
 const bundlerClient = BundlerClient.create({

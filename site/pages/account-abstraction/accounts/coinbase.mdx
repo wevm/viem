@@ -7,7 +7,7 @@ The `CoinbaseSmartAccount.from` implementation references the [Coinbase Smart Wa
 :::code-group
 
 ```ts twoslash [example.ts]
-import { CoinbaseSmartAccount } from 'viem/account-abstraction' // [!code focus]
+import { CoinbaseSmartAccount } from 'viem/erc4337' // [!code focus]
 import { client } from './client.js'
 import { owner } from './owner.js'
 
@@ -35,7 +35,7 @@ export const owner = Account.fromPrivateKey('0x...')
 ```
 
 ```ts twoslash [owner.ts (Passkey)] filename="owner.ts"
-import { WebAuthnAccount } from 'viem/account-abstraction'
+import { WebAuthnAccount } from 'viem/erc4337'
 import { WebAuthnP256 } from 'viem/utils'
 
 // Register a credential (ie. passkey).

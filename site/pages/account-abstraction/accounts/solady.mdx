@@ -15,7 +15,7 @@ This implementation is unaudited. It is intended to be used for testing purposes
 :::code-group
 
 ```ts twoslash [example.ts]
-import { SoladySmartAccount } from 'viem/account-abstraction' // [!code focus]
+import { SoladySmartAccount } from 'viem/erc4337' // [!code focus]
 import { client, owner } from './config.js'
 
 const account = await SoladySmartAccount.from({ // [!code focus]
@@ -44,7 +44,7 @@ export const client = Client.create({
 Supplying an EntryPoint requires a matching factory deployment.
 
 ```ts
-import { EntryPoint, SoladySmartAccount } from 'viem/account-abstraction'
+import { EntryPoint, SoladySmartAccount } from 'viem/erc4337'
 
 const account = await SoladySmartAccount.from({
   client,

@@ -9,7 +9,7 @@ The `SmartAccount.from` function allows you to create a Smart Account with a cus
 ## Import
 
 ```ts twoslash
-import { SmartAccount } from 'viem/account-abstraction'
+import { SmartAccount } from 'viem/erc4337'
 ```
 
 ## Usage
@@ -19,7 +19,7 @@ To instantiate a Smart Account, you will need to provide an account implementati
 :::code-group
 
 ```ts twoslash [example.ts]
-import { SmartAccount } from 'viem/account-abstraction'
+import { SmartAccount } from 'viem/erc4337'
 import { client } from './client.js'
 
 const account = await SmartAccount.from({

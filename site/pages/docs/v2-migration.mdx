@@ -325,8 +325,8 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `bundlerActions` | `accountAbstractionActions()` | [AA: Actions & Decorators](#actions--decorators) |
 | `BundlerActions` | `AccountAbstractionActions` | [AA: Actions & Decorators](#actions--decorators) |
 | `bundlerClient.getChainId` | `Actions.chains.getId(bundlerClient)` (core action) | [AA: Actions & Decorators](#actions--decorators) |
-| `BundlerClient` | `Client.Client` (from `viem/account-abstraction`) | [AA: Clients](#clients) |
-| `BundlerClientConfig` | `Client.create.Options` | [AA: Clients](#clients) |
+| `BundlerClient` | `BundlerClient.Client` (from `viem/erc4337`) | [AA: Clients](#clients) |
+| `BundlerClientConfig` | `BundlerClient.create.Options` | [AA: Clients](#clients) |
 | `BundlerRpcSchema` | `RpcSchema.Bundler` (from `ox/erc4337`) | [Type Exports](#type-exports) |
 | `BundleTooLargeError` | `Provider.BundleTooLargeError` | [RPC Errors](#rpc-errors) |
 | `ByteArray` | `Bytes.Bytes` | [Encoding & Units](#encoding--units) |
@@ -370,8 +370,8 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `CounterfactualDeploymentFailedError` | Removed | [Removed Errors](#removed-errors) |
 | `createAccessList` | `Actions.transaction.createAccessList` | [Actions: Transactions](#transactions) |
 | `createBlockFilter` | `Actions.block.createFilter` | [Events & Filters](#events--filters) |
-| `createBundlerClient` | `Client.create` (from `viem/account-abstraction`) | [AA: Clients](#clients) |
-| `CreateBundlerClientErrorType` | `Client.create.ErrorType` | [AA: Clients](#clients) |
+| `createBundlerClient` | `BundlerClient.create` (from `viem/erc4337`) | [AA: Clients](#clients) |
+| `CreateBundlerClientErrorType` | `BundlerClient.create.ErrorType` | [AA: Clients](#clients) |
 | `createClient` | `Client.create` | [Client](#client) |
 | `createClient` (from `viem/tempo`) | `Client.create` (from `viem/tempo`) | [Tempo](#tempo) |
 | `createContractEventFilter` | `Actions.contract.createEventFilter` | [Events & Filters](#events--filters) |
@@ -2007,7 +2007,7 @@ The standalone `viem/experimental/erc7739` entrypoint was removed, while Solady 
 
 ```ts
 import { erc7739Actions, signMessage, signTypedData } from 'viem/experimental/erc7739' // [!code --]
-import { SoladySmartAccount } from 'viem/account-abstraction' // [!code ++]
+import { SoladySmartAccount } from 'viem/erc4337' // [!code ++]
 
 client.extend(erc7739Actions()) // [!code --]
 const account = await SoladySmartAccount.from(options) // [!code ++]
@@ -2207,12 +2207,12 @@ const usdc = Token.from({ addresses, currency: 'USD', decimals: 6, name: 'USD Co
 
 ### Clients
 
-Bundler and Paymaster clients moved to `Client.create` and `PaymasterClient.create`, with custom RPC typing renamed from `rpcSchema` to `schema`.
+Bundler and Paymaster clients moved to `BundlerClient.create` and `PaymasterClient.create`, with custom RPC typing renamed from `rpcSchema` to `schema`.
 
 ```ts
 import { http, rpcSchema } from 'viem' // [!code --]
 import { createBundlerClient, createPaymasterClient } from 'viem/account-abstraction' // [!code --]
-import { Client, PaymasterClient, http } from 'viem/account-abstraction' // [!code ++]
+import { BundlerClient, PaymasterClient, http } from 'viem/erc4337' // [!code ++]
 import { RpcSchema } from 'viem/utils' // [!code ++]
 
 const bundler = createBundlerClient({ // [!code --]
@@ -2221,7 +2221,7 @@ const bundler = createBundlerClient({ // [!code --]
     Parameters: [id: string] // [!code --]
     ReturnType: boolean // [!code --]
   }]>(), // [!code --]
-const bundler = Client.create({ // [!code ++]
+const bundler = BundlerClient.create({ // [!code ++]
   schema: RpcSchema.from<{ // [!code ++]
     Request: { method: 'bundler_custom'; params: [id: string] } // [!code ++]
     ReturnType: boolean // [!code ++]
@@ -2249,9 +2249,9 @@ Flat client types moved beside their namespaced factories:
 
 | v2 | v3 |
 | --- | --- |
-| `BundlerClient` | `Client.Client` |
-| `BundlerClientConfig` | `Client.create.Options` |
-| `CreateBundlerClientErrorType` | `Client.create.ErrorType` |
+| `BundlerClient` | `BundlerClient.Client` |
+| `BundlerClientConfig` | `BundlerClient.create.Options` |
+| `CreateBundlerClientErrorType` | `BundlerClient.create.ErrorType` |
 | `CreatePaymasterClientErrorType` | `PaymasterClient.create.ErrorType` |
 | `PaymasterClient` | `PaymasterClient.Client` |
 | `PaymasterClientConfig` | `PaymasterClient.create.Options` |
@@ -2324,7 +2324,7 @@ data.paymasterSignature // [!code ++]
 Bundler Paymaster hooks were renamed to `getData` and `getStubData`, and full `PaymasterClient.Client` values became accepted.
 
 ```ts
-const bundler = Client.create({
+const bundler = BundlerClient.create({
   paymaster: { getPaymasterData, getPaymasterStubData }, // [!code --]
   paymaster: { getData, getStubData }, // [!code ++]
   // or: paymaster: PaymasterClient.create({ transport }), // [!code ++]
@@ -2365,11 +2365,11 @@ The account and credential types moved with them:
 | `WebAuthnAccount` | `WebAuthnAccount.Account` |
 | `WebAuthnSignReturnType` | `WebAuthnAccount.SignReturnType` |
 
-The `WebAuthnAccount.fromCredential.Credential` type describes the credential input. WebAuthn credentials adopted structured P256 keys and immediate validation, with `Credential.serialize` (from `viem/account-abstraction`) replacing direct public-key persistence.
+The `WebAuthnAccount.fromCredential.Credential` type describes the credential input. WebAuthn credentials adopted structured P256 keys and immediate validation, with `Credential.serialize` (from `viem/erc4337`) replacing direct public-key persistence.
 
 ```ts
 const stored = JSON.stringify(credential.publicKey) // [!code --]
-import { Credential } from 'viem/account-abstraction' // [!code ++]
+import { Credential } from 'viem/erc4337' // [!code ++]
 const stored = JSON.stringify(Credential.serialize(credential)) // [!code ++]
 ```
 
@@ -2388,7 +2388,7 @@ Generic smart accounts stopped advertising `sign` unless implemented and left th
 ```ts
 import type { Account } from 'viem' // [!code --]
 function submit(account: Account) {} // [!code --]
-import type { SmartAccount } from 'viem/account-abstraction' // [!code ++]
+import type { SmartAccount } from 'viem/erc4337' // [!code ++]
 function submit(account: SmartAccount.SmartAccount) {} // [!code ++]
 ```
 
