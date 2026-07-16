@@ -8,6 +8,7 @@ import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import { getAction } from '../../../utils/getAction.js'
 import type { To8130AccountReturnType } from '../accounts/to8130Account.js'
+import { nonceKeyMax } from '../constants.js'
 import type {
   AaAccountChange,
   AaCall,
@@ -64,16 +65,26 @@ export async function prepareTransaction8130(
     maxPriorityFeePerGas ??= fees.maxPriorityFeePerGas
   }
 
-  // Read the next sequence via `eth_getTransactionCount` (with the 2D
-  // `nonce_key` extension). The Nonce Manager precompile is not callable via
-  // `eth_call`, so this RPC path is the correct nonce source.
+  // Resolve the sequence for the selected nonce channel.
   let nonceSequence = parameters.nonceSequence
-  if (nonceSequence === undefined)
+  if (nonceKey === nonceKeyMax) {
+    // Nonce-free (expiring) mode: there is no per-channel counter to read;
+    // replay protection relies on `expiry`. Pin the sequence to `0n`.
+    if (!expiry || expiry === 0n)
+      throw new BaseError(
+        '`expiry` is required for nonce-free transactions (`nonceKey` = `NONCE_KEY_MAX`). Build the nonce with `nonce.nonceless({ expiresIn })`.',
+      )
+    nonceSequence ??= 0n
+  } else if (nonceSequence === undefined) {
+    // Read the next sequence via `eth_getTransactionCount` (with the 2D
+    // `nonce_key` extension). The Nonce Manager precompile is not callable via
+    // `eth_call`, so this RPC path is the correct nonce source.
     nonceSequence = await getAction(
       client,
       getTransactionCount8130,
       'getTransactionCount8130',
     )({ address: account.address, nonceKey })
+  }
 
   return {
     chainId,

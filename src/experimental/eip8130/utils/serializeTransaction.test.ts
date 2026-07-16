@@ -125,9 +125,10 @@ describe('serializeTransaction (EIP-8130)', () => {
               actorId:
                 '0x0000000000000000000000003c44cdddb6a900fa2b585dd299e03d12fa4293bc',
               authenticator: '0x0000000000000000000000000000000000000001',
-              scope: 0x04,
+              // SCOPE_NONCE (0x04) | SCOPE_POLICY (0x02); policy presence is a
+              // scope bit now (no standalone policyType field).
+              scope: 0x06,
               expiry: 1_900_000_000n,
-              policyType: 0x01,
               policyData: '0xc0ffee',
             },
             {
@@ -232,10 +233,12 @@ describe('signature hashes', () => {
     expect(withPayer).not.toEqual(withoutPayer)
   })
 
-  test('payer hash excludes the payer field', () => {
+  test('payer hash binds the payer field', () => {
+    // The payer signature commits to the full body INCLUDING the `payer` slot
+    // (matches the Rust node's `payer_signature_hash`).
     const a = getPayerSignatureHash8130(transaction)
     const b = getPayerSignatureHash8130({ ...transaction, payer: undefined })
-    expect(a).toEqual(b)
+    expect(a).not.toEqual(b)
   })
 
   test('uses the correct domain-separation type bytes', () => {

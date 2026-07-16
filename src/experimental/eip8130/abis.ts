@@ -5,13 +5,17 @@ import { parseAbi } from 'abitype'
  * (`IAccountConfiguration`) at `ACCOUNT_CONFIG_ADDRESS`.
  */
 export const accountConfigurationAbi = parseAbi([
-  'struct InitialActor { bytes32 actorId; address authenticator; }',
-  'struct ActorConfig { address authenticator; uint8 scope; uint48 expiry; uint8 policyType; }',
+  'struct InitialActor { bytes32 actorId; address authenticator; uint8 scope; bytes policyData; }',
+  'struct ActorConfig { address authenticator; uint8 scope; uint48 expiry; }',
   'struct Actor { bytes32 actorId; ActorConfig config; bytes policyData; }',
   'struct ActorChange { uint8 changeType; bytes32 actorId; bytes data; }',
   'struct ChangeSequences { uint64 multichain; uint64 local; }',
 
-  'event ActorAuthorized(address indexed account, bytes32 indexed actorId, ActorConfig config, address policyManager, bytes32 policyCommitment)',
+  // `actorData` is tightly packed: authenticator(20) || scope(1) || expiry(6) ||
+  // reserved(5 zero bytes) = 32 bytes, plus manager(20) || commitment(32) when
+  // scope & SCOPE_POLICY != 0 (84 bytes total). Policy presence is the
+  // SCOPE_POLICY bit — there is no `policyType` field.
+  'event ActorAuthorized(address indexed account, bytes32 indexed actorId, bytes actorData)',
   'event ActorRevoked(address indexed account, bytes32 indexed actorId)',
   'event AccountCreated(address indexed account, bytes32 userSalt, bytes32 codeHash)',
   'event AccountImported(address indexed account)',
@@ -21,15 +25,14 @@ export const accountConfigurationAbi = parseAbi([
 
   'function createAccount(bytes32 userSalt, bytes bytecode, InitialActor[] initialActors) returns (address)',
   'function computeAddress(bytes32 userSalt, bytes bytecode, InitialActor[] initialActors) view returns (address)',
-  'function importAccount(address account, InitialActor[] initialActors, bytes signature)',
-  'function applySignedActorChanges(address account, uint64 chainId, ActorChange[] actorChanges, bytes auth)',
-  'function lock(uint16 unlockDelay)',
-  'function initiateUnlock()',
+  'function importAccount(address account, uint256 chainId, InitialActor[] initialActors, bytes signature)',
+  'function applySignedActorChanges(address account, uint256 chainId, ActorChange[] actorChanges, bytes auth)',
+  'function applySignedLockChanges(address account, uint8 op, uint16 unlockDelay, bytes auth)',
   'function verifySignature(address account, bytes32 hash, bytes signature) view returns (bool verified)',
-  'function authenticateActor(address account, bytes32 hash, bytes auth) view returns (uint8 scope, uint8 policyType, address policyTarget)',
+  'function authenticateActor(address account, bytes32 hash, bytes auth) view returns (uint8 scope, address policyTarget)',
   'function isActor(address account, bytes32 actorId) view returns (bool)',
   'function getActorConfig(address account, bytes32 actorId) view returns (ActorConfig)',
-  'function getPolicy(address account, bytes32 actorId) view returns (uint8 policyType, address target, bytes32 commitment)',
+  'function getPolicy(address account, bytes32 actorId) view returns (address target, bytes32 commitment)',
   'function getPolicyCommitment(address account, bytes32 actorId) view returns (bytes32)',
   'function getPolicyManager(address account, bytes32 actorId) view returns (address)',
   'function getChangeSequences(address account) view returns (ChangeSequences)',

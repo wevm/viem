@@ -65,6 +65,8 @@ export function toAccountChangesList(
           entry.initialActors.map((actor) => [
             actor.actorId,
             actor.authenticator,
+            actor.scope ? numberToHex(actor.scope) : '0x',
+            actor.policyData ?? '0x',
           ]),
         ],
       ]

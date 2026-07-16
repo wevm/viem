@@ -84,16 +84,16 @@ export type EstimateGas8130Parameters = {
    */
   senderAuth?: Hex | undefined
   /**
-   * Verifier (authenticator contract) address hint. The blob is synthesized
-   * as `verifier || filler`, where `filler` is `senderAuthSize` bytes if
+   * Authenticator (authenticator contract) address hint. The blob is synthesized
+   * as `authenticator || filler`, where `filler` is `senderAuthSize` bytes if
    * given, else a representative default length for known canonical
-   * verifiers ({@link canonicalAuthenticators}) — pass `senderAuthSize`
-   * explicitly for a custom verifier with no known default.
+   * authenticators ({@link canonicalAuthenticators}) — pass `senderAuthSize`
+   * explicitly for a custom authenticator with no known default.
    */
-  senderAuthVerifier?: Address | undefined
+  senderAuthAuthenticator?: Address | undefined
   /**
-   * Sender auth-payload byte length. Combined with `senderAuthVerifier`, it
-   * overrides the verifier's default length. Alone (no verifier), it prices a
+   * Sender auth-payload byte length. Combined with `senderAuthAuthenticator`, it
+   * overrides the authenticator's default length. Alone (no authenticator), it prices a
    * bare (unprefixed, default-EOA-path) filler blob of this length.
    */
   senderAuthSize?: number | undefined
@@ -104,7 +104,7 @@ export type EstimateGas8130Parameters = {
    * policy and revert. Pass the session (or other non-self) actor id you intend
    * to sign with; the node resolves that actor's policy after applying
    * `accountChanges`, so an actor authorized in the same estimate request is
-   * visible. Orthogonal to {@link EstimateGas8130Parameters.senderAuthVerifier}
+   * visible. Orthogonal to {@link EstimateGas8130Parameters.senderAuthAuthenticator}
    * (auth-gas pricing) — accept both when estimating a session-key send.
    */
   senderActorId?: Hex | undefined
@@ -117,8 +117,8 @@ export type EstimateGas8130Parameters = {
    * `authenticator(20) || data` form). See `senderAuth`.
    */
   payerAuth?: Hex | undefined
-  /** Payer verifier address hint. See `senderAuthVerifier`. */
-  payerAuthVerifier?: Address | undefined
+  /** Payer authenticator address hint. See `senderAuthAuthenticator`. */
+  payerAuthAuthenticator?: Address | undefined
   /** Payer auth-payload byte length override. See `senderAuthSize`. */
   payerAuthSize?: number | undefined
   /** Block number to estimate against. */
@@ -154,7 +154,7 @@ const maxAuthSize = 8_192
  * account-change) and per-phase call overhead.
  *
  * In both modes, the node prices authentication gas from the auth blob's
- * *shape*, never a real signature — pass `senderAuthVerifier` (or a raw
+ * *shape*, never a real signature — pass `senderAuthAuthenticator` (or a raw
  * `senderAuth`) for a configured account, and leave both unset for the
  * default EOA. For policy-gated actors (session keys), also pass
  * `senderActorId` so the simulate path publishes the intended acting actor
@@ -178,7 +178,7 @@ export async function estimateGas8130<
     data,
     value,
     senderAuth: senderAuthExplicit,
-    senderAuthVerifier,
+    senderAuthAuthenticator,
     senderAuthSize,
     senderActorId,
     accountChanges,
@@ -187,7 +187,7 @@ export async function estimateGas8130<
     nonceSequence = 0,
     payer,
     payerAuth: payerAuthExplicit,
-    payerAuthVerifier,
+    payerAuthAuthenticator,
     payerAuthSize,
     blockNumber,
     blockTag = 'pending',
@@ -211,12 +211,12 @@ export async function estimateGas8130<
 
   const senderAuth = buildAuthBlob(
     senderAuthExplicit,
-    senderAuthVerifier,
+    senderAuthAuthenticator,
     senderAuthSize,
   )
   const payerAuth = buildAuthBlob(
     payerAuthExplicit,
-    payerAuthVerifier,
+    payerAuthAuthenticator,
     payerAuthSize,
   )
 
@@ -290,10 +290,10 @@ export async function estimateGas8130<
  * Builds the raw `senderAuth`/`payerAuth` blob to price, in priority order:
  *
  * 1. `explicit` — pass the caller's raw blob through verbatim.
- * 2. `verifier` set — synthesize `verifier || filler`, where `filler` is
- *    `size` bytes if given, else the verifier's known default length
+ * 2. `authenticator` set — synthesize `authenticator || filler`, where `filler` is
+ *    `size` bytes if given, else the authenticator's known default length
  *    ({@link canonicalAuthDataLength}). Throws if neither is available.
- * 3. `size` alone (no verifier) — a bare (unprefixed) filler blob of `size`
+ * 3. `size` alone (no authenticator) — a bare (unprefixed) filler blob of `size`
  *    bytes, pricing the default-EOA path at a specific length.
  * 4. All unset — `undefined` (no auth blob on the request; the node applies
  *    its own default).
@@ -305,20 +305,20 @@ export async function estimateGas8130<
  */
 function buildAuthBlob(
   explicit: Hex | undefined,
-  verifier: Address | undefined,
+  authenticator: Address | undefined,
   size: number | undefined,
 ): Hex | undefined {
   if (explicit !== undefined) return explicit
-  if (verifier === undefined) {
+  if (authenticator === undefined) {
     if (size === undefined) return undefined
     return filler(size)
   }
-  const dataLength = size ?? canonicalAuthDataLength[verifier.toLowerCase()]
+  const dataLength = size ?? canonicalAuthDataLength[authenticator.toLowerCase()]
   if (dataLength === undefined)
     throw new BaseError(
-      `No default auth-payload length is known for verifier ${verifier}. Pass an explicit auth size.`,
+      `No default auth-payload length is known for authenticator ${authenticator}. Pass an explicit auth size.`,
     )
-  return concatHex([verifier, filler(dataLength)])
+  return concatHex([authenticator, filler(dataLength)])
 }
 
 function filler(length: number): Hex {

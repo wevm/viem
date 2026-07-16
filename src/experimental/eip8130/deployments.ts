@@ -82,23 +82,26 @@ export type Eip8130Deployment = {
  * bytecode change), all addresses must be re-derived and this object updated.
  */
 export const canonicalEip8130Deployment = {
-  accountConfiguration: '0x2403408177dB7F8512a9593343a7C80371D8f2dF',
+  accountConfiguration: '0xe7Bb8eF3728ea9f0A8be6D7e9585FeAb12dE086A',
   accounts: {
+    // `upgradeable` / `erc4337` are unaudited example wallets (base/eip-8130-examples),
+    // not part of base/eip-8130's canonical `Deploy.s.sol` set. They cascade off
+    // `accountConfiguration`; re-pin once the examples repo publishes a broadcast.
     upgradeable: '0xF8dafa4DA35F664cf2CF842f00482ebb68a982b3',
-    default: '0xaF0973bbebe12BDaE6B61c96019dc0DcA554b67c',
-    defaultHighRate: '0x6c4230a4101849a3CB6438C40D3d47EdE9aca096',
+    default: '0xDd802113C9FF6964cD2A61A16e075D5271cC82c9',
+    defaultHighRate: '0xe5edfB7E7365893d685c2FbFBAC3e022f51d942F',
     erc4337: '0x8812ee1c9BA2395b5f113412769f22C6e7b89B11',
   },
   authenticators: {
     k1: '0x0000000000000000000000000000000000000001',
-    p256: '0x28096E6f98996799A08fBbCFF0B7c0D512D1f503',
-    webAuthn: '0xD9B8d163a34FBaD781057F7B68889F0bbd70D7ed',
-    delegate: '0xb1f064A99919E4199b45F1b553b6ecb8d5d62a11',
-    alwaysValid: '0x4299a796C1D3ffCe7885ce13d9815C1b4DB2Ea94',
+    p256: '0xf8847a74F8067CabaE5fe56B70b372A7D670f0f8',
+    webAuthn: '0x871c72d3950308A028E9c4917591bcfd3D6a1EF7',
+    delegate: '0x1B0195ba5E3FCdB387DD619816eeF8b510Ed0855',
+    alwaysValid: '0xA550545Da91720c23483c5B3493412A02D1cF9F9',
   },
   policies: {
-    manager: '0x5E5c3D54078d1000309233fEc116A83Df5a07E67',
-    sessionPolicy: '0xbd26BdA18Ee35F767ef03fD72356ae598ed6f793',
+    manager: '0x18B545EfC321644eE2dB9644c8f94f3f3d5e8624',
+    sessionPolicy: '0x6Ef50425716c134162C5c289E02162dde75b23Ea',
   },
 } as const satisfies Eip8130Deployment
 

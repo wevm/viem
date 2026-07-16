@@ -137,20 +137,19 @@ export function authorizeActor(
     actorId: actor.actorId,
     authenticator: actor.authenticator,
   }
-  if (options.scope) change.scope = options.scope
+  let scope = options.scope ?? 0
   if (options.expiry) change.expiry = options.expiry
   if (options.policy) {
-    if (
-      options.scope === undefined ||
-      options.scope === 0 ||
-      (options.scope & actorScope.config) !== 0
-    )
+    // Admin (scope 0) is unrestricted; a policy-gated actor must be restricted.
+    if (scope === 0)
       throw new BaseError(
-        'A policy-bearing actor MUST have a restricted scope that excludes CONFIG (e.g. `actorScope.sender`).',
+        'A policy-bearing actor MUST have a restricted (non-admin) scope (e.g. `actorScope.sender`).',
       )
-    change.policyType = options.policy.type
+    // Policy presence is the SCOPE_POLICY bit (there is no `policyType` field).
+    scope |= actorScope.policy
     change.policyData = encodePolicyData(options.policy)
   }
+  if (scope) change.scope = scope
   return change
 }
 

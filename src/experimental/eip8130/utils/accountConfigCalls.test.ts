@@ -60,7 +60,12 @@ describe('toFactoryArgs8130 (ERC-4337 factory)', () => {
     expect(args[0]).toBe(params.userSalt)
     expect(args[1]).toBe(params.code)
     expect(args[2]).toEqual([
-      { actorId: actor.actorId, authenticator: actor.authenticator },
+      {
+        actorId: actor.actorId,
+        authenticator: actor.authenticator,
+        scope: 0,
+        policyData: '0x',
+      },
     ])
   })
 

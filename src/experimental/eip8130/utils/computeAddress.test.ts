@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 import { getCreate2Address } from '../../../utils/address/getContractAddress.js'
 import { isAddress } from '../../../utils/address/isAddress.js'
 import { concatHex } from '../../../utils/data/concat.js'
+import { toHex } from '../../../utils/encoding/toHex.js'
 import { keccak256 } from '../../../utils/hash/keccak256.js'
 import { accountConfigAddress } from '../constants.js'
 import type { AaActor } from '../types/transaction.js'
@@ -37,8 +38,12 @@ describe('computeAddress (EIP-8130)', () => {
       concatHex([
         actorA.actorId,
         actorA.authenticator,
+        toHex(actorA.scope ?? 0, { size: 1 }),
+        actorA.policyData ?? '0x',
         actorB.actorId,
         actorB.authenticator,
+        toHex(actorB.scope ?? 0, { size: 1 }),
+        actorB.policyData ?? '0x',
       ]),
     )
     const effectiveSalt = keccak256(concatHex([userSalt, actorsCommitment]))

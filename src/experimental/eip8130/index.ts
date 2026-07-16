@@ -28,10 +28,40 @@ export {
   estimateGas8130,
 } from './actions/estimateGas8130.js'
 export {
+  type GetActorConfig8130Parameters,
+  type GetActorConfig8130ReturnType,
+  getActorConfig8130,
+} from './actions/getActorConfig8130.js'
+export {
   type GetConfigSequence8130Parameters,
   type GetConfigSequence8130ReturnType,
   getConfigSequence8130,
 } from './actions/getConfigSequence8130.js'
+export {
+  type GetLockStatus8130Parameters,
+  type GetLockStatus8130ReturnType,
+  getLockStatus8130,
+} from './actions/getLockStatus8130.js'
+export {
+  type GetPolicy8130Parameters,
+  type GetPolicy8130ReturnType,
+  getPolicy8130,
+} from './actions/getPolicy8130.js'
+export {
+  type GetSessionSpend8130Parameters,
+  type GetSessionSpend8130ReturnType,
+  getSessionSpend8130,
+} from './actions/getSessionSpend8130.js'
+export {
+  type IsActor8130Parameters,
+  type IsActor8130ReturnType,
+  isActor8130,
+} from './actions/isActor8130.js'
+export {
+  type IsLocked8130Parameters,
+  type IsLocked8130ReturnType,
+  isLocked8130,
+} from './actions/isLocked8130.js'
 export {
   type GetTransactionCount8130Parameters,
   type GetTransactionCount8130ReturnType,
@@ -75,6 +105,7 @@ export {
   aaTransactionType,
   accountChangeType,
   accountConfigAddress,
+  accountStateFlags,
   actorChangeType,
   actorScope,
   canonicalAuthDataLength,
@@ -82,12 +113,23 @@ export {
   defaultAccountAddress,
   deploymentHeaderSize,
   ecrecoverAuthenticator,
+  lockOp,
   maxCodeSize,
+  nonceFreeCost,
+  nonceFreeExpiryWindow,
+  nonceFreeMaxExpiryWindow,
+  nonceKeyExistingCost,
+  nonceKeyFirstUseCost,
   nonceKeyMax,
   nonceManagerAddress,
+  policyDataLength,
+  replayBufferCapacity,
+  replayIdType,
   revokedAuthenticator,
+  scopeUnrestricted,
   trustedExecutorAuthenticator,
   txContextAddress,
+  unlockOp,
 } from './constants.js'
 export {
   baseSepoliaDeployment,
@@ -106,6 +148,17 @@ export {
   revokeActor,
   toScope,
 } from './keys.js'
+export {
+  type HashLockChange8130Parameters,
+  hashLockChange8130,
+  type InitiateUnlockCallParameters,
+  initiateUnlockCall,
+  type LockCallParameters,
+  type LockChangeOp,
+  lockChangeTypehash,
+  lockCall,
+} from './lock.js'
+export { type Nonce, nonce } from './nonce.js'
 export {
   type CommitmentOfErrorType,
   commitmentOf,

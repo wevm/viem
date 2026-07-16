@@ -12,7 +12,7 @@ import {
 } from '../../../utils/data/concat.js'
 import { size } from '../../../utils/data/size.js'
 import { hexToBigInt } from '../../../utils/encoding/fromHex.js'
-import { bytesToHex } from '../../../utils/encoding/toHex.js'
+import { bytesToHex, toHex } from '../../../utils/encoding/toHex.js'
 import {
   type Keccak256ErrorType,
   keccak256,
@@ -79,7 +79,8 @@ export type ComputeAddress8130ErrorType =
  * CREATE2 derivation:
  *
  * ```
- * actors_commitment = keccak256(actorId_0 || authenticator_0 || ...)
+ * // per actor: actorId(32) || authenticator(20) || scope(1) || policyData(0|52)
+ * actors_commitment = keccak256(actorId_0 || authenticator_0 || scope_0 || policyData_0 || ...)
  * effective_salt    = keccak256(user_salt || actors_commitment)
  * deployment_code   = DEPLOYMENT_HEADER(len(code)) || code
  * address           = keccak256(0xff || ACCOUNT_CONFIG_ADDRESS || effective_salt || keccak256(deployment_code))[12:]
@@ -117,7 +118,12 @@ export function computeAddress8130(
 
   const actorsCommitment = keccak256(
     concatHex(
-      initialActors.flatMap((actor) => [actor.actorId, actor.authenticator]),
+      initialActors.flatMap((actor) => [
+        actor.actorId,
+        actor.authenticator,
+        toHex(actor.scope ?? 0, { size: 1 }),
+        actor.policyData ?? '0x',
+      ]),
     ),
   )
   const effectiveSalt = keccak256(concatHex([userSalt, actorsCommitment]))

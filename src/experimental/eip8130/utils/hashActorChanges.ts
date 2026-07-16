@@ -26,11 +26,11 @@ export const actorChangeTypehash = keccak256(
 )
 
 /**
- * `keccak256("SignedActorChanges(address account,uint64 chainId,uint64 sequence,ActorChange[] actorChanges)ActorChange(uint8 changeType,bytes32 actorId,bytes data)")`
+ * `keccak256("SignedActorChanges(address account,uint256 chainId,uint64 sequence,ActorChange[] actorChanges)ActorChange(uint8 changeType,bytes32 actorId,bytes data)")`
  */
 export const signedActorChangesTypehash = keccak256(
   stringToHex(
-    'SignedActorChanges(address account,uint64 chainId,uint64 sequence,ActorChange[] actorChanges)ActorChange(uint8 changeType,bytes32 actorId,bytes data)',
+    'SignedActorChanges(address account,uint256 chainId,uint64 sequence,ActorChange[] actorChanges)ActorChange(uint8 changeType,bytes32 actorId,bytes data)',
   ),
 )
 
@@ -94,7 +94,7 @@ export function hashActorChanges8130(
       [
         { type: 'bytes32' },
         { type: 'address' },
-        { type: 'uint64' },
+        { type: 'uint256' },
         { type: 'uint64' },
         { type: 'bytes32' },
       ],

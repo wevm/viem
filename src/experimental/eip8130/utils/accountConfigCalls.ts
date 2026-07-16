@@ -14,6 +14,8 @@ function toInitialActors(actors: readonly AaActor[]) {
   return actors.map((actor) => ({
     actorId: actor.actorId,
     authenticator: actor.authenticator,
+    scope: actor.scope ?? 0,
+    policyData: actor.policyData ?? ('0x' as Hex),
   }))
 }
 

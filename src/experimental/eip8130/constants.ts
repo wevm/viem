@@ -14,6 +14,42 @@ export const aaPayerType = '0x7a' satisfies Hex
 export const aaBaseCost = 15000n
 
 /**
+ * `nonce_key_cost` for nonce-free (`NONCE_KEY_MAX`) transactions: 13,000 gas for
+ * the enshrined ring-buffer replay state (2·COLD_SLOAD + WARM_SLOAD +
+ * 3·SSTORE_RESET). Base's current schedule; a chain MAY price differently.
+ */
+export const nonceFreeCost = 13000n
+
+/** `nonce_key_cost` for the first use of a sequenced nonce key (cold SLOAD + SSTORE set). */
+export const nonceKeyFirstUseCost = 22100n
+
+/** `nonce_key_cost` for a previously-used sequenced nonce key (cold SLOAD + SSTORE reset). */
+export const nonceKeyExistingCost = 5000n
+
+/**
+ * Domain-separation prefix for the nonce-free `replay_id` preimage
+ * (`REPLAY_ID_TYPE`): `keccak256(REPLAY_ID_TYPE || rlp([chain_id,
+ * resolved_sender, expiry, account_changes, calls, metadata, payer]))`.
+ */
+export const replayIdType = '0x7901' satisfies Hex
+
+/**
+ * Consensus/execution replay window (seconds) for nonce-free transactions
+ * (`NONCE_FREE_EXPIRY_WINDOW`). A nonce-free tx's `expiry` must fall within
+ * `(now, now + NONCE_FREE_EXPIRY_WINDOW]`.
+ */
+export const nonceFreeExpiryWindow = 30n
+
+/**
+ * Mempool-admission cap (seconds) on a nonce-free tx's `expiry` window
+ * (`NONCE_FREE_MAX_EXPIRY_WINDOW`); tighter than the consensus window.
+ */
+export const nonceFreeMaxExpiryWindow = 10n
+
+/** Enshrined nonce-free replay ring-buffer capacity (`REPLAY_BUFFER_CAPACITY`). */
+export const replayBufferCapacity = 300000n
+
+/**
  * Account change entry type discriminators (first element of each
  * `account_changes` entry).
  */
@@ -32,16 +68,54 @@ export const actorChangeType = {
 } as const
 
 /**
- * Actor scope permission bitmask values.
+ * Actor scope permission bitmask values (base/eip-8130 `AccountConfiguration`).
  *
- * `0x00` (unrestricted) is represented by the absence of any bit.
+ * `0x00` (unrestricted) is admin: an actor is admin iff `scope == 0`. There is
+ * no `SCOPE_SIGNATURE` / `SCOPE_CONFIG` bit — ERC-1271 signing and config rights
+ * ride on admin scope (or a SENDER actor without POLICY). Bits `0x20`, `0x40`,
+ * `0x80` are spare.
  */
 export const actorScope = {
-  signature: 0x01,
-  sender: 0x02,
-  payer: 0x04,
-  config: 0x08,
+  /** `SCOPE_SENDER` — may originate transactions with the account as sender. */
+  sender: 0x01,
+  /** `SCOPE_POLICY` — actor is gated to its policy manager; a bit in the scope word (replaces the old `policyType` field). */
+  policy: 0x02,
+  /** `SCOPE_NONCE` — may use sequenced nonce keys; without it, restricted to nonce-free (`NONCE_KEY_MAX`). */
+  nonce: 0x04,
+  /** `SCOPE_SELF_PAYER` — may pay for its own transactions (`payer == sender`). */
+  selfPayer: 0x08,
+  /** `SCOPE_SPONSOR_PAYER` — may sponsor others (`payer != sender`). */
+  sponsorPayer: 0x10,
 } as const
+
+/** Unrestricted (admin) scope value (`SCOPE_UNRESTRICTED`). An actor is admin iff `scope == 0`. */
+export const scopeUnrestricted = 0x00
+
+/**
+ * `AccountState.flags` bits (base/eip-8130 `AccountConfiguration`).
+ *
+ * The lock state is derived from these flags plus the `lockUnion` field: while
+ * `unlockInitiated` is clear, `lockUnion` holds the configured unlock delay
+ * (seconds); while set, it holds `unlocksAt` (the timestamp the unlock takes
+ * effect). Only meaningful when `locked` is set.
+ */
+export const accountStateFlags = {
+  /** `FLAG_REVOKE_DEFAULT_EOA` — disables the implicit k1 self key. */
+  revokeDefaultEoa: 0x01,
+  /** `FLAG_LOCKED` — actor configuration is frozen. */
+  locked: 0x02,
+  /** `FLAG_UNLOCK_INITIATED` — selects how `lockUnion` is interpreted. */
+  unlockInitiated: 0x04,
+} as const
+
+/** `applySignedLockChanges` op selecting a hard lock (`LOCK_OP`). */
+export const lockOp = 0x01
+
+/** `applySignedLockChanges` op initiating a (delayed) unlock (`UNLOCK_OP`). */
+export const unlockOp = 0x02
+
+/** Exact `policyData` byte length for a policy-bearing actor: `manager (20) || commitment (32)` (`POLICY_DATA_LEN`). */
+export const policyDataLength = 52
 
 /**
  * Nonce-free mode selector (`NONCE_KEY_MAX`). When `nonceKey` equals this value,
@@ -91,14 +165,14 @@ export const trustedExecutorAuthenticator =
  * {@link eip8130Deployments} / {@link getEip8130Deployment}, or override per call.
  */
 export const canonicalAuthenticators = {
-  /** secp256k1 — native sentinel (`ECRECOVER_AUTHENTICATOR`). */
+  /** secp256k1 — native sentinel (`ECRECOVER_AUTHENTICATOR` / `K1_AUTHENTICATOR`). */
   k1: '0x0000000000000000000000000000000000000001',
   /** P-256 (raw). Canonical base/eip-8130 deployment. */
-  p256: '0x28096E6f98996799A08fBbCFF0B7c0D512D1f503',
+  p256: '0xf8847a74F8067CabaE5fe56B70b372A7D670f0f8',
   /** WebAuthn / FIDO2 passkey. Canonical base/eip-8130 deployment. */
-  passkey: '0xD9B8d163a34FBaD781057F7B68889F0bbd70D7ed',
+  passkey: '0x871c72d3950308A028E9c4917591bcfd3D6a1EF7',
   /** Signature delegation (1-hop). Canonical base/eip-8130 deployment. */
-  delegate: '0xb1f064A99919E4199b45F1b553b6ecb8d5d62a11',
+  delegate: '0x1B0195ba5E3FCdB387DD619816eeF8b510Ed0855',
 } as const satisfies Record<string, Hex>
 
 /**
@@ -138,7 +212,7 @@ export const txContextAddress =
  * parameter of {@link computeAddress8130}.
  */
 export const accountConfigAddress =
-  '0x2403408177dB7F8512a9593343a7C80371D8f2dF' satisfies Hex
+  '0xe7Bb8eF3728ea9f0A8be6D7e9585FeAb12dE086A' satisfies Hex
 
 /**
  * Default wallet implementation for EOA auto-delegation
@@ -149,7 +223,7 @@ export const accountConfigAddress =
  * {@link accountConfigAddress}.
  */
 export const defaultAccountAddress =
-  '0xD67D6ae50521A0ea9Aa1e174C536F346E87a1903' satisfies Hex
+  '0xDd802113C9FF6964cD2A61A16e075D5271cC82c9' satisfies Hex
 
 /** Size of the deployment header in bytes (`DEPLOYMENT_HEADER_SIZE`). */
 export const deploymentHeaderSize = 14

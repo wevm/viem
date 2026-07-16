@@ -49,7 +49,7 @@ describe('key builders + actorId derivation', () => {
 
 describe('scope + policy helpers', () => {
   test('toScope combines flags', () => {
-    expect(toScope(actorScope.sender, actorScope.payer)).toBe(0x06)
+    expect(toScope(actorScope.sender, actorScope.selfPayer)).toBe(0x09)
   })
 
   test('encodePolicyData = manager || commitment', () => {
@@ -62,24 +62,27 @@ describe('scope + policy helpers', () => {
     )
   })
 
-  test('authorizeActor rejects unrestricted / CONFIG-scoped policy actor', () => {
+  test('authorizeActor rejects unrestricted (admin) policy actor; sets SCOPE_POLICY bit otherwise', () => {
     const commitment = `0x${'aa'.repeat(32)}` as const
     const policy = {
       type: 1,
       manager: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
       commitment,
     } as const
+    // A policy-bearing actor must have a restricted (non-admin) scope.
     expect(() => authorizeActor(key.p256(pubkey), { policy })).toThrow()
     expect(() =>
-      authorizeActor(key.p256(pubkey), { scope: actorScope.config, policy }),
+      authorizeActor(key.p256(pubkey), { scope: 0, policy }),
     ).toThrow()
-    // sender-only is allowed
+    // sender-scoped policy actor: SCOPE_POLICY bit is set, policyData populated.
     const change = authorizeActor(key.p256(pubkey), {
       scope: actorScope.sender,
       policy,
     })
-    expect(change.policyType).toBe(1)
-    expect(change.scope).toBe(actorScope.sender)
+    expect(change.scope).toBe(actorScope.sender | actorScope.policy)
+    expect(change.policyData?.toLowerCase()).toBe(
+      `${policy.manager.toLowerCase()}${commitment.slice(2)}`,
+    )
   })
 })
 

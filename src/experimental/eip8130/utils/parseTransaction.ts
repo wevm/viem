@@ -56,15 +56,19 @@ function parseCalls(value: RlpHex): AaCalls {
 }
 
 function parseActor(value: RlpHex): AaActor {
-  const [actorId, authenticator] = value as Hex[]
-  return { actorId, authenticator: authenticator as Address }
+  const [actorId, authenticator, scope, policyData] = value as Hex[]
+  const actor: AaActor = { actorId, authenticator: authenticator as Address }
+  const scopeNum = !scope || scope === '0x' ? 0 : hexToNumber(scope)
+  if (scopeNum !== 0) actor.scope = scopeNum
+  if (policyData && policyData !== '0x') actor.policyData = policyData
+  return actor
 }
 
 function parseActorChange(value: RlpHex): AaActorChange {
   const [changeType, actorId, data] = value as [Hex, Hex, Hex]
   const type = changeType === '0x' ? 0 : hexToNumber(changeType)
   if (type === actorChangeType.authorizeActor) {
-    const { authenticator, scope, expiry, policyType, policyData } =
+    const { authenticator, scope, expiry, policyData } =
       decodeAuthorizeActorData(data)
     const change: AaActorChange = {
       changeType: actorChangeType.authorizeActor,
@@ -73,7 +77,6 @@ function parseActorChange(value: RlpHex): AaActorChange {
     }
     if (scope !== 0) change.scope = scope
     if (expiry !== 0n) change.expiry = expiry
-    if (policyType !== 0) change.policyType = policyType
     if (policyData !== '0x') change.policyData = policyData
     return change
   }

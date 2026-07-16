@@ -40,15 +40,24 @@ export type AaCall = {
 export type AaCalls = readonly (readonly AaCall[])[]
 
 /**
- * An initial actor for a `create` entry. Initial actors are always registered as
- * unrestricted owners (`scope = 0x00`, no policy, no expiry); only `actorId` and
- * `authenticator` participate in address derivation.
+ * An initial actor for a `create` entry, and the identity returned by the
+ * {@link key} builders.
+ *
+ * Initial actors carry their `scope` and (when `scope & SCOPE_POLICY`) their
+ * `policyData`; `expiry` is always `0` at creation. The address-derivation
+ * commitment is `actorId || authenticator || scope || policyData` per actor
+ * (`policyData` is empty unless the `SCOPE_POLICY` bit is set, then exactly
+ * 52 bytes).
  */
 export type AaActor = {
   /** 32-byte actor identifier. */
   actorId: Hex
   /** Authenticator contract address. */
   authenticator: Address
+  /** Scope bitmask committed at creation. `0` (or omitted) = unrestricted admin. */
+  scope?: number | undefined
+  /** Policy data (`manager || commitment`) — required iff `scope & SCOPE_POLICY`, else empty/omitted. */
+  policyData?: Hex | undefined
 }
 
 /** `create` (type `0x00`) account-change entry: deploy a new account. */
@@ -72,13 +81,11 @@ export type AaAuthorizeActor = {
   actorId: Hex
   /** Authenticator contract address. */
   authenticator: Address
-  /** Permission bitmask. `0` (or omitted) = unrestricted. */
+  /** Permission bitmask. `0` (or omitted) = unrestricted admin. Set the `SCOPE_POLICY` bit for a policy-gated actor. */
   scope?: number | undefined
   /** Actor expiry (unix seconds). `0` (or omitted) = no expiry. */
   expiry?: bigint | undefined
-  /** Policy type. `0` (or omitted) = no policy. */
-  policyType?: number | undefined
-  /** Policy data (`manager || commitment` when `policyType != 0`). */
+  /** Policy data (`manager || commitment`) — required iff `scope & SCOPE_POLICY`, else empty/omitted. */
   policyData?: Hex | undefined
 }
 
