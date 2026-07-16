@@ -10,15 +10,14 @@ export const eduChainTestnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.open-campus-codex.gelato.digital/'],
-      webSocket: ['wss://ws.open-campus-codex.gelato.digital'],
+      http: ['https://rpc.testnet.educhain.xyz'],
+      webSocket: ['wss://ws.rpc.testnet.educhain.xyz'],
     },
   },
   blockExplorers: {
     default: {
       name: 'EDU Chain Testnet Explorer',
-      url: 'https://opencampus-codex.blockscout.com',
-      apiUrl: 'https://opencampus-codex.blockscout.com/api',
+      url: 'https://explorer.testnet.educhain.xyz/',
     },
   },
   contracts: {
