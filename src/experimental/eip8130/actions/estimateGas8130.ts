@@ -341,9 +341,19 @@ function serializeAccountChange(
       type: 'create',
       userSalt: change.userSalt,
       code: change.code,
+      // The node deserializes each entry directly into the consensus
+      // `InitialActor` struct, whose `scope` and `policyData` fields are
+      // non-optional with no serde default — omitting them makes the whole
+      // `eth_estimateGas` request fail deserialization with `-32602 invalid
+      // params` before it ever reaches the estimator. Always send both, with
+      // the same defaults used for address derivation: `scope` as a JSON
+      // NUMBER (u8; 0 = unrestricted admin), and `policyData` as hex bytes
+      // (`0x` unless `scope & SCOPE_POLICY`, then `manager || commitment`).
       initialActors: change.initialActors.map((a) => ({
         actorId: a.actorId,
         authenticator: a.authenticator,
+        scope: a.scope ?? 0,
+        policyData: a.policyData ?? '0x',
       })),
     }
   }
