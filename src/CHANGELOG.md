@@ -1,5 +1,11 @@
 # viem
 
+## 2.55.3
+
+### Patch Changes
+
+- [#4844](https://github.com/wevm/viem/pull/4844) [`1f4d4dbd960d099496b6dd2c473c4be0e907e080`](https://github.com/wevm/viem/commit/1f4d4dbd960d099496b6dd2c473c4be0e907e080) Thanks [@Kropiunig](https://github.com/Kropiunig)! - Fixed `decodeAbiParameters` to preserve leading NUL bytes when decoding `string` values.
+
 ## 2.55.2
 
 ### Patch Changes
