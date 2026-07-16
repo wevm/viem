@@ -7,7 +7,7 @@ export const mainnet = /*#__PURE__*/ defineChain({
   blockTime: 12_000,
   rpcUrls: {
     default: {
-      http: ['https://eth.merkle.io'],
+      http: ['https://ethereum-rpc.publicnode.com'],
     },
   },
   blockExplorers: {
