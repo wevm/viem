@@ -1,0 +1,146 @@
+---
+description: Estimate the complete fee for an OP Stack L2 transaction.
+---
+
+# `l2.estimateTotalFee`
+
+Estimates the L1 data fee, L2 execution fee, and operator fee required to execute an L2 transaction.
+
+## Usage
+
+Estimate every fee component for a native token transfer.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const fee = await client.fee.estimateTotalFee({ // [!code focus:4]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: Value.fromEther('1'),
+})
+// @log: 2189746000000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l2.config.ts:setup]
+```
+
+:::
+
+:::warning
+This action requires an Isthmus-compatible `GasPriceOracle.getOperatorFee` implementation. Older deployments reject instead of returning a guessed zero fee.
+:::
+
+### Standalone Action
+
+Call `Actions.l2.estimateTotalFee` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/op-stack'
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const fee = await Actions.l2.estimateTotalFee(client, { // [!code focus:4]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: Value.fromEther('1'),
+})
+// @log: 2189746000000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l2.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+`bigint`
+
+The combined L1 data, L2 execution, and operator fee in wei.
+
+## Parameters
+
+### accessList (Optional)
+
+- **Type:** `AccessList`
+
+The EIP-2930 access list included in the transaction.
+
+### account (Optional)
+
+- **Type:** `Account | Address`
+
+The Account or address used as the transaction sender during estimation.
+
+### chain (Optional)
+
+- **Type:** `Chain | null`
+- **Default:** `client.chain`
+
+The L2 Chain used to resolve transaction and oracle defaults.
+
+### chainId (Optional)
+
+- **Type:** `number`
+- **Default:** `chain.id`
+
+The transaction Chain ID.
+
+### data (Optional)
+
+- **Type:** `Hex`
+
+The contract bytecode or encoded function call.
+
+### gas (Optional)
+
+- **Type:** `bigint`
+
+The transaction gas limit.
+
+### gasPriceOracleAddress (Optional)
+
+- **Type:** `Address`
+
+An override for the OP Stack gas price oracle address.
+
+### maxFeePerGas (Optional)
+
+- **Type:** `bigint`
+
+The maximum total fee per gas in wei.
+
+### maxPriorityFeePerGas (Optional)
+
+- **Type:** `bigint`
+
+The maximum priority fee per gas in wei.
+
+### nonce (Optional)
+
+- **Type:** `number`
+
+The transaction nonce.
+
+### to (Optional)
+
+- **Type:** `Address | null`
+
+The transaction recipient.
+
+### type (Optional)
+
+- **Type:** `'eip1559'`
+
+The transaction envelope type.
+
+### value (Optional)
+
+- **Type:** `bigint`
+
+The value in wei sent with the transaction.

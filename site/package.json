@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vocs dev",
-    "build": "vocs build",
-    "preview": "vocs preview"
+    "build": "node scripts/copy-vocs-theme.mjs && vocs build",
+    "preview": "vocs preview",
+    "sync:vocs": "node scripts/copy-vocs-theme.mjs"
   },
   "dependencies": {
     "react": "catalog:",
@@ -20,6 +21,7 @@
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "react-server-dom-webpack": "catalog:",
+    "tailwindcss": "^4.3.0",
     "typescript": "catalog:",
     "vite": "catalog:"
   }

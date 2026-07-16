@@ -1,0 +1,110 @@
+---
+description: Estimate when the next OP Stack dispute game will be submitted.
+---
+
+# `l1.getTimeToNextGame`
+
+Estimates when the next OP Stack dispute game will be submitted.
+
+## Usage
+
+Estimate the wait for a dispute game that anchors a position after the requested L2 block number or timestamp.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { optimism } from 'viem/chains'
+import { client } from './viem.config'
+
+const time = await client.game.getTimeToNextGame({ // [!code focus]
+  l2BlockNumber: 123_456_789n, // [!code focus]
+  targetChain: optimism, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l1.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.l1.getTimeToNextGame` directly by passing the [Client](/docs/clients) as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { optimism } from 'viem/chains'
+import { Actions } from 'viem/op-stack'
+import { client } from './viem.config'
+
+const time = await Actions.l1.getTimeToNextGame(client, { // [!code focus]
+  l2BlockNumber: 123_456_789n, // [!code focus]
+  targetChain: optimism, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l1.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+{
+  interval: number
+  seconds: number
+  timestamp?: number
+}
+```
+
+The observed game interval, estimated remaining seconds, and optional submission timestamp in milliseconds.
+
+## Parameters
+
+### l2BlockNumber
+
+- **Type:** `bigint`
+
+The minimum anchored L2 block number, or timestamp for super-root games.
+
+### intervalBuffer (Optional)
+
+- **Type:** `number`
+- **Default:** `1.1`
+
+The multiplier applied to the observed interval between games.
+
+### targetChain (Optional)
+
+- **Type:** `Chain`
+
+The OP Stack L2 [Chain](/docs/chains) whose L1 contracts are used.
+
+### disputeGameFactoryAddress (Optional)
+
+- **Type:** `Address`
+
+An explicit Dispute Game Factory address. Supply it with `portalAddress` when omitting `targetChain`.
+
+### portalAddress (Optional)
+
+- **Type:** `Address`
+
+An explicit Optimism Portal address. Supply it with `disputeGameFactoryAddress` when omitting `targetChain`.
+
+### chain (Optional)
+
+- **Type:** `Chain`
+- **Default:** `client.chain`
+
+The L1 chain used to read recent games.
+
+### limit (Optional)
+
+- **Type:** `number`
+
+An inherited game-query option. Interval estimation samples the ten most recent games.

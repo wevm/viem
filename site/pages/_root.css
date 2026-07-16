@@ -1,0 +1,346 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Serif:ital,wght@0,400;1,400&display=swap');
+@import 'tailwindcss';
+@import './_vocs.generated.css';
+
+@source "../";
+
+/*
+ * Theme tokens (Tailwind v4 namespaces)
+ *
+ *   --background-color-*  → bg-*       utilities
+ *   --text-color-*        → text-*     utilities
+ *   --border-color-*      → border-*   utilities
+ *   --font-*              → font-*     utilities
+ */
+@theme {
+  /* Backgrounds */
+  --background-color-primary: light-dark(#f3ecdb, #14110c);
+  --background-color-elevated: light-dark(#f6efde, #18140e);
+  --background-color-surface: light-dark(#e8e0cc, #25211a);
+  --background-color-accent: light-dark(#51741f, #bfd655);
+  --background-color-accent-soft: light-dark(
+    rgba(81, 116, 31, 0.14),
+    rgba(191, 214, 85, 0.16)
+  );
+  --background-color-code: light-dark(#ebe2cb, #100d09);
+  --background-color-success: #4ade80;
+
+  /* Text */
+  --text-color-primary: light-dark(#1d1a14, #f1ebde);
+  --text-color-secondary: light-dark(#5e564a, #a39a85);
+  --text-color-muted: light-dark(#8e8678, #6e665a);
+  --text-color-strong: light-dark(#000000, #ffffff);
+  --text-color-accent: light-dark(#51741f, #bfd655);
+  --text-color-code-comment: light-dark(#8e8678, #6e665a);
+  --text-color-code-keyword: light-dark(#51741f, #bfd655);
+  --text-color-code-string: light-dark(#8c611f, #d6b36a);
+  --text-color-code-fn: light-dark(#55751f, #d7e98d);
+  --text-color-code-prop: light-dark(#8c611f, #d6b36a);
+
+  /* Borders */
+  --border-color-primary: light-dark(#d6cdb6, #2e2920);
+  --border-color-soft: light-dark(#e3dbc7, #24201a);
+  --border-color-hover: light-dark(
+    rgba(29, 26, 20, 0.14),
+    rgba(241, 235, 222, 0.09)
+  );
+  --border-color-accent: light-dark(#51741f, #bfd655);
+
+  /* Fonts */
+  --font-sans:
+    'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Instrument Serif', 'Geist', serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+/* Loose tokens (non-color-namespaced) */
+:root {
+  --max-w: 900px;
+  --container-pad: 32px;
+  --accent-glow: light-dark(rgba(81, 116, 31, 0.3), rgba(191, 214, 85, 0.42));
+  --success-glow: rgba(74, 222, 128, 0.4);
+}
+
+@media (max-width: 640px) {
+  :root {
+    --container-pad: 20px;
+  }
+}
+
+/* Vocs token overrides → our palette */
+:root {
+  /* Radii */
+  --vocs-radius-xs: 0px;
+  --vocs-radius-sm: 0px;
+  --vocs-radius-md: 0px;
+  --vocs-radius-lg: 0px;
+  --vocs-radius-xl: 0px;
+  --vocs-radius-2xl: 0px;
+  --vocs-radius-3xl: 0px;
+  --vocs-radius-4xl: 0px;
+
+  /* Fonts */
+  --vocs-font-sans: var(--font-sans);
+  --vocs-font-mono: var(--font-mono);
+  --vocs-font-serif: var(--font-display);
+
+  /* Geist typography rhythm */
+  --vocs-leading-h1: 1.2em;
+  --vocs-leading-h2: 1.25em;
+  --vocs-leading-h3: 1.3em;
+  --vocs-leading-p: 1.75em;
+
+  /* Accent */
+  --vocs-color-accent: var(--background-color-accent);
+
+  /* Backgrounds */
+  --vocs-background-color-primary: var(--background-color-primary);
+  --vocs-background-color-surface: var(--background-color-elevated);
+  --vocs-background-color-surfaceMuted: var(--background-color-surface);
+  --vocs-background-color-surfaceTint: var(--background-color-surface);
+  --vocs-background-color-blockquote: var(--background-color-elevated);
+  --vocs-background-color-code-block: var(--background-color-primary);
+  --vocs-background-color-code-highlighted: var(--background-color-surface);
+  --vocs-background-color-inline-code: var(--background-color-surface);
+
+  /* Borders */
+  --vocs-border-color-primary: var(--border-color-primary);
+  --vocs-border-color-secondary: var(--border-color-soft);
+
+  /* Text */
+  --vocs-text-color-primary: var(--text-color-primary);
+  --vocs-text-color-secondary: var(--text-color-secondary);
+  --vocs-text-color-muted: var(--text-color-muted);
+  --vocs-text-color-heading: var(--text-color-strong);
+  --vocs-text-color-quote: var(--text-color-secondary);
+  --vocs-text-color-link: var(--text-color-strong);
+  --vocs-text-color-link-hover: var(--text-color-strong);
+
+  /* Semantic colors: warm/earthy palette aligned with our accent */
+  --vocs-color-blue: light-dark(#1857aa, #8eb5e6); /* info */
+  --vocs-color-green: light-dark(#2c7c2c, #b8d690); /* success */
+  --vocs-color-red: light-dark(#b8421d, #e85d35); /* destructive */
+  --vocs-color-yellow: light-dark(#b8651d, #d6a55a); /* warning */
+  --vocs-color-iris: light-dark(#6f42c1, #d6a3ec); /* tip */
+}
+
+body,
+[data-v-app] {
+  font-family: var(--font-sans);
+}
+
+/* Geist letter-spacing on headings (vocs only sets tracking-[-0.04em] on h1) */
+[data-v-app] h2 {
+  letter-spacing: -0.04em;
+}
+[data-v-app] h3 {
+  letter-spacing: -0.02em;
+}
+[data-v-app] h4,
+[data-v-app] h5,
+[data-v-app] h6 {
+  letter-spacing: -0.02em;
+}
+
+* {
+  border-style: dashed;
+}
+
+[data-active],
+[data-v-active='true'],
+[aria-current='page'] {
+  border-style: solid;
+}
+
+[data-v-topnav] > [data-v-surface-bg] {
+  @media (width >= 1080px) {
+    border-top-left-radius: 0;
+  }
+}
+
+/* Landing page (blank layout) gets a wider content container */
+[data-layout='blank'] {
+  --vocs-spacing-content: var(--max-w);
+}
+
+/* Landing page: tighten top padding above the header */
+[data-layout='blank']:has(.landing-pattern) [data-v-content] {
+  padding-top: 2em;
+}
+
+/* Extend the landing grid across the blank layout. */
+[data-layout='blank']:has(.landing-pattern) {
+  position: relative;
+  isolation: isolate;
+}
+
+[data-layout='blank']:has(.landing-pattern)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.55;
+  /* Repeat two dashed diagonals across each grid tile. */
+  background-color: var(--border-color-hover);
+  -webkit-mask-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64' fill='none' stroke='black' stroke-width='1' stroke-dasharray='4 4'%3E%3Cline x1='0' y1='0' x2='64' y2='64'/%3E%3Cline x1='64' y1='0' x2='0' y2='64'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64' fill='none' stroke='black' stroke-width='1' stroke-dasharray='4 4'%3E%3Cline x1='0' y1='0' x2='64' y2='64'/%3E%3Cline x1='64' y1='0' x2='0' y2='64'/%3E%3C/svg%3E");
+  -webkit-mask-size: 64px 64px;
+  mask-size: 64px 64px;
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+}
+
+.landing-primary-cta,
+.landing-primary-cta * {
+  color: var(--background-color-primary) !important;
+  font-weight: 500 !important;
+  text-decoration-color: transparent !important;
+}
+
+/* Shiki dual-theme color-scheme switching for inline-rendered snippets. */
+.install-shiki .shiki,
+.install-shiki .shiki span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+}
+html[style*='color-scheme: dark'] .install-shiki .shiki,
+html[style*='color-scheme: dark'] .install-shiki .shiki span {
+  color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
+}
+
+/* Mute the package manager and accent the arguments. */
+.install-shiki .shiki .line > span:first-child {
+  color: var(--text-color-muted);
+}
+.install-shiki .shiki .line > span:not(:first-child) {
+  color: var(--text-color-accent);
+}
+
+/* Tone down the bright twoslash hover underline */
+.twoslash:hover [data-v-twoslash-trigger] span {
+  border-color: var(--text-color-muted) !important;
+}
+
+/* Lift portaled Twoslash popovers above the main stacking context. */
+body > div:has(> div > .twoslash-popup-container),
+body > div:has(> div > .twoslash-completion-list) {
+  position: relative;
+  z-index: 50;
+}
+
+/* Keep Twoslash popovers solid against Viem's dashed page chrome. */
+.twoslash-popup-container,
+.twoslash-completion-list {
+  background-color: var(--background-color-code);
+  border-color: var(--border-color-primary);
+  border-style: solid;
+  box-shadow: 0 12px 32px color-mix(in srgb, black 22%, transparent);
+}
+
+.twoslash-popup-container pre,
+.twoslash-popup-container code,
+.twoslash-popup-container .line,
+.twoslash-completion-list,
+.twoslash-completion-list * {
+  border-style: solid;
+}
+
+.twoslash-popup-container pre[data-v],
+.twoslash-popup-container pre {
+  background-color: transparent;
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.module-snippet .twoslash-popup-container pre {
+  padding-block: 0 !important;
+}
+
+.twoslash-popup-container code {
+  background-color: transparent;
+}
+
+.twoslash-query-persisted.twoslash-popup-container[data-v-twoslash-inline-popup],
+.twoslash-query-persisted.twoslash-popup-container[data-v-twoslash-inline-popup]
+  [data-v-content],
+.twoslash-query-persisted.twoslash-popup-container[data-v-twoslash-inline-popup]
+  [data-v-content]
+  > *,
+.twoslash-query-persisted.twoslash-popup-container[data-v-twoslash-inline-popup]
+  pre,
+.twoslash-query-persisted.twoslash-popup-container[data-v-twoslash-inline-popup]
+  code {
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+.twoslash-query-persisted.twoslash-popup-container[data-v-twoslash-inline-popup] {
+  top: calc(100% + 1px) !important;
+}
+
+.twoslash-popup-container [data-v-content] {
+  padding: 0 !important;
+}
+
+.twoslash-popup-container [data-v-content] > * {
+  padding-block: 0.25rem !important;
+}
+
+.twoslash-popup-container [data-v-content] > *:not(:last-child) {
+  border-style: solid;
+}
+
+/* Accent content links outside the landing page. */
+[data-v-content]
+  a:not([data-v-anchor]):not([data-v-edit-link]):not(
+    [class~='vocs:no-underline']
+  ) {
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: color-mix(
+    in srgb,
+    var(--text-color-accent) 50%,
+    transparent
+  );
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.15s ease;
+}
+
+[data-v-content]
+  a:not([data-v-anchor]):not([data-v-edit-link]):not(
+    [class~='vocs:no-underline']
+  ):hover {
+  color: var(--text-color-link);
+  text-decoration-color: var(--text-color-accent);
+  text-decoration-style: solid;
+}
+
+/* Bump sidebar item weight down one step from vocs's default 450. */
+[data-v-sidebar],
+[data-v-sidebar-item],
+[data-v-sidebar-section-header] {
+  font-weight: 400;
+}
+
+[data-layout='blank'] [data-v-content] a:not([data-v-anchor]) {
+  text-decoration: none;
+}
+
+/* Keep light-dark() aligned with Vocs's inline color-scheme toggle. */
+html[style*='color-scheme: light'] {
+  --lightningcss-light: initial;
+  --lightningcss-dark: ;
+}
+html[style*='color-scheme: dark'] {
+  --lightningcss-light: ;
+  --lightningcss-dark: initial;
+}

@@ -1,0 +1,132 @@
+---
+description: Estimate the L2 gas required to initiate an OP Stack withdrawal.
+---
+
+# `l2.estimateInitiateWithdrawalGas`
+
+Estimates the L2 gas required to initiate a [withdrawal](/op-stack/withdrawals) through the L2 to L1 message passer.
+
+## Usage
+
+Estimate the gas for withdrawing one native token to an L1 recipient.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const gas = await client.withdrawal.estimateInitiateWithdrawalGas({ // [!code focus:7]
+  request: {
+    gas: 21_000n,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: Value.fromEther('1'),
+  },
+})
+// @log: 76901n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l2.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.l2.estimateInitiateWithdrawalGas` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/op-stack'
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const gas = await Actions.l2.estimateInitiateWithdrawalGas(client, { // [!code focus:7]
+  request: {
+    gas: 21_000n,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: Value.fromEther('1'),
+  },
+})
+// @log: 76901n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l2.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+`bigint`
+
+The estimated L2 gas required to initiate the withdrawal.
+
+## Parameters
+
+This action also accepts the transaction and block options from [`Actions.transaction.estimateGas`](/docs/actions/public/transaction/estimateGas), except `data`, `to`, and `value`. The withdrawal request supplies those fields for the message passer call.
+
+### account (Optional)
+
+- **Type:** `Account | Address`
+
+The Account or address used as the transaction sender during estimation.
+
+### chain (Optional)
+
+- **Type:** `Chain | null`
+- **Default:** `client.chain`
+
+The L2 Chain containing the message passer contract.
+
+### maxFeePerGas (Optional)
+
+- **Type:** `bigint | number | Hex`
+
+The maximum total fee per gas in wei.
+
+### maxPriorityFeePerGas (Optional)
+
+- **Type:** `bigint | number | Hex`
+
+The maximum priority fee per gas in wei.
+
+### nonce (Optional)
+
+- **Type:** `bigint | number | Hex`
+
+The transaction nonce used during estimation.
+
+### request
+
+- **Type:** `Withdrawal.Request`
+
+The withdrawal request passed to the L2 message passer.
+
+#### request.data (Optional)
+
+- **Type:** `Hex`
+- **Default:** `'0x'`
+
+The encoded call data executed on L1.
+
+#### request.gas
+
+- **Type:** `bigint`
+
+The gas limit for execution on L1.
+
+#### request.to
+
+- **Type:** `Address`
+
+The L1 transaction recipient.
+
+#### request.value (Optional)
+
+- **Type:** `bigint`
+
+The value in wei withdrawn from L2 to L1.

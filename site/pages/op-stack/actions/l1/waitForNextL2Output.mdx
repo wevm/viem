@@ -1,0 +1,125 @@
+---
+description: Wait for a legacy L2 output after an L2 block number.
+---
+
+# `l1.waitForNextL2Output`
+
+Waits for a legacy L2 output after an L2 block number.
+
+## Usage
+
+Poll until the L2 Output Oracle contains an output that covers the requested block.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { optimism } from 'viem/chains'
+import { client } from './viem.config'
+
+const output = await client.output.waitForNextL2Output({ // [!code focus]
+  l2BlockNumber: 123_456_789n, // [!code focus]
+  targetChain: optimism, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l1.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.l1.waitForNextL2Output` directly by passing the [Client](/docs/clients) as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { optimism } from 'viem/chains'
+import { Actions } from 'viem/op-stack'
+import { client } from './viem.config'
+
+const output = await Actions.l1.waitForNextL2Output(client, { // [!code focus]
+  l2BlockNumber: 123_456_789n, // [!code focus]
+  targetChain: optimism, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l1.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+{
+  l2BlockNumber: bigint
+  outputIndex: bigint
+  outputRoot: Hex
+  timestamp: bigint
+}
+```
+
+The next output that covers the requested L2 block.
+
+## Parameters
+
+### l2BlockNumber
+
+- **Type:** `bigint`
+
+The minimum L2 block number for the next output.
+
+### intervalBuffer (Optional)
+
+- **Type:** `number`
+- **Default:** `1.1`
+
+The multiplier applied to the configured output interval before polling begins.
+
+### limit (Optional)
+
+- **Type:** `number`
+- **Default:** `100`
+
+The maximum number of dispute games inspected if output retrieval resolves through a portal claim.
+
+### pollingInterval (Optional)
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+The polling interval in milliseconds.
+
+### targetChain (Optional)
+
+- **Type:** `Chain`
+
+The OP Stack L2 [Chain](/docs/chains) whose L1 contracts are used.
+
+### disputeGameFactoryAddress (Optional)
+
+- **Type:** `Address`
+
+An explicit Dispute Game Factory address. Supply all three explicit addresses when omitting `targetChain`.
+
+### l2OutputOracleAddress (Optional)
+
+- **Type:** `Address`
+
+An explicit L2 Output Oracle address. Supply all three explicit addresses when omitting `targetChain`.
+
+### portalAddress (Optional)
+
+- **Type:** `Address`
+
+An explicit Optimism Portal address. Supply all three explicit addresses when omitting `targetChain`.
+
+### chain (Optional)
+
+- **Type:** `Chain`
+- **Default:** `client.chain`
+
+The L1 chain used to read the contracts.

@@ -1,0 +1,98 @@
+---
+description: Estimate when the next legacy L2 output will be submitted.
+---
+
+# `l1.getTimeToNextL2Output`
+
+Estimates when the next legacy L2 output will be submitted.
+
+## Usage
+
+Estimate the wait for an output that covers the requested L2 block number.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { optimism } from 'viem/chains'
+import { client } from './viem.config'
+
+const time = await client.output.getTimeToNextL2Output({ // [!code focus]
+  l2BlockNumber: 123_456_789n, // [!code focus]
+  targetChain: optimism, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l1.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.l1.getTimeToNextL2Output` directly by passing the [Client](/docs/clients) as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { optimism } from 'viem/chains'
+import { Actions } from 'viem/op-stack'
+import { client } from './viem.config'
+
+const time = await Actions.l1.getTimeToNextL2Output(client, { // [!code focus]
+  l2BlockNumber: 123_456_789n, // [!code focus]
+  targetChain: optimism, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l1.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+{
+  interval: number
+  seconds: number
+  timestamp?: number
+}
+```
+
+The configured output interval, estimated remaining seconds, and optional submission timestamp in milliseconds.
+
+## Parameters
+
+### l2BlockNumber
+
+- **Type:** `bigint`
+
+The minimum L2 block number for the next output.
+
+### intervalBuffer (Optional)
+
+- **Type:** `number`
+- **Default:** `1.1`
+
+The multiplier applied to the configured output interval.
+
+### targetChain (Optional)
+
+- **Type:** `Chain`
+
+The OP Stack L2 [Chain](/docs/chains) whose L2 Output Oracle is used.
+
+### l2OutputOracleAddress (Optional)
+
+- **Type:** `Address`
+
+An explicit L2 Output Oracle address. When supplied, `targetChain` is optional.
+
+### chain (Optional)
+
+- **Type:** `Chain`
+- **Default:** `client.chain`
+
+The L1 chain used to read the L2 Output Oracle.

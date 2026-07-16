@@ -1,0 +1,164 @@
+---
+description: Estimate the total L1 data and L2 execution gas for an OP Stack contract write.
+---
+
+# `l2.estimateContractTotalGas`
+
+Encodes a contract write and estimates the sum of its L1 data gas and L2 execution gas.
+
+## Usage
+
+Estimate the total gas for an ERC-20 transfer.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abis, Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const gas = await client.fee.estimateContractTotalGas({ // [!code focus:9]
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  args: [
+    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    Value.from('1', 6),
+  ],
+  functionName: 'transfer',
+})
+// @log: 55864n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l2.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.l2.estimateContractTotalGas` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/op-stack'
+import { Abis, Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const gas = await Actions.l2.estimateContractTotalGas(client, { // [!code focus:9]
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  args: [
+    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    Value.from('1', 6),
+  ],
+  functionName: 'transfer',
+})
+// @log: 55864n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l2.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+`bigint`
+
+The combined L1 data and L2 execution gas estimate.
+
+## Parameters
+
+### abi
+
+- **Type:** `Abi`
+
+The contract ABI used to encode the function call.
+
+### accessList (Optional)
+
+- **Type:** `AccessList`
+
+The EIP-2930 access list included in the transaction.
+
+### account (Optional)
+
+- **Type:** `Account | Address`
+
+The Account or address used as the transaction sender during estimation.
+
+### address
+
+- **Type:** `Address`
+
+The contract address.
+
+### args (Optional)
+
+- **Type:** `inferred from abi`
+
+The positional arguments passed to the contract function.
+
+### chain (Optional)
+
+- **Type:** `Chain | null`
+- **Default:** `client.chain`
+
+The L2 Chain used to resolve transaction and oracle defaults.
+
+### chainId (Optional)
+
+- **Type:** `number`
+- **Default:** `chain.id`
+
+The transaction Chain ID.
+
+### functionName
+
+- **Type:** `string`
+
+The payable or nonpayable function selected from the ABI.
+
+### gas (Optional)
+
+- **Type:** `bigint`
+
+The transaction gas limit.
+
+### gasPriceOracleAddress (Optional)
+
+- **Type:** `Address`
+
+An override for the OP Stack gas price oracle address.
+
+### maxFeePerGas (Optional)
+
+- **Type:** `bigint`
+
+The maximum total fee per gas in wei.
+
+### maxPriorityFeePerGas (Optional)
+
+- **Type:** `bigint`
+
+The maximum priority fee per gas in wei.
+
+### nonce (Optional)
+
+- **Type:** `number`
+
+The transaction nonce.
+
+### type (Optional)
+
+- **Type:** `'eip1559'`
+
+The transaction envelope type.
+
+### value (Optional)
+
+- **Type:** `bigint`
+
+The native value in wei sent to a payable function.

@@ -1,0 +1,93 @@
+---
+description: Wait until an OP Stack withdrawal can be finalized.
+---
+
+# `l1.waitToFinalize`
+
+Waits until an OP Stack withdrawal can be finalized.
+
+## Usage
+
+Resolve after the proven withdrawal's remaining finalization delay has elapsed.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { optimism } from 'viem/chains'
+import { client } from './viem.config'
+
+await client.withdrawal.waitToFinalize({ // [!code focus]
+  targetChain: optimism, // [!code focus]
+  withdrawalHash:
+    '0x0000000000000000000000000000000000000000000000000000000000000000', // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l1.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.l1.waitToFinalize` directly by passing the [Client](/docs/clients) as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { optimism } from 'viem/chains'
+import { Actions } from 'viem/op-stack'
+import { client } from './viem.config'
+
+await Actions.l1.waitToFinalize(client, { // [!code focus]
+  targetChain: optimism, // [!code focus]
+  withdrawalHash:
+    '0x0000000000000000000000000000000000000000000000000000000000000000', // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l1.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+`void`
+
+Resolves when the withdrawal can be finalized.
+
+## Parameters
+
+### withdrawalHash
+
+- **Type:** `Hex`
+
+The hash of the proven withdrawal.
+
+### targetChain (Optional)
+
+- **Type:** `Chain`
+
+The OP Stack L2 [Chain](/docs/chains) whose L1 contracts are used.
+
+### l2OutputOracleAddress (Optional)
+
+- **Type:** `Address`
+
+An explicit L2 Output Oracle address for legacy portals. Supply it with `portalAddress` when omitting `targetChain`.
+
+### portalAddress (Optional)
+
+- **Type:** `Address`
+
+An explicit Optimism Portal address. Supply it with `l2OutputOracleAddress` when omitting `targetChain`.
+
+### chain (Optional)
+
+- **Type:** `Chain`
+- **Default:** `client.chain`
+
+The L1 chain used to read the contracts.

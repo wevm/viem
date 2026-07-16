@@ -40,13 +40,13 @@ const l2Client = Client.create({
   transport: http(),
 }).extend(opStackL2Actions())
 
-const { request } = await l1Client.opStack.buildInitiateWithdrawal({
+const { request } = await l1Client.withdrawal.buildInitiateWithdrawal({
   account,
   to: account, // [!code focus]
   value: Value.fromEther('1'), // [!code focus]
 })
 
-const hash = await l2Client.opStack.initiateWithdrawal({
+const hash = await l2Client.withdrawal.initiateWithdrawal({
   request, // [!code focus]
 })
 // @log: 0xf8e81c7d...
@@ -81,27 +81,27 @@ const { receipt: receiptPromise } = Actions.transaction.waitForReceipt(l2Client,
 })
 const receipt = await receiptPromise
 
-const { game, withdrawal } = await l1Client.opStack.waitToProve({
+const { game, withdrawal } = await l1Client.withdrawal.waitToProve({
   receipt, // [!code focus]
   targetChain: optimism, // [!code focus]
 })
 
-const proof = await l2Client.opStack.buildProveWithdrawal({
+const proof = await l2Client.withdrawal.buildProveWithdrawal({
   game, // [!code focus]
   withdrawal, // [!code focus]
 })
 
-await l1Client.opStack.proveWithdrawal({
+await l1Client.withdrawal.proveWithdrawal({
   ...proof,
   targetChain: optimism,
 })
 
-await l1Client.opStack.waitToFinalize({
+await l1Client.withdrawal.waitToFinalize({
   targetChain: optimism,
   withdrawalHash: withdrawal.withdrawalHash,
 })
 
-const finalizeHash = await l1Client.opStack.finalizeWithdrawal({
+const finalizeHash = await l1Client.withdrawal.finalizeWithdrawal({
   targetChain: optimism,
   withdrawal,
 })

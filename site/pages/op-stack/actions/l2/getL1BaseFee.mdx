@@ -1,0 +1,67 @@
+---
+description: Read the current L1 base fee reported by an OP Stack gas price oracle.
+---
+
+# `l2.getL1BaseFee`
+
+Returns the current L1 base fee reported by the OP Stack gas price oracle on L2.
+
+## Usage
+
+Read the L1 base fee from the Chain's configured gas price oracle.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const baseFee = await client.fee.getL1BaseFee() // [!code focus]
+// @log: 35229945916n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l2.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.l2.getL1BaseFee` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/op-stack'
+import { client } from './viem.config'
+
+const baseFee = await Actions.l2.getL1BaseFee(client) // [!code focus]
+// @log: 35229945916n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l2.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+`bigint`
+
+The L1 base fee in wei.
+
+## Parameters
+
+### chain (Optional)
+
+- **Type:** `Chain | null`
+- **Default:** `client.chain`
+
+The L2 Chain used to resolve the gas price oracle.
+
+### gasPriceOracleAddress (Optional)
+
+- **Type:** `Address`
+
+An override for the OP Stack gas price oracle address.

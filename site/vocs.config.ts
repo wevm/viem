@@ -12,6 +12,7 @@ import {
 
 import pkg from '../package.json' with { type: 'json' }
 import * as sidebar from './sidebar.generated'
+import { shikiDark, shikiLight } from './shiki-themes'
 
 // Load `site/.env` (e.g. `CLOUDFLARE_*` for AI search). No-op if absent.
 try {
@@ -32,7 +33,7 @@ const badge = (kind: 'public' | 'test' | 'wallet') =>
   })[kind]
 
 export default defineConfig({
-  accentColor: 'light-dark(#ff9318, #ffc517)',
+  accentColor: 'light-dark(#51741f, #bfd655)',
   baseUrl:
     process.env.VERCEL_ENV === 'production'
       ? 'https://viem.sh'
@@ -54,6 +55,12 @@ export default defineConfig({
   },
   iconUrl: { light: '/favicons/light.png', dark: '/favicons/dark.png' },
   logoUrl: { light: '/icon-light.png', dark: '/icon-dark.png' },
+  codeHighlight: {
+    themes: {
+      light: shikiLight,
+      dark: shikiDark,
+    },
+  },
   mcp: {
     enabled: true,
     sources: [
@@ -186,6 +193,178 @@ export default defineConfig({
     {
       source: '/account-abstraction/actions/paymaster/getPaymasterStubData',
       destination: '/account-abstraction/actions/paymaster.getStubData',
+      status: 308,
+    },
+
+    // OP Stack actions moved under L1 and L2 namespaces.
+    {
+      source: '/op-stack/actions/buildInitiateWithdrawal',
+      destination: '/op-stack/actions/l1/buildInitiateWithdrawal',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/depositTransaction',
+      destination: '/op-stack/actions/l1/depositTransaction',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateDepositTransactionGas',
+      destination: '/op-stack/actions/l1/estimateDepositTransactionGas',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateFinalizeWithdrawalGas',
+      destination: '/op-stack/actions/l1/estimateFinalizeWithdrawalGas',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateProveWithdrawalGas',
+      destination: '/op-stack/actions/l1/estimateProveWithdrawalGas',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/finalizeWithdrawal',
+      destination: '/op-stack/actions/l1/finalizeWithdrawal',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getGame',
+      destination: '/op-stack/actions/l1/getGame',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getGames',
+      destination: '/op-stack/actions/l1/getGames',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getL2Output',
+      destination: '/op-stack/actions/l1/getL2Output',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getPortalVersion',
+      destination: '/op-stack/actions/l1/getPortalVersion',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getTimeToFinalize',
+      destination: '/op-stack/actions/l1/getTimeToFinalize',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getTimeToNextGame',
+      destination: '/op-stack/actions/l1/getTimeToNextGame',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getTimeToNextL2Output',
+      destination: '/op-stack/actions/l1/getTimeToNextL2Output',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getTimeToProve',
+      destination: '/op-stack/actions/l1/getTimeToProve',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getWithdrawalStatus',
+      destination: '/op-stack/actions/l1/getWithdrawalStatus',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/proveWithdrawal',
+      destination: '/op-stack/actions/l1/proveWithdrawal',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/waitForNextGame',
+      destination: '/op-stack/actions/l1/waitForNextGame',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/waitForNextL2Output',
+      destination: '/op-stack/actions/l1/waitForNextL2Output',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/waitToFinalize',
+      destination: '/op-stack/actions/l1/waitToFinalize',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/waitToProve',
+      destination: '/op-stack/actions/l1/waitToProve',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/buildDepositTransaction',
+      destination: '/op-stack/actions/l2/buildDepositTransaction',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/buildProveWithdrawal',
+      destination: '/op-stack/actions/l2/buildProveWithdrawal',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateContractL1Fee',
+      destination: '/op-stack/actions/l2/estimateContractL1Fee',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateContractL1Gas',
+      destination: '/op-stack/actions/l2/estimateContractL1Gas',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateContractTotalFee',
+      destination: '/op-stack/actions/l2/estimateContractTotalFee',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateContractTotalGas',
+      destination: '/op-stack/actions/l2/estimateContractTotalGas',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateInitiateWithdrawalGas',
+      destination: '/op-stack/actions/l2/estimateInitiateWithdrawalGas',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateL1Fee',
+      destination: '/op-stack/actions/l2/estimateL1Fee',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateL1Gas',
+      destination: '/op-stack/actions/l2/estimateL1Gas',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateOperatorFee',
+      destination: '/op-stack/actions/l2/estimateOperatorFee',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateTotalFee',
+      destination: '/op-stack/actions/l2/estimateTotalFee',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateTotalGas',
+      destination: '/op-stack/actions/l2/estimateTotalGas',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getL1BaseFee',
+      destination: '/op-stack/actions/l2/getL1BaseFee',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/initiateWithdrawal',
+      destination: '/op-stack/actions/l2/initiateWithdrawal',
       status: 308,
     },
 
@@ -1799,10 +1978,188 @@ export default defineConfig({
       { text: 'Deposits', link: '/op-stack/deposits' },
       { text: 'Withdrawals', link: '/op-stack/withdrawals' },
       {
-        text: 'Actions',
+        text: 'L1 Actions',
+        collapsed: true,
         items: [
-          { text: 'L1 Actions', link: '/op-stack/actions/l1' },
-          { text: 'L2 Actions', link: '/op-stack/actions/l2' },
+          { text: 'Overview', link: '/op-stack/actions/l1' },
+          {
+            text: 'Deposits',
+            items: [
+              {
+                text: 'depositTransaction',
+                link: '/op-stack/actions/l1/depositTransaction',
+              },
+              {
+                text: 'estimateDepositTransactionGas',
+                link: '/op-stack/actions/l1/estimateDepositTransactionGas',
+              },
+            ],
+          },
+          {
+            text: 'Withdrawals',
+            items: [
+              {
+                text: 'buildInitiateWithdrawal',
+                link: '/op-stack/actions/l1/buildInitiateWithdrawal',
+              },
+              {
+                text: 'estimateFinalizeWithdrawalGas',
+                link: '/op-stack/actions/l1/estimateFinalizeWithdrawalGas',
+              },
+              {
+                text: 'estimateProveWithdrawalGas',
+                link: '/op-stack/actions/l1/estimateProveWithdrawalGas',
+              },
+              {
+                text: 'finalizeWithdrawal',
+                link: '/op-stack/actions/l1/finalizeWithdrawal',
+              },
+              {
+                text: 'getTimeToFinalize',
+                link: '/op-stack/actions/l1/getTimeToFinalize',
+              },
+              {
+                text: 'getTimeToProve',
+                link: '/op-stack/actions/l1/getTimeToProve',
+              },
+              {
+                text: 'getWithdrawalStatus',
+                link: '/op-stack/actions/l1/getWithdrawalStatus',
+              },
+              {
+                text: 'proveWithdrawal',
+                link: '/op-stack/actions/l1/proveWithdrawal',
+              },
+              {
+                text: 'waitToFinalize',
+                link: '/op-stack/actions/l1/waitToFinalize',
+              },
+              {
+                text: 'waitToProve',
+                link: '/op-stack/actions/l1/waitToProve',
+              },
+            ],
+          },
+          {
+            text: 'Outputs & Dispute Games',
+            items: [
+              {
+                text: 'getGame',
+                link: '/op-stack/actions/l1/getGame',
+              },
+              {
+                text: 'getGames',
+                link: '/op-stack/actions/l1/getGames',
+              },
+              {
+                text: 'getL2Output',
+                link: '/op-stack/actions/l1/getL2Output',
+              },
+              {
+                text: 'getTimeToNextGame',
+                link: '/op-stack/actions/l1/getTimeToNextGame',
+              },
+              {
+                text: 'getTimeToNextL2Output',
+                link: '/op-stack/actions/l1/getTimeToNextL2Output',
+              },
+              {
+                text: 'waitForNextGame',
+                link: '/op-stack/actions/l1/waitForNextGame',
+              },
+              {
+                text: 'waitForNextL2Output',
+                link: '/op-stack/actions/l1/waitForNextL2Output',
+              },
+            ],
+          },
+          {
+            text: 'Portal',
+            items: [
+              {
+                text: 'getPortalVersion',
+                link: '/op-stack/actions/l1/getPortalVersion',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        text: 'L2 Actions',
+        collapsed: true,
+        items: [
+          { text: 'Overview', link: '/op-stack/actions/l2' },
+          {
+            text: 'Deposits & Withdrawals',
+            items: [
+              {
+                text: 'buildDepositTransaction',
+                link: '/op-stack/actions/l2/buildDepositTransaction',
+              },
+              {
+                text: 'buildProveWithdrawal',
+                link: '/op-stack/actions/l2/buildProveWithdrawal',
+              },
+              {
+                text: 'estimateInitiateWithdrawalGas',
+                link: '/op-stack/actions/l2/estimateInitiateWithdrawalGas',
+              },
+              {
+                text: 'initiateWithdrawal',
+                link: '/op-stack/actions/l2/initiateWithdrawal',
+              },
+            ],
+          },
+          {
+            text: 'Transaction Fees',
+            items: [
+              {
+                text: 'estimateL1Fee',
+                link: '/op-stack/actions/l2/estimateL1Fee',
+              },
+              {
+                text: 'estimateL1Gas',
+                link: '/op-stack/actions/l2/estimateL1Gas',
+              },
+              {
+                text: 'estimateOperatorFee',
+                link: '/op-stack/actions/l2/estimateOperatorFee',
+              },
+              {
+                text: 'estimateTotalFee',
+                link: '/op-stack/actions/l2/estimateTotalFee',
+              },
+              {
+                text: 'estimateTotalGas',
+                link: '/op-stack/actions/l2/estimateTotalGas',
+              },
+              {
+                text: 'getL1BaseFee',
+                link: '/op-stack/actions/l2/getL1BaseFee',
+              },
+            ],
+          },
+          {
+            text: 'Contract Fees',
+            items: [
+              {
+                text: 'estimateContractL1Fee',
+                link: '/op-stack/actions/l2/estimateContractL1Fee',
+              },
+              {
+                text: 'estimateContractL1Gas',
+                link: '/op-stack/actions/l2/estimateContractL1Gas',
+              },
+              {
+                text: 'estimateContractTotalFee',
+                link: '/op-stack/actions/l2/estimateContractTotalFee',
+              },
+              {
+                text: 'estimateContractTotalGas',
+                link: '/op-stack/actions/l2/estimateContractTotalGas',
+              },
+            ],
+          },
         ],
       },
     ],

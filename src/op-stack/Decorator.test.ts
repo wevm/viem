@@ -9,50 +9,78 @@ const client = Client.create({
 
 test('opStackL1Actions', () => {
   const decorated = client.extend(opStackL1Actions())
-  expect(Object.keys(decorated.opStack)).toMatchInlineSnapshot(`
-    [
-      "buildInitiateWithdrawal",
-      "depositTransaction",
-      "estimateDepositTransactionGas",
-      "estimateFinalizeWithdrawalGas",
-      "estimateProveWithdrawalGas",
-      "finalizeWithdrawal",
-      "getGame",
-      "getGames",
-      "getL2Output",
-      "getPortalVersion",
-      "getTimeToFinalize",
-      "getTimeToNextGame",
-      "getTimeToNextL2Output",
-      "getTimeToProve",
-      "getWithdrawalStatus",
-      "proveWithdrawal",
-      "waitForNextGame",
-      "waitForNextL2Output",
-      "waitToFinalize",
-      "waitToProve",
-    ]
+  expect({
+    deposit: Object.keys(decorated.deposit),
+    withdrawal: Object.keys(decorated.withdrawal),
+    game: Object.keys(decorated.game),
+    output: Object.keys(decorated.output),
+    portal: Object.keys(decorated.portal),
+  }).toMatchInlineSnapshot(`
+    {
+      "deposit": [
+        "depositTransaction",
+        "estimateDepositTransactionGas",
+      ],
+      "game": [
+        "getGame",
+        "getGames",
+        "getTimeToNextGame",
+        "waitForNextGame",
+      ],
+      "output": [
+        "getL2Output",
+        "getTimeToNextL2Output",
+        "waitForNextL2Output",
+      ],
+      "portal": [
+        "getPortalVersion",
+      ],
+      "withdrawal": [
+        "buildInitiateWithdrawal",
+        "estimateFinalizeWithdrawalGas",
+        "estimateProveWithdrawalGas",
+        "finalizeWithdrawal",
+        "getTimeToFinalize",
+        "getTimeToProve",
+        "getWithdrawalStatus",
+        "proveWithdrawal",
+        "waitToFinalize",
+        "waitToProve",
+      ],
+    }
   `)
+  expect(decorated).not.toHaveProperty('opStack')
 })
 
 test('opStackL2Actions', () => {
   const decorated = client.extend(opStackL2Actions())
-  expect(Object.keys(decorated.opStack)).toMatchInlineSnapshot(`
-    [
-      "buildDepositTransaction",
-      "buildProveWithdrawal",
-      "estimateContractL1Fee",
-      "estimateContractL1Gas",
-      "estimateContractTotalFee",
-      "estimateContractTotalGas",
-      "estimateInitiateWithdrawalGas",
-      "estimateL1Fee",
-      "estimateL1Gas",
-      "estimateOperatorFee",
-      "estimateTotalFee",
-      "estimateTotalGas",
-      "getL1BaseFee",
-      "initiateWithdrawal",
-    ]
+  expect({
+    deposit: Object.keys(decorated.deposit),
+    withdrawal: Object.keys(decorated.withdrawal),
+    fee: Object.keys(decorated.fee),
+  }).toMatchInlineSnapshot(`
+    {
+      "deposit": [
+        "buildDepositTransaction",
+      ],
+      "fee": [
+        "estimateContractL1Fee",
+        "estimateContractL1Gas",
+        "estimateContractTotalFee",
+        "estimateContractTotalGas",
+        "estimateL1Fee",
+        "estimateL1Gas",
+        "estimateOperatorFee",
+        "estimateTotalFee",
+        "estimateTotalGas",
+        "getL1BaseFee",
+      ],
+      "withdrawal": [
+        "buildProveWithdrawal",
+        "estimateInitiateWithdrawalGas",
+        "initiateWithdrawal",
+      ],
+    }
   `)
+  expect(decorated).not.toHaveProperty('opStack')
 })

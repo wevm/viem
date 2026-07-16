@@ -22,7 +22,7 @@ const client = Client.create({
   transport: http(),
 }).extend(opStackL2Actions())
 
-const l1BaseFee = await client.opStack.getL1BaseFee()
+const l1BaseFee = await client.fee.getL1BaseFee()
 // @log: 35229945916n
 ```
 
@@ -31,7 +31,7 @@ The extension keeps L1 and L2 behavior explicit. [`Actions.l1`](/op-stack/action
 <Cards>
   <Card
     title="Client Decorators"
-    description="Attach OP Stack actions under client.opStack."
+    description="Attach OP Stack actions to domain namespaces."
     icon="lucide:plug"
     to="/op-stack/client"
   />

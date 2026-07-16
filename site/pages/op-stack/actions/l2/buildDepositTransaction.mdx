@@ -1,0 +1,113 @@
+---
+description: Prepare an OP Stack deposit transaction for submission on L1 and execution on L2.
+---
+
+# `l2.buildDepositTransaction`
+
+Prepares the parameters required to submit a [deposit transaction](/op-stack/deposits) on L1 and execute it on an OP Stack L2.
+
+## Usage
+
+Prepare a deposit that mints one native token on L2.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const deposit = await client.deposit.buildDepositTransaction({ // [!code focus:4]
+  mint: Value.fromEther('1'),
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+})
+// @log: { account: undefined, request: { gas: 23660n, mint: 1000000000000000000n, to: '0x7099...' }, targetChain: { ... } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l2.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.l2.buildDepositTransaction` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/op-stack'
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const deposit = await Actions.l2.buildDepositTransaction(client, { // [!code focus:4]
+  mint: Value.fromEther('1'),
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+})
+// @log: { account: undefined, request: { gas: 23660n, mint: 1000000000000000000n, to: '0x7099...' }, targetChain: { ... } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l2.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+`Actions.l2.buildDepositTransaction.ReturnType`
+
+The initiating Account, prepared deposit request, and target L2 Chain.
+
+## Parameters
+
+### account (Optional)
+
+- **Type:** `Account | Address`
+- **Default:** `undefined`
+
+The Account or address that initiates the deposit.
+
+### chain (Optional)
+
+- **Type:** `Chain`
+- **Default:** `client.chain`
+
+The L2 Chain the deposit targets.
+
+### data (Optional)
+
+- **Type:** `Hex`
+
+The encoded contract call or deployment bytecode.
+
+### gas (Optional)
+
+- **Type:** `bigint`
+
+The gas limit for execution on L2. Viem estimates this value when omitted.
+
+### isCreation (Optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether the deposit deploys a contract. Contract creation requires `data` and cannot include `to`.
+
+### mint (Optional)
+
+- **Type:** `bigint`
+
+The value in wei minted on L2 and debited from the caller on L1.
+
+### to (Optional)
+
+- **Type:** `Address`
+
+The L2 transaction recipient.
+
+### value (Optional)
+
+- **Type:** `bigint`
+
+The value in wei sent with the transaction on L2.

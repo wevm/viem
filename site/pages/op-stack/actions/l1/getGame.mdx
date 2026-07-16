@@ -1,0 +1,110 @@
+---
+description: Retrieve a respected dispute game after an L2 position.
+---
+
+# `l1.getGame`
+
+Retrieves a respected dispute game after an L2 position.
+
+## Usage
+
+Find a dispute game that anchors a position after the requested L2 block number or timestamp.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { optimism } from 'viem/chains'
+import { client } from './viem.config'
+
+const game = await client.game.getGame({ // [!code focus]
+  l2BlockNumber: 123_456_789n, // [!code focus]
+  targetChain: optimism, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l1.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.l1.getGame` directly by passing the [Client](/docs/clients) as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { optimism } from 'viem/chains'
+import { Actions } from 'viem/op-stack'
+import { client } from './viem.config'
+
+const game = await Actions.l1.getGame(client, { // [!code focus]
+  l2BlockNumber: 123_456_789n, // [!code focus]
+  targetChain: optimism, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l1.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+Game.Game & {
+  l2BlockNumber: bigint
+  usesSuperRoots: boolean
+}
+```
+
+The selected dispute game and its anchored L2 position.
+
+## Parameters
+
+### l2BlockNumber
+
+- **Type:** `bigint`
+
+The minimum anchored L2 block number, or timestamp for super-root games.
+
+### strategy (Optional)
+
+- **Type:** `'latest' | 'random'`
+- **Default:** `'latest'`
+
+The strategy used to select a matching game.
+
+### targetChain (Optional)
+
+- **Type:** `Chain`
+
+The OP Stack L2 [Chain](/docs/chains) whose L1 contracts are used.
+
+### disputeGameFactoryAddress (Optional)
+
+- **Type:** `Address`
+
+An explicit Dispute Game Factory address. Supply it with `portalAddress` when omitting `targetChain`.
+
+### portalAddress (Optional)
+
+- **Type:** `Address`
+
+An explicit Optimism Portal address. Supply it with `disputeGameFactoryAddress` when omitting `targetChain`.
+
+### chain (Optional)
+
+- **Type:** `Chain`
+- **Default:** `client.chain`
+
+The L1 chain used to read the contracts.
+
+### limit (Optional)
+
+- **Type:** `number`
+- **Default:** `100`
+
+The maximum number of recent games to inspect.

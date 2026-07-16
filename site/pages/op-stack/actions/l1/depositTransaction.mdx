@@ -1,0 +1,164 @@
+---
+description: Deposit an L1 transaction onto an OP Stack L2.
+---
+
+# `l1.depositTransaction`
+
+Deposits an L1 transaction onto an OP Stack L2.
+
+## Usage
+
+Submit a prepared deposit request through the Optimism Portal on L1.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { optimism } from 'viem/chains'
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const hash = await client.deposit.depositTransaction({ // [!code focus]
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  request: { // [!code focus]
+    gas: 21_000n, // [!code focus]
+    mint: Value.fromEther('1'), // [!code focus]
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  }, // [!code focus]
+  targetChain: optimism, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l1.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.l1.depositTransaction` directly by passing the [Client](/docs/clients) as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { optimism } from 'viem/chains'
+import { Actions } from 'viem/op-stack'
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const hash = await Actions.l1.depositTransaction(client, { // [!code focus]
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  request: { // [!code focus]
+    gas: 21_000n, // [!code focus]
+    mint: Value.fromEther('1'), // [!code focus]
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  }, // [!code focus]
+  targetChain: optimism, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l1.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+`Hex`
+
+The L1 transaction hash.
+
+## Parameters
+
+### account
+
+- **Type:** `Account | Address`
+
+The [Account](/docs/accounts) that sends the L1 transaction. Required when the Client has no Account.
+
+### request
+
+- **Type:** `Deposit.Request`
+
+The L2 transaction request.
+
+#### request.data (Optional)
+
+- **Type:** `Hex`
+
+Encoded contract method and arguments, or contract deployment bytecode.
+
+#### request.gas
+
+- **Type:** `bigint`
+
+The gas limit for transaction execution on L2.
+
+#### request.isCreation (Optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether the transaction deploys a contract. Contract deployments require `data` and cannot specify `to`.
+
+#### request.mint (Optional)
+
+- **Type:** `bigint`
+
+The value minted on L2 and debited from the caller's L1 balance, in wei.
+
+#### request.to (Optional)
+
+- **Type:** `Address`
+
+The L2 transaction recipient.
+
+#### request.value (Optional)
+
+- **Type:** `bigint`
+
+The value sent by the deposited transaction on L2, in wei.
+
+### targetChain (Optional)
+
+- **Type:** `Chain`
+
+The OP Stack L2 [Chain](/docs/chains) whose portal contract is used.
+
+### portalAddress (Optional)
+
+- **Type:** `Address`
+
+An explicit Optimism Portal address. When supplied, `targetChain` is optional.
+
+### chain (Optional)
+
+- **Type:** `Chain | null`
+- **Default:** `client.chain`
+
+The L1 chain on which the deposit transaction is sent.
+
+### gas (Optional)
+
+- **Type:** `bigint | null`
+
+The gas limit for the L1 transaction.
+
+### maxFeePerGas (Optional)
+
+- **Type:** `bigint`
+
+The maximum total fee per gas, in wei.
+
+### maxPriorityFeePerGas (Optional)
+
+- **Type:** `bigint`
+
+The maximum priority fee per gas, in wei.
+
+### nonce (Optional)
+
+- **Type:** `number`
+
+The L1 transaction nonce.

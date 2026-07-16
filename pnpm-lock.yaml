@@ -375,6 +375,9 @@ importers:
       react-server-dom-webpack:
         specifier: 'catalog:'
         version: 19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(webpack@5.107.2(esbuild@0.27.2))
+      tailwindcss:
+        specifier: ^4.3.0
+        version: 4.3.0
       typescript:
         specifier: ^5.9.3
         version: 5.9.3

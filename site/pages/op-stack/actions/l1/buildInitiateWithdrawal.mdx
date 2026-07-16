@@ -1,0 +1,104 @@
+---
+description: Prepare an L2 withdrawal request for submission.
+---
+
+# `l1.buildInitiateWithdrawal`
+
+Prepares an L2 withdrawal request for submission.
+
+## Usage
+
+Prepare the withdrawal request with the L1 Client before submitting it on L2.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const withdrawal = await client.withdrawal.buildInitiateWithdrawal({ // [!code focus]
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  value: Value.fromEther('1'), // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l1.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.l1.buildInitiateWithdrawal` directly by passing the [Client](/docs/clients) as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/op-stack'
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const withdrawal = await Actions.l1.buildInitiateWithdrawal(client, { // [!code focus]
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  value: Value.fromEther('1'), // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l1.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+{
+  account: Account | undefined
+  request: Withdrawal.Request
+}
+```
+
+The parsed Account and prepared withdrawal request.
+
+## Parameters
+
+### account (Optional)
+
+- **Type:** `Account | Address`
+
+The optional [Account](/docs/accounts) that will submit the prepared withdrawal.
+
+### chain (Optional)
+
+- **Type:** `Chain`
+- **Default:** `client.chain`
+
+The chain on which the withdrawal is initiated.
+
+### data (Optional)
+
+- **Type:** `Hex`
+
+Encoded contract method and arguments to execute on L1.
+
+### gas (Optional)
+
+- **Type:** `bigint`
+
+The gas limit for execution on L1.
+
+### to
+
+- **Type:** `Address`
+
+The L1 recipient.
+
+### value (Optional)
+
+- **Type:** `bigint`
+
+The native value withdrawn to L1, in wei.

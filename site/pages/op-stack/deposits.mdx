@@ -8,81 +8,211 @@ description: Deposit ETH or contract calls from L1 onto an OP Stack L2 and inspe
 
 An OP Stack deposit starts with a transaction to the Optimism Portal on L1. The portal emits a `TransactionDeposited` event, which the L2 derives into a deposit transaction with type `0x7e`.
 
-Viem exposes the cross-layer workflow through [`Actions.l2.buildDepositTransaction`](/op-stack/actions/l2) and [`Actions.l1.depositTransaction`](/op-stack/actions/l1). The `Deposit` namespace extracts deposit logs and derives L2 transaction hashes. `TxEnvelopeDeposit` handles the typed deposit envelope directly.
+Viem exposes the cross-layer workflow through [`Actions.l2.buildDepositTransaction`](/op-stack/actions/l2/buildDepositTransaction) and [`Actions.l1.depositTransaction`](/op-stack/actions/l1/depositTransaction). The `Deposit` namespace extracts deposit logs and derives L2 transaction hashes. `TxEnvelopeDeposit` handles the typed deposit envelope directly.
+
+Deposit one Ether from Mainnet to OP Mainnet by preparing the L2 request, submitting it on L1, and following the derived transaction to L2.
+
+:::code-group
+
+```ts twoslash [deposit.ts]
+import { Deposit } from 'viem/op-stack'
+import { Value } from 'viem/utils'
+import { account, l1Client, l2Client } from './viem.config'
+
+const deposit = await l2Client.deposit.buildDepositTransaction({
+  account,
+  mint: Value.fromEther('1'),
+  to: account.address,
+})
+
+const hash = await l1Client.deposit.depositTransaction(deposit)
+const l1Receipt = await l1Client.transaction.waitForReceipt({ hash }).receipt
+
+const [l2Hash] = Deposit.getL2TransactionHashes({
+  logs: l1Receipt.logs,
+})
+if (!l2Hash) throw new Error('Deposit transaction not found.')
+
+const l2Receipt = await l2Client.transaction.waitForReceipt({
+  hash: l2Hash,
+}).receipt
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/deposit.config.ts:setup]
+```
+
+:::
+
+## Steps
+
+Follow these steps to execute and track the deposit across both chains.
+
+::::steps
+
+### Set Up the Clients
+
+Create an L1 Client with an Account and an L2 Client for OP Mainnet. Extend both with [Public Actions](/docs/actions/public) for receipt tracking and their corresponding OP Stack Actions.
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/deposit.config.ts:setup]
+```
+
+### Build the Deposit Transaction
+
+Use [`l2.buildDepositTransaction`](/op-stack/actions/l2/buildDepositTransaction) to prepare the L2 transaction request. Here, one Ether is deposited to the sending Account.
+
+:::code-group
+
+```ts twoslash [deposit.ts]
+import { Value } from 'viem/utils'
+import { account, l2Client } from './viem.config'
+
+const deposit = await l2Client.deposit.buildDepositTransaction({ // [!code focus]
+  account, // [!code focus]
+  mint: Value.fromEther('1'), // [!code focus]
+  to: account.address, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/deposit.config.ts:setup]
+```
+
+:::
+
+:::info
+`mint` is credited on L2 and debited from the Account's L1 balance. `to` can be any L2 recipient.
+:::
+
+### Submit the Deposit on L1
+
+Pass the prepared deposit to [`l1.depositTransaction`](/op-stack/actions/l1/depositTransaction). It already contains the L2 request, Account, and target chain.
+
+:::code-group
+
+```ts twoslash [deposit.ts]
+import { Value } from 'viem/utils'
+import { account, l1Client, l2Client } from './viem.config'
+
+const deposit = await l2Client.deposit.buildDepositTransaction({
+  account,
+  mint: Value.fromEther('1'),
+  to: account.address,
+})
+
+const hash = await l1Client.deposit.depositTransaction(deposit) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/deposit.config.ts:setup]
+```
+
+:::
+
+### Wait for the L1 Receipt
+
+Use [`transaction.waitForReceipt`](/docs/actions/public/transaction/waitForReceipt) to wait until the portal transaction is included on L1.
+
+:::code-group
+
+```ts twoslash [deposit.ts]
+import { Value } from 'viem/utils'
+import { account, l1Client, l2Client } from './viem.config'
+
+const deposit = await l2Client.deposit.buildDepositTransaction({
+  account,
+  mint: Value.fromEther('1'),
+  to: account.address,
+})
+const hash = await l1Client.deposit.depositTransaction(deposit)
+
+const l1Receipt = await l1Client.transaction.waitForReceipt({ // [!code focus]
+  hash, // [!code focus]
+}).receipt // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/deposit.config.ts:setup]
+```
+
+:::
+
+:::info
+Once the L1 transaction is included, the deposited Ether has been debited from the Account's L1 balance.
+:::
+
+### Derive the L2 Transaction Hash
+
+Use `Deposit.getL2TransactionHashes` with the L1 receipt logs to derive the transaction created on L2.
+
+:::code-group
+
+```ts twoslash [deposit.ts]
+import { Deposit } from 'viem/op-stack'
+import { Value } from 'viem/utils'
+import { account, l1Client, l2Client } from './viem.config'
+
+const deposit = await l2Client.deposit.buildDepositTransaction({
+  account,
+  mint: Value.fromEther('1'),
+  to: account.address,
+})
+const hash = await l1Client.deposit.depositTransaction(deposit)
+const l1Receipt = await l1Client.transaction.waitForReceipt({ hash }).receipt
+
+const [l2Hash] = Deposit.getL2TransactionHashes({ // [!code focus]
+  logs: l1Receipt.logs, // [!code focus]
+}) // [!code focus]
+if (!l2Hash) throw new Error('Deposit transaction not found.')
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/deposit.config.ts:setup]
+```
+
+:::
+
+### Wait for the L2 Receipt
+
+Wait for the derived transaction to be included on L2. Once it resolves, the recipient has the deposited Ether.
+
+:::code-group
+
+```ts twoslash [deposit.ts]
+import { Deposit } from 'viem/op-stack'
+import { Value } from 'viem/utils'
+import { account, l1Client, l2Client } from './viem.config'
+
+const deposit = await l2Client.deposit.buildDepositTransaction({
+  account,
+  mint: Value.fromEther('1'),
+  to: account.address,
+})
+const hash = await l1Client.deposit.depositTransaction(deposit)
+const l1Receipt = await l1Client.transaction.waitForReceipt({ hash }).receipt
+
+const [l2Hash] = Deposit.getL2TransactionHashes({
+  logs: l1Receipt.logs,
+})
+if (!l2Hash) throw new Error('Deposit transaction not found.')
+
+const l2Receipt = await l2Client.transaction.waitForReceipt({ // [!code focus]
+  hash: l2Hash, // [!code focus]
+}).receipt // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/deposit.config.ts:setup]
+```
+
+:::
+
+::::
 
 ## Recipes
 
-These recipes assume the sending account is available to the L1 Client.
-
-### Deposit ETH
-
-Prepare the L2 request through the L2 Client, then submit it through the L1 Client. Pass the L2 chain as `targetChain` so the L1 action resolves its portal address.
-
-```ts twoslash
-import { Client, http } from 'viem'
-import { mainnet, optimism } from 'viem/chains'
-import {
-  opStackL1Actions,
-  opStackL2Actions,
-} from 'viem/op-stack'
-import { Value } from 'viem/utils'
-
-const account = '0x0000000000000000000000000000000000000001'
-
-const l1Client = Client.create({
-  account,
-  chain: mainnet,
-  transport: http(),
-}).extend(opStackL1Actions())
-
-const l2Client = Client.create({
-  chain: optimism,
-  transport: http(),
-}).extend(opStackL2Actions())
-
-const { request } = await l2Client.opStack.buildDepositTransaction({
-  account,
-  mint: Value.fromEther('1'), // [!code focus]
-  to: account, // [!code focus]
-})
-
-const hash = await l1Client.opStack.depositTransaction({
-  request, // [!code focus]
-  targetChain: optimism, // [!code focus]
-})
-// @log: 0x2b6f0f5e...
-```
-
-### Find the L2 Transaction
-
-Derive every L2 transaction hash from the L1 receipt logs, then wait for each transaction on the L2.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { optimism } from 'viem/chains'
-import { Deposit } from 'viem/op-stack'
-
-const l1Client = Client.create({ transport: http('https://eth.example') })
-const l2Client = Client.create({
-  chain: optimism,
-  transport: http('https://optimism.example'),
-})
-
-const { receipt: receiptPromise } = Actions.transaction.waitForReceipt(l1Client, {
-  hash: '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-})
-const receipt = await receiptPromise
-
-const hashes = Deposit.getL2TransactionHashes({ // [!code focus]
-  logs: receipt.logs, // [!code focus]
-}) // [!code focus]
-
-const l2Receipts = await Promise.all(
-  hashes.map((hash) =>
-    Actions.transaction.waitForReceipt(l2Client, { hash }).receipt,
-  ),
-)
-```
+Use these recipes for lower-level deposit data and envelope handling.
 
 ### Decode Deposit Event Data
 
@@ -117,16 +247,17 @@ Use `TxEnvelopeDeposit` when reading or writing the raw EIP-2718 envelope. OP St
 
 ```ts twoslash
 import { TxEnvelopeDeposit } from 'viem/op-stack'
+import { Value } from 'viem/utils'
 
 const serialized = TxEnvelopeDeposit.serialize({ // [!code focus]
   from: '0x0000000000000000000000000000000000000001',
   gas: 21_000n,
-  mint: 1n,
+  mint: Value.fromEther('1'),
   sourceHash:
     '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
   to: '0x0000000000000000000000000000000000000002',
   type: 'deposit',
-  value: 1n,
+  value: Value.fromEther('1'),
 }) // [!code focus]
 
 const envelope = TxEnvelopeDeposit.deserialize(serialized) // [!code focus]

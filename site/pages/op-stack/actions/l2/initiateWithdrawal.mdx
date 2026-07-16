@@ -1,0 +1,147 @@
+---
+description: Initiate an OP Stack withdrawal from L2 to L1.
+---
+
+# `l2.initiateWithdrawal`
+
+Initiates a [withdrawal](/op-stack/withdrawals) by writing to the OP Stack L2 to L1 message passer.
+
+## Usage
+
+Submit a withdrawal request with a Local Account.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem'
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const hash = await client.withdrawal.initiateWithdrawal({ // [!code focus:9]
+  account: Account.fromPrivateKey('0x...'),
+  request: {
+    gas: 21_000n,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: Value.fromEther('1'),
+  },
+})
+// @log: '0x...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l2.config.ts:setup]
+```
+
+:::
+
+:::warning
+Set `request.gas` high enough for execution on L1. A withdrawal can be initiated successfully on L2 and still fail when finalized on L1.
+:::
+
+### Standalone Action
+
+Call `Actions.l2.initiateWithdrawal` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem'
+import { Actions } from 'viem/op-stack'
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const hash = await Actions.l2.initiateWithdrawal(client, { // [!code focus:9]
+  account: Account.fromPrivateKey('0x...'),
+  request: {
+    gas: 21_000n,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: Value.fromEther('1'),
+  },
+})
+// @log: '0x...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l2.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+`Hex`
+
+The L2 transaction hash.
+
+## Parameters
+
+This action also accepts the transaction options from [`Actions.transaction.send`](/docs/actions/wallet/transaction/send). The withdrawal request supplies `data`, `to`, and `value`, while `gas` is defined below with `null` support.
+
+### account (Optional)
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+The Account or address that submits the withdrawal transaction.
+
+### chain (Optional)
+
+- **Type:** `Chain | null`
+- **Default:** `client.chain`
+
+The L2 Chain containing the message passer contract.
+
+### gas (Optional)
+
+- **Type:** `bigint | null`
+
+The L2 execution gas limit. Pass `null` to defer estimation to the signer.
+
+### maxFeePerGas (Optional)
+
+- **Type:** `bigint | number | Hex`
+
+The maximum total fee per gas in wei.
+
+### maxPriorityFeePerGas (Optional)
+
+- **Type:** `bigint | number | Hex`
+
+The maximum priority fee per gas in wei.
+
+### nonce (Optional)
+
+- **Type:** `bigint | number | Hex`
+
+The L2 transaction nonce.
+
+### request
+
+- **Type:** `Withdrawal.Request`
+
+The withdrawal request passed to the L2 message passer.
+
+#### request.data (Optional)
+
+- **Type:** `Hex`
+- **Default:** `'0x'`
+
+The encoded call data executed on L1.
+
+#### request.gas
+
+- **Type:** `bigint`
+
+The gas limit for execution on L1.
+
+#### request.to
+
+- **Type:** `Address`
+
+The L1 transaction recipient.
+
+#### request.value (Optional)
+
+- **Type:** `bigint`
+
+The value in wei withdrawn from L2 to L1.

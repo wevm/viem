@@ -1,0 +1,99 @@
+---
+description: Build the OP Stack state proof required to prove an L2 withdrawal on L1.
+---
+
+# `l2.buildProveWithdrawal`
+
+Builds the output root and storage proof required to prove an [L2 withdrawal](/op-stack/withdrawals) on L1.
+
+## Usage
+
+Build a proof from a legacy L2 output proposal and an extracted withdrawal.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import type { Actions, Withdrawal } from 'viem/op-stack'
+import { client } from './viem.config'
+
+declare const output: Actions.l2.buildProveWithdrawal.Output
+declare const withdrawal: Withdrawal.Withdrawal
+
+const proof = await client.withdrawal.buildProveWithdrawal({ // [!code focus:4]
+  output,
+  withdrawal,
+})
+// @log: { l2OutputIndex: 42n, outputRootProof: { ... }, withdrawalProof: ['0x...'], ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l2.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.l2.buildProveWithdrawal` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions, type Withdrawal } from 'viem/op-stack'
+import { client } from './viem.config'
+
+declare const output: Actions.l2.buildProveWithdrawal.Output
+declare const withdrawal: Withdrawal.Withdrawal
+
+const proof = await Actions.l2.buildProveWithdrawal(client, { // [!code focus:4]
+  output,
+  withdrawal,
+})
+// @log: { l2OutputIndex: 42n, outputRootProof: { ... }, withdrawalProof: ['0x...'], ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l2.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+`Actions.l2.buildProveWithdrawal.ReturnType`
+
+The Account, output index, output root proof, target Chain, withdrawal, and Merkle proof required by the L1 portal.
+
+## Parameters
+
+### account (Optional)
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+The Account or address that will prove the withdrawal on L1.
+
+### chain (Optional)
+
+- **Type:** `Chain`
+- **Default:** `client.chain`
+
+The L2 Chain containing the withdrawal.
+
+### game (Optional)
+
+- **Type:** `Actions.l2.buildProveWithdrawal.Game`
+
+The dispute game anchoring the withdrawal. Pass either `game` or `output`.
+
+### output (Optional)
+
+- **Type:** `Actions.l2.buildProveWithdrawal.Output`
+
+The legacy L2 output proposal anchoring the withdrawal. Pass either `output` or `game`.
+
+### withdrawal
+
+- **Type:** `Withdrawal.Withdrawal`
+
+The withdrawal extracted from the initiating transaction receipt.

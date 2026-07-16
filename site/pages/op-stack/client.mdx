@@ -6,7 +6,7 @@ description: Extend Viem Clients with OP Stack L1 or L2 actions.
 
 ## Overview
 
-The OP Stack extension provides separate decorators for L1 and L2 Clients. Both attach their methods under `client.opStack`, keeping extension actions separate from core Viem actions.
+The OP Stack extension provides separate decorators for L1 and L2 Clients. They attach methods under top-level domain namespaces: `client.deposit`, `client.withdrawal`, `client.game`, `client.output`, `client.portal`, and `client.fee`.
 
 Use `opStackL1Actions()` with the L1 Client that reads and writes portal contracts. Use `opStackL2Actions()` with the OP Stack L2 Client that estimates fees, builds deposits and proofs, and initiates withdrawals.
 
@@ -26,7 +26,7 @@ const client = Client.create({
   transport: http(),
 }).extend(opStackL1Actions()) // [!code focus]
 
-const games = await client.opStack.getGames({ // [!code focus]
+const games = await client.game.getGames({ // [!code focus]
   targetChain: optimism, // [!code focus]
 }) // [!code focus]
 // @log: []
@@ -40,15 +40,16 @@ Use an OP Stack chain from `viem/chains` so the Client can decode OP-specific bl
 import { Client, http } from 'viem'
 import { base } from 'viem/chains'
 import { opStackL2Actions } from 'viem/op-stack'
+import { Value } from 'viem/utils'
 
 const client = Client.create({
   chain: base, // [!code focus]
   transport: http(),
 }).extend(opStackL2Actions()) // [!code focus]
 
-const fee = await client.opStack.estimateL1Fee({
+const fee = await client.fee.estimateL1Fee({
   to: '0x0000000000000000000000000000000000000000',
-  value: 1n,
+  value: Value.fromEther('1'),
 })
 // @log: 204276000000n
 ```
@@ -92,7 +93,7 @@ const client = Client.create({
 
 `OpStackL1Actions`
 
-An extension that binds L1 actions under `client.opStack`.
+An extension that binds L1 actions under `client.deposit`, `client.withdrawal`, `client.game`, `client.output`, and `client.portal`.
 
 ## `opStackL2Actions`
 
@@ -115,4 +116,4 @@ const client = Client.create({
 
 `OpStackL2Actions`
 
-An extension that binds L2 actions under `client.opStack`.
+An extension that binds L2 actions under `client.deposit`, `client.withdrawal`, and `client.fee`.

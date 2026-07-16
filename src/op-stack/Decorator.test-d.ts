@@ -4,6 +4,8 @@ import { Account, Client, http } from 'viem'
 import { optimism } from 'viem/chains'
 import {
   Actions,
+  type OpStackL1Actions,
+  type OpStackL2Actions,
   Withdrawal,
   opStackL1Actions,
   opStackL2Actions,
@@ -23,9 +25,63 @@ const request = {
 declare const game: Actions.l2.buildProveWithdrawal.Game
 declare const withdrawalData: Withdrawal.Withdrawal
 
+test('decorator domains', () => {
+  expectTypeOf<keyof OpStackL1Actions>().toEqualTypeOf<
+    'deposit' | 'withdrawal' | 'game' | 'output' | 'portal'
+  >()
+  expectTypeOf<keyof OpStackL1Actions['deposit']>().toEqualTypeOf<
+    'depositTransaction' | 'estimateDepositTransactionGas'
+  >()
+  expectTypeOf<keyof OpStackL1Actions['withdrawal']>().toEqualTypeOf<
+    | 'buildInitiateWithdrawal'
+    | 'estimateFinalizeWithdrawalGas'
+    | 'estimateProveWithdrawalGas'
+    | 'finalizeWithdrawal'
+    | 'getTimeToFinalize'
+    | 'getTimeToProve'
+    | 'getWithdrawalStatus'
+    | 'proveWithdrawal'
+    | 'waitToFinalize'
+    | 'waitToProve'
+  >()
+  expectTypeOf<keyof OpStackL1Actions['game']>().toEqualTypeOf<
+    'getGame' | 'getGames' | 'getTimeToNextGame' | 'waitForNextGame'
+  >()
+  expectTypeOf<keyof OpStackL1Actions['output']>().toEqualTypeOf<
+    'getL2Output' | 'getTimeToNextL2Output' | 'waitForNextL2Output'
+  >()
+  expectTypeOf<
+    keyof OpStackL1Actions['portal']
+  >().toEqualTypeOf<'getPortalVersion'>()
+
+  expectTypeOf<keyof OpStackL2Actions>().toEqualTypeOf<
+    'deposit' | 'withdrawal' | 'fee'
+  >()
+  expectTypeOf<
+    keyof OpStackL2Actions['deposit']
+  >().toEqualTypeOf<'buildDepositTransaction'>()
+  expectTypeOf<keyof OpStackL2Actions['withdrawal']>().toEqualTypeOf<
+    | 'buildProveWithdrawal'
+    | 'estimateInitiateWithdrawalGas'
+    | 'initiateWithdrawal'
+  >()
+  expectTypeOf<keyof OpStackL2Actions['fee']>().toEqualTypeOf<
+    | 'estimateContractL1Fee'
+    | 'estimateContractL1Gas'
+    | 'estimateContractTotalFee'
+    | 'estimateContractTotalGas'
+    | 'estimateL1Fee'
+    | 'estimateL1Gas'
+    | 'estimateOperatorFee'
+    | 'estimateTotalFee'
+    | 'estimateTotalGas'
+    | 'getL1BaseFee'
+  >()
+})
+
 test('L1 decorator requires an account for writes', () => {
   const decorated = client.extend(opStackL1Actions())
-  type Options = Parameters<typeof decorated.opStack.depositTransaction>[0]
+  type Options = Parameters<typeof decorated.deposit.depositTransaction>[0]
 
   expectTypeOf<Options>().toMatchTypeOf<{
     account: unknown
@@ -45,14 +101,14 @@ test('L2 decorator preserves contract inference', () => {
     },
   ] as const
 
-  decorated.opStack.estimateContractL1Fee({
+  decorated.fee.estimateContractL1Fee({
     abi,
     address: '0x0000000000000000000000000000000000000000',
     args: [1n],
     functionName: 'setValue',
   })
 
-  decorated.opStack.estimateContractL1Fee({
+  decorated.fee.estimateContractL1Fee({
     abi,
     address: '0x0000000000000000000000000000000000000000',
     // @ts-expect-error invalid argument type
@@ -64,8 +120,8 @@ test('L2 decorator preserves contract inference', () => {
 test('L2 decorator requires an account for withdrawals', () => {
   const decorated = client.extend(opStackL2Actions())
 
-  decorated.opStack.initiateWithdrawal({ account, request })
-  decorated.opStack.initiateWithdrawal(
+  decorated.withdrawal.initiateWithdrawal({ account, request })
+  decorated.withdrawal.initiateWithdrawal(
     // @ts-expect-error An account is required when the client has none.
     { request },
   )
@@ -75,13 +131,13 @@ test('L2 decorator requires an account for withdrawals', () => {
     chain: optimism,
     transport: http('http://127.0.0.1'),
   }).extend(opStackL2Actions())
-  accountClient.opStack.initiateWithdrawal({ request })
+  accountClient.withdrawal.initiateWithdrawal({ request })
 })
 
 test('decorators preserve builder inference', async () => {
   const l1 = client.extend(opStackL1Actions())
   const l2 = client.extend(opStackL2Actions())
-  const deposit = await l2.opStack.buildDepositTransaction({
+  const deposit = await l2.deposit.buildDepositTransaction({
     account: request.to,
     to: request.to,
   })
@@ -90,23 +146,23 @@ test('decorators preserve builder inference', async () => {
     Account.JsonRpc<typeof request.to>
   >()
   expectTypeOf(deposit.targetChain).toEqualTypeOf<typeof optimism>()
-  l1.opStack.depositTransaction(deposit)
+  l1.deposit.depositTransaction(deposit)
 
-  const withdrawal = await l1.opStack.buildInitiateWithdrawal({
+  const withdrawal = await l1.withdrawal.buildInitiateWithdrawal({
     account: request.to,
     to: request.to,
   })
   expectTypeOf(withdrawal.account).toEqualTypeOf<
     Account.JsonRpc<typeof request.to>
   >()
-  l2.opStack.initiateWithdrawal(withdrawal)
+  l2.withdrawal.initiateWithdrawal(withdrawal)
 
-  const proof = await l2.opStack.buildProveWithdrawal({
+  const proof = await l2.withdrawal.buildProveWithdrawal({
     account: request.to,
     game,
     withdrawal: withdrawalData,
   })
   expectTypeOf(proof.account).toEqualTypeOf<typeof request.to>()
   expectTypeOf(proof.targetChain).toEqualTypeOf<typeof optimism>()
-  l1.opStack.proveWithdrawal(proof)
+  l1.withdrawal.proveWithdrawal(proof)
 })
