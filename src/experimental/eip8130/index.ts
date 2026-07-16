@@ -15,6 +15,9 @@ export {
   newSmartAccount8130,
   type ToEoa8130AccountReturnType,
   toEoa8130Account,
+  type ToDelegate8130SignerParameters,
+  toDelegate8130Signer,
+  delegateAuthSize,
 } from './accounts/to8130Account.js'
 export {
   type Eip8130SmartAccountImplementation,

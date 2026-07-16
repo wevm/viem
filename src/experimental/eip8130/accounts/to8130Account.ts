@@ -1,6 +1,7 @@
 import type { Address } from 'abitype'
 import { BaseError } from '../../../errors/base.js'
 import type { Hex } from '../../../types/misc.js'
+import { concatHex } from '../../../utils/data/concat.js'
 import { bytesToHex } from '../../../utils/encoding/toHex.js'
 import { hexToBigInt } from '../../../utils/encoding/fromHex.js'
 import {
@@ -510,6 +511,95 @@ export function toEoa8130Account(signer: Signer): ToEoa8130AccountReturnType {
       })
     },
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// toDelegate8130Signer
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type ToDelegate8130SignerParameters = {
+  /**
+   * The delegate (parent) account address that controls the sub-account. The
+   * sub-account must have a `key.delegate(delegateAccount)` actor authorized
+   * (its `actorId` is `bytes32(bytes20(delegateAccount))`).
+   */
+  delegateAccount: Address
+  /**
+   * A signer for an **admin** (scope `0x00`) actor of the delegate (parent)
+   * account — the nested signature must resolve to an admin, or the
+   * `DelegateAuthenticator` rejects the vouch (`InvalidNestedSignature`).
+   */
+  nestedSigner: Signer
+  /**
+   * Authenticator of the nested (parent admin) signer. Defaults to the native
+   * `ECRECOVER_AUTHENTICATOR` (secp256k1). Set to the P-256 / WebAuthn
+   * authenticator when the parent admin actor is non-K1.
+   */
+  nestedAuthenticator?: Address | undefined
+  /** DelegateAuthenticator address. Defaults to the canonical deployment. */
+  authenticator?: Address | undefined
+}
+
+/**
+ * Wraps a **parent admin** signer into a {@link Signer} that authenticates a
+ * sub-account through the `DelegateAuthenticator` (one delegation hop). The
+ * produced `sign` returns the delegate authenticator's `data` payload —
+ * `delegateAccount(20) ‖ nestedAuthenticator(20) ‖ nestedSignature` — so that
+ * `to8130Account`'s configured-actor path serializes the full `senderAuth` as
+ * `DELEGATE_AUTHENTICATOR ‖ data`.
+ *
+ * Use it as the `signer` (and pass its `authenticator`) to {@link to8130Account}
+ * for an account whose only owner is `key.delegate(parent)`:
+ * ```ts
+ * const delegateSigner = toDelegate8130Signer({
+ *   delegateAccount: parent.address,
+ *   nestedSigner: parentAdmin, // an admin (scope 0) owner of the parent
+ * })
+ * const sub = to8130Account({
+ *   signer: delegateSigner,
+ *   authenticator: delegateSigner.authenticator, // DelegateAuthenticator
+ *   userSalt, code,
+ *   initialActors: [key.delegate(parent.address)],
+ * })
+ * // sub.signTransaction(...) now produces a valid delegate senderAuth.
+ * ```
+ *
+ * The parent account MUST be deployed (its admin actor config must be on-chain)
+ * before the delegate vouch can be validated.
+ */
+export function toDelegate8130Signer(
+  parameters: ToDelegate8130SignerParameters,
+): Signer {
+  const {
+    delegateAccount,
+    nestedSigner,
+    nestedAuthenticator = ecrecoverAuthenticator,
+    authenticator = canonicalAuthenticators.delegate,
+  } = parameters
+  if (!nestedSigner.sign)
+    throw new BaseError('`nestedSigner` must support raw signing.')
+  return {
+    address: nestedSigner.address,
+    authenticator,
+    async sign({ hash }) {
+      const nestedSignature = await nestedSigner.sign!({ hash })
+      // DelegateAuthenticator `data` layout (bytes after the 20-byte selector):
+      //   delegate_address(20) || nested_authenticator(20) || nested_data
+      return concatHex([delegateAccount, nestedAuthenticator, nestedSignature])
+    },
+  }
+}
+
+/**
+ * Byte length of a delegate `senderAuth`/`auth` blob for a given nested-auth
+ * payload length (default: 65-byte K1 signature). Useful as `senderAuthSize` /
+ * `payerAuthSize` when estimating gas for a delegate-signed transaction, since
+ * the delegate authenticator has no fixed default length.
+ *
+ * Layout: DELEGATE_AUTHENTICATOR(20) ‖ delegate_address(20) ‖ nested_auth(20) ‖ nested_data.
+ */
+export function delegateAuthSize(nestedDataLength = 65): number {
+  return 20 + 20 + 20 + nestedDataLength
 }
 
 /** Generates a cryptographically random bytes32 salt. */

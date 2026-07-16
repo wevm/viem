@@ -5,9 +5,17 @@ import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import type { Hex } from '../../types/misc.js'
 import { keccak256 } from '../../utils/hash/keccak256.js'
-import { to8130Account } from './accounts/to8130Account.js'
+import {
+  delegateAuthSize,
+  to8130Account,
+  toDelegate8130Signer,
+} from './accounts/to8130Account.js'
 import { sendCalls8130 } from './actions/sendCalls.js'
-import { actorScope, canonicalAuthenticators } from './constants.js'
+import {
+  actorScope,
+  canonicalAuthenticators,
+  ecrecoverAuthenticator,
+} from './constants.js'
 import {
   authorizeActor,
   encodePolicyData,
@@ -180,5 +188,59 @@ describe('sendCalls8130', () => {
     expect(parsed.calls?.[0]).toHaveLength(2)
     expect(parsed.accountChanges?.[0]?.type).toBe('create')
     expect(parsed.senderAuth).toBeDefined()
+  })
+})
+
+describe('toDelegate8130Signer (sub-account via key.delegate)', () => {
+  const parent = '0x00112233445566778899aabbccddeeff00112233' as const
+
+  test('delegateAuthSize defaults to a 125-byte K1 blob', () => {
+    expect(delegateAuthSize()).toBe(125)
+    expect(delegateAuthSize(128)).toBe(188)
+  })
+
+  test('signer wraps the nested sig into the delegate data blob', async () => {
+    const signer = toDelegate8130Signer({
+      delegateAccount: parent,
+      nestedSigner: owner,
+    })
+    expect(signer.authenticator).toBe(canonicalAuthenticators.delegate)
+    const hash = keccak256('0xdeadbeef')
+    const blob = await signer.sign!({ hash })
+    // data = delegate(20) || nestedAuthenticator(20) || nestedSig(65) = 105 bytes
+    expect((blob.length - 2) / 2).toBe(105)
+    expect(blob.slice(0, 42).toLowerCase()).toBe(parent.toLowerCase())
+    expect(blob.slice(42, 82).toLowerCase()).toBe(
+      ecrecoverAuthenticator.slice(2).toLowerCase(),
+    )
+  })
+
+  test('to8130Account serializes the full delegate senderAuth', async () => {
+    const signer = toDelegate8130Signer({
+      delegateAccount: parent,
+      nestedSigner: owner,
+    })
+    const sub = to8130Account({
+      signer,
+      authenticator: signer.authenticator,
+      userSalt,
+      code,
+      initialActors: [key.delegate(parent)],
+    })
+    const serialized = await sub.signTransaction({
+      chainId: 1,
+      calls: [[{ to: parent, data: '0x' }]],
+      accountChanges: [sub.create()],
+      gas: 200_000n,
+      maxFeePerGas: 2_000_000_000n,
+      maxPriorityFeePerGas: 1_000_000_000n,
+      nonceSequence: 0n,
+    })
+    const parsed = parseTransaction8130(serialized)
+    // senderAuth = DELEGATE(20) || delegate(20) || nested(20) || sig(65) = 125 bytes
+    expect((parsed.senderAuth!.length - 2) / 2).toBe(delegateAuthSize())
+    expect(parsed.senderAuth!.slice(0, 42).toLowerCase()).toBe(
+      canonicalAuthenticators.delegate.toLowerCase(),
+    )
   })
 })
