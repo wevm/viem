@@ -199,9 +199,10 @@ jobs:
         env:
           CI: true
           VITE_TEMPO_ENV: localnet
-          VITE_TEMPO_TAG: latest
+          # TODO: Restore latest tags once Tempo includes the ZoneFactory contract.
+          VITE_TEMPO_TAG: sha-e828ab7
           VITE_TEMPO_ZONES: 'true'
-          VITE_TEMPO_ZONE_TAG: latest
+          VITE_TEMPO_ZONE_TAG: sha-aae82c4
 
   test-envs:
     name: Test Environments
