@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Bumped ABIType version.
+Bumped ABIType and Ox versions.
