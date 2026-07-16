@@ -11,6 +11,7 @@ export const eduChain = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: ['https://rpc.educhain.xyz'],
+      webSocket: ['wss://ws.rpc.educhain.xyz'],
     },
   },
   blockExplorers: {
