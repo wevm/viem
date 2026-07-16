@@ -50,11 +50,14 @@ export const nonceFreeMaxExpiryWindow = 10n
 export const replayBufferCapacity = 300000n
 
 /**
- * Account change entry type discriminators (first element of each
- * `account_changes` entry).
+ * Account change entry type discriminators — the first element of each
+ * `account_changes` entry's flat RLP list `rlp([type_byte, ...fields])`.
+ *
+ * The discriminant is RLP-encoded as an integer (`u8`), so `create` (`0`) is the
+ * canonical empty item `'0x'` (which RLP-encodes to `0x80`), not `'0x00'`.
  */
 export const accountChangeType = {
-  create: '0x00',
+  create: '0x',
   config: '0x01',
   delegation: '0x02',
 } as const satisfies Record<string, Hex>

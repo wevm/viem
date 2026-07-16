@@ -44,43 +44,42 @@ function toActorChange(change: AaActorChange): RecursiveArray<Hex> {
 }
 
 /**
- * Encodes the `account_changes` field into a flat RLP-ready array.
+ * Encodes the `account_changes` field into a nested RLP-ready array.
  *
- * Each AccountChange is encoded on the wire as `type_byte || rlp([fields...])`:
- * the type byte is a raw prefix, NOT wrapped in its own RLP list. To produce
- * this with `toRlp`, we flatMap each entry into two sibling items in the outer
- * list: the type-byte hex string (encodes as a single raw byte ≤ 0x7f) and
- * the body array (encodes as an RLP list of fields).
+ * Per [EIP-8130] (base/base #3985), each AccountChange is a single flat RLP list
+ * whose first element is the type discriminant, followed by the body fields
+ * inline: `rlp([type_byte, ...fields])`. The type byte is a genuine list element
+ * (RLP-encoded as an integer, so `create` = `0` → `0x80`), NOT an EIP-2718-style
+ * bare prefix — so each entry frames as exactly one item in the outer
+ * `account_changes` list.
+ *
+ * [EIP-8130]: https://eips.ethereum.org/EIPS/eip-8130
  */
 export function toAccountChangesList(
   accountChanges: readonly AaAccountChange[] | undefined,
 ): RecursiveArray<Hex>[] {
-  return (accountChanges ?? []).flatMap((entry): RecursiveArray<Hex>[] => {
+  return (accountChanges ?? []).map((entry): RecursiveArray<Hex> => {
     if (entry.type === 'create')
       return [
         accountChangeType.create,
-        [
-          entry.userSalt,
-          entry.code,
-          entry.initialActors.map((actor) => [
-            actor.actorId,
-            actor.authenticator,
-            actor.scope ? numberToHex(actor.scope) : '0x',
-            actor.policyData ?? '0x',
-          ]),
-        ],
+        entry.userSalt,
+        entry.code,
+        entry.initialActors.map((actor) => [
+          actor.actorId,
+          actor.authenticator,
+          actor.scope ? numberToHex(actor.scope) : '0x',
+          actor.policyData ?? '0x',
+        ]),
       ]
     if (entry.type === 'config')
       return [
         accountChangeType.config,
-        [
-          entry.chainId ? numberToHex(entry.chainId) : '0x',
-          entry.sequence ? numberToHex(entry.sequence) : '0x',
-          entry.actorChanges.map(toActorChange),
-          entry.auth,
-        ],
+        entry.chainId ? numberToHex(entry.chainId) : '0x',
+        entry.sequence ? numberToHex(entry.sequence) : '0x',
+        entry.actorChanges.map(toActorChange),
+        entry.auth,
       ]
-    return [accountChangeType.delegation, [entry.target]]
+    return [accountChangeType.delegation, entry.target]
   })
 }
 

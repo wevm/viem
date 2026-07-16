@@ -84,13 +84,14 @@ function parseActorChange(value: RlpHex): AaActorChange {
 }
 
 function parseAccountChanges(value: RlpHex): readonly AaAccountChange[] {
-  // Wire format: each AccountChange is encoded as type_byte || rlp([body_fields...]).
-  // After RLP decoding the outer list we receive alternating [type_hex, body_array] pairs.
-  const flat = value as RlpHex[]
+  // Wire format (base/base #3985): each AccountChange is a single flat RLP list
+  // rlp([type_byte, ...body_fields]); the type byte is the first list element,
+  // RLP-encoded as an integer (create=0 -> 0x80 -> '0x'). After RLP decoding the
+  // outer list we receive one sub-list per entry.
+  const entries = value as RlpHex[]
   const result: AaAccountChange[] = []
-  for (let i = 0; i < flat.length; i += 2) {
-    const type = flat[i] as Hex
-    const body = flat[i + 1] as RlpHex[]
+  for (const entry of entries) {
+    const [type, ...body] = entry as RlpHex[]
     if (type === accountChangeType.create) {
       const [userSalt, code, actors] = body
       result.push({
@@ -117,7 +118,7 @@ function parseAccountChanges(value: RlpHex): readonly AaAccountChange[] {
       result.push({ type: 'delegation', target: target as Address })
       continue
     }
-    throw new BaseError(`Unknown account change entry type: "${type}".`)
+    throw new BaseError(`Unknown account change entry type: "${type as Hex}".`)
   }
   return result
 }
