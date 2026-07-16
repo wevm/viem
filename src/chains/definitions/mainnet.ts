@@ -7,7 +7,7 @@ export const mainnet = /*#__PURE__*/ defineChain({
   blockTime: 12_000,
   rpcUrls: {
     default: {
-      http: ['https://ethereum-rpc.publicnode.com'],
+      http: ['https://ethereum.reth.rs/rpc'],
     },
   },
   blockExplorers: {
