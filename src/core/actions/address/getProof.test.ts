@@ -1,8 +1,17 @@
 import * as anvil from '~test/anvil.js'
 import { Actions } from 'viem'
-import { expect, test } from 'vitest'
+import { beforeAll, expect, test } from 'vitest'
 
 const client = anvil.getClient(anvil.mainnet)
+
+// Latest-block reads assume the pristine fork tip; sibling test files may
+// have mined on the shared instance.
+beforeAll(async () => {
+  await Actions.state.reset(client, {
+    blockNumber: anvil.mainnet.forkBlockNumber,
+    jsonRpcUrl: anvil.mainnet.forkUrl,
+  })
+}, 30_000)
 
 const weth = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
 const storageKey =
