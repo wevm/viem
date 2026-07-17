@@ -260,10 +260,13 @@ This document contains general guidelines for AI agents working on the Viem code
 - **`pnpm exports:update` mutates**; it rewrites `package.json#exports` (+ `typesVersions`).
 - **`pnpm contracts:build` mutates generated contract artifacts**; it runs Forge and `scripts/contracts:build.ts`.
 - **Install hooks can mutate**; `pnpm install` runs `postinstall`.
-  - `postinstall` initializes submodules, builds contracts, and runs `pnpm dev`.
+  - `postinstall` initializes the `test/tempo` submodule and runs `pnpm dev`.
   - Use `pnpm install --ignore-scripts` when `test/tempo` has local work.
   - A bare install resets the `test/tempo` checked-out commit.
   - Fresh binary packages may need `node node_modules/<pkg>/install.js`.
+- **Contract deps come from npm, not submodules**; `contracts/foundry.toml` remaps to
+  `node_modules` packages (`solady-v153`, `account-abstraction-v07`, ...). `pnpm contracts:build`
+  needs Foundry and runs on demand; `contracts/generated.ts` is committed.
 
 ## Changeset Conventions
 

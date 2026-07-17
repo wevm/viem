@@ -18,7 +18,7 @@
     "gen:tempo-abis": "bun scripts/gen:tempo-abis.ts",
     "gen:tokenlist": "bun scripts/gen:tokenlist.ts && vp check --fix src/tokens",
     "knip": "knip --production --no-tag-hints",
-    "postinstall": "git submodule update --init --recursive && pnpm contracts:build && pnpm dev",
+    "postinstall": "git submodule update --init --recursive && pnpm dev",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
     "size": "size-limit",
@@ -38,6 +38,7 @@
     "@arethetypeswrong/cli": "catalog:",
     "@changesets/changelog-github": "catalog:",
     "@changesets/cli": "catalog:",
+    "@openzeppelin/contracts": "catalog:",
     "@paulmillr/trusted-setups": "catalog:",
     "@pimlico/alto": "catalog:",
     "@pimlico/alto-v09": "catalog:",
@@ -46,6 +47,8 @@
     "@types/bun": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
+    "account-abstraction-v07": "catalog:",
+    "account-abstraction-v08": "catalog:",
     "bun": "catalog:",
     "knip": "catalog:",
     "micro-eth-signer": "catalog:",
@@ -55,6 +58,8 @@
     "sherif": "catalog:",
     "simple-git-hooks": "catalog:",
     "size-limit": "catalog:",
+    "solady-v153": "catalog:",
+    "solady-v288": "catalog:",
     "testcontainers": "catalog:",
     "typescript": "catalog:",
     "vite-plus": "catalog:",
@@ -85,7 +90,12 @@
     "ignoreDependencies": [
       "bun",
       "@size-limit/preset-big-lib",
-      "abitype"
+      "@openzeppelin/contracts",
+      "abitype",
+      "account-abstraction-v07",
+      "account-abstraction-v08",
+      "solady-v153",
+      "solady-v288"
     ],
     "ignoreWorkspaces": [
       "test"

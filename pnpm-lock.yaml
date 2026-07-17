@@ -15,6 +15,9 @@ catalogs:
     '@changesets/cli':
       specifier: ^2.31.0
       version: 2.31.0
+    '@openzeppelin/contracts':
+      specifier: 5.4.0
+      version: 5.4.0
     '@paulmillr/trusted-setups':
       specifier: ^0.3.0
       version: 0.3.0
@@ -48,6 +51,12 @@ catalogs:
     '@vitest/coverage-v8':
       specifier: ^4.1.8
       version: 4.1.8
+    account-abstraction-v07:
+      specifier: npm:@account-abstraction/contracts@0.7.0
+      version: 0.7.0
+    account-abstraction-v08:
+      specifier: npm:@account-abstraction/contracts@0.8.0
+      version: 0.8.0
     bun:
       specifier: ^1.3.14
       version: 1.3.14
@@ -84,6 +93,12 @@ catalogs:
     size-limit:
       specifier: ^12.1.0
       version: 12.1.0
+    solady-v153:
+      specifier: npm:solady@0.0.153
+      version: 0.0.153
+    solady-v288:
+      specifier: npm:solady@0.0.288
+      version: 0.0.288
     testcontainers:
       specifier: ^11.10.0
       version: 11.10.0
@@ -204,6 +219,9 @@ importers:
       '@changesets/cli':
         specifier: 'catalog:'
         version: 2.31.0(@types/node@24.5.2)
+      '@openzeppelin/contracts':
+        specifier: 'catalog:'
+        version: 5.4.0
       '@paulmillr/trusted-setups':
         specifier: 'catalog:'
         version: 0.3.0
@@ -228,6 +246,12 @@ importers:
       '@vitest/coverage-v8':
         specifier: 'catalog:'
         version: 4.1.8(@voidzero-dev/vite-plus-test@0.1.24)
+      account-abstraction-v07:
+        specifier: 'catalog:'
+        version: '@account-abstraction/contracts@0.7.0'
+      account-abstraction-v08:
+        specifier: 'catalog:'
+        version: '@account-abstraction/contracts@0.8.0'
       bun:
         specifier: 'catalog:'
         version: 1.3.14
@@ -255,6 +279,12 @@ importers:
       size-limit:
         specifier: 'catalog:'
         version: 12.1.0(jiti@2.7.0)
+      solady-v153:
+        specifier: 'catalog:'
+        version: solady@0.0.153
+      solady-v288:
+        specifier: 'catalog:'
+        version: solady@0.0.288
       testcontainers:
         specifier: 'catalog:'
         version: 11.10.0
@@ -392,6 +422,12 @@ importers:
         version: 8.0.14(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
 
 packages:
+
+  '@account-abstraction/contracts@0.7.0':
+    resolution: {integrity: sha512-Bt/66ilu3u8I9+vFZ9fTd+cWs55fdb9J5YKfrhsrFafH1drkzwuCSL/xEot1GGyXXNJLQuXbMRztQPyelNbY1A==}
+
+  '@account-abstraction/contracts@0.8.0':
+    resolution: {integrity: sha512-8krPx/gpnoT+5xAroagVCbeA7FbUigMZWXFKKPm+oghyr29Dksssdx5sI7xGv9212i4JPaDDUGFk58dpuwVgHA==}
 
   '@adraffy/ens-normalize@1.11.1':
     resolution: {integrity: sha512-nhCBV3quEgesuf7c7KYfperqSS14T8bYuvJ8PcLJp6znkZpFc0AuW4qBtr8eKVyPPe/8RSr7sglCWPU5eaxwKQ==}
@@ -1758,6 +1794,12 @@ packages:
     engines: {node: '>=14'}
     peerDependencies:
       '@opentelemetry/api': ~1.7.0
+
+  '@openzeppelin/contracts@3.4.2-solc-0.7':
+    resolution: {integrity: sha512-W6QmqgkADuFcTLzHL8vVoNBtkwjvQRpYIAom7KiUNoLKghyx3FgH0GBjt8NRvigV1ZmMOBllvE1By1C+bi8WpA==}
+
+  '@openzeppelin/contracts@5.4.0':
+    resolution: {integrity: sha512-eCYgWnLg6WO+X52I16TZt8uEjbtdkgLC0SUX/xnAksjjrQI4Xfn4iBRoI5j55dmlOhDv1Y7BoR3cU7e3WWhC6A==}
 
   '@oven/bun-darwin-aarch64@1.3.14':
     resolution: {integrity: sha512-Omj20SuiHBOUjUBIyqtkNjSUIjOtEOJwmbix/ZyFH4BaQ6OZTaaRWIR4TjHVz0yadHgli6lLTiAh1uarnvD49A==}
@@ -3325,6 +3367,22 @@ packages:
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
     deprecated: Potential CWE-502 - Update to 1.3.1 or higher
 
+  '@uniswap/lib@4.0.1-alpha':
+    resolution: {integrity: sha512-f6UIliwBbRsgVLxIaBANF6w09tYqc6Y/qXdsrbEmXHyFA7ILiKrIwRFXe1yOg8M3cksgVsO9N7yuL2DdCGQKBA==}
+    engines: {node: '>=10'}
+
+  '@uniswap/v2-core@1.0.1':
+    resolution: {integrity: sha512-MtybtkUPSyysqLY2U210NBDeCHX+ltHt3oADGdjqoThZaFRDKwM6k1Nb3F0A3hk5hwuQvytFWhrWHOEq6nVJ8Q==}
+    engines: {node: '>=10'}
+
+  '@uniswap/v3-core@1.0.1':
+    resolution: {integrity: sha512-7pVk4hEm00j9tc71Y9+ssYpO6ytkeI0y7WE9P6UcmNzhxPePwyAxImuhVsTqWK9YFvzgtvzJHi64pBl4jUzKMQ==}
+    engines: {node: '>=10'}
+
+  '@uniswap/v3-periphery@1.4.4':
+    resolution: {integrity: sha512-S4+m+wh8HbWSO3DKk4LwUCPZJTpCugIsHrWR86m/OrUyvSqGDTXKFfc2sMuGXCZrD1ZqO3rhQsKgdWg3Hbb2Kw==}
+    engines: {node: '>=10'}
+
   '@vitejs/plugin-react@6.0.2':
     resolution: {integrity: sha512-DlSMqo4WhThw4vB8Mpn0Woe9J+Jfq1geJ61AKW0QEgLzGMNwtIMdxbDUzLxcun8W7NbJO0e2Jg/Nxm3cCSVzzg==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -3880,6 +3938,9 @@ packages:
 
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
+
+  base64-sol@1.0.1:
+    resolution: {integrity: sha512-ld3cCNMeXt4uJXmLZBHFGMvVpK9KsLVEhPpFRXnvSVAqABKbuNZg/+dsq3NuM+wxFLb/UrVkz7m1ciWmkMfTbg==}
 
   baseline-browser-mapping@2.10.8:
     resolution: {integrity: sha512-PCLz/LXGBsNTErbtB6i5u4eLpHeMfi93aUv5duMmj6caNu6IphS4q6UevDnL36sZQv9lrP11dbPKGMaXPwMKfQ==}
@@ -6557,6 +6618,12 @@ packages:
     resolution: {integrity: sha512-l5x7VUUWbjVFbafGLxPWkYsHIhEvmF85tbIeFZWc8ZPtoMyybuEhL7Jye/ooC4/d48FgOjSJXgsF/AJPYCW8Zw==}
     engines: {node: '>= 10.0.0', npm: '>= 3.0.0'}
 
+  solady@0.0.153:
+    resolution: {integrity: sha512-KLhK3/2UlwkITtTXT7VxbKKAUxrisFcL88WUkfrMkPlr0lPr1NN5/F55ZisbjKtZb4FEIR4jnsf/CEI9JjR+1g==}
+
+  solady@0.0.288:
+    resolution: {integrity: sha512-PS0jth/d2vqi6pipGIqc6X93NhrY5tjtLkRXS7vCzbhSf/U14fjhjrx70FoTU2ZlsVvfw3/OFI7r4OjKCqUIjg==}
+
   sonic-boom@3.8.1:
     resolution: {integrity: sha512-y4Z8LCDBuum+PBP3lSV7RHrXscqksve/bi0as7mhwVnBW+/wUqKT/2Kb7um8yqcFy0duYbbPxzt89Zy2nOCaxg==}
 
@@ -7420,6 +7487,16 @@ packages:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
 snapshots:
+
+  '@account-abstraction/contracts@0.7.0':
+    dependencies:
+      '@openzeppelin/contracts': 5.4.0
+      '@uniswap/v3-periphery': 1.4.4
+
+  '@account-abstraction/contracts@0.8.0':
+    dependencies:
+      '@openzeppelin/contracts': 5.4.0
+      '@uniswap/v3-periphery': 1.4.4
 
   '@adraffy/ens-normalize@1.11.1': {}
 
@@ -9115,6 +9192,10 @@ snapshots:
       '@opentelemetry/api': 1.7.0
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.7.0)
 
+  '@openzeppelin/contracts@3.4.2-solc-0.7': {}
+
+  '@openzeppelin/contracts@5.4.0': {}
+
   '@oven/bun-darwin-aarch64@1.3.14':
     optional: true
 
@@ -10619,6 +10700,20 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
+  '@uniswap/lib@4.0.1-alpha': {}
+
+  '@uniswap/v2-core@1.0.1': {}
+
+  '@uniswap/v3-core@1.0.1': {}
+
+  '@uniswap/v3-periphery@1.4.4':
+    dependencies:
+      '@openzeppelin/contracts': 3.4.2-solc-0.7
+      '@uniswap/lib': 4.0.1-alpha
+      '@uniswap/v2-core': 1.0.1
+      '@uniswap/v3-core': 1.0.1
+      base64-sol: 1.0.1
+
   '@vitejs/plugin-react@6.0.2(vite@8.0.14(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
@@ -11125,6 +11220,8 @@ snapshots:
     optional: true
 
   base64-js@1.5.1: {}
+
+  base64-sol@1.0.1: {}
 
   baseline-browser-mapping@2.10.8: {}
 
@@ -14539,6 +14636,10 @@ snapshots:
     dependencies:
       ip-address: 10.1.1
       smart-buffer: 4.2.0
+
+  solady@0.0.153: {}
+
+  solady@0.0.288: {}
 
   sonic-boom@3.8.1:
     dependencies:

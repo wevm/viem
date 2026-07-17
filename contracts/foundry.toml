@@ -1,13 +1,12 @@
 [profile.default]
 src = "test"
 out = "out"
-libs = ["lib"]
+libs = []
+allow_paths = ["../node_modules"]
 remappings = [
-  "@openzeppelin/=lib/openzeppelin/",
-  "@account-abstraction/=lib/account-abstraction/",
-  "account-abstraction/=lib/account-abstraction/contracts/",
-  "account-abstraction-v07/=lib/account-abstraction-v07/contracts/",
-  "solady/=lib/solady/src/",
-  "solady-dc09481/=lib/solady-dc09481/src/",
-  "solady-6c2d0da/=lib/solady-6c2d0da/src/"
+  "@openzeppelin/contracts/=../node_modules/@openzeppelin/contracts/",
+  "account-abstraction/=../node_modules/account-abstraction-v08/",
+  "account-abstraction-v07/=../node_modules/account-abstraction-v07/",
+  "solady-dc09481/=../node_modules/solady-v153/src/",
+  "solady-6c2d0da/=../node_modules/solady-v288/src/",
 ]
