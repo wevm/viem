@@ -562,6 +562,37 @@ export default defineConfig({
         items: [
           { text: 'Overview', link: '/docs/guides' },
           {
+            text: 'Clients & Transports',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/guides/clients' },
+              {
+                text: 'Set Up a Client',
+                link: '/docs/guides/clients/setup',
+              },
+              {
+                text: 'Multichain Clients',
+                link: '/docs/guides/clients/multichain',
+              },
+              {
+                text: 'Resilient Transports',
+                link: '/docs/guides/clients/resilient-transports',
+              },
+              {
+                text: 'Rate Limit & Load Balance',
+                link: '/docs/guides/clients/rate-limit-load-balance',
+              },
+              {
+                text: 'WebSocket Subscriptions',
+                link: '/docs/guides/clients/websockets',
+              },
+              {
+                text: 'Custom RPC & Errors',
+                link: '/docs/guides/clients/custom-rpc-errors',
+              },
+            ],
+          },
+          {
             text: 'Transactions',
             collapsed: true,
             items: [
@@ -776,29 +807,6 @@ export default defineConfig({
               {
                 text: 'Test Contract Interactions',
                 link: '/docs/guides/testing/contracts',
-              },
-            ],
-          },
-          {
-            text: 'RPC & Reliability',
-            collapsed: true,
-            items: [
-              { text: 'Overview', link: '/docs/guides/rpc' },
-              {
-                text: 'Resilient Transports',
-                link: '/docs/guides/rpc/resilient-transports',
-              },
-              {
-                text: 'Rate Limit & Load Balance',
-                link: '/docs/guides/rpc/rate-limit-load-balance',
-              },
-              {
-                text: 'WebSocket Subscriptions',
-                link: '/docs/guides/rpc/websockets',
-              },
-              {
-                text: 'Custom RPC & Errors',
-                link: '/docs/guides/rpc/custom-rpc-errors',
               },
             ],
           },
