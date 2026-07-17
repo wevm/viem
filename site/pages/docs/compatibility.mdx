@@ -41,6 +41,11 @@ runtime must provide standards-compatible implementations for the features it us
 
 ## Feature Requirements
 
+### TypeScript
+
+Viem requires TypeScript `>=5.9` when type checking against its APIs. Earlier compilers exceed
+instantiation limits on Viem's inference-heavy types.
+
 ### WebSocket Transport
 
 The [`webSocket`](/docs/transports/websocket) transport requires a global `WebSocket`

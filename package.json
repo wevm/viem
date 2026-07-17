@@ -268,7 +268,7 @@
     "!src/tsconfig.json"
   ],
   "peerDependencies": {
-    "typescript": ">=5.0.4"
+    "typescript": ">=5.9.0"
   },
   "peerDependenciesMeta": {
     "typescript": {
