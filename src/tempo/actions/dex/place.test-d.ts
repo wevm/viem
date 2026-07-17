@@ -33,11 +33,11 @@ describe('place: options', () => {
   })
 
   test('rejects an invalid order type', () => {
-    // @ts-expect-error - type must be 'buy' or 'sell'
     place(client, {
       amount: 1n,
       tick: 0,
       token: '0x20c0000000000000000000000000000000000001',
+      // @ts-expect-error - type must be 'buy' or 'sell'
       type: 'hold',
     })
   })
