@@ -47,6 +47,12 @@ test('chain: inferred from the chain option', () => {
   expectTypeOf(client.chain).toEqualTypeOf<typeof mainnet>()
 })
 
+test('chain: a chain id coerces to a chain', () => {
+  const client = Client.create({ chain: 1, transport: http() })
+  expectTypeOf(client.chain.id).toEqualTypeOf<1>()
+  expectTypeOf(client.chain).toMatchTypeOf<Chain.Chain>()
+})
+
 test('tokens: inferred from the tokens option', () => {
   const usdc = Token.from({
     addresses: { 1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' },

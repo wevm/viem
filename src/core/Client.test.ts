@@ -66,6 +66,11 @@ describe('create', () => {
     expect(client.account).toEqual({ address, type: 'json-rpc' })
   })
 
+  test('coerces a chain id to a chain', () => {
+    const client = Client.create({ chain: 1, transport: http(url) })
+    expect(client.chain).toEqual({ id: 1 })
+  })
+
   test('preserves a local account', () => {
     const account = Account.fromPrivateKey(privateKey)
     const client = Client.create({ account, transport: http(url) })

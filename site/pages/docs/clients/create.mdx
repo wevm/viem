@@ -412,10 +412,11 @@ const client = Client.create({
 
 ##### chain
 
-- **Type:** `Chain`
+- **Type:** `Chain | number`
 - **Optional**
 
-The chain for the client.
+The chain for the client. A chain id is coerced to a minimal [Chain](/docs/chains), so the
+transport must be given an explicit URL.
 
 ```ts twoslash
 import { Client, http } from 'viem'
@@ -423,6 +424,15 @@ import { mainnet } from 'viem/chains'
 // ---cut---
 const client = Client.create({
   chain: mainnet, // [!code focus]
+  transport: http('https://eth.merkle.io'),
+})
+```
+
+```ts twoslash
+import { Client, http } from 'viem'
+// ---cut---
+const client = Client.create({
+  chain: 1, // [!code focus]
   transport: http('https://eth.merkle.io'),
 })
 ```

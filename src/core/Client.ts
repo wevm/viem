@@ -123,16 +123,22 @@ export type CcipReadOptions = {
  * ```
  */
 export function create<
-  chain extends Chain.Chain | undefined = undefined,
+  chainOrId extends Chain.Chain | number | undefined = undefined,
   accountOrAddress extends Account.Account | Address.Address | undefined =
     undefined,
   transport extends Transport.Transport = Transport.Transport,
   const tokens extends Token.Tokens | undefined = undefined,
   schema extends RpcSchema.Schema = RpcSchema.Default,
 >(
-  options: create.Options<chain, accountOrAddress, transport, tokens, schema>,
+  options: create.Options<
+    chainOrId,
+    accountOrAddress,
+    transport,
+    tokens,
+    schema
+  >,
 ): Client<
-  chain,
+  chainOrId extends number ? Chain.Chain & { id: chainOrId } : chainOrId,
   accountOrAddress extends Address.Address
     ? Account.JsonRpc<accountOrAddress>
     : accountOrAddress,
@@ -144,13 +150,14 @@ export function create<
 export function create(options: create.Options): Client {
   const {
     batch,
-    chain,
     dataSuffix,
     key = 'base',
     name = 'Base Client',
     tokens,
     type = 'base',
   } = options
+  const chain =
+    typeof options.chain === 'number' ? { id: options.chain } : options.chain
   const ccipRead: CcipReadOptions | false = options.ccipRead ?? {
     async request(options) {
       const { tunnel } = await import('../utils/CcipRead.js')
@@ -316,7 +323,10 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 
 export declare namespace create {
   type Options<
-    chain extends Chain.Chain | undefined = Chain.Chain | undefined,
+    chainOrId extends Chain.Chain | number | undefined =
+      | Chain.Chain
+      | number
+      | undefined,
     accountOrAddress extends Account.Account | Address.Address | undefined =
       | Account.Account
       | Address.Address
@@ -335,8 +345,8 @@ export declare namespace create {
     cacheTime?: number | undefined
     /** [CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) config. `false` disables CCIP Read. @default allowlisted batch gateway */
     ccipRead?: CcipReadOptions | false | undefined
-    /** Chain for the Client. */
-    chain?: chain | undefined
+    /** Chain (or chain id) for the Client. */
+    chain?: chainOrId | undefined
     /** Data suffix appended to transaction calldata. */
     dataSuffix?: DataSuffix | undefined
     /** A key for the Client. @default 'base' */
