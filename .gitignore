@@ -33,7 +33,6 @@ vectors/**/*.json
 site/.cache
 site/dist
 site/pages.gen.ts
-site/sidebar.generated.ts
 .vercel
 vocs.config.tsx.timestamp*
 _

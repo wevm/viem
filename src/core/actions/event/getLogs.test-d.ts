@@ -25,9 +25,9 @@ test('event: decodes args and eventName', async () => {
   expectTypeOf(logs[0]!.eventName).toEqualTypeOf<'Transfer'>()
   // Non-strict (default) decoding makes every argument optional.
   expectTypeOf(logs[0]!.args).toEqualTypeOf<{
-    from?: Address.Address
-    to?: Address.Address
-    value?: bigint
+    from?: Address.Address | undefined
+    to?: Address.Address | undefined
+    value?: bigint | undefined
   }>()
 })
 

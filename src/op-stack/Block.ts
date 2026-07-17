@@ -52,7 +52,8 @@ export function fromRpc<
     ...ox_Block.fromRpc(block as ox_Block.Rpc, options),
     transactions: block.transactions.map((transaction) => {
       if (typeof transaction === 'string') return transaction
-      return Transaction.fromRpc(transaction)
+      // Widen the tag-conditional RPC shape to the base envelope union.
+      return Transaction.fromRpc(transaction as Transaction.Rpc)
     }),
   } as unknown as fromRpc.ReturnType<block, includeTransactions, blockTag>
 }
