@@ -5,17 +5,13 @@ export const graphiteTestnet = /*#__PURE__*/ Chain.from({
   name: 'Graphite Network Testnet',
   nativeCurrency: { name: 'Graphite', symbol: '@G', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://anon-entrypoint-test-1.atgraphite.com'],
-      webSocket: ['wss://ws-anon-entrypoint-test-1.atgraphite.com'],
-    },
+    http: 'https://anon-entrypoint-test-1.atgraphite.com',
+    ws: 'wss://ws-anon-entrypoint-test-1.atgraphite.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Graphite Testnet Spectre',
-      url: 'https://test.atgraphite.com',
-      apiUrl: 'https://api.test.atgraphite.com/api',
-    },
+    name: 'Graphite Testnet Spectre',
+    url: 'https://test.atgraphite.com',
+    apiUrl: 'https://api.test.atgraphite.com/api',
   },
   testnet: true,
 })

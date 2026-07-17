@@ -385,7 +385,7 @@ describe('behavior: chain', () => {
       id: 1,
       name: 'Zed',
       nativeCurrency: { name: 'Zed', symbol: 'ZED', decimals: 18 },
-      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+      rpcUrls: { http: anvil.mainnet.rpcUrl.http },
       transaction: {
         getSignPayload: (envelope: ZedEnvelope) =>
           Hash.keccak256(

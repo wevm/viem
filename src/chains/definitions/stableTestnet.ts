@@ -10,17 +10,13 @@ export const stableTestnet = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.stable.xyz'],
-      webSocket: ['wss://rpc.testnet.stable.xyz'],
-    },
+    http: 'https://rpc.testnet.stable.xyz',
+    ws: 'wss://rpc.testnet.stable.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'Stablescan',
-      url: 'https://testnet.stablescan.xyz',
-      apiUrl: 'https://api.etherscan.io/v2/api?chainid=2201',
-    },
+    name: 'Stablescan',
+    url: 'https://testnet.stablescan.xyz',
+    apiUrl: 'https://api.etherscan.io/v2/api?chainid=2201',
   },
   contracts: {
     multicall3: {

@@ -9,15 +9,11 @@ export const aioz = /*#__PURE__*/ Chain.from({
     symbol: 'AIOZ',
   },
   rpcUrls: {
-    default: {
-      http: ['https://eth-dataseed.aioz.network'],
-    },
+    http: 'https://eth-dataseed.aioz.network',
   },
   blockExplorers: {
-    default: {
-      name: 'AIOZ Explorer',
-      url: 'https://explorer.aioz.network',
-    },
+    name: 'AIOZ Explorer',
+    url: 'https://explorer.aioz.network',
   },
   testnet: false,
 })

@@ -5,15 +5,11 @@ export const neonDevnet = /*#__PURE__*/ Chain.from({
   name: 'Neon EVM DevNet',
   nativeCurrency: { name: 'NEON', symbol: 'NEON', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://devnet.neonevm.org'],
-    },
+    http: 'https://devnet.neonevm.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Neonscan',
-      url: 'https://devnet.neonscan.org',
-    },
+    name: 'Neonscan',
+    url: 'https://devnet.neonscan.org',
   },
   contracts: {
     multicall3: {

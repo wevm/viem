@@ -8,13 +8,9 @@ export const unique = /*#__PURE__*/ Chain.from({
     name: 'UNQ',
     symbol: 'UNQ',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.unique.network'] },
-  },
+  rpcUrls: { http: 'https://rpc.unique.network' },
   blockExplorers: {
-    default: {
-      name: 'Unique Subscan',
-      url: 'https://unique.subscan.io/',
-    },
+    name: 'Unique Subscan',
+    url: 'https://unique.subscan.io/',
   },
 })

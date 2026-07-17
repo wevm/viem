@@ -14,7 +14,7 @@ const chain = Chain.from({
   id: 10,
   name: 'OP Mainnet',
   nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
-  rpcUrls: { default: { http: ['https://mainnet.optimism.io'] } },
+  rpcUrls: { http: 'https://mainnet.optimism.io' },
 })
 
 test('block codec', () => {

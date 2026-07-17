@@ -9,16 +9,12 @@ export const dymension = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://dymension-evm-rpc.publicnode.com'],
-      webSocket: ['wss://dymension-evm-rpc.publicnode.com'],
-    },
+    http: 'https://dymension-evm-rpc.publicnode.com',
+    ws: 'wss://dymension-evm-rpc.publicnode.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Dym FYI',
-      url: 'https://dym.fyi',
-    },
+    name: 'Dym FYI',
+    url: 'https://dym.fyi',
   },
   testnet: false,
 })

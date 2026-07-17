@@ -8,15 +8,11 @@ export const qTestnet = /*#__PURE__*/ Chain.from({
     name: 'Q',
     symbol: 'Q',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.qtestnet.org'] },
-  },
+  rpcUrls: { http: 'https://rpc.qtestnet.org' },
   blockExplorers: {
-    default: {
-      name: 'Q Testnet Explorer',
-      url: 'https://explorer.qtestnet.org',
-      apiUrl: 'https://explorer.qtestnet.org/api',
-    },
+    name: 'Q Testnet Explorer',
+    url: 'https://explorer.qtestnet.org',
+    apiUrl: 'https://explorer.qtestnet.org/api',
   },
   testnet: true,
 })

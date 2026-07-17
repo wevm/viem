@@ -6,16 +6,12 @@ export const somniaTestnet = /*#__PURE__*/ Chain.from({
   nativeCurrency: { name: 'STT', symbol: 'STT', decimals: 18 },
   blockTime: 100,
   rpcUrls: {
-    default: {
-      http: ['https://api.infra.testnet.somnia.network'],
-    },
+    http: 'https://api.infra.testnet.somnia.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Somnia Testnet Explorer',
-      url: 'https://shannon-explorer.somnia.network',
-      apiUrl: 'https://shannon-explorer.somnia.network/api',
-    },
+    name: 'Somnia Testnet Explorer',
+    url: 'https://shannon-explorer.somnia.network',
+    apiUrl: 'https://shannon-explorer.somnia.network/api',
   },
   contracts: {
     multicall3: {

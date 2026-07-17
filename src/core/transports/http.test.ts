@@ -73,7 +73,7 @@ describe('http', () => {
         id: 1,
         name: 'Test',
         nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-        rpcUrls: { default: { http: [server.url] } },
+        rpcUrls: { http: server.url },
       })
       const transport = http().setup({ chain })
       expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')

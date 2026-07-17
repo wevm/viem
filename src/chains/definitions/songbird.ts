@@ -8,15 +8,11 @@ export const songbird = /*#__PURE__*/ Chain.from({
     name: 'Songbird',
     symbol: 'SGB',
   },
-  rpcUrls: {
-    default: { http: ['https://songbird-api.flare.network/ext/C/rpc'] },
-  },
+  rpcUrls: { http: 'https://songbird-api.flare.network/ext/C/rpc' },
   blockExplorers: {
-    default: {
-      name: 'Songbird Explorer',
-      url: 'https://songbird-explorer.flare.network',
-      apiUrl: 'https://songbird-explorer.flare.network/api',
-    },
+    name: 'Songbird Explorer',
+    url: 'https://songbird-explorer.flare.network',
+    apiUrl: 'https://songbird-explorer.flare.network/api',
   },
   contracts: {
     multicall3: {

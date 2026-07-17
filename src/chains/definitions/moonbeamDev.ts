@@ -9,9 +9,7 @@ export const moonbeamDev = /*#__PURE__*/ Chain.from({
     symbol: 'DEV',
   },
   rpcUrls: {
-    default: {
-      http: ['http://127.0.0.1:9944'],
-      webSocket: ['wss://127.0.0.1:9944'],
-    },
+    http: 'http://127.0.0.1:9944',
+    ws: 'wss://127.0.0.1:9944',
   },
 })

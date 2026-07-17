@@ -9,17 +9,13 @@ export const lukso = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.mainnet.lukso.network'],
-      webSocket: ['wss://ws-rpc.mainnet.lukso.network'],
-    },
+    http: 'https://rpc.mainnet.lukso.network',
+    ws: 'wss://ws-rpc.mainnet.lukso.network',
   },
   blockExplorers: {
-    default: {
-      name: 'LUKSO Mainnet Explorer',
-      url: 'https://explorer.execution.mainnet.lukso.network',
-      apiUrl: 'https://api.explorer.execution.mainnet.lukso.network/api',
-    },
+    name: 'LUKSO Mainnet Explorer',
+    url: 'https://explorer.execution.mainnet.lukso.network',
+    apiUrl: 'https://api.explorer.execution.mainnet.lukso.network/api',
   },
   contracts: {
     multicall3: {

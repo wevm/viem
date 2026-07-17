@@ -9,15 +9,11 @@ export const fluent = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.fluent.xyz'],
-    },
+    http: 'https://rpc.fluent.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'Fluent Explorer',
-      url: 'https://fluentscan.xyz',
-    },
+    name: 'Fluent Explorer',
+    url: 'https://fluentscan.xyz',
   },
   testnet: false,
 })

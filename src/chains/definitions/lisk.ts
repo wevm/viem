@@ -13,16 +13,12 @@ export const lisk = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.api.lisk.com'],
-    },
+    http: 'https://rpc.api.lisk.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://blockscout.lisk.com',
-      apiUrl: 'https://blockscout.lisk.com/api',
-    },
+    name: 'Blockscout',
+    url: 'https://blockscout.lisk.com',
+    apiUrl: 'https://blockscout.lisk.com/api',
   },
   contracts: {
     ...chainConfig.contracts,

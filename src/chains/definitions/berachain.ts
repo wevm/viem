@@ -23,14 +23,10 @@ export const berachain = /*#__PURE__*/ Chain.from({
       blockCreated: 9310021,
     },
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.berachain.com'] },
-  },
+  rpcUrls: { http: 'https://rpc.berachain.com' },
   blockExplorers: {
-    default: {
-      name: 'Berascan',
-      url: 'https://berascan.com',
-    },
+    name: 'Berascan',
+    url: 'https://berascan.com',
   },
   ensTlds: ['.bera'],
   testnet: false,

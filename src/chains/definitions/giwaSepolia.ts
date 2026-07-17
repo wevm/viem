@@ -10,16 +10,12 @@ export const giwaSepolia = /*#__PURE__*/ Chain.from({
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   blockTime: 1_000,
   rpcUrls: {
-    default: {
-      http: ['https://sepolia-rpc.giwa.io'],
-    },
+    http: 'https://sepolia-rpc.giwa.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://sepolia-explorer.giwa.io',
-      apiUrl: 'https://sepolia-explorer.giwa.io/api',
-    },
+    name: 'Blockscout',
+    url: 'https://sepolia-explorer.giwa.io',
+    apiUrl: 'https://sepolia-explorer.giwa.io/api',
   },
   contracts: {
     ...chainConfig.contracts,
@@ -51,8 +47,6 @@ export const giwaSepoliaPreconf = Chain.from({
   ...giwaSepolia,
   preconfirmationTime: 200,
   rpcUrls: {
-    default: {
-      http: ['https://sepolia-rpc-flashblocks.giwa.io'],
-    },
+    http: 'https://sepolia-rpc-flashblocks.giwa.io',
   },
 })

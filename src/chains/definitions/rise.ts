@@ -5,17 +5,13 @@ export const rise = /*#__PURE__*/ Chain.from({
   name: 'RISE',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.risechain.com'],
-      webSocket: ['wss://rpc.risechain.com/ws'],
-    },
+    http: 'https://rpc.risechain.com',
+    ws: 'wss://rpc.risechain.com/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://explorer.risechain.com',
-      apiUrl: 'https://explorer.risechain.com/api',
-    },
+    name: 'Blockscout',
+    url: 'https://explorer.risechain.com',
+    apiUrl: 'https://explorer.risechain.com/api',
   },
   contracts: {
     multicall3: {

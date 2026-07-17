@@ -8,14 +8,10 @@ export const xdc = /*#__PURE__*/ Chain.from({
     name: 'XDC',
     symbol: 'XDC',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.xdcrpc.com'] },
-  },
+  rpcUrls: { http: 'https://rpc.xdcrpc.com' },
   blockExplorers: {
-    default: {
-      name: 'XDCScan',
-      url: 'https://xdcscan.com',
-    },
+    name: 'XDCScan',
+    url: 'https://xdcscan.com',
   },
   contracts: {
     multicall3: {

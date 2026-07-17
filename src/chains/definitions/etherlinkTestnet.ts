@@ -8,14 +8,10 @@ export const etherlinkTestnet = /*#__PURE__*/ Chain.from({
     name: 'Tez',
     symbol: 'XTZ',
   },
-  rpcUrls: {
-    default: { http: ['https://node.ghostnet.etherlink.com'] },
-  },
+  rpcUrls: { http: 'https://node.ghostnet.etherlink.com' },
   blockExplorers: {
-    default: {
-      name: 'Etherlink Testnet',
-      url: 'https://testnet.explorer.etherlink.com',
-    },
+    name: 'Etherlink Testnet',
+    url: 'https://testnet.explorer.etherlink.com',
   },
   testnet: true,
 })

@@ -6,10 +6,8 @@ export const tempoModerato = /*#__PURE__*/ Chain.from({
   id: 42431,
   hardfork: 't5',
   blockExplorers: {
-    default: {
-      name: 'Tempo Explorer',
-      url: 'https://explore.testnet.tempo.xyz',
-    },
+    name: 'Tempo Explorer',
+    url: 'https://explore.testnet.tempo.xyz',
   },
   name: 'Tempo Testnet (Moderato)',
   nativeCurrency: {
@@ -18,10 +16,8 @@ export const tempoModerato = /*#__PURE__*/ Chain.from({
     decimals: 6,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.moderato.tempo.xyz'],
-      webSocket: ['wss://rpc.moderato.tempo.xyz'],
-    },
+    http: 'https://rpc.moderato.tempo.xyz',
+    ws: 'wss://rpc.moderato.tempo.xyz',
   },
   testnet: true,
 })

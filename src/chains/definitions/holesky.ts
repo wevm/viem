@@ -5,16 +5,12 @@ export const holesky = /*#__PURE__*/ Chain.from({
   name: 'Holesky',
   nativeCurrency: { name: 'Holesky Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://ethereum-holesky-rpc.publicnode.com'],
-    },
+    http: 'https://ethereum-holesky-rpc.publicnode.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://holesky.etherscan.io',
-      apiUrl: 'https://api-holesky.etherscan.io/api',
-    },
+    name: 'Etherscan',
+    url: 'https://holesky.etherscan.io',
+    apiUrl: 'https://api-holesky.etherscan.io/api',
   },
   contracts: {
     multicall3: {

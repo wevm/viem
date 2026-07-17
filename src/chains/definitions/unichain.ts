@@ -10,16 +10,12 @@ export const unichain = /*#__PURE__*/ Chain.from({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   blockTime: 1_000,
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.unichain.org/'],
-    },
+    http: 'https://mainnet.unichain.org/',
   },
   blockExplorers: {
-    default: {
-      name: 'Uniscan',
-      url: 'https://uniscan.xyz',
-      apiUrl: 'https://api.uniscan.xyz/api',
-    },
+    name: 'Uniscan',
+    url: 'https://uniscan.xyz',
+    apiUrl: 'https://api.uniscan.xyz/api',
   },
   contracts: {
     ...chainConfig.contracts,

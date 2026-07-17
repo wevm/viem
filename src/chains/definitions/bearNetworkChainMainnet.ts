@@ -8,14 +8,10 @@ export const bearNetworkChainMainnet = /*#__PURE__*/ Chain.from({
     name: 'BearNetworkChain',
     symbol: 'BRNKC',
   },
-  rpcUrls: {
-    default: { http: ['https://brnkc-mainnet.bearnetwork.net'] },
-  },
+  rpcUrls: { http: 'https://brnkc-mainnet.bearnetwork.net' },
   blockExplorers: {
-    default: {
-      name: 'BrnkScan',
-      url: 'https://brnkscan.bearnetwork.net',
-      apiUrl: 'https://brnkscan.bearnetwork.net/api',
-    },
+    name: 'BrnkScan',
+    url: 'https://brnkscan.bearnetwork.net',
+    apiUrl: 'https://brnkscan.bearnetwork.net/api',
   },
 })

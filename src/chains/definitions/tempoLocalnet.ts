@@ -11,7 +11,5 @@ export const tempoLocalnet = /*#__PURE__*/ Chain.from({
     symbol: 'USD',
     decimals: 6,
   },
-  rpcUrls: {
-    default: { http: ['http://localhost:8545'] },
-  },
+  rpcUrls: { http: 'http://localhost:8545' },
 })

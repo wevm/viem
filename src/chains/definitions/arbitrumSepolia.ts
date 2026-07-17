@@ -10,16 +10,12 @@ export const arbitrumSepolia = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://sepolia-rollup.arbitrum.io/rpc'],
-    },
+    http: 'https://sepolia-rollup.arbitrum.io/rpc',
   },
   blockExplorers: {
-    default: {
-      name: 'Arbiscan',
-      url: 'https://sepolia.arbiscan.io',
-      apiUrl: 'https://api-sepolia.arbiscan.io/api',
-    },
+    name: 'Arbiscan',
+    url: 'https://sepolia.arbiscan.io',
+    apiUrl: 'https://api-sepolia.arbiscan.io/api',
   },
   contracts: {
     multicall3: {

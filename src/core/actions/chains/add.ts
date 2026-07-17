@@ -32,10 +32,9 @@ export async function add(
           chainId: Hex.fromNumber(id),
           chainName: name,
           nativeCurrency,
-          rpcUrls: rpcUrls.default.http,
-          blockExplorerUrls: blockExplorers
-            ? Object.values(blockExplorers).map(({ url }) => url)
-            : undefined,
+          rpcUrls:
+            typeof rpcUrls.http === 'string' ? [rpcUrls.http] : rpcUrls.http,
+          blockExplorerUrls: blockExplorers ? [blockExplorers.url] : undefined,
         },
       ],
     },
@@ -48,7 +47,7 @@ export declare namespace add {
     /** The chain to add to the wallet. `wallet_addEthereumChain` requires a name and RPC URLs. */
     chain: Chain.Chain & {
       name: string
-      rpcUrls: { default: Chain.Chain.RpcUrls }
+      rpcUrls: Chain.Chain.RpcUrls
     }
   }
 

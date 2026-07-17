@@ -9,14 +9,10 @@ export const dreyerxMainnet = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.dreyerx.com'],
-    },
+    http: 'https://rpc.dreyerx.com',
   },
   blockExplorers: {
-    default: {
-      name: 'DreyerX Scan',
-      url: 'https://scan.dreyerx.com',
-    },
+    name: 'DreyerX Scan',
+    url: 'https://scan.dreyerx.com',
   },
 })

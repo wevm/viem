@@ -5,18 +5,10 @@ export const vechain = /*#__PURE__*/ Chain.from({
   name: 'Vechain',
   nativeCurrency: { name: 'VeChain', symbol: 'VET', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.vechain.org'],
-    },
+    http: 'https://mainnet.vechain.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Vechain Explorer',
-      url: 'https://explore.vechain.org',
-    },
-    vechainStats: {
-      name: 'Vechain Stats',
-      url: 'https://vechainstats.com',
-    },
+    name: 'Vechain Explorer',
+    url: 'https://explore.vechain.org',
   },
 })

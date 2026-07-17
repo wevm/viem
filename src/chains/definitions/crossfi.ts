@@ -8,14 +8,10 @@ export const crossfi = /*#__PURE__*/ Chain.from({
     name: 'CrossFi',
     symbol: 'XFI',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.mainnet.ms'] },
-  },
+  rpcUrls: { http: 'https://rpc.mainnet.ms' },
   blockExplorers: {
-    default: {
-      name: 'CrossFi Blockchain Explorer',
-      url: 'https://xfiscan.com',
-    },
+    name: 'CrossFi Blockchain Explorer',
+    url: 'https://xfiscan.com',
   },
   testnet: false,
 })

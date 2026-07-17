@@ -5,16 +5,12 @@ export const taikoHoodi = /*#__PURE__*/ Chain.from({
   name: 'Taiko Hoodi',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.hoodi.taiko.xyz'],
-      webSocket: ['wss://ws.hoodi.taiko.xyz'],
-    },
+    http: 'https://rpc.hoodi.taiko.xyz',
+    ws: 'wss://ws.hoodi.taiko.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://hoodi.taikoscan.io/',
-    },
+    name: 'Etherscan',
+    url: 'https://hoodi.taikoscan.io/',
   },
   contracts: {
     multicall3: {

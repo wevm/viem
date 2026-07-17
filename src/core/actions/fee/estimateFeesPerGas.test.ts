@@ -14,7 +14,7 @@ import { Eip1559FeesNotSupportedError } from './estimateMaxPriorityFeePerGas.js'
 const client = anvil.getClient(anvil.mainnet)
 
 const chain = mainnet.extend({
-  rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+  rpcUrls: { http: anvil.mainnet.rpcUrl.http },
 })
 
 test('default: eip1559', async () => {

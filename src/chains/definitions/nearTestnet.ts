@@ -8,14 +8,10 @@ export const nearTestnet = /*#__PURE__*/ Chain.from({
     name: 'NEAR',
     symbol: 'NEAR',
   },
-  rpcUrls: {
-    default: { http: ['https://eth-rpc.testnet.near.org'] },
-  },
+  rpcUrls: { http: 'https://eth-rpc.testnet.near.org' },
   blockExplorers: {
-    default: {
-      name: 'NEAR Explorer',
-      url: 'https://eth-explorer-testnet.near.org',
-    },
+    name: 'NEAR Explorer',
+    url: 'https://eth-explorer-testnet.near.org',
   },
   testnet: true,
 })

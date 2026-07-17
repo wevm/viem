@@ -9,27 +9,23 @@ export const metis = /*#__PURE__*/ Chain.from({
     symbol: 'METIS',
   },
   rpcUrls: {
-    default: {
-      http: [
-        'https://metis.rpc.hypersync.xyz',
-        'https://metis-pokt.nodies.app',
-        'https://api.blockeden.xyz/metis/67nCBdZQSH9z3YqDDjdm',
-        'https://metis-andromeda.rpc.thirdweb.com',
-        'https://metis-andromeda.gateway.tenderly.co',
-        'https://metis.api.onfinality.io/public',
-        'https://andromeda.metis.io/?owner=1088',
-        'https://metis-mainnet.public.blastapi.io',
-      ],
-      webSocket: ['wss://metis-rpc.publicnode.com', 'wss://metis.drpc.org'],
-    },
+    http: [
+      'https://metis.rpc.hypersync.xyz',
+      'https://metis-pokt.nodies.app',
+      'https://api.blockeden.xyz/metis/67nCBdZQSH9z3YqDDjdm',
+      'https://metis-andromeda.rpc.thirdweb.com',
+      'https://metis-andromeda.gateway.tenderly.co',
+      'https://metis.api.onfinality.io/public',
+      'https://andromeda.metis.io/?owner=1088',
+      'https://metis-mainnet.public.blastapi.io',
+    ],
+    ws: ['wss://metis-rpc.publicnode.com', 'wss://metis.drpc.org'],
   },
   blockExplorers: {
-    default: {
-      name: 'Metis Explorer',
-      url: 'https://explorer.metis.io',
-      apiUrl:
-        'https://api.routescan.io/v2/network/mainnet/evm/1088/etherscan/api',
-    },
+    name: 'Metis Explorer',
+    url: 'https://explorer.metis.io',
+    apiUrl:
+      'https://api.routescan.io/v2/network/mainnet/evm/1088/etherscan/api',
   },
   contracts: {
     multicall3: {

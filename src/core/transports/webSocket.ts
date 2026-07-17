@@ -26,7 +26,8 @@ export function webSocket(
     name: options.name ?? 'WebSocket JSON-RPC',
     type: 'webSocket',
     setup({ chain, retryCount, timeout }) {
-      const url_ = url ?? chain?.rpcUrls?.default.webSocket?.[0]
+      const urls = chain?.rpcUrls?.ws
+      const url_ = url ?? (typeof urls === 'string' ? urls : urls?.[0])
       if (!url_) throw new Transport.UrlRequiredError()
 
       const timeout_ = options.timeout ?? timeout ?? 10_000

@@ -9,14 +9,10 @@ export const disChain = /*#__PURE__*/ Chain.from({
     symbol: 'DIS',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.dischain.xyz'],
-    },
+    http: 'https://rpc.dischain.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'DisChain Explorer',
-      url: 'https://www.oklink.com/dis',
-    },
+    name: 'DisChain Explorer',
+    url: 'https://www.oklink.com/dis',
   },
 })

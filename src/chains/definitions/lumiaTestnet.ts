@@ -9,15 +9,11 @@ export const lumiaTestnet = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://testnet-rpc.lumia.org'],
-    },
+    http: 'https://testnet-rpc.lumia.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Lumia Testnet Explorer',
-      url: 'https://testnet-explorer.lumia.org/',
-    },
+    name: 'Lumia Testnet Explorer',
+    url: 'https://testnet-explorer.lumia.org/',
   },
   contracts: {
     multicall3: {

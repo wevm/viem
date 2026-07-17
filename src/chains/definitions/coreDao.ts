@@ -8,14 +8,10 @@ export const coreDao = /*#__PURE__*/ Chain.from({
     name: 'Core',
     symbol: 'CORE',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.coredao.org'] },
-  },
+  rpcUrls: { http: 'https://rpc.coredao.org' },
   blockExplorers: {
-    default: {
-      name: 'CoreDao',
-      url: 'https://scan.coredao.org',
-    },
+    name: 'CoreDao',
+    url: 'https://scan.coredao.org',
   },
   contracts: {
     multicall3: {

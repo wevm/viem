@@ -9,15 +9,11 @@ export const adi = /*#__PURE__*/ Chain.from({
     symbol: 'ADI',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.adifoundation.ai'],
-    },
+    http: 'https://rpc.adifoundation.ai',
   },
   blockExplorers: {
-    default: {
-      name: 'ADI Explorer',
-      url: 'https://explorer.adifoundation.ai',
-    },
+    name: 'ADI Explorer',
+    url: 'https://explorer.adifoundation.ai',
   },
   testnet: false,
 })

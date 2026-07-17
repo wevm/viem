@@ -12,15 +12,11 @@ export const opBNB = /*#__PURE__*/ Chain.from({
     symbol: 'BNB',
     decimals: 18,
   },
-  rpcUrls: {
-    default: { http: ['https://opbnb-mainnet-rpc.bnbchain.org'] },
-  },
+  rpcUrls: { http: 'https://opbnb-mainnet-rpc.bnbchain.org' },
   blockExplorers: {
-    default: {
-      name: 'opBNB (BSCScan)',
-      url: 'https://opbnb.bscscan.com',
-      apiUrl: 'https://api-opbnb.bscscan.com/api',
-    },
+    name: 'opBNB (BSCScan)',
+    url: 'https://opbnb.bscscan.com',
+    apiUrl: 'https://api-opbnb.bscscan.com/api',
   },
   contracts: {
     ...chainConfig.contracts,

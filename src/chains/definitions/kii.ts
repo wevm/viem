@@ -9,14 +9,10 @@ export const kii = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://json-rpc.kiivalidator.com'],
-    },
+    http: 'https://json-rpc.kiivalidator.com',
   },
   blockExplorers: {
-    default: {
-      name: 'KiiExplorer',
-      url: 'https://explorer.kiichain.io',
-    },
+    name: 'KiiExplorer',
+    url: 'https://explorer.kiichain.io',
   },
 })

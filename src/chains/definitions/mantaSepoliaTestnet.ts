@@ -9,16 +9,12 @@ export const mantaSepoliaTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://pacific-rpc.sepolia-testnet.manta.network/http'],
-    },
+    http: 'https://pacific-rpc.sepolia-testnet.manta.network/http',
   },
   blockExplorers: {
-    default: {
-      name: 'Manta Sepolia Testnet Explorer',
-      url: 'https://pacific-explorer.sepolia-testnet.manta.network',
-      apiUrl: 'https://pacific-explorer.sepolia-testnet.manta.network/api',
-    },
+    name: 'Manta Sepolia Testnet Explorer',
+    url: 'https://pacific-explorer.sepolia-testnet.manta.network',
+    apiUrl: 'https://pacific-explorer.sepolia-testnet.manta.network/api',
   },
   contracts: {
     multicall3: {

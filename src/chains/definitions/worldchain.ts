@@ -8,20 +8,11 @@ export const worldchain = /*#__PURE__*/ Chain.from({
   id: 480,
   name: 'World Chain',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://worldchain-mainnet.g.alchemy.com/public'] },
-  },
+  rpcUrls: { http: 'https://worldchain-mainnet.g.alchemy.com/public' },
   blockExplorers: {
-    default: {
-      name: 'Worldscan',
-      url: 'https://worldscan.org',
-      apiUrl: 'https://api.worldscan.org/api',
-    },
-    blockscout: {
-      name: 'Blockscout',
-      url: 'https://worldchain-mainnet.explorer.alchemy.com',
-      apiUrl: 'https://worldchain-mainnet.explorer.alchemy.com/api',
-    },
+    name: 'Worldscan',
+    url: 'https://worldscan.org',
+    apiUrl: 'https://api.worldscan.org/api',
   },
   contracts: {
     ...chainConfig.contracts,

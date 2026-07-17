@@ -9,15 +9,11 @@ export const mev = /*#__PURE__*/ Chain.from({
     symbol: 'MEV',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.meversemainnet.io'],
-    },
+    http: 'https://rpc.meversemainnet.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Explorer',
-      url: 'https://www.meversescan.io',
-    },
+    name: 'Explorer',
+    url: 'https://www.meversescan.io',
   },
   contracts: {
     multicall3: {

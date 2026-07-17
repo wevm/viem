@@ -9,9 +9,7 @@ export const plasmaDevnet = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://devnet-rpc.plasma.to'],
-    },
+    http: 'https://devnet-rpc.plasma.to',
   },
   testnet: true,
   contracts: {

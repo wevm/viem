@@ -8,13 +8,9 @@ export const classic = /*#__PURE__*/ Chain.from({
     name: 'ETC',
     symbol: 'ETC',
   },
-  rpcUrls: {
-    default: { http: ['https://etc.rivet.link'] },
-  },
+  rpcUrls: { http: 'https://etc.rivet.link' },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://blockscout.com/etc/mainnet',
-    },
+    name: 'Blockscout',
+    url: 'https://blockscout.com/etc/mainnet',
   },
 })

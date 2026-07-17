@@ -8,14 +8,10 @@ export const telos = /*#__PURE__*/ Chain.from({
     name: 'Telos',
     symbol: 'TLOS',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.telos.net'] },
-  },
+  rpcUrls: { http: 'https://rpc.telos.net' },
   blockExplorers: {
-    default: {
-      name: 'Teloscan',
-      url: 'https://www.teloscan.io/',
-    },
+    name: 'Teloscan',
+    url: 'https://www.teloscan.io/',
   },
   contracts: {
     multicall3: {

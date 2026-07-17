@@ -9,15 +9,11 @@ export const hashkey = /*#__PURE__*/ Chain.from({
     symbol: 'HSK',
   },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.hsk.xyz'],
-    },
+    http: 'https://mainnet.hsk.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'HashKey Chain Explorer',
-      url: 'https://hashkey.blockscout.com',
-    },
+    name: 'HashKey Chain Explorer',
+    url: 'https://hashkey.blockscout.com',
   },
   contracts: {
     multicall3: {

@@ -9,16 +9,12 @@ export const taiko = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.mainnet.taiko.xyz'],
-      webSocket: ['wss://ws.mainnet.taiko.xyz'],
-    },
+    http: 'https://rpc.mainnet.taiko.xyz',
+    ws: 'wss://ws.mainnet.taiko.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://taikoscan.io',
-    },
+    name: 'Etherscan',
+    url: 'https://taikoscan.io',
   },
   contracts: {
     multicall3: {

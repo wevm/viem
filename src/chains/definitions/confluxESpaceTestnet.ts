@@ -6,16 +6,12 @@ export const confluxESpaceTestnet = /*#__PURE__*/ Chain.from({
   testnet: true,
   nativeCurrency: { name: 'Conflux', symbol: 'CFX', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://evmtestnet.confluxrpc.com'],
-      webSocket: ['wss://evmtestnet.confluxrpc.com/ws'],
-    },
+    http: 'https://evmtestnet.confluxrpc.com',
+    ws: 'wss://evmtestnet.confluxrpc.com/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'ConfluxScan',
-      url: 'https://evmtestnet.confluxscan.org',
-    },
+    name: 'ConfluxScan',
+    url: 'https://evmtestnet.confluxscan.org',
   },
   contracts: {
     multicall3: {

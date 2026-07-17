@@ -5,16 +5,12 @@ export const battlechain = /*#__PURE__*/ Chain.from({
   name: 'BattleChain Mainnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.battlechain.com'],
-    },
+    http: 'https://mainnet.battlechain.com',
   },
   blockExplorers: {
-    default: {
-      name: 'BattleChain Explorer',
-      url: 'https://explorer.battlechain.com',
-      apiUrl: 'https://block-explorer-api.battlechain.com/api',
-    },
+    name: 'BattleChain Explorer',
+    url: 'https://explorer.battlechain.com',
+    apiUrl: 'https://block-explorer-api.battlechain.com/api',
   },
   contracts: {
     multicall3: {

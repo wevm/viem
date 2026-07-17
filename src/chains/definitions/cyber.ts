@@ -5,16 +5,12 @@ export const cyber = /*#__PURE__*/ Chain.from({
   name: 'Cyber',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://cyber.alt.technology'],
-    },
+    http: 'https://cyber.alt.technology',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://cyberscan.co',
-      apiUrl: 'https://cyberscan.co/api',
-    },
+    name: 'Blockscout',
+    url: 'https://cyberscan.co',
+    apiUrl: 'https://cyberscan.co/api',
   },
   contracts: {
     multicall3: {

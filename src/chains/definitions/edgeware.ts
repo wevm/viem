@@ -8,15 +8,11 @@ export const edgeware = /*#__PURE__*/ Chain.from({
     name: 'Edgeware',
     symbol: 'EDG',
   },
-  rpcUrls: {
-    default: { http: ['https://edgeware-evm.jelliedowl.net'] },
-  },
+  rpcUrls: { http: 'https://edgeware-evm.jelliedowl.net' },
   blockExplorers: {
-    default: {
-      name: 'Edgscan by Bharathcoorg',
-      url: 'https://edgscan.live',
-      apiUrl: 'https://edgscan.live/api',
-    },
+    name: 'Edgscan by Bharathcoorg',
+    url: 'https://edgscan.live',
+    apiUrl: 'https://edgscan.live/api',
   },
   contracts: {
     multicall3: {

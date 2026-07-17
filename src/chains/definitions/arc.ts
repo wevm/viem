@@ -9,8 +9,6 @@ export const arc = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: [],
-    },
+    http: [],
   },
 })

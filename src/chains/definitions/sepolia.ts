@@ -5,16 +5,12 @@ export const sepolia = /*#__PURE__*/ Chain.from({
   name: 'Sepolia',
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://11155111.rpc.thirdweb.com'],
-    },
+    http: 'https://11155111.rpc.thirdweb.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://sepolia.etherscan.io',
-      apiUrl: 'https://api-sepolia.etherscan.io/api',
-    },
+    name: 'Etherscan',
+    url: 'https://sepolia.etherscan.io',
+    apiUrl: 'https://api-sepolia.etherscan.io/api',
   },
   contracts: {
     multicall3: {

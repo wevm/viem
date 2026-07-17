@@ -10,22 +10,13 @@ export const megaethTestnet = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://carrot.megaeth.com/rpc'],
-      webSocket: ['wss://carrot.megaeth.com/ws'],
-    },
+    http: 'https://carrot.megaeth.com/rpc',
+    ws: 'wss://carrot.megaeth.com/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://testnet-mega.etherscan.io',
-      apiUrl: 'https://api.etherscan.io/v2/api',
-    },
-    blockscout: {
-      name: 'Blockscout',
-      url: 'https://megaeth-testnet-v2.blockscout.com',
-      apiUrl: 'https://megaeth-testnet-v2.blockscout.com/api',
-    },
+    name: 'Etherscan',
+    url: 'https://testnet-mega.etherscan.io',
+    apiUrl: 'https://api.etherscan.io/v2/api',
   },
   contracts: {
     multicall3: {

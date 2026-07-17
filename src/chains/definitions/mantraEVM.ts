@@ -9,15 +9,11 @@ export const mantraEVM = /*#__PURE__*/ Chain.from({
     symbol: 'MANTRA',
   },
   rpcUrls: {
-    default: {
-      http: ['https://evm.mantrachain.io'],
-      webSocket: ['https://evm.mantrachain.io/ws'],
-    },
+    http: 'https://evm.mantrachain.io',
+    ws: 'https://evm.mantrachain.io/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'MANTRA Blockscout Explorer',
-      url: 'https://blockscout.mantrascan.io',
-    },
+    name: 'MANTRA Blockscout Explorer',
+    url: 'https://blockscout.mantrascan.io',
   },
 })

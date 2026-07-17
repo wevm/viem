@@ -8,14 +8,10 @@ export const domaTestnet = /*#__PURE__*/ Chain.from({
     name: 'Ether',
     symbol: 'ETH',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc-testnet.doma.xyz'] },
-  },
+  rpcUrls: { http: 'https://rpc-testnet.doma.xyz' },
   blockExplorers: {
-    default: {
-      name: 'Doma Testnet Explorer',
-      url: 'https://explorer-testnet.doma.xyz',
-    },
+    name: 'Doma Testnet Explorer',
+    url: 'https://explorer-testnet.doma.xyz',
   },
   testnet: true,
 })

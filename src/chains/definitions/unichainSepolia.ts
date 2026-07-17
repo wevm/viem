@@ -14,16 +14,12 @@ export const unichainSepolia = /*#__PURE__*/ Chain.from({
   },
   blockTime: 1_000,
   rpcUrls: {
-    default: {
-      http: ['https://sepolia.unichain.org'],
-    },
+    http: 'https://sepolia.unichain.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Uniscan',
-      url: 'https://sepolia.uniscan.xyz',
-      apiUrl: 'https://api-sepolia.uniscan.xyz/api',
-    },
+    name: 'Uniscan',
+    url: 'https://sepolia.uniscan.xyz',
+    apiUrl: 'https://api-sepolia.uniscan.xyz/api',
   },
   contracts: {
     ...chainConfig.contracts,

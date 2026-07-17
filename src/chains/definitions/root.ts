@@ -9,16 +9,12 @@ export const root = /*#__PURE__*/ Chain.from({
     symbol: 'XRP',
   },
   rpcUrls: {
-    default: {
-      http: ['https://root.rootnet.live/archive'],
-      webSocket: ['wss://root.rootnet.live/archive/ws'],
-    },
+    http: 'https://root.rootnet.live/archive',
+    ws: 'wss://root.rootnet.live/archive/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Rootscan',
-      url: 'https://rootscan.io',
-    },
+    name: 'Rootscan',
+    url: 'https://rootscan.io',
   },
   contracts: {
     multicall3: {

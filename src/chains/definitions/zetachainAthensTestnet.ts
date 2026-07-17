@@ -9,9 +9,7 @@ export const zetachainAthensTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'aZETA',
   },
   rpcUrls: {
-    default: {
-      http: ['https://zetachain-athens-evm.blockpi.network/v1/rpc/public'],
-    },
+    http: 'https://zetachain-athens-evm.blockpi.network/v1/rpc/public',
   },
   contracts: {
     multicall3: {
@@ -20,10 +18,8 @@ export const zetachainAthensTestnet = /*#__PURE__*/ Chain.from({
     },
   },
   blockExplorers: {
-    default: {
-      name: 'ZetaScan',
-      url: 'https://testnet.zetascan.com',
-    },
+    name: 'ZetaScan',
+    url: 'https://testnet.zetascan.com',
   },
   testnet: true,
 })

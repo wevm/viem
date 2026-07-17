@@ -9,9 +9,7 @@ export const zetachain = /*#__PURE__*/ Chain.from({
     symbol: 'ZETA',
   },
   rpcUrls: {
-    default: {
-      http: ['https://zetachain-evm.blockpi.network/v1/rpc/public'],
-    },
+    http: 'https://zetachain-evm.blockpi.network/v1/rpc/public',
   },
   contracts: {
     multicall3: {
@@ -20,10 +18,8 @@ export const zetachain = /*#__PURE__*/ Chain.from({
     },
   },
   blockExplorers: {
-    default: {
-      name: 'ZetaScan',
-      url: 'https://zetascan.com',
-    },
+    name: 'ZetaScan',
+    url: 'https://zetascan.com',
   },
   testnet: false,
 })

@@ -9,16 +9,12 @@ export const agungTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'AGNG',
   },
   rpcUrls: {
-    default: {
-      http: ['https://wss-async.agung.peaq.network'],
-      webSocket: ['wss://wss-async.agung.peaq.network'],
-    },
+    http: 'https://wss-async.agung.peaq.network',
+    ws: 'wss://wss-async.agung.peaq.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Subscan',
-      url: 'https://agung-testnet.subscan.io',
-    },
+    name: 'Subscan',
+    url: 'https://agung-testnet.subscan.io',
   },
   testnet: true,
 })

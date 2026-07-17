@@ -49,7 +49,7 @@ test('chain codecs: receipt type reflects the chain codec', async () => {
     id: 1,
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-    rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+    rpcUrls: { http: 'https://eth.merkle.io' },
   })
   const schemaClient = Client.create({ chain, transport: http() })
 

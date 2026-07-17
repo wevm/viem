@@ -10,15 +10,11 @@ export const hemi = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.hemi.network/rpc'],
-    },
+    http: 'https://rpc.hemi.network/rpc',
   },
   blockExplorers: {
-    default: {
-      name: 'blockscout',
-      url: 'https://explorer.hemi.xyz',
-    },
+    name: 'blockscout',
+    url: 'https://explorer.hemi.xyz',
   },
   testnet: false,
 })

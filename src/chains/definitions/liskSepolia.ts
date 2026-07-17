@@ -9,16 +9,12 @@ export const liskSepolia = /*#__PURE__*/ Chain.from({
   name: 'Lisk Sepolia',
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.sepolia-api.lisk.com'],
-    },
+    http: 'https://rpc.sepolia-api.lisk.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://sepolia-blockscout.lisk.com',
-      apiUrl: 'https://sepolia-blockscout.lisk.com/api',
-    },
+    name: 'Blockscout',
+    url: 'https://sepolia-blockscout.lisk.com',
+    apiUrl: 'https://sepolia-blockscout.lisk.com/api',
   },
   contracts: {
     ...chainConfig.contracts,

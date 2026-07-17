@@ -9,10 +9,8 @@ export const zenchainTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'ZTC',
   },
   rpcUrls: {
-    default: {
-      http: ['https://zenchain-testnet.api.onfinality.io/public'],
-      webSocket: ['wss://zenchain-testnet.api.onfinality.io/public-ws'],
-    },
+    http: 'https://zenchain-testnet.api.onfinality.io/public',
+    ws: 'wss://zenchain-testnet.api.onfinality.io/public-ws',
   },
   contracts: {
     multicall3: {
@@ -21,10 +19,8 @@ export const zenchainTestnet = /*#__PURE__*/ Chain.from({
     },
   },
   blockExplorers: {
-    default: {
-      name: 'Zentrace',
-      url: 'https://zentrace.io',
-    },
+    name: 'Zentrace',
+    url: 'https://zentrace.io',
   },
   testnet: true,
 })

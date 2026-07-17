@@ -9,16 +9,12 @@ export const palm = /*#__PURE__*/ Chain.from({
     symbol: 'PALM',
   },
   rpcUrls: {
-    default: {
-      http: ['https://palm-mainnet.public.blastapi.io'],
-      webSocket: ['wss://palm-mainnet.public.blastapi.io'],
-    },
+    http: 'https://palm-mainnet.public.blastapi.io',
+    ws: 'wss://palm-mainnet.public.blastapi.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Chainlens',
-      url: 'https://palm.chainlens.com',
-    },
+    name: 'Chainlens',
+    url: 'https://palm.chainlens.com',
   },
   contracts: {
     multicall3: {

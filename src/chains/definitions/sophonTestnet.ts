@@ -10,16 +10,12 @@ export const sophonTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'SOPH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.sophon.xyz'],
-      webSocket: ['wss://rpc.testnet.sophon.xyz/ws'],
-    },
+    http: 'https://rpc.testnet.sophon.xyz',
+    ws: 'wss://rpc.testnet.sophon.xyz/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Sophon Block Explorer',
-      url: 'https://explorer.testnet.sophon.xyz',
-    },
+    name: 'Sophon Block Explorer',
+    url: 'https://explorer.testnet.sophon.xyz',
   },
   contracts: {
     multicall3: {

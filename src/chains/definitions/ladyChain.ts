@@ -5,15 +5,11 @@ export const ladyChain = /*#__PURE__*/ Chain.from({
   name: 'LadyChain',
   nativeCurrency: { name: 'Lady', symbol: 'LADY', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://ladyrpc.us/rpc'],
-    },
+    http: 'https://ladyrpc.us/rpc',
   },
   blockExplorers: {
-    default: {
-      name: 'LadyScan',
-      url: 'https://ladyscan.us',
-    },
+    name: 'LadyScan',
+    url: 'https://ladyscan.us',
   },
   testnet: false,
 })

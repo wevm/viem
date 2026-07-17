@@ -11,17 +11,13 @@ export const plumeMainnet = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.plume.org'],
-      webSocket: ['wss://rpc.plume.org'],
-    },
+    http: 'https://rpc.plume.org',
+    ws: 'wss://rpc.plume.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://explorer.plume.org',
-      apiUrl: 'https://explorer.plume.org/api',
-    },
+    name: 'Blockscout',
+    url: 'https://explorer.plume.org',
+    apiUrl: 'https://explorer.plume.org/api',
   },
   contracts: {
     multicall3: {

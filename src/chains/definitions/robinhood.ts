@@ -6,16 +6,12 @@ export const robinhood = /*#__PURE__*/ Chain.from({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   blockTime: 100,
   rpcUrls: {
-    default: {
-      http: ['https://rpc.mainnet.chain.robinhood.com'],
-    },
+    http: 'https://rpc.mainnet.chain.robinhood.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://robinhoodchain.blockscout.com',
-      apiUrl: 'https://robinhoodchain.blockscout.com/api',
-    },
+    name: 'Blockscout',
+    url: 'https://robinhoodchain.blockscout.com',
+    apiUrl: 'https://robinhoodchain.blockscout.com/api',
   },
   contracts: {
     multicall3: {

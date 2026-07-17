@@ -5,15 +5,11 @@ export const hoodi = /*#__PURE__*/ Chain.from({
   name: 'Hoodi',
   nativeCurrency: { name: 'Hoodi Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.hoodi.ethpandaops.io'],
-    },
+    http: 'https://rpc.hoodi.ethpandaops.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://hoodi.etherscan.io',
-    },
+    name: 'Etherscan',
+    url: 'https://hoodi.etherscan.io',
   },
   contracts: {
     multicall3: {

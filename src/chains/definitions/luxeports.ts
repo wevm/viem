@@ -9,16 +9,12 @@ export const luxeports = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.luxeports.com', 'https://erpc.luxeports.com'],
-      webSocket: ['wss://rpc.luxeports.com/ws', 'wss://erpc.luxeports.com/ws'],
-    },
+    http: ['https://rpc.luxeports.com', 'https://erpc.luxeports.com'],
+    ws: ['wss://rpc.luxeports.com/ws', 'wss://erpc.luxeports.com/ws'],
   },
   blockExplorers: {
-    default: {
-      name: 'LXPScan',
-      url: 'https://lxpscan.com',
-    },
+    name: 'LXPScan',
+    url: 'https://lxpscan.com',
   },
   testnet: false,
 })

@@ -13,17 +13,13 @@ export const zora = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.zora.energy'],
-      webSocket: ['wss://rpc.zora.energy'],
-    },
+    http: 'https://rpc.zora.energy',
+    ws: 'wss://rpc.zora.energy',
   },
   blockExplorers: {
-    default: {
-      name: 'Explorer',
-      url: 'https://explorer.zora.energy',
-      apiUrl: 'https://explorer.zora.energy/api',
-    },
+    name: 'Explorer',
+    url: 'https://explorer.zora.energy',
+    apiUrl: 'https://explorer.zora.energy/api',
   },
   contracts: {
     ...chainConfig.contracts,

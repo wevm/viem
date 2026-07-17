@@ -4,14 +4,10 @@ export const loadAlphanet = /*#__PURE__*/ Chain.from({
   id: 9496,
   name: 'Load Alphanet',
   nativeCurrency: { name: 'Testnet LOAD', symbol: 'tLOAD', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://alphanet.load.network'] },
-  },
+  rpcUrls: { http: 'https://alphanet.load.network' },
   blockExplorers: {
-    default: {
-      name: 'Load Alphanet Explorer',
-      url: 'https://explorer.load.network',
-    },
+    name: 'Load Alphanet Explorer',
+    url: 'https://explorer.load.network',
   },
   testnet: true,
 })

@@ -9,16 +9,12 @@ export const beamTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'BEAM',
   },
   rpcUrls: {
-    default: {
-      http: ['https://build.onbeam.com/rpc/testnet'],
-      webSocket: ['wss://build.onbeam.com/ws/testnet'],
-    },
+    http: 'https://build.onbeam.com/rpc/testnet',
+    ws: 'wss://build.onbeam.com/ws/testnet',
   },
   blockExplorers: {
-    default: {
-      name: 'Beam Explorer',
-      url: 'https://subnets-test.avax.network/beam',
-    },
+    name: 'Beam Explorer',
+    url: 'https://subnets-test.avax.network/beam',
   },
   contracts: {
     multicall3: {

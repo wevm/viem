@@ -9,16 +9,12 @@ export const morph = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.morphl2.io'],
-      webSocket: ['wss://rpc.morphl2.io:8443'],
-    },
+    http: 'https://rpc.morphl2.io',
+    ws: 'wss://rpc.morphl2.io:8443',
   },
   blockExplorers: {
-    default: {
-      name: 'Morph Explorer',
-      url: 'https://explorer.morphl2.io',
-    },
+    name: 'Morph Explorer',
+    url: 'https://explorer.morphl2.io',
   },
   contracts: {
     multicall3: {

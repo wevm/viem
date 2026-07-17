@@ -8,14 +8,10 @@ export const eni = /*#__PURE__*/ Chain.from({
     name: 'ENI',
     symbol: 'ENI',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.eniac.network'] },
-  },
+  rpcUrls: { http: 'https://rpc.eniac.network' },
   blockExplorers: {
-    default: {
-      name: 'ENI Explorer',
-      url: 'https://scan.eniac.network',
-    },
+    name: 'ENI Explorer',
+    url: 'https://scan.eniac.network',
   },
   testnet: false,
 })

@@ -9,20 +9,16 @@ export const xoneTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'XOC',
   },
   rpcUrls: {
-    default: {
-      http: [
-        'https://rpc-testnet.xone.org',
-        'https://rpc-testnet.xone.plus',
-        'https://rpc-testnet.knight.center',
-      ],
-    },
+    http: [
+      'https://rpc-testnet.xone.org',
+      'https://rpc-testnet.xone.plus',
+      'https://rpc-testnet.knight.center',
+    ],
   },
   blockExplorers: {
-    default: {
-      name: 'Xone Testnet Explorer',
-      url: 'https://testnet.xonescan.com',
-      apiUrl: 'http://api.testnet.xonescan.com/api',
-    },
+    name: 'Xone Testnet Explorer',
+    url: 'https://testnet.xonescan.com',
+    apiUrl: 'http://api.testnet.xonescan.com/api',
   },
   testnet: true,
 })

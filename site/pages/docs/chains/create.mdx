@@ -11,7 +11,7 @@ const mainnet = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
 })
 ```
 
@@ -32,8 +32,8 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-  blockExplorers: { default: { name: 'Etherscan', url: 'https://etherscan.io' } }, // [!code focus]
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  blockExplorers: { name: 'Etherscan', url: 'https://etherscan.io' }, // [!code focus]
 })
 ```
 
@@ -48,7 +48,7 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
   contracts: { multicall3: { address: '0xca11bde05977b3631167028862be2a173976ca11' } }, // [!code focus]
 })
 ```
@@ -64,7 +64,7 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
   blockTime: 12_000, // [!code focus]
 })
 ```
@@ -80,7 +80,7 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
   testnet: true, // [!code focus]
 })
 ```
@@ -96,7 +96,7 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
   sourceId: 1, // [!code focus]
 })
 ```
@@ -112,7 +112,7 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
   ensTlds: ['.eth'], // [!code focus]
 })
 ```
@@ -128,7 +128,7 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
   fees: { // [!code focus]
     baseFeeMultiplier: 1.2, // [!code focus]
     maxPriorityFeePerGas: 1_000_000_000n, // [!code focus]
@@ -147,7 +147,7 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
   preconfirmationTime: 1_000, // [!code focus]
 })
 ```
@@ -165,7 +165,7 @@ const mainnet = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
 })
 ```
 
@@ -179,10 +179,10 @@ The chain definition. Only `id` is required; all other fields are optional.
 
 ##### chain.blockExplorers
 
-- **Type:** `{ default: Chain.BlockExplorer }`
+- **Type:** `Chain.BlockExplorer`
 - **Optional**
 
-Block explorers, keyed by name with a required `default`.
+Block explorer for the chain (`name`, `url`, optional `apiUrl`).
 
 ```ts twoslash
 import { Chain } from 'viem'
@@ -191,8 +191,8 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-  blockExplorers: { default: { name: 'Etherscan', url: 'https://etherscan.io' } }, // [!code focus]
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  blockExplorers: { name: 'Etherscan', url: 'https://etherscan.io' }, // [!code focus]
 })
 ```
 
@@ -210,7 +210,7 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
   blockTime: 12_000, // [!code focus]
 })
 ```
@@ -229,7 +229,7 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
   contracts: { multicall3: { address: '0xca11bde05977b3631167028862be2a173976ca11' } }, // [!code focus]
 })
 ```
@@ -248,7 +248,7 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
   ensTlds: ['.eth'], // [!code focus]
 })
 ```
@@ -267,7 +267,7 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
   fees: { baseFeeMultiplier: 1.2, maxPriorityFeePerGas: 1_000_000_000n }, // [!code focus]
 })
 ```
@@ -285,7 +285,7 @@ const chain = Chain.from({
   id: 1, // [!code focus]
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
 })
 ```
 
@@ -303,7 +303,7 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum', // [!code focus]
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
 })
 ```
 
@@ -321,7 +321,7 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 }, // [!code focus]
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
 })
 ```
 
@@ -339,18 +339,18 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
   preconfirmationTime: 1_000, // [!code focus]
 })
 ```
 
 ##### chain.rpcUrls
 
-- **Type:** `{ default: Chain.RpcUrls }`
+- **Type:** `Chain.RpcUrls`
 - **Optional**
 
-RPC endpoints, keyed by name with a required `default`. When omitted, Transports such as
-[`http`](/docs/transports/http) require an explicit URL.
+RPC endpoints. `http` (and optional `ws`) accept a single URL or a list. When omitted, Transports
+such as [`http`](/docs/transports/http) require an explicit URL.
 
 ```ts twoslash
 import { Chain } from 'viem'
@@ -359,7 +359,7 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } }, // [!code focus]
+  rpcUrls: { http: 'https://eth.merkle.io' }, // [!code focus]
 })
 ```
 
@@ -377,7 +377,7 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
   codecs: {}, // [!code focus]
 })
 ```
@@ -396,7 +396,7 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
   sourceId: 1, // [!code focus]
 })
 ```
@@ -415,7 +415,7 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
   testnet: false, // [!code focus]
 })
 ```
@@ -439,7 +439,7 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
   transaction: { // [!code focus]
     serialize: (envelope, options) => // [!code focus]
       TxEnvelope.serialize(envelope, options), // [!code focus]

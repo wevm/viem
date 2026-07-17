@@ -9,16 +9,12 @@ export const shapeSepolia = /*#__PURE__*/ Chain.from({
   name: 'Shape Sepolia Testnet',
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://sepolia.shape.network'],
-    },
+    http: 'https://sepolia.shape.network',
   },
   blockExplorers: {
-    default: {
-      name: 'blockscout',
-      url: 'https://explorer-sepolia.shape.network/',
-      apiUrl: 'https://explorer-sepolia.shape.network/api/v2',
-    },
+    name: 'blockscout',
+    url: 'https://explorer-sepolia.shape.network/',
+    apiUrl: 'https://explorer-sepolia.shape.network/api/v2',
   },
   contracts: {
     ...chainConfig.contracts,

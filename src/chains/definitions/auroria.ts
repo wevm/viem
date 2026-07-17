@@ -9,15 +9,11 @@ export const auroria = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://auroria.rpc.stratisevm.com'],
-    },
+    http: 'https://auroria.rpc.stratisevm.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Auroria Testnet Explorer',
-      url: 'https://auroria.explorer.stratisevm.com',
-    },
+    name: 'Auroria Testnet Explorer',
+    url: 'https://auroria.explorer.stratisevm.com',
   },
   testnet: true,
 })

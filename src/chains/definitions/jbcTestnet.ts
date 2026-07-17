@@ -5,16 +5,12 @@ export const jbcTestnet = /*#__PURE__*/ Chain.from({
   name: 'Jibchain Testnet',
   nativeCurrency: { name: 'tJBC', symbol: 'tJBC', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.jibchain.net'],
-    },
+    http: 'https://rpc.testnet.jibchain.net',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://exp.testnet.jibchain.net',
-      apiUrl: 'https://exp.testnet.jibchain.net/api',
-    },
+    name: 'Blockscout',
+    url: 'https://exp.testnet.jibchain.net',
+    apiUrl: 'https://exp.testnet.jibchain.net/api',
   },
   contracts: {
     multicall3: {

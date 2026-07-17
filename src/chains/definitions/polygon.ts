@@ -6,16 +6,12 @@ export const polygon = /*#__PURE__*/ Chain.from({
   blockTime: 2000,
   nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://polygon.drpc.org'],
-    },
+    http: 'https://polygon.drpc.org',
   },
   blockExplorers: {
-    default: {
-      name: 'PolygonScan',
-      url: 'https://polygonscan.com',
-      apiUrl: 'https://api.etherscan.io/v2/api',
-    },
+    name: 'PolygonScan',
+    url: 'https://polygonscan.com',
+    apiUrl: 'https://api.etherscan.io/v2/api',
   },
   contracts: {
     multicall3: {

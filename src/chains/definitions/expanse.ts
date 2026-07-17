@@ -8,14 +8,10 @@ export const expanse = /*#__PURE__*/ Chain.from({
     name: 'EXP',
     symbol: 'EXP',
   },
-  rpcUrls: {
-    default: { http: ['https://node.expanse.tech'] },
-  },
+  rpcUrls: { http: 'https://node.expanse.tech' },
   blockExplorers: {
-    default: {
-      name: 'Expanse Explorer',
-      url: 'https://explorer.expanse.tech',
-    },
+    name: 'Expanse Explorer',
+    url: 'https://explorer.expanse.tech',
   },
   testnet: false,
 })

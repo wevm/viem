@@ -764,7 +764,7 @@ describe('behavior: fill result', () => {
       },
     })
     const chain = mainnet.extend({
-      rpcUrls: { default: { http: [fillServer.url] } },
+      rpcUrls: { http: fillServer.url },
       codecs: {
         transaction: {
           fromRpc: (_rpc: Transaction.Rpc) => ({ type: 'eip1559' as const }),
@@ -950,7 +950,7 @@ describe('behavior: chain hooks', () => {
       id: 1,
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+      rpcUrls: { http: anvil.mainnet.rpcUrl.http },
       transaction: {
         prepare(request) {
           return { ...request, value: 69n }
@@ -976,7 +976,7 @@ describe('behavior: chain hooks', () => {
       id: 1,
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+      rpcUrls: { http: anvil.mainnet.rpcUrl.http },
       transaction: {
         prepare: [
           (request, { phase }) => {
@@ -1001,7 +1001,7 @@ describe('behavior: chain hooks', () => {
       id: 1,
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+      rpcUrls: { http: anvil.mainnet.rpcUrl.http },
       transaction: {
         prepare: [
           (request) => ({ ...request, value: 42n }),
@@ -1027,7 +1027,7 @@ describe('behavior: chain hooks', () => {
       id: 1,
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+      rpcUrls: { http: anvil.mainnet.rpcUrl.http },
       transaction: {
         prepare(request) {
           return { ...request, gas: 50_000n }
@@ -1054,7 +1054,7 @@ describe('behavior: chain hooks', () => {
       id: 1,
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+      rpcUrls: { http: anvil.mainnet.rpcUrl.http },
       transaction: {
         prepare: [
           (request, { phase }) => {
@@ -1088,7 +1088,7 @@ describe('behavior: chain hooks', () => {
       id: 1,
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+      rpcUrls: { http: anvil.mainnet.rpcUrl.http },
       transaction: {
         prepare: [
           (request, { phase }) => {
@@ -1124,7 +1124,7 @@ describe('behavior: fees', () => {
         id: 1,
         name: 'Ethereum',
         nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-        rpcUrls: { default: { http: [chain.rpcUrl.http] } },
+        rpcUrls: { http: chain.rpcUrl.http },
         fees: { maxPriorityFeePerGas: Value.fromGwei('69') },
       }),
       to,
@@ -1141,7 +1141,7 @@ describe('behavior: fees', () => {
         id: 1,
         name: 'Ethereum',
         nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-        rpcUrls: { default: { http: [chain.rpcUrl.http] } },
+        rpcUrls: { http: chain.rpcUrl.http },
         fees: { maxPriorityFeePerGas: async () => Value.fromGwei('69') },
       }),
       to,
@@ -1158,7 +1158,7 @@ describe('behavior: fees', () => {
         id: 1,
         name: 'Ethereum',
         nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-        rpcUrls: { default: { http: [chain.rpcUrl.http] } },
+        rpcUrls: { http: chain.rpcUrl.http },
         fees: { maxPriorityFeePerGas: 0n },
       }),
       to,

@@ -5,16 +5,12 @@ export const skaleEuropaTestnet = /*#__PURE__*/ Chain.from({
   name: 'SKALE Europa Testnet',
   nativeCurrency: { name: 'sFUEL', symbol: 'sFUEL', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://testnet.skalenodes.com/v1/juicy-low-small-testnet'],
-      webSocket: ['wss://testnet.skalenodes.com/v1/ws/juicy-low-small-testnet'],
-    },
+    http: 'https://testnet.skalenodes.com/v1/juicy-low-small-testnet',
+    ws: 'wss://testnet.skalenodes.com/v1/ws/juicy-low-small-testnet',
   },
   blockExplorers: {
-    default: {
-      name: 'SKALE Explorer',
-      url: 'https://juicy-low-small-testnet.explorer.testnet.skalenodes.com',
-    },
+    name: 'SKALE Explorer',
+    url: 'https://juicy-low-small-testnet.explorer.testnet.skalenodes.com',
   },
   contracts: {
     multicall3: {

@@ -5,16 +5,12 @@ export const robinhoodTestnet = /*#__PURE__*/ Chain.from({
   name: 'Robinhood Chain Testnet',
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.chain.robinhood.com'],
-    },
+    http: 'https://rpc.testnet.chain.robinhood.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://explorer.testnet.chain.robinhood.com',
-      apiUrl: 'https://explorer.testnet.chain.robinhood.com/api',
-    },
+    name: 'Blockscout',
+    url: 'https://explorer.testnet.chain.robinhood.com',
+    apiUrl: 'https://explorer.testnet.chain.robinhood.com/api',
   },
   contracts: {
     multicall3: {

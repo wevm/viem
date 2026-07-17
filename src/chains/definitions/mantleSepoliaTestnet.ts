@@ -8,15 +8,11 @@ export const mantleSepoliaTestnet = /*#__PURE__*/ Chain.from({
     name: 'MNT',
     symbol: 'MNT',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.sepolia.mantle.xyz'] },
-  },
+  rpcUrls: { http: 'https://rpc.sepolia.mantle.xyz' },
   blockExplorers: {
-    default: {
-      name: 'Mantle Testnet Explorer',
-      url: 'https://explorer.sepolia.mantle.xyz/',
-      apiUrl: 'https://explorer.sepolia.mantle.xyz/api',
-    },
+    name: 'Mantle Testnet Explorer',
+    url: 'https://explorer.sepolia.mantle.xyz/',
+    apiUrl: 'https://explorer.sepolia.mantle.xyz/api',
   },
   contracts: {
     multicall3: {

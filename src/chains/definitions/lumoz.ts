@@ -9,15 +9,11 @@ export const lumoz = /*#__PURE__*/ Chain.from({
     symbol: 'MOZ',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.lumoz.org'],
-    },
+    http: 'https://rpc.lumoz.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Lumoz Scan',
-      url: 'https://scan.lumoz.info',
-    },
+    name: 'Lumoz Scan',
+    url: 'https://scan.lumoz.info',
   },
   testnet: false,
 })

@@ -4,14 +4,10 @@ export const hychain = /*#__PURE__*/ Chain.from({
   id: 2911,
   name: 'HYCHAIN',
   nativeCurrency: { name: 'HYTOPIA', symbol: 'TOPIA', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://rpc.hychain.com/http'] },
-  },
+  rpcUrls: { http: 'https://rpc.hychain.com/http' },
   blockExplorers: {
-    default: {
-      name: 'HYCHAIN Explorer',
-      url: 'https://explorer.hychain.com',
-    },
+    name: 'HYCHAIN Explorer',
+    url: 'https://explorer.hychain.com',
   },
   testnet: false,
 })

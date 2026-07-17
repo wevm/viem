@@ -9,16 +9,12 @@ export const superseed = /*#__PURE__*/ Chain.from({
   name: 'Superseed',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.superseed.xyz'],
-    },
+    http: 'https://mainnet.superseed.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'Superseed Explorer',
-      url: 'https://explorer.superseed.xyz',
-      apiUrl: 'https://explorer.superseed.xyz/api/v2',
-    },
+    name: 'Superseed Explorer',
+    url: 'https://explorer.superseed.xyz',
+    apiUrl: 'https://explorer.superseed.xyz/api/v2',
   },
   contracts: {
     ...chainConfig.contracts,

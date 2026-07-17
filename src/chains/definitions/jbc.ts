@@ -5,16 +5,12 @@ export const jbc = /*#__PURE__*/ Chain.from({
   name: 'JB Chain',
   nativeCurrency: { name: 'JBC', symbol: 'JBC', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc-l1.jibchain.net'],
-    },
+    http: 'https://rpc-l1.jibchain.net',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://exp-l1.jibchain.net',
-      apiUrl: 'https://exp-l1.jibchain.net/api',
-    },
+    name: 'Blockscout',
+    url: 'https://exp-l1.jibchain.net',
+    apiUrl: 'https://exp-l1.jibchain.net/api',
   },
   contracts: {
     multicall3: {

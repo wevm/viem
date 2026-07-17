@@ -9,15 +9,11 @@ export const dreyerxTestnet = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['http://testnet-rpc.dreyerx.com'],
-    },
+    http: 'http://testnet-rpc.dreyerx.com',
   },
   blockExplorers: {
-    default: {
-      name: 'DreyerX Testnet Scan',
-      url: 'https://testnet-scan.dreyerx.com',
-    },
+    name: 'DreyerX Testnet Scan',
+    url: 'https://testnet-scan.dreyerx.com',
   },
   testnet: true,
 })

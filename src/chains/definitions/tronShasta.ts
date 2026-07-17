@@ -5,15 +5,11 @@ export const tronShasta = /*#__PURE__*/ Chain.from({
   name: 'Tron Shasta',
   nativeCurrency: { name: 'TRON', symbol: 'TRX', decimals: 6 },
   rpcUrls: {
-    default: {
-      http: ['https://api.shasta.trongrid.io/jsonrpc'],
-    },
+    http: 'https://api.shasta.trongrid.io/jsonrpc',
   },
   blockExplorers: {
-    default: {
-      name: 'Tronscan',
-      url: 'https://shasta.tronscan.org',
-    },
+    name: 'Tronscan',
+    url: 'https://shasta.tronscan.org',
   },
   testnet: true,
 })

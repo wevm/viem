@@ -8,14 +8,10 @@ export const juneoUSD1Chain = /*#__PURE__*/ Chain.from({
     name: 'Juneo USD1-Chain',
     symbol: 'USD1',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.juneo-mainnet.network/ext/bc/USD1/rpc'] },
-  },
+  rpcUrls: { http: 'https://rpc.juneo-mainnet.network/ext/bc/USD1/rpc' },
   blockExplorers: {
-    default: {
-      name: 'Juneo Scan',
-      url: 'https://juneoscan.io/chain/4',
-      apiUrl: 'https://juneoscan.io/chain/4/api',
-    },
+    name: 'Juneo Scan',
+    url: 'https://juneoscan.io/chain/4',
+    apiUrl: 'https://juneoscan.io/chain/4/api',
   },
 })

@@ -8,14 +8,10 @@ export const enuls = /*#__PURE__*/ Chain.from({
     name: 'NULS',
     symbol: 'NULS',
   },
-  rpcUrls: {
-    default: { http: ['https://evmapi2.nuls.io'] },
-  },
+  rpcUrls: { http: 'https://evmapi2.nuls.io' },
   blockExplorers: {
-    default: {
-      name: 'ENULS Explorer',
-      url: 'https://evmscan.nuls.io',
-    },
+    name: 'ENULS Explorer',
+    url: 'https://evmscan.nuls.io',
   },
   testnet: false,
 })

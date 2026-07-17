@@ -8,14 +8,10 @@ export const xdcTestnet = /*#__PURE__*/ Chain.from({
     name: 'TXDC',
     symbol: 'TXDC',
   },
-  rpcUrls: {
-    default: { http: ['https://erpc.apothem.network'] },
-  },
+  rpcUrls: { http: 'https://erpc.apothem.network' },
   blockExplorers: {
-    default: {
-      name: 'XDCScan',
-      url: 'https://testnet.xdcscan.com',
-    },
+    name: 'XDCScan',
+    url: 'https://testnet.xdcscan.com',
   },
   contracts: {
     multicall3: {

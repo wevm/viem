@@ -5,16 +5,12 @@ export const thaiChain = /*#__PURE__*/ Chain.from({
   name: 'ThaiChain',
   nativeCurrency: { name: 'TCH', symbol: 'TCH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.thaichain.org'],
-    },
+    http: 'https://rpc.thaichain.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://exp.thaichain.org',
-      apiUrl: 'https://exp.thaichain.org/api',
-    },
+    name: 'Blockscout',
+    url: 'https://exp.thaichain.org',
+    apiUrl: 'https://exp.thaichain.org/api',
   },
   contracts: {
     multicall3: {

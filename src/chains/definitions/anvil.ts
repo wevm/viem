@@ -9,9 +9,7 @@ export const anvil = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['http://127.0.0.1:8545'],
-      webSocket: ['ws://127.0.0.1:8545'],
-    },
+    http: 'http://127.0.0.1:8545',
+    ws: 'ws://127.0.0.1:8545',
   },
 })

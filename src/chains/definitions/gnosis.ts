@@ -10,17 +10,13 @@ export const gnosis = /*#__PURE__*/ Chain.from({
   },
   blockTime: 5_000,
   rpcUrls: {
-    default: {
-      http: ['https://rpc.gnosischain.com'],
-      webSocket: ['wss://rpc.gnosischain.com/wss'],
-    },
+    http: 'https://rpc.gnosischain.com',
+    ws: 'wss://rpc.gnosischain.com/wss',
   },
   blockExplorers: {
-    default: {
-      name: 'Gnosisscan',
-      url: 'https://gnosisscan.io',
-      apiUrl: 'https://api.gnosisscan.io/api',
-    },
+    name: 'Gnosisscan',
+    url: 'https://gnosisscan.io',
+    apiUrl: 'https://api.gnosisscan.io/api',
   },
   contracts: {
     multicall3: {

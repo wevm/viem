@@ -8,14 +8,10 @@ export const saga = /*#__PURE__*/ Chain.from({
     name: 'gas',
     symbol: 'GAS',
   },
-  rpcUrls: {
-    default: { http: ['https://sagaevm.jsonrpc.sagarpc.io'] },
-  },
+  rpcUrls: { http: 'https://sagaevm.jsonrpc.sagarpc.io' },
   blockExplorers: {
-    default: {
-      name: 'Saga Explorer',
-      url: 'https://sagaevm.sagaexplorer.io',
-    },
+    name: 'Saga Explorer',
+    url: 'https://sagaevm.sagaexplorer.io',
   },
   contracts: {
     multicall3: {

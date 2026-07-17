@@ -9,15 +9,11 @@ export const hashkeyTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'HSK',
   },
   rpcUrls: {
-    default: {
-      http: ['https://testnet.hsk.xyz'],
-    },
+    http: 'https://testnet.hsk.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'HashKey Chain Testnet explorer',
-      url: 'https://testnet-explorer.hsk.xyz',
-    },
+    name: 'HashKey Chain Testnet explorer',
+    url: 'https://testnet-explorer.hsk.xyz',
   },
   testnet: true,
 })

@@ -9,16 +9,12 @@ export const codex = /*#__PURE__*/ Chain.from({
   name: 'Codex',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.codex.xyz'],
-    },
+    http: 'https://rpc.codex.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'Codex Explorer',
-      url: 'https://explorer.codex.xyz',
-      apiUrl: 'https://explorer.codex.xyz/api',
-    },
+    name: 'Codex Explorer',
+    url: 'https://explorer.codex.xyz',
+    apiUrl: 'https://explorer.codex.xyz/api',
   },
   contracts: {
     ...chainConfig.contracts,

@@ -11,17 +11,13 @@ export const apeChain = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.apechain.com/http'],
-      webSocket: ['wss://rpc.apechain.com/ws'],
-    },
+    http: 'https://rpc.apechain.com/http',
+    ws: 'wss://rpc.apechain.com/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Apescan',
-      url: 'https://apescan.io',
-      apiUrl: 'https://api.apescan.io/api',
-    },
+    name: 'Apescan',
+    url: 'https://apescan.io',
+    apiUrl: 'https://api.apescan.io/api',
   },
   contracts: {
     multicall3: {

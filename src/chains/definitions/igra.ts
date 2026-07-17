@@ -9,15 +9,11 @@ export const igra = /*#__PURE__*/ Chain.from({
     symbol: 'iKAS',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.igralabs.com:8545'],
-    },
+    http: 'https://rpc.igralabs.com:8545',
   },
   blockExplorers: {
-    default: {
-      name: 'Igra Explorer',
-      url: 'https://explorer.igralabs.com',
-    },
+    name: 'Igra Explorer',
+    url: 'https://explorer.igralabs.com',
   },
   testnet: false,
 })

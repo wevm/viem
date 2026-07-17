@@ -5,15 +5,11 @@ export const silentData = /*#__PURE__*/ Chain.from({
   name: 'Silent Data Mainnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.silentdata.com'],
-    },
+    http: 'https://mainnet.silentdata.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Silent Data Mainnet Explorer',
-      url: 'https://explorer-mainnet.rollup.silentdata.com',
-    },
+    name: 'Silent Data Mainnet Explorer',
+    url: 'https://explorer-mainnet.rollup.silentdata.com',
   },
   testnet: false,
 })

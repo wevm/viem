@@ -10,15 +10,11 @@ export const whitechainSepolia = /*#__PURE__*/ Chain.from({
     symbol: 'WBT',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.whitechain.io'],
-    },
+    http: 'https://rpc.testnet.whitechain.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Whitechain Testnet Explorer',
-      url: 'https://explorer.testnet.whitechain.io',
-    },
+    name: 'Whitechain Testnet Explorer',
+    url: 'https://explorer.testnet.whitechain.io',
   },
   contracts: {
     multicall3: {

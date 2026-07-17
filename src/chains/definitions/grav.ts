@@ -5,16 +5,12 @@ export const grav = /*#__PURE__*/ Chain.from({
   name: 'Gravity',
   nativeCurrency: { name: 'Gravity', symbol: 'G', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet-rpc.gravity.xyz'],
-    },
+    http: 'https://mainnet-rpc.gravity.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'Gravity Mainnet Explorer',
-      url: 'https://mainnet-explorer.gravity.xyz',
-      apiUrl: 'https://mainnet-explorer.gravity.xyz/api',
-    },
+    name: 'Gravity Mainnet Explorer',
+    url: 'https://mainnet-explorer.gravity.xyz',
+    apiUrl: 'https://mainnet-explorer.gravity.xyz/api',
   },
   contracts: {},
   testnet: false,

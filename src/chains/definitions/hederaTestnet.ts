@@ -9,15 +9,11 @@ export const hederaTestnet = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://testnet.hashio.io/api'],
-    },
+    http: 'https://testnet.hashio.io/api',
   },
   blockExplorers: {
-    default: {
-      name: 'Hashscan',
-      url: 'https://hashscan.io/testnet',
-    },
+    name: 'Hashscan',
+    url: 'https://hashscan.io/testnet',
   },
   testnet: true,
 })

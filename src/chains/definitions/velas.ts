@@ -5,15 +5,11 @@ export const velas = /*#__PURE__*/ Chain.from({
   name: 'Velas EVM Mainnet',
   nativeCurrency: { name: 'VLX', symbol: 'VLX', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://evmexplorer.velas.com/rpc'],
-    },
+    http: 'https://evmexplorer.velas.com/rpc',
   },
   blockExplorers: {
-    default: {
-      name: 'Velas Explorer',
-      url: 'https://evmexplorer.velas.com',
-    },
+    name: 'Velas Explorer',
+    url: 'https://evmexplorer.velas.com',
   },
   contracts: {
     multicall3: {

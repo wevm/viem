@@ -8,14 +8,10 @@ export const bscGreenfield = /*#__PURE__*/ Chain.from({
     name: 'BNB',
     symbol: 'BNB',
   },
-  rpcUrls: {
-    default: { http: ['https://greenfield-chain.bnbchain.org'] },
-  },
+  rpcUrls: { http: 'https://greenfield-chain.bnbchain.org' },
   blockExplorers: {
-    default: {
-      name: 'BNB Greenfield Mainnet Scan',
-      url: 'https://greenfieldscan.com',
-    },
+    name: 'BNB Greenfield Mainnet Scan',
+    url: 'https://greenfieldscan.com',
   },
   testnet: false,
 })

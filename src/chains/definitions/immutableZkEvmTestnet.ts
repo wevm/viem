@@ -9,15 +9,11 @@ export const immutableZkEvmTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'IMX',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.immutable.com'],
-    },
+    http: 'https://rpc.testnet.immutable.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Immutable Testnet Explorer',
-      url: 'https://explorer.testnet.immutable.com/',
-    },
+    name: 'Immutable Testnet Explorer',
+    url: 'https://explorer.testnet.immutable.com/',
   },
   contracts: {
     multicall3: {

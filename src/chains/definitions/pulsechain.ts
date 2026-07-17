@@ -7,17 +7,13 @@ export const pulsechain = /*#__PURE__*/ Chain.from({
   testnet: false,
   blockTime: 10_000,
   rpcUrls: {
-    default: {
-      http: ['https://rpc.pulsechain.com'],
-      webSocket: ['wss://ws.pulsechain.com'],
-    },
+    http: 'https://rpc.pulsechain.com',
+    ws: 'wss://ws.pulsechain.com',
   },
   blockExplorers: {
-    default: {
-      name: 'PulseScan',
-      url: 'https://ipfs.scan.pulsechain.com',
-      apiUrl: 'https://api.scan.pulsechain.com/api',
-    },
+    name: 'PulseScan',
+    url: 'https://ipfs.scan.pulsechain.com',
+    apiUrl: 'https://api.scan.pulsechain.com/api',
   },
   contracts: {
     ensRegistry: {

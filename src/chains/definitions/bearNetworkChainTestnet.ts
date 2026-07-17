@@ -8,15 +8,11 @@ export const bearNetworkChainTestnet = /*#__PURE__*/ Chain.from({
     name: 'tBRNKC',
     symbol: 'tBRNKC',
   },
-  rpcUrls: {
-    default: { http: ['https://brnkc-test.bearnetwork.net'] },
-  },
+  rpcUrls: { http: 'https://brnkc-test.bearnetwork.net' },
   blockExplorers: {
-    default: {
-      name: 'BrnkTestScan',
-      url: 'https://brnktest-scan.bearnetwork.net',
-      apiUrl: 'https://brnktest-scan.bearnetwork.net/api',
-    },
+    name: 'BrnkTestScan',
+    url: 'https://brnktest-scan.bearnetwork.net',
+    apiUrl: 'https://brnktest-scan.bearnetwork.net/api',
   },
   testnet: true,
 })

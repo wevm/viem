@@ -9,16 +9,12 @@ export const edgelessTestnet = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://edgeless-testnet.rpc.caldera.xyz/http'],
-      webSocket: ['wss://edgeless-testnet.rpc.caldera.xyz/ws'],
-    },
+    http: 'https://edgeless-testnet.rpc.caldera.xyz/http',
+    ws: 'wss://edgeless-testnet.rpc.caldera.xyz/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Edgeless Testnet Explorer',
-      url: 'https://testnet.explorer.edgeless.network',
-    },
+    name: 'Edgeless Testnet Explorer',
+    url: 'https://testnet.explorer.edgeless.network',
   },
   testnet: true,
 })

@@ -9,15 +9,11 @@ export const jovay = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.jovay.io'],
-    },
+    http: 'https://rpc.jovay.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Jovay Explorer',
-      url: 'https://explorer.jovay.io/l2',
-    },
+    name: 'Jovay Explorer',
+    url: 'https://explorer.jovay.io/l2',
   },
   testnet: false,
 })

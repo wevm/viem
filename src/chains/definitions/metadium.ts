@@ -8,14 +8,10 @@ export const metadium = /*#__PURE__*/ Chain.from({
     name: 'META',
     symbol: 'META',
   },
-  rpcUrls: {
-    default: { http: ['https://api.metadium.com/prod'] },
-  },
+  rpcUrls: { http: 'https://api.metadium.com/prod' },
   blockExplorers: {
-    default: {
-      name: 'Metadium Explorer',
-      url: 'https://explorer.metadium.com',
-    },
+    name: 'Metadium Explorer',
+    url: 'https://explorer.metadium.com',
   },
   testnet: false,
 })

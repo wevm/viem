@@ -9,18 +9,14 @@ export const guruNetwork = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: [
-        'https://rpc-main.gurunetwork.ai',
-        'https://rpc.gurunetwork.ai/archive/260',
-      ],
-    },
+    http: [
+      'https://rpc-main.gurunetwork.ai',
+      'https://rpc.gurunetwork.ai/archive/260',
+    ],
   },
   blockExplorers: {
-    default: {
-      name: 'Guruscan',
-      url: 'https://scan.gurunetwork.ai',
-    },
+    name: 'Guruscan',
+    url: 'https://scan.gurunetwork.ai',
   },
   contracts: {
     multicall3: {

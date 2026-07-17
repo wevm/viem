@@ -9,14 +9,10 @@ export const xgr = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.xgr.network'],
-    },
+    http: 'https://rpc.xgr.network',
   },
   blockExplorers: {
-    default: {
-      name: 'XGR Explorer',
-      url: 'https://explorer.xgr.network',
-    },
+    name: 'XGR Explorer',
+    url: 'https://explorer.xgr.network',
   },
 })

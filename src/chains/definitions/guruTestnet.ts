@@ -9,18 +9,14 @@ export const guruTestnet = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: [
-        'https://rpc-test.gurunetwork.ai',
-        'https://rpc.gurunetwork.ai/archive/261',
-      ],
-    },
+    http: [
+      'https://rpc-test.gurunetwork.ai',
+      'https://rpc.gurunetwork.ai/archive/261',
+    ],
   },
   blockExplorers: {
-    default: {
-      name: 'Guruscan',
-      url: 'https://sepolia.gurunetwork.ai',
-    },
+    name: 'Guruscan',
+    url: 'https://sepolia.gurunetwork.ai',
   },
   testnet: true,
 })

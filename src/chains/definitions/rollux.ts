@@ -9,17 +9,13 @@ export const rollux = /*#__PURE__*/ Chain.from({
     symbol: 'SYS',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.rollux.com'],
-      webSocket: ['wss://rpc.rollux.com/wss'],
-    },
+    http: 'https://rpc.rollux.com',
+    ws: 'wss://rpc.rollux.com/wss',
   },
   blockExplorers: {
-    default: {
-      name: 'RolluxExplorer',
-      url: 'https://explorer.rollux.com',
-      apiUrl: 'https://explorer.rollux.com/api',
-    },
+    name: 'RolluxExplorer',
+    url: 'https://explorer.rollux.com',
+    apiUrl: 'https://explorer.rollux.com/api',
   },
   contracts: {
     multicall3: {

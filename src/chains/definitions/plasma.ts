@@ -10,15 +10,11 @@ export const plasma = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.plasma.to'],
-    },
+    http: 'https://rpc.plasma.to',
   },
   blockExplorers: {
-    default: {
-      name: 'PlasmaScan',
-      url: 'https://plasmascan.to',
-    },
+    name: 'PlasmaScan',
+    url: 'https://plasmascan.to',
   },
   contracts: {
     multicall3: {

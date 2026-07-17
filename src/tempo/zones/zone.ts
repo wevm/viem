@@ -73,12 +73,8 @@ export function from(options: from.Options) {
         decimals: 6,
       },
       rpcUrls: {
-        default: {
-          http: [
-            override?.rpcUrl ??
-              `https://rpc-zone-${paddedId}.${options.rpcHost}`,
-          ],
-        },
+        http:
+          override?.rpcUrl ?? `https://rpc-zone-${paddedId}.${options.rpcHost}`,
       },
       sourceId: options.sourceId,
       supportsTransactionReplacementDetection: false,

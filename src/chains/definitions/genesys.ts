@@ -8,14 +8,10 @@ export const genesys = /*#__PURE__*/ Chain.from({
     name: 'GSYS',
     symbol: 'GSYS',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.genesys.network'] },
-  },
+  rpcUrls: { http: 'https://rpc.genesys.network' },
   blockExplorers: {
-    default: {
-      name: 'Genesys Explorer',
-      url: 'https://gchainexplorer.genesys.network',
-    },
+    name: 'Genesys Explorer',
+    url: 'https://gchainexplorer.genesys.network',
   },
   testnet: false,
 })

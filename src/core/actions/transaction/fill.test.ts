@@ -13,7 +13,7 @@ const client = anvil.getClient(anvil.mainnet)
 const account = accounts[0].address
 
 const chain = mainnet.extend({
-  rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+  rpcUrls: { http: anvil.mainnet.rpcUrl.http },
 })
 
 const { address } = await contract.deploy(client, {
@@ -321,7 +321,7 @@ test('error: unrecognized node error wraps the original on cause', async () => {
 
 test('behavior: encodes/decodes via chain codecs when declared', async () => {
   const codecsChain = mainnet.extend({
-    rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+    rpcUrls: { http: anvil.mainnet.rpcUrl.http },
     codecs: {
       transaction: {
         fromRpc: (rpc: Transaction.Rpc<true>) =>

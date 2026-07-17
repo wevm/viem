@@ -8,13 +8,9 @@ export const etp = /*#__PURE__*/ Chain.from({
     name: 'ETP Chain Native Token',
     symbol: 'ETP',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.etpscan.xyz'] },
-  },
+  rpcUrls: { http: 'https://rpc.etpscan.xyz' },
   blockExplorers: {
-    default: {
-      name: 'ETP Scan',
-      url: 'https://etpscan.xyz',
-    },
+    name: 'ETP Scan',
+    url: 'https://etpscan.xyz',
   },
 })

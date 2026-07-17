@@ -8,7 +8,5 @@ export const cannon = /*#__PURE__*/ Chain.from({
     name: 'Ether',
     symbol: 'ETH',
   },
-  rpcUrls: {
-    default: { http: ['http://127.0.0.1:8545'] },
-  },
+  rpcUrls: { http: 'http://127.0.0.1:8545' },
 })

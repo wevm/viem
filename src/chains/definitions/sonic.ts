@@ -9,14 +9,10 @@ export const sonic = /*#__PURE__*/ Chain.from({
     name: 'Sonic',
     symbol: 'S',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.soniclabs.com'] },
-  },
+  rpcUrls: { http: 'https://rpc.soniclabs.com' },
   blockExplorers: {
-    default: {
-      name: 'Sonic Explorer',
-      url: 'https://sonicscan.org',
-    },
+    name: 'Sonic Explorer',
+    url: 'https://sonicscan.org',
   },
   contracts: {
     multicall3: {

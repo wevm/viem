@@ -8,14 +8,10 @@ export const telosTestnet = /*#__PURE__*/ Chain.from({
     name: 'Telos',
     symbol: 'TLOS',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.testnet.telos.net'] },
-  },
+  rpcUrls: { http: 'https://rpc.testnet.telos.net' },
   blockExplorers: {
-    default: {
-      name: 'Teloscan (testnet)',
-      url: 'https://testnet.teloscan.io/',
-    },
+    name: 'Teloscan (testnet)',
+    url: 'https://testnet.teloscan.io/',
   },
   testnet: true,
 })

@@ -9,14 +9,10 @@ export const stratis = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.stratisevm.com'],
-    },
+    http: 'https://rpc.stratisevm.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Stratis Explorer',
-      url: 'https://explorer.stratisevm.com',
-    },
+    name: 'Stratis Explorer',
+    url: 'https://explorer.stratisevm.com',
   },
 })

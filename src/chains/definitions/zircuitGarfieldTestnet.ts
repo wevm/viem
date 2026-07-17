@@ -9,15 +9,11 @@ export const zircuitGarfieldTestnet = /*#__PURE__*/ Chain.from({
   name: 'Zircuit Garfield Testnet',
   nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://garfield-testnet.zircuit.com/'],
-    },
+    http: 'https://garfield-testnet.zircuit.com/',
   },
   blockExplorers: {
-    default: {
-      name: 'Zircuit Garfield Testnet Explorer',
-      url: 'https://explorer.garfield-testnet.zircuit.com',
-    },
+    name: 'Zircuit Garfield Testnet Explorer',
+    url: 'https://explorer.garfield-testnet.zircuit.com',
   },
   contracts: {
     ...chainConfig.contracts,

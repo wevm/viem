@@ -9,15 +9,11 @@ export const bsquaredTestnet = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://testnet-rpc.bsquared.network'],
-    },
+    http: 'https://testnet-rpc.bsquared.network',
   },
   blockExplorers: {
-    default: {
-      name: 'blockscout',
-      url: 'https://testnet-explorer.bsquared.network',
-    },
+    name: 'blockscout',
+    url: 'https://testnet-explorer.bsquared.network',
   },
   testnet: true,
 })

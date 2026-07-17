@@ -9,15 +9,11 @@ export const sixProtocol = /*#__PURE__*/ Chain.from({
     symbol: 'SIX',
   },
   rpcUrls: {
-    default: {
-      http: ['https://sixnet-rpc-evm.sixprotocol.net'],
-    },
+    http: 'https://sixnet-rpc-evm.sixprotocol.net',
   },
   blockExplorers: {
-    default: {
-      name: 'Six Protocol Scan',
-      url: 'https://sixscan.io/sixnet',
-    },
+    name: 'Six Protocol Scan',
+    url: 'https://sixscan.io/sixnet',
   },
   testnet: false,
 })

@@ -5,16 +5,12 @@ export const scrollSepolia = /*#__PURE__*/ Chain.from({
   name: 'Scroll Sepolia',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://sepolia-rpc.scroll.io'],
-    },
+    http: 'https://sepolia-rpc.scroll.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Scrollscan',
-      url: 'https://sepolia.scrollscan.com',
-      apiUrl: 'https://api-sepolia.scrollscan.com/api',
-    },
+    name: 'Scrollscan',
+    url: 'https://sepolia.scrollscan.com',
+    apiUrl: 'https://api-sepolia.scrollscan.com/api',
   },
   contracts: {
     multicall3: {

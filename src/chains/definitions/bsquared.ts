@@ -9,14 +9,10 @@ export const bsquared = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.bsquared.network'],
-    },
+    http: 'https://rpc.bsquared.network',
   },
   blockExplorers: {
-    default: {
-      name: 'blockscout',
-      url: 'https://explorer.bsquared.network',
-    },
+    name: 'blockscout',
+    url: 'https://explorer.bsquared.network',
   },
 })

@@ -9,16 +9,12 @@ export const rootPorcini = /*#__PURE__*/ Chain.from({
     symbol: 'XRP',
   },
   rpcUrls: {
-    default: {
-      http: ['https://porcini.rootnet.app/archive'],
-      webSocket: ['wss://porcini.rootnet.app/archive/ws'],
-    },
+    http: 'https://porcini.rootnet.app/archive',
+    ws: 'wss://porcini.rootnet.app/archive/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Rootscan',
-      url: 'https://porcini.rootscan.io',
-    },
+    name: 'Rootscan',
+    url: 'https://porcini.rootscan.io',
   },
   contracts: {
     multicall3: {

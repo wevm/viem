@@ -5,15 +5,11 @@ export const thetaTestnet = /*#__PURE__*/ Chain.from({
   name: 'Theta Testnet',
   nativeCurrency: { name: 'TFUEL', symbol: 'TFUEL', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://eth-rpc-api-testnet.thetatoken.org/rpc'],
-    },
+    http: 'https://eth-rpc-api-testnet.thetatoken.org/rpc',
   },
   blockExplorers: {
-    default: {
-      name: 'Theta Explorer',
-      url: 'https://testnet-explorer.thetatoken.org',
-    },
+    name: 'Theta Explorer',
+    url: 'https://testnet-explorer.thetatoken.org',
   },
   testnet: true,
 })

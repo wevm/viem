@@ -9,16 +9,12 @@ export const rss3 = /*#__PURE__*/ Chain.from({
   name: 'RSS3 VSL Mainnet',
   nativeCurrency: { name: 'RSS3', symbol: 'RSS3', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.rss3.io'],
-    },
+    http: 'https://rpc.rss3.io',
   },
   blockExplorers: {
-    default: {
-      name: 'RSS3 VSL Mainnet Scan',
-      url: 'https://scan.rss3.io',
-      apiUrl: 'https://scan.rss3.io/api',
-    },
+    name: 'RSS3 VSL Mainnet Scan',
+    url: 'https://scan.rss3.io',
+    apiUrl: 'https://scan.rss3.io/api',
   },
   contracts: {
     ...chainConfig.contracts,

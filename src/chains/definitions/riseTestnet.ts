@@ -5,17 +5,13 @@ export const riseTestnet = /*#__PURE__*/ Chain.from({
   name: 'RISE Testnet',
   nativeCurrency: { name: 'RISE Testnet Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://testnet.riselabs.xyz'],
-      webSocket: ['wss://testnet.riselabs.xyz/ws'],
-    },
+    http: 'https://testnet.riselabs.xyz',
+    ws: 'wss://testnet.riselabs.xyz/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://explorer.testnet.riselabs.xyz/',
-      apiUrl: 'https://explorer.testnet.riselabs.xyz/api',
-    },
+    name: 'Blockscout',
+    url: 'https://explorer.testnet.riselabs.xyz/',
+    apiUrl: 'https://explorer.testnet.riselabs.xyz/api',
   },
   contracts: {
     multicall3: {

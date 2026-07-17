@@ -9,16 +9,12 @@ export const humanity = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://humanity-mainnet.g.alchemy.com/public'],
-    },
+    http: 'https://humanity-mainnet.g.alchemy.com/public',
   },
   blockExplorers: {
-    default: {
-      name: 'Humanity Mainnet Explorer',
-      url: 'https://humanity-mainnet.explorer.alchemy.com',
-      apiUrl: 'https://humanity-mainnet.explorer.alchemy.com/api',
-    },
+    name: 'Humanity Mainnet Explorer',
+    url: 'https://humanity-mainnet.explorer.alchemy.com',
+    apiUrl: 'https://humanity-mainnet.explorer.alchemy.com/api',
   },
   testnet: false,
 })

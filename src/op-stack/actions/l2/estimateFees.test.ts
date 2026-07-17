@@ -20,7 +20,7 @@ const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 beforeAll(async () => {
   await CoreActions.state.reset(client, {
     blockNumber: anvil.optimism.forkBlockNumber,
-    jsonRpcUrl: optimism.rpcUrls.default.http[0],
+    jsonRpcUrl: optimism.rpcUrls.http,
   })
 }, 30_000)
 

@@ -11,16 +11,12 @@ export const blastSepolia = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://sepolia.blast.io'],
-    },
+    http: 'https://sepolia.blast.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Blastscan',
-      url: 'https://sepolia.blastscan.io',
-      apiUrl: 'https://api-sepolia.blastscan.io/api',
-    },
+    name: 'Blastscan',
+    url: 'https://sepolia.blastscan.io',
+    apiUrl: 'https://api-sepolia.blastscan.io/api',
   },
   contracts: {
     multicall3: {

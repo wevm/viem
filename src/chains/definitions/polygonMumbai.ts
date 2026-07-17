@@ -5,16 +5,12 @@ export const polygonMumbai = /*#__PURE__*/ Chain.from({
   name: 'Polygon Mumbai',
   nativeCurrency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://80001.rpc.thirdweb.com'],
-    },
+    http: 'https://80001.rpc.thirdweb.com',
   },
   blockExplorers: {
-    default: {
-      name: 'PolygonScan',
-      url: 'https://mumbai.polygonscan.com',
-      apiUrl: 'https://api-testnet.polygonscan.com/api',
-    },
+    name: 'PolygonScan',
+    url: 'https://mumbai.polygonscan.com',
+    apiUrl: 'https://api-testnet.polygonscan.com/api',
   },
   contracts: {
     multicall3: {

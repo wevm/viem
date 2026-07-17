@@ -9,16 +9,12 @@ export const fraxtal = /*#__PURE__*/ Chain.from({
   name: 'Fraxtal',
   nativeCurrency: { name: 'Frax', symbol: 'FRAX', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.frax.com'],
-    },
+    http: 'https://rpc.frax.com',
   },
   blockExplorers: {
-    default: {
-      name: 'fraxscan',
-      url: 'https://fraxscan.com',
-      apiUrl: 'https://api.fraxscan.com/api',
-    },
+    name: 'fraxscan',
+    url: 'https://fraxscan.com',
+    apiUrl: 'https://api.fraxscan.com/api',
   },
   contracts: {
     ...chainConfig.contracts,

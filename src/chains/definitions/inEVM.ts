@@ -8,15 +8,11 @@ export const inEVM = /*#__PURE__*/ Chain.from({
     name: 'Injective',
     symbol: 'INJ',
   },
-  rpcUrls: {
-    default: { http: ['https://mainnet.rpc.inevm.com/http'] },
-  },
+  rpcUrls: { http: 'https://mainnet.rpc.inevm.com/http' },
   blockExplorers: {
-    default: {
-      name: 'inEVM Explorer',
-      url: 'https://inevm.calderaexplorer.xyz',
-      apiUrl: 'https://inevm.calderaexplorer.xyz/api/v2',
-    },
+    name: 'inEVM Explorer',
+    url: 'https://inevm.calderaexplorer.xyz',
+    apiUrl: 'https://inevm.calderaexplorer.xyz/api/v2',
   },
   contracts: {
     multicall3: {

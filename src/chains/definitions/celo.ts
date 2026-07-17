@@ -8,15 +8,11 @@ export const celo = /*#__PURE__*/ Chain.from({
     name: 'CELO',
     symbol: 'CELO',
   },
-  rpcUrls: {
-    default: { http: ['https://forno.celo.org'] },
-  },
+  rpcUrls: { http: 'https://forno.celo.org' },
   blockExplorers: {
-    default: {
-      name: 'Celo Explorer',
-      url: 'https://celoscan.io',
-      apiUrl: 'https://api.celoscan.io/api',
-    },
+    name: 'Celo Explorer',
+    url: 'https://celoscan.io',
+    apiUrl: 'https://api.celoscan.io/api',
   },
   contracts: {
     multicall3: {

@@ -8,15 +8,11 @@ export const dosChainTestnet = /*#__PURE__*/ Chain.from({
     name: 'DOS Chain Testnet',
     symbol: 'DOS',
   },
-  rpcUrls: {
-    default: { http: ['https://test.doschain.com'] },
-  },
+  rpcUrls: { http: 'https://test.doschain.com' },
   blockExplorers: {
-    default: {
-      name: 'DOS Chain Testnet Explorer',
-      url: 'https://test.doscan.io',
-      apiUrl: 'https://api-test.doscan.io',
-    },
+    name: 'DOS Chain Testnet Explorer',
+    url: 'https://test.doscan.io',
+    apiUrl: 'https://api-test.doscan.io',
   },
   contracts: {
     multicall3: {

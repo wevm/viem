@@ -11,11 +11,11 @@ const mainnet = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
 })
 
 const custom = mainnet.extend({
-  rpcUrls: { default: { http: ['https://my-rpc.example'] } },
+  rpcUrls: { http: 'https://my-rpc.example' },
 })
 ```
 
@@ -38,11 +38,11 @@ const mainnet = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
 })
 
 const custom = mainnet.extend({
-  rpcUrls: { default: { http: ['https://my-rpc.example'] } },
+  rpcUrls: { http: 'https://my-rpc.example' },
 })
 ```
 

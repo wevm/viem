@@ -8,14 +8,10 @@ export const donatuz = /*#__PURE__*/ Chain.from({
     name: 'Ether',
     symbol: 'ETH',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.donatuz.com'] },
-  },
+  rpcUrls: { http: 'https://rpc.donatuz.com' },
   blockExplorers: {
-    default: {
-      name: 'Donatuz Explorer',
-      url: 'https://explorer.donatuz.com',
-    },
+    name: 'Donatuz Explorer',
+    url: 'https://explorer.donatuz.com',
   },
   contracts: {
     multicall3: {

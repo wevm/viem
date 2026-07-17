@@ -5,17 +5,13 @@ export const lineaSepolia = /*#__PURE__*/ Chain.from({
   name: 'Linea Sepolia Testnet',
   nativeCurrency: { name: 'Linea Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.sepolia.linea.build'],
-      webSocket: ['wss://rpc.sepolia.linea.build'],
-    },
+    http: 'https://rpc.sepolia.linea.build',
+    ws: 'wss://rpc.sepolia.linea.build',
   },
   blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://sepolia.lineascan.build',
-      apiUrl: 'https://api-sepolia.lineascan.build/api',
-    },
+    name: 'Etherscan',
+    url: 'https://sepolia.lineascan.build',
+    apiUrl: 'https://api-sepolia.lineascan.build/api',
   },
   contracts: {
     multicall3: {

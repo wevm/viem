@@ -9,16 +9,12 @@ export const soneiumMinato = /*#__PURE__*/ Chain.from({
   name: 'Soneium Minato Testnet',
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.minato.soneium.org'],
-    },
+    http: 'https://rpc.minato.soneium.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://soneium-minato.blockscout.com',
-      apiUrl: 'https://soneium-minato.blockscout.com/api',
-    },
+    name: 'Blockscout',
+    url: 'https://soneium-minato.blockscout.com',
+    apiUrl: 'https://soneium-minato.blockscout.com/api',
   },
   contracts: {
     ...chainConfig.contracts,

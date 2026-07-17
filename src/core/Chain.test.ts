@@ -12,7 +12,7 @@ describe('from', () => {
         id: 1,
         name: 'Ethereum',
         nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-        rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+        rpcUrls: { http: 'https://eth.merkle.io' },
       }),
     ).toMatchInlineSnapshot(`
       {
@@ -25,11 +25,7 @@ describe('from', () => {
           "symbol": "ETH",
         },
         "rpcUrls": {
-          "default": {
-            "http": [
-              "https://eth.merkle.io",
-            ],
-          },
+          "http": "https://eth.merkle.io",
         },
       }
     `)
@@ -40,7 +36,7 @@ describe('from', () => {
       id: 1,
       name: 'Test',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: ['https://localhost:8545'] } },
+      rpcUrls: { http: 'https://localhost:8545' },
     })
 
     const extended = chain.extend({ name: 'Test 2', testnet: true })
@@ -55,7 +51,7 @@ describe('from', () => {
       id: 1,
       name: 'Test',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: ['https://localhost:8545'] } },
+      rpcUrls: { http: 'https://localhost:8545' },
     })
       .extend({ testnet: true })
       .extend({ sourceId: 10 })

@@ -9,16 +9,12 @@ export const forma = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.forma.art'],
-      webSocket: ['wss://ws.forma.art'],
-    },
+    http: 'https://rpc.forma.art',
+    ws: 'wss://ws.forma.art',
   },
   blockExplorers: {
-    default: {
-      name: 'Forma Explorer',
-      url: 'https://explorer.forma.art',
-    },
+    name: 'Forma Explorer',
+    url: 'https://explorer.forma.art',
   },
   contracts: {
     multicall3: {

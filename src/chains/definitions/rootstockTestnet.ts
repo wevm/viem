@@ -8,14 +8,10 @@ export const rootstockTestnet = /*#__PURE__*/ Chain.from({
     name: 'Rootstock Bitcoin',
     symbol: 'tRBTC',
   },
-  rpcUrls: {
-    default: { http: ['https://public-node.testnet.rsk.co'] },
-  },
+  rpcUrls: { http: 'https://public-node.testnet.rsk.co' },
   blockExplorers: {
-    default: {
-      name: 'RSK Explorer',
-      url: 'https://explorer.testnet.rootstock.io',
-    },
+    name: 'RSK Explorer',
+    url: 'https://explorer.testnet.rootstock.io',
   },
   contracts: {
     multicall3: {

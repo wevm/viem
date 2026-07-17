@@ -9,17 +9,13 @@ export const moonriver = /*#__PURE__*/ Chain.from({
     symbol: 'MOVR',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.api.moonriver.moonbeam.network'],
-      webSocket: ['wss://wss.api.moonriver.moonbeam.network'],
-    },
+    http: 'https://rpc.api.moonriver.moonbeam.network',
+    ws: 'wss://wss.api.moonriver.moonbeam.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Moonscan',
-      url: 'https://moonriver.moonscan.io',
-      apiUrl: 'https://api-moonriver.moonscan.io/api',
-    },
+    name: 'Moonscan',
+    url: 'https://moonriver.moonscan.io',
+    apiUrl: 'https://api-moonriver.moonscan.io/api',
   },
   contracts: {
     multicall3: {

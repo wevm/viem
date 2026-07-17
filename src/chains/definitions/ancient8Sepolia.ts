@@ -9,16 +9,12 @@ export const ancient8Sepolia = /*#__PURE__*/ Chain.from({
   name: 'Ancient8 Testnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpcv2-testnet.ancient8.gg'],
-    },
+    http: 'https://rpcv2-testnet.ancient8.gg',
   },
   blockExplorers: {
-    default: {
-      name: 'Ancient8 Celestia Testnet explorer',
-      url: 'https://scanv2-testnet.ancient8.gg',
-      apiUrl: 'https://scanv2-testnet.ancient8.gg/api',
-    },
+    name: 'Ancient8 Celestia Testnet explorer',
+    url: 'https://scanv2-testnet.ancient8.gg',
+    apiUrl: 'https://scanv2-testnet.ancient8.gg/api',
   },
   contracts: {
     ...chainConfig.contracts,

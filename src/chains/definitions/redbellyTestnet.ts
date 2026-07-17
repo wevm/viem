@@ -9,17 +9,13 @@ export const redbellyTestnet = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://governors.testnet.redbelly.network'],
-    },
+    http: 'https://governors.testnet.redbelly.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Routescan',
-      url: 'https://redbelly.testnet.routescan.io',
-      apiUrl:
-        'https://api.routescan.io/v2/network/testnet/evm/153_2/etherscan/api',
-    },
+    name: 'Routescan',
+    url: 'https://redbelly.testnet.routescan.io',
+    apiUrl:
+      'https://api.routescan.io/v2/network/testnet/evm/153_2/etherscan/api',
   },
   testnet: true,
 })

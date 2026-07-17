@@ -8,14 +8,10 @@ export const rootstock = /*#__PURE__*/ Chain.from({
     name: 'Rootstock Bitcoin',
     symbol: 'RBTC',
   },
-  rpcUrls: {
-    default: { http: ['https://public-node.rsk.co'] },
-  },
+  rpcUrls: { http: 'https://public-node.rsk.co' },
   blockExplorers: {
-    default: {
-      name: 'RSK Explorer',
-      url: 'https://explorer.rsk.co',
-    },
+    name: 'RSK Explorer',
+    url: 'https://explorer.rsk.co',
   },
   contracts: {
     multicall3: {

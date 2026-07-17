@@ -5,15 +5,11 @@ export const xai = /*#__PURE__*/ Chain.from({
   name: 'Xai Mainnet',
   nativeCurrency: { name: 'Xai', symbol: 'XAI', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://xai-chain.net/rpc'],
-    },
+    http: 'https://xai-chain.net/rpc',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://explorer.xai-chain.net',
-    },
+    name: 'Blockscout',
+    url: 'https://explorer.xai-chain.net',
   },
   contracts: {
     multicall3: {

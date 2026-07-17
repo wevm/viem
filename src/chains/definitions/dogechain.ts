@@ -8,15 +8,11 @@ export const dogechain = /*#__PURE__*/ Chain.from({
     name: 'Wrapped Dogecoin',
     symbol: 'WDOGE',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.dogechain.dog'] },
-  },
+  rpcUrls: { http: 'https://rpc.dogechain.dog' },
   blockExplorers: {
-    default: {
-      name: 'DogeChainExplorer',
-      url: 'https://explorer.dogechain.dog',
-      apiUrl: 'https://explorer.dogechain.dog/api',
-    },
+    name: 'DogeChainExplorer',
+    url: 'https://explorer.dogechain.dog',
+    apiUrl: 'https://explorer.dogechain.dog/api',
   },
   contracts: {
     multicall3: {

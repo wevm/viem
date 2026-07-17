@@ -9,16 +9,12 @@ export const rei = /*#__PURE__*/ Chain.from({
     symbol: 'REI',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.rei.network'],
-      webSocket: ['wss://rpc.rei.network'],
-    },
+    http: 'https://rpc.rei.network',
+    ws: 'wss://rpc.rei.network',
   },
   blockExplorers: {
-    default: {
-      name: 'REI Scan',
-      url: 'https://scan.rei.network',
-    },
+    name: 'REI Scan',
+    url: 'https://scan.rei.network',
   },
   testnet: false,
 })

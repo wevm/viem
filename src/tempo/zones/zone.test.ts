@@ -49,9 +49,7 @@ describe('from', () => {
     expect(zoneModerato(6)).toMatchObject({
       id: ZoneId.toChainId(6),
       name: 'Zone A',
-      rpcUrls: {
-        default: { http: ['https://rpc-zone-a.testnet.tempo.xyz'] },
-      },
+      rpcUrls: { http: 'https://rpc-zone-a.testnet.tempo.xyz' },
       sourceId: tempoModerato.id,
       supportsTransactionReplacementDetection: false,
     })
@@ -61,9 +59,7 @@ describe('from', () => {
     expect(zone(8)).toMatchObject({
       id: ZoneId.toChainId(8),
       name: 'Tempo Zone 008',
-      rpcUrls: {
-        default: { http: ['https://rpc-zone-008.tempo.xyz'] },
-      },
+      rpcUrls: { http: 'https://rpc-zone-008.tempo.xyz' },
       sourceId: tempo.id,
       supportsTransactionReplacementDetection: false,
     })
@@ -73,9 +69,7 @@ describe('from', () => {
     expect(from({ rpcHost: 'example.com', sourceId: 1 })(123)).toMatchObject({
       id: ZoneId.toChainId(123),
       name: 'Tempo Zone 123',
-      rpcUrls: {
-        default: { http: ['https://rpc-zone-123.example.com'] },
-      },
+      rpcUrls: { http: 'https://rpc-zone-123.example.com' },
       sourceId: 1,
       supportsTransactionReplacementDetection: false,
     })

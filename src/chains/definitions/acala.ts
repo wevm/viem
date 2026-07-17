@@ -9,17 +9,13 @@ export const acala = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://eth-rpc-acala.aca-api.network'],
-      webSocket: ['wss://eth-rpc-acala.aca-api.network'],
-    },
+    http: 'https://eth-rpc-acala.aca-api.network',
+    ws: 'wss://eth-rpc-acala.aca-api.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Acala Blockscout',
-      url: 'https://blockscout.acala.network',
-      apiUrl: 'https://blockscout.acala.network/api',
-    },
+    name: 'Acala Blockscout',
+    url: 'https://blockscout.acala.network',
+    apiUrl: 'https://blockscout.acala.network/api',
   },
   testnet: false,
 })

@@ -9,15 +9,11 @@ export const fluentTestnet = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.fluent.xyz'],
-    },
+    http: 'https://rpc.testnet.fluent.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'Fluent Testnet Explorer',
-      url: 'https://testnet.fluentscan.xyz',
-    },
+    name: 'Fluent Testnet Explorer',
+    url: 'https://testnet.fluentscan.xyz',
   },
   testnet: true,
 })

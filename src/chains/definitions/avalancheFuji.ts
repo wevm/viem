@@ -8,15 +8,11 @@ export const avalancheFuji = /*#__PURE__*/ Chain.from({
     name: 'Avalanche Fuji',
     symbol: 'AVAX',
   },
-  rpcUrls: {
-    default: { http: ['https://api.avax-test.network/ext/bc/C/rpc'] },
-  },
+  rpcUrls: { http: 'https://api.avax-test.network/ext/bc/C/rpc' },
   blockExplorers: {
-    default: {
-      name: 'SnowTrace',
-      url: 'https://testnet.snowtrace.io',
-      apiUrl: 'https://api-testnet.snowtrace.io',
-    },
+    name: 'SnowTrace',
+    url: 'https://testnet.snowtrace.io',
+    apiUrl: 'https://api-testnet.snowtrace.io',
   },
   contracts: {
     multicall3: {

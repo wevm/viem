@@ -8,14 +8,10 @@ export const merlin = /*#__PURE__*/ Chain.from({
     symbol: 'BTC',
     decimals: 18,
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.merlinchain.io'] },
-  },
+  rpcUrls: { http: 'https://rpc.merlinchain.io' },
   blockExplorers: {
-    default: {
-      name: 'blockscout',
-      url: 'https://scan.merlinchain.io',
-      apiUrl: 'https://scan.merlinchain.io/api',
-    },
+    name: 'blockscout',
+    url: 'https://scan.merlinchain.io',
+    apiUrl: 'https://scan.merlinchain.io/api',
   },
 })

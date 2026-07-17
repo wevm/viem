@@ -6,17 +6,13 @@ export const zksyncSepoliaTestnet = /*#__PURE__*/ Chain.from({
   name: 'ZKsync Sepolia Testnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://sepolia.era.zksync.dev'],
-      webSocket: ['wss://sepolia.era.zksync.dev/ws'],
-    },
+    http: 'https://sepolia.era.zksync.dev',
+    ws: 'wss://sepolia.era.zksync.dev/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'ZKsync Explorer',
-      url: 'https://sepolia.explorer.zksync.io/',
-      blockExplorerApi: 'https://block-explorer-api.sepolia.zksync.dev/api',
-    },
+    name: 'ZKsync Explorer',
+    url: 'https://sepolia.explorer.zksync.io/',
+    blockExplorerApi: 'https://block-explorer-api.sepolia.zksync.dev/api',
   },
   contracts: {
     multicall3: {

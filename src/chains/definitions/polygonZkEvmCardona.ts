@@ -5,16 +5,12 @@ export const polygonZkEvmCardona = /*#__PURE__*/ Chain.from({
   name: 'Polygon zkEVM Cardona',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.cardona.zkevm-rpc.com'],
-    },
+    http: 'https://rpc.cardona.zkevm-rpc.com',
   },
   blockExplorers: {
-    default: {
-      name: 'PolygonScan',
-      url: 'https://cardona-zkevm.polygonscan.com',
-      apiUrl: 'https://cardona-zkevm.polygonscan.com/api',
-    },
+    name: 'PolygonScan',
+    url: 'https://cardona-zkevm.polygonscan.com',
+    apiUrl: 'https://cardona-zkevm.polygonscan.com/api',
   },
   testnet: true,
   contracts: {

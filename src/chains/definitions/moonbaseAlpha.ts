@@ -9,17 +9,13 @@ export const moonbaseAlpha = /*#__PURE__*/ Chain.from({
     symbol: 'DEV',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.api.moonbase.moonbeam.network'],
-      webSocket: ['wss://wss.api.moonbase.moonbeam.network'],
-    },
+    http: 'https://rpc.api.moonbase.moonbeam.network',
+    ws: 'wss://wss.api.moonbase.moonbeam.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Moonscan',
-      url: 'https://moonbase.moonscan.io',
-      apiUrl: 'https://moonbase.moonscan.io/api',
-    },
+    name: 'Moonscan',
+    url: 'https://moonbase.moonscan.io',
+    apiUrl: 'https://moonbase.moonscan.io/api',
   },
   contracts: {
     multicall3: {

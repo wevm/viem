@@ -9,15 +9,11 @@ export const xpla = /*#__PURE__*/ Chain.from({
     symbol: 'XPLA',
   },
   rpcUrls: {
-    default: {
-      http: ['https://dimension-evm-rpc.xpla.dev'],
-    },
+    http: 'https://dimension-evm-rpc.xpla.dev',
   },
   blockExplorers: {
-    default: {
-      name: 'CONX Explorer',
-      url: 'https://explorer.conx.xyz',
-    },
+    name: 'CONX Explorer',
+    url: 'https://explorer.conx.xyz',
   },
   testnet: false,
 })

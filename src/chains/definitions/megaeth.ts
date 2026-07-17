@@ -14,22 +14,13 @@ export const megaeth = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.megaeth.com/rpc'],
-      webSocket: ['wss://mainnet.megaeth.com/ws'],
-    },
+    http: 'https://mainnet.megaeth.com/rpc',
+    ws: 'wss://mainnet.megaeth.com/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://mega.etherscan.io',
-      apiUrl: 'https://api.etherscan.io/v2/api',
-    },
-    blockscout: {
-      name: 'Blockscout',
-      url: 'https://megaeth.blockscout.com',
-      apiUrl: 'https://megaeth.blockscout.com/api',
-    },
+    name: 'Etherscan',
+    url: 'https://mega.etherscan.io',
+    apiUrl: 'https://api.etherscan.io/v2/api',
   },
   contracts: {
     ...chainConfig.contracts,

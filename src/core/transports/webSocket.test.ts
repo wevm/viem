@@ -88,7 +88,7 @@ describe('webSocket', () => {
       id: 1,
       name: 'Test',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [], webSocket: [url] } },
+      rpcUrls: { http: [], ws: url },
     })
     const transport = webSocket().setup({ chain })
     expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')

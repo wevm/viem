@@ -8,14 +8,10 @@ export const reactiveTestnet = /*#__PURE__*/ Chain.from({
     name: 'Lasna React',
     symbol: 'lREACT',
   },
-  rpcUrls: {
-    default: { http: ['https://lasna-rpc.rnk.dev'] },
-  },
+  rpcUrls: { http: 'https://lasna-rpc.rnk.dev' },
   blockExplorers: {
-    default: {
-      name: 'Reactscan',
-      url: 'https://lasna.reactscan.net',
-    },
+    name: 'Reactscan',
+    url: 'https://lasna.reactscan.net',
   },
   testnet: true,
 })

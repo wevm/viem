@@ -9,15 +9,11 @@ export const vanaMoksha = /*#__PURE__*/ Chain.from({
     name: 'Vana',
     symbol: 'VANA',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.moksha.vana.org'] },
-  },
+  rpcUrls: { http: 'https://rpc.moksha.vana.org' },
   blockExplorers: {
-    default: {
-      name: 'Vana Moksha Testnet',
-      url: 'https://moksha.vanascan.io',
-      apiUrl: 'https://moksha.vanascan.io/api',
-    },
+    name: 'Vana Moksha Testnet',
+    url: 'https://moksha.vanascan.io',
+    apiUrl: 'https://moksha.vanascan.io/api',
   },
   contracts: {
     multicall3: {

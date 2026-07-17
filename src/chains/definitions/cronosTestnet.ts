@@ -8,14 +8,10 @@ export const cronosTestnet = /*#__PURE__*/ Chain.from({
     name: 'CRO',
     symbol: 'tCRO',
   },
-  rpcUrls: {
-    default: { http: ['https://evm-t3.cronos.org'] },
-  },
+  rpcUrls: { http: 'https://evm-t3.cronos.org' },
   blockExplorers: {
-    default: {
-      name: 'Cronos Explorer (Testnet)',
-      url: 'https://explorer.cronos.org/testnet',
-    },
+    name: 'Cronos Explorer (Testnet)',
+    url: 'https://explorer.cronos.org/testnet',
   },
   contracts: {
     multicall3: {

@@ -8,14 +8,10 @@ export const goChain = /*#__PURE__*/ Chain.from({
     name: 'GO',
     symbol: 'GO',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.gochain.io'] },
-  },
+  rpcUrls: { http: 'https://rpc.gochain.io' },
   blockExplorers: {
-    default: {
-      name: 'GoChain Explorer',
-      url: 'https://explorer.gochain.io',
-    },
+    name: 'GoChain Explorer',
+    url: 'https://explorer.gochain.io',
   },
   testnet: false,
 })

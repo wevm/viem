@@ -9,16 +9,12 @@ export const iotex = /*#__PURE__*/ Chain.from({
     symbol: 'IOTX',
   },
   rpcUrls: {
-    default: {
-      http: ['https://babel-api.mainnet.iotex.io'],
-      webSocket: ['wss://babel-api.mainnet.iotex.io'],
-    },
+    http: 'https://babel-api.mainnet.iotex.io',
+    ws: 'wss://babel-api.mainnet.iotex.io',
   },
   blockExplorers: {
-    default: {
-      name: 'IoTeXScan',
-      url: 'https://iotexscan.io',
-    },
+    name: 'IoTeXScan',
+    url: 'https://iotexscan.io',
   },
   contracts: {
     multicall3: {

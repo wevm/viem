@@ -8,14 +8,10 @@ export const mapProtocol = /*#__PURE__*/ Chain.from({
     name: 'MAPO',
     symbol: 'MAPO',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.maplabs.io'] },
-  },
+  rpcUrls: { http: 'https://rpc.maplabs.io' },
   blockExplorers: {
-    default: {
-      name: 'MAPO Scan',
-      url: 'https://maposcan.io',
-    },
+    name: 'MAPO Scan',
+    url: 'https://maposcan.io',
   },
   testnet: false,
 })

@@ -8,14 +8,10 @@ export const mezoTestnet = /*#__PURE__*/ Chain.from({
     name: 'Bitcoin',
     symbol: 'BTC',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.test.mezo.org'] },
-  },
+  rpcUrls: { http: 'https://rpc.test.mezo.org' },
   blockExplorers: {
-    default: {
-      name: 'Mezo Testnet Explorer',
-      url: 'https://explorer.test.mezo.org',
-    },
+    name: 'Mezo Testnet Explorer',
+    url: 'https://explorer.test.mezo.org',
   },
   contracts: {
     multicall3: {

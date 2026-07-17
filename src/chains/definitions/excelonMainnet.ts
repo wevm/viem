@@ -9,14 +9,10 @@ export const excelonMainnet = /*#__PURE__*/ Chain.from({
     symbol: 'xlon',
   },
   rpcUrls: {
-    default: {
-      http: ['https://edgewallet1.xlon.org'],
-    },
+    http: 'https://edgewallet1.xlon.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Excelon explorer',
-      url: 'https://explorer.excelon.io',
-    },
+    name: 'Excelon explorer',
+    url: 'https://explorer.excelon.io',
   },
 })

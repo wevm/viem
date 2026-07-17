@@ -5,15 +5,11 @@ export const shardeum = /*#__PURE__*/ Chain.from({
   name: 'Shardeum',
   nativeCurrency: { name: 'Shardeum', symbol: 'SHM', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://api.shardeum.org'],
-    },
+    http: 'https://api.shardeum.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Shardeum Explorer',
-      url: 'https://explorer.shardeum.org',
-    },
+    name: 'Shardeum Explorer',
+    url: 'https://explorer.shardeum.org',
   },
   testnet: false,
 })

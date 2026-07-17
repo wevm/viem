@@ -8,13 +8,9 @@ export const oortMainnetDev = /*#__PURE__*/ Chain.from({
     name: 'OORT',
     symbol: 'OORT',
   },
-  rpcUrls: {
-    default: { http: ['https://dev-rpc.oortech.com'] },
-  },
+  rpcUrls: { http: 'https://dev-rpc.oortech.com' },
   blockExplorers: {
-    default: {
-      name: 'OORT MainnetDev Explorer',
-      url: 'https://dev-scan.oortech.com',
-    },
+    name: 'OORT MainnetDev Explorer',
+    url: 'https://dev-scan.oortech.com',
   },
 })

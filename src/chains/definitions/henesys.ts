@@ -5,14 +5,10 @@ export const henesys = /*#__PURE__*/ Chain.from({
   name: 'Henesys',
   nativeCurrency: { name: 'NEXPACE', symbol: 'NXPC', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://henesys-rpc.msu.io'],
-    },
+    http: 'https://henesys-rpc.msu.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Avalanche Explorer',
-      url: 'https://subnets.avax.network/henesys',
-    },
+    name: 'Avalanche Explorer',
+    url: 'https://subnets.avax.network/henesys',
   },
 })

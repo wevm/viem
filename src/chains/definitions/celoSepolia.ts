@@ -11,16 +11,12 @@ export const celoSepolia = /*#__PURE__*/ Chain.from({
     symbol: 'S-CELO',
   },
   rpcUrls: {
-    default: {
-      http: ['https://forno.celo-sepolia.celo-testnet.org'],
-    },
+    http: 'https://forno.celo-sepolia.celo-testnet.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Celo Sepolia Explorer',
-      url: 'https://celo-sepolia.blockscout.com/',
-      apiUrl: 'https://celo-sepolia.blockscout.com/api',
-    },
+    name: 'Celo Sepolia Explorer',
+    url: 'https://celo-sepolia.blockscout.com/',
+    apiUrl: 'https://celo-sepolia.blockscout.com/api',
   },
   contracts: {
     multicall3: {

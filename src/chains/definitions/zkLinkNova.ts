@@ -8,13 +8,9 @@ export const zkLinkNova = /*#__PURE__*/ Chain.from({
     name: 'ETH',
     symbol: 'ETH',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.zklink.io'] },
-  },
+  rpcUrls: { http: 'https://rpc.zklink.io' },
   blockExplorers: {
-    default: {
-      name: 'zkLink Nova Block Explorer',
-      url: 'https://explorer.zklink.io',
-    },
+    name: 'zkLink Nova Block Explorer',
+    url: 'https://explorer.zklink.io',
   },
 })

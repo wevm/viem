@@ -8,14 +8,10 @@ export const westendAssetHub = /*#__PURE__*/ Chain.from({
     name: 'Westies',
     symbol: 'WND',
   },
-  rpcUrls: {
-    default: { http: ['https://westend-asset-hub-eth-rpc.polkadot.io'] },
-  },
+  rpcUrls: { http: 'https://westend-asset-hub-eth-rpc.polkadot.io' },
   blockExplorers: {
-    default: {
-      name: 'subscan',
-      url: 'https://westend-asset-hub-eth-explorer.parity.io',
-    },
+    name: 'subscan',
+    url: 'https://westend-asset-hub-eth-explorer.parity.io',
   },
   testnet: true,
 })

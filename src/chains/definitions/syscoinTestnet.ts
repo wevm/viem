@@ -9,16 +9,12 @@ export const syscoinTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'SYS',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.tanenbaum.io'],
-      webSocket: ['wss://rpc.tanenbaum.io/wss'],
-    },
+    http: 'https://rpc.tanenbaum.io',
+    ws: 'wss://rpc.tanenbaum.io/wss',
   },
   blockExplorers: {
-    default: {
-      name: 'SyscoinTestnetExplorer',
-      url: 'https://tanenbaum.io',
-    },
+    name: 'SyscoinTestnetExplorer',
+    url: 'https://tanenbaum.io',
   },
   contracts: {
     multicall3: {

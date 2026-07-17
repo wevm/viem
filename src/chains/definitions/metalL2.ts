@@ -13,17 +13,13 @@ export const metalL2 = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.metall2.com'],
-      webSocket: ['wss://rpc.metall2.com'],
-    },
+    http: 'https://rpc.metall2.com',
+    ws: 'wss://rpc.metall2.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Explorer',
-      url: 'https://explorer.metall2.com',
-      apiUrl: 'https://explorer.metall2.com/api',
-    },
+    name: 'Explorer',
+    url: 'https://explorer.metall2.com',
+    apiUrl: 'https://explorer.metall2.com/api',
   },
   contracts: {
     ...chainConfig.contracts,

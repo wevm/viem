@@ -8,14 +8,10 @@ export const bitgert = /*#__PURE__*/ Chain.from({
     name: 'Brise',
     symbol: 'Brise',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc-bitgert.icecreamswap.com'] },
-  },
+  rpcUrls: { http: 'https://rpc-bitgert.icecreamswap.com' },
   blockExplorers: {
-    default: {
-      name: 'Bitgert Scan',
-      url: 'https://brisescan.com',
-    },
+    name: 'Bitgert Scan',
+    url: 'https://brisescan.com',
   },
   contracts: {
     multicall3: {

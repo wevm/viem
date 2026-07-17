@@ -9,19 +9,15 @@ export const planq = /*#__PURE__*/ Chain.from({
     symbol: 'PLQ',
   },
   rpcUrls: {
-    default: {
-      http: [
-        'https://planq-rpc.nodies.app',
-        'https://evm-rpc.planq.network',
-        'https://jsonrpc.planq.nodestake.top',
-      ],
-    },
+    http: [
+      'https://planq-rpc.nodies.app',
+      'https://evm-rpc.planq.network',
+      'https://jsonrpc.planq.nodestake.top',
+    ],
   },
   blockExplorers: {
-    default: {
-      name: 'Planq Explorer',
-      url: 'https://evm.planq.network',
-    },
+    name: 'Planq Explorer',
+    url: 'https://evm.planq.network',
   },
   contracts: {
     multicall3: {

@@ -9,23 +9,13 @@ export const ink = /*#__PURE__*/ Chain.from({
   name: 'Ink',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: [
-        'https://rpc-gel.inkonchain.com',
-        'https://rpc-qnd.inkonchain.com',
-      ],
-      webSocket: [
-        'wss://rpc-gel.inkonchain.com',
-        'wss://rpc-qnd.inkonchain.com',
-      ],
-    },
+    http: ['https://rpc-gel.inkonchain.com', 'https://rpc-qnd.inkonchain.com'],
+    ws: ['wss://rpc-gel.inkonchain.com', 'wss://rpc-qnd.inkonchain.com'],
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://explorer.inkonchain.com',
-      apiUrl: 'https://explorer.inkonchain.com/api/v2',
-    },
+    name: 'Blockscout',
+    url: 'https://explorer.inkonchain.com',
+    apiUrl: 'https://explorer.inkonchain.com/api/v2',
   },
   contracts: {
     ...chainConfig.contracts,

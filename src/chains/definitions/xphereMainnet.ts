@@ -9,15 +9,11 @@ export const xphereMainnet = /*#__PURE__*/ Chain.from({
     symbol: 'XP',
   },
   rpcUrls: {
-    default: {
-      http: ['https://en-bkk.x-phere.com'],
-    },
+    http: 'https://en-bkk.x-phere.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Xphere Tamsa Explorer',
-      url: 'https://xp.tamsa.io',
-    },
+    name: 'Xphere Tamsa Explorer',
+    url: 'https://xp.tamsa.io',
   },
   testnet: false,
 })

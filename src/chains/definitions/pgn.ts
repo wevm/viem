@@ -9,16 +9,12 @@ export const pgn = /*#__PURE__*/ Chain.from({
   name: 'PGN',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.publicgoods.network'],
-    },
+    http: 'https://rpc.publicgoods.network',
   },
   blockExplorers: {
-    default: {
-      name: 'PGN Explorer',
-      url: 'https://explorer.publicgoods.network',
-      apiUrl: 'https://explorer.publicgoods.network/api',
-    },
+    name: 'PGN Explorer',
+    url: 'https://explorer.publicgoods.network',
+    apiUrl: 'https://explorer.publicgoods.network/api',
   },
   contracts: {
     l2OutputOracle: {

@@ -9,16 +9,12 @@ export const treasure = /*#__PURE__*/ Chain.from({
     symbol: 'MAGIC',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.treasure.lol'],
-      webSocket: ['wss://rpc.treasure.lol/ws'],
-    },
+    http: 'https://rpc.treasure.lol',
+    ws: 'wss://rpc.treasure.lol/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Treasure Block Explorer',
-      url: 'https://treasurescan.io',
-    },
+    name: 'Treasure Block Explorer',
+    url: 'https://treasurescan.io',
   },
   contracts: {
     multicall3: {

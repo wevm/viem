@@ -9,15 +9,11 @@ export const loop = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://api.mainnetloop.com'],
-    },
+    http: 'https://api.mainnetloop.com',
   },
   blockExplorers: {
-    default: {
-      name: 'LoopNetwork Blockchain Explorer',
-      url: 'https://explorer.mainnetloop.com/',
-    },
+    name: 'LoopNetwork Blockchain Explorer',
+    url: 'https://explorer.mainnetloop.com/',
   },
   testnet: false,
 })

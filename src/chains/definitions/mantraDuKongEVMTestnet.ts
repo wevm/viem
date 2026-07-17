@@ -8,14 +8,10 @@ export const mantraDuKongEVMTestnet = /*#__PURE__*/ Chain.from({
     name: 'MANTRA',
     symbol: 'MANTRA',
   },
-  rpcUrls: {
-    default: { http: ['https://evm.dukong.mantrachain.io'] },
-  },
+  rpcUrls: { http: 'https://evm.dukong.mantrachain.io' },
   blockExplorers: {
-    default: {
-      name: 'MANTRAScan',
-      url: 'https://mantrascan.io/dukong',
-    },
+    name: 'MANTRAScan',
+    url: 'https://mantrascan.io/dukong',
   },
   testnet: true,
 })

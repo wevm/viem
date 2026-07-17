@@ -5,10 +5,8 @@ export const tempo = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 4217,
   blockExplorers: {
-    default: {
-      name: 'Tempo Explorer',
-      url: 'https://explore.tempo.xyz',
-    },
+    name: 'Tempo Explorer',
+    url: 'https://explore.tempo.xyz',
   },
   name: 'Tempo Mainnet',
   nativeCurrency: {
@@ -17,9 +15,7 @@ export const tempo = /*#__PURE__*/ Chain.from({
     decimals: 6,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.tempo.xyz'],
-      webSocket: ['wss://rpc.tempo.xyz'],
-    },
+    http: 'https://rpc.tempo.xyz',
+    ws: 'wss://rpc.tempo.xyz',
   },
 })

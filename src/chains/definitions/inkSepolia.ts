@@ -9,16 +9,12 @@ export const inkSepolia = /*#__PURE__*/ Chain.from({
   name: 'Ink Sepolia',
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc-gel-sepolia.inkonchain.com'],
-    },
+    http: 'https://rpc-gel-sepolia.inkonchain.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://explorer-sepolia.inkonchain.com/',
-      apiUrl: 'https://explorer-sepolia.inkonchain.com/api/v2',
-    },
+    name: 'Blockscout',
+    url: 'https://explorer-sepolia.inkonchain.com/',
+    apiUrl: 'https://explorer-sepolia.inkonchain.com/api/v2',
   },
   contracts: {
     ...chainConfig.contracts,

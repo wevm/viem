@@ -11,17 +11,13 @@ export const plumeSepolia = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://testnet-rpc.plume.org'],
-      webSocket: ['wss://testnet-rpc.plume.org'],
-    },
+    http: 'https://testnet-rpc.plume.org',
+    ws: 'wss://testnet-rpc.plume.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://testnet-explorer.plume.org',
-      apiUrl: 'https://testnet-explorer.plume.org/api',
-    },
+    name: 'Blockscout',
+    url: 'https://testnet-explorer.plume.org',
+    apiUrl: 'https://testnet-explorer.plume.org/api',
   },
   contracts: {
     multicall3: {

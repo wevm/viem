@@ -8,14 +8,10 @@ export const filecoin = /*#__PURE__*/ Chain.from({
     name: 'filecoin',
     symbol: 'FIL',
   },
-  rpcUrls: {
-    default: { http: ['https://api.node.glif.io/rpc/v1'] },
-  },
+  rpcUrls: { http: 'https://api.node.glif.io/rpc/v1' },
   blockExplorers: {
-    default: {
-      name: 'Filfox',
-      url: 'https://filfox.info/en',
-    },
+    name: 'Filfox',
+    url: 'https://filfox.info/en',
   },
   contracts: {
     multicall3: {

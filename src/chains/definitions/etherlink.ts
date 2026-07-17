@@ -9,14 +9,10 @@ export const etherlink = /*#__PURE__*/ Chain.from({
     name: 'Tez',
     symbol: 'XTZ',
   },
-  rpcUrls: {
-    default: { http: ['https://node.mainnet.etherlink.com'] },
-  },
+  rpcUrls: { http: 'https://node.mainnet.etherlink.com' },
   blockExplorers: {
-    default: {
-      name: 'Etherlink',
-      url: 'https://explorer.etherlink.com',
-    },
+    name: 'Etherlink',
+    url: 'https://explorer.etherlink.com',
   },
   contracts: {
     multicall3: {

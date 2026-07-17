@@ -23,14 +23,10 @@ export const berachainTestnetbArtio = /*#__PURE__*/ Chain.from({
     },
   },
   ensTlds: ['.bera'],
-  rpcUrls: {
-    default: { http: ['https://bartio.rpc.berachain.com'] },
-  },
+  rpcUrls: { http: 'https://bartio.rpc.berachain.com' },
   blockExplorers: {
-    default: {
-      name: 'Berachain bArtio Beratrail',
-      url: 'https://bartio.beratrail.io',
-    },
+    name: 'Berachain bArtio Beratrail',
+    url: 'https://bartio.beratrail.io',
   },
   testnet: true,
 })

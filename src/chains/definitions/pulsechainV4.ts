@@ -7,17 +7,13 @@ export const pulsechainV4 = /*#__PURE__*/ Chain.from({
   nativeCurrency: { name: 'V4 Pulse', symbol: 'v4PLS', decimals: 18 },
   blockTime: 10_000,
   rpcUrls: {
-    default: {
-      http: ['https://rpc.v4.testnet.pulsechain.com'],
-      webSocket: ['wss://ws.v4.testnet.pulsechain.com'],
-    },
+    http: 'https://rpc.v4.testnet.pulsechain.com',
+    ws: 'wss://ws.v4.testnet.pulsechain.com',
   },
   blockExplorers: {
-    default: {
-      name: 'PulseScan',
-      url: 'https://scan.v4.testnet.pulsechain.com',
-      apiUrl: 'https://scan.v4.testnet.pulsechain.com/api',
-    },
+    name: 'PulseScan',
+    url: 'https://scan.v4.testnet.pulsechain.com',
+    apiUrl: 'https://scan.v4.testnet.pulsechain.com/api',
   },
   contracts: {
     ensRegistry: {

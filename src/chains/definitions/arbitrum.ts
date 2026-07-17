@@ -6,16 +6,12 @@ export const arbitrum = /*#__PURE__*/ Chain.from({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   blockTime: 250,
   rpcUrls: {
-    default: {
-      http: ['https://arb1.arbitrum.io/rpc'],
-    },
+    http: 'https://arb1.arbitrum.io/rpc',
   },
   blockExplorers: {
-    default: {
-      name: 'Arbiscan',
-      url: 'https://arbiscan.io',
-      apiUrl: 'https://api.arbiscan.io/api',
-    },
+    name: 'Arbiscan',
+    url: 'https://arbiscan.io',
+    apiUrl: 'https://api.arbiscan.io/api',
   },
   contracts: {
     multicall3: {

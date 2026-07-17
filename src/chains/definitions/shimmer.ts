@@ -9,15 +9,11 @@ export const shimmer = /*#__PURE__*/ Chain.from({
     symbol: 'SMR',
   },
   rpcUrls: {
-    default: {
-      http: ['https://json-rpc.evm.shimmer.network'],
-    },
+    http: 'https://json-rpc.evm.shimmer.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Shimmer Network Explorer',
-      url: 'https://explorer.evm.shimmer.network',
-      apiUrl: 'https://explorer.evm.shimmer.network/api',
-    },
+    name: 'Shimmer Network Explorer',
+    url: 'https://explorer.evm.shimmer.network',
+    apiUrl: 'https://explorer.evm.shimmer.network/api',
   },
 })

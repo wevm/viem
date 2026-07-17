@@ -8,15 +8,11 @@ export const flare = /*#__PURE__*/ Chain.from({
     name: 'Flare',
     symbol: 'FLR',
   },
-  rpcUrls: {
-    default: { http: ['https://flare-api.flare.network/ext/C/rpc'] },
-  },
+  rpcUrls: { http: 'https://flare-api.flare.network/ext/C/rpc' },
   blockExplorers: {
-    default: {
-      name: 'Flare Explorer',
-      url: 'https://flare-explorer.flare.network',
-      apiUrl: 'https://flare-explorer.flare.network/api',
-    },
+    name: 'Flare Explorer',
+    url: 'https://flare-explorer.flare.network',
+    apiUrl: 'https://flare-explorer.flare.network/api',
   },
   contracts: {
     multicall3: {

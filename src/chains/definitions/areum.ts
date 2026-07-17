@@ -5,16 +5,12 @@ export const areum = /*#__PURE__*/ Chain.from({
   name: 'Areum',
   nativeCurrency: { decimals: 18, name: 'AREA', symbol: 'AREA' },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet-rpc.areum.network'],
-      webSocket: ['wss://mainnet-ws.areum.network'],
-    },
+    http: 'https://mainnet-rpc.areum.network',
+    ws: 'wss://mainnet-ws.areum.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Areum Explorer',
-      url: 'https://explorer.areum.network',
-    },
+    name: 'Areum Explorer',
+    url: 'https://explorer.areum.network',
   },
   contracts: {
     multicall3: {

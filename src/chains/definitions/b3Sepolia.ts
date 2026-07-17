@@ -11,15 +11,11 @@ export const b3Sepolia = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://sepolia.b3.fun/http'],
-    },
+    http: 'https://sepolia.b3.fun/http',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://sepolia.explorer.b3.fun',
-    },
+    name: 'Blockscout',
+    url: 'https://sepolia.explorer.b3.fun',
   },
   contracts: {
     multicall3: {

@@ -8,15 +8,11 @@ export const quaiTestnet = /*#__PURE__*/ Chain.from({
     name: 'Quai',
     symbol: 'QUAI',
   },
-  rpcUrls: {
-    default: { http: ['https://orchard.rpc.quai.network/cyprus1'] },
-  },
+  rpcUrls: { http: 'https://orchard.rpc.quai.network/cyprus1' },
   blockExplorers: {
-    default: {
-      name: 'Orchard Quaiscan',
-      url: 'https://orchard.quaiscan.io',
-      apiUrl: 'https://orchard.quaiscan.io/api',
-    },
+    name: 'Orchard Quaiscan',
+    url: 'https://orchard.quaiscan.io',
+    apiUrl: 'https://orchard.quaiscan.io/api',
   },
   testnet: true,
 })

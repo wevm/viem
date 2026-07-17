@@ -9,15 +9,11 @@ export const lightlinkPegasus = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://replicator.pegasus.lightlink.io/rpc/v1'],
-    },
+    http: 'https://replicator.pegasus.lightlink.io/rpc/v1',
   },
   blockExplorers: {
-    default: {
-      name: 'LightLink Pegasus Explorer',
-      url: 'https://pegasus.lightlink.io',
-    },
+    name: 'LightLink Pegasus Explorer',
+    url: 'https://pegasus.lightlink.io',
   },
   contracts: {
     multicall3: {

@@ -9,16 +9,12 @@ export const tacSPB = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://spb.rpc.tac.build'],
-    },
+    http: 'https://spb.rpc.tac.build',
   },
   blockExplorers: {
-    default: {
-      name: 'TAC',
-      url: 'https://spb.explorer.tac.build',
-      apiUrl: 'https://spb.explorer.tac.build/api',
-    },
+    name: 'TAC',
+    url: 'https://spb.explorer.tac.build',
+    apiUrl: 'https://spb.explorer.tac.build/api',
   },
   contracts: {
     multicall3: {

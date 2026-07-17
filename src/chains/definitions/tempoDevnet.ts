@@ -7,10 +7,8 @@ export const tempoDevnet = /*#__PURE__*/ Chain.from({
   name: 'Tempo Devnet',
   hardfork: 't3',
   blockExplorers: {
-    default: {
-      name: 'Tempo Explorer',
-      url: 'https://explore.devnet.tempo.xyz',
-    },
+    name: 'Tempo Explorer',
+    url: 'https://explore.devnet.tempo.xyz',
   },
   nativeCurrency: {
     name: 'USD',
@@ -18,10 +16,8 @@ export const tempoDevnet = /*#__PURE__*/ Chain.from({
     decimals: 6,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.devnet.tempoxyz.dev'],
-      webSocket: ['wss://rpc.devnet.tempoxyz.dev'],
-    },
+    http: 'https://rpc.devnet.tempoxyz.dev',
+    ws: 'wss://rpc.devnet.tempoxyz.dev',
   },
   testnet: true,
 })

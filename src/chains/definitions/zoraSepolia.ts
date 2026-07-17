@@ -13,17 +13,13 @@ export const zoraSepolia = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://sepolia.rpc.zora.energy'],
-      webSocket: ['wss://sepolia.rpc.zora.energy'],
-    },
+    http: 'https://sepolia.rpc.zora.energy',
+    ws: 'wss://sepolia.rpc.zora.energy',
   },
   blockExplorers: {
-    default: {
-      name: 'Zora Sepolia Explorer',
-      url: 'https://sepolia.explorer.zora.energy/',
-      apiUrl: 'https://sepolia.explorer.zora.energy/api',
-    },
+    name: 'Zora Sepolia Explorer',
+    url: 'https://sepolia.explorer.zora.energy/',
+    apiUrl: 'https://sepolia.explorer.zora.energy/api',
   },
   contracts: {
     ...chainConfig.contracts,

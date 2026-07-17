@@ -5,15 +5,11 @@ export const victionTestnet = /*#__PURE__*/ Chain.from({
   name: 'Viction Testnet',
   nativeCurrency: { name: 'Viction', symbol: 'VIC', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc-testnet.viction.xyz'],
-    },
+    http: 'https://rpc-testnet.viction.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'VIC Scan',
-      url: 'https://testnet.vicscan.xyz',
-    },
+    name: 'VIC Scan',
+    url: 'https://testnet.vicscan.xyz',
   },
   contracts: {
     multicall3: {

@@ -33,10 +33,8 @@ export const appChain = Chain.from({
     symbol: 'AETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.app-chain.example'],
-      webSocket: ['wss://rpc.app-chain.example'],
-    },
+    http: 'https://rpc.app-chain.example',
+    ws: 'wss://rpc.app-chain.example',
   },
 })
 ```
@@ -51,9 +49,7 @@ import { mainnet } from 'viem/chains'
 
 export const staging = mainnet.extend({
   name: 'Mainnet Staging Fork',
-  rpcUrls: {
-    default: { http: ['https://staging-rpc.example'] },
-  },
+  rpcUrls: { http: 'https://staging-rpc.example' },
 })
 ```
 

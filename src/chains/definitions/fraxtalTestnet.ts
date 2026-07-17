@@ -9,16 +9,12 @@ export const fraxtalTestnet = /*#__PURE__*/ Chain.from({
   name: 'Fraxtal Testnet',
   nativeCurrency: { name: 'Frax', symbol: 'FRAX', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.frax.com'],
-    },
+    http: 'https://rpc.testnet.frax.com',
   },
   blockExplorers: {
-    default: {
-      name: 'fraxscan testnet',
-      url: 'https://holesky.fraxscan.com',
-      apiUrl: 'https://api-holesky.fraxscan.com/api',
-    },
+    name: 'fraxscan testnet',
+    url: 'https://holesky.fraxscan.com',
+    apiUrl: 'https://api-holesky.fraxscan.com/api',
   },
   contracts: {
     ...chainConfig.contracts,

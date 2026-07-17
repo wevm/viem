@@ -9,15 +9,11 @@ export const haqqMainnet = /*#__PURE__*/ Chain.from({
     symbol: 'ISLM',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.eth.haqq.network'],
-    },
+    http: 'https://rpc.eth.haqq.network',
   },
   blockExplorers: {
-    default: {
-      name: 'HAQQ Explorer',
-      url: 'https://explorer.haqq.network',
-      apiUrl: 'https://explorer.haqq.network/api',
-    },
+    name: 'HAQQ Explorer',
+    url: 'https://explorer.haqq.network',
+    apiUrl: 'https://explorer.haqq.network/api',
   },
 })

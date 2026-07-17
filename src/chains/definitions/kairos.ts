@@ -8,14 +8,10 @@ export const kairos = /*#__PURE__*/ Chain.from({
     name: 'Kairos KAIA',
     symbol: 'KAIA',
   },
-  rpcUrls: {
-    default: { http: ['https://public-en-kairos.node.kaia.io'] },
-  },
+  rpcUrls: { http: 'https://public-en-kairos.node.kaia.io' },
   blockExplorers: {
-    default: {
-      name: 'KaiaScan',
-      url: 'https://kairos.kaiascan.io',
-    },
+    name: 'KaiaScan',
+    url: 'https://kairos.kaiascan.io',
   },
   contracts: {
     multicall3: {

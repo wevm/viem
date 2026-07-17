@@ -178,7 +178,7 @@ test('behavior: chain `verifyHash` hook takes precedence', async () => {
     id: 1,
     name: 'Test',
     nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
-    rpcUrls: { default: { http: ['http://localhost'] } },
+    rpcUrls: { http: 'http://localhost' },
     verifyHash(_client, options) {
       return options.signature === '0xdeadbeef'
     },
@@ -460,7 +460,7 @@ describe('erc6492', () => {
         id: 1,
         name: 'Test',
         nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
-        rpcUrls: { default: { http: ['http://localhost'] } },
+        rpcUrls: { http: 'http://localhost' },
       }),
       transport: custom({
         async request({ method, params }: { method: string; params: unknown }) {

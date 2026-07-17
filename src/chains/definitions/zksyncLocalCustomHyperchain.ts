@@ -7,17 +7,13 @@ export const zksyncLocalCustomHyperchain = /*#__PURE__*/ Chain.from({
   name: 'ZKsync CLI Local Custom Hyperchain',
   nativeCurrency: { name: 'BAT', symbol: 'BAT', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['http://localhost:15200'],
-      webSocket: ['ws://localhost:15201'],
-    },
+    http: 'http://localhost:15200',
+    ws: 'ws://localhost:15201',
   },
   blockExplorers: {
-    default: {
-      name: 'ZKsync explorer',
-      url: 'http://localhost:15005/',
-      apiUrl: 'http://localhost:15005/api',
-    },
+    name: 'ZKsync explorer',
+    url: 'http://localhost:15005/',
+    apiUrl: 'http://localhost:15005/api',
   },
   testnet: true,
 })

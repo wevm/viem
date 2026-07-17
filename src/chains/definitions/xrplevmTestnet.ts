@@ -8,15 +8,11 @@ export const xrplevmTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'XRP',
     decimals: 18,
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.testnet.xrplevm.org'] },
-  },
+  rpcUrls: { http: 'https://rpc.testnet.xrplevm.org' },
   blockExplorers: {
-    default: {
-      name: 'blockscout',
-      url: 'https://explorer.testnet.xrplevm.org',
-      apiUrl: 'https://explorer.testnet.xrplevm.org/api/v2',
-    },
+    name: 'blockscout',
+    url: 'https://explorer.testnet.xrplevm.org',
+    apiUrl: 'https://explorer.testnet.xrplevm.org/api/v2',
   },
   contracts: {
     multicall3: {

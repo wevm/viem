@@ -5,10 +5,8 @@ export const humanodeTestnet5 = /*#__PURE__*/ Chain.from({
   name: 'Humanode Testnet 5',
   nativeCurrency: { name: 'HMND', symbol: 'HMND', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://explorer-rpc-http.testnet5.stages.humanode.io'],
-      webSocket: ['wss://explorer-rpc-ws.testnet5.stages.humanode.io'],
-    },
+    http: 'https://explorer-rpc-http.testnet5.stages.humanode.io',
+    ws: 'wss://explorer-rpc-ws.testnet5.stages.humanode.io',
   },
   contracts: {
     multicall3: {

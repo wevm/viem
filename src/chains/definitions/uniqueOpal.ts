@@ -8,14 +8,10 @@ export const uniqueOpal = /*#__PURE__*/ Chain.from({
     name: 'OPL',
     symbol: 'OPL',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc-opal.unique.network'] },
-  },
+  rpcUrls: { http: 'https://rpc-opal.unique.network' },
   blockExplorers: {
-    default: {
-      name: 'Opal Subscan',
-      url: 'https://opal.subscan.io/',
-    },
+    name: 'Opal Subscan',
+    url: 'https://opal.subscan.io/',
   },
   testnet: true,
 })

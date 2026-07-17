@@ -9,17 +9,13 @@ export const iotaTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'IOTA',
   },
   rpcUrls: {
-    default: {
-      http: ['https://json-rpc.evm.testnet.iotaledger.net'],
-      webSocket: ['wss://ws.json-rpc.evm.testnet.iotaledger.net'],
-    },
+    http: 'https://json-rpc.evm.testnet.iotaledger.net',
+    ws: 'wss://ws.json-rpc.evm.testnet.iotaledger.net',
   },
   blockExplorers: {
-    default: {
-      name: 'Explorer',
-      url: 'https://explorer.evm.testnet.iotaledger.net',
-      apiUrl: 'https://explorer.evm.testnet.iotaledger.net/api',
-    },
+    name: 'Explorer',
+    url: 'https://explorer.evm.testnet.iotaledger.net',
+    apiUrl: 'https://explorer.evm.testnet.iotaledger.net/api',
   },
   testnet: true,
 })

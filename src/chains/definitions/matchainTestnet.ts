@@ -8,14 +8,10 @@ export const matchainTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'BNB',
     decimals: 18,
   },
-  rpcUrls: {
-    default: { http: ['https://testnet-rpc.matchain.io'] },
-  },
+  rpcUrls: { http: 'https://testnet-rpc.matchain.io' },
   blockExplorers: {
-    default: {
-      name: 'Matchain Scan',
-      url: 'https://testnet.matchscan.io',
-    },
+    name: 'Matchain Scan',
+    url: 'https://testnet.matchscan.io',
   },
   testnet: true,
 })

@@ -5,21 +5,12 @@ export const tac = /*#__PURE__*/ Chain.from({
   name: 'TAC',
   nativeCurrency: { name: 'TAC', symbol: 'TAC', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.ankr.com/tac'],
-    },
+    http: 'https://rpc.ankr.com/tac',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://tac.blockscout.com',
-      apiUrl: 'https://tac.blockscout.com/api',
-    },
-    native: {
-      name: 'TAC Explorer',
-      url: 'https://explorer.tac.build',
-      apiUrl: 'https://explorer.tac.build/api',
-    },
+    name: 'Blockscout',
+    url: 'https://tac.blockscout.com',
+    apiUrl: 'https://tac.blockscout.com/api',
   },
   contracts: {
     multicall3: {

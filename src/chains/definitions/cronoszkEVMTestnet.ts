@@ -8,14 +8,10 @@ export const cronoszkEVMTestnet = /*#__PURE__*/ Chain.from({
     name: 'Cronos zkEVM Test Coin',
     symbol: 'zkTCRO',
   },
-  rpcUrls: {
-    default: { http: ['https://testnet.zkevm.cronos.org'] },
-  },
+  rpcUrls: { http: 'https://testnet.zkevm.cronos.org' },
   blockExplorers: {
-    default: {
-      name: 'Cronos zkEVM Testnet Explorer',
-      url: 'https://explorer.zkevm.cronos.org/testnet',
-    },
+    name: 'Cronos zkEVM Testnet Explorer',
+    url: 'https://explorer.zkevm.cronos.org/testnet',
   },
   testnet: true,
 })

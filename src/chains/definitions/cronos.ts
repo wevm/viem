@@ -8,15 +8,11 @@ export const cronos = /*#__PURE__*/ Chain.from({
     name: 'Cronos',
     symbol: 'CRO',
   },
-  rpcUrls: {
-    default: { http: ['https://evm.cronos.org'] },
-  },
+  rpcUrls: { http: 'https://evm.cronos.org' },
   blockExplorers: {
-    default: {
-      name: 'Cronos Explorer',
-      url: 'https://explorer.cronos.org',
-      apiUrl: 'https://explorer-api.cronos.org/mainnet/api',
-    },
+    name: 'Cronos Explorer',
+    url: 'https://explorer.cronos.org',
+    apiUrl: 'https://explorer-api.cronos.org/mainnet/api',
   },
   contracts: {
     multicall3: {

@@ -5,17 +5,11 @@ export const gunz = /*#__PURE__*/ Chain.from({
   name: 'Gunz Mainnet',
   nativeCurrency: { name: 'GUN', symbol: 'GUN', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: [
-        'https://rpc.gunzchain.io/ext/bc/2M47TxWHGnhNtq6pM5zPXdATBtuqubxn5EPFgFmEawCQr9WFML/rpc',
-      ],
-    },
+    http: 'https://rpc.gunzchain.io/ext/bc/2M47TxWHGnhNtq6pM5zPXdATBtuqubxn5EPFgFmEawCQr9WFML/rpc',
   },
   blockExplorers: {
-    default: {
-      name: 'Gunz Explorer',
-      url: 'https://gunzscan.io/',
-    },
+    name: 'Gunz Explorer',
+    url: 'https://gunzscan.io/',
   },
   contracts: {
     multicall3: {

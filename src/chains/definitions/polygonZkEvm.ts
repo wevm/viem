@@ -5,16 +5,12 @@ export const polygonZkEvm = /*#__PURE__*/ Chain.from({
   name: 'Polygon zkEVM',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://zkevm-rpc.com'],
-    },
+    http: 'https://zkevm-rpc.com',
   },
   blockExplorers: {
-    default: {
-      name: 'PolygonScan',
-      url: 'https://zkevm.polygonscan.com',
-      apiUrl: 'https://api-zkevm.polygonscan.com/api',
-    },
+    name: 'PolygonScan',
+    url: 'https://zkevm.polygonscan.com',
+    apiUrl: 'https://api-zkevm.polygonscan.com/api',
   },
   contracts: {
     multicall3: {

@@ -8,14 +8,10 @@ export const filecoinCalibration = /*#__PURE__*/ Chain.from({
     name: 'testnet filecoin',
     symbol: 'tFIL',
   },
-  rpcUrls: {
-    default: { http: ['https://api.calibration.node.glif.io/rpc/v1'] },
-  },
+  rpcUrls: { http: 'https://api.calibration.node.glif.io/rpc/v1' },
   blockExplorers: {
-    default: {
-      name: 'Filscan',
-      url: 'https://calibration.filscan.io',
-    },
+    name: 'Filscan',
+    url: 'https://calibration.filscan.io',
   },
   testnet: true,
 })

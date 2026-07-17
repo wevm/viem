@@ -40,7 +40,7 @@ test('args: blockTag (default latest)', async () => {
 
 test('behavior: converts via chain codecs when declared', async () => {
   const chain = mainnet.extend({
-    rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+    rpcUrls: { http: anvil.mainnet.rpcUrl.http },
     codecs: {
       transactionReceipt: {
         fromRpc: (rpc: TransactionReceipt.Rpc) =>
@@ -57,7 +57,7 @@ test('behavior: converts via chain codecs when declared', async () => {
 
 test('behavior: converts custom properties via chain codecs', async () => {
   const chain = mainnet.extend({
-    rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+    rpcUrls: { http: anvil.mainnet.rpcUrl.http },
     codecs: {
       transactionReceipt: {
         fromRpc: (rpc: TransactionReceipt.Rpc) => ({

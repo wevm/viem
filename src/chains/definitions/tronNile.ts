@@ -5,15 +5,11 @@ export const tronNile = /*#__PURE__*/ Chain.from({
   name: 'Tron Nile',
   nativeCurrency: { name: 'TRON', symbol: 'TRX', decimals: 6 },
   rpcUrls: {
-    default: {
-      http: ['https://nile.trongrid.io/jsonrpc'],
-    },
+    http: 'https://nile.trongrid.io/jsonrpc',
   },
   blockExplorers: {
-    default: {
-      name: 'Tronscan',
-      url: 'https://nile.tronscan.org',
-    },
+    name: 'Tronscan',
+    url: 'https://nile.tronscan.org',
   },
   testnet: true,
 })

@@ -9,14 +9,10 @@ export const apollo = /*#__PURE__*/ Chain.from({
     symbol: 'APOLLO',
   },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet-rpc.apolloscan.io'],
-    },
+    http: 'https://mainnet-rpc.apolloscan.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Apollo Explorer',
-      url: 'https://apolloscan.io',
-    },
+    name: 'Apollo Explorer',
+    url: 'https://apolloscan.io',
   },
 })

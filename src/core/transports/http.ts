@@ -20,7 +20,8 @@ export function http(
     setup({ chain, retryCount, timeout }) {
       const { batchSize = 1000, wait = 0 } =
         typeof batch === 'object' ? batch : {}
-      const url_ = url ?? chain?.rpcUrls?.default.http[0]
+      const urls = chain?.rpcUrls?.http
+      const url_ = url ?? (typeof urls === 'string' ? urls : urls?.[0])
       if (!url_) throw new Transport.UrlRequiredError()
       const timeout_ = options.timeout ?? timeout ?? 10_000
 

@@ -9,15 +9,11 @@ export const defichainEvm = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://eth.mainnet.ocean.jellyfishsdk.com'],
-    },
+    http: 'https://eth.mainnet.ocean.jellyfishsdk.com',
   },
   blockExplorers: {
-    default: {
-      name: 'DeFiScan',
-      url: 'https://meta.defiscan.live',
-    },
+    name: 'DeFiScan',
+    url: 'https://meta.defiscan.live',
   },
   contracts: {
     multicall3: {

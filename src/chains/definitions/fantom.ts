@@ -8,15 +8,11 @@ export const fantom = /*#__PURE__*/ Chain.from({
     name: 'Fantom',
     symbol: 'FTM',
   },
-  rpcUrls: {
-    default: { http: ['https://250.rpc.thirdweb.com'] },
-  },
+  rpcUrls: { http: 'https://250.rpc.thirdweb.com' },
   blockExplorers: {
-    default: {
-      name: 'FTMScan',
-      url: 'https://ftmscan.com',
-      apiUrl: 'https://api.ftmscan.com/api',
-    },
+    name: 'FTMScan',
+    url: 'https://ftmscan.com',
+    apiUrl: 'https://api.ftmscan.com/api',
   },
   contracts: {
     multicall3: {

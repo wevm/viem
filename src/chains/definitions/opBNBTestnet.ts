@@ -12,14 +12,10 @@ export const opBNBTestnet = /*#__PURE__*/ Chain.from({
     name: 'tBNB',
     symbol: 'tBNB',
   },
-  rpcUrls: {
-    default: { http: ['https://opbnb-testnet-rpc.bnbchain.org'] },
-  },
+  rpcUrls: { http: 'https://opbnb-testnet-rpc.bnbchain.org' },
   blockExplorers: {
-    default: {
-      name: 'opbnbscan',
-      url: 'https://testnet.opbnbscan.com',
-    },
+    name: 'opbnbscan',
+    url: 'https://testnet.opbnbscan.com',
   },
   contracts: {
     ...chainConfig.contracts,

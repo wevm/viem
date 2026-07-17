@@ -5,15 +5,11 @@ export const elastosTestnet = /*#__PURE__*/ Chain.from({
   name: 'Elastos Smart Chain Testnet',
   nativeCurrency: { name: 'tELA', symbol: 'tELA', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://api-testnet.elastos.io/eth'],
-    },
+    http: 'https://api-testnet.elastos.io/eth',
   },
   blockExplorers: {
-    default: {
-      name: 'Elastos Explorer',
-      url: 'https://esc-testnet.elastos.io',
-    },
+    name: 'Elastos Explorer',
+    url: 'https://esc-testnet.elastos.io',
   },
   testnet: true,
 })

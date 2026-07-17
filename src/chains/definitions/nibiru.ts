@@ -8,14 +8,10 @@ export const nibiru = /*#__PURE__*/ Chain.from({
     name: 'NIBI',
     symbol: 'NIBI',
   },
-  rpcUrls: {
-    default: { http: ['https://evm-rpc.nibiru.fi'] },
-  },
+  rpcUrls: { http: 'https://evm-rpc.nibiru.fi' },
   blockExplorers: {
-    default: {
-      name: 'NibiScan',
-      url: 'https://nibiscan.io',
-    },
+    name: 'NibiScan',
+    url: 'https://nibiscan.io',
   },
   contracts: {
     multicall3: {

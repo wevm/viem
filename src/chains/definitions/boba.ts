@@ -8,14 +8,10 @@ export const boba = /*#__PURE__*/ Chain.from({
     name: 'Ether',
     symbol: 'ETH',
   },
-  rpcUrls: {
-    default: { http: ['https://mainnet.boba.network'] },
-  },
+  rpcUrls: { http: 'https://mainnet.boba.network' },
   blockExplorers: {
-    default: {
-      name: 'BOBAScan',
-      url: 'https://bobascan.com',
-    },
+    name: 'BOBAScan',
+    url: 'https://bobascan.com',
   },
   contracts: {
     multicall3: {

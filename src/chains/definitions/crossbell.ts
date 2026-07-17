@@ -9,16 +9,12 @@ export const crossbell = /*#__PURE__*/ Chain.from({
     symbol: 'CSB',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.crossbell.io'],
-    },
+    http: 'https://rpc.crossbell.io',
   },
   blockExplorers: {
-    default: {
-      name: 'CrossScan',
-      url: 'https://scan.crossbell.io',
-      apiUrl: 'https://scan.crossbell.io/api',
-    },
+    name: 'CrossScan',
+    url: 'https://scan.crossbell.io',
+    apiUrl: 'https://scan.crossbell.io/api',
   },
   contracts: {
     multicall3: {

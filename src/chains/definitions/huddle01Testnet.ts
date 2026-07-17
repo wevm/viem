@@ -11,17 +11,13 @@ export const huddle01Testnet = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://huddle-testnet.rpc.caldera.xyz/http'],
-      webSocket: ['wss://huddle-testnet.rpc.caldera.xyz/ws'],
-    },
+    http: 'https://huddle-testnet.rpc.caldera.xyz/http',
+    ws: 'wss://huddle-testnet.rpc.caldera.xyz/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Huddle01 Caldera Explorer',
-      url: 'https://huddle-testnet.explorer.caldera.xyz',
-      apiUrl: 'https://huddle-testnet.explorer.caldera.xyz/api',
-    },
+    name: 'Huddle01 Caldera Explorer',
+    url: 'https://huddle-testnet.explorer.caldera.xyz',
+    apiUrl: 'https://huddle-testnet.explorer.caldera.xyz/api',
   },
   sourceId,
   testnet: true,

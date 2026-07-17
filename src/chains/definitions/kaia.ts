@@ -8,15 +8,11 @@ export const kaia = /*#__PURE__*/ Chain.from({
     name: 'Kaia',
     symbol: 'KAIA',
   },
-  rpcUrls: {
-    default: { http: ['https://public-en.node.kaia.io'] },
-  },
+  rpcUrls: { http: 'https://public-en.node.kaia.io' },
   blockExplorers: {
-    default: {
-      name: 'KaiaScan',
-      url: 'https://kaiascan.io',
-      apiUrl: 'https://api-cypress.klaytnscope.com/api',
-    },
+    name: 'KaiaScan',
+    url: 'https://kaiascan.io',
+    apiUrl: 'https://api-cypress.klaytnscope.com/api',
   },
   contracts: {
     multicall3: {

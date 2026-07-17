@@ -9,16 +9,12 @@ export const snax = /*#__PURE__*/ Chain.from({
   name: 'SnaxChain',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.snaxchain.io'],
-    },
+    http: 'https://mainnet.snaxchain.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Snax Explorer',
-      url: 'https://explorer.snaxchain.io',
-      apiUrl: 'https://explorer.snaxchain.io/api',
-    },
+    name: 'Snax Explorer',
+    url: 'https://explorer.snaxchain.io',
+    apiUrl: 'https://explorer.snaxchain.io/api',
   },
   contracts: {
     ...chainConfig.contracts,

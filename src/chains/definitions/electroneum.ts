@@ -9,15 +9,11 @@ export const electroneum = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.electroneum.com'],
-    },
+    http: 'https://rpc.electroneum.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Electroneum Block Explorer',
-      url: 'https://blockexplorer.electroneum.com',
-    },
+    name: 'Electroneum Block Explorer',
+    url: 'https://blockexplorer.electroneum.com',
   },
   testnet: false,
 })

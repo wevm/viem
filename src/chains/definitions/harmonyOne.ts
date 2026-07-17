@@ -8,14 +8,10 @@ export const harmonyOne = /*#__PURE__*/ Chain.from({
     symbol: 'ONE',
     decimals: 18,
   },
-  rpcUrls: {
-    default: { http: ['https://1666600000.rpc.thirdweb.com'] },
-  },
+  rpcUrls: { http: 'https://1666600000.rpc.thirdweb.com' },
   blockExplorers: {
-    default: {
-      name: 'Harmony Explorer',
-      url: 'https://explorer.harmony.one',
-    },
+    name: 'Harmony Explorer',
+    url: 'https://explorer.harmony.one',
   },
   contracts: {
     multicall3: {

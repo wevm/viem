@@ -9,13 +9,12 @@ export const darwinia = /*#__PURE__*/ Chain.from({
     symbol: 'RING',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.darwinia.network'],
-      webSocket: ['wss://rpc.darwinia.network'],
-    },
+    http: 'https://rpc.darwinia.network',
+    ws: 'wss://rpc.darwinia.network',
   },
   blockExplorers: {
-    default: { name: 'Explorer', url: 'https://explorer.darwinia.network' },
+    name: 'Explorer',
+    url: 'https://explorer.darwinia.network',
   },
   contracts: {
     multicall3: {

@@ -8,14 +8,10 @@ export const berachainTestnet = /*#__PURE__*/ Chain.from({
     name: 'BERA Token',
     symbol: 'BERA',
   },
-  rpcUrls: {
-    default: { http: ['https://artio.rpc.berachain.com'] },
-  },
+  rpcUrls: { http: 'https://artio.rpc.berachain.com' },
   blockExplorers: {
-    default: {
-      name: 'Berachain',
-      url: 'https://artio.beratrail.io',
-    },
+    name: 'Berachain',
+    url: 'https://artio.beratrail.io',
   },
   contracts: {
     multicall3: {

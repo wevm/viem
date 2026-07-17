@@ -22,15 +22,11 @@ export const story = /*#__PURE__*/ Chain.from({
       blockCreated: 649114,
     },
   },
-  rpcUrls: {
-    default: { http: ['https://mainnet.storyrpc.io'] },
-  },
+  rpcUrls: { http: 'https://mainnet.storyrpc.io' },
   blockExplorers: {
-    default: {
-      name: 'Story explorer',
-      url: 'https://storyscan.io',
-      apiUrl: 'https://storyscan.io/api/v2',
-    },
+    name: 'Story explorer',
+    url: 'https://storyscan.io',
+    apiUrl: 'https://storyscan.io/api/v2',
   },
   ensTlds: ['.ip'],
   testnet: false,

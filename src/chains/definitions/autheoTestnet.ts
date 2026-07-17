@@ -9,18 +9,14 @@ export const autheoTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'THEO',
   },
   rpcUrls: {
-    default: {
-      http: [
-        'https://testnet-rpc1.autheo.com',
-        'https://testnet-rpc2.autheo.com',
-      ],
-    },
+    http: [
+      'https://testnet-rpc1.autheo.com',
+      'https://testnet-rpc2.autheo.com',
+    ],
   },
   blockExplorers: {
-    default: {
-      name: 'Autheo Testnet Block Explorer',
-      url: 'https://testnet-explorer.autheo.com/',
-    },
+    name: 'Autheo Testnet Block Explorer',
+    url: 'https://testnet-explorer.autheo.com/',
   },
   testnet: true,
 })

@@ -9,15 +9,11 @@ export const eduChain = /*#__PURE__*/ Chain.from({
     symbol: 'EDU',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.edu-chain.raas.gelato.cloud'],
-    },
+    http: 'https://rpc.edu-chain.raas.gelato.cloud',
   },
   blockExplorers: {
-    default: {
-      name: 'EDU Chain Explorer',
-      url: 'https://educhain.blockscout.com/',
-    },
+    name: 'EDU Chain Explorer',
+    url: 'https://educhain.blockscout.com/',
   },
   testnet: false,
 })

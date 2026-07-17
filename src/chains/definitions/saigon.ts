@@ -5,15 +5,11 @@ export const saigon = /*#__PURE__*/ Chain.from({
   name: 'Ronin Saigon Testnet',
   nativeCurrency: { name: 'RON', symbol: 'RON', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://saigon-testnet.roninchain.com/rpc'],
-    },
+    http: 'https://saigon-testnet.roninchain.com/rpc',
   },
   blockExplorers: {
-    default: {
-      name: 'Saigon Explorer',
-      url: 'https://saigon-explorer.roninchain.com',
-    },
+    name: 'Saigon Explorer',
+    url: 'https://saigon-explorer.roninchain.com',
   },
   contracts: {
     multicall3: {

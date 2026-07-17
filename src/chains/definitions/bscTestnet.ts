@@ -8,15 +8,11 @@ export const bscTestnet = /*#__PURE__*/ Chain.from({
     name: 'BNB',
     symbol: 'tBNB',
   },
-  rpcUrls: {
-    default: { http: ['https://data-seed-prebsc-1-s1.bnbchain.org:8545'] },
-  },
+  rpcUrls: { http: 'https://data-seed-prebsc-1-s1.bnbchain.org:8545' },
   blockExplorers: {
-    default: {
-      name: 'BscScan',
-      url: 'https://testnet.bscscan.com',
-      apiUrl: 'https://api-testnet.bscscan.com/api',
-    },
+    name: 'BscScan',
+    url: 'https://testnet.bscscan.com',
+    apiUrl: 'https://api-testnet.bscscan.com/api',
   },
   contracts: {
     multicall3: {

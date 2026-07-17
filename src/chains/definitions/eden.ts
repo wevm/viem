@@ -9,9 +9,7 @@ export const eden = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.eden.gateway.fm'],
-    },
+    http: 'https://rpc.eden.gateway.fm',
   },
   contracts: {
     multicall3: {
@@ -20,10 +18,8 @@ export const eden = /*#__PURE__*/ Chain.from({
     },
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://eden.blockscout.com',
-      apiUrl: 'https://eden.blockscout.com/api',
-    },
+    name: 'Blockscout',
+    url: 'https://eden.blockscout.com',
+    apiUrl: 'https://eden.blockscout.com/api',
   },
 })

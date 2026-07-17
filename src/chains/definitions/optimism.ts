@@ -9,16 +9,12 @@ export const optimism = /*#__PURE__*/ Chain.from({
   name: 'OP Mainnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.optimism.io'],
-    },
+    http: 'https://mainnet.optimism.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Optimism Explorer',
-      url: 'https://optimistic.etherscan.io',
-      apiUrl: 'https://api-optimistic.etherscan.io/api',
-    },
+    name: 'Optimism Explorer',
+    url: 'https://optimistic.etherscan.io',
+    apiUrl: 'https://api-optimistic.etherscan.io/api',
   },
   contracts: {
     ...chainConfig.contracts,

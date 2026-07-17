@@ -9,19 +9,15 @@ export const jocTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'JOCT',
   },
   rpcUrls: {
-    default: {
-      http: [
-        'https://rpc-1.testnet.japanopenchain.org:8545',
-        'https://rpc-2.testnet.japanopenchain.org:8545',
-        'https://rpc-3.testnet.japanopenchain.org',
-      ],
-    },
+    http: [
+      'https://rpc-1.testnet.japanopenchain.org:8545',
+      'https://rpc-2.testnet.japanopenchain.org:8545',
+      'https://rpc-3.testnet.japanopenchain.org',
+    ],
   },
   blockExplorers: {
-    default: {
-      name: 'Testnet Block Explorer',
-      url: 'https://explorer.testnet.japanopenchain.org',
-    },
+    name: 'Testnet Block Explorer',
+    url: 'https://explorer.testnet.japanopenchain.org',
   },
   testnet: true,
 })

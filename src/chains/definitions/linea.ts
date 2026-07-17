@@ -6,17 +6,13 @@ export const linea = /*#__PURE__*/ Chain.from({
   blockTime: 2000,
   nativeCurrency: { name: 'Linea Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.linea.build'],
-      webSocket: ['wss://rpc.linea.build'],
-    },
+    http: 'https://rpc.linea.build',
+    ws: 'wss://rpc.linea.build',
   },
   blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://lineascan.build',
-      apiUrl: 'https://api.lineascan.build/api',
-    },
+    name: 'Etherscan',
+    url: 'https://lineascan.build',
+    apiUrl: 'https://api.lineascan.build/api',
   },
   contracts: {
     multicall3: {

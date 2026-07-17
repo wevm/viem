@@ -5,17 +5,13 @@ export const seiTestnet = /*#__PURE__*/ Chain.from({
   name: 'Sei Testnet',
   nativeCurrency: { name: 'Sei', symbol: 'SEI', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://evm-rpc-testnet.sei-apis.com'],
-      webSocket: ['wss://evm-ws-testnet.sei-apis.com'],
-    },
+    http: 'https://evm-rpc-testnet.sei-apis.com',
+    ws: 'wss://evm-ws-testnet.sei-apis.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Seiscan',
-      url: 'https://testnet.seiscan.io',
-      apiUrl: 'https://api.etherscan.io/v2/api',
-    },
+    name: 'Seiscan',
+    url: 'https://testnet.seiscan.io',
+    apiUrl: 'https://api.etherscan.io/v2/api',
   },
   contracts: {
     multicall3: {

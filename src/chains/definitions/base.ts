@@ -9,16 +9,12 @@ export const base = /*#__PURE__*/ Chain.from({
   name: 'Base',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.base.org'],
-    },
+    http: 'https://mainnet.base.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Basescan',
-      url: 'https://basescan.org',
-      apiUrl: 'https://api.basescan.org/api',
-    },
+    name: 'Basescan',
+    url: 'https://basescan.org',
+    apiUrl: 'https://api.basescan.org/api',
   },
   contracts: {
     ...chainConfig.contracts,
@@ -56,8 +52,6 @@ export const basePreconf = /*#__PURE__*/ Chain.from({
   ...base,
   preconfirmationTime: 200,
   rpcUrls: {
-    default: {
-      http: ['https://mainnet-preconf.base.org'],
-    },
+    http: 'https://mainnet-preconf.base.org',
   },
 })

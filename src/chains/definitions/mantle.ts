@@ -8,15 +8,11 @@ export const mantle = /*#__PURE__*/ Chain.from({
     name: 'MNT',
     symbol: 'MNT',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.mantle.xyz'] },
-  },
+  rpcUrls: { http: 'https://rpc.mantle.xyz' },
   blockExplorers: {
-    default: {
-      name: 'Mantle Explorer',
-      url: 'https://mantlescan.xyz/',
-      apiUrl: 'https://api.mantlescan.xyz/api',
-    },
+    name: 'Mantle Explorer',
+    url: 'https://mantlescan.xyz/',
+    apiUrl: 'https://api.mantlescan.xyz/api',
   },
   contracts: {
     multicall3: {

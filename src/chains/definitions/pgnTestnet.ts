@@ -9,16 +9,12 @@ export const pgnTestnet = /*#__PURE__*/ Chain.from({
   name: 'PGN',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://sepolia.publicgoods.network'],
-    },
+    http: 'https://sepolia.publicgoods.network',
   },
   blockExplorers: {
-    default: {
-      name: 'PGN Testnet Explorer',
-      url: 'https://explorer.sepolia.publicgoods.network',
-      apiUrl: 'https://explorer.sepolia.publicgoods.network/api',
-    },
+    name: 'PGN Testnet Explorer',
+    url: 'https://explorer.sepolia.publicgoods.network',
+    apiUrl: 'https://explorer.sepolia.publicgoods.network/api',
   },
   contracts: {
     l2OutputOracle: {

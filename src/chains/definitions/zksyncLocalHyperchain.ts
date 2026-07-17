@@ -7,17 +7,13 @@ export const zksyncLocalHyperchain = /*#__PURE__*/ Chain.from({
   name: 'ZKsync CLI Local Hyperchain',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['http://localhost:15100'],
-      webSocket: ['ws://localhost:15101'],
-    },
+    http: 'http://localhost:15100',
+    ws: 'ws://localhost:15101',
   },
   blockExplorers: {
-    default: {
-      name: 'ZKsync explorer',
-      url: 'http://localhost:15005/',
-      apiUrl: 'http://localhost:15005/api',
-    },
+    name: 'ZKsync explorer',
+    url: 'http://localhost:15005/',
+    apiUrl: 'http://localhost:15005/api',
   },
   testnet: true,
 })

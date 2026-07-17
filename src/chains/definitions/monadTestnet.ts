@@ -10,15 +10,11 @@ export const monadTestnet = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://testnet-rpc.monad.xyz'],
-    },
+    http: 'https://testnet-rpc.monad.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'Monad Testnet explorer',
-      url: 'https://testnet.monadexplorer.com',
-    },
+    name: 'Monad Testnet explorer',
+    url: 'https://testnet.monadexplorer.com',
   },
   contracts: {
     multicall3: {

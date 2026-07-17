@@ -13,16 +13,12 @@ export const bob = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.gobob.xyz'],
-      webSocket: ['wss://rpc.gobob.xyz'],
-    },
+    http: 'https://rpc.gobob.xyz',
+    ws: 'wss://rpc.gobob.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'BOB Explorer',
-      url: 'https://explorer.gobob.xyz',
-    },
+    name: 'BOB Explorer',
+    url: 'https://explorer.gobob.xyz',
   },
   contracts: {
     ...chainConfig.contracts,

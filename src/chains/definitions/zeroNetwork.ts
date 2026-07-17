@@ -5,15 +5,11 @@ export const zeroNetwork = /*#__PURE__*/ Chain.from({
   name: 'Zero Network',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.zerion.io/v1/zero'],
-    },
+    http: 'https://rpc.zerion.io/v1/zero',
   },
   blockExplorers: {
-    default: {
-      name: 'Zero Network Explorer',
-      url: 'https://explorer.zero.network',
-    },
+    name: 'Zero Network Explorer',
+    url: 'https://explorer.zero.network',
   },
   testnet: false,
 })

@@ -9,15 +9,11 @@ export const vana = /*#__PURE__*/ Chain.from({
     name: 'Vana',
     symbol: 'VANA',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.vana.org/'] },
-  },
+  rpcUrls: { http: 'https://rpc.vana.org/' },
   blockExplorers: {
-    default: {
-      name: 'Vana Block Explorer',
-      url: 'https://vanascan.io',
-      apiUrl: 'https://vanascan.io/api',
-    },
+    name: 'Vana Block Explorer',
+    url: 'https://vanascan.io',
+    apiUrl: 'https://vanascan.io/api',
   },
   contracts: {
     multicall3: {

@@ -5,16 +5,12 @@ export const skaleBase = /*#__PURE__*/ Chain.from({
   name: 'SKALE Base',
   nativeCurrency: { name: 'Credits', symbol: 'CREDIT', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://skale-base.skalenodes.com/v1/base'],
-      webSocket: ['wss://skale-base.skalenodes.com/v1/ws/base'],
-    },
+    http: 'https://skale-base.skalenodes.com/v1/base',
+    ws: 'wss://skale-base.skalenodes.com/v1/ws/base',
   },
   blockExplorers: {
-    default: {
-      name: 'SKALE Explorer',
-      url: 'https://skale-base-explorer.skalenodes.com/',
-    },
+    name: 'SKALE Explorer',
+    url: 'https://skale-base-explorer.skalenodes.com/',
   },
   testnet: true,
 })

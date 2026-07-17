@@ -9,15 +9,11 @@ export const dfk = /*#__PURE__*/ Chain.from({
     symbol: 'JEWEL',
   },
   rpcUrls: {
-    default: {
-      http: ['https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc'],
-    },
+    http: 'https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc',
   },
   blockExplorers: {
-    default: {
-      name: 'DFKSubnetScan',
-      url: 'https://subnets.avax.network/defi-kingdoms',
-    },
+    name: 'DFKSubnetScan',
+    url: 'https://subnets.avax.network/defi-kingdoms',
   },
   contracts: {
     multicall3: {

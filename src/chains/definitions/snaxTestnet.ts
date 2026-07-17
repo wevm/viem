@@ -9,16 +9,12 @@ export const snaxTestnet = /*#__PURE__*/ Chain.from({
   name: 'SnaxChain Testnet',
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://testnet.snaxchain.io'],
-    },
+    http: 'https://testnet.snaxchain.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Snax Explorer',
-      url: 'https://testnet-explorer.snaxchain.io',
-      apiUrl: 'https://testnet-explorer.snaxchain.io/api',
-    },
+    name: 'Snax Explorer',
+    url: 'https://testnet-explorer.snaxchain.io',
+    apiUrl: 'https://testnet-explorer.snaxchain.io/api',
   },
   contracts: {
     ...chainConfig.contracts,

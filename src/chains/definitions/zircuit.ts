@@ -13,15 +13,11 @@ export const zircuit = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.zircuit.com'],
-    },
+    http: 'https://mainnet.zircuit.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Zircuit Explorer',
-      url: 'https://explorer.zircuit.com',
-    },
+    name: 'Zircuit Explorer',
+    url: 'https://explorer.zircuit.com',
   },
   contracts: {
     ...chainConfig.contracts,

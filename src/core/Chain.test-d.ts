@@ -11,7 +11,7 @@ test('from: preserves literal types', () => {
     id: 1,
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-    rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+    rpcUrls: { http: 'https://eth.merkle.io' },
   })
   expectTypeOf(chain.id).toEqualTypeOf<1>()
   expectTypeOf(chain.name).toEqualTypeOf<'Ethereum'>()
@@ -28,7 +28,7 @@ test('extend: merges and preserves literals', () => {
     id: 1,
     name: 'Test',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-    rpcUrls: { default: { http: ['https://localhost:8545'] } },
+    rpcUrls: { http: 'https://localhost:8545' },
   }).extend({ testnet: true })
   const chained = chain.extend({ sourceId: 10 })
 
@@ -49,7 +49,7 @@ test('extendSchema: declares and types extension fields', () => {
     id: 1,
     name: 'Custom',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-    rpcUrls: { default: { http: ['https://localhost:8545'] } },
+    rpcUrls: { http: 'https://localhost:8545' },
   })
 
   expectTypeOf(
@@ -71,7 +71,7 @@ test('transaction hooks: custom envelope assigns without casts', () => {
     id: 1,
     name: 'Zed',
     nativeCurrency: { name: 'Zed', symbol: 'ZED', decimals: 18 },
-    rpcUrls: { default: { http: ['https://localhost:8545'] } },
+    rpcUrls: { http: 'https://localhost:8545' },
     transaction: {
       getSignPayload: (envelope: ZedEnvelope): Hex.Hex => `0x${envelope.type}`,
       serialize: (envelope: ZedEnvelope): Hex.Hex => `0x7a${envelope.type}`,

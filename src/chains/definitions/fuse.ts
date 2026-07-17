@@ -4,15 +4,11 @@ export const fuse = /*#__PURE__*/ Chain.from({
   id: 122,
   name: 'Fuse',
   nativeCurrency: { name: 'Fuse', symbol: 'FUSE', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://rpc.fuse.io'] },
-  },
+  rpcUrls: { http: 'https://rpc.fuse.io' },
   blockExplorers: {
-    default: {
-      name: 'Fuse Explorer',
-      url: 'https://explorer.fuse.io',
-      apiUrl: 'https://explorer.fuse.io/api',
-    },
+    name: 'Fuse Explorer',
+    url: 'https://explorer.fuse.io',
+    apiUrl: 'https://explorer.fuse.io/api',
   },
   contracts: {
     multicall3: {

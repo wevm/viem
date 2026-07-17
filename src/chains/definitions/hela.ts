@@ -9,15 +9,11 @@ export const hela = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet-rpc.helachain.com'],
-    },
+    http: 'https://mainnet-rpc.helachain.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Hela explorer',
-      url: 'https://mainnet-blockexplorer.helachain.com',
-    },
+    name: 'Hela explorer',
+    url: 'https://mainnet-blockexplorer.helachain.com',
   },
   testnet: false,
 })

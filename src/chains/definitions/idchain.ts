@@ -9,16 +9,12 @@ export const idchain = /*#__PURE__*/ Chain.from({
     symbol: 'EIDI',
   },
   rpcUrls: {
-    default: {
-      http: ['https://idchain.one/rpc'],
-      webSocket: ['wss://idchain.one/ws'],
-    },
+    http: 'https://idchain.one/rpc',
+    ws: 'wss://idchain.one/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'IDChain Explorer',
-      url: 'https://explorer.idchain.one',
-    },
+    name: 'IDChain Explorer',
+    url: 'https://explorer.idchain.one',
   },
   testnet: false,
 })

@@ -9,15 +9,11 @@ export const haustTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'HAUST',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc-testnet.haust.app'],
-    },
+    http: 'https://rpc-testnet.haust.app',
   },
   blockExplorers: {
-    default: {
-      name: 'Haust Network Testnet Explorer',
-      url: 'https://explorer-testnet.haust.app',
-    },
+    name: 'Haust Network Testnet Explorer',
+    url: 'https://explorer-testnet.haust.app',
   },
   testnet: true,
 })

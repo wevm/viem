@@ -8,15 +8,11 @@ export const coreTestnet2 = /*#__PURE__*/ Chain.from({
     name: 'tCore2',
     symbol: 'TCORE2',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.test2.btcs.network'] },
-  },
+  rpcUrls: { http: 'https://rpc.test2.btcs.network' },
   blockExplorers: {
-    default: {
-      name: 'Core Testnet2',
-      url: 'https://scan.test2.btcs.network',
-      apiUrl: 'https://api.test2.btcs.network/api',
-    },
+    name: 'Core Testnet2',
+    url: 'https://scan.test2.btcs.network',
+    apiUrl: 'https://api.test2.btcs.network/api',
   },
   contracts: {
     multicall3: {

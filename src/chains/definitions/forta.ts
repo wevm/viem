@@ -9,14 +9,10 @@ export const forta = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc-forta-chain-8gj1qndmfc.t.conduit.xyz'],
-    },
+    http: 'https://rpc-forta-chain-8gj1qndmfc.t.conduit.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'Forta Explorer',
-      url: 'https://explorer.forta.org',
-    },
+    name: 'Forta Explorer',
+    url: 'https://explorer.forta.org',
   },
 })

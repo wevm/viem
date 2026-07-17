@@ -8,13 +8,9 @@ export const matchain = /*#__PURE__*/ Chain.from({
     symbol: 'BNB',
     decimals: 18,
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.matchain.io'] },
-  },
+  rpcUrls: { http: 'https://rpc.matchain.io' },
   blockExplorers: {
-    default: {
-      name: 'Matchain Scan',
-      url: 'https://matchscan.io',
-    },
+    name: 'Matchain Scan',
+    url: 'https://matchscan.io',
   },
 })

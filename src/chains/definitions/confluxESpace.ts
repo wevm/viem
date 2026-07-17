@@ -5,16 +5,12 @@ export const confluxESpace = /*#__PURE__*/ Chain.from({
   name: 'Conflux eSpace',
   nativeCurrency: { name: 'Conflux', symbol: 'CFX', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://evm.confluxrpc.com'],
-      webSocket: ['wss://evm.confluxrpc.com/ws'],
-    },
+    http: 'https://evm.confluxrpc.com',
+    ws: 'wss://evm.confluxrpc.com/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'ConfluxScan',
-      url: 'https://evm.confluxscan.org',
-    },
+    name: 'ConfluxScan',
+    url: 'https://evm.confluxscan.org',
   },
   contracts: {
     multicall3: {

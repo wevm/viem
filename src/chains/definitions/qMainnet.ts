@@ -8,14 +8,10 @@ export const qMainnet = /*#__PURE__*/ Chain.from({
     name: 'Q',
     symbol: 'Q',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.q.org'] },
-  },
+  rpcUrls: { http: 'https://rpc.q.org' },
   blockExplorers: {
-    default: {
-      name: 'Q Mainnet Explorer',
-      url: 'https://explorer.q.org',
-      apiUrl: 'https://explorer.q.org/api',
-    },
+    name: 'Q Mainnet Explorer',
+    url: 'https://explorer.q.org',
+    apiUrl: 'https://explorer.q.org/api',
   },
 })

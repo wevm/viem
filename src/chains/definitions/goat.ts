@@ -8,14 +8,10 @@ export const goat = /*#__PURE__*/ Chain.from({
     name: 'Bitcoin',
     symbol: 'BTC',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.goat.network'] },
-  },
+  rpcUrls: { http: 'https://rpc.goat.network' },
   blockExplorers: {
-    default: {
-      name: 'Goat Explorer',
-      url: 'https://explorer.goat.network',
-    },
+    name: 'Goat Explorer',
+    url: 'https://explorer.goat.network',
   },
   contracts: {
     multicall3: {

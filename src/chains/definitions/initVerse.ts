@@ -8,15 +8,11 @@ export const initVerse = /*#__PURE__*/ Chain.from({
     name: 'InitVerse',
     symbol: 'INI',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc-mainnet.inichain.com'] },
-  },
+  rpcUrls: { http: 'https://rpc-mainnet.inichain.com' },
   blockExplorers: {
-    default: {
-      name: 'InitVerseScan',
-      url: 'https://www.iniscan.com',
-      apiUrl: 'https://explorer-api.inichain.com/api',
-    },
+    name: 'InitVerseScan',
+    url: 'https://www.iniscan.com',
+    apiUrl: 'https://explorer-api.inichain.com/api',
   },
   contracts: {
     multicall3: {

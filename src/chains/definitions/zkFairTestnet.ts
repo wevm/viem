@@ -9,15 +9,11 @@ export const zkFairTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'USDC',
   },
   rpcUrls: {
-    default: {
-      http: ['https://testnet-rpc.zkfair.io'],
-    },
+    http: 'https://testnet-rpc.zkfair.io',
   },
   blockExplorers: {
-    default: {
-      name: 'zkFair Explorer',
-      url: 'https://testnet-scan.zkfair.io',
-    },
+    name: 'zkFair Explorer',
+    url: 'https://testnet-scan.zkfair.io',
   },
   testnet: true,
 })

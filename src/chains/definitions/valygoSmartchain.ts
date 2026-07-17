@@ -9,22 +9,16 @@ export const valygoSmartchain = Chain.from({
     symbol: 'VYO',
   },
   rpcUrls: {
-    default: {
-      http: [
-        'https://rpc-gw-1.vyoscan.com/ext/bc/2t51dXsuxUvd9teY9TKEJmgxmxMk3CRF88UYTA4HQgjeYZqzSX/rpc',
-        'https://rpc-gw-2.vyoscan.com/ext/bc/2t51dXsuxUvd9teY9TKEJmgxmxMk3CRF88UYTA4HQgjeYZqzSX/rpc',
-      ],
-      webSocket: [
-        'wss://ws.vyoscan.com/ext/bc/2t51dXsuxUvd9teY9TKEJmgxmxMk3CRF88UYTA4HQgjeYZqzSX/ws',
-      ],
-    },
+    http: [
+      'https://rpc-gw-1.vyoscan.com/ext/bc/2t51dXsuxUvd9teY9TKEJmgxmxMk3CRF88UYTA4HQgjeYZqzSX/rpc',
+      'https://rpc-gw-2.vyoscan.com/ext/bc/2t51dXsuxUvd9teY9TKEJmgxmxMk3CRF88UYTA4HQgjeYZqzSX/rpc',
+    ],
+    ws: 'wss://ws.vyoscan.com/ext/bc/2t51dXsuxUvd9teY9TKEJmgxmxMk3CRF88UYTA4HQgjeYZqzSX/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'VYOScan',
-      url: 'https://vyoscan.com',
-      apiUrl: 'https://vyoscan.com/api',
-    },
+    name: 'VYOScan',
+    url: 'https://vyoscan.com',
+    apiUrl: 'https://vyoscan.com/api',
   },
   contracts: {
     multicall3: {

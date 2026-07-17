@@ -9,17 +9,13 @@ export const injective = /*#__PURE__*/ Chain.from({
     symbol: 'INJ',
   },
   rpcUrls: {
-    default: {
-      http: ['https://sentry.evm-rpc.injective.network'],
-      webSocket: ['wss://sentry.evm-ws.injective.network'],
-    },
+    http: 'https://sentry.evm-rpc.injective.network',
+    ws: 'wss://sentry.evm-ws.injective.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Injective Explorer',
-      url: 'https://blockscout.injective.network',
-      apiUrl: 'https://blockscout.injective.network/api',
-    },
+    name: 'Injective Explorer',
+    url: 'https://blockscout.injective.network',
+    apiUrl: 'https://blockscout.injective.network/api',
   },
   testnet: false,
 })

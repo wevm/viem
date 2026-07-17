@@ -8,15 +8,11 @@ export const baseGoerli = /*#__PURE__*/ Chain.from({
   id: 84531,
   name: 'Base Goerli',
   nativeCurrency: { name: 'Goerli Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://goerli.base.org'] },
-  },
+  rpcUrls: { http: 'https://goerli.base.org' },
   blockExplorers: {
-    default: {
-      name: 'Basescan',
-      url: 'https://goerli.basescan.org',
-      apiUrl: 'https://goerli.basescan.org/api',
-    },
+    name: 'Basescan',
+    url: 'https://goerli.basescan.org',
+    apiUrl: 'https://goerli.basescan.org/api',
   },
   contracts: {
     ...chainConfig.contracts,

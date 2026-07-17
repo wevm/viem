@@ -9,17 +9,13 @@ export const moonbeam = /*#__PURE__*/ Chain.from({
     symbol: 'GLMR',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.api.moonbeam.network'],
-      webSocket: ['wss://wss.api.moonbeam.network'],
-    },
+    http: 'https://rpc.api.moonbeam.network',
+    ws: 'wss://wss.api.moonbeam.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Moonscan',
-      url: 'https://moonscan.io',
-      apiUrl: 'https://api-moonbeam.moonscan.io/api',
-    },
+    name: 'Moonscan',
+    url: 'https://moonscan.io',
+    apiUrl: 'https://api-moonbeam.moonscan.io/api',
   },
   contracts: {
     multicall3: {

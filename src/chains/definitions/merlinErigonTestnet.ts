@@ -8,15 +8,11 @@ export const merlinErigonTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'BTC',
     decimals: 18,
   },
-  rpcUrls: {
-    default: { http: ['https://testnet-erigon-rpc.merlinchain.io'] },
-  },
+  rpcUrls: { http: 'https://testnet-erigon-rpc.merlinchain.io' },
   blockExplorers: {
-    default: {
-      name: 'blockscout',
-      url: 'https://testnet-erigon-scan.merlinchain.io',
-      apiUrl: 'https://testnet-erigon-scan.merlinchain.io/api',
-    },
+    name: 'blockscout',
+    url: 'https://testnet-erigon-scan.merlinchain.io',
+    apiUrl: 'https://testnet-erigon-scan.merlinchain.io/api',
   },
   testnet: true,
 })

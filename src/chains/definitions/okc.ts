@@ -8,14 +8,10 @@ export const okc = /*#__PURE__*/ Chain.from({
     name: 'OKT',
     symbol: 'OKT',
   },
-  rpcUrls: {
-    default: { http: ['https://exchainrpc.okex.org'] },
-  },
+  rpcUrls: { http: 'https://exchainrpc.okex.org' },
   blockExplorers: {
-    default: {
-      name: 'oklink',
-      url: 'https://www.oklink.com/okc',
-    },
+    name: 'oklink',
+    url: 'https://www.oklink.com/okc',
   },
   contracts: {
     multicall3: {

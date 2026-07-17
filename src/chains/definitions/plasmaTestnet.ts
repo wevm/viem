@@ -9,15 +9,11 @@ export const plasmaTestnet = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://testnet-rpc.plasma.to'],
-    },
+    http: 'https://testnet-rpc.plasma.to',
   },
   blockExplorers: {
-    default: {
-      name: 'RouteScan',
-      url: 'https://testnet.plasmascan.to',
-    },
+    name: 'RouteScan',
+    url: 'https://testnet.plasmascan.to',
   },
   contracts: {
     multicall3: {

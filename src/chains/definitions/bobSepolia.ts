@@ -13,16 +13,12 @@ export const bobSepolia = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://bob-sepolia.rpc.gobob.xyz'],
-      webSocket: ['wss://bob-sepolia.rpc.gobob.xyz'],
-    },
+    http: 'https://bob-sepolia.rpc.gobob.xyz',
+    ws: 'wss://bob-sepolia.rpc.gobob.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'BOB Sepolia Explorer',
-      url: 'https://bob-sepolia.explorer.gobob.xyz',
-    },
+    name: 'BOB Sepolia Explorer',
+    url: 'https://bob-sepolia.explorer.gobob.xyz',
   },
   contracts: {
     ...chainConfig.contracts,

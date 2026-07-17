@@ -5,15 +5,11 @@ export const thunderCore = /*#__PURE__*/ Chain.from({
   name: 'ThunderCore Mainnet',
   nativeCurrency: { name: 'TT', symbol: 'TT', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet-rpc.thundercore.com'],
-    },
+    http: 'https://mainnet-rpc.thundercore.com',
   },
   blockExplorers: {
-    default: {
-      name: 'ThunderCore Explorer',
-      url: 'https://explorer-mainnet.thundercore.com',
-    },
+    name: 'ThunderCore Explorer',
+    url: 'https://explorer-mainnet.thundercore.com',
   },
   contracts: {
     multicall3: {

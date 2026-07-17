@@ -11,15 +11,11 @@ export const b3 = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet-rpc.b3.fun/http'],
-    },
+    http: 'https://mainnet-rpc.b3.fun/http',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://explorer.b3.fun',
-    },
+    name: 'Blockscout',
+    url: 'https://explorer.b3.fun',
   },
   contracts: {
     multicall3: {

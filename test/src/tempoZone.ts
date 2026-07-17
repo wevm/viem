@@ -30,9 +30,7 @@ export const chain = Chain.from({
     symbol: 'USD',
   },
   rpcUrls: {
-    default: {
-      http: [runtime?.privateRpcUrl ?? 'http://127.0.0.1:0'],
-    },
+    http: runtime?.privateRpcUrl ?? 'http://127.0.0.1:0',
   },
   sourceId: tempoLocalnet.id,
   supportsTransactionReplacementDetection: false,

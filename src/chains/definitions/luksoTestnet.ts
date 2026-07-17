@@ -9,17 +9,13 @@ export const luksoTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'LYXt',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.lukso.network'],
-      webSocket: ['wss://ws-rpc.testnet.lukso.network'],
-    },
+    http: 'https://rpc.testnet.lukso.network',
+    ws: 'wss://ws-rpc.testnet.lukso.network',
   },
   blockExplorers: {
-    default: {
-      name: 'LUKSO Testnet Explorer',
-      url: 'https://explorer.execution.testnet.lukso.network',
-      apiUrl: 'https://api.explorer.execution.testnet.lukso.network/api',
-    },
+    name: 'LUKSO Testnet Explorer',
+    url: 'https://explorer.execution.testnet.lukso.network',
+    apiUrl: 'https://api.explorer.execution.testnet.lukso.network/api',
   },
   contracts: {
     multicall3: {

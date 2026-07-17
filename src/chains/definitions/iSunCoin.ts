@@ -9,14 +9,10 @@ export const iSunCoin = /*#__PURE__*/ Chain.from({
     symbol: 'ISC',
   },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.isuncoin.com'],
-    },
+    http: 'https://mainnet.isuncoin.com',
   },
   blockExplorers: {
-    default: {
-      name: 'iSunCoin Explorer',
-      url: 'https://baifa.io/app/chains/8017',
-    },
+    name: 'iSunCoin Explorer',
+    url: 'https://baifa.io/app/chains/8017',
   },
 })

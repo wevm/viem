@@ -8,15 +8,11 @@ export const kava = /*#__PURE__*/ Chain.from({
     symbol: 'KAVA',
     decimals: 18,
   },
-  rpcUrls: {
-    default: { http: ['https://evm.kava.io'] },
-  },
+  rpcUrls: { http: 'https://evm.kava.io' },
   blockExplorers: {
-    default: {
-      name: 'Kava EVM Explorer',
-      url: 'https://kavascan.com',
-      apiUrl: 'https://kavascan.com/api',
-    },
+    name: 'Kava EVM Explorer',
+    url: 'https://kavascan.com',
+    apiUrl: 'https://kavascan.com/api',
   },
   contracts: {
     multicall3: {

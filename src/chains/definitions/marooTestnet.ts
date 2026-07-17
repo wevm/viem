@@ -5,17 +5,13 @@ export const marooTestnet = /*#__PURE__*/ Chain.from({
   name: 'Maroo Testnet',
   nativeCurrency: { name: 'Testnet OKRW', symbol: 'tOKRW', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc-testnet.maroo.io'],
-      webSocket: ['wss://ws-testnet.maroo.io'],
-    },
+    http: 'https://rpc-testnet.maroo.io',
+    ws: 'wss://ws-testnet.maroo.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://explorer-testnet.maroo.io',
-      apiUrl: 'https://explorer-testnet.maroo.io/blockscout/api',
-    },
+    name: 'Blockscout',
+    url: 'https://explorer-testnet.maroo.io',
+    apiUrl: 'https://explorer-testnet.maroo.io/blockscout/api',
   },
   contracts: {
     multicall3: {

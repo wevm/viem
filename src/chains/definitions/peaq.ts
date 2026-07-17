@@ -9,24 +9,20 @@ export const peaq = /*#__PURE__*/ Chain.from({
     symbol: 'PEAQ',
   },
   rpcUrls: {
-    default: {
-      http: [
-        'https://quicknode1.peaq.xyz',
-        'https://quicknode2.peaq.xyz',
-        'https://quicknode3.peaq.xyz',
-      ],
-      webSocket: [
-        'wss://quicknode1.peaq.xyz',
-        'wss://quicknode2.peaq.xyz',
-        'wss://quicknode3.peaq.xyz',
-      ],
-    },
+    http: [
+      'https://quicknode1.peaq.xyz',
+      'https://quicknode2.peaq.xyz',
+      'https://quicknode3.peaq.xyz',
+    ],
+    ws: [
+      'wss://quicknode1.peaq.xyz',
+      'wss://quicknode2.peaq.xyz',
+      'wss://quicknode3.peaq.xyz',
+    ],
   },
   blockExplorers: {
-    default: {
-      name: 'Subscan',
-      url: 'https://peaq.subscan.io',
-    },
+    name: 'Subscan',
+    url: 'https://peaq.subscan.io',
   },
   contracts: {
     multicall3: {

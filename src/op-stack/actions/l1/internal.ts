@@ -111,5 +111,5 @@ const unknownChain: Chain.Chain = {
   id: 0,
   name: 'Unknown',
   nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
-  rpcUrls: { default: { http: [] } },
+  rpcUrls: { http: [] },
 }

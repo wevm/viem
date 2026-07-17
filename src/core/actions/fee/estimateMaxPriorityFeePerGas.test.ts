@@ -13,7 +13,7 @@ import {
 const client = anvil.getClient(anvil.mainnet)
 
 const chain = mainnet.extend({
-  rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+  rpcUrls: { http: anvil.mainnet.rpcUrl.http },
 })
 
 test('default', async () => {

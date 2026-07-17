@@ -9,15 +9,11 @@ export const sovaSepolia = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.sova.io'],
-    },
+    http: 'https://rpc.testnet.sova.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Sova Sepolia Explorer',
-      url: 'https://explorer.testnet.sova.io',
-    },
+    name: 'Sova Sepolia Explorer',
+    url: 'https://explorer.testnet.sova.io',
   },
   testnet: true,
 })

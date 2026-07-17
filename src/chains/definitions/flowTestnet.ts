@@ -9,15 +9,11 @@ export const flowTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'FLOW',
   },
   rpcUrls: {
-    default: {
-      http: ['https://testnet.evm.nodes.onflow.org'],
-    },
+    http: 'https://testnet.evm.nodes.onflow.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Flow Diver',
-      url: 'https://evm-testnet.flowscan.io',
-    },
+    name: 'Flow Diver',
+    url: 'https://evm-testnet.flowscan.io',
   },
   contracts: {
     multicall3: {

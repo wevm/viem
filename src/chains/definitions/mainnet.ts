@@ -6,16 +6,12 @@ export const mainnet = /*#__PURE__*/ Chain.from({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   blockTime: 12_000,
   rpcUrls: {
-    default: {
-      http: ['https://ethereum.reth.rs/rpc'],
-    },
+    http: 'https://ethereum.reth.rs/rpc',
   },
   blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://etherscan.io',
-      apiUrl: 'https://api.etherscan.io/api',
-    },
+    name: 'Etherscan',
+    url: 'https://etherscan.io',
+    apiUrl: 'https://api.etherscan.io/api',
   },
   contracts: {
     ensUniversalResolver: {

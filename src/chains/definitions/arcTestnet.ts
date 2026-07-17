@@ -9,24 +9,20 @@ export const arcTestnet = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: [
-        'https://rpc.testnet.arc.network',
-        'https://rpc.quicknode.testnet.arc.network',
-        'https://rpc.blockdaemon.testnet.arc.network',
-      ],
-      webSocket: [
-        'wss://rpc.testnet.arc.network',
-        'wss://rpc.quicknode.testnet.arc.network',
-      ],
-    },
+    http: [
+      'https://rpc.testnet.arc.network',
+      'https://rpc.quicknode.testnet.arc.network',
+      'https://rpc.blockdaemon.testnet.arc.network',
+    ],
+    ws: [
+      'wss://rpc.testnet.arc.network',
+      'wss://rpc.quicknode.testnet.arc.network',
+    ],
   },
   blockExplorers: {
-    default: {
-      name: 'ArcScan',
-      url: 'https://testnet.arcscan.app',
-      apiUrl: 'https://testnet.arcscan.app/api',
-    },
+    name: 'ArcScan',
+    url: 'https://testnet.arcscan.app',
+    apiUrl: 'https://testnet.arcscan.app/api',
   },
   contracts: {
     multicall3: {

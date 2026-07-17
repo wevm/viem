@@ -9,15 +9,11 @@ export const worldLand = /*#__PURE__*/ Chain.from({
     symbol: 'WLC',
   },
   rpcUrls: {
-    default: {
-      http: ['https://seoul.worldland.foundation'],
-    },
+    http: 'https://seoul.worldland.foundation',
   },
   blockExplorers: {
-    default: {
-      name: 'WorldLand Scan',
-      url: 'https://scan.worldland.foundation',
-    },
+    name: 'WorldLand Scan',
+    url: 'https://scan.worldland.foundation',
   },
   testnet: false,
 })

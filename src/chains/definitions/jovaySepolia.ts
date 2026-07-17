@@ -9,15 +9,11 @@ export const jovaySepolia = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://api.zan.top/public/jovay-testnet'],
-    },
+    http: 'https://api.zan.top/public/jovay-testnet',
   },
   blockExplorers: {
-    default: {
-      name: 'Jovay Testnet Explorer',
-      url: 'https://sepolia-explorer.jovay.io/l2',
-    },
+    name: 'Jovay Testnet Explorer',
+    url: 'https://sepolia-explorer.jovay.io/l2',
   },
   testnet: true,
 })

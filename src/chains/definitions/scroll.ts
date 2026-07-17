@@ -6,17 +6,13 @@ export const scroll = /*#__PURE__*/ Chain.from({
   blockTime: 3000,
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.scroll.io'],
-      webSocket: ['wss://wss-rpc.scroll.io/ws'],
-    },
+    http: 'https://rpc.scroll.io',
+    ws: 'wss://wss-rpc.scroll.io/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Scrollscan',
-      url: 'https://scrollscan.com',
-      apiUrl: 'https://api.scrollscan.com/api',
-    },
+    name: 'Scrollscan',
+    url: 'https://scrollscan.com',
+    apiUrl: 'https://api.scrollscan.com/api',
   },
   contracts: {
     multicall3: {

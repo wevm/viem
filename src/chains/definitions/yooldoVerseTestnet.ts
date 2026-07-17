@@ -5,15 +5,11 @@ export const yooldoVerseTestnet = /*#__PURE__*/ Chain.from({
   name: 'Yooldo Verse Testnet',
   nativeCurrency: { name: 'OAS', symbol: 'OAS', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.yooldo-verse.xyz'],
-    },
+    http: 'https://rpc.testnet.yooldo-verse.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'Yooldo Verse Testnet Explorer',
-      url: 'https://explorer.testnet.yooldo-verse.xyz',
-    },
+    name: 'Yooldo Verse Testnet Explorer',
+    url: 'https://explorer.testnet.yooldo-verse.xyz',
   },
   testnet: true,
 })

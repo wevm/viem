@@ -8,14 +8,10 @@ export const dailyNetwork = /*#__PURE__*/ Chain.from({
     name: 'Daily',
     symbol: 'DLY',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.mainnet.dailycrypto.net'] },
-  },
+  rpcUrls: { http: 'https://rpc.mainnet.dailycrypto.net' },
   blockExplorers: {
-    default: {
-      name: 'Daily Mainnet Explorer',
-      url: 'https://explorer.mainnet.dailycrypto.net',
-    },
+    name: 'Daily Mainnet Explorer',
+    url: 'https://explorer.mainnet.dailycrypto.net',
   },
   testnet: false,
 })

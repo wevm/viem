@@ -15,14 +15,10 @@ export const berachainBepolia = /*#__PURE__*/ Chain.from({
       blockCreated: 0,
     },
   },
-  rpcUrls: {
-    default: { http: ['https://bepolia.rpc.berachain.com'] },
-  },
+  rpcUrls: { http: 'https://bepolia.rpc.berachain.com' },
   blockExplorers: {
-    default: {
-      name: 'Berascan',
-      url: 'https://bepolia.beratrail.io',
-    },
+    name: 'Berascan',
+    url: 'https://bepolia.beratrail.io',
   },
   testnet: true,
 })

@@ -8,14 +8,10 @@ export const bobaSepolia = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
     decimals: 18,
   },
-  rpcUrls: {
-    default: { http: ['https://sepolia.boba.network'] },
-  },
+  rpcUrls: { http: 'https://sepolia.boba.network' },
   blockExplorers: {
-    default: {
-      name: 'BOBAScan',
-      url: 'https://testnet.bobascan.com',
-    },
+    name: 'BOBAScan',
+    url: 'https://testnet.bobascan.com',
   },
   testnet: true,
 })

@@ -5,18 +5,14 @@ export const siliconSepolia = /*#__PURE__*/ Chain.from({
   name: 'Silicon Sepolia zkEVM',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: [
-        'https://rpc-sepolia.silicon.network',
-        'https://silicon-testnet.nodeinfra.com',
-      ],
-    },
+    http: [
+      'https://rpc-sepolia.silicon.network',
+      'https://silicon-testnet.nodeinfra.com',
+    ],
   },
   blockExplorers: {
-    default: {
-      name: 'SiliconSepoliaScope',
-      url: 'https://scope-sepolia.silicon.network',
-    },
+    name: 'SiliconSepoliaScope',
+    url: 'https://scope-sepolia.silicon.network',
   },
   testnet: true,
 })

@@ -9,16 +9,12 @@ export const shape = /*#__PURE__*/ Chain.from({
   name: 'Shape',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.shape.network'],
-    },
+    http: 'https://mainnet.shape.network',
   },
   blockExplorers: {
-    default: {
-      name: 'shapescan',
-      url: 'https://shapescan.xyz',
-      apiUrl: 'https://shapescan.xyz/api',
-    },
+    name: 'shapescan',
+    url: 'https://shapescan.xyz',
+    apiUrl: 'https://shapescan.xyz/api',
   },
   contracts: {
     ...chainConfig.contracts,

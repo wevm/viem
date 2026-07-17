@@ -9,15 +9,11 @@ export const potosTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'POT',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc-testnet.potos.hk'],
-    },
+    http: 'https://rpc-testnet.potos.hk',
   },
   blockExplorers: {
-    default: {
-      name: 'POTOS Testnet explorer',
-      url: 'https://scan-testnet.potos.hk',
-    },
+    name: 'POTOS Testnet explorer',
+    url: 'https://scan-testnet.potos.hk',
   },
   testnet: true,
 })

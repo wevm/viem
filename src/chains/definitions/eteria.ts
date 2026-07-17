@@ -5,15 +5,11 @@ export const eteria = /*#__PURE__*/ Chain.from({
   name: 'Eteria',
   nativeCurrency: { name: 'Eteria', symbol: 'ERA', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.eteria.io/v1'],
-    },
+    http: 'https://mainnet.eteria.io/v1',
   },
   blockExplorers: {
-    default: {
-      name: 'Eteria Explorer',
-      url: 'https://explorer.eteria.io',
-      apiUrl: 'https://explorer.eteria.io/api',
-    },
+    name: 'Eteria Explorer',
+    url: 'https://explorer.eteria.io',
+    apiUrl: 'https://explorer.eteria.io/api',
   },
 })

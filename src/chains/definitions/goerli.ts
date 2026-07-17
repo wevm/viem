@@ -5,16 +5,12 @@ export const goerli = /*#__PURE__*/ Chain.from({
   name: 'Goerli',
   nativeCurrency: { name: 'Goerli Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://5.rpc.thirdweb.com'],
-    },
+    http: 'https://5.rpc.thirdweb.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://goerli.etherscan.io',
-      apiUrl: 'https://api-goerli.etherscan.io/api',
-    },
+    name: 'Etherscan',
+    url: 'https://goerli.etherscan.io',
+    apiUrl: 'https://api-goerli.etherscan.io/api',
   },
   contracts: {
     ensRegistry: {

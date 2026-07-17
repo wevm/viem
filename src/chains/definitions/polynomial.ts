@@ -9,15 +9,11 @@ export const polynomial = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.polynomial.fi'],
-    },
+    http: 'https://rpc.polynomial.fi',
   },
   blockExplorers: {
-    default: {
-      name: 'Polynomial Scan',
-      url: 'https://polynomialscan.io',
-    },
+    name: 'Polynomial Scan',
+    url: 'https://polynomialscan.io',
   },
   testnet: false,
   contracts: {

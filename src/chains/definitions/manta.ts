@@ -8,15 +8,11 @@ export const manta = /*#__PURE__*/ Chain.from({
     name: 'ETH',
     symbol: 'ETH',
   },
-  rpcUrls: {
-    default: { http: ['https://pacific-rpc.manta.network/http'] },
-  },
+  rpcUrls: { http: 'https://pacific-rpc.manta.network/http' },
   blockExplorers: {
-    default: {
-      name: 'Manta Explorer',
-      url: 'https://pacific-explorer.manta.network',
-      apiUrl: 'https://pacific-explorer.manta.network/api',
-    },
+    name: 'Manta Explorer',
+    url: 'https://pacific-explorer.manta.network',
+    apiUrl: 'https://pacific-explorer.manta.network/api',
   },
   contracts: {
     multicall3: {

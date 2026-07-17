@@ -8,14 +8,10 @@ export const xLayerTestnet = /*#__PURE__*/ Chain.from({
     name: 'OKB',
     symbol: 'OKB',
   },
-  rpcUrls: {
-    default: { http: ['https://xlayertestrpc.okx.com'] },
-  },
+  rpcUrls: { http: 'https://xlayertestrpc.okx.com' },
   blockExplorers: {
-    default: {
-      name: 'OKLink',
-      url: 'https://www.oklink.com/xlayer-test',
-    },
+    name: 'OKLink',
+    url: 'https://www.oklink.com/xlayer-test',
   },
   contracts: {
     multicall3: {

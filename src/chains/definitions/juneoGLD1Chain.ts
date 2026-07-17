@@ -8,14 +8,10 @@ export const juneoGLD1Chain = /*#__PURE__*/ Chain.from({
     name: 'Juneo GLD1-Chain',
     symbol: 'GLD1',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.juneo-mainnet.network/ext/bc/GLD1/rpc'] },
-  },
+  rpcUrls: { http: 'https://rpc.juneo-mainnet.network/ext/bc/GLD1/rpc' },
   blockExplorers: {
-    default: {
-      name: 'Juneo Scan',
-      url: 'https://juneoscan.io/chain/8',
-      apiUrl: 'https://juneoscan.io/chain/8/api',
-    },
+    name: 'Juneo Scan',
+    url: 'https://juneoscan.io/chain/8',
+    apiUrl: 'https://juneoscan.io/chain/8/api',
   },
 })

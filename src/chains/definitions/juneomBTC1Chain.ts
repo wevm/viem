@@ -8,14 +8,10 @@ export const juneomBTC1Chain = /*#__PURE__*/ Chain.from({
     name: 'Juneo mBTC1-Chain',
     symbol: 'mBTC1',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.juneo-mainnet.network/ext/bc/mBTC1/rpc'] },
-  },
+  rpcUrls: { http: 'https://rpc.juneo-mainnet.network/ext/bc/mBTC1/rpc' },
   blockExplorers: {
-    default: {
-      name: 'Juneo Scan',
-      url: 'https://juneoscan.io/chain/9',
-      apiUrl: 'https://juneoscan.io/chain/9/api',
-    },
+    name: 'Juneo Scan',
+    url: 'https://juneoscan.io/chain/9',
+    apiUrl: 'https://juneoscan.io/chain/9/api',
   },
 })

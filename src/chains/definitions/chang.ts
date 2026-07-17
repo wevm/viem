@@ -9,14 +9,10 @@ export const chang = /*#__PURE__*/ Chain.from({
     symbol: 'CTH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.cthscan.com'],
-    },
+    http: 'https://rpc.cthscan.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Chang Chain explorer',
-      url: 'https://cthscan.com',
-    },
+    name: 'Chang Chain explorer',
+    url: 'https://cthscan.com',
   },
 })

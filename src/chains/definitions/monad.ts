@@ -10,21 +10,13 @@ export const monad = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.monad.xyz', 'https://rpc1.monad.xyz'],
-      webSocket: ['wss://rpc.monad.xyz', 'wss://rpc1.monad.xyz'],
-    },
+    http: ['https://rpc.monad.xyz', 'https://rpc1.monad.xyz'],
+    ws: ['wss://rpc.monad.xyz', 'wss://rpc1.monad.xyz'],
   },
   blockExplorers: {
-    default: {
-      name: 'Monadscan',
-      url: 'https://monadscan.com',
-      apiUrl: 'https://api.etherscan.io/v2/api?chainid=143',
-    },
-    monadvision: {
-      name: 'MonadVision',
-      url: 'https://monadvision.com',
-    },
+    name: 'Monadscan',
+    url: 'https://monadscan.com',
+    apiUrl: 'https://api.etherscan.io/v2/api?chainid=143',
   },
   testnet: false,
   contracts: {

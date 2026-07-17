@@ -9,27 +9,23 @@ export const defiOracleMetaMainnet = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: [
-        'https://rpc-http-pub.d-bis.org',
-        'https://rpc.d-bis.org',
-        'https://rpc2.d-bis.org',
-        'https://rpc.public-0138.defi-oracle.io',
-        'https://rpc.defi-oracle.io',
-      ],
-      webSocket: [
-        'wss://rpc-ws-pub.d-bis.org',
-        'wss://ws.rpc.d-bis.org',
-        'wss://ws.rpc2.d-bis.org',
-        'wss://rpc.public-0138.defi-oracle.io',
-        'wss://wss.defi-oracle.io',
-      ],
-    },
+    http: [
+      'https://rpc-http-pub.d-bis.org',
+      'https://rpc.d-bis.org',
+      'https://rpc2.d-bis.org',
+      'https://rpc.public-0138.defi-oracle.io',
+      'https://rpc.defi-oracle.io',
+    ],
+    ws: [
+      'wss://rpc-ws-pub.d-bis.org',
+      'wss://ws.rpc.d-bis.org',
+      'wss://ws.rpc2.d-bis.org',
+      'wss://rpc.public-0138.defi-oracle.io',
+      'wss://wss.defi-oracle.io',
+    ],
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://explorer.d-bis.org',
-    },
+    name: 'Blockscout',
+    url: 'https://explorer.d-bis.org',
   },
 })

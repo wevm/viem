@@ -8,14 +8,10 @@ export const boolBetaMainnet = /*#__PURE__*/ Chain.from({
     name: 'BOL',
     symbol: 'BOL',
   },
-  rpcUrls: {
-    default: { http: ['https://beta-rpc-node-http.bool.network'] },
-  },
+  rpcUrls: { http: 'https://beta-rpc-node-http.bool.network' },
   blockExplorers: {
-    default: {
-      name: 'BoolScan',
-      url: 'https://beta-mainnet.boolscan.com/',
-    },
+    name: 'BoolScan',
+    url: 'https://beta-mainnet.boolscan.com/',
   },
   testnet: false,
 })

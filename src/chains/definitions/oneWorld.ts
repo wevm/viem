@@ -8,14 +8,10 @@ export const oneWorld = /*#__PURE__*/ Chain.from({
     name: 'OWCT',
     symbol: 'OWCT',
   },
-  rpcUrls: {
-    default: { http: ['https://mainnet-rpc.oneworldchain.org'] },
-  },
+  rpcUrls: { http: 'https://mainnet-rpc.oneworldchain.org' },
   blockExplorers: {
-    default: {
-      name: 'One World Explorer',
-      url: 'https://mainnet.oneworldchain.org',
-    },
+    name: 'One World Explorer',
+    url: 'https://mainnet.oneworldchain.org',
   },
   testnet: false,
 })

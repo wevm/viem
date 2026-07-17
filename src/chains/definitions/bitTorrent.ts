@@ -4,15 +4,11 @@ export const bitTorrent = /*#__PURE__*/ Chain.from({
   id: 199,
   name: 'BitTorrent',
   nativeCurrency: { name: 'BitTorrent', symbol: 'BTT', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://rpc.bittorrentchain.io'] },
-  },
+  rpcUrls: { http: 'https://rpc.bittorrentchain.io' },
   blockExplorers: {
-    default: {
-      name: 'Bttcscan',
-      url: 'https://bttcscan.com',
-      apiUrl: 'https://api.bttcscan.com/api',
-    },
+    name: 'Bttcscan',
+    url: 'https://bttcscan.com',
+    apiUrl: 'https://api.bttcscan.com/api',
   },
   contracts: {
     multicall3: {

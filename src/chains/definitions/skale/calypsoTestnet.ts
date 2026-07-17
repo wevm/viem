@@ -5,16 +5,12 @@ export const skaleCalypsoTestnet = /*#__PURE__*/ Chain.from({
   name: 'SKALE Calypso Testnet',
   nativeCurrency: { name: 'sFUEL', symbol: 'sFUEL', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://testnet.skalenodes.com/v1/giant-half-dual-testnet'],
-      webSocket: ['wss://testnet.skalenodes.com/v1/ws/giant-half-dual-testnet'],
-    },
+    http: 'https://testnet.skalenodes.com/v1/giant-half-dual-testnet',
+    ws: 'wss://testnet.skalenodes.com/v1/ws/giant-half-dual-testnet',
   },
   blockExplorers: {
-    default: {
-      name: 'SKALE Explorer',
-      url: 'https://giant-half-dual-testnet.explorer.testnet.skalenodes.com',
-    },
+    name: 'SKALE Explorer',
+    url: 'https://giant-half-dual-testnet.explorer.testnet.skalenodes.com',
   },
   contracts: {
     multicall3: {

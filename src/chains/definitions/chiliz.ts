@@ -9,16 +9,12 @@ export const chiliz = /*#__PURE__*/ Chain.from({
     symbol: 'CHZ',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.chiliz.com'],
-    },
+    http: 'https://rpc.chiliz.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Chiliz Explorer',
-      url: 'https://scan.chiliz.com',
-      apiUrl: 'https://scan.chiliz.com/api',
-    },
+    name: 'Chiliz Explorer',
+    url: 'https://scan.chiliz.com',
+    apiUrl: 'https://scan.chiliz.com/api',
   },
   contracts: {
     multicall3: {

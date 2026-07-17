@@ -17,13 +17,8 @@ import type * as Token from './Token.js'
 
 /** An EVM chain. */
 export type Chain = {
-  /** Collection of block explorers. */
-  blockExplorers?:
-    | {
-        [key: string]: Chain.BlockExplorer
-        default: Chain.BlockExplorer
-      }
-    | undefined
+  /** Block explorer. */
+  blockExplorers?: Chain.BlockExplorer | undefined
   /** Block time in milliseconds. */
   blockTime?: number | undefined
   /** Collection of contracts. */
@@ -40,13 +35,8 @@ export type Chain = {
   nativeCurrency?: Chain.NativeCurrency | undefined
   /** Preconfirmation time in milliseconds. */
   preconfirmationTime?: number | undefined
-  /** Collection of RPC endpoints. When omitted, transports require an explicit URL. */
-  rpcUrls?:
-    | {
-        [key: string]: Chain.RpcUrls
-        default: Chain.RpcUrls
-      }
-    | undefined
+  /** RPC endpoints. When omitted, transports require an explicit URL. */
+  rpcUrls?: Chain.RpcUrls | undefined
   /** Typed chain-extension declaration (see {@link extendSchema}). */
   extendSchema?: Record<string, unknown> | undefined
   /** RPC ↔ native converters. */
@@ -280,8 +270,8 @@ export declare namespace Chain {
 
   /** RPC endpoints of a {@link Chain}. */
   type RpcUrls = {
-    http: readonly string[]
-    webSocket?: readonly string[] | undefined
+    http: string | readonly string[]
+    ws?: string | readonly string[] | undefined
   }
 
   /**
@@ -376,7 +366,7 @@ export type ExtractTransactionRequest<chain extends Chain | undefined> =
  *   id: 1,
  *   name: 'Ethereum',
  *   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
- *   rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+ *   rpcUrls: { http: 'https://eth.merkle.io' },
  * })
  * ```
  */

@@ -10,17 +10,13 @@ export const gnosisChiado = /*#__PURE__*/ Chain.from({
   },
   blockTime: 5_000,
   rpcUrls: {
-    default: {
-      http: ['https://rpc.chiadochain.net'],
-      webSocket: ['wss://rpc.chiadochain.net/wss'],
-    },
+    http: 'https://rpc.chiadochain.net',
+    ws: 'wss://rpc.chiadochain.net/wss',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://blockscout.chiadochain.net',
-      apiUrl: 'https://blockscout.chiadochain.net/api',
-    },
+    name: 'Blockscout',
+    url: 'https://blockscout.chiadochain.net',
+    apiUrl: 'https://blockscout.chiadochain.net/api',
   },
   contracts: {
     multicall3: {

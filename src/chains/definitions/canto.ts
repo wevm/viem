@@ -8,14 +8,10 @@ export const canto = /*#__PURE__*/ Chain.from({
     name: 'Canto',
     symbol: 'CANTO',
   },
-  rpcUrls: {
-    default: { http: ['https://canto.gravitychain.io'] },
-  },
+  rpcUrls: { http: 'https://canto.gravitychain.io' },
   blockExplorers: {
-    default: {
-      name: 'Tuber.Build (Blockscout)',
-      url: 'https://tuber.build',
-    },
+    name: 'Tuber.Build (Blockscout)',
+    url: 'https://tuber.build',
   },
   contracts: {
     multicall3: {

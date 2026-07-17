@@ -5,16 +5,12 @@ export const arbitrumNova = /*#__PURE__*/ Chain.from({
   name: 'Arbitrum Nova',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://nova.arbitrum.io/rpc'],
-    },
+    http: 'https://nova.arbitrum.io/rpc',
   },
   blockExplorers: {
-    default: {
-      name: 'Arbiscan',
-      url: 'https://nova.arbiscan.io',
-      apiUrl: 'https://api-nova.arbiscan.io/api',
-    },
+    name: 'Arbiscan',
+    url: 'https://nova.arbiscan.io',
+    apiUrl: 'https://api-nova.arbiscan.io/api',
   },
   contracts: {
     multicall3: {

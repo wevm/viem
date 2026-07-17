@@ -8,15 +8,11 @@ export const aurora = /*#__PURE__*/ Chain.from({
     name: 'Ether',
     symbol: 'ETH',
   },
-  rpcUrls: {
-    default: { http: ['https://mainnet.aurora.dev'] },
-  },
+  rpcUrls: { http: 'https://mainnet.aurora.dev' },
   blockExplorers: {
-    default: {
-      name: 'Aurorascan',
-      url: 'https://aurorascan.dev',
-      apiUrl: 'https://aurorascan.dev/api',
-    },
+    name: 'Aurorascan',
+    url: 'https://aurorascan.dev',
+    apiUrl: 'https://aurorascan.dev/api',
   },
   contracts: {
     multicall3: {

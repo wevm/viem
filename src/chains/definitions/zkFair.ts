@@ -9,16 +9,12 @@ export const zkFair = /*#__PURE__*/ Chain.from({
     symbol: 'USDC',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.zkfair.io'],
-    },
+    http: 'https://rpc.zkfair.io',
   },
   blockExplorers: {
-    default: {
-      name: 'zkFair Explorer',
-      url: 'https://scan.zkfair.io',
-      apiUrl: 'https://scan.zkfair.io/api',
-    },
+    name: 'zkFair Explorer',
+    url: 'https://scan.zkfair.io',
+    apiUrl: 'https://scan.zkfair.io/api',
   },
   contracts: {
     multicall3: {

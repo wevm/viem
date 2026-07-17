@@ -8,14 +8,10 @@ export const gensyn = /*#__PURE__*/ Chain.from({
     name: 'Ether',
     symbol: 'ETH',
   },
-  rpcUrls: {
-    default: { http: ['https://gensyn-mainnet.g.alchemy.com/public'] },
-  },
+  rpcUrls: { http: 'https://gensyn-mainnet.g.alchemy.com/public' },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://gensyn-mainnet.explorer.alchemy.com',
-    },
+    name: 'Blockscout',
+    url: 'https://gensyn-mainnet.explorer.alchemy.com',
   },
   contracts: {
     multicall3: {

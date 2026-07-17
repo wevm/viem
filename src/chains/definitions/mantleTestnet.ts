@@ -8,15 +8,11 @@ export const mantleTestnet = /*#__PURE__*/ Chain.from({
     name: 'MNT',
     symbol: 'MNT',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.testnet.mantle.xyz'] },
-  },
+  rpcUrls: { http: 'https://rpc.testnet.mantle.xyz' },
   blockExplorers: {
-    default: {
-      name: 'Mantle Testnet Explorer',
-      url: 'https://explorer.testnet.mantle.xyz',
-      apiUrl: 'https://explorer.testnet.mantle.xyz/api',
-    },
+    name: 'Mantle Testnet Explorer',
+    url: 'https://explorer.testnet.mantle.xyz',
+    apiUrl: 'https://explorer.testnet.mantle.xyz/api',
   },
   contracts: {
     multicall3: {

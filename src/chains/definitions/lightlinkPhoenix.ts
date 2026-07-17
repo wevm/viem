@@ -9,15 +9,11 @@ export const lightlinkPhoenix = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://replicator.phoenix.lightlink.io/rpc/v1'],
-    },
+    http: 'https://replicator.phoenix.lightlink.io/rpc/v1',
   },
   blockExplorers: {
-    default: {
-      name: 'LightLink Phoenix Explorer',
-      url: 'https://phoenix.lightlink.io',
-    },
+    name: 'LightLink Phoenix Explorer',
+    url: 'https://phoenix.lightlink.io',
   },
   contracts: {
     multicall3: {

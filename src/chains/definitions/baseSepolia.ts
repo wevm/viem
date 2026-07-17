@@ -9,16 +9,12 @@ export const baseSepolia = /*#__PURE__*/ Chain.from({
   name: 'Base Sepolia',
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://sepolia.base.org'],
-    },
+    http: 'https://sepolia.base.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Basescan',
-      url: 'https://sepolia.basescan.org',
-      apiUrl: 'https://api-sepolia.basescan.org/api',
-    },
+    name: 'Basescan',
+    url: 'https://sepolia.basescan.org',
+    apiUrl: 'https://api-sepolia.basescan.org/api',
   },
   contracts: {
     ...chainConfig.contracts,
@@ -57,8 +53,6 @@ export const baseSepoliaPreconf = /*#__PURE__*/ Chain.from({
   ...baseSepolia,
   preconfirmationTime: 200,
   rpcUrls: {
-    default: {
-      http: ['https://sepolia-preconf.base.org'],
-    },
+    http: 'https://sepolia-preconf.base.org',
   },
 })

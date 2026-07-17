@@ -778,7 +778,7 @@ test('chain: supportsTransactionReplacementDetection: false', async () => {
       id: 1,
       name: 'Anvil',
       nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
-      rpcUrls: { default: { http: [anvil.local.rpcUrl.http] } },
+      rpcUrls: { http: anvil.local.rpcUrl.http },
       supportsTransactionReplacementDetection: false,
     }),
     pollingInterval: 100,

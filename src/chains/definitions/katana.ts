@@ -9,15 +9,11 @@ export const katana = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.katana.network'],
-    },
+    http: 'https://rpc.katana.network',
   },
   blockExplorers: {
-    default: {
-      name: 'katana explorer',
-      url: 'https://katanascan.com',
-    },
+    name: 'katana explorer',
+    url: 'https://katanascan.com',
   },
   contracts: {
     multicall3: {

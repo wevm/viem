@@ -9,15 +9,11 @@ export const kiiTestnetOro = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://json-rpc.uno.sentry.testnet.v3.kiivalidator.com'],
-    },
+    http: 'https://json-rpc.uno.sentry.testnet.v3.kiivalidator.com',
   },
   blockExplorers: {
-    default: {
-      name: 'KiiExplorer',
-      url: 'https://testnet.explorer.kiichain.io',
-    },
+    name: 'KiiExplorer',
+    url: 'https://testnet.explorer.kiichain.io',
   },
   testnet: true,
 })

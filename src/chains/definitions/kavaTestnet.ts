@@ -8,15 +8,11 @@ export const kavaTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'KAVA',
     decimals: 18,
   },
-  rpcUrls: {
-    default: { http: ['https://evm.testnet.kava.io'] },
-  },
+  rpcUrls: { http: 'https://evm.testnet.kava.io' },
   blockExplorers: {
-    default: {
-      name: 'Kava EVM Testnet Explorer',
-      url: 'https://testnet.kavascan.com/',
-      apiUrl: 'https://testnet.kavascan.com/api',
-    },
+    name: 'Kava EVM Testnet Explorer',
+    url: 'https://testnet.kavascan.com/',
+    apiUrl: 'https://testnet.kavascan.com/api',
   },
   contracts: {
     multicall3: {

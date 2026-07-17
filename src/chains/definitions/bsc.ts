@@ -9,15 +9,11 @@ export const bsc = /*#__PURE__*/ Chain.from({
     name: 'BNB',
     symbol: 'BNB',
   },
-  rpcUrls: {
-    default: { http: ['https://56.rpc.thirdweb.com'] },
-  },
+  rpcUrls: { http: 'https://56.rpc.thirdweb.com' },
   blockExplorers: {
-    default: {
-      name: 'BscScan',
-      url: 'https://bscscan.com',
-      apiUrl: 'https://api.bscscan.com/api',
-    },
+    name: 'BscScan',
+    url: 'https://bscscan.com',
+    apiUrl: 'https://api.bscscan.com/api',
   },
   contracts: {
     multicall3: {

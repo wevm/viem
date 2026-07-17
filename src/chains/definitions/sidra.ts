@@ -9,14 +9,10 @@ export const sidraChain = /*#__PURE__*/ Chain.from({
     symbol: 'SDA',
   },
   rpcUrls: {
-    default: {
-      http: ['https://node.sidrachain.com'],
-    },
+    http: 'https://node.sidrachain.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Sidra Chain Explorer',
-      url: 'https://ledger.sidrachain.com',
-    },
+    name: 'Sidra Chain Explorer',
+    url: 'https://ledger.sidrachain.com',
   },
 })

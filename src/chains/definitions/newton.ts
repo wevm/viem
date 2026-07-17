@@ -9,15 +9,11 @@ export const newton = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://global.rpc.mainnet.newtonproject.org'],
-    },
+    http: 'https://global.rpc.mainnet.newtonproject.org',
   },
   blockExplorers: {
-    default: {
-      name: 'NewFi explorer',
-      url: 'https://explorer.newtonproject.org/',
-    },
+    name: 'NewFi explorer',
+    url: 'https://explorer.newtonproject.org/',
   },
   testnet: false,
 })

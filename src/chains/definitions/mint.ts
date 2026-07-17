@@ -5,15 +5,11 @@ export const mint = /*#__PURE__*/ Chain.from({
   name: 'Mint Mainnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.mintchain.io'],
-    },
+    http: 'https://rpc.mintchain.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Mintchain explorer',
-      url: 'https://explorer.mintchain.io',
-    },
+    name: 'Mintchain explorer',
+    url: 'https://explorer.mintchain.io',
   },
   testnet: false,
 })

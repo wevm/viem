@@ -5,15 +5,11 @@ export const zilliqa = /*#__PURE__*/ Chain.from({
   name: 'Zilliqa',
   nativeCurrency: { name: 'Zilliqa', symbol: 'ZIL', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://api.zilliqa.com'],
-    },
+    http: 'https://api.zilliqa.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Ethernal',
-      url: 'https://evmx.zilliqa.com',
-    },
+    name: 'Ethernal',
+    url: 'https://evmx.zilliqa.com',
   },
   testnet: false,
 })

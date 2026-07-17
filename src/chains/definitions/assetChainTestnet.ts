@@ -8,15 +8,11 @@ export const assetChainTestnet = /*#__PURE__*/ Chain.from({
     name: 'Real World Asset',
     symbol: 'RWA',
   },
-  rpcUrls: {
-    default: { http: ['https://enugu-rpc.assetchain.org'] },
-  },
+  rpcUrls: { http: 'https://enugu-rpc.assetchain.org' },
   blockExplorers: {
-    default: {
-      name: 'Asset Chain Testnet Explorer',
-      url: 'https://scan-testnet.assetchain.org',
-      apiUrl: 'https://scan-testnet.assetchain.org/api',
-    },
+    name: 'Asset Chain Testnet Explorer',
+    url: 'https://scan-testnet.assetchain.org',
+    apiUrl: 'https://scan-testnet.assetchain.org/api',
   },
   testnet: true,
   contracts: {

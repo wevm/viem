@@ -10,17 +10,13 @@ export const zksync = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.era.zksync.io'],
-      webSocket: ['wss://mainnet.era.zksync.io/ws'],
-    },
+    http: 'https://mainnet.era.zksync.io',
+    ws: 'wss://mainnet.era.zksync.io/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'ZKsync Explorer',
-      url: 'https://explorer.zksync.io/',
-      apiUrl: 'https://block-explorer-api.mainnet.zksync.io/api',
-    },
+    name: 'ZKsync Explorer',
+    url: 'https://explorer.zksync.io/',
+    apiUrl: 'https://block-explorer-api.mainnet.zksync.io/api',
   },
   contracts: {
     multicall3: {

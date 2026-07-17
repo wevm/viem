@@ -8,14 +8,10 @@ export const sonicTestnet = /*#__PURE__*/ Chain.from({
     name: 'Sonic',
     symbol: 'S',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.testnet.soniclabs.com'] },
-  },
+  rpcUrls: { http: 'https://rpc.testnet.soniclabs.com' },
   blockExplorers: {
-    default: {
-      name: 'Sonic Testnet Explorer',
-      url: 'https://testnet.soniclabs.com/',
-    },
+    name: 'Sonic Testnet Explorer',
+    url: 'https://testnet.soniclabs.com/',
   },
   testnet: true,
 })

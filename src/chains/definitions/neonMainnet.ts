@@ -5,15 +5,11 @@ export const neonMainnet = /*#__PURE__*/ Chain.from({
   name: 'Neon EVM MainNet',
   nativeCurrency: { name: 'NEON', symbol: 'NEON', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://neon-proxy-mainnet.solana.p2p.org'],
-    },
+    http: 'https://neon-proxy-mainnet.solana.p2p.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Neonscan',
-      url: 'https://neonscan.org',
-    },
+    name: 'Neonscan',
+    url: 'https://neonscan.org',
   },
   contracts: {
     multicall3: {

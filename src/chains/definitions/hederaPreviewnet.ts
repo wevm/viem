@@ -9,15 +9,11 @@ export const hederaPreviewnet = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://previewnet.hashio.io/api'],
-    },
+    http: 'https://previewnet.hashio.io/api',
   },
   blockExplorers: {
-    default: {
-      name: 'Hashscan',
-      url: 'https://hashscan.io/previewnet',
-    },
+    name: 'Hashscan',
+    url: 'https://hashscan.io/previewnet',
   },
   testnet: true,
 })

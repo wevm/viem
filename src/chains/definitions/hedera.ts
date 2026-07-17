@@ -9,15 +9,11 @@ export const hedera = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.hashio.io/api'],
-    },
+    http: 'https://mainnet.hashio.io/api',
   },
   blockExplorers: {
-    default: {
-      name: 'Hashscan',
-      url: 'https://hashscan.io/mainnet',
-    },
+    name: 'Hashscan',
+    url: 'https://hashscan.io/mainnet',
   },
   testnet: false,
 })

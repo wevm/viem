@@ -5,16 +5,12 @@ export const dustboyIoT = /*#__PURE__*/ Chain.from({
   name: 'DustBoy IoT',
   nativeCurrency: { name: 'Ether', symbol: 'DST', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://dustboy-rpc.jibl2.com'],
-    },
+    http: 'https://dustboy-rpc.jibl2.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://dustboy.jibl2.com',
-      apiUrl: 'https://dustboy.jibl2.com/api',
-    },
+    name: 'Blockscout',
+    url: 'https://dustboy.jibl2.com',
+    apiUrl: 'https://dustboy.jibl2.com/api',
   },
   contracts: {
     multicall3: {

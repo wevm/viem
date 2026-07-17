@@ -9,15 +9,11 @@ export const avalanche = /*#__PURE__*/ Chain.from({
     name: 'Avalanche',
     symbol: 'AVAX',
   },
-  rpcUrls: {
-    default: { http: ['https://api.avax.network/ext/bc/C/rpc'] },
-  },
+  rpcUrls: { http: 'https://api.avax.network/ext/bc/C/rpc' },
   blockExplorers: {
-    default: {
-      name: 'SnowTrace',
-      url: 'https://snowtrace.io',
-      apiUrl: 'https://api.snowtrace.io',
-    },
+    name: 'SnowTrace',
+    url: 'https://snowtrace.io',
+    apiUrl: 'https://api.snowtrace.io',
   },
   contracts: {
     multicall3: {

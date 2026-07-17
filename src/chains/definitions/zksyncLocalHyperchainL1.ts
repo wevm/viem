@@ -7,16 +7,12 @@ export const zksyncLocalHyperchainL1 = /*#__PURE__*/ Chain.from({
   name: 'ZKsync CLI Local Hyperchain L1',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['http://localhost:15045'],
-    },
+    http: 'http://localhost:15045',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'http://localhost:15001/',
-      apiUrl: 'http://localhost:15001/api/v2',
-    },
+    name: 'Blockscout',
+    url: 'http://localhost:15001/',
+    apiUrl: 'http://localhost:15001/api/v2',
   },
   testnet: true,
 })

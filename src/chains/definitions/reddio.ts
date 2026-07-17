@@ -5,16 +5,12 @@ export const reddio = /*#__PURE__*/ Chain.from({
   name: 'Reddio',
   nativeCurrency: { name: 'Reddio', symbol: 'RED', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.reddio.com/rpc'],
-    },
+    http: 'https://mainnet.reddio.com/rpc',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://reddio.cloud.blockscout.com',
-      apiUrl: 'https://reddio.cloud.blockscout.com/api',
-    },
+    name: 'Blockscout',
+    url: 'https://reddio.cloud.blockscout.com',
+    apiUrl: 'https://reddio.cloud.blockscout.com/api',
   },
   contracts: {
     multicall3: {

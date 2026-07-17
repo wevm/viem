@@ -5,16 +5,12 @@ export const sapphire = /*#__PURE__*/ Chain.from({
   name: 'Oasis Sapphire',
   nativeCurrency: { name: 'Sapphire Rose', symbol: 'ROSE', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://sapphire.oasis.io'],
-      webSocket: ['wss://sapphire.oasis.io/ws'],
-    },
+    http: 'https://sapphire.oasis.io',
+    ws: 'wss://sapphire.oasis.io/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Oasis Explorer',
-      url: 'https://explorer.oasis.io/mainnet/sapphire',
-    },
+    name: 'Oasis Explorer',
+    url: 'https://explorer.oasis.io/mainnet/sapphire',
   },
   contracts: {
     multicall3: {

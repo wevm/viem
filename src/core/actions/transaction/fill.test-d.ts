@@ -16,7 +16,7 @@ const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  rpcUrls: { http: 'https://eth.merkle.io' },
   codecs: {
     transactionRequest: {
       toRpc: (_request: { custom: string }): TransactionRequest.Rpc => ({}),

@@ -8,14 +8,10 @@ export const omax = /*#__PURE__*/ Chain.from({
     name: 'OMAX',
     symbol: 'OMAX',
   },
-  rpcUrls: {
-    default: { http: ['https://mainapi.omaxray.com'] },
-  },
+  rpcUrls: { http: 'https://mainapi.omaxray.com' },
   blockExplorers: {
-    default: {
-      name: 'Omax Explorer',
-      url: 'https://omaxscan.com',
-    },
+    name: 'Omax Explorer',
+    url: 'https://omaxscan.com',
   },
   testnet: false,
 })

@@ -12,15 +12,11 @@ export const blast = /*#__PURE__*/ Chain.from({
     name: 'Ether',
     symbol: 'ETH',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.blast.io'] },
-  },
+  rpcUrls: { http: 'https://rpc.blast.io' },
   blockExplorers: {
-    default: {
-      name: 'Blastscan',
-      url: 'https://blastscan.io',
-      apiUrl: 'https://api.blastscan.io/api',
-    },
+    name: 'Blastscan',
+    url: 'https://blastscan.io',
+    apiUrl: 'https://api.blastscan.io/api',
   },
   contracts: {
     ...chainConfig.contracts,

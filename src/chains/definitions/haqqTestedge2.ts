@@ -9,16 +9,12 @@ export const haqqTestedge2 = /*#__PURE__*/ Chain.from({
     symbol: 'ISLMT',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.eth.testedge2.haqq.network'],
-    },
+    http: 'https://rpc.eth.testedge2.haqq.network',
   },
   blockExplorers: {
-    default: {
-      name: 'HAQQ Explorer',
-      url: 'https://explorer.testedge2.haqq.network',
-      apiUrl: 'https://explorer.testedge2.haqq.network/api',
-    },
+    name: 'HAQQ Explorer',
+    url: 'https://explorer.testedge2.haqq.network',
+    apiUrl: 'https://explorer.testedge2.haqq.network/api',
   },
   testnet: true,
 })

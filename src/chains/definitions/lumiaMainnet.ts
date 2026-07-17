@@ -5,15 +5,11 @@ export const lumiaMainnet = /*#__PURE__*/ Chain.from({
   name: 'Lumia Mainnet',
   nativeCurrency: { name: 'Lumia', symbol: 'LUMIA', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet-rpc.lumia.org'],
-    },
+    http: 'https://mainnet-rpc.lumia.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Lumia Explorer',
-      url: 'https://explorer.lumia.org/',
-    },
+    name: 'Lumia Explorer',
+    url: 'https://explorer.lumia.org/',
   },
   contracts: {
     multicall3: {

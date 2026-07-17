@@ -8,13 +8,9 @@ export const meter = /*#__PURE__*/ Chain.from({
     name: 'MTR',
     symbol: 'MTR',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.meter.io'] },
-  },
+  rpcUrls: { http: 'https://rpc.meter.io' },
   blockExplorers: {
-    default: {
-      name: 'MeterScan',
-      url: 'https://scan.meter.io',
-    },
+    name: 'MeterScan',
+    url: 'https://scan.meter.io',
   },
 })

@@ -5,16 +5,12 @@ export const polygonAmoy = /*#__PURE__*/ Chain.from({
   name: 'Polygon Amoy',
   nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc-amoy.polygon.technology'],
-    },
+    http: 'https://rpc-amoy.polygon.technology',
   },
   blockExplorers: {
-    default: {
-      name: 'PolygonScan',
-      url: 'https://amoy.polygonscan.com',
-      apiUrl: 'https://api.etherscan.io/v2/api',
-    },
+    name: 'PolygonScan',
+    url: 'https://amoy.polygonscan.com',
+    apiUrl: 'https://api.etherscan.io/v2/api',
   },
   contracts: {
     multicall3: {

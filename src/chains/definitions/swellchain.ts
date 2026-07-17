@@ -7,16 +7,12 @@ export const swellchain = /*#__PURE__*/ Chain.from({
   name: 'Swellchain',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://swell-mainnet.alt.technology'],
-    },
+    http: 'https://swell-mainnet.alt.technology',
   },
   blockExplorers: {
-    default: {
-      name: 'Swell Explorer',
-      url: 'https://explorer.swellnetwork.io',
-      apiUrl: 'https://explorer.swellnetwork.io/api',
-    },
+    name: 'Swell Explorer',
+    url: 'https://explorer.swellnetwork.io',
+    apiUrl: 'https://explorer.swellnetwork.io/api',
   },
   contracts: {
     ...chainConfig.contracts,

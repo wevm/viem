@@ -6,16 +6,12 @@ export const sentrix = /*#__PURE__*/ Chain.from({
   nativeCurrency: { name: 'Sentrix', symbol: 'SRX', decimals: 18 },
   blockTime: 1_000,
   rpcUrls: {
-    default: {
-      http: ['https://rpc.sentrixchain.com'],
-      webSocket: ['wss://rpc.sentrixchain.com/ws'],
-    },
+    http: 'https://rpc.sentrixchain.com',
+    ws: 'wss://rpc.sentrixchain.com/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'SentrixScan',
-      url: 'https://scan.sentrixchain.com',
-    },
+    name: 'SentrixScan',
+    url: 'https://scan.sentrixchain.com',
   },
   contracts: {
     multicall3: {

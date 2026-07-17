@@ -5,10 +5,8 @@ export const hyperEvm = /*#__PURE__*/ Chain.from({
   name: 'HyperEVM',
   nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
   blockExplorers: {
-    default: {
-      name: 'HyperEVMScan',
-      url: 'https://hyperevmscan.io',
-    },
+    name: 'HyperEVMScan',
+    url: 'https://hyperevmscan.io',
   },
   contracts: {
     multicall3: {
@@ -17,9 +15,7 @@ export const hyperEvm = /*#__PURE__*/ Chain.from({
     },
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.hyperliquid.xyz/evm'],
-    },
+    http: 'https://rpc.hyperliquid.xyz/evm',
   },
   testnet: false,
 })

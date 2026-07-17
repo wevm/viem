@@ -9,15 +9,11 @@ export const flowMainnet = /*#__PURE__*/ Chain.from({
     symbol: 'FLOW',
   },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.evm.nodes.onflow.org'],
-    },
+    http: 'https://mainnet.evm.nodes.onflow.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Mainnet Explorer',
-      url: 'https://evm.flowscan.io',
-    },
+    name: 'Mainnet Explorer',
+    url: 'https://evm.flowscan.io',
   },
   contracts: {
     multicall3: {

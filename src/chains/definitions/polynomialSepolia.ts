@@ -9,15 +9,11 @@ export const polynomialSepolia = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.sepolia.polynomial.fi'],
-    },
+    http: 'https://rpc.sepolia.polynomial.fi',
   },
   blockExplorers: {
-    default: {
-      name: 'Polynomial Scan',
-      url: 'https://sepolia.polynomialscan.io',
-    },
+    name: 'Polynomial Scan',
+    url: 'https://sepolia.polynomialscan.io',
   },
   testnet: true,
   contracts: {

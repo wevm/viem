@@ -8,15 +8,11 @@ export const edgewareTestnet = /*#__PURE__*/ Chain.from({
     name: 'Testnet EDG',
     symbol: 'tEDG',
   },
-  rpcUrls: {
-    default: { http: ['https://beresheet-evm.jelliedowl.net'] },
-  },
+  rpcUrls: { http: 'https://beresheet-evm.jelliedowl.net' },
   blockExplorers: {
-    default: {
-      name: 'Edgscan by Bharathcoorg',
-      url: 'https://testnet.edgscan.live',
-      apiUrl: 'https://testnet.edgscan.live/api',
-    },
+    name: 'Edgscan by Bharathcoorg',
+    url: 'https://testnet.edgscan.live',
+    apiUrl: 'https://testnet.edgscan.live/api',
   },
   testnet: true,
 })

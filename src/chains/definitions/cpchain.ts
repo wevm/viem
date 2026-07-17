@@ -8,14 +8,10 @@ export const cpchain = /*#__PURE__*/ Chain.from({
     name: 'CpChain',
     symbol: 'CP',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.cpchain.com'] },
-  },
+  rpcUrls: { http: 'https://rpc.cpchain.com' },
   blockExplorers: {
-    default: {
-      name: 'CpChain Explorer',
-      url: 'https://explorer.cpchain.com',
-    },
+    name: 'CpChain Explorer',
+    url: 'https://explorer.cpchain.com',
   },
   testnet: false,
 })

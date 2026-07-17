@@ -9,16 +9,12 @@ export const bitlayerTestnet = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://testnet-rpc.bitlayer.org'],
-      webSocket: ['wss://testnet-ws.bitlayer.org'],
-    },
+    http: 'https://testnet-rpc.bitlayer.org',
+    ws: 'wss://testnet-ws.bitlayer.org',
   },
   blockExplorers: {
-    default: {
-      name: 'bitlayer testnet scan',
-      url: 'https://testnet.btrscan.com',
-    },
+    name: 'bitlayer testnet scan',
+    url: 'https://testnet.btrscan.com',
   },
   contracts: {
     multicall3: {

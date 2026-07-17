@@ -9,15 +9,11 @@ export const sova = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.sova.io'],
-    },
+    http: 'https://rpc.sova.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Sova Block Explorer',
-      url: 'https://explorer.sova.io',
-    },
+    name: 'Sova Block Explorer',
+    url: 'https://explorer.sova.io',
   },
   testnet: false,
 })

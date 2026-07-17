@@ -8,15 +8,11 @@ export const auroraTestnet = /*#__PURE__*/ Chain.from({
     name: 'Ether',
     symbol: 'ETH',
   },
-  rpcUrls: {
-    default: { http: ['https://testnet.aurora.dev'] },
-  },
+  rpcUrls: { http: 'https://testnet.aurora.dev' },
   blockExplorers: {
-    default: {
-      name: 'Aurorascan',
-      url: 'https://testnet.aurorascan.dev',
-      apiUrl: 'https://testnet.aurorascan.dev/api',
-    },
+    name: 'Aurorascan',
+    url: 'https://testnet.aurorascan.dev',
+    apiUrl: 'https://testnet.aurorascan.dev/api',
   },
   testnet: true,
 })

@@ -8,14 +8,10 @@ export const eniTestnet = /*#__PURE__*/ Chain.from({
     name: 'ENI Testnet Token',
     symbol: 'ENI',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc-testnet.eniac.network'] },
-  },
+  rpcUrls: { http: 'https://rpc-testnet.eniac.network' },
   blockExplorers: {
-    default: {
-      name: 'ENI Testnet Explorer',
-      url: 'https://scan-testnet.eniac.network',
-    },
+    name: 'ENI Testnet Explorer',
+    url: 'https://scan-testnet.eniac.network',
   },
   testnet: true,
 })

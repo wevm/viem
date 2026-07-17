@@ -5,15 +5,11 @@ export const zeniq = /*#__PURE__*/ Chain.from({
   name: 'Zeniq Mainnet',
   nativeCurrency: { name: 'ZENIQ', symbol: 'ZENIQ', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://api.zeniq.network'],
-    },
+    http: 'https://api.zeniq.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Zeniq Explorer',
-      url: 'https://zeniqscan.com',
-    },
+    name: 'Zeniq Explorer',
+    url: 'https://zeniqscan.com',
   },
   testnet: false,
 })

@@ -13,16 +13,12 @@ export const superseedSepolia = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://sepolia.superseed.xyz'],
-    },
+    http: 'https://sepolia.superseed.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'Superseed Sepolia Explorer',
-      url: 'https://sepolia-explorer.superseed.xyz',
-      apiUrl: 'https://sepolia-explorer.superseed.xyz/api/v2',
-    },
+    name: 'Superseed Sepolia Explorer',
+    url: 'https://sepolia-explorer.superseed.xyz',
+    apiUrl: 'https://sepolia-explorer.superseed.xyz/api/v2',
   },
   contracts: {
     ...chainConfig.contracts,

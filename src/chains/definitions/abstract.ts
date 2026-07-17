@@ -10,20 +10,12 @@ export const abstract = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://api.mainnet.abs.xyz'],
-      webSocket: ['wss://api.mainnet.abs.xyz/ws'],
-    },
+    http: 'https://api.mainnet.abs.xyz',
+    ws: 'wss://api.mainnet.abs.xyz/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://abscan.org',
-    },
-    native: {
-      name: 'Abstract Explorer',
-      url: 'https://explorer.mainnet.abs.xyz',
-    },
+    name: 'Etherscan',
+    url: 'https://abscan.org',
   },
   contracts: {
     multicall3: {

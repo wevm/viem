@@ -9,15 +9,11 @@ export const mevTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'MEV',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.meversetestnet.io'],
-    },
+    http: 'https://rpc.meversetestnet.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Explorer',
-      url: 'https://testnet.meversescan.io/',
-    },
+    name: 'Explorer',
+    url: 'https://testnet.meversescan.io/',
   },
   contracts: {
     multicall3: {

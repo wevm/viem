@@ -9,17 +9,13 @@ export const syscoin = /*#__PURE__*/ Chain.from({
     symbol: 'SYS',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.syscoin.org'],
-      webSocket: ['wss://rpc.syscoin.org/wss'],
-    },
+    http: 'https://rpc.syscoin.org',
+    ws: 'wss://rpc.syscoin.org/wss',
   },
   blockExplorers: {
-    default: {
-      name: 'SyscoinExplorer',
-      url: 'https://explorer.syscoin.org',
-      apiUrl: 'https://explorer.syscoin.org/api',
-    },
+    name: 'SyscoinExplorer',
+    url: 'https://explorer.syscoin.org',
+    apiUrl: 'https://explorer.syscoin.org/api',
   },
   contracts: {
     multicall3: {

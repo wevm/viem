@@ -9,16 +9,12 @@ export const modeTestnet = /*#__PURE__*/ Chain.from({
   name: 'Mode Testnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://sepolia.mode.network'],
-    },
+    http: 'https://sepolia.mode.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://sepolia.explorer.mode.network',
-      apiUrl: 'https://sepolia.explorer.mode.network/api',
-    },
+    name: 'Blockscout',
+    url: 'https://sepolia.explorer.mode.network',
+    apiUrl: 'https://sepolia.explorer.mode.network/api',
   },
   contracts: {
     ...chainConfig.contracts,

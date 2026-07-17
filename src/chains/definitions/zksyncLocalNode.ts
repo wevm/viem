@@ -5,9 +5,7 @@ export const zksyncLocalNode = /*#__PURE__*/ Chain.from({
   name: 'ZKsync CLI Local Node',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['http://localhost:3050'],
-    },
+    http: 'http://localhost:3050',
   },
   testnet: true,
 })

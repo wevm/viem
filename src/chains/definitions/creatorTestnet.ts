@@ -9,13 +9,9 @@ export const creatorTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.creatorchain.io'],
-    },
+    http: 'https://rpc.creatorchain.io',
   },
-  blockExplorers: {
-    default: { name: 'Explorer', url: 'https://explorer.creatorchain.io' },
-  },
+  blockExplorers: { name: 'Explorer', url: 'https://explorer.creatorchain.io' },
   contracts: {
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',

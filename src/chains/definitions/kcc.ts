@@ -9,13 +9,9 @@ export const kcc = /*#__PURE__*/ Chain.from({
     symbol: 'KCS',
   },
   rpcUrls: {
-    default: {
-      http: ['https://kcc-rpc.com'],
-    },
+    http: 'https://kcc-rpc.com',
   },
-  blockExplorers: {
-    default: { name: 'KCC Explorer', url: 'https://explorer.kcc.io' },
-  },
+  blockExplorers: { name: 'KCC Explorer', url: 'https://explorer.kcc.io' },
   contracts: {
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',

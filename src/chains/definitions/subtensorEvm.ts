@@ -9,16 +9,12 @@ export const subtensorEvm = /*#__PURE__*/ Chain.from({
     symbol: 'TAO',
   },
   rpcUrls: {
-    default: {
-      http: ['https://lite.chain.opentensor.ai'],
-    },
+    http: 'https://lite.chain.opentensor.ai',
   },
   blockExplorers: {
-    default: {
-      name: 'Taostats EVM Explorer',
-      url: 'https://evm.taostats.io',
-      apiUrl: 'https://evm.taostats.io/api',
-    },
+    name: 'Taostats EVM Explorer',
+    url: 'https://evm.taostats.io',
+    apiUrl: 'https://evm.taostats.io/api',
   },
   testnet: false,
 })

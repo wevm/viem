@@ -9,21 +9,17 @@ export const metisSepolia = /*#__PURE__*/ Chain.from({
     symbol: 'tMETIS',
   },
   rpcUrls: {
-    default: {
-      http: [
-        'https://sepolia.metisdevops.link',
-        'https://metis-sepolia-rpc.publicnode.com',
-        'https://metis-sepolia.gateway.tenderly.co',
-      ],
-      webSocket: ['wss://metis-sepolia-rpc.publicnode.com'],
-    },
+    http: [
+      'https://sepolia.metisdevops.link',
+      'https://metis-sepolia-rpc.publicnode.com',
+      'https://metis-sepolia.gateway.tenderly.co',
+    ],
+    ws: 'wss://metis-sepolia-rpc.publicnode.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Metis Sepolia Explorer',
-      url: 'https://sepolia-explorer.metisdevops.link',
-      apiUrl: 'https://sepolia-explorer.metisdevops.link/api-docs',
-    },
+    name: 'Metis Sepolia Explorer',
+    url: 'https://sepolia-explorer.metisdevops.link',
+    apiUrl: 'https://sepolia-explorer.metisdevops.link/api-docs',
   },
   contracts: {
     multicall3: {

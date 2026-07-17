@@ -21,7 +21,7 @@ test('chain codecs: returns the block converter output', async () => {
     id: 1,
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-    rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+    rpcUrls: { http: 'https://eth.merkle.io' },
     codecs: {
       block: {
         fromRpc: (rpc: Block.Rpc): Block.Block => Block.fromRpc(rpc),
@@ -39,7 +39,7 @@ test('chain codecs: infers custom block properties', async () => {
     id: 1,
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-    rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+    rpcUrls: { http: 'https://eth.merkle.io' },
     codecs: {
       block: {
         fromRpc: (
@@ -71,7 +71,7 @@ test('chain codecs: infers custom properties from a transform', async () => {
     id: 1,
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-    rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+    rpcUrls: { http: 'https://eth.merkle.io' },
     codecs: {
       block: {
         fromRpc: (rpc: Block.Rpc) => ({
@@ -93,7 +93,7 @@ test('decorator: threads custom chain properties through publicActions', async (
     id: 1,
     name: 'Ethereum',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-    rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+    rpcUrls: { http: 'https://eth.merkle.io' },
     codecs: {
       block: {
         fromRpc: (

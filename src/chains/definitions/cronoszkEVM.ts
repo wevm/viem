@@ -8,14 +8,10 @@ export const cronoszkEVM = /*#__PURE__*/ Chain.from({
     name: 'Cronos zkEVM CRO',
     symbol: 'zkCRO',
   },
-  rpcUrls: {
-    default: { http: ['https://mainnet.zkevm.cronos.org'] },
-  },
+  rpcUrls: { http: 'https://mainnet.zkevm.cronos.org' },
   blockExplorers: {
-    default: {
-      name: 'Cronos zkEVM (Mainnet) Chain Explorer',
-      url: 'https://explorer.zkevm.cronos.org',
-    },
+    name: 'Cronos zkEVM (Mainnet) Chain Explorer',
+    url: 'https://explorer.zkevm.cronos.org',
   },
   contracts: {
     multicall3: {

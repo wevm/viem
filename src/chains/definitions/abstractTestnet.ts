@@ -9,18 +9,10 @@ export const abstractTestnet = /*#__PURE__*/ Chain.from({
     name: 'ETH',
     symbol: 'ETH',
   },
-  rpcUrls: {
-    default: { http: ['https://api.testnet.abs.xyz'] },
-  },
+  rpcUrls: { http: 'https://api.testnet.abs.xyz' },
   blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://sepolia.abscan.org',
-    },
-    native: {
-      name: 'Abstract Explorer',
-      url: 'https://explorer.testnet.abs.xyz',
-    },
+    name: 'Etherscan',
+    url: 'https://sepolia.abscan.org',
   },
   testnet: true,
   contracts: {

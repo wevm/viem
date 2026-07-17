@@ -9,16 +9,12 @@ export const immutableZkEvm = /*#__PURE__*/ Chain.from({
     symbol: 'IMX',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.immutable.com'],
-    },
+    http: 'https://rpc.immutable.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Immutable Explorer',
-      url: 'https://explorer.immutable.com',
-      apiUrl: 'https://explorer.immutable.com/api',
-    },
+    name: 'Immutable Explorer',
+    url: 'https://explorer.immutable.com',
+    apiUrl: 'https://explorer.immutable.com/api',
   },
   contracts: {
     multicall3: {

@@ -9,16 +9,12 @@ export const bitlayer = /*#__PURE__*/ Chain.from({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.bitlayer.org'],
-      webSocket: ['wss://ws.bitlayer.org'],
-    },
+    http: 'https://rpc.bitlayer.org',
+    ws: 'wss://ws.bitlayer.org',
   },
   blockExplorers: {
-    default: {
-      name: 'bitlayer mainnet scan',
-      url: 'https://www.btrscan.com',
-    },
+    name: 'bitlayer mainnet scan',
+    url: 'https://www.btrscan.com',
   },
   contracts: {
     multicall3: {

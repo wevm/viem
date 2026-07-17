@@ -109,6 +109,8 @@ const wei = Value.fromEther('1') // [!code ++]
 
 Chain definitions now use `Chain.from`. RPC codecs and transaction hooks replace the formatter system.
 
+Definitions are also minimal: only `id` is required, and `rpcUrls` and `blockExplorers` hold a single flattened entry instead of `default`-keyed maps, with `http` and `ws` accepting one URL or a list.
+
 Formatted type helpers moved under `Chain.Extract*`, and deprecated fee fields were removed. Define removed built-in chains locally.
 
 See [Chains](#chains).
@@ -1367,6 +1369,30 @@ Chain construction and helpers moved onto the `Chain` namespace ([Chain Definiti
 | `extractChain({ chains, id })` | `Chain.extract({ chains, id })` |
 | `filterChains({ chains, token })` | `Chain.filter({ chains, token })` (preserving token-support and testnet narrowing) |
 | `getChainContractAddress({ chain, contract })` | `Chain.getContractAddress({ chain, contract })` |
+
+The chain shape slimmed down. `name`, `nativeCurrency`, and `rpcUrls` are optional (only `id` is required), and a chain without `rpcUrls` requires an explicit URL on the Transport.
+
+`rpcUrls` and `blockExplorers` are single flattened entries instead of `default`-keyed maps. `rpcUrls.http` (and the renamed `ws`) accept one URL or a list; keyed alternates (e.g. a `blockscout` explorer entry) have no equivalent, so keep the primary entry.
+
+```ts
+const chain = defineChain({ // [!code --]
+const chain = Chain.from({ // [!code ++]
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { // [!code --]
+    default: { // [!code --]
+      http: ['https://eth.merkle.io'], // [!code --]
+      webSocket: ['wss://eth.merkle.io'], // [!code --]
+    }, // [!code --]
+  }, // [!code --]
+  blockExplorers: { // [!code --]
+    default: { name: 'Etherscan', url: 'https://etherscan.io' }, // [!code --]
+  }, // [!code --]
+  rpcUrls: { http: 'https://eth.merkle.io', ws: 'wss://eth.merkle.io' }, // [!code ++]
+  blockExplorers: { name: 'Etherscan', url: 'https://etherscan.io' }, // [!code ++]
+})
+```
 
 RPC and native codecs replaced chain formatters. See [Chain Definitions](#chain-definitions) for the canonical example.
 

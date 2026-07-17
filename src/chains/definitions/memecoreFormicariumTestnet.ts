@@ -9,25 +9,12 @@ export const formicarium = /*#__PURE__*/ Chain.from({
     symbol: 'M',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.formicarium.memecore.net'],
-      webSocket: ['wss://ws.formicarium.memecore.net'],
-    },
+    http: 'https://rpc.formicarium.memecore.net',
+    ws: 'wss://ws.formicarium.memecore.net',
   },
   blockExplorers: {
-    default: {
-      name: 'MemeCore Testnet Explorer',
-      url: 'https://formicarium.memecorescan.io',
-    },
-    okx: {
-      name: 'MemeCore Testnet Explorer',
-      url: 'https://web3.okx.com/explorer/formicarium-testnet',
-    },
-    memecore: {
-      name: 'MemeCore Testnet Explorer',
-      url: 'https://formicarium.blockscout.memecore.com',
-      apiUrl: 'https://formicarium.blockscout.memecore.com/api',
-    },
+    name: 'MemeCore Testnet Explorer',
+    url: 'https://formicarium.memecorescan.io',
   },
   testnet: true,
 })

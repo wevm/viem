@@ -9,15 +9,11 @@ export const xLayer = /*#__PURE__*/ Chain.from({
     symbol: 'OKB',
   },
   blockTime: 1_000,
-  rpcUrls: {
-    default: { http: ['https://xlayerrpc.okx.com'] },
-  },
+  rpcUrls: { http: 'https://xlayerrpc.okx.com' },
   blockExplorers: {
-    default: {
-      name: 'OKLink',
-      url: 'https://www.oklink.com/xlayer',
-      apiUrl: 'https://www.oklink.com/api/v5/explorer/xlayer/api',
-    },
+    name: 'OKLink',
+    url: 'https://www.oklink.com/xlayer',
+    apiUrl: 'https://www.oklink.com/api/v5/explorer/xlayer/api',
   },
   contracts: {
     multicall3: {
