@@ -1,0 +1,192 @@
+---
+description: Create a Viem Client with a Chain, Transport, and Account, then tune batching, polling, and caching.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Set Up a Client
+
+## Overview
+
+[`Client.create`](/docs/clients/create) composes a [Chain](/docs/chains), a
+[Transport](/docs/transports), and an optional [Account](/docs/accounts) into a Client. A bare
+Client only exposes a typed `request` function. Behavior is opted into with
+[`.extend()`](/docs/clients/create#extending-a-client) and decorators such as
+[`publicActions`](/docs/actions/public) and [`walletActions`](/docs/actions/wallet), so the Client
+carries exactly the Actions the application uses.
+
+## Recipes
+
+### Create a Public Client
+
+Pass a Chain and a Transport, then extend with [`publicActions`](/docs/actions/public) for read
+Actions. A bare [`http`](/docs/transports/http) Transport uses the Chain's default RPC URL.
+
+```ts twoslash [example.ts]
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet, // [!code focus:2]
+  transport: http(),
+}).extend(publicActions()) // [!code focus]
+
+const blockNumber = await client.block.getNumber()
+// @log: 19868020n
+```
+
+### Attach an Account
+
+Actions that need a signer default to the Client's Account. A [Local
+Account](/docs/guides/wallets/local-accounts) signs inside the application.
+
+```ts twoslash [example.ts]
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Value } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'), // [!code focus]
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+
+const hash = await client.transaction.send({
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: Value.fromEther('1'),
+})
+// @log: '0x...'
+```
+
+:::tip
+Passing an address string instead creates a [JSON-RPC
+Account](/docs/guides/wallets/json-rpc-accounts) that forwards signing to the connected wallet
+through a [`custom`](/docs/transports/custom) Transport.
+:::
+
+### Batch Requests with Multicall
+
+Enable [`batch.multicall`](/docs/clients/create#batch) to aggregate concurrent `eth_call` requests
+from the same event-loop tick into one Multicall request.
+
+```ts twoslash [example.ts]
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  batch: { multicall: true }, // [!code focus]
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const token = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+
+const [balance, supply] = await Promise.all([
+  client.contract.read({
+    abi: Abis.erc20,
+    address: token,
+    args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+    functionName: 'balanceOf',
+  }),
+  client.contract.read({
+    abi: Abis.erc20,
+    address: token,
+    functionName: 'totalSupply',
+  }),
+])
+```
+
+:::tip
+See the [Batch Contract Reads guide](/docs/guides/contracts/batch-reads) for failure isolation
+with `Promise.allSettled` and explicit [`multicall`](/docs/actions/public/multicall) batches.
+:::
+
+### Tune Polling and Caching
+
+Watchers and polling Actions poll every `pollingInterval`, and cached responses live for
+`cacheTime`. By default the interval is derived from the Chain's block time (half a block, clamped
+between 500ms and 4 seconds) and `cacheTime` matches it.
+
+```ts twoslash [example.ts]
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  cacheTime: 4_000, // [!code focus:2]
+  pollingInterval: 1_000,
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const watch = client.block.watchNumber()
+watch.onBlockNumber((blockNumber) => console.log(blockNumber))
+```
+
+### Set a Default Block Tag
+
+Read Actions default to the `latest` block (or `pending` on chains with preconfirmations). Set
+[`blockTag`](/docs/clients/create#blocktag) when every read should target a different tag, such as
+`finalized` for reorg-safe reads.
+
+```ts twoslash [example.ts]
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  blockTag: 'finalized', // [!code focus]
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const balance = await client.address.getBalance({
+  address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+})
+// @log: 1231715129363261n
+```
+
+### Configure Timeouts and Retries
+
+`timeout` bounds each request and `retryCount` sets the per-request retry budget. Both are applied
+by the Transport.
+
+```ts twoslash [example.ts]
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  retryCount: 5, // [!code focus:2]
+  timeout: 10_000,
+  transport: http(),
+}).extend(publicActions())
+
+const blockNumber = await client.block.getNumber()
+```
+
+:::tip
+To fail over between providers instead of retrying one, see the [Resilient Transports
+guide](/docs/guides/clients/resilient-transports).
+:::
+
+## Best Practices
+
+### Create Once and Reuse
+
+Request deduplication, response caching, and Multicall batching live on the Client instance.
+Create one Client per chain at module scope and share it, instead of constructing a Client per
+call site.
+
+### Extend Only What You Use
+
+Each decorator adds its Actions to the bundle. Extend with the action bags the application
+actually calls, and prefer [tree-shakable Actions](/docs/guides/extending/tree-shakable-actions)
+in libraries.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:route" title="Multichain Clients" description="Configure chains once and resolve a typed Client per chain." to="/docs/guides/clients/multichain" />
+  <Card icon="lucide:shield-check" title="Resilient Transports" description="Fail over between RPC providers and rank them by health." to="/docs/guides/clients/resilient-transports" />
+  <Card icon="lucide:blocks" title="Extend a Client" description="Attach namespaced application methods to a Client." to="/docs/guides/extending/client" />
+</Cards>

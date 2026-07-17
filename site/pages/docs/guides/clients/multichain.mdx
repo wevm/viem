@@ -1,0 +1,155 @@
+---
+description: Configure chains once and resolve typed Viem Clients per chain with Client.createResolver.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Multichain Clients
+
+## Overview
+
+[`Client.createResolver`](/docs/clients/resolve) configures a set of [Chains](/docs/chains) and
+their [Transports](/docs/transports) once, then resolves a Client for one chain at a time. Each
+Client is constructed lazily on first use, memoized per chain ID, and typed with the exact Chain
+it was resolved for.
+
+## Recipes
+
+### Configure a Resolver
+
+Declare the chains and a Transport per chain ID, then resolve and extend the Client for the chain
+a request targets.
+
+```ts twoslash [example.ts]
+import { Client, http, publicActions } from 'viem'
+import { base, mainnet, optimism } from 'viem/chains'
+
+const resolver = Client.createResolver({ // [!code focus:8]
+  chains: [base, mainnet, optimism],
+  transport: {
+    [base.id]: http(),
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+
+const client = resolver
+  .getClient({ chainId: base.id })
+  .extend(publicActions())
+
+const blockNumber = await client.block.getNumber()
+// @log: 19868020n
+```
+
+### Resolve by Chain ID
+
+[`getClient`](/docs/clients/resolve#resolvergetclient) returns the Client for one configured
+chain. The Chain type narrows to the requested ID, and repeated calls with the same ID return the
+same memoized instance.
+
+```ts twoslash [example.ts]
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+
+const resolver = Client.createResolver({
+  chains: [mainnet, optimism],
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+
+const client = resolver.getClient({ chainId: optimism.id }) // [!code focus]
+
+const chainId = client.chain.id
+//    ^?
+
+
+const same = resolver.getClient({ chainId: optimism.id }) === client
+// @log: true
+```
+
+### Use a Transport Factory
+
+Pass a callback instead of a map when endpoints follow a pattern, such as one provider serving
+every chain. Its `chainId` is typed as the configured chain IDs.
+
+```ts twoslash [example.ts]
+import { Client, http } from 'viem'
+import { base, mainnet, optimism } from 'viem/chains'
+
+const resolver = Client.createResolver({
+  chains: [base, mainnet, optimism],
+  transport: ({ chainId }) => // [!code focus:2]
+    http(`https://rpc.example.com/${chainId}`),
+})
+```
+
+### Share Configuration Across Chains
+
+Every option besides `chains` and `transport` is forwarded to each resolved Client, so accounts,
+batching, and polling behave identically on every chain. See the [`Client.create`
+options](/docs/clients/create#parameters) for what can be shared.
+
+```ts twoslash [example.ts]
+import { Client, http, publicActions } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+
+const resolver = Client.createResolver({
+  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus:2]
+  batch: { multicall: true },
+  chains: [mainnet, optimism],
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+```
+
+### Handle Dynamic Chain IDs
+
+With literal chains, `getClient` only accepts configured IDs at compile time. When the ID arrives
+at runtime, such as a wallet chain switch or a route parameter, widen the chains type and handle
+`Client.ChainNotConfiguredError`.
+
+```ts twoslash [example.ts]
+import { Chain, Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+
+const chains: readonly [Chain.Chain, ...Chain.Chain[]] = [mainnet, optimism]
+
+const resolver = Client.createResolver({
+  chains,
+  transport: () => http(),
+})
+
+function clientFor(chainId: number) {
+  try {
+    return resolver.getClient({ chainId }) // [!code focus:5]
+  } catch (err) {
+    if (err instanceof Client.ChainNotConfiguredError) return undefined
+    throw err
+  }
+}
+```
+
+## Best Practices
+
+### Define the Resolver at Module Scope
+
+Configure one resolver per application and resolve Clients wherever a chain ID is known. Spreading
+per-chain `Client.create` calls across the codebase duplicates configuration and forfeits
+memoization.
+
+### Let the Resolver Memoize
+
+Do not cache resolved Clients in application state. `getClient` already returns the same instance
+per chain ID, so request deduplication and response caches stay shared.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:hammer" title="Set Up a Client" description="Compose a Chain, Transport, and Account, then tune Client behavior." to="/docs/guides/clients/setup" />
+  <Card icon="lucide:route" title="Resolving Clients" description="Full Client.createResolver API reference." to="/docs/clients/resolve" />
+  <Card icon="lucide:shield-check" title="Resilient Transports" description="Fail over between RPC providers and rank them by health." to="/docs/guides/clients/resilient-transports" />
+</Cards>

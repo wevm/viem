@@ -1,0 +1,39 @@
+---
+description: Set up Viem Clients, resolve them across chains, and compose reliable RPC transports.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Clients & Transports
+
+## Overview
+
+The [Client](/docs/clients) is the composition root of Viem. It binds a [Chain](/docs/chains), a
+[Transport](/docs/transports), an optional [Account](/docs/accounts), and opts into behavior
+through [`.extend()`](/docs/clients/create#extending-a-client). These guides cover setting a
+Client up, resolving Clients across several chains, and composing Transports that stay reliable
+through provider failures, rate limits, and long-lived subscriptions.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const blockNumber = await client.block.getNumber()
+// @log: 19868020n
+```
+
+## See More
+
+<Cards>
+  <Card icon="lucide:hammer" title="Set Up a Client" description="Compose a Chain, Transport, and Account, then tune batching, polling, and caching." to="/docs/guides/clients/setup" />
+  <Card icon="lucide:route" title="Multichain Clients" description="Configure chains once and resolve a typed Client per chain on demand." to="/docs/guides/clients/multichain" />
+  <Card icon="lucide:shield-check" title="Resilient Transports" description="Fail over between RPC providers and rank them by health and latency." to="/docs/guides/clients/resilient-transports" />
+  <Card icon="lucide:shuffle" title="Rate Limit & Load Balance" description="Control request throughput and distribute traffic across providers." to="/docs/guides/clients/rate-limit-load-balance" />
+  <Card icon="lucide:radio-tower" title="WebSocket Subscriptions" description="Use WebSocket subscriptions for blocks, pending transactions, and events." to="/docs/guides/clients/websockets" />
+  <Card icon="lucide:braces" title="Custom RPC & Errors" description="Add typed RPC methods and classify provider failures." to="/docs/guides/clients/custom-rpc-errors" />
+</Cards>
