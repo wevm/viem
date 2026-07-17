@@ -8,9 +8,9 @@ The **Contract** module creates type-safe contract instances: an object bound to
 
 An instance groups its methods by intent, each derived from the ABI:
 
-- **`read`**: read-only functions (`pure` and `view`).
-- **`write`**, **`simulate`**, **`estimateGas`**: state-mutating functions.
-- **`getLogs`**, **`createEventFilter`**, **`watchEvent`**: events.
+- [**`read`**](/docs/contract/instances/read): read-only functions (`pure` and `view`).
+- [**`write`**](/docs/contract/instances/write), [**`simulate`**](/docs/contract/instances/simulate), [**`estimateGas`**](/docs/contract/instances/estimateGas): state-mutating functions.
+- [**`getLogs`**](/docs/contract/instances/getLogs), [**`createEventFilter`**](/docs/contract/instances/createEventFilter), [**`watchEvent`**](/docs/contract/instances/watchEvent): events.
 
 Under the hood, each method delegates to the matching [Contract Action](/docs/actions/public/contract/read) with the `abi`, `address`, and `functionName` (or `eventName`) already bound.
 

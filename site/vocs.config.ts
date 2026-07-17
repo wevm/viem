@@ -1576,6 +1576,28 @@ export default defineConfig({
         items: [
           { text: 'Overview', link: '/docs/contract' },
           { text: 'Contract Instances', link: '/docs/contract/instances' },
+          { text: 'contract.read', link: '/docs/contract/instances/read' },
+          { text: 'contract.write', link: '/docs/contract/instances/write' },
+          {
+            text: 'contract.simulate',
+            link: '/docs/contract/instances/simulate',
+          },
+          {
+            text: 'contract.estimateGas',
+            link: '/docs/contract/instances/estimateGas',
+          },
+          {
+            text: 'contract.createEventFilter',
+            link: '/docs/contract/instances/createEventFilter',
+          },
+          {
+            text: 'contract.getLogs',
+            link: '/docs/contract/instances/getLogs',
+          },
+          {
+            text: 'contract.watchEvent',
+            link: '/docs/contract/instances/watchEvent',
+          },
         ],
       },
       {

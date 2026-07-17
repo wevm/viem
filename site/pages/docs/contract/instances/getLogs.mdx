@@ -1,0 +1,55 @@
+---
+description: Fetch decoded historical event logs through a typed contract instance.
+---
+
+# contract.getLogs
+
+Event log readers, one per ABI event. Each maps to [`Actions.contract.getLogs`](/docs/actions/public/contract/getLogs) with `abi`, `address`, and `eventName` bound, returning decoded logs.
+
+## Usage
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  client,
+})
+
+const logs = await contract.getLogs.Transfer({ // [!code focus]
+  args: { from: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e' }, // [!code focus]
+}) // [!code focus]
+```
+
+## Options
+
+The options of [`Actions.contract.getLogs`](/docs/actions/public/contract/getLogs#parameters) minus the bound `abi`, `address`, and `eventName`, such as `args`, `fromBlock`, `toBlock`, and `strict`.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  client,
+})
+// ---cut---
+const logs = await contract.getLogs.Transfer({
+  strict: true, // [!code focus]
+})
+```
+
+## Return Value
+
+`Promise<Log[]>`
+
+The decoded logs, typed against the event.

@@ -1,0 +1,38 @@
+---
+description: Watch incoming decoded event logs through a typed contract instance.
+---
+
+# contract.watchEvent
+
+Event watchers, one per ABI event. Each maps to [`Actions.contract.watchEvent`](/docs/actions/public/contract/watchEvent) with `abi`, `address`, and `eventName` bound, emitting decoded logs as they arrive.
+
+## Usage
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  client,
+})
+
+const watch = contract.watchEvent.Transfer() // [!code focus]
+watch.onLogs((logs) => console.log(logs)) // [!code focus]
+// later: stop watching
+watch.off() // [!code focus]
+```
+
+## Options
+
+The options of [`Actions.contract.watchEvent`](/docs/actions/public/contract/watchEvent#parameters) minus the bound `abi`, `address`, and `eventName`, such as `args` and `strict`.
+
+## Return Value
+
+`Watcher`
+
+The watcher. Register callbacks with `onLogs` and stop watching with `off`.

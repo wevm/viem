@@ -1,0 +1,42 @@
+---
+description: Dry-run state-mutating contract functions through a typed contract instance.
+---
+
+# contract.simulate
+
+Simulators for the ABI's state-mutating (`nonpayable`/`payable`) functions. Each maps to [`Actions.contract.simulate`](/docs/actions/public/contract/simulate) with `abi`, `address`, and `functionName` bound, executing the call without broadcasting a transaction.
+
+## Usage
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  client,
+})
+
+const { result } = await contract.simulate.transfer({ // [!code focus]
+  args: ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n], // [!code focus]
+}) // [!code focus]
+// @log: true
+```
+
+## Options
+
+The options of [`Actions.contract.simulate`](/docs/actions/public/contract/simulate#parameters) minus the bound `abi`, `address`, and `functionName`, such as `args` and `account` (to simulate as a specific sender).
+
+## Return Value
+
+`Promise<SimulateReturnType>`
+
+The decoded result of the simulated call, alongside the prepared request.

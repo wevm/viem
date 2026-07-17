@@ -1,0 +1,129 @@
+# Contract Instances
+
+## Overview
+
+Use [`Contract.from`](#contractfrom) to create a contract instance: a type-safe interface bound to an ABI, address, and [Client](/docs/clients). The instance exposes the contract's read functions, write functions, and events as methods, so repeated calls do not need to pass `abi`, `address`, and `functionName` each time.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  client,
+})
+
+const balance = await contract.read.balanceOf({
+  args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+})
+```
+
+If you only call a contract once or twice, the standalone [Contract Actions](/docs/actions/public/contract/read) (`Actions.contract.read`, [`Actions.contract.write`](/docs/actions/wallet/contract/write), etc.) avoid creating an instance. Method options are the matching action's options minus the bound `abi`, `address`, and `functionName`/`eventName`.
+
+## Methods
+
+Methods are grouped by intent, each derived from the ABI:
+
+- [`contract.read`](/docs/contract/instances/read): read-only functions (`pure` and `view`).
+- [`contract.write`](/docs/contract/instances/write): state-mutating functions (`nonpayable` and `payable`).
+- [`contract.simulate`](/docs/contract/instances/simulate): dry-run a write and decode its result.
+- [`contract.estimateGas`](/docs/contract/instances/estimateGas): estimate a write's gas cost.
+- [`contract.createEventFilter`](/docs/contract/instances/createEventFilter): install an event filter.
+- [`contract.getLogs`](/docs/contract/instances/getLogs): fetch historical event logs.
+- [`contract.watchEvent`](/docs/contract/instances/watchEvent): watch incoming event logs.
+
+## `Contract.from`
+
+Creates a type-safe contract interface bound to an ABI, address, and Client.
+
+### Usage
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  client,
+})
+```
+
+### Parameters
+
+#### options
+
+- **Type:** `Contract.from.Options`
+
+##### abi
+
+- **Type:** `Abi`
+
+The contract's ABI. Method names and argument types are derived from it, so pass a literal ABI such as `Abis.erc20` to preserve inference.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const contract = Contract.from({
+  abi: Abis.erc20, // [!code focus]
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  client,
+})
+```
+
+##### address
+
+- **Type:** `Address`
+
+The address of the contract.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+  client,
+})
+```
+
+##### client
+
+- **Type:** `Client`
+
+The Client used to execute the contract's actions. The [`write`](/docs/contract/instances/write) group requires the Client to have an [Account](/docs/accounts).
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  client, // [!code focus]
+})
+```
+
+### Return Value
+
+`Contract`
+
+The contract instance: `{ abi, address }` plus the method groups derived from the ABI. Functions appear under `read` (`pure`/`view`) or under `estimateGas`, `simulate`, and `write` (`nonpayable`/`payable`); events appear under `createEventFilter`, `getLogs`, and `watchEvent`. Groups without a matching ABI item are omitted, and `write` is omitted when the Client has no Account.

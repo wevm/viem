@@ -1,0 +1,44 @@
+---
+description: Send state-mutating contract transactions through a typed contract instance.
+---
+
+# contract.write
+
+State-mutating (`nonpayable`/`payable`) contract methods, one per ABI function. Each maps to [`Actions.contract.write`](/docs/actions/wallet/contract/write) with `abi`, `address`, and `functionName` bound, and returns the transaction hash.
+
+The `write` group is only present when the Client has an [Account](/docs/accounts); [`simulate`](/docs/contract/instances/simulate) and [`estimateGas`](/docs/contract/instances/estimateGas) do not require one.
+
+## Usage
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  client,
+})
+
+const hash = await contract.write.transfer({ // [!code focus]
+  args: ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n], // [!code focus]
+}) // [!code focus]
+// @log: '0x...'
+```
+
+## Options
+
+The options of [`Actions.contract.write`](/docs/actions/wallet/contract/write#parameters) minus the bound `abi`, `address`, and `functionName`, such as `args`, `value` (payable functions only), and transaction-request fields like `nonce` and fees.
+
+## Return Value
+
+`Promise<Hex>`
+
+The transaction hash.
