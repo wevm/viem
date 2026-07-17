@@ -290,136 +290,166 @@ describe('request: from contract.simulate', () => {
 describe('reverts', () => {
   test('revert message', async () => {
     await setup()
-    await expect(() =>
-      Actions.contract.write(client, {
-        ...errors,
-        account: local,
-        functionName: 'revertWrite',
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "revertWrite" reverted with the following reason:
+    const error = await Actions.contract
+      .write(client, {
+          ...errors,
+          account: local,
+          functionName: 'revertWrite',
+      })
+      .then(() => null)
+      .catch((error) => error as Error)
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    // The deployed address depends on the instance's deployment order.
+    expect(
+      error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
+    ).toMatchInlineSnapshot(`
+      "The contract function "revertWrite" reverted with the following reason:
       This is a revert message
 
       Contract Call:
-        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        address:   0x<address>
         function:  function revertWrite()
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
        
       Request Arguments:
         from:  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         data:  0x940b8802
-        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        to:    0x<address>
 
       Details: execution reverted: This is a revert message
-      Version: viem@2.52.1]
+      Version: viem@2.52.1"
     `)
   })
 
   test('panic: assert', async () => {
     await setup()
-    await expect(() =>
-      Actions.contract.write(client, {
-        ...errors,
-        account: local,
-        functionName: 'assertWrite',
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "assertWrite" reverted with the following reason:
+    const error = await Actions.contract
+      .write(client, {
+          ...errors,
+          account: local,
+          functionName: 'assertWrite',
+      })
+      .then(() => null)
+      .catch((error) => error as Error)
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    // The deployed address depends on the instance's deployment order.
+    expect(
+      error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
+    ).toMatchInlineSnapshot(`
+      "The contract function "assertWrite" reverted with the following reason:
       An \`assert\` condition failed.
 
       Contract Call:
-        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        address:   0x<address>
         function:  function assertWrite()
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
        
       Request Arguments:
         from:  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         data:  0x04696152
-        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        to:    0x<address>
 
       Details: execution reverted: panic: assertion failed (0x01)
-      Version: viem@2.52.1]
+      Version: viem@2.52.1"
     `)
   })
 
   test('panic: overflow', async () => {
     await setup()
-    await expect(() =>
-      Actions.contract.write(client, {
-        ...errors,
-        account: local,
-        functionName: 'overflowWrite',
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "overflowWrite" reverted with the following reason:
+    const error = await Actions.contract
+      .write(client, {
+          ...errors,
+          account: local,
+          functionName: 'overflowWrite',
+      })
+      .then(() => null)
+      .catch((error) => error as Error)
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    // The deployed address depends on the instance's deployment order.
+    expect(
+      error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
+    ).toMatchInlineSnapshot(`
+      "The contract function "overflowWrite" reverted with the following reason:
       Arithmetic operation resulted in underflow or overflow.
 
       Contract Call:
-        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        address:   0x<address>
         function:  function overflowWrite() returns (uint256)
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
        
       Request Arguments:
         from:  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         data:  0xd44de866
-        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        to:    0x<address>
 
       Details: execution reverted: panic: arithmetic underflow or overflow (0x11)
-      Version: viem@2.52.1]
+      Version: viem@2.52.1"
     `)
   })
 
   test('panic: divide by zero', async () => {
     await setup()
-    await expect(() =>
-      Actions.contract.write(client, {
-        ...errors,
-        account: local,
-        functionName: 'divideByZeroWrite',
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "divideByZeroWrite" reverted with the following reason:
+    const error = await Actions.contract
+      .write(client, {
+          ...errors,
+          account: local,
+          functionName: 'divideByZeroWrite',
+      })
+      .then(() => null)
+      .catch((error) => error as Error)
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    // The deployed address depends on the instance's deployment order.
+    expect(
+      error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
+    ).toMatchInlineSnapshot(`
+      "The contract function "divideByZeroWrite" reverted with the following reason:
       Division or modulo by zero (e.g. \`5 / 0\` or \`23 % 0\`).
 
       Contract Call:
-        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        address:   0x<address>
         function:  function divideByZeroWrite() returns (uint256)
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
        
       Request Arguments:
         from:  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         data:  0xc66cf133
-        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        to:    0x<address>
 
       Details: execution reverted: panic: division or modulo by zero (0x12)
-      Version: viem@2.52.1]
+      Version: viem@2.52.1"
     `)
   })
 
   test('require', async () => {
     await setup()
-    await expect(() =>
-      Actions.contract.write(client, {
-        ...errors,
-        account: local,
-        functionName: 'requireWrite',
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "requireWrite" reverted with the following reason:
+    const error = await Actions.contract
+      .write(client, {
+          ...errors,
+          account: local,
+          functionName: 'requireWrite',
+      })
+      .then(() => null)
+      .catch((error) => error as Error)
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    // The deployed address depends on the instance's deployment order.
+    expect(
+      error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
+    ).toMatchInlineSnapshot(`
+      "The contract function "requireWrite" reverted with the following reason:
       Execution reverted for an unknown reason.
 
       Contract Call:
-        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        address:   0x<address>
         function:  function requireWrite()
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
        
       Request Arguments:
         from:  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         data:  0x4a9bc278
-        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        to:    0x<address>
 
       Details: execution reverted
-      Version: viem@2.52.1]
+      Version: viem@2.52.1"
     `)
   })
 

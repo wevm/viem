@@ -138,54 +138,64 @@ test('error: aborted request is not wrapped', async () => {
 // anvil's raw (binary) payload, so assert viem's decoded fields for those.
 describe('reverts', () => {
   test('revert message', async () => {
-    await expect(() =>
-      Actions.contract.simulate(client, {
+    const error = await Actions.contract.simulate(client, {
         ...errors,
         account: jsonRpc,
         functionName: 'revertWrite',
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "revertWrite" reverted with the following reason:
+      })
+      .then(() => null)
+      .catch((error) => error as Error)
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    // The deployed address depends on the instance's deployment order.
+    expect(
+      error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
+    ).toMatchInlineSnapshot(`
+      "The contract function "revertWrite" reverted with the following reason:
       This is a revert message
 
       Contract Call:
-        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        address:   0x<address>
         function:  function revertWrite()
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
        
       Request Arguments:
         from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
         data:  0x940b8802
-        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        to:    0x<address>
 
       Details: execution reverted: This is a revert message
-      Version: viem@2.52.1]
+      Version: viem@2.52.1"
     `)
   })
 
   test('panic: assert', async () => {
-    await expect(() =>
-      Actions.contract.simulate(client, {
+    const error = await Actions.contract.simulate(client, {
         ...errors,
         account: jsonRpc,
         functionName: 'assertWrite',
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "assertWrite" reverted with the following reason:
+      })
+      .then(() => null)
+      .catch((error) => error as Error)
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    // The deployed address depends on the instance's deployment order.
+    expect(
+      error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
+    ).toMatchInlineSnapshot(`
+      "The contract function "assertWrite" reverted with the following reason:
       An \`assert\` condition failed.
 
       Contract Call:
-        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        address:   0x<address>
         function:  function assertWrite()
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
        
       Request Arguments:
         from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
         data:  0x04696152
-        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        to:    0x<address>
 
       Details: execution reverted: panic: assertion failed (0x01)
-      Version: viem@2.52.1]
+      Version: viem@2.52.1"
     `)
   })
 

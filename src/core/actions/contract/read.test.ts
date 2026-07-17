@@ -126,54 +126,64 @@ test('args: blockNumber', async () => {
 })
 
 test('args: args', async () => {
-  await expect(() =>
-    Actions.contract.read(client, {
+  const error = await Actions.contract.read(client, {
       abi,
       address,
       args: [123n],
       functionName: 'ownerOf',
-    }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ContractFunctionExecutionError: The contract function "ownerOf" reverted with the following reason:
+    })
+    .then(() => null)
+    .catch((error) => error as Error)
+  expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+  // The deployed address depends on the instance's deployment order.
+  expect(
+    error?.message.replaceAll(address.toLowerCase(), '0x<address>'),
+  ).toMatchInlineSnapshot(`
+    "The contract function "ownerOf" reverted with the following reason:
     Execution reverted for an unknown reason.
 
     Contract Call:
-      address:   0xbb0368cecdcb0759a32abbc21583af992fe94dd7
+      address:   0x<address>
       function:  function ownerOf(uint256) pure returns (address)
       args:             (123)
      
     Request Arguments:
       data:  0x6352211e000000000000000000000000000000000000000000000000000000000000007b
-      to:    0xbb0368cecdcb0759a32abbc21583af992fe94dd7
+      to:    0x<address>
 
     Details: execution reverted
-    Version: viem@2.52.1]
+    Version: viem@2.52.1"
   `)
 })
 
 test('error: reverts', async () => {
-  await expect(() =>
-    Actions.contract.read(client, {
+  const error = await Actions.contract.read(client, {
       abi,
       address,
       args: [1n],
       functionName: 'ownerOf',
-    }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ContractFunctionExecutionError: The contract function "ownerOf" reverted with the following reason:
+    })
+    .then(() => null)
+    .catch((error) => error as Error)
+  expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+  // The deployed address depends on the instance's deployment order.
+  expect(
+    error?.message.replaceAll(address.toLowerCase(), '0x<address>'),
+  ).toMatchInlineSnapshot(`
+    "The contract function "ownerOf" reverted with the following reason:
     Execution reverted for an unknown reason.
 
     Contract Call:
-      address:   0xbb0368cecdcb0759a32abbc21583af992fe94dd7
+      address:   0x<address>
       function:  function ownerOf(uint256) pure returns (address)
       args:             (1)
      
     Request Arguments:
       data:  0x6352211e0000000000000000000000000000000000000000000000000000000000000001
-      to:    0xbb0368cecdcb0759a32abbc21583af992fe94dd7
+      to:    0x<address>
 
     Details: execution reverted
-    Version: viem@2.52.1]
+    Version: viem@2.52.1"
   `)
 })
 
@@ -227,117 +237,142 @@ test('error: aborted request is not wrapped', async () => {
 
 describe('reverts', () => {
   test('revert message', async () => {
-    await expect(() =>
-      Actions.contract.read(client, {
+    const error = await Actions.contract.read(client, {
         ...errors,
         functionName: 'revertRead',
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "revertRead" reverted with the following reason:
+      })
+      .then(() => null)
+      .catch((error) => error as Error)
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    // The deployed address depends on the instance's deployment order.
+    expect(
+      error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
+    ).toMatchInlineSnapshot(`
+      "The contract function "revertRead" reverted with the following reason:
       This is a revert message
 
       Contract Call:
-        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        address:   0x<address>
         function:  function revertRead() pure
        
       Request Arguments:
         data:  0x9f558709
-        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        to:    0x<address>
 
       Details: execution reverted: This is a revert message
-      Version: viem@2.52.1]
+      Version: viem@2.52.1"
     `)
   })
 
   test('panic: assert', async () => {
-    await expect(() =>
-      Actions.contract.read(client, {
+    const error = await Actions.contract.read(client, {
         ...errors,
         functionName: 'assertRead',
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "assertRead" reverted with the following reason:
+      })
+      .then(() => null)
+      .catch((error) => error as Error)
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    // The deployed address depends on the instance's deployment order.
+    expect(
+      error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
+    ).toMatchInlineSnapshot(`
+      "The contract function "assertRead" reverted with the following reason:
       An \`assert\` condition failed.
 
       Contract Call:
-        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        address:   0x<address>
         function:  function assertRead() pure
        
       Request Arguments:
         data:  0xeb1aba20
-        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        to:    0x<address>
 
       Details: execution reverted: panic: assertion failed (0x01)
-      Version: viem@2.52.1]
+      Version: viem@2.52.1"
     `)
   })
 
   test('panic: overflow', async () => {
-    await expect(() =>
-      Actions.contract.read(client, {
+    const error = await Actions.contract.read(client, {
         ...errors,
         functionName: 'overflowRead',
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "overflowRead" reverted with the following reason:
+      })
+      .then(() => null)
+      .catch((error) => error as Error)
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    // The deployed address depends on the instance's deployment order.
+    expect(
+      error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
+    ).toMatchInlineSnapshot(`
+      "The contract function "overflowRead" reverted with the following reason:
       Arithmetic operation resulted in underflow or overflow.
 
       Contract Call:
-        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        address:   0x<address>
         function:  function overflowRead() pure returns (uint256)
        
       Request Arguments:
         data:  0x4adac6eb
-        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        to:    0x<address>
 
       Details: execution reverted: panic: arithmetic underflow or overflow (0x11)
-      Version: viem@2.52.1]
+      Version: viem@2.52.1"
     `)
   })
 
   test('panic: divide by zero', async () => {
-    await expect(() =>
-      Actions.contract.read(client, {
+    const error = await Actions.contract.read(client, {
         ...errors,
         functionName: 'divideByZeroRead',
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "divideByZeroRead" reverted with the following reason:
+      })
+      .then(() => null)
+      .catch((error) => error as Error)
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    // The deployed address depends on the instance's deployment order.
+    expect(
+      error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
+    ).toMatchInlineSnapshot(`
+      "The contract function "divideByZeroRead" reverted with the following reason:
       Division or modulo by zero (e.g. \`5 / 0\` or \`23 % 0\`).
 
       Contract Call:
-        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        address:   0x<address>
         function:  function divideByZeroRead() pure returns (uint256)
        
       Request Arguments:
         data:  0x24db9ba0
-        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        to:    0x<address>
 
       Details: execution reverted: panic: division or modulo by zero (0x12)
-      Version: viem@2.52.1]
+      Version: viem@2.52.1"
     `)
   })
 
   test('require', async () => {
-    await expect(() =>
-      Actions.contract.read(client, {
+    const error = await Actions.contract.read(client, {
         ...errors,
         functionName: 'requireRead',
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "requireRead" reverted with the following reason:
+      })
+      .then(() => null)
+      .catch((error) => error as Error)
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    // The deployed address depends on the instance's deployment order.
+    expect(
+      error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
+    ).toMatchInlineSnapshot(`
+      "The contract function "requireRead" reverted with the following reason:
       Execution reverted for an unknown reason.
 
       Contract Call:
-        address:   0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        address:   0x<address>
         function:  function requireRead() pure
        
       Request Arguments:
         data:  0x699389ca
-        to:    0xc80f9da34212736be29fcf9ed26b5951ddcc62bb
+        to:    0x<address>
 
       Details: execution reverted
-      Version: viem@2.52.1]
+      Version: viem@2.52.1"
     `)
   })
 

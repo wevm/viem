@@ -111,21 +111,26 @@ test('default', async () => {
     calls: batch,
   })
   expect(response.id).toBeDefined()
-  expect(requests).toMatchInlineSnapshot(`
+  // The deployed address depends on the instance's deployment order.
+  expect(
+    JSON.parse(
+      JSON.stringify(requests).replaceAll(
+        erc721.address.toLowerCase(),
+        '0x<address>',
+      ),
+    ),
+  ).toMatchInlineSnapshot(`
     [
       [
         {
           "atomicRequired": false,
           "calls": [
             {
-              "data": undefined,
               "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
               "value": "0xde0b6b3a7640000",
             },
             {
-              "data": undefined,
               "to": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
-              "value": undefined,
             },
             {
               "data": "0xcafebabe",
@@ -134,19 +139,15 @@ test('default', async () => {
             },
             {
               "data": "0x1249c58b",
-              "to": "0xbb0368cecdcb0759a32abbc21583af992fe94dd7",
-              "value": undefined,
+              "to": "0x<address>",
             },
             {
               "data": "0x1249c58b",
-              "to": "0xbb0368cecdcb0759a32abbc21583af992fe94dd7",
-              "value": undefined,
+              "to": "0x<address>",
             },
           ],
-          "capabilities": undefined,
           "chainId": "0x1",
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-          "id": undefined,
           "version": "2.0.0",
         },
       ],
@@ -165,21 +166,26 @@ test('behavior: chain on client', async () => {
     calls: batch,
   })
   expect(response.id).toBeDefined()
-  expect(requests).toMatchInlineSnapshot(`
+  // The deployed address depends on the instance's deployment order.
+  expect(
+    JSON.parse(
+      JSON.stringify(requests).replaceAll(
+        erc721.address.toLowerCase(),
+        '0x<address>',
+      ),
+    ),
+  ).toMatchInlineSnapshot(`
     [
       [
         {
           "atomicRequired": false,
           "calls": [
             {
-              "data": undefined,
               "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
               "value": "0xde0b6b3a7640000",
             },
             {
-              "data": undefined,
               "to": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
-              "value": undefined,
             },
             {
               "data": "0xcafebabe",
@@ -188,19 +194,15 @@ test('behavior: chain on client', async () => {
             },
             {
               "data": "0x1249c58b",
-              "to": "0xbb0368cecdcb0759a32abbc21583af992fe94dd7",
-              "value": undefined,
+              "to": "0x<address>",
             },
             {
               "data": "0x1249c58b",
-              "to": "0xbb0368cecdcb0759a32abbc21583af992fe94dd7",
-              "value": undefined,
+              "to": "0x<address>",
             },
           ],
-          "capabilities": undefined,
           "chainId": "0x1",
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-          "id": undefined,
           "version": "2.0.0",
         },
       ],
@@ -213,21 +215,26 @@ test('behavior: inferred account', async () => {
   const client = getClient({ onRequest: ({ params }) => requests.push(params) })
   const response = await sendCalls(client, { chain: mainnet, calls: batch })
   expect(response.id).toBeDefined()
-  expect(requests).toMatchInlineSnapshot(`
+  // The deployed address depends on the instance's deployment order.
+  expect(
+    JSON.parse(
+      JSON.stringify(requests).replaceAll(
+        erc721.address.toLowerCase(),
+        '0x<address>',
+      ),
+    ),
+  ).toMatchInlineSnapshot(`
     [
       [
         {
           "atomicRequired": false,
           "calls": [
             {
-              "data": undefined,
               "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
               "value": "0xde0b6b3a7640000",
             },
             {
-              "data": undefined,
               "to": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
-              "value": undefined,
             },
             {
               "data": "0xcafebabe",
@@ -236,19 +243,14 @@ test('behavior: inferred account', async () => {
             },
             {
               "data": "0x1249c58b",
-              "to": "0xbb0368cecdcb0759a32abbc21583af992fe94dd7",
-              "value": undefined,
+              "to": "0x<address>",
             },
             {
               "data": "0x1249c58b",
-              "to": "0xbb0368cecdcb0759a32abbc21583af992fe94dd7",
-              "value": undefined,
+              "to": "0x<address>",
             },
           ],
-          "capabilities": undefined,
           "chainId": "0x1",
-          "from": undefined,
-          "id": undefined,
           "version": "2.0.0",
         },
       ],
@@ -477,7 +479,15 @@ test('args: dataSuffix', async () => {
     ],
   })
   expect(response.id).toBeDefined()
-  expect(requests).toMatchInlineSnapshot(`
+  // The deployed address depends on the instance's deployment order.
+  expect(
+    JSON.parse(
+      JSON.stringify(requests).replaceAll(
+        erc721.address.toLowerCase(),
+        '0x<address>',
+      ),
+    ),
+  ).toMatchInlineSnapshot(`
     [
       [
         {
@@ -485,14 +495,11 @@ test('args: dataSuffix', async () => {
           "calls": [
             {
               "data": "0x1249c58b12345678",
-              "to": "0xbb0368cecdcb0759a32abbc21583af992fe94dd7",
-              "value": undefined,
+              "to": "0x<address>",
             },
           ],
-          "capabilities": undefined,
           "chainId": "0x1",
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-          "id": undefined,
           "version": "2.0.0",
         },
       ],

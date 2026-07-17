@@ -243,7 +243,6 @@ describe.skipIf(Boolean(process.env.SKIP_GLOBAL_SETUP))('local zone', () => {
           amount: 10_000n,
           pollingInterval: 100,
           revealTo,
-          timeout: 30_000,
           token,
         })
       expect(verifiableWithdrawal.receipt.status).toBe('success')

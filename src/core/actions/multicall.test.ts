@@ -5,7 +5,7 @@ import * as constants from '~test/constants.js'
 import * as contract from '~test/contract.js'
 import { expect, test } from 'vitest'
 
-import { Actions, Client, custom, publicActions } from 'viem'
+import { Actions, Client, ContractError, custom, publicActions } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = anvil.getClient(anvil.mainnet)
@@ -99,26 +99,29 @@ test('behavior: mutation calls', async () => {
     },
   })
 
-  expect(results.map((result) => ({ ...result, logs: null })))
-    .toMatchInlineSnapshot(`
+  // `gasUsed` shifts when sibling test files delegate the target accounts.
+  for (const result of results) expect(result.gasUsed).toBeGreaterThan(20_000n)
+  expect(
+    results.map((result) => ({ ...result, gasUsed: null, logs: null })),
+  ).toMatchInlineSnapshot(`
       [
         {
           "data": "0x",
-          "gasUsed": 21000n,
+          "gasUsed": null,
           "logs": null,
           "result": null,
           "status": "success",
         },
         {
           "data": "0x",
-          "gasUsed": 21000n,
+          "gasUsed": null,
           "logs": null,
           "result": null,
           "status": "success",
         },
         {
           "data": "0x",
-          "gasUsed": 78394n,
+          "gasUsed": null,
           "logs": null,
           "result": null,
           "status": "success",
@@ -911,21 +914,30 @@ test('behavior: contract revert with error not on abi (multicall mode)', async (
 
   expect(results[0]!.status).toBe('success')
   expect(results[1]!.status).toBe('failure')
-  expect(results[1]!.error).toMatchInlineSnapshot(`
-    [ContractFunctionExecutionError: The contract function "simpleCustomRead" reverted with the following signature:
+  expect(results[1]!.error).toBeInstanceOf(
+    ContractError.ContractFunctionExecutionError,
+  )
+  // The deployed address depends on the instance's deployment order.
+  expect(
+    (results[1]!.error as Error).message.replaceAll(
+      address.toLowerCase(),
+      '0x<address>',
+    ),
+  ).toMatchInlineSnapshot(`
+    "The contract function "simpleCustomRead" reverted with the following signature:
     0xf9006398
 
     Unable to decode signature "0xf9006398" as it was not found on the provided ABI.
     Make sure you are using the correct ABI and that the error exists on it.
      
     Contract Call:
-      address:   0xbb0368cecdcb0759a32abbc21583af992fe94dd7
+      address:   0x<address>
       function:  function simpleCustomRead() pure
 
     Details: An error occurred.
 
     Version: viem@2.52.1
-    Version: viem@2.52.1]
+    Version: viem@2.52.1"
   `)
 })
 
