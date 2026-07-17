@@ -6,7 +6,7 @@ import { usdc } from 'viem/tokens'
 
 test('filters chains by token support', () => {
   const chains = Chain.filter({
-    chains: [mainnet, sepolia, { id: 1 }],
+    chains: [mainnet, sepolia, { id: 10 }, { name: 'no-id' }],
     token: usdc,
   })
 
@@ -14,6 +14,7 @@ test('filters chains by token support', () => {
     [
       1,
       11155111,
+      10,
     ]
   `)
 })

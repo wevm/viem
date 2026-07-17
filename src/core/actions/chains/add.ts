@@ -45,8 +45,11 @@ export async function add(
 
 export declare namespace add {
   type Options = {
-    /** The chain to add to the wallet. */
-    chain: Chain.Chain
+    /** The chain to add to the wallet. `wallet_addEthereumChain` requires a name and RPC URLs. */
+    chain: Chain.Chain & {
+      name: string
+      rpcUrls: { default: Chain.Chain.RpcUrls }
+    }
   }
 
   type ErrorType = Errors.GlobalErrorType

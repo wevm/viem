@@ -37,7 +37,7 @@ export async function getResolver(
   const tlds = chain?.ensTlds
   if (chain && tlds && !tlds.some((tld) => name.endsWith(tld)))
     throw new BaseError(
-      `${name} is not a valid ENS TLD (${tlds.join(', ')}) for chain "${chain.name}" (id: ${chain.id}).`,
+      `${name} is not a valid ENS TLD (${tlds.join(', ')}) for chain "${chain.name ?? chain.id}" (id: ${chain.id}).`,
     )
 
   const universalResolverAddress = resolveUniversalResolverAddress(client, {

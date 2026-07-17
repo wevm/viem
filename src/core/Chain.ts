@@ -35,16 +35,18 @@ export type Chain = {
   /** Chain id. */
   id: number
   /** Human-readable name. */
-  name: string
+  name?: string | undefined
   /** Currency used by the chain. */
-  nativeCurrency: Chain.NativeCurrency
+  nativeCurrency?: Chain.NativeCurrency | undefined
   /** Preconfirmation time in milliseconds. */
   preconfirmationTime?: number | undefined
-  /** Collection of RPC endpoints. */
-  rpcUrls: {
-    [key: string]: Chain.RpcUrls
-    default: Chain.RpcUrls
-  }
+  /** Collection of RPC endpoints. When omitted, transports require an explicit URL. */
+  rpcUrls?:
+    | {
+        [key: string]: Chain.RpcUrls
+        default: Chain.RpcUrls
+      }
+    | undefined
   /** Typed chain-extension declaration (see {@link extendSchema}). */
   extendSchema?: Record<string, unknown> | undefined
   /** RPC ↔ native converters. */
@@ -499,7 +501,8 @@ export function filter<const criteria extends filter.Criteria>(
   }
 
   if (sort === 'id') filtered.sort((a, b) => a.id - b.id)
-  if (sort === 'name') filtered.sort((a, b) => a.name.localeCompare(b.name))
+  if (sort === 'name')
+    filtered.sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''))
 
   return filtered as filter.ReturnType<criteria>
 }
@@ -552,11 +555,7 @@ function isChain(chain: unknown): chain is Chain {
     typeof chain === 'object' &&
     chain !== null &&
     'id' in chain &&
-    typeof chain.id === 'number' &&
-    'name' in chain &&
-    typeof chain.name === 'string' &&
-    'nativeCurrency' in chain &&
-    'rpcUrls' in chain
+    typeof chain.id === 'number'
   )
 }
 
@@ -611,7 +610,7 @@ export class DoesNotSupportContract extends BaseError {
     contract: { name: string; blockCreated?: number | undefined }
   }) {
     super(
-      `Chain "${chain.name}" does not support contract "${contract.name}".`,
+      `Chain "${chain.name ?? chain.id}" does not support contract "${contract.name}".`,
       {
         metaMessages: [
           'This could be due to any of the following:',
@@ -640,12 +639,13 @@ export class MismatchError extends BaseError {
     chain: Chain
     currentChainId: number
   }) {
+    const label = chain.name ? `${chain.id} – ${chain.name}` : `${chain.id}`
     super(
-      `The current chain of the wallet (id: ${currentChainId}) does not match the target chain for the transaction (id: ${chain.id} – ${chain.name}).`,
+      `The current chain of the wallet (id: ${currentChainId}) does not match the target chain for the transaction (id: ${label}).`,
       {
         metaMessages: [
           `Current Chain ID:  ${currentChainId}`,
-          `Expected Chain ID: ${chain.id} – ${chain.name}`,
+          `Expected Chain ID: ${label}`,
         ],
       },
     )

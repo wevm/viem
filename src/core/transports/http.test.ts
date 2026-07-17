@@ -56,6 +56,13 @@ describe('http', () => {
     expect(() => http().setup()).toThrowError(Transport.UrlRequiredError)
   })
 
+  test('throws UrlRequiredError when the chain has no RPC URLs', () => {
+    const chain = Chain.from({ id: 1 })
+    expect(() => http().setup({ chain })).toThrowError(
+      Transport.UrlRequiredError,
+    )
+  })
+
   test('falls back to the chain default RPC URL', async () => {
     const server = await Http.createServer((_req, res) => {
       res.writeHead(200, { 'Content-Type': 'application/json' })

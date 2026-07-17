@@ -17,6 +17,12 @@ test('from: preserves literal types', () => {
   expectTypeOf(chain.name).toEqualTypeOf<'Ethereum'>()
 })
 
+test('from: accepts an id-only chain', () => {
+  const chain = Chain.from({ id: 1 })
+  expectTypeOf(chain.id).toEqualTypeOf<1>()
+  expectTypeOf(chain).toMatchTypeOf<Chain.Chain>()
+})
+
 test('extend: merges and preserves literals', () => {
   const chain = Chain.from({
     id: 1,

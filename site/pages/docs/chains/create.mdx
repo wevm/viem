@@ -175,7 +175,7 @@ const mainnet = Chain.from({
 
 - **Type:** `Chain.Chain`
 
-The chain definition. `id`, `name`, `nativeCurrency`, and `rpcUrls` are required; all other fields are optional.
+The chain definition. Only `id` is required; all other fields are optional.
 
 ##### chain.blockExplorers
 
@@ -292,6 +292,7 @@ const chain = Chain.from({
 ##### chain.name
 
 - **Type:** `string`
+- **Optional**
 
 Human-readable name.
 
@@ -309,6 +310,7 @@ const chain = Chain.from({
 ##### chain.nativeCurrency
 
 - **Type:** `Chain.NativeCurrency`
+- **Optional**
 
 Currency used by the chain (`name`, `symbol`, `decimals`).
 
@@ -345,8 +347,10 @@ const chain = Chain.from({
 ##### chain.rpcUrls
 
 - **Type:** `{ default: Chain.RpcUrls }`
+- **Optional**
 
-RPC endpoints, keyed by name with a required `default`.
+RPC endpoints, keyed by name with a required `default`. When omitted, Transports such as
+[`http`](/docs/transports/http) require an explicit URL.
 
 ```ts twoslash
 import { Chain } from 'viem'

@@ -76,6 +76,13 @@ describe('webSocket', () => {
     expect(() => webSocket().setup()).toThrowError(Transport.UrlRequiredError)
   })
 
+  test('throws UrlRequiredError when the chain has no RPC URLs', () => {
+    const chain = Chain.from({ id: 1 })
+    expect(() => webSocket().setup({ chain })).toThrowError(
+      Transport.UrlRequiredError,
+    )
+  })
+
   test('falls back to the chain default RPC URL', async () => {
     const chain = Chain.from({
       id: 1,

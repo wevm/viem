@@ -289,7 +289,8 @@ export class ExecutionError extends BaseError<Error> {
 
     const prettyArgs = Json.prettyPrint(
       {
-        chain: chain && `${chain.name} (id: ${chain.id})`,
+        chain:
+          chain && (chain.name ? `${chain.name} (id: ${chain.id})` : chain.id),
         from: account?.address ?? from,
         ...request,
         value:
