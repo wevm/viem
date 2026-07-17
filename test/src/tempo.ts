@@ -294,7 +294,13 @@ export function createServer(options: { limit: number }) {
   return Server.create({
     instance: TestContainers.Instance.tempo({
       // Match Tempo's production cadence when Zone consumes every L1 block.
-      blockTime: process.env.VITE_TEMPO_ZONES === 'true' ? '500ms' : '2ms',
+      // 2ms blocks busy-loop the node; starved CI runners need a saner pace.
+      blockTime:
+        process.env.VITE_TEMPO_ZONES === 'true'
+          ? '500ms'
+          : process.env.CI
+            ? '50ms'
+            : '2ms',
       image: `ghcr.io/tempoxyz/tempo:${tag}`,
       port,
       startupTimeout: 75_000,
