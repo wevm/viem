@@ -20,6 +20,8 @@ jobs:
 
   changesets:
     name: Create version pull request
+    # Versioning and releases run from the wevm/viem repository only.
+    if: github.repository == 'wevm/viem'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
