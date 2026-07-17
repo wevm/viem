@@ -336,7 +336,7 @@ body > div:has(> div > .twoslash-completion-list) {
 [data-v-content]
   a:not([data-v-anchor]):not([data-v-edit-link]):not(
     [class~='vocs:no-underline']
-  ) {
+  ):not([class~='no-underline']) {
   font-weight: 500;
   text-decoration: underline;
   text-decoration-color: color-mix(
@@ -352,7 +352,7 @@ body > div:has(> div > .twoslash-completion-list) {
 [data-v-content]
   a:not([data-v-anchor]):not([data-v-edit-link]):not(
     [class~='vocs:no-underline']
-  ):hover {
+  ):not([class~='no-underline']):hover {
   color: var(--text-color-link);
   text-decoration-color: var(--text-color-accent);
   text-decoration-style: solid;

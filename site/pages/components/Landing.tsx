@@ -154,7 +154,7 @@ export function Landing({
       <header className="pb-4">
         <div className={`flex items-center justify-between ${containerCls}`}>
           <div className="flex items-center gap-3">
-            <a href="/" aria-label="Viem" className="inline-flex items-center">
+            <a href="/" aria-label="Viem" className="inline-flex items-center no-underline">
               <img
                 src="/icon-light.png"
                 alt="Viem"
@@ -182,7 +182,7 @@ export function Landing({
           </div>
           <a
             href="/docs"
-            className="inline-flex items-center gap-1.5 border border-dashed border-hover bg-elevated px-3 py-1.5 text-[13px] font-medium text-secondary transition-colors hover:border-primary hover:text-primary"
+            className="inline-flex items-center gap-1.5 border border-dashed border-hover bg-elevated px-3 py-1.5 text-[13px] font-medium text-secondary no-underline transition-colors hover:border-primary hover:text-primary"
           >
             Docs
             <IconArrowUpRight aria-hidden className="h-3.5 w-3.5" />
@@ -209,7 +209,7 @@ export function Landing({
               <Link
                 to="/docs"
                 style={{ color: 'var(--background-color-primary)' }}
-                className="landing-primary-cta group inline-flex items-center gap-2 border border-dashed border-[var(--text-color-primary)] bg-[var(--text-color-primary)] px-[22px] py-3 text-[14px] font-semibold transition hover:bg-[var(--text-color-strong)]"
+                className="landing-primary-cta group inline-flex items-center gap-2 border border-dashed border-[var(--text-color-primary)] bg-[var(--text-color-primary)] px-[22px] py-3 text-[14px] font-semibold no-underline transition hover:bg-[var(--text-color-strong)]"
               >
                 Read the docs
                 <svg
@@ -228,7 +228,7 @@ export function Landing({
               </Link>
               <a
                 href="https://github.com/wevm/viem"
-                className="inline-flex items-center gap-2 border border-dashed border-primary bg-elevated px-[22px] py-3 text-[14px] font-medium text-primary transition hover:border-hover hover:bg-surface"
+                className="inline-flex items-center gap-2 border border-dashed border-primary bg-elevated px-[22px] py-3 text-[14px] font-medium text-primary no-underline transition hover:border-hover hover:bg-surface"
               >
                 <svg
                   width="14"
@@ -505,7 +505,7 @@ export function Landing({
                   key={s.href}
                   href={s.href}
                   aria-label={s.label}
-                  className="inline-flex h-8 w-8 items-center justify-center border border-dashed border-hover bg-elevated text-secondary transition-colors hover:border-primary hover:text-primary"
+                  className="inline-flex h-8 w-8 items-center justify-center border border-dashed border-hover bg-elevated text-secondary no-underline transition-colors hover:border-primary hover:text-primary"
                 >
                   <svg
                     width={s.size}
