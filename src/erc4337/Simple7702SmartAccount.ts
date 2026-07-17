@@ -217,7 +217,10 @@ export declare namespace from {
     Account<entryPoint>
 
   /** Errors thrown by {@link from}. */
-  type ErrorType = SmartAccount.from.ErrorType | Errors.GlobalErrorType
+  type ErrorType =
+    | SmartAccount.from.ErrorType
+    | UserOperation.from.ErrorType
+    | Errors.GlobalErrorType
 }
 
 type EntryPointParameter =

@@ -75,11 +75,13 @@
     "pre-commit": "pnpm check"
   },
   "knip": {
+    "ignoreExportsUsedInFile": true,
     "ignore": [
       ".github/**",
       "environments/**",
       "src/vendor/**",
-      "src/core/internal/**"
+      "src/core/internal/**",
+      "src/op-stack/actions/l1/testFixtures.ts"
     ],
     "ignoreBinaries": [
       "dev",

@@ -380,19 +380,6 @@ importers:
         version: 8.0.16(@types/node@20.19.41)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
 
   site:
-    dependencies:
-      react:
-        specifier: 'catalog:'
-        version: 19.2.7
-      react-dom:
-        specifier: 'catalog:'
-        version: 19.2.7(react@19.2.7)
-      vocs:
-        specifier: 'catalog:'
-        version: 2.5.3(patch_hash=8563479f8708726963a9e38df220c8f7723b4ea871f670228a484fd50e085fbc)(@types/react@19.2.17)(@vue/compiler-sfc@3.5.39)(change-case@5.4.4)(esbuild@0.27.2)(next@16.2.6(@babel/core@7.29.7)(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(webpack@5.107.2(esbuild@0.27.2)))(react@19.2.7)(rolldown@1.0.3)(typescript@5.9.3)(vite@8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(waku@1.0.0-beta.6(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(webpack@5.107.2(esbuild@0.27.2)))(react@19.2.7)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.107.2(esbuild@0.27.2))
-      waku:
-        specifier: 'catalog:'
-        version: 1.0.0-beta.6(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(webpack@5.107.2(esbuild@0.27.2)))(react@19.2.7)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
     devDependencies:
       '@iconify-json/vscode-icons':
         specifier: 1.2.40
@@ -409,6 +396,12 @@ importers:
       '@vitejs/plugin-react':
         specifier: 'catalog:'
         version: 6.0.2(vite@8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
+      react:
+        specifier: 'catalog:'
+        version: 19.2.7
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.7(react@19.2.7)
       react-server-dom-webpack:
         specifier: 'catalog:'
         version: 19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(webpack@5.107.2(esbuild@0.27.2))
@@ -424,6 +417,12 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
+      vocs:
+        specifier: 'catalog:'
+        version: 2.5.3(patch_hash=8563479f8708726963a9e38df220c8f7723b4ea871f670228a484fd50e085fbc)(@types/react@19.2.17)(@vue/compiler-sfc@3.5.39)(change-case@5.4.4)(esbuild@0.27.2)(next@16.2.6(@babel/core@7.29.7)(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(webpack@5.107.2(esbuild@0.27.2)))(react@19.2.7)(rolldown@1.0.3)(typescript@5.9.3)(vite@8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(waku@1.0.0-beta.6(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(webpack@5.107.2(esbuild@0.27.2)))(react@19.2.7)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.107.2(esbuild@0.27.2))
+      waku:
+        specifier: 'catalog:'
+        version: 1.0.0-beta.6(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(webpack@5.107.2(esbuild@0.27.2)))(react@19.2.7)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
 
 packages:
 

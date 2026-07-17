@@ -9,22 +9,20 @@
     "preview": "vocs preview",
     "sync:vocs": "node scripts/copy-vocs-theme.mjs"
   },
-  "dependencies": {
-    "react": "catalog:",
-    "react-dom": "catalog:",
-    "vocs": "catalog:",
-    "waku": "catalog:"
-  },
   "devDependencies": {
     "@iconify-json/vscode-icons": "1.2.40",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "react-server-dom-webpack": "catalog:",
     "shiki": "3.21.0",
     "tailwindcss": "^4.3.0",
     "typescript": "catalog:",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "vocs": "catalog:",
+    "waku": "catalog:"
   }
 }
