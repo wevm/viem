@@ -37,3 +37,4 @@ site/sidebar.generated.ts
 .vercel
 vocs.config.tsx.timestamp*
 _
+.claude/
