@@ -178,9 +178,19 @@ const logs = await contract.getLogs.Transfer() // [!code ++]
 
 Multi-output contract results with named outputs decode to objects keyed by the output names. Fully unnamed outputs keep the tuple shape, and `as: 'Array'` restores tuples per call.
 
+```solidity
+// named outputs → object
+function metadata() external view returns (string memory name, string memory symbol);
+
+// unnamed outputs → tuple
+function values() external view returns (uint256, bool);
+```
+
 ```ts
-const [foo, bar] = await readContract(client, options) // [!code --]
-const { foo, bar } = await Actions.contract.read(client, options) // [!code ++]
+const [name, symbol] = await readContract(client, { ...options, functionName: 'metadata' }) // [!code --]
+const { name, symbol } = await Actions.contract.read(client, { ...options, functionName: 'metadata' }) // [!code ++]
+
+const [value, ok] = await Actions.contract.read(client, { ...options, functionName: 'values' })
 ```
 
 ### multicall Redesign
