@@ -95,10 +95,7 @@ export namespace registerMaster {
   export async function estimateGas<
     chain extends Chain.Chain | undefined,
     account extends Account.Account | undefined,
-  >(
-    client: Client.Client<chain, account>,
-    options: Options,
-  ): Promise<bigint> {
+  >(client: Client.Client<chain, account>, options: Options): Promise<bigint> {
     return estimateWrite(client, {
       ...pickWriteParameters(options),
       ...registerMaster.call(client, options),
@@ -113,7 +110,10 @@ export namespace registerMaster {
     client: Client.Client<chain, account>,
     options: Options,
   ): Promise<
-    simulateContract.ReturnType<typeof Abis.addressRegistry, 'registerVirtualMaster'>
+    simulateContract.ReturnType<
+      typeof Abis.addressRegistry,
+      'registerVirtualMaster'
+    >
   > {
     return simulateWrite(client, {
       ...pickWriteParameters(options),

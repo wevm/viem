@@ -100,12 +100,7 @@ export namespace place {
     return defineCall({
       abi: Abis.stablecoinDex,
       address: Addresses.stablecoinDex,
-      args: [
-        token,
-        amount,
-        type === 'buy',
-        tick,
-      ],
+      args: [token, amount, type === 'buy', tick],
       functionName: 'place',
     })
   }

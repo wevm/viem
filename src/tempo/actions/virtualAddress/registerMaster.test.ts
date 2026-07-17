@@ -15,10 +15,8 @@ const masterId = '0x58e21090' as const
 
 describe('registerMasterSync', () => {
   test('default', async () => {
-    const { receipt, ...result } = await Actions.virtualAddress.registerMasterSync(
-      client,
-      { salt },
-    )
+    const { receipt, ...result } =
+      await Actions.virtualAddress.registerMasterSync(client, { salt })
 
     expect(receipt.status).toBe('success')
     expect(result).toMatchInlineSnapshot(`

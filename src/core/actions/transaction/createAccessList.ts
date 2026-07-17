@@ -69,10 +69,7 @@ export async function createAccessList(
     const response = (await client.request(
       {
         method: 'eth_createAccessList',
-        params: [
-          TransactionRequest.toRpc(request),
-          block,
-        ],
+        params: [TransactionRequest.toRpc(request), block],
       },
       requestOptions,
     )) as Response

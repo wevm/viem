@@ -99,12 +99,7 @@ export namespace buy {
     return defineCall({
       abi: Abis.stablecoinDex,
       address: Addresses.stablecoinDex,
-      args: [
-        tokenIn,
-        tokenOut,
-        amountOut,
-        maxAmountIn,
-      ],
+      args: [tokenIn, tokenOut, amountOut, maxAmountIn],
       functionName: 'swapExactAmountOut',
     })
   }

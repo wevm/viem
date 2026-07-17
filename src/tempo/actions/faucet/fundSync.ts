@@ -36,12 +36,13 @@ export async function fundSync<chain extends Chain.Chain | undefined>(
     params: [address],
   })) as readonly Hex.Hex[]
   return Promise.all(
-    hashes.map((hash) =>
-      waitForReceipt(client, {
-        checkReplacement: false,
-        hash,
-        timeout,
-      }).receipt,
+    hashes.map(
+      (hash) =>
+        waitForReceipt(client, {
+          checkReplacement: false,
+          hash,
+          timeout,
+        }).receipt,
     ),
   )
 }

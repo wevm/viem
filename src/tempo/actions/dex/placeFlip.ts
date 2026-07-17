@@ -102,13 +102,7 @@ export namespace placeFlip {
     return defineCall({
       abi: Abis.stablecoinDex,
       address: Addresses.stablecoinDex,
-      args: [
-        token,
-        amount,
-        type === 'buy',
-        tick,
-        flipTick,
-      ],
+      args: [token, amount, type === 'buy', tick, flipTick],
       functionName: 'placeFlip',
     })
   }

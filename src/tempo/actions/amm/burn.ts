@@ -90,12 +90,7 @@ export namespace burn {
   ) {
     const [, args] = resolveCallParameters(parameters)
     const { liquidity, to, userToken, validatorToken } = args
-    const callArgs = [
-      userToken,
-      validatorToken,
-      liquidity,
-      to,
-    ] as const
+    const callArgs = [userToken, validatorToken, liquidity, to] as const
     return defineCall({
       abi: Abis.feeAmm,
       address: Addresses.feeManager,

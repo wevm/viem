@@ -80,6 +80,8 @@ describe('behavior: eth_requestAccounts fallback', () => {
           signInWithEthereum: { chainId: 1, nonce: 'abcd1234' },
         },
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`[Provider.UnsupportedMethodError: The provider does not support the requested method.]`)
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Provider.UnsupportedMethodError: The provider does not support the requested method.]`,
+    )
   })
 })

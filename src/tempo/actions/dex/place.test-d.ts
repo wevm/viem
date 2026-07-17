@@ -18,7 +18,12 @@ const client = Client.create({
 
 describe('place: options', () => {
   test('accepts a token address', () => {
-    place(client, { amount: 1n, tick: 0, token: '0x20c0000000000000000000000000000000000001', type: 'buy' })
+    place(client, {
+      amount: 1n,
+      tick: 0,
+      token: '0x20c0000000000000000000000000000000000001',
+      type: 'buy',
+    })
     place(client, {
       amount: 1n,
       tick: 0,
@@ -29,19 +34,33 @@ describe('place: options', () => {
 
   test('rejects an invalid order type', () => {
     // @ts-expect-error - type must be 'buy' or 'sell'
-    place(client, { amount: 1n, tick: 0, token: '0x20c0000000000000000000000000000000000001', type: 'hold' })
+    place(client, {
+      amount: 1n,
+      tick: 0,
+      token: '0x20c0000000000000000000000000000000000001',
+      type: 'hold',
+    })
   })
 
   test('requires `tick`', () => {
     // @ts-expect-error - must provide `tick`
-    place(client, { amount: 1n, token: '0x20c0000000000000000000000000000000000001', type: 'buy' })
+    place(client, {
+      amount: 1n,
+      token: '0x20c0000000000000000000000000000000000001',
+      type: 'buy',
+    })
   })
 })
 
 describe('place: return types', () => {
   test('place returns the transaction hash', () => {
     expectTypeOf(
-      place(client, { amount: 1n, tick: 0, token: '0x20c0000000000000000000000000000000000001', type: 'buy' }),
+      place(client, {
+        amount: 1n,
+        tick: 0,
+        token: '0x20c0000000000000000000000000000000000001',
+        type: 'buy',
+      }),
     ).resolves.toEqualTypeOf<Hex.Hex>()
   })
 
@@ -60,7 +79,17 @@ describe('place: return types', () => {
 
 describe('place.call', () => {
   test('with and without a client', () => {
-    place.call({ amount: 1n, tick: 0, token: '0x20c0000000000000000000000000000000000001', type: 'buy' })
-    place.call(client, { amount: 1n, tick: 0, token: '0x20c0000000000000000000000000000000000001', type: 'buy' })
+    place.call({
+      amount: 1n,
+      tick: 0,
+      token: '0x20c0000000000000000000000000000000000001',
+      type: 'buy',
+    })
+    place.call(client, {
+      amount: 1n,
+      tick: 0,
+      token: '0x20c0000000000000000000000000000000000001',
+      type: 'buy',
+    })
   })
 })

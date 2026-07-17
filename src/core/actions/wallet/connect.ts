@@ -31,7 +31,7 @@ export async function connect(
 ): Promise<connect.ReturnType> {
   const { capabilities } = options
 
-  const response = await (async () => {
+  const response = (await (async () => {
     try {
       return await client.request(
         {
@@ -64,7 +64,7 @@ export async function connect(
 
       throw error
     }
-  })() as connect.ReturnType
+  })()) as connect.ReturnType
 
   return {
     ...response,

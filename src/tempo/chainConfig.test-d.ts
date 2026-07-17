@@ -73,9 +73,7 @@ test('extension record: feeToken and hardfork typed on the chain root', () => {
   const extended = tempo.extend({
     feeToken: '0x20c0000000000000000000000000000000000001',
   })
-  expectTypeOf(extended.feeToken).toMatchTypeOf<
-    Address.Address | undefined
-  >()
+  expectTypeOf(extended.feeToken).toMatchTypeOf<Address.Address | undefined>()
   expectTypeOf<
     Chain.ExtractExtension<typeof tempo>['feeToken']
   >().toEqualTypeOf<Address.Address | undefined>()

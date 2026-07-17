@@ -27,10 +27,8 @@ const ethAddress = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
  * ```
  */
 export async function getAssets<
-  aggregate extends
-    | boolean
-    | ((asset: getAssets.Asset) => string)
-    | undefined = undefined,
+  aggregate extends boolean | ((asset: getAssets.Asset) => string) | undefined =
+    undefined,
 >(
   client: Client.Client,
   options: getAssets.Options<aggregate> = {},
@@ -93,10 +91,8 @@ export async function getAssets<
 
 export declare namespace getAssets {
   type Options<
-    aggregate extends
-      | boolean
-      | ((asset: Asset) => string)
-      | undefined = undefined,
+    aggregate extends boolean | ((asset: Asset) => string) | undefined =
+      undefined,
   > = {
     /** Account (or address) to fetch assets for. @default client.account */
     account?: Account.Account | Address.Address | undefined
@@ -122,10 +118,8 @@ export declare namespace getAssets {
   }
 
   type ReturnType<
-    aggregate extends
-      | boolean
-      | ((asset: Asset) => string)
-      | undefined = undefined,
+    aggregate extends boolean | ((asset: Asset) => string) | undefined =
+      undefined,
   > = { [chainId: number]: readonly Asset<false>[] } & (aggregate extends false
     ? {}
     : { 0: readonly Asset<true>[] })

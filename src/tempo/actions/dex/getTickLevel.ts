@@ -47,11 +47,7 @@ export namespace getTickLevel {
     return defineCall({
       abi: Abis.stablecoinDex,
       address: Addresses.stablecoinDex,
-      args: [
-        args.base,
-        args.tick,
-        args.isBid,
-      ],
+      args: [args.base, args.tick, args.isBid],
       functionName: 'getTickLevel',
     })
   }

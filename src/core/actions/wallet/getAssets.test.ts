@@ -199,7 +199,9 @@ test('behavior: aggregate: function', async () => {
   const assets = await Actions.wallet.getAssets(client, {
     account: constants.accounts[0].address,
     aggregate: (asset) =>
-      asset.type === 'erc20' ? asset.metadata.symbol : JSON.stringify(asset.type),
+      asset.type === 'erc20'
+        ? asset.metadata.symbol
+        : JSON.stringify(asset.type),
   })
   expect(assets[0]).toMatchInlineSnapshot(`
     [
@@ -366,9 +368,8 @@ test('behavior: assetTypes filter', async () => {
 })
 
 test('error: no account', async () => {
-  await expect(
-    Actions.wallet.getAssets(client),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+  await expect(Actions.wallet.getAssets(client)).rejects
+    .toThrowErrorMatchingInlineSnapshot(`
     [Account.NotFoundError: Could not find an Account to execute with this Action.
 
     Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.

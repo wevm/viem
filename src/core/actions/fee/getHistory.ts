@@ -37,7 +37,9 @@ export async function getHistory(
       method: 'eth_feeHistory',
       params: [
         Hex.fromNumber(blockCount),
-        typeof blockNumber === 'bigint' ? Hex.fromNumber(blockNumber) : blockTag,
+        typeof blockNumber === 'bigint'
+          ? Hex.fromNumber(blockNumber)
+          : blockTag,
         [...rewardPercentiles],
       ],
     },

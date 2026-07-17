@@ -32,7 +32,8 @@ function getClient(requests: unknown[]) {
           if (request.method === 'wallet_transfer')
             return { chainId: 4321, receipt }
           if (request.method === 'wallet_swap') return { receipt }
-          if (request.method === 'wallet_deposit') return { receipts: [receipt] }
+          if (request.method === 'wallet_deposit')
+            return { receipts: [receipt] }
           return null
         },
       }),

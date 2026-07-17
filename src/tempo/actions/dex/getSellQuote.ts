@@ -73,11 +73,7 @@ export namespace getSellQuote {
     return defineCall({
       abi: Abis.stablecoinDex,
       address: Addresses.stablecoinDex,
-      args: [
-        args.tokenIn,
-        args.tokenOut,
-        args.amountIn,
-      ],
+      args: [args.tokenIn, args.tokenOut, args.amountIn],
       functionName: 'quoteSwapExactAmountIn',
     })
   }

@@ -90,12 +90,7 @@ export namespace rebalanceSwap {
   ) {
     const [, args] = resolveCallParameters(parameters)
     const { amountOut, to, userToken, validatorToken } = args
-    const callArgs = [
-      userToken,
-      validatorToken,
-      amountOut,
-      to,
-    ] as const
+    const callArgs = [userToken, validatorToken, amountOut, to] as const
     return defineCall({
       abi: Abis.feeAmm,
       address: Addresses.feeManager,

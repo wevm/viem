@@ -40,7 +40,9 @@ export async function getTransactionCount(
       {
         method: 'eth_getBlockTransactionCountByNumber',
         params: [
-          typeof blockNumber === 'bigint' ? Hex.fromNumber(blockNumber) : blockTag,
+          typeof blockNumber === 'bigint'
+            ? Hex.fromNumber(blockNumber)
+            : blockTag,
         ],
       },
       { dedupe: typeof blockNumber === 'bigint' },

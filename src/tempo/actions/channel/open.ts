@@ -85,14 +85,7 @@ export namespace open {
     return defineCall({
       abi: Abis.tip20ChannelReserve,
       address: Addresses.tip20ChannelReserve,
-      args: [
-        payee,
-        operator,
-        token,
-        deposit,
-        salt,
-        authorizedSigner,
-      ],
+      args: [payee, operator, token, deposit, salt, authorizedSigner],
       functionName: 'open',
     })
   }
