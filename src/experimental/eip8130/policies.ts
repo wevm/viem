@@ -21,18 +21,21 @@ import type { AaCall } from './types/transaction.js'
  * committed policy and then drives the account via `executeBatch`.
  *
  * This module provides the off-chain glue for the [base/eip-8130 example
- * policies](https://github.com/base/eip-8130/tree/main/src/examples/policies) —
- * the {@link policyManagerAbi PolicyManager} plus the unified
- * {@link encodeSessionPolicyConfig SessionPolicy}. Flow:
+ * policies](https://github.com/base/eip-8130/tree/main/src/policies) — the
+ * {@link policyManagerAbi PolicyManager} plus the unified
+ * {@link encodeSessionPolicyConfig SessionPolicy}. Flow (base/eip-8130#43):
  *
  * 1. **Author** a `SessionPolicy` config ({@link encodeSessionPolicyConfig}).
- * 2. **Bind** it with {@link defineSessionPolicy} to get the `commitment`, the
- *    {@link Policy} to pass to `authorizeActor`, and the `install` call.
- * 3. **Authorize + install**: ride `authorizeActor(key, { scope, policy })` and
- *    the install call in one transaction (the install initializes the binding;
- *    it MUST land before the key's first `execute`).
- * 4. **Use**: the session key sends `executeCall(action)` — its only reachable
- *    target is the manager.
+ * 2. **Bind** it with {@link defineSessionPolicy} to get the `commitment` and the
+ *    {@link Policy} to pass to `authorizeActor`.
+ * 3. **Authorize**: ride `authorizeActor(key, { scope, policy })` in one
+ *    transaction. That signed actor change *is* the authorization — there is no
+ *    separate install step (the account's signed commitment is what the manager
+ *    checks at execute).
+ * 4. **Use**: the session key sends `executeCall(executionData)` — its only
+ *    reachable target is the manager. The full {@link PolicyBinding} is passed
+ *    on-chain at execute; the manager recomputes its commitment and requires it
+ *    to equal the account's live signed commitment.
  *
  * @remarks These contracts are an unaudited reference. Addresses default to the
  * Base Sepolia deployment; override `manager` / `policy` for other chains.
@@ -42,16 +45,24 @@ import type { AaCall } from './types/transaction.js'
 // ABIs
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** ABI for the example `PolicyManager` reference contract. */
+/**
+ * ABI for the example `PolicyManager` reference contract (base/eip-8130#43).
+ *
+ * There is no `install` step: the account's signed actor change (which stores
+ * `policy_manager` + `policy_commitment` in AccountConfiguration) *is* the
+ * authorization. Every execute path takes the full {@link PolicyBinding}; the
+ * manager recomputes its commitment and compares it to the live signed
+ * commitment, authenticating config, validity window, and owning account in one
+ * check — with zero config storage on the manager or policy.
+ */
 export const policyManagerAbi = parseAbi([
   'struct PolicyBinding { address account; address policy; bytes policyConfig; uint40 validAfter; uint40 validUntil; uint256 salt; }',
-  'struct PolicyRecord { bool installed; address account; uint40 validAfter; uint40 validUntil; }',
-  'event PolicyInstalled(address indexed account, address indexed policy, bytes32 indexed commitment)',
   'event PolicyExecuted(address indexed account, address indexed policy, bytes32 indexed commitment, address caller)',
+  'event ExecutionSkipped(address indexed account, address indexed policy, bytes32 indexed actorId)',
   'function commitmentOf(PolicyBinding binding) pure returns (bytes32)',
-  'function getPolicyRecord(address policy, bytes32 commitment) view returns (PolicyRecord)',
-  'function install(bytes32 actorId, PolicyBinding binding) returns (bytes32 commitment)',
-  'function execute(address policy, bytes executionData)',
+  'function execute(PolicyBinding binding, bytes executionData)',
+  'function executeFor(PolicyBinding binding, bytes executionData)',
+  'function executeForMany(PolicyBinding[] bindings, bytes[] executionData) returns (bool[] results)',
 ])
 
 /**
@@ -66,11 +77,15 @@ export const sessionPolicyAbi = parseAbi([
   'struct Config { TokenLimit[] tokenLimits; CallScope[] callScopes; }',
   'struct Action { address target; uint256 value; bytes data; }',
   'struct PeriodUsage { uint48 start; uint48 end; uint160 spend; }',
-  'function isTargetAllowed(bytes32 commitment, address target) view returns (bool allowed, bool anySelector)',
-  'function getSelectorRule(bytes32 commitment, address target, bytes4 selector) view returns (bool allowed, bool recipientBound)',
-  'function isRecipientAllowed(bytes32 commitment, address target, bytes4 selector, address recipient) view returns (bool)',
-  'function getTokenLimit(bytes32 commitment, address token) view returns (bool set, uint160 allowance, uint40 period)',
-  'function getCurrentSpend(bytes32 commitment, address token) view returns (PeriodUsage)',
+  // #43: config is no longer stored on-chain — the gating views are `pure` over
+  // the supplied `Config` preimage (the same bytes the account signed). Only
+  // `getCurrentSpend` is a `view` (it reads mutable spend usage keyed by the
+  // binding commitment + the explicit token limit).
+  'function isTargetAllowed(Config config, address target) pure returns (bool allowed, bool anySelector)',
+  'function getSelectorRule(Config config, address target, bytes4 selector) pure returns (bool allowed, bool recipientBound)',
+  'function isRecipientAllowed(Config config, address target, bytes4 selector, address recipient) pure returns (bool)',
+  'function getTokenLimit(Config config, address token) pure returns (bool set, uint160 allowance, uint40 period)',
+  'function getCurrentSpend(bytes32 commitment, TokenLimit limit) view returns (PeriodUsage)',
 ])
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -175,15 +190,11 @@ export type SessionPolicy = {
   /** Pass to `authorizeActor(key, { scope, policy })`. */
   actorPolicy: Policy
   /**
-   * Account call that installs (initializes) the binding:
-   * `PolicyManager.install(actorId, binding)`. Ride this alongside the
-   * `authorizeActor` change — it MUST land before the key's first `execute`.
-   */
-  installCall(actorId: Hex): AaCall
-  /**
-   * Account call the session key sends: `PolicyManager.execute(policy, executionData)`.
-   * This is the only target a policy-gated actor may reach. Build `executionData`
-   * with {@link encodeSessionPolicyAction}.
+   * Account call the session key sends:
+   * `PolicyManager.execute(binding, executionData)`. This is the only target a
+   * policy-gated actor may reach. The full {@link PolicyBinding} is passed so the
+   * manager can recompute + match the commitment (no install / config storage).
+   * Build `executionData` with {@link encodeSessionPolicyAction}.
    */
   executeCall(executionData: Hex): AaCall
 }
@@ -192,7 +203,7 @@ export type DefineSessionPolicyErrorType = CommitmentOfErrorType
 
 /**
  * Binds a committed policy config to an account and returns everything needed to
- * authorize, install (initialize), and use a policy-gated session key.
+ * authorize and use a policy-gated session key (base/eip-8130#43: no install).
  *
  * @example
  * import {
@@ -213,11 +224,11 @@ export type DefineSessionPolicyErrorType = CommitmentOfErrorType
  *   }),
  * })
  *
- * // 1) authorize + install (initialize) in one transaction (sent by the account)
+ * // 1) authorize in one transaction (sent by the account). The signed actor
+ * //    change stores the commitment — that IS the authorization (no install).
  * const change = await account.change([
  *   authorizeActor(key.p256(pub), { scope: actorScope.sender, policy: session.actorPolicy }),
  * ])
- * const calls = [[session.installCall(key.p256(pub).actorId)]]
  *
  * // 2) later, the session key spends within its limit
  * const spend = session.executeCall(
@@ -257,17 +268,6 @@ export function defineSessionPolicy(
     binding,
     commitment,
     actorPolicy: { type: policyType, manager, commitment },
-    installCall(actorId) {
-      return {
-        to: manager,
-        value: 0n,
-        data: encodeFunctionData({
-          abi: policyManagerAbi,
-          functionName: 'install',
-          args: [actorId, toBindingArgs(binding)],
-        }),
-      }
-    },
     executeCall(executionData) {
       return {
         to: manager,
@@ -275,7 +275,7 @@ export function defineSessionPolicy(
         data: encodeFunctionData({
           abi: policyManagerAbi,
           functionName: 'execute',
-          args: [policy, executionData],
+          args: [toBindingArgs(binding), executionData],
         }),
       }
     },

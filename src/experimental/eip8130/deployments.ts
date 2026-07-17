@@ -111,13 +111,26 @@ export const baseSepoliaDeployment = canonicalEip8130Deployment
 /**
  * EIP-8130 deployment for the Base "vibenet" devnet (chain id `84538453`).
  *
- * The devnet runs EIP-8130 **natively** and the execution client enshrines the
- * canonical CREATE2 addresses (via `Deploy.s.sol`), identical to
- * Base Sepolia and every other supported chain. Using any other
+ * The devnet runs EIP-8130 **natively**: the execution client enshrines the
+ * canonical `accountConfiguration` (and the account/authenticator CREATE2
+ * addresses), so those stay identical to Base Sepolia — using any other
  * `accountConfiguration` derives a different account address and create
  * transactions fail with "create address mismatch".
+ *
+ * The example `policies` are the exception: they are ordinary (non-enshrined)
+ * contracts, redeployed on vibenet at base/eip-8130 **#43** ("Pass PolicyBinding
+ * at execute; drop config storage"). They are bound to the enshrined
+ * AccountConfiguration above and expose the #43 PolicyManager/SessionPolicy ABI
+ * (no `install`; `execute(binding, executionData)`). Base Sepolia still points at
+ * the earlier (#41) policy addresses.
  */
-export const vibenetDevnetDeployment = canonicalEip8130Deployment
+export const vibenetDevnetDeployment = {
+  ...canonicalEip8130Deployment,
+  policies: {
+    manager: '0x5cF2a01d34d1B244C63D9F2215E53F9aac06de60',
+    sessionPolicy: '0x865D22bA9B452E38c7c4c83a619D3C25e5AC3F18',
+  },
+} as const satisfies Eip8130Deployment
 
 /** Known EIP-8130 deployments, keyed by chain id. */
 export const eip8130Deployments: Record<number, Eip8130Deployment> = {

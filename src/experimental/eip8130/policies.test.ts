@@ -84,21 +84,7 @@ describe('defineSessionPolicy', () => {
     ).toThrow()
   })
 
-  test('installCall encodes PolicyManager.install(actorId, binding)', () => {
-    const actorId = `0x${'11'.repeat(32)}` as const
-    const call = session.installCall(actorId)
-    expect(call.to).toBe(baseSepoliaDeployment.policies.manager)
-    const { functionName, args } = decodeFunctionData({
-      abi: policyManagerAbi,
-      data: call.data!,
-    })
-    expect(functionName).toBe('install')
-    expect(args[0]).toBe(actorId)
-    // uint40 fields decode to `number`; uint256 (salt) to `bigint`.
-    expect(args[1]).toEqual({ ...binding, validAfter: 0, validUntil: 0 })
-  })
-
-  test('executeCall encodes PolicyManager.execute(policy, executionData)', () => {
+  test('executeCall encodes PolicyManager.execute(binding, executionData)', () => {
     const action = encodeSessionPolicyAction({
       target: token,
       data: '0xa9059cbb',
@@ -110,6 +96,8 @@ describe('defineSessionPolicy', () => {
       data: call.data!,
     })
     expect(functionName).toBe('execute')
-    expect(args).toEqual([policy, action])
+    // #43: the full binding is passed at execute (not just the policy address).
+    // uint40 fields decode to `number`; uint256 (salt) to `bigint`.
+    expect(args).toEqual([{ ...binding, validAfter: 0, validUntil: 0 }, action])
   })
 })
