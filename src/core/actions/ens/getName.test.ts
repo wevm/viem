@@ -5,7 +5,7 @@ import {
   setVitalikResolver,
   vitalik,
 } from '~test/ens.js'
-import { beforeAll, describe, expect, test } from 'vitest'
+import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
 import { Actions, Client, http, publicActions } from 'viem'
 import { CcipRead } from 'viem/utils'
@@ -34,6 +34,14 @@ beforeAll(async () => {
   })
   await setVitalikResolver(client)
 })
+
+// Instances are shared across test files; restore the default fork.
+afterAll(async () => {
+  await Actions.state.reset(client, {
+    blockNumber: anvil.mainnet.forkBlockNumber,
+    jsonRpcUrl: anvil.mainnet.forkUrl,
+  })
+}, 30_000)
 
 test('gets primary name for address', async () => {
   await expect(

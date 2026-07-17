@@ -1,6 +1,6 @@
 import { Ens } from 'ox'
 import * as anvil from '~test/anvil.js'
-import { beforeAll, expect, test } from 'vitest'
+import { afterAll, beforeAll, expect, test } from 'vitest'
 
 import { Actions, Client, http, publicActions } from 'viem'
 import { linea, mainnet, optimism } from 'viem/chains'
@@ -18,6 +18,14 @@ beforeAll(async () => {
     jsonRpcUrl: anvil.mainnet.forkUrl,
   })
 })
+
+// Instances are shared across test files; restore the default fork.
+afterAll(async () => {
+  await Actions.state.reset(client, {
+    blockNumber: anvil.mainnet.forkBlockNumber,
+    jsonRpcUrl: anvil.mainnet.forkUrl,
+  })
+}, 30_000)
 
 test('gets resolver for name', async () => {
   await expect(

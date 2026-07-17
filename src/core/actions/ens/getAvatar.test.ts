@@ -4,7 +4,7 @@ import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
 import * as contract from '~test/contract.js'
 import { createServer } from '~test/http.js'
-import { beforeAll, describe, expect, test } from 'vitest'
+import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
@@ -25,6 +25,14 @@ beforeAll(async () => {
     jsonRpcUrl: anvil.mainnet.forkUrl,
   })
 })
+
+// Instances are shared across test files; restore the default fork.
+afterAll(async () => {
+  await Actions.state.reset(client, {
+    blockNumber: anvil.mainnet.forkBlockNumber,
+    jsonRpcUrl: anvil.mainnet.forkUrl,
+  })
+}, 30_000)
 
 /** Serves `/image.png` (HEAD, `image/png`) and `/metadata*` (JSON pointing at the image). */
 async function createAssetServer() {

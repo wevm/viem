@@ -34,6 +34,14 @@ beforeAll(async () => {
   await setVitalikResolver(client)
 })
 
+// Instances are shared across test files; restore the default fork.
+afterAll(async () => {
+  await Actions.state.reset(client, {
+    blockNumber: anvil.mainnet.forkBlockNumber,
+    jsonRpcUrl: anvil.mainnet.forkUrl,
+  })
+}, 30_000)
+
 test('gets text record for name', async () => {
   await expect(
     getText(client, {

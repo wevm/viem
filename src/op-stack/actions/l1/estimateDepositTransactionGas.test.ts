@@ -1,4 +1,4 @@
-import { beforeAll, expect, test } from 'vitest'
+import { afterAll, beforeAll, expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
@@ -21,6 +21,14 @@ beforeAll(async () => {
   await CoreActions.address.setBalance(client, {
     address: constants.accounts[0].address,
     value: Value.fromEther('10000'),
+  })
+}, 30_000)
+
+// Instances are shared across test files; restore the default fork.
+afterAll(async () => {
+  await CoreActions.state.reset(client, {
+    blockNumber: anvil.mainnet.forkBlockNumber,
+    jsonRpcUrl: anvil.mainnet.forkUrl,
   })
 }, 30_000)
 

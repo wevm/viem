@@ -1,4 +1,4 @@
-import { beforeEach, expect, test } from 'vitest'
+import { afterAll, beforeEach, expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
@@ -22,6 +22,14 @@ const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 beforeEach(async () => {
   await CoreActions.state.reset(client, {
     blockNumber: 16_280_770n,
+    jsonRpcUrl: anvil.mainnet.forkUrl,
+  })
+}, 30_000)
+
+// Instances are shared across test files; restore the default fork.
+afterAll(async () => {
+  await CoreActions.state.reset(client, {
+    blockNumber: anvil.mainnet.forkBlockNumber,
     jsonRpcUrl: anvil.mainnet.forkUrl,
   })
 }, 30_000)
