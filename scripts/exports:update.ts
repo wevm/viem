@@ -22,8 +22,8 @@ function entry(key: string, srcPath: string) {
   return [
     key,
     {
-      types: `${distPath}.d.ts`,
       src: srcPath,
+      types: `${distPath}.d.ts`,
       default: `${distPath}.js`,
     },
   ] as const

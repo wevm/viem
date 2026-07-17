@@ -279,63 +279,63 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
       "src": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
     "./chains": {
-      "types": "./dist/chains/index.d.ts",
       "src": "./src/chains/index.ts",
+      "types": "./dist/chains/index.d.ts",
       "default": "./dist/chains/index.js"
     },
     "./erc4337": {
-      "types": "./dist/erc4337/index.d.ts",
       "src": "./src/erc4337/index.ts",
+      "types": "./dist/erc4337/index.d.ts",
       "default": "./dist/erc4337/index.js"
     },
     "./node": {
-      "types": "./dist/node/index.d.ts",
       "src": "./src/node/index.ts",
+      "types": "./dist/node/index.d.ts",
       "default": "./dist/node/index.js"
     },
     "./op-stack": {
-      "types": "./dist/op-stack/index.d.ts",
       "src": "./src/op-stack/index.ts",
+      "types": "./dist/op-stack/index.d.ts",
       "default": "./dist/op-stack/index.js"
     },
     "./tempo": {
-      "types": "./dist/tempo/index.d.ts",
       "src": "./src/tempo/index.ts",
+      "types": "./dist/tempo/index.d.ts",
       "default": "./dist/tempo/index.js"
     },
     "./tempo/actions": {
-      "types": "./dist/tempo/actions/index.d.ts",
       "src": "./src/tempo/actions/index.ts",
+      "types": "./dist/tempo/actions/index.d.ts",
       "default": "./dist/tempo/actions/index.js"
     },
     "./tempo/zones": {
-      "types": "./dist/tempo/zones/index.d.ts",
       "src": "./src/tempo/zones/index.ts",
+      "types": "./dist/tempo/zones/index.d.ts",
       "default": "./dist/tempo/zones/index.js"
     },
     "./tokens": {
-      "types": "./dist/tokens/index.d.ts",
       "src": "./src/tokens/index.ts",
+      "types": "./dist/tokens/index.d.ts",
       "default": "./dist/tokens/index.js"
     },
     "./utils": {
-      "types": "./dist/utils/index.d.ts",
       "src": "./src/utils/index.ts",
+      "types": "./dist/utils/index.d.ts",
       "default": "./dist/utils/index.js"
     },
     "./window": {
-      "types": "./dist/window/index.d.ts",
       "src": "./src/window/index.ts",
+      "types": "./dist/window/index.d.ts",
       "default": "./dist/window/index.js"
     },
     "./zod": {
-      "types": "./dist/zod/index.d.ts",
       "src": "./src/zod/index.ts",
+      "types": "./dist/zod/index.d.ts",
       "default": "./dist/zod/index.js"
     }
   },
