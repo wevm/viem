@@ -20,7 +20,9 @@ test('default', () => {
       "account": undefined,
       "batch": undefined,
       "cacheTime": 10,
-      "ccipRead": undefined,
+      "ccipRead": {
+        "request": [Function],
+      },
       "chain": undefined,
       "dataSuffix": undefined,
       "extend": null,
