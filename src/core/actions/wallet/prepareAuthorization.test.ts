@@ -25,30 +25,32 @@ test('default', async () => {
 })
 
 test('behavior: partial authorization: no chainId + nonce', async () => {
-  const authorization = await Actions.wallet.prepareAuthorization(client, {
+  // The account nonce depends on transactions sent by sibling test files.
+  const { nonce, ...rest } = await Actions.wallet.prepareAuthorization(client, {
     account,
     address,
   })
-  expect(authorization).toMatchInlineSnapshot(`
+  expect(nonce).toBeGreaterThanOrEqual(0n)
+  expect(rest).toMatchInlineSnapshot(`
     {
       "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "nonce": 3774n,
     }
   `)
 })
 
 test('behavior: partial authorization: no nonce', async () => {
-  const authorization = await Actions.wallet.prepareAuthorization(client, {
+  // The account nonce depends on transactions sent by sibling test files.
+  const { nonce, ...rest } = await Actions.wallet.prepareAuthorization(client, {
     account,
     address,
     chainId: 10,
   })
-  expect(authorization).toMatchInlineSnapshot(`
+  expect(nonce).toBeGreaterThanOrEqual(0n)
+  expect(rest).toMatchInlineSnapshot(`
     {
       "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 10,
-      "nonce": 3774n,
     }
   `)
 })

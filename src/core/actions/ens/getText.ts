@@ -57,7 +57,6 @@ export async function getText(
         AbiFunction.encodeData(textItem, [Ens.namehash(name), key]),
         gatewayUrls ?? [localBatchGatewayUrl],
       ],
-      as: 'Array',
       blockNumber,
       blockTag,
       functionName: 'resolveWithGateways',

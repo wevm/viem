@@ -68,6 +68,7 @@ test('return shape', async () => {
 })
 
 test('return shape: unnamed outputs', async () => {
+  // Fully unnamed outputs have no keys to name, so the tuple shape is kept.
   expect(
     await Actions.contract.read(client, {
       abi: valuesAbi,
@@ -75,10 +76,10 @@ test('return shape: unnamed outputs', async () => {
       functionName: 'unnamedValues',
     }),
   ).toMatchInlineSnapshot(`
-    {
-      "0": 42n,
-      "1": 69n,
-    }
+    [
+      42n,
+      69n,
+    ]
   `)
 })
 

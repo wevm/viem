@@ -11,6 +11,7 @@ import type {
   ContractFunctionParameters,
   ContractFunctionReturnType,
 } from '../internal/contract.js'
+import { resolveReturnShape } from '../internal/contract.js'
 import { call } from '../call.js'
 
 /**
@@ -65,7 +66,7 @@ export async function read<
       to: address,
     } as call.Options)
     return AbiFunction.decodeResult(abiItem, response.data ?? '0x', {
-      as,
+      as: resolveReturnShape(abiItem, as),
     }) as read.ReturnType<abi, functionName, args, as>
   } catch (error) {
     if (isAbortError(error)) throw error

@@ -67,7 +67,6 @@ export async function getAddress(
         AbiFunction.encodeData(addrItem, args as never),
         gatewayUrls ?? [localBatchGatewayUrl],
       ],
-      as: 'Array',
       blockNumber,
       blockTag,
       functionName: 'resolveWithGateways',

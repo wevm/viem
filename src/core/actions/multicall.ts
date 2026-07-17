@@ -11,6 +11,7 @@ import type * as RpcError from '../RpcError.js'
 import { isAbortError } from '../internal/errors.js'
 import type { Prettify } from '../internal/types.js'
 import type { Call, CallResults, Calls } from './internal/calls.js'
+import { resolveReturnShape } from './internal/contract.js'
 import { getBalanceBytecode, multicall3Bytecode } from './internal/constants.js'
 import { toDeploylessCallViaBytecodeData } from './internal/deployless.js'
 import {
@@ -579,14 +580,13 @@ async function executeMulticall(
         if (callData === '0x') throw new AbiParameters.ZeroDataError()
         if (!success)
           throw new ContractError.RawContractError({ data: returnData })
-        const result = abi
-          ? AbiFunction.decodeResult(
-              AbiFunction.fromAbi(abi, functionName, {
-                args: args,
-              }),
-              returnData,
-              { as: call.as ?? 'Object' },
-            )
+        const abiItem = abi
+          ? AbiFunction.fromAbi(abi, functionName, { args: args })
+          : undefined
+        const result = abiItem
+          ? AbiFunction.decodeResult(abiItem, returnData, {
+              as: resolveReturnShape(abiItem, call.as ?? 'Object'),
+            })
           : returnData
         results.push({ error: undefined, result, status: 'success' })
       } catch (err) {

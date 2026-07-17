@@ -12,6 +12,7 @@ import type {
   ContractFunctionReturnType,
   GetMutabilityAwareValue,
 } from '../internal/contract.js'
+import { resolveReturnShape } from '../internal/contract.js'
 import { call } from '../call.js'
 
 /**
@@ -84,7 +85,7 @@ export async function simulate<
       to: address,
     } as call.Options)
     const result = AbiFunction.decodeResult(abiItem, response.data ?? '0x', {
-      as,
+      as: resolveReturnShape(abiItem, as),
     })
 
     // Minimize the ABI to the called function so the returned `request` decodes

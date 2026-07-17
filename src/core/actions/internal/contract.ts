@@ -217,8 +217,44 @@ export type ContractFunctionReturnType<
 > = abi extends Abi
   ? Abi extends abi
     ? unknown
-    : ox_AbiFunction.decodeResult.ReturnType<
-        ExtractAbiFunctionForArgs<abi, mutability, functionName, args>,
-        as
-      >
+    : ExtractAbiFunctionForArgs<
+          abi,
+          mutability,
+          functionName,
+          args
+        > extends infer abiFunction extends AbiFunction
+      ? ox_AbiFunction.decodeResult.ReturnType<
+          abiFunction,
+          ResolveReturnShape<abiFunction['outputs'], as>
+        >
+      : unknown
   : unknown
+
+/** Decode shape for `outputs` under `as`: fully unnamed outputs stay tuples. */
+type ResolveReturnShape<
+  outputs extends readonly unknown[],
+  as extends 'Object' | 'Array',
+> = as extends 'Array'
+  ? 'Array'
+  : true extends {
+        [index in keyof outputs]: outputs[index] extends {
+          name: infer name extends string
+        }
+          ? '' extends name
+            ? false
+            : true
+          : false
+      }[number]
+    ? 'Object'
+    : 'Array'
+
+/** Resolves the decode shape of `abiItem`: fully unnamed outputs stay tuples. */
+export function resolveReturnShape(
+  abiItem: { outputs?: readonly { name?: string | undefined }[] | undefined },
+  as: 'Object' | 'Array',
+): 'Object' | 'Array' {
+  if (as === 'Array') return 'Array'
+  return (abiItem.outputs ?? []).some((output) => output.name)
+    ? 'Object'
+    : 'Array'
+}

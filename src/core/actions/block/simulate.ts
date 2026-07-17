@@ -20,6 +20,7 @@ import { isAbortError } from '../../internal/errors.js'
 import type { Prettify } from '../../internal/types.js'
 import { blockParameter } from '../internal/blockParameter.js'
 import type { Call, CallResults, Calls } from '../internal/calls.js'
+import { resolveReturnShape } from '../internal/contract.js'
 import * as transactionRequest from '../internal/transactionRequest.js'
 
 type RequestOptions = Parameters<Client.Client['request']>[1]
@@ -208,16 +209,15 @@ export async function simulate<
         const logs = call.logs?.map((log) => Log.fromRpc(log))
         const status = call.status === '0x1' ? 'success' : 'failure'
 
-        const result =
+        const abiItem =
           abi && status === 'success' && data !== '0x'
-            ? AbiFunction.decodeResult(
-                AbiFunction.fromAbi(abi, functionName, {
-                  args: args,
-                }),
-                data,
-                { as },
-              )
-            : null
+            ? AbiFunction.fromAbi(abi, functionName, { args: args })
+            : undefined
+        const result = abiItem
+          ? AbiFunction.decodeResult(abiItem, data, {
+              as: resolveReturnShape(abiItem, as),
+            })
+          : null
 
         const error = (() => {
           if (status === 'success') return undefined

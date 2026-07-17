@@ -48,13 +48,22 @@ test('infers object and array return shapes', async () => {
   expectTypeOf(array).toEqualTypeOf<readonly [string, string]>()
 })
 
-test('infers numeric object keys for unnamed outputs', async () => {
+test('infers a tuple for fully unnamed outputs', async () => {
   const result = await Actions.contract.read(client, {
     abi,
     address: '0x',
     functionName: 'unnamed',
   })
-  expectTypeOf(result).toEqualTypeOf<{ 0: bigint; 1: boolean }>()
+  expectTypeOf(result).toEqualTypeOf<readonly [bigint, boolean]>()
+
+  // `as: 'Object'` has no names to key by, so the tuple shape is kept.
+  const object = await Actions.contract.read(client, {
+    abi,
+    address: '0x',
+    as: 'Object',
+    functionName: 'unnamed',
+  })
+  expectTypeOf(object).toEqualTypeOf<readonly [bigint, boolean]>()
 })
 
 test('infers names and numeric object keys for mixed outputs', async () => {

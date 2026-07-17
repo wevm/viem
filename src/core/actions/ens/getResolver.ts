@@ -49,7 +49,6 @@ export async function getResolver(
     abi: universalResolverFindResolverAbi,
     address: universalResolverAddress,
     args: [Hex.fromBytes(packetToBytes(name))],
-    as: 'Array',
     blockNumber,
     blockTag,
     functionName: 'findResolver',

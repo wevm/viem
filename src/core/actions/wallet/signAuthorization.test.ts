@@ -45,12 +45,13 @@ test('behavior: partial authorization: no chainId + nonce', async () => {
     account,
     address,
   })
-  const { r: _r, s: _s, yParity: _yParity, ...rest } = authorization
+  // The account nonce depends on transactions sent by sibling test files.
+  const { nonce, r: _r, s: _s, yParity: _yParity, ...rest } = authorization
+  expect(nonce).toBeGreaterThanOrEqual(0n)
   expect(rest).toMatchInlineSnapshot(`
     {
       "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "nonce": 3774n,
     }
   `)
   expect(recovered(authorization)).toBe(true)
