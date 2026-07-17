@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { Actions, Contract } from 'viem'
+import { Actions, Client, Contract, http } from 'viem'
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
@@ -10,6 +10,11 @@ const client = anvil.getClient(anvil.mainnet)
 const account = constants.accounts[0].address
 const recipient = constants.accounts[1].address
 
+const accountClient = Client.create({
+  account,
+  transport: http(anvil.mainnet.rpcUrl.http),
+})
+
 const erc721 = Contract.from({
   abi: generated.Erc721.abi,
   address: (
@@ -17,7 +22,7 @@ const erc721 = Contract.from({
       bytecode: generated.Erc721.bytecode.object,
     })
   ).address,
-  client,
+  client: accountClient,
 })
 
 const events = Contract.from({
@@ -27,7 +32,7 @@ const events = Contract.from({
       bytecode: generated.Events.bytecode.object,
     })
   ).address,
-  client,
+  client: accountClient,
 })
 
 test('derives conditional method groups from the ABI', () => {
@@ -65,6 +70,18 @@ test('derives conditional method groups from the ABI', () => {
       "address",
     ]
   `)
+})
+
+test('omits write without a client account', () => {
+  const contract = Contract.from({
+    abi: generated.Events.abi,
+    address: events.address,
+    client,
+  })
+  // @ts-expect-error - write is not defined
+  expect(contract.write).toBeUndefined()
+  expect(contract.estimateGas).toBeDefined()
+  expect(contract.simulate).toBeDefined()
 })
 
 test('binds function and event action options', async () => {

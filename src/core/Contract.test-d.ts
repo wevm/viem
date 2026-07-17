@@ -9,6 +9,12 @@ const client = Client.create({ chain: mainnet, transport: http() })
 const address = '0x0000000000000000000000000000000000000001' as const
 const recipient = '0x0000000000000000000000000000000000000002'
 
+const accountClient = Client.create({
+  account: recipient,
+  chain: mainnet,
+  transport: http(),
+})
+
 const abi = [
   {
     inputs: [{ name: 'owner', type: 'address' }],
@@ -61,7 +67,7 @@ const abi = [
 ] as const
 
 test('preserves the bound ABI and address', () => {
-  const contract = Contract.from({ abi, address, client })
+  const contract = Contract.from({ abi, address, client: accountClient })
 
   expectTypeOf(contract.abi).toEqualTypeOf<typeof abi>()
   expectTypeOf(contract.address).toEqualTypeOf<typeof address>()
@@ -79,7 +85,7 @@ test('preserves the bound ABI and address', () => {
 })
 
 test('infers function args and return values from one options bag', async () => {
-  const contract = Contract.from({ abi, address, client })
+  const contract = Contract.from({ abi, address, client: accountClient })
 
   const balance = await contract.read.balanceOf({ args: [recipient] })
   expectTypeOf(balance).toEqualTypeOf<bigint>()
@@ -157,7 +163,7 @@ test('omits groups that have no matching ABI items', () => {
   const write = Contract.from({
     abi: [abi[3]],
     address,
-    client,
+    client: accountClient,
   })
   expectTypeOf<keyof typeof write>().toEqualTypeOf<
     'abi' | 'address' | 'estimateGas' | 'simulate' | 'write'
@@ -173,9 +179,27 @@ test('omits groups that have no matching ABI items', () => {
   >()
 })
 
+test('omits write when the client has no account', () => {
+  const contract = Contract.from({ abi, address, client })
+  expectTypeOf<keyof typeof contract>().toEqualTypeOf<
+    | 'abi'
+    | 'address'
+    | 'createEventFilter'
+    | 'estimateGas'
+    | 'getLogs'
+    | 'read'
+    | 'simulate'
+    | 'watchEvent'
+  >()
+})
+
 test('keeps all groups for a widened ABI', () => {
   const widened: Abi = abi
-  const contract = Contract.from({ abi: widened, address, client })
+  const contract = Contract.from({
+    abi: widened,
+    address,
+    client: accountClient,
+  })
 
   expectTypeOf(contract.read.anything).toBeFunction()
   expectTypeOf(contract.estimateGas.anything).toBeFunction()

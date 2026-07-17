@@ -10,7 +10,8 @@ import { Card, Cards } from 'vocs'
 
 [`Contract.from`](/docs/contract/instances) creates an interface bound to an ABI, address, and Client.
 Its `read`, `write`, `simulate`, `estimateGas`, and event methods are derived from the ABI, which
-removes repeated configuration from code that uses the same contract many times.
+removes repeated configuration from code that uses the same contract many times. The `write`
+group requires the Client to have an [Account](/docs/accounts).
 
 ## Recipes
 

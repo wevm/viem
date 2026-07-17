@@ -102,14 +102,15 @@ export function from<
         functionName,
       } as simulate_.Options),
     )
-    contract.write = createMethods(writeNames, (functionName, options) =>
-      write_(client, {
-        ...options,
-        abi,
-        address,
-        functionName,
-      } as write_.Options),
-    )
+    if (client.account)
+      contract.write = createMethods(writeNames, (functionName, options) =>
+        write_(client, {
+          ...options,
+          abi,
+          address,
+          functionName,
+        } as write_.Options),
+      )
   }
 
   if (eventNames.size) {
@@ -226,18 +227,22 @@ type WriteGroups<
           functionName & ContractFunctionName<abi, 'nonpayable' | 'payable'>
         >
       }
-      /** Write methods derived from the ABI. */
-      write: {
-        [functionName in FunctionNames<
-          abi,
-          'nonpayable' | 'payable'
-        >]: WriteMethod<
-          abi,
-          functionName & ContractFunctionName<abi, 'nonpayable' | 'payable'>,
-          client['chain']
-        >
-      }
-    }
+    } & ([client['account']] extends [undefined]
+      ? {}
+      : {
+          /** Write methods derived from the ABI. Requires a Client with an Account. */
+          write: {
+            [functionName in FunctionNames<
+              abi,
+              'nonpayable' | 'payable'
+            >]: WriteMethod<
+              abi,
+              functionName &
+                ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+              client['chain']
+            >
+          }
+        })
 
 type EventGroups<abi extends Abi | readonly unknown[]> = [
   EventNames<abi>,
