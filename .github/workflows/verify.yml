@@ -65,7 +65,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    timeout-minutes: 10
+    # JS-based tsc (5.9/6) runs ~10 minutes on 2-core runners.
+    timeout-minutes: 15
     strategy:
       matrix:
         version: ['5.9.3', '6', '7', 'latest']
