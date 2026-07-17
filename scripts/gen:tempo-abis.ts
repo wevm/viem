@@ -2,11 +2,11 @@ import * as Fs from 'node:fs'
 import * as Path from 'node:path'
 import * as Abi from 'ox/Abi'
 
-const extensions: Record<string, string[]> = {
+const extensions: Record<string, readonly string[]> = {
   ITIP20: ['IRolesAuth'],
 }
 
-// Interfaces not present in the pinned node crates, emitted verbatim.
+// Fallbacks for interfaces absent from older Tempo releases.
 const extraAbis: Record<string, readonly unknown[]> = {
   storageCredits: [
     { type: 'error', name: 'DelegateCallNotAllowed', inputs: [] },
@@ -49,23 +49,45 @@ const extraAbis: Record<string, readonly unknown[]> = {
   ],
 }
 
+type Source = {
+  commit: string
+  ref: string
+}
+
+type GitHubContent = {
+  download_url: string | null
+  name: string
+  type: string
+}
+
+type GitHubRef = {
+  object: GitHubObject
+  ref: string
+}
+
+type GitHubObject = {
+  sha: string
+  type: string
+  url: string
+}
+
+type GitHubTag = {
+  object: GitHubObject
+}
+
+const githubApi = 'https://api.github.com/repos/tempoxyz/tempo'
+const tagPrefix = 'tempo-contracts@'
 const out = Path.resolve(import.meta.dirname, '../src/tempo/Abis.ts')
-const precompilesDir = Path.resolve(
-  import.meta.dirname,
-  '../test/tempo/crates/contracts/src/precompiles',
-)
+const sync = process.argv.includes('--sync')
+const source = sync ? await getLatestSource() : getTrackedSource()
+if (!new RegExp(`^${tagPrefix}\\d+\\.\\d+\\.\\d+$`).test(source.ref))
+  throw new Error(`Invalid Tempo contracts ref: ${source.ref}.`)
+if (!/^[0-9a-f]{40}$/.test(source.commit))
+  throw new Error(`Invalid Tempo commit: ${source.commit}.`)
 
-// Read all .rs files from the precompiles directory
-const files = Fs.readdirSync(precompilesDir).filter(
-  (file) => file.endsWith('.rs') && file !== 'mod.rs',
-)
+const { content, files } = await getPrecompileSources(source.commit)
 
-// Aggregate content from all precompile files
-const content = files
-  .map((file) => Fs.readFileSync(Path.join(precompilesDir, file), 'utf-8'))
-  .join('\n\n')
-
-interface InterfaceDefinition {
+type InterfaceDefinition = {
   name: string
   items: string[]
 }
@@ -201,18 +223,10 @@ for (const solMatch of content.matchAll(solBlockRegex)) {
   }
 }
 
-// Generate the output file
-try {
-  Fs.rmSync(out)
-} catch {}
-
-Fs.writeFileSync(
-  out,
-  '// Generated with `pnpm gen:tempo-abis`. Do not modify manually.\n\n',
-)
+let output = `// Generated with \`pnpm gen:tempo-abis\`. Do not modify manually.\n// Source: \`${source.ref}\` at \`${source.commit}\`.\n\n`
 
 // Generate ABIs for all interfaces
-const processedInterfaces = new Set<string>()
+const exportNames: string[] = []
 
 for (const [interfaceName, interfaceData] of interfaces.entries()) {
   // Skip if this interface is only used as an extension (not exported standalone)
@@ -267,57 +281,141 @@ for (const [interfaceName, interfaceData] of interfaces.entries()) {
     return item.replace('external bool', 'external returns (bool)')
   })
 
-  console.log(items)
-
-  Fs.appendFileSync(
-    out,
-    `export const ${exportName} = ${JSON.stringify(Abi.from(items))} as const\n\n`,
-  )
-
-  processedInterfaces.add(interfaceName)
-}
-
-// Emit the extra (non-crate) interfaces.
-for (const [exportName, abi] of Object.entries(extraAbis)) {
-  Fs.appendFileSync(
-    out,
-    `export const ${exportName} = ${JSON.stringify(abi)} as const\n\n`,
-  )
-}
-
-// Generate concatenated `abis` export
-const exportNames: string[] = Object.keys(extraAbis)
-for (const [interfaceName] of interfaces.entries()) {
-  const isUsedAsExtension = Object.values(extensions)
-    .flat()
-    .includes(interfaceName)
-  const isExtendedItself = interfaceName in extensions
-  if (isUsedAsExtension && !isExtendedItself) continue
-  if (!processedInterfaces.has(interfaceName)) continue
-
-  let cleanName = interfaceName.startsWith('I')
-    ? interfaceName.slice(1)
-    : interfaceName
-  if (cleanName.startsWith('TIP') && cleanName.length > 3) {
-    const charAfterTip = cleanName.charAt(3)
-    if (charAfterTip >= 'A' && charAfterTip <= 'Z')
-      cleanName = cleanName.slice(3)
-  }
-  const exportName = cleanName
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .toLowerCase()
-    .split(/[_\-. \s]+/)
-    .map((w, i) => (i ? w[0]!.toUpperCase() + w.slice(1) : w))
-    .join('')
+  output += `export const ${exportName} = ${JSON.stringify(Abi.from(items))} as const\n\n`
   exportNames.push(exportName)
 }
 
+// Emit interfaces missing from this release.
+for (const [exportName, abi] of Object.entries(extraAbis)) {
+  if (exportNames.includes(exportName)) continue
+  output += `export const ${exportName} = ${JSON.stringify(abi)} as const\n\n`
+  exportNames.push(exportName)
+}
+
+// Generate concatenated `abis` export
 // Pure IIFE keeps the aggregate tree-shakable for consumers not using it.
-Fs.appendFileSync(
-  out,
-  `export const abis = /*#__PURE__*/ (() =>\n  [\n${exportNames.map((n) => `    ...${n},`).join('\n')}\n  ] as const)()\n`,
-)
+output += `export const abis = /*#__PURE__*/ (() =>\n  [\n${exportNames.map((n) => `    ...${n},`).join('\n')}\n  ] as const)()\n`
+
+writeAtomic(out, output)
 
 console.log(
-  `✓ Generated ${processedInterfaces.size} ABIs from ${files.length} precompile files`,
+  `✓ Generated ${exportNames.length} ABIs from ${files.length} precompile files at ${source.ref} (${source.commit.slice(0, 7)})`,
 )
+
+async function getLatestSource(): Promise<Source> {
+  const refs: GitHubRef[] = []
+  for (let page = 1; ; page++) {
+    const result = await getJson<readonly GitHubRef[]>(
+      `${githubApi}/git/matching-refs/tags/${encodeURIComponent(tagPrefix)}?per_page=100&page=${page}`,
+    )
+    refs.push(...result)
+    if (result.length < 100) break
+  }
+
+  const versions = refs
+    .flatMap(({ object, ref }) => {
+      const match = ref.match(/^refs\/tags\/tempo-contracts@(\d+\.\d+\.\d+)$/)
+      return match?.[1] ? [{ object, version: match[1] }] : []
+    })
+    .sort((a, b) => compareVersions(a.version, b.version))
+  const release = versions.at(-1)
+  if (!release) throw new Error('No Tempo contracts releases found.')
+  return {
+    ref: `${tagPrefix}${release.version}`,
+    commit: await getCommit(release.object),
+  }
+}
+
+function getTrackedSource(): Source {
+  const match = Fs.readFileSync(out, 'utf8').match(
+    /^\/\/ Source: `(tempo-contracts@\d+\.\d+\.\d+)` at `([0-9a-f]{40})`\.$/m,
+  )
+  const [, ref, commit] = match ?? []
+  if (!ref || !commit)
+    throw new Error(
+      'Missing Tempo source pin. Run `pnpm sync:tempo-abis` to restore it.',
+    )
+  return { commit, ref }
+}
+
+async function getCommit(object: GitHubObject): Promise<string> {
+  if (object.type === 'commit') return object.sha
+  if (object.type !== 'tag')
+    throw new Error(`Unsupported Tempo ref object: ${object.type}.`)
+  const tag = await getJson<GitHubTag>(object.url)
+  return getCommit(tag.object)
+}
+
+async function getPrecompileSources(ref: string) {
+  const entries = await getJson<readonly GitHubContent[]>(
+    `${githubApi}/contents/crates/contracts/src/precompiles?ref=${encodeURIComponent(ref)}`,
+  )
+  const files = entries
+    .filter(
+      (entry) =>
+        entry.type === 'file' &&
+        entry.name.endsWith('.rs') &&
+        entry.name !== 'mod.rs',
+    )
+    .sort((a, b) => a.name.localeCompare(b.name))
+  if (files.length === 0)
+    throw new Error(`No Tempo precompile sources found at ${ref}.`)
+
+  const content = await Promise.all(
+    files.map(({ download_url, name }) => {
+      if (!download_url)
+        throw new Error(`Missing download URL for Tempo source ${name}.`)
+      return getText(download_url)
+    }),
+  )
+  return {
+    content: content.join('\n\n'),
+    files: files.map(({ name }) => name),
+  }
+}
+
+function compareVersions(a: string, b: string) {
+  const left = a.split('.').map(Number)
+  const right = b.split('.').map(Number)
+  for (let index = 0; index < 3; index++) {
+    const difference = left[index]! - right[index]!
+    if (difference !== 0) return difference
+  }
+  return 0
+}
+
+async function getJson<result>(url: string) {
+  const githubToken = process.env.GITHUB_TOKEN
+  const response = await fetch(url, {
+    headers: {
+      Accept: 'application/vnd.github+json',
+      'User-Agent': 'viem',
+      'X-GitHub-Api-Version': '2022-11-28',
+      ...(githubToken ? { Authorization: `Bearer ${githubToken}` } : {}),
+    },
+  })
+  if (!response.ok)
+    throw new Error(
+      `Failed to fetch ${url}: ${response.status} ${response.statusText}.`,
+    )
+  return response.json() as Promise<result>
+}
+
+async function getText(url: string) {
+  const response = await fetch(url)
+  if (!response.ok)
+    throw new Error(
+      `Failed to fetch ${url}: ${response.status} ${response.statusText}.`,
+    )
+  return response.text()
+}
+
+function writeAtomic(path: string, content: string) {
+  const temporaryPath = `${path}.${process.pid}.tmp`
+  try {
+    Fs.writeFileSync(temporaryPath, content)
+    Fs.renameSync(temporaryPath, path)
+  } finally {
+    if (Fs.existsSync(temporaryPath)) Fs.unlinkSync(temporaryPath)
+  }
+}

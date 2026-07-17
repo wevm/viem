@@ -22,6 +22,7 @@
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
     "size": "size-limit",
+    "sync:tempo-abis": "bun scripts/gen:tempo-abis.ts --sync",
     "test": "vp test",
     "test:build": "publint --strict . && attw --pack . --profile esm-only",
     "test:env": "pnpm test:env:bun && pnpm test:env:next && pnpm test:env:node && pnpm test:env:tsc && pnpm test:env:vite",

@@ -1,4 +1,1235 @@
 // Generated with `pnpm gen:tempo-abis`. Do not modify manually.
+// Source: `tempo-contracts@1.10.1` at `3e95ed3d80be0fad2973f1abd2fb403d6c33011a`.
+
+export const accountKeychain = [
+  {
+    name: 'authorizeKey',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'keyId' },
+      { type: 'uint8', name: 'signatureType' },
+      { type: 'uint64', name: 'expiry' },
+      { type: 'bool', name: 'enforceLimits' },
+      {
+        type: 'tuple[]',
+        name: 'limits',
+        components: [
+          { type: 'address', name: 'token' },
+          { type: 'uint256', name: 'amount' },
+        ],
+      },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'authorizeKey',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'keyId' },
+      { type: 'uint8', name: 'signatureType' },
+      {
+        type: 'tuple',
+        name: 'config',
+        components: [
+          { type: 'uint64', name: 'expiry' },
+          { type: 'bool', name: 'enforceLimits' },
+          {
+            type: 'tuple[]',
+            name: 'limits',
+            components: [
+              { type: 'address', name: 'token' },
+              { type: 'uint256', name: 'amount' },
+              { type: 'uint64', name: 'period' },
+            ],
+          },
+          { type: 'bool', name: 'allowAnyCalls' },
+          {
+            type: 'tuple[]',
+            name: 'allowedCalls',
+            components: [
+              { type: 'address', name: 'target' },
+              {
+                type: 'tuple[]',
+                name: 'selectorRules',
+                components: [
+                  { type: 'bytes4', name: 'selector' },
+                  { type: 'address[]', name: 'recipients' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'authorizeKey',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'keyId' },
+      { type: 'uint8', name: 'signatureType' },
+      {
+        type: 'tuple',
+        name: 'config',
+        components: [
+          { type: 'uint64', name: 'expiry' },
+          { type: 'bool', name: 'enforceLimits' },
+          {
+            type: 'tuple[]',
+            name: 'limits',
+            components: [
+              { type: 'address', name: 'token' },
+              { type: 'uint256', name: 'amount' },
+              { type: 'uint64', name: 'period' },
+            ],
+          },
+          { type: 'bool', name: 'allowAnyCalls' },
+          {
+            type: 'tuple[]',
+            name: 'allowedCalls',
+            components: [
+              { type: 'address', name: 'target' },
+              {
+                type: 'tuple[]',
+                name: 'selectorRules',
+                components: [
+                  { type: 'bytes4', name: 'selector' },
+                  { type: 'address[]', name: 'recipients' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      { type: 'bytes32', name: 'witness' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'authorizeAdminKey',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'keyId' },
+      { type: 'uint8', name: 'signatureType' },
+      { type: 'bytes32', name: 'witness' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'burnKeyAuthorizationWitness',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'bytes32', name: 'witness' }],
+    outputs: [],
+  },
+  {
+    name: 'revokeKey',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'address', name: 'keyId' }],
+    outputs: [],
+  },
+  {
+    name: 'updateSpendingLimit',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'keyId' },
+      { type: 'address', name: 'token' },
+      { type: 'uint256', name: 'newLimit' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'setAllowedCalls',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'keyId' },
+      {
+        type: 'tuple[]',
+        name: 'scopes',
+        components: [
+          { type: 'address', name: 'target' },
+          {
+            type: 'tuple[]',
+            name: 'selectorRules',
+            components: [
+              { type: 'bytes4', name: 'selector' },
+              { type: 'address[]', name: 'recipients' },
+            ],
+          },
+        ],
+      },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'removeAllowedCalls',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'keyId' },
+      { type: 'address', name: 'target' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'getKey',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'keyId' },
+    ],
+    outputs: [
+      {
+        type: 'tuple',
+        components: [
+          { type: 'uint8', name: 'signatureType' },
+          { type: 'address', name: 'keyId' },
+          { type: 'uint64', name: 'expiry' },
+          { type: 'bool', name: 'enforceLimits' },
+          { type: 'bool', name: 'isRevoked' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'getRemainingLimit',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'keyId' },
+      { type: 'address', name: 'token' },
+    ],
+    outputs: [{ type: 'uint256', name: 'remaining' }],
+  },
+  {
+    name: 'getRemainingLimitWithPeriod',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'keyId' },
+      { type: 'address', name: 'token' },
+    ],
+    outputs: [
+      { type: 'uint256', name: 'remaining' },
+      { type: 'uint64', name: 'periodEnd' },
+    ],
+  },
+  {
+    name: 'getAllowedCalls',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'keyId' },
+    ],
+    outputs: [
+      { type: 'bool', name: 'isScoped' },
+      {
+        type: 'tuple[]',
+        name: 'scopes',
+        components: [
+          { type: 'address', name: 'target' },
+          {
+            type: 'tuple[]',
+            name: 'selectorRules',
+            components: [
+              { type: 'bytes4', name: 'selector' },
+              { type: 'address[]', name: 'recipients' },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'isKeyAuthorizationWitnessBurned',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'bytes32', name: 'witness' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'isAdminKey',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'keyId' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'getTransactionKey',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'KeyAuthorized',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'address', name: 'publicKey', indexed: true },
+      { type: 'uint8', name: 'signatureType' },
+      { type: 'uint64', name: 'expiry' },
+    ],
+  },
+  {
+    name: 'AdminKeyAuthorized',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'address', name: 'publicKey', indexed: true },
+    ],
+  },
+  {
+    name: 'KeyRevoked',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'address', name: 'publicKey', indexed: true },
+    ],
+  },
+  {
+    name: 'SpendingLimitUpdated',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'address', name: 'publicKey', indexed: true },
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'uint256', name: 'newLimit' },
+    ],
+  },
+  {
+    name: 'AccessKeySpend',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'address', name: 'publicKey', indexed: true },
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'uint256', name: 'amount' },
+      { type: 'uint256', name: 'remainingLimit' },
+    ],
+  },
+  {
+    name: 'KeyAuthorizationWitness',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'bytes32', name: 'witness', indexed: true },
+    ],
+  },
+  {
+    name: 'KeyAuthorizationWitnessBurned',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'bytes32', name: 'witness', indexed: true },
+    ],
+  },
+  { name: 'UnauthorizedCaller', type: 'error', inputs: [] },
+  { name: 'KeyAlreadyExists', type: 'error', inputs: [] },
+  { name: 'KeyNotFound', type: 'error', inputs: [] },
+  { name: 'KeyExpired', type: 'error', inputs: [] },
+  { name: 'SpendingLimitExceeded', type: 'error', inputs: [] },
+  { name: 'InvalidSpendingLimit', type: 'error', inputs: [] },
+  { name: 'InvalidSignatureType', type: 'error', inputs: [] },
+  { name: 'ZeroPublicKey', type: 'error', inputs: [] },
+  { name: 'ExpiryInPast', type: 'error', inputs: [] },
+  { name: 'KeyAlreadyRevoked', type: 'error', inputs: [] },
+  {
+    name: 'SignatureTypeMismatch',
+    type: 'error',
+    inputs: [
+      { type: 'uint8', name: 'expected' },
+      { type: 'uint8', name: 'actual' },
+    ],
+  },
+  { name: 'CallNotAllowed', type: 'error', inputs: [] },
+  { name: 'InvalidCallScope', type: 'error', inputs: [] },
+  { name: 'InvalidKeyId', type: 'error', inputs: [] },
+  { name: 'InvalidKeyAuthorizationWitness', type: 'error', inputs: [] },
+  { name: 'KeyAuthorizationWitnessAlreadyBurned', type: 'error', inputs: [] },
+  {
+    name: 'LegacyAuthorizeKeySelectorChanged',
+    type: 'error',
+    inputs: [{ type: 'bytes4', name: 'newSelector' }],
+  },
+] as const
+
+export const addressRegistry = [
+  {
+    name: 'registerVirtualMaster',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'bytes32', name: 'salt' }],
+    outputs: [{ type: 'bytes4', name: 'masterId' }],
+  },
+  {
+    name: 'getMaster',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'bytes4', name: 'masterId' }],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'resolveRecipient',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'to' }],
+    outputs: [{ type: 'address', name: 'effectiveRecipient' }],
+  },
+  {
+    name: 'resolveVirtualAddress',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'virtualAddr' }],
+    outputs: [{ type: 'address', name: 'master' }],
+  },
+  {
+    name: 'isVirtualAddress',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [{ type: 'address', name: 'addr' }],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'decodeVirtualAddress',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [{ type: 'address', name: 'addr' }],
+    outputs: [
+      { type: 'bool', name: 'isVirtual' },
+      { type: 'bytes4', name: 'masterId' },
+      { type: 'bytes6', name: 'userTag' },
+    ],
+  },
+  {
+    name: 'isImplicitlyApproved',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'addr' }],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'MasterRegistered',
+    type: 'event',
+    inputs: [
+      { type: 'bytes4', name: 'masterId', indexed: true },
+      { type: 'address', name: 'masterAddress', indexed: true },
+    ],
+  },
+  {
+    name: 'MasterIdCollision',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'master' }],
+  },
+  { name: 'InvalidMasterAddress', type: 'error', inputs: [] },
+  { name: 'ProofOfWorkFailed', type: 'error', inputs: [] },
+  { name: 'VirtualAddressUnregistered', type: 'error', inputs: [] },
+] as const
+
+export const nonce = [
+  {
+    name: 'getNonce',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'uint256', name: 'nonceKey' },
+    ],
+    outputs: [{ type: 'uint64', name: 'nonce' }],
+  },
+  {
+    name: 'NonceIncremented',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'uint256', name: 'nonceKey', indexed: true },
+      { type: 'uint64', name: 'newNonce' },
+    ],
+  },
+  { name: 'ProtocolNonceNotSupported', type: 'error', inputs: [] },
+  { name: 'InvalidNonceKey', type: 'error', inputs: [] },
+  { name: 'NonceOverflow', type: 'error', inputs: [] },
+  { name: 'ExpiringNonceReplay', type: 'error', inputs: [] },
+  { name: 'ExpiringNonceSetFull', type: 'error', inputs: [] },
+  { name: 'InvalidExpiringNonceExpiry', type: 'error', inputs: [] },
+] as const
+
+export const receivePolicyGuard = [
+  {
+    name: 'balanceOf',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'bytes', name: 'receipt' }],
+    outputs: [{ type: 'uint256', name: 'amount' }],
+  },
+  {
+    name: 'claim',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'to' },
+      { type: 'bytes', name: 'receipt' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'burnBlockedReceipt',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'bytes', name: 'receipt' }],
+    outputs: [],
+  },
+  {
+    name: 'TransferBlocked',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'address', name: 'receiver', indexed: true },
+      { type: 'uint64', name: 'blockedNonce', indexed: true },
+      { type: 'uint256', name: 'amount' },
+      { type: 'uint8', name: 'receiptVersion' },
+      { type: 'bytes', name: 'receipt' },
+    ],
+  },
+  {
+    name: 'ReceiptClaimed',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'address', name: 'receiver', indexed: true },
+      { type: 'uint64', name: 'blockedNonce', indexed: true },
+      { type: 'uint64', name: 'blockedAt' },
+      { type: 'uint8', name: 'receiptVersion' },
+      { type: 'address', name: 'originator' },
+      { type: 'address', name: 'recipient' },
+      { type: 'address', name: 'recoveryAuthority' },
+      { type: 'address', name: 'caller' },
+      { type: 'address', name: 'to' },
+      { type: 'uint256', name: 'amount' },
+    ],
+  },
+  {
+    name: 'ReceiptBurned',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'address', name: 'receiver', indexed: true },
+      { type: 'uint64', name: 'blockedNonce', indexed: true },
+      { type: 'uint64', name: 'blockedAt' },
+      { type: 'uint8', name: 'receiptVersion' },
+      { type: 'address', name: 'originator' },
+      { type: 'address', name: 'recipient' },
+      { type: 'address', name: 'recoveryAuthority' },
+      { type: 'address', name: 'caller' },
+      { type: 'uint256', name: 'amount' },
+    ],
+  },
+  { name: 'InvalidReceipt', type: 'error', inputs: [] },
+  { name: 'InvalidClaimAddress', type: 'error', inputs: [] },
+  { name: 'UnauthorizedClaimer', type: 'error', inputs: [] },
+  { name: 'AddressReserved', type: 'error', inputs: [] },
+] as const
+
+export const signatureVerifier = [
+  {
+    name: 'recover',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'bytes32', name: 'hash' },
+      { type: 'bytes', name: 'signature' },
+    ],
+    outputs: [{ type: 'address', name: 'signer' }],
+  },
+  {
+    name: 'verify',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'signer' },
+      { type: 'bytes32', name: 'hash' },
+      { type: 'bytes', name: 'signature' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'verifyKeychain',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'bytes32', name: 'hash' },
+      { type: 'bytes', name: 'signature' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'verifyKeychainAdmin',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'bytes32', name: 'hash' },
+      { type: 'bytes', name: 'signature' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  { name: 'InvalidFormat', type: 'error', inputs: [] },
+  { name: 'InvalidSignature', type: 'error', inputs: [] },
+] as const
+
+export const stablecoinDex = [
+  {
+    name: 'createPair',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'address', name: 'base' }],
+    outputs: [{ type: 'bytes32', name: 'key' }],
+  },
+  {
+    name: 'place',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'token' },
+      { type: 'uint128', name: 'amount' },
+      { type: 'bool', name: 'isBid' },
+      { type: 'int16', name: 'tick' },
+    ],
+    outputs: [{ type: 'uint128', name: 'orderId' }],
+  },
+  {
+    name: 'placeFlip',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'token' },
+      { type: 'uint128', name: 'amount' },
+      { type: 'bool', name: 'isBid' },
+      { type: 'int16', name: 'tick' },
+      { type: 'int16', name: 'flipTick' },
+    ],
+    outputs: [{ type: 'uint128', name: 'orderId' }],
+  },
+  {
+    name: 'cancel',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'uint128', name: 'orderId' }],
+    outputs: [],
+  },
+  {
+    name: 'cancelStaleOrder',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'uint128', name: 'orderId' }],
+    outputs: [],
+  },
+  {
+    name: 'swapExactAmountIn',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'tokenIn' },
+      { type: 'address', name: 'tokenOut' },
+      { type: 'uint128', name: 'amountIn' },
+      { type: 'uint128', name: 'minAmountOut' },
+    ],
+    outputs: [{ type: 'uint128', name: 'amountOut' }],
+  },
+  {
+    name: 'swapExactAmountOut',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'tokenIn' },
+      { type: 'address', name: 'tokenOut' },
+      { type: 'uint128', name: 'amountOut' },
+      { type: 'uint128', name: 'maxAmountIn' },
+    ],
+    outputs: [{ type: 'uint128', name: 'amountIn' }],
+  },
+  {
+    name: 'quoteSwapExactAmountIn',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'tokenIn' },
+      { type: 'address', name: 'tokenOut' },
+      { type: 'uint128', name: 'amountIn' },
+    ],
+    outputs: [{ type: 'uint128', name: 'amountOut' }],
+  },
+  {
+    name: 'quoteSwapExactAmountOut',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'tokenIn' },
+      { type: 'address', name: 'tokenOut' },
+      { type: 'uint128', name: 'amountOut' },
+    ],
+    outputs: [{ type: 'uint128', name: 'amountIn' }],
+  },
+  {
+    name: 'balanceOf',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'user' },
+      { type: 'address', name: 'token' },
+    ],
+    outputs: [{ type: 'uint128' }],
+  },
+  {
+    name: 'withdraw',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'token' },
+      { type: 'uint128', name: 'amount' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'getOrder',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'uint128', name: 'orderId' }],
+    outputs: [
+      {
+        type: 'tuple',
+        components: [
+          { type: 'uint128', name: 'orderId' },
+          { type: 'address', name: 'maker' },
+          { type: 'bytes32', name: 'bookKey' },
+          { type: 'bool', name: 'isBid' },
+          { type: 'int16', name: 'tick' },
+          { type: 'uint128', name: 'amount' },
+          { type: 'uint128', name: 'remaining' },
+          { type: 'uint128', name: 'prev' },
+          { type: 'uint128', name: 'next' },
+          { type: 'bool', name: 'isFlip' },
+          { type: 'int16', name: 'flipTick' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'getTickLevel',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'base' },
+      { type: 'int16', name: 'tick' },
+      { type: 'bool', name: 'isBid' },
+    ],
+    outputs: [
+      { type: 'uint128', name: 'head' },
+      { type: 'uint128', name: 'tail' },
+      { type: 'uint128', name: 'totalLiquidity' },
+    ],
+  },
+  {
+    name: 'pairKey',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [
+      { type: 'address', name: 'tokenA' },
+      { type: 'address', name: 'tokenB' },
+    ],
+    outputs: [{ type: 'bytes32' }],
+  },
+  {
+    name: 'nextOrderId',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint128' }],
+  },
+  {
+    name: 'books',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'bytes32', name: 'pairKey' }],
+    outputs: [
+      {
+        type: 'tuple',
+        components: [
+          { type: 'address', name: 'base' },
+          { type: 'address', name: 'quote' },
+          { type: 'int16', name: 'bestBidTick' },
+          { type: 'int16', name: 'bestAskTick' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'storageCredits',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'user' }],
+    outputs: [{ type: 'uint64', name: 'credits' }],
+  },
+  {
+    name: 'MIN_TICK',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'int16' }],
+  },
+  {
+    name: 'MAX_TICK',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'int16' }],
+  },
+  {
+    name: 'TICK_SPACING',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'int16' }],
+  },
+  {
+    name: 'PRICE_SCALE',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'uint32' }],
+  },
+  {
+    name: 'MIN_ORDER_AMOUNT',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'uint128' }],
+  },
+  {
+    name: 'MIN_PRICE',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'uint32' }],
+  },
+  {
+    name: 'MAX_PRICE',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'uint32' }],
+  },
+  {
+    name: 'tickToPrice',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [{ type: 'int16', name: 'tick' }],
+    outputs: [{ type: 'uint32', name: 'price' }],
+  },
+  {
+    name: 'priceToTick',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [{ type: 'uint32', name: 'price' }],
+    outputs: [{ type: 'int16', name: 'tick' }],
+  },
+  {
+    name: 'PairCreated',
+    type: 'event',
+    inputs: [
+      { type: 'bytes32', name: 'key', indexed: true },
+      { type: 'address', name: 'base', indexed: true },
+      { type: 'address', name: 'quote', indexed: true },
+    ],
+  },
+  {
+    name: 'OrderPlaced',
+    type: 'event',
+    inputs: [
+      { type: 'uint128', name: 'orderId', indexed: true },
+      { type: 'address', name: 'maker', indexed: true },
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'uint128', name: 'amount' },
+      { type: 'bool', name: 'isBid' },
+      { type: 'int16', name: 'tick' },
+      { type: 'bool', name: 'isFlipOrder' },
+      { type: 'int16', name: 'flipTick' },
+    ],
+  },
+  {
+    name: 'OrderFilled',
+    type: 'event',
+    inputs: [
+      { type: 'uint128', name: 'orderId', indexed: true },
+      { type: 'address', name: 'maker', indexed: true },
+      { type: 'address', name: 'taker', indexed: true },
+      { type: 'uint128', name: 'amountFilled' },
+      { type: 'bool', name: 'partialFill' },
+    ],
+  },
+  {
+    name: 'OrderFlipped',
+    type: 'event',
+    inputs: [
+      { type: 'uint128', name: 'orderId', indexed: true },
+      { type: 'address', name: 'maker', indexed: true },
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'uint128', name: 'amount' },
+      { type: 'bool', name: 'isBid' },
+      { type: 'int16', name: 'tick' },
+      { type: 'int16', name: 'flipTick' },
+    ],
+  },
+  {
+    name: 'FlipFailed',
+    type: 'event',
+    inputs: [
+      { type: 'uint128', name: 'orderId', indexed: true },
+      { type: 'address', name: 'maker', indexed: true },
+      { type: 'bytes4', name: 'reason' },
+    ],
+  },
+  {
+    name: 'OrderCancelled',
+    type: 'event',
+    inputs: [{ type: 'uint128', name: 'orderId', indexed: true }],
+  },
+  { name: 'Unauthorized', type: 'error', inputs: [] },
+  { name: 'PairDoesNotExist', type: 'error', inputs: [] },
+  { name: 'PairAlreadyExists', type: 'error', inputs: [] },
+  { name: 'OrderDoesNotExist', type: 'error', inputs: [] },
+  { name: 'IdenticalTokens', type: 'error', inputs: [] },
+  { name: 'InvalidToken', type: 'error', inputs: [] },
+  {
+    name: 'TickOutOfBounds',
+    type: 'error',
+    inputs: [{ type: 'int16', name: 'tick' }],
+  },
+  { name: 'InvalidTick', type: 'error', inputs: [] },
+  { name: 'InvalidFlipTick', type: 'error', inputs: [] },
+  { name: 'InsufficientBalance', type: 'error', inputs: [] },
+  { name: 'InsufficientLiquidity', type: 'error', inputs: [] },
+  { name: 'InsufficientOutput', type: 'error', inputs: [] },
+  { name: 'MaxInputExceeded', type: 'error', inputs: [] },
+  {
+    name: 'BelowMinimumOrderSize',
+    type: 'error',
+    inputs: [{ type: 'uint128', name: 'amount' }],
+  },
+  { name: 'InvalidBaseToken', type: 'error', inputs: [] },
+  { name: 'OrderNotStale', type: 'error', inputs: [] },
+] as const
+
+export const storageCredits = [
+  {
+    name: 'balanceOf',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'account' }],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'modeOf',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'account' }],
+    outputs: [{ type: 'uint8' }],
+  },
+  {
+    name: 'budgetOf',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'account' }],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'setMode',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'uint8', name: 'newMode' }],
+    outputs: [],
+  },
+  {
+    name: 'setBudget',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'uint64', name: 'credits' }],
+    outputs: [],
+  },
+  { name: 'InvalidMode', type: 'error', inputs: [] },
+  { name: 'OnlyDirectCall', type: 'error', inputs: [] },
+] as const
+
+export const feeManager = [
+  {
+    name: 'userTokens',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'user' }],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'validatorTokens',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'validator' }],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'setUserToken',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'address', name: 'token' }],
+    outputs: [],
+  },
+  {
+    name: 'setValidatorToken',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'address', name: 'token' }],
+    outputs: [],
+  },
+  {
+    name: 'distributeFees',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'validator' },
+      { type: 'address', name: 'token' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'collectedFees',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'validator' },
+      { type: 'address', name: 'token' },
+    ],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'UserTokenSet',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'user', indexed: true },
+      { type: 'address', name: 'token', indexed: true },
+    ],
+  },
+  {
+    name: 'ValidatorTokenSet',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'validator', indexed: true },
+      { type: 'address', name: 'token', indexed: true },
+    ],
+  },
+  {
+    name: 'FeesDistributed',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'validator', indexed: true },
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'uint256', name: 'amount' },
+    ],
+  },
+  { name: 'InvalidToken', type: 'error', inputs: [] },
+  { name: 'InsufficientFeeTokenBalance', type: 'error', inputs: [] },
+  { name: 'CannotChangeWithinBlock', type: 'error', inputs: [] },
+] as const
+
+export const feeAmm = [
+  {
+    name: 'M',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'N',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'SCALE',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'MIN_LIQUIDITY',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'getPoolId',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [
+      { type: 'address', name: 'userToken' },
+      { type: 'address', name: 'validatorToken' },
+    ],
+    outputs: [{ type: 'bytes32' }],
+  },
+  {
+    name: 'getPool',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'userToken' },
+      { type: 'address', name: 'validatorToken' },
+    ],
+    outputs: [
+      {
+        type: 'tuple',
+        components: [
+          { type: 'uint128', name: 'reserveUserToken' },
+          { type: 'uint128', name: 'reserveValidatorToken' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'pools',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'bytes32', name: 'poolId' }],
+    outputs: [
+      {
+        type: 'tuple',
+        components: [
+          { type: 'uint128', name: 'reserveUserToken' },
+          { type: 'uint128', name: 'reserveValidatorToken' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'mint',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'userToken' },
+      { type: 'address', name: 'validatorToken' },
+      { type: 'uint256', name: 'amountValidatorToken' },
+      { type: 'address', name: 'to' },
+    ],
+    outputs: [{ type: 'uint256', name: 'liquidity' }],
+  },
+  {
+    name: 'burn',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'userToken' },
+      { type: 'address', name: 'validatorToken' },
+      { type: 'uint256', name: 'liquidity' },
+      { type: 'address', name: 'to' },
+    ],
+    outputs: [
+      { type: 'uint256', name: 'amountUserToken' },
+      { type: 'uint256', name: 'amountValidatorToken' },
+    ],
+  },
+  {
+    name: 'totalSupply',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'bytes32', name: 'poolId' }],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'liquidityBalances',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'bytes32', name: 'poolId' },
+      { type: 'address', name: 'user' },
+    ],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'rebalanceSwap',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'userToken' },
+      { type: 'address', name: 'validatorToken' },
+      { type: 'uint256', name: 'amountOut' },
+      { type: 'address', name: 'to' },
+    ],
+    outputs: [{ type: 'uint256', name: 'amountIn' }],
+  },
+  {
+    name: 'Mint',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'sender' },
+      { type: 'address', name: 'to', indexed: true },
+      { type: 'address', name: 'userToken', indexed: true },
+      { type: 'address', name: 'validatorToken', indexed: true },
+      { type: 'uint256', name: 'amountValidatorToken' },
+      { type: 'uint256', name: 'liquidity' },
+    ],
+  },
+  {
+    name: 'Burn',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'sender', indexed: true },
+      { type: 'address', name: 'userToken', indexed: true },
+      { type: 'address', name: 'validatorToken', indexed: true },
+      { type: 'uint256', name: 'amountUserToken' },
+      { type: 'uint256', name: 'amountValidatorToken' },
+      { type: 'uint256', name: 'liquidity' },
+      { type: 'address', name: 'to' },
+    ],
+  },
+  {
+    name: 'RebalanceSwap',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'userToken', indexed: true },
+      { type: 'address', name: 'validatorToken', indexed: true },
+      { type: 'address', name: 'swapper', indexed: true },
+      { type: 'uint256', name: 'amountIn' },
+      { type: 'uint256', name: 'amountOut' },
+    ],
+  },
+  { name: 'IdenticalAddresses', type: 'error', inputs: [] },
+  { name: 'InvalidToken', type: 'error', inputs: [] },
+  { name: 'InsufficientLiquidity', type: 'error', inputs: [] },
+  { name: 'InsufficientReserves', type: 'error', inputs: [] },
+  { name: 'InvalidAmount', type: 'error', inputs: [] },
+  { name: 'DivisionByZero', type: 'error', inputs: [] },
+  { name: 'InvalidSwapCalculation', type: 'error', inputs: [] },
+] as const
 
 export const tip20ChannelReserve = [
   {
@@ -254,6 +1485,13 @@ export const tip20ChannelReserve = [
     outputs: [{ type: 'bytes32' }],
   },
   {
+    name: 'storageCredits',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'payer' }],
+    outputs: [{ type: 'uint64', name: 'credits' }],
+  },
+  {
     name: 'ChannelOpened',
     type: 'event',
     inputs: [
@@ -334,6 +1572,76 @@ export const tip20ChannelReserve = [
   { name: 'CaptureAmountInvalid', type: 'error', inputs: [] },
   { name: 'CloseNotReady', type: 'error', inputs: [] },
   { name: 'DepositOverflow', type: 'error', inputs: [] },
+] as const
+
+export const tip20Factory = [
+  {
+    name: 'createToken',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'string', name: 'name' },
+      { type: 'string', name: 'symbol' },
+      { type: 'string', name: 'currency' },
+      { type: 'address', name: 'quoteToken' },
+      { type: 'address', name: 'admin' },
+      { type: 'bytes32', name: 'salt' },
+    ],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'createToken',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'string', name: 'name' },
+      { type: 'string', name: 'symbol' },
+      { type: 'string', name: 'currency' },
+      { type: 'address', name: 'quoteToken' },
+      { type: 'address', name: 'admin' },
+      { type: 'bytes32', name: 'salt' },
+      { type: 'string', name: 'logoURI' },
+    ],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'isTIP20',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'token' }],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'getTokenAddress',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [
+      { type: 'address', name: 'sender' },
+      { type: 'bytes32', name: 'salt' },
+    ],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'TokenCreated',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'string', name: 'name' },
+      { type: 'string', name: 'symbol' },
+      { type: 'string', name: 'currency' },
+      { type: 'address', name: 'quoteToken' },
+      { type: 'address', name: 'admin' },
+      { type: 'bytes32', name: 'salt' },
+    ],
+  },
+  { name: 'AddressReserved', type: 'error', inputs: [] },
+  { name: 'AddressNotReserved', type: 'error', inputs: [] },
+  { name: 'InvalidQuoteToken', type: 'error', inputs: [] },
+  {
+    name: 'TokenAlreadyExists',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'token' }],
+  },
 ] as const
 
 export const tip20 = [
@@ -918,6 +2226,254 @@ export const tip20 = [
   { name: 'Unauthorized', type: 'error', inputs: [] },
 ] as const
 
+export const tip403Registry = [
+  {
+    name: 'policyIdCounter',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'policyExists',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'uint64', name: 'policyId' }],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'policyData',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'uint64', name: 'policyId' }],
+    outputs: [
+      { type: 'uint8', name: 'policyType' },
+      { type: 'address', name: 'admin' },
+    ],
+  },
+  {
+    name: 'isAuthorized',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'uint64', name: 'policyId' },
+      { type: 'address', name: 'user' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'isAuthorizedSender',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'uint64', name: 'policyId' },
+      { type: 'address', name: 'user' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'isAuthorizedRecipient',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'uint64', name: 'policyId' },
+      { type: 'address', name: 'user' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'isAuthorizedMintRecipient',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'uint64', name: 'policyId' },
+      { type: 'address', name: 'user' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'compoundPolicyData',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'uint64', name: 'policyId' }],
+    outputs: [
+      { type: 'uint64', name: 'senderPolicyId' },
+      { type: 'uint64', name: 'recipientPolicyId' },
+      { type: 'uint64', name: 'mintRecipientPolicyId' },
+    ],
+  },
+  {
+    name: 'receivePolicy',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'account' }],
+    outputs: [
+      { type: 'bool', name: 'hasReceivePolicy' },
+      { type: 'uint64', name: 'senderPolicyId' },
+      { type: 'uint8', name: 'senderPolicyType' },
+      { type: 'uint64', name: 'tokenFilterId' },
+      { type: 'uint8', name: 'tokenFilterType' },
+      { type: 'address', name: 'recoveryAuthority' },
+    ],
+  },
+  {
+    name: 'validateReceivePolicy',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'token' },
+      { type: 'address', name: 'sender' },
+      { type: 'address', name: 'receiver' },
+    ],
+    outputs: [
+      { type: 'bool', name: 'authorized' },
+      { type: 'uint8', name: 'blockedReason' },
+    ],
+  },
+  {
+    name: 'createPolicy',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'admin' },
+      { type: 'uint8', name: 'policyType' },
+    ],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'createPolicyWithAccounts',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'admin' },
+      { type: 'uint8', name: 'policyType' },
+      { type: 'address[]', name: 'accounts' },
+    ],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'setPolicyAdmin',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint64', name: 'policyId' },
+      { type: 'address', name: 'admin' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'modifyPolicyWhitelist',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint64', name: 'policyId' },
+      { type: 'address', name: 'account' },
+      { type: 'bool', name: 'allowed' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'modifyPolicyBlacklist',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint64', name: 'policyId' },
+      { type: 'address', name: 'account' },
+      { type: 'bool', name: 'restricted' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'createCompoundPolicy',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint64', name: 'senderPolicyId' },
+      { type: 'uint64', name: 'recipientPolicyId' },
+      { type: 'uint64', name: 'mintRecipientPolicyId' },
+    ],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'setReceivePolicy',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint64', name: 'senderPolicyId' },
+      { type: 'uint64', name: 'tokenFilterId' },
+      { type: 'address', name: 'recoveryAuthority' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'PolicyAdminUpdated',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'policyId', indexed: true },
+      { type: 'address', name: 'updater', indexed: true },
+      { type: 'address', name: 'admin', indexed: true },
+    ],
+  },
+  {
+    name: 'PolicyCreated',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'policyId', indexed: true },
+      { type: 'address', name: 'updater', indexed: true },
+      { type: 'uint8', name: 'policyType' },
+    ],
+  },
+  {
+    name: 'WhitelistUpdated',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'policyId', indexed: true },
+      { type: 'address', name: 'updater', indexed: true },
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'bool', name: 'allowed' },
+    ],
+  },
+  {
+    name: 'BlacklistUpdated',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'policyId', indexed: true },
+      { type: 'address', name: 'updater', indexed: true },
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'bool', name: 'restricted' },
+    ],
+  },
+  {
+    name: 'CompoundPolicyCreated',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'policyId', indexed: true },
+      { type: 'address', name: 'creator', indexed: true },
+      { type: 'uint64', name: 'senderPolicyId' },
+      { type: 'uint64', name: 'recipientPolicyId' },
+      { type: 'uint64', name: 'mintRecipientPolicyId' },
+    ],
+  },
+  {
+    name: 'ReceivePolicyUpdated',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'uint64', name: 'senderPolicyId' },
+      { type: 'uint64', name: 'tokenFilterId' },
+      { type: 'address', name: 'recoveryAuthority' },
+    ],
+  },
+  { name: 'Unauthorized', type: 'error', inputs: [] },
+  { name: 'PolicyNotFound', type: 'error', inputs: [] },
+  { name: 'PolicyNotSimple', type: 'error', inputs: [] },
+  { name: 'InvalidPolicyType', type: 'error', inputs: [] },
+  { name: 'IncompatiblePolicyType', type: 'error', inputs: [] },
+  { name: 'VirtualAddressNotAllowed', type: 'error', inputs: [] },
+  { name: 'InvalidReceivePolicyType', type: 'error', inputs: [] },
+  { name: 'InvalidRecoveryAuthority', type: 'error', inputs: [] },
+] as const
+
 export const validatorConfigV2 = [
   {
     name: 'getActiveValidators',
@@ -1272,1507 +2828,6 @@ export const validatorConfigV2 = [
   { name: 'ValidatorNotFound', type: 'error', inputs: [] },
 ] as const
 
-export const signatureVerifier = [
-  {
-    name: 'recover',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'bytes32', name: 'hash' },
-      { type: 'bytes', name: 'signature' },
-    ],
-    outputs: [{ type: 'address', name: 'signer' }],
-  },
-  {
-    name: 'verify',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'signer' },
-      { type: 'bytes32', name: 'hash' },
-      { type: 'bytes', name: 'signature' },
-    ],
-    outputs: [{ type: 'bool' }],
-  },
-  {
-    name: 'verifyKeychain',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'account' },
-      { type: 'bytes32', name: 'hash' },
-      { type: 'bytes', name: 'signature' },
-    ],
-    outputs: [{ type: 'bool' }],
-  },
-  {
-    name: 'verifyKeychainAdmin',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'account' },
-      { type: 'bytes32', name: 'hash' },
-      { type: 'bytes', name: 'signature' },
-    ],
-    outputs: [{ type: 'bool' }],
-  },
-  { name: 'InvalidFormat', type: 'error', inputs: [] },
-  { name: 'InvalidSignature', type: 'error', inputs: [] },
-] as const
-
-export const stablecoinDex = [
-  {
-    name: 'createPair',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [{ type: 'address', name: 'base' }],
-    outputs: [{ type: 'bytes32', name: 'key' }],
-  },
-  {
-    name: 'place',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'token' },
-      { type: 'uint128', name: 'amount' },
-      { type: 'bool', name: 'isBid' },
-      { type: 'int16', name: 'tick' },
-    ],
-    outputs: [{ type: 'uint128', name: 'orderId' }],
-  },
-  {
-    name: 'placeFlip',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'token' },
-      { type: 'uint128', name: 'amount' },
-      { type: 'bool', name: 'isBid' },
-      { type: 'int16', name: 'tick' },
-      { type: 'int16', name: 'flipTick' },
-    ],
-    outputs: [{ type: 'uint128', name: 'orderId' }],
-  },
-  {
-    name: 'cancel',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [{ type: 'uint128', name: 'orderId' }],
-    outputs: [],
-  },
-  {
-    name: 'cancelStaleOrder',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [{ type: 'uint128', name: 'orderId' }],
-    outputs: [],
-  },
-  {
-    name: 'swapExactAmountIn',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'tokenIn' },
-      { type: 'address', name: 'tokenOut' },
-      { type: 'uint128', name: 'amountIn' },
-      { type: 'uint128', name: 'minAmountOut' },
-    ],
-    outputs: [{ type: 'uint128', name: 'amountOut' }],
-  },
-  {
-    name: 'swapExactAmountOut',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'tokenIn' },
-      { type: 'address', name: 'tokenOut' },
-      { type: 'uint128', name: 'amountOut' },
-      { type: 'uint128', name: 'maxAmountIn' },
-    ],
-    outputs: [{ type: 'uint128', name: 'amountIn' }],
-  },
-  {
-    name: 'quoteSwapExactAmountIn',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'tokenIn' },
-      { type: 'address', name: 'tokenOut' },
-      { type: 'uint128', name: 'amountIn' },
-    ],
-    outputs: [{ type: 'uint128', name: 'amountOut' }],
-  },
-  {
-    name: 'quoteSwapExactAmountOut',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'tokenIn' },
-      { type: 'address', name: 'tokenOut' },
-      { type: 'uint128', name: 'amountOut' },
-    ],
-    outputs: [{ type: 'uint128', name: 'amountIn' }],
-  },
-  {
-    name: 'balanceOf',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'user' },
-      { type: 'address', name: 'token' },
-    ],
-    outputs: [{ type: 'uint128' }],
-  },
-  {
-    name: 'withdraw',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'token' },
-      { type: 'uint128', name: 'amount' },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'getOrder',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'uint128', name: 'orderId' }],
-    outputs: [
-      {
-        type: 'tuple',
-        components: [
-          { type: 'uint128', name: 'orderId' },
-          { type: 'address', name: 'maker' },
-          { type: 'bytes32', name: 'bookKey' },
-          { type: 'bool', name: 'isBid' },
-          { type: 'int16', name: 'tick' },
-          { type: 'uint128', name: 'amount' },
-          { type: 'uint128', name: 'remaining' },
-          { type: 'uint128', name: 'prev' },
-          { type: 'uint128', name: 'next' },
-          { type: 'bool', name: 'isFlip' },
-          { type: 'int16', name: 'flipTick' },
-        ],
-      },
-    ],
-  },
-  {
-    name: 'getTickLevel',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'base' },
-      { type: 'int16', name: 'tick' },
-      { type: 'bool', name: 'isBid' },
-    ],
-    outputs: [
-      { type: 'uint128', name: 'head' },
-      { type: 'uint128', name: 'tail' },
-      { type: 'uint128', name: 'totalLiquidity' },
-    ],
-  },
-  {
-    name: 'pairKey',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [
-      { type: 'address', name: 'tokenA' },
-      { type: 'address', name: 'tokenB' },
-    ],
-    outputs: [{ type: 'bytes32' }],
-  },
-  {
-    name: 'nextOrderId',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'uint128' }],
-  },
-  {
-    name: 'books',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'bytes32', name: 'pairKey' }],
-    outputs: [
-      {
-        type: 'tuple',
-        components: [
-          { type: 'address', name: 'base' },
-          { type: 'address', name: 'quote' },
-          { type: 'int16', name: 'bestBidTick' },
-          { type: 'int16', name: 'bestAskTick' },
-        ],
-      },
-    ],
-  },
-  {
-    name: 'MIN_TICK',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [],
-    outputs: [{ type: 'int16' }],
-  },
-  {
-    name: 'MAX_TICK',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [],
-    outputs: [{ type: 'int16' }],
-  },
-  {
-    name: 'TICK_SPACING',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [],
-    outputs: [{ type: 'int16' }],
-  },
-  {
-    name: 'PRICE_SCALE',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [],
-    outputs: [{ type: 'uint32' }],
-  },
-  {
-    name: 'MIN_ORDER_AMOUNT',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [],
-    outputs: [{ type: 'uint128' }],
-  },
-  {
-    name: 'MIN_PRICE',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [],
-    outputs: [{ type: 'uint32' }],
-  },
-  {
-    name: 'MAX_PRICE',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [],
-    outputs: [{ type: 'uint32' }],
-  },
-  {
-    name: 'tickToPrice',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [{ type: 'int16', name: 'tick' }],
-    outputs: [{ type: 'uint32', name: 'price' }],
-  },
-  {
-    name: 'priceToTick',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [{ type: 'uint32', name: 'price' }],
-    outputs: [{ type: 'int16', name: 'tick' }],
-  },
-  {
-    name: 'PairCreated',
-    type: 'event',
-    inputs: [
-      { type: 'bytes32', name: 'key', indexed: true },
-      { type: 'address', name: 'base', indexed: true },
-      { type: 'address', name: 'quote', indexed: true },
-    ],
-  },
-  {
-    name: 'OrderPlaced',
-    type: 'event',
-    inputs: [
-      { type: 'uint128', name: 'orderId', indexed: true },
-      { type: 'address', name: 'maker', indexed: true },
-      { type: 'address', name: 'token', indexed: true },
-      { type: 'uint128', name: 'amount' },
-      { type: 'bool', name: 'isBid' },
-      { type: 'int16', name: 'tick' },
-      { type: 'bool', name: 'isFlipOrder' },
-      { type: 'int16', name: 'flipTick' },
-    ],
-  },
-  {
-    name: 'OrderFilled',
-    type: 'event',
-    inputs: [
-      { type: 'uint128', name: 'orderId', indexed: true },
-      { type: 'address', name: 'maker', indexed: true },
-      { type: 'address', name: 'taker', indexed: true },
-      { type: 'uint128', name: 'amountFilled' },
-      { type: 'bool', name: 'partialFill' },
-    ],
-  },
-  {
-    name: 'OrderFlipped',
-    type: 'event',
-    inputs: [
-      { type: 'uint128', name: 'orderId', indexed: true },
-      { type: 'address', name: 'maker', indexed: true },
-      { type: 'address', name: 'token', indexed: true },
-      { type: 'uint128', name: 'amount' },
-      { type: 'bool', name: 'isBid' },
-      { type: 'int16', name: 'tick' },
-      { type: 'int16', name: 'flipTick' },
-    ],
-  },
-  {
-    name: 'FlipFailed',
-    type: 'event',
-    inputs: [
-      { type: 'uint128', name: 'orderId', indexed: true },
-      { type: 'address', name: 'maker', indexed: true },
-      { type: 'bytes4', name: 'reason' },
-    ],
-  },
-  {
-    name: 'OrderCancelled',
-    type: 'event',
-    inputs: [{ type: 'uint128', name: 'orderId', indexed: true }],
-  },
-  { name: 'Unauthorized', type: 'error', inputs: [] },
-  { name: 'PairDoesNotExist', type: 'error', inputs: [] },
-  { name: 'PairAlreadyExists', type: 'error', inputs: [] },
-  { name: 'OrderDoesNotExist', type: 'error', inputs: [] },
-  { name: 'IdenticalTokens', type: 'error', inputs: [] },
-  { name: 'InvalidToken', type: 'error', inputs: [] },
-  {
-    name: 'TickOutOfBounds',
-    type: 'error',
-    inputs: [{ type: 'int16', name: 'tick' }],
-  },
-  { name: 'InvalidTick', type: 'error', inputs: [] },
-  { name: 'InvalidFlipTick', type: 'error', inputs: [] },
-  { name: 'InsufficientBalance', type: 'error', inputs: [] },
-  { name: 'InsufficientLiquidity', type: 'error', inputs: [] },
-  { name: 'InsufficientOutput', type: 'error', inputs: [] },
-  { name: 'MaxInputExceeded', type: 'error', inputs: [] },
-  {
-    name: 'BelowMinimumOrderSize',
-    type: 'error',
-    inputs: [{ type: 'uint128', name: 'amount' }],
-  },
-  { name: 'InvalidBaseToken', type: 'error', inputs: [] },
-  { name: 'OrderNotStale', type: 'error', inputs: [] },
-] as const
-
-export const addressRegistry = [
-  {
-    name: 'registerVirtualMaster',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [{ type: 'bytes32', name: 'salt' }],
-    outputs: [{ type: 'bytes4', name: 'masterId' }],
-  },
-  {
-    name: 'getMaster',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'bytes4', name: 'masterId' }],
-    outputs: [{ type: 'address' }],
-  },
-  {
-    name: 'resolveRecipient',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'address', name: 'to' }],
-    outputs: [{ type: 'address', name: 'effectiveRecipient' }],
-  },
-  {
-    name: 'resolveVirtualAddress',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'address', name: 'virtualAddr' }],
-    outputs: [{ type: 'address', name: 'master' }],
-  },
-  {
-    name: 'isVirtualAddress',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [{ type: 'address', name: 'addr' }],
-    outputs: [{ type: 'bool' }],
-  },
-  {
-    name: 'decodeVirtualAddress',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [{ type: 'address', name: 'addr' }],
-    outputs: [
-      { type: 'bool', name: 'isVirtual' },
-      { type: 'bytes4', name: 'masterId' },
-      { type: 'bytes6', name: 'userTag' },
-    ],
-  },
-  {
-    name: 'isImplicitlyApproved',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'address', name: 'addr' }],
-    outputs: [{ type: 'bool' }],
-  },
-  {
-    name: 'MasterRegistered',
-    type: 'event',
-    inputs: [
-      { type: 'bytes4', name: 'masterId', indexed: true },
-      { type: 'address', name: 'masterAddress', indexed: true },
-    ],
-  },
-  {
-    name: 'MasterIdCollision',
-    type: 'error',
-    inputs: [{ type: 'address', name: 'master' }],
-  },
-  { name: 'InvalidMasterAddress', type: 'error', inputs: [] },
-  { name: 'ProofOfWorkFailed', type: 'error', inputs: [] },
-  { name: 'VirtualAddressUnregistered', type: 'error', inputs: [] },
-] as const
-
-export const feeManager = [
-  {
-    name: 'userTokens',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'address', name: 'user' }],
-    outputs: [{ type: 'address' }],
-  },
-  {
-    name: 'validatorTokens',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'address', name: 'validator' }],
-    outputs: [{ type: 'address' }],
-  },
-  {
-    name: 'setUserToken',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [{ type: 'address', name: 'token' }],
-    outputs: [],
-  },
-  {
-    name: 'setValidatorToken',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [{ type: 'address', name: 'token' }],
-    outputs: [],
-  },
-  {
-    name: 'distributeFees',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'validator' },
-      { type: 'address', name: 'token' },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'collectedFees',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'validator' },
-      { type: 'address', name: 'token' },
-    ],
-    outputs: [{ type: 'uint256' }],
-  },
-  {
-    name: 'UserTokenSet',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'user', indexed: true },
-      { type: 'address', name: 'token', indexed: true },
-    ],
-  },
-  {
-    name: 'ValidatorTokenSet',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'validator', indexed: true },
-      { type: 'address', name: 'token', indexed: true },
-    ],
-  },
-  {
-    name: 'FeesDistributed',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'validator', indexed: true },
-      { type: 'address', name: 'token', indexed: true },
-      { type: 'uint256', name: 'amount' },
-    ],
-  },
-  { name: 'InvalidToken', type: 'error', inputs: [] },
-  { name: 'InsufficientFeeTokenBalance', type: 'error', inputs: [] },
-  { name: 'CannotChangeWithinBlock', type: 'error', inputs: [] },
-] as const
-
-export const feeAmm = [
-  {
-    name: 'M',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'uint256' }],
-  },
-  {
-    name: 'N',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'uint256' }],
-  },
-  {
-    name: 'SCALE',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'uint256' }],
-  },
-  {
-    name: 'MIN_LIQUIDITY',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'uint256' }],
-  },
-  {
-    name: 'getPoolId',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [
-      { type: 'address', name: 'userToken' },
-      { type: 'address', name: 'validatorToken' },
-    ],
-    outputs: [{ type: 'bytes32' }],
-  },
-  {
-    name: 'getPool',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'userToken' },
-      { type: 'address', name: 'validatorToken' },
-    ],
-    outputs: [
-      {
-        type: 'tuple',
-        components: [
-          { type: 'uint128', name: 'reserveUserToken' },
-          { type: 'uint128', name: 'reserveValidatorToken' },
-        ],
-      },
-    ],
-  },
-  {
-    name: 'pools',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'bytes32', name: 'poolId' }],
-    outputs: [
-      {
-        type: 'tuple',
-        components: [
-          { type: 'uint128', name: 'reserveUserToken' },
-          { type: 'uint128', name: 'reserveValidatorToken' },
-        ],
-      },
-    ],
-  },
-  {
-    name: 'mint',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'userToken' },
-      { type: 'address', name: 'validatorToken' },
-      { type: 'uint256', name: 'amountValidatorToken' },
-      { type: 'address', name: 'to' },
-    ],
-    outputs: [{ type: 'uint256', name: 'liquidity' }],
-  },
-  {
-    name: 'burn',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'userToken' },
-      { type: 'address', name: 'validatorToken' },
-      { type: 'uint256', name: 'liquidity' },
-      { type: 'address', name: 'to' },
-    ],
-    outputs: [
-      { type: 'uint256', name: 'amountUserToken' },
-      { type: 'uint256', name: 'amountValidatorToken' },
-    ],
-  },
-  {
-    name: 'totalSupply',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'bytes32', name: 'poolId' }],
-    outputs: [{ type: 'uint256' }],
-  },
-  {
-    name: 'liquidityBalances',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'bytes32', name: 'poolId' },
-      { type: 'address', name: 'user' },
-    ],
-    outputs: [{ type: 'uint256' }],
-  },
-  {
-    name: 'rebalanceSwap',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'userToken' },
-      { type: 'address', name: 'validatorToken' },
-      { type: 'uint256', name: 'amountOut' },
-      { type: 'address', name: 'to' },
-    ],
-    outputs: [{ type: 'uint256', name: 'amountIn' }],
-  },
-  {
-    name: 'Mint',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'sender' },
-      { type: 'address', name: 'to', indexed: true },
-      { type: 'address', name: 'userToken', indexed: true },
-      { type: 'address', name: 'validatorToken', indexed: true },
-      { type: 'uint256', name: 'amountValidatorToken' },
-      { type: 'uint256', name: 'liquidity' },
-    ],
-  },
-  {
-    name: 'Burn',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'sender', indexed: true },
-      { type: 'address', name: 'userToken', indexed: true },
-      { type: 'address', name: 'validatorToken', indexed: true },
-      { type: 'uint256', name: 'amountUserToken' },
-      { type: 'uint256', name: 'amountValidatorToken' },
-      { type: 'uint256', name: 'liquidity' },
-      { type: 'address', name: 'to' },
-    ],
-  },
-  {
-    name: 'RebalanceSwap',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'userToken', indexed: true },
-      { type: 'address', name: 'validatorToken', indexed: true },
-      { type: 'address', name: 'swapper', indexed: true },
-      { type: 'uint256', name: 'amountIn' },
-      { type: 'uint256', name: 'amountOut' },
-    ],
-  },
-  { name: 'IdenticalAddresses', type: 'error', inputs: [] },
-  { name: 'InvalidToken', type: 'error', inputs: [] },
-  { name: 'InsufficientLiquidity', type: 'error', inputs: [] },
-  { name: 'InsufficientReserves', type: 'error', inputs: [] },
-  { name: 'InvalidAmount', type: 'error', inputs: [] },
-  { name: 'DivisionByZero', type: 'error', inputs: [] },
-  { name: 'InvalidSwapCalculation', type: 'error', inputs: [] },
-] as const
-
-export const receivePolicyGuard = [
-  {
-    name: 'balanceOf',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'bytes', name: 'receipt' }],
-    outputs: [{ type: 'uint256', name: 'amount' }],
-  },
-  {
-    name: 'claim',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'to' },
-      { type: 'bytes', name: 'receipt' },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'burnBlockedReceipt',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [{ type: 'bytes', name: 'receipt' }],
-    outputs: [],
-  },
-  {
-    name: 'TransferBlocked',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'token', indexed: true },
-      { type: 'address', name: 'receiver', indexed: true },
-      { type: 'uint64', name: 'blockedNonce', indexed: true },
-      { type: 'uint256', name: 'amount' },
-      { type: 'uint8', name: 'receiptVersion' },
-      { type: 'bytes', name: 'receipt' },
-    ],
-  },
-  {
-    name: 'ReceiptClaimed',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'token', indexed: true },
-      { type: 'address', name: 'receiver', indexed: true },
-      { type: 'uint64', name: 'blockedNonce', indexed: true },
-      { type: 'uint64', name: 'blockedAt' },
-      { type: 'uint8', name: 'receiptVersion' },
-      { type: 'address', name: 'originator' },
-      { type: 'address', name: 'recipient' },
-      { type: 'address', name: 'recoveryAuthority' },
-      { type: 'address', name: 'caller' },
-      { type: 'address', name: 'to' },
-      { type: 'uint256', name: 'amount' },
-    ],
-  },
-  {
-    name: 'ReceiptBurned',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'token', indexed: true },
-      { type: 'address', name: 'receiver', indexed: true },
-      { type: 'uint64', name: 'blockedNonce', indexed: true },
-      { type: 'uint64', name: 'blockedAt' },
-      { type: 'uint8', name: 'receiptVersion' },
-      { type: 'address', name: 'originator' },
-      { type: 'address', name: 'recipient' },
-      { type: 'address', name: 'recoveryAuthority' },
-      { type: 'address', name: 'caller' },
-      { type: 'uint256', name: 'amount' },
-    ],
-  },
-  { name: 'InvalidReceipt', type: 'error', inputs: [] },
-  { name: 'InvalidClaimAddress', type: 'error', inputs: [] },
-  { name: 'UnauthorizedClaimer', type: 'error', inputs: [] },
-  { name: 'AddressReserved', type: 'error', inputs: [] },
-] as const
-
-export const accountKeychain = [
-  {
-    name: 'authorizeKey',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'keyId' },
-      { type: 'uint8', name: 'signatureType' },
-      { type: 'uint64', name: 'expiry' },
-      { type: 'bool', name: 'enforceLimits' },
-      {
-        type: 'tuple[]',
-        name: 'limits',
-        components: [
-          { type: 'address', name: 'token' },
-          { type: 'uint256', name: 'amount' },
-        ],
-      },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'authorizeKey',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'keyId' },
-      { type: 'uint8', name: 'signatureType' },
-      {
-        type: 'tuple',
-        name: 'config',
-        components: [
-          { type: 'uint64', name: 'expiry' },
-          { type: 'bool', name: 'enforceLimits' },
-          {
-            type: 'tuple[]',
-            name: 'limits',
-            components: [
-              { type: 'address', name: 'token' },
-              { type: 'uint256', name: 'amount' },
-              { type: 'uint64', name: 'period' },
-            ],
-          },
-          { type: 'bool', name: 'allowAnyCalls' },
-          {
-            type: 'tuple[]',
-            name: 'allowedCalls',
-            components: [
-              { type: 'address', name: 'target' },
-              {
-                type: 'tuple[]',
-                name: 'selectorRules',
-                components: [
-                  { type: 'bytes4', name: 'selector' },
-                  { type: 'address[]', name: 'recipients' },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'authorizeKey',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'keyId' },
-      { type: 'uint8', name: 'signatureType' },
-      {
-        type: 'tuple',
-        name: 'config',
-        components: [
-          { type: 'uint64', name: 'expiry' },
-          { type: 'bool', name: 'enforceLimits' },
-          {
-            type: 'tuple[]',
-            name: 'limits',
-            components: [
-              { type: 'address', name: 'token' },
-              { type: 'uint256', name: 'amount' },
-              { type: 'uint64', name: 'period' },
-            ],
-          },
-          { type: 'bool', name: 'allowAnyCalls' },
-          {
-            type: 'tuple[]',
-            name: 'allowedCalls',
-            components: [
-              { type: 'address', name: 'target' },
-              {
-                type: 'tuple[]',
-                name: 'selectorRules',
-                components: [
-                  { type: 'bytes4', name: 'selector' },
-                  { type: 'address[]', name: 'recipients' },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-      { type: 'bytes32', name: 'witness' },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'authorizeAdminKey',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'keyId' },
-      { type: 'uint8', name: 'signatureType' },
-      { type: 'bytes32', name: 'witness' },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'burnKeyAuthorizationWitness',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [{ type: 'bytes32', name: 'witness' }],
-    outputs: [],
-  },
-  {
-    name: 'revokeKey',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [{ type: 'address', name: 'keyId' }],
-    outputs: [],
-  },
-  {
-    name: 'updateSpendingLimit',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'keyId' },
-      { type: 'address', name: 'token' },
-      { type: 'uint256', name: 'newLimit' },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'setAllowedCalls',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'keyId' },
-      {
-        type: 'tuple[]',
-        name: 'scopes',
-        components: [
-          { type: 'address', name: 'target' },
-          {
-            type: 'tuple[]',
-            name: 'selectorRules',
-            components: [
-              { type: 'bytes4', name: 'selector' },
-              { type: 'address[]', name: 'recipients' },
-            ],
-          },
-        ],
-      },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'removeAllowedCalls',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'keyId' },
-      { type: 'address', name: 'target' },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'getKey',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'account' },
-      { type: 'address', name: 'keyId' },
-    ],
-    outputs: [
-      {
-        type: 'tuple',
-        components: [
-          { type: 'uint8', name: 'signatureType' },
-          { type: 'address', name: 'keyId' },
-          { type: 'uint64', name: 'expiry' },
-          { type: 'bool', name: 'enforceLimits' },
-          { type: 'bool', name: 'isRevoked' },
-        ],
-      },
-    ],
-  },
-  {
-    name: 'getRemainingLimit',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'account' },
-      { type: 'address', name: 'keyId' },
-      { type: 'address', name: 'token' },
-    ],
-    outputs: [{ type: 'uint256', name: 'remaining' }],
-  },
-  {
-    name: 'getRemainingLimitWithPeriod',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'account' },
-      { type: 'address', name: 'keyId' },
-      { type: 'address', name: 'token' },
-    ],
-    outputs: [
-      { type: 'uint256', name: 'remaining' },
-      { type: 'uint64', name: 'periodEnd' },
-    ],
-  },
-  {
-    name: 'getAllowedCalls',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'account' },
-      { type: 'address', name: 'keyId' },
-    ],
-    outputs: [
-      { type: 'bool', name: 'isScoped' },
-      {
-        type: 'tuple[]',
-        name: 'scopes',
-        components: [
-          { type: 'address', name: 'target' },
-          {
-            type: 'tuple[]',
-            name: 'selectorRules',
-            components: [
-              { type: 'bytes4', name: 'selector' },
-              { type: 'address[]', name: 'recipients' },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    name: 'isKeyAuthorizationWitnessBurned',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'account' },
-      { type: 'bytes32', name: 'witness' },
-    ],
-    outputs: [{ type: 'bool' }],
-  },
-  {
-    name: 'isAdminKey',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'account' },
-      { type: 'address', name: 'keyId' },
-    ],
-    outputs: [{ type: 'bool' }],
-  },
-  {
-    name: 'getTransactionKey',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'address' }],
-  },
-  {
-    name: 'KeyAuthorized',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'address', name: 'publicKey', indexed: true },
-      { type: 'uint8', name: 'signatureType' },
-      { type: 'uint64', name: 'expiry' },
-    ],
-  },
-  {
-    name: 'AdminKeyAuthorized',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'address', name: 'publicKey', indexed: true },
-    ],
-  },
-  {
-    name: 'KeyRevoked',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'address', name: 'publicKey', indexed: true },
-    ],
-  },
-  {
-    name: 'SpendingLimitUpdated',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'address', name: 'publicKey', indexed: true },
-      { type: 'address', name: 'token', indexed: true },
-      { type: 'uint256', name: 'newLimit' },
-    ],
-  },
-  {
-    name: 'AccessKeySpend',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'address', name: 'publicKey', indexed: true },
-      { type: 'address', name: 'token', indexed: true },
-      { type: 'uint256', name: 'amount' },
-      { type: 'uint256', name: 'remainingLimit' },
-    ],
-  },
-  {
-    name: 'KeyAuthorizationWitness',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'bytes32', name: 'witness', indexed: true },
-    ],
-  },
-  {
-    name: 'KeyAuthorizationWitnessBurned',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'bytes32', name: 'witness', indexed: true },
-    ],
-  },
-  { name: 'UnauthorizedCaller', type: 'error', inputs: [] },
-  { name: 'KeyAlreadyExists', type: 'error', inputs: [] },
-  { name: 'KeyNotFound', type: 'error', inputs: [] },
-  { name: 'KeyExpired', type: 'error', inputs: [] },
-  { name: 'SpendingLimitExceeded', type: 'error', inputs: [] },
-  { name: 'InvalidSpendingLimit', type: 'error', inputs: [] },
-  { name: 'InvalidSignatureType', type: 'error', inputs: [] },
-  { name: 'ZeroPublicKey', type: 'error', inputs: [] },
-  { name: 'ExpiryInPast', type: 'error', inputs: [] },
-  { name: 'KeyAlreadyRevoked', type: 'error', inputs: [] },
-  {
-    name: 'SignatureTypeMismatch',
-    type: 'error',
-    inputs: [
-      { type: 'uint8', name: 'expected' },
-      { type: 'uint8', name: 'actual' },
-    ],
-  },
-  { name: 'CallNotAllowed', type: 'error', inputs: [] },
-  { name: 'InvalidCallScope', type: 'error', inputs: [] },
-  { name: 'InvalidKeyId', type: 'error', inputs: [] },
-  { name: 'InvalidKeyAuthorizationWitness', type: 'error', inputs: [] },
-  { name: 'KeyAuthorizationWitnessAlreadyBurned', type: 'error', inputs: [] },
-  {
-    name: 'LegacyAuthorizeKeySelectorChanged',
-    type: 'error',
-    inputs: [{ type: 'bytes4', name: 'newSelector' }],
-  },
-] as const
-
-export const nonce = [
-  {
-    name: 'getNonce',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'account' },
-      { type: 'uint256', name: 'nonceKey' },
-    ],
-    outputs: [{ type: 'uint64', name: 'nonce' }],
-  },
-  {
-    name: 'NonceIncremented',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'uint256', name: 'nonceKey', indexed: true },
-      { type: 'uint64', name: 'newNonce' },
-    ],
-  },
-  { name: 'ProtocolNonceNotSupported', type: 'error', inputs: [] },
-  { name: 'InvalidNonceKey', type: 'error', inputs: [] },
-  { name: 'NonceOverflow', type: 'error', inputs: [] },
-  { name: 'ExpiringNonceReplay', type: 'error', inputs: [] },
-  { name: 'ExpiringNonceSetFull', type: 'error', inputs: [] },
-  { name: 'InvalidExpiringNonceExpiry', type: 'error', inputs: [] },
-] as const
-
-export const tip20Factory = [
-  {
-    name: 'createToken',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'string', name: 'name' },
-      { type: 'string', name: 'symbol' },
-      { type: 'string', name: 'currency' },
-      { type: 'address', name: 'quoteToken' },
-      { type: 'address', name: 'admin' },
-      { type: 'bytes32', name: 'salt' },
-    ],
-    outputs: [{ type: 'address' }],
-  },
-  {
-    name: 'createToken',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'string', name: 'name' },
-      { type: 'string', name: 'symbol' },
-      { type: 'string', name: 'currency' },
-      { type: 'address', name: 'quoteToken' },
-      { type: 'address', name: 'admin' },
-      { type: 'bytes32', name: 'salt' },
-      { type: 'string', name: 'logoURI' },
-    ],
-    outputs: [{ type: 'address' }],
-  },
-  {
-    name: 'isTIP20',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'address', name: 'token' }],
-    outputs: [{ type: 'bool' }],
-  },
-  {
-    name: 'getTokenAddress',
-    type: 'function',
-    stateMutability: 'pure',
-    inputs: [
-      { type: 'address', name: 'sender' },
-      { type: 'bytes32', name: 'salt' },
-    ],
-    outputs: [{ type: 'address' }],
-  },
-  {
-    name: 'TokenCreated',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'token', indexed: true },
-      { type: 'string', name: 'name' },
-      { type: 'string', name: 'symbol' },
-      { type: 'string', name: 'currency' },
-      { type: 'address', name: 'quoteToken' },
-      { type: 'address', name: 'admin' },
-      { type: 'bytes32', name: 'salt' },
-    ],
-  },
-  { name: 'AddressReserved', type: 'error', inputs: [] },
-  { name: 'AddressNotReserved', type: 'error', inputs: [] },
-  { name: 'InvalidQuoteToken', type: 'error', inputs: [] },
-  {
-    name: 'TokenAlreadyExists',
-    type: 'error',
-    inputs: [{ type: 'address', name: 'token' }],
-  },
-] as const
-
-export const tip403Registry = [
-  {
-    name: 'policyIdCounter',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'uint64' }],
-  },
-  {
-    name: 'policyExists',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'uint64', name: 'policyId' }],
-    outputs: [{ type: 'bool' }],
-  },
-  {
-    name: 'policyData',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'uint64', name: 'policyId' }],
-    outputs: [
-      { type: 'uint8', name: 'policyType' },
-      { type: 'address', name: 'admin' },
-    ],
-  },
-  {
-    name: 'isAuthorized',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'uint64', name: 'policyId' },
-      { type: 'address', name: 'user' },
-    ],
-    outputs: [{ type: 'bool' }],
-  },
-  {
-    name: 'isAuthorizedSender',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'uint64', name: 'policyId' },
-      { type: 'address', name: 'user' },
-    ],
-    outputs: [{ type: 'bool' }],
-  },
-  {
-    name: 'isAuthorizedRecipient',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'uint64', name: 'policyId' },
-      { type: 'address', name: 'user' },
-    ],
-    outputs: [{ type: 'bool' }],
-  },
-  {
-    name: 'isAuthorizedMintRecipient',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'uint64', name: 'policyId' },
-      { type: 'address', name: 'user' },
-    ],
-    outputs: [{ type: 'bool' }],
-  },
-  {
-    name: 'compoundPolicyData',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'uint64', name: 'policyId' }],
-    outputs: [
-      { type: 'uint64', name: 'senderPolicyId' },
-      { type: 'uint64', name: 'recipientPolicyId' },
-      { type: 'uint64', name: 'mintRecipientPolicyId' },
-    ],
-  },
-  {
-    name: 'receivePolicy',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'address', name: 'account' }],
-    outputs: [
-      { type: 'bool', name: 'hasReceivePolicy' },
-      { type: 'uint64', name: 'senderPolicyId' },
-      { type: 'uint8', name: 'senderPolicyType' },
-      { type: 'uint64', name: 'tokenFilterId' },
-      { type: 'uint8', name: 'tokenFilterType' },
-      { type: 'address', name: 'recoveryAuthority' },
-    ],
-  },
-  {
-    name: 'validateReceivePolicy',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'token' },
-      { type: 'address', name: 'sender' },
-      { type: 'address', name: 'receiver' },
-    ],
-    outputs: [
-      { type: 'bool', name: 'authorized' },
-      { type: 'uint8', name: 'blockedReason' },
-    ],
-  },
-  {
-    name: 'createPolicy',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'admin' },
-      { type: 'uint8', name: 'policyType' },
-    ],
-    outputs: [{ type: 'uint64' }],
-  },
-  {
-    name: 'createPolicyWithAccounts',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'admin' },
-      { type: 'uint8', name: 'policyType' },
-      { type: 'address[]', name: 'accounts' },
-    ],
-    outputs: [{ type: 'uint64' }],
-  },
-  {
-    name: 'setPolicyAdmin',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'uint64', name: 'policyId' },
-      { type: 'address', name: 'admin' },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'modifyPolicyWhitelist',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'uint64', name: 'policyId' },
-      { type: 'address', name: 'account' },
-      { type: 'bool', name: 'allowed' },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'modifyPolicyBlacklist',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'uint64', name: 'policyId' },
-      { type: 'address', name: 'account' },
-      { type: 'bool', name: 'restricted' },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'createCompoundPolicy',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'uint64', name: 'senderPolicyId' },
-      { type: 'uint64', name: 'recipientPolicyId' },
-      { type: 'uint64', name: 'mintRecipientPolicyId' },
-    ],
-    outputs: [{ type: 'uint64' }],
-  },
-  {
-    name: 'setReceivePolicy',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'uint64', name: 'senderPolicyId' },
-      { type: 'uint64', name: 'tokenFilterId' },
-      { type: 'address', name: 'recoveryAuthority' },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'PolicyAdminUpdated',
-    type: 'event',
-    inputs: [
-      { type: 'uint64', name: 'policyId', indexed: true },
-      { type: 'address', name: 'updater', indexed: true },
-      { type: 'address', name: 'admin', indexed: true },
-    ],
-  },
-  {
-    name: 'PolicyCreated',
-    type: 'event',
-    inputs: [
-      { type: 'uint64', name: 'policyId', indexed: true },
-      { type: 'address', name: 'updater', indexed: true },
-      { type: 'uint8', name: 'policyType' },
-    ],
-  },
-  {
-    name: 'WhitelistUpdated',
-    type: 'event',
-    inputs: [
-      { type: 'uint64', name: 'policyId', indexed: true },
-      { type: 'address', name: 'updater', indexed: true },
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'bool', name: 'allowed' },
-    ],
-  },
-  {
-    name: 'BlacklistUpdated',
-    type: 'event',
-    inputs: [
-      { type: 'uint64', name: 'policyId', indexed: true },
-      { type: 'address', name: 'updater', indexed: true },
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'bool', name: 'restricted' },
-    ],
-  },
-  {
-    name: 'CompoundPolicyCreated',
-    type: 'event',
-    inputs: [
-      { type: 'uint64', name: 'policyId', indexed: true },
-      { type: 'address', name: 'creator', indexed: true },
-      { type: 'uint64', name: 'senderPolicyId' },
-      { type: 'uint64', name: 'recipientPolicyId' },
-      { type: 'uint64', name: 'mintRecipientPolicyId' },
-    ],
-  },
-  {
-    name: 'ReceivePolicyUpdated',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'uint64', name: 'senderPolicyId' },
-      { type: 'uint64', name: 'tokenFilterId' },
-      { type: 'address', name: 'recoveryAuthority' },
-    ],
-  },
-  { name: 'Unauthorized', type: 'error', inputs: [] },
-  { name: 'PolicyNotFound', type: 'error', inputs: [] },
-  { name: 'PolicyNotSimple', type: 'error', inputs: [] },
-  { name: 'InvalidPolicyType', type: 'error', inputs: [] },
-  { name: 'IncompatiblePolicyType', type: 'error', inputs: [] },
-  { name: 'VirtualAddressNotAllowed', type: 'error', inputs: [] },
-  { name: 'InvalidReceivePolicyType', type: 'error', inputs: [] },
-  { name: 'InvalidRecoveryAuthority', type: 'error', inputs: [] },
-] as const
-
 export const validatorConfig = [
   {
     name: 'getValidators',
@@ -2924,61 +2979,21 @@ export const validatorConfig = [
   },
 ] as const
 
-export const storageCredits = [
-  { type: 'error', name: 'DelegateCallNotAllowed', inputs: [] },
-  { type: 'error', name: 'InvalidMode', inputs: [] },
-  {
-    type: 'function',
-    name: 'balanceOf',
-    stateMutability: 'view',
-    inputs: [{ name: 'account', type: 'address' }],
-    outputs: [{ type: 'uint64' }],
-  },
-  {
-    type: 'function',
-    name: 'modeOf',
-    stateMutability: 'view',
-    inputs: [{ name: 'account', type: 'address' }],
-    outputs: [{ type: 'uint8' }],
-  },
-  {
-    type: 'function',
-    name: 'budgetOf',
-    stateMutability: 'view',
-    inputs: [{ name: 'account', type: 'address' }],
-    outputs: [{ type: 'uint64' }],
-  },
-  {
-    type: 'function',
-    name: 'setMode',
-    stateMutability: 'nonpayable',
-    inputs: [{ name: 'newMode', type: 'uint8' }],
-    outputs: [],
-  },
-  {
-    type: 'function',
-    name: 'setBudget',
-    stateMutability: 'nonpayable',
-    inputs: [{ name: 'creditBudget', type: 'uint64' }],
-    outputs: [],
-  },
-] as const
-
 export const abis = /*#__PURE__*/ (() =>
   [
-    ...storageCredits,
-    ...tip20ChannelReserve,
-    ...tip20,
-    ...validatorConfigV2,
+    ...accountKeychain,
+    ...addressRegistry,
+    ...nonce,
+    ...receivePolicyGuard,
     ...signatureVerifier,
     ...stablecoinDex,
-    ...addressRegistry,
+    ...storageCredits,
     ...feeManager,
     ...feeAmm,
-    ...receivePolicyGuard,
-    ...accountKeychain,
-    ...nonce,
+    ...tip20ChannelReserve,
     ...tip20Factory,
+    ...tip20,
     ...tip403Registry,
+    ...validatorConfigV2,
     ...validatorConfig,
   ] as const)()
