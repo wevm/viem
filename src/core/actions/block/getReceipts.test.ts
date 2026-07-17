@@ -43,8 +43,9 @@ test('args: blockHash', async () => {
 })
 
 test('args: blockTag (default latest)', async () => {
-  const receipts = await Actions.block.getReceipts(client)
-  expect(receipts).toHaveLength(232)
+  // Tip-agnostic: a freshly-mined empty block has no receipts.
+  await Actions.block.mine(client, { blocks: 1 })
+  expect(await Actions.block.getReceipts(client)).toEqual([])
 })
 
 test('behavior: converts via chain codecs when declared', async () => {
