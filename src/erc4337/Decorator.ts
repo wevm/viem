@@ -119,8 +119,24 @@ export function accountAbstractionActions() {
         getSupported: () => entryPoint.getSupported(client),
       },
       userOperation: {
-        estimateGas: (options) =>
-          userOperation.estimateGas(bundlerClient, options),
+        // Explicit type arguments on the forwarded calls keep every parameter
+        // an identical instantiation (inference here re-relates the full
+        // Bundler Client surface).
+        estimateGas: <
+          const calls extends readonly unknown[],
+          accountOverride extends SmartAccount.SmartAccount | undefined =
+            undefined,
+        >(
+          options: userOperation.estimateGas.Options<
+            account,
+            accountOverride,
+            calls
+          >,
+        ) =>
+          userOperation.estimateGas<chain, account, calls, accountOverride>(
+            bundlerClient,
+            options,
+          ),
         get: (options) =>
           userOperation.get<EntryPointVersion<account>>(client, options),
         getReceipt: (options) =>
@@ -128,7 +144,17 @@ export function accountAbstractionActions() {
         // Binding preserves the exported generic action signature.
         prepare:
           prepare as unknown as Decorator<account>['userOperation']['prepare'],
-        send: (options) => userOperation.send(bundlerClient, options),
+        send: <
+          const calls extends readonly unknown[],
+          accountOverride extends SmartAccount.SmartAccount | undefined =
+            undefined,
+        >(
+          options: userOperation.send.Options<account, accountOverride, calls>,
+        ) =>
+          userOperation.send<chain, account, calls, accountOverride>(
+            bundlerClient,
+            options,
+          ),
         waitForReceipt: (options) =>
           userOperation.waitForReceipt<EntryPointVersion<account>>(
             client,

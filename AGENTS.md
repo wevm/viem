@@ -102,6 +102,25 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Type inference after every feature**; check whether new types can be narrowed.
   - Add or update type tests when public inference changes.
 
+## Type Performance Conventions
+
+- **Profile before guessing**; find check-time hot spots with
+  `tsc -p <project> --extendedDiagnostics --generateTrace <dir>` and
+  `npx @typescript/analyze-trace <dir>`. Cost is usually a few call expressions, not
+  spread evenly.
+- **Forward explicit type arguments between generic actions**; when one generic action calls
+  another with its own type parameters (`prepare` → `estimateGas`, decorator → action),
+  pass the type arguments explicitly so every parameter is an identical alias
+  instantiation. Re-inferring `Client`-shaped arguments from open type parameters
+  re-relates the entire client surface structurally (this was ~90% of repo check time in
+  the ERC-4337 module).
+- **Measure before retyping client parameters**; narrow `Pick<Client.Client, 'request'>`
+  client parameters are cheap and stay the norm for simple actions, but rewriting an
+  existing full-client parameter into a new structural alias can regress: at concrete call
+  sites an identical alias instantiation relates by identity (free), while a new
+  structural target forces a per-site structural walk (measured +35s across the test
+  project when tried on the ERC-4337 actions).
+
 ## API Conventions
 
 - **Stateless module APIs**; public APIs are module namespaces full of functions and types. Do not introduce stateful classes for normal library behavior.

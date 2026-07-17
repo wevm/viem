@@ -79,7 +79,12 @@ export async function prepare<
 
   const paymaster = options.paymaster ?? client.paymaster
   const paymasterAddress = typeof paymaster === 'string' ? paymaster : undefined
-  const { getData, getStubData } = resolvePaymasterActions(client, paymaster)
+  // Explicit type arguments keep the client parameter an identical
+  // instantiation (inference here re-relates the full Bundler Client surface).
+  const { getData, getStubData } = resolvePaymasterActions<chain, account>(
+    client,
+    paymaster,
+  )
   const paymasterContext = options.paymasterContext
     ? options.paymasterContext
     : client.paymasterContext
@@ -256,7 +261,15 @@ export async function prepare<
       (request.paymaster !== undefined &&
         request.paymasterVerificationGasLimit === undefined)
     ) {
-      const gas = await estimateGas(client, {
+      // Explicit type arguments keep the client parameter an identical
+      // instantiation (inference here re-relates the full Bundler Client
+      // surface).
+      const gas = await estimateGas<
+        chain,
+        account,
+        readonly unknown[],
+        SmartAccount.SmartAccount
+      >(client, {
         account,
         callGasLimit: 0n,
         preVerificationGas: 0n,
