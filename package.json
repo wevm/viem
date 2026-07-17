@@ -140,7 +140,7 @@
   ],
   "pnpm": {
     "overrides": {
-      "typescript": "^5.9.3",
+      "@arethetypeswrong/core>typescript": "^5.9.3",
       "@babel/core": ">=7.29.6 <8",
       "@opentelemetry/api@^1.8.0": "~1.7.0",
       "permissionless>viem": "workspace:*",

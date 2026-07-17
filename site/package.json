@@ -20,7 +20,7 @@
     "react-server-dom-webpack": "catalog:",
     "shiki": "3.21.0",
     "tailwindcss": "^4.3.0",
-    "typescript": "catalog:",
+    "typescript": "catalog:ts5",
     "vite": "catalog:",
     "vocs": "catalog:",
     "waku": "catalog:"

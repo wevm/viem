@@ -107,7 +107,8 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Profile before guessing**; find check-time hot spots with
   `tsc -p <project> --extendedDiagnostics --generateTrace <dir>` and
   `npx @typescript/analyze-trace <dir>`. Cost is usually a few call expressions, not
-  spread evenly.
+  spread evenly. The trace flags need a TypeScript 5.x `tsc` (the workspace default is
+  the native 7): run them via `npx -p typescript@5.9.3 tsc`.
 - **Forward explicit type arguments between generic actions**; when one generic action calls
   another with its own type parameters (`prepare` → `estimateGas`, decorator → action),
   pass the type arguments explicitly so every parameter is an identical alias

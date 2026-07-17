@@ -35,7 +35,7 @@ catalog:
   solady-v153: npm:solady@0.0.153
   solady-v288: npm:solady@0.0.288
   testcontainers: ^11.10.0
-  typescript: 5.9.3
+  typescript: 7.0.2
   vite: ^8.0.16
   vitest: npm:@voidzero-dev/vite-plus-test@0.1.24
   vite-plus: 0.1.24
@@ -43,6 +43,12 @@ catalog:
   vp: npm:vite-plus@0.1.24
   waku: ^1.0.0-beta.6
   zile: ^0.0.29
+
+catalogs:
+  # TypeScript 5 line for tools that consume the classic JS compiler API
+  # (removed in the native typescript@7 package).
+  ts5:
+    typescript: 5.9.3
 
 minimumReleaseAge: 1440
 
