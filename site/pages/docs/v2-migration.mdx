@@ -174,6 +174,15 @@ const balance = await contract.read.balanceOf({ args: [owner] }) // [!code ++]
 const logs = await contract.getLogs.Transfer() // [!code ++]
 ```
 
+### Contract Return Shapes
+
+Multi-output contract results with named outputs decode to objects keyed by the output names. Fully unnamed outputs keep the tuple shape, and `as: 'Array'` restores tuples per call.
+
+```ts
+const [foo, bar] = await readContract(client, options) // [!code --]
+const { foo, bar } = await Actions.contract.read(client, options) // [!code ++]
+```
+
 ### multicall Redesign
 
 `multicall` renamed its input fields and now returns a results envelope.
@@ -1595,6 +1604,14 @@ Contract actions were renamed to their namespaced v3 equivalents (same options s
 | `simulateContract(client, options)` | `Actions.contract.simulate(client, options)` |
 | `writeContract(client, options)` | `Actions.contract.write(client, options)` |
 | `writeContractSync(client, options)` | `Actions.contract.writeSync(client, options)` |
+
+Multi-output results with named outputs decode to objects keyed by the output names ([Contract Return Shapes](#contract-return-shapes)); fully unnamed outputs keep the tuple shape. Pass `as: 'Array'` for positional tuples.
+
+```ts
+const [foo, bar] = await readContract(client, options) // [!code --]
+const { foo, bar } = await Actions.contract.read(client, options) // [!code ++]
+const [foo, bar] = await Actions.contract.read(client, { ...options, as: 'Array' }) // [!code ++]
+```
 
 Contract instances moved from `getContract` to `Contract.from` ([Contract Instances](#contract-instances)), and their types moved with them; note the generic order changed from `<abi, client, address>` to `<abi, address, client>`.
 
