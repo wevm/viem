@@ -101,9 +101,8 @@ test('behavior: mutation calls', async () => {
 
   // `gasUsed` shifts when sibling test files delegate the target accounts.
   for (const result of results) expect(result.gasUsed).toBeGreaterThan(20_000n)
-  expect(
-    results.map((result) => ({ ...result, gasUsed: null, logs: null })),
-  ).toMatchInlineSnapshot(`
+  expect(results.map((result) => ({ ...result, gasUsed: null, logs: null })))
+    .toMatchInlineSnapshot(`
       [
         {
           "data": "0x",

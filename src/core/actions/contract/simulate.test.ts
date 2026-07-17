@@ -138,7 +138,8 @@ test('error: aborted request is not wrapped', async () => {
 // anvil's raw (binary) payload, so assert viem's decoded fields for those.
 describe('reverts', () => {
   test('revert message', async () => {
-    const error = await Actions.contract.simulate(client, {
+    const error = await Actions.contract
+      .simulate(client, {
         ...errors,
         account: jsonRpc,
         functionName: 'revertWrite',
@@ -169,7 +170,8 @@ describe('reverts', () => {
   })
 
   test('panic: assert', async () => {
-    const error = await Actions.contract.simulate(client, {
+    const error = await Actions.contract
+      .simulate(client, {
         ...errors,
         account: jsonRpc,
         functionName: 'assertWrite',

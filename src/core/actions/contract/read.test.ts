@@ -126,7 +126,8 @@ test('args: blockNumber', async () => {
 })
 
 test('args: args', async () => {
-  const error = await Actions.contract.read(client, {
+  const error = await Actions.contract
+    .read(client, {
       abi,
       address,
       args: [123n],
@@ -136,9 +137,8 @@ test('args: args', async () => {
     .catch((error) => error as Error)
   expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
   // The deployed address depends on the instance's deployment order.
-  expect(
-    error?.message.replaceAll(address.toLowerCase(), '0x<address>'),
-  ).toMatchInlineSnapshot(`
+  expect(error?.message.replaceAll(address.toLowerCase(), '0x<address>'))
+    .toMatchInlineSnapshot(`
     "The contract function "ownerOf" reverted with the following reason:
     Execution reverted for an unknown reason.
 
@@ -157,7 +157,8 @@ test('args: args', async () => {
 })
 
 test('error: reverts', async () => {
-  const error = await Actions.contract.read(client, {
+  const error = await Actions.contract
+    .read(client, {
       abi,
       address,
       args: [1n],
@@ -167,9 +168,8 @@ test('error: reverts', async () => {
     .catch((error) => error as Error)
   expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
   // The deployed address depends on the instance's deployment order.
-  expect(
-    error?.message.replaceAll(address.toLowerCase(), '0x<address>'),
-  ).toMatchInlineSnapshot(`
+  expect(error?.message.replaceAll(address.toLowerCase(), '0x<address>'))
+    .toMatchInlineSnapshot(`
     "The contract function "ownerOf" reverted with the following reason:
     Execution reverted for an unknown reason.
 
@@ -237,7 +237,8 @@ test('error: aborted request is not wrapped', async () => {
 
 describe('reverts', () => {
   test('revert message', async () => {
-    const error = await Actions.contract.read(client, {
+    const error = await Actions.contract
+      .read(client, {
         ...errors,
         functionName: 'revertRead',
       })
@@ -265,7 +266,8 @@ describe('reverts', () => {
   })
 
   test('panic: assert', async () => {
-    const error = await Actions.contract.read(client, {
+    const error = await Actions.contract
+      .read(client, {
         ...errors,
         functionName: 'assertRead',
       })
@@ -293,7 +295,8 @@ describe('reverts', () => {
   })
 
   test('panic: overflow', async () => {
-    const error = await Actions.contract.read(client, {
+    const error = await Actions.contract
+      .read(client, {
         ...errors,
         functionName: 'overflowRead',
       })
@@ -321,7 +324,8 @@ describe('reverts', () => {
   })
 
   test('panic: divide by zero', async () => {
-    const error = await Actions.contract.read(client, {
+    const error = await Actions.contract
+      .read(client, {
         ...errors,
         functionName: 'divideByZeroRead',
       })
@@ -349,7 +353,8 @@ describe('reverts', () => {
   })
 
   test('require', async () => {
-    const error = await Actions.contract.read(client, {
+    const error = await Actions.contract
+      .read(client, {
         ...errors,
         functionName: 'requireRead',
       })

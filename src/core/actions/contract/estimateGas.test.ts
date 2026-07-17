@@ -1,7 +1,14 @@
 import { Value } from 'ox'
 import { expect, test } from 'vitest'
 
-import { Account, Actions, Client, ContractError, http, testActions } from 'viem'
+import {
+  Account,
+  Actions,
+  Client,
+  ContractError,
+  http,
+  testActions,
+} from 'viem'
 
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
@@ -166,7 +173,8 @@ test('decorator: exposed on publicActions', async () => {
 
 test('error: wraps reverts in a ContractFunctionExecutionError', async () => {
   await setup()
-  const error = await Actions.contract.estimateGas(client, {
+  const error = await Actions.contract
+    .estimateGas(client, {
       ...errors,
       account: jsonRpc,
       functionName: 'revertWrite',
@@ -175,9 +183,8 @@ test('error: wraps reverts in a ContractFunctionExecutionError', async () => {
     .catch((error) => error as Error)
   expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
   // The deployed address depends on the instance's deployment order.
-  expect(
-    error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
-  ).toMatchInlineSnapshot(`
+  expect(error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'))
+    .toMatchInlineSnapshot(`
     "The contract function "revertWrite" reverted with the following reason:
     This is a revert message
 

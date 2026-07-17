@@ -292,9 +292,9 @@ describe('reverts', () => {
     await setup()
     const error = await Actions.contract
       .write(client, {
-          ...errors,
-          account: local,
-          functionName: 'revertWrite',
+        ...errors,
+        account: local,
+        functionName: 'revertWrite',
       })
       .then(() => null)
       .catch((error) => error as Error)
@@ -325,9 +325,9 @@ describe('reverts', () => {
     await setup()
     const error = await Actions.contract
       .write(client, {
-          ...errors,
-          account: local,
-          functionName: 'assertWrite',
+        ...errors,
+        account: local,
+        functionName: 'assertWrite',
       })
       .then(() => null)
       .catch((error) => error as Error)
@@ -358,9 +358,9 @@ describe('reverts', () => {
     await setup()
     const error = await Actions.contract
       .write(client, {
-          ...errors,
-          account: local,
-          functionName: 'overflowWrite',
+        ...errors,
+        account: local,
+        functionName: 'overflowWrite',
       })
       .then(() => null)
       .catch((error) => error as Error)
@@ -391,9 +391,9 @@ describe('reverts', () => {
     await setup()
     const error = await Actions.contract
       .write(client, {
-          ...errors,
-          account: local,
-          functionName: 'divideByZeroWrite',
+        ...errors,
+        account: local,
+        functionName: 'divideByZeroWrite',
       })
       .then(() => null)
       .catch((error) => error as Error)
@@ -424,9 +424,9 @@ describe('reverts', () => {
     await setup()
     const error = await Actions.contract
       .write(client, {
-          ...errors,
-          account: local,
-          functionName: 'requireWrite',
+        ...errors,
+        account: local,
+        functionName: 'requireWrite',
       })
       .then(() => null)
       .catch((error) => error as Error)
