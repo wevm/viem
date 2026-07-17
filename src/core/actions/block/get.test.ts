@@ -8,9 +8,12 @@ import * as anvil from '~test/anvil.js'
 const client = anvil.getClient(anvil.mainnet)
 
 test('default', async () => {
-  // the pinned fork-tip block is cached by anvil, so the header is
-  // deterministic. omit the large transactions array (asserted below).
-  const { transactions, ...block } = await Actions.block.get(client)
+  // the pinned fork block is cached by anvil, so the header is deterministic
+  // regardless of blocks mined by sibling test files. omit the large
+  // transactions array (asserted below).
+  const { transactions, ...block } = await Actions.block.get(client, {
+    blockNumber: anvil.mainnet.forkBlockNumber,
+  })
   expect(block).toMatchInlineSnapshot(`
     {
       "baseFeePerGas": 20101622n,
