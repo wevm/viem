@@ -8,7 +8,11 @@ import { numberToHex } from '../../../utils/encoding/toHex.js'
 import type { To8130AccountReturnType } from '../../eip8130/accounts/to8130Account.js'
 import { prepareTransaction8130 } from '../../eip8130/actions/sendCalls.js'
 import type { Address } from 'abitype'
-import type { AaCall, AaCalls } from '../../eip8130/types/transaction.js'
+import type {
+  AaAccountChange,
+  AaCall,
+  AaCalls,
+} from '../../eip8130/types/transaction.js'
 import type { PayerClient } from '../client.js'
 import type {
   GetTermsReturnType,
@@ -57,6 +61,14 @@ export type SendSponsoredCallsParameters = {
   payerClient: PayerClient
   /** User's intended calls (run in the final phase). */
   calls: readonly AaCall[]
+  /**
+   * Account changes (create / authorize / revoke / delegate) applied before the
+   * calls, in the same sponsored transaction. Use this for a sponsored deploy or
+   * a sponsored session-key authorize. The payer's gas estimate covers `calls`
+   * only; if the added changes push gas past the quote, the payer's `GAS_TOO_LOW`
+   * re-quote raises it (gated by `confirmRetry`), or pass an explicit `gas`.
+   */
+  accountChanges?: readonly AaAccountChange[] | undefined
   /**
    * `"send"` (default) asks the payer to co-sign and submit; `"sign"` asks the
    * payer to co-sign and return the transaction for the wallet to submit. A
@@ -133,6 +145,7 @@ export async function sendSponsoredCalls(
     account,
     payerClient,
     calls,
+    accountChanges,
     mode = 'send',
     token,
     context,
@@ -202,6 +215,7 @@ export async function sendSponsoredCalls(
   const transaction = await prepareTransaction8130(client, {
     account,
     calls: built.calls,
+    accountChanges,
     gas: initialGas,
     maxFeePerGas,
     maxPriorityFeePerGas,
