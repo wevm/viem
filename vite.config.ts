@@ -98,8 +98,9 @@ export default defineConfig({
           setupFiles: ['./test/setup.tempo.ts'],
           retry: 0,
           hookTimeout: 180_000,
-          // Concurrent nodes slow receipt ceremonies.
-          testTimeout: 30_000,
+          // Concurrent nodes slow receipt ceremonies; CI load pushes
+          // single tests past 30s.
+          testTimeout: 60_000,
         },
       },
     ],
