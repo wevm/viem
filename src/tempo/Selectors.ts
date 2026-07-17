@@ -89,6 +89,7 @@ export const stablecoinDex = {
   priceToTick: '0x87b4e352',
   quoteSwapExactAmountIn: '0xe7c98f1a',
   quoteSwapExactAmountOut: '0x1576fa0e',
+  storageCredits: '0x4d65338b',
   swapExactAmountIn: '0xf8856c0f',
   swapExactAmountOut: '0xf0122b75',
   tickToPrice: '0x269a311d',
@@ -169,6 +170,7 @@ export const tip20ChannelReserve = {
   open: '0xedc53b00',
   requestClose: '0x675402e5',
   settle: '0x97fb5104',
+  storageCredits: '0x4d65338b',
   topUp: '0xdc48471e',
   withdraw: '0x41e2c664',
 } as const satisfies FunctionSelectors<typeof Abis.tip20ChannelReserve>
