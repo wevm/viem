@@ -1,13 +1,22 @@
 import { TransactionReceipt } from 'ox'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { expect, test } from 'vitest'
+import { beforeAll, expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
 
 import { getReceipt } from '../transaction/getReceipt.js'
 
 const client = anvil.getClient(anvil.mainnet)
+
+// Latest-block reads assume the pristine fork tip; sibling test files may
+// have mined on the shared instance.
+beforeAll(async () => {
+  await Actions.state.reset(client, {
+    blockNumber: anvil.mainnet.forkBlockNumber,
+    jsonRpcUrl: anvil.mainnet.forkUrl,
+  })
+}, 30_000)
 
 // The pinned fork-tip block. anvil caches it, so its receipts are deterministic
 // and independent of the upstream.

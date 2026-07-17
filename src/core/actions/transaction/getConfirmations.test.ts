@@ -1,10 +1,19 @@
-import { expect, test } from 'vitest'
+import { beforeAll, expect, test } from 'vitest'
 import { Actions } from 'viem'
 
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
 
 const client = anvil.getClient(anvil.mainnet)
+
+// Latest-block reads assume the pristine fork tip; sibling test files may
+// have mined on the shared instance.
+beforeAll(async () => {
+  await Actions.state.reset(client, {
+    blockNumber: anvil.mainnet.forkBlockNumber,
+    jsonRpcUrl: anvil.mainnet.forkUrl,
+  })
+}, 30_000)
 
 // The first transaction of the pinned fork-tip block. anvil caches the fork
 // block, so confirmations are deterministic: the tx sits on the chain tip, so
