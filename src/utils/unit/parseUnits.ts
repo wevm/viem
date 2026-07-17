@@ -28,20 +28,17 @@ export function parseUnits(value: string, decimals: number) {
 
   // round off if the fraction is larger than the number of decimals.
   if (decimals === 0) {
-    if (Math.round(Number(`.${fraction}`)) === 1)
-      integer = `${BigInt(integer) + 1n}`
+    if (fraction[0] && fraction[0] >= '5') integer = `${BigInt(integer) + 1n}`
     fraction = ''
   } else if (fraction.length > decimals) {
-    const [left, unit, right] = [
-      fraction.slice(0, decimals - 1),
-      fraction.slice(decimals - 1, decimals),
+    const [left, right] = [
+      fraction.slice(0, decimals),
       fraction.slice(decimals),
     ]
 
-    const rounded = Math.round(Number(`${unit}.${right}`))
-    if (rounded > 9)
-      fraction = `${BigInt(left) + BigInt(1)}0`.padStart(left.length + 1, '0')
-    else fraction = `${left}${rounded}`
+    if ((right[0] ?? '0') >= '5')
+      fraction = `${BigInt(left) + 1n}`.padStart(left.length, '0')
+    else fraction = left
 
     if (fraction.length > decimals) {
       fraction = fraction.slice(1)
