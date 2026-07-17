@@ -259,10 +259,7 @@ This document contains general guidelines for AI agents working on the Viem code
 - **`pnpm check` mutates**; it runs `vp check --fix` (oxlint + oxfmt). Use it only when intentionally applying lint/format fixes.
 - **`pnpm exports:update` mutates**; it rewrites `package.json#exports` (+ `typesVersions`).
 - **`pnpm contracts:build` mutates generated contract artifacts**; it runs Forge and `scripts/contracts:build.ts`.
-- **Install hooks can mutate**; `pnpm install` runs `postinstall`.
-  - `postinstall` initializes the `test/tempo` submodule and runs `pnpm dev`.
-  - Use `pnpm install --ignore-scripts` when `test/tempo` has local work.
-  - A bare install resets the `test/tempo` checked-out commit.
+- **Install hooks can mutate**; `pnpm install` runs `postinstall` (`pnpm dev`).
   - Fresh binary packages may need `node node_modules/<pkg>/install.js`.
 - **Contract deps come from npm, not submodules**; `contracts/foundry.toml` remaps to
   `node_modules` packages (`solady-v153`, `account-abstraction-v07`, ...). `pnpm contracts:build`
@@ -283,9 +280,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - A landed task may stay reviewed but uncommitted.
 - **Conventional commits**; use `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:` prefixes. Scope is optional (e.g. `feat(abi): add tuple formatter`).
 - **Preserve dirty work**; do not revert, clean, or overwrite local changes unless asked.
-  - Never stage the `test/tempo` submodule pointer.
   - Never stage the user's untracked in-progress files.
-  - Exclude `test/tempo` explicitly when staging.
 
 ## Documentation (Site)
 

@@ -1,8 +1,5 @@
 {
   "extends": "../tsconfig.base.json",
-  "exclude": [
-    "./tempo"
-  ],
   "include": [
     ".",
     "../src",

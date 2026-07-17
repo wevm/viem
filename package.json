@@ -18,7 +18,7 @@
     "gen:tempo-abis": "bun scripts/gen:tempo-abis.ts",
     "gen:tokenlist": "bun scripts/gen:tokenlist.ts && vp check --fix src/tokens",
     "knip": "knip --production --no-tag-hints",
-    "postinstall": "git submodule update --init --recursive && pnpm dev",
+    "postinstall": "pnpm dev",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
     "size": "size-limit",

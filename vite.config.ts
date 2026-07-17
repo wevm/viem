@@ -12,7 +12,6 @@ export default defineConfig({
     ignorePatterns: [
       'contracts/**',
       'src/vendor/**',
-      'test/tempo/**',
       'site/dist/**',
       'site/pages/**',
       '**/CHANGELOG.md',
@@ -43,7 +42,6 @@ export default defineConfig({
     ignorePatterns: [
       'contracts/**',
       'src/vendor/**',
-      'test/tempo/**',
       'site/dist/**',
       '**/generated.ts',
     ],

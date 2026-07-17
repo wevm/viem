@@ -34,7 +34,6 @@ jobs:
         with:
           # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
           fetch-depth: 0
-          submodules: 'recursive'
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -67,8 +66,7 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with:
-          submodules: 'recursive'
+
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies

@@ -1,3 +1,0 @@
-[submodule "test/tempo"]
-	path = test/tempo
-	url = git@github.com:tempoxyz/tempo.git
