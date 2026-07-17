@@ -126,19 +126,24 @@ test('behavior: nullish account is wrapped as a contract error', async () => {
 
 test('behavior: node error is wrapped as a contract error', async () => {
   await setup()
-  await expect(() =>
-    Actions.contract.write(client, {
+  const error = await Actions.contract
+    .write(client, {
       abi,
       account: jsonRpc,
       address,
       functionName: 'mint',
       gas: 1n,
-    }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ContractFunctionExecutionError: The amount of gas (1) provided for the transaction is too low.
+    })
+    .then(() => null)
+    .catch((error) => error as Error)
+  expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+  // The deployed address depends on the instance's deployment order.
+  expect(error?.message.replaceAll(address.toLowerCase(), '0x<address>'))
+    .toMatchInlineSnapshot(`
+    "The amount of gas (1) provided for the transaction is too low.
 
     Contract Call:
-      address:   0xbb0368cecdcb0759a32abbc21583af992fe94dd7
+      address:   0x<address>
       function:  function mint()
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
      
@@ -146,10 +151,10 @@ test('behavior: node error is wrapped as a contract error', async () => {
       from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
       gas:   1
       data:  0x1249c58b
-      to:    0xbb0368cecdcb0759a32abbc21583af992fe94dd7
+      to:    0x<address>
 
     Details: intrinsic gas too low
-    Version: viem@2.52.1]
+    Version: viem@2.52.1"
   `)
 })
 
