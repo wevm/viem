@@ -22,6 +22,14 @@ import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
 
+/** Returns random past seconds to distinguish otherwise-identical expiring transactions. */
+function randomValidAfter(): number {
+  const now = BigInt(Math.floor(Date.now() / 1_000))
+  const latest = now - 60n
+  if (latest <= 0n) return 0
+  return Number(BigInt(Hex.random(8)) % latest)
+}
+
 export const chainConfig = {
   blockTime: 1_000,
   extendSchema: extendSchema<{
@@ -160,6 +168,8 @@ export const chainConfig = {
       if (useExpiringNonce) {
         request.nonceKey = maxUint256
         request.nonce = 0
+        if (typeof request.validAfter === 'undefined')
+          request.validAfter = randomValidAfter()
         if (typeof request.validBefore === 'undefined')
           request.validBefore = Math.floor(Date.now() / 1000) + maxExpirySecs
       } else if (typeof request.nonceKey !== 'undefined') {
