@@ -15,17 +15,17 @@ import {
 } from './promise.js'
 
 describe('withResolvers', () => {
-  test('default', () => {
+  test('default', async () => {
     {
       const { promise, resolve } = withResolvers<number>()
       resolve(1)
-      expect(promise).resolves.toBe(1)
+      await expect(promise).resolves.toBe(1)
     }
 
     {
       const { promise, reject } = withResolvers<number>()
       reject(new Error('test'))
-      expect(promise).rejects.toThrow('test')
+      await expect(promise).rejects.toThrow('test')
     }
   })
 })

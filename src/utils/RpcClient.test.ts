@@ -527,11 +527,13 @@ describe('webSocket', () => {
           keepAlive: false,
           reconnect: false,
         })
+        // No request timeout: a finite timeout races the close notification
+        // under load and settles the request with the wrong error.
         const a = client
-          .request({ body: { method: 'eth_chainId' }, timeout: 1_000 })
+          .request({ body: { method: 'eth_chainId' }, timeout: 0 })
           .catch((error) => error)
         const b = client
-          .request({ body: { method: 'eth_blockNumber' }, timeout: 1_000 })
+          .request({ body: { method: 'eth_blockNumber' }, timeout: 0 })
           .catch((error) => error)
         await wait(20)
         server.dropAll()

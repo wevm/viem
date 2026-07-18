@@ -38,7 +38,18 @@ describe('watchRole', () => {
     })
     const watcher = Actions.token.watchRole(client, { token })
     const logs: any[] = []
-    watcher.onLogs((batch) => logs.push(...batch))
+    // The watcher's first poll can pick up the creator's role events from the
+    // token-creation block; keep only the accounts this test targets so the
+    // log count tracks the grant/revoke transactions below.
+    watcher.onLogs((batch) =>
+      logs.push(
+        ...batch.filter(
+          (log) =>
+            log.args.account === account2.address ||
+            log.args.account === account3.address,
+        ),
+      ),
+    )
     try {
       await Actions.token.grantRolesSync(client, {
         roles: ['issuer'],
@@ -56,17 +67,11 @@ describe('watchRole', () => {
         token,
       })
       await waitForLogs(logs, 3)
-      const updates = logs
-        .map((log) => ({
-          account: log.args.account,
-          hasRole: log.args.hasRole,
-          role: log.args.role,
-        }))
-        .filter(
-          (log) =>
-            log.account === account2.address ||
-            log.account === account3.address,
-        )
+      const updates = logs.map((log) => ({
+        account: log.args.account,
+        hasRole: log.args.hasRole,
+        role: log.args.role,
+      }))
       expect(updates).toMatchInlineSnapshot(`
         [
           {

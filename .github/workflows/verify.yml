@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
 
       - name: Install dependencies
@@ -38,7 +38,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
 
       - name: Install dependencies
@@ -73,7 +73,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
 
       - name: Install dependencies
@@ -103,7 +103,7 @@ jobs:
         total-shards: [3]
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
 
       - name: Install dependencies
@@ -114,7 +114,7 @@ jobs:
         run: pnpm contracts:build
 
       - name: Test Local
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -133,7 +133,7 @@ jobs:
           VITE_TEMPO_TAG: latest
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -148,14 +148,14 @@ jobs:
           # - mainnet
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
       - name: Run tests
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -174,7 +174,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
 
       - name: Install dependencies
@@ -184,7 +184,7 @@ jobs:
         run: pnpm contracts:build
 
       - name: Run tests
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -224,7 +224,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
 
       - name: Set up foundry
@@ -233,7 +233,16 @@ jobs:
           version: v1.7.1
 
       - name: Set up pnpm
-        uses: wevm/actions/.github/actions/pnpm@main
+        uses: pnpm/action-setup@v6
+
+      - name: Set up node
+        uses: actions/setup-node@v6
+        with:
+          cache: pnpm
+          node-version: 24.5
+
+      - name: Install dependencies
+        run: pnpm install
 
       - name: Set up Bun
         if: ${{ matrix.runtime == 'bun' }}
@@ -243,7 +252,7 @@ jobs:
 
       - name: Set up Node
         if: ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -274,7 +283,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
 
       - name: Install dependencies
