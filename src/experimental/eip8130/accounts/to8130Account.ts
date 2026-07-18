@@ -41,15 +41,21 @@ type To8130AccountBase = {
   authenticator?: Address | undefined
   /**
    * Scope bitmask of the **signing actor** on this account (see
-   * {@link actorScope}). When set, transaction preparation enforces the
-   * protocol's nonce rule: an actor may use a sequenced nonce key only if it
-   * holds `SCOPE_NONCE`; admin actors (`scope == 0`) and any actor without that
-   * bit are automatically restricted to nonce-free (expiring) transactions.
+   * {@link actorScope}). Prefer omitting this once the actor is on-chain —
+   * {@link prepareTransaction8130} reads `getActorConfig` and derives nonce
+   * mode from chain truth. When set on an already-bound actor, it must match
+   * the on-chain value or prepare throws {@link ScopeMismatchError}.
    *
-   * Leave `undefined` to disable the automatic nonce-mode selection (the caller
-   * fully controls `nonceKey`).
+   * Still useful before the actor is bound (e.g. the create tx for an admin
+   * owner): pass {@link scopeUnrestricted} so nonce-free mode is selected.
    */
   scope?: number | undefined
+  /**
+   * 32-byte actor id of the signing actor. Defaults to `key.k1(signer.address)`
+   * when the authenticator is the native ecrecover / K1 authenticator. Required
+   * for P-256 / passkey / delegate signers so prepare can read on-chain scope.
+   */
+  actorId?: Hex | undefined
 }
 
 /**
@@ -94,7 +100,8 @@ export type To8130AccountParameters = To8130AccountBase &
         userSalt?: undefined
         code?: undefined
         initialActors?: undefined
-        accountConfigAddress?: undefined
+        /** AccountConfiguration for on-chain actor reads. Defaults to canonical. */
+        accountConfigAddress?: Address | undefined
       }
   )
 
@@ -103,12 +110,18 @@ export type To8130AccountReturnType = {
   readonly signer: Signer
   readonly initialActors: readonly AaActor[]
   /**
-   * Scope of the signing actor, when known. Drives automatic nonce-mode
-   * selection in {@link prepareTransaction8130} / {@link sendCalls8130}: an actor
-   * lacking `SCOPE_NONCE` (incl. admin `scope == 0`) is restricted to nonce-free
-   * mode. `undefined` disables the enforcement.
+   * Scope of the signing actor, when known off-chain. Prefer leaving this
+   * unset once the actor is authorized — prepare reads chain truth instead.
+   * See {@link prepareTransaction8130}.
    */
   readonly scope?: number | undefined
+  /**
+   * Actor id used for on-chain scope lookup / auth. Derived for K1 signers;
+   * set explicitly for non-K1 authenticators.
+   */
+  readonly actorId?: Hex | undefined
+  /** AccountConfiguration address used for on-chain actor reads (when known). */
+  readonly accountConfigAddress?: Address | undefined
   /**
    * Builds the `create` account-change entry (include in the first tx for
    * smart accounts). Throws if the account was constructed with a known `address`
@@ -176,6 +189,9 @@ export function to8130Account(
   // Address-only mode (delegated EOA): address is fixed, no CREATE2 derivation.
   const isAddressOnly = parameters.userSalt === undefined
 
+  const accountConfigAddress =
+    parameters.accountConfigAddress ?? defaultAccountConfigAddress
+
   const address: Address = (() => {
     if (parameters.address) return parameters.address
     if (isAddressOnly)
@@ -186,19 +202,28 @@ export function to8130Account(
       userSalt: parameters.userSalt!,
       code: parameters.code!,
       initialActors: parameters.initialActors!,
-      accountConfigAddress:
-        (parameters as { accountConfigAddress?: Address }).accountConfigAddress ??
-        defaultAccountConfigAddress,
+      accountConfigAddress,
     })
   })()
 
   const initialActors = parameters.initialActors ?? []
+
+  // K1 / ecrecover signers: actorId is a pure function of the signer address.
+  // Non-K1 authenticators must pass `actorId` explicitly for on-chain scope reads.
+  const isK1Authenticator =
+    authenticator === ecrecoverAuthenticator ||
+    authenticator === canonicalAuthenticators.k1
+  const actorId =
+    parameters.actorId ??
+    (isK1Authenticator ? key.k1(signer.address).actorId : undefined)
 
   return {
     address,
     signer,
     initialActors,
     scope,
+    actorId,
+    accountConfigAddress,
 
     create() {
       if (isAddressOnly)

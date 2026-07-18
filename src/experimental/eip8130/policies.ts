@@ -194,9 +194,11 @@ export type SessionPolicy = {
    * `PolicyManager.execute(binding, executionData)`. This is the only target a
    * policy-gated actor may reach. The full {@link PolicyBinding} is passed so the
    * manager can recompute + match the commitment (no install / config storage).
-   * Build `executionData` with {@link encodeSessionPolicyAction}.
+   *
+   * Pass either raw `executionData` ({@link encodeSessionPolicyAction}) or the
+   * action fields `{ target, value?, data? }` and the encoding is done for you.
    */
-  executeCall(executionData: Hex): AaCall
+  executeCall(executionData: Hex | SessionPolicyAction): AaCall
 }
 
 export type DefineSessionPolicyErrorType = CommitmentOfErrorType
@@ -231,9 +233,7 @@ export type DefineSessionPolicyErrorType = CommitmentOfErrorType
  * ])
  *
  * // 2) later, the session key spends within its limit
- * const spend = session.executeCall(
- *   encodeSessionPolicyAction({ target: usdc, data: transferCalldata }),
- * )
+ * const spend = session.executeCall({ target: usdc, data: transferCalldata })
  */
 export function defineSessionPolicy(
   parameters: DefineSessionPolicyParameters,
@@ -268,7 +268,11 @@ export function defineSessionPolicy(
     binding,
     commitment,
     actorPolicy: { type: policyType, manager, commitment },
-    executeCall(executionData) {
+    executeCall(executionDataOrAction) {
+      const executionData =
+        typeof executionDataOrAction === 'string'
+          ? executionDataOrAction
+          : encodeSessionPolicyAction(executionDataOrAction)
       return {
         to: manager,
         value: 0n,
