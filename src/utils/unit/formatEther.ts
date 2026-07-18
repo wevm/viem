@@ -1,6 +1,5 @@
-import * as Value from 'ox/Value'
-
 import type { FormatUnitsErrorType } from './formatUnits.js'
+import * as Value from './Value.js'
 
 export type FormatEtherErrorType = FormatUnitsErrorType
 

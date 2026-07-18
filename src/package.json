@@ -233,9 +233,9 @@
     "@noble/hashes": "1.8.0",
     "@scure/bip32": "1.7.0",
     "@scure/bip39": "1.6.0",
-    "abitype": "1.3.0",
+    "abitype": "1.2.3",
     "isows": "1.0.7",
-    "ox": "1.0.2",
+    "ox": "0.14.30",
     "ws": "8.21.0"
   },
   "license": "MIT",
