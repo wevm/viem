@@ -8,6 +8,7 @@ import {
   accountConfigAddress as defaultAccountConfigAddress,
   canonicalAuthenticators,
   ecrecoverAuthenticator,
+  scopeUnrestricted,
 } from '../constants.js'
 import { canonicalEip8130Deployment } from '../deployments.js'
 import { key } from '../keys.js'
@@ -38,6 +39,17 @@ type To8130AccountBase = {
    * WebAuthn / delegate authenticator address for non-K1 signers.
    */
   authenticator?: Address | undefined
+  /**
+   * Scope bitmask of the **signing actor** on this account (see
+   * {@link actorScope}). When set, transaction preparation enforces the
+   * protocol's nonce rule: an actor may use a sequenced nonce key only if it
+   * holds `SCOPE_NONCE`; admin actors (`scope == 0`) and any actor without that
+   * bit are automatically restricted to nonce-free (expiring) transactions.
+   *
+   * Leave `undefined` to disable the automatic nonce-mode selection (the caller
+   * fully controls `nonceKey`).
+   */
+  scope?: number | undefined
 }
 
 /**
@@ -90,6 +102,13 @@ export type To8130AccountReturnType = {
   readonly address: Address
   readonly signer: Signer
   readonly initialActors: readonly AaActor[]
+  /**
+   * Scope of the signing actor, when known. Drives automatic nonce-mode
+   * selection in {@link prepareTransaction8130} / {@link sendCalls8130}: an actor
+   * lacking `SCOPE_NONCE` (incl. admin `scope == 0`) is restricted to nonce-free
+   * mode. `undefined` disables the enforcement.
+   */
+  readonly scope?: number | undefined
   /**
    * Builds the `create` account-change entry (include in the first tx for
    * smart accounts). Throws if the account was constructed with a known `address`
@@ -151,6 +170,7 @@ export function to8130Account(
   const {
     signer,
     authenticator = ecrecoverAuthenticator,
+    scope,
   } = parameters
 
   // Address-only mode (delegated EOA): address is fixed, no CREATE2 derivation.
@@ -178,6 +198,7 @@ export function to8130Account(
     address,
     signer,
     initialActors,
+    scope,
 
     create() {
       if (isAddressOnly)
@@ -378,6 +399,10 @@ export function newSmartAccount8130(
     initialActors: allActors,
     authenticator: signer.authenticator,
     accountConfigAddress,
+    // The primary (controlling) actor is registered without a scope, i.e. as an
+    // admin actor. Admin actors lack `SCOPE_NONCE`, so this account is
+    // nonce-free-only — surface that so nonce mode is selected automatically.
+    scope: primaryActor.scope ?? scopeUnrestricted,
   })
 
   return { ...inner, createChange: inner.create() }
@@ -387,10 +412,26 @@ export function newSmartAccount8130(
 // toEoa8130Account
 // ─────────────────────────────────────────────────────────────────────────────
 
+export type ToEoa8130AccountParameters = {
+  /**
+   * Scope of the EOA's implicit self-actor. Defaults to admin
+   * ({@link scopeUnrestricted}), which lacks `SCOPE_NONCE` and is therefore
+   * nonce-free-only. Override only if the self-actor was reconfigured with the
+   * `SCOPE_NONCE` bit and you want sequenced nonces.
+   */
+  scope?: number | undefined
+}
+
 export type ToEoa8130AccountReturnType = {
   /** The EOA address — both the sender identity and the key recovery target. */
   readonly address: Address
   readonly signer: Signer
+  /**
+   * Scope of the implicit self-actor (admin by default). Drives automatic
+   * nonce-mode selection: admin lacks `SCOPE_NONCE`, so sends default to
+   * nonce-free (expiring) mode. See {@link prepareTransaction8130}.
+   */
+  readonly scope?: number | undefined
   /**
    * Builds an EIP-7702 `delegation` account-change entry that sets the code
    * at this EOA address. Include in the first transaction's `accountChanges`
@@ -472,16 +513,21 @@ export type ToEoa8130AccountReturnType = {
  *   calls: wire, ...
  * })
  */
-export function toEoa8130Account(signer: Signer): ToEoa8130AccountReturnType {
+export function toEoa8130Account(
+  signer: Signer,
+  parameters: ToEoa8130AccountParameters = {},
+): ToEoa8130AccountReturnType {
   if (!signer.address)
     throw new BaseError(
       '`signer.address` is required. Use `privateKeyToAccount(pk)` or equivalent.',
     )
   const address = signer.address
+  const scope = parameters.scope ?? scopeUnrestricted
 
   return {
     address,
     signer,
+    scope,
 
     delegate(target) {
       return { type: 'delegation', target }
