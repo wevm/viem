@@ -1,6 +1,6 @@
-import { gweiUnits } from '../../constants/unit.js'
+import * as Value from 'ox/Value'
 
-import { type FormatUnitsErrorType, formatUnits } from './formatUnits.js'
+import type { FormatUnitsErrorType } from './formatUnits.js'
 
 export type FormatGweiErrorType = FormatUnitsErrorType
 
@@ -16,5 +16,5 @@ export type FormatGweiErrorType = FormatUnitsErrorType
  * // '1'
  */
 export function formatGwei(wei: bigint, unit: 'wei' = 'wei') {
-  return formatUnits(wei, gweiUnits[unit])
+  return Value.formatGwei(wei, unit)
 }
