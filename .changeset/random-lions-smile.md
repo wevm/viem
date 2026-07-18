@@ -2,4 +2,4 @@
 'viem': patch
 ---
 
-Randomize `validAfter` for Tempo expiring-nonce transactions to prevent otherwise-identical transactions from sharing a nonce hash.
+Defaulted omitted `validAfter` values to random past timestamps for Tempo expiring-nonce transactions, preventing otherwise-identical transactions from sharing a nonce hash.

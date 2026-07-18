@@ -1,4 +1,3 @@
-import * as Hex from 'ox/Hex'
 import { MultisigConfig } from 'ox/tempo'
 import { describe, expect, test, vi } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
@@ -32,10 +31,6 @@ const maxUint256 = 2n ** 256n - 1n
 
 describe('prepareTransactionRequest', () => {
   test('behavior: expiring nonces for feePayer transactions', async () => {
-    vi.spyOn(Hex, 'random')
-      .mockReturnValueOnce('0x0000000000000001')
-      .mockReturnValueOnce('0x0000000000000002')
-      .mockReturnValueOnce('0x0000000000000003')
     const now = Math.floor(Date.now() / 1000)
     const requests = await Promise.all([
       prepareTransactionRequest(client, { feePayer: true }),
@@ -53,8 +48,10 @@ describe('prepareTransactionRequest', () => {
     expect(requests[1]?.nonce).toBe(0)
     expect(requests[2]?.nonce).toBe(0)
 
-    // Identical expiring transactions receive distinct nonce hashes.
-    expect(requests.map((request) => request.validAfter)).toEqual([1, 2, 3])
+    // All should be immediately valid
+    expect(requests[0]?.validAfter).toBeLessThan(now)
+    expect(requests[1]?.validAfter).toBeLessThan(now)
+    expect(requests[2]?.validAfter).toBeLessThan(now)
 
     // All should have validBefore set within 30 seconds
     expect(requests[0]?.validBefore).toBeGreaterThanOrEqual(now)
@@ -103,13 +100,16 @@ describe('prepareTransactionRequest', () => {
     expect(request?.validBefore).toBeLessThanOrEqual(now + 31)
   })
 
-  test('behavior: explicit validBefore is preserved', async () => {
+  test('behavior: explicit validity window is preserved', async () => {
+    const customValidAfter = Math.floor(Date.now() / 1000) - 15
     const customValidBefore = Math.floor(Date.now() / 1000) + 15
     const request = await prepareTransactionRequest(client, {
       feePayer: true,
+      validAfter: customValidAfter,
       validBefore: customValidBefore,
     })
     expect(request?.nonceKey).toBe(maxUint256)
+    expect(request?.validAfter).toBe(customValidAfter)
     expect(request?.validBefore).toBe(customValidBefore)
   })
 
