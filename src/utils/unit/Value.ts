@@ -1,7 +1,7 @@
-// Note: duplicate of Ox v1 `Value` module.
+// Adapted from the Ox v1 `Value` module.
 
 /** @see https://ethereum.github.io/yellowpaper/paper.pdf */
-export const exponents = {
+const exponents = {
   wei: 0,
   gwei: 9,
   szabo: 12,
@@ -252,7 +252,7 @@ export declare namespace fromGwei {
  * // @error: Value.InvalidDecimalNumberError: Value `123.456.789` is not a valid decimal number.
  * ```
  */
-export class InvalidDecimalNumberError extends Error {
+class InvalidDecimalNumberError extends Error {
   override readonly name = 'Value.InvalidDecimalNumberError'
   constructor({ value }: { value: string }) {
     super(`Value \`${value}\` is not a valid decimal number.`)
@@ -270,7 +270,7 @@ export class InvalidDecimalNumberError extends Error {
  * // @error: Value.InvalidDecimalsError: `decimals` must be a non-negative integer. Got `-1`.
  * ```
  */
-export class InvalidDecimalsError extends Error {
+class InvalidDecimalsError extends Error {
   override readonly name = 'Value.InvalidDecimalsError'
   constructor({ decimals }: { decimals: number }) {
     super(`\`decimals\` must be a non-negative integer. Got \`${decimals}\`.`)

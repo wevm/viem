@@ -702,15 +702,12 @@ describe('fromGwei', () => {
 test('exports', () => {
   expect(Object.keys(Value)).toMatchInlineSnapshot(`
     [
-      "exponents",
       "format",
       "formatEther",
       "formatGwei",
       "from",
       "fromEther",
       "fromGwei",
-      "InvalidDecimalNumberError",
-      "InvalidDecimalsError",
     ]
   `)
 })
