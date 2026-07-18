@@ -1,0 +1,154 @@
+---
+description: Use Viem function ErrorType namespaces to type application boundaries and handle runtime failures safely.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Typed Errors
+
+## Overview
+
+Fallible Viem functions expose an `ErrorType` in their namespace. For example,
+`Actions.contract.read.ErrorType` is the union of errors declared by
+[`contract.read`](/docs/actions/public/contract/read). Use these types in callbacks, application
+state, and wrappers without restating each possible failure.
+
+TypeScript does not track the rejected type of a `Promise`, so values caught with `try...catch`
+remain `unknown`. Cast the value to the called function's `ErrorType`, then narrow concrete cases
+with Viem's error classes before reading their fields.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs/guides/clients/setup).
+
+### Type an Error Boundary
+
+Reference the function namespace when an application or framework accepts an error type.
+
+```ts twoslash
+import { Actions, ContractError } from 'viem'
+
+function getMessage(error: Actions.contract.read.ErrorType) { // [!code focus]
+  if (error instanceof ContractError.ContractFunctionExecutionError)
+    return `Could not read ${error.functionName}.`
+  if (error instanceof Error) return error.message
+  return 'Unknown error.'
+}
+```
+
+### Narrow a Caught Error
+
+Cast the caught value to the function's declared error union, then use a concrete class to narrow
+it. The class check validates the runtime value and exposes its specific fields to TypeScript.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions, ContractError } from 'viem'
+import { Abis } from 'viem/utils'
+import { client } from './viem.config'
+
+try {
+  await client.contract.read({
+    abi: Abis.erc20,
+    address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+    functionName: 'totalSupply',
+  })
+} catch (e) {
+  const error = e as Actions.contract.read.ErrorType // [!code focus]
+  if (error instanceof ContractError.ContractFunctionExecutionError) { // [!code focus]
+    console.error(error.functionName, error.shortMessage) // [!code focus]
+  } // [!code focus]
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Compose Wrapper Errors
+
+Combine the source functions' error types when a wrapper calls more than one Action. Callers can
+reuse the wrapper's complete error contract from the same namespace.
+
+```ts twoslash
+import { Actions, type Client } from 'viem'
+import { Address } from 'viem/utils'
+
+export async function getAccountState(
+  client: Client.Client,
+  options: { address: Address.Address },
+) {
+  const [balance, nonce] = await Promise.all([
+    Actions.address.getBalance(client, options),
+    Actions.address.getTransactionCount(client, options),
+  ])
+  return { balance, nonce }
+}
+
+export declare namespace getAccountState {
+  export type ErrorType = // [!code focus:3]
+    | Actions.address.getBalance.ErrorType
+    | Actions.address.getTransactionCount.ErrorType
+}
+```
+
+### Find a Nested Cause
+
+Actions add context while preserving the original failure in the cause chain. Narrow to
+`Errors.BaseError`, then use `walk` to find a specific nested error.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Errors, RpcError } from 'viem'
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+try {
+  await client.transaction.send({
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: Value.fromEther('1'),
+  })
+} catch (error) {
+  if (error instanceof Errors.BaseError) {
+    const nonceError = error.walk( // [!code focus:4]
+      (cause) => cause instanceof RpcError.NonceTooLowError,
+    )
+    if (nonceError) console.error('Refresh the nonce and retry.')
+  }
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Cast at the Function Boundary
+
+Cast a caught value only to the `ErrorType` of the function that produced it. Then use `instanceof`
+with a concrete Viem error class before reading class-specific fields.
+
+### Keep a Fallback
+
+An `ErrorType` includes a generic error fallback for failures that cannot be classified. Handle
+known cases, then preserve a default path for everything else.
+
+### Preserve the Cause
+
+When translating a Viem error into an application error, attach the original error as `cause` so
+callers can still inspect its concrete class and metadata.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:file-warning" title="Contract Errors" description="Handle contract failures and decoded revert reasons." to="/docs/errors/contract" />
+  <Card icon="lucide:server-crash" title="RPC Errors" description="Match node execution failures without parsing messages." to="/docs/errors/rpc" />
+  <Card icon="lucide:blocks" title="Type Composition" description="Preserve Viem types while building wrappers and libraries." to="/docs/guides/extending/type-composition" />
+</Cards>

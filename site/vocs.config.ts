@@ -780,6 +780,18 @@ export default defineConfig({
             ],
           },
           {
+            text: 'Error Handling',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/errors' },
+              { text: 'Typed Errors', link: '/docs/errors/typed-errors' },
+              { text: 'Contract Errors', link: '/docs/errors/contract' },
+              { text: 'RPC Errors', link: '/docs/errors/rpc' },
+              { text: 'Base Error', link: '/docs/errors/base-error' },
+              { text: 'Configuration', link: '/docs/errors/configuration' },
+            ],
+          },
+          {
             text: 'Testing',
             collapsed: true,
             items: [
@@ -1673,17 +1685,6 @@ export default defineConfig({
               },
             ],
           },
-        ],
-      },
-      {
-        text: 'Errors',
-        collapsed: true,
-        items: [
-          { text: 'Overview', link: '/docs/errors' },
-          { text: 'Base Error', link: '/docs/errors/base-error' },
-          { text: 'Configuration', link: '/docs/errors/configuration' },
-          { text: 'Contract Errors', link: '/docs/errors/contract' },
-          { text: 'RPC Errors', link: '/docs/errors/rpc' },
         ],
       },
       { ...sidebar.utilities, collapsed: true },
