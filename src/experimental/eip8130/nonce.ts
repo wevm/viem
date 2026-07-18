@@ -1,7 +1,8 @@
 import { BaseError } from '../../errors/base.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { bytesToHex } from '../../utils/encoding/toHex.js'
-import { nonceKeyMax } from './constants.js'
+import { nonceFreeMaxExpiryWindow, nonceKeyMax } from './constants.js'
+import { isNoncelessOnly } from './keys.js'
 
 /**
  * A resolved EIP-8130 nonce selection: the channel key and (for nonce-free
@@ -117,5 +118,44 @@ export const nonce = {
         'Nonce-free mode requires a non-zero `expiry` (or `expiresIn`).',
       )
     return { nonceKey: nonceKeyMax, nonceSequence: 0n, expiry: resolvedExpiry }
+  },
+
+  /**
+   * Selects the correct nonce strategy for an actor's `scope`. An actor may use
+   * a sequenced nonce key only if it holds `SCOPE_NONCE`; admin actors
+   * (`scope == 0`) and any actor authorized without that bit are restricted to
+   * nonce-free (expiring) mode.
+   *
+   * - Actor **has** `SCOPE_NONCE` → sequenced {@link nonce.channel} (default
+   *   channel `0`, i.e. {@link nonce.sequential}).
+   * - Actor **lacks** `SCOPE_NONCE` (incl. admin) → {@link nonce.nonceless},
+   *   defaulting the expiry to `NONCE_FREE_MAX_EXPIRY_WINDOW` seconds from now.
+   *
+   * @param scope - The signing actor's scope bitmask.
+   * @param parameters.key - Sequenced channel selector (ignored in nonce-free
+   *   mode). @default 0n
+   * @param parameters.expiry - Absolute expiry (unix seconds) for nonce-free
+   *   mode. Overrides `expiresIn`.
+   * @param parameters.expiresIn - Relative expiry (seconds) for nonce-free
+   *   mode. @default Number(NONCE_FREE_MAX_EXPIRY_WINDOW)
+   */
+  forScope(
+    scope: number,
+    parameters: {
+      key?: bigint | undefined
+      expiry?: bigint | undefined
+      expiresIn?: number | undefined
+    } = {},
+  ): Nonce {
+    if (isNoncelessOnly(scope))
+      return nonce.nonceless(
+        parameters.expiry !== undefined
+          ? { expiry: parameters.expiry }
+          : {
+              expiresIn:
+                parameters.expiresIn ?? Number(nonceFreeMaxExpiryWindow),
+            },
+      )
+    return nonce.channel(parameters.key ?? 0n)
   },
 } as const

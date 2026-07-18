@@ -8,7 +8,9 @@ import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import { getAction } from '../../../utils/getAction.js'
 import type { To8130AccountReturnType } from '../accounts/to8130Account.js'
-import { nonceKeyMax } from '../constants.js'
+import { nonceFreeMaxExpiryWindow, nonceKeyMax } from '../constants.js'
+import { NonceScopeError } from '../errors.js'
+import { isNoncelessOnly } from '../keys.js'
 import type {
   AaAccountChange,
   AaCall,
@@ -47,12 +49,28 @@ export async function prepareTransaction8130(
   client: Client<Transport, Chain | undefined, Account | undefined>,
   parameters: PrepareTransaction8130Parameters,
 ): Promise<TransactionSerializable8130> {
-  const { account, calls, accountChanges, payer, gas, expiry, nonceKey = 0n } =
-    parameters
+  const { account, calls, accountChanges, payer, gas } = parameters
 
   const chainId = client.chain?.id
   if (!chainId)
     throw new BaseError('`client` must be configured with a `chain`.')
+
+  // Scope-driven nonce mode: an actor may use a sequenced nonce key only if it
+  // holds `SCOPE_NONCE`. Admin actors (`scope == 0`) and any actor without that
+  // bit are restricted to nonce-free (expiring) mode. When the signing actor's
+  // scope is known, select the mode automatically and reject a sequenced key.
+  const noncelessOnly =
+    account.scope !== undefined && isNoncelessOnly(account.scope)
+  let nonceKey = parameters.nonceKey
+  if (noncelessOnly) {
+    if (nonceKey !== undefined && nonceKey !== nonceKeyMax)
+      throw new NonceScopeError({ scope: account.scope!, nonceKey })
+    nonceKey = nonceKeyMax
+  } else {
+    nonceKey ??= 0n
+  }
+
+  let expiry = parameters.expiry
 
   let { maxFeePerGas, maxPriorityFeePerGas } = parameters
   if (maxFeePerGas === undefined || maxPriorityFeePerGas === undefined) {
@@ -70,10 +88,17 @@ export async function prepareTransaction8130(
   if (nonceKey === nonceKeyMax) {
     // Nonce-free (expiring) mode: there is no per-channel counter to read;
     // replay protection relies on `expiry`. Pin the sequence to `0n`.
-    if (!expiry || expiry === 0n)
-      throw new BaseError(
-        '`expiry` is required for nonce-free transactions (`nonceKey` = `NONCE_KEY_MAX`). Build the nonce with `nonce.nonceless({ expiresIn })`.',
-      )
+    if (!expiry || expiry === 0n) {
+      if (noncelessOnly)
+        // Auto-selected nonce-free mode: default the expiry to the mempool
+        // admission window rather than forcing the caller to supply one.
+        expiry =
+          BigInt(Math.floor(Date.now() / 1000)) + nonceFreeMaxExpiryWindow
+      else
+        throw new BaseError(
+          '`expiry` is required for nonce-free transactions (`nonceKey` = `NONCE_KEY_MAX`). Build the nonce with `nonce.nonceless({ expiresIn })`.',
+        )
+    }
     nonceSequence ??= 0n
   } else if (nonceSequence === undefined) {
     // Read the next sequence via `eth_getTransactionCount` (with the 2D

@@ -90,6 +90,30 @@ export function toScope(...flags: number[]): number {
   return flags.reduce((acc, flag) => acc | flag, 0)
 }
 
+/**
+ * Whether an actor with `scope` may use sequenced (counter-backed) nonce keys —
+ * i.e. standard sequential ordering or a 2D nonce channel. Requires the
+ * `SCOPE_NONCE` bit.
+ *
+ * Admin actors (`scope == 0`) do **not** have `SCOPE_NONCE` set, so — like any
+ * restricted actor lacking the bit — they are restricted to nonce-free
+ * (expiring) transactions. Use {@link isNoncelessOnly} for the inverse.
+ */
+export function canUseSequencedNonce(scope: number | undefined): boolean {
+  return ((scope ?? 0) & actorScope.nonce) !== 0
+}
+
+/**
+ * Whether an actor with `scope` is restricted to nonce-free (expiring)
+ * transactions (`nonceKey = NONCE_KEY_MAX`) because it lacks `SCOPE_NONCE`.
+ *
+ * True for admin actors (`scope == 0`) and any actor authorized without the
+ * `SCOPE_NONCE` bit. Inverse of {@link canUseSequencedNonce}.
+ */
+export function isNoncelessOnly(scope: number | undefined): boolean {
+  return !canUseSequencedNonce(scope)
+}
+
 export type Policy = {
   /** Non-zero policy selector (interpreted by the manager, not the protocol). */
   type: number
@@ -122,9 +146,17 @@ export type AuthorizeActorOptions = {
  * and optional policy. The result can be signed via `signActorChanges8130` /
  * `to8130Account#authorize`.
  *
+ * A policy-gated actor (session key) should be authorized as POLICY-only
+ * (`scope: actorScope.policy`): `SCOPE_POLICY` grants "gated initiation", so the
+ * key can originate a transaction but every call is routed through — and
+ * validated by — its manager. Per base/eip-8130, do NOT add `SCOPE_SENDER` (the
+ * policy gate governs regardless). OR in `actorScope.selfPayer` for self-pay or
+ * `actorScope.nonce` to allow sequenced nonces (without it the key is
+ * nonce-free-only).
+ *
  * @example
  * authorizeActor(key.p256({ x, y }), {
- *   scope: actorScope.sender,
+ *   scope: actorScope.policy, // POLICY-only; optionally | actorScope.selfPayer | actorScope.nonce
  *   policy: { type: 1, manager, commitment },
  * })
  */
@@ -143,7 +175,7 @@ export function authorizeActor(
     // Admin (scope 0) is unrestricted; a policy-gated actor must be restricted.
     if (scope === 0)
       throw new BaseError(
-        'A policy-bearing actor MUST have a restricted (non-admin) scope (e.g. `actorScope.sender`).',
+        'A policy-bearing actor MUST have a restricted (non-admin) scope (e.g. `actorScope.policy`).',
       )
     // Policy presence is the SCOPE_POLICY bit (there is no `policyType` field).
     scope |= actorScope.policy

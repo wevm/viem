@@ -7,6 +7,8 @@ import { hexToBigInt } from '../../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../../utils/encoding/toHex.js'
 import type { To8130AccountReturnType } from '../../eip8130/accounts/to8130Account.js'
 import { prepareTransaction8130 } from '../../eip8130/actions/sendCalls.js'
+import { nonceFreeMaxExpiryWindow } from '../../eip8130/constants.js'
+import { isNoncelessOnly } from '../../eip8130/keys.js'
 import type { Address } from 'abitype'
 import type {
   AaAccountChange,
@@ -198,12 +200,24 @@ export async function sendSponsoredCalls(
     ? hexToBigInt(option.conditions.maxGasLimit)
     : undefined
 
+  // A nonce-free-only sending actor (admin or no `SCOPE_NONCE`) MUST carry a
+  // non-zero, in-window expiry — it is the sole replay protection. When the
+  // payer's offer has no `maxExpiry`, fall back to the mempool admission window
+  // instead of `0` (which the node would reject as a nonce-free tx).
+  const noncelessOnly =
+    account.scope !== undefined && isNoncelessOnly(account.scope)
+
   // `conditions.maxExpiry` is a relative duration (seconds from now). The wallet
   // sets the onchain expiry to `now + maxExpiry`; the payer keeps `maxExpiry`
   // short. Recomputed per attempt so a retry doesn't inherit a near-expiry
   // window. A caller-supplied absolute `expiry` is used as-is.
   const computeExpiry = (): bigint => {
     if (parameters.expiry !== undefined) return parameters.expiry
+    // Nonce-free-only actor: expiry is the sole replay protection and must fall
+    // within the protocol's tight replay window, so pin it to the mempool
+    // admission window regardless of the payer's (possibly larger) `maxExpiry`.
+    if (noncelessOnly)
+      return BigInt(Math.floor(Date.now() / 1000)) + nonceFreeMaxExpiryWindow
     const maxExpiry = option.conditions?.maxExpiry
     return maxExpiry !== undefined
       ? BigInt(Math.floor(Date.now() / 1000)) + BigInt(maxExpiry)
