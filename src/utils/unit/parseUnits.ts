@@ -1,6 +1,5 @@
-import * as Value from 'ox/Value'
-
 import type { ErrorType } from '../../errors/utils.js'
+import * as Value from './Value.js'
 
 export type ParseUnitsErrorType = ErrorType
 
