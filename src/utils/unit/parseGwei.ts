@@ -1,7 +1,8 @@
-import { gweiUnits } from '../../constants/unit.js'
+import * as Value from 'ox/Value'
+
 import type { ErrorType } from '../../errors/utils.js'
 
-import { type ParseUnitsErrorType, parseUnits } from './parseUnits.js'
+import type { ParseUnitsErrorType } from './parseUnits.js'
 
 export type ParseGweiErrorType = ParseUnitsErrorType | ErrorType
 
@@ -17,5 +18,5 @@ export type ParseGweiErrorType = ParseUnitsErrorType | ErrorType
  * // 420000000000n
  */
 export function parseGwei(ether: string, unit: 'wei' = 'wei') {
-  return parseUnits(ether, gweiUnits[unit])
+  return Value.fromGwei(ether, unit)
 }
