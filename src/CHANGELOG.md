@@ -1,5 +1,17 @@
 # viem
 
+## 2.55.4
+
+### Patch Changes
+
+- [#4848](https://github.com/wevm/viem/pull/4848) [`dceac56692bb2db5b710908321ab722195de79a2`](https://github.com/wevm/viem/commit/dceac56692bb2db5b710908321ab722195de79a2) Thanks [@jxom](https://github.com/jxom)! - Updated Ethereum's default RPC URL.
+
+- [#4851](https://github.com/wevm/viem/pull/4851) [`2b1f8deeac868a3480e1ede7f6fd6066995f36a1`](https://github.com/wevm/viem/commit/2b1f8deeac868a3480e1ede7f6fd6066995f36a1) Thanks [@nezouse](https://github.com/nezouse)! - Add `blockTime` to Robinhood chain definition
+
+- [#4858](https://github.com/wevm/viem/pull/4858) [`1de66e727e5f328d111cf41bca29731a5af4afb4`](https://github.com/wevm/viem/commit/1de66e727e5f328d111cf41bca29731a5af4afb4) Thanks [@decofe](https://github.com/decofe)! - Defaulted omitted `validAfter` values to random past timestamps for Tempo expiring-nonce transactions, preventing otherwise-identical transactions from sharing a nonce hash.
+
+- [#4852](https://github.com/wevm/viem/pull/4852) [`99b14341b807767cd783863ac645331f4b1cd708`](https://github.com/wevm/viem/commit/99b14341b807767cd783863ac645331f4b1cd708) Thanks [@nezouse](https://github.com/nezouse)! - Add `blockTime` to xLayer chain definition
+
 ## 2.55.3
 
 ### Patch Changes
