@@ -218,37 +218,6 @@ const { results } = await Actions.multicall(client, {
 // @log: results: [1000000n]
 ```
 
-### mode
-
-- **Type:** `'auto' | 'simulate' | 'multicall'`
-- **Default:** `'auto'`
-
-Execution mode.
-
-- `'auto'`: attempts `eth_simulateV1`; when the node rejects the method, the batch re-executes via `aggregate3` and the verdict is cached for the client. Options that `aggregate3` cannot express (`traceAssetChanges`, `traceTransfers`, `validation`, call `value`) disable the fallback and surface the node error instead.
-- `'simulate'`: always `eth_simulateV1`. Deterministic rich results; throws on unsupported nodes.
-- `'multicall'`: always `aggregate3`. No detection request; lean results.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Abis } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abis.erc20
-// ---cut---
-const { results } = await Actions.multicall(client, {
-  mode: 'multicall', // [!code focus]
-  calls: [
-    {
-      abi,
-      functionName: 'totalSupply',
-      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-    },
-  ],
-})
-```
-
 ### batchSize
 
 - **Type:** `number`
@@ -376,6 +345,37 @@ const { results } = await Actions.multicall(client, {
     },
   ],
   deployless: true, // [!code focus]
+})
+```
+
+### mode
+
+- **Type:** `'auto' | 'simulate' | 'multicall'`
+- **Default:** `'auto'`
+
+Execution mode.
+
+- `'auto'`: attempts `eth_simulateV1`; when the node rejects the method, the batch re-executes via `aggregate3` and the verdict is cached for the client. Options that `aggregate3` cannot express (`traceAssetChanges`, `traceTransfers`, `validation`, call `value`) disable the fallback and surface the node error instead.
+- `'simulate'`: always `eth_simulateV1`. Deterministic rich results; throws on unsupported nodes.
+- `'multicall'`: always `aggregate3`. No detection request; lean results.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const { results } = await Actions.multicall(client, {
+  mode: 'multicall', // [!code focus]
+  calls: [
+    {
+      abi,
+      functionName: 'totalSupply',
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+    },
+  ],
 })
 ```
 

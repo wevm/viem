@@ -202,6 +202,12 @@ The non-sync `transfer` action returns the transaction `Hex` hash instead.
 
 ## Parameters
 
+### account
+
+- **Type:** `Account | Address`
+
+Account that will send the transaction. Defaults to the Client's `account`.
+
 ### amount
 
 - **Type:** `bigint | { decimals?: number, formatted: string }`
@@ -209,6 +215,43 @@ The non-sync `transfer` action returns the transaction `Hex` hash instead.
 Amount to transfer in base units. Use `{ formatted: '10.5' }` to parse a human-readable
 decimal string for a Client-declared token, or include `amount.decimals` when using a
 token address.
+
+### from
+
+- **Type:** `Address`
+
+Address to transfer tokens from, using an allowance (calls `transferFrom`). Defaults to the caller.
+
+### gas
+
+- **Type:** `bigint`
+
+Gas limit for the transaction.
+
+### maxFeePerGas
+
+- **Type:** `bigint`
+
+Max fee per gas for the transaction.
+
+### maxPriorityFeePerGas
+
+- **Type:** `bigint`
+
+Max priority fee per gas for the transaction.
+
+### nonce
+
+- **Type:** `bigint`
+
+Nonce for the transaction.
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw if the transaction receipt reverts. Only applies to `transferSync`.
 
 ### to
 
@@ -222,46 +265,3 @@ Address to transfer tokens to.
 
 Token to operate on: a [Client-declared](/tokens/tokens#token-lookup)
 token symbol (resolving its `address` and `decimals`), or a token address.
-
-### from (optional)
-
-- **Type:** `Address`
-
-Address to transfer tokens from, using an allowance (calls `transferFrom`). Defaults to the caller.
-
-### throwOnReceiptRevert (optional)
-
-- **Type:** `boolean`
-- **Default:** `true`
-
-Whether to throw if the transaction receipt reverts. Only applies to `transferSync`.
-
-### account (optional)
-
-- **Type:** `Account | Address`
-
-Account that will send the transaction. Defaults to the Client's `account`.
-
-### gas (optional)
-
-- **Type:** `bigint`
-
-Gas limit for the transaction.
-
-### maxFeePerGas (optional)
-
-- **Type:** `bigint`
-
-Max fee per gas for the transaction.
-
-### maxPriorityFeePerGas (optional)
-
-- **Type:** `bigint`
-
-Max priority fee per gas for the transaction.
-
-### nonce (optional)
-
-- **Type:** `bigint`
-
-Nonce for the transaction.

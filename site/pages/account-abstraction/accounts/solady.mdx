@@ -66,13 +66,13 @@ The factory must deploy a Solady account implementation whose `entryPoint()` tar
 
 ## Parameters
 
-### address (Optional)
+### address
 
 - **Type:** `Address`
 
 Existing account address. When omitted, it is derived from the factory.
 
-### entryPoint (Optional)
+### entryPoint
 
 - **Type:** `{ abi: Abi, address: Address, version: EntryPointVersion }`
 - **Default:** EntryPoint 0.7
@@ -98,7 +98,7 @@ const account = await SoladySmartAccount.from({
 })
 ```
 
-### factoryAddress (Optional)
+### factoryAddress
 
 - **Type:** `Address`
 - **Default:** Solady EntryPoint 0.7 factory
@@ -113,7 +113,7 @@ const account = await SoladySmartAccount.from({
 })
 ```
 
-### getNonce (Optional)
+### getNonce
 
 - **Type:** `SmartAccount.Implementation['getNonce']`
 
@@ -132,7 +132,7 @@ const account = await SoladySmartAccount.from({
 })
 ```
 
-### salt (Optional)
+### salt
 
 - **Type:** `Hex`
 - **Default:** `'0x0'`

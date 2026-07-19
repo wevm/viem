@@ -77,39 +77,39 @@ The L2 transaction hash.
 
 This action also accepts the transaction options from [`Actions.transaction.send`](/docs/actions/wallet/transaction/send). The withdrawal request supplies `data`, `to`, and `value`, while `gas` is defined below with `null` support.
 
-### account (Optional)
+### account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
 
 The Account or address that submits the withdrawal transaction.
 
-### chain (Optional)
+### chain
 
 - **Type:** `Chain | null`
 - **Default:** `client.chain`
 
 The L2 Chain containing the message passer contract.
 
-### gas (Optional)
+### gas
 
 - **Type:** `bigint | null`
 
 The L2 execution gas limit. Pass `null` to defer estimation to the signer.
 
-### maxFeePerGas (Optional)
+### maxFeePerGas
 
 - **Type:** `bigint | number | Hex`
 
 The maximum total fee per gas in wei.
 
-### maxPriorityFeePerGas (Optional)
+### maxPriorityFeePerGas
 
 - **Type:** `bigint | number | Hex`
 
 The maximum priority fee per gas in wei.
 
-### nonce (Optional)
+### nonce
 
 - **Type:** `bigint | number | Hex`
 
@@ -121,7 +121,7 @@ The L2 transaction nonce.
 
 The withdrawal request passed to the L2 message passer.
 
-#### request.data (Optional)
+#### request.data
 
 - **Type:** `Hex`
 - **Default:** `'0x'`
@@ -140,7 +140,7 @@ The gas limit for execution on L1.
 
 The L1 transaction recipient.
 
-#### request.value (Optional)
+#### request.value
 
 - **Type:** `bigint`
 

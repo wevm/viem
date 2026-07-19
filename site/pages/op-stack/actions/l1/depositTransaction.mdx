@@ -77,13 +77,50 @@ The L1 transaction hash.
 
 The [Account](/docs/accounts) that sends the L1 transaction. Required when the Client has no Account.
 
+### chain
+
+- **Type:** `Chain | null`
+- **Default:** `client.chain`
+
+The L1 chain on which the deposit transaction is sent.
+
+### gas
+
+- **Type:** `bigint | null`
+
+The gas limit for the L1 transaction.
+
+### maxFeePerGas
+
+- **Type:** `bigint`
+
+The maximum total fee per gas, in wei.
+
+### maxPriorityFeePerGas
+
+- **Type:** `bigint`
+
+The maximum priority fee per gas, in wei.
+
+### nonce
+
+- **Type:** `number`
+
+The L1 transaction nonce.
+
+### portalAddress
+
+- **Type:** `Address`
+
+An explicit Optimism Portal address. When supplied, `targetChain` is optional.
+
 ### request
 
 - **Type:** `Deposit.Request`
 
 The L2 transaction request.
 
-#### request.data (Optional)
+#### request.data
 
 - **Type:** `Hex`
 
@@ -95,70 +132,33 @@ Encoded contract method and arguments, or contract deployment bytecode.
 
 The gas limit for transaction execution on L2.
 
-#### request.isCreation (Optional)
+#### request.isCreation
 
 - **Type:** `boolean`
 - **Default:** `false`
 
 Whether the transaction deploys a contract. Contract deployments require `data` and cannot specify `to`.
 
-#### request.mint (Optional)
+#### request.mint
 
 - **Type:** `bigint`
 
 The value minted on L2 and debited from the caller's L1 balance, in wei.
 
-#### request.to (Optional)
+#### request.to
 
 - **Type:** `Address`
 
 The L2 transaction recipient.
 
-#### request.value (Optional)
+#### request.value
 
 - **Type:** `bigint`
 
 The value sent by the deposited transaction on L2, in wei.
 
-### targetChain (Optional)
+### targetChain
 
 - **Type:** `Chain`
 
 The OP Stack L2 [Chain](/docs/chains) whose portal contract is used.
-
-### portalAddress (Optional)
-
-- **Type:** `Address`
-
-An explicit Optimism Portal address. When supplied, `targetChain` is optional.
-
-### chain (Optional)
-
-- **Type:** `Chain | null`
-- **Default:** `client.chain`
-
-The L1 chain on which the deposit transaction is sent.
-
-### gas (Optional)
-
-- **Type:** `bigint | null`
-
-The gas limit for the L1 transaction.
-
-### maxFeePerGas (Optional)
-
-- **Type:** `bigint`
-
-The maximum total fee per gas, in wei.
-
-### maxPriorityFeePerGas (Optional)
-
-- **Type:** `bigint`
-
-The maximum priority fee per gas, in wei.
-
-### nonce (Optional)
-
-- **Type:** `number`
-
-The L1 transaction nonce.

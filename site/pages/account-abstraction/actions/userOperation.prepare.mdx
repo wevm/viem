@@ -164,7 +164,7 @@ The prepared User Operation.
 
 ## Parameters
 
-### account (Optional)
+### account
 
 - **Type:** `SmartAccount`
 - **Default:** `bundlerClient.account`
@@ -183,7 +183,32 @@ const userOperation = await bundlerClient.userOperation.prepare({
 })
 ```
 
-### calls (Optional)
+### authorization
+
+- **Type:** `Authorization.Signed`
+
+Signed EIP-7702 authorization for a delegated account.
+
+### callGasLimit
+
+- **Type:** `bigint`
+
+The amount of gas to allocate the main execution call.
+
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { Value } from 'viem/utils'
+const userOperation = await bundlerClient.userOperation.prepare({
+  account,
+  calls: [{
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: Value.fromEther('1')
+  }],
+  callGasLimit: 69420n, // [!code focus]
+})
+```
+
+### calls
 
 - **Type:** `{ data: Hex, to: Address, value: bigint }[]`
 
@@ -213,32 +238,7 @@ const userOperation = await bundlerClient.userOperation.prepare({
 ```
 :::
 
-### authorization (Optional)
-
-- **Type:** `Authorization.Signed`
-
-Signed EIP-7702 authorization for a delegated account.
-
-### callGasLimit (Optional)
-
-- **Type:** `bigint`
-
-The amount of gas to allocate the main execution call.
-
-```ts twoslash
-import { account, bundlerClient } from './config'
-import { Value } from 'viem/utils'
-const userOperation = await bundlerClient.userOperation.prepare({
-  account,
-  calls: [{
-    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-    value: Value.fromEther('1')
-  }],
-  callGasLimit: 69420n, // [!code focus]
-})
-```
-
-### dataSuffix (Optional)
+### dataSuffix
 
 - **Type:** `Hex`
 
@@ -259,7 +259,7 @@ const userOperation = await bundlerClient.userOperation.prepare({
 })
 ```
 
-### factory (Optional)
+### factory
 
 - **Type:** `Address`
 
@@ -283,7 +283,7 @@ const userOperation = await bundlerClient.userOperation.prepare({
 })
 ```
 
-### factoryData (Optional)
+### factoryData
 
 - **Type:** `Hex`
 
@@ -307,7 +307,7 @@ const userOperation = await bundlerClient.userOperation.prepare({
 })
 ```
 
-### maxFeePerGas (Optional)
+### maxFeePerGas
 
 - **Type:** `bigint`
 
@@ -326,7 +326,7 @@ const userOperation = await bundlerClient.userOperation.prepare({
 })
 ```
 
-### maxPriorityFeePerGas (Optional)
+### maxPriorityFeePerGas
 
 - **Type:** `bigint`
 
@@ -346,7 +346,7 @@ const userOperation = await bundlerClient.userOperation.prepare({
 })
 ```
 
-### nonce (Optional)
+### nonce
 
 - **Type:** `bigint`
 
@@ -365,14 +365,14 @@ const userOperation = await bundlerClient.userOperation.prepare({
 })
 ```
 
-### parameters (Optional)
+### parameters
 
 - **Type:** `('authorization' | 'factory' | 'fees' | 'gas' | 'nonce' | 'paymaster' | 'signature')[]`
 - **Default:** All parameters
 
 Fields that Viem should populate. Fields excluded from this list remain optional in the return type.
 
-### paymaster (Optional)
+### paymaster
 
 - **Type:** `Address | true | PaymasterClient | PaymasterActions`
 
@@ -435,7 +435,7 @@ const hash = await bundlerClient.userOperation.prepare({
 })
 ```
 
-### paymasterContext (Optional)
+### paymasterContext
 
 - **Type:** `unknown`
 
@@ -467,7 +467,7 @@ const hash = await bundlerClient.userOperation.prepare({
 })
 ```
 
-### paymasterData (Optional)
+### paymasterData
 
 - **Type:** `Address`
 
@@ -491,13 +491,7 @@ const userOperation = await bundlerClient.userOperation.prepare({
 })
 ```
 
-### paymasterSignature (Optional)
-
-- **Type:** `Hex`
-
-EntryPoint 0.9 Paymaster signature. It is preserved separately from `paymasterData` and excluded from the account-signed User Operation hash.
-
-### paymasterPostOpGasLimit (Optional)
+### paymasterPostOpGasLimit
 
 - **Type:** `bigint`
 
@@ -518,7 +512,13 @@ const userOperation = await bundlerClient.userOperation.prepare({
 })
 ```
 
-### paymasterVerificationGasLimit (Optional)
+### paymasterSignature
+
+- **Type:** `Hex`
+
+EntryPoint 0.9 Paymaster signature. It is preserved separately from `paymasterData` and excluded from the account-signed User Operation hash.
+
+### paymasterVerificationGasLimit
 
 - **Type:** `bigint`
 
@@ -539,7 +539,7 @@ const userOperation = await bundlerClient.userOperation.prepare({
 })
 ```
 
-### preVerificationGas (Optional)
+### preVerificationGas
 
 - **Type:** `bigint`
 
@@ -558,7 +558,7 @@ const userOperation = await bundlerClient.userOperation.prepare({
 })
 ```
 
-### signature (Optional)
+### signature
 
 - **Type:** `Hex`
 
@@ -577,7 +577,7 @@ const userOperation = await bundlerClient.userOperation.prepare({
 })
 ```
 
-### stateOverride (Optional)
+### stateOverride
 
 - **Type:** [`StateOverrides`](/docs/actions/public/call#stateoverride)
 
@@ -603,7 +603,7 @@ const userOperation = await bundlerClient.userOperation.prepare({
 })
 ```
 
-### verificationGasLimit (Optional)
+### verificationGasLimit
 
 - **Type:** `bigint`
 

@@ -84,20 +84,20 @@ produced separately by signing a prepared request with an owner account (see
 The multisig configuration, created with `MultisigConfig.from`. The config is normalized
 (owners sorted into canonical ascending order) before the address is derived.
 
-#### config.threshold
-
-- **Type:** `number`
-
-The total owner weight required to authorize a transaction.
-
 #### config.owners
 
 - **Type:** `readonly { owner: Address; weight: number }[]`
 
 The list of owners and their voting weights.
 
-#### config.salt (optional)
+#### config.salt
 
 - **Type:** `Hex`
 
 Optional salt used to derive a distinct multisig address for the same owner set.
+
+#### config.threshold
+
+- **Type:** `number`
+
+The total owner weight required to authorize a transaction.

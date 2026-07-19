@@ -87,37 +87,37 @@ The authorized access key details and the transaction receipt.
 
 Access key to authorize.
 
-### admin (optional)
+### admin
 
 - **Type:** `boolean`
 
 Whether to authorize the key as an admin key. Admin keys are unrestricted and can manage the account's other access keys; `expiry`, `limits`, and `scopes` are ignored. Requires the T6 hardfork.
 
-### chainId (optional)
+### chainId
 
 - **Type:** `number | bigint`
 
 Chain ID for replay protection.
 
-### expiry (optional)
+### expiry
 
 - **Type:** `number`
 
 Unix timestamp when the key expires.
 
-### limits (optional)
+### limits
 
 - **Type:** `readonly { token: Address; limit: bigint; period?: number }[]`
 
 Spending limits per token.
 
-### scopes (optional)
+### scopes
 
 - **Type:** `readonly { address: Address; selector?: Hex | string; recipients?: readonly Address[] }[]`
 
 Call scopes restricting which contracts, selectors, and recipients the key can call.
 
-### witness (optional)
+### witness
 
 - **Type:** `Hex`
 

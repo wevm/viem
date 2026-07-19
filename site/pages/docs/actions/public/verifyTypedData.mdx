@@ -99,18 +99,6 @@ Accepts every [`verifyHash` parameter](/docs/actions/public/verifyHash#parameter
 
 The EIP-712 domain separator fields.
 
-### types
-
-- **Type:** `TypedData`
-
-The type definitions for the typed data.
-
-### primaryType
-
-- **Type:** `string`
-
-The primary type to extract from `types`.
-
 ### message
 
 - **Type:** `Record<string, unknown>`
@@ -132,6 +120,18 @@ const valid = await Actions.verifyTypedData(client, {
   signature: '0x…',
 })
 ```
+
+### primaryType
+
+- **Type:** `string`
+
+The primary type to extract from `types`.
+
+### types
+
+- **Type:** `TypedData`
+
+The type definitions for the typed data.
 
 ## Errors
 

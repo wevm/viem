@@ -172,7 +172,7 @@ The estimated gas values.
 
 ## Parameters
 
-### account (Optional)
+### account
 
 - **Type:** `SmartAccount`
 - **Default:** `bundlerClient.account`
@@ -191,7 +191,32 @@ const gas = await bundlerClient.userOperation.estimateGas({
 })
 ```
 
-### calls (Optional)
+### authorization
+
+- **Type:** `Authorization.Signed`
+
+Signed EIP-7702 authorization for a delegated account.
+
+### callGasLimit
+
+- **Type:** `bigint`
+
+The amount of gas to allocate the main execution call.
+
+```ts twoslash
+import { Value } from 'viem/utils'
+import { account, bundlerClient } from './config'
+const gas = await bundlerClient.userOperation.estimateGas({
+  account,
+  calls: [{
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: Value.fromEther('1')
+  }],
+  callGasLimit: 69420n, // [!code focus]
+})
+```
+
+### calls
 
 - **Type:** `{ data: Hex, to: Address, value: bigint }[]`
 
@@ -221,39 +246,14 @@ const gas = await bundlerClient.userOperation.estimateGas({
 ```
 :::
 
-### authorization (Optional)
-
-- **Type:** `Authorization.Signed`
-
-Signed EIP-7702 authorization for a delegated account.
-
-### callGasLimit (Optional)
-
-- **Type:** `bigint`
-
-The amount of gas to allocate the main execution call.
-
-```ts twoslash
-import { Value } from 'viem/utils'
-import { account, bundlerClient } from './config'
-const gas = await bundlerClient.userOperation.estimateGas({
-  account,
-  calls: [{
-    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-    value: Value.fromEther('1')
-  }],
-  callGasLimit: 69420n, // [!code focus]
-})
-```
-
-### entryPointAddress (Optional)
+### entryPointAddress
 
 - **Type:** `Address`
 - **Default:** `account.entryPoint.address`
 
 EntryPoint used for estimation. This is required when estimating without a Smart Account.
 
-### factory (Optional)
+### factory
 
 - **Type:** `Address`
 
@@ -277,7 +277,7 @@ const gas = await bundlerClient.userOperation.estimateGas({
 })
 ```
 
-### factoryData (Optional)
+### factoryData
 
 - **Type:** `Hex`
 
@@ -301,7 +301,7 @@ const gas = await bundlerClient.userOperation.estimateGas({
 })
 ```
 
-### maxFeePerGas (Optional)
+### maxFeePerGas
 
 - **Type:** `bigint`
 
@@ -320,7 +320,7 @@ const gas = await bundlerClient.userOperation.estimateGas({
 })
 ```
 
-### maxPriorityFeePerGas (Optional)
+### maxPriorityFeePerGas
 
 - **Type:** `bigint`
 
@@ -340,7 +340,7 @@ const gas = await bundlerClient.userOperation.estimateGas({
 })
 ```
 
-### nonce (Optional)
+### nonce
 
 - **Type:** `bigint`
 
@@ -359,7 +359,7 @@ const gas = await bundlerClient.userOperation.estimateGas({
 })
 ```
 
-### paymaster (Optional)
+### paymaster
 
 - **Type:** `Address | true | PaymasterClient | PaymasterActions`
 
@@ -423,7 +423,7 @@ const hash = await bundlerClient.userOperation.estimateGas({
 })
 ```
 
-### paymasterContext (Optional)
+### paymasterContext
 
 - **Type:** `unknown`
 
@@ -456,7 +456,7 @@ const hash = await bundlerClient.userOperation.estimateGas({
 })
 ```
 
-### paymasterData (Optional)
+### paymasterData
 
 - **Type:** `Address`
 
@@ -480,13 +480,7 @@ const gas = await bundlerClient.userOperation.estimateGas({
 })
 ```
 
-### paymasterSignature (Optional)
-
-- **Type:** `Hex`
-
-EntryPoint 0.9 Paymaster signature. It is excluded from the account-signed User Operation hash.
-
-### paymasterPostOpGasLimit (Optional)
+### paymasterPostOpGasLimit
 
 - **Type:** `bigint`
 
@@ -507,7 +501,13 @@ const gas = await bundlerClient.userOperation.estimateGas({
 })
 ```
 
-### paymasterVerificationGasLimit (Optional)
+### paymasterSignature
+
+- **Type:** `Hex`
+
+EntryPoint 0.9 Paymaster signature. It is excluded from the account-signed User Operation hash.
+
+### paymasterVerificationGasLimit
 
 - **Type:** `bigint`
 
@@ -528,7 +528,7 @@ const gas = await bundlerClient.userOperation.estimateGas({
 })
 ```
 
-### preVerificationGas (Optional)
+### preVerificationGas
 
 - **Type:** `bigint`
 
@@ -547,13 +547,13 @@ const gas = await bundlerClient.userOperation.estimateGas({
 })
 ```
 
-### sender (Optional)
+### sender
 
 - **Type:** `Address`
 
 Sender address for a partial User Operation supplied without a Smart Account.
 
-### signature (Optional)
+### signature
 
 - **Type:** `Hex`
 
@@ -572,7 +572,7 @@ const gas = await bundlerClient.userOperation.estimateGas({
 })
 ```
 
-### stateOverride (Optional)
+### stateOverride
 
 - **Type:** [`StateOverrides`](/docs/actions/public/call#stateoverride)
 
@@ -598,7 +598,7 @@ const gas = await bundlerClient.userOperation.estimateGas({
 })
 ```
 
-### verificationGasLimit (Optional)
+### verificationGasLimit
 
 - **Type:** `bigint`
 

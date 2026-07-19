@@ -63,7 +63,7 @@ type Log = {
 
 ## Parameters
 
-### args (optional)
+### args
 
 - **Type:** `object`
 
@@ -76,26 +76,26 @@ type Args = {
 
 Indexed argument values to filter logs by.
 
-### batch (optional)
+### batch
 
 - **Type:** `boolean`
 - **Default:** `true`
 
 Whether to batch the logs found within a poll interval into a single emission. When `false`, each log is emitted on its own.
 
-### fromBlock (optional)
+### fromBlock
 
 - **Type:** `bigint`
 
 Block number from which to start watching for logs.
 
-### poll (optional)
+### poll
 
 - **Type:** `boolean`
 
 Whether to poll for new logs instead of using a subscription. Defaults to `true` when the transport cannot subscribe or `fromBlock` is provided.
 
-### pollingInterval (optional)
+### pollingInterval
 
 - **Type:** `number`
 - **Default:** `client.pollingInterval`

@@ -107,7 +107,7 @@ The Smart Account.
 
 ## Parameters
 
-### authorization (Optional)
+### authorization
 
 - **Type:** `{ account: Account.PrivateKey, address: Address }`
 
@@ -119,7 +119,7 @@ EIP-7702 delegation used to deploy the account.
 
 Client used to read account and EntryPoint state.
 
-### decodeCalls (Optional)
+### decodeCalls
 
 - **Type:** `(data: Hex) => readonly Call[] | Promise<readonly Call[]>`
 
@@ -137,7 +137,7 @@ Encodes calls as account execution calldata.
 
 EntryPoint supported by the account.
 
-### extend (Optional)
+### extend
 
 - **Type:** `object`
 
@@ -155,7 +155,7 @@ Returns the account address.
 
 Returns the factory address and calldata for an undeployed account.
 
-### getNonce (Optional)
+### getNonce
 
 - **Type:** `(options?: { key?: bigint }) => bigint | Promise<bigint>`
 
@@ -167,13 +167,13 @@ Overrides the default EntryPoint nonce lookup.
 
 Returns a placeholder signature for gas estimation.
 
-### nonceKeyManager (Optional)
+### nonceKeyManager
 
 - **Type:** `NonceManager`
 
 Manages automatically allocated EntryPoint nonce keys.
 
-### sign (Optional)
+### sign
 
 - **Type:** `(options: { hash: Hex }) => Hex | Promise<Hex>`
 
@@ -197,7 +197,7 @@ Signs EIP-712 typed data with the owner.
 
 Signs a User Operation with the owner.
 
-### userOperation (Optional)
+### userOperation
 
 - **Type:** `{ estimateGas? }`
 

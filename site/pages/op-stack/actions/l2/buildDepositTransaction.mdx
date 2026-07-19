@@ -61,52 +61,52 @@ The initiating Account, prepared deposit request, and target L2 Chain.
 
 ## Parameters
 
-### account (Optional)
+### account
 
 - **Type:** `Account | Address`
 - **Default:** `undefined`
 
 The Account or address that initiates the deposit.
 
-### chain (Optional)
+### chain
 
 - **Type:** `Chain`
 - **Default:** `client.chain`
 
 The L2 Chain the deposit targets.
 
-### data (Optional)
+### data
 
 - **Type:** `Hex`
 
 The encoded contract call or deployment bytecode.
 
-### gas (Optional)
+### gas
 
 - **Type:** `bigint`
 
 The gas limit for execution on L2. Viem estimates this value when omitted.
 
-### isCreation (Optional)
+### isCreation
 
 - **Type:** `boolean`
 - **Default:** `false`
 
 Whether the deposit deploys a contract. Contract creation requires `data` and cannot include `to`.
 
-### mint (Optional)
+### mint
 
 - **Type:** `bigint`
 
 The value in wei minted on L2 and debited from the caller on L1.
 
-### to (Optional)
+### to
 
 - **Type:** `Address`
 
 The L2 transaction recipient.
 
-### value (Optional)
+### value
 
 - **Type:** `bigint`
 

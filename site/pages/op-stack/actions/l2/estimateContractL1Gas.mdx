@@ -77,13 +77,13 @@ The L1 data gas estimate.
 
 The contract ABI used to encode the function call.
 
-### accessList (Optional)
+### accessList
 
 - **Type:** `AccessList`
 
 The EIP-2930 access list included in the serialized transaction.
 
-### account (Optional)
+### account
 
 - **Type:** `Account | Address`
 
@@ -95,20 +95,20 @@ The Account or address associated with the contract write.
 
 The contract address.
 
-### args (Optional)
+### args
 
 - **Type:** `inferred from abi`
 
 The positional arguments passed to the contract function.
 
-### chain (Optional)
+### chain
 
 - **Type:** `Chain | null`
 - **Default:** `client.chain`
 
 The L2 Chain used to resolve defaults and the gas price oracle.
 
-### chainId (Optional)
+### chainId
 
 - **Type:** `number`
 - **Default:** `chain.id`
@@ -121,43 +121,43 @@ The Chain ID used to serialize the transaction.
 
 The payable or nonpayable function selected from the ABI.
 
-### gas (Optional)
+### gas
 
 - **Type:** `bigint`
 
 The transaction gas limit.
 
-### gasPriceOracleAddress (Optional)
+### gasPriceOracleAddress
 
 - **Type:** `Address`
 
 An override for the OP Stack gas price oracle address.
 
-### maxFeePerGas (Optional)
+### maxFeePerGas
 
 - **Type:** `bigint`
 
 The maximum total fee per gas in wei.
 
-### maxPriorityFeePerGas (Optional)
+### maxPriorityFeePerGas
 
 - **Type:** `bigint`
 
 The maximum priority fee per gas in wei.
 
-### nonce (Optional)
+### nonce
 
 - **Type:** `number`
 
 The transaction nonce.
 
-### type (Optional)
+### type
 
 - **Type:** `'eip1559'`
 
 The transaction envelope type.
 
-### value (Optional)
+### value
 
 - **Type:** `bigint`
 

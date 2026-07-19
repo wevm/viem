@@ -65,34 +65,34 @@ The configured output interval, estimated remaining seconds, and optional submis
 
 ## Parameters
 
-### l2BlockNumber
+### chain
 
-- **Type:** `bigint`
+- **Type:** `Chain`
+- **Default:** `client.chain`
 
-The minimum L2 block number for the next output.
+The L1 chain used to read the L2 Output Oracle.
 
-### intervalBuffer (Optional)
+### intervalBuffer
 
 - **Type:** `number`
 - **Default:** `1.1`
 
 The multiplier applied to the configured output interval.
 
-### targetChain (Optional)
+### l2BlockNumber
 
-- **Type:** `Chain`
+- **Type:** `bigint`
 
-The OP Stack L2 [Chain](/docs/chains) whose L2 Output Oracle is used.
+The minimum L2 block number for the next output.
 
-### l2OutputOracleAddress (Optional)
+### l2OutputOracleAddress
 
 - **Type:** `Address`
 
 An explicit L2 Output Oracle address. When supplied, `targetChain` is optional.
 
-### chain (Optional)
+### targetChain
 
 - **Type:** `Chain`
-- **Default:** `client.chain`
 
-The L1 chain used to read the L2 Output Oracle.
+The OP Stack L2 [Chain](/docs/chains) whose L2 Output Oracle is used.

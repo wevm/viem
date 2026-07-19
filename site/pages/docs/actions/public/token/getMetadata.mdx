@@ -69,29 +69,6 @@ The token metadata.
 
 ## Parameters
 
-### token
-
-- **Type:** `Address | string`
-
-The token to read: a contract `address`, or a symbol declared on the client's [`tokens`](/docs/clients/create) array. Declared metadata is returned without a network request.
-
-```ts twoslash
-// @noErrors
-import { Client, http, publicActions } from 'viem'
-import { mainnet } from 'viem/chains'
-import { usdc } from 'viem/tokens'
-
-const client = Client.create({
-  chain: mainnet,
-  tokens: [usdc],
-  transport: http(),
-}).extend(publicActions())
-// ---cut---
-const metadata = await client.token.getMetadata({
-  token: 'usdc', // [!code focus]
-})
-```
-
 ### blockNumber
 
 - **Type:** `bigint`
@@ -126,6 +103,29 @@ const client = Client.create({ chain: mainnet, transport: http() })
 const metadata = await Actions.token.getMetadata(client, {
   token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
   blockTag: 'safe', // [!code focus]
+})
+```
+
+### token
+
+- **Type:** `Address | string`
+
+The token to read: a contract `address`, or a symbol declared on the client's [`tokens`](/docs/clients/create) array. Declared metadata is returned without a network request.
+
+```ts twoslash
+// @noErrors
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+const client = Client.create({
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+}).extend(publicActions())
+// ---cut---
+const metadata = await client.token.getMetadata({
+  token: 'usdc', // [!code focus]
 })
 ```
 

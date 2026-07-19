@@ -92,6 +92,26 @@ const allowance = await Actions.token.getAllowance(client, {
 })
 ```
 
+### decimals
+
+- **Type:** `number`
+
+Token decimals used to derive `formatted`. When omitted, decimals are taken from a declared token, or fetched from the contract.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const allowance = await Actions.token.getAllowance(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  decimals: 6, // [!code focus]
+})
+```
+
 ### spender
 
 - **Type:** `Address`
@@ -133,26 +153,6 @@ const allowance = await client.token.getAllowance({
   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
   token: 'usdc', // [!code focus]
-})
-```
-
-### decimals
-
-- **Type:** `number`
-
-Token decimals used to derive `formatted`. When omitted, decimals are taken from a declared token, or fetched from the contract.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const allowance = await Actions.token.getAllowance(client, {
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
-  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-  decimals: 6, // [!code focus]
 })
 ```
 

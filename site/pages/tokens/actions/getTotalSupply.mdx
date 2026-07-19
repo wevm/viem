@@ -61,16 +61,16 @@ The token's total supply, both in base units (`amount`) and as a human-readable 
 
 ## Parameters
 
+### decimals
+
+- **Type:** `number`
+
+Token decimals for converting base units to human-readable amounts. Inferred
+from the Client's `tokens` array, or fetched from the token contract when omitted.
+
 ### token
 
 - **Type:** `string`
 
 Token to operate on: a [Client-declared](/tokens/tokens#token-lookup)
 token symbol (resolving its `address` and `decimals`), or a token address.
-
-### decimals (optional)
-
-- **Type:** `number`
-
-Token decimals for converting base units to human-readable amounts. Inferred
-from the Client's `tokens` array, or fetched from the token contract when omitted.

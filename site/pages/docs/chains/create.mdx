@@ -215,6 +215,25 @@ const chain = Chain.from({
 })
 ```
 
+##### chain.codecs
+
+- **Type:** `Chain.Codecs`
+- **Optional**
+
+Bidirectional RPC to native codecs.
+
+```ts twoslash
+import { Chain } from 'viem'
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  codecs: {}, // [!code focus]
+})
+```
+
 ##### chain.contracts
 
 - **Type:** `Chain.Contracts`
@@ -360,25 +379,6 @@ const chain = Chain.from({
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: { http: 'https://eth.merkle.io' }, // [!code focus]
-})
-```
-
-##### chain.codecs
-
-- **Type:** `Chain.Codecs`
-- **Optional**
-
-Bidirectional RPC to native codecs.
-
-```ts twoslash
-import { Chain } from 'viem'
-// ---cut---
-const chain = Chain.from({
-  id: 1,
-  name: 'Ethereum',
-  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { http: 'https://eth.merkle.io' },
-  codecs: {}, // [!code focus]
 })
 ```
 

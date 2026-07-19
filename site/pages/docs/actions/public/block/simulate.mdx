@@ -108,6 +108,55 @@ One simulated block per input block. Each block carries the standard block field
 
 ## Parameters
 
+### blockNumber
+
+- **Type:** `bigint`
+
+Simulates from the state at a given block number.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const blocks = await Actions.block.simulate(client, {
+  blockNumber: 42069n, // [!code focus]
+  blocks: [{
+    calls: [{
+      account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    }],
+  }],
+})
+```
+
+### blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+Simulates from the state at a given block tag.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const blocks = await Actions.block.simulate(client, {
+  blockTag: 'pending', // [!code focus]
+  blocks: [{
+    calls: [{
+      account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    }],
+  }],
+})
+```
+
 ### blocks
 
 - **Type:** `readonly { blockOverrides?: BlockOverrides; calls: Calls; stateOverride?: StateOverrides }[]`
@@ -206,55 +255,6 @@ const blocks = await Actions.block.simulate(client, {
         balance: 1_000_000_000_000_000_000n, // [!code focus]
       }, // [!code focus]
     }, // [!code focus]
-  }],
-})
-```
-
-### blockNumber
-
-- **Type:** `bigint`
-
-Simulates from the state at a given block number.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const blocks = await Actions.block.simulate(client, {
-  blockNumber: 42069n, // [!code focus]
-  blocks: [{
-    calls: [{
-      account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-      value: 1n,
-    }],
-  }],
-})
-```
-
-### blockTag
-
-- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
-- **Default:** `'latest'`
-
-Simulates from the state at a given block tag.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const blocks = await Actions.block.simulate(client, {
-  blockTag: 'pending', // [!code focus]
-  blocks: [{
-    calls: [{
-      account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-      value: 1n,
-    }],
   }],
 })
 ```

@@ -76,7 +76,7 @@ type ReturnType = {
 
 ## Parameters
 
-### admin (optional)
+### admin
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -89,7 +89,7 @@ Admin address for the token. Required when the Client has no account.
 
 Currency code for the token (e.g. `"USD"`).
 
-### logoURI (optional)
+### logoURI
 
 - **Type:** `string`
 
@@ -101,13 +101,13 @@ Logo URI for the token. Requires a T5-enabled Tempo chain.
 
 Name of the token.
 
-### quoteToken (optional)
+### quoteToken
 
 - **Type:** `Address | bigint`
 
 Quote token address or ID. Defaults to pathUSD.
 
-### salt (optional)
+### salt
 
 - **Type:** `Hex`
 - **Default:** `Hex.random(32)`

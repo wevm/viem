@@ -71,6 +71,13 @@ The remaining allowance, both in base units (`amount`) and as a human-readable d
 
 Account that owns the tokens.
 
+### decimals
+
+- **Type:** `number`
+
+Token decimals for converting base units to human-readable amounts. Inferred
+from the Client's `tokens` array, or fetched from the token contract when omitted.
+
 ### spender
 
 - **Type:** `Address`
@@ -83,10 +90,3 @@ Account allowed to spend the account's tokens.
 
 Token to operate on: a [Client-declared](/tokens/tokens#token-lookup)
 token symbol (resolving its `address` and `decimals`), or a token address.
-
-### decimals (optional)
-
-- **Type:** `number`
-
-Token decimals for converting base units to human-readable amounts. Inferred
-from the Client's `tokens` array, or fetched from the token contract when omitted.

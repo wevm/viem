@@ -70,52 +70,52 @@ The estimated interval, remaining seconds, and optional submission timestamp in 
 
 ## Parameters
 
-### receipt
-
-- **Type:** `TransactionReceipt`
-
-The L2 withdrawal transaction receipt.
-
-### targetChain (Optional)
-
-- **Type:** `Chain`
-
-The OP Stack L2 [Chain](/docs/chains) whose L1 contracts are used.
-
-### disputeGameFactoryAddress (Optional)
-
-- **Type:** `Address`
-
-An explicit Dispute Game Factory address. Supply all three explicit addresses when omitting `targetChain`.
-
-### l2OutputOracleAddress (Optional)
-
-- **Type:** `Address`
-
-An explicit L2 Output Oracle address. Supply all three explicit addresses when omitting `targetChain`.
-
-### portalAddress (Optional)
-
-- **Type:** `Address`
-
-An explicit Optimism Portal address. Supply all three explicit addresses when omitting `targetChain`.
-
-### chain (Optional)
+### chain
 
 - **Type:** `Chain`
 - **Default:** `client.chain`
 
 The L1 chain used to read the contracts.
 
-### intervalBuffer (Optional)
+### disputeGameFactoryAddress
+
+- **Type:** `Address`
+
+An explicit Dispute Game Factory address. Supply all three explicit addresses when omitting `targetChain`.
+
+### intervalBuffer
 
 - **Type:** `number`
 - **Default:** `1.1`
 
 The multiplier applied to the observed output or game interval.
 
-### l2Timestamp (Optional)
+### l2OutputOracleAddress
+
+- **Type:** `Address`
+
+An explicit L2 Output Oracle address. Supply all three explicit addresses when omitting `targetChain`.
+
+### l2Timestamp
 
 - **Type:** `bigint`
 
 The L2 timestamp used as the position for super-root games. Defaults to `receipt.blockNumber` for other portal versions.
+
+### portalAddress
+
+- **Type:** `Address`
+
+An explicit Optimism Portal address. Supply all three explicit addresses when omitting `targetChain`.
+
+### receipt
+
+- **Type:** `TransactionReceipt`
+
+The L2 withdrawal transaction receipt.
+
+### targetChain
+
+- **Type:** `Chain`
+
+The OP Stack L2 [Chain](/docs/chains) whose L1 contracts are used.

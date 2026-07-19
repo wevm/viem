@@ -78,59 +78,59 @@ The dispute game or legacy output, normalized output claim, and withdrawal extra
 
 ## Parameters
 
-### receipt
+### chain
 
-- **Type:** `TransactionReceipt`
+- **Type:** `Chain`
+- **Default:** `client.chain`
 
-The L2 withdrawal transaction receipt.
+The L1 chain used to read the contracts.
 
-### gameLimit (Optional)
+### disputeGameFactoryAddress
+
+- **Type:** `Address`
+
+An explicit Dispute Game Factory address. Supply all three explicit addresses when omitting `targetChain`.
+
+### gameLimit
 
 - **Type:** `number`
 - **Default:** `100`
 
 The maximum number of recent dispute games to inspect.
 
-### l2Timestamp (Optional)
+### l2OutputOracleAddress
+
+- **Type:** `Address`
+
+An explicit L2 Output Oracle address. Supply all three explicit addresses when omitting `targetChain`.
+
+### l2Timestamp
 
 - **Type:** `bigint`
 
 The L2 timestamp used as the position for super-root games.
 
-### pollingInterval (Optional)
+### pollingInterval
 
 - **Type:** `number`
 - **Default:** `client.pollingInterval`
 
 The polling interval in milliseconds.
 
-### targetChain (Optional)
-
-- **Type:** `Chain`
-
-The OP Stack L2 [Chain](/docs/chains) whose L1 contracts are used.
-
-### disputeGameFactoryAddress (Optional)
-
-- **Type:** `Address`
-
-An explicit Dispute Game Factory address. Supply all three explicit addresses when omitting `targetChain`.
-
-### l2OutputOracleAddress (Optional)
-
-- **Type:** `Address`
-
-An explicit L2 Output Oracle address. Supply all three explicit addresses when omitting `targetChain`.
-
-### portalAddress (Optional)
+### portalAddress
 
 - **Type:** `Address`
 
 An explicit Optimism Portal address. Supply all three explicit addresses when omitting `targetChain`.
 
-### chain (Optional)
+### receipt
+
+- **Type:** `TransactionReceipt`
+
+The L2 withdrawal transaction receipt.
+
+### targetChain
 
 - **Type:** `Chain`
-- **Default:** `client.chain`
 
-The L1 chain used to read the contracts.
+The OP Stack L2 [Chain](/docs/chains) whose L1 contracts are used.

@@ -103,6 +103,21 @@ const assets = await Actions.wallet.getAssets(client, {
 })
 ```
 
+### assetTypes
+
+- **Type:** `readonly ('native' | 'erc20' | 'erc721' | string)[]`
+
+Filter the response to specific asset types.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const assets = await Actions.wallet.getAssets(client, {
+  assetTypes: ['native', 'erc20'], // [!code focus]
+})
+```
+
 ### assets
 
 - **Type:** `{ [chainId: number]: readonly { address: Address | 'native'; type: string }[] }`
@@ -122,21 +137,6 @@ const assets = await Actions.wallet.getAssets(client, {
       }, // [!code focus]
     ], // [!code focus]
   }, // [!code focus]
-})
-```
-
-### assetTypes
-
-- **Type:** `readonly ('native' | 'erc20' | 'erc721' | string)[]`
-
-Filter the response to specific asset types.
-
-```ts twoslash
-import { Actions } from 'viem'
-import { client } from './viem.config'
-// ---cut---
-const assets = await Actions.wallet.getAssets(client, {
-  assetTypes: ['native', 'erc20'], // [!code focus]
 })
 ```
 

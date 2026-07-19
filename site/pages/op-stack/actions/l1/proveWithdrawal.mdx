@@ -101,11 +101,48 @@ The L1 transaction hash.
 
 ## Parameters
 
+### account
+
+- **Type:** `Account | Address`
+
+The [Account](/docs/accounts) that sends the proof transaction. Required when the Client has no Account.
+
+### chain
+
+- **Type:** `Chain | null`
+- **Default:** `client.chain`
+
+The L1 chain on which the proof transaction is sent.
+
+### gas
+
+- **Type:** `bigint | null`
+
+The gas limit for the L1 transaction.
+
 ### l2OutputIndex
 
 - **Type:** `bigint`
 
 The L2 output or dispute-game index.
+
+### maxFeePerGas
+
+- **Type:** `bigint`
+
+The maximum total fee per gas, in wei.
+
+### maxPriorityFeePerGas
+
+- **Type:** `bigint`
+
+The maximum priority fee per gas, in wei.
+
+### nonce
+
+- **Type:** `number`
+
+The L1 transaction nonce.
 
 ### outputRootProof
 
@@ -113,11 +150,17 @@ The L2 output or dispute-game index.
 
 The output-root proof containing `latestBlockhash`, `messagePasserStorageRoot`, `stateRoot`, and `version` hex values.
 
-### withdrawalProof
+### portalAddress
 
-- **Type:** `readonly Hex[]`
+- **Type:** `Address`
 
-The Merkle proof for the withdrawal storage slot.
+An explicit Optimism Portal address. When supplied, `targetChain` is optional.
+
+### targetChain
+
+- **Type:** `Chain`
+
+The OP Stack L2 [Chain](/docs/chains) whose portal contract is used.
 
 ### withdrawal
 
@@ -125,51 +168,8 @@ The Merkle proof for the withdrawal storage slot.
 
 The withdrawal tuple containing `data`, `gasLimit`, `nonce`, `sender`, `target`, and `value`.
 
-### account
+### withdrawalProof
 
-- **Type:** `Account | Address`
+- **Type:** `readonly Hex[]`
 
-The [Account](/docs/accounts) that sends the proof transaction. Required when the Client has no Account.
-
-### targetChain (Optional)
-
-- **Type:** `Chain`
-
-The OP Stack L2 [Chain](/docs/chains) whose portal contract is used.
-
-### portalAddress (Optional)
-
-- **Type:** `Address`
-
-An explicit Optimism Portal address. When supplied, `targetChain` is optional.
-
-### chain (Optional)
-
-- **Type:** `Chain | null`
-- **Default:** `client.chain`
-
-The L1 chain on which the proof transaction is sent.
-
-### gas (Optional)
-
-- **Type:** `bigint | null`
-
-The gas limit for the L1 transaction.
-
-### maxFeePerGas (Optional)
-
-- **Type:** `bigint`
-
-The maximum total fee per gas, in wei.
-
-### maxPriorityFeePerGas (Optional)
-
-- **Type:** `bigint`
-
-The maximum priority fee per gas, in wei.
-
-### nonce (Optional)
-
-- **Type:** `number`
-
-The L1 transaction nonce.
+The Merkle proof for the withdrawal storage slot.

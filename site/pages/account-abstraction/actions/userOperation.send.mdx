@@ -184,7 +184,7 @@ The User Operation hash.
 
 ## Parameters
 
-### account (Optional)
+### account
 
 - **Type:** `SmartAccount`
 - **Default:** `bundlerClient.account`
@@ -203,7 +203,32 @@ const hash = await bundlerClient.userOperation.send({
 })
 ```
 
-### calls (Optional)
+### authorization
+
+- **Type:** `Authorization.Signed`
+
+Signed EIP-7702 authorization for the first User Operation from a delegated account.
+
+### callGasLimit
+
+- **Type:** `bigint`
+
+The amount of gas to allocate the main execution call.
+
+```ts twoslash
+import { account, bundlerClient } from './config'
+import { Value } from 'viem/utils'
+const hash = await bundlerClient.userOperation.send({
+  account,
+  calls: [{
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: Value.fromEther('1')
+  }],
+  callGasLimit: 69420n, // [!code focus]
+})
+```
+
+### calls
 
 - **Type:** `({ data?: Hex | undefined, to: Address, value?: bigint | undefined } | { abi: Abi, functionName: string, args: unknown[], to: Address, value?: bigint | undefined })[]`
 
@@ -238,32 +263,7 @@ const hash = await bundlerClient.userOperation.send({
 ```
 :::
 
-### authorization (Optional)
-
-- **Type:** `Authorization.Signed`
-
-Signed EIP-7702 authorization for the first User Operation from a delegated account.
-
-### callGasLimit (Optional)
-
-- **Type:** `bigint`
-
-The amount of gas to allocate the main execution call.
-
-```ts twoslash
-import { account, bundlerClient } from './config'
-import { Value } from 'viem/utils'
-const hash = await bundlerClient.userOperation.send({
-  account,
-  calls: [{
-    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-    value: Value.fromEther('1')
-  }],
-  callGasLimit: 69420n, // [!code focus]
-})
-```
-
-### dataSuffix (Optional)
+### dataSuffix
 
 - **Type:** `Hex`
 
@@ -284,14 +284,14 @@ const hash = await bundlerClient.userOperation.send({
 })
 ```
 
-### entryPointAddress (Optional)
+### entryPointAddress
 
 - **Type:** `Address`
 - **Default:** `account.entryPoint.address`
 
 EntryPoint that receives the User Operation. This is required when sending a complete User Operation without a Smart Account.
 
-### factory (Optional)
+### factory
 
 - **Type:** `Address`
 
@@ -315,7 +315,7 @@ const hash = await bundlerClient.userOperation.send({
 })
 ```
 
-### factoryData (Optional)
+### factoryData
 
 - **Type:** `Hex`
 
@@ -339,7 +339,7 @@ const hash = await bundlerClient.userOperation.send({
 })
 ```
 
-### maxFeePerGas (Optional)
+### maxFeePerGas
 
 - **Type:** `bigint`
 
@@ -358,7 +358,7 @@ const hash = await bundlerClient.userOperation.send({
 })
 ```
 
-### maxPriorityFeePerGas (Optional)
+### maxPriorityFeePerGas
 
 - **Type:** `bigint`
 
@@ -378,7 +378,7 @@ const hash = await bundlerClient.userOperation.send({
 })
 ```
 
-### nonce (Optional)
+### nonce
 
 - **Type:** `bigint`
 
@@ -397,7 +397,7 @@ const hash = await bundlerClient.userOperation.send({
 })
 ```
 
-### paymaster (Optional)
+### paymaster
 
 - **Type:** `Address | true | PaymasterClient | PaymasterActions`
 
@@ -460,7 +460,7 @@ const hash = await bundlerClient.userOperation.send({
 })
 ```
 
-### paymasterContext (Optional)
+### paymasterContext
 
 - **Type:** `unknown`
 
@@ -492,7 +492,7 @@ const hash = await bundlerClient.userOperation.send({
 })
 ```
 
-### paymasterData (Optional)
+### paymasterData
 
 - **Type:** `Address`
 
@@ -516,13 +516,7 @@ const hash = await bundlerClient.userOperation.send({
 })
 ```
 
-### paymasterSignature (Optional)
-
-- **Type:** `Hex`
-
-EntryPoint 0.9 Paymaster signature. Viem packs it after `paymasterData` without changing the account-signed User Operation hash.
-
-### paymasterPostOpGasLimit (Optional)
+### paymasterPostOpGasLimit
 
 - **Type:** `bigint`
 
@@ -543,7 +537,13 @@ const hash = await bundlerClient.userOperation.send({
 })
 ```
 
-### paymasterVerificationGasLimit (Optional)
+### paymasterSignature
+
+- **Type:** `Hex`
+
+EntryPoint 0.9 Paymaster signature. Viem packs it after `paymasterData` without changing the account-signed User Operation hash.
+
+### paymasterVerificationGasLimit
 
 - **Type:** `bigint`
 
@@ -564,7 +564,7 @@ const hash = await bundlerClient.userOperation.send({
 })
 ```
 
-### preVerificationGas (Optional)
+### preVerificationGas
 
 - **Type:** `bigint`
 
@@ -583,13 +583,13 @@ const hash = await bundlerClient.userOperation.send({
 })
 ```
 
-### sender (Optional)
+### sender
 
 - **Type:** `Address`
 
 Sender address for a complete User Operation supplied without a Smart Account.
 
-### signature (Optional)
+### signature
 
 - **Type:** `Hex`
 
@@ -608,7 +608,7 @@ const hash = await bundlerClient.userOperation.send({
 })
 ```
 
-### verificationGasLimit (Optional)
+### verificationGasLimit
 
 - **Type:** `bigint`
 

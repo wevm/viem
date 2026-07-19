@@ -70,18 +70,25 @@ The current withdrawal lifecycle status.
 
 ## Parameters
 
-### receipt
+### chain
 
-- **Type:** `TransactionReceipt`
+- **Type:** `Chain`
+- **Default:** `client.chain`
 
-The L2 withdrawal transaction receipt. Use this form instead of the direct withdrawal fields.
+The L1 chain used to read the contracts.
 
-### logIndex (Optional)
+### disputeGameFactoryAddress
+
+- **Type:** `Address`
+
+An explicit Dispute Game Factory address. Supply all three explicit addresses when omitting `targetChain`.
+
+### gameLimit
 
 - **Type:** `number`
-- **Default:** `0`
+- **Default:** `100`
 
-The relative withdrawal log index within `receipt`.
+The maximum number of recent dispute games to inspect.
 
 ### l2BlockNumber
 
@@ -89,58 +96,51 @@ The relative withdrawal log index within `receipt`.
 
 The withdrawal's L2 block number. Required with `sender` and `withdrawalHash` when `receipt` is omitted.
 
+### l2OutputOracleAddress
+
+- **Type:** `Address`
+
+An explicit L2 Output Oracle address. Supply all three explicit addresses when omitting `targetChain`.
+
+### l2Timestamp
+
+- **Type:** `bigint`
+
+The L2 timestamp used as the position for super-root games.
+
+### logIndex
+
+- **Type:** `number`
+- **Default:** `0`
+
+The relative withdrawal log index within `receipt`.
+
+### portalAddress
+
+- **Type:** `Address`
+
+An explicit Optimism Portal address. Supply all three explicit addresses when omitting `targetChain`.
+
+### receipt
+
+- **Type:** `TransactionReceipt`
+
+The L2 withdrawal transaction receipt. Use this form instead of the direct withdrawal fields.
+
 ### sender
 
 - **Type:** `Address`
 
 The withdrawal sender. Required with `l2BlockNumber` and `withdrawalHash` when `receipt` is omitted.
 
-### withdrawalHash
-
-- **Type:** `Hex`
-
-The withdrawal hash. Required with `l2BlockNumber` and `sender` when `receipt` is omitted.
-
-### targetChain (Optional)
+### targetChain
 
 - **Type:** `Chain`
 
 The OP Stack L2 [Chain](/docs/chains) whose L1 contracts are used.
 
-### disputeGameFactoryAddress (Optional)
+### withdrawalHash
 
-- **Type:** `Address`
+- **Type:** `Hex`
 
-An explicit Dispute Game Factory address. Supply all three explicit addresses when omitting `targetChain`.
-
-### l2OutputOracleAddress (Optional)
-
-- **Type:** `Address`
-
-An explicit L2 Output Oracle address. Supply all three explicit addresses when omitting `targetChain`.
-
-### portalAddress (Optional)
-
-- **Type:** `Address`
-
-An explicit Optimism Portal address. Supply all three explicit addresses when omitting `targetChain`.
-
-### chain (Optional)
-
-- **Type:** `Chain`
-- **Default:** `client.chain`
-
-The L1 chain used to read the contracts.
-
-### gameLimit (Optional)
-
-- **Type:** `number`
-- **Default:** `100`
-
-The maximum number of recent dispute games to inspect.
-
-### l2Timestamp (Optional)
-
-- **Type:** `bigint`
-
-The L2 timestamp used as the position for super-root games.
+The withdrawal hash. Required with `l2BlockNumber` and `sender` when `receipt` is omitted.

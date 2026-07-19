@@ -32,7 +32,7 @@ The Bundler URL above is a public endpoint. Please do not use it in production a
 
 ## Parameters
 
-### account (Optional)
+### account
 
 - **Type:** `SmartAccount`
 
@@ -66,7 +66,7 @@ const bundlerClient = BundlerClient.create({
 })
 ```
 
-### chain (Optional)
+### chain
 
 - **Type:** [Chain](/docs/chains)
 
@@ -83,26 +83,7 @@ const bundlerClient = BundlerClient.create({
 })
 ```
 
-### dataSuffix (Optional)
-
-- **Type:** `Hex`
-
-Data to append to the end of User Operation calldata. Useful for adding [transaction attribution](https://oxlib.sh/ercs/erc8021/Attribution).
-
-The bundler client will also inherit `dataSuffix` from the underlying client (e.g., wallet client) if not explicitly set.
-
-Applies to `userOperation.prepare` and `userOperation.send` actions.
-
-```ts twoslash
-import { BundlerClient } from 'viem/erc4337'
-import { http } from 'viem'
-const bundlerClient = BundlerClient.create({
-  dataSuffix: '0xdeadbeef', // [!code focus]
-  transport: http('https://public.pimlico.io/v2/1/rpc')
-})
-```
-
-### client (Optional)
+### client
 
 - **Type:** `Client`
 
@@ -124,7 +105,26 @@ const bundlerClient = BundlerClient.create({
 })
 ```
 
-### key (Optional)
+### dataSuffix
+
+- **Type:** `Hex`
+
+Data to append to the end of User Operation calldata. Useful for adding [transaction attribution](https://oxlib.sh/ercs/erc8021/Attribution).
+
+The bundler client will also inherit `dataSuffix` from the underlying client (e.g., wallet client) if not explicitly set.
+
+Applies to `userOperation.prepare` and `userOperation.send` actions.
+
+```ts twoslash
+import { BundlerClient } from 'viem/erc4337'
+import { http } from 'viem'
+const bundlerClient = BundlerClient.create({
+  dataSuffix: '0xdeadbeef', // [!code focus]
+  transport: http('https://public.pimlico.io/v2/1/rpc')
+})
+```
+
+### key
 
 - **Type:** `string`
 - **Default:** `"bundler"`
@@ -140,7 +140,7 @@ const bundlerClient = BundlerClient.create({
 })
 ```
 
-### name (Optional)
+### name
 
 - **Type:** `string`
 - **Default:** `"Bundler Client"`
@@ -156,7 +156,7 @@ const bundlerClient = BundlerClient.create({
 })
 ```
 
-### paymaster (Optional)
+### paymaster
 
 - **Type:** `true | PaymasterClient | { getData?: Function, getStubData?: Function }`
 
@@ -200,7 +200,7 @@ const bundlerClient = BundlerClient.create({
 
 See the [properties below](#paymastergetdata-optional) for more information on how to use custom Paymaster functions.
 
-### paymaster.getData (Optional)
+### paymaster.getData
 
 - **Type:** `PaymasterClient['paymaster']['getData']`
 
@@ -231,7 +231,7 @@ const bundlerClient = BundlerClient.create({
 })
 ```
 
-### paymaster.getStubData (Optional)
+### paymaster.getStubData
 
 - **Type:** `PaymasterClient['paymaster']['getStubData']`
 
@@ -265,7 +265,7 @@ const bundlerClient = BundlerClient.create({
 })
 ```
 
-### paymasterContext (Optional)
+### paymasterContext
 
 - **Type:** `unknown`
 
@@ -289,7 +289,7 @@ const bundlerClient = BundlerClient.create({
 })
 ```
 
-### pollingInterval (Optional)
+### pollingInterval
 
 - **Type:** `number`
 - **Default:** `4_000`
@@ -305,7 +305,7 @@ const bundlerClient = BundlerClient.create({
 })
 ```
 
-### schema (Optional)
+### schema
 
 - **Type:** `RpcSchema`
 - **Default:** `BundlerRpcSchema`
@@ -346,7 +346,7 @@ const bundlerClient = BundlerClient.create({
 })
 ```
 
-### userOperation (Optional)
+### userOperation
 
 Configuration for User Operations.
 

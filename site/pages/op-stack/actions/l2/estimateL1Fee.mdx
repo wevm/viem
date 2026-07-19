@@ -61,81 +61,81 @@ The L1 data fee in wei.
 
 ## Parameters
 
-### accessList (Optional)
+### accessList
 
 - **Type:** `AccessList`
 
 The EIP-2930 access list included in the serialized transaction.
 
-### account (Optional)
+### account
 
 - **Type:** `Account | Address`
 
 The Account or address associated with the transaction.
 
-### chain (Optional)
+### chain
 
 - **Type:** `Chain | null`
 - **Default:** `client.chain`
 
 The L2 Chain used to resolve defaults and the gas price oracle.
 
-### chainId (Optional)
+### chainId
 
 - **Type:** `number`
 - **Default:** `chain.id`
 
 The Chain ID used to serialize the transaction.
 
-### data (Optional)
+### data
 
 - **Type:** `Hex`
 
 The contract bytecode or encoded function call.
 
-### gas (Optional)
+### gas
 
 - **Type:** `bigint`
 
 The transaction gas limit.
 
-### gasPriceOracleAddress (Optional)
+### gasPriceOracleAddress
 
 - **Type:** `Address`
 
 An override for the OP Stack gas price oracle address.
 
-### maxFeePerGas (Optional)
+### maxFeePerGas
 
 - **Type:** `bigint`
 
 The maximum total fee per gas in wei.
 
-### maxPriorityFeePerGas (Optional)
+### maxPriorityFeePerGas
 
 - **Type:** `bigint`
 
 The maximum priority fee per gas in wei.
 
-### nonce (Optional)
+### nonce
 
 - **Type:** `number`
 
 The transaction nonce.
 
-### to (Optional)
+### to
 
 - **Type:** `Address | null`
 
 The transaction recipient.
 
-### type (Optional)
+### type
 
 - **Type:** `'eip1559'`
 
 The transaction envelope type.
 
-### value (Optional)
+### value
 
 - **Type:** `bigint`
 

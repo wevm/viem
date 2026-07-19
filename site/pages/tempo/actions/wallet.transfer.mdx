@@ -64,34 +64,34 @@ The submitted transfer receipt and chain ID.
 
 Human-readable amount to transfer (for example, `"1.5"`). Optional when `editable` is `true`.
 
-### chainId (optional)
+### chainId
 
 - **Type:** `number`
 - **Default:** the active chain
 
 Chain ID to transfer on.
 
-### editable (optional)
+### editable
 
 - **Type:** `boolean`
 - **Default:** `false`
 
 Whether to open the editable wallet send UI. When `false`, the wallet uses a matching access key when one is available, otherwise it shows a confirm dialog.
 
-### feePayer (optional)
+### feePayer
 
 - **Type:** `boolean | string`
 
 Fee payer override. `false` disables the wallet's default fee payer. A URL string uses a custom fee payer service.
 
-### from (optional)
+### from
 
 - **Type:** `Address`
 - **Default:** the active account
 
 Address to transfer tokens from. When set to a different address, the call uses `transferFrom` and requires the active account to have an allowance from `from`. Read-only variant only.
 
-### memo (optional)
+### memo
 
 - **Type:** `string`
 

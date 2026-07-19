@@ -69,32 +69,32 @@ The estimated L2 gas required to initiate the withdrawal.
 
 This action also accepts the transaction and block options from [`Actions.transaction.estimateGas`](/docs/actions/public/transaction/estimateGas), except `data`, `to`, and `value`. The withdrawal request supplies those fields for the message passer call.
 
-### account (Optional)
+### account
 
 - **Type:** `Account | Address`
 
 The Account or address used as the transaction sender during estimation.
 
-### chain (Optional)
+### chain
 
 - **Type:** `Chain | null`
 - **Default:** `client.chain`
 
 The L2 Chain containing the message passer contract.
 
-### maxFeePerGas (Optional)
+### maxFeePerGas
 
 - **Type:** `bigint | number | Hex`
 
 The maximum total fee per gas in wei.
 
-### maxPriorityFeePerGas (Optional)
+### maxPriorityFeePerGas
 
 - **Type:** `bigint | number | Hex`
 
 The maximum priority fee per gas in wei.
 
-### nonce (Optional)
+### nonce
 
 - **Type:** `bigint | number | Hex`
 
@@ -106,7 +106,7 @@ The transaction nonce used during estimation.
 
 The withdrawal request passed to the L2 message passer.
 
-#### request.data (Optional)
+#### request.data
 
 - **Type:** `Hex`
 - **Default:** `'0x'`
@@ -125,7 +125,7 @@ The gas limit for execution on L1.
 
 The L1 transaction recipient.
 
-#### request.value (Optional)
+#### request.value
 
 - **Type:** `bigint`
 

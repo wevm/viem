@@ -66,63 +66,63 @@ The L1 transaction hash.
 
 ## Parameters
 
-### withdrawal
-
-- **Type:** `Withdrawal.Withdrawal`
-
-The proven withdrawal to finalize.
-
-### proofSubmitter (Optional)
-
-- **Type:** `Address | null`
-
-The proof submitter used by portals that support external-proof finalization.
-
 ### account
 
 - **Type:** `Account | Address`
 
 The [Account](/docs/accounts) that sends the finalization transaction. Required when the Client has no Account.
 
-### targetChain (Optional)
-
-- **Type:** `Chain`
-
-The OP Stack L2 [Chain](/docs/chains) whose portal contract is used.
-
-### portalAddress (Optional)
-
-- **Type:** `Address`
-
-An explicit Optimism Portal address. When supplied, `targetChain` is optional.
-
-### chain (Optional)
+### chain
 
 - **Type:** `Chain | null`
 - **Default:** `client.chain`
 
 The L1 chain on which the finalization transaction is sent.
 
-### gas (Optional)
+### gas
 
 - **Type:** `bigint | null`
 
 The gas limit for the L1 transaction.
 
-### maxFeePerGas (Optional)
+### maxFeePerGas
 
 - **Type:** `bigint`
 
 The maximum total fee per gas, in wei.
 
-### maxPriorityFeePerGas (Optional)
+### maxPriorityFeePerGas
 
 - **Type:** `bigint`
 
 The maximum priority fee per gas, in wei.
 
-### nonce (Optional)
+### nonce
 
 - **Type:** `number`
 
 The L1 transaction nonce.
+
+### portalAddress
+
+- **Type:** `Address`
+
+An explicit Optimism Portal address. When supplied, `targetChain` is optional.
+
+### proofSubmitter
+
+- **Type:** `Address | null`
+
+The proof submitter used by portals that support external-proof finalization.
+
+### targetChain
+
+- **Type:** `Chain`
+
+The OP Stack L2 [Chain](/docs/chains) whose portal contract is used.
+
+### withdrawal
+
+- **Type:** `Withdrawal.Withdrawal`
+
+The proven withdrawal to finalize.

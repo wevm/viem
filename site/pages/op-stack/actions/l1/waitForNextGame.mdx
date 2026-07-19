@@ -64,54 +64,54 @@ The next respected dispute game and its anchored L2 position.
 
 ## Parameters
 
-### l2BlockNumber
+### chain
 
-- **Type:** `bigint`
+- **Type:** `Chain`
+- **Default:** `client.chain`
 
-The minimum anchored L2 block number, or timestamp for super-root games.
+The L1 chain used to read recent games.
 
-### intervalBuffer (Optional)
+### disputeGameFactoryAddress
+
+- **Type:** `Address`
+
+An explicit Dispute Game Factory address. Supply it with `portalAddress` when omitting `targetChain`.
+
+### intervalBuffer
 
 - **Type:** `number`
 - **Default:** `1.1`
 
 The multiplier applied to the observed interval before polling begins.
 
-### limit (Optional)
+### l2BlockNumber
+
+- **Type:** `bigint`
+
+The minimum anchored L2 block number, or timestamp for super-root games.
+
+### limit
 
 - **Type:** `number`
 - **Default:** `100`
 
 The maximum number of recent games to inspect while polling.
 
-### pollingInterval (Optional)
+### pollingInterval
 
 - **Type:** `number`
 - **Default:** `client.pollingInterval`
 
 The polling interval in milliseconds.
 
-### targetChain (Optional)
-
-- **Type:** `Chain`
-
-The OP Stack L2 [Chain](/docs/chains) whose L1 contracts are used.
-
-### disputeGameFactoryAddress (Optional)
-
-- **Type:** `Address`
-
-An explicit Dispute Game Factory address. Supply it with `portalAddress` when omitting `targetChain`.
-
-### portalAddress (Optional)
+### portalAddress
 
 - **Type:** `Address`
 
 An explicit Optimism Portal address. Supply it with `disputeGameFactoryAddress` when omitting `targetChain`.
 
-### chain (Optional)
+### targetChain
 
 - **Type:** `Chain`
-- **Default:** `client.chain`
 
-The L1 chain used to read recent games.
+The OP Stack L2 [Chain](/docs/chains) whose L1 contracts are used.

@@ -36,35 +36,35 @@ The signed authentication object and the serialized token.
 
 ## Parameters
 
-### account (optional)
+### account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
 
 Account to sign the authorization token with. Must be a local account.
 
-### chain (optional)
+### chain
 
 - **Type:** `Chain`
 - **Default:** `client.chain`
 
 Zone chain to sign the token for.
 
-### expiresAt (optional)
+### expiresAt
 
 - **Type:** `number`
 - **Default:** `issuedAt + 86_400`
 
 Unix timestamp when the token expires.
 
-### issuedAt (optional)
+### issuedAt
 
 - **Type:** `number`
 - **Default:** `Math.floor(Date.now() / 1000)`
 
 Unix timestamp when the token was issued.
 
-### storage (optional)
+### storage
 
 - **Type:** `Storage`
 - **Default:** `Storage.defaultStorage()`

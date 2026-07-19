@@ -99,11 +99,48 @@ The estimated L1 gas.
 
 ## Parameters
 
+### account
+
+- **Type:** `Account | Address`
+
+The [Account](/docs/accounts) used for gas estimation.
+
+### chain
+
+- **Type:** `Chain`
+- **Default:** `client.chain`
+
+The L1 chain used for gas estimation.
+
+### gas
+
+- **Type:** `bigint`
+
+The gas limit included in the estimate request.
+
 ### l2OutputIndex
 
 - **Type:** `bigint`
 
 The L2 output or dispute-game index.
+
+### maxFeePerGas
+
+- **Type:** `bigint`
+
+The maximum total fee per gas, in wei.
+
+### maxPriorityFeePerGas
+
+- **Type:** `bigint`
+
+The maximum priority fee per gas, in wei.
+
+### nonce
+
+- **Type:** `number`
+
+The transaction nonce included in the estimate request.
 
 ### outputRootProof
 
@@ -111,11 +148,17 @@ The L2 output or dispute-game index.
 
 The output-root proof for the withdrawal block. It contains `latestBlockhash`, `messagePasserStorageRoot`, `stateRoot`, and `version` hex values.
 
-### withdrawalProof
+### portalAddress
 
-- **Type:** `readonly Hex[]`
+- **Type:** `Address`
 
-The Merkle proof for the withdrawal storage slot.
+An explicit Optimism Portal address. When supplied, `targetChain` is optional.
+
+### targetChain
+
+- **Type:** `Chain`
+
+The OP Stack L2 [Chain](/docs/chains) whose portal contract is used.
 
 ### withdrawal
 
@@ -123,51 +166,8 @@ The Merkle proof for the withdrawal storage slot.
 
 The withdrawal tuple containing `data`, `gasLimit`, `nonce`, `sender`, `target`, and `value`.
 
-### account (Optional)
+### withdrawalProof
 
-- **Type:** `Account | Address`
+- **Type:** `readonly Hex[]`
 
-The [Account](/docs/accounts) used for gas estimation.
-
-### targetChain (Optional)
-
-- **Type:** `Chain`
-
-The OP Stack L2 [Chain](/docs/chains) whose portal contract is used.
-
-### portalAddress (Optional)
-
-- **Type:** `Address`
-
-An explicit Optimism Portal address. When supplied, `targetChain` is optional.
-
-### chain (Optional)
-
-- **Type:** `Chain`
-- **Default:** `client.chain`
-
-The L1 chain used for gas estimation.
-
-### gas (Optional)
-
-- **Type:** `bigint`
-
-The gas limit included in the estimate request.
-
-### maxFeePerGas (Optional)
-
-- **Type:** `bigint`
-
-The maximum total fee per gas, in wei.
-
-### maxPriorityFeePerGas (Optional)
-
-- **Type:** `bigint`
-
-The maximum priority fee per gas, in wei.
-
-### nonce (Optional)
-
-- **Type:** `number`
-
-The transaction nonce included in the estimate request.
+The Merkle proof for the withdrawal storage slot.

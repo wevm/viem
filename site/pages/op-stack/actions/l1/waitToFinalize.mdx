@@ -61,33 +61,33 @@ Resolves when the withdrawal can be finalized.
 
 ## Parameters
 
-### withdrawalHash
-
-- **Type:** `Hex`
-
-The hash of the proven withdrawal.
-
-### targetChain (Optional)
-
-- **Type:** `Chain`
-
-The OP Stack L2 [Chain](/docs/chains) whose L1 contracts are used.
-
-### l2OutputOracleAddress (Optional)
-
-- **Type:** `Address`
-
-An explicit L2 Output Oracle address for legacy portals. Supply it with `portalAddress` when omitting `targetChain`.
-
-### portalAddress (Optional)
-
-- **Type:** `Address`
-
-An explicit Optimism Portal address. Supply it with `l2OutputOracleAddress` when omitting `targetChain`.
-
-### chain (Optional)
+### chain
 
 - **Type:** `Chain`
 - **Default:** `client.chain`
 
 The L1 chain used to read the contracts.
+
+### l2OutputOracleAddress
+
+- **Type:** `Address`
+
+An explicit L2 Output Oracle address for legacy portals. Supply it with `portalAddress` when omitting `targetChain`.
+
+### portalAddress
+
+- **Type:** `Address`
+
+An explicit Optimism Portal address. Supply it with `l2OutputOracleAddress` when omitting `targetChain`.
+
+### targetChain
+
+- **Type:** `Chain`
+
+The OP Stack L2 [Chain](/docs/chains) whose L1 contracts are used.
+
+### withdrawalHash
+
+- **Type:** `Hex`
+
+The hash of the proven withdrawal.

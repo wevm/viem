@@ -115,6 +115,30 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
+### account.nonceManager
+
+- **Type:** `NonceManager`
+
+A nonce manager attached to a Local Account, used to derive and auto-increment the transaction nonce. The nonce is reset if signing or broadcasting fails.
+
+```ts twoslash
+import { Account, Actions, Client, http, NonceManager } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const nonceManager = NonceManager.jsonRpc()
+const account = {
+  ...Account.fromPrivateKey('0x…'),
+  nonceManager, // [!code focus]
+}
+const client = Client.create({ account, chain: mainnet, transport: http() })
+// ---cut---
+
+const hash = await Actions.transaction.send(client, {
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
 ### assertChainId
 
 - **Type:** `boolean`
@@ -384,30 +408,6 @@ const client = Client.create({ account, chain: mainnet, transport: http() })
 const hash = await Actions.transaction.send(client, {
   nonce: 69, // [!code focus]
   to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-})
-```
-
-### account.nonceManager
-
-- **Type:** `NonceManager`
-
-A nonce manager attached to a Local Account, used to derive and auto-increment the transaction nonce. The nonce is reset if signing or broadcasting fails.
-
-```ts twoslash
-import { Account, Actions, Client, http, NonceManager } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const nonceManager = NonceManager.jsonRpc()
-const account = {
-  ...Account.fromPrivateKey('0x…'),
-  nonceManager, // [!code focus]
-}
-const client = Client.create({ account, chain: mainnet, transport: http() })
-// ---cut---
-
-const hash = await Actions.transaction.send(client, {
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1n,
 })
 ```
 

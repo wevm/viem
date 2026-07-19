@@ -140,6 +140,24 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
+### blobVersionedHashes
+
+- **Type:** `readonly Hex[]`
+
+The blob versioned hashes (EIP-4844). When omitted, they are derived from [`blobs`](#blobs) and [`kzg`](#kzg).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const gas = await Actions.transaction.estimateGas(client, {
+  blobVersionedHashes: ['0x...'], // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
 ### blobs
 
 - **Type:** `readonly Hex[]`
@@ -159,24 +177,6 @@ const client = Client.create({ chain: mainnet, transport: http() })
 const gas = await Actions.transaction.estimateGas(client, {
   blobs: [blobData], // [!code focus]
   kzg, // [!code focus]
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-})
-```
-
-### blobVersionedHashes
-
-- **Type:** `readonly Hex[]`
-
-The blob versioned hashes (EIP-4844). When omitted, they are derived from [`blobs`](#blobs) and [`kzg`](#kzg).
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const gas = await Actions.transaction.estimateGas(client, {
-  blobVersionedHashes: ['0x...'], // [!code focus]
   to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
 })
 ```

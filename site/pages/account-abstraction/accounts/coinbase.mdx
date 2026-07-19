@@ -57,7 +57,7 @@ export const owner = WebAuthnAccount.fromCredential(credential)
 
 ## Parameters
 
-### address (Optional)
+### address
 
 - **Type:** `Address`
 
@@ -82,21 +82,23 @@ const account = await CoinbaseSmartAccount.from({
 })
 ```
 
-### owners
+### nonce
 
-- **Type:** `readonly (Address | LocalAccount | WebAuthnAccount)[]`
+- **Type:** `bigint`
+- **Default:** `0n`
 
-Owners of the Smart Account. At least one owner is required. Address owners can derive and inspect the account, while the owner selected for signing must be a [Local Account](/docs/accounts) or [WebAuthn Account (Passkey)](/account-abstraction/accounts/webauthn).
+Nonce to use for the Smart Account.
 
 ```ts
 const account = await CoinbaseSmartAccount.from({
   client,
-  owners: [Account.fromPrivateKey('0x...')], // [!code focus]
+  owners: [owner],
+  nonce: 1n, // [!code focus]
   version: '1.1',
 })
 ```
 
-### ownerIndex (Optional)
+### ownerIndex
 
 - **Type:** `number`
 - **Default:** `0`
@@ -112,18 +114,16 @@ const account = await CoinbaseSmartAccount.from({
 })
 ```
 
-### nonce (Optional)
+### owners
 
-- **Type:** `bigint`
-- **Default:** `0n`
+- **Type:** `readonly (Address | LocalAccount | WebAuthnAccount)[]`
 
-Nonce to use for the Smart Account.
+Owners of the Smart Account. At least one owner is required. Address owners can derive and inspect the account, while the owner selected for signing must be a [Local Account](/docs/accounts) or [WebAuthn Account (Passkey)](/account-abstraction/accounts/webauthn).
 
 ```ts
 const account = await CoinbaseSmartAccount.from({
   client,
-  owners: [owner],
-  nonce: 1n, // [!code focus]
+  owners: [Account.fromPrivateKey('0x...')], // [!code focus]
   version: '1.1',
 })
 ```
