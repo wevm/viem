@@ -28,6 +28,9 @@ jobs:
       - name: Check code
         run: pnpm check
 
+      - name: Check for unapplied lint or format fixes
+        run: git diff --exit-code
+
   build:
     name: Build
     needs: check
@@ -48,7 +51,7 @@ jobs:
         run: pnpm build
 
       - name: Check exports drift
-        run: git diff --exit-code package.json
+        run: git diff --exit-code package.json test/tsconfig.json
 
       - name: Publint
         run: pnpm test:build

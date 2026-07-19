@@ -136,6 +136,83 @@
       "path": "./dist/index.js",
       "limit": "95 kB",
       "import": "*"
+    },
+    {
+      "name": "import { Actions } from 'viem'",
+      "path": "./dist/index.js",
+      "limit": "78.5 kB",
+      "import": "{ Actions }"
+    },
+    {
+      "name": "import { Client } from 'viem'",
+      "path": "./dist/index.js",
+      "limit": "18.5 kB",
+      "import": "{ Client }"
+    },
+    {
+      "name": "import * from 'viem/chains'",
+      "path": "./dist/chains/index.js",
+      "limit": "93.5 kB",
+      "import": "*"
+    },
+    {
+      "name": "import { mainnet } from 'viem/chains'",
+      "path": "./dist/chains/index.js",
+      "limit": "850 B",
+      "import": "{ mainnet }"
+    },
+    {
+      "name": "import * from 'viem/erc4337'",
+      "path": "./dist/erc4337/index.js",
+      "limit": "75.5 kB",
+      "import": "*"
+    },
+    {
+      "name": "import * from 'viem/node'",
+      "path": "./dist/node/index.js",
+      "limit": "5.5 kB",
+      "import": "*",
+      "ignore": [
+        "node:net",
+        "node:path",
+        "node:url"
+      ]
+    },
+    {
+      "name": "import * from 'viem/op-stack'",
+      "path": "./dist/op-stack/index.js",
+      "limit": "67.5 kB",
+      "import": "*"
+    },
+    {
+      "name": "import * from 'viem/tempo'",
+      "path": "./dist/tempo/index.js",
+      "limit": "129.5 kB",
+      "import": "*"
+    },
+    {
+      "name": "import * from 'viem/tokens'",
+      "path": "./dist/tokens/index.js",
+      "limit": "4.2 kB",
+      "import": "*"
+    },
+    {
+      "name": "import * from 'viem/utils'",
+      "path": "./dist/utils/index.js",
+      "limit": "167 kB",
+      "import": "*"
+    },
+    {
+      "name": "import * from 'viem/window'",
+      "path": "./dist/window/index.js",
+      "limit": "90 B",
+      "import": "*"
+    },
+    {
+      "name": "import * from 'viem/zod'",
+      "path": "./dist/zod/index.js",
+      "limit": "96 kB",
+      "import": "*"
     }
   ],
   "[!start-pkg]": "",
