@@ -114,6 +114,8 @@ describe('mint', () => {
     expect(metadata.totalSupply).toBe(Value.from('1000', 6))
   })
 
+  // TODO: has never run green against the devnet; verify the `mintWithMemo`
+  // path and fill the empty snapshot to enable.
   test.skip('with memo', async () => {
     const { token } = await Actions.token.createSync(client, {
       currency: 'USD',

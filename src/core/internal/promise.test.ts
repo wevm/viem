@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, test } from 'vitest'
 
 import * as Http from '~test/http.js'
 import { uid } from './uid.js'
@@ -32,11 +32,13 @@ describe('withResolvers', () => {
 
 describe('createBatchScheduler', () => {
   test('default', async () => {
-    const fn = vi.fn()
+    const batches: number[][] = []
     const { schedule } = createBatchScheduler({
       id: uid(),
-      // biome-ignore lint/complexity/noCommaOperator: _
-      fn: async (args: number[]) => (fn(), args),
+      fn: async (args: number[]) => {
+        batches.push(args)
+        return args
+      },
     })
 
     const p = []
@@ -60,22 +62,42 @@ describe('createBatchScheduler', () => {
     expect(x6).toEqual([6, [5, 6]])
     expect(x7).toEqual([7, [7]])
 
-    expect(fn).toBeCalledTimes(3)
+    expect(batches).toMatchInlineSnapshot(`
+      [
+        [
+          1,
+          2,
+          3,
+          4,
+        ],
+        [
+          5,
+          6,
+        ],
+        [
+          7,
+        ],
+      ]
+    `)
   })
 
   test('args: id', async () => {
-    const fn1 = vi.fn()
+    const batches1: number[][] = []
     const { schedule: schedule1 } = createBatchScheduler({
       id: uid(),
-      // biome-ignore lint/complexity/noCommaOperator: _
-      fn: async (args: number[]) => (fn1(), args),
+      fn: async (args: number[]) => {
+        batches1.push(args)
+        return args
+      },
     })
 
-    const fn2 = vi.fn()
+    const batches2: number[][] = []
     const { schedule: schedule2 } = createBatchScheduler({
       id: uid(),
-      // biome-ignore lint/complexity/noCommaOperator: _
-      fn: async (args: number[]) => (fn2(), args),
+      fn: async (args: number[]) => {
+        batches2.push(args)
+        return args
+      },
     })
 
     const p = []
@@ -103,8 +125,33 @@ describe('createBatchScheduler', () => {
     expect(x8).toEqual([8, [5, 7, 8]])
     expect(x9).toEqual([9, [9]])
 
-    expect(fn1).toBeCalledTimes(3)
-    expect(fn2).toBeCalledTimes(2)
+    expect(batches1).toMatchInlineSnapshot(`
+      [
+        [
+          1,
+          3,
+          4,
+        ],
+        [
+          6,
+        ],
+        [
+          9,
+        ],
+      ]
+    `)
+    expect(batches2).toMatchInlineSnapshot(`
+      [
+        [
+          2,
+        ],
+        [
+          5,
+          7,
+          8,
+        ],
+      ]
+    `)
   })
 
   test('args: wait', async () => {
@@ -144,11 +191,13 @@ describe('createBatchScheduler', () => {
   })
 
   test('args: shouldSplitBatch', async () => {
-    const fn = vi.fn()
+    const batches: number[][] = []
     const { schedule } = createBatchScheduler({
       id: uid(),
-      // biome-ignore lint/complexity/noCommaOperator: _
-      fn: async (args: number[]) => (fn(), args),
+      fn: async (args: number[]) => {
+        batches.push(args)
+        return args
+      },
       shouldSplitBatch: (args) => args.length > 3,
     })
 
@@ -186,7 +235,35 @@ describe('createBatchScheduler', () => {
     expect(x12).toEqual([12, [11, 12]])
     expect(x13).toEqual([13, [13]])
 
-    expect(fn).toBeCalledTimes(6)
+    expect(batches).toMatchInlineSnapshot(`
+      [
+        [
+          1,
+          2,
+          3,
+        ],
+        [
+          4,
+          5,
+          6,
+        ],
+        [
+          7,
+          8,
+          9,
+        ],
+        [
+          10,
+        ],
+        [
+          11,
+          12,
+        ],
+        [
+          13,
+        ],
+      ]
+    `)
   })
 
   describe('behavior', () => {
@@ -215,12 +292,14 @@ describe('createBatchScheduler', () => {
     })
 
     test('complex split batch', async () => {
-      const fn = vi.fn()
+      const batches: string[][] = []
       const { schedule } = createBatchScheduler({
         id: uid(),
         wait: 16,
-        // biome-ignore lint/complexity/noCommaOperator: _
-        fn: async (args: string[]) => (fn(), args),
+        fn: async (args: string[]) => {
+          batches.push(args)
+          return args
+        },
         shouldSplitBatch: (args) =>
           args.reduce((acc, x) => acc + x.length, 0) > 20,
       })
@@ -257,7 +336,39 @@ describe('createBatchScheduler', () => {
       expect(x10).toEqual(['see', ['see', 'smile']])
       expect(x11).toEqual(['smile', ['see', 'smile']])
 
-      expect(fn).toBeCalledTimes(8)
+      expect(batches).toMatchInlineSnapshot(`
+        [
+          [
+            "hello",
+            "world",
+            "this is me",
+          ],
+          [
+            "life should be",
+          ],
+          [
+            "fun for everyone",
+          ],
+          [
+            "hello world",
+          ],
+          [
+            "come and see",
+            "come",
+            "and",
+          ],
+          [
+            "see",
+            "smile",
+          ],
+          [
+            "just be yourself",
+          ],
+          [
+            "be happy",
+          ],
+        ]
+      `)
     })
 
     test('throws error', async () => {
@@ -279,103 +390,209 @@ describe('withCache', () => {
   beforeEach(() => getCache('foo').clear())
 
   test('caches responses', async () => {
-    const fn = vi.fn().mockResolvedValue('bar')
+    const produced: string[] = []
+    const fn = async () => {
+      const value = `bar-${produced.length}`
+      produced.push(value)
+      return value
+    }
 
     let data = await withCache(fn, { cacheKey: 'foo' })
-    expect(data).toBe('bar')
+    expect(data).toBe('bar-0')
 
     data = await withCache(fn, { cacheKey: 'foo' })
-    expect(data).toBe('bar')
+    expect(data).toBe('bar-0')
 
-    expect(fn).toBeCalledTimes(1)
+    expect(produced).toMatchInlineSnapshot(`
+      [
+        "bar-0",
+      ]
+    `)
   })
 
   describe('args: cacheTime', () => {
     test('invalidates when cacheTime = 0', async () => {
-      const fn = vi.fn().mockResolvedValue('bar')
+      const produced: string[] = []
+      const fn = async () => {
+        const value = `bar-${produced.length}`
+        produced.push(value)
+        return value
+      }
 
       let data = await withCache(fn, { cacheKey: 'foo' })
-      expect(data).toBe('bar')
+      expect(data).toBe('bar-0')
       data = await withCache(fn, { cacheKey: 'foo', cacheTime: 0 })
-      expect(data).toBe('bar')
-      expect(fn).toBeCalledTimes(2)
+      expect(data).toBe('bar-1')
+      expect(produced).toMatchInlineSnapshot(`
+        [
+          "bar-0",
+          "bar-1",
+        ]
+      `)
     })
 
     test('invalidates when expired', async () => {
-      const fn = vi.fn().mockResolvedValue('bar')
+      const produced: string[] = []
+      const fn = async () => {
+        const value = `bar-${produced.length}`
+        produced.push(value)
+        return value
+      }
 
       let data = await withCache(fn, { cacheKey: 'foo' })
-      expect(data).toBe('bar')
+      expect(data).toBe('bar-0')
       data = await withCache(fn, { cacheKey: 'foo' })
-      expect(data).toBe('bar')
-      expect(fn).toBeCalledTimes(1)
+      expect(data).toBe('bar-0')
 
       await wait(150)
       data = await withCache(fn, { cacheKey: 'foo', cacheTime: 100 })
-      expect(data).toBe('bar')
-      expect(fn).toBeCalledTimes(2)
+      expect(data).toBe('bar-1')
+      expect(produced).toMatchInlineSnapshot(`
+        [
+          "bar-0",
+          "bar-1",
+        ]
+      `)
     })
   })
 
   describe('args: cacheKey', () => {
     test('different cacheKeys', async () => {
-      const fn = vi.fn().mockResolvedValue('bar')
+      const produced: string[] = []
+      const fn = async () => {
+        const value = `bar-${produced.length}`
+        produced.push(value)
+        return value
+      }
 
       let data = await withCache(fn, { cacheKey: 'foo' })
-      expect(data).toBe('bar')
+      expect(data).toBe('bar-0')
       data = await withCache(fn, { cacheKey: 'baz' })
-      expect(data).toBe('bar')
-      expect(fn).toBeCalledTimes(2)
+      expect(data).toBe('bar-1')
+      expect(produced).toMatchInlineSnapshot(`
+        [
+          "bar-0",
+          "bar-1",
+        ]
+      `)
     })
   })
 
   describe('behavior: caches promises (deduping)', () => {
     test('basic', async () => {
-      const fn = vi.fn()
-      await Promise.all(
-        Array.from({ length: 10 }, () =>
-          withCache(async () => fn(), { cacheKey: 'foo' }),
-        ),
+      const produced: string[] = []
+      const fn = async () => {
+        const value = `bar-${produced.length}`
+        produced.push(value)
+        return value
+      }
+
+      const results = await Promise.all(
+        Array.from({ length: 10 }, () => withCache(fn, { cacheKey: 'foo' })),
       )
-      expect(fn).toBeCalledTimes(1)
+      expect(results).toMatchInlineSnapshot(`
+        [
+          "bar-0",
+          "bar-0",
+          "bar-0",
+          "bar-0",
+          "bar-0",
+          "bar-0",
+          "bar-0",
+          "bar-0",
+          "bar-0",
+          "bar-0",
+        ]
+      `)
+      expect(produced).toMatchInlineSnapshot(`
+        [
+          "bar-0",
+        ]
+      `)
     })
 
     test('different cacheKeys', async () => {
-      const fn = vi.fn().mockResolvedValue('bar')
-      await Promise.all([
+      const produced: string[] = []
+      const fn = async () => {
+        const value = `bar-${produced.length}`
+        produced.push(value)
+        return value
+      }
+
+      const results = await Promise.all([
         ...Array.from({ length: 10 }, () =>
-          withCache(() => fn(), { cacheKey: 'foo' }),
+          withCache(fn, { cacheKey: 'foo' }),
         ),
         ...Array.from({ length: 10 }, () =>
-          withCache(() => fn(), { cacheKey: 'bar' }),
+          withCache(fn, { cacheKey: 'bar' }),
         ),
       ])
-      expect(fn).toBeCalledTimes(2)
+      expect(results).toMatchInlineSnapshot(`
+        [
+          "bar-0",
+          "bar-0",
+          "bar-0",
+          "bar-0",
+          "bar-0",
+          "bar-0",
+          "bar-0",
+          "bar-0",
+          "bar-0",
+          "bar-0",
+          "bar-1",
+          "bar-1",
+          "bar-1",
+          "bar-1",
+          "bar-1",
+          "bar-1",
+          "bar-1",
+          "bar-1",
+          "bar-1",
+          "bar-1",
+        ]
+      `)
+      expect(produced).toMatchInlineSnapshot(`
+        [
+          "bar-0",
+          "bar-1",
+        ]
+      `)
     })
   })
 
   test('behavior: programmatic removal', async () => {
-    const fn = vi.fn().mockResolvedValue('bar')
+    const produced: string[] = []
+    const fn = async () => {
+      const value = `bar-${produced.length}`
+      produced.push(value)
+      return value
+    }
 
     let data = await withCache(fn, { cacheKey: 'foo' })
-    expect(data).toBe('bar')
+    expect(data).toBe('bar-0')
 
     getCache('foo').clear()
 
     data = await withCache(fn, { cacheKey: 'foo' })
-    expect(data).toBe('bar')
+    expect(data).toBe('bar-1')
 
-    expect(fn).toBeCalledTimes(2)
+    expect(produced).toMatchInlineSnapshot(`
+      [
+        "bar-0",
+        "bar-1",
+      ]
+    `)
   })
 })
 
 describe('withDedupe', () => {
   test('default', async () => {
-    let count = 0
+    const produced: string[] = []
     async function fn() {
-      count++
+      const value = `bar-${produced.length}`
+      produced.push(value)
       await wait(100)
-      return 'bar'
+      return value
     }
 
     const id = 'foo'
@@ -386,17 +603,27 @@ describe('withDedupe', () => {
     expect(dedupeCache.has(id)).toBe(true)
 
     const results = await Promise.all([promise_1, promise_2])
-    expect(results[0]).toBe(results[1])
-    expect(count).toBe(1)
+    expect(results).toMatchInlineSnapshot(`
+      [
+        "bar-0",
+        "bar-0",
+      ]
+    `)
+    expect(produced).toMatchInlineSnapshot(`
+      [
+        "bar-0",
+      ]
+    `)
     expect(dedupeCache.has(id)).toBe(false)
   })
 
   test('args: enabled', async () => {
-    let count = 0
+    const produced: string[] = []
     async function fn() {
-      count++
+      const value = `bar-${produced.length}`
+      produced.push(value)
       await wait(100)
-      return 'bar'
+      return value
     }
 
     const id = 'foo'
@@ -409,17 +636,29 @@ describe('withDedupe', () => {
     expect(dedupeCache.has(id)).toBe(true)
 
     const results = await Promise.all([promise_1, promise_2, promise_3])
-    expect(results[0]).toBe(results[1])
-    expect(count).toBe(2)
+    expect(results).toMatchInlineSnapshot(`
+      [
+        "bar-0",
+        "bar-1",
+        "bar-0",
+      ]
+    `)
+    expect(produced).toMatchInlineSnapshot(`
+      [
+        "bar-0",
+        "bar-1",
+      ]
+    `)
     expect(dedupeCache.has(id)).toBe(false)
   })
 
   test('args: undefined id', async () => {
-    let count = 0
+    const produced: string[] = []
     async function fn() {
-      count++
+      const value = `bar-${produced.length}`
+      produced.push(value)
       await wait(100)
-      return 'bar'
+      return value
     }
 
     const id = 'foo'
@@ -432,15 +671,26 @@ describe('withDedupe', () => {
     expect(dedupeCache.has(id)).toBe(true)
 
     const results = await Promise.all([promise_1, promise_2, promise_3])
-    expect(results[0]).toBe(results[1])
-    expect(count).toBe(2)
+    expect(results).toMatchInlineSnapshot(`
+      [
+        "bar-0",
+        "bar-1",
+        "bar-0",
+      ]
+    `)
+    expect(produced).toMatchInlineSnapshot(`
+      [
+        "bar-0",
+        "bar-1",
+      ]
+    `)
     expect(dedupeCache.has(id)).toBe(false)
   })
 
   test('behavior: errors', async () => {
-    let count = 0
+    const attempts: string[] = []
     async function fn() {
-      count++
+      attempts.push(`attempt-${attempts.length}`)
       await wait(100)
       throw new Error('rekt')
     }
@@ -454,16 +704,20 @@ describe('withDedupe', () => {
     await expect(() =>
       Promise.all([promise_1, promise_2]),
     ).rejects.toThrowErrorMatchingInlineSnapshot('[Error: rekt]')
-    expect(count).toBe(1)
+    expect(attempts).toMatchInlineSnapshot(`
+      [
+        "attempt-0",
+      ]
+    `)
     expect(dedupeCache.has(id)).toBe(false)
   })
 })
 
 describe('withRetry', () => {
   test('default', async () => {
-    let retryTimes = -1
+    const statuses: number[] = []
     const server = await Http.createServer((_req, res) => {
-      retryTimes++
+      statuses.push(500)
       res.writeHead(500)
       res.end()
     })
@@ -475,13 +729,19 @@ describe('withRetry', () => {
         return response
       }),
     ).rejects.toThrowError('test')
-    expect(retryTimes).toBe(2)
+    expect(statuses).toMatchInlineSnapshot(`
+      [
+        500,
+        500,
+        500,
+      ]
+    `)
   })
 
   test('shouldRetry: retries, and then errors', async () => {
-    let retryTimes = -1
+    const statuses: number[] = []
     const server = await Http.createServer((_req, res) => {
-      retryTimes++
+      statuses.push(500)
       res.writeHead(500)
       res.end()
     })
@@ -496,14 +756,21 @@ describe('withRetry', () => {
         { shouldRetry: ({ error }) => error.message === 'test' },
       ),
     ).rejects.toThrowError('test')
-    expect(retryTimes).toBe(2)
+    expect(statuses).toMatchInlineSnapshot(`
+      [
+        500,
+        500,
+        500,
+      ]
+    `)
   })
 
   test('shouldRetry: retries, and then succeeds', async () => {
-    let retryTimes = -1
+    const statuses: number[] = []
     const server = await Http.createServer((_req, res) => {
-      retryTimes++
-      if (retryTimes === 2) {
+      const status = statuses.length === 2 ? 200 : 500
+      statuses.push(status)
+      if (status === 200) {
         res.writeHead(200, {
           'Content-Type': 'application/json',
         })
@@ -526,7 +793,13 @@ describe('withRetry', () => {
       },
     )
     expect(res).toEqual({ message: 'success' })
-    expect(retryTimes).toBe(2)
+    expect(statuses).toMatchInlineSnapshot(`
+      [
+        500,
+        500,
+        200,
+      ]
+    `)
   })
 
   test('aborts mid-retry when the signal aborts', async () => {
@@ -554,9 +827,9 @@ describe('withRetry', () => {
   })
 
   test('retryCount', async () => {
-    let retryTimes = -1
+    const statuses: number[] = []
     const server = await Http.createServer((_req, res) => {
-      retryTimes++
+      statuses.push(500)
       res.writeHead(500)
       res.end()
     })
@@ -571,7 +844,12 @@ describe('withRetry', () => {
         { retryCount: 1 },
       ),
     ).rejects.toThrowError('test')
-    expect(retryTimes).toBe(1)
+    expect(statuses).toMatchInlineSnapshot(`
+      [
+        500,
+        500,
+      ]
+    `)
   })
 
   test('delay: number', async () => {
@@ -636,24 +914,24 @@ describe('withRetry', () => {
   })
 
   test('signal: already aborted', async () => {
-    let retryTimes = 0
+    const attempts: string[] = []
     const controller = new AbortController()
     controller.abort()
 
     await expect(
       withRetry(
         async () => {
-          retryTimes++
+          attempts.push(`attempt-${attempts.length}`)
           throw new Error('test')
         },
         { signal: controller.signal },
       ),
     ).rejects.toThrowError('This operation was aborted')
-    expect(retryTimes).toBe(0)
+    expect(attempts).toMatchInlineSnapshot(`[]`)
   })
 
   test('signal: aborted during retry delay', async () => {
-    let retryTimes = 0
+    const attempts: string[] = []
     const controller = new AbortController()
     const start = Date.now()
 
@@ -662,18 +940,22 @@ describe('withRetry', () => {
     await expect(
       withRetry(
         async () => {
-          retryTimes++
+          attempts.push(`attempt-${attempts.length}`)
           throw new Error('test')
         },
         { delay: 1_000, retryCount: 1, signal: controller.signal },
       ),
     ).rejects.toThrowError('This operation was aborted')
     expect(Date.now() - start).toBeLessThan(500)
-    expect(retryTimes).toBe(1)
+    expect(attempts).toMatchInlineSnapshot(`
+      [
+        "attempt-0",
+      ]
+    `)
   })
 
   test('signal: aborted with custom reason', async () => {
-    let retryTimes = 0
+    const attempts: string[] = []
     const controller = new AbortController()
     const reason = new Error('Custom abort reason')
     controller.abort(reason)
@@ -681,13 +963,13 @@ describe('withRetry', () => {
     await expect(
       withRetry(
         async () => {
-          retryTimes++
+          attempts.push(`attempt-${attempts.length}`)
           throw new Error('test')
         },
         { signal: controller.signal },
       ),
     ).rejects.toBe(reason)
-    expect(retryTimes).toBe(0)
+    expect(attempts).toMatchInlineSnapshot(`[]`)
   })
 })
 

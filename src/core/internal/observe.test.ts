@@ -1,31 +1,67 @@
-import { expect, test, vi } from 'vitest'
+import { expect, test } from 'vitest'
 
 import { cleanupCache, listenersCache, observe } from './observe.js'
 import { wait } from './wait.js'
 
+type Callbacks = { emit: (data: { foo: string }) => void }
+
 test('emits data to callbacks', async () => {
   const id = 'mock'
-  const callback1 = vi.fn()
-  const callback2 = vi.fn()
-  const callback3 = vi.fn()
+  const emissions1: { foo: string }[] = []
+  const emissions2: { foo: string }[] = []
+  const emissions3: { foo: string }[] = []
+  const setups: string[] = []
 
-  const emitter = vi.fn(({ emit }) => {
+  const emitter = ({ emit }: Callbacks) => {
+    setups.push('setup')
     setTimeout(() => emit({ foo: 'bar' }), 100)
-    return () => {
-      //
-    }
-  })
+    return () => {}
+  }
 
-  const unwatch1 = observe(id, { emit: callback1 }, emitter)
-  const unwatch2 = observe(id, { emit: callback2 }, emitter)
-  const unwatch3 = observe(id, { emit: callback3 }, emitter)
+  const unwatch1 = observe(
+    id,
+    { emit: (data: { foo: string }) => emissions1.push(data) },
+    emitter,
+  )
+  const unwatch2 = observe(
+    id,
+    { emit: (data: { foo: string }) => emissions2.push(data) },
+    emitter,
+  )
+  const unwatch3 = observe(
+    id,
+    { emit: (data: { foo: string }) => emissions3.push(data) },
+    emitter,
+  )
 
   await wait(100)
 
-  expect(emitter).toHaveBeenCalledOnce()
-  expect(callback1).toHaveBeenNthCalledWith(1, { foo: 'bar' })
-  expect(callback2).toHaveBeenNthCalledWith(1, { foo: 'bar' })
-  expect(callback3).toHaveBeenNthCalledWith(1, { foo: 'bar' })
+  expect(setups).toMatchInlineSnapshot(`
+    [
+      "setup",
+    ]
+  `)
+  expect(emissions1).toMatchInlineSnapshot(`
+    [
+      {
+        "foo": "bar",
+      },
+    ]
+  `)
+  expect(emissions2).toMatchInlineSnapshot(`
+    [
+      {
+        "foo": "bar",
+      },
+    ]
+  `)
+  expect(emissions3).toMatchInlineSnapshot(`
+    [
+      {
+        "foo": "bar",
+      },
+    ]
+  `)
 
   unwatch1()
   unwatch2()
@@ -34,31 +70,57 @@ test('emits data to callbacks', async () => {
 
 test('scopes to id', async () => {
   const id1 = 'mock'
-  const callback1 = vi.fn()
-  const emitter1 = vi.fn(({ emit }) => {
-    setTimeout(() => emit({ foo: 'bar1' }), 100)
-    return () => {
-      //
-    }
-  })
-  const unwatch1 = observe(id1, { emit: callback1 }, emitter1)
+  const emissions1: { foo: string }[] = []
+  const setups1: string[] = []
+  const unwatch1 = observe(
+    id1,
+    { emit: (data: { foo: string }) => emissions1.push(data) },
+    ({ emit }: Callbacks) => {
+      setups1.push('setup')
+      setTimeout(() => emit({ foo: 'bar1' }), 100)
+      return () => {}
+    },
+  )
 
   const id2 = 'mock2'
-  const callback2 = vi.fn()
-  const emitter2 = vi.fn(({ emit }) => {
-    setTimeout(() => emit({ foo: 'bar2' }), 100)
-    return () => {
-      //
-    }
-  })
-  const unwatch2 = observe(id2, { emit: callback2 }, emitter2)
+  const emissions2: { foo: string }[] = []
+  const setups2: string[] = []
+  const unwatch2 = observe(
+    id2,
+    { emit: (data: { foo: string }) => emissions2.push(data) },
+    ({ emit }: Callbacks) => {
+      setups2.push('setup')
+      setTimeout(() => emit({ foo: 'bar2' }), 100)
+      return () => {}
+    },
+  )
 
   await wait(100)
 
-  expect(emitter1).toHaveBeenCalledTimes(1)
-  expect(emitter2).toHaveBeenCalledTimes(1)
-  expect(callback1).toHaveBeenNthCalledWith(1, { foo: 'bar1' })
-  expect(callback2).toHaveBeenNthCalledWith(1, { foo: 'bar2' })
+  expect(setups1).toMatchInlineSnapshot(`
+    [
+      "setup",
+    ]
+  `)
+  expect(setups2).toMatchInlineSnapshot(`
+    [
+      "setup",
+    ]
+  `)
+  expect(emissions1).toMatchInlineSnapshot(`
+    [
+      {
+        "foo": "bar1",
+      },
+    ]
+  `)
+  expect(emissions2).toMatchInlineSnapshot(`
+    [
+      {
+        "foo": "bar2",
+      },
+    ]
+  `)
 
   unwatch1()
   unwatch2()
@@ -66,60 +128,111 @@ test('scopes to id', async () => {
 
 test('cleans up listeners correctly (staggered unwatch)', async () => {
   const id = 'mock'
-  const callback1 = vi.fn()
-  const callback2 = vi.fn()
-  const callback3 = vi.fn()
+  const emissions1: { foo: string }[] = []
+  const emissions2: { foo: string }[] = []
+  const emissions3: { foo: string }[] = []
+  const setups: string[] = []
 
-  const emitter = vi.fn(({ emit }) => {
+  const emitter = ({ emit }: Callbacks) => {
+    setups.push('setup')
     setTimeout(() => emit({ foo: 'bar' }), 100)
     setTimeout(() => emit({ foo: 'bar' }), 200)
     setTimeout(() => emit({ foo: 'bar' }), 300)
-    return () => {
-      //
-    }
-  })
+    return () => {}
+  }
 
-  const unwatch1 = observe(id, { emit: callback1 }, emitter)
-  const unwatch2 = observe(id, { emit: callback2 }, emitter)
-  const unwatch3 = observe(id, { emit: callback3 }, emitter)
+  const unwatch1 = observe(
+    id,
+    { emit: (data: { foo: string }) => emissions1.push(data) },
+    emitter,
+  )
+  const unwatch2 = observe(
+    id,
+    { emit: (data: { foo: string }) => emissions2.push(data) },
+    emitter,
+  )
+  const unwatch3 = observe(
+    id,
+    { emit: (data: { foo: string }) => emissions3.push(data) },
+    emitter,
+  )
 
   unwatch1()
 
-  expect(emitter).toHaveBeenCalledOnce()
+  expect(setups).toMatchInlineSnapshot(`
+    [
+      "setup",
+    ]
+  `)
 
   await wait(100)
 
-  expect(emitter).toHaveBeenCalledOnce()
-  expect(callback1).toHaveBeenCalledTimes(0)
-  expect(callback2).toHaveBeenCalledTimes(1)
+  expect(setups).toMatchInlineSnapshot(`
+    [
+      "setup",
+    ]
+  `)
+  expect(emissions1).toMatchInlineSnapshot(`[]`)
+  expect(emissions2).toMatchInlineSnapshot(`
+    [
+      {
+        "foo": "bar",
+      },
+    ]
+  `)
 
   unwatch2()
 
   await wait(100)
 
-  expect(emitter).toHaveBeenCalledOnce()
-  expect(callback3).toHaveBeenCalledTimes(2)
+  expect(setups).toMatchInlineSnapshot(`
+    [
+      "setup",
+    ]
+  `)
+  expect(emissions3).toMatchInlineSnapshot(`
+    [
+      {
+        "foo": "bar",
+      },
+      {
+        "foo": "bar",
+      },
+    ]
+  `)
 
   unwatch3()
 })
 
 test('cleans up listeners correctly (immediately unwatch)', async () => {
   const id = 'mock'
-  const callback1 = vi.fn()
-  const callback2 = vi.fn()
-  const callback3 = vi.fn()
+  const emissions1: { foo: string }[] = []
+  const emissions2: { foo: string }[] = []
+  const emissions3: { foo: string }[] = []
+  const setups: string[] = []
 
-  const emitter = vi.fn(({ emit }) => {
+  const emitter = ({ emit }: Callbacks) => {
+    setups.push('setup')
     setTimeout(() => emit({ foo: 'bar' }), 100)
     setTimeout(() => emit({ foo: 'bar' }), 200)
-    return () => {
-      //
-    }
-  })
+    return () => {}
+  }
 
-  const unwatch1 = observe(id, { emit: callback1 }, emitter)
-  const unwatch2 = observe(id, { emit: callback2 }, emitter)
-  const unwatch3 = observe(id, { emit: callback3 }, emitter)
+  const unwatch1 = observe(
+    id,
+    { emit: (data: { foo: string }) => emissions1.push(data) },
+    emitter,
+  )
+  const unwatch2 = observe(
+    id,
+    { emit: (data: { foo: string }) => emissions2.push(data) },
+    emitter,
+  )
+  const unwatch3 = observe(
+    id,
+    { emit: (data: { foo: string }) => emissions3.push(data) },
+    emitter,
+  )
 
   unwatch1()
   unwatch2()
@@ -127,47 +240,68 @@ test('cleans up listeners correctly (immediately unwatch)', async () => {
 
   await wait(300)
 
-  expect(emitter).toHaveBeenCalledOnce()
-  expect(callback1).toHaveBeenCalledTimes(0)
-  expect(callback2).toHaveBeenCalledTimes(0)
-  expect(callback3).toHaveBeenCalledTimes(0)
+  expect(setups).toMatchInlineSnapshot(`
+    [
+      "setup",
+    ]
+  `)
+  expect(emissions1).toMatchInlineSnapshot(`[]`)
+  expect(emissions2).toMatchInlineSnapshot(`[]`)
+  expect(emissions3).toMatchInlineSnapshot(`[]`)
 })
 
 test('cleans up emit function correctly', async () => {
   const id = 'mock'
-  const callback = vi.fn()
+  const emissions: { foo: string }[] = []
+  const setups: string[] = []
 
   let active = true
-  const emitter = vi.fn(({ emit }) => {
+  const emitter = ({ emit }: Callbacks) => {
+    setups.push('setup')
     setTimeout(() => emit({ foo: 'bar' }), 100)
     setTimeout(() => emit({ foo: 'bar' }), 200)
     setTimeout(() => emit({ foo: 'bar' }), 300)
     return () => {
       active = false
     }
-  })
+  }
 
-  const unwatch1 = observe(id, { emit: callback }, emitter)
-  const unwatch2 = observe(id, { emit: callback }, emitter)
-  const unwatch3 = observe(id, { emit: callback }, emitter)
+  const callbacks = { emit: (data: { foo: string }) => emissions.push(data) }
+  const unwatch1 = observe(id, callbacks, emitter)
+  const unwatch2 = observe(id, callbacks, emitter)
+  const unwatch3 = observe(id, callbacks, emitter)
 
   await wait(100)
-  expect(emitter).toHaveBeenCalledTimes(1)
-  expect(callback).toHaveBeenNthCalledWith(1, { foo: 'bar' })
+  expect(setups).toMatchInlineSnapshot(`
+    [
+      "setup",
+    ]
+  `)
+  expect(emissions[0]).toMatchInlineSnapshot(`
+    {
+      "foo": "bar",
+    }
+  `)
   expect(active).toBe(true)
 
   unwatch1()
 
   await wait(100)
-  expect(emitter).toHaveBeenCalledTimes(1)
-  expect(callback).toHaveBeenNthCalledWith(1, { foo: 'bar' })
+  expect(setups).toMatchInlineSnapshot(`
+    [
+      "setup",
+    ]
+  `)
   expect(active).toBe(true)
 
   unwatch2()
 
   await wait(100)
-  expect(emitter).toHaveBeenCalledTimes(1)
-  expect(callback).toHaveBeenNthCalledWith(1, { foo: 'bar' })
+  expect(setups).toMatchInlineSnapshot(`
+    [
+      "setup",
+    ]
+  `)
   expect(active).toBe(true)
 
   unwatch3()
@@ -177,14 +311,13 @@ test('cleans up emit function correctly', async () => {
 
 test('cleans up emit function when last listener unwatch', async () => {
   const id = 'mock'
-  const callback = vi.fn()
-  const cleanup = vi.fn()
-  const emitter = vi.fn(({ emit }) => {
+  const cleanups: string[] = []
+  const emitter = ({ emit }: Callbacks) => {
     setTimeout(() => emit({ foo: 'bar' }), 100)
     return () => {
-      cleanup()
+      cleanups.push('cleanup')
     }
-  })
+  }
 
   const unwatch1 = observe(
     id,
@@ -198,26 +331,32 @@ test('cleans up emit function when last listener unwatch', async () => {
     emitter,
   )
 
-  const unwatch2 = observe(id, { emit: callback }, emitter)
+  const unwatch2 = observe(id, { emit: () => {} }, emitter)
 
   await wait(110)
 
-  // Make sure there is no premature call to cleanup
+  // Make sure there is no premature cleanup
   // as watch2 listener is still subscribed
-  expect(cleanup).not.toHaveBeenCalled()
+  expect(cleanups).toMatchInlineSnapshot(`[]`)
 
   unwatch2()
 
-  expect(cleanup).toHaveBeenCalledTimes(1)
+  expect(cleanups).toMatchInlineSnapshot(`
+    [
+      "cleanup",
+    ]
+  `)
 })
 
 test('removes caches when last listener unwatches', () => {
   const id = 'mock'
-  const cleanup = vi.fn()
-  const emitter = vi.fn(() => cleanup)
+  const cleanups: string[] = []
+  const emitter = () => () => {
+    cleanups.push('cleanup')
+  }
 
-  const unwatch1 = observe(id, { emit: vi.fn() }, emitter)
-  const unwatch2 = observe(id, { emit: vi.fn() }, emitter)
+  const unwatch1 = observe(id, { emit: () => {} }, emitter)
+  const unwatch2 = observe(id, { emit: () => {} }, emitter)
 
   unwatch1()
 
@@ -226,72 +365,117 @@ test('removes caches when last listener unwatches', () => {
 
   unwatch2()
 
-  expect(cleanup).toHaveBeenCalledTimes(1)
+  expect(cleanups).toMatchInlineSnapshot(`
+    [
+      "cleanup",
+    ]
+  `)
   expect(listenersCache.has(id)).toBe(false)
   expect(cleanupCache.has(id)).toBe(false)
 })
 
 test('does not reuse cleanup after last listener unwatches', () => {
   const id = 'mock'
-  const cleanup = vi.fn()
+  const cleanups: string[] = []
+  const cleanup = () => {
+    cleanups.push('cleanup')
+  }
 
-  observe(id, { emit: vi.fn() }, () => cleanup)()
-  expect(cleanup).toHaveBeenCalledTimes(1)
+  observe(id, { emit: () => {} }, () => cleanup)()
+  expect(cleanups).toMatchInlineSnapshot(`
+    [
+      "cleanup",
+    ]
+  `)
 
-  observe(id, { emit: vi.fn() }, () => {})()
-  expect(cleanup).toHaveBeenCalledTimes(1)
+  observe(id, { emit: () => {} }, () => {})()
+  expect(cleanups).toMatchInlineSnapshot(`
+    [
+      "cleanup",
+    ]
+  `)
 })
 
 test('handles async cleanup functions', async () => {
   const id = 'mock'
-  const callback = vi.fn()
-  const cleanup = vi.fn().mockResolvedValue(undefined)
+  const emissions: { foo: string }[] = []
+  const cleanups: string[] = []
 
-  const emitter = vi.fn(({ emit }) => {
+  const emitter = ({ emit }: Callbacks) => {
     setTimeout(() => emit({ foo: 'bar' }), 100)
     return async () => {
-      await cleanup()
+      await wait(1)
+      cleanups.push('cleanup')
     }
-  })
+  }
 
-  const unwatch1 = observe(id, { emit: callback }, emitter)
-  const unwatch2 = observe(id, { emit: callback }, emitter)
+  const callbacks = { emit: (data: { foo: string }) => emissions.push(data) }
+  const unwatch1 = observe(id, callbacks, emitter)
+  const unwatch2 = observe(id, callbacks, emitter)
 
   await wait(110)
-  expect(callback).toHaveBeenCalledTimes(2)
-  expect(cleanup).not.toHaveBeenCalled()
+  expect(emissions).toMatchInlineSnapshot(`
+    [
+      {
+        "foo": "bar",
+      },
+      {
+        "foo": "bar",
+      },
+    ]
+  `)
+  expect(cleanups).toMatchInlineSnapshot(`[]`)
 
   unwatch1()
-  expect(cleanup).not.toHaveBeenCalled()
+  expect(cleanups).toMatchInlineSnapshot(`[]`)
 
   unwatch2()
 
   // Give the async cleanup time to execute
   await wait(10)
-  expect(cleanup).toHaveBeenCalledTimes(1)
+  expect(cleanups).toMatchInlineSnapshot(`
+    [
+      "cleanup",
+    ]
+  `)
 })
 
 test('handles async cleanup errors', async () => {
   const id = 'mock'
-  const callback = vi.fn()
-  const cleanup = vi.fn().mockRejectedValue(new Error('Cleanup failed'))
+  const emissions: { foo: string }[] = []
+  const cleanups: string[] = []
 
-  const emitter = vi.fn(({ emit }) => {
+  const emitter = ({ emit }: Callbacks) => {
     setTimeout(() => emit({ foo: 'bar' }), 100)
     return async () => {
-      await cleanup()
+      cleanups.push('cleanup')
+      throw new Error('Cleanup failed')
     }
-  })
+  }
 
-  const unwatch = observe(id, { emit: callback }, emitter)
+  const unwatch = observe(
+    id,
+    { emit: (data: { foo: string }) => emissions.push(data) },
+    emitter,
+  )
 
   await wait(110)
-  expect(callback).toHaveBeenCalledTimes(1)
+  expect(emissions).toMatchInlineSnapshot(`
+    [
+      {
+        "foo": "bar",
+      },
+    ]
+  `)
 
   // This should not throw an error even though cleanup fails
   expect(() => unwatch()).not.toThrow()
 
   // Give the async cleanup time to execute and fail
   await wait(10)
-  expect(cleanup).toHaveBeenCalledTimes(1)
+  expect(cleanups).toMatchInlineSnapshot(`
+    [
+      "cleanup",
+    ]
+  `)
 })

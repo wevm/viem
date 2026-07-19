@@ -85,6 +85,8 @@ describe('getOrderbook', () => {
     ).toBe(0)
   })
 
+  // TODO: body never written; place orders around the best tick, cancel via
+  // `Actions.dex.cancelSync`, then assert the best ticks recompute.
   test.skip('behavior: best ticks update after order cancellation', async () => {})
 
   test('behavior: multiple pairs have independent orderbooks', async () => {

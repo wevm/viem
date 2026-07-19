@@ -1,8 +1,13 @@
-import { expect, test, vi } from 'vitest'
+import { afterAll, beforeAll, expect, test } from 'vitest'
 
+import { version } from '../version.js'
 import { BaseError, setConfig } from './Errors.js'
 
-vi.mock('../version.js', () => ({ version: 'x.y.z' }))
+// Pin the rendered version so snapshots stay stable across releases.
+beforeAll(() => setConfig({ version: 'viem@x.y.z' }))
+afterAll(() =>
+  setConfig({ docsOrigin: 'https://viem.sh', version: `viem@${version}` }),
+)
 
 test('BaseError', () => {
   expect(new BaseError('An error occurred.')).toMatchInlineSnapshot(`
