@@ -1,5 +1,6 @@
-import { Server } from 'prool'
 import * as TestContainers from 'prool/testcontainers'
+import { Server } from 'prool/vitest'
+import { inject } from 'vitest'
 
 import { Actions, Token } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
@@ -145,17 +146,9 @@ export async function setup() {
 
 /** Restarts the pool's Tempo node instance (fresh genesis state). */
 export async function restart() {
-  await control('restart')
-}
-
-async function control(action: 'restart') {
-  const response = await fetch(`${rpcUrl}/${action}`, {
+  await Server.get(inject('tempoServer')).restart({
     signal: AbortSignal.timeout(150_000),
   })
-  if (!response.ok)
-    throw new Error(
-      `Failed to ${action} Tempo pool slot: ${await response.text()}`,
-    )
 }
 
 /** Runtime metadata for a provisioned local zone. */
@@ -288,24 +281,20 @@ async function startZone(options: DefineZoneOptions): Promise<StartedZone> {
   }
 }
 
-/** Creates the pooled Tempo node server (Dockerized via testcontainers). */
-export function createServer(options: { limit: number }) {
+/** Creates a Dockerized Tempo node instance. */
+export function createInstance() {
   const tag = process.env.VITE_TEMPO_TAG ?? 'latest'
-  return Server.create({
-    instance: TestContainers.Instance.tempo({
-      // Match Tempo's production cadence when Zone consumes every L1 block.
-      // 2ms blocks busy-loop the node; starved CI runners need a saner pace.
-      blockTime:
-        process.env.VITE_TEMPO_ZONES === 'true'
-          ? '500ms'
-          : process.env.CI
-            ? '50ms'
-            : '2ms',
-      image: `ghcr.io/tempoxyz/tempo:${tag}`,
-      port,
-      startupTimeout: 75_000,
-    }),
-    limit: options.limit,
+  return TestContainers.Instance.tempo({
+    // Match Tempo's production cadence when Zone consumes every L1 block.
+    // 2ms blocks busy-loop the node; starved CI runners need a saner pace.
+    blockTime:
+      process.env.VITE_TEMPO_ZONES === 'true'
+        ? '500ms'
+        : process.env.CI
+          ? '50ms'
+          : '2ms',
+    image: `ghcr.io/tempoxyz/tempo:${tag}`,
     port,
+    startupTimeout: 75_000,
   })
 }

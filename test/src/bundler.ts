@@ -2,7 +2,9 @@ import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, resolve } from 'node:path'
 import { ContractAddress, Hash, Hex } from 'ox'
-import { Instance, Server } from 'prool'
+import { Instance } from 'prool'
+import { Server } from 'prool/vitest'
+import { inject } from 'vitest'
 
 import { mainnet } from './anvil.js'
 import * as constants from './constants.js'
@@ -21,14 +23,19 @@ const legacyEntryPoints = [
   entrypoints['0.8'],
 ] as const
 
-export type Bundler = ReturnType<typeof defineBundler>
+export type Bundler = {
+  instance(key: number): Instance.Instance
+  port: number
+  restart(): Promise<void>
+  rpcUrl: { http: string }
+}
 
 /**
  * Defines a prool-managed alto bundler instance, proxied per pool id. Each
  * pool key gets its own alto process pointed at the matching anvil pool
  * instance.
  */
-export function defineBundler(parameters: defineBundler.Parameters) {
+export function defineBundler(parameters: defineBundler.Parameters): Bundler {
   const {
     alto,
     binary,
@@ -37,50 +44,40 @@ export function defineBundler(parameters: defineBundler.Parameters) {
     rpcUrl,
   } = parameters
   const url = `http://127.0.0.1:${port}/${constants.poolId}`
+  const instance = (key: number) => {
+    const options = {
+      binary,
+      bundleMode: 'manual',
+      codeOverrideSupport: true,
+      enableDebugEndpoints: true,
+      entrypoints,
+      executorPrivateKeys: [constants.accounts[3]!.privateKey],
+      fixedGasLimitForEstimation: '30000000',
+      rpcUrl: rpcUrl(key),
+      safeMode: false,
+      utilityPrivateKey: constants.accounts[3]!.privateKey,
+      ...alto,
+    } satisfies Instance.alto.Parameters & {
+      codeOverrideSupport: boolean
+      deploySimulationsContract?: boolean | undefined
+      entrypointSimulationContractV7?: `0x${string}` | undefined
+      entrypointSimulationContractV8?: `0x${string}` | undefined
+      entrypointSimulationContractV9?: `0x${string}` | undefined
+      pimlicoSimulationContract?: `0x${string}` | undefined
+    }
+    return Instance.alto(options)
+  }
   return {
+    instance,
     port,
     rpcUrl: { http: url },
-    /** Resets the alto instance for this pool id. */
+    /** Restarts the Alto instance for this pool id. */
     async restart() {
-      await control('restart')
+      const context = inject('coreServers').bundlers[port]
+      if (!context)
+        throw new Error(`Missing bundler server context for port ${port}.`)
+      await Server.get(context).restart()
     },
-    async start(pool: { limit: number }) {
-      return Server.create({
-        instance: (key) => {
-          const options = {
-            binary,
-            bundleMode: 'manual',
-            codeOverrideSupport: true,
-            enableDebugEndpoints: true,
-            entrypoints,
-            executorPrivateKeys: [constants.accounts[3]!.privateKey],
-            fixedGasLimitForEstimation: '30000000',
-            rpcUrl: rpcUrl(key),
-            safeMode: false,
-            utilityPrivateKey: constants.accounts[3]!.privateKey,
-            ...alto,
-          } satisfies Instance.alto.Parameters & {
-            codeOverrideSupport: boolean
-            deploySimulationsContract?: boolean | undefined
-            entrypointSimulationContractV7?: `0x${string}` | undefined
-            entrypointSimulationContractV8?: `0x${string}` | undefined
-            entrypointSimulationContractV9?: `0x${string}` | undefined
-            pimlicoSimulationContract?: `0x${string}` | undefined
-          }
-          return Instance.alto(options)
-        },
-        limit: pool.limit,
-        port,
-      }).start()
-    },
-  }
-
-  async function control(action: 'restart') {
-    const response = await fetch(`${url}/${action}`)
-    if (!response.ok)
-      throw new Error(
-        `Failed to ${action} Alto pool slot: ${await response.text()}`,
-      )
   }
 }
 

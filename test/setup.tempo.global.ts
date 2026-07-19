@@ -1,9 +1,25 @@
+import { Server } from 'prool/vitest'
 import type { TestProject } from 'vitest/node'
 
-import { createServer } from './src/tempo.js'
+import { createInstance, port } from './src/tempo.js'
+
+declare module 'vitest' {
+  export interface ProvidedContext {
+    tempoServer: Server.Context
+  }
+}
+
+const setupServer = Server.setup({
+  // Zone containers reach this proxy through host.docker.internal.
+  host: '::',
+  instance: createInstance(),
+  port,
+  setup(server, project: TestProject) {
+    project.provide('tempoServer', server)
+  },
+})
 
 export default async function (project: TestProject) {
   if (process.env.SKIP_GLOBAL_SETUP) return
-  const server = createServer({ limit: project.config.maxWorkers })
-  return await server.start()
+  return setupServer(project)
 }

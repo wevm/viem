@@ -1,5 +1,5 @@
 import { Provider } from 'ox'
-import { Instance, Server } from 'prool'
+import { Instance } from 'prool'
 import { Client, custom, http } from 'viem'
 
 import * as constants from './constants.js'
@@ -11,27 +11,35 @@ export type DefineAnvilParameters = Instance.anvil.Parameters & {
   port: number
 }
 
-export type Anvil = ReturnType<typeof defineAnvil>
+export type Anvil = {
+  forkBlockNumber: bigint
+  forkUrl: Instance.anvil.Parameters['forkUrl']
+  instance: Instance.Instance
+  port: number
+  rpcUrl: {
+    http: string
+    ipc: string
+    ws: string
+  }
+}
 
 /** Defines a prool-managed anvil instance, proxied per pool id. */
-export function defineAnvil(parameters: DefineAnvilParameters) {
+export function defineAnvil(parameters: DefineAnvilParameters): Anvil {
   const { initialize, port, ...options } = parameters
   const rpcUrl = {
     http: `http://127.0.0.1:${port}/${constants.poolId}`,
     ipc: `/tmp/anvil-${constants.poolId}.ipc`,
     ws: `ws://127.0.0.1:${port}/${constants.poolId}`,
   }
+  const instance = initialize
+    ? defineInitializedAnvil(options, initialize)
+    : Instance.anvil(options)
   return {
     forkBlockNumber: BigInt(parameters.forkBlockNumber ?? 0),
     forkUrl: parameters.forkUrl,
+    instance,
     port,
     rpcUrl,
-    async start(pool: { limit: number }) {
-      const instance = initialize
-        ? defineInitializedAnvil(options, initialize)
-        : Instance.anvil(options)
-      return Server.create({ instance, limit: pool.limit, port }).start()
-    },
   }
 }
 

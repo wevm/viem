@@ -70,8 +70,8 @@ catalogs:
       specifier: ^0.2.57
       version: 0.2.57
     prool:
-      specifier: ~0.2.8
-      version: 0.2.8
+      specifier: ~0.2.13
+      version: 0.2.13
     publint:
       specifier: ^0.3.21
       version: 0.3.21
@@ -275,7 +275,7 @@ importers:
         version: 0.2.57(ox@1.0.2(typescript@7.0.2))
       prool:
         specifier: 'catalog:'
-        version: 0.2.8(@pimlico/alto@0.0.18(supports-color@8.1.1)(typescript@7.0.2))(debug@4.4.3(supports-color@8.1.1))(testcontainers@11.10.0(supports-color@8.1.1))
+        version: 0.2.13(@pimlico/alto@0.0.18(supports-color@8.1.1)(typescript@7.0.2))(debug@4.4.3(supports-color@8.1.1))(testcontainers@11.10.0(supports-color@8.1.1))
       publint:
         specifier: 'catalog:'
         version: 0.3.21
@@ -6266,8 +6266,8 @@ packages:
     resolution: {integrity: sha512-sF308EhTenb/pDRPakm+WgiN+VdM/T1RaHj1x+MvAuT8UiQP8JmOEbxVqtkbfR4LrvOg5n7ic01kRBDGXjYikA==}
     engines: {node: '>=10'}
 
-  prool@0.2.8:
-    resolution: {integrity: sha512-VJXscto4WK/pISa5QvvXE0DEbbOA3vDuEXa2I27gGyqwUQZt3KnfkuzxqJ2sLqR7qm6vXg3NS2sZCXJRkmqfqQ==}
+  prool@0.2.13:
+    resolution: {integrity: sha512-25kwIxIzYvh1TLAKgwJHKA0vAkHl22Xxpu52FoyeLuOrPVCQdPDlK1kEdMMxwEHfSUGWZVVZ54/xTBB0DyyRew==}
     engines: {node: '>=22'}
     peerDependencies:
       '@pimlico/alto': '*'
@@ -14175,7 +14175,7 @@ snapshots:
     dependencies:
       tdigest: 0.1.2
 
-  prool@0.2.8(@pimlico/alto@0.0.18(supports-color@8.1.1)(typescript@7.0.2))(debug@4.4.3(supports-color@8.1.1))(testcontainers@11.10.0(supports-color@8.1.1)):
+  prool@0.2.13(@pimlico/alto@0.0.18(supports-color@8.1.1)(typescript@7.0.2))(debug@4.4.3(supports-color@8.1.1))(testcontainers@11.10.0(supports-color@8.1.1)):
     dependencies:
       change-case: 5.4.4
       eventemitter3: 5.0.4

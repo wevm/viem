@@ -1,5 +1,8 @@
+import { Pool } from 'prool/vitest'
+
 /** Per-worker pool id, appended to the local anvil proxy URL. */
-export const poolId = Number(process.env.VITEST_POOL_ID ?? 1)
+export const poolId =
+  process.env.VITEST_POOL_ID === undefined ? 1 : Pool.poolId()
 
 export const accounts = [
   {
