@@ -572,10 +572,74 @@ describe('transaction.serialize', () => {
     )
     expect(deserialized.signature?.type).toBe('multisig')
     // Bootstrap deployment (`init`, carrying the genesis config) is detected
-    // from `nonce == 0`.
+    // from nonce 0 on the default nonce key.
     expect(
       (deserialized.signature as { init?: MultisigConfig.Config }).init,
     ).toMatchObject({ threshold: 2 })
+  })
+
+  test('multisig: omits `init` for an explicit nonce key', () => {
+    const config = MultisigConfig.from({
+      threshold: 1,
+      owners: [{ owner: sender, weight: 1 }],
+    })
+
+    // Nonce 0 on a fresh 2D nonce key is not a bootstrap: the multisig is
+    // already deployed.
+    const envelope = toEnvelope({
+      ...baseRequest,
+      from: MultisigConfig.getAddress(config),
+      multisig: config,
+      nonce: 0,
+      nonceKey: 1n,
+    } as never)
+
+    const payload = getSignPayload(envelope)
+    const digest = MultisigConfig.getSignPayload({
+      payload,
+      genesisConfig: config,
+    })
+    const signatures = [
+      Signature.toHex(Secp256k1.sign({ payload: digest, privateKey })),
+    ]
+
+    const serialized = serialize({ ...envelope, signatures } as Envelope)
+    const deserialized = TxEnvelopeTempo.deserialize(
+      serialized as `0x76${string}`,
+    )
+    expect(deserialized.signature?.type).toBe('multisig')
+    expect(
+      (deserialized.signature as { init?: MultisigConfig.Config }).init,
+    ).toBeUndefined()
+  })
+
+  test('2D nonces: explicit nonceKey round-trips through serialization', () => {
+    const envelope = toEnvelope({
+      ...baseRequest,
+      nonce: 0,
+      nonceKey: 69n,
+    } as never)
+    expect(
+      TxEnvelopeTempo.deserialize(serialize(envelope) as `0x76${string}`),
+    ).toMatchInlineSnapshot(`
+      {
+        "calls": [
+          {
+            "data": "0xdeadbeef",
+            "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+            "value": 69n,
+          },
+        ],
+        "chainId": 1337,
+        "feeToken": "0x20c0000000000000000000000000000000000000",
+        "gas": 21000n,
+        "maxFeePerGas": 1000000000n,
+        "maxPriorityFeePerGas": 100000000n,
+        "nonce": 0n,
+        "nonceKey": 69n,
+        "type": "tempo",
+      }
+    `)
   })
 
   test('delegates non-tempo envelopes to the core default', () => {

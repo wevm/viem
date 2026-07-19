@@ -228,7 +228,7 @@ export const chainConfig = {
         // contribute approvals later via `signTransaction`). Derive the
         // sender from the config; core fills nonce/gas/fees for it via
         // `request.from`, and the serializer auto-detects bootstrap (`init`)
-        // from `nonce == 0`.
+        // from nonce 0 on the default nonce key.
         //
         // The config is taken from an explicit `multisig` field, or inferred
         // from a multisig account (so callers can just pass `account`
@@ -355,7 +355,7 @@ export const chainConfig = {
 
       // Combine owner approvals into the multisig signature envelope
       // (TIP-1061) before fee-payer handling. Bootstrap (`init`) is detected
-      // from `nonce == 0`.
+      // from the true first transaction: nonce 0 on the default nonce key.
       const signature = (() => {
         if (signature_provided) return signature_provided
         if (!envelope.multisig || !envelope.signatures) return undefined
@@ -374,7 +374,7 @@ export const chainConfig = {
         return SignatureEnvelope.from({
           genesisConfig: envelope.multisig,
           signatures: sorted,
-          ...(envelope.nonce ? {} : { init: true }),
+          ...(envelope.nonce || envelope.nonceKey ? {} : { init: true }),
         })
       })()
 
