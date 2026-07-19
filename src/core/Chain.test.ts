@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import { Chain } from 'viem'
 
+import { base } from '../chains/definitions/base.js'
 import { mainnet } from '../chains/definitions/mainnet.js'
 import { optimism } from '../chains/definitions/optimism.js'
 
@@ -80,6 +81,19 @@ describe('getContractAddress', () => {
     expect(() =>
       Chain.getContractAddress({ chain: mainnet, contract: 'unknown' }),
     ).toThrow(Chain.DoesNotSupportContract)
+  })
+
+  test('throws when the contract is keyed by source chain', () => {
+    expect(() =>
+      Chain.getContractAddress({ chain: base, contract: 'portal' }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [Chain.DoesNotSupportContract: Chain "Base" does not support contract "portal".
+
+      This could be due to any of the following:
+      - The chain does not have the contract "portal" configured.
+
+      Version: viem@2.52.1]
+    `)
   })
 
   test('throws when the contract is not yet deployed at the block', () => {

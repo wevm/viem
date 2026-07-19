@@ -373,7 +373,8 @@ export type ExtractTransactionRequest<chain extends Chain | undefined> =
 export function from<const chain extends Chain & Record<string, unknown>>(
   chain: chain,
 ): from.ReturnType<chain> {
-  return Object.assign(chain, { extend: extend(chain) }) as never
+  // Cast: the chainable generic `extend` signature is not inferrable from the concrete closure.
+  return { ...chain, extend: extend(chain) } as from.ReturnType<chain>
 }
 
 export declare namespace from {
@@ -559,8 +560,9 @@ export function getContractAddress({
   chain: Chain
   contract: string
 }) {
-  const contract = (chain?.contracts as Record<string, Chain.Contract>)?.[name]
-  if (!contract)
+  const contract = chain.contracts?.[name]
+  // Source-chain-keyed entries (`{ [sourceId]: contract }`) are not addressable here.
+  if (!contract || !('address' in contract))
     throw new DoesNotSupportContract({
       chain,
       contract: { name },
