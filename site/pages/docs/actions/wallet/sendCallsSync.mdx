@@ -22,6 +22,15 @@ const status = await client.wallet.sendCallsSync({
     },
   ],
 })
+// @log: {
+// @log:   atomic: true,
+// @log:   chainId: 1,
+// @log:   id: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+// @log:   receipts: [{ blockNumber: 12345678n, gasUsed: 21000n, status: 'success', ... }],
+// @log:   status: 'success',
+// @log:   statusCode: 200,
+// @log:   version: '2.0.0',
+// @log: }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -54,6 +63,15 @@ const status = await Actions.wallet.sendCallsSync(client, {
     },
   ],
 })
+// @log: {
+// @log:   atomic: true,
+// @log:   chainId: 1,
+// @log:   id: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+// @log:   receipts: [{ blockNumber: 12345678n, gasUsed: 21000n, status: 'success', ... }],
+// @log:   status: 'success',
+// @log:   statusCode: 200,
+// @log:   version: '2.0.0',
+// @log: }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -141,3 +159,12 @@ const status = await Actions.wallet.sendCallsSync(client, {
   timeout: 30_000, // [!code focus]
 })
 ```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Actions.wallet.Errors.AtomicityNotSupportedError` | `forceAtomic` was set with multiple calls on fallback to `eth_sendTransaction`. |
+| `Actions.wallet.Errors.BundleFailedError` | The call bundle failed and `throwOnFailure` was enabled. |
+| `Actions.wallet.Errors.UnsupportedNonOptionalCapabilityError` | A non-optional capability was requested on fallback to `eth_sendTransaction`. |
+| `Actions.wallet.Errors.WaitForCallsStatusTimeoutError` | Timed out while waiting for the call bundle to be confirmed. |

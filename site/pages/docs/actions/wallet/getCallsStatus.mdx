@@ -14,6 +14,15 @@ import { client } from './viem.config'
 const { receipts, status } = await client.wallet.getCallsStatus({
   id: '0xdeadbeef',
 })
+// @log: {
+// @log:   atomic: true,
+// @log:   chainId: 1,
+// @log:   id: '0xdeadbeef',
+// @log:   receipts: [{ blockNumber: 12345678n, gasUsed: 21000n, status: 'success', ... }],
+// @log:   status: 'success',
+// @log:   statusCode: 200,
+// @log:   version: '2.0.0',
+// @log: }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -40,6 +49,15 @@ import { client } from './viem.config'
 const { receipts, status } = await Actions.wallet.getCallsStatus(client, {
   id: '0xdeadbeef',
 })
+// @log: {
+// @log:   atomic: true,
+// @log:   chainId: 1,
+// @log:   id: '0xdeadbeef',
+// @log:   receipts: [{ blockNumber: 12345678n, gasUsed: 21000n, status: 'success', ... }],
+// @log:   status: 'success',
+// @log:   statusCode: 200,
+// @log:   version: '2.0.0',
+// @log: }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

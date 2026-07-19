@@ -84,3 +84,9 @@ const maxPriorityFeePerGas = await Actions.fee.estimateMaxPriorityFeePerGas(clie
   chain: mainnet, // [!code focus]
 })
 ```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Actions.fee.Errors.Eip1559FeesNotSupportedError` | The chain does not support EIP-1559 fees (no `baseFeePerGas` on the latest block). |

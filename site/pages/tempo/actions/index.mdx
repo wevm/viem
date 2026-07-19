@@ -144,8 +144,10 @@
 | [`zone.encryptedDeposit`](/tempo/actions/zone.encryptedDeposit) | Deposits tokens into a zone from the parent Tempo chain, encrypting the recipient and memo for the zone sequencer |
 | [`zone.getAuthorizationTokenInfo`](/tempo/actions/zone.getAuthorizationTokenInfo) | Returns the authenticated account address and token expiry from the current authorization token |
 | [`zone.getDepositStatus`](/tempo/actions/zone.getDepositStatus) | Returns deposit processing status for a given parent Tempo chain block number |
+| [`zone.getEncryptionKey`](/tempo/actions/zone.getEncryptionKey) | Returns the active sequencer encryption key for a zone |
 | [`zone.getWithdrawalFee`](/tempo/actions/zone.getWithdrawalFee) | Returns the fee required for a withdrawal from a zone, given a callback gas limit |
 | [`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo) | Returns metadata about the current zone |
 | [`zone.requestVerifiableWithdrawal`](/tempo/actions/zone.requestVerifiableWithdrawal) | Requests a verifiable withdrawal from a zone to the parent Tempo chain. The zone sequencer encrypts the sender's identity for the provided `revealTo` public key |
 | [`zone.requestWithdrawal`](/tempo/actions/zone.requestWithdrawal) | Requests a withdrawal from a zone to the parent Tempo chain |
 | [`zone.signAuthorizationToken`](/tempo/actions/zone.signAuthorizationToken) | Signs a zone authorization token and stores it for the zone HTTP transport. The token authenticates subsequent zone RPC requests via the `X-Authorization-Token` header |
+| [`zone.waitForDepositStatus`](/tempo/actions/zone.waitForDepositStatus) | Waits for a Tempo block's deposits to be processed by a zone |

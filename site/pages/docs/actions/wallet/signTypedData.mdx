@@ -22,6 +22,7 @@ const signature = await client.signTypedData({
   primaryType: 'Mail',
   message: { contents: 'hello world' },
 })
+// @log: '0x66eece9e5f6d38fbe22ecacd3f95f80217e47b13b02f5b6a86e5b9f0e2b7...'
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -55,6 +56,7 @@ const signature = await Actions.signTypedData(client, {
   primaryType: 'Mail',
   message: { contents: 'hello world' },
 })
+// @log: '0x66eece9e5f6d38fbe22ecacd3f95f80217e47b13b02f5b6a86e5b9f0e2b7...'
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -165,3 +167,9 @@ const signature = await Actions.signTypedData(client, {
   message: { contents: 'hello world' },
 })
 ```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Account.NotFoundError` | No `account` was provided and the client has no account. |

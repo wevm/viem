@@ -1,0 +1,78 @@
+# `zone.getEncryptionKey`
+
+Returns the active sequencer encryption key for a zone.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { keyIndex, publicKey } = await client.zone.getEncryptionKey({
+  zoneId: 7,
+})
+
+console.log('Key index:', keyIndex)
+console.log('Public key:', publicKey)
+// @log: Key index: 0n
+// @log: Public key: { prefix: 3, x: '0x57e8a1e347b0c8e8c14290499e1281f84eae5d1cdd10cc5eb4d92aca17c5c1d4' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Zero-based encryption key index. */
+  keyIndex: bigint
+  /** Active sequencer encryption public key. */
+  publicKey: {
+    /** SEC1 compressed public key prefix. */
+    prefix: 2 | 3
+    /** Public key x-coordinate. */
+    x: Hex
+  }
+}
+```
+
+The active encryption key and its zero-based index.
+
+## Parameters
+
+### blockNumber (optional)
+
+- **Type:** `bigint`
+
+Block number to read the state from.
+
+### blockTag (optional)
+
+- **Type:** `BlockTag`
+- **Default:** `'latest'`
+
+Block tag to read the state from.
+
+### portalAddress (optional)
+
+- **Type:** `Address`
+- **Default:** the configured portal registry
+
+Zone portal address.
+
+### stateOverride (optional)
+
+- **Type:** `StateOverride`
+
+State override to apply.
+
+### zoneId
+
+- **Type:** `number`
+
+Zone ID.

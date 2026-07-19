@@ -102,3 +102,10 @@ const { gasPrice } = await Actions.fee.estimateFeesPerGas(client, {
   type: 'legacy', // [!code focus]
 })
 ```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Actions.fee.Errors.BaseFeeScalarError` | The chain's `baseFeeMultiplier` resolved to a value less than `1`. |
+| `Actions.fee.Errors.Eip1559FeesNotSupportedError` | The chain does not support EIP-1559 fees (no `baseFeePerGas` on the latest block). |

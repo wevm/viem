@@ -16,6 +16,7 @@ import { client } from './viem.config'
 const authorization = await client.wallet.prepareAuthorization({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 })
+// @log: { address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', chainId: 1, nonce: 664n }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -44,6 +45,7 @@ import { client } from './viem.config'
 const authorization = await Actions.wallet.prepareAuthorization(client, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 })
+// @log: { address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', chainId: 1, nonce: 664n }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -148,3 +150,9 @@ const authorization = await Actions.wallet.prepareAuthorization(client, {
   nonce: 69n, // [!code focus]
 })
 ```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Account.NotFoundError` | No `account` was provided and the client has no account. |

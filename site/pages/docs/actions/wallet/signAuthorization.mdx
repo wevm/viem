@@ -16,6 +16,14 @@ import { client } from './viem.config'
 const authorization = await client.wallet.signAuthorization({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 })
+// @log: {
+// @log:   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+// @log:   chainId: 1,
+// @log:   nonce: 664n,
+// @log:   r: 49782753348462494199823712700004552394425719014458918871452329774910450607807n,
+// @log:   s: 33726695977844476214676913201140481102225469284307016937915595756355928419768n,
+// @log:   yParity: 0,
+// @log: }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -44,6 +52,14 @@ import { client } from './viem.config'
 const authorization = await Actions.wallet.signAuthorization(client, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 })
+// @log: {
+// @log:   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+// @log:   chainId: 1,
+// @log:   nonce: 664n,
+// @log:   r: 49782753348462494199823712700004552394425719014458918871452329774910450607807n,
+// @log:   s: 33726695977844476214676913201140481102225469284307016937915595756355928419768n,
+// @log:   yParity: 0,
+// @log: }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -148,3 +164,10 @@ const authorization = await Actions.wallet.signAuthorization(client, {
   nonce: 69n, // [!code focus]
 })
 ```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Account.NotFoundError` | No `account` was provided and the client has no account. |
+| `AccountTypeNotSupportedError` | The account is a JSON-RPC Account, which cannot sign Authorizations. |

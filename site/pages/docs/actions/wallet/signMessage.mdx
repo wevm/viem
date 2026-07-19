@@ -17,6 +17,7 @@ import { client } from './viem.config'
 const signature = await client.signMessage({
   message: 'hello world',
 })
+// @log: '0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b8031...'
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -45,6 +46,7 @@ import { client } from './viem.config'
 const signature = await Actions.signMessage(client, {
   message: 'hello world',
 })
+// @log: '0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b8031...'
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -99,3 +101,9 @@ const signature = await Actions.signMessage(client, {
   message: { raw: '0x68656c6c6f20776f726c64' }, // [!code focus]
 })
 ```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Account.NotFoundError` | No `account` was provided and the client has no account. |

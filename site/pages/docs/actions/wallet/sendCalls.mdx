@@ -24,6 +24,7 @@ const { id } = await client.wallet.sendCalls({
     },
   ],
 })
+// @log: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -60,6 +61,7 @@ const { id } = await Actions.wallet.sendCalls(client, {
     },
   ],
 })
+// @log: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -242,3 +244,10 @@ const { id } = await Actions.wallet.sendCalls(client, {
   version: '2.0.0', // [!code focus]
 })
 ```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Actions.wallet.Errors.AtomicityNotSupportedError` | `forceAtomic` was set with multiple calls on fallback to `eth_sendTransaction`. |
+| `Actions.wallet.Errors.UnsupportedNonOptionalCapabilityError` | A non-optional capability was requested on fallback to `eth_sendTransaction`. |
