@@ -83,6 +83,28 @@ test('extend: cannot redefine base keys', () => {
   }))
 })
 
+test('extend: a `~schema` marker widens the request schema', async () => {
+  type Extension = {
+    '~schema'?:
+      | {
+          Request: { method: 'abe_foo'; params: [id: number] }
+          ReturnType: string
+        }
+      | undefined
+    foo: () => 'foo'
+  }
+  const client = Client.create({ transport: http() }).extend(
+    (): Extension => ({ foo: () => 'foo' }),
+  )
+
+  const result = await client.request({ method: 'abe_foo', params: [1] })
+  expectTypeOf(result).toEqualTypeOf<string>()
+  expectTypeOf(client.foo).toEqualTypeOf<() => 'foo'>()
+  expectTypeOf<
+    '~schema' extends keyof typeof client ? true : false
+  >().toEqualTypeOf<false>()
+})
+
 test('createResolver: narrows chain and transport from a map', () => {
   const mainnetTransport = http()
   const optimismTransport = webSocket()

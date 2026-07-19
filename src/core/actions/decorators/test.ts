@@ -1,3 +1,5 @@
+import type { Address, Hex, RpcSchema } from 'ox'
+
 import type * as Client from '../../Client.js'
 import * as address from '../address/test/index.js'
 import * as block from '../block/test/index.js'
@@ -12,7 +14,8 @@ type Without<options> = Omit<options, 'mode'>
 /**
  * Bag of test actions (anvil/hardhat/ganache) bound to a {@link Client},
  * grouped by namespace, with the decorator's `mode` injected into every action.
- * Pass to `Client.create`'s `.extend`.
+ * Pass to `Client.create`'s `.extend`. Also widens the Client's request schema
+ * with the test methods for `mode` ({@link testActions.Schema}).
  *
  * @example
  * ```ts
@@ -24,11 +27,14 @@ type Without<options> = Omit<options, 'mode'>
  *   transport: http(),
  * }).extend(testActions({ mode: 'anvil' }))
  * await client.block.mine({ blocks: 1 })
+ * await client.request({ method: 'anvil_setBalance', params: ['0x…', '0x…'] })
  * ```
  */
-export function testActions(options: testActions.Options = {}) {
+export function testActions<mode extends Mode.Mode = 'anvil'>(
+  options: testActions.Options<mode> = {},
+) {
   const { mode = 'anvil' } = options
-  return (client: Client.Client): testActions.Decorator => ({
+  return (client: Client.Client): testActions.Decorator<mode> => ({
     address: {
       impersonate: (options) =>
         address.impersonate(client, { ...options, mode }),
@@ -81,12 +87,14 @@ export function testActions(options: testActions.Options = {}) {
 }
 
 export declare namespace testActions {
-  type Options = {
+  type Options<mode extends Mode.Mode = Mode.Mode> = {
     /** Test node mode. @default 'anvil' */
-    mode?: Mode.Mode | undefined
+    mode?: mode | undefined
   }
 
-  type Decorator = {
+  type Decorator<mode extends Mode.Mode = Mode.Mode> = {
+    /** Type-level marker widening the Client's request schema with {@link Schema}. Never present at runtime. */
+    '~schema'?: Schema<mode> | undefined
     address: {
       /**
        * Impersonate an account or contract address. This lets you send
@@ -611,4 +619,299 @@ export declare namespace testActions {
       inspect: () => Promise<txpool.inspect.ReturnType>
     }
   }
+
+  /**
+   * JSON-RPC schema for test node (anvil/hardhat/ganache) methods, keyed by
+   * `mode`. Widens `client.request` when the Client is extended with
+   * {@link testActions}.
+   */
+  type Schema<mode extends Mode.Mode = Mode.Mode> = RpcSchema.From<
+    /** Removes a transaction from the mempool. */
+    | {
+        Request: {
+          method: `${mode}_dropTransaction`
+          params: [hash: Hex.Hex]
+        }
+        ReturnType: void
+      }
+    /** Serializes the current state into a savable data blob. */
+    | {
+        Request: {
+          method: `${mode}_dumpState`
+          params?: undefined
+        }
+        ReturnType: Hex.Hex
+      }
+    /** Returns whether automatic mining is enabled. */
+    | {
+        Request: {
+          method: `${mode}_getAutomine`
+          params?: undefined
+        }
+        ReturnType: boolean
+      }
+    /** Impersonates an account or contract address. */
+    | {
+        Request: {
+          method: `${mode}_impersonateAccount`
+          params: [address: Address.Address]
+        }
+        ReturnType: void
+      }
+    /** Adds state previously dumped with `dumpState` to the current chain. */
+    | {
+        Request: {
+          method: `${mode}_loadState`
+          params?: [state: Hex.Hex] | undefined
+        }
+        ReturnType: void
+      }
+    /** Advances the network by a number of blocks. */
+    | {
+        Request: {
+          method: `${mode}_mine`
+          params: [count: Hex.Hex, interval: Hex.Hex | undefined]
+        }
+        ReturnType: void
+      }
+    /** Removes `setBlockTimestampInterval` if it exists. */
+    | {
+        Request: {
+          method: `${mode}_removeBlockTimestampInterval`
+          params?: undefined
+        }
+        ReturnType: void
+      }
+    /** Resets the fork. */
+    | {
+        Request: {
+          method: `${mode}_reset`
+          params?:
+            | [
+                config: {
+                  forking: {
+                    blockNumber?: number | undefined
+                    jsonRpcUrl?: string | undefined
+                  }
+                },
+              ]
+            | undefined
+        }
+        ReturnType: void
+      }
+    /** Modifies the balance of an account. */
+    | {
+        Request: {
+          method: `${mode}_setBalance`
+          params: [address: Address.Address, balance: Hex.Hex]
+        }
+        ReturnType: void
+      }
+    /** Sets the block's gas limit. */
+    | {
+        Request: {
+          method: `${mode}_setBlockGasLimit`
+          params: [gasLimit: Hex.Hex]
+        }
+        ReturnType: void
+      }
+    /** Sets a block timestamp interval applied to future blocks. */
+    | {
+        Request: {
+          method: `${mode}_setBlockTimestampInterval`
+          params: [interval: number]
+        }
+        ReturnType: void
+      }
+    /** Modifies the bytecode stored at an account's address. */
+    | {
+        Request: {
+          method: `${mode}_setCode`
+          params: [address: Address.Address, bytecode: Hex.Hex]
+        }
+        ReturnType: void
+      }
+    /** Sets the coinbase address used in new blocks. */
+    | {
+        Request: {
+          method: `${mode}_setCoinbase`
+          params: [address: Address.Address]
+        }
+        ReturnType: void
+      }
+    /** Enables or disables logging on the test node. */
+    | {
+        Request: {
+          method: `${mode}_setLoggingEnabled`
+          params: [enabled: boolean]
+        }
+        ReturnType: void
+      }
+    /** Changes the minimum gas price accepted by the network (in wei). */
+    | {
+        Request: {
+          method: `${mode}_setMinGasPrice`
+          params: [gasPrice: Hex.Hex]
+        }
+        ReturnType: void
+      }
+    /** Sets the next block's base fee per gas. */
+    | {
+        Request: {
+          method: `${mode}_setNextBlockBaseFeePerGas`
+          params: [baseFeePerGas: Hex.Hex]
+        }
+        ReturnType: void
+      }
+    /** Overwrites the nonce of an account. */
+    | {
+        Request: {
+          method: `${mode}_setNonce`
+          params: [address: Address.Address, nonce: Hex.Hex]
+        }
+        ReturnType: void
+      }
+    /** Sets the backend RPC URL. */
+    | {
+        Request: {
+          method: `${mode}_setRpcUrl`
+          params: [url: string]
+        }
+        ReturnType: void
+      }
+    /** Writes a single slot of an account's storage. */
+    | {
+        Request: {
+          method: `${mode}_setStorageAt`
+          params: [address: Address.Address, index: Hex.Hex, value: Hex.Hex]
+        }
+        ReturnType: void
+      }
+    /** Stops impersonating an account. */
+    | {
+        Request: {
+          method: `${mode}_stopImpersonatingAccount`
+          params: [address: Address.Address]
+        }
+        ReturnType: void
+      }
+    /** Returns whether the client is actively mining new blocks. */
+    | {
+        Request: {
+          method: 'eth_mining'
+          params?: undefined
+        }
+        ReturnType: boolean
+      }
+    /** Jumps forward in time by the given amount of seconds. */
+    | {
+        Request: {
+          method: 'evm_increaseTime'
+          params: [seconds: Hex.Hex]
+        }
+        ReturnType: Hex.Hex
+      }
+    /** Advances the network by a number of blocks. */
+    | {
+        Request: {
+          method: 'evm_mine'
+          params?: [options: { blocks: Hex.Hex }] | undefined
+        }
+        ReturnType: void
+      }
+    /** Reverts the state of the blockchain to a previous snapshot. */
+    | {
+        Request: {
+          method: 'evm_revert'
+          params?: [id: Hex.Hex] | undefined
+        }
+        ReturnType: void
+      }
+    /** Modifies the balance of an account. */
+    | {
+        Request: {
+          method: 'evm_setAccountBalance'
+          params: [address: Address.Address, value: Hex.Hex]
+        }
+        ReturnType: void
+      }
+    /** Modifies the bytecode stored at an account's address. */
+    | {
+        Request: {
+          method: 'evm_setAccountCode'
+          params: [address: Address.Address, bytecode: Hex.Hex]
+        }
+        ReturnType: void
+      }
+    /** Enables or disables automatic mining on each new transaction. */
+    | {
+        Request: {
+          method: 'evm_setAutomine'
+          params: [enabled: boolean]
+        }
+        ReturnType: void
+      }
+    /** Enables or disables interval mining (in seconds; `0` disables). */
+    | {
+        Request: {
+          method: 'evm_setIntervalMining'
+          params: [interval: number]
+        }
+        ReturnType: void
+      }
+    /** Sets the next block's timestamp. */
+    | {
+        Request: {
+          method: 'evm_setNextBlockTimestamp'
+          params: [timestamp: Hex.Hex]
+        }
+        ReturnType: void
+      }
+    /** Snapshots the state of the blockchain at the current block. */
+    | {
+        Request: {
+          method: 'evm_snapshot'
+          params?: undefined
+        }
+        ReturnType: Hex.Hex
+      }
+    /** Enables automatic mining on each new transaction. */
+    | {
+        Request: {
+          method: 'miner_start'
+          params?: undefined
+        }
+        ReturnType: void
+      }
+    /** Disables automatic mining on each new transaction. */
+    | {
+        Request: {
+          method: 'miner_stop'
+          params?: undefined
+        }
+        ReturnType: void
+      }
+    /** Returns a textual summary of transactions in the mempool. */
+    | {
+        Request: {
+          method: 'txpool_inspect'
+          params?: undefined
+        }
+        ReturnType: {
+          pending: Record<Address.Address, Record<string, string>>
+          queued: Record<Address.Address, Record<string, string>>
+        }
+      }
+    /** Returns the number of transactions in the mempool. */
+    | {
+        Request: {
+          method: 'txpool_status'
+          params?: undefined
+        }
+        ReturnType: {
+          pending: Hex.Hex
+          queued: Hex.Hex
+        }
+      }
+  >
 }

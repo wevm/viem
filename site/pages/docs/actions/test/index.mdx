@@ -69,7 +69,7 @@ const client = Client.create({
 
 ## testActions
 
-Returns a bag of test actions bound to a Client, with the configured `mode` injected into every action. Pass it to [`.extend()`](/docs/clients/create#extending-a-client).
+Returns a bag of test actions bound to a Client, with the configured `mode` injected into every action. Pass it to [`.extend()`](/docs/clients/create#extending-a-client). It also types `client.request` against the test node's RPC methods (for example `anvil_setBalance`) for the configured mode.
 
 ### Usage
 

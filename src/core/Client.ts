@@ -34,8 +34,9 @@ export type Client<
       account,
       transport,
       tokens,
-      schema,
-      Prettify<fn> & (extended extends Extended ? extended : unknown)
+      schema | ExtractSchema<fn>,
+      Prettify<Omit<fn, '~schema'>> &
+        (extended extends Extended ? extended : unknown)
     >
   }
 
@@ -78,12 +79,21 @@ type Base<
   uid: string
 }
 
-/** Extensions may add keys but not redefine base keys. */
+/**
+ * Extensions may add keys but not redefine base keys. An extension may declare
+ * a type-level `~schema` marker (an `RpcSchema.Generic`) to widen the Client's
+ * request schema; the marker never exists at runtime.
+ */
 type Extended = Prettify<
   { [key in keyof Base<any, any, any, any, any>]?: undefined } & {
     [key: string]: unknown
   }
 >
+
+/** Request schema declared by an extension's type-level `~schema` marker. */
+type ExtractSchema<fn> = fn extends { '~schema'?: infer schema }
+  ? Extract<schema, RpcSchema.Generic>
+  : never
 
 /** A block tag for RPC requests. */
 // TODO: replace with the shared block-tag type once the block module lands.
@@ -212,6 +222,7 @@ export function create(options: create.Options): Client {
     return (fn: ExtendFn) => {
       const extended = fn(base)
       for (const key in client) delete extended[key]
+      delete extended['~schema']
       const combined = merge(base, extended)
       return Object.assign(combined, {
         extend: extend(combined as typeof base),
