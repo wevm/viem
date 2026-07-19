@@ -1,5 +1,5 @@
 import { Abi } from 'ox'
-import type { Address } from 'ox'
+import type { Address, Hex } from 'ox'
 import { expectTypeOf, test } from 'vitest'
 
 import { Actions, Client, http, publicActions, walletActions } from 'viem'
@@ -118,6 +118,17 @@ test('value: allowed on payable, rejected on nonpayable', () => {
     // @ts-expect-error value not allowed on nonpayable function
     value: 5n,
   })
+})
+
+test('dataSuffix: accepted and carried on the request', async () => {
+  const { request } = await Actions.contract.simulate(client, {
+    abi,
+    address: '0x',
+    args: ['0x', 123n],
+    dataSuffix: '0x1234',
+    functionName: 'approve',
+  })
+  expectTypeOf(request.dataSuffix).toEqualTypeOf<Hex.Hex | undefined>()
 })
 
 test('request is assignable to write', async () => {

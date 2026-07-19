@@ -1,9 +1,10 @@
 import type { Abi } from 'abitype'
 import { AbiFunction } from 'ox'
-import type { Errors } from 'ox'
+import type { Errors, Hex } from 'ox'
 
 import type * as Client from '../../Client.js'
 import * as ContractError from '../../ContractError.js'
+import * as dataSuffix_ from '../../internal/dataSuffix.js'
 import { isAbortError } from '../../internal/errors.js'
 import type {
   ContractFunctionArgs,
@@ -62,6 +63,7 @@ export async function simulate<
     address,
     args,
     as = 'Object',
+    dataSuffix = client.dataSuffix,
     functionName,
     ...rest
   } = options as simulate.Options
@@ -69,7 +71,10 @@ export async function simulate<
   const abiItem = AbiFunction.fromAbi(abi, functionName, {
     args: args,
   })
-  const data = AbiFunction.encodeData(abiItem, args)
+  const data = dataSuffix_.append(
+    AbiFunction.encodeData(abiItem, args),
+    dataSuffix,
+  )
 
   const account = rest.account ?? client.account
   const sender = account
@@ -94,12 +99,15 @@ export async function simulate<
       (item) => (item as { name?: string }).name === functionName,
     )
 
+    // Carry the resolved suffix so `write` appends the same calldata (`write`
+    // re-encodes from `abi`/`args`, so it is never applied twice).
     return {
       request: {
         ...rest,
         abi: minimizedAbi,
         address,
         args,
+        ...(dataSuffix ? { dataSuffix } : {}),
         functionName,
       },
       result,
@@ -136,6 +144,11 @@ export declare namespace simulate {
   > & {
     /** Return multiple values as an object keyed by output name or as an array. @default 'Object' */
     as?: as | 'Object' | 'Array' | undefined
+    /**
+     * Data to append to the end of the calldata. Takes precedence over
+     * `client.dataSuffix`.
+     */
+    dataSuffix?: Hex.Hex | undefined
   } & Pick<
       call.Options,
       | 'account'

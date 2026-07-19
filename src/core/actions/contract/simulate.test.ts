@@ -118,6 +118,97 @@ test('account: none', async () => {
   expect(result).toBe(7n)
 })
 
+test('dataSuffix: appends to the calldata and is carried on the request', async () => {
+  const { request, result } = await Actions.contract.simulate(client, {
+    ...writeExample,
+    account: jsonRpc,
+    args: [69n],
+    dataSuffix: '0x12345678',
+    functionName: 'foo',
+  })
+  expect(result).toBe(69n)
+  expect(request.dataSuffix).toBe('0x12345678')
+
+  // Broadcasting the returned request appends the suffix exactly once.
+  await setup()
+  const hash = await Actions.contract.write(client, request)
+  await testClient.block.mine({ blocks: 1 })
+  const transaction = await Actions.transaction.get(client, { hash })
+  // `foo(uint256)` selector + the encoded argument + the suffix.
+  expect(transaction.input).toMatchInlineSnapshot(
+    `"0x2fbebd38000000000000000000000000000000000000000000000000000000000000004512345678"`,
+  )
+})
+
+test('dataSuffix: defaults to client.dataSuffix', async () => {
+  const clientWithSuffix = Client.create({
+    dataSuffix: '0x12345678',
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
+  const { request, result } = await Actions.contract.simulate(
+    clientWithSuffix,
+    {
+      ...writeExample,
+      account: jsonRpc,
+      args: [69n],
+      functionName: 'foo',
+    },
+  )
+  expect(result).toBe(69n)
+  expect(request.dataSuffix).toBe('0x12345678')
+
+  // The resolved suffix travels with the request to a suffix-less client.
+  await setup()
+  const hash = await Actions.contract.write(client, request)
+  await testClient.block.mine({ blocks: 1 })
+  const transaction = await Actions.transaction.get(client, { hash })
+  // `foo(uint256)` selector + the encoded argument + the suffix.
+  expect(transaction.input).toMatchInlineSnapshot(
+    `"0x2fbebd38000000000000000000000000000000000000000000000000000000000000004512345678"`,
+  )
+})
+
+test('dataSuffix: applies client.dataSuffix (object format)', async () => {
+  const clientWithSuffix = Client.create({
+    dataSuffix: { required: true, value: '0x12345678' },
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
+  const { request, result } = await Actions.contract.simulate(
+    clientWithSuffix,
+    {
+      ...writeExample,
+      account: jsonRpc,
+      args: [69n],
+      functionName: 'foo',
+    },
+  )
+  expect(result).toBe(69n)
+
+  await setup()
+  const hash = await Actions.contract.write(client, request)
+  await testClient.block.mine({ blocks: 1 })
+  const transaction = await Actions.transaction.get(client, { hash })
+  // `foo(uint256)` selector + the encoded argument + the suffix.
+  expect(transaction.input).toMatchInlineSnapshot(
+    `"0x2fbebd38000000000000000000000000000000000000000000000000000000000000004512345678"`,
+  )
+})
+
+test('dataSuffix: parameter takes precedence over client.dataSuffix', async () => {
+  const clientWithSuffix = Client.create({
+    dataSuffix: '0xaabbccdd',
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
+  const { request } = await Actions.contract.simulate(clientWithSuffix, {
+    ...writeExample,
+    account: jsonRpc,
+    args: [69n],
+    dataSuffix: '0x12345678',
+    functionName: 'foo',
+  })
+  expect(request.dataSuffix).toBe('0x12345678')
+})
+
 test('error: aborted request is not wrapped', async () => {
   const controller = new AbortController()
   controller.abort()
