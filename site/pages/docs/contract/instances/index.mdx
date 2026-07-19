@@ -106,7 +106,7 @@ const contract = Contract.from({
 
 - **Type:** `Client`
 
-The Client used to execute the contract's actions. The [`write`](/docs/contract/instances/write) group requires the Client to have an [Account](/docs/accounts).
+The Client used to execute the contract's actions. The [`write`](/docs/contract/instances/write) group requires an [Account](/docs/accounts) on the Client or per call.
 
 ```ts twoslash
 import { Client, Contract, http } from 'viem'
@@ -126,4 +126,4 @@ const contract = Contract.from({
 
 `Contract`
 
-The contract instance: `{ abi, address }` plus the method groups derived from the ABI. Functions appear under `read` (`pure`/`view`) or under `estimateGas`, `simulate`, and `write` (`nonpayable`/`payable`); events appear under `createEventFilter`, `getLogs`, and `watchEvent`. Groups without a matching ABI item are omitted, and `write` is hidden from Client types with no Account (calls reject with `Account.NotFoundError` when no Account is bound).
+The contract instance: `{ abi, address }` plus the method groups derived from the ABI. Functions appear under `read` (`pure`/`view`) or under `estimateGas`, `simulate`, and `write` (`nonpayable`/`payable`); events appear under `createEventFilter`, `getLogs`, and `watchEvent`. Groups without a matching ABI item are omitted. On Client types with no Account, `write` methods require a per-call `account` option (calls reject with `Account.NotFoundError` when neither is provided).

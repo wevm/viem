@@ -130,6 +130,9 @@ test('infers function args and return values from one options bag', async () => 
   contract.write.deposit({ value: 1n })
   contract.write.deposit()
 
+  // A hoisted client account keeps `account` optional, but per-call overrides work.
+  contract.write.transfer({ account: address, args: [recipient, 1n] })
+
   // @ts-expect-error args belong inside the options bag
   contract.read.balanceOf([recipient])
   // @ts-expect-error balanceOf requires an address argument
@@ -212,7 +215,7 @@ test('omits groups that have no matching ABI items', () => {
   >()
 })
 
-test('omits write when the client has no account', () => {
+test('requires a per-call account when the client has none', () => {
   const contract = Contract.from({ abi, address, client })
   expectTypeOf<keyof typeof contract>().toEqualTypeOf<
     | 'abi'
@@ -223,7 +226,21 @@ test('omits write when the client has no account', () => {
     | 'read'
     | 'simulate'
     | 'watchEvent'
+    | 'write'
   >()
+
+  const hash = contract.write.transfer({
+    account: recipient,
+    args: [recipient, 1n],
+  })
+  expectTypeOf(hash).toEqualTypeOf<Promise<Hex.Hex>>()
+
+  // @ts-expect-error account is required without a client account
+  contract.write.transfer({ args: [recipient, 1n] })
+  // @ts-expect-error options with an account are required without a client account
+  contract.write.deposit()
+  // @ts-expect-error args are still inferred alongside a per-call account
+  contract.write.transfer({ account: recipient, args: [recipient] })
 })
 
 test('keeps write when the client account is widened', () => {
@@ -233,6 +250,9 @@ test('keeps write when the client account is widened', () => {
     client: client as Client.Client,
   })
   expectTypeOf(contract.write.transfer).toBeFunction()
+  contract.write.transfer({ account: recipient, args: [recipient, 1n] })
+  // @ts-expect-error account is required when the client account may be absent
+  contract.write.transfer({ args: [recipient, 1n] })
 })
 
 test('keeps all groups for a widened ABI', () => {

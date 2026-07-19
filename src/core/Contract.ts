@@ -103,8 +103,8 @@ export function from<
         functionName,
       } as simulate_.Options),
     )
-    // Always attached: on widened client types (`account: Account | undefined`)
-    // `write` is type-visible even when no account is bound at runtime.
+    // Reject missing accounts eagerly so the failure surfaces as
+    // `Account.NotFoundError` instead of a wrapped `ContractError`.
     contract.write = createMethods(
       writeNames,
       async (functionName, options) => {
@@ -234,22 +234,18 @@ type WriteGroups<
           functionName & ContractFunctionName<abi, 'nonpayable' | 'payable'>
         >
       }
-    } & ([client['account']] extends [undefined]
-      ? {}
-      : {
-          /** Write methods derived from the ABI. Requires a Client with an Account. */
-          write: {
-            [functionName in FunctionNames<
-              abi,
-              'nonpayable' | 'payable'
-            >]: WriteMethod<
-              abi,
-              functionName &
-                ContractFunctionName<abi, 'nonpayable' | 'payable'>,
-              client['chain']
-            >
-          }
-        })
+      /** Write methods derived from the ABI. Requires an Account on the Client or per call. */
+      write: {
+        [functionName in FunctionNames<
+          abi,
+          'nonpayable' | 'payable'
+        >]: WriteMethod<
+          abi,
+          functionName & ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+          client
+        >
+      }
+    }
 
 type EventGroups<abi extends Abi | readonly unknown[]> = [
   EventNames<abi>,
@@ -317,7 +313,7 @@ type SimulateMethod<
 type WriteMethod<
   abi extends Abi | readonly unknown[],
   functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
-  chain extends Client.Client['chain'],
+  client extends Client.Client,
 > = <
   const args extends ContractFunctionArgs<
     abi,
@@ -326,7 +322,16 @@ type WriteMethod<
   > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
 >(
   ...parameters: OptionsParameter<
-    BindFunctionOptions<write_.Options<abi, functionName, args, chain>>
+    BindFunctionOptions<
+      write_.Options<abi, functionName, args, client['chain']>
+    > &
+      // A per-call `account` is required when the Client's account may be absent.
+      ([undefined] extends [client['account']]
+        ? {
+            /** Account (or address) the transaction is sent from. */
+            account: Account.Account | Address.Address
+          }
+        : {})
   >
 ) => Promise<write_.ReturnType>
 

@@ -6,7 +6,7 @@ description: Send state-mutating contract transactions through a typed contract 
 
 State-mutating (`nonpayable`/`payable`) contract methods, one per ABI function. Each maps to [`Actions.contract.write`](/docs/actions/wallet/contract/write) with `abi`, `address`, and `functionName` bound, and returns the transaction hash.
 
-The `write` group requires a Client with an [Account](/docs/accounts): it is hidden from account-less Client types, and calls reject with `Account.NotFoundError` when no Account is bound. [`simulate`](/docs/contract/instances/simulate) and [`estimateGas`](/docs/contract/instances/estimateGas) do not require one.
+The `write` group requires an [Account](/docs/accounts): either on the Client, or passed per call via the `account` option (required on account-less Client types). Calls reject with `Account.NotFoundError` when neither is provided. [`simulate`](/docs/contract/instances/simulate) and [`estimateGas`](/docs/contract/instances/estimateGas) do not require one.
 
 ## Usage
 

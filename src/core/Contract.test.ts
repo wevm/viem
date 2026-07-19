@@ -72,19 +72,45 @@ test('derives conditional method groups from the ABI', () => {
   `)
 })
 
-test('write rejects without a client account', async () => {
+test('write rejects without a client or per-call account', async () => {
   const contract = Contract.from({
     abi: generated.Events.abi,
     address: events.address,
-    // Widened: `write` is type-visible on `account: Account | undefined`.
+    // Unreachable transport: the account check rejects before any request.
     client: Client.create({
       transport: http('http://localhost:1'),
-    }) as Client.Client,
+    }),
   })
   expect(contract.write).toBeDefined()
   await expect(
+    // @ts-expect-error account is required without a client account
     contract.write.emitTransfer({ args: [account, recipient, 1n] }),
   ).rejects.toThrowError(Account.NotFoundError)
+})
+
+test('write group accepts a per-call account without a client account', async () => {
+  // Fresh deployment: keeps this test's logs out of the shared instance.
+  const { address } = await contract.deploy(client, {
+    bytecode: generated.Events.bytecode.object,
+  })
+  const fresh = Contract.from({
+    abi: generated.Events.abi,
+    address,
+    client: Client.create({ transport: http(anvil.mainnet.rpcUrl.http) }),
+  })
+  const args = [account, recipient, 1n] as const
+
+  expect(
+    (await fresh.estimateGas.emitTransfer({ account, args })) > 0n,
+  ).toMatchInlineSnapshot(`true`)
+  expect(
+    (await fresh.simulate.emitTransfer({ account, args })).result,
+  ).toMatchInlineSnapshot(`undefined`)
+
+  const hash = await fresh.write.emitTransfer({ account, args })
+  await Actions.block.mine(client, { blocks: 1 })
+  const receipt = await Actions.transaction.getReceipt(client, { hash })
+  expect(receipt.status).toMatchInlineSnapshot(`"success"`)
 })
 
 test('binds function and event action options', async () => {
