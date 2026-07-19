@@ -280,6 +280,66 @@ describe('getMetadataAvatarUri', () => {
     await server.close()
   })
 
+  test('redirect chain within policy', async () => {
+    const server = await createServer((req, res) => {
+      if (req.url!.startsWith('/hop/')) {
+        const hop = Number(req.url!.slice('/hop/'.length))
+        if (hop < 5) {
+          res.writeHead(302, { Location: `${server.url}/hop/${hop + 1}` })
+          res.end()
+          return
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ image: `${server.url}/image.png` }))
+        return
+      }
+      res.writeHead(200, { 'Content-Type': 'image/png' })
+      res.end()
+    })
+
+    await expect(
+      getMetadataAvatarUri({
+        gatewayUrls: { ipfs: server.url },
+        uri: `${server.url}/hop/0`,
+      }),
+    ).resolves.toBe(`${server.url}/image.png`)
+
+    await server.close()
+  })
+
+  test('error: redirect to blocked target', async () => {
+    const server = await createServer((_req, res) => {
+      res.writeHead(302, { Location: 'https://127.0.0.1/1.json' })
+      res.end()
+    })
+
+    await expect(
+      getMetadataAvatarUri({
+        gatewayUrls: { ipfs: server.url },
+        uri: server.url,
+      }),
+    ).rejects.toThrowError('Unable to resolve ENS avatar URI')
+
+    await server.close()
+  })
+
+  test('error: too many redirects', async () => {
+    const server = await createServer((req, res) => {
+      const hop = Number(req.url!.slice('/hop/'.length))
+      res.writeHead(302, { Location: `${server.url}/hop/${hop + 1}` })
+      res.end()
+    })
+
+    await expect(
+      getMetadataAvatarUri({
+        gatewayUrls: { ipfs: server.url },
+        uri: `${server.url}/hop/0`,
+      }),
+    ).rejects.toThrowError('Unable to resolve ENS avatar URI')
+
+    await server.close()
+  })
+
   test.each([
     ['file', 'file:///etc/passwd'],
     ['data', 'data:application/json,{}'],
@@ -373,6 +433,57 @@ describe('parseAvatarUri', () => {
     await expect(
       parseAvatarUri({ gatewayUrls: { ipfs: server.url }, uri: server.url }),
     ).resolves.toBe(server.url)
+
+    await server.close()
+  })
+
+  test('image behind redirect', async () => {
+    const server = await createServer((req, res) => {
+      if (req.url === '/redirect') {
+        res.writeHead(302, { Location: '/image.png' })
+        res.end()
+        return
+      }
+      res.writeHead(200, { 'Content-Type': 'image/png' })
+      res.end()
+    })
+
+    await expect(
+      parseAvatarUri({
+        gatewayUrls: { ipfs: server.url },
+        uri: `${server.url}/redirect`,
+      }),
+    ).resolves.toBe(`${server.url}/redirect`)
+
+    await server.close()
+  })
+
+  test('error: redirect to blocked target', async () => {
+    const server = await createServer((_req, res) => {
+      res.writeHead(302, { Location: 'https://127.0.0.1/image.png' })
+      res.end()
+    })
+
+    await expect(
+      parseAvatarUri({ gatewayUrls: { ipfs: server.url }, uri: server.url }),
+    ).rejects.toThrowError('Unable to resolve ENS avatar URI')
+
+    await server.close()
+  })
+
+  test('error: too many redirects', async () => {
+    const server = await createServer((req, res) => {
+      const hop = Number(req.url!.slice('/hop/'.length))
+      res.writeHead(302, { Location: `${server.url}/hop/${hop + 1}` })
+      res.end()
+    })
+
+    await expect(
+      parseAvatarUri({
+        gatewayUrls: { ipfs: server.url },
+        uri: `${server.url}/hop/0`,
+      }),
+    ).rejects.toThrowError('Unable to resolve ENS avatar URI')
 
     await server.close()
   })

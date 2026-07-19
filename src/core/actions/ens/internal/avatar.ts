@@ -27,6 +27,8 @@ const dataURIRegex = /^data:([a-zA-Z\-/+]*)?(;[a-zA-Z0-9].*?)?(,)/
 
 const fetchTimeout = 10_000
 const maxMetadataSize = 10_485_760
+const maxRedirects = 5
+const redirectStatuses = [301, 302, 303, 307, 308]
 
 const erc721TokenUriAbi = /*#__PURE__*/ Abi.from([
   'function tokenURI(uint256 tokenId) view returns (string)',
@@ -192,12 +194,7 @@ export async function getMetadataAvatarUri(options: {
   if (!isUriAllowed(uri, gatewayUrls))
     throw new EnsAvatarUriResolutionError({ uri })
   try {
-    const response = await fetch(uri, {
-      credentials: 'omit',
-      redirect: 'follow',
-      referrerPolicy: 'no-referrer',
-      signal: AbortSignal.timeout(fetchTimeout),
-    })
+    const response = await fetchWithPolicy(uri, gatewayUrls, 'GET')
     return await parseAvatarUri({
       gatewayUrls,
       uri: getJsonImage(await readMetadataJson(response)),
@@ -236,23 +233,49 @@ async function readMetadataJson(response: Response): Promise<unknown> {
   return JSON.parse(body + decoder.decode())
 }
 
+/** Fetches `uri`, following up to `maxRedirects` hops and re-validating each hop's URL. */
+// Browser fetch returns an opaqueredirect (status 0, no `location`) for `redirect: 'manual'`,
+// so redirects fail closed there; only server runtimes expose the hop for re-validation.
+async function fetchWithPolicy(
+  uri: string,
+  gatewayUrls: AssetGatewayUrls | undefined,
+  method: 'GET' | 'HEAD',
+): Promise<Response> {
+  // One timeout budget across all hops.
+  const signal = AbortSignal.timeout(fetchTimeout)
+  let url = uri
+  for (let hop = 0; ; hop++) {
+    const response = await fetch(url, {
+      credentials: 'omit',
+      method,
+      redirect: 'manual',
+      referrerPolicy: 'no-referrer',
+      signal,
+    })
+    const location = response.headers.get('location')
+    if (!location || !redirectStatuses.includes(response.status))
+      return response
+    await response.body?.cancel()
+    if (hop === maxRedirects) throw new EnsAvatarUriResolutionError({ uri })
+    url = new URL(location, url).toString()
+    if (!isUriAllowed(url, gatewayUrls))
+      throw new EnsAvatarUriResolutionError({ uri: url })
+  }
+}
+
 async function isImageUri(
   uri: string,
   gatewayUrls: AssetGatewayUrls | undefined,
 ) {
   if (!isUriAllowed(uri, gatewayUrls)) return false
   try {
-    const res = await fetch(uri, {
-      credentials: 'omit',
-      method: 'HEAD',
-      redirect: 'follow',
-      referrerPolicy: 'no-referrer',
-      signal: AbortSignal.timeout(fetchTimeout),
-    })
+    const res = await fetchWithPolicy(uri, gatewayUrls, 'HEAD')
     if (res.status === 200)
       return res.headers.get('content-type')?.startsWith('image/')
     return false
   } catch (error) {
+    // Blocked redirect hops and exhausted redirect budgets are terminal.
+    if (error instanceof EnsAvatarUriResolutionError) return false
     // Timeouts are terminal.
     if (
       typeof error === 'object' &&
@@ -280,8 +303,8 @@ async function isImageUri(
 
 /**
  * Allows http(s) URLs without credentials, IP-literal or local hostnames, or
- * non-default ports; configured gateway origins are trusted. Redirects are
- * still followed and can land on hosts this check rejects.
+ * non-default ports; configured gateway origins are trusted. Applied to
+ * initial URLs and every redirect hop.
  */
 function isUriAllowed(
   uri: string,
