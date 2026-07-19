@@ -126,7 +126,7 @@ This document contains general guidelines for AI agents working on the Viem code
 
 - **Stateless module APIs**; public APIs are module namespaces full of functions and types. Do not introduce stateful classes for normal library behavior.
 - **Public entrypoint docs**; when adding a public module or export, update the owning `index.ts` (and `src/index.ts` for root exports) with the export and a TSDoc block.
-- **Alphabetical exports**; order exports alphabetically by exported name — barrel/entrypoint export statements, named-export lists, and the exported declaration blocks of action/module files alike.
+- **Alphabetical exports**; barrel/entrypoint export statements sort by module specifier; named-export lists and the exported declaration blocks of action/module files sort by exported name.
 - **Package exports are generated**; run `pnpm exports:update` only when intentionally adding, removing, or renaming public subpath exports.
 - **Keep public APIs lean**; avoid exposing options for values the library can derive from existing inputs.
 - **Wire formats stay explicit**; serialization, RPC, RLP, ABI, and transaction-envelope code should keep wire-order and field-shape decisions visible at the call site.
@@ -199,14 +199,14 @@ This document contains general guidelines for AI agents working on the Viem code
   - Use `--project tempo` for tempo work.
   - Use `SKIP_GLOBAL_SETUP=true` for offline runs that do not need anvil.
 - **Check for orphaned harness listeners before full-suite runs**; a killed test run can leave
-  its proxy holding ports 8545/8645/8745/4337/4338, making later runs fail at global setup
+  its proxy holding ports 8545/8645/8745/8845/9545/4337/4338, making later runs fail at global setup
   (`EADDRINUSE`) or time out en masse against the wedged instance. Check them with `lsof -nP`
   and kill the stale `node` process.
 - **Tempo tests boot one container per test file**; the file's `afterAll` stops it. A cancelled
   run leaks `tempo.<uuid>` containers that starve later runs. `docker ps` and `docker rm -f`
   the leaked ones before re-running `--project tempo`.
 - **The bundler harness needs the scoped fastify override**; `test/src/bundler.ts` boots Alto
-  via prool in the core global setup. The `package.json` override must stay
+  via prool in the core global setup. The `pnpm-workspace.yaml` override must stay
   `"fastify@>=5.0.0": ">=5.8.5"` — a bare `"fastify"` key rewrites Alto's pinned deps and
   breaks its boot.
 - **Blob tests need raised timeouts**; PeerDAS cell proofs (`Blobs.toCellProofs`) cost ~5s of
@@ -261,10 +261,8 @@ This document contains general guidelines for AI agents working on the Viem code
   - Do not assert stashed fields one-by-one.
   - For nondeterministic lookups, use deterministic not-found assertions.
   - Locally-produced transaction equality is fine for whole-object assertions.
-- **Vectors use Bun**; run vector tests with `pnpm vectors`.
+- **Serialization vectors live in ox**; the upstream ox package owns the vector test suite.
 - **Browser tests use browser suffixes**; browser-specific behavior uses `*.browser.test.ts`.
-- **Fuzz tests stay gated**; fuzz harnesses use `*.fuzz.ts` behind an opt-in project.
-  - Default `pnpm test` must never pick them up.
 - **Unit and type tests as you go**; write unit tests and `.test-d.ts` type tests alongside implementation for each public behavior change.
 - **100% module coverage**; modules with coverage requirements must reach 100%.
   - Cover error, retry, and timeout paths.

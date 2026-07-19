@@ -1,5 +1,5 @@
 {
-  // This tsconfig file contains the shared config for the build (tsconfig.build.json) and type checking (tsconfig.json) config.
+  // Shared compiler options extended by the root and project tsconfigs.
   "include": [],
   "exclude": ["site/pages.gen.ts"],
   "compilerOptions": {
@@ -12,7 +12,7 @@
     "useDefineForClassFields": true, // Not enabled by default in `strict` mode unless we bump `target` to ES2022.
     "noFallthroughCasesInSwitch": true, // Not enabled by default in `strict` mode.
     "noImplicitReturns": true, // Not enabled by default in `strict` mode.
-    "useUnknownInCatchVariables": true, // TODO: This would normally be enabled in `strict` mode but would require some adjustments to the codebase.
+    "useUnknownInCatchVariables": true, // Enabled by default in `strict` mode.
     "noImplicitOverride": true, // Not enabled by default in `strict` mode.
     "noUnusedLocals": true, // Not enabled by default in `strict` mode.
     "noUnusedParameters": true, // Not enabled by default in `strict` mode.
@@ -31,7 +31,7 @@
     // Language and environment
     "moduleResolution": "NodeNext",
     "module": "NodeNext",
-    "target": "ES2021", // Setting this to `ES2021` enables native support for `Node v16+`: https://github.com/microsoft/TypeScript/wiki/Node-Target-Mapping.
+    "target": "ES2021",
     "types": ["node"],
     "lib": [
       "ES2022", // By using ES2022 we get access to the `.cause` property on `Error` instances.
