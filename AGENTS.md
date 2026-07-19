@@ -202,7 +202,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Use `pnpm test --run <paths>` for focused runs.
   - Use `pnpm test --project core --bail=1` for core failures.
   - Use `--project tempo` for tempo work.
-  - Use `SKIP_GLOBAL_SETUP=true` for offline runs that do not need anvil.
+  - Use `OFFLINE=true` for offline runs that do not need anvil.
 - **Check for orphaned harness listeners before full-suite runs**; a killed test run can leave
   its proxy holding ports 8545/8645/8745/8845/9545/4337/4338, making later runs fail at global setup
   (`EADDRINUSE`) or time out en masse against the wedged instance. Check them with `lsof -nP`

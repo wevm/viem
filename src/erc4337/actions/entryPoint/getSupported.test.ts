@@ -8,7 +8,7 @@ import { getSupported } from './getSupported.js'
 const client = Client.create({ transport: http(bundler09.rpcUrl.http) })
 
 beforeAll(async () => {
-  if (process.env.SKIP_GLOBAL_SETUP) return
+  if (process.env.OFFLINE) return
   await prepareEntryPoint09()
 }, 60_000)
 

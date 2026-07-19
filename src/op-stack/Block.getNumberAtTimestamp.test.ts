@@ -4,19 +4,17 @@ import * as anvil from '~test/anvil.js'
 import { Actions } from 'viem'
 import { Block } from 'viem/op-stack'
 
-const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
-
 // Block-time derivation assumes the pristine fork tip; sibling test files may
 // have mined same-timestamp blocks on the shared instance.
 beforeAll(async () => {
-  if (process.env.SKIP_GLOBAL_SETUP) return
+  if (process.env.OFFLINE) return
   await Actions.state.reset(anvil.getClient(anvil.mainnet), {
     blockNumber: anvil.mainnet.forkBlockNumber,
     jsonRpcUrl: anvil.mainnet.forkUrl,
   })
 }, 30_000)
 
-liveTest('default', async () => {
+test('default', async () => {
   const client = anvil.getClient(anvil.mainnet)
   const latest = await Actions.block.get(client)
   const parent = await Actions.block.get(client, {
@@ -31,7 +29,7 @@ liveTest('default', async () => {
   ).resolves.toBe(latest.number! - 10n)
 })
 
-liveTest('future timestamp', async () => {
+test('future timestamp', async () => {
   const client = anvil.getClient(anvil.mainnet)
   const latest = await Actions.block.get(client)
 
@@ -40,7 +38,7 @@ liveTest('future timestamp', async () => {
   ).rejects.toThrow('Timestamp is in the future relative to L2 head.')
 })
 
-liveTest('unaligned timestamp', async () => {
+test('unaligned timestamp', async () => {
   const client = anvil.getClient(anvil.mainnet)
   const latest = await Actions.block.get(client)
 
@@ -49,7 +47,7 @@ liveTest('unaligned timestamp', async () => {
   ).rejects.toThrow('Timestamp does not align with the L2 block time.')
 })
 
-liveTest('timestamp before genesis', async () => {
+test('timestamp before genesis', async () => {
   const client = anvil.getClient(anvil.mainnet)
   const latest = await Actions.block.get(client)
   const parent = await Actions.block.get(client, {

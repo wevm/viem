@@ -6,7 +6,7 @@ import { http } from 'viem/tempo/zones'
 
 import * as tempo from './tempo.js'
 
-const runtime = process.env.SKIP_GLOBAL_SETUP
+const runtime = process.env.OFFLINE
   ? undefined
   : await tempo.zone.start()
 

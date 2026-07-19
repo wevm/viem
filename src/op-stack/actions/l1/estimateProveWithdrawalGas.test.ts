@@ -12,7 +12,6 @@ const client = Client.create({
   chain: mainnet,
   transport: http(anvil.mainnet.rpcUrl.http),
 })
-const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 
 beforeEach(async () => {
   await CoreActions.state.reset(client, {
@@ -40,7 +39,7 @@ async function getContractError(promise: Promise<unknown>) {
   throw new Error('Expected a contract error.')
 }
 
-liveTest('default', async () => {
+test('default', async () => {
   const gas = await Actions.l1.estimateProveWithdrawalGas(client, {
     account: constants.accounts[0].address,
     targetChain: optimism,
@@ -50,7 +49,7 @@ liveTest('default', async () => {
   expect(gas).toMatchInlineSnapshot(`123960n`)
 })
 
-liveTest('uses an explicit portal address', async () => {
+test('uses an explicit portal address', async () => {
   const gas = await Actions.l1.estimateProveWithdrawalGas(client, {
     account: constants.accounts[0].address,
     portalAddress: optimism.contracts.portal[1].address,
@@ -60,7 +59,7 @@ liveTest('uses an explicit portal address', async () => {
   expect(gas).toMatchInlineSnapshot(`123960n`)
 })
 
-liveTest('rejects insufficient L1 gas', async () => {
+test('rejects insufficient L1 gas', async () => {
   const error = await getContractError(
     Actions.l1.estimateProveWithdrawalGas(client, {
       account: constants.accounts[0].address,

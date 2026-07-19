@@ -26,7 +26,7 @@ declare module 'vitest' {
 }
 
 export default async function (project: TestProject) {
-  if (process.env.SKIP_GLOBAL_SETUP) return
+  if (process.env.OFFLINE) return
   const coreServers: CoreServers = { anvils: {}, bundlers: {} }
   const groups: readonly ServerGroup[] = [
     { contexts: coreServers.anvils, definitions: instances.anvils },

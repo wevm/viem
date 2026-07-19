@@ -22,7 +22,6 @@ const bundlerControlClient = BundlerClient.create({
 const bundler09ControlClient = BundlerClient.create({
   transport: http(bundler09.rpcUrl.http),
 })
-const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 const fees = {
   maxFeePerGas: Value.fromGwei('15'),
   maxPriorityFeePerGas: Value.fromGwei('2'),
@@ -45,7 +44,7 @@ let paymaster: Address.Address
 let paymasterServer: Awaited<ReturnType<typeof createVerifyingPaymasterServer>>
 
 beforeAll(async () => {
-  if (process.env.SKIP_GLOBAL_SETUP) return
+  if (process.env.OFFLINE) return
 
   await prepareEntryPoint09()
 
@@ -81,7 +80,7 @@ beforeAll(async () => {
 }, 120_000)
 
 beforeEach(async () => {
-  if (process.env.SKIP_GLOBAL_SETUP) return
+  if (process.env.OFFLINE) return
   await bundler.restart()
   await bundlerControlClient.request({
     method: 'debug_bundler_setBundlingMode',
@@ -94,7 +93,7 @@ afterAll(async () => {
 })
 
 describe.sequential('live EntryPoint flows', () => {
-  liveTest('EntryPoint 0.6', { retry: 0, timeout: 30_000 }, async () => {
+  test('EntryPoint 0.6', { retry: 0, timeout: 30_000 }, async () => {
     const client = BundlerClient.create({
       account: account06,
       client: executionClient,
@@ -196,7 +195,7 @@ describe.sequential('live EntryPoint flows', () => {
     `)
   })
 
-  liveTest('EntryPoint 0.7', { retry: 0, timeout: 30_000 }, async () => {
+  test('EntryPoint 0.7', { retry: 0, timeout: 30_000 }, async () => {
     const client = BundlerClient.create({
       account: account07,
       client: executionClient,
@@ -298,7 +297,7 @@ describe.sequential('live EntryPoint flows', () => {
     `)
   })
 
-  liveTest('EntryPoint 0.8', { retry: 0, timeout: 30_000 }, async () => {
+  test('EntryPoint 0.8', { retry: 0, timeout: 30_000 }, async () => {
     const client = BundlerClient.create({
       account: account08,
       client: executionClient,
@@ -422,7 +421,7 @@ describe.sequential('live EntryPoint flows', () => {
     `)
   })
 
-  liveTest('EntryPoint 0.9', { retry: 0, timeout: 30_000 }, async () => {
+  test('EntryPoint 0.9', { retry: 0, timeout: 30_000 }, async () => {
     await bundler09.restart()
     await bundler09ControlClient.request({
       method: 'debug_bundler_setBundlingMode',
@@ -655,7 +654,7 @@ describe.sequential('live EntryPoint flows', () => {
     },
   )
 
-  liveTest(
+  test(
     'ERC-7677 PaymasterClient',
     { retry: 0, timeout: 30_000 },
     async () => {

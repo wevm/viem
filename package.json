@@ -32,7 +32,7 @@
     "test:env:node": "pnpm --filter test-node test",
     "test:env:tsc": "pnpm --filter test-tsc test",
     "test:env:vite": "pnpm --filter test-vite test",
-    "test:typecheck": "SKIP_GLOBAL_SETUP=true vp test --typecheck.only",
+    "test:typecheck": "OFFLINE=true vp test --typecheck.only",
     "version:update": "bun scripts/version:update.ts"
   },
   "devDependencies": {

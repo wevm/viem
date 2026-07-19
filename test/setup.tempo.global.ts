@@ -20,6 +20,6 @@ const setupServer = Server.setup({
 })
 
 export default async function (project: TestProject) {
-  if (process.env.SKIP_GLOBAL_SETUP) return
+  if (process.env.OFFLINE) return
   return setupServer(project)
 }

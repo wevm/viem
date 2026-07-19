@@ -14,14 +14,13 @@ import * as EntryPoint from '../../EntryPoint.js'
 import { getData } from './getData.js'
 
 const executionClient = anvil.getClient(anvil.mainnet)
-const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 
 describe('entryPointVersion: 0.8', () => {
   let paymaster: Address.Address
   let server: Awaited<ReturnType<typeof createVerifyingPaymasterServer>>
 
   beforeAll(async () => {
-    if (process.env.SKIP_GLOBAL_SETUP) return
+    if (process.env.OFFLINE) return
     paymaster = await deployVerifyingPaymaster08(executionClient)
     server = await createVerifyingPaymasterServer(executionClient, {
       paymaster,
@@ -32,7 +31,7 @@ describe('entryPointVersion: 0.8', () => {
     await server?.close()
   })
 
-  liveTest('default', async () => {
+  test('default', async () => {
     const client = Client.create({ transport: http(server.url) })
     const operation = {
       callData: '0x',

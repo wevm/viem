@@ -9,7 +9,6 @@ const client = Client.create({
   chain: mainnet,
   transport: http(anvil.mainnet.rpcUrl.http),
 })
-const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 
 beforeAll(async () => {
   await CoreActions.state.reset(client, {
@@ -18,7 +17,7 @@ beforeAll(async () => {
   })
 })
 
-liveTest('returns recent dispute games', async () => {
+test('returns recent dispute games', async () => {
   const games = await Actions.l1.getGames(client, {
     limit: 3,
     targetChain: optimism,
@@ -56,7 +55,7 @@ liveTest('returns recent dispute games', async () => {
   `)
 })
 
-liveTest('estimates the next game from observed intervals', async () => {
+test('estimates the next game from observed intervals', async () => {
   const games = await Actions.l1.getGames(client, {
     limit: 10,
     targetChain: optimism,
@@ -80,7 +79,7 @@ liveTest('estimates the next game from observed intervals', async () => {
   `)
 })
 
-liveTest('filters games by L2 position', async () => {
+test('filters games by L2 position', async () => {
   const games = await Actions.l1.getGames(client, {
     l2BlockNumber: 99_999_999_999_999_999_999n,
     limit: 3,

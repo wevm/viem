@@ -15,7 +15,6 @@ const request = {
   to: constants.accounts[1].address,
   value: 1n,
 } as const
-const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 
 beforeAll(async () => {
   await CoreActions.state.reset(client, {
@@ -24,17 +23,17 @@ beforeAll(async () => {
   })
 }, 30_000)
 
-liveTest('getL1BaseFee', async () => {
+test('getL1BaseFee', async () => {
   const fee = await Actions.l2.getL1BaseFee(client)
   expect(fee).toBeGreaterThan(0n)
 })
 
-liveTest('estimateL1Fee', async () => {
+test('estimateL1Fee', async () => {
   const fee = await Actions.l2.estimateL1Fee(client, request)
   expect(fee).toBeGreaterThan(0n)
 })
 
-liveTest('estimateOperatorFee', async () => {
+test('estimateOperatorFee', async () => {
   const fee = await Actions.l2.estimateOperatorFee(client, request)
   expect(fee).toMatchInlineSnapshot(`0n`)
 })

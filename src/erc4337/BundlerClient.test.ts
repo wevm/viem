@@ -7,7 +7,7 @@ import { mainnet } from '../chains/definitions/mainnet.js'
 import * as BundlerClient from './BundlerClient.js'
 
 beforeAll(async () => {
-  if (process.env.SKIP_GLOBAL_SETUP) return
+  if (process.env.OFFLINE) return
   await prepareEntryPoint09()
 }, 60_000)
 

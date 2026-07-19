@@ -14,7 +14,6 @@ const client = Client.create({
 const clientWithoutChain = Client.create({
   transport: http(anvil.mainnet.rpcUrl.http),
 })
-const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 
 beforeAll(async () => {
   await CoreActions.state.reset(client, {
@@ -59,7 +58,7 @@ async function getContractError(promise: Promise<unknown>) {
   throw new Error('Expected a contract error.')
 }
 
-liveTest('deposits onto the target chain', async () => {
+test('deposits onto the target chain', async () => {
   const hash = await Actions.l1.depositTransaction(client, {
     account: constants.accounts[0].address,
     gas: 420_000n,
@@ -79,7 +78,7 @@ liveTest('deposits onto the target chain', async () => {
   `)
 })
 
-liveTest('encodes request fields', async () => {
+test('encodes request fields', async () => {
   const creation = await Actions.l1.depositTransaction(client, {
     account: constants.accounts[0].address,
     gas: 420_000n,
@@ -145,7 +144,7 @@ liveTest('encodes request fields', async () => {
   `)
 })
 
-liveTest('uses an explicit portal address', async () => {
+test('uses an explicit portal address', async () => {
   const hash = await Actions.l1.depositTransaction(client, {
     account: constants.accounts[0].address,
     portalAddress: base.contracts.portal[1].address,
@@ -164,7 +163,7 @@ liveTest('uses an explicit portal address', async () => {
   `)
 })
 
-liveTest('accepts explicit and nullish transaction options', async () => {
+test('accepts explicit and nullish transaction options', async () => {
   const explicitGas = await Actions.l1.depositTransaction(client, {
     account: constants.accounts[0].address,
     gas: 420_000n,
@@ -204,7 +203,7 @@ liveTest('accepts explicit and nullish transaction options', async () => {
   `)
 })
 
-liveTest('rejects insufficient funds', async () => {
+test('rejects insufficient funds', async () => {
   const error = await getContractError(
     Actions.l1.depositTransaction(client, {
       account: constants.accounts[0].address,
@@ -228,7 +227,7 @@ liveTest('rejects insufficient funds', async () => {
   `)
 })
 
-liveTest('rejects insufficient L1 gas', async () => {
+test('rejects insufficient L1 gas', async () => {
   const error = await getContractError(
     Actions.l1.depositTransaction(client, {
       account: constants.accounts[0].address,

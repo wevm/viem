@@ -27,10 +27,9 @@ const optimismClientWithAccount = Client.create({
 const clientWithoutChain = Client.create({
   transport: http(anvil.mainnet.rpcUrl.http),
 })
-const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 
 beforeAll(async () => {
-  if (process.env.SKIP_GLOBAL_SETUP) return
+  if (process.env.OFFLINE) return
 
   await Promise.all([
     CoreActions.state.reset(client, {
@@ -49,7 +48,7 @@ beforeAll(async () => {
   )
 }, 60_000)
 
-liveTest('default', { timeout: 60_000 }, async () => {
+test('default', { timeout: 60_000 }, async () => {
   const result = await Actions.l1.buildInitiateWithdrawal(client, {
     to: constants.accounts[1].address,
   })
@@ -72,7 +71,7 @@ liveTest('default', { timeout: 60_000 }, async () => {
   expect(hash).toMatch(/^0x[\da-f]{64}$/)
 })
 
-liveTest('ignores the client account while preparing', async () => {
+test('ignores the client account while preparing', async () => {
   const to = '0x0000000000000000000000000000000000001000'
   await CoreActions.address.setCode(client, {
     address: to,
@@ -95,7 +94,7 @@ liveTest('ignores the client account while preparing', async () => {
   `)
 })
 
-liveTest('args: account', async () => {
+test('args: account', async () => {
   const result = await Actions.l1.buildInitiateWithdrawal(client, {
     account: constants.accounts[0].address,
     to: constants.accounts[1].address,
@@ -122,7 +121,7 @@ liveTest('args: account', async () => {
   expect(hash).toMatch(/^0x[\da-f]{64}$/)
 })
 
-liveTest('args: local account', async () => {
+test('args: local account', async () => {
   const account = Account.fromPrivateKey(constants.accounts[0].privateKey)
   const result = await Actions.l1.buildInitiateWithdrawal(client, {
     account,
@@ -154,7 +153,7 @@ liveTest('args: local account', async () => {
   expect(hash).toMatch(/^0x[\da-f]{64}$/)
 })
 
-liveTest('args: chain', async () => {
+test('args: chain', async () => {
   const result = await Actions.l1.buildInitiateWithdrawal(clientWithoutChain, {
     account: constants.accounts[0].address,
     chain: mainnet,
@@ -182,7 +181,7 @@ liveTest('args: chain', async () => {
   expect(hash).toMatch(/^0x[\da-f]{64}$/)
 })
 
-liveTest('args: data', async () => {
+test('args: data', async () => {
   const result = await Actions.l1.buildInitiateWithdrawal(client, {
     account: constants.accounts[0].address,
     data: '0xdeadbeef',
@@ -210,7 +209,7 @@ liveTest('args: data', async () => {
   expect(hash).toMatch(/^0x[\da-f]{64}$/)
 })
 
-liveTest('args: gas', async () => {
+test('args: gas', async () => {
   const result = await Actions.l1.buildInitiateWithdrawal(client, {
     account: constants.accounts[0].address,
     gas: 100_000n,
@@ -238,7 +237,7 @@ liveTest('args: gas', async () => {
   expect(hash).toMatch(/^0x[\da-f]{64}$/)
 })
 
-liveTest('args: value', async () => {
+test('args: value', async () => {
   const result = await Actions.l1.buildInitiateWithdrawal(client, {
     account: constants.accounts[0].address,
     to: constants.accounts[1].address,

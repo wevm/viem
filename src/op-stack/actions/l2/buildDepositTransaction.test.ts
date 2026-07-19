@@ -23,10 +23,9 @@ const optimismClient = Client.create({
 const optimismClientWithoutChain = Client.create({
   transport: http(anvil.optimism.rpcUrl.http),
 })
-const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 
 beforeAll(async () => {
-  if (process.env.SKIP_GLOBAL_SETUP) return
+  if (process.env.OFFLINE) return
 
   await Promise.all([
     CoreActions.state.reset(client, {
@@ -45,7 +44,7 @@ beforeAll(async () => {
   )
 }, 60_000)
 
-liveTest('default', { timeout: 60_000 }, async () => {
+test('default', { timeout: 60_000 }, async () => {
   const result = await Actions.l2.buildDepositTransaction(optimismClient, {
     to: constants.accounts[1].address,
   })
@@ -69,7 +68,7 @@ liveTest('default', { timeout: 60_000 }, async () => {
   expect(hash).toMatch(/^0x[\da-f]{64}$/)
 })
 
-liveTest('args: account', async () => {
+test('args: account', async () => {
   const result = await Actions.l2.buildDepositTransaction(optimismClient, {
     account: constants.accounts[0].address,
     to: constants.accounts[1].address,
@@ -97,7 +96,7 @@ liveTest('args: account', async () => {
   expect(hash).toMatch(/^0x[\da-f]{64}$/)
 })
 
-liveTest('args: local account', async () => {
+test('args: local account', async () => {
   const account = Account.fromPrivateKey(constants.accounts[0].privateKey)
   const result = await Actions.l2.buildDepositTransaction(optimismClient, {
     account,
@@ -133,7 +132,7 @@ liveTest('args: local account', async () => {
   expect(hash).toMatch(/^0x[\da-f]{64}$/)
 })
 
-liveTest('args: chain', async () => {
+test('args: chain', async () => {
   const result = await Actions.l2.buildDepositTransaction(
     optimismClientWithoutChain,
     {
@@ -165,7 +164,7 @@ liveTest('args: chain', async () => {
   expect(hash).toMatch(/^0x[\da-f]{64}$/)
 })
 
-liveTest('args: data', async () => {
+test('args: data', async () => {
   const result = await Actions.l2.buildDepositTransaction(optimismClient, {
     account: constants.accounts[0].address,
     data: '0xdeadbeef',
@@ -194,7 +193,7 @@ liveTest('args: data', async () => {
   expect(hash).toMatch(/^0x[\da-f]{64}$/)
 })
 
-liveTest('args: gas', async () => {
+test('args: gas', async () => {
   const result = await Actions.l2.buildDepositTransaction(optimismClient, {
     account: constants.accounts[0].address,
     gas: 100_000n,
@@ -223,7 +222,7 @@ liveTest('args: gas', async () => {
   expect(hash).toMatch(/^0x[\da-f]{64}$/)
 })
 
-liveTest('args: isCreation', async () => {
+test('args: isCreation', async () => {
   const result = await Actions.l2.buildDepositTransaction(optimismClient, {
     account: constants.accounts[0].address,
     data: '0x60006000f3',
@@ -252,7 +251,7 @@ liveTest('args: isCreation', async () => {
   expect(hash).toMatch(/^0x[\da-f]{64}$/)
 })
 
-liveTest('args: mint', async () => {
+test('args: mint', async () => {
   const result = await Actions.l2.buildDepositTransaction(optimismClient, {
     account: constants.accounts[0].address,
     mint: Value.fromEther('1'),
@@ -281,7 +280,7 @@ liveTest('args: mint', async () => {
   expect(hash).toMatch(/^0x[\da-f]{64}$/)
 })
 
-liveTest('args: value', async () => {
+test('args: value', async () => {
   const result = await Actions.l2.buildDepositTransaction(optimismClient, {
     account: constants.accounts[0].address,
     to: constants.accounts[1].address,

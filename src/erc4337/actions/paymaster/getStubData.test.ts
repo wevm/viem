@@ -13,14 +13,13 @@ import { createServer } from '~test/http.js'
 import { getStubData } from './getStubData.js'
 
 const executionClient = anvil.getClient(anvil.mainnet)
-const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 
 describe('entryPointVersion: 0.7', () => {
   let paymaster: Address.Address
   let server: Awaited<ReturnType<typeof createVerifyingPaymasterServer>>
 
   beforeAll(async () => {
-    if (process.env.SKIP_GLOBAL_SETUP) return
+    if (process.env.OFFLINE) return
     paymaster = await deployVerifyingPaymaster07(executionClient)
     server = await createVerifyingPaymasterServer(executionClient, {
       paymaster,
@@ -31,7 +30,7 @@ describe('entryPointVersion: 0.7', () => {
     await server?.close()
   })
 
-  liveTest('default', async () => {
+  test('default', async () => {
     const client = Client.create({ transport: http(server.url) })
     const operation = {
       callData: '0x',

@@ -16,7 +16,6 @@ const client = Client.create({
   chain: mainnet,
   transport: http(anvil.mainnet.rpcUrl.http),
 })
-const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 
 beforeEach(async () => {
   await CoreActions.state.reset(client, {
@@ -44,7 +43,7 @@ async function getContractError(promise: Promise<unknown>) {
   throw new Error('Expected a contract error.')
 }
 
-liveTest('default', async () => {
+test('default', async () => {
   const gas = await Actions.l1.estimateFinalizeWithdrawalGas(client, {
     account: constants.accounts[0].address,
     targetChain: optimism,
@@ -54,7 +53,7 @@ liveTest('default', async () => {
   expect(gas).toMatchInlineSnapshot(`32250n`)
 })
 
-liveTest('uses an explicit portal address', async () => {
+test('uses an explicit portal address', async () => {
   const gas = await Actions.l1.estimateFinalizeWithdrawalGas(client, {
     account: constants.accounts[0].address,
     portalAddress: optimism.contracts.portal[1].address,
@@ -64,7 +63,7 @@ liveTest('uses an explicit portal address', async () => {
   expect(gas).toMatchInlineSnapshot(`32250n`)
 })
 
-liveTest('estimates for an external proof submitter', async () => {
+test('estimates for an external proof submitter', async () => {
   await CoreActions.state.reset(client, {
     blockNumber: 21_165_285n,
     jsonRpcUrl: anvil.mainnet.forkUrl,
@@ -83,7 +82,7 @@ liveTest('estimates for an external proof submitter', async () => {
   expect(gas).toMatchInlineSnapshot(`3574262n`)
 })
 
-liveTest('rejects insufficient L1 gas', async () => {
+test('rejects insufficient L1 gas', async () => {
   const error = await getContractError(
     Actions.l1.estimateFinalizeWithdrawalGas(client, {
       account: constants.accounts[0].address,

@@ -12,7 +12,7 @@ const zoneClient = tempoZone.getClient({ account })
 const zeroHash =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
 
-describe.skipIf(Boolean(process.env.SKIP_GLOBAL_SETUP))('local zone', () => {
+describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
   test(
     'supports deposits, status reads, and withdrawals',
     { retry: 0, timeout: 150_000 },

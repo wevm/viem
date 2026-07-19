@@ -11,7 +11,6 @@ const client = Client.create({
   chain: mainnet,
   transport: http(anvil.mainnet.rpcUrl.http),
 })
-const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 
 beforeAll(async () => {
   await CoreActions.state.reset(client, {
@@ -32,7 +31,7 @@ afterAll(async () => {
   })
 }, 30_000)
 
-liveTest('estimates deposit request variants', async () => {
+test('estimates deposit request variants', async () => {
   const standard = await Actions.l1.estimateDepositTransactionGas(client, {
     account: constants.accounts[0].address,
     request: { gas: 21_000n, to: constants.accounts[0].address },
@@ -66,7 +65,7 @@ liveTest('estimates deposit request variants', async () => {
   `)
 })
 
-liveTest('uses an explicit portal address', async () => {
+test('uses an explicit portal address', async () => {
   const gas = await Actions.l1.estimateDepositTransactionGas(client, {
     account: constants.accounts[0].address,
     portalAddress: base.contracts.portal[1].address,

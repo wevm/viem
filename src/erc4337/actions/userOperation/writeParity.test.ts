@@ -20,7 +20,6 @@ const rawClient = BundlerClient.create({
   pollingInterval: 50,
   transport: http(bundler.rpcUrl.http),
 })
-const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 const fees = {
   maxFeePerGas: Value.fromGwei('15'),
   maxPriorityFeePerGas: Value.fromGwei('2'),
@@ -30,7 +29,7 @@ let account: Awaited<ReturnType<typeof getSmartAccounts_07>>[number]
 let errorsAddress: Awaited<ReturnType<typeof contract.deploy>>['address']
 
 beforeAll(async () => {
-  if (process.env.SKIP_GLOBAL_SETUP) return
+  if (process.env.OFFLINE) return
 
   const accounts = await getSmartAccounts_07()
   const account_ = accounts[8]
@@ -45,7 +44,7 @@ beforeAll(async () => {
 }, 60_000)
 
 beforeEach(async () => {
-  if (process.env.SKIP_GLOBAL_SETUP) return
+  if (process.env.OFFLINE) return
   await bundler.restart()
   await rawClient.request({
     method: 'debug_bundler_setBundlingMode',
@@ -54,7 +53,7 @@ beforeEach(async () => {
 })
 
 describe.sequential('fully formed User Operations', () => {
-  liveTest(
+  test(
     'estimates and sends without an attached account',
     { timeout: 30_000 },
     async () => {
@@ -122,7 +121,7 @@ describe.sequential('fully formed User Operations', () => {
     },
   )
 
-  liveTest(
+  test(
     'decodes a custom contract error from a batched estimate',
     { timeout: 30_000 },
     async () => {
