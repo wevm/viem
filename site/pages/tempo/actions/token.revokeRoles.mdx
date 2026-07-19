@@ -47,7 +47,7 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const events = Actions.token.revokeRoles.extractEvents(receipt.logs)
 ```
 
-## Return Type
+## Return Value
 
 ```ts
 type ReturnType = {

@@ -50,7 +50,7 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.amm.burn.extractEvent(receipt.logs)
 ```
 
-## Return Type
+## Return Value
 
 ```ts
 type ReturnType = {

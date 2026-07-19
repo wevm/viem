@@ -45,7 +45,7 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.token.changeTransferPolicy.extractEvent(receipt.logs)
 ```
 
-## Return Type
+## Return Value
 
 ```ts
 type ReturnType = {
