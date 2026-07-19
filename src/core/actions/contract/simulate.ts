@@ -15,6 +15,7 @@ import type {
 } from '../internal/contract.js'
 import { resolveReturnShape } from '../internal/contract.js'
 import { call } from '../call.js'
+import { getAction } from '../getAction.js'
 
 /**
  * Simulates a write (`nonpayable`/`payable`) function on a contract without
@@ -84,7 +85,11 @@ export async function simulate<
     : undefined
 
   try {
-    const response = await call(client, {
+    const response = await getAction(
+      client,
+      call,
+      'call',
+    )({
       ...rest,
       data,
       to: address,

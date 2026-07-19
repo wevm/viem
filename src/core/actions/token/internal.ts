@@ -15,9 +15,10 @@ import { estimateGas as estimateContractGas } from '../contract/estimateGas.js'
 import { read } from '../contract/read.js'
 import { simulate as simulateContract } from '../contract/simulate.js'
 import type { write } from '../contract/write.js'
-import type { writeSync } from '../contract/writeSync.js'
+import { writeSync } from '../contract/writeSync.js'
+import { getAction } from '../getAction.js'
 import type { send } from '../transaction/send.js'
-import type { sendSync } from '../transaction/sendSync.js'
+import { sendSync } from '../transaction/sendSync.js'
 import { erc20Abi } from './internal/abi.js'
 
 /**
@@ -397,7 +398,11 @@ export async function dispatchWrite<
     client: Client.Client,
     options: object,
   ) => Promise<dispatchWrite.ReturnType<action>>
-  return await fn(client, options)
+  return await getAction(
+    client,
+    fn,
+    action === writeSync ? 'contract.writeSync' : 'contract.write',
+  )(options)
 }
 
 export declare namespace dispatchWrite {
@@ -421,7 +426,11 @@ export async function dispatchSend<
     client: Client.Client,
     options: object,
   ) => Promise<dispatchSend.ReturnType<action>>
-  return await fn(client, options)
+  return await getAction(
+    client,
+    fn,
+    action === sendSync ? 'transaction.sendSync' : 'transaction.send',
+  )(options)
 }
 
 export declare namespace dispatchSend {

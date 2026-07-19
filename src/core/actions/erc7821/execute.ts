@@ -6,6 +6,7 @@ import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
 import { BaseError } from '../../Errors.js'
 import type { Call, Calls } from '../internal/calls.js'
+import { getAction } from '../getAction.js'
 import { send } from '../transaction/send.js'
 import { getExecuteError, normalizeCalls } from './internal.js'
 import { supportsExecutionMode } from './supportsExecutionMode.js'
@@ -64,7 +65,11 @@ export async function execute<
     : undefined
 
   try {
-    return await send(client, {
+    return await getAction(
+      client,
+      send<chain>,
+      'transaction.send',
+    )({
       ...rest,
       data: Execute.encodeData(normalizeCalls(calls as readonly Call[]), {
         opData,

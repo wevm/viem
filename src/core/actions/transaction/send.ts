@@ -11,6 +11,7 @@ import * as dataSuffix_ from '../../internal/dataSuffix.js'
 import { isAbortError } from '../../internal/errors.js'
 import * as transactionRequest from '../internal/transactionRequest.js'
 import { getId } from '../chains/getId.js'
+import { getAction } from '../getAction.js'
 import { defaultParameters, prepare } from './prepare.js'
 import { sendRaw } from './sendRaw.js'
 import { sign } from './sign.js'
@@ -138,7 +139,11 @@ export async function send<chain extends Chain.Chain | undefined>(
       reset = { address: account.address, chainId }
     }
 
-    const { request } = await prepare(client, {
+    const { request } = await getAction(
+      client,
+      prepare<chain, Account.Account | undefined, prepare.Options<chain>>,
+      'transaction.prepare',
+    )({
       ...rest,
       account,
       chain: codecsChain,

@@ -552,7 +552,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `generatePrivateKey` | `Secp256k1.randomPrivateKey` | [Accounts](#accounts) |
 | `generateSiweNonce` | `Siwe.generateNonce` | [Messages & ENS](#messages--ens) |
 | `getAbiItem` | `AbiItem.fromAbi` (positional) | [Utilities: ABI](#abi) |
-| `getAction` | Internalized; compose at the Client or Transport boundary | [Subpath Entrypoints](#subpath-entrypoints) |
+| `getAction` | `Actions.getAction` | [Subpath Entrypoints](#subpath-entrypoints) |
 | `getAddress` | `Address.checksum` | [Utilities: Address](#address-1) |
 | `getAddresses` | `Actions.wallet.getAddresses` | [Wallet & Capabilities](#wallet--capabilities) |
 | `getAssets` | `Actions.wallet.getAssets` | [ERC-7846 & ERC-7811](#erc-7846--erc-7811) |
@@ -1060,7 +1060,7 @@ const schema = z.RpcSchema.from({ // [!code ++]
 }) // [!code ++]
 ```
 
-Low-level request composition and action dispatch were internalized. Compose requests and action overrides at the client or transport boundary.
+Low-level request composition was internalized. Compose requests at the Client or Transport boundary. Action dispatch resolves through [`Actions.getAction`](/docs/clients/override), which consults actions attached to the Client via `.extend()`, so `getAction`-style overrides carry over.
 
 RPC client helpers moved to the `RpcClient` namespace. See [Transports](#transports).
 

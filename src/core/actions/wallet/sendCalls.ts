@@ -10,6 +10,7 @@ import { BaseError } from '../../Errors.js'
 import * as RpcError from '../../RpcError.js'
 import type { Compute } from '../../internal/types.js'
 import type { Call, Calls } from '../internal/calls.js'
+import { getAction } from '../getAction.js'
 import { send as sendTransaction } from '../transaction/send.js'
 
 /** Magic identifier appended to fallback call bundle ids. */
@@ -158,7 +159,11 @@ export async function sendCalls<
       const results: PromiseSettledResult<Hex.Hex>[] = []
       for (const call of calls) {
         try {
-          const value = await sendTransaction(client, {
+          const value = await getAction(
+            client,
+            sendTransaction<chain>,
+            'transaction.send',
+          )({
             account,
             chain,
             data: call.data,

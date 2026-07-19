@@ -12,6 +12,7 @@ import type {
   ContractFunctionParameters,
   GetMutabilityAwareValue,
 } from '../internal/contract.js'
+import { getAction } from '../getAction.js'
 import { send } from '../transaction/send.js'
 
 /**
@@ -69,7 +70,11 @@ export async function write<
     : undefined
 
   try {
-    return await send(client, {
+    return await getAction(
+      client,
+      send<chain>,
+      'transaction.send',
+    )({
       ...rest,
       data,
       to: address,

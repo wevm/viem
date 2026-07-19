@@ -13,6 +13,7 @@ import type {
 } from '../internal/contract.js'
 import { resolveReturnShape } from '../internal/contract.js'
 import { call } from '../call.js'
+import { getAction } from '../getAction.js'
 
 /**
  * Calls a read-only (`pure`/`view`) function on a contract and returns the
@@ -60,7 +61,11 @@ export async function read<
   const data = AbiFunction.encodeData(abiItem, args)
 
   try {
-    const response = await call(client, {
+    const response = await getAction(
+      client,
+      call,
+      'call',
+    )({
       ...rest,
       data,
       to: address,

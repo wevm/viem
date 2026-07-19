@@ -13,7 +13,8 @@ export * as Account from './core/Account.js'
 
 /**
  * Standalone actions callable with a {@link Client}, grouped by namespace
- * (`address`, `block`, `transaction`, `token`, …).
+ * (`address`, `block`, `transaction`, `token`, …). `Actions.getAction`
+ * resolves Client-attached action overrides for nested action dispatch.
  *
  * @example
  * ```ts

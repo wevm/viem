@@ -15,6 +15,8 @@ export * as Errors from './Errors.js'
 export * as event from './event/index.js'
 export * as fee from './fee/index.js'
 export * as filter from './filter/index.js'
+/** Resolves Client-attached action overrides, falling back to standalone actions. */
+export { getAction } from './getAction.js'
 export * as node from './node/index.js'
 export * as state from './state/index.js'
 export * as token from './token/index.js'

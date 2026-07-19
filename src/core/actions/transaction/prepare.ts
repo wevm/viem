@@ -20,6 +20,7 @@ import {
   internal_estimateFeesPerGas,
 } from '../fee/estimateFeesPerGas.js'
 import { Eip1559FeesNotSupportedError } from '../fee/estimateMaxPriorityFeePerGas.js'
+import { getAction } from '../getAction.js'
 import { estimateGas } from './estimateGas.js'
 import { fill } from './fill.js'
 
@@ -350,7 +351,11 @@ export async function prepare<
   }
 
   if (parameters.includes('gas') && typeof request.gas === 'undefined')
-    request.gas = await estimateGas(client, {
+    request.gas = await getAction(
+      client,
+      estimateGas,
+      'transaction.estimateGas',
+    )({
       ...omitControl(request),
       // Fees derived above are not part of the caller's intent: feeding them
       // back into estimation only gates it on the sender's balance (nodes cap

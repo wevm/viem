@@ -9,6 +9,7 @@ import type {
   ContractConstructorArgs,
   UnionWiden,
 } from '../internal/contract.js'
+import { getAction } from '../getAction.js'
 import { sendSync } from '../transaction/sendSync.js'
 
 /**
@@ -43,7 +44,11 @@ export async function deploySync<
   const { abi, args, bytecode, ...rest } = options as deploySync.Options
   const data = AbiConstructor.encode(abi, { args, bytecode })
 
-  return await sendSync(client, {
+  return await getAction(
+    client,
+    sendSync<chain>,
+    'transaction.sendSync',
+  )({
     ...rest,
     ...(rest.authorizationList ? { to: null } : {}),
     data,

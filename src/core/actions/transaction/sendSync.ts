@@ -11,6 +11,7 @@ import * as dataSuffix_ from '../../internal/dataSuffix.js'
 import { isAbortError } from '../../internal/errors.js'
 import * as transactionRequest from '../internal/transactionRequest.js'
 import { getId } from '../chains/getId.js'
+import { getAction } from '../getAction.js'
 import { defaultParameters, prepare } from './prepare.js'
 import { send } from './send.js'
 import { sendRawSync, TransactionReceiptRevertedError } from './sendRawSync.js'
@@ -64,7 +65,11 @@ export async function sendSync<chain extends Chain.Chain | undefined>(
   ) as Account.Account
 
   if (account.type === 'json-rpc') {
-    const hash = await send(client, options_)
+    const hash = await getAction(
+      client,
+      send<chain>,
+      'transaction.send',
+    )(options_)
     const receipt = await waitForReceipt(client, {
       checkReplacement: false,
       confirmations,
@@ -125,7 +130,11 @@ export async function sendSync<chain extends Chain.Chain | undefined>(
 
     transactionRequest.assert(rest)
 
-    const { request } = await prepare(client, {
+    const { request } = await getAction(
+      client,
+      prepare<chain, Account.Account | undefined, prepare.Options<chain>>,
+      'transaction.prepare',
+    )({
       ...rest,
       account,
       chain: codecsChain,

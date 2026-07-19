@@ -5,6 +5,7 @@ import { Execute } from 'ox/erc7821'
 import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
 import type { Batches, Call } from '../internal/calls.js'
+import { getAction } from '../getAction.js'
 import { send } from '../transaction/send.js'
 import { ExecuteUnsupportedError } from './execute.js'
 import { getExecuteError, normalizeCalls } from './internal.js'
@@ -83,7 +84,11 @@ export async function executeBatches<
   )
 
   try {
-    return await send(client, {
+    return await getAction(
+      client,
+      send<chain>,
+      'transaction.send',
+    )({
       ...rest,
       data: Execute.encodeBatchOfBatchesData(batches_),
       to: address,
