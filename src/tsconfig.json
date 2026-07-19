@@ -1,7 +1,7 @@
 {
   "extends": "../tsconfig.base.json",
   "include": ["./**/*.ts"],
-  "exclude": ["./**/*.test.ts", "./**/*.test-d.ts"],
+  "exclude": ["./**/*.bench-d.ts", "./**/*.test.ts", "./**/*.test-d.ts"],
   "compilerOptions": {
     "composite": true,
     "noEmit": true,

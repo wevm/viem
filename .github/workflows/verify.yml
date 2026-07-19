@@ -91,6 +91,12 @@ jobs:
       - name: Check types
         run: pnpm check:types
 
+      # Attest benches with its own pinned typescript 5.9.3 (see .pnpmfile.cjs),
+      # so instantiation counts are matrix-independent; one leg is enough.
+      - name: Bench types
+        if: ${{ matrix.version == '5.9.3' }}
+        run: pnpm bench:types
+
   test:
     name: 'Test Local (transport: ${{ matrix.transport-mode }}, multicall: ${{ matrix.multicall }}, ${{ matrix.shard }}/${{ matrix.total-shards }})'
     runs-on: ubuntu-latest

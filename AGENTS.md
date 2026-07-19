@@ -121,6 +121,11 @@ This document contains general guidelines for AI agents working on the Viem code
   sites an identical alias instantiation relates by identity (free), while a new
   structural target forces a per-site structural walk (measured +35s across the test
   project when tried on the ERC-4337 actions).
+- **Instantiation baselines gate regressions**; `pnpm bench:types` runs colocated
+  `*.bench-d.ts` attest benches against pinned `attest.instantiations` counts
+  (20% threshold) and CI runs it in the types job. Attest needs the classic JS
+  compiler API, so `.pnpmfile.cjs` pins its `typescript` to 5.9.3; measure new
+  baselines by leaving `attest.instantiations()` empty and running the bench once.
 
 ## API Conventions
 

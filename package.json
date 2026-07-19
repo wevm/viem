@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "bench:types": "TYPES=true vp test --run --project type-bench",
     "build": "pnpm exports:update && zile",
     "changeset:prepublish": "pnpm version:update && pnpm build && zile publish:prepare",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish && zile publish:post",
@@ -36,6 +37,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",
+    "@ark/attest": "catalog:",
     "@changesets/changelog-github": "catalog:",
     "@changesets/cli": "catalog:",
     "@openzeppelin/contracts": "catalog:",
@@ -107,7 +109,7 @@
         "vite.config.ts"
       ],
       "entry": [
-        "**/*.{test,test-d,spec}.?(c|m)[jt]s?(x)"
+        "**/*.{bench-d,test,test-d,spec}.?(c|m)[jt]s?(x)"
       ]
     },
     "workspaces": {
@@ -254,6 +256,7 @@
   "files": [
     "dist",
     "src",
+    "!src/**/*.bench-d.ts",
     "!src/**/*.test.ts",
     "!src/**/*.test.ts.snap",
     "!src/**/*.test-d.ts",

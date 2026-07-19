@@ -62,6 +62,7 @@ export default defineConfig({
       reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
       exclude: [
         '**/dist/**',
+        '**/*.bench-d.ts',
         '**/*.test.ts',
         '**/*.test-d.ts',
         '**/index.ts',
@@ -77,6 +78,19 @@ export default defineConfig({
     ],
     retry: 3,
     projects: [
+      ...(process.env.TYPES
+        ? [
+            {
+              extends: true,
+              test: {
+                name: 'type-bench',
+                include: ['src/**/*.bench-d.ts'],
+                globalSetup: ['./test/setup.bench-types.global.ts'],
+                retry: 0,
+              },
+            },
+          ]
+        : []),
       {
         extends: true,
         test: {

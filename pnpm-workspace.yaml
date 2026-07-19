@@ -110,6 +110,7 @@ strictPeerDependencies: false
 
 catalog:
   '@arethetypeswrong/cli': ^0.18.3
+  '@ark/attest': ^0.56.3
   '@changesets/changelog-github': ^0.7.0
   '@changesets/cli': ^2.31.0
   '@openzeppelin/contracts': 5.4.0
