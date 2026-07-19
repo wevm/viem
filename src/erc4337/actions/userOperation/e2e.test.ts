@@ -589,8 +589,71 @@ describe.sequential('live EntryPoint flows', () => {
     `)
   })
 
-  // Alto 0.0.20 cannot reconstruct EntryPoint 0.9 `handleOps` transactions.
-  test.todo('EntryPoint 0.9 gets an included User Operation by hash')
+  liveTest(
+    'EntryPoint 0.9 gets an included User Operation by hash',
+    { retry: 0, timeout: 30_000 },
+    async () => {
+      await bundler09.restart()
+      await bundler09ControlClient.request({
+        method: 'debug_bundler_setBundlingMode',
+        params: ['manual'],
+      })
+
+      const client = BundlerClient.create({
+        account: account09,
+        client: executionClient,
+        pollingInterval: 50,
+        transport: http(bundler09.rpcUrl.http),
+      })
+      const calls = [
+        {
+          to: constants.accounts[9].address,
+          value: Value.fromEther('1'),
+        },
+      ] as const
+      const authorization = await CoreActions.wallet.signAuthorization(
+        executionClient,
+        account09.authorization,
+      )
+
+      const hash = await Actions.userOperation.send(client, {
+        authorization,
+        calls,
+        ...fees,
+      })
+      const receiptPromise = Actions.userOperation.waitForReceipt<'0.9'>(
+        client,
+        { hash, pollingInterval: 50, timeout: 15_000 },
+      )
+      await client.request({ method: 'debug_bundler_sendBundleNow' })
+      await CoreActions.block.mine(executionClient, { blocks: 1 })
+      const receipt = await receiptPromise
+
+      const operation = await Actions.userOperation.get<'0.9'>(client, {
+        hash,
+      })
+      const transactionHash = getIncludedTransactionHash(operation)
+      expect({
+        entryPoint: Address.isEqual(
+          operation.entryPoint,
+          account09.entryPoint.address,
+        ),
+        included: receipt.success,
+        sender: Address.isEqual(
+          operation.userOperation.sender,
+          account09.address,
+        ),
+        transactionHash: transactionHash === receipt.receipt.transactionHash,
+      }).toMatchInlineSnapshot(`
+        {
+          "entryPoint": true,
+          "included": true,
+          "sender": true,
+          "transactionHash": true,
+        }
+      `)
+    },
+  )
 
   liveTest(
     'ERC-7677 PaymasterClient',

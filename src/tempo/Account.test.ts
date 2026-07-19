@@ -21,7 +21,10 @@ import {
   SignatureEnvelope,
   TxEnvelopeTempo,
 } from 'ox/tempo'
-import { describe, expect, test } from 'vitest'
+import * as tempo from '~test/tempo.js'
+import { afterAll, describe, expect, test } from 'vitest'
+
+import { Actions } from 'viem'
 
 import * as Account from './Account.js'
 
@@ -714,17 +717,79 @@ describe('fromMultisig', () => {
     ).toBe(1337)
   })
 
-  // End-to-end multisig transaction flows require the Tempo chain config and
-  // a node (`transaction.prepare`/`send` combine owner approvals into the
-  // multisig signature envelope).
+  // End-to-end multisig sends require a multisig-capable node: the public
+  // `tempo` node images (latest, nightly) reject the `0x05` multisig
+  // signature envelope with `failed to decode signed transaction`. Approval
+  // combining is covered hermetically in `chainConfig.test.ts`.
   test.todo('flat 2-of-2: init + subsequent')
   test.todo('2-of-3 (M-of-N): threshold subset of owners approves')
   test.todo('weighted threshold: single heavy owner meets threshold')
   test.todo('account hoisted to client: send without explicit `account`')
   test.todo('infer multisig from `account` (no `multisig` field)')
   test.todo('fee payer sponsors bootstrap multisig')
-  test.todo('fee payer co-sign derives the sender from a p256 signature')
-  test.todo('`feePayer` same as sender preserves `from`')
+})
+
+// End-to-end fee payer flows against a tempo node.
+describe('e2e (tempo node)', () => {
+  const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
+  const node = tempo.defineNode()
+  afterAll(() => node.stop())
+
+  const to = '0x00000000000000000000000000000000000000ff'
+
+  liveTest(
+    'fee payer co-sign derives the sender from a p256 signature',
+    { timeout: 120_000 },
+    async () => {
+      const sender = Account.fromP256(P256.randomPrivateKey())
+      const feePayer = Account.fromSecp256k1(tempo.accounts[8]!.privateKey)
+      const client = tempo.getClient({
+        account: sender,
+        rpcUrl: await node.start(),
+      })
+
+      // Expiring-nonce window from node time (host clocks may skew).
+      const block = await Actions.block.get(client)
+      const receipt = await Actions.transaction.sendSync(client, {
+        calls: [{ to }],
+        feePayer,
+        feeToken: tempo.pathUsd,
+        validBefore: Number(block.timestamp) + 25,
+      })
+      expect(receipt.status).toBe('success')
+      expect(receipt.from.toLowerCase()).toBe(sender.address.toLowerCase())
+      expect(receipt.feePayer?.toLowerCase()).toBe(
+        feePayer.address.toLowerCase(),
+      )
+    },
+  )
+
+  liveTest(
+    '`feePayer` same as sender preserves `from`',
+    { timeout: 120_000 },
+    async () => {
+      const sender = Account.fromSecp256k1(tempo.accounts[9]!.privateKey)
+      const client = tempo.getClient({
+        account: sender,
+        rpcUrl: await node.start(),
+      })
+
+      const serialized = await Actions.transaction.sign(client, {
+        calls: [{ to }],
+        feePayer: sender,
+        feeToken: tempo.pathUsd,
+        gas: 100_000n,
+        maxFeePerGas: 1_000_000_000n,
+        maxPriorityFeePerGas: 100_000_000n,
+        nonce: 0,
+      })
+      const envelope = TxEnvelopeTempo.deserialize(
+        serialized as TxEnvelopeTempo.Serialized,
+      )
+      expect(envelope.from?.toLowerCase()).toBe(sender.address.toLowerCase())
+      expect(envelope.feePayerSignature).toBeDefined()
+    },
+  )
 })
 
 describe('signAuthorization', () => {

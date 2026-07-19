@@ -1,6 +1,8 @@
 import { AbiItem } from 'ox'
 import { describe, expect, test } from 'vitest'
 
+import { Selectors as tempo_Selectors } from 'viem/tempo'
+
 import * as Abis from './Abis.js'
 import * as Selectors from './Selectors.js'
 
@@ -48,8 +50,9 @@ function getSelectorValues(selectors: Record<string, unknown>) {
   )
 }
 
-// Requires the `viem/tempo` entrypoint.
-test.todo('exports through tempo entrypoint')
+test('exports through tempo entrypoint', () => {
+  expect(tempo_Selectors).toBe(Selectors)
+})
 
 test('exports one selector map per ABI', () => {
   expect(Object.keys(Selectors).sort()).toEqual(Object.keys(selectorMaps))

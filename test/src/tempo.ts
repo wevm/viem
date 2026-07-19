@@ -82,7 +82,7 @@ export function getClient(options: getClient.Options = {}) {
     ...(feeToken ? { feeToken } : {}),
     pollingInterval: 100,
     tokens,
-    transport: http(rpcUrl),
+    transport: http(options.rpcUrl ?? rpcUrl),
   })
 }
 
@@ -92,7 +92,57 @@ export declare namespace getClient {
     account?: Account.Account | undefined
     /** Default fee token for the Client. */
     feeToken?: `0x${string}` | undefined
+    /** RPC URL. @default the pool instance's URL */
+    rpcUrl?: string | undefined
   }
+}
+
+/** Lazily booted dedicated Tempo node handle. */
+export type NodeInstance = {
+  /** Boots the node once and returns its RPC URL. */
+  start(): Promise<string>
+  /** Stops the node if it is running. */
+  stop(): Promise<void>
+}
+
+/** Defines a lazily booted, dedicated Tempo node (one per test file). */
+export function defineNode(): NodeInstance {
+  const instance = createInstance()
+  let started: Promise<string> | undefined
+  return {
+    start() {
+      started ??= instance.start().then(async () => {
+        const url = `http://${instance.host}:${instance.port}`
+        // `latest` can still be the genesis block right after the boot log.
+        while ((await getLatestTimestamp(url)) === 0n)
+          await new Promise((resolve) => setTimeout(resolve, 50))
+        return url
+      })
+      return started
+    },
+    async stop() {
+      if (!started) return
+      started = undefined
+      await instance.stop()
+    },
+  }
+}
+
+async function getLatestTimestamp(url: string) {
+  const response = await fetch(url, {
+    body: JSON.stringify({
+      id: 1,
+      jsonrpc: '2.0',
+      method: 'eth_getBlockByNumber',
+      params: ['latest', false],
+    }),
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+  })
+  const { result } = (await response.json()) as {
+    result?: { timestamp?: string } | null
+  }
+  return BigInt(result?.timestamp ?? 0)
 }
 
 /** Registers `address` as a validator (dev account 0 is the config owner). */

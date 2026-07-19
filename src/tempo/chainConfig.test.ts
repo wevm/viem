@@ -1,9 +1,19 @@
-import { Address, Secp256k1, Signature } from 'ox'
+import {
+  Address,
+  Hash,
+  Hex,
+  P256,
+  Secp256k1,
+  Signature,
+  WebCryptoP256,
+} from 'ox'
 import { MultisigConfig, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
-import { describe, expect, test } from 'vitest'
+import * as tempo from '~test/tempo.js'
+import { afterAll, describe, expect, test } from 'vitest'
 
 import { Client, http } from 'viem'
-import { tempoModerato } from 'viem/chains'
+import { tempoLocalnet, tempoModerato } from 'viem/chains'
+import { Account, Actions, KeyAuthorizationManager } from 'viem/tempo'
 
 import { chainConfig, type Envelope } from './chainConfig.js'
 
@@ -27,6 +37,11 @@ const serialize = (
 
 /** A client for hermetic prepare-hook branches (never dispatches). */
 const client = Client.create({ transport: http('http://localhost') })
+
+// Node-backed suites boot one dedicated Tempo node for this file.
+const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
+const node = tempo.defineNode()
+afterAll(() => node.stop())
 
 const baseRequest = {
   calls: [
@@ -881,14 +896,112 @@ describe('transaction.prepare', () => {
     expect(plain.gas).toBe(100_000n)
   })
 
-  // Requires a tempo node: the pending key authorization refresh reads the
-  // on-chain AccountKeychain (`getKey`) before attaching or dropping.
-  test.todo('keyAuthorization: attaches a pending authorization (tempo node)')
-  test.todo(
-    'keyAuthorization: reads keychain metadata without a client account (tempo node)',
+  // The pending key authorization refresh reads the on-chain
+  // AccountKeychain (`getKey`) before attaching or dropping.
+  liveTest(
+    'keyAuthorization: attaches a pending authorization (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const root = Account.fromSecp256k1(privateKey)
+      const manager = KeyAuthorizationManager.memory()
+      const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+        access: root,
+        keyAuthorizationManager: manager,
+      })
+      const keyAuthorization = await Account.signKeyAuthorization(root, {
+        chainId: tempoLocalnet.id,
+        key: accessKey,
+      })
+      const key = {
+        address: root.address,
+        accessKey: accessKey.accessKeyAddress!,
+        chainId: tempoLocalnet.id,
+      }
+      await manager.set(key, keyAuthorization)
+
+      const request = await prepare(
+        { account: accessKey, chainId: tempoLocalnet.id, to: sender },
+        { client, phase: 'beforeFillTransaction' },
+      )
+      expect(request.keyAuthorization).toEqual(keyAuthorization)
+      expect(await manager.get(key)).toEqual(keyAuthorization)
+    },
   )
-  test.todo(
+
+  liveTest(
+    'keyAuthorization: reads keychain metadata without a client account (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = Client.create({
+        chain: tempoLocalnet,
+        transport: http(await node.start()),
+      })
+      const root = Account.fromSecp256k1(privateKey)
+      const manager = KeyAuthorizationManager.memory()
+      const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+        access: root,
+        keyAuthorizationManager: manager,
+      })
+      const keyAuthorization = await Account.signKeyAuthorization(root, {
+        chainId: tempoLocalnet.id,
+        key: accessKey,
+      })
+      await manager.set(
+        {
+          address: root.address,
+          accessKey: accessKey.accessKeyAddress!,
+          chainId: tempoLocalnet.id,
+        },
+        keyAuthorization,
+      )
+
+      const request = await prepare(
+        { account: accessKey, chainId: tempoLocalnet.id, to: sender },
+        { client, phase: 'beforeFillTransaction' },
+      )
+      expect(request.keyAuthorization).toEqual(keyAuthorization)
+    },
+  )
+
+  liveTest(
     'keyAuthorization: removes the pending authorization once the key is registered on-chain (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const root = Account.fromSecp256k1(privateKey)
+      const client = tempo.getClient({
+        account: root,
+        feeToken: tempo.pathUsd,
+        rpcUrl: await node.start(),
+      })
+      const manager = KeyAuthorizationManager.memory()
+      const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+        access: root,
+        keyAuthorizationManager: manager,
+      })
+      await Actions.accessKey.authorizeSync(client, {
+        accessKey,
+        expiry: Math.floor(Date.now() / 1000) + 3600,
+      })
+
+      const keyAuthorization = await Account.signKeyAuthorization(root, {
+        chainId: tempoLocalnet.id,
+        key: accessKey,
+      })
+      const key = {
+        address: root.address,
+        accessKey: accessKey.accessKeyAddress!,
+        chainId: tempoLocalnet.id,
+      }
+      await manager.set(key, keyAuthorization)
+
+      const request = await prepare(
+        { account: accessKey, chainId: tempoLocalnet.id, to: sender },
+        { client, phase: 'beforeFillTransaction' },
+      )
+      expect(request.keyAuthorization).toBeUndefined()
+      expect(await manager.get(key)).toBeUndefined()
+    },
   )
 
   test('keyAuthorization: drops expired pending authorizations', async () => {
@@ -924,25 +1037,316 @@ describe('transaction.prepare', () => {
   })
 })
 
-// Requires a tempo node: keychain lookups (`getKey`) and code probes back
-// the envelope verification modes.
+// Keychain lookups (`getKey`) and code probes back the envelope
+// verification modes.
 describe('verifyHash', () => {
-  test.todo('p256: valid signature (tempo node)')
-  test.todo('p256: invalid signature returns false (tempo node)')
-  test.todo('p256: wrong address returns false (tempo node)')
-  test.todo('webCrypto: valid signature (tempo node)')
-  test.todo('webCrypto: invalid signature returns false (tempo node)')
-  test.todo('webCrypto: wrong address returns false (tempo node)')
-  test.todo('headlessWebAuthn: valid signature (tempo node)')
-  test.todo('headlessWebAuthn: invalid signature returns false (tempo node)')
-  test.todo('headlessWebAuthn: wrong address returns false (tempo node)')
-  test.todo('accessKey (keychain): valid signature (tempo node)')
-  test.todo('accessKey (keychain): secp256k1 valid signature (tempo node)')
-  test.todo(
-    'accessKey (keychain): invalid signature returns false (tempo node)',
+  const hash = Hash.keccak256(Hex.fromString('hello tempo'))
+  const otherHash = Hash.keccak256(Hex.fromString('other payload'))
+  const expiry = () => Math.floor(Date.now() / 1000) + 3600
+
+  liveTest(
+    'p256: valid signature (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromP256(P256.randomPrivateKey())
+      const signature = await account.sign({ hash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: account.address,
+          hash,
+          signature,
+        }),
+      ).resolves.toBe(true)
+    },
   )
-  test.todo('accessKey (keychain): revoked key returns false (tempo node)')
-  test.todo(
+
+  liveTest(
+    'p256: invalid signature returns false (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromP256(P256.randomPrivateKey())
+      const signature = await account.sign({ hash: otherHash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: account.address,
+          hash,
+          signature,
+        }),
+      ).resolves.toBe(false)
+    },
+  )
+
+  liveTest(
+    'p256: wrong address returns false (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromP256(P256.randomPrivateKey())
+      const other = Account.fromP256(P256.randomPrivateKey())
+      const signature = await account.sign({ hash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: other.address,
+          hash,
+          signature,
+        }),
+      ).resolves.toBe(false)
+    },
+  )
+
+  liveTest(
+    'webCrypto: valid signature (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromWebCryptoP256(
+        await WebCryptoP256.createKeyPair(),
+      )
+      const signature = await account.sign({ hash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: account.address,
+          hash,
+          signature,
+        }),
+      ).resolves.toBe(true)
+    },
+  )
+
+  liveTest(
+    'webCrypto: invalid signature returns false (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromWebCryptoP256(
+        await WebCryptoP256.createKeyPair(),
+      )
+      const signature = await account.sign({ hash: otherHash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: account.address,
+          hash,
+          signature,
+        }),
+      ).resolves.toBe(false)
+    },
+  )
+
+  liveTest(
+    'webCrypto: wrong address returns false (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromWebCryptoP256(
+        await WebCryptoP256.createKeyPair(),
+      )
+      const other = Account.fromP256(P256.randomPrivateKey())
+      const signature = await account.sign({ hash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: other.address,
+          hash,
+          signature,
+        }),
+      ).resolves.toBe(false)
+    },
+  )
+
+  liveTest(
+    'headlessWebAuthn: valid signature (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromHeadlessWebAuthn(P256.randomPrivateKey(), {
+        origin: 'https://localhost',
+        rpId: 'localhost',
+      })
+      const signature = await account.sign({ hash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: account.address,
+          hash,
+          signature,
+        }),
+      ).resolves.toBe(true)
+    },
+  )
+
+  liveTest(
+    'headlessWebAuthn: invalid signature returns false (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromHeadlessWebAuthn(P256.randomPrivateKey(), {
+        origin: 'https://localhost',
+        rpId: 'localhost',
+      })
+      const signature = await account.sign({ hash: otherHash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: account.address,
+          hash,
+          signature,
+        }),
+      ).resolves.toBe(false)
+    },
+  )
+
+  liveTest(
+    'headlessWebAuthn: wrong address returns false (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const account = Account.fromHeadlessWebAuthn(P256.randomPrivateKey(), {
+        origin: 'https://localhost',
+        rpId: 'localhost',
+      })
+      const other = Account.fromP256(P256.randomPrivateKey())
+      const signature = await account.sign({ hash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: other.address,
+          hash,
+          signature,
+        }),
+      ).resolves.toBe(false)
+    },
+  )
+
+  liveTest(
+    'accessKey (keychain): valid signature (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const root = Account.fromSecp256k1(tempo.accounts[1]!.privateKey)
+      const client = tempo.getClient({
+        account: root,
+        feeToken: tempo.pathUsd,
+        rpcUrl: await node.start(),
+      })
+      const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+        access: root,
+      })
+      await Actions.accessKey.authorizeSync(client, {
+        accessKey,
+        expiry: expiry(),
+      })
+
+      const signature = await accessKey.sign({ hash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: root.address,
+          hash,
+          mode: 'allowAccessKey',
+          signature,
+        }),
+      ).resolves.toBe(true)
+    },
+  )
+
+  liveTest(
+    'accessKey (keychain): secp256k1 valid signature (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const root = Account.fromSecp256k1(tempo.accounts[2]!.privateKey)
+      const client = tempo.getClient({
+        account: root,
+        feeToken: tempo.pathUsd,
+        rpcUrl: await node.start(),
+      })
+      const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
+        access: root,
+      })
+      await Actions.accessKey.authorizeSync(client, {
+        accessKey,
+        expiry: expiry(),
+      })
+
+      const signature = await accessKey.sign({ hash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: root.address,
+          hash,
+          mode: 'allowAccessKey',
+          signature,
+        }),
+      ).resolves.toBe(true)
+    },
+  )
+
+  liveTest(
+    'accessKey (keychain): invalid signature returns false (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const root = Account.fromSecp256k1(tempo.accounts[3]!.privateKey)
+      const client = tempo.getClient({
+        account: root,
+        feeToken: tempo.pathUsd,
+        rpcUrl: await node.start(),
+      })
+      const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+        access: root,
+      })
+      await Actions.accessKey.authorizeSync(client, {
+        accessKey,
+        expiry: expiry(),
+      })
+
+      const signature = await accessKey.sign({ hash: otherHash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: root.address,
+          hash,
+          mode: 'allowAccessKey',
+          signature,
+        }),
+      ).resolves.toBe(false)
+    },
+  )
+
+  liveTest(
+    'accessKey (keychain): revoked key returns false (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const root = Account.fromSecp256k1(tempo.accounts[4]!.privateKey)
+      const client = tempo.getClient({
+        account: root,
+        feeToken: tempo.pathUsd,
+        rpcUrl: await node.start(),
+      })
+      const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+        access: root,
+      })
+      await Actions.accessKey.authorizeSync(client, {
+        accessKey,
+        expiry: expiry(),
+      })
+      await Actions.accessKey.revokeSync(client, { accessKey })
+
+      const signature = await accessKey.sign({ hash })
+      await expect(
+        chainConfig.verifyHash(client, {
+          address: root.address,
+          hash,
+          mode: 'allowAccessKey',
+          signature,
+        }),
+      ).resolves.toBe(false)
+    },
+  )
+
+  liveTest(
     'falls back to `verifyDefault` for non-envelope signatures (tempo node)',
+    { timeout: 120_000 },
+    async () => {
+      const client = tempo.getClient({ rpcUrl: await node.start() })
+      const signature = Signature.toHex(
+        Secp256k1.sign({ payload: hash, privateKey }),
+      )
+      await expect(
+        chainConfig.verifyHash(client, { address: sender, hash, signature }),
+      ).resolves.toBe(true)
+    },
   )
 })

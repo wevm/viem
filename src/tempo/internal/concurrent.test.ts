@@ -1,4 +1,7 @@
-import { expect, test } from 'vitest'
+import * as tempo from '~test/tempo.js'
+import { afterAll, expect, test } from 'vitest'
+
+import { Actions } from 'viem'
 
 import * as Concurrent from './concurrent.js'
 
@@ -41,7 +44,65 @@ test('different keys do not interfere', async () => {
   expect(results[1]).toBe(false)
 })
 
-// Expiring-nonce integration requires the Tempo chain config and a node
-// (`detect` drives nonceKey selection in the transaction prepare hook).
-test.todo('sendTransaction with expiring nonce')
-test.todo('concurrent transactions use expiring nonces')
+// Expiring-nonce integration (TIP-1009): `detect` drives nonceKey selection
+// in the transaction prepare hook.
+const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
+const node = tempo.defineNode()
+afterAll(() => node.stop())
+
+const to = '0x00000000000000000000000000000000000000ff'
+const maxUint256 = 2n ** 256n - 1n
+
+/** Expiring-nonce window from node time (host clocks may skew). */
+async function validBefore(client: ReturnType<typeof tempo.getClient>) {
+  const block = await Actions.block.get(client)
+  return Number(block.timestamp) + 25
+}
+
+liveTest(
+  'sendTransaction with expiring nonce',
+  { timeout: 120_000 },
+  async () => {
+    const client = tempo.getClient({ rpcUrl: await node.start() })
+    const receipt = await Actions.transaction.sendSync(client, {
+      calls: [{ to }],
+      feeToken: tempo.pathUsd,
+      nonceKey: 'expiring',
+      validBefore: await validBefore(client),
+    })
+    expect(receipt.status).toBe('success')
+
+    const transaction = await Actions.transaction.get(client, {
+      hash: receipt.transactionHash,
+    })
+    expect(transaction.nonceKey).toBe(maxUint256)
+  },
+)
+
+liveTest(
+  'concurrent transactions use expiring nonces',
+  { timeout: 120_000 },
+  async () => {
+    const client = tempo.getClient({ rpcUrl: await node.start() })
+    const window = await validBefore(client)
+    // Distinct recipients: identical expiring-nonce transactions share a hash.
+    const receipts = await Promise.all(
+      [1, 2, 3].map((i) =>
+        Actions.transaction.sendSync(client, {
+          calls: [{ to: `0x00000000000000000000000000000000000000f${i}` }],
+          feeToken: tempo.pathUsd,
+          validBefore: window,
+        }),
+      ),
+    )
+    for (const receipt of receipts) expect(receipt.status).toBe('success')
+
+    const transactions = await Promise.all(
+      receipts.map((receipt) =>
+        Actions.transaction.get(client, { hash: receipt.transactionHash }),
+      ),
+    )
+    for (const transaction of transactions)
+      expect(transaction.nonceKey).toBe(maxUint256)
+  },
+)

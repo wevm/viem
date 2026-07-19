@@ -1,13 +1,16 @@
 import { expect, test } from 'vitest'
 
+import { Scopes as tempo_Scopes } from 'viem/tempo'
+
 import * as Scopes from './Scopes.js'
 import * as Selectors from './Selectors.js'
 
 const pathUsd = '0x20c0000000000000000000000000000000000001'
 const recipient = '0x0000000000000000000000000000000000000001'
 
-// Requires the `viem/tempo` entrypoint.
-test.todo('exports through tempo entrypoint')
+test('exports through tempo entrypoint', () => {
+  expect(tempo_Scopes).toBe(Scopes)
+})
 
 test('target.any', () => {
   const scope = Scopes.target(pathUsd).any()
