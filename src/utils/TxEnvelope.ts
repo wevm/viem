@@ -2,11 +2,12 @@ export * from 'ox/TxEnvelope'
 
 import {
   Address,
+  Errors,
   Secp256k1,
   Signature,
   TransactionEnvelope as TxEnvelope,
 } from 'ox'
-import type { Bytes, Errors, Hex } from 'ox'
+import type { Bytes, Hex } from 'ox'
 
 /**
  * Recovers the signing address of a transaction envelope, either serialized
@@ -28,7 +29,8 @@ export function recoverAddress(
     typeof transaction === 'string'
       ? TxEnvelope.deserialize(transaction)
       : transaction
-  const signature = options.signature ?? Signature.extract(envelope)!
+  const signature = options.signature ?? Signature.extract(envelope)
+  if (!signature) throw new MissingSignatureError()
   const publicKey = Secp256k1.recoverPublicKey({
     payload: TxEnvelope.getSignPayload(
       envelope as TxEnvelope.TxEnvelope<false>,
@@ -49,5 +51,17 @@ export declare namespace recoverAddress {
     | TxEnvelope.getSignPayload.ErrorType
     | Secp256k1.recoverPublicKey.ErrorType
     | Address.fromPublicKey.ErrorType
+    | MissingSignatureError
     | Errors.GlobalErrorType
+}
+
+/** Thrown when an unsigned transaction envelope is provided without a `signature` option. */
+export class MissingSignatureError extends Errors.BaseError {
+  override readonly name = 'TxEnvelope.MissingSignatureError'
+
+  constructor() {
+    super(
+      'Transaction envelope is unsigned. An unsigned envelope requires a `signature` option.',
+    )
+  }
 }

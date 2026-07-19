@@ -44,6 +44,20 @@ describe('recoverAddress', () => {
       }),
     ).toBe(account.address)
   })
+
+  test('error: unsigned authorization', () => {
+    expect(() =>
+      Authorization.recoverAddress({
+        authorization: Authorization.from({
+          address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
+          chainId: 1,
+          nonce: 0n,
+        }),
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      '[Authorization.MissingSignatureError: Authorization is unsigned. An unsigned authorization requires a `signature` option.]',
+    )
+  })
 })
 
 describe('verify', () => {
@@ -65,5 +79,20 @@ describe('verify', () => {
         }),
       }),
     ).toBe(false)
+  })
+
+  test('error: unsigned authorization', () => {
+    expect(() =>
+      Authorization.verify({
+        authorization: Authorization.from({
+          address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
+          chainId: 1,
+          nonce: 0n,
+        }),
+        publicKey: Secp256k1.getPublicKey({ privateKey: account.privateKey }),
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      '[Authorization.MissingSignatureError: Authorization is unsigned. An unsigned authorization requires a `signature` option.]',
+    )
   })
 })

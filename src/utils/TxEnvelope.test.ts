@@ -68,4 +68,21 @@ describe('recoverAddress', () => {
       }),
     ).toBe(account.address.toLowerCase())
   })
+
+  test('error: unsigned envelope', () => {
+    expect(() =>
+      TxEnvelope.recoverAddress(
+        TxEnvelope.from({
+          chainId: 1,
+          maxFeePerGas: 2n,
+          maxPriorityFeePerGas: 1n,
+          to: '0x0000000000000000000000000000000000000000',
+          type: 'eip1559',
+          value: 1n,
+        }),
+      ),
+    ).toThrowErrorMatchingInlineSnapshot(
+      '[TxEnvelope.MissingSignatureError: Transaction envelope is unsigned. An unsigned envelope requires a `signature` option.]',
+    )
+  })
 })
