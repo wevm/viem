@@ -91,6 +91,15 @@ test('custom source: reset clears consumed nonce cache', async () => {
   expect(await manager.consume({ address, chainId, client })).toBe(1)
 })
 
+test('custom source: consumed nonce 0 is not re-served by a stale source', async () => {
+  const manager = NonceManager.from({
+    source: { get: () => 0, set: () => {} },
+  })
+
+  expect(await manager.consume({ address, chainId, client })).toBe(0)
+  expect(await manager.consume({ address, chainId, client })).toBe(1)
+})
+
 test('jsonRpc returns independent managers', async () => {
   const manager = NonceManager.jsonRpc()
   const other = NonceManager.jsonRpc()
