@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "build": "pnpm exports:update && zile && cp -R src/trusted-setups dist/",
+    "build": "pnpm exports:update && zile",
     "changeset:prepublish": "pnpm version:update && pnpm build && zile publish:prepare",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish && zile publish:post",
     "changeset:version": "pnpm install --lockfile-only && changeset version && pnpm version:update && pnpm check",
