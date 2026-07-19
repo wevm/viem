@@ -102,9 +102,10 @@ export type MultisigAccount = viem_Account.Local<'multisig'> & {
 export function from<const parameters extends from.Parameters>(
   parameters: parameters | from.Parameters,
 ): from.ReturnValue<parameters> {
-  const { access } = parameters
-  if (access) return fromAccessKey(parameters as never) as never
-  return fromRoot(parameters) as never
+  // Widen to the concrete union so the `access` check narrows each arm.
+  const params: from.Parameters = parameters
+  const account = params.access ? fromAccessKey(params) : fromRoot(params)
+  return account as from.ReturnValue<parameters>
 }
 
 export declare namespace from {
@@ -172,7 +173,7 @@ export function fromHeadlessWebAuthn<
         type: 'webAuthn',
       })
     },
-  }) as never
+  }) as fromHeadlessWebAuthn.ReturnValue<options>
 }
 
 export declare namespace fromHeadlessWebAuthn {
@@ -223,7 +224,7 @@ export function fromP256<const options extends fromP256.Options>(
         type: 'p256',
       })
     },
-  }) as never
+  }) as fromP256.ReturnValue<options>
 }
 
 export declare namespace fromP256 {
@@ -262,7 +263,7 @@ export function fromSecp256k1<const options extends fromSecp256k1.Options>(
       const signature = Secp256k1.sign({ payload: hash, privateKey })
       return Signature.toHex(signature)
     },
-  }) as never
+  }) as fromSecp256k1.ReturnValue<options>
 }
 
 export declare namespace fromSecp256k1 {
@@ -428,7 +429,7 @@ export function fromWebCryptoP256<
         type: 'p256',
       })
     },
-  }) as never
+  }) as fromWebCryptoP256.ReturnValue<options>
 }
 
 export declare namespace fromWebCryptoP256 {
@@ -503,6 +504,24 @@ function isAccessKeyAccount(
 }
 
 /**
+ * Key-authorization fields as built here: `account` and `isAdmin` vary
+ * independently (ox's type pairs them) and `chainId` stays numberish.
+ * @internal
+ */
+type KeyAuthorizationInput = {
+  account?: Address.Address | undefined
+  address: Address.Address
+  chainId: number | bigint
+  expiry?: number | null | undefined
+  isAdmin?: boolean | undefined
+  limits?: readonly KeyAuthorization.TokenLimit[] | undefined
+  scopes?: readonly KeyAuthorization.Scope[] | undefined
+  signature?: SignatureEnvelope.SignatureEnvelope | undefined
+  type: SignatureEnvelope.Type
+  witness?: Hex.Hex | undefined
+}
+
+/**
  * Signs a key authorization for an access key (TIP-1044).
  *
  * When the signer is an admin access key, the authorization is signed
@@ -537,7 +556,7 @@ export async function signKeyAuthorization(
   // limits, or call scopes (the protocol rejects them). [TIP-1049]
   const restrictions = admin ? {} : { expiry, limits, scopes }
 
-  const hash = KeyAuthorization.getSignPayload({
+  const authorization: KeyAuthorizationInput = {
     address: accessKeyAddress,
     chainId,
     type,
@@ -545,11 +564,15 @@ export async function signKeyAuthorization(
     ...(admin ? { isAdmin: true } : {}),
     ...boundFields,
     ...restrictions,
-  } as never)
+  }
+  const hash = KeyAuthorization.getSignPayload(
+    // The wire accepts `account`/`isAdmin` alone (see KeyAuthorizationInput).
+    authorization as KeyAuthorization.KeyAuthorization,
+  )
   const signature = isAccessKey
     ? await account.sign({ hash, raw: true })
     : await account.sign({ hash })
-  return KeyAuthorization.from({
+  const signed: KeyAuthorizationInput = {
     address: accessKeyAddress,
     chainId,
     signature: SignatureEnvelope.from(signature),
@@ -558,7 +581,8 @@ export async function signKeyAuthorization(
     ...(admin ? { isAdmin: true } : {}),
     ...boundFields,
     ...restrictions,
-  } as never)
+  }
+  return KeyAuthorization.from(signed as KeyAuthorization.Signed)
 }
 
 export declare namespace signKeyAuthorization {
@@ -815,17 +839,21 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
       // limits, or call scopes (the protocol rejects them). [TIP-1049]
       const restrictions = admin ? {} : { expiry, limits, scopes }
 
+      const authorization: KeyAuthorizationInput = {
+        address: accessKeyAddress,
+        chainId,
+        type,
+        witness,
+        ...(admin ? { isAdmin: true } : {}),
+        ...restrictions,
+      }
       const signature = await account.sign({
-        hash: KeyAuthorization.getSignPayload({
-          address: accessKeyAddress,
-          chainId,
-          type,
-          witness,
-          ...(admin ? { isAdmin: true } : {}),
-          ...restrictions,
-        } as never),
+        // The wire accepts `account`/`isAdmin` alone (see KeyAuthorizationInput).
+        hash: KeyAuthorization.getSignPayload(
+          authorization as KeyAuthorization.KeyAuthorization,
+        ),
       })
-      return KeyAuthorization.from({
+      const signed: KeyAuthorizationInput = {
         address: accessKeyAddress,
         chainId,
         signature: SignatureEnvelope.from(signature),
@@ -833,7 +861,8 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
         ...(witness ? { witness } : {}),
         ...(admin ? { isAdmin: true } : {}),
         ...restrictions,
-      } as never)
+      }
+      return KeyAuthorization.from(signed as KeyAuthorization.Signed)
     },
   }
 }

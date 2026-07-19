@@ -83,13 +83,7 @@ export function create<
   const tokens extends Token.Tokens | undefined = typeof tokenSets.tempo,
   schema extends RpcSchema.Schema = RpcSchema.Default,
 >(
-  options: create.Options<
-    chain,
-    accountOrAddress,
-    transport,
-    tokens,
-    schema
-  > = {},
+  options?: create.Options<chain, accountOrAddress, transport, tokens, schema>,
 ): Client<
   chain,
   accountOrAddress extends Address.Address
@@ -98,7 +92,9 @@ export function create<
   transport,
   tokens,
   RpcSchema.ToGeneric<schema>
-> {
+>
+
+export function create(options: create.Options = {}): viem_Client.Client {
   const { chain, feeToken, testnet, tokens, transport, ...rest } = options
   const baseChain = (chain ?? (testnet ? tempoModerato : tempo)) as
     | (Chain.Chain & {
@@ -118,7 +114,7 @@ export function create<
     } as viem_Client.create.Options)
     .extend(publicActions())
     .extend(walletActions())
-    .extend(tempoActions()) as never
+    .extend(tempoActions())
 }
 
 export declare namespace create {

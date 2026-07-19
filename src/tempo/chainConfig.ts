@@ -139,6 +139,13 @@ type PrepareRequest = TransactionRequest & {
 }
 
 /**
+ * Native-typed view of the request entering the `toEnvelope` hook (values are
+ * decoded via the chain codecs by then). @internal
+ */
+type ToEnvelopeRequest = TransactionRequestTempo.TransactionRequest &
+  Pick<TransactionRequest, 'feePayer' | 'multisig' | 'signatures'>
+
+/**
  * Shared Tempo chain configuration: RPC converters, transaction hooks
  * (expiring nonces, multisig senders, fee tokens), and signature-envelope
  * verification.
@@ -406,14 +413,14 @@ export const chainConfig = {
       if (!isTempoRequest(request)) return undefined
 
       const { feePayer, multisig, signatures, ...rest } =
-        request as TransactionRequest
+        request as ToEnvelopeRequest
 
       const envelope = TransactionRequestTempo.toEnvelope({
         ...rest,
         ...(typeof feePayer !== 'undefined'
           ? { feePayer: typeof feePayer === 'object' ? true : feePayer }
           : {}),
-      } as never)
+      })
 
       return {
         ...envelope,
@@ -492,11 +499,12 @@ export const chainConfig = {
       if (envelope.type === 'p256' || envelope.type === 'webAuthn') {
         const code = await getCode(client, {
           address,
-          blockHash,
-          blockNumber,
-          blockTag,
-          requireCanonical,
-        } as never)
+          ...(blockHash
+            ? { blockHash, requireCanonical }
+            : typeof blockNumber === 'bigint'
+              ? { blockNumber }
+              : { blockTag }),
+        })
         if (!code || code === delegationCode)
           return SignatureEnvelope.verify(envelope, {
             address,
