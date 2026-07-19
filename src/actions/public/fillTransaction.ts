@@ -227,7 +227,7 @@ export async function fillTransaction<
     const decimals = feeMultiplier.toString().split('.')[1]?.length ?? 0
     const denominator = 10 ** decimals
     const multiplyFee = (base: bigint) =>
-      (base * BigInt(Math.ceil(feeMultiplier * denominator))) /
+      (base * BigInt(Math.round(feeMultiplier * denominator))) /
       BigInt(denominator)
 
     // Apply fee multiplier.
