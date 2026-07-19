@@ -53,6 +53,33 @@ describe('from', () => {
       sourceId: tempoModerato.id,
       supportsTransactionReplacementDetection: false,
     })
+    expect(zoneModerato(7)).toMatchObject({
+      id: ZoneId.toChainId(7),
+      name: 'Zone B',
+      rpcUrls: { http: 'https://rpc-zone-b.testnet.tempo.xyz' },
+      sourceId: tempoModerato.id,
+      supportsTransactionReplacementDetection: false,
+    })
+  })
+
+  test('does not apply testnet overrides on mainnet', () => {
+    expect(zone(6)).toMatchObject({
+      id: ZoneId.toChainId(6),
+      name: 'Tempo Zone 006',
+      rpcUrls: { http: 'https://rpc-zone-006.tempo.xyz' },
+      sourceId: tempo.id,
+      supportsTransactionReplacementDetection: false,
+    })
+  })
+
+  test('does not apply testnet overrides on custom factories', () => {
+    expect(from({ rpcHost: 'example.com', sourceId: 1 })(6)).toMatchObject({
+      id: ZoneId.toChainId(6),
+      name: 'Tempo Zone 006',
+      rpcUrls: { http: 'https://rpc-zone-006.example.com' },
+      sourceId: 1,
+      supportsTransactionReplacementDetection: false,
+    })
   })
 
   test('builds default zone metadata', () => {

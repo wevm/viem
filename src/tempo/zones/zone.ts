@@ -27,22 +27,6 @@ export function getPortalAddress(
   return address
 }
 
-type Override = {
-  name: string
-  rpcUrl: string
-}
-
-const overrides = {
-  6: {
-    name: 'Zone A',
-    rpcUrl: 'https://rpc-zone-a.testnet.tempo.xyz',
-  },
-  7: {
-    name: 'Zone B',
-    rpcUrl: 'https://rpc-zone-b.testnet.tempo.xyz',
-  },
-} as const satisfies Record<number, Override>
-
 /** Zone chain factory for Tempo mainnet. */
 export const zone = /*#__PURE__*/ from({
   sourceId: tempo.id,
@@ -53,6 +37,16 @@ export const zone = /*#__PURE__*/ from({
 export const zoneModerato = /*#__PURE__*/ from({
   sourceId: tempoModerato.id,
   rpcHost: 'tempoxyz.dev',
+  overrides: {
+    6: {
+      name: 'Zone A',
+      rpcUrl: 'https://rpc-zone-a.testnet.tempo.xyz',
+    },
+    7: {
+      name: 'Zone B',
+      rpcUrl: 'https://rpc-zone-b.testnet.tempo.xyz',
+    },
+  },
 })
 
 /** Creates a zone chain factory for a given Tempo network. */
@@ -61,7 +55,7 @@ export function from(options: from.Options) {
     const chainId = ZoneId.toChainId(id)
     const paddedId = String(id).padStart(3, '0')
 
-    const override = (overrides as Record<number, Override>)[id]
+    const override = options.overrides?.[id]
 
     return Chain.from({
       ...chainConfig,
@@ -84,6 +78,8 @@ export function from(options: from.Options) {
 
 export declare namespace from {
   type Options = {
+    /** Zone name and RPC URL overrides, keyed by zone ID. */
+    overrides?: Record<number, { name: string; rpcUrl: string }> | undefined
     /** RPC hostname used to construct zone RPC URLs (e.g. `tempo.xyz`). */
     rpcHost: string
     /** Chain ID of the parent Tempo chain (e.g. `4217` for mainnet, `42431` for moderato). */
