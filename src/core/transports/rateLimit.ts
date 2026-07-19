@@ -8,6 +8,17 @@ export type RateLimit = Transport.Transport<'rateLimit'>
  * Creates a {@link Transport} that throttles the throughput of `transport` to
  * at most `requestsPerSecond` requests per second. Requests beyond the budget
  * are queued (FIFO) and dispatched as the budget refreshes.
+ *
+ * @example
+ * ```ts
+ * import { Client, http, rateLimit } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ *
+ * const client = Client.create({
+ *   chain: mainnet,
+ *   transport: rateLimit(http(), { requestsPerSecond: 50 }),
+ * })
+ * ```
  */
 export function rateLimit(
   transport: Transport.Transport,

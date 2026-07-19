@@ -16,7 +16,21 @@ export type WebSocket = Transport.Transport<
   }
 >
 
-/** Creates a WebSocket JSON-RPC transport. */
+/**
+ * Creates a WebSocket JSON-RPC transport with automatic reconnection. When no
+ * `url` is provided, falls back to the chain's default WebSocket RPC URL.
+ *
+ * @example
+ * ```ts
+ * import { Client, webSocket } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ *
+ * const client = Client.create({
+ *   chain: mainnet,
+ *   transport: webSocket('wss://eth.merkle.io/ws'),
+ * })
+ * ```
+ */
 export function webSocket(
   url?: string | undefined,
   options: webSocket.Options = {},

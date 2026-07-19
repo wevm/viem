@@ -66,6 +66,20 @@ export type Fallback = Transport.Transport<
  * through to the next when one errors -- unless `shouldThrow` says the error is
  * terminal (e.g. a user rejection). When `rank` is enabled, transports are
  * periodically re-ordered by latency and stability.
+ *
+ * @example
+ * ```ts
+ * import { Client, fallback, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ *
+ * const client = Client.create({
+ *   chain: mainnet,
+ *   transport: fallback([
+ *     http('https://1.rpc.example'),
+ *     http('https://2.rpc.example'),
+ *   ]),
+ * })
+ * ```
  */
 export function fallback(
   transports: readonly Transport.Transport[],

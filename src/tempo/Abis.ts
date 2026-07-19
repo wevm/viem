@@ -1,6 +1,7 @@
 // Generated with `pnpm gen:tempo-abis`. Do not modify manually.
 // Source: `tempo-contracts@1.10.1` at `3e95ed3d80be0fad2973f1abd2fb403d6c33011a`.
 
+/** ABI of the account keychain precompile. */
 export const accountKeychain = [
   {
     name: 'authorizeKey',
@@ -372,6 +373,7 @@ export const accountKeychain = [
   },
 ] as const
 
+/** ABI of the address registry precompile. */
 export const addressRegistry = [
   {
     name: 'registerVirtualMaster',
@@ -444,6 +446,7 @@ export const addressRegistry = [
   { name: 'VirtualAddressUnregistered', type: 'error', inputs: [] },
 ] as const
 
+/** ABI of the nonce manager precompile. */
 export const nonce = [
   {
     name: 'getNonce',
@@ -472,6 +475,7 @@ export const nonce = [
   { name: 'InvalidExpiringNonceExpiry', type: 'error', inputs: [] },
 ] as const
 
+/** ABI of the receive-policy guard precompile. */
 export const receivePolicyGuard = [
   {
     name: 'balanceOf',
@@ -548,6 +552,7 @@ export const receivePolicyGuard = [
   { name: 'AddressReserved', type: 'error', inputs: [] },
 ] as const
 
+/** ABI of the signature verifier precompile. */
 export const signatureVerifier = [
   {
     name: 'recover',
@@ -596,6 +601,7 @@ export const signatureVerifier = [
   { name: 'InvalidSignature', type: 'error', inputs: [] },
 ] as const
 
+/** ABI of the stablecoin DEX precompile. */
 export const stablecoinDex = [
   {
     name: 'createPair',
@@ -939,6 +945,7 @@ export const stablecoinDex = [
   { name: 'OrderNotStale', type: 'error', inputs: [] },
 ] as const
 
+/** ABI of the storage credits precompile. */
 export const storageCredits = [
   {
     name: 'balanceOf',
@@ -979,6 +986,7 @@ export const storageCredits = [
   { name: 'OnlyDirectCall', type: 'error', inputs: [] },
 ] as const
 
+/** ABI of the fee manager precompile. */
 export const feeManager = [
   {
     name: 'userTokens',
@@ -1058,6 +1066,7 @@ export const feeManager = [
   { name: 'CannotChangeWithinBlock', type: 'error', inputs: [] },
 ] as const
 
+/** ABI of the fee AMM precompile. */
 export const feeAmm = [
   {
     name: 'M',
@@ -1231,6 +1240,7 @@ export const feeAmm = [
   { name: 'InvalidSwapCalculation', type: 'error', inputs: [] },
 ] as const
 
+/** ABI of the TIP-20 channel reserve precompile. */
 export const tip20ChannelReserve = [
   {
     name: 'CLOSE_GRACE_PERIOD',
@@ -1574,6 +1584,7 @@ export const tip20ChannelReserve = [
   { name: 'DepositOverflow', type: 'error', inputs: [] },
 ] as const
 
+/** ABI of the TIP-20 token factory precompile. */
 export const tip20Factory = [
   {
     name: 'createToken',
@@ -1644,6 +1655,7 @@ export const tip20Factory = [
   },
 ] as const
 
+/** ABI of the TIP-20 token interface. */
 export const tip20 = [
   {
     name: 'name',
@@ -2226,6 +2238,7 @@ export const tip20 = [
   { name: 'Unauthorized', type: 'error', inputs: [] },
 ] as const
 
+/** ABI of the TIP-403 registry precompile. */
 export const tip403Registry = [
   {
     name: 'policyIdCounter',
@@ -2474,6 +2487,7 @@ export const tip403Registry = [
   { name: 'InvalidRecoveryAuthority', type: 'error', inputs: [] },
 ] as const
 
+/** ABI of the validator config v2 precompile. */
 export const validatorConfigV2 = [
   {
     name: 'getActiveValidators',
@@ -2828,6 +2842,7 @@ export const validatorConfigV2 = [
   { name: 'ValidatorNotFound', type: 'error', inputs: [] },
 ] as const
 
+/** ABI of the validator config precompile. */
 export const validatorConfig = [
   {
     name: 'getValidators',
@@ -2979,6 +2994,7 @@ export const validatorConfig = [
   },
 ] as const
 
+/** All Tempo precompile ABIs, concatenated. */
 export const abis = /*#__PURE__*/ (() =>
   [
     ...accountKeychain,

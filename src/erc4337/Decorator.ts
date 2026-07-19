@@ -15,12 +15,38 @@ export type Decorator<
 > = {
   /** EntryPoint actions. */
   entryPoint: {
-    /** Returns the EntryPoints supported by the Bundler. */
+    /**
+     * Returns the EntryPoints supported by the Bundler.
+     *
+     * @example
+     * ```ts
+     * import { BundlerClient, http } from 'viem/erc4337'
+     *
+     * const client = BundlerClient.create({
+     *   transport: http('https://bundler.example'),
+     * })
+     * const entryPoints = await client.entryPoint.getSupported()
+     * ```
+     */
     getSupported: () => Promise<entryPoint.getSupported.ReturnType>
   }
   /** User Operation actions. */
   userOperation: {
-    /** Estimates the gas required for a User Operation. */
+    /**
+     * Estimates the gas required to execute a User Operation.
+     *
+     * @example
+     * ```ts
+     * import { BundlerClient, http } from 'viem/erc4337'
+     *
+     * const client = BundlerClient.create({
+     *   transport: http('https://bundler.example'),
+     * })
+     * const gas = await client.userOperation.estimateGas({
+     *   calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+     * })
+     * ```
+     */
     estimateGas: <
       const calls extends readonly unknown[],
       accountOverride extends SmartAccount.SmartAccount | undefined = undefined,
@@ -31,17 +57,60 @@ export type Decorator<
         calls
       >,
     ) => Promise<userOperation.estimateGas.ReturnType<account, accountOverride>>
-    /** Returns a User Operation by hash. */
+    /**
+     * Returns a User Operation and its inclusion information for a given hash.
+     *
+     * @example
+     * ```ts
+     * import { BundlerClient, http } from 'viem/erc4337'
+     *
+     * const client = BundlerClient.create({
+     *   transport: http('https://bundler.example'),
+     * })
+     * const userOperation = await client.userOperation.get({
+     *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+     * })
+     * ```
+     */
     get: (
       options: userOperation.get.Options,
     ) => Promise<userOperation.get.ReturnType<EntryPointVersion<account>>>
-    /** Returns a User Operation receipt by hash. */
+    /**
+     * Returns a User Operation receipt for a given hash.
+     *
+     * @example
+     * ```ts
+     * import { BundlerClient, http } from 'viem/erc4337'
+     *
+     * const client = BundlerClient.create({
+     *   transport: http('https://bundler.example'),
+     * })
+     * const receipt = await client.userOperation.getReceipt({
+     *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+     * })
+     * ```
+     */
     getReceipt: (
       options: userOperation.getReceipt.Options,
     ) => Promise<
       userOperation.getReceipt.ReturnType<EntryPointVersion<account>>
     >
-    /** Prepares a User Operation for estimation or submission. */
+    /**
+     * Prepares a User Operation by filling missing account, factory, fee, gas,
+     * nonce, paymaster, signature, and authorization fields.
+     *
+     * @example
+     * ```ts
+     * import { BundlerClient, http } from 'viem/erc4337'
+     *
+     * const client = BundlerClient.create({
+     *   transport: http('https://bundler.example'),
+     * })
+     * const userOperation = await client.userOperation.prepare({
+     *   calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+     * })
+     * ```
+     */
     prepare: <
       const calls extends readonly unknown[],
       accountOverride extends SmartAccount.SmartAccount | undefined = undefined,
@@ -62,14 +131,43 @@ export type Decorator<
     ) => Promise<
       userOperation.prepare.ReturnType<account, accountOverride, calls, options>
     >
-    /** Signs and broadcasts a User Operation. */
+    /**
+     * Signs and broadcasts a User Operation to a Bundler.
+     *
+     * @example
+     * ```ts
+     * import { BundlerClient, http } from 'viem/erc4337'
+     *
+     * const client = BundlerClient.create({
+     *   transport: http('https://bundler.example'),
+     * })
+     * const hash = await client.userOperation.send({
+     *   calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+     * })
+     * ```
+     */
     send: <
       const calls extends readonly unknown[],
       accountOverride extends SmartAccount.SmartAccount | undefined = undefined,
     >(
       options: userOperation.send.Options<account, accountOverride, calls>,
     ) => Promise<userOperation.send.ReturnType>
-    /** Waits for a User Operation receipt. */
+    /**
+     * Waits for a User Operation to be included on a block, then returns its
+     * receipt.
+     *
+     * @example
+     * ```ts
+     * import { BundlerClient, http } from 'viem/erc4337'
+     *
+     * const client = BundlerClient.create({
+     *   transport: http('https://bundler.example'),
+     * })
+     * const receipt = await client.userOperation.waitForReceipt({
+     *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+     * })
+     * ```
+     */
     waitForReceipt: (
       options: userOperation.waitForReceipt.Options,
     ) => Promise<

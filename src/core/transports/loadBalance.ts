@@ -10,6 +10,20 @@ export type LoadBalance = Transport.Transport<
  * Creates a {@link Transport} that distributes requests across `transports`
  * using a round-robin algorithm: each request is routed to the next transport
  * in the list, wrapping back to the first after the last.
+ *
+ * @example
+ * ```ts
+ * import { Client, http, loadBalance } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ *
+ * const client = Client.create({
+ *   chain: mainnet,
+ *   transport: loadBalance([
+ *     http('https://1.rpc.example'),
+ *     http('https://2.rpc.example'),
+ *   ]),
+ * })
+ * ```
  */
 export function loadBalance(
   transports: readonly Transport.Transport[],

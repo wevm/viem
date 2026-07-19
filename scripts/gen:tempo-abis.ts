@@ -6,6 +6,25 @@ const extensions: Record<string, readonly string[]> = {
   ITIP20: ['IRolesAuth'],
 }
 
+// One-line TSDoc emitted above each generated ABI export.
+const docs: Record<string, string> = {
+  accountKeychain: 'ABI of the account keychain precompile.',
+  addressRegistry: 'ABI of the address registry precompile.',
+  feeAmm: 'ABI of the fee AMM precompile.',
+  feeManager: 'ABI of the fee manager precompile.',
+  nonce: 'ABI of the nonce manager precompile.',
+  receivePolicyGuard: 'ABI of the receive-policy guard precompile.',
+  signatureVerifier: 'ABI of the signature verifier precompile.',
+  stablecoinDex: 'ABI of the stablecoin DEX precompile.',
+  storageCredits: 'ABI of the storage credits precompile.',
+  tip20: 'ABI of the TIP-20 token interface.',
+  tip20ChannelReserve: 'ABI of the TIP-20 channel reserve precompile.',
+  tip20Factory: 'ABI of the TIP-20 token factory precompile.',
+  tip403Registry: 'ABI of the TIP-403 registry precompile.',
+  validatorConfig: 'ABI of the validator config precompile.',
+  validatorConfigV2: 'ABI of the validator config v2 precompile.',
+}
+
 // Fallbacks for interfaces absent from older Tempo releases.
 const extraAbis: Record<string, readonly unknown[]> = {
   storageCredits: [
@@ -281,20 +300,20 @@ for (const [interfaceName, interfaceData] of interfaces.entries()) {
     return item.replace('external bool', 'external returns (bool)')
   })
 
-  output += `export const ${exportName} = ${JSON.stringify(Abi.from(items))} as const\n\n`
+  output += `${getDoc(exportName)}export const ${exportName} = ${JSON.stringify(Abi.from(items))} as const\n\n`
   exportNames.push(exportName)
 }
 
 // Emit interfaces missing from this release.
 for (const [exportName, abi] of Object.entries(extraAbis)) {
   if (exportNames.includes(exportName)) continue
-  output += `export const ${exportName} = ${JSON.stringify(abi)} as const\n\n`
+  output += `${getDoc(exportName)}export const ${exportName} = ${JSON.stringify(abi)} as const\n\n`
   exportNames.push(exportName)
 }
 
 // Generate concatenated `abis` export
 // Pure IIFE keeps the aggregate tree-shakable for consumers not using it.
-output += `export const abis = /*#__PURE__*/ (() =>\n  [\n${exportNames.map((n) => `    ...${n},`).join('\n')}\n  ] as const)()\n`
+output += `/** All Tempo precompile ABIs, concatenated. */\nexport const abis = /*#__PURE__*/ (() =>\n  [\n${exportNames.map((n) => `    ...${n},`).join('\n')}\n  ] as const)()\n`
 
 writeAtomic(out, output)
 
@@ -372,6 +391,11 @@ async function getPrecompileSources(ref: string) {
     content: content.join('\n\n'),
     files: files.map(({ name }) => name),
   }
+}
+
+function getDoc(exportName: string) {
+  const doc = docs[exportName]
+  return doc ? `/** ${doc} */\n` : ''
 }
 
 function compareVersions(a: string, b: string) {

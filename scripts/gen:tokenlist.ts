@@ -302,14 +302,31 @@ async function writeTokenDefinitions(tokenDefinitions: TokenDefinition[]) {
 
 async function writeTokensIndex(tokenDefinitions: TokenDefinition[]) {
   const definitionExports = getDefinitionExports(tokenDefinitions)
+  const symbolByName = new Map(
+    tokenDefinitions.map((token) => [token.importName, token.symbol]),
+  )
+
+  const exports = definitionExports.map((name) => {
+    const symbol = symbolByName.get(name) ?? readTokenSymbol(name)
+    const doc = symbol ? `/** ${symbol} token definition. */\n` : ''
+    return `${doc}export { ${name} } from './definitions/${name}.js'`
+  })
 
   await Bun.write(
     tokensIndexFile,
     `// biome-ignore lint/performance/noBarrelFile: entrypoint module
-${definitionExports.map((name) => `export { ${name} } from './definitions/${name}.js'`).join('\n')}
+${exports.join('\n')}
+/** Curated token sets (\`all\`, \`popular\`, \`tempo\`) for a Client's \`tokens\` property. */
 export { tokens } from './sets.js'
 `,
   )
+}
+
+/** Reads the symbol from an existing definition file not in this sync. */
+function readTokenSymbol(name: string) {
+  const file = new URL(`${name}.ts`, definitionsDir)
+  if (!existsSync(file)) return undefined
+  return readFileSync(file, 'utf8').match(/^\s*symbol: '([^']*)'/m)?.[1]
 }
 
 async function writeTokenSets(tokenDefinitions: TokenDefinition[]) {

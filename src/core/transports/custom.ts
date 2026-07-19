@@ -8,6 +8,17 @@ export type Custom = Transport.Transport<'custom'>
 /**
  * Creates a {@link Transport} from an EIP-1193-compatible `provider`. Provider
  * errors are normalized via ox `Provider.from`.
+ *
+ * @example
+ * ```ts
+ * import { Client, custom } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ *
+ * const client = Client.create({
+ *   chain: mainnet,
+ *   transport: custom(window.ethereum!),
+ * })
+ * ```
  */
 export function custom<
   provider extends { request(...args: any): Promise<any> },

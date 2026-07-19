@@ -24,7 +24,22 @@ export type Ipc = Transport.Transport<
   }
 >
 
-/** Creates an IPC JSON-RPC transport (Node only). */
+/**
+ * Creates an IPC JSON-RPC transport (Node only) connected to the socket at
+ * `path`.
+ *
+ * @example
+ * ```ts
+ * import { Client } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ * import { ipc } from 'viem/node'
+ *
+ * const client = Client.create({
+ *   chain: mainnet,
+ *   transport: ipc('/tmp/geth.ipc'),
+ * })
+ * ```
+ */
 export function ipc(path: string, options: ipc.Options = {}): Ipc {
   return Transport.from({
     key: options.key ?? 'ipc',

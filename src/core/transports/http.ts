@@ -7,7 +7,21 @@ import * as Transport from '../Transport.js'
 /** An HTTP JSON-RPC {@link Transport}. */
 export type Http = Transport.Transport<'http', { url: string }>
 
-/** Creates an HTTP JSON-RPC transport. */
+/**
+ * Creates an HTTP JSON-RPC transport. When no `url` is provided, falls back
+ * to the chain's default HTTP RPC URL.
+ *
+ * @example
+ * ```ts
+ * import { Client, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ *
+ * const client = Client.create({
+ *   chain: mainnet,
+ *   transport: http('https://eth.merkle.io'),
+ * })
+ * ```
+ */
 export function http(
   url?: string | undefined,
   options: http.Options = {},
