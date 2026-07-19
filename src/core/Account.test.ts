@@ -322,7 +322,7 @@ describe('fromHdKey', () => {
       test(`addressIndex: ${index}`, () => {
         const account = Account.fromHdKey(hdKey, { addressIndex: index })
         expect(account.address.toLowerCase()).toEqual(
-          constants.accounts[index].address,
+          constants.accounts[index]!.address,
         )
       })
     })
@@ -371,7 +371,7 @@ describe('fromMnemonic', () => {
       test(`addressIndex: ${index}`, () => {
         const account = Account.fromMnemonic(mnemonic, { addressIndex: index })
         expect(account.address.toLowerCase()).toEqual(
-          constants.accounts[index].address,
+          constants.accounts[index]!.address,
         )
       })
     })

@@ -123,9 +123,9 @@ function decodeFrame(
   buffer: Buffer,
 ): { opcode: number; payload: Buffer; rest: Buffer } | null {
   if (buffer.length < 2) return null
-  const opcode = buffer[0] & 0x0f
-  const masked = (buffer[1] & 0x80) !== 0
-  let length = buffer[1] & 0x7f
+  const opcode = buffer[0]! & 0x0f
+  const masked = (buffer[1]! & 0x80) !== 0
+  let length = buffer[1]! & 0x7f
   let offset = 2
   if (length === 126) {
     if (buffer.length < 4) return null
@@ -146,7 +146,7 @@ function decodeFrame(
   let payload = buffer.subarray(offset, offset + length)
   if (mask) {
     const out = Buffer.alloc(length)
-    for (let i = 0; i < length; i++) out[i] = payload[i] ^ mask[i % 4]
+    for (let i = 0; i < length; i++) out[i] = payload[i]! ^ mask[i % 4]!
     payload = out
   }
   return { opcode, payload, rest: buffer.subarray(offset + length) }

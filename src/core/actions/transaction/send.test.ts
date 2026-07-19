@@ -488,7 +488,7 @@ describe('behavior: nonceManager', () => {
     const [a, b] = await Promise.all(
       hashes.map((hash) => Actions.transaction.get(client, { hash })),
     )
-    expect(b.nonce).toBe(a.nonce + 1n)
+    expect(b!.nonce).toBe(a!.nonce + 1n)
   })
 
   test('resets the nonce when the send fails', async () => {
@@ -532,7 +532,7 @@ describe('behavior: nonceManager', () => {
     const [a, b] = await Promise.all(
       hashes.map((hash) => Actions.transaction.get(client, { hash })),
     )
-    expect(b.nonce).toBe(a.nonce + 1n)
+    expect(b!.nonce).toBe(a!.nonce + 1n)
   })
 })
 

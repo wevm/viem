@@ -13,7 +13,7 @@ test('default: returns transaction hashes', async () => {
 test('includeTransactions: returns transaction objects', async () => {
   const block = await Actions.block.get(client, { includeTransactions: true })
   expectTypeOf(block.transactions).not.toEqualTypeOf<readonly Hex.Hex[]>()
-  expectTypeOf(block.transactions[0].hash).toEqualTypeOf<Hex.Hex>()
+  expectTypeOf(block.transactions[0]!.hash).toEqualTypeOf<Hex.Hex>()
 })
 
 test('chain codecs: returns the block converter output', async () => {

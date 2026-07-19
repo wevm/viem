@@ -26,7 +26,7 @@ describe('block.simulate', () => {
       blocks: [{ calls }],
     })
 
-    const call = block!.calls[0]
+    const call = block!.calls[0]!
     const { data: _data, gasUsed: _gasUsed, logs, ...result } = call
 
     expect({

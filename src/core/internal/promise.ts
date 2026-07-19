@@ -85,16 +85,11 @@ export function createBatchScheduler<
     fn(args as parameters[])
       .then((data) => {
         if (sort && Array.isArray(data)) data.sort(sort)
-        for (let i = 0; i < scheduler.length; i++) {
-          const { resolve } = scheduler[i]
-          resolve?.([data[i], data])
-        }
+        for (let i = 0; i < scheduler.length; i++)
+          scheduler[i]?.resolve([data[i], data])
       })
       .catch((err) => {
-        for (let i = 0; i < scheduler.length; i++) {
-          const { reject } = scheduler[i]
-          reject?.(err)
-        }
+        for (let i = 0; i < scheduler.length; i++) scheduler[i]?.reject(err)
       })
   }
 

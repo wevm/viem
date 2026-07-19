@@ -115,7 +115,8 @@ export function fallback<
         const { method, params } = args
         let includes: boolean | undefined
         const attempt = async (index = 0): Promise<unknown> => {
-          const transport = ranked[index]
+          // Recursion below stays within `ranked` bounds.
+          const transport = ranked[index]!
           try {
             const response = await transport.request(args, opts)
             onResponse({

@@ -17,8 +17,7 @@
     "noUnusedLocals": true, // Not enabled by default in `strict` mode.
     "noUnusedParameters": true, // Not enabled by default in `strict` mode.
     "exactOptionalPropertyTypes": true,
-    // TODO: Uncomment and fix types.
-    // "noUncheckedIndexedAccess": true,
+    "noUncheckedIndexedAccess": true,
 
     // JavaScript support
     "allowJs": false,

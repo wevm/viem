@@ -368,7 +368,7 @@ describe('webSocket', () => {
           keepAlive: false,
         })
         await client.request({ body: { method: 'eth_chainId' } })
-        expect(JSON.parse(server.connections[0].messages[0])).toEqual({
+        expect(JSON.parse(server.connections[0]!.messages[0]!)).toEqual({
           jsonrpc: '2.0',
           id: 0,
           method: 'eth_chainId',
@@ -423,7 +423,7 @@ describe('webSocket', () => {
           params: ['newHeads'],
         })
         await sub.unsubscribe()
-        const ids = server.connections[0].messages.map((m) => JSON.parse(m).id)
+        const ids = server.connections[0]!.messages.map((m) => JSON.parse(m).id)
         expect(ids).toEqual([0, 1, 2])
         client.close()
       } finally {
@@ -631,7 +631,7 @@ describe('webSocket', () => {
         await wait(20)
         const responses = await client.request({ body: [] })
         expect(responses).toEqual([])
-        expect(server.connections[0].messages.length).toBe(0)
+        expect(server.connections[0]!.messages.length).toBe(0)
         client.close()
       } finally {
         await server.close()
@@ -656,7 +656,7 @@ describe('webSocket', () => {
         await client.request({
           body: [{ method: 'eth_chainId' }, { method: 'eth_blockNumber' }],
         })
-        const ids = server.connections[0].messages.map((m) => JSON.parse(m).id)
+        const ids = server.connections[0]!.messages.map((m) => JSON.parse(m).id)
         expect(ids).toEqual([0, 1])
         client.close()
       } finally {
@@ -790,7 +790,7 @@ describe('webSocket', () => {
         })
         subB.onData((d) => b.push(d))
         const notify = (subscription: string, result: unknown) =>
-          server.connections[0].send(
+          server.connections[0]!.send(
             JSON.stringify({
               jsonrpc: '2.0',
               method: 'eth_subscription',
@@ -829,7 +829,7 @@ describe('webSocket', () => {
           params: ['newHeads'],
         })
         sub.onData((d) => data.push(d))
-        server.connections[0].send(
+        server.connections[0]!.send(
           JSON.stringify({
             jsonrpc: '2.0',
             method: 'eth_subscription',
@@ -1008,7 +1008,7 @@ describe('webSocket', () => {
         expect(client.subscriptions.has('0xsub')).toBe(false)
         const response = await unsubscribed
         expect(response.result).toBe(true)
-        server.connections[0].send(
+        server.connections[0]!.send(
           JSON.stringify({
             jsonrpc: '2.0',
             method: 'eth_subscription',
@@ -1097,7 +1097,7 @@ describe('webSocket', () => {
           keepAlive: { interval: 20 },
         })
         await wait(60)
-        const ping = server.connections[0].messages
+        const ping = server.connections[0]!.messages
           .map((m) => JSON.parse(m))
           .find((m) => m.method === 'net_version')
         expect(ping).toEqual({

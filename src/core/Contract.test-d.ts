@@ -263,11 +263,11 @@ test('keeps all groups for a widened ABI', () => {
     client: accountClient,
   })
 
-  expectTypeOf(contract.read.anything).toBeFunction()
-  expectTypeOf(contract.estimateGas.anything).toBeFunction()
-  expectTypeOf(contract.simulate.anything).toBeFunction()
-  expectTypeOf(contract.write.anything).toBeFunction()
-  expectTypeOf(contract.createEventFilter.Anything).toBeFunction()
-  expectTypeOf(contract.getLogs.Anything).toBeFunction()
-  expectTypeOf(contract.watchEvent.Anything).toBeFunction()
+  expectTypeOf(contract.read.anything!).toBeFunction()
+  expectTypeOf(contract.estimateGas.anything!).toBeFunction()
+  expectTypeOf(contract.simulate.anything!).toBeFunction()
+  expectTypeOf(contract.write.anything!).toBeFunction()
+  expectTypeOf(contract.createEventFilter.Anything!).toBeFunction()
+  expectTypeOf(contract.getLogs.Anything!).toBeFunction()
+  expectTypeOf(contract.watchEvent.Anything!).toBeFunction()
 })

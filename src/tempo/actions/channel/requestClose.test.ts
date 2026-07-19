@@ -54,7 +54,7 @@ describe('requestClose', () => {
       ],
     })
 
-    const [call] = block.calls
+    const [call] = block!.calls
     expect(call).toMatchObject({
       result: null,
       status: 'success',
