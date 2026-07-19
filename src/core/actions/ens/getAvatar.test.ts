@@ -58,8 +58,12 @@ describe('parseAvatarRecord', () => {
   test('http record', async () => {
     const server = await createAssetServer()
 
+    // Trusts the local server origin; bare localhost URLs are rejected.
     await expect(
-      parseAvatarRecord(local, { record: `${server.url}/image.png` }),
+      parseAvatarRecord(local, {
+        gatewayUrls: { ipfs: server.url },
+        record: `${server.url}/image.png`,
+      }),
     ).resolves.toBe(`${server.url}/image.png`)
 
     await server.close()
@@ -98,6 +102,12 @@ describe('parseAvatarRecord', () => {
     `)
   })
 
+  test('behavior: blocked record host', async () => {
+    await expect(
+      parseAvatarRecord(local, { record: 'https://127.0.0.1/image.png' }),
+    ).rejects.toThrowError('Unable to resolve ENS avatar URI')
+  })
+
   describe('nft records', () => {
     async function deployExample(server: { url: string }) {
       const encodedJson = Buffer.from(
@@ -124,6 +134,7 @@ describe('parseAvatarRecord', () => {
 
       await expect(
         parseAvatarRecord(local, {
+          gatewayUrls: { ipfs: server.url },
           record: `eip155:1/erc721:${address}/69`,
         }),
       ).resolves.toBe(`${server.url}/image.png`)
@@ -137,6 +148,7 @@ describe('parseAvatarRecord', () => {
 
       await expect(
         parseAvatarRecord(local, {
+          gatewayUrls: { ipfs: server.url },
           record: `eip155:1/erc721:${address}/100`,
         }),
       ).resolves.toBe(`${server.url}/image.png`)
@@ -150,6 +162,7 @@ describe('parseAvatarRecord', () => {
 
       await expect(
         parseAvatarRecord(local, {
+          gatewayUrls: { ipfs: server.url },
           record: `eip155:1/erc721:${address}/108`,
         }),
       ).resolves.toBe(`${server.url}/image.png`)
@@ -163,6 +176,7 @@ describe('parseAvatarRecord', () => {
 
       await expect(
         parseAvatarRecord(local, {
+          gatewayUrls: { ipfs: server.url },
           record: `eip155:1/erc1155:${address}/10063`,
         }),
       ).resolves.toBe(`${server.url}/image.png`)

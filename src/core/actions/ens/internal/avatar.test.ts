@@ -269,11 +269,33 @@ describe('getMetadataAvatarUri', () => {
       res.end(JSON.stringify({ image: `${server.url}/image.png` }))
     })
 
-    await expect(getMetadataAvatarUri({ uri: server.url })).resolves.toBe(
-      `${server.url}/image.png`,
-    )
+    // Trusts the local server origin; bare localhost URLs are rejected.
+    await expect(
+      getMetadataAvatarUri({
+        gatewayUrls: { ipfs: server.url },
+        uri: server.url,
+      }),
+    ).resolves.toBe(`${server.url}/image.png`)
 
     await server.close()
+  })
+
+  test.each([
+    ['file', 'file:///etc/passwd'],
+    ['data', 'data:application/json,{}'],
+    ['malformed', 'not a url'],
+    ['credentialed', 'https://user:password@example.com/1.json'],
+    ['IPv4', 'https://127.0.0.1/1.json'],
+    ['IPv4 integer', 'https://2130706433/1.json'],
+    ['IPv6', 'https://[::1]/1.json'],
+    ['localhost', 'https://localhost/1.json'],
+    ['localhost subdomain', 'https://gateway.localhost/1.json'],
+    ['internal hostname', 'https://gateway.internal/1.json'],
+    ['non-default port', 'https://example.com:8443/1.json'],
+  ])('error: rejects %s uri', async (_name, uri) => {
+    await expect(getMetadataAvatarUri({ uri })).rejects.toThrowError(
+      'Unable to resolve ENS avatar URI',
+    )
   })
 
   test('error: invalid uri', async () => {
@@ -283,7 +305,51 @@ describe('getMetadataAvatarUri', () => {
     })
 
     await expect(
-      getMetadataAvatarUri({ uri: server.url }),
+      getMetadataAvatarUri({
+        gatewayUrls: { ipfs: server.url },
+        uri: server.url,
+      }),
+    ).rejects.toThrowError('Unable to resolve ENS avatar URI')
+
+    await server.close()
+  })
+
+  test('error: oversized metadata response', async () => {
+    const server = await createServer((req, res) => {
+      if (req.url!.includes('image.png')) {
+        res.writeHead(200, { 'Content-Type': 'image/png' })
+        res.end()
+        return
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          image: `${server.url}/image.png`,
+          pad: 'a'.repeat(11 * 1024 * 1024),
+        }),
+      )
+    })
+
+    await expect(
+      getMetadataAvatarUri({
+        gatewayUrls: { ipfs: server.url },
+        uri: server.url,
+      }),
+    ).rejects.toThrowError('Unable to resolve ENS avatar URI')
+
+    await server.close()
+  })
+
+  test('error: unresponsive metadata host', async () => {
+    const server = await createServer(() => {
+      // Stall until the 10s fetch timeout aborts the request.
+    })
+
+    await expect(
+      getMetadataAvatarUri({
+        gatewayUrls: { ipfs: server.url },
+        uri: server.url,
+      }),
     ).rejects.toThrowError('Unable to resolve ENS avatar URI')
 
     await server.close()
@@ -303,9 +369,26 @@ describe('parseAvatarUri', () => {
       res.end()
     })
 
-    await expect(parseAvatarUri({ uri: server.url })).resolves.toBe(server.url)
+    // Trusts the local server origin; bare localhost URLs are rejected.
+    await expect(
+      parseAvatarUri({ gatewayUrls: { ipfs: server.url }, uri: server.url }),
+    ).resolves.toBe(server.url)
 
     await server.close()
+  })
+
+  test.each([
+    ['credentialed', 'https://user:password@example.com/image.png'],
+    ['IPv4', 'https://127.0.0.1/image.png'],
+    ['IPv6', 'https://[::1]/image.png'],
+    ['localhost', 'https://localhost/image.png'],
+    ['localhost subdomain', 'https://gateway.localhost/image.png'],
+    ['internal hostname', 'https://gateway.internal/image.png'],
+    ['non-default port', 'https://example.com:8443/image.png'],
+  ])('error: rejects %s uri', async (_name, uri) => {
+    await expect(parseAvatarUri({ uri })).rejects.toThrowError(
+      'Unable to resolve ENS avatar URI',
+    )
   })
 
   test('error: invalid uri', async () => {
@@ -314,9 +397,9 @@ describe('parseAvatarUri', () => {
       res.end(JSON.stringify({ image: 'test' }))
     })
 
-    await expect(parseAvatarUri({ uri: server.url })).rejects.toThrowError(
-      'Unable to resolve ENS avatar URI',
-    )
+    await expect(
+      parseAvatarUri({ gatewayUrls: { ipfs: server.url }, uri: server.url }),
+    ).rejects.toThrowError('Unable to resolve ENS avatar URI')
 
     await server.close()
   })
@@ -327,9 +410,9 @@ describe('parseAvatarUri', () => {
       res.end()
     })
 
-    await expect(parseAvatarUri({ uri: server.url })).rejects.toThrowError(
-      'Unable to resolve ENS avatar URI',
-    )
+    await expect(
+      parseAvatarUri({ gatewayUrls: { ipfs: server.url }, uri: server.url }),
+    ).rejects.toThrowError('Unable to resolve ENS avatar URI')
 
     await server.close()
   })
@@ -339,9 +422,9 @@ describe('parseAvatarUri', () => {
       req.destroy()
     })
 
-    await expect(parseAvatarUri({ uri: server.url })).rejects.toThrowError(
-      'Unable to resolve ENS avatar URI',
-    )
+    await expect(
+      parseAvatarUri({ gatewayUrls: { ipfs: server.url }, uri: server.url }),
+    ).rejects.toThrowError('Unable to resolve ENS avatar URI')
 
     await server.close()
   })

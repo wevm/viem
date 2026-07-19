@@ -25,6 +25,9 @@ const ipfsHashRegex =
 const base64Regex = /^data:([a-zA-Z\-/+]*);base64,([^"].*)/
 const dataURIRegex = /^data:([a-zA-Z\-/+]*)?(;[a-zA-Z0-9].*?)?(,)/
 
+const fetchTimeout = 10_000
+const maxMetadataSize = 10_485_760
+
 const erc721TokenUriAbi = /*#__PURE__*/ Abi.from([
   'function tokenURI(uint256 tokenId) view returns (string)',
 ])
@@ -157,7 +160,7 @@ export async function parseAvatarUri(options: {
   const { uri: resolvedUri, isOnChain } = resolveAvatarUri({ gatewayUrls, uri })
   if (isOnChain) return resolvedUri
 
-  const isImage = await isImageUri(resolvedUri)
+  const isImage = await isImageUri(resolvedUri, gatewayUrls)
   if (isImage) return resolvedUri
 
   throw new EnsAvatarUriResolutionError({ uri })
@@ -186,24 +189,78 @@ export async function getMetadataAvatarUri(options: {
   uri: string
 }): Promise<string> {
   const { gatewayUrls, uri } = options
+  if (!isUriAllowed(uri, gatewayUrls))
+    throw new EnsAvatarUriResolutionError({ uri })
   try {
-    const res = await fetch(uri).then((res) => res.json())
+    const response = await fetch(uri, {
+      credentials: 'omit',
+      redirect: 'follow',
+      referrerPolicy: 'no-referrer',
+      signal: AbortSignal.timeout(fetchTimeout),
+    })
     return await parseAvatarUri({
       gatewayUrls,
-      uri: getJsonImage(res),
+      uri: getJsonImage(await readMetadataJson(response)),
     })
   } catch {
     throw new EnsAvatarUriResolutionError({ uri })
   }
 }
 
-async function isImageUri(uri: string) {
+/** Parses a JSON metadata response, rejecting bodies over `maxMetadataSize`. */
+async function readMetadataJson(response: Response): Promise<unknown> {
+  if (Number(response.headers.get('Content-Length')) > maxMetadataSize) {
+    await response.body?.cancel()
+    throw new Error('Metadata response too large.')
+  }
+  if (!response.body) return JSON.parse(await response.text())
+
+  const reader = response.body.getReader()
+  const decoder = new TextDecoder()
+  let body = ''
+  let size = 0
   try {
-    const res = await fetch(uri, { method: 'HEAD' })
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      size += value.byteLength
+      if (size > maxMetadataSize) {
+        await reader.cancel()
+        throw new Error('Metadata response too large.')
+      }
+      body += decoder.decode(value, { stream: true })
+    }
+  } finally {
+    reader.releaseLock()
+  }
+  return JSON.parse(body + decoder.decode())
+}
+
+async function isImageUri(
+  uri: string,
+  gatewayUrls: AssetGatewayUrls | undefined,
+) {
+  if (!isUriAllowed(uri, gatewayUrls)) return false
+  try {
+    const res = await fetch(uri, {
+      credentials: 'omit',
+      method: 'HEAD',
+      redirect: 'follow',
+      referrerPolicy: 'no-referrer',
+      signal: AbortSignal.timeout(fetchTimeout),
+    })
     if (res.status === 200)
       return res.headers.get('content-type')?.startsWith('image/')
     return false
   } catch (error) {
+    // Timeouts are terminal.
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'name' in error &&
+      error.name === 'TimeoutError'
+    )
+      return false
     // Non-CORS network failures are terminal.
     if (
       typeof error === 'object' &&
@@ -219,6 +276,50 @@ async function isImageUri(uri: string) {
       img.src = uri
     })
   }
+}
+
+/**
+ * Allows http(s) URLs without credentials, IP-literal or local hostnames, or
+ * non-default ports; configured gateway origins are trusted. Redirects are
+ * still followed and can land on hosts this check rejects.
+ */
+function isUriAllowed(
+  uri: string,
+  gatewayUrls: AssetGatewayUrls | undefined,
+): boolean {
+  const url = (() => {
+    try {
+      return new URL(uri)
+    } catch {
+      return undefined
+    }
+  })()
+  if (!url) return false
+  if (url.username || url.password) return false
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return false
+  if (isTrustedGatewayOrigin(url, gatewayUrls)) return true
+  if (url.port !== '') return false
+  const hostname = url.hostname.toLowerCase().replace(/\.$/u, '')
+  if (hostname.startsWith('[') || /^\d{1,3}(?:\.\d{1,3}){3}$/u.test(hostname))
+    return false
+  if (!hostname.includes('.')) return false
+  return !['.internal', '.local', '.localdomain', '.localhost'].some(
+    (suffix) => hostname.endsWith(suffix),
+  )
+}
+
+function isTrustedGatewayOrigin(
+  url: URL,
+  gatewayUrls: AssetGatewayUrls | undefined,
+): boolean {
+  return [gatewayUrls?.arweave, gatewayUrls?.ipfs].some((gateway) => {
+    if (!gateway) return false
+    try {
+      return new URL(gateway).origin === url.origin
+    } catch {
+      return false
+    }
+  })
 }
 
 function getGateway(custom: string | undefined, defaultGateway: string) {
