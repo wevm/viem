@@ -183,9 +183,10 @@ export function watch<
             { emitOnBegin: true, interval: pollingInterval },
           )
 
-          return async () => {
-            if (filter) await uninstall(client, { filter })
+          return () => {
             unpoll()
+            // Fire-and-forget: a failed uninstall must not keep the poll alive.
+            if (filter) void uninstall(client, { filter }).catch(() => {})
           }
         },
       )

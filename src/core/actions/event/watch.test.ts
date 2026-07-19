@@ -223,6 +223,65 @@ test('onError: invokes the listener when polling fails', async () => {
   expect(error).toBeInstanceOf(Error)
 })
 
+test('off: stops polling when the filter uninstall fails', async () => {
+  // Serves the filter lifecycle but rejects `eth_uninstallFilter`; the failed
+  // uninstall must not keep the changes poll alive after `off`.
+  let polls = 0
+  const server = await Http.createServer((req, res) => {
+    let body = ''
+    req.on('data', (chunk) => {
+      body += chunk
+    })
+    req.on('end', () => {
+      const request = JSON.parse(body)
+      res.setHeader('Content-Type', 'application/json')
+      if (request.method === 'eth_uninstallFilter') {
+        res.end(
+          JSON.stringify({
+            id: request.id,
+            jsonrpc: '2.0',
+            error: { code: -32000, message: 'filter not found' },
+          }),
+        )
+        return
+      }
+      const result = (() => {
+        if (request.method === 'eth_newFilter') return '0x1'
+        if (request.method === 'eth_getFilterChanges') {
+          polls++
+          return []
+        }
+        return null
+      })()
+      res.end(JSON.stringify({ id: request.id, jsonrpc: '2.0', result }))
+    })
+  })
+  try {
+    const seqClient = Client.create({
+      transport: http(server.url, { retryCount: 0 }),
+      pollingInterval: 50,
+    })
+
+    const watch = Actions.event.watch(seqClient, {
+      address,
+      event: transferEvent,
+    })
+    watch.onLogs(() => {})
+
+    await wait(200)
+    watch.off()
+
+    // Allow the in-flight tick and the failed uninstall to settle, then
+    // verify no further changes polls arrive.
+    await wait(150)
+    const settled = polls
+    await wait(300)
+    expect(polls).toBe(settled)
+  } finally {
+    await server.close()
+  }
+})
+
 test('subscription: emits decoded logs via a websocket', async () => {
   const server = await subscriptionServer([
     makeLog(a, b, 1n, { blockNumber: 1n, logIndex: 0 }),

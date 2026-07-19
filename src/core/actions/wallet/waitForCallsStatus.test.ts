@@ -236,6 +236,94 @@ test('behavior: throwOnFailure = false explicitly with failed bundle', async () 
   `)
 })
 
+test('behavior: concurrent waiters resolve', async () => {
+  let statusCode = 100
+  setTimeout(() => {
+    statusCode = 200
+  }, 300)
+  const client = Client.create({
+    pollingInterval: 50,
+    transport: custom(
+      Provider.from({
+        async request({ params }: any) {
+          return {
+            atomic: false,
+            chainId: '0x1',
+            id: params[0],
+            receipts: [],
+            status: statusCode,
+            version: '2.0.0',
+          }
+        },
+      }),
+    ),
+  })
+  const [a, b] = await Promise.all([
+    waitForCallsStatus(client, { id: 'concurrent-id', timeout: 5_000 }),
+    waitForCallsStatus(client, { id: 'concurrent-id', timeout: 5_000 }),
+  ])
+  expect({ status: a.status, statusCode: a.statusCode })
+    .toMatchInlineSnapshot(`
+    {
+      "status": "success",
+      "statusCode": 200,
+    }
+  `)
+  expect({ status: b.status, statusCode: b.statusCode })
+    .toMatchInlineSnapshot(`
+    {
+      "status": "success",
+      "statusCode": 200,
+    }
+  `)
+})
+
+test('behavior: subsequent waiter for a settled id resolves', async () => {
+  let statusCode = 100
+  setTimeout(() => {
+    statusCode = 200
+  }, 300)
+  const client = Client.create({
+    pollingInterval: 50,
+    transport: custom(
+      Provider.from({
+        async request({ params }: any) {
+          return {
+            atomic: false,
+            chainId: '0x1',
+            id: params[0],
+            receipts: [],
+            status: statusCode,
+            version: '2.0.0',
+          }
+        },
+      }),
+    ),
+  })
+  // Concurrent waiters share one poll; both must fully detach on resolution.
+  await Promise.all([
+    waitForCallsStatus(client, { id: 'subsequent-id', timeout: 10_000 }),
+    waitForCallsStatus(client, { id: 'subsequent-id', timeout: 10_000 }),
+  ])
+  // A fresh waiter for the same id must start its own poll and resolve,
+  // instead of joining stale listeners and hanging until its timeout.
+  const result = await waitForCallsStatus(client, {
+    id: 'subsequent-id',
+    timeout: 2_000,
+  })
+  expect({
+    id: result.id,
+    status: result.status,
+    statusCode: result.statusCode,
+  }).toMatchInlineSnapshot(`
+    {
+      "id": "subsequent-id",
+      "status": "success",
+      "statusCode": 200,
+    }
+  `)
+})
+
 test('behavior: throwOnFailure = true with successful bundle', async () => {
   const client = getClient()
   const { id } = await sendCalls(client, {

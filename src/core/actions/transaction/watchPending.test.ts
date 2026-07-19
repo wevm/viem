@@ -5,6 +5,7 @@ import { Actions, Client, http, webSocket } from 'viem'
 
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
+import * as Http from '~test/http.js'
 import { wait } from '../../internal/wait.js'
 
 const client = Client.create({
@@ -62,6 +63,62 @@ test('off: is idempotent and terminal', async () => {
   await wait(200)
 
   expect(fired).toEqual([])
+})
+
+test('off: stops polling when the filter uninstall fails', async () => {
+  // Serves the filter lifecycle but rejects `eth_uninstallFilter`; the failed
+  // uninstall must not keep the changes poll alive after `off`.
+  let polls = 0
+  const server = await Http.createServer((req, res) => {
+    let body = ''
+    req.on('data', (chunk) => {
+      body += chunk
+    })
+    req.on('end', () => {
+      const request = JSON.parse(body)
+      res.setHeader('Content-Type', 'application/json')
+      if (request.method === 'eth_uninstallFilter') {
+        res.end(
+          JSON.stringify({
+            id: request.id,
+            jsonrpc: '2.0',
+            error: { code: -32000, message: 'filter not found' },
+          }),
+        )
+        return
+      }
+      const result = (() => {
+        if (request.method === 'eth_newPendingTransactionFilter') return '0x1'
+        if (request.method === 'eth_getFilterChanges') {
+          polls++
+          return []
+        }
+        return null
+      })()
+      res.end(JSON.stringify({ id: request.id, jsonrpc: '2.0', result }))
+    })
+  })
+  try {
+    const seqClient = Client.create({
+      transport: http(server.url, { retryCount: 0 }),
+      pollingInterval: 50,
+    })
+
+    const watch = Actions.transaction.watchPending(seqClient)
+    watch.onTransactions(() => {})
+
+    await wait(200)
+    watch.off()
+
+    // Allow the in-flight tick and the failed uninstall to settle, then
+    // verify no further changes polls arrive.
+    await wait(150)
+    const settled = polls
+    await wait(300)
+    expect(polls).toBe(settled)
+  } finally {
+    await server.close()
+  }
 })
 
 test('onError: invokes the listener when polling fails', async () => {

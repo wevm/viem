@@ -49,51 +49,59 @@ export async function waitForCallsStatus(
     withResolvers<waitForCallsStatus.ReturnType>()
 
   let timer: ReturnType<typeof setTimeout> | undefined
+  let unobserve: () => void
 
-  const unobserve = observe(observerId, { resolve, reject }, (emit) => {
-    const unpoll = poll(
-      async ({ unpoll }) => {
-        const done = (fn: () => void) => {
-          clearTimeout(timer)
-          unpoll()
-          fn()
-          unobserve()
-        }
+  // Settles this caller: clears its timer and removes its listener from the
+  // shared observer (stopping the poll once the last caller settles).
+  const done = (fn: () => void) => {
+    clearTimeout(timer)
+    fn()
+    unobserve?.()
+  }
 
-        try {
-          const result = await withRetry(
-            async () => {
-              const result = await getCallsStatus(client, { id })
-              if (throwOnFailure && result.status === 'failure')
-                throw new BundleFailedError(result)
-              return result
-            },
-            {
-              retryCount,
-              delay: retryDelay,
-            },
-          )
-          if (!status(result)) return
-          done(() => emit.resolve(result))
-        } catch (error) {
-          done(() => emit.reject(error))
-        }
-      },
-      {
-        interval: pollingInterval,
-        emitOnBegin: true,
-      },
-    )
-
-    return unpoll
-  })
+  unobserve = observe(
+    observerId,
+    {
+      reject: (error: unknown) => done(() => reject(error)),
+      resolve: (result: waitForCallsStatus.ReturnType) =>
+        done(() => resolve(result)),
+    },
+    (emit) =>
+      poll(
+        async ({ unpoll }) => {
+          try {
+            const result = await withRetry(
+              async () => {
+                const result = await getCallsStatus(client, { id })
+                if (throwOnFailure && result.status === 'failure')
+                  throw new BundleFailedError(result)
+                return result
+              },
+              {
+                retryCount,
+                delay: retryDelay,
+              },
+            )
+            if (!status(result)) return
+            unpoll()
+            emit.resolve(result)
+          } catch (error) {
+            unpoll()
+            emit.reject(error)
+          }
+        },
+        {
+          interval: pollingInterval,
+          emitOnBegin: true,
+        },
+      ),
+  )
 
   timer = timeout
-    ? setTimeout(() => {
-        unobserve()
-        clearTimeout(timer)
-        reject(new WaitForCallsStatusTimeoutError({ id }))
-      }, timeout)
+    ? setTimeout(
+        () => done(() => reject(new WaitForCallsStatusTimeoutError({ id }))),
+        timeout,
+      )
     : undefined
 
   return await promise

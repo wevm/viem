@@ -64,12 +64,23 @@ export function waitForReceipt<chain extends Chain.Chain | undefined>(
     timeout = 180_000,
   } = options
 
-  const observerId = stringify(['waitForReceipt', client.uid, hash])
-
   const pollingInterval =
     options.pollingInterval ??
     client.chain?.preconfirmationTime ??
     client.pollingInterval
+
+  // Waits only share a poll when their behavior options match, so concurrent
+  // waits with e.g. different `confirmations` settle independently.
+  const observerId = stringify([
+    'waitForReceipt',
+    client.uid,
+    checkReplacement,
+    confirmations,
+    hash,
+    pollingInterval,
+    retryCount,
+    retryDelay,
+  ])
 
   type Receipt = waitForReceipt.Receipt<chain>
   type Transaction = getTransaction.ReturnType<chain>

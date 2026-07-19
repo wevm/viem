@@ -256,6 +256,37 @@ test('resolves identical receipts in parallel (observer dedupe)', async () => {
   expect(b).toEqual(c)
 })
 
+test('parallel waits with different confirmations settle independently', async () => {
+  await setup()
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+  await testClient.block.mine({ blocks: 1 })
+
+  // Different behavior options must not share a poll: the three-confirmation
+  // wait must not settle with the single-confirmation wait's semantics.
+  const fast = Actions.transaction.waitForReceipt(client, { hash })
+  const slow = Actions.transaction.waitForReceipt(client, {
+    confirmations: 3,
+    hash,
+  })
+  let slowResolved = false
+  slow.receipt.then(() => {
+    slowResolved = true
+  })
+
+  const receipt = await fast.receipt
+  expect(receipt.status).toBe('success')
+  await wait(300)
+  expect(slowResolved).toBe(false)
+
+  await mineSlowly(2)
+  const slowReceipt = await slow.receipt
+  expect(slowReceipt.transactionHash).toBe(hash)
+})
+
 test('throws on timeout', async () => {
   await setup()
   await expect(
