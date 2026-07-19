@@ -137,6 +137,11 @@ export function from(
     Address.fromPublicKey(PublicKey.fromHex(publicKey!), { checksum: true })
   Address.assert(address, { strict: false })
 
+  // Drop explicit-undefined properties so they cannot clobber derived defaults.
+  const overrides = Object.fromEntries(
+    Object.entries(account).filter(([, value]) => value !== undefined),
+  )
+
   return {
     ...({
       signAuthorization(authorization) {
@@ -177,9 +182,9 @@ export function from(
     >),
     keyType: 'custom',
     type: 'local',
-    ...account,
+    ...overrides,
     address,
-  } as never
+  } as Local
 }
 
 export declare namespace from {

@@ -118,6 +118,35 @@ describe('from', () => {
     ).toEqual(account.address.toLowerCase())
   })
 
+  test('ignores explicitly undefined overrides', async () => {
+    const pk = Account.fromPrivateKey(constants.accounts[0].privateKey)
+    const account = Account.from({
+      address: pk.address,
+      keyType: undefined,
+      sign: ({ hash }) => pk.sign({ hash }),
+      signMessage: undefined,
+    })
+
+    expect(account).toMatchInlineSnapshot(`
+      {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "keyType": "custom",
+        "sign": [Function],
+        "signAuthorization": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "type": "local",
+      }
+    `)
+
+    const message = 'hello world'
+    const signature = await account.signMessage({ message })
+    expect(
+      PersonalMessage.verify({ address: account.address, message, signature }),
+    ).toBe(true)
+  })
+
   test('local account (invalid address)', () => {
     expect(() =>
       Account.from({
