@@ -4,7 +4,7 @@ import type { RpcSchema } from 'ox'
 import * as errors from './errors.js'
 import * as promise from './promise.js'
 import { stringify } from './stringify.js'
-import type { Compute, IsNarrowable } from './types.js'
+import type { Compute, IsNarrowable, OneOf } from './types.js'
 
 /** Request params: typed when `methodName` is in `schema`, generic otherwise. */
 type ExtractRequest<
@@ -26,14 +26,25 @@ type ExtractRequest<
 
 /**
  * An EIP-1193-style request function, typed against an `RpcSchema` so
- * the result is inferred from the method.
+ * the result is inferred from the method. When `raw` is `true`, resolves the
+ * JSON-RPC response envelope (`result`/`error`) instead of the bare result.
  */
-export type RequestFn<schema extends RpcSchema.Generic = RpcSchema.Default> = <
+export type RequestFn<
+  schema extends RpcSchema.Generic = RpcSchema.Default,
+  raw extends boolean = false,
+> = <
   methodName extends RpcSchema.MethodNameGeneric<schema>,
+  // Defaulted so every `RequestFn` instantiation stays mutually assignable.
+  _returnType = raw extends true
+    ? OneOf<
+        | { result: RpcSchema.ExtractReturnType<schema, methodName> }
+        | { error: RpcResponse.ErrorObject }
+      >
+    : RpcSchema.ExtractReturnType<schema, methodName>,
 >(
   parameters: ExtractRequest<schema, methodName>,
   options?: wrapRequest.Options | undefined,
-) => Promise<RpcSchema.ExtractReturnType<schema, methodName>>
+) => Promise<_returnType>
 
 /**
  * Wraps an rpc request function with method filtering, retry/backoff, and

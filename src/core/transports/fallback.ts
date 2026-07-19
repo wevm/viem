@@ -1,5 +1,4 @@
 import type * as Chain from '../Chain.js'
-import { wait } from '../internal/wait.js'
 import * as Transport from '../Transport.js'
 
 /** Observability callback invoked after each fallback attempt. */
@@ -53,11 +52,20 @@ export type RankOptions = {
 }
 
 /** A fallback {@link Transport} that chains through a list of transports. */
-export type Fallback = Transport.Transport<
+export type Fallback<
+  transports extends readonly Transport.Transport[] =
+    readonly Transport.Transport[],
+> = Transport.Transport<
   'fallback',
   {
+    /** Registers an observer invoked after each fallback attempt. */
     onResponse: (fn: OnResponse) => void
-    transports: readonly Transport.Instance[]
+    /** Stops the transport ranking loop (no-op when `rank` is disabled). */
+    stopRank: () => void
+    /** Live instances of the member transports. */
+    transports: {
+      [index in keyof transports]: ReturnType<transports[index]['setup']>
+    }
   }
 >
 
@@ -81,10 +89,12 @@ export type Fallback = Transport.Transport<
  * })
  * ```
  */
-export function fallback(
-  transports: readonly Transport.Transport[],
+export function fallback<
+  const transports extends readonly Transport.Transport[],
+>(
+  transports: transports,
   options: fallback.Options = {},
-): Fallback {
+): Fallback<transports> {
   const { rank = false, shouldThrow: shouldThrow_ = shouldThrow } = options
   return Transport.from({
     key: options.key ?? 'fallback',
@@ -138,11 +148,12 @@ export function fallback(
         return attempt()
       }
 
+      let stopRank: (() => void) | undefined
       if (rank) {
         const rankOptions = (
           typeof rank === 'object' ? rank : {}
         ) as RankOptions
-        rankTransports({
+        stopRank = rankTransports({
           chain,
           interval: rankOptions.interval ?? pollingInterval,
           onTransports: (transports) => {
@@ -165,10 +176,11 @@ export function fallback(
         request,
         retryCount: options.retryCount ?? retryCount,
         retryDelay: options.retryDelay,
+        stopRank: () => stopRank?.(),
         transports: instances,
       }
     },
-  })
+  }) as Fallback<transports>
 }
 
 export declare namespace fallback {
@@ -207,11 +219,12 @@ export function shouldThrow(error: Error): boolean {
 
 /**
  * Periodically samples each transport's latency and stability, then reports a
- * ranked ordering (best first) via `onTransports`.
+ * ranked ordering (best first) via `onTransports`. Returns a function that
+ * stops the ranking loop.
  *
  * @internal
  */
-export function rankTransports(options: rankTransports.Options): void {
+export function rankTransports(options: rankTransports.Options): () => void {
   const {
     chain,
     interval = 4_000,
@@ -228,6 +241,9 @@ export function rankTransports(options: rankTransports.Options): void {
   type SampleData = { latency: number; success: number }
   type Sample = SampleData[]
   const samples: Sample[] = []
+
+  let stopped = false
+  let timer: ReturnType<typeof setTimeout> | undefined
 
   const rank = async () => {
     // 1. Take a sample from each transport.
@@ -252,6 +268,7 @@ export function rankTransports(options: rankTransports.Options): void {
         return { latency, success }
       }),
     )
+    if (stopped) return
 
     // 2. Store the sample, dropping the oldest beyond `sampleCount`.
     samples.push(sample)
@@ -290,10 +307,14 @@ export function rankTransports(options: rankTransports.Options): void {
     onTransports(scores.map(([, i]) => transports[i]!))
 
     // 6. Wait, and then rank again.
-    await wait(interval)
-    rank()
+    timer = setTimeout(rank, interval)
   }
   rank()
+
+  return () => {
+    stopped = true
+    clearTimeout(timer)
+  }
 }
 
 export declare namespace rankTransports {

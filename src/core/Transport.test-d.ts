@@ -15,9 +15,7 @@ test('request: non-schema method falls back to unknown', () => {
 })
 
 test('from: infers type + properties from setup return', () => {
-  expectTypeOf(http('https://example.com')).toEqualTypeOf<
-    Transport.Transport<'http', { url: string }>
-  >()
+  expectTypeOf(http('https://example.com')).toEqualTypeOf<Transport.Http>()
 
   expectTypeOf(custom({ request: async () => null })).toEqualTypeOf<
     Transport.Transport<'custom'>
@@ -26,9 +24,7 @@ test('from: infers type + properties from setup return', () => {
   expectTypeOf(http('https://example.com').setup({}).url).toBeString()
 
   const instance = fallback([http('https://example.com')]).setup({})
-  expectTypeOf(instance.transports).toEqualTypeOf<
-    readonly Transport.Instance[]
-  >()
+  expectTypeOf(instance.transports[0].url).toBeString()
   expectTypeOf(instance.onResponse).parameter(0).toBeFunction()
 })
 

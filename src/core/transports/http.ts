@@ -1,11 +1,21 @@
 import { RpcResponse } from 'ox'
+import type { RpcSchema } from 'ox'
 
 import * as promise from '../internal/promise.js'
 import * as RpcClient from '../../utils/RpcClient.js'
 import * as Transport from '../Transport.js'
 
 /** An HTTP JSON-RPC {@link Transport}. */
-export type Http = Transport.Transport<'http', { url: string }>
+export type Http<raw extends boolean = false> = Transport.Transport<
+  'http',
+  {
+    /** Request configuration passed to `fetch`. */
+    fetchOptions?: RpcClient.http.Options['fetchOptions'] | undefined
+    /** URL of the JSON-RPC endpoint. */
+    url: string
+  },
+  Transport.RequestFn<RpcSchema.Default, raw>
+>
 
 /**
  * Creates an HTTP JSON-RPC transport. When no `url` is provided, falls back
@@ -22,10 +32,10 @@ export type Http = Transport.Transport<'http', { url: string }>
  * })
  * ```
  */
-export function http(
+export function http<raw extends boolean = false>(
   url?: string | undefined,
-  options: http.Options = {},
-): Http {
+  options: http.Options<raw> = {},
+): Http<raw> {
   const { batch } = options
   return Transport.from({
     key: options.key ?? 'http',
@@ -49,6 +59,7 @@ export function http(
       })
 
       return {
+        fetchOptions: options.fetchOptions,
         methods: options.methods,
         retryCount: options.retryCount ?? retryCount,
         retryDelay: options.retryDelay,
@@ -85,11 +96,11 @@ export function http(
         },
       }
     },
-  })
+  }) as Http<raw>
 }
 
 export declare namespace http {
-  type Options = {
+  type Options<raw extends boolean = boolean> = {
     /** Whether to batch JSON-RPC requests. @default false */
     batch?:
       | boolean
@@ -119,7 +130,7 @@ export declare namespace http {
     /** Callback invoked with each raw response. */
     onFetchResponse?: RpcClient.http.Options['onResponse'] | undefined
     /** Return JSON-RPC errors instead of throwing. @default false */
-    raw?: boolean | undefined
+    raw?: raw | undefined
     /** Max retries per request. @default 3 */
     retryCount?: number | undefined
     /** Base delay (ms) between retries. @default 150 */

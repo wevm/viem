@@ -155,6 +155,11 @@ describe('fallback', () => {
     expect(transport.transports).toHaveLength(2)
   })
 
+  test('stopRank: no-op when rank is disabled', () => {
+    const transport = fallback.fallback([http(url)]).setup()
+    expect(transport.stopRank()).toBeUndefined()
+  })
+
   test('rank: enabling ranking still serves requests', async () => {
     const server = await Http.createServer((_req, res) => {
       res.writeHead(200, { 'Content-Type': 'application/json' })
@@ -167,6 +172,7 @@ describe('fallback', () => {
       .setup({ chain: undefined })
 
     expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
+    transport.stopRank()
     await server.close()
   })
 
@@ -180,6 +186,7 @@ describe('fallback', () => {
       .setup()
 
     expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
+    transport.stopRank()
     await server.close()
   })
 })
@@ -196,7 +203,7 @@ describe('rankTransports', () => {
     })
 
     const rankings: string[][] = []
-    fallback.rankTransports({
+    const stop = fallback.rankTransports({
       chain: undefined,
       interval: 10,
       sampleCount: 2,
@@ -212,6 +219,7 @@ describe('rankTransports', () => {
     await waitFor(() => rankings.length >= 3)
     expect(rankings.at(-1)).toEqual(['healthy', 'unhealthy'])
 
+    stop()
     await healthy.close()
     await unhealthy.close()
   })
@@ -227,7 +235,7 @@ describe('rankTransports', () => {
     })
 
     const rankings: string[][] = []
-    fallback.rankTransports({
+    const stop = fallback.rankTransports({
       interval: 10,
       timeout: 500,
       transports: [
@@ -242,6 +250,7 @@ describe('rankTransports', () => {
     await waitFor(() => rankings.length >= 2)
     expect(rankings.at(-1)).toEqual(['healthy', 'unhealthy'])
 
+    stop()
     await healthy.close()
     await unhealthy.close()
   })
@@ -258,7 +267,7 @@ describe('rankTransports', () => {
     })
 
     let count = 0
-    fallback.rankTransports({
+    const stop = fallback.rankTransports({
       interval: 10,
       transports: [http(server.url)],
       onTransports: () => {},
@@ -275,6 +284,30 @@ describe('rankTransports', () => {
       'eth_getBlockByNumber',
       'eth_blockNumber',
     ])
+
+    stop()
+    await server.close()
+  })
+
+  test('stop: halts the ranking loop', async () => {
+    const server = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ result: true }))
+    })
+
+    const rankings: number[] = []
+    const stop = fallback.rankTransports({
+      interval: 10,
+      timeout: 500,
+      transports: [http(server.url)],
+      onTransports: () => rankings.push(rankings.length),
+    })
+
+    await waitFor(() => rankings.length >= 2)
+    stop()
+    const count = rankings.length
+    await wait(100)
+    expect(rankings.length).toBe(count)
 
     await server.close()
   })

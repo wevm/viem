@@ -36,11 +36,15 @@ type RawRequestFn = (
  * A Transport: a static identity (`key`/`name`/`type`) plus a `setup` the
  * {@link Client} calls with its context to produce a live instance.
  */
-export type Transport<type extends string = string, properties = {}> = {
+export type Transport<
+  type extends string = string,
+  properties = {},
+  requestFn extends internal.RequestFn = internal.RequestFn,
+> = {
   key: string
   name: string
   type: type
-  setup: (options?: SetupOptions) => Instance<properties>
+  setup: (options?: SetupOptions) => Instance<properties, requestFn>
 }
 
 export type SetupOptions = {
@@ -66,10 +70,13 @@ type InstanceOptions = {
   timeout?: number | undefined
 }
 
-export type Instance<properties = {}> = Prettify<
+export type Instance<
+  properties = {},
+  requestFn extends internal.RequestFn = internal.RequestFn,
+> = Prettify<
   InstanceOptions & {
     /** The retry/dedupe-wrapped request function. */
-    request: internal.RequestFn
+    request: requestFn
   } & properties
 >
 
