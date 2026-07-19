@@ -43,6 +43,29 @@ test('infers object and array result shapes', async () => {
   expectTypeOf(array.request).not.toHaveProperty('as')
 })
 
+test('decorator: contract.simulate threads as through publicActions', async () => {
+  const decorated = Client.create({ transport: http() }).extend(publicActions())
+
+  const object = await decorated.contract.simulate({
+    abi,
+    address: '0x',
+    functionName: 'quote',
+  })
+  expectTypeOf(object.result).toEqualTypeOf<{
+    amount: bigint
+    valid: boolean
+  }>()
+
+  const array = await decorated.contract.simulate({
+    abi,
+    address: '0x',
+    as: 'Array',
+    functionName: 'quote',
+  })
+  expectTypeOf(array.result).toEqualTypeOf<readonly [bigint, boolean]>()
+  expectTypeOf(array.request).not.toHaveProperty('as')
+})
+
 test('infers functionName from nonpayable/payable functions', () => {
   expectTypeOf<
     Actions.contract.simulate.Options<typeof abi>['functionName']

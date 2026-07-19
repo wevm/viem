@@ -64,6 +64,26 @@ const abi = [
     name: 'Transfer',
     type: 'event',
   },
+  {
+    inputs: [],
+    name: 'metadata',
+    outputs: [
+      { name: 'name', type: 'string' },
+      { name: 'symbol', type: 'string' },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'quote',
+    outputs: [
+      { name: 'amount', type: 'uint256' },
+      { name: 'valid', type: 'bool' },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
 ] as const
 
 test('preserves the bound ABI and address', () => {
@@ -116,6 +136,19 @@ test('infers function args and return values from one options bag', async () => 
   contract.read.balanceOf()
   // @ts-expect-error nonpayable functions cannot receive value
   contract.write.transfer({ args: [recipient, 1n], value: 1n })
+})
+
+test('threads as through read and simulate', async () => {
+  const contract = Contract.from({ abi, address, client })
+
+  const object = await contract.read.metadata()
+  expectTypeOf(object).toEqualTypeOf<{ name: string; symbol: string }>()
+
+  const array = await contract.read.metadata({ as: 'Array' })
+  expectTypeOf(array).toEqualTypeOf<readonly [string, string]>()
+
+  const simulation = await contract.simulate.quote({ as: 'Array' })
+  expectTypeOf(simulation.result).toEqualTypeOf<readonly [bigint, boolean]>()
 })
 
 test('infers event names and decoded logs', async () => {

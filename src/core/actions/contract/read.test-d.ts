@@ -2,7 +2,7 @@ import { Abi } from 'ox'
 import type { Address } from 'ox'
 import { expectTypeOf, test } from 'vitest'
 
-import { Actions, Client, http } from 'viem'
+import { Actions, Client, http, publicActions } from 'viem'
 const client = Client.create({ transport: http() })
 
 const abi = Abi.from([
@@ -40,6 +40,25 @@ test('infers object and array return shapes', async () => {
   expectTypeOf(object).toEqualTypeOf<{ name: string; symbol: string }>()
 
   const array = await Actions.contract.read(client, {
+    abi,
+    address: '0x',
+    as: 'Array',
+    functionName: 'metadata',
+  })
+  expectTypeOf(array).toEqualTypeOf<readonly [string, string]>()
+})
+
+test('decorator: contract.read threads as through publicActions', async () => {
+  const decorated = Client.create({ transport: http() }).extend(publicActions())
+
+  const object = await decorated.contract.read({
+    abi,
+    address: '0x',
+    functionName: 'metadata',
+  })
+  expectTypeOf(object).toEqualTypeOf<{ name: string; symbol: string }>()
+
+  const array = await decorated.contract.read({
     abi,
     address: '0x',
     as: 'Array',

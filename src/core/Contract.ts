@@ -269,11 +269,12 @@ type ReadMethod<
 > = <
   const args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName> =
     ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+  as extends 'Object' | 'Array' = 'Object',
 >(
   ...parameters: OptionsParameter<
-    BindFunctionOptions<read_.Options<abi, functionName, args>>
+    BindFunctionOptions<read_.Options<abi, functionName, args, as>>
   >
-) => Promise<read_.ReturnType<abi, functionName, args>>
+) => Promise<read_.ReturnType<abi, functionName, args, as>>
 
 type EstimateGasMethod<
   abi extends Abi | readonly unknown[],
@@ -299,11 +300,12 @@ type SimulateMethod<
     'nonpayable' | 'payable',
     functionName
   > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
+  as extends 'Object' | 'Array' = 'Object',
 >(
   ...parameters: OptionsParameter<
-    BindFunctionOptions<simulate_.Options<abi, functionName, args>>
+    BindFunctionOptions<simulate_.Options<abi, functionName, args, as>>
   >
-) => Promise<simulate_.ReturnType<abi, functionName, args>>
+) => Promise<simulate_.ReturnType<abi, functionName, args, as>>
 
 type WriteMethod<
   abi extends Abi | readonly unknown[],

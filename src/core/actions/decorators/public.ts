@@ -654,9 +654,10 @@ export declare namespace publicActions {
           'pure' | 'view',
           functionName
         >,
+        as extends 'Object' | 'Array' = 'Object',
       >(
-        options: contract.read.Options<abi, functionName, args>,
-      ) => Promise<contract.read.ReturnType<abi, functionName, args>>
+        options: contract.read.Options<abi, functionName, args, as>,
+      ) => Promise<contract.read.ReturnType<abi, functionName, args, as>>
       /**
        * Simulates a write (`nonpayable`/`payable`) function on a contract
        * without broadcasting a transaction, returning the decoded `result` and
@@ -693,9 +694,10 @@ export declare namespace publicActions {
           'nonpayable' | 'payable',
           functionName
         >,
+        as extends 'Object' | 'Array' = 'Object',
       >(
-        options: contract.simulate.Options<abi, functionName, args>,
-      ) => Promise<contract.simulate.ReturnType<abi, functionName, args>>
+        options: contract.simulate.Options<abi, functionName, args, as>,
+      ) => Promise<contract.simulate.ReturnType<abi, functionName, args, as>>
       /**
        * Watches incoming contract event logs, returning a watcher handle.
        *
