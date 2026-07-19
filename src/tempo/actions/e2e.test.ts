@@ -1,4 +1,4 @@
-import { P256, Secp256k1 } from 'ox'
+import { P256, Secp256k1, WebCryptoP256 } from 'ox'
 import { TxEnvelopeTempo } from 'ox/tempo'
 import { createServer } from '~test/http.js'
 import * as tempo from '~test/tempo.js'
@@ -6,6 +6,7 @@ import { describe, expect, test } from 'vitest'
 
 import { Actions, Client, custom, http } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
+import { Actions as tempo_Actions } from 'viem/tempo'
 import * as Account from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import type { Envelope } from '../chainConfig.js'
@@ -13,6 +14,30 @@ import { withRelay } from '../Transport.js'
 
 const accounts = tempo.accounts
 const to = '0x00000000000000000000000000000000000000ff'
+
+const transferAbi = [
+  {
+    name: 'transfer',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'to' },
+      { type: 'uint256', name: 'amount' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+] as const
+
+/** Funds `address` with pathUSD from dev account 0. */
+async function fund(address: `0x${string}`, amount = 10_000_000n) {
+  await Actions.contract.writeSync(tempo.getClient(), {
+    abi: transferAbi,
+    address: Addresses.pathUsd,
+    args: [address, amount],
+    feeToken: tempo.pathUsd,
+    functionName: 'transfer',
+  })
+}
 
 /**
  * End-to-end signing gate: every account kind flows through the chain hooks
@@ -152,18 +177,7 @@ describe('transaction.sendSync', () => {
       // Fund the derived multisig account with the fee token.
       const funder = tempo.getClient({ account: owner1 })
       await Actions.contract.writeSync(funder, {
-        abi: [
-          {
-            name: 'transfer',
-            type: 'function',
-            stateMutability: 'nonpayable',
-            inputs: [
-              { type: 'address', name: 'to' },
-              { type: 'uint256', name: 'amount' },
-            ],
-            outputs: [{ type: 'bool' }],
-          },
-        ],
+        abi: transferAbi,
         address: Addresses.pathUsd,
         args: [account.address, 10_000_000n],
         feeToken: tempo.pathUsd,
@@ -282,19 +296,185 @@ describe('transaction.sendSync', () => {
     expect(request.maxFeePerGas).toBeGreaterThan(0n)
   })
 
-  // v2 e2e parity ports pending implementation.
-  test.todo('root p256 sender: transaction round-trips')
-  test.todo('root webCrypto sender: transaction round-trips')
-  test.todo('root webAuthn sender: transaction round-trips')
-  test.todo('contract deploy')
-  test.todo('contract deploy with `feeToken` (tempo tx)')
-  test.todo('2D nonces: explicit nonceKey round-trips on-chain')
-  test.todo('access key + `feePayer` combo')
-  test.todo('transaction.get decodes via the chain transaction codec')
-  test.todo('sign-only `transaction.sign` for an unfunded account')
+  test('root p256 sender: transaction round-trips', async () => {
+    const sender = Account.fromP256(P256.randomPrivateKey())
+    await fund(sender.address)
 
-  // Blocked on later waves.
-  test.todo('access key periodic spending limits (W5e accessKey.authorize)')
+    const client = tempo.getClient({ account: sender })
+    const receipt = await Actions.transaction.sendSync(client, {
+      calls: [{ to }],
+      feeToken: tempo.pathUsd,
+    })
+    expect(receipt.status).toBe('success')
+    expect(receipt.from.toLowerCase()).toBe(sender.address.toLowerCase())
+  })
+
+  test('root webCrypto sender: transaction round-trips', async () => {
+    const keyPair = await WebCryptoP256.createKeyPair()
+    const sender = Account.fromWebCryptoP256(keyPair)
+    await fund(sender.address)
+
+    const client = tempo.getClient({ account: sender })
+    const receipt = await Actions.transaction.sendSync(client, {
+      calls: [{ to }],
+      feeToken: tempo.pathUsd,
+    })
+    expect(receipt.status).toBe('success')
+    expect(receipt.from.toLowerCase()).toBe(sender.address.toLowerCase())
+  })
+
+  test('root webAuthn sender: transaction round-trips', async () => {
+    const sender = Account.fromHeadlessWebAuthn(P256.randomPrivateKey(), {
+      origin: 'https://localhost',
+      rpId: 'localhost',
+    })
+    await fund(sender.address)
+
+    const client = tempo.getClient({ account: sender })
+    const receipt = await Actions.transaction.sendSync(client, {
+      calls: [{ to }],
+      feeToken: tempo.pathUsd,
+    })
+    expect(receipt.status).toBe('success')
+    expect(receipt.from.toLowerCase()).toBe(sender.address.toLowerCase())
+  })
+
+  test('contract deploy', async () => {
+    const client = tempo.getClient()
+    const receipt = await Actions.contract.deploySync(client, {
+      abi: [],
+      bytecode: '0x60006000f3',
+    })
+    expect(receipt.status).toBe('success')
+    expect(receipt.contractAddress).toBeTruthy()
+  })
+
+  test('contract deploy with `feeToken` (tempo tx)', async () => {
+    const client = tempo.getClient()
+    const receipt = await Actions.contract.deploySync(client, {
+      abi: [],
+      bytecode: '0x60006000f3',
+      feeToken: tempo.pathUsd,
+    })
+    expect(receipt.status).toBe('success')
+    expect(receipt.type).toBe('tempo')
+    expect(receipt.contractAddress).toBeTruthy()
+  })
+
+  test('2D nonces: explicit nonceKey round-trips on-chain', async () => {
+    const client = tempo.getClient({
+      account: Account.fromSecp256k1(accounts[2]!.privateKey),
+    })
+    const nonceKey = 42n
+
+    const before = await tempo_Actions.nonce.get(client, { nonceKey })
+    const receipt = await Actions.transaction.sendSync(client, {
+      calls: [{ to }],
+      feeToken: tempo.pathUsd,
+      nonceKey,
+    })
+    expect(receipt.status).toBe('success')
+    expect(await tempo_Actions.nonce.get(client, { nonceKey })).toBe(
+      before + 1n,
+    )
+  })
+
+  test('access key + `feePayer` combo', async () => {
+    const root = Account.fromSecp256k1(accounts[3]!.privateKey)
+    const account = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
+      access: root,
+    })
+    const keyAuthorization = await Account.signKeyAuthorization(root, {
+      chainId: tempoLocalnet.id,
+      key: account,
+    })
+    const feePayer = Account.fromSecp256k1(accounts[6]!.privateKey)
+
+    const client = tempo.getClient({ account })
+    const receipt = await Actions.transaction.sendSync(client, {
+      calls: [{ to }],
+      feePayer,
+      feeToken: tempo.pathUsd,
+      keyAuthorization,
+    })
+    expect(receipt.status).toBe('success')
+    expect(receipt.from.toLowerCase()).toBe(root.address.toLowerCase())
+    expect(receipt.feePayer?.toLowerCase()).toBe(feePayer.address.toLowerCase())
+  })
+
+  test('transaction.get decodes via the chain transaction codec', async () => {
+    const client = tempo.getClient()
+    const receipt = await Actions.transaction.sendSync(client, {
+      calls: [{ to }],
+      feeToken: tempo.pathUsd,
+    })
+
+    const transaction = await Actions.transaction.get(client, {
+      hash: receipt.transactionHash,
+    })
+    expect(transaction.type).toBe('tempo')
+    expect(transaction.hash).toBe(receipt.transactionHash)
+    expect(transaction.feeToken?.toLowerCase()).toBe(tempo.pathUsd)
+    expect(transaction.calls?.[0]?.to?.toLowerCase()).toBe(to)
+  })
+
+  test('sign-only `transaction.sign` for an unfunded account', async () => {
+    const sender = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
+    const client = tempo.getClient({ account: sender })
+
+    const serialized = await Actions.transaction.sign(client, {
+      calls: [{ to }],
+      feeToken: tempo.pathUsd,
+      prepare: true,
+    })
+
+    expect(serialized.startsWith('0x76')).toBe(true)
+    const envelope = TxEnvelopeTempo.deserialize(serialized as `0x76${string}`)
+    expect(envelope.from?.toLowerCase()).toBe(sender.address.toLowerCase())
+    expect(envelope.feeToken?.toLowerCase()).toBe(tempo.pathUsd)
+    expect(envelope.calls[0]?.to?.toLowerCase()).toBe(to)
+  })
+
+  test('access key periodic spending limits (W5e accessKey.authorize)', async () => {
+    const root = Account.fromSecp256k1(accounts[5]!.privateKey)
+    const rootClient = tempo.getClient({
+      account: root,
+      feeToken: tempo.pathUsd,
+    })
+    const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+      access: root,
+    })
+
+    await tempo_Actions.accessKey.authorizeSync(rootClient, {
+      accessKey,
+      expiry: Math.floor(Date.now() / 1000) + 60,
+      limits: [{ limit: 10_000_000n, period: 3600, token: tempo.pathUsd }],
+    })
+
+    const { periodEnd, remaining } =
+      await tempo_Actions.accessKey.getRemainingLimit(rootClient, {
+        account: root.address,
+        accessKey,
+        token: tempo.pathUsd,
+      })
+    expect(remaining).toBe(10_000_000n)
+    expect(periodEnd).toBeGreaterThan(0n)
+
+    // Fees spent under the key draw down the periodic limit.
+    const keyClient = tempo.getClient({ account: accessKey })
+    const receipt = await Actions.transaction.sendSync(keyClient, {
+      calls: [{ to }],
+      feeToken: tempo.pathUsd,
+    })
+    expect(receipt.status).toBe('success')
+
+    const after = await tempo_Actions.accessKey.getRemainingLimit(rootClient, {
+      account: root.address,
+      accessKey,
+      token: tempo.pathUsd,
+    })
+    expect(after.remaining).toBeLessThan(10_000_000n)
+  })
 })
 
 /**
