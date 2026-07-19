@@ -5,6 +5,7 @@ import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import { sendSync } from '../../../core/actions/transaction/sendSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { renounceRoles, type RoleMembershipUpdated } from './renounceRoles.js'
 
 /**
@@ -48,7 +49,7 @@ export async function renounceRolesSync<
 
 export namespace renounceRolesSync {
   export type Args = renounceRoles.Args
-  export type Options = renounceRoles.Options
+  export type Options = renounceRoles.Options & WriteSyncParameters
   export type ReturnType = {
     /** Transaction receipt. */
     receipt: writeSync.ReturnType

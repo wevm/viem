@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { setUserToken } from './setUserToken.js'
 
 /**
@@ -49,7 +50,7 @@ export async function setUserTokenSync<
 
 export namespace setUserTokenSync {
   export type Args = setUserToken.Args
-  export type Options = setUserToken.Options
+  export type Options = setUserToken.Options & WriteSyncParameters
   export type ReturnType = {
     /** Token set as the account's default fee token. */
     token: Address.Address

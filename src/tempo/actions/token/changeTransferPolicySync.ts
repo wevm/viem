@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { changeTransferPolicy } from './changeTransferPolicy.js'
 
 /**
@@ -50,7 +51,7 @@ export async function changeTransferPolicySync<
 
 export namespace changeTransferPolicySync {
   export type Args = changeTransferPolicy.Args
-  export type Options = changeTransferPolicy.Options
+  export type Options = changeTransferPolicy.Options & WriteSyncParameters
   export type ReturnType = {
     /** Address that updated the transfer policy. */
     updater: Address.Address

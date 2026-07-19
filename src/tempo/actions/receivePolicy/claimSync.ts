@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { claim } from './claim.js'
 
 type ClaimEvent = ReturnType<typeof claim.extractEvent>
@@ -30,7 +31,7 @@ export async function claimSync<
 
 export namespace claimSync {
   export type Args = claim.Args
-  export type Options = claim.Options
+  export type Options = claim.Options & WriteSyncParameters
   export type ReturnType = ClaimEvent['args'] & {
     /** Transaction receipt. */
     receipt: writeSync.ReturnType

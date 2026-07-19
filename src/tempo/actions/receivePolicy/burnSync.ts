@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { burn } from './burn.js'
 
 type BurnEvent = ReturnType<typeof burn.extractEvent>
@@ -30,7 +31,7 @@ export async function burnSync<
 
 export namespace burnSync {
   export type Args = burn.Args
-  export type Options = burn.Options
+  export type Options = burn.Options & WriteSyncParameters
   export type ReturnType = BurnEvent['args'] & {
     /** Transaction receipt. */
     receipt: writeSync.ReturnType

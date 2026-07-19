@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { setSupplyCap } from './setSupplyCap.js'
 
 /**
@@ -50,7 +51,7 @@ export async function setSupplyCapSync<
 
 export namespace setSupplyCapSync {
   export type Args = setSupplyCap.Args
-  export type Options = setSupplyCap.Options
+  export type Options = setSupplyCap.Options & WriteSyncParameters
   export type ReturnType = {
     /** Address that updated the supply cap. */
     updater: Address.Address

@@ -6,6 +6,7 @@ import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import { resolveAmountDecimals } from '../../../core/actions/token/internal.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { resolveToken } from '../../internal/utils.js'
 import { burnBlocked } from './burnBlocked.js'
 
@@ -59,7 +60,7 @@ export async function burnBlockedSync<
 
 export namespace burnBlockedSync {
   export type Args = burnBlocked.Args
-  export type Options = burnBlocked.Options
+  export type Options = burnBlocked.Options & WriteSyncParameters
   export type ReturnType = {
     /** Address tokens were burned from. */
     from: Address.Address

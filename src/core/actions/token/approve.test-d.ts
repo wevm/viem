@@ -130,3 +130,27 @@ describe('approveSync: token selector', () => {
     })
   })
 })
+
+describe('approveSync: receipt waiting', () => {
+  test('accepts `pollingInterval` and `timeout`', () => {
+    const client = Client.create({ account, chain: mainnet, transport: http() })
+    approveSync(client, {
+      amount: 1n,
+      pollingInterval: 100,
+      spender: '0x',
+      timeout: 5_000,
+      token: '0x',
+    })
+  })
+
+  test('approve rejects `pollingInterval`', () => {
+    const client = Client.create({ account, chain: mainnet, transport: http() })
+    approve(client, {
+      // @ts-expect-error - receipt waiting only applies to sync actions
+      pollingInterval: 100,
+      amount: 1n,
+      spender: '0x',
+      token: '0x',
+    })
+  })
+})

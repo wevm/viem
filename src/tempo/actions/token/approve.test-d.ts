@@ -85,6 +85,28 @@ describe('approve: return types', () => {
   })
 })
 
+describe('approveSync: receipt waiting', () => {
+  test('accepts `pollingInterval` and `timeout`', () => {
+    approveSync(client, {
+      amount: 1n,
+      pollingInterval: 100,
+      spender: '0x',
+      timeout: 5_000,
+      token,
+    })
+  })
+
+  test('approve rejects `pollingInterval`', () => {
+    approve(client, {
+      // @ts-expect-error - receipt waiting only applies to sync actions
+      pollingInterval: 100,
+      amount: 1n,
+      spender: '0x',
+      token,
+    })
+  })
+})
+
 describe('approve.call', () => {
   test('with and without a client', () => {
     approve.call({ amount: 1n, spender: '0x', token })

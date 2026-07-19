@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { sendSync } from '../../../core/actions/transaction/sendSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { authorize } from './authorize.js'
 
 /**
@@ -52,7 +53,7 @@ export async function authorizeSync<
 
 export namespace authorizeSync {
   export type Args = authorize.Args
-  export type Options = authorize.Options
+  export type Options = authorize.Options & WriteSyncParameters
   export type ReturnType = {
     /** Account the key was authorized on. */
     account: Address.Address

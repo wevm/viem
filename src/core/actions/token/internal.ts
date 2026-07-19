@@ -341,6 +341,12 @@ export type WriteParameters<
   throwOnReceiptRevert?: boolean | undefined
 }
 
+/** Receipt-waiting fields shared by synchronous write actions. */
+export type WriteSyncParameters = UnionPick<
+  writeSync.Options,
+  'pollingInterval' | 'timeout'
+>
+
 export function defineCall<
   const abi extends Abi,
   const functionName extends ContractFunctionName<abi, AbiStateMutability>,

@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { withdraw } from './withdraw.js'
 
 /** Withdraws payer funds after the close grace period elapses and waits for the transaction receipt. */
@@ -25,7 +26,7 @@ export async function withdrawSync<
 
 export namespace withdrawSync {
   export type Args = withdraw.Args
-  export type Options = withdraw.Options
+  export type Options = withdraw.Options & WriteSyncParameters
   export type ReturnType = {
     /** Channel ID. */
     channelId: Hex.Hex

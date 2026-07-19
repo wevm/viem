@@ -8,7 +8,11 @@ import type * as Token from '../../Token.js'
 import type * as Transport from '../../Transport.js'
 import type { writeSync } from '../contract/writeSync.js'
 import { writeSync as writeContractSync } from '../contract/writeSync.js'
-import { resolveAmountDecimals, resolveToken } from './internal.js'
+import {
+  resolveAmountDecimals,
+  resolveToken,
+  type WriteSyncParameters,
+} from './internal.js'
 import { transfer } from './transfer.js'
 
 /**
@@ -71,7 +75,7 @@ export namespace transferSync {
     chain extends Chain.Chain | undefined = Chain.Chain | undefined,
     account extends Account.Account | undefined = Account.Account | undefined,
     tokens extends Token.Tokens | undefined = Token.Tokens | undefined,
-  > = transfer.Options<chain, account, tokens>
+  > = transfer.Options<chain, account, tokens> & WriteSyncParameters
   export type Args<
     chain extends Chain.Chain | undefined = Chain.Chain | undefined,
     tokens extends Token.Tokens | undefined = Token.Tokens | undefined,

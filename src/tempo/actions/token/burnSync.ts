@@ -6,6 +6,7 @@ import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import { resolveAmountDecimals } from '../../../core/actions/token/internal.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { resolveToken } from '../../internal/utils.js'
 import { burn } from './burn.js'
 
@@ -58,7 +59,7 @@ export async function burnSync<
 
 export namespace burnSync {
   export type Args = burn.Args
-  export type Options = burn.Options
+  export type Options = burn.Options & WriteSyncParameters
   export type ReturnType = {
     /** Address tokens were burned from. */
     from: Address.Address

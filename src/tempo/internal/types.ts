@@ -4,7 +4,10 @@ import type { writeSync } from '../../core/actions/contract/writeSync.js'
 import type { TransactionRequest } from '../chainConfig.js'
 import type { UnionPick } from '../../core/internal/types.js'
 
-export type { ReadParameters } from '../../core/actions/token/internal.js'
+export type {
+  ReadParameters,
+  WriteSyncParameters,
+} from '../../core/actions/token/internal.js'
 
 /** Selects a TIP-20 token by its contract `address`. */
 export type TokenParameter = {
@@ -41,9 +44,3 @@ export type WriteParameters = UnionPick<
     | 'validAfter'
     | 'validBefore'
   >
-
-/** Receipt-waiting fields shared by synchronous Tempo write actions. */
-export type WriteSyncParameters = UnionPick<
-  writeSync.Options,
-  'pollingInterval' | 'timeout'
->

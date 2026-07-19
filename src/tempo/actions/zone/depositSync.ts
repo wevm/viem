@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { sendSync } from '../../../core/actions/transaction/sendSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { deposit } from './deposit.js'
 import type { ReceiptReturn } from './internal.js'
 
@@ -48,7 +49,7 @@ export async function depositSync<
 export namespace depositSync {
   export type Options<
     account extends Account.Account | undefined = Account.Account | undefined,
-  > = deposit.Options<account>
+  > = deposit.Options<account> & WriteSyncParameters
   export type ReturnType = ReceiptReturn<sendSync.ReturnType>
   export type ErrorType = Errors.GlobalErrorType
 }

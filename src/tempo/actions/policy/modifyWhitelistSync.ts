@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { modifyWhitelist } from './modifyWhitelist.js'
 
 /** Modifies a TIP-403 transfer policy whitelist, and waits for the transaction to be confirmed. */
@@ -25,7 +26,7 @@ export async function modifyWhitelistSync<
 
 export namespace modifyWhitelistSync {
   export type Args = modifyWhitelist.Args
-  export type Options = modifyWhitelist.Options
+  export type Options = modifyWhitelist.Options & WriteSyncParameters
   export type ReturnType = {
     /** Policy ID. */
     policyId: bigint

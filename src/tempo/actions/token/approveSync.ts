@@ -6,6 +6,7 @@ import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import { resolveAmountDecimals } from '../../../core/actions/token/internal.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { resolveToken } from '../../internal/utils.js'
 import { approve } from './approve.js'
 
@@ -59,7 +60,7 @@ export async function approveSync<
 
 export namespace approveSync {
   export type Args = approve.Args
-  export type Options = approve.Options
+  export type Options = approve.Options & WriteSyncParameters
   export type ReturnType = {
     /** Owner that approved the spender. */
     owner: Address.Address

@@ -5,6 +5,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import type { Claimer, PolicyRef } from './get.js'
 import { set } from './set.js'
 
@@ -39,7 +40,7 @@ export async function setSync<
 
 export namespace setSync {
   export type Args = set.Args
-  export type Options = set.Options
+  export type Options = set.Options & WriteSyncParameters
   export type ReturnType = Omit<
     SetEvent['args'],
     'senderPolicyId' | 'tokenFilterId'

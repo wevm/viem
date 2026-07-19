@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { sell } from './sell.js'
 
 /**
@@ -44,7 +45,7 @@ export async function sellSync<
 
 export namespace sellSync {
   export type Args = sell.Args
-  export type Options = sell.Options
+  export type Options = sell.Options & WriteSyncParameters
   export type ReturnType = {
     /** Transaction receipt. */
     receipt: writeSync.ReturnType

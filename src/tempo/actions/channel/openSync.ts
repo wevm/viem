@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { open } from './open.js'
 
 /** Opens and funds a TIP-20 channel reserve channel and waits for the transaction receipt. */
@@ -25,7 +26,7 @@ export async function openSync<
 
 export namespace openSync {
   export type Args = open.Args
-  export type Options = open.Options
+  export type Options = open.Options & WriteSyncParameters
   export type ReturnType = {
     /** Channel ID. */
     channelId: Hex.Hex

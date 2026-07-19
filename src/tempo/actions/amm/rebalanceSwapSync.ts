@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { rebalanceSwap } from './rebalanceSwap.js'
 
 /**
@@ -49,7 +50,7 @@ export async function rebalanceSwapSync<
 
 export namespace rebalanceSwapSync {
   export type Args = rebalanceSwap.Args
-  export type Options = rebalanceSwap.Options
+  export type Options = rebalanceSwap.Options & WriteSyncParameters
   export type ReturnType = {
     /** User token address. */
     userToken: Address.Address

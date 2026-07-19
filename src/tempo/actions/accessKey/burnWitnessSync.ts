@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { burnWitness } from './burnWitness.js'
 
 /**
@@ -48,7 +49,7 @@ export async function burnWitnessSync<
 
 export namespace burnWitnessSync {
   export type Args = burnWitness.Args
-  export type Options = burnWitness.Options
+  export type Options = burnWitness.Options & WriteSyncParameters
   export type ReturnType = {
     /** Account the witness was burned on. */
     account: Address.Address

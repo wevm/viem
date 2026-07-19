@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import {
   updateQuoteToken,
   type UpdateQuoteTokenEvent,
@@ -48,7 +49,7 @@ export async function updateQuoteTokenSync<
 
 export namespace updateQuoteTokenSync {
   export type Args = updateQuoteToken.Args
-  export type Options = updateQuoteToken.Options
+  export type Options = updateQuoteToken.Options & WriteSyncParameters
   export type ReturnType = UpdateQuoteTokenEvent & {
     /** Transaction receipt. */
     receipt: writeSync.ReturnType

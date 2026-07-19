@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { updateLimit } from './updateLimit.js'
 
 /**
@@ -54,7 +55,7 @@ export async function updateLimitSync<
 
 export namespace updateLimitSync {
   export type Args = updateLimit.Args
-  export type Options = updateLimit.Options
+  export type Options = updateLimit.Options & WriteSyncParameters
   export type ReturnType = {
     /** Account that owns the key. */
     account: Address.Address

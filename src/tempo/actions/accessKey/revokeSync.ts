@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { revoke } from './revoke.js'
 
 /**
@@ -46,7 +47,7 @@ export async function revokeSync<
 
 export namespace revokeSync {
   export type Args = revoke.Args
-  export type Options = revoke.Options
+  export type Options = revoke.Options & WriteSyncParameters
   export type ReturnType = {
     /** Account the key was revoked on. */
     account: Address.Address

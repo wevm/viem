@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { create } from './create.js'
 
 /**
@@ -53,7 +54,7 @@ export namespace createSync {
   export type Args = create.Args
   export type Options<
     account extends Account.Account | undefined = Account.Account | undefined,
-  > = create.Options<account>
+  > = create.Options<account> & WriteSyncParameters
   export type ReturnType = {
     /** Created token address. */
     token: Address.Address

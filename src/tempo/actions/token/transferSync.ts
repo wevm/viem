@@ -6,6 +6,7 @@ import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import { resolveAmountDecimals } from '../../../core/actions/token/internal.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { resolveToken } from '../../internal/utils.js'
 import { transfer } from './transfer.js'
 
@@ -58,7 +59,7 @@ export async function transferSync<
 
 export namespace transferSync {
   export type Args = transfer.Args
-  export type Options = transfer.Options
+  export type Options = transfer.Options & WriteSyncParameters
   export type ReturnType = {
     /** Address the tokens were transferred from. */
     from: Address.Address

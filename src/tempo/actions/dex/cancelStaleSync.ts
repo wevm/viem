@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { cancelStale } from './cancelStale.js'
 
 /**
@@ -48,7 +49,7 @@ export async function cancelStaleSync<
 
 export namespace cancelStaleSync {
   export type Args = cancelStale.Args
-  export type Options = cancelStale.Options
+  export type Options = cancelStale.Options & WriteSyncParameters
   export type ReturnType = {
     /** Cancelled order ID. */
     orderId: bigint

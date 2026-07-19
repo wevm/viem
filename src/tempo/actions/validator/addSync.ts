@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { add } from './add.js'
 
 /** Adds a new validator, and waits for the transaction to be confirmed. */
@@ -24,7 +25,7 @@ export async function addSync<
 
 export namespace addSync {
   export type Args = add.Args
-  export type Options = add.Options
+  export type Options = add.Options & WriteSyncParameters
   export type ReturnType = {
     /** Transaction receipt. */
     receipt: writeSync.ReturnType

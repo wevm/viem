@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { settle } from './settle.js'
 
 /** Settles a TIP-20 channel reserve voucher and waits for the transaction receipt. */
@@ -25,7 +26,7 @@ export async function settleSync<
 
 export namespace settleSync {
   export type Args = settle.Args
-  export type Options = settle.Options
+  export type Options = settle.Options & WriteSyncParameters
   export type ReturnType = {
     /** Channel ID. */
     channelId: Hex.Hex

@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { setAdmin } from './setAdmin.js'
 
 /** Sets the admin for a TIP-403 transfer policy, and waits for the transaction to be confirmed. */
@@ -25,7 +26,7 @@ export async function setAdminSync<
 
 export namespace setAdminSync {
   export type Args = setAdmin.Args
-  export type Options = setAdmin.Options
+  export type Options = setAdmin.Options & WriteSyncParameters
   export type ReturnType = {
     /** Policy ID. */
     policyId: bigint

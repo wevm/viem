@@ -6,7 +6,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { send } from '../../../core/actions/transaction/send.js'
-import type { sendSync } from '../../../core/actions/transaction/sendSync.js'
+import { sendSync } from '../../../core/actions/transaction/sendSync.js'
 import * as Abis from '../../Abis.js'
 import type { TokenParameter, WriteParameters } from '../../internal/types.js'
 import {
@@ -14,6 +14,7 @@ import {
   defineCall,
   dispatchSend,
   pickWriteParameters,
+  pickWriteSyncParameters,
   resolveCallParameters,
   resolveToken,
 } from '../../internal/utils.js'
@@ -79,6 +80,7 @@ export namespace revokeRoles {
   ): Promise<dispatchSend.ReturnType<action>> {
     return dispatchSend(action, client, {
       ...pickWriteParameters(options),
+      ...(action === sendSync ? pickWriteSyncParameters(options) : {}),
       calls: options.roles.map((role) => {
         const call = revokeRoles.call(client, { ...options, role })
         return {

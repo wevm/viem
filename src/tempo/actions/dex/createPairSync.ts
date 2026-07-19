@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { createPair } from './createPair.js'
 
 /**
@@ -48,7 +49,7 @@ export async function createPairSync<
 
 export namespace createPairSync {
   export type Args = createPair.Args
-  export type Options = createPair.Options
+  export type Options = createPair.Options & WriteSyncParameters
   export type ReturnType = {
     /** Pair key. */
     key: `0x${string}`

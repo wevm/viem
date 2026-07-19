@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { setValidatorToken } from './setValidatorToken.js'
 
 /**
@@ -50,7 +51,7 @@ export async function setValidatorTokenSync<
 
 export namespace setValidatorTokenSync {
   export type Args = setValidatorToken.Args
-  export type Options = setValidatorToken.Options
+  export type Options = setValidatorToken.Options & WriteSyncParameters
   export type ReturnType = {
     /** Token set as the validator's preferred fee token. */
     token: Address.Address

@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { requestClose } from './requestClose.js'
 
 /** Starts the payer close timer and waits for the transaction receipt. */
@@ -25,7 +26,7 @@ export async function requestCloseSync<
 
 export namespace requestCloseSync {
   export type Args = requestClose.Args
-  export type Options = requestClose.Options
+  export type Options = requestClose.Options & WriteSyncParameters
   export type ReturnType = {
     /** Channel ID. */
     channelId: Hex.Hex

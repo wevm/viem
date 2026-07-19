@@ -5,6 +5,7 @@ import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
 import { sendSync } from '../../../core/actions/transaction/sendSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { grantRoles, type RoleMembershipUpdated } from './grantRoles.js'
 
 /**
@@ -49,7 +50,7 @@ export async function grantRolesSync<
 
 export namespace grantRolesSync {
   export type Args = grantRoles.Args
-  export type Options = grantRoles.Options
+  export type Options = grantRoles.Options & WriteSyncParameters
   export type ReturnType = {
     /** Transaction receipt. */
     receipt: writeSync.ReturnType

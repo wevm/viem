@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { setRoleAdmin } from './setRoleAdmin.js'
 
 /**
@@ -51,7 +52,7 @@ export async function setRoleAdminSync<
 
 export namespace setRoleAdminSync {
   export type Args = setRoleAdmin.Args
-  export type Options = setRoleAdmin.Options
+  export type Options = setRoleAdmin.Options & WriteSyncParameters
   export type ReturnType = {
     /** Role whose admin role was updated. */
     role: Hex.Hex

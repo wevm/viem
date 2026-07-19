@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { close } from './close.js'
 
 /** Closes a TIP-20 channel reserve channel and waits for the transaction receipt. */
@@ -25,7 +26,7 @@ export async function closeSync<
 
 export namespace closeSync {
   export type Args = close.Args
-  export type Options = close.Options
+  export type Options = close.Options & WriteSyncParameters
   export type ReturnType = {
     /** Channel ID. */
     channelId: Hex.Hex

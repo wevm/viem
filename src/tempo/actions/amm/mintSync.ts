@@ -4,6 +4,7 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import type { WriteSyncParameters } from '../../internal/types.js'
 import { mint } from './mint.js'
 
 /**
@@ -49,7 +50,7 @@ export async function mintSync<
 
 export namespace mintSync {
   export type Args = mint.Args
-  export type Options = mint.Options
+  export type Options = mint.Options & WriteSyncParameters
   export type ReturnType = {
     /** Address that added liquidity. */
     sender: Address.Address
