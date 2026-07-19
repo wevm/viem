@@ -287,6 +287,54 @@ test('parallel waits with different confirmations settle independently', async (
   expect(slowReceipt.transactionHash).toBe(hash)
 })
 
+test('parallel waits with different retry delays settle independently', async () => {
+  await setup()
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    to,
+    value: Value.fromEther('1'),
+  })
+  await testClient.block.mine({ blocks: 1 })
+
+  // The node never surfaces the transaction, so each wait's eager transaction
+  // lookup exhausts its retries (paced by its `retryDelay`) before the
+  // already-available receipt resolves. Distinct function delays must not
+  // share an observer, or the fast wait inherits the slow wait's pacing.
+  const server = await proxyServer((method) =>
+    method === 'eth_getTransactionByHash' ? { result: null } : undefined,
+  )
+  try {
+    const proxyClient = Client.create({
+      transport: http(server.url),
+      pollingInterval: 100,
+    })
+
+    const slow = Actions.transaction.waitForReceipt(proxyClient, {
+      hash,
+      retryCount: 2,
+      retryDelay: () => 800,
+    })
+    const fast = Actions.transaction.waitForReceipt(proxyClient, {
+      hash,
+      retryCount: 2,
+      retryDelay: () => 50,
+    })
+    let slowResolved = false
+    slow.receipt.then(() => {
+      slowResolved = true
+    })
+
+    const receipt = await fast.receipt
+    expect(receipt.transactionHash).toBe(hash)
+    expect(slowResolved).toBe(false)
+
+    const slowReceipt = await slow.receipt
+    expect(slowReceipt.transactionHash).toBe(hash)
+  } finally {
+    await server.close()
+  }
+})
+
 test('throws on timeout', async () => {
   await setup()
   await expect(

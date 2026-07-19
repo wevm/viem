@@ -79,7 +79,9 @@ export function waitForReceipt<chain extends Chain.Chain | undefined>(
     hash,
     pollingInterval,
     retryCount,
-    retryDelay,
+    // JSON serializes functions to null; key on source text so distinct
+    // function delays get distinct observers.
+    typeof retryDelay === 'function' ? retryDelay.toString() : retryDelay,
   ])
 
   type Receipt = waitForReceipt.Receipt<chain>
