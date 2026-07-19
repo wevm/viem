@@ -2,6 +2,7 @@ import { RpcResponse } from 'ox'
 
 import type ReconnectingWebSocket from '../../vendor/partysocket/ws.js'
 import * as RpcClient from '../../utils/RpcClient.js'
+import * as errors from '../internal/errors.js'
 import * as Transport from '../Transport.js'
 
 /** A live WebSocket JSON-RPC client. */
@@ -62,12 +63,21 @@ export function webSocket(
           const client = await getRpcClient()
           return client.subscribe(options)
         },
-        async request(body) {
+        async request(body, opts) {
+          const { signal } = opts ?? {}
           const client = await getRpcClient()
-          const { error, result } = await client.request({
-            body,
-            timeout: timeout_,
-          })
+          const response = client.request({ body, timeout: timeout_ })
+          // Race the pending response against the abort signal.
+          const { error, result } = await (signal
+            ? new Promise<Awaited<typeof response>>((resolve, reject) => {
+                const onAbort = () => reject(errors.getAbortError(signal))
+                if (signal.aborted) onAbort()
+                else signal.addEventListener('abort', onAbort, { once: true })
+                response
+                  .then(resolve, reject)
+                  .finally(() => signal.removeEventListener('abort', onAbort))
+              })
+            : response)
           if (error) throw RpcResponse.parseError(error)
           return result
         },

@@ -325,6 +325,53 @@ describe('webSocket', () => {
     }
   })
 
+  test('aborts an in-flight request when the signal aborts', async () => {
+    const server = await Ws.createServer(() => {
+      // Never respond.
+    })
+    try {
+      const transport = webSocket(server.url, {
+        keepAlive: false,
+        timeout: 5_000,
+      }).setup()
+      // Ensure the request is in-flight before aborting.
+      await transport.getRpcClient()
+      const controller = new AbortController()
+      const promise = transport.request(
+        { method: 'eth_chainId' },
+        { signal: controller.signal },
+      )
+      await wait(50)
+      controller.abort()
+      const error = await promise.catch((error) => error as Error)
+      expect((error as Error).name).toBe('AbortError')
+      ;(await transport.getRpcClient()).close()
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('rejects when the signal aborts while connecting', async () => {
+    const server = await Ws.createServer(() => {})
+    try {
+      const transport = webSocket(server.url, {
+        keepAlive: false,
+        timeout: 5_000,
+      }).setup()
+      const controller = new AbortController()
+      const promise = transport.request(
+        { method: 'eth_chainId' },
+        { signal: controller.signal },
+      )
+      controller.abort()
+      const error = await promise.catch((error) => error as Error)
+      expect((error as Error).name).toBe('AbortError')
+      ;(await transport.getRpcClient()).close()
+    } finally {
+      await server.close()
+    }
+  })
+
   test('times out when the server does not respond', async () => {
     const server = await Ws.createServer(() => {})
     try {

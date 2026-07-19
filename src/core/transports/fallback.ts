@@ -98,13 +98,16 @@ export function fallback(
 
       let onResponse: OnResponse = () => {}
 
-      const request = async (args: { method: string; params?: unknown }) => {
+      const request = async (
+        args: { method: string; params?: unknown },
+        opts?: { signal?: AbortSignal | undefined } | undefined,
+      ) => {
         const { method, params } = args
         let includes: boolean | undefined
         const attempt = async (index = 0): Promise<unknown> => {
           const transport = ranked[index]
           try {
-            const response = await transport.request(args)
+            const response = await transport.request(args, opts)
             onResponse({
               method,
               params,
@@ -122,6 +125,8 @@ export function fallback(
               transport,
             })
             if (shouldThrow_(error as Error)) throw error
+            // Aborted: do not fall through to the next transport.
+            if (opts?.signal?.aborted) throw error
             if (index === ranked.length - 1) throw error
             includes ??= ranked
               .slice(index + 1)

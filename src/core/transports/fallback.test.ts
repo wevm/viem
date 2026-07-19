@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
 import * as Http from '~test/http.js'
-import { http } from 'viem'
+import { http, Transport } from 'viem'
 import { wait } from '../internal/wait.js'
 import * as fallback from './fallback.js'
 
@@ -98,6 +98,56 @@ describe('fallback', () => {
     transport.onResponse((response) => statuses.push(response.status))
     await transport.request({ method: 'eth_chainId' })
     expect(statuses).toEqual(['error', 'success'])
+  })
+
+  test('threads the abort signal through to the inner transports', async () => {
+    // An in-process transport that hangs until its abort signal fires.
+    const hanging = Transport.from({
+      key: 'hanging',
+      name: 'Hanging',
+      type: 'hanging',
+      setup: () => ({
+        request: (_args, opts) =>
+          new Promise((_resolve, reject) => {
+            opts?.signal?.addEventListener(
+              'abort',
+              () => reject(new Error('aborted')),
+              { once: true },
+            )
+          }),
+      }),
+    })
+    const transport = fallback.fallback([hanging], { retryCount: 0 }).setup()
+    const controller = new AbortController()
+    const promise = transport.request(
+      { method: 'eth_chainId' },
+      { signal: controller.signal },
+    )
+    controller.abort()
+    const error = await promise.catch((error) => error as Error)
+    expect((error as Error).name).toBe('AbortError')
+  })
+
+  test('aborts an in-flight request', async () => {
+    const server = await Http.createServer((_req, res) => {
+      setTimeout(() => {
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ result: '0x1' }))
+      }, 200)
+    })
+    try {
+      const transport = fallback.fallback([http(server.url)]).setup()
+      const controller = new AbortController()
+      const promise = transport.request(
+        { method: 'eth_chainId' },
+        { signal: controller.signal },
+      )
+      controller.abort()
+      const error = await promise.catch((error) => error as Error)
+      expect((error as Error).name).toBe('AbortError')
+    } finally {
+      await server.close()
+    }
   })
 
   test('exposes the inner transport instances', () => {
