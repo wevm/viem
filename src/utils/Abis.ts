@@ -3,6 +3,199 @@ import { erc20Abi } from 'abitype/abis'
 /** [ERC-20](https://eips.ethereum.org/EIPS/eip-20) Token Standard ABI. */
 export const erc20 = erc20Abi
 
+/**
+ * [bytes32-flavored ERC-20](https://docs.makerdao.com/smart-contract-modules/mkr-module#4.-gotchas-potential-source-of-user-error)
+ * ABI for tokens (e.g. Maker) that use bytes32 instead of string.
+ */
+export const erc20_bytes32 = [
+  {
+    type: 'event',
+    name: 'Approval',
+    inputs: [
+      {
+        indexed: true,
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        name: 'spender',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
+    ],
+  },
+  {
+    type: 'event',
+    name: 'Transfer',
+    inputs: [
+      {
+        indexed: true,
+        name: 'from',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        name: 'to',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'allowance',
+    stateMutability: 'view',
+    inputs: [
+      {
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        name: 'spender',
+        type: 'address',
+      },
+    ],
+    outputs: [
+      {
+        type: 'uint256',
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'approve',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'spender',
+        type: 'address',
+      },
+      {
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    outputs: [
+      {
+        type: 'bool',
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'balanceOf',
+    stateMutability: 'view',
+    inputs: [
+      {
+        name: 'account',
+        type: 'address',
+      },
+    ],
+    outputs: [
+      {
+        type: 'uint256',
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'decimals',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [
+      {
+        type: 'uint8',
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'name',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [
+      {
+        type: 'bytes32',
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'symbol',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [
+      {
+        type: 'bytes32',
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'totalSupply',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [
+      {
+        type: 'uint256',
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'transfer',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'recipient',
+        type: 'address',
+      },
+      {
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    outputs: [
+      {
+        type: 'bool',
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'transferFrom',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'sender',
+        type: 'address',
+      },
+      {
+        name: 'recipient',
+        type: 'address',
+      },
+      {
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    outputs: [
+      {
+        type: 'bool',
+      },
+    ],
+  },
+] as const
+
 /** [ERC-721](https://eips.ethereum.org/EIPS/eip-721) Non-Fungible Token Standard ABI. */
 export const erc721 = [
   {
@@ -1239,6 +1432,84 @@ export const erc4626 = [
       },
     ],
     stateMutability: 'nonpayable',
+    type: 'function',
+  },
+] as const
+
+/**
+ * [Multicall3](https://github.com/mds1/multicall) ABI.
+ * Use for manual reads against Multicall3 deployments (e.g. `aggregate3`).
+ */
+export const multicall3 = [
+  {
+    inputs: [
+      {
+        components: [
+          {
+            name: 'target',
+            type: 'address',
+          },
+          {
+            name: 'allowFailure',
+            type: 'bool',
+          },
+          {
+            name: 'callData',
+            type: 'bytes',
+          },
+        ],
+        name: 'calls',
+        type: 'tuple[]',
+      },
+    ],
+    name: 'aggregate3',
+    outputs: [
+      {
+        components: [
+          {
+            name: 'success',
+            type: 'bool',
+          },
+          {
+            name: 'returnData',
+            type: 'bytes',
+          },
+        ],
+        name: 'returnData',
+        type: 'tuple[]',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        name: 'addr',
+        type: 'address',
+      },
+    ],
+    name: 'getEthBalance',
+    outputs: [
+      {
+        name: 'balance',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getCurrentBlockTimestamp',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'timestamp',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
     type: 'function',
   },
 ] as const

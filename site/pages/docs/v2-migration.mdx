@@ -477,7 +477,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `entryPoint09Address` | `EntryPoint.addressV09` | [User Operations](#user-operations) |
 | `EntryPointVersion` | `EntryPoint.Version` | [User Operations](#user-operations) |
 | `erc1155Abi` | `Abis.erc1155` | [Utilities: ABI](#abi) |
-| `erc20Abi_bytes32` | Removed; inline the bytes32 overrides | [Utilities: ABI](#abi) |
+| `erc20Abi_bytes32` | `Abis.erc20_bytes32` | [Utilities: ABI](#abi) |
 | `erc20Abi` | `Abis.erc20` | [Utilities: ABI](#abi) |
 | `erc4626Abi` | `Abis.erc4626` | [Utilities: ABI](#abi) |
 | `erc6492MagicBytes` | `SignatureErc6492.magicBytes` | [Signatures & Keys](#signatures--keys) |
@@ -725,7 +725,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `minInt256` | `Solidity.minInt256` | [Utilities: ABI](#abi) |
 | `mnemonicToAccount` | `Account.fromMnemonic` | [Accounts](#accounts) |
 | `MnemonicToAccountOptions` | `Account.fromMnemonic.Options` | [Accounts](#accounts) |
-| `multicall3Abi` | Removed; build the `aggregate3` signature via `AbiFunction.from` | [Utilities: ABI](#abi) |
+| `multicall3Abi` | `Abis.multicall3` | [Utilities: ABI](#abi) |
 | `multicall` | `Actions.multicall` (`calls`, `to`, `{ results }` envelope) | [Call & Multicall](#call--multicall) |
 | `MulticallBatchOptions` | `Client.MulticallOptions` | [Client](#client) |
 | `MulticallContracts` | `Actions.multicall.Options<calls>['calls']` | [Call & Multicall](#call--multicall) |
@@ -2798,28 +2798,17 @@ import { parseAbiParameter, type ParseAbi, type ResolvedRegister } from 'abitype
 
 Internal ABI type-plumbing helpers were removed without public replacements. Compose from `abitype` primitives or use the owning function's namespace types.
 
-Preset ABI constants moved into domain namespaces: ERC-20/ERC-721/ERC-1155/ERC-4626 to `Abis`, and the ERC-6492 validator ABI to `SignatureErc6492`.
+Preset ABI constants moved into domain namespaces: ERC-20/ERC-721/ERC-1155/ERC-4626 and Multicall3 to `Abis`, and the ERC-6492 validator ABI to `SignatureErc6492`.
 
 | v2 | v3 |
 | --- | --- |
 | `erc1155Abi` | `Abis.erc1155` |
+| `erc20Abi_bytes32` | `Abis.erc20_bytes32` |
 | `erc20Abi` | `Abis.erc20` |
 | `erc4626Abi` | `Abis.erc4626` |
 | `erc6492SignatureValidatorAbi` | `SignatureErc6492.universalSignatureValidatorAbi` |
 | `erc721Abi` | `Abis.erc721` |
-
-The bytes32 ERC-20 ABI variant and multicall3 ABI were removed. Inline overrides or build the aggregate signature when performing manual reads.
-
-The multicall action handles aggregation internally.
-
-```ts
-import { erc20Abi_bytes32, multicall3Abi } from 'viem' // [!code --]
-import { AbiFunction } from 'viem/utils' // [!code ++]
-
-const aggregate3 = AbiFunction.from( // [!code ++]
-  'function aggregate3((address target, bool allowFailure, bytes callData)[] calls) payable returns ((bool success, bytes returnData)[] returnData)', // [!code ++]
-) // [!code ++]
-```
+| `multicall3Abi` | `Abis.multicall3` |
 
 The deployless-call bytecode constants were internalized; deployless calls are first-class `Actions.call` options.
 
