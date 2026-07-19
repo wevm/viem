@@ -520,12 +520,8 @@ describe('withCache', () => {
       }
 
       const results = await Promise.all([
-        ...Array.from({ length: 10 }, () =>
-          withCache(fn, { cacheKey: 'foo' }),
-        ),
-        ...Array.from({ length: 10 }, () =>
-          withCache(fn, { cacheKey: 'bar' }),
-        ),
+        ...Array.from({ length: 10 }, () => withCache(fn, { cacheKey: 'foo' })),
+        ...Array.from({ length: 10 }, () => withCache(fn, { cacheKey: 'bar' })),
       ])
       expect(results).toMatchInlineSnapshot(`
         [

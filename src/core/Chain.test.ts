@@ -84,9 +84,8 @@ describe('getContractAddress', () => {
   })
 
   test('throws when the contract is keyed by source chain', () => {
-    expect(() =>
-      Chain.getContractAddress({ chain: base, contract: 'portal' }),
-    ).toThrowErrorMatchingInlineSnapshot(`
+    expect(() => Chain.getContractAddress({ chain: base, contract: 'portal' }))
+      .toThrowErrorMatchingInlineSnapshot(`
       [Chain.DoesNotSupportContract: Chain "Base" does not support contract "portal".
 
       This could be due to any of the following:

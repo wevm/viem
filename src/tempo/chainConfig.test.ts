@@ -619,9 +619,8 @@ describe('transaction.serialize', () => {
       nonce: 0,
       nonceKey: 69n,
     } as never)
-    expect(
-      TxEnvelopeTempo.deserialize(serialize(envelope) as `0x76${string}`),
-    ).toMatchInlineSnapshot(`
+    expect(TxEnvelopeTempo.deserialize(serialize(envelope) as `0x76${string}`))
+      .toMatchInlineSnapshot(`
       {
         "calls": [
           {

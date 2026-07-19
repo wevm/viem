@@ -262,15 +262,13 @@ test('behavior: concurrent waiters resolve', async () => {
     waitForCallsStatus(client, { id: 'concurrent-id', timeout: 5_000 }),
     waitForCallsStatus(client, { id: 'concurrent-id', timeout: 5_000 }),
   ])
-  expect({ status: a.status, statusCode: a.statusCode })
-    .toMatchInlineSnapshot(`
+  expect({ status: a.status, statusCode: a.statusCode }).toMatchInlineSnapshot(`
     {
       "status": "success",
       "statusCode": 200,
     }
   `)
-  expect({ status: b.status, statusCode: b.statusCode })
-    .toMatchInlineSnapshot(`
+  expect({ status: b.status, statusCode: b.statusCode }).toMatchInlineSnapshot(`
     {
       "status": "success",
       "statusCode": 200,

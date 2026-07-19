@@ -303,8 +303,8 @@ function isUriAllowed(
   if (hostname.startsWith('[') || /^\d{1,3}(?:\.\d{1,3}){3}$/u.test(hostname))
     return false
   if (!hostname.includes('.')) return false
-  return !['.internal', '.local', '.localdomain', '.localhost'].some(
-    (suffix) => hostname.endsWith(suffix),
+  return !['.internal', '.local', '.localdomain', '.localhost'].some((suffix) =>
+    hostname.endsWith(suffix),
   )
 }
 
