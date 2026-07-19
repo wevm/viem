@@ -113,7 +113,7 @@ export async function from<
           } as const)
   const implementation =
     options.implementation ??
-    (options.entryPoint === '0.9'
+    (entryPoint_.version === '0.9'
       ? implementationAddressV09
       : implementationAddressV08)
 

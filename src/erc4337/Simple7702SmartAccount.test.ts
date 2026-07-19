@@ -98,6 +98,22 @@ test('args: custom EntryPoint', async () => {
   expect(account.entryPoint).toBe(entryPoint)
 })
 
+test('args: custom EntryPoint 0.9 implementation', async () => {
+  const account = await Simple7702SmartAccount.from({
+    client,
+    entryPoint: {
+      abi: EntryPoint.abiV09,
+      address: EntryPoint.addressV09,
+      version: '0.9',
+    },
+    owner,
+  })
+
+  expect(account.authorization.address).toBe(
+    '0xa46cc63eBF4Bd77888AA327837d20b23A63a56B5',
+  )
+})
+
 test('abi', async () => {
   const account = await Simple7702SmartAccount.from({ client, owner })
 
