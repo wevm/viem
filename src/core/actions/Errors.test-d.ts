@@ -15,6 +15,9 @@ test('exports errors by Action domain', () => {
   expectTypeOf<keyof typeof Actions.erc7821.Errors>().toEqualTypeOf<
     'ExecuteUnsupportedError' | 'FunctionSelectorNotRecognizedError'
   >()
+  expectTypeOf<
+    keyof typeof Actions.Errors
+  >().toEqualTypeOf<'CounterfactualDeploymentFailedError'>()
   expectTypeOf<keyof typeof Actions.fee.Errors>().toEqualTypeOf<
     'BaseFeeScalarError' | 'Eip1559FeesNotSupportedError'
   >()
@@ -22,6 +25,7 @@ test('exports errors by Action domain', () => {
     | 'MaxFeePerGasTooLowError'
     | 'TransactionNotFoundError'
     | 'TransactionReceiptNotFoundError'
+    | 'TransactionReceiptRevertedError'
     | 'WaitForReceiptTimeoutError'
   >()
   expectTypeOf<keyof typeof Actions.wallet.Errors>().toEqualTypeOf<
@@ -39,11 +43,13 @@ test('exports errors by Action domain', () => {
     | Actions.ens.Errors.EnsAvatarUriResolutionError
     | Actions.erc7821.Errors.ExecuteUnsupportedError
     | Actions.erc7821.Errors.FunctionSelectorNotRecognizedError
+    | Actions.Errors.CounterfactualDeploymentFailedError
     | Actions.fee.Errors.BaseFeeScalarError
     | Actions.fee.Errors.Eip1559FeesNotSupportedError
     | Actions.transaction.Errors.MaxFeePerGasTooLowError
     | Actions.transaction.Errors.TransactionNotFoundError
     | Actions.transaction.Errors.TransactionReceiptNotFoundError
+    | Actions.transaction.Errors.TransactionReceiptRevertedError
     | Actions.transaction.Errors.WaitForReceiptTimeoutError
     | Actions.wallet.Errors.AtomicityNotSupportedError
     | Actions.wallet.Errors.BundleFailedError
@@ -55,6 +61,7 @@ test('exports errors by Action domain', () => {
 
 test('omits flat error exports from Action domains', () => {
   type FlatErrorKey =
+    | Extract<keyof typeof Actions, `${string}Error`>
     | Extract<keyof typeof Actions.block, `${string}Error`>
     | Extract<keyof typeof Actions.ens, `${string}Error`>
     | Extract<keyof typeof Actions.erc7821, `${string}Error`>

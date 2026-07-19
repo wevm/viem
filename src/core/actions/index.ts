@@ -10,6 +10,8 @@ export * as chains from './chains/index.js'
 export * as contract from './contract/index.js'
 export * as ens from './ens/index.js'
 export * as erc7821 from './erc7821/index.js'
+/** Errors thrown by top-level Actions. */
+export * as Errors from './Errors.js'
 export * as event from './event/index.js'
 export * as fee from './fee/index.js'
 export * as filter from './filter/index.js'
