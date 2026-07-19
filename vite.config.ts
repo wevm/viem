@@ -96,7 +96,7 @@ export default defineConfig({
         test: {
           name: 'core',
           include: ['src/**/*.test.ts'],
-          exclude: ['**/node_modules/**', 'src/tempo/actions/**'],
+          exclude: ['**/node_modules/**', 'src/tempo/**'],
           globalSetup: ['./test/setup.global.ts'],
           retry: 0,
           setupFiles: ['./test/setup.core.ts'],
@@ -107,7 +107,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'tempo',
-          include: ['src/tempo/actions/**/*.test.ts'],
+          include: ['src/tempo/**/*.test.ts'],
           globalSetup: ['./test/setup.tempo.global.ts'],
           setupFiles: ['./test/setup.tempo.ts'],
           retry: 0,
