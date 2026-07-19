@@ -226,6 +226,15 @@ test('omits write when the client has no account', () => {
   >()
 })
 
+test('keeps write when the client account is widened', () => {
+  const contract = Contract.from({
+    abi,
+    address,
+    client: client as Client.Client,
+  })
+  expectTypeOf(contract.write.transfer).toBeFunction()
+})
+
 test('keeps all groups for a widened ABI', () => {
   const widened: Abi = abi
   const contract = Contract.from({

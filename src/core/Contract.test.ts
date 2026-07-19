@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { Actions, Client, Contract, http } from 'viem'
+import { Account, Actions, Client, Contract, http } from 'viem'
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
@@ -72,16 +72,19 @@ test('derives conditional method groups from the ABI', () => {
   `)
 })
 
-test('omits write without a client account', () => {
+test('write rejects without a client account', async () => {
   const contract = Contract.from({
     abi: generated.Events.abi,
     address: events.address,
-    client,
+    // Widened: `write` is type-visible on `account: Account | undefined`.
+    client: Client.create({
+      transport: http('http://localhost:1'),
+    }) as Client.Client,
   })
-  // @ts-expect-error - write is not defined
-  expect(contract.write).toBeUndefined()
-  expect(contract.estimateGas).toBeDefined()
-  expect(contract.simulate).toBeDefined()
+  expect(contract.write).toBeDefined()
+  await expect(
+    contract.write.emitTransfer({ args: [account, recipient, 1n] }),
+  ).rejects.toThrowError(Account.NotFoundError)
 })
 
 test('binds function and event action options', async () => {

@@ -1,6 +1,7 @@
 import type { Abi, AbiStateMutability } from 'abitype'
 import type { AbiEvent, AbiFunction, Address, Block } from 'ox'
 
+import * as Account from './Account.js'
 import type * as Client from './Client.js'
 import { createEventFilter as createEventFilter_ } from './actions/contract/createEventFilter.js'
 import { estimateGas as estimateGas_ } from './actions/contract/estimateGas.js'
@@ -102,15 +103,21 @@ export function from<
         functionName,
       } as simulate_.Options),
     )
-    if (client.account)
-      contract.write = createMethods(writeNames, (functionName, options) =>
-        write_(client, {
+    // Always attached: on widened client types (`account: Account | undefined`)
+    // `write` is type-visible even when no account is bound at runtime.
+    contract.write = createMethods(
+      writeNames,
+      async (functionName, options) => {
+        if (!options.account && !client.account)
+          throw new Account.NotFoundError()
+        return write_(client, {
           ...options,
           abi,
           address,
           functionName,
-        } as write_.Options),
-      )
+        } as write_.Options)
+      },
+    )
   }
 
   if (eventNames.size) {
