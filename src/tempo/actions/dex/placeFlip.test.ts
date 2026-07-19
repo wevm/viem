@@ -1,8 +1,9 @@
-import { Value } from 'ox'
+import { Hex, Value } from 'ox'
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 
-import { Account, Actions } from 'viem/tempo'
+import { Account, Actions, Client, custom } from 'viem/tempo'
+import { tempoLocalnet } from 'viem/chains'
 
 const account = Account.fromSecp256k1(tempo.accounts[0]!.privateKey)
 const client = tempo.getClient({ account, feeToken: tempo.pathUsd })
@@ -139,5 +140,43 @@ describe('placeFlip', () => {
         })
       ).receipt.status,
     ).toBe('success')
+  })
+
+  test('behavior: json-rpc account: call args stay out of the request', async () => {
+    const hash =
+      '0x083f102bb0e0aeca27ea5c442df0bb0f36d09e3f5cf99363cef8d70a17e91039'
+    let request: unknown
+    const client = Client.create({
+      chain: tempoLocalnet,
+      transport: custom({
+        async request({ method, params }) {
+          if (method === 'eth_chainId') return Hex.fromNumber(tempoLocalnet.id)
+          if (method === 'eth_sendTransaction') {
+            request = params[0]
+            return hash
+          }
+          throw new Error(`unexpected method: ${method}`)
+        },
+      }),
+    })
+    expect(
+      await Actions.dex.placeFlip(client, {
+        account: tempo.accounts[0]!.address,
+        amount: Value.from('100', 6),
+        flipTick: 200,
+        tick: 100,
+        token: tempo.pathUsd,
+        type: 'buy',
+      }),
+    ).toBe(hash)
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "chainId": "0x539",
+        "data": "0x922828f100000000000000000000000020c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005f5e1000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000c8",
+        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "input": "0x922828f100000000000000000000000020c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005f5e1000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000c8",
+        "to": "0xdec0000000000000000000000000000000000000",
+      }
+    `)
   })
 })

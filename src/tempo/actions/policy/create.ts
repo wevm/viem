@@ -66,19 +66,24 @@ export namespace create {
     client: Client.Client<chain, account>,
     options: Options<account>,
   ): Promise<dispatchWrite.ReturnType<action>> {
+    // Keep call arguments (notably `type`, which collides with the
+    // transaction type field) out of the write request.
     const {
       account = client.account,
+      addresses,
       admin: admin_ = client.account,
       chain = client.chain,
+      type,
+      ...rest
     } = options
     const admin = admin_ ? resolveAdmin(admin_) : undefined
     if (!admin) throw new Error('admin is required.')
 
     return dispatchWrite(action, client, {
-      ...options,
+      ...rest,
       account,
       chain,
-      ...create.call(client, { ...options, admin }),
+      ...create.call(client, { addresses, admin, type }),
     })
   }
 

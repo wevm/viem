@@ -79,9 +79,12 @@ export namespace placeFlip {
     client: Client.Client<chain, account>,
     options: placeFlip.Options,
   ): Promise<dispatchWrite.ReturnType<action>> {
+    // Keep call arguments (notably `type`, which collides with the
+    // transaction type field) out of the write request.
+    const { amount, flipTick, tick, token, type, ...rest } = options
     return dispatchWrite(action, client, {
-      ...options,
-      ...placeFlip.call(client, options),
+      ...rest,
+      ...placeFlip.call(client, { amount, flipTick, tick, token, type }),
     })
   }
 

@@ -77,9 +77,12 @@ export namespace place {
     client: Client.Client<chain, account>,
     options: place.Options,
   ): Promise<dispatchWrite.ReturnType<action>> {
+    // Keep call arguments (notably `type`, which collides with the
+    // transaction type field) out of the write request.
+    const { amount, tick, token, type, ...rest } = options
     return dispatchWrite(action, client, {
-      ...options,
-      ...place.call(client, options),
+      ...rest,
+      ...place.call(client, { amount, tick, token, type }),
     })
   }
 
