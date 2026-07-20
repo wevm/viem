@@ -337,7 +337,7 @@ export async function prepareTransactionRequest<
     return chainId
   }
 
-  const account = account_ ? parseAccount(account_) : account_
+  let account = account_ ? parseAccount(account_) : account_
 
   let nonce = request.nonce
   if (
@@ -366,6 +366,8 @@ export async function prepareTransactionRequest<
       },
     )
     nonce ??= request.nonce
+    const sender = request.account ?? (request as TransactionRequest).from
+    account = sender ? parseAccount(sender) : undefined
   }
 
   const attemptFill = (() => {

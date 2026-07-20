@@ -78,7 +78,10 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'tempo',
-          exclude: [zoneNodeConfigured ? '' : 'src/tempo/actions/zone.test.ts'],
+          exclude: [
+            '**/*.multisig.test.ts',
+            zoneNodeConfigured ? '' : 'src/tempo/actions/zone.test.ts',
+          ],
           include: ['src/tempo/**/*.test.ts'],
           setupFiles: [join(__dirname, './src/tempo/setup.ts')],
           globalSetup: [join(__dirname, './src/tempo/setup.global.ts')],
@@ -87,6 +90,23 @@ export default defineConfig({
           testTimeout: 10_000,
         },
       },
+      ...((process.env.VITE_TEMPO_MULTISIG === 'true'
+        ? [
+            {
+              extends: true,
+              test: {
+                name: 'tempo-multisig',
+                include: ['src/tempo/**/*.multisig.test.ts'],
+                setupFiles: [join(__dirname, './src/tempo/setup.ts')],
+                globalSetup: [join(__dirname, './src/tempo/setup.global.ts')],
+                retry: 0,
+                sequence: { groupOrder: 1 },
+                hookTimeout: 180_000,
+                testTimeout: 120_000,
+              },
+            },
+          ]
+        : []) satisfies TestProjectConfiguration[]),
     ],
   },
 })

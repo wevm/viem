@@ -1,6 +1,7 @@
 import { RpcTransport } from 'ox'
 import { type Instance, Server } from 'prool'
 import * as TestContainers from 'prool/testcontainers'
+import { getBlock } from '../../../src/actions/public/getBlock.js'
 import {
   type Chain,
   type Client,
@@ -9,6 +10,7 @@ import {
 } from '../../../src/index.js'
 import { pathUsd } from '../../../src/tempo/Addresses.js'
 import * as actions from '../../../src/tempo/actions/index.js'
+import { withRetry } from '../../../src/utils/promise/withRetry.js'
 import { accounts, nodeEnv } from './config.js'
 
 export const port = 9545
@@ -49,7 +51,12 @@ export async function createServer() {
 
   const args = {
     // Match Tempo's production cadence when Zone consumes every L1 block.
-    blockTime: import.meta.env.VITE_TEMPO_ZONES === 'true' ? '500ms' : '2ms',
+    blockTime:
+      import.meta.env.VITE_TEMPO_ZONES === 'true'
+        ? '500ms'
+        : process.env.CI
+          ? '50ms'
+          : '2ms',
     log: import.meta.env.VITE_TEMPO_LOG,
     port,
   } satisfies Instance.tempo.Parameters
@@ -213,6 +220,14 @@ async function startZone(
 export async function restart(client: Client<Transport, Chain>) {
   if (nodeEnv !== 'localnet') return
   await fetch(`${client.chain.rpcUrls.default.http[0]}/restart`)
+  await withRetry(
+    async () => {
+      const block = await getBlock(client)
+      if (block.timestamp === 0n)
+        throw new Error('Tempo has not produced a block after restart.')
+    },
+    { delay: 50, retryCount: 100 },
+  )
   await setup(client)
 }
 

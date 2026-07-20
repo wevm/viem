@@ -1047,6 +1047,29 @@ describe('without `eth_fillTransaction`', () => {
       expect(request.gas).toEqual(50000n)
     })
 
+    test('preserves a sender derived by the chain hook', async () => {
+      await setup()
+
+      const hookClient = createClient({
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        chain: defineChain({
+          ...anvilMainnet.chain,
+          async prepareTransactionRequest(args) {
+            const { account: _, ...request } = args
+            return { ...request, from: targetAccount.address }
+          },
+        }),
+        transport: http(anvilMainnet.rpcUrl.http),
+      })
+      const request = await prepareTransactionRequest(hookClient, {
+        to: sourceAccount.address,
+        value: 0n,
+      })
+
+      expect(request.account).toBeUndefined()
+      expect(request.from).toBe(targetAccount.address)
+    })
+
     test('client chain with prepareTransactionRequest', async () => {
       await setup()
 
