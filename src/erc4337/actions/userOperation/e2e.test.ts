@@ -588,7 +588,7 @@ describe.sequential('live EntryPoint flows', () => {
     `)
   })
 
-  liveTest(
+  test(
     'EntryPoint 0.9 gets an included User Operation by hash',
     { retry: 0, timeout: 30_000 },
     async () => {
