@@ -1,0 +1,16 @@
+codecov:
+  notify:
+    after_n_builds: 6
+
+coverage:
+  status:
+    project:
+      default:
+        target: 95%
+        threshold: 0%
+        if_not_found: failure
+    patch:
+      default:
+        target: 95%
+        threshold: 0%
+        if_not_found: failure

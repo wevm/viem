@@ -8,6 +8,25 @@ import { signAuthorizationToken } from '../actions/zone/signAuthorizationToken.j
 
 const zone = zoneModerato(6)
 
+test('behavior: custom metadata', () => {
+  const transport = http(undefined, {
+    key: 'zone-http',
+    name: 'Zone HTTP',
+  })
+
+  expect({
+    key: transport.key,
+    name: transport.name,
+    type: transport.type,
+  }).toMatchInlineSnapshot(`
+    {
+      "key": "zone-http",
+      "name": "Zone HTTP",
+      "type": "http",
+    }
+  `)
+})
+
 /** Boots a JSON-RPC server that records request headers. */
 async function createRpcServer() {
   const headers: Record<string, string | undefined>[] = []

@@ -1097,9 +1097,9 @@ describe('webSocket', () => {
           keepAlive: { interval: 20 },
         })
         await wait(60)
-        const ping = server.connections[0]!.messages
-          .map((m) => JSON.parse(m))
-          .find((m) => m.method === 'net_version')
+        const ping = server.connections[0]!.messages.map((m) =>
+          JSON.parse(m),
+        ).find((m) => m.method === 'net_version')
         expect(ping).toEqual({
           jsonrpc: '2.0',
           id: null,

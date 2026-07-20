@@ -103,6 +103,7 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: read
+      id-token: write
     strategy:
       max-parallel: 3
       matrix:
@@ -127,7 +128,7 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: pnpm test --bail=1 --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+          command: pnpm test --bail=1 --coverage --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
           CI: true
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
@@ -141,10 +142,15 @@ jobs:
           VITE_TEMPO_ENV: localnet
           VITE_TEMPO_TAG: latest
 
+      # Fork workflows cannot authenticate to Codecov for this private repository.
       - name: Upload coverage reports to Codecov
+        if: github.actor != 'dependabot[bot]' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         uses: codecov/codecov-action@v6
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          disable_search: true
+          fail_ci_if_error: true
+          files: ./coverage/lcov.info
+          use_oidc: true
 
   test-tempo-deployed:
     name: 'Test Deployed Tempo (env: ${{ matrix.node-env }}, e2e)'

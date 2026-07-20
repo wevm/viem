@@ -17,6 +17,7 @@ jobs:
     secrets: inherit
     permissions:
       contents: read # checkout repository contents in the reusable workflow
+      id-token: write # upload coverage through Codecov OIDC
 
   changesets:
     name: Create version pull request

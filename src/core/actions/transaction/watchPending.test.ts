@@ -1,11 +1,12 @@
 import type { Hex } from 'ox'
 import { expect, test } from 'vitest'
 
-import { Actions, Client, http, webSocket } from 'viem'
+import { Actions, Client, http, publicActions, webSocket } from 'viem'
 
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
 import * as Http from '~test/http.js'
+import * as Ws from '~test/ws.js'
 import { wait } from '../../internal/wait.js'
 
 const client = Client.create({
@@ -15,6 +16,48 @@ const client = Client.create({
 
 const a = constants.accounts[0].address
 const b = constants.accounts[1].address
+
+const hash1 = `0x${'11'.repeat(32)}` as Hex.Hex
+const hash2 = `0x${'22'.repeat(32)}` as Hex.Hex
+
+function subscriptionServer(hashes: readonly Hex.Hex[] = []) {
+  const subscriptionId = '0xdeadbeef'
+  return Ws.createServer((connection, message) => {
+    const request = JSON.parse(message)
+    if (request.method !== 'eth_subscribe') return
+    connection.send(
+      JSON.stringify({
+        id: request.id,
+        jsonrpc: '2.0',
+        result: subscriptionId,
+      }),
+    )
+    for (const hash of hashes)
+      connection.send(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'eth_subscription',
+          params: { subscription: subscriptionId, result: hash },
+        }),
+      )
+  })
+}
+
+async function waitForSubscription(
+  server: Awaited<ReturnType<typeof subscriptionServer>>,
+) {
+  await expect
+    .poll(
+      () =>
+        server.connections.some(({ messages }) =>
+          messages.some(
+            (message) => JSON.parse(message).method === 'eth_subscribe',
+          ),
+        ),
+      { interval: 10, timeout: 1_000 },
+    )
+    .toBe(true)
+}
 
 test('default: emits pending transaction hashes via polling', async () => {
   const hashes: Hex.Hex[] = []
@@ -142,10 +185,10 @@ test('onError: invokes the listener when polling fails', async () => {
 test('poll: false uses a subscription (webSocket)', async () => {
   const wsClient = Client.create({
     transport: webSocket(anvil.mainnet.rpcUrl.ws, { keepAlive: false }),
-  })
+  }).extend(publicActions())
 
   const hashes: Hex.Hex[] = []
-  const watch = Actions.transaction.watchPending(wsClient)
+  const watch = wsClient.transaction.watchPending()
   watch.onTransactions((next) => hashes.push(...next))
 
   await wait(200)
@@ -159,4 +202,162 @@ test('poll: false uses a subscription (webSocket)', async () => {
   ;(await wsClient.transport.getRpcClient()).close()
 
   expect(hashes).toContain(hash)
+})
+
+test('subscription: invokes onError when subscribing fails', async () => {
+  const bad = Client.create({
+    transport: webSocket('ws://127.0.0.1:1', {
+      keepAlive: false,
+      reconnect: false,
+    }),
+  })
+
+  const error = await new Promise<Error>((resolve) => {
+    const watch = Actions.transaction.watchPending(bad)
+    watch.onTransactions(() => {})
+    watch.onError((error) => {
+      watch.off()
+      resolve(error)
+    })
+  })
+
+  expect(error).toBeInstanceOf(Error)
+})
+
+test('subscription: drops buffered hashes after off', async () => {
+  const server = await subscriptionServer([hash1])
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const hashes: Hex.Hex[] = []
+    const watch = Actions.transaction.watchPending(wsClient)
+    watch.onTransactions((next) => hashes.push(...next))
+    watch.off()
+
+    await wait(200)
+    ;(await wsClient.transport.getRpcClient()).close()
+
+    expect(hashes).toEqual([])
+  } finally {
+    await server.close()
+  }
+})
+
+test('async iterator: resolves a pending next with a hash', async () => {
+  const server = await subscriptionServer()
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const watch = Actions.transaction.watchPending(wsClient)
+    const iterator = watch[Symbol.asyncIterator]()
+    const next = iterator.next()
+
+    await waitForSubscription(server)
+    server.connections[0]!.send(
+      JSON.stringify({
+        jsonrpc: '2.0',
+        method: 'eth_subscription',
+        params: { subscription: '0xdeadbeef', result: hash1 },
+      }),
+    )
+
+    expect(await next).toEqual({ done: false, value: { hashes: [hash1] } })
+    await iterator.return!()
+    watch.off()
+    ;(await wsClient.transport.getRpcClient()).close()
+  } finally {
+    await server.close()
+  }
+})
+
+test('async iterator: keeps only the latest buffered hash', async () => {
+  const server = await subscriptionServer([hash1, hash2])
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const watch = Actions.transaction.watchPending(wsClient)
+    const iterator = watch[Symbol.asyncIterator]()
+
+    await wait(200)
+    expect(await iterator.next()).toEqual({
+      done: false,
+      value: { hashes: [hash2] },
+    })
+    expect(iterator[Symbol.asyncIterator]()).toBe(iterator)
+    expect(await iterator.return!()).toEqual({ done: true, value: undefined })
+    expect(await iterator.next()).toEqual({ done: true, value: undefined })
+    watch.off()
+    ;(await wsClient.transport.getRpcClient()).close()
+  } finally {
+    await server.close()
+  }
+})
+
+test('async iterator: throws a stored subscription error', async () => {
+  const server = await subscriptionServer()
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const watch = Actions.transaction.watchPending(wsClient)
+    const iterator = watch[Symbol.asyncIterator]()
+
+    await waitForSubscription(server)
+    server.dropAll()
+    await wait(150)
+
+    await expect(iterator.next()).rejects.toBeInstanceOf(Error)
+    watch.off()
+    ;(await wsClient.transport.getRpcClient()).close()
+  } finally {
+    await server.close()
+  }
+})
+
+test('async iterator: rejects a pending next on error', async () => {
+  const server = await subscriptionServer()
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const watch = Actions.transaction.watchPending(wsClient)
+    const iterator = watch[Symbol.asyncIterator]()
+
+    await waitForSubscription(server)
+    const next = iterator.next()
+    server.dropAll()
+
+    await expect(next).rejects.toBeInstanceOf(Error)
+    watch.off()
+    ;(await wsClient.transport.getRpcClient()).close()
+  } finally {
+    await server.close()
+  }
+})
+
+test('async iterator: off resolves a pending next as done', async () => {
+  const server = await subscriptionServer()
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const watch = Actions.transaction.watchPending(wsClient)
+    const iterator = watch[Symbol.asyncIterator]()
+    const next = iterator.next()
+    watch.off()
+
+    expect(await next).toEqual({ done: true, value: undefined })
+    ;(await wsClient.transport.getRpcClient()).close()
+  } finally {
+    await server.close()
+  }
 })

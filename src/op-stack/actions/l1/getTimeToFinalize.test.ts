@@ -1,0 +1,103 @@
+import { afterAll, expect, test } from 'vitest'
+
+import * as anvil from '~test/anvil.js'
+import { Actions as CoreActions, Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+import { Actions, Withdrawal } from 'viem/op-stack'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(anvil.mainnet.rpcUrl.http),
+})
+const optimismClient = Client.create({
+  chain: optimism,
+  transport: http(anvil.optimism.rpcUrl.http),
+})
+
+afterAll(async () => {
+  await Promise.all([
+    CoreActions.state.reset(client, {
+      blockNumber: anvil.mainnet.forkBlockNumber,
+      jsonRpcUrl: anvil.mainnet.forkUrl,
+    }),
+    CoreActions.state.reset(optimismClient, {
+      blockNumber: anvil.optimism.forkBlockNumber,
+      jsonRpcUrl: anvil.optimism.forkUrl,
+    }),
+  ])
+}, 60_000)
+
+test('returns zero seconds for a matured proof', async () => {
+  await CoreActions.state.reset(client, {
+    blockNumber: 21_890_932n,
+    jsonRpcUrl: anvil.mainnet.forkUrl,
+  })
+  const before = Date.now()
+
+  const time = await Actions.l1.getTimeToFinalize(client, {
+    targetChain: optimism,
+    withdrawalHash:
+      '0xFF78806A60996A5A656C8ED4174DD3102C388BB9BB157297482C635CDB8F973F',
+  })
+
+  expect({
+    period: time.period,
+    seconds: time.seconds,
+    timestampCurrent: time.timestamp >= before && time.timestamp <= Date.now(),
+  }).toMatchInlineSnapshot(`
+    {
+      "period": 604800,
+      "seconds": 0,
+      "timestampCurrent": true,
+    }
+  `)
+}, 60_000)
+
+test('rejects an unproven withdrawal', async () => {
+  await CoreActions.state.reset(client, {
+    blockNumber: 21_890_932n,
+    jsonRpcUrl: anvil.mainnet.forkUrl,
+  })
+
+  await expect(
+    Actions.l1.getTimeToFinalize(client, {
+      targetChain: optimism,
+      withdrawalHash:
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [Actions.l1.getTimeToFinalize.WithdrawalNotProvenError: Withdrawal has not been proven on L1.
+
+    Version: viem@2.52.1]
+  `)
+}, 60_000)
+
+test('returns the legacy finalization period', async () => {
+  await CoreActions.state.reset(client, {
+    blockNumber: 18_770_525n,
+    jsonRpcUrl: anvil.mainnet.forkUrl,
+  })
+  const receipt = await CoreActions.transaction.getReceipt(optimismClient, {
+    hash: '0x9a2f4283636ddeb9ac32382961b22c177c9e86dd3b283735c154f897b1a7ff4a',
+  })
+  const [withdrawal] = Withdrawal.getWithdrawals({ logs: receipt.logs })
+  if (!withdrawal) throw new Error('Expected a withdrawal.')
+  const before = Date.now()
+
+  const time = await Actions.l1.getTimeToFinalize(client, {
+    targetChain: optimism,
+    withdrawalHash: withdrawal.withdrawalHash,
+  })
+
+  expect({
+    period: time.period,
+    seconds: time.seconds,
+    timestampCurrent: time.timestamp >= before && time.timestamp <= Date.now(),
+  }).toMatchInlineSnapshot(`
+    {
+      "period": 604800,
+      "seconds": 0,
+      "timestampCurrent": true,
+    }
+  `)
+}, 60_000)

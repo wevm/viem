@@ -654,48 +654,45 @@ describe.sequential('live EntryPoint flows', () => {
     },
   )
 
-  test(
-    'ERC-7677 PaymasterClient',
-    { retry: 0, timeout: 30_000 },
-    async () => {
-      const paymasterClient = PaymasterClient.create({
-        transport: http(paymasterServer.url),
-      })
-      const client = BundlerClient.create({
-        account: sponsoredAccount07,
-        client: executionClient,
-        paymaster: paymasterClient,
-        pollingInterval: 50,
-        transport: http(bundler.rpcUrl.http),
-      })
-      const calls = [
-        {
-          to: constants.accounts[5].address,
-          value: Value.fromEther('1'),
-        },
-      ] as const
-      const balance = await CoreActions.address.getBalance(executionClient, {
-        address: calls[0].to,
-      })
+  test('ERC-7677 PaymasterClient', { retry: 0, timeout: 30_000 }, async () => {
+    const paymasterClient = PaymasterClient.create({
+      transport: http(paymasterServer.url),
+    })
+    const client = BundlerClient.create({
+      account: sponsoredAccount07,
+      client: executionClient,
+      paymaster: paymasterClient,
+      pollingInterval: 50,
+      transport: http(bundler.rpcUrl.http),
+    })
+    const calls = [
+      {
+        to: constants.accounts[5].address,
+        value: Value.fromEther('1'),
+      },
+    ] as const
+    const balance = await CoreActions.address.getBalance(executionClient, {
+      address: calls[0].to,
+    })
 
-      const prepared = await Actions.userOperation.prepare(client, {
-        calls,
-        ...fees,
-      })
-      if (
-        !prepared.paymaster ||
-        !prepared.paymasterData ||
-        prepared.paymasterPostOpGasLimit === undefined ||
-        prepared.paymasterVerificationGasLimit === undefined
-      )
-        throw new Error('Paymaster fields are required.')
-      expect({
-        paymaster: Address.isEqual(prepared.paymaster, paymaster),
-        paymasterData: prepared.paymasterData.length > 2,
-        paymasterPostOpGasLimit: prepared.paymasterPostOpGasLimit > 0n,
-        paymasterVerificationGasLimit:
-          prepared.paymasterVerificationGasLimit > 0n,
-      }).toMatchInlineSnapshot(`
+    const prepared = await Actions.userOperation.prepare(client, {
+      calls,
+      ...fees,
+    })
+    if (
+      !prepared.paymaster ||
+      !prepared.paymasterData ||
+      prepared.paymasterPostOpGasLimit === undefined ||
+      prepared.paymasterVerificationGasLimit === undefined
+    )
+      throw new Error('Paymaster fields are required.')
+    expect({
+      paymaster: Address.isEqual(prepared.paymaster, paymaster),
+      paymasterData: prepared.paymasterData.length > 2,
+      paymasterPostOpGasLimit: prepared.paymasterPostOpGasLimit > 0n,
+      paymasterVerificationGasLimit:
+        prepared.paymasterVerificationGasLimit > 0n,
+    }).toMatchInlineSnapshot(`
       {
         "paymaster": true,
         "paymasterData": true,
@@ -704,41 +701,38 @@ describe.sequential('live EntryPoint flows', () => {
       }
     `)
 
-      const hash = await Actions.userOperation.send(client, { calls, ...fees })
-      const receiptPromise = Actions.userOperation.waitForReceipt<'0.7'>(
-        client,
-        {
-          hash,
-          pollingInterval: 50,
-          timeout: 15_000,
-        },
-      )
-      await client.request({ method: 'debug_bundler_sendBundleNow' })
-      await CoreActions.block.mine(executionClient, { blocks: 1 })
-      const receipt = await receiptPromise
-      const operation = await Actions.userOperation.get<'0.7'>(client, { hash })
-      const transactionHash = getIncludedTransactionHash(operation)
-      const receipt_ = await Actions.userOperation.getReceipt<'0.7'>(client, {
-        hash,
-      })
-      const transaction = await CoreActions.transaction.get(executionClient, {
-        hash: transactionHash,
-      })
+    const hash = await Actions.userOperation.send(client, { calls, ...fees })
+    const receiptPromise = Actions.userOperation.waitForReceipt<'0.7'>(client, {
+      hash,
+      pollingInterval: 50,
+      timeout: 15_000,
+    })
+    await client.request({ method: 'debug_bundler_sendBundleNow' })
+    await CoreActions.block.mine(executionClient, { blocks: 1 })
+    const receipt = await receiptPromise
+    const operation = await Actions.userOperation.get<'0.7'>(client, { hash })
+    const transactionHash = getIncludedTransactionHash(operation)
+    const receipt_ = await Actions.userOperation.getReceipt<'0.7'>(client, {
+      hash,
+    })
+    const transaction = await CoreActions.transaction.get(executionClient, {
+      hash: transactionHash,
+    })
 
-      expect({
-        included: receipt.success,
-        operationHash: receipt.userOpHash === hash,
-        paymaster: receipt.paymaster
-          ? Address.isEqual(receipt.paymaster, paymaster)
-          : false,
-        receipt: receipt_.userOpHash === receipt.userOpHash,
-        transaction: transaction.hash === transactionHash,
-        transferred:
-          (await CoreActions.address.getBalance(executionClient, {
-            address: calls[0].to,
-          })) ===
-          balance + calls[0].value,
-      }).toMatchInlineSnapshot(`
+    expect({
+      included: receipt.success,
+      operationHash: receipt.userOpHash === hash,
+      paymaster: receipt.paymaster
+        ? Address.isEqual(receipt.paymaster, paymaster)
+        : false,
+      receipt: receipt_.userOpHash === receipt.userOpHash,
+      transaction: transaction.hash === transactionHash,
+      transferred:
+        (await CoreActions.address.getBalance(executionClient, {
+          address: calls[0].to,
+        })) ===
+        balance + calls[0].value,
+    }).toMatchInlineSnapshot(`
       {
         "included": true,
         "operationHash": true,
@@ -748,6 +742,5 @@ describe.sequential('live EntryPoint flows', () => {
         "transferred": true,
       }
     `)
-    },
-  )
+  })
 })

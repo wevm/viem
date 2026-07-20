@@ -134,4 +134,31 @@ describe('create', () => {
       }
     `)
   })
+
+  test('estimateGas', async () => {
+    const gas = await Actions.policy.create.estimateGas(client, {
+      admin: account.address,
+      type: 'whitelist',
+    })
+
+    expect(gas).toBeTypeOf('bigint')
+    expect(gas).toBeGreaterThan(0n)
+  })
+
+  test('simulate', async () => {
+    const { request, result } = await Actions.policy.create.simulate(client, {
+      type: 'blacklist',
+    })
+
+    expect(result).toBeTypeOf('bigint')
+    expect(request.functionName).toBe('createPolicy')
+  })
+
+  test('extractEvent: throws when missing', () => {
+    expect(() =>
+      Actions.policy.create.extractEvent([]),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: \`PolicyCreated\` event not found.]`,
+    )
+  })
 })

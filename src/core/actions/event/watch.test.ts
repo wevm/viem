@@ -87,6 +87,70 @@ function subscriptionServer(logs: readonly ReturnType<typeof makeLog>[] = []) {
   })
 }
 
+async function waitForSubscription(
+  server: Awaited<ReturnType<typeof subscriptionServer>>,
+) {
+  await expect
+    .poll(
+      () =>
+        server.connections.some(({ messages }) =>
+          messages.some(
+            (message) => JSON.parse(message).method === 'eth_subscribe',
+          ),
+        ),
+      { interval: 10, timeout: 1_000 },
+    )
+    .toBe(true)
+}
+
+function expiringFilterServer(logs: readonly ReturnType<typeof makeLog>[]) {
+  let emitted = false
+  let installs = 0
+  let polls = 0
+  return {
+    get installs() {
+      return installs
+    },
+    get polls() {
+      return polls
+    },
+    server: Http.createServer((req, res) => {
+      let body = ''
+      req.on('data', (chunk) => {
+        body += chunk
+      })
+      req.on('end', () => {
+        const request = JSON.parse(body)
+        res.setHeader('Content-Type', 'application/json')
+        if (request.method === 'eth_getFilterChanges' && polls < 2) {
+          const code = polls++ === 0 ? -32001 : -32000
+          res.end(
+            JSON.stringify({
+              id: request.id,
+              jsonrpc: '2.0',
+              error: { code, message: 'filter unavailable' },
+            }),
+          )
+          return
+        }
+        const result = (() => {
+          if (request.method === 'eth_newFilter')
+            return Hex.fromNumber(++installs)
+          if (request.method === 'eth_getFilterChanges') {
+            polls++
+            if (emitted) return []
+            emitted = true
+            return logs
+          }
+          if (request.method === 'eth_uninstallFilter') return true
+          return null
+        })()
+        res.end(JSON.stringify({ id: request.id, jsonrpc: '2.0', result }))
+      })
+    }),
+  }
+}
+
 test('default: emits decoded logs via polling', async () => {
   const server = await filterServer([
     makeLog(a, b, 1n, { blockNumber: 1n, logIndex: 0 }),
@@ -294,7 +358,7 @@ test('subscription: emits decoded logs via a websocket', async () => {
     const names: string[] = []
     const watch = Actions.event.watch(wsClient, {
       address,
-      event: transferEvent,
+      events: [transferEvent],
     })
     watch.onLogs((logs) => {
       for (const log of logs) names.push(log.eventName)
@@ -305,6 +369,199 @@ test('subscription: emits decoded logs via a websocket', async () => {
     ;(await wsClient.transport.getRpcClient()).close()
 
     expect(names).toEqual(['Transfer'])
+  } finally {
+    await server.close()
+  }
+})
+
+test('subscription: emits raw logs without an event', async () => {
+  const server = await subscriptionServer([
+    makeLog(a, b, 1n, { blockNumber: 1n, logIndex: 0 }),
+  ])
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const watch = Actions.event.watch(wsClient, { address })
+    const logs = await new Promise<readonly { address: string }[]>((resolve) =>
+      watch.onLogs(resolve),
+    )
+    watch.off()
+    ;(await wsClient.transport.getRpcClient()).close()
+
+    expect(logs[0]!.address).toBe(address)
+  } finally {
+    await server.close()
+  }
+})
+
+test('subscription: ignores nonmatching logs', async () => {
+  const server = await subscriptionServer([
+    makeLog(a, b, 1n, { blockNumber: 1n, logIndex: 0 }),
+  ])
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const values: bigint[] = []
+    const watch = Actions.event.watch(wsClient, {
+      address,
+      args: { from: b },
+      event: transferEvent,
+    })
+    watch.onLogs((logs) => {
+      for (const log of logs) values.push(log.args.value!)
+    })
+
+    await wait(200)
+    watch.off()
+    ;(await wsClient.transport.getRpcClient()).close()
+
+    expect(values).toEqual([])
+  } finally {
+    await server.close()
+  }
+})
+
+test('subscription: invokes onError when subscribing fails', async () => {
+  const bad = Client.create({
+    transport: webSocket('ws://127.0.0.1:1', {
+      keepAlive: false,
+      reconnect: false,
+    }),
+  })
+
+  const error = await new Promise<Error>((resolve) => {
+    const watch = Actions.event.watch(bad, { event: transferEvent })
+    watch.onLogs(() => {})
+    watch.onError((error) => {
+      watch.off()
+      resolve(error)
+    })
+  })
+
+  expect(error).toBeInstanceOf(Error)
+})
+
+test('subscription: drops buffered logs after off', async () => {
+  const server = await subscriptionServer([
+    makeLog(a, b, 1n, { blockNumber: 1n, logIndex: 0 }),
+  ])
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const values: bigint[] = []
+    const watch = Actions.event.watch(wsClient, { event: transferEvent })
+    watch.onLogs((logs) => {
+      for (const log of logs) values.push(log.args.value!)
+    })
+    watch.off()
+
+    await wait(200)
+    ;(await wsClient.transport.getRpcClient()).close()
+
+    expect(values).toEqual([])
+  } finally {
+    await server.close()
+  }
+})
+
+test('polling: reinstalls an expired filter', async () => {
+  const fixture = expiringFilterServer([
+    makeLog(a, b, 3n, { blockNumber: 1n, logIndex: 0 }),
+  ])
+  const server = await fixture.server
+  try {
+    const seqClient = Client.create({
+      transport: http(server.url, { retryCount: 0 }),
+      pollingInterval: 25,
+    })
+
+    const errors: Error[] = []
+    const values: bigint[] = []
+    const watch = Actions.event.watch(seqClient, { event: transferEvent })
+    watch.onLogs((logs) => {
+      for (const log of logs) values.push(log.args.value!)
+    })
+    watch.onError((error) => errors.push(error))
+
+    await expect
+      .poll(() => values, { interval: 25, timeout: 2_000 })
+      .toEqual([3n])
+    watch.off()
+
+    expect(errors).toHaveLength(2)
+    expect(fixture.installs).toBe(2)
+    expect(fixture.polls).toBeGreaterThanOrEqual(3)
+  } finally {
+    await server.close()
+  }
+})
+
+test('polling: falls back to block-range log queries', async () => {
+  let query: { fromBlock?: string; toBlock?: string } | undefined
+  const server = await Http.createServer((req, res) => {
+    let body = ''
+    req.on('data', (chunk) => {
+      body += chunk
+    })
+    req.on('end', () => {
+      const request = JSON.parse(body)
+      res.setHeader('Content-Type', 'application/json')
+      if (request.method === 'eth_newFilter') {
+        res.end(
+          JSON.stringify({
+            id: request.id,
+            jsonrpc: '2.0',
+            error: { code: -32601, message: 'method not found' },
+          }),
+        )
+        return
+      }
+      const result = (() => {
+        if (request.method === 'eth_blockNumber') return '0x1'
+        if (request.method === 'eth_getLogs') {
+          query = request.params[0]
+          return [makeLog(a, b, 4n, { blockNumber: 1n, logIndex: 0 })]
+        }
+        return null
+      })()
+      res.end(JSON.stringify({ id: request.id, jsonrpc: '2.0', result }))
+    })
+  })
+  try {
+    const seqClient = Client.create({
+      transport: http(server.url, { retryCount: 0 }),
+      pollingInterval: 25,
+    })
+
+    const values: bigint[] = []
+    const watch = Actions.event.watch(seqClient, {
+      event: transferEvent,
+      fromBlock: 1n,
+    })
+    watch.onLogs((logs) => {
+      for (const log of logs) values.push(log.args.value!)
+    })
+
+    await expect
+      .poll(() => values, { interval: 25, timeout: 2_000 })
+      .toEqual([4n])
+    await wait(50)
+    watch.off()
+
+    expect(query).toEqual({
+      address: undefined,
+      fromBlock: '0x1',
+      toBlock: '0x1',
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+      ],
+    })
   } finally {
     await server.close()
   }
@@ -331,6 +588,98 @@ test('async iterator: yields decoded logs', async () => {
 
     await iterator.return!()
     watch.off()
+    ;(await wsClient.transport.getRpcClient()).close()
+  } finally {
+    await server.close()
+  }
+})
+
+test('async iterator: keeps only the latest buffered log', async () => {
+  const server = await subscriptionServer([
+    makeLog(a, b, 1n, { blockNumber: 1n, logIndex: 0 }),
+    makeLog(a, b, 2n, { blockNumber: 1n, logIndex: 1 }),
+  ])
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const watch = Actions.event.watch(wsClient, { event: transferEvent })
+    const iterator = watch[Symbol.asyncIterator]()
+
+    await wait(200)
+    const result = await iterator.next()
+    expect(result.value!.logs[0]!.args.value).toBe(2n)
+    expect(iterator[Symbol.asyncIterator]()).toBe(iterator)
+    expect(await iterator.return!()).toEqual({ done: true, value: undefined })
+    expect(await iterator.next()).toEqual({ done: true, value: undefined })
+    watch.off()
+    ;(await wsClient.transport.getRpcClient()).close()
+  } finally {
+    await server.close()
+  }
+})
+
+test('async iterator: throws a stored subscription error', async () => {
+  const server = await subscriptionServer()
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const watch = Actions.event.watch(wsClient, { event: transferEvent })
+    const iterator = watch[Symbol.asyncIterator]()
+
+    await waitForSubscription(server)
+    server.dropAll()
+    await wait(150)
+
+    await expect(iterator.next()).rejects.toBeInstanceOf(Error)
+    watch.off()
+    ;(await wsClient.transport.getRpcClient()).close()
+  } finally {
+    await server.close()
+  }
+})
+
+test('async iterator: rejects a pending next on error', async () => {
+  const server = await subscriptionServer()
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const watch = Actions.event.watch(wsClient, { event: transferEvent })
+    const iterator = watch[Symbol.asyncIterator]()
+
+    await waitForSubscription(server)
+    const next = iterator.next()
+    server.dropAll()
+
+    await expect(next).rejects.toBeInstanceOf(Error)
+    watch.off()
+    ;(await wsClient.transport.getRpcClient()).close()
+  } finally {
+    await server.close()
+  }
+})
+
+test('async iterator: off resolves a pending next as done', async () => {
+  const server = await subscriptionServer()
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const watch = Actions.event.watch(wsClient, { event: transferEvent })
+    const iterator = watch[Symbol.asyncIterator]()
+    const next = iterator.next()
+    watch.off()
+    watch.off()
+    watch.onLogs(() => {})()
+    watch.onError(() => {})()
+
+    expect(await next).toEqual({ done: true, value: undefined })
     ;(await wsClient.transport.getRpcClient()).close()
   } finally {
     await server.close()

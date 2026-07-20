@@ -1,6 +1,14 @@
 import { expect, test } from 'vitest'
 
-import { Actions, Client, fallback, http, testActions, webSocket } from 'viem'
+import {
+  Actions,
+  Client,
+  fallback,
+  http,
+  publicActions,
+  testActions,
+  webSocket,
+} from 'viem'
 
 import * as anvil from '~test/anvil.js'
 import * as Http from '~test/http.js'
@@ -100,7 +108,7 @@ function blockServer(numbers: readonly bigint[]) {
 // `eth_getBlockByNumber` lookups (triggered per head) resolve from `blocks`.
 function subscriptionServer(
   headers: readonly Record<string, unknown>[] = [],
-  blocks: Record<string, ReturnType<typeof makeBlock>> = {},
+  blocks: Record<string, ReturnType<typeof makeBlock> | null> = {},
 ) {
   const subscriptionId = '0xdeadbeef'
   return Ws.createServer((connection, message) => {
@@ -111,7 +119,7 @@ function subscriptionServer(
         JSON.stringify({
           id: request.id,
           jsonrpc: '2.0',
-          result: blocks[tag] ?? makeBlock(BigInt(tag)),
+          result: tag in blocks ? blocks[tag] : makeBlock(BigInt(tag)),
         }),
       )
       return
@@ -135,16 +143,32 @@ function subscriptionServer(
   })
 }
 
+async function waitForSubscription(
+  server: Awaited<ReturnType<typeof subscriptionServer>>,
+) {
+  await expect
+    .poll(
+      () =>
+        server.connections.some(({ messages }) =>
+          messages.some(
+            (message) => JSON.parse(message).method === 'eth_subscribe',
+          ),
+        ),
+      { interval: 10, timeout: 1_000 },
+    )
+    .toBe(true)
+}
+
 test('default: emits incoming blocks via polling', async () => {
   const server = await blockServer([1n, 2n, 3n])
   try {
     const seqClient = Client.create({
       transport: http(server.url),
       pollingInterval: 50,
-    })
+    }).extend(publicActions())
 
     const numbers: bigint[] = []
-    const watch = Actions.block.watch(seqClient)
+    const watch = seqClient.block.watch()
     watch.onBlock((block) => numbers.push(block.number!))
 
     await wait(250)
@@ -416,6 +440,29 @@ test('subscription: emitOnBegin emits the latest block immediately', async () =>
   }
 })
 
+test('subscription: emitOnBegin forwards fetch errors', async () => {
+  const server = await subscriptionServer([], { latest: null })
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const error = await new Promise<Error>((resolve) => {
+      const watch = Actions.block.watch(wsClient, { emitOnBegin: true })
+      watch.onBlock(() => {})
+      watch.onError((error) => {
+        watch.off()
+        resolve(error)
+      })
+    })
+    ;(await wsClient.transport.getRpcClient()).close()
+
+    expect(error).toBeInstanceOf(Error)
+  } finally {
+    await server.close()
+  }
+})
+
 test('subscription: resolves subscribe from a fallback transport', async () => {
   const server = await subscriptionServer([{ number: '0x1' }])
   try {
@@ -458,6 +505,71 @@ test('subscription: forwards subscription errors to onError', async () => {
     })
 
     expect(error).toBeInstanceOf(Error)
+  } finally {
+    await server.close()
+  }
+})
+
+test('subscription: invokes onError when subscribing fails', async () => {
+  const bad = Client.create({
+    transport: webSocket('ws://127.0.0.1:1', {
+      keepAlive: false,
+      reconnect: false,
+    }),
+  })
+
+  const error = await new Promise<Error>((resolve) => {
+    const watch = Actions.block.watch(bad)
+    watch.onBlock(() => {})
+    watch.onError((error) => {
+      watch.off()
+      resolve(error)
+    })
+  })
+
+  expect(error).toBeInstanceOf(Error)
+})
+
+test('subscription: drops buffered blocks after off', async () => {
+  const server = await subscriptionServer([{ number: '0x1' }])
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const numbers: bigint[] = []
+    const watch = Actions.block.watch(wsClient)
+    watch.onBlock((block) => numbers.push(block.number!))
+    watch.off()
+
+    await wait(200)
+    ;(await wsClient.transport.getRpcClient()).close()
+
+    expect(numbers).toEqual([])
+  } finally {
+    await server.close()
+  }
+})
+
+test('subscription: skips incomplete heads and failed block fetches', async () => {
+  const server = await subscriptionServer(
+    [{}, { number: '0x1' }, { number: '0x2' }],
+    { '0x1': null },
+  )
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const numbers: bigint[] = []
+    const watch = Actions.block.watch(wsClient)
+    watch.onBlock((block) => numbers.push(block.number!))
+
+    await wait(200)
+    watch.off()
+    ;(await wsClient.transport.getRpcClient()).close()
+
+    expect(numbers).toEqual([2n])
   } finally {
     await server.close()
   }
@@ -508,6 +620,77 @@ test('async iterator: off() resolves a pending next() as done', async () => {
     watch.off()
 
     expect(await next).toEqual({ done: true, value: undefined })
+    ;(await wsClient.transport.getRpcClient()).close()
+  } finally {
+    await server.close()
+  }
+})
+
+test('async iterator: keeps only the latest buffered block', async () => {
+  const server = await subscriptionServer([
+    { number: '0x1' },
+    { number: '0x5' },
+  ])
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const watch = Actions.block.watch(wsClient)
+    const iterator = watch[Symbol.asyncIterator]()
+
+    await wait(200)
+    const result = await iterator.next()
+    expect(result.value!.block.number).toBe(5n)
+    expect(result.value!.prevBlock?.number).toBe(1n)
+    expect(iterator[Symbol.asyncIterator]()).toBe(iterator)
+    expect(await iterator.return!()).toEqual({ done: true, value: undefined })
+    expect(await iterator.next()).toEqual({ done: true, value: undefined })
+    watch.off()
+    ;(await wsClient.transport.getRpcClient()).close()
+  } finally {
+    await server.close()
+  }
+})
+
+test('async iterator: throws a stored subscription error', async () => {
+  const server = await subscriptionServer()
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const watch = Actions.block.watch(wsClient)
+    const iterator = watch[Symbol.asyncIterator]()
+
+    await waitForSubscription(server)
+    server.dropAll()
+    await wait(150)
+
+    await expect(iterator.next()).rejects.toBeInstanceOf(Error)
+    watch.off()
+    ;(await wsClient.transport.getRpcClient()).close()
+  } finally {
+    await server.close()
+  }
+})
+
+test('async iterator: rejects a pending next on error', async () => {
+  const server = await subscriptionServer()
+  try {
+    const wsClient = Client.create({
+      transport: webSocket(server.url, { keepAlive: false, reconnect: false }),
+    })
+
+    const watch = Actions.block.watch(wsClient)
+    const iterator = watch[Symbol.asyncIterator]()
+
+    await waitForSubscription(server)
+    const next = iterator.next()
+    server.dropAll()
+
+    await expect(next).rejects.toBeInstanceOf(Error)
+    watch.off()
     ;(await wsClient.transport.getRpcClient()).close()
   } finally {
     await server.close()

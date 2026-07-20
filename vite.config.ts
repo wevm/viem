@@ -60,6 +60,8 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
+      reportOnFailure: true,
+      include: ['src/**/*.ts'],
       exclude: [
         '**/dist/**',
         '**/*.bench-d.ts',
@@ -67,7 +69,21 @@ export default defineConfig({
         '**/*.test-d.ts',
         '**/index.ts',
         'src/vendor/**',
+        'contracts/**',
+        'test/**',
       ],
+      // Sharded CI runs upload partial reports; Codecov enforces the merged
+      // result (codecov.yml). Thresholds gate local full runs.
+      ...(process.env.CI
+        ? {}
+        : {
+            thresholds: {
+              branches: 83,
+              functions: 83,
+              lines: 95,
+              statements: 86,
+            },
+          }),
     },
     exclude: [
       '**/node_modules/**',

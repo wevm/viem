@@ -488,7 +488,7 @@ test('args: batchSize (chunks aggregate3 batches)', async () => {
 
   const { results } = await Actions.multicall(proxy, {
     mode: 'multicall',
-    batchSize: 64,
+    batchSize: 16,
     calls,
   })
 
@@ -500,7 +500,7 @@ test('args: batchSize (chunks aggregate3 batches)', async () => {
   ).toBe(true)
   expect(
     requests.filter((method) => method === 'eth_call').length,
-  ).toMatchInlineSnapshot(`1`)
+  ).toMatchInlineSnapshot(`3`)
 })
 
 test('args: deployless (multicall via bytecode)', async () => {

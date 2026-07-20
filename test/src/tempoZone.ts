@@ -6,9 +6,7 @@ import { http } from 'viem/tempo/zones'
 
 import * as tempo from './tempo.js'
 
-const runtime = process.env.OFFLINE
-  ? undefined
-  : await tempo.zone.start()
+const runtime = process.env.OFFLINE ? undefined : await tempo.zone.start()
 
 /** Runtime zone ID. */
 export const zoneId = runtime?.zoneId ?? 1

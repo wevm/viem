@@ -2,6 +2,7 @@ import { Hex, P256 } from 'ox'
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 
+import { Actions as CoreActions } from 'viem'
 import { Account, Actions } from 'viem/tempo'
 
 const account = Account.fromSecp256k1(tempo.accounts[0]!.privateKey)
@@ -46,6 +47,47 @@ describe('burnWitnessSync', () => {
     await expect(
       Actions.accessKey.burnWitnessSync(client, { witness }),
     ).rejects.toThrow()
+  })
+})
+
+describe('burnWitness', () => {
+  test('default', async () => {
+    const witness = Hex.random(32)
+    const hash = await Actions.accessKey.burnWitness(client, { witness })
+    const receipt = await CoreActions.transaction.waitForReceipt(client, {
+      hash,
+    }).receipt
+
+    expect(receipt.status).toBe('success')
+    const { args } = Actions.accessKey.burnWitness.extractEvent(receipt.logs)
+    expect(args.witness).toBe(witness)
+  })
+
+  test('estimateGas', async () => {
+    const gas = await Actions.accessKey.burnWitness.estimateGas(client, {
+      witness: Hex.random(32),
+    })
+
+    expect(gas).toBeTypeOf('bigint')
+    expect(gas).toBeGreaterThan(0n)
+  })
+
+  test('simulate', async () => {
+    const { request, result } = await Actions.accessKey.burnWitness.simulate(
+      client,
+      { witness: Hex.random(32) },
+    )
+
+    expect(result).toBeUndefined()
+    expect(request.functionName).toBe('burnKeyAuthorizationWitness')
+  })
+
+  test('extractEvent: throws when missing', () => {
+    expect(() =>
+      Actions.accessKey.burnWitness.extractEvent([]),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: \`KeyAuthorizationWitnessBurned\` event not found.]`,
+    )
   })
 })
 

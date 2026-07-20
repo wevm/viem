@@ -60,6 +60,19 @@ describe('getStates', () => {
         },
       ]
     `)
+
+    expect(
+      Actions.channel.getStates.call({ channel: channelId }).functionName,
+    ).toBe('getChannelState')
+    expect(
+      Actions.channel.getStates.call({
+        chainId: client.chain!.id,
+        channel: [channel],
+      }).functionName,
+    ).toBe('getChannelStatesBatch')
+    expect(() => Actions.channel.getStates.call({ channel })).toThrowError(
+      '`chainId` is required for channel inputs.',
+    )
   })
 })
 

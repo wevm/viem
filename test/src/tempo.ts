@@ -74,15 +74,18 @@ const validatorConfigAbi = [
 
 /** Creates a Client for the pool's Tempo node instance. */
 export function getClient(options: getClient.Options = {}) {
-  const { account = Account.fromSecp256k1(accounts[0].privateKey), feeToken } =
-    options
+  const {
+    account = Account.fromSecp256k1(accounts[0].privateKey),
+    feeToken,
+    transport,
+  } = options
   return Client.create({
     account,
     chain: tempoLocalnet,
     ...(feeToken ? { feeToken } : {}),
     pollingInterval: 100,
     tokens,
-    transport: http(options.rpcUrl ?? rpcUrl),
+    transport: transport ?? http(options.rpcUrl ?? rpcUrl),
   })
 }
 
@@ -94,6 +97,8 @@ export declare namespace getClient {
     feeToken?: `0x${string}` | undefined
     /** RPC URL. @default the pool instance's URL */
     rpcUrl?: string | undefined
+    /** Client transport. @default HTTP transport for the pool instance */
+    transport?: ReturnType<typeof http> | undefined
   }
 }
 
