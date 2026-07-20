@@ -197,6 +197,23 @@ export type SendCalls8130Parameters = FeeOverrides & {
    * executor. See {@link encodeWalletCalls}.
    */
   encodeExecute?: EncodeExecute | undefined
+  /**
+   * Invoked with the fully-resolved transaction just before it is signed and
+   * sent. Use it to thread the resolved `expiry` (which may be auto-computed for
+   * nonce-free sends) into `waitForTransactionReceipt8130` without re-preparing:
+   *
+   * ```ts
+   * let expiry: bigint | undefined
+   * const hash = await sendCalls8130(client, {
+   *   ...params,
+   *   onTransaction: (tx) => { expiry = tx.expiry },
+   * })
+   * await waitForTransactionReceipt8130(client, { hash, expiry })
+   * ```
+   */
+  onTransaction?:
+    | ((transaction: TransactionSerializable8130) => void)
+    | undefined
 }
 
 function toPhases(calls: SendCalls8130Parameters['calls']): AaCalls {
@@ -222,7 +239,8 @@ export async function sendCalls8130(
   client: Client<Transport, Chain | undefined, Account | undefined>,
   parameters: SendCalls8130Parameters,
 ): Promise<Hex> {
-  const { account, calls, payer, encodeExecute, ...rest } = parameters
+  const { account, calls, payer, encodeExecute, onTransaction, ...rest } =
+    parameters
   const transaction = await prepareTransaction8130(client, {
     ...rest,
     account,
@@ -233,6 +251,7 @@ export async function sendCalls8130(
     }),
     payer,
   })
+  onTransaction?.(transaction)
   const serializedTransaction = await account.signTransaction(transaction, {
     payer,
   })

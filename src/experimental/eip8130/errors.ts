@@ -62,6 +62,42 @@ export class ScopeMismatchError extends BaseError {
   }
 }
 
+export type TransactionExpiredErrorType = TransactionExpiredError & {
+  name: 'TransactionExpiredError'
+}
+
+/**
+ * Thrown while waiting on a nonce-free (expiring) EIP-8130 transaction when the
+ * chain's latest block timestamp passes the transaction's `expiry` before a
+ * receipt is observed. The transaction can no longer be included — it has been
+ * (or will be) dropped from the mempool — so waiting further is pointless.
+ *
+ * Distinct from a plain wait timeout: this is a definitive terminal state, not
+ * "we gave up early". Callers can catch this to resubmit with a fresh `expiry`.
+ */
+export class TransactionExpiredError extends BaseError {
+  override name = 'TransactionExpiredError'
+  constructor({
+    hash,
+    expiry,
+    blockTimestamp,
+  }: {
+    hash: `0x${string}`
+    expiry: bigint
+    blockTimestamp: bigint
+  }) {
+    super(
+      `Transaction \`${hash}\` expired before landing: \`expiry\` ${expiry} passed (latest block timestamp ${blockTimestamp}).`,
+      {
+        metaMessages: [
+          'Nonce-free (expiring) transactions are only valid until their `expiry`; once the block timestamp passes it the tx is dropped and can never be mined.',
+          'Resubmit with a fresh `expiry` (e.g. `nonce.nonceless({ expiresIn })`).',
+        ],
+      },
+    )
+  }
+}
+
 export type ActorNotBoundErrorType = ActorNotBoundError & {
   name: 'ActorNotBoundError'
 }

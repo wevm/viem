@@ -14,6 +14,7 @@ import type {
   AaAccountChange,
   AaCall,
   AaCalls,
+  TransactionSerializable8130,
 } from '../../eip8130/types/transaction.js'
 import type { PayerClient } from '../client.js'
 import type {
@@ -115,6 +116,27 @@ export type SendSponsoredCallsParameters = {
    * before the second signature" the default — there is no auto-resign path.
    */
   confirmRetry?: (request: ResignRequest) => boolean | Promise<boolean>
+  /**
+   * Invoked with the fully-resolved transaction just before each submit attempt
+   * (before `payer_sendTransaction` / `payer_signTransaction`). Use it to thread
+   * the resolved `expiry` — which is auto-computed here from the offer's
+   * `maxExpiry` (or the nonce-free window) when not overridden — into
+   * `waitForTransactionReceipt8130` without re-deriving it:
+   *
+   * ```ts
+   * let expiry: bigint | undefined
+   * await sendSponsoredCalls(client, {
+   *   ...params,
+   *   onTransaction: (tx) => { expiry = tx.expiry },
+   * })
+   * ```
+   *
+   * On a re-signed retry it fires again with the corrected transaction, so the
+   * final invocation reflects the transaction that was actually submitted.
+   */
+  onTransaction?:
+    | ((transaction: TransactionSerializable8130) => void)
+    | undefined
 }
 
 export type SendSponsoredCallsReturnType =
@@ -153,6 +175,7 @@ export async function sendSponsoredCalls(
     context,
     retries = 2,
     confirmRetry,
+    onTransaction,
   } = parameters
 
   const chainId = client.chain?.id
@@ -253,6 +276,7 @@ export async function sendSponsoredCalls(
     transaction.expiry = computeExpiry()
     transaction.payerAuth = '0x'
 
+    onTransaction?.(transaction)
     const signedTransaction = await account.signTransaction(transaction)
 
     try {

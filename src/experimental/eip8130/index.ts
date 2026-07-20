@@ -149,6 +149,8 @@ export {
   NonceScopeError,
   type ScopeMismatchErrorType,
   ScopeMismatchError,
+  type TransactionExpiredErrorType,
+  TransactionExpiredError,
 } from './errors.js'
 export {
   type AuthorizeActorOptions,

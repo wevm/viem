@@ -21,6 +21,38 @@ receipt.eip8130.metadata        // opaque bytes echoed from the signed tx
 
 It polls `eth_getTransactionReceipt` until the transaction is mined (default every `500ms`, timing out after `60_000ms` — both configurable). Unlike the generic `waitForTransactionReceipt`, it skips same-nonce replacement detection, since EIP-8130 uses 2D channel nonces.
 
+### Expiring transactions
+
+Any transaction with a non-zero `expiry` (sequenced or nonce-free) can no longer land once the chain's latest block timestamp passes it. Pass the `expiry` you signed with and the wait rejects with a `TransactionExpiredError` the moment it lapses, instead of silently spinning until the timeout.
+
+Thread the resolved `expiry` out of `sendCalls8130` with `onTransaction` — this is reliable because it's the exact value the tx was signed with (including auto-computed nonce-free expiries), and it doesn't depend on the node returning a pending transaction:
+
+```ts
+import {
+  TransactionExpiredError,
+  sendCalls8130,
+  waitForTransactionReceipt8130,
+} from 'viem/experimental/eip8130'
+
+let expiry: bigint | undefined
+const hash = await sendCalls8130(client, {
+  account,
+  calls,
+  gas,
+  onTransaction: (tx) => { expiry = tx.expiry },
+})
+
+try {
+  const receipt = await waitForTransactionReceipt8130(client, { hash, expiry })
+} catch (e) {
+  if (e instanceof TransactionExpiredError) {
+    // tx can never land — resubmit with a fresh `expiry`
+  }
+}
+```
+
+If you omit `expiry`, the wait still tries to read it off the pending transaction, but that is best-effort only — a node is not obligated to serve a pending `eth_getTransactionByHash`.
+
 ## Fetch without waiting
 
 `getTransactionReceipt8130` returns `null` if the receipt is not yet available:
