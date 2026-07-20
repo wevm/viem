@@ -7,6 +7,7 @@ import type { Hex } from '../../types/misc.js'
 import { keccak256 } from '../../utils/hash/keccak256.js'
 import {
   delegateAuthSize,
+  newSmartAccount8130,
   to8130Account,
   toDelegate8130Signer,
 } from './accounts/to8130Account.js'
@@ -16,6 +17,7 @@ import {
   canonicalAuthenticators,
   ecrecoverAuthenticator,
 } from './constants.js'
+import { canonicalEip8130Deployment } from './deployments.js'
 import {
   authorizeActor,
   encodePolicyData,
@@ -38,6 +40,26 @@ const pubkey = {
   x: '0x1111111111111111111111111111111111111111111111111111111111111111',
   y: '0x2222222222222222222222222222222222222222222222222222222222222222',
 } as const
+
+describe('canonical smart-account deployment', () => {
+  test('defaults to an ERC-1167 proxy to DefaultAccount', () => {
+    const account = newSmartAccount8130({ signer: owner, salt: userSalt })
+
+    expect(account.createChange.code).toBe(
+      erc1167Bytecode(canonicalEip8130Deployment.accounts.default),
+    )
+  })
+
+  test('requires an explicit implementation for upgradeable accounts', () => {
+    expect(() =>
+      newSmartAccount8130({
+        signer: owner,
+        salt: userSalt,
+        upgradeable: true,
+      }),
+    ).toThrow('`implementation` is required for `upgradeable: true`')
+  })
+})
 
 describe('key builders + actorId derivation', () => {
   test('k1 actor', () => {
@@ -146,6 +168,8 @@ describe('sendCalls8130', () => {
     transport: custom({
       async request({ method, params }: { method: string; params: any }) {
         if (method === 'eth_chainId') return '0x1'
+        // Offline: actor is not yet bound — fall back to declared handle scope.
+        if (method === 'eth_call') return `0x${'0'.repeat(64)}`
         if (method === 'eth_sendRawTransaction') {
           sent = params[0]
           return keccak256(params[0])
@@ -188,6 +212,56 @@ describe('sendCalls8130', () => {
     expect(parsed.calls?.[0]).toHaveLength(2)
     expect(parsed.accountChanges?.[0]?.type).toBe('create')
     expect(parsed.senderAuth).toBeDefined()
+    expect(parsed.metadata).toBeUndefined()
+  })
+
+  test('behavior: dataSuffix is written to metadata', async () => {
+    await sendCalls8130(client, {
+      account,
+      calls: [{ to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', data: '0x' }],
+      accountChanges: [account.create()],
+      gas: 200_000n,
+      maxFeePerGas: 2_000_000_000n,
+      maxPriorityFeePerGas: 1_000_000_000n,
+      nonceSequence: 0n,
+      dataSuffix: '0xdeadbeef',
+    })
+
+    const parsed = parseTransaction8130(sent!)
+    expect(parsed.metadata).toBe('0xdeadbeef')
+    // Calldata is untouched — attribution lives in metadata, not call data.
+    expect(parsed.calls?.[0]?.[0]?.data ?? '0x').toBe('0x')
+  })
+
+  test('behavior: client.dataSuffix populates metadata', async () => {
+    let clientSent: Hex | undefined
+    const suffixedClient = createClient({
+      chain: mainnet,
+      dataSuffix: '0x12345678',
+      transport: custom({
+        async request({ method, params }: { method: string; params: any }) {
+          if (method === 'eth_chainId') return '0x1'
+          if (method === 'eth_call') return `0x${'0'.repeat(64)}`
+          if (method === 'eth_sendRawTransaction') {
+            clientSent = params[0]
+            return keccak256(params[0])
+          }
+          throw new Error(`unexpected RPC: ${method}`)
+        },
+      }),
+    })
+
+    await sendCalls8130(suffixedClient, {
+      account,
+      calls: [{ to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', data: '0x' }],
+      accountChanges: [account.create()],
+      gas: 200_000n,
+      maxFeePerGas: 2_000_000_000n,
+      maxPriorityFeePerGas: 1_000_000_000n,
+      nonceSequence: 0n,
+    })
+
+    expect(parseTransaction8130(clientSent!).metadata).toBe('0x12345678')
   })
 })
 

@@ -29,7 +29,7 @@ export const accountConfigurationAbi = parseAbi([
   'function applySignedActorChanges(address account, uint256 chainId, ActorChange[] actorChanges, bytes auth)',
   'function applySignedLockChanges(address account, uint8 op, uint16 unlockDelay, bytes auth)',
   'function verifySignature(address account, bytes32 hash, bytes signature) view returns (bool verified)',
-  'function authenticateActor(address account, bytes32 hash, bytes auth) view returns (uint8 scope, address policyTarget)',
+  'function authenticateActor(address account, bytes32 hash, bytes auth) view returns (bytes32 actorId, uint8 scope, address policyTarget)',
   'function isActor(address account, bytes32 actorId) view returns (bool)',
   'function getActorConfig(address account, bytes32 actorId) view returns (ActorConfig)',
   'function getPolicy(address account, bytes32 actorId) view returns (address target, bytes32 commitment)',

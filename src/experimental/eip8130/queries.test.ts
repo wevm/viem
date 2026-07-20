@@ -46,16 +46,16 @@ function readClient(abi: Abi, results: Record<string, unknown>) {
 }
 
 describe('getSessionSpend8130', () => {
-  test('combines getTokenLimit + getCurrentSpend into a budget view', async () => {
+  test('reads getCurrentSpend into a budget view (#43: limit supplied)', async () => {
     const client = readClient(sessionPolicyAbi, {
-      // set, allowance, period
-      getTokenLimit: [true, 100_000_000n, 604_800],
       // PeriodUsage { start, end, spend }
       getCurrentSpend: { start: 1_000, end: 605_800, spend: 40_000_000n },
     })
-    const spend = await getSessionSpend8130(client, { commitment, token })
+    const spend = await getSessionSpend8130(client, {
+      commitment,
+      tokenLimit: { token, limit: 100_000_000n, period: 604_800n },
+    })
     expect(spend).toEqual({
-      set: true,
       allowance: 100_000_000n,
       period: 604_800,
       spent: 40_000_000n,
@@ -65,13 +65,14 @@ describe('getSessionSpend8130', () => {
     })
   })
 
-  test('clamps remaining at zero when overspent/unset', async () => {
+  test('clamps remaining at zero when overspent', async () => {
     const client = readClient(sessionPolicyAbi, {
-      getTokenLimit: [false, 0n, 0],
-      getCurrentSpend: { start: 0, end: 0, spend: 0n },
+      getCurrentSpend: { start: 1_000, end: 605_800, spend: 150_000_000n },
     })
-    const spend = await getSessionSpend8130(client, { commitment, token })
-    expect(spend.set).toBe(false)
+    const spend = await getSessionSpend8130(client, {
+      commitment,
+      tokenLimit: { token, limit: 100_000_000n, period: 604_800n },
+    })
     expect(spend.remaining).toBe(0n)
   })
 })

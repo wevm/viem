@@ -9,7 +9,7 @@ import type { Hex } from '../../../types/misc.js'
 import { getAction } from '../../../utils/getAction.js'
 import type { To8130AccountReturnType } from '../accounts/to8130Account.js'
 import { nonceFreeMaxExpiryWindow, nonceKeyMax } from '../constants.js'
-import { NonceScopeError } from '../errors.js'
+import { NonceScopeError, ScopeMismatchError } from '../errors.js'
 import { isNoncelessOnly } from '../keys.js'
 import type {
   AaAccountChange,
@@ -19,7 +19,9 @@ import type {
 } from '../types/transaction.js'
 import { type EncodeExecute, encodeWalletCalls } from '../utils/encodeWalletCalls.js'
 import type { Signer } from '../utils/signTransaction.js'
+import { getActorConfig8130 } from './getActorConfig8130.js'
 import { getTransactionCount8130 } from './getTransactionCount8130.js'
+import { isActor8130 } from './isActor8130.js'
 
 type FeeOverrides = {
   maxFeePerGas?: bigint | undefined
@@ -37,6 +39,41 @@ export type PrepareTransaction8130Parameters = FeeOverrides & {
   nonceKey?: bigint | undefined
   nonceSequence?: bigint | undefined
   expiry?: bigint | undefined
+  /**
+   * Attribution / opaque suffix. Written to the EIP-8130 `metadata` field
+   * (not appended to call calldata). Takes precedence over `client.dataSuffix`.
+   */
+  dataSuffix?: Hex | undefined
+}
+
+/**
+ * Resolves the signing actor's scope for nonce-mode selection.
+ * On-chain config wins when the actor is bound; a declared handle `scope` is
+ * only a fallback for pre-bind sends (create) and must match when both exist.
+ */
+async function resolveSigningScope(
+  client: Client<Transport, Chain | undefined, Account | undefined>,
+  account: To8130AccountReturnType,
+): Promise<number | undefined> {
+  const { actorId, scope: declared } = account
+  if (!actorId) return declared
+
+  const accountConfiguration = account.accountConfigAddress
+  const bound = await isActor8130(client, {
+    account: account.address,
+    actorId,
+    ...(accountConfiguration ? { accountConfiguration } : {}),
+  })
+  if (!bound) return declared
+
+  const { scope: onChain } = await getActorConfig8130(client, {
+    account: account.address,
+    actorId,
+    ...(accountConfiguration ? { accountConfiguration } : {}),
+  })
+  if (declared !== undefined && declared !== onChain)
+    throw new ScopeMismatchError({ declared, onChain })
+  return onChain
 }
 
 /**
@@ -55,16 +92,25 @@ export async function prepareTransaction8130(
   if (!chainId)
     throw new BaseError('`client` must be configured with a `chain`.')
 
+  // EIP-8130 has no calldata to append to; `dataSuffix` maps to top-level
+  // `metadata` so attribution remains authenticated with the signed body.
+  const dataSuffix =
+    parameters.dataSuffix ??
+    (typeof client.dataSuffix === 'string'
+      ? client.dataSuffix
+      : client.dataSuffix?.value)
+
   // Scope-driven nonce mode: an actor may use a sequenced nonce key only if it
-  // holds `SCOPE_NONCE`. Admin actors (`scope == 0`) and any actor without that
-  // bit are restricted to nonce-free (expiring) mode. When the signing actor's
-  // scope is known, select the mode automatically and reject a sequenced key.
-  const noncelessOnly =
-    account.scope !== undefined && isNoncelessOnly(account.scope)
+  // holds `SCOPE_NONCE`. Prefer chain truth (`getActorConfig`) over a redeclared
+  // handle `scope` — drift between authorize-time and send-time declarations is
+  // a live footgun. Fall back to the declared scope only when the actor is not
+  // yet bound (e.g. the create tx).
+  const scope = await resolveSigningScope(client, account)
+  const noncelessOnly = scope !== undefined && isNoncelessOnly(scope)
   let nonceKey = parameters.nonceKey
   if (noncelessOnly) {
     if (nonceKey !== undefined && nonceKey !== nonceKeyMax)
-      throw new NonceScopeError({ scope: account.scope!, nonceKey })
+      throw new NonceScopeError({ scope: scope!, nonceKey })
     nonceKey = nonceKeyMax
   } else {
     nonceKey ??= 0n
@@ -122,6 +168,7 @@ export async function prepareTransaction8130(
     expiry,
     accountChanges,
     calls,
+    ...(dataSuffix ? { metadata: dataSuffix } : {}),
     payer: payer?.address ?? payer?.account.address,
   }
 }
@@ -139,6 +186,11 @@ export type SendCalls8130Parameters = FeeOverrides & {
   nonceKey?: bigint | undefined
   nonceSequence?: bigint | undefined
   expiry?: bigint | undefined
+  /**
+   * Attribution / opaque suffix. Written to the EIP-8130 `metadata` field
+   * (not appended to call calldata). Takes precedence over `client.dataSuffix`.
+   */
+  dataSuffix?: Hex | undefined
   /**
    * Encoder for value-bearing phases. Defaults to a self-call to the account's
    * `executeBatch`. Override when the wallet bytecode exposes a different

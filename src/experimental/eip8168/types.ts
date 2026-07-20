@@ -213,6 +213,20 @@ export type TokenPaymentOffer = BaseOffer & {
   kind: 'token'
   /** ≥1 accepted tokens. */
   tokens: readonly TokenChoice[]
+  /**
+   * What phase-0 constructions this offer's payer accepts, and how it verifies
+   * them. OPTIONAL; absent is treated as `"transfer"`.
+   *
+   * - `"transfer"`: phase 0 MUST be the single canonical
+   *   `IERC20.transfer(recipient, paymentAmount)` — verified by inspection, no
+   *   simulation, no approvals. Any other phase-0 shape is rejected.
+   * - `"any"`: the payer pins only the OUTCOME (`recipient` credited exactly
+   *   `paymentAmount` of `token` by the end of phase 0) and accepts any calls
+   *   that achieve it (`transferFrom`, session-key module calls, pool
+   *   withdrawal + split, other token standards), verifying the net credit by
+   *   simulation/trace.
+   */
+  paymentMode?: 'transfer' | 'any' | undefined
 }
 
 /** A payment offer for an intent's gas: full sponsorship, decline, or token payment. */

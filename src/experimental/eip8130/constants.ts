@@ -175,7 +175,7 @@ export const canonicalAuthenticators = {
   /** WebAuthn / FIDO2 passkey. Canonical base/eip-8130 deployment. */
   passkey: '0x871c72d3950308A028E9c4917591bcfd3D6a1EF7',
   /** Signature delegation (1-hop). Canonical base/eip-8130 deployment. */
-  delegate: '0x1B0195ba5E3FCdB387DD619816eeF8b510Ed0855',
+  delegate: '0xbb73E3871FBaC8aef1a7Ee8A24E21139916f14C2',
 } as const satisfies Record<string, Hex>
 
 /**
@@ -215,7 +215,7 @@ export const txContextAddress =
  * parameter of {@link computeAddress8130}.
  */
 export const accountConfigAddress =
-  '0xe7Bb8eF3728ea9f0A8be6D7e9585FeAb12dE086A' satisfies Hex
+  '0x53648Cf00356fbAA1F2B531715c6B64AaBDE1555' satisfies Hex
 
 /**
  * Default wallet implementation for EOA auto-delegation
@@ -226,7 +226,7 @@ export const accountConfigAddress =
  * {@link accountConfigAddress}.
  */
 export const defaultAccountAddress =
-  '0xDd802113C9FF6964cD2A61A16e075D5271cC82c9' satisfies Hex
+  '0x58da469ef71Dd4B092B010CdA37DE124C926EebD' satisfies Hex
 
 /** Size of the deployment header in bytes (`DEPLOYMENT_HEADER_SIZE`). */
 export const deploymentHeaderSize = 14
