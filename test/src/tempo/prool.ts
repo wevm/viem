@@ -49,7 +49,12 @@ export async function createServer() {
 
   const args = {
     // Match Tempo's production cadence when Zone consumes every L1 block.
-    blockTime: import.meta.env.VITE_TEMPO_ZONES === 'true' ? '500ms' : '2ms',
+    blockTime:
+      import.meta.env.VITE_TEMPO_ZONES === 'true'
+        ? '500ms'
+        : process.env.CI
+          ? '50ms'
+          : '2ms',
     log: import.meta.env.VITE_TEMPO_LOG,
     port,
   } satisfies Instance.tempo.Parameters

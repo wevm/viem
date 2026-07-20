@@ -379,7 +379,7 @@ async function serializeTempo(
     return SignatureEnvelope.from({
       genesisConfig: transaction.multisig,
       signatures: sorted,
-      ...(nonce ? {} : { init: true }),
+      ...(nonce || transaction.nonceKey ? {} : { init: true }),
     })
   })()
 
