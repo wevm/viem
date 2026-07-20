@@ -2,11 +2,11 @@ import type { Address } from 'abitype'
 import { BaseError } from '../../../errors/base.js'
 import type { Hex } from '../../../types/misc.js'
 import { concatHex } from '../../../utils/data/concat.js'
-import { bytesToHex } from '../../../utils/encoding/toHex.js'
 import { hexToBigInt } from '../../../utils/encoding/fromHex.js'
+import { bytesToHex } from '../../../utils/encoding/toHex.js'
 import {
-  accountConfigAddress as defaultAccountConfigAddress,
   canonicalAuthenticators,
+  accountConfigAddress as defaultAccountConfigAddress,
   ecrecoverAuthenticator,
   scopeUnrestricted,
 } from '../constants.js'
@@ -180,11 +180,7 @@ export type To8130AccountReturnType = {
 export function to8130Account(
   parameters: To8130AccountParameters,
 ): To8130AccountReturnType {
-  const {
-    signer,
-    authenticator = ecrecoverAuthenticator,
-    scope,
-  } = parameters
+  const { signer, authenticator = ecrecoverAuthenticator, scope } = parameters
 
   // Address-only mode (delegated EOA): address is fixed, no CREATE2 derivation.
   const isAddressOnly = parameters.userSalt === undefined
@@ -289,16 +285,16 @@ export type NewSmartAccount8130Parameters = {
    */
   salt?: Hex | undefined
   /**
-   * When `true` (default), the account is deployed as an `UpgradeableAccount`
-   * behind an ERC-1967 `UpgradeableProxy` (upgradeable via `upgradeBySignature`).
-   * When `false`, it is deployed as an immutable `DefaultHighRateAccount` behind
-   * a 45-byte ERC-1167 proxy. Ignored if `code` is provided.
+   * When `false` (default), the account is deployed as an ERC-1167 proxy to the
+   * canonical `DefaultAccount`. When `true`, `implementation` is required and
+   * is deployed behind an ERC-1967 `UpgradeableProxy`. Ignored if `code` is
+   * provided.
    */
   upgradeable?: boolean | undefined
   /**
    * Wallet implementation address the account proxies to. Defaults to the
-   * canonical `UpgradeableAccount` (or `DefaultHighRateAccount` when
-   * `upgradeable` is `false`). Ignored if `code` is provided.
+   * canonical `DefaultAccount` when `upgradeable` is `false`. Required when
+   * `upgradeable` is `true`. Ignored if `code` is provided.
    */
   implementation?: Address | undefined
   /**
@@ -382,15 +378,18 @@ export function newSmartAccount8130(
   const {
     signer,
     implementation,
-    upgradeable = true,
+    upgradeable = false,
     extraActors = [],
     accountConfigAddress,
   } = parameters
 
   // Detect signer type and derive the primary actor.
-  // P256 / WebAuthn signers expose `.publicKey`; K1 signers have `.address`.
+  // P256 / WebAuthn signers expose an `{ x, y }` public key. K1 local accounts
+  // may also expose `.publicKey`, but as a 65-byte SEC1 hex string.
   const primaryActor: AaActor =
-    'publicKey' in signer && signer.publicKey
+    'publicKey' in signer &&
+    signer.publicKey &&
+    typeof signer.publicKey !== 'string'
       ? signer.authenticator === canonicalAuthenticators.passkey
         ? key.webAuthn(signer.publicKey)
         : key.p256(signer.publicKey)
@@ -405,17 +404,22 @@ export function newSmartAccount8130(
 
   const salt = parameters.salt ?? randomBytes32()
 
-  // Default to the upgradeable account (ERC-1967 proxy); opt into the immutable
-  // DefaultHighRateAccount (ERC-1167 proxy) via `upgradeable: false`.
-  const code =
-    parameters.code ??
-    (upgradeable
-      ? upgradeableProxyBytecode(
-          implementation ?? canonicalEip8130Deployment.accounts.upgradeable,
+  // Canonical accounts use an ERC-1167 proxy to DefaultAccount. Upgradeability
+  // remains available only when the caller explicitly supplies an implementation.
+  let code = parameters.code
+  if (!code) {
+    if (upgradeable) {
+      if (!implementation)
+        throw new BaseError(
+          '`implementation` is required for `upgradeable: true`; the canonical deployment does not include the unaudited UpgradeableAccount example.',
         )
-      : erc1167Bytecode(
-          implementation ?? canonicalEip8130Deployment.accounts.defaultHighRate,
-        ))
+      code = upgradeableProxyBytecode(implementation)
+    } else {
+      code = erc1167Bytecode(
+        implementation ?? canonicalEip8130Deployment.accounts.default,
+      )
+    }
+  }
 
   const inner = to8130Account({
     signer,

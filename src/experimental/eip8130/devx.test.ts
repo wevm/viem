@@ -7,6 +7,7 @@ import type { Hex } from '../../types/misc.js'
 import { keccak256 } from '../../utils/hash/keccak256.js'
 import {
   delegateAuthSize,
+  newSmartAccount8130,
   to8130Account,
   toDelegate8130Signer,
 } from './accounts/to8130Account.js'
@@ -16,6 +17,7 @@ import {
   canonicalAuthenticators,
   ecrecoverAuthenticator,
 } from './constants.js'
+import { canonicalEip8130Deployment } from './deployments.js'
 import {
   authorizeActor,
   encodePolicyData,
@@ -38,6 +40,26 @@ const pubkey = {
   x: '0x1111111111111111111111111111111111111111111111111111111111111111',
   y: '0x2222222222222222222222222222222222222222222222222222222222222222',
 } as const
+
+describe('canonical smart-account deployment', () => {
+  test('defaults to an ERC-1167 proxy to DefaultAccount', () => {
+    const account = newSmartAccount8130({ signer: owner, salt: userSalt })
+
+    expect(account.createChange.code).toBe(
+      erc1167Bytecode(canonicalEip8130Deployment.accounts.default),
+    )
+  })
+
+  test('requires an explicit implementation for upgradeable accounts', () => {
+    expect(() =>
+      newSmartAccount8130({
+        signer: owner,
+        salt: userSalt,
+        upgradeable: true,
+      }),
+    ).toThrow('`implementation` is required for `upgradeable: true`')
+  })
+})
 
 describe('key builders + actorId derivation', () => {
   test('k1 actor', () => {
