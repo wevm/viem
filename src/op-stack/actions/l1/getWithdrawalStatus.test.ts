@@ -1,6 +1,7 @@
 import { afterAll, expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
+import * as opStack from '~test/opStack.js'
 import { Actions as CoreActions, Client, http } from 'viem'
 import { mainnet, optimism } from 'viem/chains'
 import { Actions } from 'viem/op-stack'
@@ -9,42 +10,56 @@ const client = Client.create({
   chain: mainnet,
   transport: http(anvil.mainnet.rpcUrl.http),
 })
-const optimismClient = Client.create({
-  chain: optimism,
-  transport: http(anvil.optimism.rpcUrl.http),
-})
 
-afterAll(async () => {
-  await Promise.all([
+afterAll(
+  () =>
     CoreActions.state.reset(client, {
       blockNumber: anvil.mainnet.forkBlockNumber,
       jsonRpcUrl: anvil.mainnet.forkUrl,
     }),
-    CoreActions.state.reset(optimismClient, {
-      blockNumber: anvil.optimism.forkBlockNumber,
-      jsonRpcUrl: anvil.optimism.forkUrl,
-    }),
-  ])
-}, 60_000)
+  60_000,
+)
+
+const waitingToProveReceipt = opStack.getWithdrawalReceipt({
+  blockNumber: 131_027_671n,
+  transactionHash:
+    '0xb3cd0bf131e97b0339b6abde0aa7636fc87114ec6ff8cec28b5002c851c929a3',
+  withdrawalHash:
+    '0x7e3c682907ae38aefbca24b93ffa687d022051bb0ea38d3010de94d20354ebac',
+})
+
+const readyToProveReceipt = opStack.getWithdrawalReceipt({
+  blockNumber: 144_991_160n,
+  transactionHash:
+    '0x71490b686eaefd6e20d05aeb3feb898bfc7801e50b967d2f9eb5a057b8a7e855',
+  withdrawalHash:
+    '0xafc350e242bf7e137e2b46858b4f9d0521e70d69d2a70e1aa598cd6fef40e5ac',
+})
+
+const waitingToFinalizeReceipt = opStack.getWithdrawalReceipt({
+  blockNumber: 138_604_851n,
+  transactionHash:
+    '0xd62d19e87e2d6ff23935dd6891a6605562dd1f15bb554ff3cfd31794e167d9ab',
+  withdrawalHash:
+    '0x11ca6e76e40bc2c9d7b1a1872b29fb92412ddc5b46974389aa2026bf80b016cc',
+})
+
+const emptyReceipt = opStack.getReceipt({
+  blockNumber: 0n,
+  logs: [],
+  transactionHash:
+    '0xecb1c13ee638e5cf6a0977d9ee6910fb7c5188d3dff807fd3e658d1533137023',
+})
 
 test('returns waiting-to-prove before an output is available', async () => {
-  await Promise.all([
-    CoreActions.state.reset(client, {
-      blockNumber: 19_868_020n,
-      jsonRpcUrl: anvil.mainnet.forkUrl,
-    }),
-    CoreActions.state.reset(optimismClient, {
-      blockNumber: 131_027_672n,
-      jsonRpcUrl: anvil.optimism.forkUrl,
-    }),
-  ])
-  const receipt = await CoreActions.transaction.getReceipt(optimismClient, {
-    hash: '0xb3cd0bf131e97b0339b6abde0aa7636fc87114ec6ff8cec28b5002c851c929a3',
+  await CoreActions.state.reset(client, {
+    blockNumber: 19_868_020n,
+    jsonRpcUrl: anvil.mainnet.forkUrl,
   })
 
   const status = await Actions.l1.getWithdrawalStatus(client, {
     gameLimit: 1,
-    receipt,
+    receipt: waitingToProveReceipt,
     targetChain: optimism,
   })
 
@@ -52,23 +67,14 @@ test('returns waiting-to-prove before an output is available', async () => {
 }, 60_000)
 
 test('returns ready-to-prove for an unproven withdrawal', async () => {
-  await Promise.all([
-    CoreActions.state.reset(client, {
-      blockNumber: anvil.mainnet.forkBlockNumber,
-      jsonRpcUrl: anvil.mainnet.forkUrl,
-    }),
-    CoreActions.state.reset(optimismClient, {
-      blockNumber: anvil.optimism.forkBlockNumber,
-      jsonRpcUrl: anvil.optimism.forkUrl,
-    }),
-  ])
-  const receipt = await CoreActions.transaction.getReceipt(optimismClient, {
-    hash: '0x71490b686eaefd6e20d05aeb3feb898bfc7801e50b967d2f9eb5a057b8a7e855',
+  await CoreActions.state.reset(client, {
+    blockNumber: anvil.mainnet.forkBlockNumber,
+    jsonRpcUrl: anvil.mainnet.forkUrl,
   })
 
   const status = await Actions.l1.getWithdrawalStatus(client, {
     gameLimit: 1,
-    receipt,
+    receipt: readyToProveReceipt,
     targetChain: optimism,
   })
 
@@ -76,23 +82,14 @@ test('returns ready-to-prove for an unproven withdrawal', async () => {
 }, 60_000)
 
 test('returns waiting-to-finalize for a proven withdrawal', async () => {
-  await Promise.all([
-    CoreActions.state.reset(client, {
-      blockNumber: 22_991_516n,
-      jsonRpcUrl: anvil.mainnet.forkUrl,
-    }),
-    CoreActions.state.reset(optimismClient, {
-      blockNumber: 138_895_794n,
-      jsonRpcUrl: anvil.optimism.forkUrl,
-    }),
-  ])
-  const receipt = await CoreActions.transaction.getReceipt(optimismClient, {
-    hash: '0xd62d19e87e2d6ff23935dd6891a6605562dd1f15bb554ff3cfd31794e167d9ab',
+  await CoreActions.state.reset(client, {
+    blockNumber: 22_991_516n,
+    jsonRpcUrl: anvil.mainnet.forkUrl,
   })
 
   const status = await Actions.l1.getWithdrawalStatus(client, {
     gameLimit: 1,
-    receipt,
+    receipt: waitingToFinalizeReceipt,
     targetChain: optimism,
   })
 
@@ -118,13 +115,9 @@ test('returns finalized for a finalized withdrawal', async () => {
 }, 60_000)
 
 test('rejects a receipt without withdrawals', async () => {
-  const receipt = await CoreActions.transaction.getReceipt(optimismClient, {
-    hash: '0xecb1c13ee638e5cf6a0977d9ee6910fb7c5188d3dff807fd3e658d1533137023',
-  })
-
   await expect(
     Actions.l1.getWithdrawalStatus(client, {
-      receipt,
+      receipt: emptyReceipt,
       targetChain: optimism,
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`

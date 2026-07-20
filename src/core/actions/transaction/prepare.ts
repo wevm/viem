@@ -141,12 +141,12 @@ export async function prepare<
       { client, phase: 'beforeFillTransaction' },
     )
     nonce ??= request.nonce
-    // The hook may replace or drop the sending account (e.g. a chain that
-    // derives the sender from request fields, like a multisig config).
-    account = request.account
-      ? typeof request.account === 'string'
-        ? Account.from(request.account as Address.Address)
-        : request.account
+    // The hook may replace the account with a sender derived from request fields.
+    const sender = request.account ?? request.from
+    account = sender
+      ? typeof sender === 'string'
+        ? Account.from(sender as Address.Address)
+        : sender
       : undefined
   }
 
@@ -183,7 +183,7 @@ export async function prepare<
     try {
       const result = await fill(client, {
         ...omitControl(request),
-        account: request.account,
+        account,
         chain,
         nonce,
       } as never)
@@ -369,7 +369,7 @@ export async function prepare<
             maxPriorityFeePerGas: undefined,
           }
         : {}),
-      account: request.account,
+      account,
       kzg,
     })
 

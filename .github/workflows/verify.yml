@@ -96,6 +96,8 @@ jobs:
       - name: Bench types
         if: ${{ matrix.version == '5.9.3' }}
         run: pnpm bench:types
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
 
   test:
     name: 'Test Local (transport: ${{ matrix.transport-mode }}, multicall: ${{ matrix.multicall }}, ${{ matrix.shard }}/${{ matrix.total-shards }})'
@@ -179,6 +181,35 @@ jobs:
           CI: true
           VITE_TEMPO_CREDENTIALS: ${{ secrets.VITE_TEMPO_CREDENTIALS }}
           VITE_TEMPO_ENV: ${{ matrix.node-env }}
+
+  test-tempo-multisig:
+    name: Test Local Tempo Multisig
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v6
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Build contracts
+        run: pnpm contracts:build
+
+      - name: Run tests
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: pnpm test --run --bail=1 --project tempo-multisig
+        env:
+          CI: true
+          VITE_TEMPO_ENV: localnet
+          VITE_TEMPO_MULTISIG: 'true'
+          VITE_TEMPO_TAG: sha-6d831c2
 
   test-tempo-zones:
     name: Test Local Tempo Zones

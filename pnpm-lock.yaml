@@ -222,8 +222,8 @@ importers:
         specifier: 1.3.0
         version: 1.3.0(typescript@7.0.2)(zod@4.4.3)
       ox:
-        specifier: 1.0.2
-        version: 1.0.2(typescript@7.0.2)
+        specifier: 1.0.3
+        version: 1.0.3(typescript@7.0.2)
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 'catalog:'
@@ -281,7 +281,7 @@ importers:
         version: 0.18.1
       permissionless:
         specifier: 'catalog:'
-        version: 0.2.57(ox@1.0.2(typescript@7.0.2))
+        version: 0.2.57(ox@1.0.3(typescript@7.0.2))
       prool:
         specifier: 'catalog:'
         version: 0.2.13(@pimlico/alto@0.0.18(supports-color@8.1.1)(typescript@7.0.2))(debug@4.4.3(supports-color@8.1.1))(testcontainers@11.10.0(supports-color@8.1.1))
@@ -6016,8 +6016,8 @@ packages:
       typescript:
         optional: true
 
-  ox@1.0.2:
-    resolution: {integrity: sha512-StXZ6k+ZgivLz++B35gc0AI4/2m7CZ2nTtDbtGLPffKNB3MWBWGhvP8yuUFkAQqIe5y3cH/2jb7VnUgueAMYug==}
+  ox@1.0.3:
+    resolution: {integrity: sha512-uo+36rjAojztCTTo1+xP2R2thYYGLXLOPaDXtex3lDkolodIuG9rD4RNlpDYwFPzLeCP2V5Qq2XMxV/GwhsNfw==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
@@ -13904,7 +13904,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@1.0.2(typescript@5.9.3):
+  ox@1.0.3(typescript@5.9.3):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 2.2.0
@@ -13918,7 +13918,7 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
 
-  ox@1.0.2(typescript@7.0.2):
+  ox@1.0.3(typescript@7.0.2):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 2.2.0
@@ -14169,9 +14169,9 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.57(ox@1.0.2(typescript@7.0.2)):
+  permissionless@0.2.57(ox@1.0.3(typescript@7.0.2)):
     optionalDependencies:
-      ox: 1.0.2(typescript@7.0.2)
+      ox: 1.0.3(typescript@7.0.2)
 
   pg-int8@1.0.1: {}
 
@@ -15617,7 +15617,7 @@ snapshots:
   viem@file:(typescript@5.9.3)(zod@4.4.3):
     dependencies:
       abitype: 1.3.0(typescript@5.9.3)(zod@4.4.3)
-      ox: 1.0.2(typescript@5.9.3)
+      ox: 1.0.3(typescript@5.9.3)
     optionalDependencies:
       typescript: 5.9.3
     transitivePeerDependencies:
@@ -15626,7 +15626,7 @@ snapshots:
   viem@file:(typescript@7.0.2)(zod@4.4.3):
     dependencies:
       abitype: 1.3.0(typescript@7.0.2)(zod@4.4.3)
-      ox: 1.0.2(typescript@7.0.2)
+      ox: 1.0.3(typescript@7.0.2)
     optionalDependencies:
       typescript: 7.0.2
     transitivePeerDependencies:

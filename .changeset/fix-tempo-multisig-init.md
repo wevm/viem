@@ -2,4 +2,4 @@
 'viem': patch
 ---
 
-Fixed tempo multisig transactions with an explicit nonce key incorrectly including the bootstrap `init` config.
+Updated Tempo multisig transaction encoding and fixed explicit nonce keys incorrectly including the bootstrap `init` config.

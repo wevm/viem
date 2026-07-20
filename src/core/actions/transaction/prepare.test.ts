@@ -970,6 +970,33 @@ describe('behavior: chain hooks', () => {
     expect(request.value).toBe(69n)
   })
 
+  test('chain hook preserves a derived sender', async () => {
+    const chain = Chain.from({
+      id: 1,
+      name: 'Ethereum',
+      nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+      rpcUrls: { http: anvil.mainnet.rpcUrl.http },
+      transaction: {
+        prepare(request) {
+          const { account: _, ...rest } = request
+          return { ...rest, from: to }
+        },
+      },
+    })
+    const hookClient = Client.create({
+      account,
+      chain,
+      transport: http(anvil.mainnet.rpcUrl.http),
+    })
+
+    const { request } = await Actions.transaction.prepare(hookClient, {
+      to: account,
+      value: 0n,
+    })
+    expect(request.account).toBeUndefined()
+    expect(request.from).toBe(to)
+  })
+
   test('chain hook (runAt phases)', async () => {
     const phases: string[] = []
     const chain = Chain.from({

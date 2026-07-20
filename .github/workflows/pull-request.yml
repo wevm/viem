@@ -41,6 +41,7 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
+      pull-requests: write
 
     steps:
       - name: Clone repository

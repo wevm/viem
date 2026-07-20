@@ -39,7 +39,6 @@ const serialize = (
 const client = Client.create({ transport: http('http://localhost') })
 
 // Node-backed suites boot one dedicated Tempo node for this file.
-const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 const node = tempo.defineNode()
 afterAll(() => node.stop())
 
@@ -898,7 +897,7 @@ describe('transaction.prepare', () => {
 
   // The pending key authorization refresh reads the on-chain
   // AccountKeychain (`getKey`) before attaching or dropping.
-  liveTest(
+  test(
     'keyAuthorization: attaches a pending authorization (tempo node)',
     { timeout: 120_000 },
     async () => {
@@ -929,7 +928,7 @@ describe('transaction.prepare', () => {
     },
   )
 
-  liveTest(
+  test(
     'keyAuthorization: reads keychain metadata without a client account (tempo node)',
     { timeout: 120_000 },
     async () => {
@@ -964,7 +963,7 @@ describe('transaction.prepare', () => {
     },
   )
 
-  liveTest(
+  test(
     'keyAuthorization: removes the pending authorization once the key is registered on-chain (tempo node)',
     { timeout: 120_000 },
     async () => {
@@ -1044,24 +1043,20 @@ describe('verifyHash', () => {
   const otherHash = Hash.keccak256(Hex.fromString('other payload'))
   const expiry = () => Math.floor(Date.now() / 1000) + 3600
 
-  liveTest(
-    'p256: valid signature (tempo node)',
-    { timeout: 120_000 },
-    async () => {
-      const client = tempo.getClient({ rpcUrl: await node.start() })
-      const account = Account.fromP256(P256.randomPrivateKey())
-      const signature = await account.sign({ hash })
-      await expect(
-        chainConfig.verifyHash(client, {
-          address: account.address,
-          hash,
-          signature,
-        }),
-      ).resolves.toBe(true)
-    },
-  )
+  test('p256: valid signature (tempo node)', { timeout: 120_000 }, async () => {
+    const client = tempo.getClient({ rpcUrl: await node.start() })
+    const account = Account.fromP256(P256.randomPrivateKey())
+    const signature = await account.sign({ hash })
+    await expect(
+      chainConfig.verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      }),
+    ).resolves.toBe(true)
+  })
 
-  liveTest(
+  test(
     'p256: invalid signature returns false (tempo node)',
     { timeout: 120_000 },
     async () => {
@@ -1078,7 +1073,7 @@ describe('verifyHash', () => {
     },
   )
 
-  liveTest(
+  test(
     'p256: wrong address returns false (tempo node)',
     { timeout: 120_000 },
     async () => {
@@ -1096,7 +1091,7 @@ describe('verifyHash', () => {
     },
   )
 
-  liveTest(
+  test(
     'webCrypto: valid signature (tempo node)',
     { timeout: 120_000 },
     async () => {
@@ -1115,7 +1110,7 @@ describe('verifyHash', () => {
     },
   )
 
-  liveTest(
+  test(
     'webCrypto: invalid signature returns false (tempo node)',
     { timeout: 120_000 },
     async () => {
@@ -1134,7 +1129,7 @@ describe('verifyHash', () => {
     },
   )
 
-  liveTest(
+  test(
     'webCrypto: wrong address returns false (tempo node)',
     { timeout: 120_000 },
     async () => {
@@ -1154,7 +1149,7 @@ describe('verifyHash', () => {
     },
   )
 
-  liveTest(
+  test(
     'headlessWebAuthn: valid signature (tempo node)',
     { timeout: 120_000 },
     async () => {
@@ -1174,7 +1169,7 @@ describe('verifyHash', () => {
     },
   )
 
-  liveTest(
+  test(
     'headlessWebAuthn: invalid signature returns false (tempo node)',
     { timeout: 120_000 },
     async () => {
@@ -1194,7 +1189,7 @@ describe('verifyHash', () => {
     },
   )
 
-  liveTest(
+  test(
     'headlessWebAuthn: wrong address returns false (tempo node)',
     { timeout: 120_000 },
     async () => {
@@ -1215,7 +1210,7 @@ describe('verifyHash', () => {
     },
   )
 
-  liveTest(
+  test(
     'accessKey (keychain): valid signature (tempo node)',
     { timeout: 120_000 },
     async () => {
@@ -1245,7 +1240,7 @@ describe('verifyHash', () => {
     },
   )
 
-  liveTest(
+  test(
     'accessKey (keychain): secp256k1 valid signature (tempo node)',
     { timeout: 120_000 },
     async () => {
@@ -1275,7 +1270,7 @@ describe('verifyHash', () => {
     },
   )
 
-  liveTest(
+  test(
     'accessKey (keychain): invalid signature returns false (tempo node)',
     { timeout: 120_000 },
     async () => {
@@ -1305,7 +1300,7 @@ describe('verifyHash', () => {
     },
   )
 
-  liveTest(
+  test(
     'accessKey (keychain): revoked key returns false (tempo node)',
     { timeout: 120_000 },
     async () => {
@@ -1336,7 +1331,7 @@ describe('verifyHash', () => {
     },
   )
 
-  liveTest(
+  test(
     'falls back to `verifyDefault` for non-envelope signatures (tempo node)',
     { timeout: 120_000 },
     async () => {

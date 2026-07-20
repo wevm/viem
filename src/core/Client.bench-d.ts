@@ -5,7 +5,7 @@ import { Client, http, publicActions } from 'viem'
 
 test('create', () => {
   Client.create({ transport: http('https://cloudflare-eth.com') })
-  attest.instantiations([1080, 'instantiations'])
+  attest.instantiations([14694, 'instantiations'])
 })
 
 test('create + extend(publicActions())', () => {

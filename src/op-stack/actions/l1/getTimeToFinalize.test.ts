@@ -3,28 +3,18 @@ import { afterAll, expect, test } from 'vitest'
 import * as anvil from '~test/anvil.js'
 import { Actions as CoreActions, Client, http } from 'viem'
 import { mainnet, optimism } from 'viem/chains'
-import { Actions, Withdrawal } from 'viem/op-stack'
+import { Actions } from 'viem/op-stack'
 
 const client = Client.create({
   chain: mainnet,
   transport: http(anvil.mainnet.rpcUrl.http),
 })
-const optimismClient = Client.create({
-  chain: optimism,
-  transport: http(anvil.optimism.rpcUrl.http),
-})
 
 afterAll(async () => {
-  await Promise.all([
-    CoreActions.state.reset(client, {
-      blockNumber: anvil.mainnet.forkBlockNumber,
-      jsonRpcUrl: anvil.mainnet.forkUrl,
-    }),
-    CoreActions.state.reset(optimismClient, {
-      blockNumber: anvil.optimism.forkBlockNumber,
-      jsonRpcUrl: anvil.optimism.forkUrl,
-    }),
-  ])
+  await CoreActions.state.reset(client, {
+    blockNumber: anvil.mainnet.forkBlockNumber,
+    jsonRpcUrl: anvil.mainnet.forkUrl,
+  })
 }, 60_000)
 
 test('returns zero seconds for a matured proof', async () => {
@@ -77,16 +67,12 @@ test('returns the legacy finalization period', async () => {
     blockNumber: 18_770_525n,
     jsonRpcUrl: anvil.mainnet.forkUrl,
   })
-  const receipt = await CoreActions.transaction.getReceipt(optimismClient, {
-    hash: '0x9a2f4283636ddeb9ac32382961b22c177c9e86dd3b283735c154f897b1a7ff4a',
-  })
-  const [withdrawal] = Withdrawal.getWithdrawals({ logs: receipt.logs })
-  if (!withdrawal) throw new Error('Expected a withdrawal.')
   const before = Date.now()
 
   const time = await Actions.l1.getTimeToFinalize(client, {
     targetChain: optimism,
-    withdrawalHash: withdrawal.withdrawalHash,
+    withdrawalHash:
+      '0x539dfd84b3939c6d2f61e1fbaa176a70e6a433e222093c3fea872ac36527d6ac',
   })
 
   expect({

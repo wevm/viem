@@ -124,6 +124,7 @@ export default defineConfig({
         test: {
           name: 'tempo',
           include: ['src/tempo/**/*.test.ts'],
+          exclude: ['**/node_modules/**', '**/*.multisig.test.ts'],
           globalSetup: ['./test/setup.tempo.global.ts'],
           setupFiles: ['./test/setup.tempo.ts'],
           retry: 0,
@@ -133,6 +134,24 @@ export default defineConfig({
           testTimeout: 60_000,
         },
       },
+      // Register the multisig project only when explicitly enabled so
+      // unfiltered test runs skip its pinned Tempo image.
+      ...(process.env.VITE_TEMPO_MULTISIG
+        ? [
+            {
+              extends: true,
+              test: {
+                name: 'tempo-multisig',
+                include: ['src/tempo/**/*.multisig.test.ts'],
+                globalSetup: ['./test/setup.tempo.global.ts'],
+                setupFiles: ['./test/setup.tempo.ts'],
+                retry: 0,
+                hookTimeout: 180_000,
+                testTimeout: 120_000,
+              },
+            },
+          ]
+        : []),
     ],
   },
 })

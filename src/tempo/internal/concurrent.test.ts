@@ -46,7 +46,6 @@ test('different keys do not interfere', async () => {
 
 // Expiring-nonce integration (TIP-1009): `detect` drives nonceKey selection
 // in the transaction prepare hook.
-const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
 const node = tempo.defineNode()
 afterAll(() => node.stop())
 
@@ -59,27 +58,23 @@ async function validBefore(client: ReturnType<typeof tempo.getClient>) {
   return Number(block.timestamp) + 25
 }
 
-liveTest(
-  'sendTransaction with expiring nonce',
-  { timeout: 120_000 },
-  async () => {
-    const client = tempo.getClient({ rpcUrl: await node.start() })
-    const receipt = await Actions.transaction.sendSync(client, {
-      calls: [{ to }],
-      feeToken: tempo.pathUsd,
-      nonceKey: 'expiring',
-      validBefore: await validBefore(client),
-    })
-    expect(receipt.status).toBe('success')
+test('sendTransaction with expiring nonce', { timeout: 120_000 }, async () => {
+  const client = tempo.getClient({ rpcUrl: await node.start() })
+  const receipt = await Actions.transaction.sendSync(client, {
+    calls: [{ to }],
+    feeToken: tempo.pathUsd,
+    nonceKey: 'expiring',
+    validBefore: await validBefore(client),
+  })
+  expect(receipt.status).toBe('success')
 
-    const transaction = await Actions.transaction.get(client, {
-      hash: receipt.transactionHash,
-    })
-    expect(transaction.nonceKey).toBe(maxUint256)
-  },
-)
+  const transaction = await Actions.transaction.get(client, {
+    hash: receipt.transactionHash,
+  })
+  expect(transaction.nonceKey).toBe(maxUint256)
+})
 
-liveTest(
+test(
   'concurrent transactions use expiring nonces',
   { timeout: 120_000 },
   async () => {

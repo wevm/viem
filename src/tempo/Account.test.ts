@@ -25,6 +25,7 @@ import * as tempo from '~test/tempo.js'
 import { afterAll, describe, expect, test } from 'vitest'
 
 import { Actions } from 'viem'
+import { tempoLocalnet } from 'viem/chains'
 
 import * as Account from './Account.js'
 
@@ -717,27 +718,54 @@ describe('fromMultisig', () => {
     ).toBe(1337)
   })
 
-  // End-to-end multisig sends require a multisig-capable node: the public
-  // `tempo` node images (latest, nightly) reject the `0x05` multisig
-  // signature envelope with `failed to decode signed transaction`. Approval
-  // combining is covered hermetically in `chainConfig.test.ts`.
-  test.todo('flat 2-of-2: init + subsequent')
-  test.todo('2-of-3 (M-of-N): threshold subset of owners approves')
-  test.todo('weighted threshold: single heavy owner meets threshold')
-  test.todo('account hoisted to client: send without explicit `account`')
-  test.todo('infer multisig from `account` (no `multisig` field)')
-  test.todo('fee payer sponsors bootstrap multisig')
+  test('signTransaction co-signs a local fee payer', async () => {
+    const account = Account.fromMultisig({
+      owners: [{ owner: owner_1.address, weight: 1 }],
+      threshold: 1,
+    })
+    const feePayerKey = tempo.accounts[2]!.privateKey
+    const feePayer = Account.fromSecp256k1(feePayerKey)
+    const approval = await owner_1.signTransaction({
+      ...envelope,
+      multisig: account.config,
+    } as never)
+
+    const serialized = await account.signTransaction(
+      {
+        ...envelope,
+        feePayer,
+        multisig: account.config,
+        signatures: [approval],
+      } as never,
+      { chain: tempoLocalnet },
+    )
+    const transaction = TxEnvelopeTempo.deserialize(
+      serialized as TxEnvelopeTempo.Serialized,
+    )
+    expect(serialized.startsWith('0x76')).toBe(true)
+    expect(transaction.signature?.type).toBe('multisig')
+    expect(transaction.feePayerSignature).toBeTruthy()
+    expect(
+      Address.checksum(
+        Secp256k1.recoverAddress({
+          payload: TxEnvelopeTempo.getFeePayerSignPayload(transaction, {
+            sender: account.address,
+          }),
+          signature: transaction.feePayerSignature!,
+        }),
+      ),
+    ).toBe(feePayer.address)
+  })
 })
 
 // End-to-end fee payer flows against a tempo node.
 describe('e2e (tempo node)', () => {
-  const liveTest = process.env.SKIP_GLOBAL_SETUP ? test.skip : test
   const node = tempo.defineNode()
   afterAll(() => node.stop())
 
   const to = '0x00000000000000000000000000000000000000ff'
 
-  liveTest(
+  test(
     'fee payer co-sign derives the sender from a p256 signature',
     { timeout: 120_000 },
     async () => {
@@ -764,7 +792,7 @@ describe('e2e (tempo node)', () => {
     },
   )
 
-  liveTest(
+  test(
     '`feePayer` same as sender preserves `from`',
     { timeout: 120_000 },
     async () => {

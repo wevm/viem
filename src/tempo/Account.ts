@@ -321,16 +321,29 @@ export function fromMultisig(config: MultisigConfig.Config): MultisigAccount {
     async signMessage() {
       throw new Error('`signMessage` is not supported for multisig accounts.')
     },
-    async signTransaction(envelope, options) {
+    async signTransaction(envelope_, options) {
+      const envelope =
+        envelope_ as unknown as TxEnvelopeTempo.TxEnvelopeTempo & {
+          feePayer?: viem_Account.Account | boolean | undefined
+        }
       const serialize = options?.chain?.transaction?.serialize as
         | ((envelope: unknown) => Hex.Hex | undefined)
         | undefined
-      return (
+      const serialized =
         serialize?.(envelope) ??
         TxEnvelopeTempo.serialize(
           envelope as unknown as TxEnvelopeTempo.TxEnvelopeTempo,
         )
+      if (
+        typeof envelope.feePayer === 'object' &&
+        serialized.startsWith(TxEnvelopeTempo.feePayerMagic)
       )
+        return await signFeePayer(
+          serialized,
+          envelope.feePayer,
+          envelope.from ?? address,
+        )
+      return serialized
     },
     async signTypedData() {
       throw new Error('`signTypedData` is not supported for multisig accounts.')
@@ -758,38 +771,31 @@ function fromBase(parameters: fromBase.Parameters): Base {
       }
 
       const signature = await sign({ hash: payload })
-
-      if (typeof envelope.feePayer === 'object') {
-        const feePayer = envelope.feePayer
-        if (!feePayer.sign)
-          throw new Error('`feePayer` account does not implement `sign`.')
-
-        const tx = TxEnvelopeTempo.from(envelope, {
-          signature: SignatureEnvelope.from(signature),
-        })
-        const sender =
-          envelope.from ??
-          SignatureEnvelope.extractAddress({
-            payload: TxEnvelopeTempo.getSignPayload(tx),
-            root: true,
-            signature: tx.signature,
-          })
-        const feePayerSignature = await feePayer.sign({
-          hash: TxEnvelopeTempo.getFeePayerSignPayload(tx, { sender }),
-        })
-        return TxEnvelopeTempo.serialize(tx, {
-          feePayerSignature: Signature.from(feePayerSignature),
-        })
-      }
-
       const serialize = chain?.transaction?.serialize as
         | ((envelope: unknown, options?: unknown) => Hex.Hex | undefined)
         | undefined
       const signatureEnvelope = SignatureEnvelope.from(signature)
-      return (
+      const serialized =
         serialize?.(envelope, { signature: signatureEnvelope }) ??
-        TxEnvelopeTempo.serialize(envelope, { signature: signatureEnvelope })
+        (envelope.feePayer
+          ? TxEnvelopeTempo.serialize(envelope, {
+              format: 'feePayer',
+              sender: envelope.from ?? address,
+              signature: signatureEnvelope,
+            })
+          : TxEnvelopeTempo.serialize(envelope, {
+              signature: signatureEnvelope,
+            }))
+      if (
+        typeof envelope.feePayer === 'object' &&
+        serialized.startsWith(TxEnvelopeTempo.feePayerMagic)
       )
+        return await signFeePayer(
+          serialized,
+          envelope.feePayer,
+          envelope.from ?? address,
+        )
+      return serialized
     },
     async signTypedData(typedData) {
       return await sign({
@@ -805,6 +811,29 @@ function fromBase(parameters: fromBase.Parameters): Base {
     source: 'root',
     type: 'local',
   }
+}
+
+async function signFeePayer(
+  serialized: Hex.Hex,
+  feePayer: viem_Account.Account,
+  sender: Address.Address,
+): Promise<Hex.Hex> {
+  if (!feePayer.sign)
+    throw new Error('`feePayer` account does not implement `sign`.')
+
+  // Fee-payer handoffs share the Tempo body under a different prefix.
+  const transaction = TxEnvelopeTempo.deserialize(
+    serialized.replace(
+      TxEnvelopeTempo.feePayerMagic,
+      TxEnvelopeTempo.serializedType,
+    ) as TxEnvelopeTempo.Serialized,
+  )
+  const signature = await feePayer.sign({
+    hash: TxEnvelopeTempo.getFeePayerSignPayload(transaction, { sender }),
+  })
+  return TxEnvelopeTempo.serialize(transaction, {
+    feePayerSignature: Signature.from(signature),
+  })
 }
 
 declare namespace fromBase {

@@ -191,12 +191,6 @@ describe('transaction.sendSync', () => {
         feeToken: tempo.pathUsd,
       })
 
-      console.error(
-        'STEP: envelope',
-        JSON.stringify(request, (_, v) =>
-          typeof v === 'bigint' ? v.toString() : v,
-        ),
-      )
       const envelope = tempoLocalnet.transaction.toEnvelope(
         request as never,
       ) as Envelope

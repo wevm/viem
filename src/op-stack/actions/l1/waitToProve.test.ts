@@ -1,6 +1,7 @@
 import { afterAll, expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
+import * as opStack from '~test/opStack.js'
 import { Actions as CoreActions, Client, http } from 'viem'
 import { mainnet, optimism } from 'viem/chains'
 import { Actions, Withdrawal } from 'viem/op-stack'
@@ -9,35 +10,49 @@ const client = Client.create({
   chain: mainnet,
   transport: http(anvil.mainnet.rpcUrl.http),
 })
-const optimismClient = Client.create({
-  chain: optimism,
-  transport: http(anvil.optimism.rpcUrl.http),
-})
 
-afterAll(async () => {
-  await Promise.all([
+afterAll(
+  () =>
     CoreActions.state.reset(client, {
       blockNumber: anvil.mainnet.forkBlockNumber,
       jsonRpcUrl: anvil.mainnet.forkUrl,
     }),
-    CoreActions.state.reset(optimismClient, {
-      blockNumber: anvil.optimism.forkBlockNumber,
-      jsonRpcUrl: anvil.optimism.forkUrl,
-    }),
-  ])
-}, 60_000)
+  60_000,
+)
+
+const disputeGameReceipt = opStack.getWithdrawalReceipt({
+  blockNumber: 144_991_160n,
+  transactionHash:
+    '0x71490b686eaefd6e20d05aeb3feb898bfc7801e50b967d2f9eb5a057b8a7e855',
+  withdrawalHash:
+    '0xafc350e242bf7e137e2b46858b4f9d0521e70d69d2a70e1aa598cd6fef40e5ac',
+})
+
+const legacyReceipt = opStack.getWithdrawalReceipt({
+  blockNumber: 113_388_533n,
+  transactionHash:
+    '0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147',
+  withdrawalHash:
+    '0x178f1e0216fb50bef160eb8af7d1d98000026a84371cef4a13d8d79996cc8589',
+})
+
+const emptyReceipt = opStack.getReceipt({
+  blockNumber: 0n,
+  logs: [],
+  transactionHash:
+    '0xecb1c13ee638e5cf6a0977d9ee6910fb7c5188d3dff807fd3e658d1533137023',
+})
 
 test('returns a dispute game and withdrawal', async () => {
-  const receipt = await CoreActions.transaction.getReceipt(optimismClient, {
-    hash: '0x71490b686eaefd6e20d05aeb3feb898bfc7801e50b967d2f9eb5a057b8a7e855',
+  const [withdrawal] = Withdrawal.getWithdrawals({
+    logs: disputeGameReceipt.logs,
   })
-  const [withdrawal] = Withdrawal.getWithdrawals({ logs: receipt.logs })
   if (!withdrawal) throw new Error('Expected a withdrawal.')
 
   const result = await Actions.l1.waitToProve(client, {
     gameLimit: 1,
     pollingInterval: 10,
-    receipt,
+    receipt: disputeGameReceipt,
     targetChain: optimism,
   })
   const { withdrawal: withdrawal_, ...rest } = result
@@ -69,13 +84,9 @@ test('returns a legacy output and withdrawal', async () => {
     blockNumber: 18_772_363n,
     jsonRpcUrl: anvil.mainnet.forkUrl,
   })
-  const receipt = await CoreActions.transaction.getReceipt(optimismClient, {
-    hash: '0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147',
-  })
-
   const result = await Actions.l1.waitToProve(client, {
     pollingInterval: 10,
-    receipt,
+    receipt: legacyReceipt,
     targetChain: optimism,
   })
 
@@ -104,13 +115,9 @@ test('returns a legacy output and withdrawal', async () => {
 }, 60_000)
 
 test('rejects a receipt without withdrawals', async () => {
-  const receipt = await CoreActions.transaction.getReceipt(optimismClient, {
-    hash: '0xecb1c13ee638e5cf6a0977d9ee6910fb7c5188d3dff807fd3e658d1533137023',
-  })
-
   await expect(
     Actions.l1.waitToProve(client, {
-      receipt,
+      receipt: emptyReceipt,
       targetChain: optimism,
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
