@@ -142,7 +142,6 @@ export {
   getEip8130Deployment,
   vibenetDevnetDeployment,
 } from './deployments.js'
-export { type NonceScopeErrorType, NonceScopeError } from './errors.js'
 export {
   type ActorNotBoundErrorType,
   ActorNotBoundError,
