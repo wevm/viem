@@ -121,6 +121,12 @@ export type EstimateGas8130Parameters = {
   payerAuthAuthenticator?: Address | undefined
   /** Payer auth-payload byte length override. See `senderAuthSize`. */
   payerAuthSize?: number | undefined
+  /**
+   * Attribution / opaque suffix. Written to the EIP-8130 `metadata` field in
+   * full-body mode (not appended to call calldata). Takes precedence over
+   * `client.dataSuffix`.
+   */
+  dataSuffix?: Hex | undefined
   /** Block number to estimate against. */
   blockNumber?: bigint | undefined
   /** Block tag to estimate against. Defaults to `'pending'`. */
@@ -189,9 +195,16 @@ export async function estimateGas8130<
     payerAuth: payerAuthExplicit,
     payerAuthAuthenticator,
     payerAuthSize,
+    dataSuffix: dataSuffixParam,
     blockNumber,
     blockTag = 'pending',
   } = parameters
+
+  const dataSuffix =
+    dataSuffixParam ??
+    (typeof client.dataSuffix === 'string'
+      ? client.dataSuffix
+      : client.dataSuffix?.value)
 
   const account_ = sender ?? from
   if (!account_)
@@ -250,7 +263,7 @@ export async function estimateGas8130<
           data: c.data ?? '0x',
         })),
       ),
-      metadata: '0x',
+      metadata: dataSuffix ?? '0x',
       payer: payer ?? null,
     }
     if (senderAuth !== undefined) request.senderAuth = senderAuth

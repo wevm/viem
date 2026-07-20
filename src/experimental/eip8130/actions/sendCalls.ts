@@ -39,6 +39,11 @@ export type PrepareTransaction8130Parameters = FeeOverrides & {
   nonceKey?: bigint | undefined
   nonceSequence?: bigint | undefined
   expiry?: bigint | undefined
+  /**
+   * Attribution / opaque suffix. Written to the EIP-8130 `metadata` field
+   * (not appended to call calldata). Takes precedence over `client.dataSuffix`.
+   */
+  dataSuffix?: Hex | undefined
 }
 
 /**
@@ -86,6 +91,14 @@ export async function prepareTransaction8130(
   const chainId = client.chain?.id
   if (!chainId)
     throw new BaseError('`client` must be configured with a `chain`.')
+
+  // EIP-8130 has no calldata to append to; `dataSuffix` maps to top-level
+  // `metadata` so attribution remains authenticated with the signed body.
+  const dataSuffix =
+    parameters.dataSuffix ??
+    (typeof client.dataSuffix === 'string'
+      ? client.dataSuffix
+      : client.dataSuffix?.value)
 
   // Scope-driven nonce mode: an actor may use a sequenced nonce key only if it
   // holds `SCOPE_NONCE`. Prefer chain truth (`getActorConfig`) over a redeclared
@@ -155,6 +168,7 @@ export async function prepareTransaction8130(
     expiry,
     accountChanges,
     calls,
+    ...(dataSuffix ? { metadata: dataSuffix } : {}),
     payer: payer?.address ?? payer?.account.address,
   }
 }
@@ -172,6 +186,11 @@ export type SendCalls8130Parameters = FeeOverrides & {
   nonceKey?: bigint | undefined
   nonceSequence?: bigint | undefined
   expiry?: bigint | undefined
+  /**
+   * Attribution / opaque suffix. Written to the EIP-8130 `metadata` field
+   * (not appended to call calldata). Takes precedence over `client.dataSuffix`.
+   */
+  dataSuffix?: Hex | undefined
   /**
    * Encoder for value-bearing phases. Defaults to a self-call to the account's
    * `executeBatch`. Override when the wallet bytecode exposes a different

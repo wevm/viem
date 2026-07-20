@@ -122,3 +122,44 @@ describe('estimateGas8130 — create account-change serialization', () => {
     )
   })
 })
+
+describe('estimateGas8130 — dataSuffix → metadata', () => {
+  test('full-body mode writes dataSuffix to metadata', async () => {
+    const rec = recordingClient()
+    const account = to8130Account({
+      signer: owner,
+      userSalt,
+      code,
+      initialActors: [key.k1(owner.address)],
+    })
+
+    await estimateGas8130(rec.client, {
+      sender: account.address,
+      accountChanges: [account.create()],
+      calls: [[{ to: owner.address }]],
+      senderAuthAuthenticator: canonicalAuthenticators.k1,
+      dataSuffix: '0xabcdef',
+    })
+
+    expect(rec.request.metadata).toBe('0xabcdef')
+  })
+
+  test('full-body mode defaults metadata to 0x', async () => {
+    const rec = recordingClient()
+    const account = to8130Account({
+      signer: owner,
+      userSalt,
+      code,
+      initialActors: [key.k1(owner.address)],
+    })
+
+    await estimateGas8130(rec.client, {
+      sender: account.address,
+      accountChanges: [account.create()],
+      calls: [[{ to: owner.address }]],
+      senderAuthAuthenticator: canonicalAuthenticators.k1,
+    })
+
+    expect(rec.request.metadata).toBe('0x')
+  })
+})

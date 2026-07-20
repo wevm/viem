@@ -166,6 +166,10 @@ export type TransactionSerializable8130 = {
    * level of the transaction. Appended after `calls` in the signed body, so it
    * is authenticated by both the sender and (when present) the payer. Omit or
    * `'0x'` for none.
+   *
+   * High-level helpers (`prepareTransaction8130` / `sendCalls8130`) populate
+   * this from `dataSuffix` / `client.dataSuffix` (EIP-8130 has no calldata
+   * suffix; attribution lands here instead).
    */
   metadata?: Hex | undefined
   /** Gas payer. Omit for self-pay; set to a 20-byte address for sponsored. */
