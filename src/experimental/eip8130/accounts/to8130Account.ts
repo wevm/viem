@@ -429,8 +429,9 @@ export function newSmartAccount8130(
     authenticator: signer.authenticator,
     accountConfigAddress,
     // The primary (controlling) actor is registered without a scope, i.e. as an
-    // admin actor. Admin actors lack `SCOPE_NONCE`, so this account is
-    // nonce-free-only — surface that so nonce mode is selected automatically.
+    // admin actor (`scopeUnrestricted`). Admin actors may use ordered *or*
+    // nonce-free nonces, so sends default to ordered (sequenced) mode — surface
+    // the scope so nonce mode is selected automatically.
     scope: primaryActor.scope ?? scopeUnrestricted,
   })
 
@@ -444,9 +445,8 @@ export function newSmartAccount8130(
 export type ToEoa8130AccountParameters = {
   /**
    * Scope of the EOA's implicit self-actor. Defaults to admin
-   * ({@link scopeUnrestricted}), which lacks `SCOPE_NONCE` and is therefore
-   * nonce-free-only. Override only if the self-actor was reconfigured with the
-   * `SCOPE_NONCE` bit and you want sequenced nonces.
+   * ({@link scopeUnrestricted}), which may use ordered *or* nonce-free nonces
+   * (sends default to ordered). Override for a restricted self-actor.
    */
   scope?: number | undefined
 }
@@ -457,8 +457,8 @@ export type ToEoa8130AccountReturnType = {
   readonly signer: Signer
   /**
    * Scope of the implicit self-actor (admin by default). Drives automatic
-   * nonce-mode selection: admin lacks `SCOPE_NONCE`, so sends default to
-   * nonce-free (expiring) mode. See {@link prepareTransaction8130}.
+   * nonce-mode selection: admin may use ordered *or* nonce-free, so sends
+   * default to ordered (sequenced) mode. See {@link prepareTransaction8130}.
    */
   readonly scope?: number | undefined
   /**

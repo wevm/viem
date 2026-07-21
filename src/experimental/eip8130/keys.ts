@@ -8,6 +8,7 @@ import {
   actorScope,
   canonicalAuthenticators,
   ecrecoverAuthenticator,
+  scopeUnrestricted,
   trustedExecutorAuthenticator,
 } from './constants.js'
 import type {
@@ -92,23 +93,28 @@ export function toScope(...flags: number[]): number {
 
 /**
  * Whether an actor with `scope` may use sequenced (counter-backed) nonce keys —
- * i.e. standard sequential ordering or a 2D nonce channel. Requires the
- * `SCOPE_NONCE` bit.
+ * i.e. standard sequential ordering or a 2D nonce channel.
  *
- * Admin actors (`scope == 0`) do **not** have `SCOPE_NONCE` set, so — like any
- * restricted actor lacking the bit — they are restricted to nonce-free
- * (expiring) transactions. Use {@link isNoncelessOnly} for the inverse.
+ * Mirrors the node rule: an actor may use ordered (sequenced) nonces if it is
+ * **admin** (`scope == scopeUnrestricted`, `0x00`) **or** it holds the
+ * `SCOPE_NONCE` bit. Both admin and `SCOPE_NONCE` actors may additionally use
+ * nonce-free (expiring) mode. Only a *restricted* actor **without**
+ * `SCOPE_NONCE` is confined to nonce-free. Use {@link isNoncelessOnly} for the
+ * inverse.
  */
 export function canUseSequencedNonce(scope: number | undefined): boolean {
-  return ((scope ?? 0) & actorScope.nonce) !== 0
+  const s = scope ?? scopeUnrestricted
+  return s === scopeUnrestricted || (s & actorScope.nonce) !== 0
 }
 
 /**
  * Whether an actor with `scope` is restricted to nonce-free (expiring)
- * transactions (`nonceKey = NONCE_KEY_MAX`) because it lacks `SCOPE_NONCE`.
+ * transactions (`nonceKey = NONCE_KEY_MAX`).
  *
- * True for admin actors (`scope == 0`) and any actor authorized without the
- * `SCOPE_NONCE` bit. Inverse of {@link canUseSequencedNonce}.
+ * True **only** for a restricted actor (non-admin) authorized **without** the
+ * `SCOPE_NONCE` bit. Admin actors (`scope == 0`) and `SCOPE_NONCE` actors are
+ * **not** restricted — they may use ordered *or* nonce-free. Inverse of
+ * {@link canUseSequencedNonce}.
  */
 export function isNoncelessOnly(scope: number | undefined): boolean {
   return !canUseSequencedNonce(scope)

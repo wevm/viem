@@ -121,14 +121,14 @@ export const nonce = {
   },
 
   /**
-   * Selects the correct nonce strategy for an actor's `scope`. An actor may use
-   * a sequenced nonce key only if it holds `SCOPE_NONCE`; admin actors
-   * (`scope == 0`) and any actor authorized without that bit are restricted to
-   * nonce-free (expiring) mode.
+   * Selects the default nonce strategy for an actor's `scope`, mirroring the
+   * node rule. Admin actors (`scope == 0`) and actors holding `SCOPE_NONCE` may
+   * use ordered *or* nonce-free nonces; only a restricted actor **without**
+   * `SCOPE_NONCE` is confined to nonce-free.
    *
-   * - Actor **has** `SCOPE_NONCE` → sequenced {@link nonce.channel} (default
-   *   channel `0`, i.e. {@link nonce.sequential}).
-   * - Actor **lacks** `SCOPE_NONCE` (incl. admin) → {@link nonce.nonceless},
+   * - Admin (`scope == 0`) **or** `SCOPE_NONCE` set → sequenced
+   *   {@link nonce.channel} (default channel `0`, i.e. {@link nonce.sequential}).
+   * - Restricted actor **without** `SCOPE_NONCE` → {@link nonce.nonceless},
    *   defaulting the expiry to `NONCE_FREE_MAX_EXPIRY_WINDOW` seconds from now.
    *
    * @param scope - The signing actor's scope bitmask.

@@ -4,9 +4,9 @@ export type NonceScopeErrorType = NonceScopeError & { name: 'NonceScopeError' }
 
 /**
  * Thrown when a sequenced (counter-backed) nonce key is requested for a signing
- * actor that lacks `SCOPE_NONCE` — admin actors (`scope == 0`) and any actor
- * authorized without the nonce bit are restricted to nonce-free (expiring)
- * transactions.
+ * actor that may not use one: a *restricted* (non-admin) actor authorized
+ * **without** `SCOPE_NONCE`. Admin actors (`scope == 0`) and `SCOPE_NONCE`
+ * actors are unaffected — they may use ordered *or* nonce-free nonces.
  */
 export class NonceScopeError extends BaseError {
   override name = 'NonceScopeError'
@@ -18,13 +18,13 @@ export class NonceScopeError extends BaseError {
     nonceKey?: bigint | undefined
   }) {
     super(
-      `Signing actor scope \`0x${scope.toString(16)}\` lacks \`SCOPE_NONCE\`, so it may only send nonce-free (expiring) transactions${
+      `Restricted signing actor scope \`0x${scope.toString(16)}\` lacks \`SCOPE_NONCE\`, so it may only send nonce-free (expiring) transactions${
         nonceKey !== undefined ? ` — received \`nonceKey\` ${nonceKey}.` : '.'
       }`,
       {
         metaMessages: [
-          'Admin actors (scope 0) and any actor without the `SCOPE_NONCE` bit are restricted to nonce-free mode.',
-          'Omit `nonceKey` to let the library select nonce-free mode automatically, or pass `...nonce.nonceless({ expiresIn })`.',
+          'Only a restricted (non-admin) actor without the `SCOPE_NONCE` bit is confined to nonce-free mode; admin (scope 0) and `SCOPE_NONCE` actors may use ordered nonces too.',
+          'Omit `nonceKey` to let the library select the default nonce mode automatically, or pass `...nonce.nonceless({ expiresIn })` for nonce-free.',
         ],
       },
     )

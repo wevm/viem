@@ -134,17 +134,11 @@ export async function prepareTransaction8130(
   if (nonceKey === nonceKeyMax) {
     // Nonce-free (expiring) mode: there is no per-channel counter to read;
     // replay protection relies on `expiry`. Pin the sequence to `0n`.
-    if (!expiry || expiry === 0n) {
-      if (noncelessOnly)
-        // Auto-selected nonce-free mode: default the expiry to the mempool
-        // admission window rather than forcing the caller to supply one.
-        expiry =
-          BigInt(Math.floor(Date.now() / 1000)) + nonceFreeMaxExpiryWindow
-      else
-        throw new BaseError(
-          '`expiry` is required for nonce-free transactions (`nonceKey` = `NONCE_KEY_MAX`). Build the nonce with `nonce.nonceless({ expiresIn })`.',
-        )
-    }
+    // Default the expiry to the mempool admission window when the caller did
+    // not supply one — whether nonce-free was auto-selected (restricted actor)
+    // or explicitly chosen (admin / `SCOPE_NONCE` actor opting in).
+    if (!expiry || expiry === 0n)
+      expiry = BigInt(Math.floor(Date.now() / 1000)) + nonceFreeMaxExpiryWindow
     nonceSequence ??= 0n
   } else if (nonceSequence === undefined) {
     // Read the next sequence via `eth_getTransactionCount` (with the 2D

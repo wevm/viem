@@ -89,6 +89,9 @@ describe('sendCalls8130 nonce integration', () => {
         async request({ method, params }: { method: string; params: any }) {
           methods.push(method)
           if (method === 'eth_chainId') return '0x1'
+          // Actor not yet bound on-chain → resolveSigningScope falls back to the
+          // declared handle scope (offline nonce-mode selection).
+          if (method === 'eth_call') return `0x${'0'.repeat(64)}`
           if (method === 'eth_getTransactionCount') {
             lastGetCountParams = params
             return '0x3'
