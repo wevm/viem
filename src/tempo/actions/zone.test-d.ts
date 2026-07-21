@@ -134,3 +134,9 @@ test('waitForDepositStatus returns a deposit status', async () => {
 
   expectTypeOf(result).toEqualTypeOf<zoneActions.getDepositStatus.ReturnType>()
 })
+
+test('getZoneInfo returns the imported Tempo block number', async () => {
+  const info = await zoneActions.getZoneInfo(zoneClient)
+
+  expectTypeOf(info.tempoBlockNumber).toEqualTypeOf<bigint>()
+})

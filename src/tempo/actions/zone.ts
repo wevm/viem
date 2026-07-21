@@ -1247,6 +1247,7 @@ export async function getZoneInfo<
   return {
     chainId: Hex.toNumber(info.chainId),
     sequencer: info.sequencer,
+    tempoBlockNumber: Hex.toBigInt(info.tempoBlockNumber),
     zoneId: Hex.toNumber(info.zoneId),
     zoneTokens: info.zoneTokens,
   }
@@ -1256,6 +1257,7 @@ export namespace getZoneInfo {
   export type RpcReturnType = {
     chainId: Hex.Hex
     sequencer: Address
+    tempoBlockNumber: Hex.Hex
     zoneId: Hex.Hex
     zoneTokens: readonly Address[]
   }
@@ -1263,6 +1265,7 @@ export namespace getZoneInfo {
   export type ReturnType = {
     chainId: number
     sequencer: Address
+    tempoBlockNumber: bigint
     zoneId: number
     zoneTokens: readonly Address[]
   }

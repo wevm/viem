@@ -15,9 +15,11 @@ const info = await client.zone.getZoneInfo()
 console.log('Zone ID:', info.zoneId)
 console.log('Chain ID:', info.chainId)
 console.log('Sequencer:', info.sequencer)
+console.log('Tempo block number:', info.tempoBlockNumber)
 // @log: Zone ID: 7
 // @log: Chain ID: 1337
 // @log: Sequencer: 0x...
+// @log: Tempo block number: 1234n
 ```
 
 ```ts twoslash [zones.config.ts] filename="zones.config.ts"
@@ -33,6 +35,7 @@ console.log('Sequencer:', info.sequencer)
 type ReturnType = {
   chainId: number
   sequencer: Address
+  tempoBlockNumber: bigint
   zoneId: number
   zoneTokens: Address[]
 }

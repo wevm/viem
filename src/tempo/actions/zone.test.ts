@@ -267,6 +267,7 @@ describe('getZoneInfo', () => {
     expect(info.zoneId).toBe(zoneId)
     expect(info.chainId).toBe(zoneClient.chain.id)
     expect(info.sequencer).toBeDefined()
+    expect(info.tempoBlockNumber).toBeGreaterThanOrEqual(0n)
     expect(info.zoneTokens).toBeDefined()
   })
 })
