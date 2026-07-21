@@ -1,3 +1,5 @@
+import type { Address } from 'abitype'
+import type * as Hex from 'ox/Hex'
 import { expectTypeOf, test } from 'vitest'
 import { sendTransaction } from '../../actions/wallet/sendTransaction.js'
 import { tempoModerato } from '../../chains/index.js'
@@ -87,6 +89,27 @@ test('requestWithdrawal.prepare returns a request, maximum fee, and details', as
   expectTypeOf(prepared).not.toHaveProperty('estimatedGas')
 
   await sendTransaction(zoneClient, prepared.request)
+})
+
+test('requestWithdrawal accepts a prepared gateway callback shape', async () => {
+  // Canary for the earn deposit-zone flow: a fully populated gateway
+  // withdrawal (token, recipient, callback data) must stay assignable.
+  const args = {} as {
+    amount: bigint
+    callbackGas: bigint
+    data: Hex.Hex
+    fallbackRecipient: Address
+    to: Address
+    token: Address
+  }
+  expectTypeOf(args).toExtend<
+    zoneActions.requestWithdrawal.Parameters<
+      (typeof zoneClient)['chain'],
+      (typeof zoneClient)['account']
+    >
+  >()
+  await zoneActions.requestWithdrawal(zoneClient, args)
+  zoneActions.requestWithdrawal.calls(args)
 })
 
 test('withdrawal callback gas is distinct from transaction gas', async () => {

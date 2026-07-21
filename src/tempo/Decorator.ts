@@ -7,6 +7,7 @@ import * as accessKeyActions from './actions/accessKey.js'
 import * as ammActions from './actions/amm.js'
 import * as channelActions from './actions/channel.js'
 import * as dexActions from './actions/dex.js'
+import * as earnActions from './actions/earn.js'
 import * as faucetActions from './actions/faucet.js'
 import * as feeActions from './actions/fee.js'
 import * as nonceActions from './actions/nonce.js'
@@ -1741,6 +1742,380 @@ type DecoratorBase<
     watchOrderPlaced: (
       parameters: dexActions.watchOrderPlaced.Parameters,
     ) => () => void
+  }
+  earn: {
+    /**
+     * Deposits assets into a vault and mints vault shares to `recipient`. The
+     * transaction includes the required asset approval.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.earn.deposit({
+     *   amountIn: 100_000_000n,
+     *   minAmountOut: 99_400_000n,
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    deposit: (
+      parameters: earnActions.deposit.Parameters<chain, account>,
+    ) => Promise<earnActions.deposit.ReturnValue>
+    /**
+     * Deposits venue shares into a vault and mints vault shares to
+     * `recipient`. The transaction includes the required venue share approval.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.earn.depositShares({
+     *   amountIn: 500_000_000n,
+     *   minAmountOut: 499_000_000n,
+     *   vault: '0x...',
+     *   tokenIn: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    depositShares: (
+      parameters: earnActions.depositShares.Parameters<chain, account>,
+    ) => Promise<earnActions.depositShares.ReturnValue>
+    /**
+     * Deposits venue shares and returns the confirmed receipt and event data.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { earnShares } = await client.earn.depositSharesSync({
+     *   amountIn: 500_000_000n,
+     *   minAmountOut: 499_000_000n,
+     *   vault: '0x...',
+     *   tokenIn: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    depositSharesSync: (
+      parameters: earnActions.depositSharesSync.Parameters<chain, account>,
+    ) => Promise<earnActions.depositSharesSync.ReturnValue>
+    /**
+     * Deposits assets and returns the confirmed receipt and event data.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { shares } = await client.earn.depositSync({
+     *   amountIn: 100_000_000n,
+     *   minAmountOut: 99_400_000n,
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    depositSync: (
+      parameters: earnActions.depositSync.Parameters<chain, account>,
+    ) => Promise<earnActions.depositSync.ReturnValue>
+    /**
+     * Gets the vault's active fee configuration, pending fees, and fee baselines.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const feeState = await client.earn.getFeeState({
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The active fee configuration, pending fees, and baselines.
+     */
+    getFeeState: (
+      parameters: earnActions.getFeeState.Parameters,
+    ) => Promise<earnActions.getFeeState.ReturnValue>
+    /**
+     * Gets an account's asset and vault share balances, allowances, and
+     * current share value. The value includes fees.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const position = await client.earn.getPosition({
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The asset and vault share balances, allowances, and value.
+     */
+    getPosition: (
+      parameters: earnActions.getPosition.Parameters<account>,
+    ) => Promise<earnActions.getPosition.ReturnValue>
+    /**
+     * Gets the vault's addresses, configuration, accounting state, and
+     * supported actions. Throws `GetVaultEngineChangedError` if its engine
+     * changes mid-read.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const vault = await client.earn.getVault({
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The vault state and metadata.
+     */
+    getVault: (
+      parameters: earnActions.getVault.Parameters,
+    ) => Promise<earnActions.getVault.ReturnValue>
+    /**
+     * Gets the asset output for an exact vault share input, including fees.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const amountOut = await client.earn.getRedeemQuote({
+     *   amountIn: 100_000_000n,
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The asset output, including fees.
+     */
+    getRedeemQuote: (
+      parameters: earnActions.getRedeemQuote.Parameters,
+    ) => Promise<earnActions.getRedeemQuote.ReturnValue>
+    /**
+     * Gets the vault shares required for an exact asset output, including
+     * fees and ceiling rounding.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const amountIn = await client.earn.getWithdrawQuote({
+     *   amountOut: 250_000_000n,
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The required vault share input, ceiling-rounded.
+     */
+    getWithdrawQuote: (
+      parameters: earnActions.getWithdrawQuote.Parameters,
+    ) => Promise<earnActions.getWithdrawQuote.ReturnValue>
+    /**
+     * Redeems vault shares for assets sent to `recipient`. The transaction
+     * includes the required vault share approval.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.earn.redeem({
+     *   amountIn: 100_000_000n,
+     *   slippageBps: 50,
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    redeem: (
+      parameters: earnActions.redeem.Parameters<chain, account>,
+    ) => Promise<earnActions.redeem.ReturnValue>
+    /**
+     * Redeems vault shares and returns the confirmed receipt and event data.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { amount } = await client.earn.redeemSync({
+     *   amountIn: 100_000_000n,
+     *   minAmountOut: 99_500_000n,
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    redeemSync: (
+      parameters: earnActions.redeemSync.Parameters<chain, account>,
+    ) => Promise<earnActions.redeemSync.ReturnValue>
+    /**
+     * Withdraws an exact asset amount to `recipient`, up to the specified
+     * vault share limit. The transaction includes the required vault share
+     * approval; use `redeem` for a full exit.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.earn.withdrawExact({
+     *   amountOut: 40_000_000n,
+     *   slippageBps: 50,
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    withdrawExact: (
+      parameters: earnActions.withdrawExact.Parameters<chain, account>,
+    ) => Promise<earnActions.withdrawExact.ReturnValue>
+    /**
+     * Withdraws an exact asset amount and returns the confirmed receipt and event data.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { sharesBurned } = await client.earn.withdrawExactSync({
+     *   amountOut: 40_000_000n,
+     *   maxAmountIn: 40_200_000n,
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    withdrawExactSync: (
+      parameters: earnActions.withdrawExactSync.Parameters<chain, account>,
+    ) => Promise<earnActions.withdrawExactSync.ReturnValue>
   }
   faucet: {
     /**
@@ -5186,11 +5561,13 @@ type BoundActionHelpers<action> = (action extends { call: infer helper }
   (action extends { simulate: infer helper }
     ? { simulate: BoundHelper<helper> }
     : {}) &
+  // `extractEvent(s)` helpers are client-less and copied through unwrapped by
+  // `bindActionDecorators`, so their full signatures are preserved.
   (action extends { extractEvent: infer helper }
-    ? { extractEvent: BoundHelper<helper> }
+    ? { extractEvent: helper }
     : {}) &
   (action extends { extractEvents: infer helper }
-    ? { extractEvents: BoundHelper<helper> }
+    ? { extractEvents: helper }
     : {})
 
 type BoundAction<action> = action extends (
@@ -5235,6 +5612,10 @@ export type Decorator<
   dex: DecorateNamespace<
     DecoratorBase<chain, account>['dex'],
     typeof dexActions
+  >
+  earn: DecorateNamespace<
+    DecoratorBase<chain, account>['earn'],
+    typeof earnActions
   >
   faucet: DecorateNamespace<
     DecoratorBase<chain, account>['faucet'],
@@ -5377,6 +5758,21 @@ export function decorator() {
         'watchOrderCancelled',
         'watchOrderFilled',
         'watchOrderPlaced',
+      ]),
+      earn: bindActions(client, earnActions, [
+        'deposit',
+        'depositSync',
+        'depositShares',
+        'depositSharesSync',
+        'getFeeState',
+        'getPosition',
+        'getRedeemQuote',
+        'getVault',
+        'getWithdrawQuote',
+        'redeem',
+        'redeemSync',
+        'withdrawExact',
+        'withdrawExactSync',
       ]),
       faucet: bindActions(client, faucetActions, ['fund', 'fundSync']),
       nonce: bindActions(client, nonceActions, [

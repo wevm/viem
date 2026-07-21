@@ -13,6 +13,7 @@ export type {
 } from 'ox/tempo'
 export {
   Channel,
+  EarnShares,
   MultisigConfig,
   Period,
   ReceivePolicyReceipt,

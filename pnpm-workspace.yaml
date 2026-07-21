@@ -33,11 +33,13 @@ minimumReleaseAgeExclude:
   - basic-ftp
 
 autoInstallPeers: false
+blockExoticSubdeps: false
 enablePrePostScripts: true
 provenance: true
 strictPeerDependencies: false
 
 overrides:
+  ox: https://pkg.pr.new/ox@310
   typescript: ^5.9.3
   '@opentelemetry/api@^1.8.0': ~1.7.0
   permissionless>viem: workspace:*

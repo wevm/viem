@@ -1,4 +1,21 @@
+import type { Address } from 'abitype'
 import { BaseError } from '../errors/base.js'
+
+export type GetVaultEngineChangedErrorType = GetVaultEngineChangedError & {
+  name: 'GetVaultEngineChangedError'
+}
+
+export class GetVaultEngineChangedError extends BaseError {
+  constructor({ vault }: { vault: Address }) {
+    super(`Engine of vault "${vault}" changed while reading.`, {
+      metaMessages: [
+        'An engine migration raced the snapshot; state from two different engines cannot be mixed.',
+        'Retry the read.',
+      ],
+      name: 'GetVaultEngineChangedError',
+    })
+  }
+}
 
 export type WaitForDepositStatusTimeoutErrorType =
   WaitForDepositStatusTimeoutError & {
