@@ -390,6 +390,20 @@ export async function prepareTransactionRequest<
     )
     if (!shouldAttempt) return false
 
+    // Always attempt if a fee payer signature is being requested (e.g. Tempo
+    // sponsorship via `feePayer: true`/`Account`) and has not already been
+    // filled. The fee payer signature can only be obtained as a side effect
+    // of `eth_fillTransaction` (the relay co-signs the returned transaction),
+    // so it must be called even when nonce/gas/fees are already fully
+    // populated — otherwise the transaction silently ends up without a
+    // fee payer signature.
+    if (
+      'feePayer' in request &&
+      (request as any).feePayer &&
+      !('feePayerSignature' in request && (request as any).feePayerSignature)
+    )
+      return true
+
     // Check if `eth_fillTransaction` needs to be called.
     if (parameters.includes('chainId') && typeof request.chainId !== 'number')
       return true

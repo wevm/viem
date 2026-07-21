@@ -135,6 +135,44 @@ describe('withRelay', () => {
       })
     })
 
+    test('behavior: sendTransaction still gets sponsored via feePayer: true when nonce/gas/fees are pre-populated', async () => {
+      const account = privateKeyToAccount(
+        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
+      )
+
+      // Pre-populate nonce/gas/fees, simulating a caller that has already
+      // fully filled out the transaction envelope before calling
+      // `prepareTransactionRequest` (e.g. because a wallet SDK filled them
+      // in separately). Historically this caused `prepareTransactionRequest`
+      // to skip the `eth_fillTransaction` call entirely (its heuristic
+      // assumes nothing is left to fill), which meant the fee-payer
+      // signature -- only obtainable as a side effect of that call -- was
+      // silently never attached, even though `feePayer: true` was set.
+      const nonce = await prepareTransactionRequest(client, {
+        account,
+        parameters: ['nonce'],
+        to: '0x0000000000000000000000000000000000000000',
+      }).then((request) => request.nonce)
+
+      const receipt = await sendTransactionSync(client, {
+        account,
+        chainId: chain.id,
+        feePayer: true,
+        gas: 100_000n,
+        maxFeePerGas: 10_000_000_000n,
+        maxPriorityFeePerGas: 1_000_000_000n,
+        nonce,
+        to: '0x0000000000000000000000000000000000000000',
+      })
+
+      expect(receipt.status).toBe('success')
+      expect(receipt.feePayer).toBe(accounts[0].address.toLowerCase())
+      expect(relayRequests).toContainEqual({
+        method: 'eth_fillTransaction',
+        params: expect.any(Array),
+      })
+    })
+
     test('behavior: eth_fillTransaction with feePayer: true', async () => {
       await client.request({
         method: 'eth_fillTransaction',
