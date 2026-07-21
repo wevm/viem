@@ -82,6 +82,22 @@ const { receipt } = await client.zone.encryptedDepositSync({
 
 After depositing, call [`zone.waitForTempoBlock`](/tempo/actions/zone.waitForTempoBlock) with the deposit receipt block number. The action resolves once the zone has imported that Tempo block. Then read the recipient balance inside the zone.
 
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './zones.config'
+
+const info = await client.zone.waitForTempoBlock({
+  tempoBlockNumber: 123456n,
+})
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
 ## Best Practices
 
 ### Deposit on Mainnet, Read on the Zone
