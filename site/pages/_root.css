@@ -260,8 +260,30 @@ body > div:has(> div > .twoslash-completion-list) {
   padding: 0;
 }
 
-.module-snippet .twoslash-popup-container pre {
+.module-snippet .twoslash-popup-container pre,
+.landing-snippet .twoslash-popup-container pre {
   padding-block: 0 !important;
+}
+
+/* Vocs gives inline code block-level padding; keep landing prose code flush. */
+.landing-pattern p code {
+  padding: 0;
+  font-size: 0.9em;
+}
+
+/* Blinking caret at the end of the landing agent transcript. */
+.landing-caret {
+  animation: landing-caret-blink 1.1s steps(2, start) infinite;
+}
+@keyframes landing-caret-blink {
+  to {
+    visibility: hidden;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-caret {
+    animation: none;
+  }
 }
 
 /* Match the fixed module snippet in pages/snippets/modules.mdx. */
@@ -293,7 +315,11 @@ body > div:has(> div > .twoslash-completion-list) {
 .module-snippet[data-active-module='actions']
   pre.shiki
   > code
-  > .line:nth-child(9),
+  > .line:nth-child(n + 9):nth-child(-n + 12),
+.module-snippet[data-active-module='actions']
+  pre.shiki
+  > code
+  > .twoslash-tag-log-line,
 .module-snippet[data-active-module] pre.shiki:hover > code > .line {
   opacity: 1;
 }

@@ -8,10 +8,22 @@ import {
   installCommands,
   installHtml,
 } from './components/install-highlight'
+import Actions from './snippets/actions.mdx'
+import Chains from './snippets/chains.mdx'
 import Modules from './snippets/modules.mdx'
+import Tokens from './snippets/tokens.mdx'
+import Transports from './snippets/transports.mdx'
+import Types from './snippets/types.mdx'
 
 <Landing
   installCommands={installCommands}
   installHtml={installHtml}
-  snippet={<Modules />}
+  snippets={{
+    actions: <Actions />,
+    chains: <Chains />,
+    modules: <Modules />,
+    tokens: <Tokens />,
+    transports: <Transports />,
+    types: <Types />,
+  }}
 />
