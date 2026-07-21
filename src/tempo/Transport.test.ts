@@ -173,6 +173,70 @@ describe('withRelay', () => {
       })
     })
 
+    test('behavior: sendTransaction still gets sponsored via feePayer: true when the caller restricts `parameters` to omit fees/gas, even with a fully-populated envelope', async () => {
+      const account = privateKeyToAccount(
+        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
+      )
+
+      // The feePayer check must run *before* the `shouldAttempt` gate, which
+      // only fires `eth_fillTransaction` when the caller's `parameters`
+      // option includes `'fees'` or `'gas'`. A caller who restricts
+      // `parameters` to omit both (e.g. only wants `nonce`/`type` filled)
+      // must still get a fee-payer signature -- sponsorship is independent
+      // of which parameters the caller opted into filling.
+      const nonce = await prepareTransactionRequest(client, {
+        account,
+        parameters: ['nonce'],
+        to: '0x0000000000000000000000000000000000000000',
+      }).then((request) => request.nonce)
+
+      const receipt = await sendTransactionSync(client, {
+        account,
+        chainId: chain.id,
+        feePayer: true,
+        gas: 100_000n,
+        maxFeePerGas: 10_000_000_000n,
+        maxPriorityFeePerGas: 1_000_000_000n,
+        nonce,
+        parameters: ['nonce', 'type'],
+        to: '0x0000000000000000000000000000000000000000',
+      })
+
+      expect(receipt.status).toBe('success')
+      expect(receipt.feePayer).toBe(accounts[0].address.toLowerCase())
+      expect(relayRequests).toContainEqual({
+        method: 'eth_fillTransaction',
+        params: expect.any(Array),
+      })
+    })
+
+    test('behavior: sendTransaction still gets sponsored via feePayer: true when the caller restricts `parameters` to omit fees/gas on a minimal (unpopulated) envelope', async () => {
+      const account = privateKeyToAccount(
+        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
+      )
+
+      // Same as above, but with no envelope fields pre-populated at all --
+      // confirms the fix isn't accidentally coupled to "fields already set".
+      // Uses `prepareTransactionRequest` directly (rather than a full send)
+      // since restricting `parameters` to omit `'gas'`/`'fees'` on an
+      // otherwise-empty envelope intentionally leaves the transaction
+      // incomplete for broadcast -- what's under test is that the fill is
+      // still *attempted* (this mock relay only attaches the fee-payer
+      // signature at raw-transaction send time, not at fill time, so it
+      // can't be asserted on the prepared result here).
+      await prepareTransactionRequest(client, {
+        account,
+        feePayer: true,
+        parameters: ['nonce', 'type'],
+        to: '0x0000000000000000000000000000000000000000',
+      })
+
+      expect(relayRequests).toContainEqual({
+        method: 'eth_fillTransaction',
+        params: expect.any(Array),
+      })
+    })
+
     test('behavior: eth_fillTransaction with feePayer: true', async () => {
       await client.request({
         method: 'eth_fillTransaction',
