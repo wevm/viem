@@ -25,8 +25,9 @@ const prepared = await parentClient.earn.privateDeposit.prepare({
   shareAmountMin: 99_500_000n,
 })
 
-const { receipt } = await zoneClient.earn.privateDepositSync(prepared)
+const { receipt, senderTag } = await zoneClient.earn.privateDepositSync(prepared)
 // @log: { transactionHash: '0x1234...abcd', ... }
+console.log('Sender tag:', senderTag)
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -41,7 +42,7 @@ const { receipt } = await zoneClient.earn.privateDepositSync(prepared)
 
 The synchronous action confirms the Zone withdrawal. Use
 [`earn.waitForPrivateDeposit`](/tempo/actions/earn.waitForPrivateDeposit) to wait for the parent-chain vault
-deposit.
+deposit. `senderTag` identifies the corresponding parent-chain `WithdrawalProcessed` event.
 
 ### Asynchronous Usage
 
@@ -68,6 +69,7 @@ const hash = await zoneClient.earn.privateDeposit(prepared)
 ```ts
 type ReturnType = {
   receipt: TransactionReceipt
+  senderTag: Hash
 }
 ```
 

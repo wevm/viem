@@ -687,6 +687,7 @@ test('prepared zone requests compose with Zone withdrawals', async () => {
     prepared,
   )
   expectTypeOf(sync).toEqualTypeOf<earnActions.privateDepositSync.ReturnValue>()
+  expectTypeOf(sync.senderTag).toEqualTypeOf<Hex.Hex>()
 })
 
 test('decorated zone earn actions preserve helpers and results', async () => {
@@ -704,6 +705,9 @@ test('decorated zone earn actions preserve helpers and results', async () => {
   expectTypeOf(
     await decoratedZoneClient.earn.privateDeposit(prepared),
   ).toEqualTypeOf<earnActions.privateDeposit.ReturnValue>()
+  const depositSync =
+    await decoratedZoneClient.earn.privateDepositSync(prepared)
+  expectTypeOf(depositSync.senderTag).toEqualTypeOf<Hex.Hex>()
 
   const deposit = await decoratedClient.earn.waitForPrivateDeposit({
     actionId: prepared.actionId,
@@ -725,6 +729,8 @@ test('decorated zone earn actions preserve helpers and results', async () => {
   expectTypeOf(
     await decoratedZoneClient.earn.privateRedeem(redeem),
   ).toEqualTypeOf<earnActions.privateRedeem.ReturnValue>()
+  const redeemSync = await decoratedZoneClient.earn.privateRedeemSync(redeem)
+  expectTypeOf(redeemSync.senderTag).toEqualTypeOf<Hex.Hex>()
   expectTypeOf(
     await decoratedClient.earn.waitForPrivateRedeem({
       actionId: redeem.actionId,

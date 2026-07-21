@@ -806,7 +806,7 @@ export namespace privateDeposit {
  *
  * @param client - Zone client.
  * @param parameters - Prepared deposit and transaction parameters.
- * @returns The Zone transaction receipt.
+ * @returns The Zone transaction receipt and parent-chain withdrawal sender tag.
  */
 export async function privateDepositSync<
   chain extends Chain | undefined,
@@ -2127,7 +2127,7 @@ export namespace privateRedeem {
  *
  * @param client - Zone client.
  * @param parameters - Prepared redemption and transaction parameters.
- * @returns The Zone transaction receipt.
+ * @returns The Zone transaction receipt and parent-chain withdrawal sender tag.
  */
 export async function privateRedeemSync<
   chain extends Chain | undefined,

@@ -46,8 +46,9 @@ const prepared = await parentClient.earn.privateDeposit.prepare({
   shareAmountMin: 99_500_000n, // [!code focus]
 })
 
-const { receipt } = await zoneClient.earn.privateDepositSync(prepared)
+const { receipt, senderTag } = await zoneClient.earn.privateDepositSync(prepared)
 // @log: { transactionHash: '0x1234...abcd', ... }
+console.log('Sender tag:', senderTag)
 
 const deposit = await parentClient.earn.waitForPrivateDeposit({
   actionId: prepared.actionId,
@@ -96,8 +97,9 @@ const prepared = await parentClient.earn.privateRedeem.prepare({
   slippageBps: 50, // [!code focus]
 })
 
-const { receipt } = await zoneClient.earn.privateRedeemSync(prepared)
+const { receipt, senderTag } = await zoneClient.earn.privateRedeemSync(prepared)
 // @log: { transactionHash: '0x1234...abcd', ... }
+console.log('Sender tag:', senderTag)
 
 const redemption = await parentClient.earn.waitForPrivateRedeem({
   actionId: prepared.actionId,

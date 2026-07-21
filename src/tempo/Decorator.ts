@@ -1892,11 +1892,12 @@ type DecoratorBase<
      *
      * @example
      * ```ts
-     * const result = await zoneClient.earn.privateDepositSync(prepared)
+     * const { receipt, senderTag } =
+     *   await zoneClient.earn.privateDepositSync(prepared)
      * ```
      *
      * @param parameters - Prepared deposit and transaction parameters.
-     * @returns The Zone transaction receipt.
+     * @returns The Zone transaction receipt and parent-chain withdrawal sender tag.
      */
     privateDepositSync: (
       parameters: earnActions.privateDepositSync.Parameters<chain, account>,
@@ -2120,11 +2121,12 @@ type DecoratorBase<
      *
      * @example
      * ```ts
-     * const result = await zoneClient.earn.privateRedeemSync(prepared)
+     * const { receipt, senderTag } =
+     *   await zoneClient.earn.privateRedeemSync(prepared)
      * ```
      *
      * @param parameters - Prepared redemption and transaction parameters.
-     * @returns The Zone transaction receipt.
+     * @returns The Zone transaction receipt and parent-chain withdrawal sender tag.
      */
     privateRedeemSync: (
       parameters: earnActions.privateRedeemSync.Parameters<chain, account>,
