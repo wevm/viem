@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { RpcTransport } from 'ox'
+import { AbiParameters, Address, Hash, Hex, RpcTransport, Secp256k1 } from 'ox'
 import { Instance, Server } from 'prool'
 import * as TestContainers from 'prool/testcontainers'
 import {
@@ -26,11 +26,72 @@ export const port = 9545
 export const zoneAdminKey =
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 
+const zoneFactoryOwner = Address.fromPublicKey(
+  Secp256k1.getPublicKey({ privateKey: zoneAdminKey }),
+)
+const zoneFactory = {
+  address: '0x5aF2000000000000000000000000000000000000',
+  code: '0xef',
+  nonce: '0x1',
+  storage: {
+    // Slot 0 packs the owner and next Zone ID.
+    [Hex.fromNumber(0n, { size: 32 })]: Hex.fromNumber(
+      (Hex.toBigInt(zoneFactoryOwner) << 32n) | 1n,
+      { size: 32 },
+    ),
+  },
+} as const
+
+const zoneMessenger = {
+  address: '0x5A4D000000000000000000000000000000000000',
+  artifact: 'ZoneMessenger',
+} as const
+
+const zonePortal = {
+  address: '0x5AD1000000000000000000000000000000000000',
+  artifact: 'ZonePortal',
+} as const
+
+const zoneVerifier = {
+  address: '0x5A56000000000000000000000000000000000000',
+  artifact: 'Verifier',
+} as const
+
 // Zone settlement reads Tempo block hashes from the canonical EIP-2935 account.
 const historyStorage = {
   address: '0x0000f90827f1c53a10cb7a02335b175320002935',
   code: '0x3373fffffffffffffffffffffffffffffffffffffffe14604657602036036042575f35600143038111604257611fff81430311604257611fff9006545f5260205ff35b5f5ffd5b5f35611fff60014303065500',
 } as const
+
+const tip403Registry = {
+  address: '0x403c000000000000000000000000000000000000',
+  storage: {
+    [Hash.keccak256(
+      AbiParameters.encode(AbiParameters.from('address, uint256'), [
+        pathUsd,
+        4n,
+      ]),
+    )]: Hex.fromNumber((1n << 64n) | 1n, { size: 32 }),
+  },
+} as const
+
+type Genesis = {
+  alloc: Record<
+    string,
+    {
+      balance?: string | undefined
+      code?: string | undefined
+      nonce?: string | undefined
+      storage?: Record<string, string> | undefined
+    }
+  >
+}
+
+type ZoneArtifacts = {
+  messenger: string
+  portal: string
+  verifier: string
+}
 
 export const rpcUrl = (() => {
   // Explicit override (e.g. a custom devnet) wins over env presets. Useful for
@@ -66,38 +127,58 @@ export async function createServer() {
     return `sha-${sha}`
   })()
 
+  const zones = import.meta.env.VITE_TEMPO_ZONES === 'true'
+  const zoneTag = import.meta.env.VITE_TEMPO_ZONE_TAG ?? 'latest'
+  const artifactsTag =
+    import.meta.env.VITE_TEMPO_ZONE_XTASK_TAG ??
+    (zoneTag.startsWith('sha256:') ? undefined : zoneTag)
+  if (zones && !artifactsTag)
+    throw new Error(
+      '`VITE_TEMPO_ZONE_XTASK_TAG` is required with a digest-pinned Zone image.',
+    )
   const args = {
     // Match Tempo's production cadence when Zone consumes every L1 block.
-    blockTime:
-      import.meta.env.VITE_TEMPO_ZONES === 'true'
-        ? '500ms'
-        : process.env.CI
-          ? '50ms'
-          : '2ms',
+    blockTime: zones ? '500ms' : process.env.CI ? '50ms' : '2ms',
     log: import.meta.env.VITE_TEMPO_LOG,
     port,
   } satisfies Instance.tempo.Parameters
   const image = tag?.startsWith('sha256:')
     ? `ghcr.io/tempoxyz/tempo@${tag}`
     : `ghcr.io/tempoxyz/tempo:${tag ?? 'latest'}`
+  const artifactsImage = artifactsTag?.startsWith('sha256:')
+    ? `ghcr.io/tempoxyz/tempo-zone-xtask@${artifactsTag}`
+    : `ghcr.io/tempoxyz/tempo-zone-xtask:${artifactsTag ?? 'latest'}`
+  const genesisContent = zones
+    ? buildZoneGenesis({ artifactsImage, image })
+    : undefined
 
   return Server.create({
-    instance:
-      import.meta.env.VITE_TEMPO_ZONES === 'true'
-        ? tempoWithHistoryStorage({ ...args, image })
-        : TestContainers.Instance.tempo({ ...args, image }),
+    instance: tempo({ ...args, genesisContent, image }),
     port,
   })
 }
 
-const tempoWithHistoryStorage = Instance.define(
-  (parameters: {
-    blockTime: string
-    image: string
-    log?: Instance.tempo.Parameters['log'] | undefined
-    port: number
-  }) => {
-    const dumped = execFileSync(
+function buildZoneGenesis(options: { artifactsImage: string; image: string }) {
+  const dumped = execFileSync(
+    'docker',
+    [
+      'run',
+      '--rm',
+      '--platform',
+      'linux/amd64',
+      '--entrypoint',
+      '/usr/local/bin/tempo',
+      options.image,
+      '-q',
+      'dump-genesis',
+      '--chain',
+      'dev',
+    ],
+    { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 },
+  )
+  const genesis = JSON.parse(dumped) as Genesis
+  const artifacts = JSON.parse(
+    execFileSync(
       'docker',
       [
         'run',
@@ -105,24 +186,63 @@ const tempoWithHistoryStorage = Instance.define(
         '--platform',
         'linux/amd64',
         '--entrypoint',
-        '/usr/local/bin/tempo',
-        parameters.image,
-        '-q',
-        'dump-genesis',
-        '--chain',
-        'dev',
+        '/usr/bin/jq',
+        options.artifactsImage,
+        '-n',
+        '--slurpfile',
+        'portal',
+        `/app/specs/ref-impls/out/${zonePortal.artifact}.sol/${zonePortal.artifact}.json`,
+        '--slurpfile',
+        'messenger',
+        `/app/specs/ref-impls/out/${zoneMessenger.artifact}.sol/${zoneMessenger.artifact}.json`,
+        '--slurpfile',
+        'verifier',
+        `/app/specs/ref-impls/out/${zoneVerifier.artifact}.sol/${zoneVerifier.artifact}.json`,
+        '{portal:$portal[0].deployedBytecode.object,messenger:$messenger[0].deployedBytecode.object,verifier:$verifier[0].deployedBytecode.object}',
       ],
       { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 },
-    )
-    const genesis = JSON.parse(dumped) as {
-      alloc: Record<string, { balance?: string; code?: string; nonce?: string }>
-    }
-    genesis.alloc[historyStorage.address] = {
-      balance: '0x0',
-      code: historyStorage.code,
-      nonce: '0x1',
-    }
-    const genesisContent = `${JSON.stringify(genesis)}\n`
+    ),
+  ) as ZoneArtifacts
+  genesis.alloc[zoneFactory.address] = {
+    balance: '0x0',
+    code: zoneFactory.code,
+    nonce: zoneFactory.nonce,
+    storage: zoneFactory.storage,
+  }
+  genesis.alloc[zoneMessenger.address] = {
+    balance: '0x0',
+    code: artifacts.messenger,
+    nonce: '0x1',
+  }
+  genesis.alloc[zonePortal.address] = {
+    balance: '0x0',
+    code: artifacts.portal,
+    nonce: '0x1',
+  }
+  genesis.alloc[zoneVerifier.address] = {
+    balance: '0x0',
+    code: artifacts.verifier,
+    nonce: '0x1',
+  }
+  genesis.alloc[historyStorage.address] = {
+    balance: '0x0',
+    code: historyStorage.code,
+    nonce: '0x1',
+  }
+  const registry = genesis.alloc[tip403Registry.address]
+  if (!registry) throw new Error('TIP-403 registry is unavailable.')
+  registry.storage = { ...registry.storage, ...tip403Registry.storage }
+  return `${JSON.stringify(genesis)}\n`
+}
+
+const tempo = Instance.define(
+  (parameters: {
+    blockTime: string
+    genesisContent?: string | undefined
+    image: string
+    log?: Instance.tempo.Parameters['log'] | undefined
+    port: number
+  }) => {
     const log = parameters.log
     const rustLog = log && typeof log !== 'boolean' ? log : ''
     let container: StartedTestContainer | undefined
@@ -134,7 +254,7 @@ const tempoWithHistoryStorage = Instance.define(
       port: parameters.port,
       async start({ port = parameters.port }, { emitter, setEndpoint }) {
         const genesisPath = '/tmp/tempo-dev-eip2935.json'
-        container = await new GenericContainer(parameters.image)
+        let generic = new GenericContainer(parameters.image)
           .withPullPolicy(PullPolicy.alwaysPull())
           .withPlatform('linux/amd64')
           .withExposedPorts(port)
@@ -143,13 +263,15 @@ const tempoWithHistoryStorage = Instance.define(
           ])
           .withName(`tempo.${crypto.randomUUID()}`)
           .withEnvironment({ RUST_LOG: rustLog })
-          .withCopyContentToContainer([
-            { content: genesisContent, target: genesisPath },
+        if (parameters.genesisContent)
+          generic = generic.withCopyContentToContainer([
+            { content: parameters.genesisContent, target: genesisPath },
           ])
+        container = await generic
           .withCommand([
             'node',
             '--authrpc.port',
-            String(port + 30),
+            '8551',
             '--datadir',
             '/tmp/prool-tempo',
             '--dev',
@@ -178,7 +300,7 @@ const tempoWithHistoryStorage = Instance.define(
             '--http.port',
             String(port),
             '--port',
-            String(port + 10),
+            '30303',
             '--ws',
             '--ws.addr',
             '0.0.0.0',
@@ -186,14 +308,9 @@ const tempoWithHistoryStorage = Instance.define(
             'all',
             '--ws.port',
             String(port),
-            '--chain',
-            genesisPath,
+            ...(parameters.genesisContent ? ['--chain', genesisPath] : []),
           ])
-          .withWaitStrategy(
-            Wait.forLogMessage(
-              /Received (block|new payload) from consensus engine/,
-            ),
-          )
+          .withWaitStrategy(Wait.forListeningPorts())
           .withLogConsumer((stream) => {
             stream.on('data', (data) => {
               const message = data.toString()
@@ -244,8 +361,6 @@ type StartedZone = Zone & {
 export type DefineZoneParameters = {
   /** Existing factory to reuse for unique zone IDs. */
   factoryAddress?: `0x${string}` | undefined
-  /** L1 provisioning key. Use distinct keys for concurrent instances. */
-  key?: `0x${string}` | undefined
 }
 
 export type ZoneInstance = {
@@ -317,9 +432,8 @@ async function startZone(
 
   const instance = TestContainers.Instance.tempoZone({
     dev: {
-      // anvil #1; the default dev key is anvil #0 (= `accounts[0]`), which
-      // would race nonces with test transactions.
-      key: parameters.key ?? zoneAdminKey,
+      // Anvil #1 owns the native factory and avoids test-account nonce races.
+      key: zoneAdminKey,
     },
     image,
     l1: {

@@ -5,18 +5,11 @@ export const zoneFactory = [
     inputs: [
       { name: 'zoneId', type: 'uint32', indexed: true },
       { name: 'portal', type: 'address', indexed: true },
-      { name: 'messenger', type: 'address', indexed: true },
       { name: 'initialToken', type: 'address', indexed: false },
       { name: 'admin', type: 'address', indexed: false },
-      { name: 'sequencer', type: 'address', indexed: false },
+      { name: 'sequencers', type: 'address[]', indexed: false },
+      { name: 'threshold', type: 'uint8', indexed: false },
       { name: 'verifier', type: 'address', indexed: false },
-      { name: 'genesisBlockHash', type: 'bytes32', indexed: false },
-      { name: 'genesisTempoBlockHash', type: 'bytes32', indexed: false },
-      {
-        name: 'genesisTempoBlockNumber',
-        type: 'uint64',
-        indexed: false,
-      },
     ],
   },
   {
@@ -30,17 +23,8 @@ export const zoneFactory = [
         components: [
           { name: 'initialToken', type: 'address' },
           { name: 'admin', type: 'address' },
-          { name: 'sequencer', type: 'address' },
-          { name: 'verifier', type: 'address' },
-          {
-            name: 'zoneParams',
-            type: 'tuple',
-            components: [
-              { name: 'genesisBlockHash', type: 'bytes32' },
-              { name: 'genesisTempoBlockHash', type: 'bytes32' },
-              { name: 'genesisTempoBlockNumber', type: 'uint64' },
-            ],
-          },
+          { name: 'sequencers', type: 'address[]' },
+          { name: 'threshold', type: 'uint8' },
           { name: 'rpcUrl', type: 'string' },
         ],
       },
@@ -49,13 +33,6 @@ export const zoneFactory = [
       { name: 'zoneId', type: 'uint32' },
       { name: 'portal', type: 'address' },
     ],
-  },
-  {
-    type: 'function',
-    name: 'verifier',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ name: '', type: 'address' }],
   },
 ] as const
 

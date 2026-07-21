@@ -232,9 +232,10 @@ jobs:
         env:
           CI: true
           VITE_TEMPO_ENV: localnet
-          VITE_TEMPO_TAG: sha256:8e518fe933a0f11adf789720a5f445e4389274d8b55c04e27ab99f9f76b6776b
+          VITE_TEMPO_TAG: sha256:290c7c1843cc8fbc8c0e5e37025c5373050d21004e4d22f4b00f978dfbee4c47
           VITE_TEMPO_ZONES: 'true'
-          VITE_TEMPO_ZONE_TAG: sha256:af49983ce651ff93f01a676ddbe3a838e07b7d6809fafded92dc73536b71be10
+          VITE_TEMPO_ZONE_TAG: sha256:2cb2d54c6d5b0473c1d0fc112d806fcb80a21516b660d4ab6e1bb0bcc7a97896
+          VITE_TEMPO_ZONE_XTASK_TAG: sha256:57bdf58caf4654eef2615260b19c1b65d8823af150e95643d0619a97dcbba3bd
 
   test-envs:
     name: Test Environments

@@ -1033,7 +1033,7 @@ export async function getZoneInfo<
 
   return {
     chainId: Hex.toNumber(info.chainId),
-    sequencer: info.sequencer,
+    sequencers: info.sequencers,
     tempoBlockNumber: Hex.toBigInt(info.tempoBlockNumber),
     zoneId: Hex.toNumber(info.zoneId),
     zoneTokens: info.zoneTokens,
@@ -1042,18 +1042,28 @@ export async function getZoneInfo<
 
 export namespace getZoneInfo {
   export type RpcReturnType = {
+    /** Zone chain ID. */
     chainId: Hex.Hex
-    sequencer: Address
+    /** Active sequencer addresses. */
+    sequencers: readonly Address[]
+    /** Latest Tempo block imported by the zone. */
     tempoBlockNumber: Hex.Hex
+    /** Zone ID. */
     zoneId: Hex.Hex
+    /** Enabled zone token addresses. */
     zoneTokens: readonly Address[]
   }
 
   export type ReturnType = {
+    /** Zone chain ID. */
     chainId: number
-    sequencer: Address
+    /** Active sequencer addresses. */
+    sequencers: readonly Address[]
+    /** Latest Tempo block imported by the zone. */
     tempoBlockNumber: bigint
+    /** Zone ID. */
     zoneId: number
+    /** Enabled zone token addresses. */
     zoneTokens: readonly Address[]
   }
 
