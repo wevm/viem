@@ -1333,7 +1333,11 @@ export namespace getRedeemQuote {
   }
   export type Parameters = Omit<ReadParameters, 'account'> & Args
   /** Asset output, including fees. */
-  export type ReturnValue = bigint
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.vaultAdapter,
+    'previewRedeem',
+    never
+  >
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
 
@@ -1658,7 +1662,11 @@ export namespace getWithdrawQuote {
   }
   export type Parameters = Omit<ReadParameters, 'account'> & Args
   /** Required vault share input, ceiling-rounded. */
-  export type ReturnValue = bigint
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.vaultAdapter,
+    'previewWithdraw',
+    never
+  >
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
 

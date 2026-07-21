@@ -1109,6 +1109,8 @@ describe('earn', () => {
       })
 
       const callbackGas = 10_000_000n
+      // Exercise a non-default value below the Zone callback gas ceiling.
+      const callbackGasOverride = callbackGas - 1n
       const withdrawalFee = await Actions.zone.getWithdrawalFee(zoneClient, {
         callbackGas,
       })
@@ -1156,7 +1158,7 @@ describe('earn', () => {
         {
           actionId: keccak256('0x01'),
           assetAmount,
-          callbackGas: callbackGas - 1n,
+          callbackGas: callbackGasOverride,
           fallbackRecipient: accounts[2].address,
           gateway,
           recipient: account.address,
@@ -1168,7 +1170,7 @@ describe('earn', () => {
       )
       expect(preparedDeposit).toMatchObject({
         actionId: keccak256('0x01'),
-        callbackGas: callbackGas - 1n,
+        callbackGas: callbackGasOverride,
         chainId: chain.id,
         fallbackRecipient: accounts[2].address,
         memo: keccak256('0x03'),
@@ -1267,7 +1269,7 @@ describe('earn', () => {
         mainnetClient,
         {
           actionId: keccak256('0x04'),
-          callbackGas: callbackGas - 1n,
+          callbackGas: callbackGasOverride,
           fallbackRecipient: accounts[2].address,
           gateway,
           recipient: account.address,
@@ -1280,7 +1282,7 @@ describe('earn', () => {
       )
       expect(preparedRedeem).toMatchObject({
         actionId: keccak256('0x04'),
-        callbackGas: callbackGas - 1n,
+        callbackGas: callbackGasOverride,
         chainId: chain.id,
         fallbackRecipient: accounts[2].address,
         memo: keccak256('0x06'),

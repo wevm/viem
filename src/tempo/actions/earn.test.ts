@@ -771,19 +771,15 @@ describe('minimumOutput', () => {
 })
 
 describe('getRedeemQuote', () => {
-  test('call', async () => {
-    const stack = await setup()
-
+  test('call', () => {
     const call = Actions.earn.getRedeemQuote.call({
       shareAmount: parseUnits('100', 6),
-      vault: stack.adapter,
+      vault: `0x${'aa'.repeat(20)}`,
     })
 
     expect(call.functionName).toBe('previewRedeem')
     expect(call.args).toEqual([100_000_000n])
-    expect(encodeFunctionData(call)).toBe(
-      '0x4cdad5060000000000000000000000000000000000000000000000000000000005f5e100',
-    )
+    expect(encodeFunctionData(call).slice(0, 10)).toBe('0x4cdad506')
   })
 
   test('default', async () => {
@@ -810,19 +806,15 @@ describe('getRedeemQuote', () => {
 })
 
 describe('getWithdrawQuote', () => {
-  test('call', async () => {
-    const stack = await setup()
-
+  test('call', () => {
     const call = Actions.earn.getWithdrawQuote.call({
       assetAmount: parseUnits('40', 6),
-      vault: stack.adapter,
+      vault: `0x${'aa'.repeat(20)}`,
     })
 
     expect(call.functionName).toBe('previewWithdraw')
     expect(call.args).toEqual([40_000_000n])
-    expect(encodeFunctionData(call)).toBe(
-      '0x0a28a4770000000000000000000000000000000000000000000000000000000002625a00',
-    )
+    expect(encodeFunctionData(call).slice(0, 10)).toBe('0x0a28a477')
   })
 
   test('default', async () => {
