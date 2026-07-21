@@ -1,5 +1,17 @@
 # viem
 
+## 2.55.5
+
+### Patch Changes
+
+- [#4865](https://github.com/wevm/viem/pull/4865) [`d993c2c331f4bedb76ecb78250c7858603bbdd62`](https://github.com/wevm/viem/commit/d993c2c331f4bedb76ecb78250c7858603bbdd62) Thanks [@jxom](https://github.com/jxom)! - Batched compatible concurrent `multicall` actions into one aggregate call.
+
+- [#4863](https://github.com/wevm/viem/pull/4863) [`b6f7349221d4d3b51e4094634fa2839b5a448c24`](https://github.com/wevm/viem/commit/b6f7349221d4d3b51e4094634fa2839b5a448c24) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Updated multisig implementation.
+
+- [#4868](https://github.com/wevm/viem/pull/4868) [`cb7d66f966e9eea501b075eeb0f14a7ddd0c35fc`](https://github.com/wevm/viem/commit/cb7d66f966e9eea501b075eeb0f14a7ddd0c35fc) Thanks [@jsutaria](https://github.com/jsutaria)! - Ensured `prepareTransactionRequest` fetched Tempo fee payer signatures when the caller's `parameters` option omitted `fees`/`gas`.
+
+- [#4866](https://github.com/wevm/viem/pull/4866) [`5ee7eb12b248a1e72f37196d1fbb25d38283723f`](https://github.com/wevm/viem/commit/5ee7eb12b248a1e72f37196d1fbb25d38283723f) Thanks [@jsutaria](https://github.com/jsutaria)! - Ensured `prepareTransactionRequest` fetched Tempo fee payer signatures for fully specified transactions.
+
 ## 2.55.4
 
 ### Patch Changes
