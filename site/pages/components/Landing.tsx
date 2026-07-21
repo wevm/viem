@@ -16,14 +16,21 @@ import {
   type SVGProps,
   useState,
 } from 'react'
-import { Link } from 'vocs'
+import { Link, Prompt } from 'vocs'
 
 type Pkg = 'npm' | 'pnpm' | 'bun'
 
 export type LandingProps = {
   installCommands: Record<Pkg, string>
   installHtml: Record<Pkg, string>
-  snippet?: ReactNode
+  snippets?: {
+    actions?: ReactNode
+    chains?: ReactNode
+    modules?: ReactNode
+    tokens?: ReactNode
+    transports?: ReactNode
+    types?: ReactNode
+  }
 }
 
 const AGENT_PROMPT = `Read viem.sh and help me build my project with Viem. Add https://viem.sh/api/mcp as an MCP server.`
@@ -101,22 +108,16 @@ const containerCls =
 export function Landing({
   installCommands,
   installHtml,
-  snippet,
+  snippets,
 }: LandingProps) {
   const [pkg, setPkg] = useState<Pkg>('npm')
   const [active, setActive] = useState(modules[0]!.id)
   const [copiedInstall, setCopiedInstall] = useState(false)
-  const [copiedAgent, setCopiedAgent] = useState(false)
 
   function copyInstall() {
     navigator.clipboard.writeText(installCommands[pkg])
     setCopiedInstall(true)
     setTimeout(() => setCopiedInstall(false), 2000)
-  }
-  function copyAgent() {
-    navigator.clipboard.writeText(AGENT_PROMPT)
-    setCopiedAgent(true)
-    setTimeout(() => setCopiedAgent(false), 2000)
   }
   function conceptLink(id: ModuleId, label: string) {
     const isActive = active === id
@@ -313,25 +314,10 @@ export function Landing({
                   </button>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={copyAgent}
-                className="flex h-11 w-full flex-[1_1_100%] cursor-pointer items-center justify-start gap-2.5 border border-dashed border-hover bg-elevated px-[18px] text-[13px] font-medium text-primary transition hover:border-hover hover:bg-surface"
-              >
-                <span
-                  className={
-                    'inline-block h-[7px] w-[7px] ' +
-                    (copiedAgent
-                      ? 'bg-success shadow-[0_0_8px_rgba(74,222,128,0.4)]'
-                      : 'bg-accent shadow-[0_0_8px_var(--accent-glow)]')
-                  }
-                />
-                <span>
-                  {copiedAgent
-                    ? 'Copied to clipboard'
-                    : 'Copy setup instructions for agent'}
-                </span>
-              </button>
+              <Prompt
+                className="w-full flex-[1_1_100%]"
+                value={AGENT_PROMPT}
+              />
             </div>
           </div>
         </div>
@@ -363,7 +349,7 @@ export function Landing({
             <div
               role="group"
               aria-label="Module examples"
-              className="flex flex-col"
+              className="flex flex-col max-md:hidden"
             >
               {modules.map((m, i) => {
                 const isActive = active === m.id
@@ -409,7 +395,7 @@ export function Landing({
             >
               <span
                 aria-hidden
-                className="pointer-events-none absolute top-0 bottom-0 left-0 w-px bg-no-repeat max-md:top-0 max-md:right-0 max-md:bottom-auto max-md:h-px max-md:w-full"
+                className="pointer-events-none absolute top-0 bottom-0 left-0 w-px bg-no-repeat max-md:hidden"
                 style={{
                   backgroundImage:
                     'repeating-linear-gradient(to bottom, var(--border-color-hover) 0 3px, transparent 3px 6px)',
@@ -465,11 +451,79 @@ export function Landing({
                   data-active-module={activeModule.id}
                   className="module-snippet [&_pre]:m-0 [&_pre]:overflow-x-auto [&_pre]:whitespace-pre [&_pre]:border [&_pre]:border-dashed [&_pre]:border-hover [&_pre]:bg-code [&_pre]:px-0 [&_pre]:py-[18px] [&_pre]:font-mono [&_pre]:text-[13px] [&_pre]:leading-[1.65]"
                 >
-                  {snippet}
+                  {snippets?.modules}
                 </div>
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <div className={containerCls}>
+          <FeatureRow
+            accent="One prompt"
+            title="to start building."
+            desc={
+              <>
+                Point a coding agent at Viem and let it build. Docs served as
+                Markdown, <code className="font-mono">llms.txt</code> indexes,
+                and an MCP server over docs and source keep agents working
+                against current APIs, not stale training data.
+              </>
+            }
+            docHref="/docs/agents"
+          >
+            <AgentTranscript />
+          </FeatureRow>
+          <FeatureRow
+            accent="Actions"
+            title="that read like business logic."
+            desc="Namespaced methods for tokens, transactions, ENS, and wallets that say what they do. High-level where it helps, without hiding how Ethereum works."
+            docHref="/docs/actions"
+            divider
+            flip
+          >
+            <FeatureSnippet>{snippets?.actions}</FeatureSnippet>
+          </FeatureRow>
+          <FeatureRow
+            accent="Tokens"
+            title="without the ABI ceremony."
+            desc="Declare tokens once on the Client, then reference them by symbol everywhere. Balances, transfers, and approvals come back with decimals and formatted amounts."
+            docHref="/docs/tokens"
+            divider
+          >
+            <FeatureSnippet>{snippets?.tokens}</FeatureSnippet>
+          </FeatureRow>
+          <FeatureRow
+            accent="500+ chains,"
+            title="one interface."
+            desc="Typed definitions for every major network, with fees, contracts, and RPC endpoints included. Define your own chain in a few lines."
+            docHref="/docs/chains"
+            divider
+            flip
+          >
+            <FeatureSnippet>{snippets?.chains}</FeatureSnippet>
+          </FeatureRow>
+          <FeatureRow
+            accent="Types"
+            title="that follow your inputs."
+            desc="Declare tokens on a Client and every token option narrows to those symbols. The same inference flows through ABIs, chains, and accounts: invalid calls fail in your editor, before a request is ever sent."
+            docHref="/docs/why-viem#types-that-follow-your-inputs"
+            divider
+          >
+            <FeatureSnippet>{snippets?.types}</FeatureSnippet>
+          </FeatureRow>
+          <FeatureRow
+            accent="Failover"
+            title="built in."
+            desc="Compose HTTP, WebSocket, and IPC transports with automatic ranking, retries, and rate limits. Bring any RPC provider, or run your own nodes."
+            docHref="/docs/transports/fallback"
+            divider
+            flip
+          >
+            <FeatureSnippet>{snippets?.transports}</FeatureSnippet>
+          </FeatureRow>
         </div>
       </section>
 
@@ -521,6 +575,117 @@ export function Landing({
           </div>
         </div>
       </footer>
+    </div>
+  )
+}
+
+type FeatureRowProps = {
+  accent: string
+  title: string
+  desc: ReactNode
+  docHref: string
+  /** Draws a dashed separator above the row. */
+  divider?: boolean
+  /** Places the demo on the left on desktop. */
+  flip?: boolean
+  children: ReactNode
+}
+
+function FeatureRow({
+  accent,
+  title,
+  desc,
+  docHref,
+  divider,
+  flip,
+  children,
+}: FeatureRowProps) {
+  return (
+    <div
+      className={
+        'grid items-center gap-8 bg-no-repeat py-16 max-md:py-12 lg:-mx-[5em] lg:gap-12 xl:-mx-[10em] ' +
+        (flip ? 'lg:grid-cols-[7fr_6fr]' : 'lg:grid-cols-[6fr_7fr]')
+      }
+      style={
+        divider ? { ...dashedH, backgroundPosition: 'left top' } : undefined
+      }
+    >
+      <div className={flip ? 'lg:order-2' : undefined}>
+        <h2 className="m-0 mb-3 font-display text-[clamp(26px,3.2vw,36px)] font-medium leading-[1.1] tracking-[-0.025em]">
+          <em className="font-normal italic text-accent">{accent}</em> {title}
+        </h2>
+        <p className="m-0 mb-4 max-w-[52ch] text-[16px] leading-[1.6] text-secondary">
+          {desc}
+        </p>
+        <a
+          href={docHref}
+          className="inline-flex items-center gap-1 border border-dashed border-hover bg-transparent px-2 py-[3px] text-[11px] font-medium text-secondary no-underline transition-colors hover:border-primary hover:text-primary"
+        >
+          Learn more
+          <IconArrowUpRight aria-hidden className="h-3 w-3" />
+        </a>
+      </div>
+      <div className="min-w-0">{children}</div>
+    </div>
+  )
+}
+
+function FeatureSnippet({ children }: { children: ReactNode }) {
+  return (
+    <div className="landing-snippet [&_pre]:m-0 [&_pre]:overflow-x-auto [&_pre]:whitespace-pre [&_pre]:border [&_pre]:border-dashed [&_pre]:border-hover [&_pre]:bg-code [&_pre]:px-0 [&_pre]:py-[18px] [&_pre]:font-mono [&_pre]:text-[13px] [&_pre]:leading-[1.65]">
+      {children}
+    </div>
+  )
+}
+
+const agentSteps = [
+  ['✓', 'Added MCP server viem · viem.sh/api/mcp'],
+  ['✓', 'search_docs("send a transaction")'],
+  ['✓', 'read_page("/docs/clients/create")'],
+  ['+', 'Wrote viem.config.ts'],
+  ['+', 'Wrote src/pay.ts'],
+  ['✓', 'tsc --noEmit · 0 errors'],
+] as const
+
+function AgentTranscript() {
+  const [copied, setCopied] = useState(false)
+  function copyPrompt() {
+    navigator.clipboard.writeText(AGENT_PROMPT)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+  return (
+    <div className="border border-dashed border-hover bg-code font-mono text-[13px] leading-[1.65]">
+      <div className="flex items-center justify-between gap-3 border-b border-dashed border-hover px-4 py-2">
+        <span className="text-[11px] text-muted">agent session</span>
+        <button
+          type="button"
+          onClick={copyPrompt}
+          className="cursor-pointer border border-dashed border-hover bg-transparent px-2 py-[3px] font-sans text-[11px] font-medium text-secondary transition-colors hover:border-primary hover:text-primary"
+        >
+          {copied ? 'Copied' : 'Copy prompt'}
+        </button>
+      </div>
+      <div className="px-4 py-4 text-secondary">
+        <p className="m-0 mb-3 flex gap-2 text-primary">
+          <span aria-hidden className="shrink-0 text-accent">
+            ▸
+          </span>
+          <span>{AGENT_PROMPT}</span>
+        </p>
+        {agentSteps.map(([glyph, text]) => (
+          <p key={text} className="m-0 mb-1.5 flex gap-2">
+            <span aria-hidden className="shrink-0 text-accent">
+              {glyph}
+            </span>
+            <span>{text}</span>
+          </p>
+        ))}
+        <span
+          aria-hidden
+          className="landing-caret mt-1 inline-block h-[1.15em] w-[7px] bg-accent align-text-bottom"
+        />
+      </div>
     </div>
   )
 }

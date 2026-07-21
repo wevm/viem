@@ -1,0 +1,60 @@
+```ts twoslash
+// @noErrors
+import { Account, Client, Token, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const usdc = Token.from({
+  addresses: { 1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' },
+  currency: 'USD',
+  decimals: 6,
+  name: 'USD Coin',
+  popular: true,
+  symbol: 'usdc',
+})
+const usdt = Token.from({
+  addresses: { 1: '0xdAC17F958D2ee523a2206206994597C13D831ec7' },
+  currency: 'USD',
+  decimals: 6,
+  name: 'Tether USD',
+  popular: true,
+  symbol: 'usdt',
+})
+const eurc = Token.from({
+  addresses: { 1: '0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c' },
+  currency: 'EUR',
+  decimals: 6,
+  name: 'Euro Coin',
+  popular: true,
+  symbol: 'eurc',
+})
+const dai = Token.from({
+  addresses: { 1: '0x6B175474E89094C44Da98b954EedeAC495271d0F' },
+  currency: 'USD',
+  decimals: 18,
+  name: 'Dai Stablecoin',
+  popular: true,
+  symbol: 'dai',
+})
+const wbtc = Token.from({
+  addresses: { 1: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599' },
+  currency: 'BTC',
+  decimals: 8,
+  name: 'Wrapped BTC',
+  popular: true,
+  symbol: 'wbtc',
+})
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  tokens: [usdc, usdt, eurc, dai, wbtc],
+  transport: http(),
+}).extend(walletActions())
+// ---cut---
+await client.token.transferSync({
+  amount: { formatted: '250' },
+  to: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+  token: '
+//        ^|
+})
+```

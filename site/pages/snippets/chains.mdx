@@ -1,0 +1,14 @@
+```ts twoslash
+// @noErrors
+import { Client, http } from 'viem'
+import { arbitrum, base, mainnet, tempo } from 'viem/chains'
+
+const client = Client.create({
+  chain: tempo,
+  transport: http(),
+})
+
+const { name, blockTime } = client.chain
+// @log: name: 'Tempo Mainnet'
+// @log: blockTime: 200
+```
