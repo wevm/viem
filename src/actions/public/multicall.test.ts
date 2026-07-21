@@ -73,6 +73,166 @@ test('default', async () => {
   expect(spy).toHaveBeenCalledOnce()
 })
 
+test('batches concurrent multicalls', async () => {
+  const client = anvilMainnet.getClient({
+    batch: { multicall: true },
+  })
+  const spy = vi.spyOn(readContract, 'readContract')
+
+  const [token, nft] = await Promise.all([
+    multicall(client, {
+      blockNumber: anvilMainnet.forkBlockNumber,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+      ],
+    }),
+    multicall(client, {
+      blockNumber: anvilMainnet.forkBlockNumber,
+      contracts: [
+        {
+          ...baycContractConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+    }),
+  ])
+
+  expect(token).toMatchInlineSnapshot(`
+    [
+      {
+        "result": 39507977228957576n,
+        "status": "success",
+      },
+      {
+        "result": 123223706565n,
+        "status": "success",
+      },
+    ]
+  `)
+  expect(nft).toMatchInlineSnapshot(`
+    [
+      {
+        "result": 10000n,
+        "status": "success",
+      },
+    ]
+  `)
+  expect(spy).toHaveBeenCalledOnce()
+})
+
+test('does not batch incompatible concurrent multicalls', async () => {
+  const client = anvilMainnet.getClient({
+    batch: { multicall: { deployless: true } },
+  })
+  const spy = vi.spyOn(readContract, 'readContract')
+
+  await Promise.all([
+    multicall(client, {
+      blockNumber: anvilMainnet.forkBlockNumber,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+    }),
+    multicall(client, {
+      blockTag: 'latest',
+      contracts: [
+        {
+          ...baycContractConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+    }),
+  ])
+
+  expect(spy).toHaveBeenCalledTimes(2)
+})
+
+test('preserves concurrent failure boundaries', async () => {
+  const client = anvilMainnet.getClient({
+    batch: { multicall: { deployless: true } },
+  })
+  const spy = vi.spyOn(readContract, 'readContract')
+
+  const [failed, successful] = await Promise.allSettled([
+    multicall(client, {
+      allowFailure: false,
+      blockNumber: anvilMainnet.forkBlockNumber,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          address: '0x0000000000000000000000000000000000000000',
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+      ],
+    }),
+    multicall(client, {
+      blockNumber: anvilMainnet.forkBlockNumber,
+      contracts: [
+        {
+          ...baycContractConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+    }),
+  ])
+
+  expect(failed.status).toBe('rejected')
+  expect(successful).toMatchInlineSnapshot(`
+    {
+      "status": "fulfilled",
+      "value": [
+        {
+          "result": 10000n,
+          "status": "success",
+        },
+      ],
+    }
+  `)
+  expect(spy).toHaveBeenCalledOnce()
+})
+
+test('respects batch size across concurrent multicalls', async () => {
+  const client = anvilMainnet.getClient({
+    batch: { multicall: { batchSize: 4, deployless: true } },
+  })
+  const spy = vi.spyOn(readContract, 'readContract')
+
+  await Promise.all([
+    multicall(client, {
+      blockNumber: anvilMainnet.forkBlockNumber,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+    }),
+    multicall(client, {
+      blockNumber: anvilMainnet.forkBlockNumber,
+      contracts: [
+        {
+          ...baycContractConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+    }),
+  ])
+
+  expect(spy).toHaveBeenCalledTimes(2)
+})
+
 test('args: blockHash', async () => {
   const address = '0x0000000000000000000000000000000000000421'
   const block = await getBlock(client)
