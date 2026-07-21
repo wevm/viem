@@ -37,6 +37,46 @@ const zoneClientWithAccount = createClient({
 })
 const decoratedZoneClient = zoneClientWithAccount.extend(decorator())
 
+test('exit-safe policy actions preserve account and result types', async () => {
+  const parameters = {
+    accessAdministrator: address,
+    initialMembers: [address],
+    shareToken: address,
+  } as const
+
+  // @ts-expect-error account required when the client has none
+  await earnActions.configureExitSafePolicy(client, parameters)
+  await earnActions.configureExitSafePolicy(client, {
+    ...parameters,
+    account: address,
+  })
+  const result = await earnActions.configureExitSafePolicy(
+    clientWithAccount,
+    parameters,
+  )
+  expectTypeOf(result.policy).toEqualTypeOf<earnActions.ExitSafePolicy>()
+  expectTypeOf(result.policy.transferPolicyId).toEqualTypeOf<bigint>()
+  expectTypeOf(
+    result.receipts,
+  ).toEqualTypeOf<earnActions.ExitSafePolicyReceipts>()
+  expectTypeOf(earnActions.alwaysAllowPolicyId).toEqualTypeOf<bigint>()
+
+  const decorated =
+    await decoratedClient.earn.configureExitSafePolicy(parameters)
+  expectTypeOf(
+    decorated,
+  ).toEqualTypeOf<earnActions.configureExitSafePolicy.ReturnValue>()
+
+  expectTypeOf(
+    await decoratedClient.earn.validateExitSafePolicy({
+      accessAdministrator: address,
+      policy: result.policy,
+      requiredMembers: [address],
+      shareToken: address,
+    }),
+  ).toEqualTypeOf<void>()
+})
+
 test('getVault narrows union and nested fields', async () => {
   const vault = await earnActions.getVault(client, { vault: address })
 

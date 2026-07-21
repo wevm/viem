@@ -1745,6 +1745,26 @@ type DecoratorBase<
   }
   earn: {
     /**
+     * Creates and attaches an admission-only TIP-403 policy to an Earn vault
+     * share token. Existing holders remain able to send shares while
+     * recipients and mint recipients must belong to the same whitelist.
+     *
+     * @example
+     * ```ts
+     * const { policy } = await client.earn.configureExitSafePolicy({
+     *   accessAdministrator: '0x...',
+     *   initialMembers: ['0x...', '0x...'],
+     *   shareToken: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Share token, administrator, and initial members.
+     * @returns The configured policy IDs and transaction receipts.
+     */
+    configureExitSafePolicy: (
+      parameters: earnActions.configureExitSafePolicy.Parameters<account>,
+    ) => Promise<earnActions.configureExitSafePolicy.ReturnValue>
+    /**
      * Deposits assets into a vault and mints vault shares to `recipient`. The
      * transaction includes the required asset approval.
      *
@@ -2167,6 +2187,27 @@ type DecoratorBase<
     waitForPrivateRedeem: (
       parameters: earnActions.waitForPrivateRedeem.Parameters,
     ) => Promise<earnActions.waitForPrivateRedeem.ReturnType>
+    /**
+     * Verifies that an Earn vault share token uses the expected exit-safe
+     * TIP-403 policy and that every required member can receive transfers and
+     * mints.
+     *
+     * @example
+     * ```ts
+     * await client.earn.validateExitSafePolicy({
+     *   accessAdministrator: '0x...',
+     *   policy,
+     *   requiredMembers: ['0x...', '0x...'],
+     *   shareToken: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Expected policy, administrator, and required members.
+     * @returns Nothing when the policy is valid.
+     */
+    validateExitSafePolicy: (
+      parameters: earnActions.validateExitSafePolicy.Parameters,
+    ) => Promise<earnActions.validateExitSafePolicy.ReturnValue>
     /**
      * Withdraws an exact asset amount to `recipient`, up to the specified
      * vault share limit. The transaction includes the required vault share
@@ -5871,6 +5912,7 @@ export function decorator() {
         'watchOrderPlaced',
       ]),
       earn: bindActions(client, earnActions, [
+        'configureExitSafePolicy',
         'deposit',
         'depositSync',
         'depositShares',
@@ -5888,6 +5930,7 @@ export function decorator() {
         'privateRedeemSync',
         'waitForPrivateDeposit',
         'waitForPrivateRedeem',
+        'validateExitSafePolicy',
         'withdrawExact',
         'withdrawExactSync',
       ]),

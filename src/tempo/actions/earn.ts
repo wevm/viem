@@ -21,6 +21,7 @@ import {
   sendTransaction,
 } from '../../actions/wallet/sendTransaction.js'
 import { sendTransactionSync } from '../../actions/wallet/sendTransactionSync.js'
+import { writeContractSync } from '../../actions/wallet/writeContractSync.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
@@ -31,12 +32,14 @@ import type { Compute, OneOf } from '../../types/utils.js'
 import { encodeAbiParameters } from '../../utils/abi/encodeAbiParameters.js'
 import { getAbiItem } from '../../utils/abi/getAbiItem.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
+import { getAddress } from '../../utils/address/getAddress.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { type PollErrorType, poll } from '../../utils/poll.js'
 import { withResolvers } from '../../utils/promise/withResolvers.js'
 import { stringify } from '../../utils/stringify.js'
 import * as Abis from '../Abis.js'
+import * as Addresses from '../Addresses.js'
 import {
   GetVaultEngineChangedError,
   type GetVaultEngineChangedErrorType,
@@ -59,7 +62,291 @@ import {
   resolveTokenWithDecimals,
 } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
+import * as policyActions from './policy.js'
+import * as tokenActions from './token.js'
 import * as zoneActions from './zone.js'
+
+/** TIP-403 policy ID that allows every sender, recipient, and mint recipient. */
+export const alwaysAllowPolicyId = 1n
+
+/** Admission-only TIP-403 policy attached to an Earn vault share token. */
+export type ExitSafePolicy = {
+  /** Compound policy attached to the vault share token. */
+  transferPolicyId: bigint
+  /** Sender policy. Must be {@link alwaysAllowPolicyId} so holders can exit. */
+  senderPolicyId: bigint
+  /** Recipient eligibility policy. */
+  recipientPolicyId: bigint
+  /** Mint-recipient eligibility policy. Must match `recipientPolicyId`. */
+  mintRecipientPolicyId: bigint
+}
+
+/** Receipts produced while configuring an exit-safe Earn policy. */
+export type ExitSafePolicyReceipts = {
+  /** Whitelist policy creation receipt. */
+  eligibilityPolicy: TransactionReceipt
+  /** Compound policy creation receipt. */
+  compoundPolicy: TransactionReceipt
+  /** Vault share token policy update receipt. */
+  tokenPolicy: TransactionReceipt
+  /** Eligibility policy admin transfer receipt, when an administrator is provided. */
+  policyAdmin?: TransactionReceipt | undefined
+}
+
+/**
+ * Creates and attaches an admission-only TIP-403 policy to an Earn vault share
+ * token. Existing holders remain able to send shares while recipients and mint
+ * recipients must belong to the same whitelist.
+ *
+ * The action submits three or four sequential transactions and is not atomic.
+ * Use {@link validateExitSafePolicy} to verify the final state.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const account = privateKeyToAccount('0x...')
+ * const client = createClient({
+ *   account,
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * const { policy, receipts } =
+ *   await Actions.earn.configureExitSafePolicy(client, {
+ *     accessAdministrator: '0x...',
+ *     initialMembers: ['0x...', '0x...'],
+ *     shareToken: '0x...',
+ *   })
+ * ```
+ *
+ * @param client - Client authorized to change the vault share token policy.
+ * @param parameters - Share token, administrator, and initial members.
+ * @returns The configured policy IDs and transaction receipts.
+ */
+export async function configureExitSafePolicy<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: configureExitSafePolicy.Parameters<account>,
+): Promise<configureExitSafePolicy.ReturnValue> {
+  const account_ = parameters.account ?? client.account
+  if (!account_) throw new AccountNotFoundError()
+  const account = parseAccount(account_)
+  const initialMembers = [
+    ...new Set(parameters.initialMembers.map((member) => getAddress(member))),
+  ]
+  if (initialMembers.length === 0)
+    throw new Error('At least one initial policy member is required.')
+
+  const eligibility = await policyActions.createSync(client, {
+    account,
+    addresses: initialMembers,
+    chain: client.chain,
+    type: 'whitelist',
+  } as never)
+  const compoundPolicy = await writeContractSync(client, {
+    account,
+    abi: Abis.tip403Registry,
+    address: Addresses.tip403Registry,
+    args: [alwaysAllowPolicyId, eligibility.policyId, eligibility.policyId],
+    chain: client.chain,
+    functionName: 'createCompoundPolicy',
+    throwOnReceiptRevert: true,
+  } as never)
+  const [compoundEvent] = parseEventLogs({
+    abi: Abis.tip403Registry,
+    eventName: 'CompoundPolicyCreated',
+    logs: compoundPolicy.logs,
+    strict: true,
+  })
+  if (!compoundEvent)
+    throw new Error('`CompoundPolicyCreated` event not found.')
+
+  const tokenPolicy = await tokenActions.changeTransferPolicySync(client, {
+    account,
+    chain: client.chain,
+    policyId: compoundEvent.args.policyId,
+    token: parameters.shareToken,
+  } as never)
+  const policyAdmin = isAddressEqual(
+    parameters.accessAdministrator,
+    account.address,
+  )
+    ? undefined
+    : await policyActions.setAdminSync(client, {
+        account,
+        admin: parameters.accessAdministrator,
+        chain: client.chain,
+        policyId: eligibility.policyId,
+      } as never)
+
+  return {
+    policy: {
+      transferPolicyId: compoundEvent.args.policyId,
+      senderPolicyId: alwaysAllowPolicyId,
+      recipientPolicyId: eligibility.policyId,
+      mintRecipientPolicyId: eligibility.policyId,
+    },
+    receipts: {
+      eligibilityPolicy: eligibility.receipt,
+      compoundPolicy,
+      tokenPolicy: tokenPolicy.receipt,
+      policyAdmin: policyAdmin?.receipt,
+    },
+  }
+}
+
+export namespace configureExitSafePolicy {
+  export type Args = {
+    /** Address that will administer recipient eligibility. */
+    accessAdministrator: Address
+    /** Addresses initially eligible to receive or be minted vault shares. */
+    initialMembers: readonly Address[]
+    /** Earn vault share token. */
+    shareToken: Address
+  }
+  export type Parameters<
+    account extends Account | undefined = Account | undefined,
+  > = GetAccountParameter<account> & Args
+  export type ReturnValue = Compute<{
+    /** Configured onchain policy IDs. */
+    policy: ExitSafePolicy
+    /** Receipts for each configuration transaction. */
+    receipts: ExitSafePolicyReceipts
+  }>
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+}
+
+/**
+ * Verifies that an Earn vault share token uses the expected exit-safe TIP-403
+ * policy and that every required member can receive transfers and mints.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * await Actions.earn.validateExitSafePolicy(client, {
+ *   accessAdministrator: '0x...',
+ *   policy: {
+ *     transferPolicyId: 3n,
+ *     senderPolicyId: 1n,
+ *     recipientPolicyId: 2n,
+ *     mintRecipientPolicyId: 2n,
+ *   },
+ *   requiredMembers: ['0x...', '0x...'],
+ *   shareToken: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Expected policy, administrator, and required members.
+ * @returns Nothing when the policy is valid.
+ */
+export async function validateExitSafePolicy<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: validateExitSafePolicy.Parameters,
+): Promise<validateExitSafePolicy.ReturnValue> {
+  const { accessAdministrator, policy, requiredMembers, shareToken, ...rest } =
+    parameters
+  const [tokenPolicyId, compound, simplePolicy, memberResults] =
+    await Promise.all([
+      readContract(client, {
+        ...rest,
+        abi: Abis.tip20,
+        address: shareToken,
+        functionName: 'transferPolicyId',
+      }),
+      readContract(client, {
+        ...rest,
+        abi: Abis.tip403Registry,
+        address: Addresses.tip403Registry,
+        args: [policy.transferPolicyId],
+        functionName: 'compoundPolicyData',
+      }),
+      readContract(client, {
+        ...rest,
+        abi: Abis.tip403Registry,
+        address: Addresses.tip403Registry,
+        args: [policy.recipientPolicyId],
+        functionName: 'policyData',
+      }),
+      Promise.all(
+        requiredMembers.map(async (member) => {
+          const [recipient, mintRecipient] = await Promise.all([
+            readContract(client, {
+              ...rest,
+              abi: Abis.tip403Registry,
+              address: Addresses.tip403Registry,
+              args: [policy.transferPolicyId, member],
+              functionName: 'isAuthorizedRecipient',
+            }),
+            readContract(client, {
+              ...rest,
+              abi: Abis.tip403Registry,
+              address: Addresses.tip403Registry,
+              args: [policy.transferPolicyId, member],
+              functionName: 'isAuthorizedMintRecipient',
+            }),
+          ])
+          return { member, mintRecipient, recipient }
+        }),
+      ),
+    ])
+
+  if (tokenPolicyId !== policy.transferPolicyId)
+    throw new Error('Earn vault share token transfer policy mismatch.')
+  if (
+    compound[0] !== policy.senderPolicyId ||
+    compound[1] !== policy.recipientPolicyId ||
+    compound[2] !== policy.mintRecipientPolicyId
+  )
+    throw new Error('TIP-403 compound policy components mismatch.')
+  if (policy.senderPolicyId !== alwaysAllowPolicyId)
+    throw new Error('TIP-403 sender policy is not always allow.')
+  if (policy.recipientPolicyId !== policy.mintRecipientPolicyId)
+    throw new Error('TIP-403 recipient and mint-recipient policies must match.')
+  if (simplePolicy[0] !== 0)
+    throw new Error('TIP-403 eligibility policy is not a whitelist.')
+  if (!isAddressEqual(simplePolicy[1], accessAdministrator))
+    throw new Error('TIP-403 access administrator mismatch.')
+  const unauthorized = memberResults.find(
+    (result) => !result.recipient || !result.mintRecipient,
+  )
+  if (unauthorized)
+    throw new Error(
+      `Required TIP-403 member is unauthorized: ${unauthorized.member}`,
+    )
+}
+
+export namespace validateExitSafePolicy {
+  export type Args = {
+    /** Expected eligibility policy administrator. */
+    accessAdministrator: Address
+    /** Expected exit-safe policy IDs. */
+    policy: ExitSafePolicy
+    /** Addresses that must be eligible to receive or be minted vault shares. */
+    requiredMembers: readonly Address[]
+    /** Earn vault share token. */
+    shareToken: Address
+  }
+  export type Parameters = Omit<ReadParameters, 'account'> & Args
+  export type ReturnValue = void
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+}
 
 /**
  * Deposits assets into a vault and mints vault shares to `recipient`. The

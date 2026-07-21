@@ -123,6 +123,61 @@ describe('deployEarnStack', () => {
   })
 })
 
+describe('configureExitSafePolicy', () => {
+  test('default', async () => {
+    const stack = await setupStack()
+    const accessAdministrator = accounts[2].address
+    const initialMembers = [stack.adapter, accounts[1].address]
+
+    const { policy, receipts } = await Actions.earn.configureExitSafePolicy(
+      client,
+      {
+        accessAdministrator,
+        initialMembers: [...initialMembers, accounts[1].address],
+        shareToken: stack.shareToken,
+      },
+    )
+
+    expect(policy.senderPolicyId).toBe(Actions.earn.alwaysAllowPolicyId)
+    expect(policy.mintRecipientPolicyId).toBe(policy.recipientPolicyId)
+    expect(policy.transferPolicyId).not.toBe(policy.recipientPolicyId)
+    expect(receipts.eligibilityPolicy.status).toBe('success')
+    expect(receipts.compoundPolicy.status).toBe('success')
+    expect(receipts.tokenPolicy.status).toBe('success')
+    expect(receipts.policyAdmin?.status).toBe('success')
+
+    await expect(
+      Actions.earn.validateExitSafePolicy(client, {
+        accessAdministrator,
+        policy,
+        requiredMembers: initialMembers,
+        shareToken: stack.shareToken,
+      }),
+    ).resolves.toBeUndefined()
+
+    await expect(
+      Actions.earn.validateExitSafePolicy(client, {
+        accessAdministrator,
+        policy,
+        requiredMembers: [accounts[3].address],
+        shareToken: stack.shareToken,
+      }),
+    ).rejects.toThrow(
+      `Required TIP-403 member is unauthorized: ${accounts[3].address}`,
+    )
+  })
+
+  test('behavior: requires an initial member', async () => {
+    await expect(
+      Actions.earn.configureExitSafePolicy(client, {
+        accessAdministrator: account.address,
+        initialMembers: [],
+        shareToken: account.address,
+      }),
+    ).rejects.toThrow('At least one initial policy member is required.')
+  })
+})
+
 describe('deposit', () => {
   test('default', async () => {
     const stack = await setupStack()

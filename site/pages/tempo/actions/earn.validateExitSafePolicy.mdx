@@ -1,0 +1,71 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `earn.validateExitSafePolicy`
+
+Verifies that an Earn vault share token uses an expected exit-safe TIP-403 policy and that every
+required member can receive transfers and mints.
+
+The action throws when the token policy, compound components, whitelist administrator, or member
+authorization does not match the expected configuration.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+await client.earn.validateExitSafePolicy({
+  accessAdministrator: '0x0000000000000000000000000000000000000002',
+  policy: {
+    transferPolicyId: 3n,
+    senderPolicyId: 1n,
+    recipientPolicyId: 2n,
+    mintRecipientPolicyId: 2n,
+  },
+  requiredMembers: [
+    '0x0000000000000000000000000000000000000003',
+    '0x0000000000000000000000000000000000000004',
+  ],
+  shareToken: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
+
+`void`
+
+## Parameters
+
+### accessAdministrator
+
+- **Type:** `Address`
+
+Expected whitelist administrator.
+
+### policy
+
+- **Type:** `ExitSafePolicy`
+
+Expected compound and component policy IDs. The sender policy must be the always-allow policy, and
+the recipient and mint-recipient policy IDs must match.
+
+### requiredMembers
+
+- **Type:** `readonly Address[]`
+
+Addresses that must be authorized as recipients and mint recipients.
+
+### shareToken
+
+- **Type:** `Address`
+
+Earn vault share token expected to use the compound transfer policy.
+
+<ReadParameters />
