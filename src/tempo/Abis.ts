@@ -2990,7 +2990,7 @@ export const abis = [
   ...validatorConfigV2,
 ] as const
 
-// Earn source: tempoxyz/earn at f452fe522b86a8e62ba42b976bf76df7ded36c95. Do not modify manually.
+// Earn source: tempoxyz/earn at 6b7729fd9b9e9751ebd57460c43817217af7771d. Do not modify manually.
 
 export const earnFactory = [
   {
@@ -3654,7 +3654,11 @@ export const vaultAdapter = [
   {
     type: 'function',
     name: 'migrateEngine',
-    inputs: [{ name: 'newEngine', type: 'address' }],
+    inputs: [
+      { name: 'newEngine', type: 'address' },
+      { name: 'minNewShares', type: 'uint256' },
+      { name: 'minAssetsRetained', type: 'uint256' },
+    ],
     outputs: [{ name: 'newShares', type: 'uint256' }],
     stateMutability: 'nonpayable',
   },
@@ -4083,6 +4087,14 @@ export const vaultAdapter = [
     inputs: [{ name: 'interfaceId', type: 'bytes4' }],
   },
   { type: 'error', name: 'ExceedsMaxShares', inputs: [] },
+  {
+    type: 'error',
+    name: 'ExcessiveConversionLoss',
+    inputs: [
+      { name: 'inputShares', type: 'uint256' },
+      { name: 'representedShares', type: 'uint256' },
+    ],
+  },
   { type: 'error', name: 'FeeCapTooHigh', inputs: [] },
   { type: 'error', name: 'FeesPermanentlyDisabled', inputs: [] },
   { type: 'error', name: 'InitialShareSupplyNotZero', inputs: [] },

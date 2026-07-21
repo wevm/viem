@@ -771,6 +771,17 @@ describe('minimumOutput', () => {
 })
 
 describe('getRedeemQuote', () => {
+  test('call', () => {
+    const call = Actions.earn.getRedeemQuote.call({
+      shareAmount: parseUnits('100', 6),
+      vault: `0x${'aa'.repeat(20)}`,
+    })
+
+    expect(call.functionName).toBe('previewRedeem')
+    expect(call.args).toEqual([100_000_000n])
+    expect(encodeFunctionData(call).slice(0, 10)).toBe('0x4cdad506')
+  })
+
   test('default', async () => {
     const stack = await setup()
 
@@ -795,6 +806,17 @@ describe('getRedeemQuote', () => {
 })
 
 describe('getWithdrawQuote', () => {
+  test('call', () => {
+    const call = Actions.earn.getWithdrawQuote.call({
+      assetAmount: parseUnits('40', 6),
+      vault: `0x${'aa'.repeat(20)}`,
+    })
+
+    expect(call.functionName).toBe('previewWithdraw')
+    expect(call.args).toEqual([40_000_000n])
+    expect(encodeFunctionData(call).slice(0, 10)).toBe('0x0a28a477')
+  })
+
   test('default', async () => {
     const stack = await setup()
 
@@ -1326,17 +1348,19 @@ describe('privateDeposit', () => {
     const noChainClient = createClient({ account, transport: http() })
     await expect(
       Actions.earn.privateDeposit(noChainClient, { ...prepared, chain: null }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`"\`chain\` is required."`)
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: \`chain\` is required.]`,
+    )
 
     await expect(
       Actions.earn.privateDeposit(client, prepared),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"Prepared Zone request parent chain ID does not match client chain."`,
+      `[Error: Prepared Zone request parent chain ID does not match client chain.]`,
     )
     await expect(
       Actions.earn.privateDepositSync(client, prepared),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"Prepared Zone request parent chain ID does not match client chain."`,
+      `[Error: Prepared Zone request parent chain ID does not match client chain.]`,
     )
   })
 
@@ -1410,12 +1434,12 @@ describe('privateRedeem', () => {
     await expect(
       Actions.earn.privateRedeem(client, prepared),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"Prepared Zone request parent chain ID does not match client chain."`,
+      `[Error: Prepared Zone request parent chain ID does not match client chain.]`,
     )
     await expect(
       Actions.earn.privateRedeemSync(client, prepared),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"Prepared Zone request parent chain ID does not match client chain."`,
+      `[Error: Prepared Zone request parent chain ID does not match client chain.]`,
     )
   })
 })

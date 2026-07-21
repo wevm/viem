@@ -1109,6 +1109,8 @@ describe('earn', () => {
       })
 
       const callbackGas = 10_000_000n
+      // Exercise a non-default value below the Zone callback gas ceiling.
+      const callbackGasOverride = callbackGas - 1n
       const withdrawalFee = await Actions.zone.getWithdrawalFee(zoneClient, {
         callbackGas,
       })
@@ -1154,17 +1156,24 @@ describe('earn', () => {
       const preparedDeposit = await Actions.earn.privateDeposit.prepare(
         mainnetClient,
         {
+          actionId: keccak256('0x01'),
           assetAmount,
+          callbackGas: callbackGasOverride,
+          fallbackRecipient: accounts[2].address,
           gateway,
           recipient: account.address,
           recoveryRecipient,
+          returnMemo: keccak256('0x02'),
           shareAmountMin: 1n,
+          withdrawalMemo: keccak256('0x03'),
         },
       )
       expect(preparedDeposit).toMatchObject({
-        callbackGas,
+        actionId: keccak256('0x01'),
+        callbackGas: callbackGasOverride,
         chainId: chain.id,
-        fallbackRecipient: recoveryRecipient,
+        fallbackRecipient: accounts[2].address,
+        memo: keccak256('0x03'),
         zoneId,
       })
       const [depositCallback] = decodeAbiParameters(
@@ -1172,6 +1181,7 @@ describe('earn', () => {
         preparedDeposit.data,
       )
       expect(depositCallback).toMatchObject({
+        actionId: keccak256('0x01'),
         flow: 0,
         minOutputAmount: 0n,
         minVaultAssets: assetAmount,
@@ -1220,6 +1230,7 @@ describe('earn', () => {
       expect(returnedShare).toMatchObject({
         amount: deposit.shares,
         kind: 'encrypted',
+        memo: keccak256('0x02'),
         status: 'processed',
       })
       expect(isAddressEqual(returnedShare.token, stack.shareToken)).toBe(true)
@@ -1257,17 +1268,24 @@ describe('earn', () => {
       const preparedRedeem = await Actions.earn.privateRedeem.prepare(
         mainnetClient,
         {
+          actionId: keccak256('0x04'),
+          callbackGas: callbackGasOverride,
+          fallbackRecipient: accounts[2].address,
           gateway,
           recipient: account.address,
           recoveryRecipient,
+          returnMemo: keccak256('0x05'),
           shareAmount: shareBalance.amount,
           slippageBps: 0,
+          withdrawalMemo: keccak256('0x06'),
         },
       )
       expect(preparedRedeem).toMatchObject({
-        callbackGas,
+        actionId: keccak256('0x04'),
+        callbackGas: callbackGasOverride,
         chainId: chain.id,
-        fallbackRecipient: recoveryRecipient,
+        fallbackRecipient: accounts[2].address,
+        memo: keccak256('0x06'),
         zoneId,
       })
       const [redeemCallback] = decodeAbiParameters(
@@ -1275,6 +1293,7 @@ describe('earn', () => {
         preparedRedeem.data,
       )
       expect(redeemCallback).toMatchObject({
+        actionId: keccak256('0x04'),
         flow: 1,
         minOutputAmount: 0n,
         minVaultAssets: assetAmount,
@@ -1313,6 +1332,7 @@ describe('earn', () => {
       expect(returnedAsset).toMatchObject({
         amount: redeem.outputAmount,
         kind: 'encrypted',
+        memo: keccak256('0x05'),
         status: 'processed',
       })
       expect(isAddressEqual(returnedAsset.token, stack.asset)).toBe(true)

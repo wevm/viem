@@ -13,6 +13,7 @@ import * as earnActions from './earn.js'
 import type * as zoneActions from './zone.js'
 
 const address = '0x0000000000000000000000000000000000000001' as Address
+const hash = `0x${'01'.repeat(32)}` as Hex.Hex
 
 const transport = custom({
   async request() {
@@ -84,6 +85,14 @@ test('getFeeState claimable shares stay optional', async () => {
 })
 
 test('quote reads return bigint amounts', async () => {
+  const redeemCall = earnActions.getRedeemQuote.call({
+    shareAmount: 1n,
+    vault: address,
+  })
+  const withdrawCall = earnActions.getWithdrawQuote.call({
+    assetAmount: 1n,
+    vault: address,
+  })
   const assetAmount = await earnActions.getRedeemQuote(client, {
     shareAmount: 1n,
     vault: address,
@@ -93,6 +102,8 @@ test('quote reads return bigint amounts', async () => {
     vault: address,
   })
 
+  expectTypeOf(redeemCall.functionName).toEqualTypeOf<'previewRedeem'>()
+  expectTypeOf(withdrawCall.functionName).toEqualTypeOf<'previewWithdraw'>()
   expectTypeOf(assetAmount).toEqualTypeOf<bigint>()
   expectTypeOf(shareAmount).toEqualTypeOf<bigint>()
   expectTypeOf(earnActions).not.toHaveProperty('previewRedeem')
@@ -577,11 +588,16 @@ test('decorated earn writes preserve shapes', async () => {
 
 test('zone deposit bounds and recipients are required', async () => {
   await earnActions.privateDeposit.prepare(client, {
+    actionId: hash,
     assetAmount: 1n,
+    callbackGas: 9_999_999n,
+    fallbackRecipient: address,
     gateway: address,
     recipient: address,
     recoveryRecipient: address,
+    returnMemo: hash,
     shareAmountMin: 1n,
+    withdrawalMemo: hash,
   })
   await earnActions.privateDeposit.prepare(client, {
     assetAmount: 1n,
@@ -675,6 +691,7 @@ test('prepared zone requests compose with Zone withdrawals', async () => {
   expectTypeOf(prepared.actionId).toEqualTypeOf<Hex.Hex>()
   expectTypeOf(prepared.chainId).toEqualTypeOf<number>()
   expectTypeOf(prepared.fromBlock).toEqualTypeOf<bigint>()
+  expectTypeOf(prepared.memo).toEqualTypeOf<Hex.Hex | undefined>()
   expectTypeOf(prepared.zoneId).toEqualTypeOf<number>()
   expectTypeOf(earnActions.privateDeposit.calls(prepared)).toEqualTypeOf<
     ReturnType<typeof zoneActions.requestWithdrawal.calls>
