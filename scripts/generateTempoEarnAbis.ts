@@ -5,12 +5,14 @@ import { AbiItem } from 'ox'
 
 const checkMode = process.argv.includes('--check')
 const repoRoot = Path.resolve(import.meta.dirname, '..')
-const checkout = process.env.EARN_CONTRACTS_PATH
-
-if (!checkout)
-  throw new Error(
-    '`EARN_CONTRACTS_PATH` must point to a local tempoxyz/earn checkout.',
-  )
+const checkout = (() => {
+  const path = process.env.EARN_CONTRACTS_PATH
+  if (!path)
+    throw new Error(
+      '`EARN_CONTRACTS_PATH` must point to a local tempoxyz/earn checkout.',
+    )
+  return path
+})()
 
 const abisOut = Path.resolve(repoRoot, 'src/tempo/Abis.ts')
 const contractsOut = Path.resolve(repoRoot, 'test/src/tempo/earnContracts.ts')

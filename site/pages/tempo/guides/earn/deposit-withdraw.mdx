@@ -54,7 +54,7 @@ tolerance. The action derives a minimum share output, then approves and deposits
 import { client } from './viem.config'
 
 const result = await client.earn.depositSync({
-  assetAmount: { formatted: '100' }, // [!code focus]
+  assetAmount: 100_000_000n, // [!code focus]
   shareAmount: 99_900_000n, // [!code focus]
   slippageBps: 50, // [!code focus]
   vault: '0x0000000000000000000000000000000000000001',
@@ -164,7 +164,7 @@ report `capabilities.exactWithdraw: true`.
 import { client } from './viem.config'
 
 const result = await client.earn.withdrawExactSync({
-  assetAmount: { formatted: '40' }, // [!code focus]
+  assetAmount: 40_000_000n, // [!code focus]
   slippageBps: 50, // [!code focus]
   vault: '0x0000000000000000000000000000000000000001',
 })

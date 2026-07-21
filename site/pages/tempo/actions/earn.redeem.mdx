@@ -12,7 +12,7 @@ Redeems an exact number of vault shares for assets sent to a recipient.
 import { client } from './viem.config'
 
 const result = await client.earn.redeemSync({
-  shareAmount: { formatted: '100' },
+  shareAmount: 100_000_000n,
   slippageBps: 50,
   vault: '0x0000000000000000000000000000000000000001',
 })

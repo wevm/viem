@@ -221,19 +221,20 @@ jobs:
       - name: Build contracts
         run: pnpm contracts:build
 
-      - name: Run tests
+      - name: Run Zone tests
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: pnpm test --run --bail=1 --project tempo src/tempo/actions/zone.test.ts
+          command: >-
+            pnpm test --run --bail=1 --project tempo
+            src/tempo/actions/zone.test.ts
         env:
           CI: true
           VITE_TEMPO_ENV: localnet
-          # TODO: Restore latest tags once Tempo includes the ZoneFactory contract.
-          VITE_TEMPO_TAG: sha-e828ab7
+          VITE_TEMPO_TAG: sha256:8e518fe933a0f11adf789720a5f445e4389274d8b55c04e27ab99f9f76b6776b
           VITE_TEMPO_ZONES: 'true'
-          VITE_TEMPO_ZONE_TAG: sha-aae82c4
+          VITE_TEMPO_ZONE_TAG: sha256:af49983ce651ff93f01a676ddbe3a838e07b7d6809fafded92dc73536b71be10
 
   test-envs:
     name: Test Environments

@@ -4,9 +4,11 @@ import * as Secp256k1 from 'ox/Secp256k1'
 import {
   type Address,
   createClient,
+  decodeAbiParameters,
   decodeFunctionData,
   encodeFunctionData,
   type Hash,
+  isAddressEqual,
   parseEventLogs,
   zeroHash,
 } from 'viem'
@@ -18,11 +20,13 @@ import {
   writeContract,
 } from 'viem/actions'
 import { tempoModerato } from 'viem/chains'
+import { Abis, Actions } from 'viem/tempo'
 import { parseUnits } from 'viem/utils'
 import { describe, expect, test } from 'vitest'
 import { accounts } from '~test/constants.js'
-import { chain, http, nodeEnv } from '~test/tempo/config.js'
-import { defineZone } from '~test/tempo/prool.js'
+import { addresses, chain, http, nodeEnv } from '~test/tempo/config.js'
+import { deployEarnGateway, deployEarnStack } from '~test/tempo/earn.js'
+import { defineZone, zoneAdminKey } from '~test/tempo/prool.js'
 import {
   factoryAddress,
   getClient as getZoneClient,
@@ -38,8 +42,16 @@ import * as tokenActions from './token.js'
 import * as zoneActions from './zone.js'
 
 const account = privateKeyToAccount(accounts[0].privateKey)
+const portalAdmin = privateKeyToAccount(zoneAdminKey)
+const recoveryRecipient = accounts[2].address
 const mainnetClient = createClient({
   account,
+  chain,
+  pollingInterval: 100,
+  transport: http(),
+})
+const portalAdminClient = createClient({
+  account: portalAdmin,
   chain,
   pollingInterval: 100,
   transport: http(),
@@ -805,7 +817,7 @@ describe('requestWithdrawal', () => {
     })
     expect(prepared.request.calls).toHaveLength(2)
     expect(prepared.request.type).toBe('tempo')
-    expect(prepared.request.gas).toBeGreaterThan(0n)
+    expect(prepared.request.gas).toBe(10_000_000n)
     const denominator = 1_000_000_000_000n
     expect(prepared.maxFee).toBe(
       (prepared.request.gas * prepared.request.maxFeePerGas +
@@ -1013,4 +1025,252 @@ describe('requestVerifiableWithdrawal', () => {
       zoneActions.requestVerifiableWithdrawalSync(zoneClient, parameters),
     ).rejects.toThrow('`to` is required.')
   })
+})
+
+describe('earn', () => {
+  test.runIf(nodeEnv === 'localnet')(
+    'behavior: deposits and redeems through a Zone gateway',
+    async () => {
+      await Actions.zone.signAuthorizationToken(zoneClient, { zoneId })
+
+      const stack = await deployEarnStack(mainnetClient, {
+        asset: parentToken,
+      })
+      await Actions.token.transferSync(mainnetClient, {
+        amount: parseUnits('100', 6),
+        to: portalAdmin.address,
+        token: parentToken,
+      })
+      const { gateway } = await deployEarnGateway(mainnetClient, {
+        adapter: stack.adapter,
+        defaultSwapper: account.address,
+        owner: account.address,
+        portalClient: portalAdminClient,
+        zonePortal: portalAddress,
+      })
+
+      const callbackGas = 10_000_000n
+      const withdrawalFee = await Actions.zone.getWithdrawalFee(zoneClient, {
+        callbackGas,
+      })
+      const assetAmount = parseUnits('10', 6)
+      const assetDepositAmount =
+        assetAmount + withdrawalFee * 2n + parseUnits('10', 6)
+      const assetDeposit = await Actions.zone.depositSync(mainnetClient, {
+        amount: assetDepositAmount,
+        portalAddress,
+        token: stack.asset,
+        zoneId,
+      })
+      await Actions.zone.waitForDepositStatus(zoneClient, {
+        pollingInterval: 100,
+        tempoBlockNumber: assetDeposit.receipt.blockNumber,
+      })
+
+      const swappedDeposit = await Actions.earn.privateDeposit.prepare(
+        mainnetClient,
+        {
+          assetAmount: 1n,
+          assetToken: addresses.alphaUsd,
+          gateway,
+          recipient: account.address,
+          recoveryRecipient,
+          shareAmountMin: 2n,
+        },
+      )
+      const [swappedDepositCallback] = decodeAbiParameters(
+        Abis.zoneGatewayCallbackData,
+        swappedDeposit.data,
+      )
+      expect(swappedDepositCallback).toMatchObject({
+        flow: 0,
+        minOutputAmount: 0n,
+        minVaultAssets: 0n,
+        minVaultShares: 2n,
+      })
+      expect(
+        isAddressEqual(swappedDepositCallback.outputToken, stack.shareToken),
+      ).toBe(true)
+
+      const preparedDeposit = await Actions.earn.privateDeposit.prepare(
+        mainnetClient,
+        {
+          assetAmount,
+          gateway,
+          recipient: account.address,
+          recoveryRecipient,
+          shareAmountMin: 1n,
+        },
+      )
+      expect(preparedDeposit).toMatchObject({
+        callbackGas,
+        chainId: chain.id,
+        fallbackRecipient: recoveryRecipient,
+        zoneId,
+      })
+      const [depositCallback] = decodeAbiParameters(
+        Abis.zoneGatewayCallbackData,
+        preparedDeposit.data,
+      )
+      expect(depositCallback).toMatchObject({
+        flow: 0,
+        minOutputAmount: 0n,
+        minVaultAssets: assetAmount,
+        minVaultShares: 1n,
+      })
+      expect(
+        isAddressEqual(depositCallback.outputToken, stack.shareToken),
+      ).toBe(true)
+      expect(
+        isAddressEqual(depositCallback.refundRecipient, recoveryRecipient),
+      ).toBe(true)
+      await expect(
+        Actions.earn.privateDeposit(zoneClient, {
+          ...preparedDeposit,
+          zoneId: preparedDeposit.zoneId + 1,
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[Error: Prepared Zone request Zone ID does not match client chain.]`,
+      )
+      const acceptedDeposit = await Actions.earn.privateDepositSync(
+        zoneClient,
+        preparedDeposit,
+      )
+      expect(acceptedDeposit.receipt.status).toBe('success')
+
+      const deposit = await Actions.earn.waitForPrivateDeposit(mainnetClient, {
+        actionId: preparedDeposit.actionId,
+        fromBlock: preparedDeposit.fromBlock,
+        gateway,
+        pollingInterval: 100,
+      })
+      expect(deposit.actionId).toBe(preparedDeposit.actionId)
+      expect(deposit.inputAmount).toBe(assetAmount)
+      expect(isAddressEqual(deposit.inputToken, stack.asset)).toBe(true)
+      expect(deposit.shares).toBe(assetAmount)
+      expect(deposit.vaultAssets).toBe(assetAmount)
+
+      const shareStatus = await Actions.zone.waitForDepositStatus(zoneClient, {
+        pollingInterval: 100,
+        tempoBlockNumber: deposit.tempoBlockNumber,
+      })
+      const returnedShare = shareStatus.deposits.find(
+        ({ depositHash }) => depositHash === deposit.zoneDepositHash,
+      )
+      if (!returnedShare) throw new Error('Share deposit not found.')
+      expect(returnedShare).toMatchObject({
+        amount: deposit.shares,
+        kind: 'encrypted',
+        status: 'processed',
+      })
+      expect(isAddressEqual(returnedShare.token, stack.shareToken)).toBe(true)
+      const shareBalance = await Actions.token.getBalance(zoneClient, {
+        account: account.address,
+        token: stack.shareToken,
+      })
+      expect(shareBalance.amount).toBe(deposit.shares)
+
+      const swappedRedeem = await Actions.earn.privateRedeem.prepare(
+        mainnetClient,
+        {
+          assetAmountMin: 2n,
+          assetToken: addresses.alphaUsd,
+          gateway,
+          recipient: account.address,
+          recoveryRecipient,
+          shareAmount: 1n,
+        },
+      )
+      const [swappedRedeemCallback] = decodeAbiParameters(
+        Abis.zoneGatewayCallbackData,
+        swappedRedeem.data,
+      )
+      expect(swappedRedeemCallback).toMatchObject({
+        flow: 1,
+        minOutputAmount: 2n,
+        minVaultAssets: 1n,
+        minVaultShares: 0n,
+      })
+      expect(
+        isAddressEqual(swappedRedeemCallback.outputToken, addresses.alphaUsd),
+      ).toBe(true)
+
+      const preparedRedeem = await Actions.earn.privateRedeem.prepare(
+        mainnetClient,
+        {
+          gateway,
+          recipient: account.address,
+          recoveryRecipient,
+          shareAmount: shareBalance.amount,
+          slippageBps: 0,
+        },
+      )
+      expect(preparedRedeem).toMatchObject({
+        callbackGas,
+        chainId: chain.id,
+        fallbackRecipient: recoveryRecipient,
+        zoneId,
+      })
+      const [redeemCallback] = decodeAbiParameters(
+        Abis.zoneGatewayCallbackData,
+        preparedRedeem.data,
+      )
+      expect(redeemCallback).toMatchObject({
+        flow: 1,
+        minOutputAmount: 0n,
+        minVaultAssets: assetAmount,
+        minVaultShares: 0n,
+      })
+      expect(isAddressEqual(redeemCallback.outputToken, stack.asset)).toBe(true)
+      expect(
+        isAddressEqual(redeemCallback.refundRecipient, recoveryRecipient),
+      ).toBe(true)
+      const acceptedRedeem = await Actions.earn.privateRedeemSync(
+        zoneClient,
+        preparedRedeem,
+      )
+      expect(acceptedRedeem.receipt.status).toBe('success')
+
+      const redeem = await Actions.earn.waitForPrivateRedeem(mainnetClient, {
+        actionId: preparedRedeem.actionId,
+        fromBlock: preparedRedeem.fromBlock,
+        gateway,
+        pollingInterval: 100,
+      })
+      expect(redeem.actionId).toBe(preparedRedeem.actionId)
+      expect(isAddressEqual(redeem.outputToken, stack.asset)).toBe(true)
+      expect(redeem.outputAmount).toBe(assetAmount)
+      expect(redeem.shares).toBe(deposit.shares)
+      expect(redeem.vaultAssets).toBe(assetAmount)
+
+      const assetStatus = await Actions.zone.waitForDepositStatus(zoneClient, {
+        pollingInterval: 100,
+        tempoBlockNumber: redeem.tempoBlockNumber,
+      })
+      const returnedAsset = assetStatus.deposits.find(
+        ({ depositHash }) => depositHash === redeem.zoneDepositHash,
+      )
+      if (!returnedAsset) throw new Error('Asset deposit not found.')
+      expect(returnedAsset).toMatchObject({
+        amount: redeem.outputAmount,
+        kind: 'encrypted',
+        status: 'processed',
+      })
+      expect(isAddressEqual(returnedAsset.token, stack.asset)).toBe(true)
+
+      const [assetBalance, finalShareBalance] = await Promise.all([
+        Actions.token.getBalance(zoneClient, {
+          account: account.address,
+          token: stack.asset,
+        }),
+        Actions.token.getBalance(zoneClient, {
+          account: account.address,
+          token: stack.shareToken,
+        }),
+      ])
+      expect(assetBalance.amount).toBeGreaterThanOrEqual(assetAmount)
+      expect(finalShareBalance.amount).toBe(0n)
+    },
+    480_000,
+  )
 })

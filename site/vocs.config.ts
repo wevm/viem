@@ -2343,6 +2343,10 @@ export default defineConfig({
                   text: 'Deposit & Withdraw',
                   link: '/tempo/guides/earn/deposit-withdraw',
                 },
+                {
+                  text: 'Earn with Zones',
+                  link: '/tempo/guides/earn/zones',
+                },
               ],
             },
             {
@@ -2635,8 +2639,24 @@ export default defineConfig({
                   link: '/tempo/actions/earn.getWithdrawQuote',
                 },
                 {
+                  text: 'privateDeposit',
+                  link: '/tempo/actions/earn.privateDeposit',
+                },
+                {
+                  text: 'privateRedeem',
+                  link: '/tempo/actions/earn.privateRedeem',
+                },
+                {
                   text: 'redeem',
                   link: '/tempo/actions/earn.redeem',
+                },
+                {
+                  text: 'waitForPrivateDeposit',
+                  link: '/tempo/actions/earn.waitForPrivateDeposit',
+                },
+                {
+                  text: 'waitForPrivateRedeem',
+                  link: '/tempo/actions/earn.waitForPrivateRedeem',
                 },
                 {
                   text: 'withdrawExact',

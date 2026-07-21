@@ -1318,6 +1318,7 @@ export async function requestWithdrawal<
   return sendTransaction(client, {
     ...pickWriteParameters(parameters as never),
     calls: requestWithdrawal.calls(args),
+    gas: parameters.gas ?? requestWithdrawalGas,
   } as never) as never
 }
 
@@ -1469,6 +1470,7 @@ export namespace requestWithdrawal {
         to,
         token,
       }),
+      gas: transactionRequest.gas ?? requestWithdrawalGas,
     } as never)
     const feePerGas = request.maxFeePerGas ?? request.gasPrice
     if (typeof request.gas !== 'bigint' || typeof feePerGas !== 'bigint')
@@ -1600,6 +1602,7 @@ export async function requestWithdrawalSync<
     ...pickWriteParameters(parameters as never),
     ...pickWriteSyncParameters(parameters as never),
     calls: requestWithdrawal.calls(args),
+    gas: parameters.gas ?? requestWithdrawalGas,
     throwOnReceiptRevert,
   } as never)
   return { receipt }
@@ -1673,6 +1676,7 @@ export async function requestVerifiableWithdrawal<
   return sendTransaction(client, {
     ...pickWriteParameters(parameters as never),
     calls: requestVerifiableWithdrawal.calls(args),
+    gas: parameters.gas ?? requestWithdrawalGas,
   } as never) as never
 }
 
@@ -1787,6 +1791,7 @@ export async function requestVerifiableWithdrawalSync<
     ...pickWriteParameters(parameters as never),
     ...pickWriteSyncParameters(parameters as never),
     calls: requestVerifiableWithdrawal.calls(args),
+    gas: parameters.gas ?? requestWithdrawalGas,
     throwOnReceiptRevert,
   } as never)
   return { receipt }
@@ -2010,3 +2015,5 @@ function buildDepositHkdfInfo(
 function ceilDiv(numerator: bigint, denominator: bigint) {
   return (numerator + denominator - 1n) / denominator
 }
+
+const requestWithdrawalGas = 10_000_000n

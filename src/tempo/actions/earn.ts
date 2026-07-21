@@ -1,8 +1,11 @@
 import type { Address } from 'abitype'
+import { Hex } from 'ox'
 import { EarnShares, TokenId } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import { estimateContractGas } from '../../actions/public/estimateContractGas.js'
+import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
+import { type GetLogsErrorType, getLogs } from '../../actions/public/getLogs.js'
 import { multicall } from '../../actions/public/multicall.js'
 import {
   type ReadContractReturnType,
@@ -25,12 +28,22 @@ import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { Log } from '../../types/log.js'
 import type { Compute, OneOf } from '../../types/utils.js'
+import { encodeAbiParameters } from '../../utils/abi/encodeAbiParameters.js'
+import { getAbiItem } from '../../utils/abi/getAbiItem.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
+import { type ObserveErrorType, observe } from '../../utils/observe.js'
+import { type PollErrorType, poll } from '../../utils/poll.js'
+import { withResolvers } from '../../utils/promise/withResolvers.js'
+import { stringify } from '../../utils/stringify.js'
 import * as Abis from '../Abis.js'
 import {
   GetVaultEngineChangedError,
   type GetVaultEngineChangedErrorType,
+  WaitForPrivateDepositTimeoutError,
+  type WaitForPrivateDepositTimeoutErrorType,
+  WaitForPrivateRedeemTimeoutError,
+  type WaitForPrivateRedeemTimeoutErrorType,
 } from '../errors.js'
 import type {
   GetAccountParameter,
@@ -46,6 +59,7 @@ import {
   resolveTokenWithDecimals,
 } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
+import * as zoneActions from './zone.js'
 
 /**
  * Deposits assets into a vault and mints vault shares to `recipient`. The
@@ -656,6 +670,304 @@ export namespace depositSharesSync {
   }>
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
+}
+
+/**
+ * Withdraws assets from a Zone and deposits them into a vault on the parent
+ * chain. Use {@link privateDeposit.prepare} to build the encrypted callback.
+ *
+ * @example
+ * ```ts
+ * const prepared = await Actions.earn.privateDeposit.prepare(parentClient, {
+ *   assetAmount: 100_000_000n,
+ *   gateway: '0x...',
+ *   recipient: '0x...',
+ *   recoveryRecipient: '0x...',
+ *   shareAmountMin: 99_500_000n,
+ * })
+ * const hash = await Actions.earn.privateDeposit(zoneClient, prepared)
+ * ```
+ *
+ * @param client - Zone client.
+ * @param parameters - Prepared deposit and transaction parameters.
+ * @returns The transaction hash.
+ */
+export async function privateDeposit<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: privateDeposit.Parameters<chain, account>,
+): Promise<privateDeposit.ReturnValue> {
+  await assertPreparedZoneRequestChain(client, parameters)
+  return zoneActions.requestWithdrawal(client, parameters)
+}
+
+export namespace privateDeposit {
+  export type Args = prepare.ReturnValue
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+  export type ReturnValue = SendTransactionReturnType
+  export type ErrorType = zoneActions.requestWithdrawal.ErrorType
+
+  /**
+   * Builds an encrypted Zone withdrawal that deposits into the gateway's
+   * vault and returns the resulting shares to the Zone.
+   *
+   * @param client - Parent-chain client.
+   * @param parameters - Deposit intent and recovery parameters.
+   * @returns The prepared withdrawal and correlation data.
+   */
+  export async function prepare<chain extends Chain | undefined>(
+    client: Client<Transport, chain>,
+    parameters: prepare.Parameters,
+  ): Promise<prepare.ReturnValue> {
+    const chainId = client.chain?.id
+    if (!chainId) throw new Error('`chain` is required.')
+    const { assetAmount, gateway, recipient, recoveryRecipient } = parameters
+    const readParameters = pickReadParameters(parameters)
+    const [fromBlock, config] = await Promise.all([
+      getBlockNumber(client, { cacheTime: 0 }),
+      getZoneGatewayConfig(client, { ...readParameters, gateway }),
+    ])
+    const assetToken = parameters.assetToken ?? config.vaultAsset
+    const { encrypted, keyIndex } =
+      await zoneActions.encryptedDeposit.prepareRecipient(client, {
+        ...readParameters,
+        portalAddress: config.zonePortal,
+        recipient,
+        zoneId: config.zoneId,
+      })
+    const actionId = Hex.random(32)
+    const shareAmountMin = resolveMinimumShareAmount(parameters)
+    const data = encodeAbiParameters(Abis.zoneGatewayCallbackData, [
+      {
+        flow: 0,
+        outputToken: config.shareToken,
+        keyIndex,
+        encrypted,
+        minVaultAssets: isAddressEqual(assetToken, config.vaultAsset)
+          ? assetAmount
+          : 0n,
+        minVaultShares: shareAmountMin,
+        minOutputAmount: 0n,
+        actionId,
+        refundRecipient: recoveryRecipient,
+      },
+    ])
+    return {
+      actionId,
+      amount: assetAmount,
+      callbackGas: zoneGatewayCallbackGas,
+      chainId,
+      data,
+      fallbackRecipient: recoveryRecipient,
+      fromBlock,
+      to: gateway,
+      token: assetToken,
+      zoneId: config.zoneId,
+    }
+  }
+
+  export namespace prepare {
+    export type Parameters = Omit<ReadParameters, 'account'> & Args
+    export type Args = {
+      /** Assets withdrawn from the Zone, base units. */
+      assetAmount: bigint
+      /** Asset token withdrawn from the Zone. @default gateway vault asset */
+      assetToken?: Address | undefined
+      /** Gateway identifying the vault and Zone configuration. */
+      gateway: Address
+      /** Encrypted recipient for the returned vault shares. */
+      recipient: Address
+      /** Public recipient if either cross-chain leg fails. */
+      recoveryRecipient: Address
+    } & MinimumShareAmountParameters
+    export type ReturnValue = PreparedZoneRequest
+    export type ErrorType = BaseErrorType
+  }
+
+  /**
+   * Defines the approval and Zone withdrawal calls for a prepared deposit.
+   *
+   * @param args - Prepared deposit arguments.
+   * @returns The Zone withdrawal calls.
+   */
+  export function calls(args: Args) {
+    return zoneActions.requestWithdrawal.calls(args)
+  }
+}
+
+/**
+ * Requests a private Zone deposit and waits for the Zone transaction receipt.
+ * The receipt confirms withdrawal acceptance, not the parent-chain deposit.
+ *
+ * @param client - Zone client.
+ * @param parameters - Prepared deposit and transaction parameters.
+ * @returns The Zone transaction receipt.
+ */
+export async function privateDepositSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: privateDepositSync.Parameters<chain, account>,
+): Promise<privateDepositSync.ReturnValue> {
+  await assertPreparedZoneRequestChain(client, parameters)
+  return zoneActions.requestWithdrawalSync(client, parameters)
+}
+
+export namespace privateDepositSync {
+  export type Args = privateDeposit.Args
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = privateDeposit.Parameters<chain, account> &
+    WriteSyncParameters<chain, account>
+  export type ReturnValue = zoneActions.requestWithdrawalSync.ReturnValue
+  export type ErrorType = zoneActions.requestWithdrawalSync.ErrorType
+}
+
+/**
+ * Waits for a Zone gateway deposit to complete on the parent chain.
+ *
+ * @example
+ * ```ts
+ * const result = await Actions.earn.waitForPrivateDeposit(parentClient, {
+ *   actionId: prepared.actionId,
+ *   fromBlock: prepared.fromBlock,
+ *   gateway: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Parent-chain client.
+ * @param parameters - Prepared action correlation and polling parameters.
+ * @returns The completed gateway deposit.
+ */
+export async function waitForPrivateDeposit<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: waitForPrivateDeposit.Parameters,
+): Promise<waitForPrivateDeposit.ReturnType> {
+  const {
+    actionId,
+    fromBlock,
+    gateway,
+    pollingInterval = client.pollingInterval,
+    timeout = 60_000,
+  } = parameters
+  const event = getAbiItem({
+    abi: Abis.zoneGateway,
+    name: 'EarnDeposit',
+  })
+  const observerId = stringify([
+    'waitForPrivateDeposit',
+    client.uid,
+    gateway,
+    actionId,
+    fromBlock,
+  ])
+  const { promise, reject, resolve } =
+    withResolvers<waitForPrivateDeposit.ReturnType>()
+
+  let timer: ReturnType<typeof setTimeout> | undefined
+  let unobserve: () => void
+  const cleanup = () => {
+    clearTimeout(timer)
+    unobserve()
+  }
+  const resolve_ = (result: waitForPrivateDeposit.ReturnType) => {
+    cleanup()
+    resolve(result)
+  }
+  const reject_ = (error: unknown) => {
+    cleanup()
+    reject(error)
+  }
+
+  unobserve = observe(
+    observerId,
+    { reject: reject_, resolve: resolve_ },
+    (emit) => {
+      const unpoll = poll(
+        async () => {
+          try {
+            const [log] = await getLogs(client, {
+              address: gateway,
+              args: { actionId },
+              event,
+              fromBlock,
+              strict: true,
+              toBlock: 'latest',
+            })
+            if (!log) return
+            unpoll()
+            emit.resolve({
+              actionId: log.args.actionId,
+              inputAmount: log.args.inputAmount,
+              inputToken: log.args.inputToken,
+              shares: log.args.shares,
+              tempoBlockNumber: log.blockNumber,
+              vaultAssets: log.args.vaultAssets,
+              zoneDepositHash: log.args.zoneDepositHash,
+            })
+          } catch (error) {
+            unpoll()
+            emit.reject(error)
+          }
+        },
+        { emitOnBegin: true, interval: pollingInterval },
+      )
+
+      return unpoll
+    },
+  )
+
+  timer = timeout
+    ? setTimeout(() => {
+        reject_(new WaitForPrivateDepositTimeoutError({ actionId, gateway }))
+      }, timeout)
+    : undefined
+
+  return await promise
+}
+
+export namespace waitForPrivateDeposit {
+  export type Parameters = {
+    /** Correlation id from {@link privateDeposit.prepare}. */
+    actionId: Hex.Hex
+    /** Lower bound for the parent-chain log scan. */
+    fromBlock: bigint
+    /** Zone gateway address. */
+    gateway: Address
+    /** Polling frequency in milliseconds. @default `client.pollingInterval` */
+    pollingInterval?: number | undefined
+    /** Timeout in milliseconds; `0` disables it. @default `60_000` */
+    timeout?: number | undefined
+  }
+  export type ReturnType = {
+    /** Correlation id for the completed deposit. */
+    actionId: Hex.Hex
+    /** Tokens delivered to the gateway, base units. */
+    inputAmount: bigint
+    /** Token delivered to the gateway. */
+    inputToken: Address
+    /** Vault shares returned to the Zone. */
+    shares: bigint
+    /** Parent-chain block containing the gateway event. */
+    tempoBlockNumber: bigint
+    /** Vault assets deposited after any swap. */
+    vaultAssets: bigint
+    /** Encrypted return deposit hash. */
+    zoneDepositHash: Hex.Hex
+  }
+  export type ErrorType =
+    | GetLogsErrorType
+    | ObserveErrorType
+    | PollErrorType
+    | WaitForPrivateDepositTimeoutErrorType
+    | BaseErrorType
 }
 
 /**
@@ -1641,6 +1953,345 @@ export namespace redeemSync {
 }
 
 /**
+ * Withdraws vault shares from a Zone and redeems them on the parent chain. Use
+ * {@link privateRedeem.prepare} to build the encrypted callback.
+ *
+ * @example
+ * ```ts
+ * const prepared = await Actions.earn.privateRedeem.prepare(parentClient, {
+ *   gateway: '0x...',
+ *   recipient: '0x...',
+ *   recoveryRecipient: '0x...',
+ *   shareAmount: 100_000_000n,
+ *   slippageBps: 50,
+ * })
+ * const hash = await Actions.earn.privateRedeem(zoneClient, prepared)
+ * ```
+ *
+ * @param client - Zone client.
+ * @param parameters - Prepared redemption and transaction parameters.
+ * @returns The transaction hash.
+ */
+export async function privateRedeem<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: privateRedeem.Parameters<chain, account>,
+): Promise<privateRedeem.ReturnValue> {
+  await assertPreparedZoneRequestChain(client, parameters)
+  return zoneActions.requestWithdrawal(client, parameters)
+}
+
+export namespace privateRedeem {
+  export type Args = prepare.ReturnValue
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+  export type ReturnValue = SendTransactionReturnType
+  export type ErrorType = zoneActions.requestWithdrawal.ErrorType
+
+  /**
+   * Builds an encrypted Zone withdrawal that redeems vault shares and returns
+   * the resulting assets to the Zone.
+   *
+   * @param client - Parent-chain client.
+   * @param parameters - Redemption intent and recovery parameters.
+   * @returns The prepared withdrawal and correlation data.
+   */
+  export async function prepare<chain extends Chain | undefined>(
+    client: Client<Transport, chain>,
+    parameters: prepare.Parameters,
+  ): Promise<prepare.ReturnValue> {
+    const chainId = client.chain?.id
+    if (!chainId) throw new Error('`chain` is required.')
+    const { gateway, recipient, recoveryRecipient, shareAmount } = parameters
+    const readParameters = pickReadParameters(parameters)
+    const [fromBlock, config] = await Promise.all([
+      getBlockNumber(client, { cacheTime: 0 }),
+      getZoneGatewayConfig(client, { ...readParameters, gateway }),
+    ])
+    const assetToken = parameters.assetToken ?? config.vaultAsset
+    if (isAddressEqual(assetToken, config.shareToken))
+      throw new Error('`assetToken` cannot be the gateway vault share token.')
+
+    const [{ encrypted, keyIndex }, assetAmountMin] = await Promise.all([
+      zoneActions.encryptedDeposit.prepareRecipient(client, {
+        ...readParameters,
+        portalAddress: config.zonePortal,
+        recipient,
+        zoneId: config.zoneId,
+      }),
+      (async () => {
+        if (parameters.assetAmountMin !== undefined)
+          return EarnShares.minimumOutput(parameters.assetAmountMin, 0n)
+        if (parameters.assetAmount !== undefined)
+          return EarnShares.minimumOutput(
+            parameters.assetAmount,
+            BigInt(parameters.slippageBps),
+          )
+        const assetAmount = await getRedeemQuote(client, {
+          ...readParameters,
+          shareAmount,
+          vault: config.vaultAdapter,
+        })
+        return EarnShares.minimumOutput(
+          assetAmount,
+          BigInt(parameters.slippageBps),
+        )
+      })(),
+    ])
+    const actionId = Hex.random(32)
+    const direct = isAddressEqual(assetToken, config.vaultAsset)
+    const data = encodeAbiParameters(Abis.zoneGatewayCallbackData, [
+      {
+        flow: 1,
+        outputToken: assetToken,
+        keyIndex,
+        encrypted,
+        minVaultAssets: direct ? assetAmountMin : 1n,
+        minVaultShares: 0n,
+        minOutputAmount: direct ? 0n : assetAmountMin,
+        actionId,
+        refundRecipient: recoveryRecipient,
+      },
+    ])
+    return {
+      actionId,
+      amount: shareAmount,
+      callbackGas: zoneGatewayCallbackGas,
+      chainId,
+      data,
+      fallbackRecipient: recoveryRecipient,
+      fromBlock,
+      to: gateway,
+      token: config.shareToken,
+      zoneId: config.zoneId,
+    }
+  }
+
+  export namespace prepare {
+    export type Parameters = Omit<ReadParameters, 'account'> & {
+      /** Vault shares withdrawn from the Zone, base units. */
+      shareAmount: bigint
+      /** Gateway identifying the vault and Zone configuration. */
+      gateway: Address
+      /** Encrypted recipient for the returned assets. */
+      recipient: Address
+      /** Public recipient if either cross-chain leg fails. */
+      recoveryRecipient: Address
+    } & (
+        | ({
+            /** Asset token returned to the Zone. @default gateway vault asset */
+            assetToken?: undefined
+          } & OneOf<
+            | {
+                /** Minimum assets returned to the Zone. */
+                assetAmountMin: bigint
+              }
+            | {
+                /** Quoted assets returned to the Zone. */
+                assetAmount: bigint
+                /** Slippage tolerance under `assetAmount` (50 = 0.5%). */
+                slippageBps: number
+              }
+            | {
+                /** Slippage tolerance under a live vault quote (50 = 0.5%). */
+                slippageBps: number
+              }
+          >)
+        | ({
+            /** Asset token returned to the Zone after a swap. */
+            assetToken: Address
+          } & MinimumAssetAmountParameters)
+      )
+    export type ReturnValue = PreparedZoneRequest
+    export type ErrorType = BaseErrorType
+  }
+
+  /**
+   * Defines the approval and Zone withdrawal calls for a prepared redemption.
+   *
+   * @param args - Prepared redemption arguments.
+   * @returns The Zone withdrawal calls.
+   */
+  export function calls(args: Args) {
+    return zoneActions.requestWithdrawal.calls(args)
+  }
+}
+
+/**
+ * Requests a private Zone redemption and waits for the Zone transaction
+ * receipt. The receipt confirms withdrawal acceptance, not redemption.
+ *
+ * @param client - Zone client.
+ * @param parameters - Prepared redemption and transaction parameters.
+ * @returns The Zone transaction receipt.
+ */
+export async function privateRedeemSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: privateRedeemSync.Parameters<chain, account>,
+): Promise<privateRedeemSync.ReturnValue> {
+  await assertPreparedZoneRequestChain(client, parameters)
+  return zoneActions.requestWithdrawalSync(client, parameters)
+}
+
+export namespace privateRedeemSync {
+  export type Args = privateRedeem.Args
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = privateRedeem.Parameters<chain, account> &
+    WriteSyncParameters<chain, account>
+  export type ReturnValue = zoneActions.requestWithdrawalSync.ReturnValue
+  export type ErrorType = zoneActions.requestWithdrawalSync.ErrorType
+}
+
+/**
+ * Waits for a Zone gateway redemption to complete on the parent chain.
+ *
+ * @example
+ * ```ts
+ * const result = await Actions.earn.waitForPrivateRedeem(parentClient, {
+ *   actionId: prepared.actionId,
+ *   fromBlock: prepared.fromBlock,
+ *   gateway: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Parent-chain client.
+ * @param parameters - Prepared action correlation and polling parameters.
+ * @returns The completed gateway redemption.
+ */
+export async function waitForPrivateRedeem<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: waitForPrivateRedeem.Parameters,
+): Promise<waitForPrivateRedeem.ReturnType> {
+  const {
+    actionId,
+    fromBlock,
+    gateway,
+    pollingInterval = client.pollingInterval,
+    timeout = 60_000,
+  } = parameters
+  const event = getAbiItem({
+    abi: Abis.zoneGateway,
+    name: 'EarnRedeem',
+  })
+  const observerId = stringify([
+    'waitForPrivateRedeem',
+    client.uid,
+    gateway,
+    actionId,
+    fromBlock,
+  ])
+  const { promise, reject, resolve } =
+    withResolvers<waitForPrivateRedeem.ReturnType>()
+
+  let timer: ReturnType<typeof setTimeout> | undefined
+  let unobserve: () => void
+  const cleanup = () => {
+    clearTimeout(timer)
+    unobserve()
+  }
+  const resolve_ = (result: waitForPrivateRedeem.ReturnType) => {
+    cleanup()
+    resolve(result)
+  }
+  const reject_ = (error: unknown) => {
+    cleanup()
+    reject(error)
+  }
+
+  unobserve = observe(
+    observerId,
+    { reject: reject_, resolve: resolve_ },
+    (emit) => {
+      const unpoll = poll(
+        async () => {
+          try {
+            const [log] = await getLogs(client, {
+              address: gateway,
+              args: { actionId },
+              event,
+              fromBlock,
+              strict: true,
+              toBlock: 'latest',
+            })
+            if (!log) return
+            unpoll()
+            emit.resolve({
+              actionId: log.args.actionId,
+              outputAmount: log.args.outputAmount,
+              outputToken: log.args.outputToken,
+              shares: log.args.shares,
+              tempoBlockNumber: log.blockNumber,
+              vaultAssets: log.args.vaultAssets,
+              zoneDepositHash: log.args.zoneDepositHash,
+            })
+          } catch (error) {
+            unpoll()
+            emit.reject(error)
+          }
+        },
+        { emitOnBegin: true, interval: pollingInterval },
+      )
+
+      return unpoll
+    },
+  )
+
+  timer = timeout
+    ? setTimeout(() => {
+        reject_(new WaitForPrivateRedeemTimeoutError({ actionId, gateway }))
+      }, timeout)
+    : undefined
+
+  return await promise
+}
+
+export namespace waitForPrivateRedeem {
+  export type Parameters = {
+    /** Correlation id from {@link privateRedeem.prepare}. */
+    actionId: Hex.Hex
+    /** Lower bound for the parent-chain log scan. */
+    fromBlock: bigint
+    /** Zone gateway address. */
+    gateway: Address
+    /** Polling frequency in milliseconds. @default `client.pollingInterval` */
+    pollingInterval?: number | undefined
+    /** Timeout in milliseconds; `0` disables it. @default `60_000` */
+    timeout?: number | undefined
+  }
+  export type ReturnType = {
+    /** Correlation id for the completed redemption. */
+    actionId: Hex.Hex
+    /** Tokens returned to the Zone, base units. */
+    outputAmount: bigint
+    /** Token returned to the Zone. */
+    outputToken: Address
+    /** Vault shares redeemed. */
+    shares: bigint
+    /** Parent-chain block containing the gateway event. */
+    tempoBlockNumber: bigint
+    /** Vault assets produced before any swap. */
+    vaultAssets: bigint
+    /** Encrypted return deposit hash. */
+    zoneDepositHash: Hex.Hex
+  }
+  export type ErrorType =
+    | GetLogsErrorType
+    | ObserveErrorType
+    | PollErrorType
+    | WaitForPrivateRedeemTimeoutErrorType
+    | BaseErrorType
+}
+
+/**
  * Withdraws an exact asset amount to `recipient`, up to the specified vault
  * share limit. The transaction includes the required vault share approval;
  * use {@link redeem} for a full exit.
@@ -1949,6 +2600,149 @@ export namespace withdrawExactSync {
   }>
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
+}
+
+type MinimumAssetAmountParameters = OneOf<
+  | {
+      /** Minimum assets returned to the Zone. */
+      assetAmountMin: bigint
+    }
+  | {
+      /** Quoted assets returned to the Zone. */
+      assetAmount: bigint
+      /** Slippage tolerance under `assetAmount` (50 = 0.5%). */
+      slippageBps: number
+    }
+>
+
+type MinimumShareAmountParameters = OneOf<
+  | {
+      /** Minimum vault shares returned to the Zone. */
+      shareAmountMin: bigint
+    }
+  | {
+      /** Quoted vault shares returned to the Zone. */
+      shareAmount: bigint
+      /** Slippage tolerance under `shareAmount` (50 = 0.5%). */
+      slippageBps: number
+    }
+>
+
+type PreparedZoneRequest = {
+  /** Correlation id for the matching wait action. */
+  actionId: Hex.Hex
+  /** Withdrawal amount, passed through to the Zone action. */
+  amount: bigint
+  /** Gas reserved for the parent-chain callback. */
+  callbackGas: bigint
+  /** Parent chain containing the gateway. */
+  chainId: number
+  /** Encoded gateway callback. */
+  data: Hex.Hex
+  /** Public recipient if the parent-chain callback fails. */
+  fallbackRecipient: Address
+  /** Parent-chain block before the withdrawal is submitted. */
+  fromBlock: bigint
+  /** Zone gateway receiving the withdrawal. */
+  to: Address
+  /** Token withdrawn from the Zone. */
+  token: Address
+  /** Zone containing the withdrawn tokens. */
+  zoneId: number
+}
+
+const zoneGatewayCallbackGas = 10_000_000n
+
+function resolveMinimumShareAmount(parameters: MinimumShareAmountParameters) {
+  if (parameters.shareAmountMin !== undefined)
+    return EarnShares.minimumOutput(parameters.shareAmountMin, 0n)
+  return EarnShares.minimumOutput(
+    parameters.shareAmount,
+    BigInt(parameters.slippageBps),
+  )
+}
+
+async function assertPreparedZoneRequestChain(
+  client: Client<Transport, Chain | undefined>,
+  parameters: PreparedZoneRequest,
+) {
+  const chain = client.chain
+  if (!chain) throw new Error('`chain` is required.')
+  if (chain.sourceId !== parameters.chainId)
+    throw new Error(
+      'Prepared Zone request parent chain ID does not match client chain.',
+    )
+  const { zoneId } = await zoneActions.getZoneInfo(client)
+  if (zoneId !== parameters.zoneId)
+    throw new Error(
+      'Prepared Zone request Zone ID does not match client chain.',
+    )
+}
+
+function pickReadParameters(parameters: Omit<ReadParameters, 'account'>) {
+  const { blockOverrides, stateOverride } = parameters
+  if (parameters.blockNumber !== undefined)
+    return {
+      blockNumber: parameters.blockNumber,
+      blockOverrides,
+      stateOverride,
+    }
+  return { blockOverrides, blockTag: parameters.blockTag, stateOverride }
+}
+
+async function getZoneGatewayConfig<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: Omit<ReadParameters, 'account'> & { gateway: Address },
+) {
+  const { gateway, ...rest } = parameters
+  const [
+    vaultAdapter,
+    vaultAsset,
+    shareToken,
+    zoneId,
+    zonePortal,
+    supportsAsyncFlow,
+  ] = await multicall(client, {
+    ...rest,
+    allowFailure: false,
+    contracts: [
+      {
+        abi: Abis.zoneGateway,
+        address: gateway,
+        functionName: 'vaultAdapter',
+      },
+      {
+        abi: Abis.zoneGateway,
+        address: gateway,
+        functionName: 'vaultAsset',
+      },
+      {
+        abi: Abis.zoneGateway,
+        address: gateway,
+        functionName: 'shareToken',
+      },
+      {
+        abi: Abis.zoneGateway,
+        address: gateway,
+        functionName: 'zoneId',
+      },
+      {
+        abi: Abis.zoneGateway,
+        address: gateway,
+        functionName: 'zonePortal',
+      },
+      {
+        abi: Abis.zoneGateway,
+        address: gateway,
+        args: [2],
+        functionName: 'supportsFlow',
+      },
+    ],
+    deployless: true,
+  })
+  if (supportsAsyncFlow)
+    throw new Error('Async Zone gateways are not supported.')
+  return { shareToken, vaultAdapter, vaultAsset, zoneId, zonePortal }
 }
 
 // ERC-165 ids of the optional engine capability interfaces (XOR of each

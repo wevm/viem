@@ -12,7 +12,7 @@ Withdraws an exact asset amount while limiting the vault shares burned.
 import { client } from './viem.config'
 
 const result = await client.earn.withdrawExactSync({
-  assetAmount: { formatted: '40' },
+  assetAmount: 40_000_000n,
   slippageBps: 50,
   vault: '0x0000000000000000000000000000000000000001',
 })

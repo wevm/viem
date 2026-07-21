@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import type { Hex } from 'ox'
 import { EarnShares } from 'ox/tempo'
 import { expectTypeOf, test } from 'vitest'
 import type * as internal_Token from '../../actions/token/internal.js'
@@ -7,7 +8,9 @@ import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { decorator } from '../Decorator.js'
 import type { TransactionReceipt } from '../Transaction.js'
+import { zoneModerato } from '../zones/zone.js'
 import * as earnActions from './earn.js'
+import type * as zoneActions from './zone.js'
 
 const address = '0x0000000000000000000000000000000000000001' as Address
 
@@ -26,6 +29,12 @@ const clientWithAccount = createClient({
   transport,
 })
 const decoratedClient = clientWithAccount.extend(decorator())
+const zoneClientWithAccount = createClient({
+  account: address,
+  chain: zoneModerato(7),
+  transport,
+})
+const decoratedZoneClient = zoneClientWithAccount.extend(decorator())
 
 test('getVault narrows union and nested fields', async () => {
   const vault = await earnActions.getVault(client, { vault: address })
@@ -564,4 +573,163 @@ test('decorated earn writes preserve shapes', async () => {
     vault: address,
   })
   decoratedClient.earn.deposit.extractEvent([], { vault: address })
+})
+
+test('zone deposit bounds and recipients are required', async () => {
+  await earnActions.privateDeposit.prepare(client, {
+    assetAmount: 1n,
+    gateway: address,
+    recipient: address,
+    recoveryRecipient: address,
+    shareAmountMin: 1n,
+  })
+  await earnActions.privateDeposit.prepare(client, {
+    assetAmount: 1n,
+    assetToken: address,
+    gateway: address,
+    recipient: address,
+    recoveryRecipient: address,
+    shareAmount: 1n,
+    slippageBps: 50,
+  })
+  // @ts-expect-error bare slippage cannot quote a Zone deposit
+  await earnActions.privateDeposit.prepare(client, {
+    assetAmount: 1n,
+    gateway: address,
+    recipient: address,
+    recoveryRecipient: address,
+    slippageBps: 50,
+  })
+  // @ts-expect-error `recipient` is required
+  await earnActions.privateDeposit.prepare(client, {
+    assetAmount: 1n,
+    gateway: address,
+    recoveryRecipient: address,
+    shareAmountMin: 1n,
+  })
+  // @ts-expect-error `recoveryRecipient` is required
+  await earnActions.privateDeposit.prepare(client, {
+    assetAmount: 1n,
+    gateway: address,
+    recipient: address,
+    shareAmountMin: 1n,
+  })
+})
+
+test('zone redeem supports live and explicit output bounds', async () => {
+  await earnActions.privateRedeem.prepare(client, {
+    assetAmountMin: 1n,
+    gateway: address,
+    recipient: address,
+    recoveryRecipient: address,
+    shareAmount: 1n,
+  })
+  await earnActions.privateRedeem.prepare(client, {
+    assetAmount: 1n,
+    gateway: address,
+    recipient: address,
+    recoveryRecipient: address,
+    shareAmount: 1n,
+    slippageBps: 50,
+  })
+  await earnActions.privateRedeem.prepare(client, {
+    gateway: address,
+    recipient: address,
+    recoveryRecipient: address,
+    shareAmount: 1n,
+    slippageBps: 50,
+  })
+  await earnActions.privateRedeem.prepare(client, {
+    assetAmountMin: 1n,
+    assetToken: address,
+    gateway: address,
+    recipient: address,
+    recoveryRecipient: address,
+    shareAmount: 1n,
+  })
+  await earnActions.privateRedeem.prepare(client, {
+    assetAmount: 1n,
+    assetToken: address,
+    gateway: address,
+    recipient: address,
+    recoveryRecipient: address,
+    shareAmount: 1n,
+    slippageBps: 50,
+  })
+  // @ts-expect-error explicit `assetToken` needs an explicit or quoted bound
+  await earnActions.privateRedeem.prepare(client, {
+    assetToken: address,
+    gateway: address,
+    recipient: address,
+    recoveryRecipient: address,
+    shareAmount: 1n,
+    slippageBps: 50,
+  })
+})
+
+test('prepared zone requests compose with Zone withdrawals', async () => {
+  expectTypeOf<earnActions.privateDeposit.prepare.ReturnValue>().toMatchTypeOf<zoneActions.requestWithdrawal.Args>()
+  expectTypeOf<earnActions.privateRedeem.prepare.ReturnValue>().toMatchTypeOf<zoneActions.requestWithdrawal.Args>()
+
+  const prepared = {} as earnActions.privateDeposit.prepare.ReturnValue
+  expectTypeOf(prepared.actionId).toEqualTypeOf<Hex.Hex>()
+  expectTypeOf(prepared.chainId).toEqualTypeOf<number>()
+  expectTypeOf(prepared.fromBlock).toEqualTypeOf<bigint>()
+  expectTypeOf(prepared.zoneId).toEqualTypeOf<number>()
+  expectTypeOf(earnActions.privateDeposit.calls(prepared)).toEqualTypeOf<
+    ReturnType<typeof zoneActions.requestWithdrawal.calls>
+  >()
+
+  const hash = await earnActions.privateDeposit(zoneClientWithAccount, prepared)
+  expectTypeOf(hash).toEqualTypeOf<earnActions.privateDeposit.ReturnValue>()
+  const sync = await earnActions.privateDepositSync(
+    zoneClientWithAccount,
+    prepared,
+  )
+  expectTypeOf(sync).toEqualTypeOf<earnActions.privateDepositSync.ReturnValue>()
+})
+
+test('decorated zone earn actions preserve helpers and results', async () => {
+  const prepared = await decoratedClient.earn.privateDeposit.prepare({
+    assetAmount: 1n,
+    gateway: address,
+    recipient: address,
+    recoveryRecipient: address,
+    shareAmountMin: 1n,
+  })
+  expectTypeOf(
+    prepared,
+  ).toEqualTypeOf<earnActions.privateDeposit.prepare.ReturnValue>()
+  decoratedZoneClient.earn.privateDeposit.calls(prepared)
+  expectTypeOf(
+    await decoratedZoneClient.earn.privateDeposit(prepared),
+  ).toEqualTypeOf<earnActions.privateDeposit.ReturnValue>()
+
+  const deposit = await decoratedClient.earn.waitForPrivateDeposit({
+    actionId: prepared.actionId,
+    fromBlock: prepared.fromBlock,
+    gateway: address,
+  })
+  expectTypeOf(
+    deposit,
+  ).toEqualTypeOf<earnActions.waitForPrivateDeposit.ReturnType>()
+
+  const redeem = await decoratedClient.earn.privateRedeem.prepare({
+    gateway: address,
+    recipient: address,
+    recoveryRecipient: address,
+    shareAmount: 1n,
+    slippageBps: 50,
+  })
+  decoratedZoneClient.earn.privateRedeem.calls(redeem)
+  expectTypeOf(
+    await decoratedZoneClient.earn.privateRedeem(redeem),
+  ).toEqualTypeOf<earnActions.privateRedeem.ReturnValue>()
+  expectTypeOf(
+    await decoratedClient.earn.waitForPrivateRedeem({
+      actionId: redeem.actionId,
+      fromBlock: redeem.fromBlock,
+      gateway: address,
+    }),
+  ).toEqualTypeOf<earnActions.waitForPrivateRedeem.ReturnType>()
 })

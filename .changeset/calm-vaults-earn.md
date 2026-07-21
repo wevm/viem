@@ -2,4 +2,4 @@
 'viem': minor
 ---
 
-Added Tempo Earn actions with asset, vault-share, and venue-share amount and token parameters.
+Added Tempo Earn actions for vault deposits, redemptions, private Zone flows, quotes, positions, and fee state, and defaulted Zone withdrawal gas.

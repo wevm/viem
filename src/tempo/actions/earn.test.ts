@@ -1,6 +1,7 @@
 import { TokenRole } from 'ox/tempo'
 import {
   type Address,
+  createClient,
   encodeFunctionData,
   isAddressEqual,
   parseUnits,
@@ -13,9 +14,22 @@ import {
   waitForTransactionReceipt,
   writeContractSync,
 } from 'viem/actions'
-import { Abis, Actions, EarnShares } from 'viem/tempo'
+import {
+  Abis,
+  Actions,
+  Addresses,
+  EarnShares,
+  WaitForPrivateDepositTimeoutError,
+  WaitForPrivateRedeemTimeoutError,
+} from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
-import { accounts, getClient, setupToken } from '~test/tempo/config.js'
+import {
+  accounts,
+  chain,
+  getClient,
+  http,
+  setupToken,
+} from '~test/tempo/config.js'
 import { deployEarnStack } from '~test/tempo/earn.js'
 import * as EarnContracts from '~test/tempo/earnContracts.js'
 
@@ -1262,5 +1276,146 @@ describe('withdrawExactSync', () => {
         "shareAmount": 40000000n,
       }
     `)
+  })
+})
+
+describe('privateDeposit', () => {
+  const gateway = `0x${'aa'.repeat(20)}` as Address
+  const recoveryRecipient = `0x${'bb'.repeat(20)}` as Address
+  const token = `0x${'cc'.repeat(20)}` as Address
+  const prepared = {
+    actionId:
+      '0x1111111111111111111111111111111111111111111111111111111111111111',
+    amount: 100_000_000n,
+    callbackGas: 10_000_000n,
+    chainId: chain.id,
+    data: '0x1234',
+    fallbackRecipient: recoveryRecipient,
+    fromBlock: 42n,
+    to: gateway,
+    token,
+    zoneId: 7,
+  } as const
+
+  test('behavior: calls delegate to the Zone withdrawal builder', () => {
+    const calls = Actions.earn.privateDeposit.calls(prepared)
+
+    expect(calls).toHaveLength(2)
+    expect(calls[0]).toMatchObject({
+      address: token,
+      functionName: 'approve',
+    })
+    expect(calls[0].args).toEqual([Addresses.zoneOutbox, 100_000_000n])
+    expect(calls[1]).toMatchObject({
+      address: Addresses.zoneOutbox,
+      functionName: 'requestWithdrawal',
+    })
+    expect(calls[1].args).toEqual([
+      token,
+      gateway,
+      100_000_000n,
+      `0x${'00'.repeat(32)}`,
+      10_000_000n,
+      recoveryRecipient,
+      '0x1234',
+      '0x',
+    ])
+  })
+
+  test('error: prepared request parent chain does not match the client', async () => {
+    const noChainClient = createClient({ account, transport: http() })
+    await expect(
+      Actions.earn.privateDeposit(noChainClient, { ...prepared, chain: null }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`"\`chain\` is required."`)
+
+    await expect(
+      Actions.earn.privateDeposit(client, prepared),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `"Prepared Zone request parent chain ID does not match client chain."`,
+    )
+    await expect(
+      Actions.earn.privateDepositSync(client, prepared),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `"Prepared Zone request parent chain ID does not match client chain."`,
+    )
+  })
+
+  test('error: wait times out without a gateway event', async () => {
+    const actionId =
+      '0x1111111111111111111111111111111111111111111111111111111111111111'
+
+    await expect(
+      Actions.earn.waitForPrivateDeposit(client, {
+        actionId,
+        fromBlock: await getBlockNumber(client, { cacheTime: 0 }),
+        gateway: accounts[1].address,
+        pollingInterval: 5,
+        timeout: 20,
+      }),
+    ).rejects.toThrow(WaitForPrivateDepositTimeoutError)
+  })
+})
+
+describe('privateRedeem', () => {
+  test('behavior: calls delegate to the Zone withdrawal builder', () => {
+    const prepared = {
+      actionId:
+        '0x2222222222222222222222222222222222222222222222222222222222222222',
+      amount: 100_000_000n,
+      callbackGas: 10_000_000n,
+      chainId: chain.id,
+      data: '0x5678',
+      fallbackRecipient: accounts[1].address,
+      fromBlock: 42n,
+      to: accounts[2].address,
+      token: accounts[3].address,
+      zoneId: 7,
+    } as const
+
+    expect(Actions.earn.privateRedeem.calls(prepared)).toEqual(
+      Actions.earn.privateDeposit.calls(prepared),
+    )
+  })
+
+  test('error: wait times out without a gateway event', async () => {
+    const actionId =
+      '0x2222222222222222222222222222222222222222222222222222222222222222'
+
+    await expect(
+      Actions.earn.waitForPrivateRedeem(client, {
+        actionId,
+        fromBlock: await getBlockNumber(client, { cacheTime: 0 }),
+        gateway: accounts[1].address,
+        pollingInterval: 5,
+        timeout: 20,
+      }),
+    ).rejects.toThrow(WaitForPrivateRedeemTimeoutError)
+  })
+
+  test('error: prepared request chain does not match the client', async () => {
+    const prepared = {
+      actionId:
+        '0x2222222222222222222222222222222222222222222222222222222222222222',
+      amount: 100_000_000n,
+      callbackGas: 10_000_000n,
+      chainId: chain.id,
+      data: '0x5678',
+      fallbackRecipient: accounts[1].address,
+      fromBlock: 42n,
+      to: accounts[2].address,
+      token: accounts[3].address,
+      zoneId: 7,
+    } as const
+
+    await expect(
+      Actions.earn.privateRedeem(client, prepared),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `"Prepared Zone request parent chain ID does not match client chain."`,
+    )
+    await expect(
+      Actions.earn.privateRedeemSync(client, prepared),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `"Prepared Zone request parent chain ID does not match client chain."`,
+    )
   })
 })

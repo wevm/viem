@@ -1865,6 +1865,43 @@ type DecoratorBase<
       parameters: earnActions.depositSync.Parameters<chain, account>,
     ) => Promise<earnActions.depositSync.ReturnValue>
     /**
+     * Withdraws assets from a Zone and deposits them into a vault on the
+     * parent chain.
+     *
+     * @example
+     * ```ts
+     * const prepared = await parentClient.earn.privateDeposit.prepare({
+     *   assetAmount: 100_000_000n,
+     *   gateway: '0x...',
+     *   recipient: '0x...',
+     *   recoveryRecipient: '0x...',
+     *   shareAmountMin: 99_500_000n,
+     * })
+     * const hash = await zoneClient.earn.privateDeposit(prepared)
+     * ```
+     *
+     * @param parameters - Prepared deposit and transaction parameters.
+     * @returns The transaction hash.
+     */
+    privateDeposit: (
+      parameters: earnActions.privateDeposit.Parameters<chain, account>,
+    ) => Promise<earnActions.privateDeposit.ReturnValue>
+    /**
+     * Requests a private Zone deposit and waits for the Zone transaction
+     * receipt.
+     *
+     * @example
+     * ```ts
+     * const result = await zoneClient.earn.privateDepositSync(prepared)
+     * ```
+     *
+     * @param parameters - Prepared deposit and transaction parameters.
+     * @returns The Zone transaction receipt.
+     */
+    privateDepositSync: (
+      parameters: earnActions.privateDepositSync.Parameters<chain, account>,
+    ) => Promise<earnActions.privateDepositSync.ReturnValue>
+    /**
      * Gets the vault's active fee configuration, pending fees, and fee baselines.
      *
      * @example
@@ -2056,6 +2093,78 @@ type DecoratorBase<
     redeemSync: (
       parameters: earnActions.redeemSync.Parameters<chain, account>,
     ) => Promise<earnActions.redeemSync.ReturnValue>
+    /**
+     * Withdraws vault shares from a Zone and redeems them on the parent chain.
+     *
+     * @example
+     * ```ts
+     * const prepared = await parentClient.earn.privateRedeem.prepare({
+     *   gateway: '0x...',
+     *   recipient: '0x...',
+     *   recoveryRecipient: '0x...',
+     *   shareAmount: 100_000_000n,
+     *   slippageBps: 50,
+     * })
+     * const hash = await zoneClient.earn.privateRedeem(prepared)
+     * ```
+     *
+     * @param parameters - Prepared redemption and transaction parameters.
+     * @returns The transaction hash.
+     */
+    privateRedeem: (
+      parameters: earnActions.privateRedeem.Parameters<chain, account>,
+    ) => Promise<earnActions.privateRedeem.ReturnValue>
+    /**
+     * Requests a private Zone redemption and waits for the Zone transaction
+     * receipt.
+     *
+     * @example
+     * ```ts
+     * const result = await zoneClient.earn.privateRedeemSync(prepared)
+     * ```
+     *
+     * @param parameters - Prepared redemption and transaction parameters.
+     * @returns The Zone transaction receipt.
+     */
+    privateRedeemSync: (
+      parameters: earnActions.privateRedeemSync.Parameters<chain, account>,
+    ) => Promise<earnActions.privateRedeemSync.ReturnValue>
+    /**
+     * Waits for a Zone gateway deposit to complete on the parent chain.
+     *
+     * @example
+     * ```ts
+     * const result = await parentClient.earn.waitForPrivateDeposit({
+     *   actionId: prepared.actionId,
+     *   fromBlock: prepared.fromBlock,
+     *   gateway: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Correlation and polling parameters.
+     * @returns The completed gateway deposit.
+     */
+    waitForPrivateDeposit: (
+      parameters: earnActions.waitForPrivateDeposit.Parameters,
+    ) => Promise<earnActions.waitForPrivateDeposit.ReturnType>
+    /**
+     * Waits for a Zone gateway redemption to complete on the parent chain.
+     *
+     * @example
+     * ```ts
+     * const result = await parentClient.earn.waitForPrivateRedeem({
+     *   actionId: prepared.actionId,
+     *   fromBlock: prepared.fromBlock,
+     *   gateway: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Correlation and polling parameters.
+     * @returns The completed gateway redemption.
+     */
+    waitForPrivateRedeem: (
+      parameters: earnActions.waitForPrivateRedeem.Parameters,
+    ) => Promise<earnActions.waitForPrivateRedeem.ReturnType>
     /**
      * Withdraws an exact asset amount to `recipient`, up to the specified
      * vault share limit. The transaction includes the required vault share
@@ -5764,6 +5873,8 @@ export function decorator() {
         'depositSync',
         'depositShares',
         'depositSharesSync',
+        'privateDeposit',
+        'privateDepositSync',
         'getFeeState',
         'getPosition',
         'getRedeemQuote',
@@ -5771,6 +5882,10 @@ export function decorator() {
         'getWithdrawQuote',
         'redeem',
         'redeemSync',
+        'privateRedeem',
+        'privateRedeemSync',
+        'waitForPrivateDeposit',
+        'waitForPrivateRedeem',
         'withdrawExact',
         'withdrawExactSync',
       ]),

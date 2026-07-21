@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import type { Hex } from 'ox'
 import { BaseError } from '../errors/base.js'
 
 export type GetVaultEngineChangedErrorType = GetVaultEngineChangedError & {
@@ -17,6 +18,21 @@ export class GetVaultEngineChangedError extends BaseError {
   }
 }
 
+export type WaitForPrivateDepositTimeoutErrorType =
+  WaitForPrivateDepositTimeoutError & {
+    name: 'WaitForPrivateDepositTimeoutError'
+  }
+
+/** Thrown when a Zone gateway deposit event is not found before the timeout. */
+export class WaitForPrivateDepositTimeoutError extends BaseError {
+  constructor({ actionId, gateway }: { actionId: Hex.Hex; gateway: Address }) {
+    super(
+      `Timed out while waiting for Zone deposit "${actionId}" at gateway "${gateway}".`,
+      { name: 'WaitForPrivateDepositTimeoutError' },
+    )
+  }
+}
+
 export type WaitForDepositStatusTimeoutErrorType =
   WaitForDepositStatusTimeoutError & {
     name: 'WaitForDepositStatusTimeoutError'
@@ -27,6 +43,21 @@ export class WaitForDepositStatusTimeoutError extends BaseError {
     super(
       `Timed out while waiting for deposits from Tempo block "${tempoBlockNumber}" to be processed.`,
       { name: 'WaitForDepositStatusTimeoutError' },
+    )
+  }
+}
+
+export type WaitForPrivateRedeemTimeoutErrorType =
+  WaitForPrivateRedeemTimeoutError & {
+    name: 'WaitForPrivateRedeemTimeoutError'
+  }
+
+/** Thrown when a Zone gateway redeem event is not found before the timeout. */
+export class WaitForPrivateRedeemTimeoutError extends BaseError {
+  constructor({ actionId, gateway }: { actionId: Hex.Hex; gateway: Address }) {
+    super(
+      `Timed out while waiting for Zone redemption "${actionId}" at gateway "${gateway}".`,
+      { name: 'WaitForPrivateRedeemTimeoutError' },
     )
   }
 }

@@ -12,7 +12,7 @@ Deposits assets into a vault and mints vault shares to a recipient.
 import { client } from './viem.config'
 
 const result = await client.earn.depositSync({
-  assetAmount: { formatted: '100' },
+  assetAmount: 100_000_000n,
   shareAmount: 99_900_000n,
   slippageBps: 50,
   vault: '0x0000000000000000000000000000000000000001',

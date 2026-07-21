@@ -1,6 +1,13 @@
+import { execFileSync } from 'node:child_process'
 import { RpcTransport } from 'ox'
-import { type Instance, Server } from 'prool'
+import { Instance, Server } from 'prool'
 import * as TestContainers from 'prool/testcontainers'
+import {
+  GenericContainer,
+  PullPolicy,
+  type StartedTestContainer,
+  Wait,
+} from 'testcontainers'
 import { getBlock } from '../../../src/actions/public/getBlock.js'
 import {
   type Chain,
@@ -14,6 +21,16 @@ import { withRetry } from '../../../src/utils/promise/withRetry.js'
 import { accounts, nodeEnv } from './config.js'
 
 export const port = 9545
+
+/** Dev key used to provision and administer local Zones. */
+export const zoneAdminKey =
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+
+// Zone settlement reads Tempo block hashes from the canonical EIP-2935 account.
+const historyStorage = {
+  address: '0x0000f90827f1c53a10cb7a02335b175320002935',
+  code: '0x3373fffffffffffffffffffffffffffffffffffffffe14604657602036036042575f35600143038111604257611fff81430311604257611fff9006545f5260205ff35b5f5ffd5b5f35611fff60014303065500',
+} as const
 
 export const rpcUrl = (() => {
   // Explicit override (e.g. a custom devnet) wins over env presets. Useful for
@@ -60,15 +77,150 @@ export async function createServer() {
     log: import.meta.env.VITE_TEMPO_LOG,
     port,
   } satisfies Instance.tempo.Parameters
+  const image = tag?.startsWith('sha256:')
+    ? `ghcr.io/tempoxyz/tempo@${tag}`
+    : `ghcr.io/tempoxyz/tempo:${tag ?? 'latest'}`
 
   return Server.create({
-    instance: TestContainers.Instance.tempo({
-      ...args,
-      image: `ghcr.io/tempoxyz/tempo:${tag ?? 'latest'}`,
-    }),
+    instance:
+      import.meta.env.VITE_TEMPO_ZONES === 'true'
+        ? tempoWithHistoryStorage({ ...args, image })
+        : TestContainers.Instance.tempo({ ...args, image }),
     port,
   })
 }
+
+const tempoWithHistoryStorage = Instance.define(
+  (parameters: {
+    blockTime: string
+    image: string
+    log?: Instance.tempo.Parameters['log'] | undefined
+    port: number
+  }) => {
+    const dumped = execFileSync(
+      'docker',
+      [
+        'run',
+        '--rm',
+        '--platform',
+        'linux/amd64',
+        '--entrypoint',
+        '/usr/local/bin/tempo',
+        parameters.image,
+        '-q',
+        'dump-genesis',
+        '--chain',
+        'dev',
+      ],
+      { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 },
+    )
+    const genesis = JSON.parse(dumped) as {
+      alloc: Record<string, { balance?: string; code?: string; nonce?: string }>
+    }
+    genesis.alloc[historyStorage.address] = {
+      balance: '0x0',
+      code: historyStorage.code,
+      nonce: '0x1',
+    }
+    const genesisContent = `${JSON.stringify(genesis)}\n`
+    const log = parameters.log
+    const rustLog = log && typeof log !== 'boolean' ? log : ''
+    let container: StartedTestContainer | undefined
+
+    return {
+      _internal: {},
+      host: 'localhost',
+      name: 'tempo',
+      port: parameters.port,
+      async start({ port = parameters.port }, { emitter, setEndpoint }) {
+        const genesisPath = '/tmp/tempo-dev-eip2935.json'
+        container = await new GenericContainer(parameters.image)
+          .withPullPolicy(PullPolicy.alwaysPull())
+          .withPlatform('linux/amd64')
+          .withExposedPorts(port)
+          .withExtraHosts([
+            { host: 'host.docker.internal', ipAddress: 'host-gateway' },
+          ])
+          .withName(`tempo.${crypto.randomUUID()}`)
+          .withEnvironment({ RUST_LOG: rustLog })
+          .withCopyContentToContainer([
+            { content: genesisContent, target: genesisPath },
+          ])
+          .withCommand([
+            'node',
+            '--authrpc.port',
+            String(port + 30),
+            '--datadir',
+            '/tmp/prool-tempo',
+            '--dev',
+            '--dev.block-time',
+            parameters.blockTime,
+            '--engine.disable-precompile-cache',
+            '--engine.legacy-state-root',
+            '--faucet.address',
+            '0x20c0000000000000000000000000000000000000',
+            '0x20c0000000000000000000000000000000000001',
+            '0x20c0000000000000000000000000000000000002',
+            '0x20c0000000000000000000000000000000000003',
+            '--faucet.amount',
+            '1000000000000',
+            '--faucet.enabled',
+            '--faucet.private-key',
+            '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+            '--faucet.node-address',
+            `http://localhost:${port}`,
+            '--http.addr',
+            '0.0.0.0',
+            '--http.api',
+            'all',
+            '--http.corsdomain',
+            '*',
+            '--http.port',
+            String(port),
+            '--port',
+            String(port + 10),
+            '--ws',
+            '--ws.addr',
+            '0.0.0.0',
+            '--ws.api',
+            'all',
+            '--ws.port',
+            String(port),
+            '--chain',
+            genesisPath,
+          ])
+          .withWaitStrategy(
+            Wait.forLogMessage(
+              /Received (block|new payload) from consensus engine/,
+            ),
+          )
+          .withLogConsumer((stream) => {
+            stream.on('data', (data) => {
+              const message = data.toString()
+              emitter.emit('message', message)
+              emitter.emit('stdout', message)
+              if (log) process.stdout.write(message)
+            })
+            stream.on('error', (error) => {
+              emitter.emit('message', error.message)
+              emitter.emit('stderr', error.message)
+              if (log) process.stderr.write(`${error.message}\n`)
+            })
+          })
+          .withStartupTimeout(120_000)
+          .start()
+        setEndpoint?.({
+          host: container.getHost(),
+          port: container.getMappedPort(port),
+        })
+      },
+      async stop() {
+        await container?.stop()
+        container = undefined
+      },
+    }
+  },
+)
 
 export type Zone = {
   /** Zone chain ID (e.g. `421700001`). */
@@ -152,6 +304,9 @@ async function startZone(
     throw new Error('Local zones require `VITE_TEMPO_ENV=localnet`.')
 
   const tag = import.meta.env.VITE_TEMPO_ZONE_TAG ?? 'latest'
+  const image = tag.startsWith('sha256:')
+    ? `ghcr.io/tempoxyz/tempo-zone@${tag}`
+    : `ghcr.io/tempoxyz/tempo-zone:${tag}`
 
   // The zone container reaches this worker's L1 through the prool server
   // (`host.docker.internal` resolves to the host; the server proxies WS).
@@ -164,11 +319,9 @@ async function startZone(
     dev: {
       // anvil #1; the default dev key is anvil #0 (= `accounts[0]`), which
       // would race nonces with test transactions.
-      key:
-        parameters.key ??
-        '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
+      key: parameters.key ?? zoneAdminKey,
     },
-    image: `ghcr.io/tempoxyz/tempo-zone:${tag}`,
+    image,
     l1: {
       factoryAddress: parameters.factoryAddress,
       rpcUrl: l1RpcUrl,

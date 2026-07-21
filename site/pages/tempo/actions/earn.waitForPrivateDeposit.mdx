@@ -1,0 +1,79 @@
+# `earn.waitForPrivateDeposit`
+
+Waits for a Zone gateway to deposit assets into an Earn vault on the parent Tempo chain.
+
+## Usage
+
+Pass the correlation fields returned by
+[`earn.privateDeposit.prepare`](/tempo/actions/earn.privateDeposit).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.earn.waitForPrivateDeposit({
+  actionId: '0x0000000000000000000000000000000000000000000000000000000000000001',
+  fromBlock: 123456n,
+  gateway: '0x0000000000000000000000000000000000000001',
+})
+// @log: { shares: 99_750_000n, tempoBlockNumber: 123457n, ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Use `tempoBlockNumber` from the result with
+[`zone.waitForDepositStatus`](/tempo/actions/zone.waitForDepositStatus) to confirm that the returned
+shares were processed inside the Zone.
+
+## Return Type
+
+```ts
+type ReturnType = {
+  actionId: Hex
+  inputAmount: bigint
+  inputToken: Address
+  shares: bigint
+  tempoBlockNumber: bigint
+  vaultAssets: bigint
+  zoneDepositHash: Hex
+}
+```
+
+## Parameters
+
+### actionId
+
+- **Type:** `Hex`
+
+Correlation ID returned by `earn.privateDeposit.prepare`.
+
+### fromBlock
+
+- **Type:** `bigint`
+
+Lower bound for the parent-chain log scan.
+
+### gateway
+
+- **Type:** `Address`
+
+Zone gateway address.
+
+### pollingInterval (optional)
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Polling frequency in milliseconds.
+
+### timeout (optional)
+
+- **Type:** `number`
+- **Default:** `60_000`
+
+Maximum time to wait in milliseconds. Set to `0` to disable the timeout.

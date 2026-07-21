@@ -11,6 +11,7 @@ import {
   type Client,
   type EncodeDeployDataParameters,
   encodeDeployData,
+  encodeFunctionData,
   parseEventLogs,
   type Transport,
   type Account as viem_Account,
@@ -167,7 +168,12 @@ export async function deployEarnGateway(
   client: Client<Transport, Chain, viem_Account>,
   options: deployEarnGateway.Options,
 ): Promise<deployEarnGateway.ReturnValue> {
-  const { adapter, defaultSwapper, owner = client.account.address } = options
+  const {
+    adapter,
+    defaultSwapper,
+    owner = client.account.address,
+    portalClient,
+  } = options
   const portal = options.zonePortal
 
   // The gateway constructor verifies `portal.messenger()`.
@@ -202,11 +208,15 @@ export async function deployEarnGateway(
       functionName: 'isTokenEnabled',
     })
     if (!enabled)
-      await writeContractSync(client, {
-        abi: portalAbi,
-        address: portal,
-        args: [token],
-        functionName: 'enableToken',
+      await sendTransactionSync(portalClient, {
+        data: encodeFunctionData({
+          abi: portalAbi,
+          args: [token],
+          functionName: 'enableToken',
+        }),
+        // The Zone sequencer shares this signer, so portal writes use expiring nonces.
+        nonceKey: 'expiring',
+        to: portal,
       })
   }
 
@@ -221,6 +231,8 @@ export declare namespace deployEarnGateway {
     defaultSwapper: Address
     /** Gateway owner. @default `client.account.address` */
     owner?: Address | undefined
+    /** Portal administrator client. */
+    portalClient: Client<Transport, Chain, viem_Account>
     /** Zone portal on the parent chain. */
     zonePortal: Address
   }
