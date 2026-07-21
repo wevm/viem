@@ -65,8 +65,8 @@ import type { TransactionReceipt } from '../Transaction.js'
  * })
  *
  * const hash = await Actions.earn.deposit(client, {
- *   amountIn: 100_000_000n,
- *   amountOut: 99_900_000n,
+ *   assetAmount: 100_000_000n,
+ *   shareAmount: 99_900_000n,
  *   slippageBps: 50,
  *   vault: '0x...',
  * })
@@ -89,7 +89,7 @@ export async function deposit<
 export namespace deposit {
   export type Args = {
     /** Assets to deposit; base units or `{ formatted, decimals? }` (asset decimals). */
-    amountIn: internal_Token.AmountInput
+    assetAmount: internal_Token.AmountInput
     /** Vault share recipient. @default `account.address` */
     recipient?: Address | undefined
     /** Vault address. */
@@ -97,12 +97,12 @@ export namespace deposit {
   } & OneOf<
     | {
         /** Minimum vault share output to accept; must be greater than zero. */
-        minAmountOut: bigint
+        shareAmountMin: bigint
       }
     | {
         /** Quoted vault share output; floored by `slippageBps`. */
-        amountOut: bigint
-        /** Slippage tolerance in basis points under `amountOut` (50 = 0.5%). */
+        shareAmount: bigint
+        /** Slippage tolerance in basis points under `shareAmount` (50 = 0.5%). */
         slippageBps: number
       }
   >
@@ -124,7 +124,7 @@ export namespace deposit {
     client: Client<Transport, chain, account>,
     parameters: deposit.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const [args, asset] = await Promise.all([
+    const [args, assetToken] = await Promise.all([
       toDepositArgs(client, parameters as never),
       readContract(client, {
         abi: Abis.vaultAdapter,
@@ -134,7 +134,7 @@ export namespace deposit {
     ])
     return (await action(client, {
       ...parameters,
-      calls: deposit.calls({ ...args, tokenIn: asset }),
+      calls: deposit.calls({ ...args, assetToken }),
     } as never)) as never
   }
 
@@ -150,25 +150,28 @@ export namespace deposit {
   ) {
     const [, args] = resolveCallParameters(parameters)
     const { recipient, vault } = args
-    const minShares = (() => {
-      if (args.minAmountOut !== undefined) return args.minAmountOut
-      return EarnShares.minimumOutput(args.amountOut, BigInt(args.slippageBps))
+    const shareAmountMin = (() => {
+      if (args.shareAmountMin !== undefined) return args.shareAmountMin
+      return EarnShares.minimumOutput(
+        args.shareAmount,
+        BigInt(args.slippageBps),
+      )
     })()
     return defineCall({
       address: vault,
       abi: Abis.vaultAdapter,
       functionName: 'deposit',
       args: [
-        internal_Token.toBaseUnits(args.amountIn, undefined),
+        internal_Token.toBaseUnits(args.assetAmount, undefined),
         recipient,
-        minShares,
+        shareAmountMin,
       ],
     })
   }
   export namespace call {
     export type Args = {
       /** Assets to deposit; base units or `{ formatted, decimals? }` (asset decimals). */
-      amountIn: internal_Token.AmountInput
+      assetAmount: internal_Token.AmountInput
       /** Vault share recipient. */
       recipient: Address
       /** Vault address. */
@@ -176,12 +179,12 @@ export namespace deposit {
     } & OneOf<
       | {
           /** Minimum vault share output to accept. */
-          minAmountOut: bigint
+          shareAmountMin: bigint
         }
       | {
           /** Quoted vault share output; floored by `slippageBps`. */
-          amountOut: bigint
-          /** Slippage tolerance in basis points under `amountOut` (50 = 0.5%). */
+          shareAmount: bigint
+          /** Slippage tolerance in basis points under `shareAmount` (50 = 0.5%). */
           slippageBps: number
         }
     >
@@ -189,7 +192,7 @@ export namespace deposit {
 
   /**
    * Defines the asset approval and deposit calls for atomic execution. Pass
-   * `tokenIn` and token decimals explicitly because this builder performs no reads.
+   * `assetToken` and token decimals explicitly because this builder performs no reads.
    *
    * @param args - Arguments.
    * @returns The calls.
@@ -197,19 +200,19 @@ export namespace deposit {
   export function calls(
     args: call.Args & {
       /** Asset token approved for the deposit. */
-      tokenIn: TokenId.TokenIdOrAddress
+      assetToken: TokenId.TokenIdOrAddress
     },
   ) {
-    const { tokenIn, vault } = args
-    const amountIn = internal_Token.toBaseUnits(args.amountIn, undefined)
+    const { assetToken, vault } = args
+    const assetAmount = internal_Token.toBaseUnits(args.assetAmount, undefined)
     return [
       defineCall({
-        address: TokenId.toAddress(tokenIn),
+        address: TokenId.toAddress(assetToken),
         abi: Abis.tip20,
         functionName: 'approve',
-        args: [vault, amountIn],
+        args: [vault, assetAmount],
       }),
-      deposit.call({ ...args, amountIn }),
+      deposit.call({ ...args, assetAmount }),
     ]
   }
 
@@ -290,9 +293,9 @@ export namespace deposit {
  *   transport: http(),
  * })
  *
- * const { shares } = await Actions.earn.depositSync(client, {
- *   amountIn: 100_000_000n,
- *   minAmountOut: EarnShares.minimumOutput(99_900_000n, 50n),
+ * const { shareAmount } = await Actions.earn.depositSync(client, {
+ *   assetAmount: 100_000_000n,
+ *   shareAmountMin: EarnShares.minimumOutput(99_900_000n, 50n),
  *   vault: '0x...',
  * })
  * ```
@@ -315,11 +318,11 @@ export async function depositSync<
   } as never)
   const { args } = deposit.extractEvent(receipt.logs, { vault })
   return {
-    amount: args.assets,
+    assetAmount: args.assets,
     caller: args.caller,
     receipt,
     recipient: args.receiver,
-    shares: args.shares,
+    shareAmount: args.shares,
   }
 }
 
@@ -331,7 +334,7 @@ export namespace depositSync {
   > = deposit.Parameters<chain, account> & WriteSyncParameters<chain, account>
   export type ReturnValue = Compute<{
     /** Assets deposited. */
-    amount: bigint
+    assetAmount: bigint
     /** Depositing caller. */
     caller: Address
     /** Transaction receipt. */
@@ -339,7 +342,7 @@ export namespace depositSync {
     /** Vault share recipient. */
     recipient: Address
     /** Vault shares minted. */
-    shares: bigint
+    shareAmount: bigint
   }>
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
@@ -363,11 +366,11 @@ export namespace depositSync {
  * })
  *
  * const hash = await Actions.earn.depositShares(client, {
- *   amountIn: 500_000_000n,
- *   amountOut: 499_000_000n,
+ *   earnShareAmount: 499_000_000n,
  *   slippageBps: 30,
  *   vault: '0x...',
- *   tokenIn: '0x...',
+ *   venueShareAmount: 500_000_000n,
+ *   venueShareToken: '0x...',
  * })
  * ```
  *
@@ -388,22 +391,22 @@ export async function depositShares<
 export namespace depositShares {
   export type Args = {
     /** Venue shares to deposit, base units. */
-    amountIn: bigint
+    venueShareAmount: bigint
     /** Vault share recipient. @default `account.address` */
     recipient?: Address | undefined
     /** Vault address. */
     vault: Address
     /** Venue share token approved for the deposit. */
-    tokenIn: Address
+    venueShareToken: Address
   } & OneOf<
     | {
         /** Minimum vault share output to accept; must be greater than zero. */
-        minAmountOut: bigint
+        earnShareAmountMin: bigint
       }
     | {
         /** Quoted vault share output; floored by `slippageBps`. */
-        amountOut: bigint
-        /** Slippage tolerance in basis points under `amountOut` (50 = 0.5%). */
+        earnShareAmount: bigint
+        /** Slippage tolerance in basis points under `earnShareAmount` (50 = 0.5%). */
         slippageBps: number
       }
   >
@@ -435,7 +438,7 @@ export namespace depositShares {
       calls: depositShares.calls({
         ...toDepositSharesArgs(client, parameters as never),
         engine,
-        tokenIn: parameters.tokenIn,
+        venueShareToken: parameters.venueShareToken,
       }),
     } as never)) as never
   }
@@ -451,22 +454,25 @@ export namespace depositShares {
     ...parameters: CallParameters<call.Args, Client<Transport, chain>>
   ) {
     const [, args] = resolveCallParameters(parameters)
-    const { amountIn, recipient, vault } = args
-    const minShares = (() => {
-      if (args.minAmountOut !== undefined) return args.minAmountOut
-      return EarnShares.minimumOutput(args.amountOut, BigInt(args.slippageBps))
+    const { recipient, vault, venueShareAmount } = args
+    const earnShareAmountMin = (() => {
+      if (args.earnShareAmountMin !== undefined) return args.earnShareAmountMin
+      return EarnShares.minimumOutput(
+        args.earnShareAmount,
+        BigInt(args.slippageBps),
+      )
     })()
     return defineCall({
       address: vault,
       abi: Abis.vaultAdapter,
       functionName: 'depositShares',
-      args: [amountIn, recipient, minShares],
+      args: [venueShareAmount, recipient, earnShareAmountMin],
     })
   }
   export namespace call {
     export type Args = {
       /** Venue shares to deposit, base units. */
-      amountIn: bigint
+      venueShareAmount: bigint
       /** Vault share recipient. */
       recipient: Address
       /** Vault address. */
@@ -474,12 +480,12 @@ export namespace depositShares {
     } & OneOf<
       | {
           /** Minimum vault share output to accept. */
-          minAmountOut: bigint
+          earnShareAmountMin: bigint
         }
       | {
           /** Quoted vault share output; floored by `slippageBps`. */
-          amountOut: bigint
-          /** Slippage tolerance in basis points under `amountOut` (50 = 0.5%). */
+          earnShareAmount: bigint
+          /** Slippage tolerance in basis points under `earnShareAmount` (50 = 0.5%). */
           slippageBps: number
         }
     >
@@ -487,7 +493,7 @@ export namespace depositShares {
 
   /**
    * Defines the venue share approval and deposit calls for atomic execution.
-   * Pass the vault's current `engine` and venue share `tokenIn` explicitly.
+   * Pass the vault's current `engine` and `venueShareToken` explicitly.
    *
    * @param args - Arguments.
    * @returns The calls.
@@ -497,16 +503,16 @@ export namespace depositShares {
       /** Current vault engine that pulls the venue shares. */
       engine: Address
       /** Venue share token pulled by the engine. */
-      tokenIn: Address
+      venueShareToken: Address
     },
   ) {
-    const { amountIn, engine, tokenIn } = args
+    const { engine, venueShareAmount, venueShareToken } = args
     return [
       defineCall({
-        address: tokenIn,
+        address: venueShareToken,
         abi: Abis.tip20,
         functionName: 'approve',
-        args: [engine, amountIn],
+        args: [engine, venueShareAmount],
       }),
       depositShares.call(args),
     ]
@@ -591,12 +597,12 @@ export namespace depositShares {
  *   transport: http(),
  * })
  *
- * const { earnShares } = await Actions.earn.depositSharesSync(client, {
- *   amountIn: 500_000_000n,
- *   amountOut: 499_000_000n,
+ * const { earnShareAmount } = await Actions.earn.depositSharesSync(client, {
+ *   earnShareAmount: 499_000_000n,
  *   slippageBps: 30,
  *   vault: '0x...',
- *   tokenIn: '0x...',
+ *   venueShareAmount: 500_000_000n,
+ *   venueShareToken: '0x...',
  * })
  * ```
  *
@@ -619,11 +625,11 @@ export async function depositSharesSync<
   const { args } = depositShares.extractEvent(receipt.logs, { vault })
   return {
     caller: args.caller,
-    earnShares: args.earnShares,
+    earnShareAmount: args.earnShares,
     receipt,
-    receivedVenueShares: args.receivedVenueShares,
+    receivedVenueShareAmount: args.receivedVenueShares,
     recipient: args.receiver,
-    requestedVenueShares: args.requestedVenueShares,
+    venueShareAmount: args.requestedVenueShares,
   }
 }
 
@@ -638,15 +644,15 @@ export namespace depositSharesSync {
     /** Depositing caller. */
     caller: Address
     /** Vault shares minted. */
-    earnShares: bigint
+    earnShareAmount: bigint
     /** Transaction receipt. */
     receipt: TransactionReceipt
     /** Venue shares measured as received by the engine. */
-    receivedVenueShares: bigint
+    receivedVenueShareAmount: bigint
     /** Vault share recipient. */
     recipient: Address
     /** Venue shares requested for pull. */
-    requestedVenueShares: bigint
+    venueShareAmount: bigint
   }>
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
@@ -870,7 +876,7 @@ export async function getPosition<
   const { account: account_ = client.account, vault, ...rest } = parameters
   if (!account_) throw new AccountNotFoundError()
   const account = parseAccount(account_).address
-  const [asset, shareToken] = await multicall(client, {
+  const [assetToken, shareToken] = await multicall(client, {
     ...rest,
     allowFailure: false,
     contracts: [
@@ -893,13 +899,13 @@ export async function getPosition<
       allowFailure: false,
       contracts: [
         defineCall({
-          address: asset,
+          address: assetToken,
           abi: Abis.tip20,
           functionName: 'allowance',
           args: [account, vault],
         }),
         defineCall({
-          address: asset,
+          address: assetToken,
           abi: Abis.tip20,
           functionName: 'balanceOf',
           args: [account],
@@ -927,9 +933,9 @@ export async function getPosition<
     functionName: 'previewRedeem',
   })
   return {
-    asset,
     assetAllowance,
     assetBalance,
+    assetToken,
     shareAllowance,
     shareBalance,
     shareToken,
@@ -947,12 +953,12 @@ export namespace getPosition {
     account extends Account | undefined = Account | undefined,
   > = Omit<ReadParameters, 'account'> & Args<account>
   export type ReturnValue = {
-    /** Asset accepted by the vault. */
-    asset: Address
     /** Assets the vault may spend from the account. */
     assetAllowance: bigint
     /** Asset balance held by the account. */
     assetBalance: bigint
+    /** Token accepted by the vault. */
+    assetToken: Address
     /** Vault shares the vault may spend from the account. */
     shareAllowance: bigint
     /** Vault share balance held by the account. */
@@ -980,8 +986,8 @@ export namespace getPosition {
  *   transport: http(),
  * })
  *
- * const amountOut = await Actions.earn.getRedeemQuote(client, {
- *   amountIn: 100_000_000n,
+ * const assetAmount = await Actions.earn.getRedeemQuote(client, {
+ *   shareAmount: 100_000_000n,
  *   vault: '0x...',
  * })
  * ```
@@ -994,12 +1000,12 @@ export async function getRedeemQuote<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getRedeemQuote.Parameters,
 ): Promise<getRedeemQuote.ReturnValue> {
-  const { amountIn, vault, ...rest } = parameters
+  const { shareAmount, vault, ...rest } = parameters
   return readContract(client, {
     ...rest,
     abi: Abis.vaultAdapter,
     address: vault,
-    args: [amountIn],
+    args: [shareAmount],
     functionName: 'previewRedeem',
   })
 }
@@ -1007,7 +1013,7 @@ export async function getRedeemQuote<chain extends Chain | undefined>(
 export namespace getRedeemQuote {
   export type Args = {
     /** Exact vault share input, base units. */
-    amountIn: bigint
+    shareAmount: bigint
     /** Vault address. */
     vault: Address
   }
@@ -1054,7 +1060,7 @@ export async function getVault<chain extends Chain | undefined>(
     functionName: 'engine',
   })
   const [
-    asset,
+    assetToken,
     engine_,
     shareToken,
     operator,
@@ -1083,7 +1089,7 @@ export async function getVault<chain extends Chain | undefined>(
   if (!isAddressEqual(engine, engine_))
     throw new GetVaultEngineChangedError({ vault })
   return {
-    asset,
+    assetToken,
     asyncJanitor,
     capabilities: { asyncRedeem, exactWithdraw, inKindDeposit, syncRedeem },
     depositsPaused,
@@ -1109,8 +1115,8 @@ export namespace getVault {
   }
   export type Parameters = Omit<ReadParameters, 'account'> & Args
   export type ReturnValue = {
-    /** Asset accepted by the vault. */
-    asset: Address
+    /** Token accepted by the vault. */
+    assetToken: Address
     /** Address allowed to cancel queued redemptions; zero when disabled. */
     asyncJanitor: Address
     /** Actions supported by the current venue integration. */
@@ -1292,8 +1298,8 @@ export namespace getVault {
  *   transport: http(),
  * })
  *
- * const amountIn = await Actions.earn.getWithdrawQuote(client, {
- *   amountOut: 250_000_000n,
+ * const shareAmount = await Actions.earn.getWithdrawQuote(client, {
+ *   assetAmount: 250_000_000n,
  *   vault: '0x...',
  * })
  * ```
@@ -1306,12 +1312,12 @@ export async function getWithdrawQuote<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getWithdrawQuote.Parameters,
 ): Promise<getWithdrawQuote.ReturnValue> {
-  const { amountOut, vault, ...rest } = parameters
+  const { assetAmount, vault, ...rest } = parameters
   return readContract(client, {
     ...rest,
     abi: Abis.vaultAdapter,
     address: vault,
-    args: [amountOut],
+    args: [assetAmount],
     functionName: 'previewWithdraw',
   })
 }
@@ -1319,7 +1325,7 @@ export async function getWithdrawQuote<chain extends Chain | undefined>(
 export namespace getWithdrawQuote {
   export type Args = {
     /** Exact asset output, base units. */
-    amountOut: bigint
+    assetAmount: bigint
     /** Vault address. */
     vault: Address
   }
@@ -1348,7 +1354,7 @@ export namespace getWithdrawQuote {
  * })
  *
  * const hash = await Actions.earn.redeem(client, {
- *   amountIn: 100_000_000n,
+ *   shareAmount: 100_000_000n,
  *   slippageBps: 50,
  *   vault: '0x...',
  * })
@@ -1371,7 +1377,7 @@ export async function redeem<
 export namespace redeem {
   export type Args = {
     /** Vault shares to redeem; base units or `{ formatted, decimals? }`. */
-    amountIn: internal_Token.AmountInput
+    shareAmount: internal_Token.AmountInput
     /** Asset recipient. @default `account.address` */
     recipient?: Address | undefined
     /** Vault address. */
@@ -1379,7 +1385,7 @@ export namespace redeem {
   } & OneOf<
     | {
         /** Minimum asset output to accept; must be greater than zero. */
-        minAmountOut: bigint
+        assetAmountMin: bigint
       }
     | {
         /** Slippage tolerance in basis points under a live {@link getRedeemQuote} (50 = 0.5%). */
@@ -1387,8 +1393,8 @@ export namespace redeem {
       }
     | {
         /** Quoted asset output; floored by `slippageBps`. */
-        amountOut: bigint
-        /** Slippage tolerance in basis points under `amountOut` (50 = 0.5%). */
+        assetAmount: bigint
+        /** Slippage tolerance in basis points under `assetAmount` (50 = 0.5%). */
         slippageBps: number
       }
   >
@@ -1420,7 +1426,7 @@ export namespace redeem {
     ])
     return (await action(client, {
       ...parameters,
-      calls: redeem.calls({ ...args, tokenIn: shareToken }),
+      calls: redeem.calls({ ...args, shareToken }),
     } as never)) as never
   }
 
@@ -1436,25 +1442,28 @@ export namespace redeem {
   ) {
     const [, args] = resolveCallParameters(parameters)
     const { recipient, vault } = args
-    const minAssets = (() => {
-      if (args.minAmountOut !== undefined) return args.minAmountOut
-      return EarnShares.minimumOutput(args.amountOut, BigInt(args.slippageBps))
+    const assetAmountMin = (() => {
+      if (args.assetAmountMin !== undefined) return args.assetAmountMin
+      return EarnShares.minimumOutput(
+        args.assetAmount,
+        BigInt(args.slippageBps),
+      )
     })()
     return defineCall({
       address: vault,
       abi: Abis.vaultAdapter,
       functionName: 'redeem',
       args: [
-        internal_Token.toBaseUnits(args.amountIn, undefined),
+        internal_Token.toBaseUnits(args.shareAmount, undefined),
         recipient,
-        minAssets,
+        assetAmountMin,
       ],
     })
   }
   export namespace call {
     export type Args = {
       /** Vault shares to redeem; base units or `{ formatted, decimals? }`. */
-      amountIn: internal_Token.AmountInput
+      shareAmount: internal_Token.AmountInput
       /** Asset recipient. */
       recipient: Address
       /** Vault address. */
@@ -1462,12 +1471,12 @@ export namespace redeem {
     } & OneOf<
       | {
           /** Minimum asset output to accept. */
-          minAmountOut: bigint
+          assetAmountMin: bigint
         }
       | {
           /** Quoted asset output; floored by `slippageBps`. */
-          amountOut: bigint
-          /** Slippage tolerance in basis points under `amountOut` (50 = 0.5%). */
+          assetAmount: bigint
+          /** Slippage tolerance in basis points under `assetAmount` (50 = 0.5%). */
           slippageBps: number
         }
     >
@@ -1475,7 +1484,7 @@ export namespace redeem {
 
   /**
    * Defines the vault share approval and redeem calls for atomic execution.
-   * Pass the vault share `tokenIn` explicitly because this builder performs no reads.
+   * Pass `shareToken` explicitly because this builder performs no reads.
    *
    * @param args - Arguments.
    * @returns The calls.
@@ -1483,19 +1492,19 @@ export namespace redeem {
   export function calls(
     args: call.Args & {
       /** Vault share token approved for the redemption. */
-      tokenIn: Address
+      shareToken: Address
     },
   ) {
-    const { tokenIn, vault } = args
-    const amountIn = internal_Token.toBaseUnits(args.amountIn, undefined)
+    const { shareToken, vault } = args
+    const shareAmount = internal_Token.toBaseUnits(args.shareAmount, undefined)
     return [
       defineCall({
-        address: tokenIn,
+        address: shareToken,
         abi: Abis.tip20,
         functionName: 'approve',
-        args: [vault, amountIn],
+        args: [vault, shareAmount],
       }),
-      redeem.call({ ...args, amountIn }),
+      redeem.call({ ...args, shareAmount }),
     ]
   }
 
@@ -1576,9 +1585,9 @@ export namespace redeem {
  *   transport: http(),
  * })
  *
- * const { amount } = await Actions.earn.redeemSync(client, {
- *   amountIn: 100_000_000n,
- *   minAmountOut: 99_500_000n,
+ * const { assetAmount } = await Actions.earn.redeemSync(client, {
+ *   assetAmountMin: 99_500_000n,
+ *   shareAmount: 100_000_000n,
  *   vault: '0x...',
  * })
  * ```
@@ -1601,11 +1610,11 @@ export async function redeemSync<
   } as never)
   const { args } = redeem.extractEvent(receipt.logs, { vault })
   return {
-    amount: args.assets,
+    assetAmount: args.assets,
     caller: args.caller,
     receipt,
     recipient: args.receiver,
-    shares: args.shares,
+    shareAmount: args.shares,
   }
 }
 
@@ -1617,7 +1626,7 @@ export namespace redeemSync {
   > = redeem.Parameters<chain, account> & WriteSyncParameters<chain, account>
   export type ReturnValue = Compute<{
     /** Assets paid out. */
-    amount: bigint
+    assetAmount: bigint
     /** Redeeming caller. */
     caller: Address
     /** Transaction receipt. */
@@ -1625,7 +1634,7 @@ export namespace redeemSync {
     /** Asset recipient. */
     recipient: Address
     /** Vault shares burned. */
-    shares: bigint
+    shareAmount: bigint
   }>
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
@@ -1650,7 +1659,7 @@ export namespace redeemSync {
  * })
  *
  * const hash = await Actions.earn.withdrawExact(client, {
- *   amountOut: 40_000_000n,
+ *   assetAmount: 40_000_000n,
  *   slippageBps: 50,
  *   vault: '0x...',
  * })
@@ -1673,7 +1682,7 @@ export async function withdrawExact<
 export namespace withdrawExact {
   export type Args = {
     /** Exact assets to receive; base units or `{ formatted, decimals? }`. */
-    amountOut: internal_Token.AmountInput
+    assetAmount: internal_Token.AmountInput
     /** Asset recipient. @default `account.address` */
     recipient?: Address | undefined
     /** Vault address. */
@@ -1681,7 +1690,7 @@ export namespace withdrawExact {
   } & OneOf<
     | {
         /** Maximum vault share input to burn. */
-        maxAmountIn: bigint
+        shareAmountMax: bigint
       }
     | {
         /** Slippage headroom above a live {@link getWithdrawQuote}, ceiling-rounded (50 = 0.5%). */
@@ -1689,8 +1698,8 @@ export namespace withdrawExact {
       }
     | {
         /** Quoted vault share input; raised by `slippageBps`. */
-        amountIn: bigint
-        /** Slippage tolerance in basis points over `amountIn` (50 = 0.5%). */
+        shareAmount: bigint
+        /** Slippage tolerance in basis points over `shareAmount` (50 = 0.5%). */
         slippageBps: number
       }
   >
@@ -1722,7 +1731,7 @@ export namespace withdrawExact {
     ])
     return (await action(client, {
       ...parameters,
-      calls: withdrawExact.calls({ ...args, tokenIn: shareToken }),
+      calls: withdrawExact.calls({ ...args, shareToken }),
     } as never)) as never
   }
 
@@ -1738,25 +1747,25 @@ export namespace withdrawExact {
   ) {
     const [, args] = resolveCallParameters(parameters)
     const { recipient, vault } = args
-    const maxShares = (() => {
-      if (args.maxAmountIn !== undefined) return args.maxAmountIn
-      return maximumInput(args.amountIn, args.slippageBps)
+    const shareAmountMax = (() => {
+      if (args.shareAmountMax !== undefined) return args.shareAmountMax
+      return maximumInput(args.shareAmount, args.slippageBps)
     })()
     return defineCall({
       address: vault,
       abi: Abis.vaultAdapter,
       functionName: 'withdrawExact',
       args: [
-        internal_Token.toBaseUnits(args.amountOut, undefined),
+        internal_Token.toBaseUnits(args.assetAmount, undefined),
         recipient,
-        maxShares,
+        shareAmountMax,
       ],
     })
   }
   export namespace call {
     export type Args = {
       /** Exact assets to receive; base units or `{ formatted, decimals? }`. */
-      amountOut: internal_Token.AmountInput
+      assetAmount: internal_Token.AmountInput
       /** Asset recipient. */
       recipient: Address
       /** Vault address. */
@@ -1764,12 +1773,12 @@ export namespace withdrawExact {
     } & OneOf<
       | {
           /** Maximum vault share input to burn. */
-          maxAmountIn: bigint
+          shareAmountMax: bigint
         }
       | {
           /** Quoted vault share input; raised by `slippageBps`. */
-          amountIn: bigint
-          /** Slippage tolerance in basis points over `amountIn` (50 = 0.5%). */
+          shareAmount: bigint
+          /** Slippage tolerance in basis points over `shareAmount` (50 = 0.5%). */
           slippageBps: number
         }
     >
@@ -1777,7 +1786,7 @@ export namespace withdrawExact {
 
   /**
    * Defines the vault share approval and withdrawal calls for atomic
-   * execution. Pass the vault share `tokenIn` explicitly because this builder performs no reads.
+   * execution. Pass `shareToken` explicitly because this builder performs no reads.
    *
    * @param args - Arguments.
    * @returns The calls.
@@ -1785,19 +1794,19 @@ export namespace withdrawExact {
   export function calls(
     args: call.Args & {
       /** Vault share token approved for the withdrawal. */
-      tokenIn: Address
+      shareToken: Address
     },
   ) {
-    const { tokenIn, vault } = args
-    const amountOut = internal_Token.toBaseUnits(args.amountOut, undefined)
-    const call = withdrawExact.call({ ...args, amountOut })
-    const [, , maxShares] = call.args
+    const { shareToken, vault } = args
+    const assetAmount = internal_Token.toBaseUnits(args.assetAmount, undefined)
+    const call = withdrawExact.call({ ...args, assetAmount })
+    const [, , shareAmountMax] = call.args
     return [
       defineCall({
-        address: tokenIn,
+        address: shareToken,
         abi: Abis.tip20,
         functionName: 'approve',
-        args: [vault, maxShares],
+        args: [vault, shareAmountMax],
       }),
       call,
     ]
@@ -1886,9 +1895,9 @@ export namespace withdrawExact {
  *   transport: http(),
  * })
  *
- * const { sharesBurned } = await Actions.earn.withdrawExactSync(client, {
- *   amountOut: 40_000_000n,
- *   maxAmountIn: 40_200_000n,
+ * const { shareAmount } = await Actions.earn.withdrawExactSync(client, {
+ *   assetAmount: 40_000_000n,
+ *   shareAmountMax: 40_200_000n,
  *   vault: '0x...',
  * })
  * ```
@@ -1911,11 +1920,11 @@ export async function withdrawExactSync<
   } as never)
   const { args } = withdrawExact.extractEvent(receipt.logs, { vault })
   return {
-    amount: args.assets,
+    assetAmount: args.assets,
     caller: args.caller,
     receipt,
     recipient: args.receiver,
-    sharesBurned: args.sharesBurned,
+    shareAmount: args.sharesBurned,
   }
 }
 
@@ -1928,7 +1937,7 @@ export namespace withdrawExactSync {
     WriteSyncParameters<chain, account>
   export type ReturnValue = Compute<{
     /** Exact assets received. */
-    amount: bigint
+    assetAmount: bigint
     /** Withdrawing caller. */
     caller: Address
     /** Transaction receipt. */
@@ -1936,7 +1945,7 @@ export namespace withdrawExactSync {
     /** Asset recipient. */
     recipient: Address
     /** Vault shares burned. */
-    sharesBurned: bigint
+    shareAmount: bigint
   }>
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
@@ -1982,21 +1991,21 @@ async function toDepositArgs(
   parameters: deposit.Parameters,
 ): Promise<deposit.call.Args> {
   const { vault } = parameters
-  const amountIn = await toBaseUnitsLive(client, {
-    amount: parameters.amountIn,
+  const assetAmount = await toBaseUnitsLive(client, {
+    amount: parameters.assetAmount,
     token: 'asset',
     vault,
   })
   const args = {
-    amountIn,
+    assetAmount,
     recipient: resolveRecipient(client, parameters),
     vault,
   }
-  if (parameters.minAmountOut !== undefined)
-    return { ...args, minAmountOut: parameters.minAmountOut }
+  if (parameters.shareAmountMin !== undefined)
+    return { ...args, shareAmountMin: parameters.shareAmountMin }
   return {
     ...args,
-    amountOut: parameters.amountOut,
+    shareAmount: parameters.shareAmount,
     slippageBps: parameters.slippageBps,
   }
 }
@@ -2006,17 +2015,17 @@ function toDepositSharesArgs(
   client: Client<Transport, Chain | undefined, Account | undefined>,
   parameters: depositShares.Parameters,
 ): depositShares.call.Args {
-  const { amountIn, vault } = parameters
+  const { vault, venueShareAmount } = parameters
   const args = {
-    amountIn,
     recipient: resolveRecipient(client, parameters),
     vault,
+    venueShareAmount,
   }
-  if (parameters.minAmountOut !== undefined)
-    return { ...args, minAmountOut: parameters.minAmountOut }
+  if (parameters.earnShareAmountMin !== undefined)
+    return { ...args, earnShareAmountMin: parameters.earnShareAmountMin }
   return {
     ...args,
-    amountOut: parameters.amountOut,
+    earnShareAmount: parameters.earnShareAmount,
     slippageBps: parameters.slippageBps,
   }
 }
@@ -2027,25 +2036,25 @@ async function toRedeemArgs(
   parameters: redeem.Parameters,
 ): Promise<redeem.call.Args> {
   const { vault } = parameters
-  const amountIn = await toBaseUnitsLive(client, {
-    amount: parameters.amountIn,
+  const shareAmount = await toBaseUnitsLive(client, {
+    amount: parameters.shareAmount,
     token: 'shareToken',
     vault,
   })
   const args = {
-    amountIn,
     recipient: resolveRecipient(client, parameters),
+    shareAmount,
     vault,
   }
-  if (parameters.minAmountOut !== undefined)
-    return { ...args, minAmountOut: parameters.minAmountOut }
-  const amountOut = await (async () => {
-    if (parameters.amountOut !== undefined) return parameters.amountOut
-    return getRedeemQuote(client, { amountIn, vault })
+  if (parameters.assetAmountMin !== undefined)
+    return { ...args, assetAmountMin: parameters.assetAmountMin }
+  const assetAmount = await (async () => {
+    if (parameters.assetAmount !== undefined) return parameters.assetAmount
+    return getRedeemQuote(client, { shareAmount, vault })
   })()
   return {
     ...args,
-    amountOut,
+    assetAmount,
     slippageBps: parameters.slippageBps,
   }
 }
@@ -2056,37 +2065,37 @@ async function toWithdrawExactArgs(
   parameters: withdrawExact.Parameters,
 ): Promise<withdrawExact.call.Args> {
   const { vault } = parameters
-  const amountOut = await toBaseUnitsLive(client, {
-    amount: parameters.amountOut,
+  const assetAmount = await toBaseUnitsLive(client, {
+    amount: parameters.assetAmount,
     token: 'asset',
     vault,
   })
   const args = {
-    amountOut,
+    assetAmount,
     recipient: resolveRecipient(client, parameters),
     vault,
   }
-  if (parameters.maxAmountIn !== undefined)
-    return { ...args, maxAmountIn: parameters.maxAmountIn }
-  const amountIn = await (async () => {
-    if (parameters.amountIn !== undefined) return parameters.amountIn
-    return getWithdrawQuote(client, { amountOut, vault })
+  if (parameters.shareAmountMax !== undefined)
+    return { ...args, shareAmountMax: parameters.shareAmountMax }
+  const shareAmount = await (async () => {
+    if (parameters.shareAmount !== undefined) return parameters.shareAmount
+    return getWithdrawQuote(client, { assetAmount, vault })
   })()
   return {
     ...args,
-    amountIn,
+    shareAmount,
     slippageBps: parameters.slippageBps,
   }
 }
 
 /** Raises a quoted input by basis points with ceiling rounding. @internal */
-function maximumInput(amountIn: bigint, slippageBps: number): bigint {
-  if (amountIn <= 0n)
-    throw new EarnShares.InvalidExpectedOutputError({ expected: amountIn })
+function maximumInput(shareAmount: bigint, slippageBps: number): bigint {
+  if (shareAmount <= 0n)
+    throw new EarnShares.InvalidExpectedOutputError({ expected: shareAmount })
   const slippage = BigInt(slippageBps)
   if (slippage < 0n || slippage >= EarnShares.basisPointScale)
     throw new EarnShares.InvalidSlippageError({ slippageBps: slippage })
-  const numerator = amountIn * (EarnShares.basisPointScale + slippage)
+  const numerator = shareAmount * (EarnShares.basisPointScale + slippage)
   // Adding the denominator minus one converts floor division to ceiling.
   return (
     (numerator + EarnShares.basisPointScale - 1n) / EarnShares.basisPointScale

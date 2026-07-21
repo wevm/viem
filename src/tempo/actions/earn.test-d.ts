@@ -31,6 +31,9 @@ test('getVault narrows union and nested fields', async () => {
   const vault = await earnActions.getVault(client, { vault: address })
 
   expectTypeOf(vault).toEqualTypeOf<earnActions.getVault.ReturnValue>()
+  expectTypeOf(vault.assetToken).toEqualTypeOf<Address>()
+  expectTypeOf(vault.shareToken).toEqualTypeOf<Address>()
+  expectTypeOf(vault).not.toHaveProperty('asset')
   expectTypeOf(vault.engineMigrationMode).toEqualTypeOf<
     'operatorEnabled' | 'userOnly'
   >()
@@ -56,6 +59,9 @@ test('getPosition requires an account only without a client account', async () =
     vault: address,
   })
   expectTypeOf(position).toEqualTypeOf<earnActions.getPosition.ReturnValue>()
+  expectTypeOf(position.assetToken).toEqualTypeOf<Address>()
+  expectTypeOf(position.shareToken).toEqualTypeOf<Address>()
+  expectTypeOf(position).not.toHaveProperty('asset')
   expectTypeOf(position.value).toEqualTypeOf<bigint>()
 })
 
@@ -69,17 +75,17 @@ test('getFeeState claimable shares stay optional', async () => {
 })
 
 test('quote reads return bigint amounts', async () => {
-  const amountOut = await earnActions.getRedeemQuote(client, {
-    amountIn: 1n,
+  const assetAmount = await earnActions.getRedeemQuote(client, {
+    shareAmount: 1n,
     vault: address,
   })
-  const amountIn = await earnActions.getWithdrawQuote(client, {
-    amountOut: 1n,
+  const shareAmount = await earnActions.getWithdrawQuote(client, {
+    assetAmount: 1n,
     vault: address,
   })
 
-  expectTypeOf(amountOut).toEqualTypeOf<bigint>()
-  expectTypeOf(amountIn).toEqualTypeOf<bigint>()
+  expectTypeOf(assetAmount).toEqualTypeOf<bigint>()
+  expectTypeOf(shareAmount).toEqualTypeOf<bigint>()
   expectTypeOf(earnActions).not.toHaveProperty('previewRedeem')
   expectTypeOf(earnActions).not.toHaveProperty('previewWithdraw')
   expectTypeOf(decoratedClient.earn).not.toHaveProperty('previewRedeem')
@@ -97,11 +103,14 @@ test('decorated earn reads preserve shapes', async () => {
   expectTypeOf(feeState).toEqualTypeOf<earnActions.getFeeState.ReturnValue>()
 
   expectTypeOf(
-    await decoratedClient.earn.getRedeemQuote({ amountIn: 1n, vault: address }),
+    await decoratedClient.earn.getRedeemQuote({
+      shareAmount: 1n,
+      vault: address,
+    }),
   ).toEqualTypeOf<bigint>()
   expectTypeOf(
     await decoratedClient.earn.getWithdrawQuote({
-      amountOut: 1n,
+      assetAmount: 1n,
       vault: address,
     }),
   ).toEqualTypeOf<bigint>()
@@ -117,51 +126,51 @@ test('minimumOutput lives on EarnShares, not the earn family', () => {
 
 test('write amounts accept AmountInput; resolved bounds stay bigint', async () => {
   expectTypeOf<
-    earnActions.deposit.Args['amountIn']
+    earnActions.deposit.Args['assetAmount']
   >().toEqualTypeOf<internal_Token.AmountInput>()
   expectTypeOf<
-    earnActions.redeem.Args['amountIn']
+    earnActions.redeem.Args['shareAmount']
   >().toEqualTypeOf<internal_Token.AmountInput>()
   expectTypeOf<
-    earnActions.withdrawExact.Args['amountOut']
+    earnActions.withdrawExact.Args['assetAmount']
   >().toEqualTypeOf<internal_Token.AmountInput>()
   expectTypeOf<
     Extract<
       earnActions.deposit.call.Args,
-      { minAmountOut: bigint }
-    >['minAmountOut']
+      { shareAmountMin: bigint }
+    >['shareAmountMin']
   >().toEqualTypeOf<bigint>()
   expectTypeOf<
     Extract<
       earnActions.depositShares.call.Args,
-      { minAmountOut: bigint }
-    >['minAmountOut']
+      { earnShareAmountMin: bigint }
+    >['earnShareAmountMin']
   >().toEqualTypeOf<bigint>()
   expectTypeOf<
-    earnActions.depositShares.Args['amountIn']
+    earnActions.depositShares.Args['venueShareAmount']
   >().toEqualTypeOf<bigint>()
   expectTypeOf<
     Extract<
       earnActions.redeem.call.Args,
-      { minAmountOut: bigint }
-    >['minAmountOut']
+      { assetAmountMin: bigint }
+    >['assetAmountMin']
   >().toEqualTypeOf<bigint>()
   expectTypeOf<
     Extract<
       earnActions.withdrawExact.call.Args,
-      { maxAmountIn: bigint }
-    >['maxAmountIn']
+      { shareAmountMax: bigint }
+    >['shareAmountMax']
   >().toEqualTypeOf<bigint>()
 
   await earnActions.deposit(clientWithAccount, {
-    amountIn: { decimals: 6, formatted: '100' },
-    minAmountOut: 1n,
+    assetAmount: { decimals: 6, formatted: '100' },
+    shareAmountMin: 1n,
     vault: address,
   })
   await earnActions.deposit(clientWithAccount, {
-    amountIn: 1n,
+    assetAmount: 1n,
     // @ts-expect-error bounds derive from quotes and stay bigint
-    minAmountOut: { formatted: '1' },
+    shareAmountMin: { formatted: '1' },
     vault: address,
   })
 })
@@ -201,127 +210,127 @@ test('write args and sync results use recipient', () => {
 
 test('bound branches are exclusive OneOf unions', async () => {
   await earnActions.deposit(clientWithAccount, {
-    amountIn: 1n,
-    minAmountOut: 1n,
+    assetAmount: 1n,
+    shareAmountMin: 1n,
     vault: address,
   })
   await earnActions.deposit(clientWithAccount, {
-    amountIn: 1n,
-    amountOut: 1n,
+    assetAmount: 1n,
+    shareAmount: 1n,
     slippageBps: 50,
     vault: address,
   })
   // @ts-expect-error branches cannot mix
   await earnActions.deposit(clientWithAccount, {
-    amountIn: 1n,
-    amountOut: 1n,
-    minAmountOut: 1n,
+    assetAmount: 1n,
+    shareAmount: 1n,
+    shareAmountMin: 1n,
     slippageBps: 50,
     vault: address,
   })
-  // @ts-expect-error `slippageBps` requires `amountOut`
+  // @ts-expect-error `slippageBps` requires `shareAmount`
   await earnActions.deposit(clientWithAccount, {
-    amountIn: 1n,
+    assetAmount: 1n,
     slippageBps: 50,
     vault: address,
   })
   await earnActions.deposit(clientWithAccount, {
-    amountIn: 1n,
-    amountOut: 1n,
+    assetAmount: 1n,
+    shareAmount: 1n,
     // @ts-expect-error `slippageBps` is a plain number of basis points
     slippageBps: 50n,
     vault: address,
   })
 
   await earnActions.depositShares(clientWithAccount, {
-    minAmountOut: 1n,
+    earnShareAmountMin: 1n,
     vault: address,
-    amountIn: 1n,
-    tokenIn: address,
+    venueShareAmount: 1n,
+    venueShareToken: address,
   })
   await earnActions.depositShares(clientWithAccount, {
-    amountOut: 1n,
+    earnShareAmount: 1n,
     slippageBps: 30,
     vault: address,
-    amountIn: 1n,
-    tokenIn: address,
+    venueShareAmount: 1n,
+    venueShareToken: address,
   })
   // @ts-expect-error branches cannot mix
   await earnActions.depositShares(clientWithAccount, {
-    amountOut: 1n,
-    minAmountOut: 1n,
+    earnShareAmount: 1n,
+    earnShareAmountMin: 1n,
     slippageBps: 30,
     vault: address,
-    amountIn: 1n,
-    tokenIn: address,
+    venueShareAmount: 1n,
+    venueShareToken: address,
   })
-  // @ts-expect-error `tokenIn` is required on the plain action
+  // @ts-expect-error `venueShareToken` is required on the plain action
   await earnActions.depositShares(clientWithAccount, {
-    minAmountOut: 1n,
+    earnShareAmountMin: 1n,
     vault: address,
-    amountIn: 1n,
+    venueShareAmount: 1n,
   })
 
   await earnActions.redeem(clientWithAccount, {
-    minAmountOut: 1n,
-    amountIn: 1n,
+    assetAmountMin: 1n,
+    shareAmount: 1n,
     vault: address,
   })
   await earnActions.redeem(clientWithAccount, {
-    amountOut: 1n,
-    amountIn: 1n,
+    assetAmount: 1n,
+    shareAmount: 1n,
     slippageBps: 50,
     vault: address,
   })
   await earnActions.redeem(clientWithAccount, {
-    amountIn: 1n,
-    slippageBps: 50,
-    vault: address,
-  })
-  // @ts-expect-error branches cannot mix
-  await earnActions.redeem(clientWithAccount, {
-    minAmountOut: 1n,
-    amountIn: 1n,
+    shareAmount: 1n,
     slippageBps: 50,
     vault: address,
   })
   // @ts-expect-error branches cannot mix
   await earnActions.redeem(clientWithAccount, {
-    amountOut: 1n,
-    minAmountOut: 1n,
-    amountIn: 1n,
+    assetAmountMin: 1n,
+    shareAmount: 1n,
+    slippageBps: 50,
+    vault: address,
+  })
+  // @ts-expect-error branches cannot mix
+  await earnActions.redeem(clientWithAccount, {
+    assetAmount: 1n,
+    assetAmountMin: 1n,
+    shareAmount: 1n,
     slippageBps: 50,
     vault: address,
   })
 
   await earnActions.withdrawExact(clientWithAccount, {
-    amountOut: 1n,
-    maxAmountIn: 1n,
+    assetAmount: 1n,
+    shareAmountMax: 1n,
     vault: address,
   })
   await earnActions.withdrawExact(clientWithAccount, {
-    amountOut: 1n,
+    assetAmount: 1n,
     slippageBps: 50,
     vault: address,
   })
   await earnActions.withdrawExact(clientWithAccount, {
-    amountOut: 1n,
-    amountIn: 1n,
-    slippageBps: 50,
-    vault: address,
-  })
-  // @ts-expect-error branches cannot mix
-  await earnActions.withdrawExact(clientWithAccount, {
-    amountOut: 1n,
-    maxAmountIn: 1n,
+    assetAmount: 1n,
+    shareAmount: 1n,
     slippageBps: 50,
     vault: address,
   })
   // @ts-expect-error branches cannot mix
   await earnActions.withdrawExact(clientWithAccount, {
-    amountOut: 1n,
-    amountIn: 1n,
-    maxAmountIn: 1n,
+    assetAmount: 1n,
+    shareAmountMax: 1n,
+    slippageBps: 50,
+    vault: address,
+  })
+  // @ts-expect-error branches cannot mix
+  await earnActions.withdrawExact(clientWithAccount, {
+    assetAmount: 1n,
+    shareAmount: 1n,
+    shareAmountMax: 1n,
     slippageBps: 50,
     vault: address,
   })
@@ -329,132 +338,132 @@ test('bound branches are exclusive OneOf unions', async () => {
 
 test('builders require explicit tokens and recipient', () => {
   earnActions.deposit.calls({
-    amountIn: 1n,
-    tokenIn: address,
-    amountOut: 1n,
+    assetAmount: 1n,
+    assetToken: address,
     recipient: address,
+    shareAmount: 1n,
     slippageBps: 50,
     vault: address,
   })
-  // @ts-expect-error `tokenIn` is required on the builder
+  // @ts-expect-error `assetToken` is required on the builder
   earnActions.deposit.calls({
-    amountIn: 1n,
-    minAmountOut: 1n,
+    assetAmount: 1n,
     recipient: address,
+    shareAmountMin: 1n,
     vault: address,
   })
   // @ts-expect-error `recipient` is required on the builder
   earnActions.deposit.calls({
-    amountIn: 1n,
-    tokenIn: address,
-    minAmountOut: 1n,
+    assetAmount: 1n,
+    assetToken: address,
+    shareAmountMin: 1n,
     vault: address,
   })
 
   earnActions.depositShares.calls({
+    earnShareAmount: 1n,
     engine: address,
-    amountOut: 1n,
     recipient: address,
     slippageBps: 50,
     vault: address,
-    amountIn: 1n,
-    tokenIn: address,
+    venueShareAmount: 1n,
+    venueShareToken: address,
   })
-  // @ts-expect-error `engine` and `tokenIn` are required on the builder
+  // @ts-expect-error `engine` and `venueShareToken` are required on the builder
   earnActions.depositShares.calls({
-    minAmountOut: 1n,
+    earnShareAmountMin: 1n,
     recipient: address,
     vault: address,
-    amountIn: 1n,
+    venueShareAmount: 1n,
   })
 
   earnActions.redeem.calls({
-    amountOut: 1n,
+    assetAmount: 1n,
     recipient: address,
-    tokenIn: address,
-    amountIn: 1n,
+    shareAmount: 1n,
+    shareToken: address,
     slippageBps: 50,
     vault: address,
   })
-  // @ts-expect-error `tokenIn` is required on the builder
+  // @ts-expect-error `shareToken` is required on the builder
   earnActions.redeem.calls({
-    minAmountOut: 1n,
+    assetAmountMin: 1n,
     recipient: address,
-    amountIn: 1n,
+    shareAmount: 1n,
     vault: address,
   })
 
   earnActions.withdrawExact.calls({
-    amountOut: 1n,
-    amountIn: 1n,
+    assetAmount: 1n,
     recipient: address,
-    tokenIn: address,
+    shareAmount: 1n,
+    shareToken: address,
     slippageBps: 50,
     vault: address,
   })
-  // @ts-expect-error `tokenIn` is required on the builder
+  // @ts-expect-error `shareToken` is required on the builder
   earnActions.withdrawExact.calls({
-    amountOut: 1n,
-    maxAmountIn: 1n,
+    assetAmount: 1n,
     recipient: address,
+    shareAmountMax: 1n,
     vault: address,
   })
 })
 
 test('builder bounds are exclusive OneOf unions', () => {
   earnActions.deposit.call({
-    amountIn: 1n,
-    amountOut: 1n,
+    assetAmount: 1n,
     recipient: address,
+    shareAmount: 1n,
     slippageBps: 50,
     vault: address,
   })
   // @ts-expect-error branches cannot mix
   earnActions.deposit.call({
-    amountIn: 1n,
-    amountOut: 1n,
-    minAmountOut: 1n,
+    assetAmount: 1n,
     recipient: address,
+    shareAmount: 1n,
+    shareAmountMin: 1n,
     slippageBps: 50,
     vault: address,
   })
 
   earnActions.depositShares.call({
-    amountOut: 1n,
+    earnShareAmount: 1n,
     recipient: address,
     slippageBps: 50,
     vault: address,
-    amountIn: 1n,
+    venueShareAmount: 1n,
   })
 
   earnActions.redeem.call({
-    amountOut: 1n,
+    assetAmount: 1n,
     recipient: address,
-    amountIn: 1n,
+    shareAmount: 1n,
     slippageBps: 50,
     vault: address,
   })
-  // @ts-expect-error builders require `amountOut` with `slippageBps`
+  // @ts-expect-error builders require `assetAmount` with `slippageBps`
   earnActions.redeem.call({
     recipient: address,
-    amountIn: 1n,
+    shareAmount: 1n,
     slippageBps: 50,
     vault: address,
   })
 
   earnActions.withdrawExact.call({
-    amountOut: 1n,
-    amountIn: 1n,
+    assetAmount: 1n,
     recipient: address,
+    shareAmount: 1n,
     slippageBps: 50,
     vault: address,
   })
   // @ts-expect-error branches cannot mix
   earnActions.withdrawExact.call({
-    amountOut: 1n,
-    amountIn: 1n,
-    maxAmountIn: 1n,
+    assetAmount: 1n,
     recipient: address,
+    shareAmount: 1n,
+    shareAmountMax: 1n,
     slippageBps: 50,
     vault: address,
   })
@@ -462,96 +471,96 @@ test('builder bounds are exclusive OneOf unions', () => {
 
 test('actions do not take builder-only args', async () => {
   await earnActions.deposit(clientWithAccount, {
-    amountIn: 1n,
-    // @ts-expect-error `tokenIn` only exists on the builder
-    tokenIn: address,
-    minAmountOut: 1n,
+    assetAmount: 1n,
+    // @ts-expect-error `assetToken` only exists on the builder
+    assetToken: address,
+    shareAmountMin: 1n,
     vault: address,
   })
   await earnActions.depositShares(clientWithAccount, {
     // @ts-expect-error `engine` only exists on the builder; the action reads it live
     engine: address,
-    minAmountOut: 1n,
+    earnShareAmountMin: 1n,
     vault: address,
-    amountIn: 1n,
-    tokenIn: address,
+    venueShareAmount: 1n,
+    venueShareToken: address,
   })
   await earnActions.redeem(clientWithAccount, {
-    minAmountOut: 1n,
-    // @ts-expect-error `tokenIn` only exists on the builder
-    tokenIn: address,
-    amountIn: 1n,
+    assetAmountMin: 1n,
+    // @ts-expect-error `shareToken` only exists on the builder
+    shareToken: address,
+    shareAmount: 1n,
     vault: address,
   })
 })
 
 test('sync writes spread event args with the receipt', async () => {
   const deposit = await earnActions.depositSync(clientWithAccount, {
-    amountIn: 1n,
-    minAmountOut: 1n,
+    assetAmount: 1n,
+    shareAmountMin: 1n,
     vault: address,
   })
   expectTypeOf(deposit).toEqualTypeOf<earnActions.depositSync.ReturnValue>()
-  expectTypeOf(deposit.amount).toEqualTypeOf<bigint>()
-  expectTypeOf(deposit.shares).toEqualTypeOf<bigint>()
+  expectTypeOf(deposit.assetAmount).toEqualTypeOf<bigint>()
+  expectTypeOf(deposit.shareAmount).toEqualTypeOf<bigint>()
   expectTypeOf(deposit.receipt).toEqualTypeOf<TransactionReceipt>()
 
   const inKind = await earnActions.depositSharesSync(clientWithAccount, {
-    minAmountOut: 1n,
+    earnShareAmountMin: 1n,
     vault: address,
-    amountIn: 1n,
-    tokenIn: address,
+    venueShareAmount: 1n,
+    venueShareToken: address,
   })
-  expectTypeOf(inKind.earnShares).toEqualTypeOf<bigint>()
-  expectTypeOf(inKind.receivedVenueShares).toEqualTypeOf<bigint>()
-  expectTypeOf(inKind.requestedVenueShares).toEqualTypeOf<bigint>()
+  expectTypeOf(inKind.earnShareAmount).toEqualTypeOf<bigint>()
+  expectTypeOf(inKind.receivedVenueShareAmount).toEqualTypeOf<bigint>()
+  expectTypeOf(inKind.venueShareAmount).toEqualTypeOf<bigint>()
 
   const exit = await earnActions.redeemSync(clientWithAccount, {
-    minAmountOut: 1n,
-    amountIn: 1n,
+    assetAmountMin: 1n,
+    shareAmount: 1n,
     vault: address,
   })
-  expectTypeOf(exit.amount).toEqualTypeOf<bigint>()
-  expectTypeOf(exit.shares).toEqualTypeOf<bigint>()
+  expectTypeOf(exit.assetAmount).toEqualTypeOf<bigint>()
+  expectTypeOf(exit.shareAmount).toEqualTypeOf<bigint>()
 
   const exact = await earnActions.withdrawExactSync(clientWithAccount, {
-    amountOut: 1n,
-    maxAmountIn: 1n,
+    assetAmount: 1n,
+    shareAmountMax: 1n,
     vault: address,
   })
-  expectTypeOf(exact.amount).toEqualTypeOf<bigint>()
-  expectTypeOf(exact.sharesBurned).toEqualTypeOf<bigint>()
+  expectTypeOf(exact.assetAmount).toEqualTypeOf<bigint>()
+  expectTypeOf(exact.shareAmount).toEqualTypeOf<bigint>()
 })
 
 test('decorated earn writes preserve shapes', async () => {
   expectTypeOf(
     await decoratedClient.earn.deposit({
-      amountIn: 1n,
-      minAmountOut: 1n,
+      assetAmount: 1n,
+      shareAmountMin: 1n,
       vault: address,
     }),
   ).toEqualTypeOf<earnActions.deposit.ReturnValue>()
   expectTypeOf(
     await decoratedClient.earn.redeem({
-      minAmountOut: 1n,
-      amountIn: 1n,
+      assetAmountMin: 1n,
+      shareAmount: 1n,
       vault: address,
     }),
   ).toEqualTypeOf<earnActions.redeem.ReturnValue>()
 
   const sync = await decoratedClient.earn.withdrawExactSync({
-    amountOut: 1n,
-    maxAmountIn: 1n,
+    assetAmount: 1n,
+    shareAmountMax: 1n,
     vault: address,
   })
-  expectTypeOf(sync.sharesBurned).toEqualTypeOf<bigint>()
+  expectTypeOf(sync.shareAmount).toEqualTypeOf<bigint>()
 
   // Builders and extraction surface on the decorated key.
   decoratedClient.earn.deposit.calls({
-    amountIn: 1n,
-    tokenIn: address,
-    minAmountOut: 1n,
+    assetAmount: 1n,
+    assetToken: address,
     recipient: address,
+    shareAmountMin: 1n,
     vault: address,
   })
   decoratedClient.earn.deposit.extractEvent([], { vault: address })

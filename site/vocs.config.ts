@@ -2332,6 +2332,20 @@ export default defineConfig({
               ],
             },
             {
+              text: 'Earn',
+              collapsed: true,
+              items: [
+                {
+                  text: 'Overview',
+                  link: '/tempo/guides/earn',
+                },
+                {
+                  text: 'Deposit & Withdraw',
+                  link: '/tempo/guides/earn/deposit-withdraw',
+                },
+              ],
+            },
+            {
               text: 'Virtual Addresses',
               collapsed: true,
               items: [
@@ -2585,6 +2599,48 @@ export default defineConfig({
                 {
                   text: 'withdraw',
                   link: '/tempo/actions/channel.withdraw',
+                },
+              ],
+            },
+            {
+              text: 'Earn',
+              collapsed: true,
+              items: [
+                {
+                  text: 'deposit',
+                  link: '/tempo/actions/earn.deposit',
+                },
+                {
+                  text: 'depositShares',
+                  link: '/tempo/actions/earn.depositShares',
+                },
+                {
+                  text: 'getFeeState',
+                  link: '/tempo/actions/earn.getFeeState',
+                },
+                {
+                  text: 'getPosition',
+                  link: '/tempo/actions/earn.getPosition',
+                },
+                {
+                  text: 'getRedeemQuote',
+                  link: '/tempo/actions/earn.getRedeemQuote',
+                },
+                {
+                  text: 'getVault',
+                  link: '/tempo/actions/earn.getVault',
+                },
+                {
+                  text: 'getWithdrawQuote',
+                  link: '/tempo/actions/earn.getWithdrawQuote',
+                },
+                {
+                  text: 'redeem',
+                  link: '/tempo/actions/earn.redeem',
+                },
+                {
+                  text: 'withdrawExact',
+                  link: '/tempo/actions/earn.withdrawExact',
                 },
               ],
             },

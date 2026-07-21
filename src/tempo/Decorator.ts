@@ -1762,8 +1762,8 @@ type DecoratorBase<
      * }).extend(tempoActions())
      *
      * const hash = await client.earn.deposit({
-     *   amountIn: 100_000_000n,
-     *   minAmountOut: 99_400_000n,
+     *   assetAmount: 100_000_000n,
+     *   shareAmountMin: 99_400_000n,
      *   vault: '0x...',
      * })
      * ```
@@ -1792,10 +1792,10 @@ type DecoratorBase<
      * }).extend(tempoActions())
      *
      * const hash = await client.earn.depositShares({
-     *   amountIn: 500_000_000n,
-     *   minAmountOut: 499_000_000n,
+     *   earnShareAmountMin: 499_000_000n,
      *   vault: '0x...',
-     *   tokenIn: '0x...',
+     *   venueShareAmount: 500_000_000n,
+     *   venueShareToken: '0x...',
      * })
      * ```
      *
@@ -1821,11 +1821,11 @@ type DecoratorBase<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const { earnShares } = await client.earn.depositSharesSync({
-     *   amountIn: 500_000_000n,
-     *   minAmountOut: 499_000_000n,
+     * const { earnShareAmount } = await client.earn.depositSharesSync({
+     *   earnShareAmountMin: 499_000_000n,
      *   vault: '0x...',
-     *   tokenIn: '0x...',
+     *   venueShareAmount: 500_000_000n,
+     *   venueShareToken: '0x...',
      * })
      * ```
      *
@@ -1851,9 +1851,9 @@ type DecoratorBase<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const { shares } = await client.earn.depositSync({
-     *   amountIn: 100_000_000n,
-     *   minAmountOut: 99_400_000n,
+     * const { shareAmount } = await client.earn.depositSync({
+     *   assetAmount: 100_000_000n,
+     *   shareAmountMin: 99_400_000n,
      *   vault: '0x...',
      * })
      * ```
@@ -1958,8 +1958,8 @@ type DecoratorBase<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const amountOut = await client.earn.getRedeemQuote({
-     *   amountIn: 100_000_000n,
+     * const assetAmount = await client.earn.getRedeemQuote({
+     *   shareAmount: 100_000_000n,
      *   vault: '0x...',
      * })
      * ```
@@ -1985,8 +1985,8 @@ type DecoratorBase<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const amountIn = await client.earn.getWithdrawQuote({
-     *   amountOut: 250_000_000n,
+     * const shareAmount = await client.earn.getWithdrawQuote({
+     *   assetAmount: 250_000_000n,
      *   vault: '0x...',
      * })
      * ```
@@ -2015,7 +2015,7 @@ type DecoratorBase<
      * }).extend(tempoActions())
      *
      * const hash = await client.earn.redeem({
-     *   amountIn: 100_000_000n,
+     *   shareAmount: 100_000_000n,
      *   slippageBps: 50,
      *   vault: '0x...',
      * })
@@ -2043,9 +2043,9 @@ type DecoratorBase<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const { amount } = await client.earn.redeemSync({
-     *   amountIn: 100_000_000n,
-     *   minAmountOut: 99_500_000n,
+     * const { assetAmount } = await client.earn.redeemSync({
+     *   assetAmountMin: 99_500_000n,
+     *   shareAmount: 100_000_000n,
      *   vault: '0x...',
      * })
      * ```
@@ -2075,7 +2075,7 @@ type DecoratorBase<
      * }).extend(tempoActions())
      *
      * const hash = await client.earn.withdrawExact({
-     *   amountOut: 40_000_000n,
+     *   assetAmount: 40_000_000n,
      *   slippageBps: 50,
      *   vault: '0x...',
      * })
@@ -2103,9 +2103,9 @@ type DecoratorBase<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const { sharesBurned } = await client.earn.withdrawExactSync({
-     *   amountOut: 40_000_000n,
-     *   maxAmountIn: 40_200_000n,
+     * const { shareAmount } = await client.earn.withdrawExactSync({
+     *   assetAmount: 40_000_000n,
+     *   shareAmountMax: 40_200_000n,
      *   vault: '0x...',
      * })
      * ```

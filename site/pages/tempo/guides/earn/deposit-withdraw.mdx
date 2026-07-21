@@ -1,0 +1,230 @@
+---
+description: Deposit assets or venue shares into an Earn vault and exit by shares or an exact asset amount.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Deposit and Withdraw
+
+## Overview
+
+Earn actions approve the required token and perform the vault action in one transaction. Every
+entry and exit includes an output or input bound, protecting the position if its value changes before
+the transaction executes.
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo) and selected a vault address.
+
+### Inspect the Vault
+
+Read the vault before entering it. Check that deposits are active, its accounting is synchronized,
+and the action you need is supported.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const vault = await client.earn.getVault({
+  vault: '0x0000000000000000000000000000000000000001', // [!code focus]
+})
+// @log: {
+//   capabilities: { exactWithdraw: true, inKindDeposit: true, syncRedeem: true, ... },
+//   depositsPaused: false,
+//   isSynced: true,
+//   ...
+// }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Deposit Assets
+
+Use [`earn.depositSync`](/tempo/actions/earn.deposit) with a current vault share quote and a slippage
+tolerance. The action derives a minimum share output, then approves and deposits the vault asset.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.earn.depositSync({
+  assetAmount: { formatted: '100' }, // [!code focus]
+  shareAmount: 99_900_000n, // [!code focus]
+  slippageBps: 50, // [!code focus]
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: { assetAmount: 100_000_000n, shareAmount: 99_500_500n, receipt: { ... }, ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+There is no live deposit quote action. Obtain `shareAmount` from the vault provider or another trusted
+quote source close to submission. If that source already gives you an acceptable floor, pass it as
+`shareAmountMin` instead.
+
+### Deposit Venue Shares
+
+Use [`earn.depositSharesSync`](/tempo/actions/earn.depositShares) to move an existing venue position
+into a vault without first converting it back to assets. The vault must report
+`capabilities.inKindDeposit: true`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.earn.depositSharesSync({
+  earnShareAmountMin: 497_000_000n,
+  vault: '0x0000000000000000000000000000000000000002',
+  venueShareAmount: 500_000_000n, // [!code focus]
+  venueShareToken: '0x20c0000000000000000000000000000000000001', // [!code focus]
+})
+// @log: { earnShareAmount: 498_750_000n, receivedVenueShareAmount: 500_000_000n, ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Inspect a Position
+
+Use [`earn.getPosition`](/tempo/actions/earn.getPosition) to read the account's current vault shares
+and their asset value before choosing an exit.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const position = await client.earn.getPosition({
+  vault: '0x0000000000000000000000000000000000000001', // [!code focus]
+})
+// @log: {
+//   assetBalance: 250_000_000n,
+//   shareBalance: 99_500_000n,
+//   value: 100_000_000n,
+//   ...
+// }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Redeem Vault Shares
+
+Use [`earn.redeemSync`](/tempo/actions/earn.redeem) when the number of shares leaving the position is
+fixed. Passing only `slippageBps` makes the action fetch a live asset quote and derive the minimum
+output.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.earn.redeemSync({
+  shareAmount: 99_500_000n, // [!code focus]
+  slippageBps: 50, // [!code focus]
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: { assetAmount: 99_000_000n, shareAmount: 99_500_000n, receipt: { ... }, ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+To redeem the whole position, pass `position.shareBalance` as `shareAmount`.
+
+### Withdraw Exact Assets
+
+Use [`earn.withdrawExactSync`](/tempo/actions/earn.withdrawExact) when the asset output is fixed. The
+action gets a live share quote and applies `slippageBps` as the maximum input headroom. The vault must
+report `capabilities.exactWithdraw: true`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.earn.withdrawExactSync({
+  assetAmount: { formatted: '40' }, // [!code focus]
+  slippageBps: 50, // [!code focus]
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: { assetAmount: 40_000_000n, shareAmount: 40_100_000n, receipt: { ... }, ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Always Bound Execution
+
+Use `shareAmountMin`, `earnShareAmountMin`, or `assetAmountMin` to set an exact floor. Use
+`shareAmountMax` to set an exact withdrawal ceiling, or derive any bound from a quote with
+`slippageBps`.
+
+### Quote Close to Submission
+
+Vault value and pending fees can change between a quote and execution. Fetch or calculate bounds
+immediately before sending the transaction.
+
+### Choose the Right Exit
+
+Use `redeem` when the share input is fixed or you want to exit the full position. Use
+`withdrawExact` when the asset output is fixed.
+
+### Check Vault State
+
+Do not deposit while `depositsPaused` is true. Check `isSynced` and the relevant capability before
+using specialized entry or exit actions.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:wallet-cards"
+    title="Inspect a Position"
+    description="Read balances, allowances, shares, and current asset value."
+    to="/tempo/actions/earn.getPosition"
+  />
+  <Card
+    icon="lucide:badge-dollar-sign"
+    title="Inspect Fees"
+    description="Read active fee settings, baselines, and pending fee amounts."
+    to="/tempo/actions/earn.getFeeState"
+  />
+  <Card
+    icon="lucide:arrow-down-to-line"
+    title="Deposit Assets"
+    description="See every deposit option and return field."
+    to="/tempo/actions/earn.deposit"
+  />
+  <Card
+    icon="lucide:arrow-up-from-line"
+    title="Withdraw Assets"
+    description="Compare exact-share redemptions with exact-asset withdrawals."
+    to="/tempo/actions/earn.redeem"
+  />
+</Cards>

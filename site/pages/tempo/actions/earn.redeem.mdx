@@ -1,0 +1,138 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `earn.redeem`
+
+Redeems an exact number of vault shares for assets sent to a recipient.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.earn.redeemSync({
+  shareAmount: { formatted: '100' },
+  slippageBps: 50,
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: {
+//   assetAmount: 99_500_000n,
+//   caller: '0x...',
+//   receipt: { ... },
+//   recipient: '0x...',
+//   shareAmount: 100_000_000n,
+// }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+When only `slippageBps` is provided, the action gets a live
+[`earn.getRedeemQuote`](/tempo/actions/earn.getRedeemQuote) and derives the minimum asset output.
+The transaction approves the vault shares and redeems them atomically.
+
+### Use an Existing Quote
+
+Pass `assetAmount` with `slippageBps` when you already have a recent asset quote.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.earn.redeemSync({
+  assetAmount: 99_750_000n,
+  shareAmount: 100_000_000n,
+  slippageBps: 50,
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: { assetAmount: 99_500_000n, shareAmount: 100_000_000n, ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+`earn.redeemSync` waits for inclusion and returns the decoded redemption event. Use `earn.redeem`
+to return the transaction hash immediately.
+
+```ts twoslash
+import { client } from './viem.config'
+
+const hash = await client.earn.redeem({
+  assetAmountMin: 99_000_000n,
+  shareAmount: 100_000_000n,
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: 0x1234...abcd
+```
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  /** Assets paid out. */
+  assetAmount: bigint
+  /** Redeeming caller. */
+  caller: Address
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+  /** Asset recipient. */
+  recipient: Address
+  /** Vault shares burned. */
+  shareAmount: bigint
+}
+```
+
+The asynchronous action returns the transaction hash instead.
+
+## Parameters
+
+### assetAmount (optional)
+
+- **Type:** `bigint`
+
+Quoted asset output. Provide it with `slippageBps` to avoid a live quote.
+
+### assetAmountMin (optional)
+
+- **Type:** `bigint`
+
+Minimum assets to accept. It must be greater than zero and cannot be combined with `assetAmount` or
+`slippageBps`.
+
+### recipient (optional)
+
+- **Type:** `Address`
+- **Default:** `account.address`
+
+Asset recipient.
+
+### shareAmount
+
+- **Type:** `bigint | { decimals?: number | undefined; formatted: string }`
+
+Vault shares to redeem. A `bigint` uses base units; a formatted value uses the share token's
+decimals unless `decimals` is provided.
+
+### slippageBps (optional)
+
+- **Type:** `number`
+
+Slippage tolerance below the provided or live quote, in basis points. For example, `50` means 0.5%.
+
+### vault
+
+- **Type:** `Address`
+
+Vault address.
+
+<WriteParameters />
