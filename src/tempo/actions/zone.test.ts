@@ -27,10 +27,8 @@ import {
   factoryAddress,
   getClient as getZoneClient,
   portalAddress,
-  http as zoneHttp,
   zoneId,
 } from '~test/tempo/zones.js'
-import { WaitForDepositStatusTimeoutError } from '../errors.js'
 import * as Storage from '../Storage.js'
 import * as ZoneAbis from '../zones/Abis.js'
 import { getPortalAddress } from '../zones/zone.js'
@@ -280,101 +278,6 @@ describe('getAuthorizationTokenInfo', () => {
 
     expect(info.account.toLowerCase()).toBe(account.address.toLowerCase())
     expect(info.expiresAt).toBeGreaterThan(0n)
-  })
-})
-
-describe('getDepositStatus', () => {
-  test('behavior: returns deposit status for block', async () => {
-    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
-
-    const status = await zoneActions.getDepositStatus(zoneClient, {
-      tempoBlockNumber: 1n,
-    })
-
-    expect(typeof status.processed).toBe('boolean')
-    expect(typeof status.tempoBlockNumber).toBe('bigint')
-    expect(typeof status.zoneProcessedThrough).toBe('bigint')
-    expect(Array.isArray(status.deposits)).toBe(true)
-  })
-})
-
-describe('waitForDepositStatus', () => {
-  test('behavior: waits for deposit processing', async () => {
-    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
-    const { receipt } = await zoneActions.depositSync(
-      mainnetClient,
-      depositParameters,
-    )
-
-    const [result, concurrentResult] = await Promise.all([
-      zoneActions.waitForDepositStatus(zoneClient, {
-        pollingInterval: 100,
-        tempoBlockNumber: receipt.blockNumber,
-        timeout: 0,
-      }),
-      zoneActions.waitForDepositStatus(zoneClient, {
-        pollingInterval: 100,
-        tempoBlockNumber: receipt.blockNumber,
-        timeout: 30_000,
-      }),
-    ])
-
-    expect(result.processed).toBe(true)
-    expect(result.tempoBlockNumber).toBe(receipt.blockNumber)
-    expect(result.zoneProcessedThrough).toBeGreaterThanOrEqual(
-      receipt.blockNumber,
-    )
-    expect(result.deposits[0]).toMatchObject({
-      amount: parseUnits('1', 6),
-      kind: 'regular',
-      recipient: account.address.toLowerCase(),
-      sender: account.address.toLowerCase(),
-      status: 'processed',
-    })
-    expect(concurrentResult).toEqual(result)
-
-    await expect(
-      zoneActions.waitForDepositStatus(zoneClient, {
-        pollingInterval: 100,
-        tempoBlockNumber: receipt.blockNumber,
-        timeout: 2_000,
-      }),
-    ).resolves.toMatchObject({
-      deposits: result.deposits,
-      processed: true,
-      tempoBlockNumber: receipt.blockNumber,
-    })
-  }, 40_000)
-
-  test('error: unprocessed block times out', async () => {
-    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
-    const tempoBlockNumber = BigInt(
-      await mainnetClient.request({ method: 'eth_blockNumber' }),
-    )
-
-    await expect(
-      zoneActions.getDepositStatus(zoneClient, { tempoBlockNumber }),
-    ).resolves.toMatchObject({ processed: false, tempoBlockNumber })
-
-    await expect(
-      zoneActions.waitForDepositStatus(zoneClient, {
-        pollingInterval: 10,
-        tempoBlockNumber,
-        timeout: 100,
-      }),
-    ).rejects.toBeInstanceOf(WaitForDepositStatusTimeoutError)
-  })
-
-  test('error: propagates zone RPC errors', async () => {
-    const client = getZoneClient({
-      transport: zoneHttp(undefined, { storage: Storage.memory() }),
-    })
-
-    await expect(
-      zoneActions.waitForDepositStatus(client, {
-        tempoBlockNumber: 1n,
-      }),
-    ).rejects.toThrow('HTTP request failed')
   })
 })
 

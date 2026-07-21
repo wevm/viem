@@ -45,7 +45,6 @@ test('exports tempo', () => {
       "withRelay",
       "WebAuthnP256",
       "WebCryptoP256",
-      "WaitForDepositStatusTimeoutError",
       "InvalidFeeTokenError",
       "FeeTokenNotTip20Error",
       "FeeTokenNotUsdError",

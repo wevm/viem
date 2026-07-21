@@ -127,14 +127,6 @@ test('getEncryptionKey returns the active key and index', async () => {
   })
 })
 
-test('waitForDepositStatus returns a deposit status', async () => {
-  const result = await zoneActions.waitForDepositStatus(client, {
-    tempoBlockNumber: 1n,
-  })
-
-  expectTypeOf(result).toEqualTypeOf<zoneActions.getDepositStatus.ReturnType>()
-})
-
 test('getZoneInfo returns the imported Tempo block number', async () => {
   const info = await zoneActions.getZoneInfo(zoneClient)
 

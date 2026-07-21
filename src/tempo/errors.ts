@@ -1,19 +1,5 @@
 import { BaseError } from '../errors/base.js'
 
-export type WaitForDepositStatusTimeoutErrorType =
-  WaitForDepositStatusTimeoutError & {
-    name: 'WaitForDepositStatusTimeoutError'
-  }
-
-export class WaitForDepositStatusTimeoutError extends BaseError {
-  constructor({ tempoBlockNumber }: { tempoBlockNumber: bigint }) {
-    super(
-      `Timed out while waiting for deposits from Tempo block "${tempoBlockNumber}" to be processed.`,
-      { name: 'WaitForDepositStatusTimeoutError' },
-    )
-  }
-}
-
 export type InvalidFeeTokenErrorType = InvalidFeeTokenError & {
   name: 'InvalidFeeTokenError'
 }
