@@ -1344,6 +1344,21 @@ export namespace getRedeemQuote {
   /**
    * Defines a call to the vault's `previewRedeem` function.
    *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`multicall`](https://viem.sh/docs/contract/multicall): batch the call with other contract reads
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   *
+   * @example
+   * ```ts
+   * import { Actions } from 'viem/tempo'
+   *
+   * const call = Actions.earn.getRedeemQuote.call({
+   *   shareAmount: 100_000_000n,
+   *   vault: '0x...',
+   * })
+   * ```
+   *
    * @param args - Arguments.
    * @returns The call.
    */
@@ -1672,6 +1687,21 @@ export namespace getWithdrawQuote {
 
   /**
    * Defines a call to the vault's `previewWithdraw` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`multicall`](https://viem.sh/docs/contract/multicall): batch the call with other contract reads
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   *
+   * @example
+   * ```ts
+   * import { Actions } from 'viem/tempo'
+   *
+   * const call = Actions.earn.getWithdrawQuote.call({
+   *   assetAmount: 250_000_000n,
+   *   vault: '0x...',
+   * })
+   * ```
    *
    * @param args - Arguments.
    * @returns The call.
