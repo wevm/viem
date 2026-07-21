@@ -402,6 +402,231 @@ test('args: mode (multicall executes via aggregate3)', async () => {
   `)
 })
 
+test('behavior: batches concurrent multicalls', async () => {
+  const requests: string[] = []
+
+  const proxy = Client.create({
+    batch: { multicall: true },
+    chain: client.chain,
+    transport: custom({
+      async request({ method, params }: { method: string; params: unknown }) {
+        requests.push(method)
+        return client.request({ method, params })
+      },
+    }),
+  })
+
+  const [token, nft] = await Promise.all([
+    Actions.multicall(proxy, {
+      mode: 'multicall',
+      calls: [
+        {
+          abi: erc20Abi,
+          functionName: 'name',
+          to: usdcAddress,
+        },
+        {
+          abi: erc20Abi,
+          functionName: 'symbol',
+          to: usdcAddress,
+        },
+      ],
+    }),
+    Actions.multicall(proxy, {
+      mode: 'multicall',
+      calls: [
+        {
+          abi: erc20Abi,
+          functionName: 'name',
+          to: baycAddress,
+        },
+      ],
+    }),
+  ])
+
+  expect(requests).toMatchInlineSnapshot(`
+    [
+      "eth_call",
+    ]
+  `)
+  expect(token.results).toMatchInlineSnapshot(`
+    [
+      {
+        "error": undefined,
+        "result": "USD Coin",
+        "status": "success",
+      },
+      {
+        "error": undefined,
+        "result": "USDC",
+        "status": "success",
+      },
+    ]
+  `)
+  expect(nft.results).toMatchInlineSnapshot(`
+    [
+      {
+        "error": undefined,
+        "result": "BoredApeYachtClub",
+        "status": "success",
+      },
+    ]
+  `)
+})
+
+test('behavior: does not batch incompatible concurrent multicalls', async () => {
+  const requests: string[] = []
+
+  const proxy = Client.create({
+    batch: { multicall: { deployless: true } },
+    chain: client.chain,
+    transport: custom({
+      async request({ method, params }: { method: string; params: unknown }) {
+        requests.push(method)
+        return client.request({ method, params })
+      },
+    }),
+  })
+
+  await Promise.all([
+    Actions.multicall(proxy, {
+      blockNumber: anvil.mainnet.forkBlockNumber,
+      mode: 'multicall',
+      calls: [
+        {
+          abi: erc20Abi,
+          functionName: 'name',
+          to: usdcAddress,
+        },
+      ],
+    }),
+    Actions.multicall(proxy, {
+      blockTag: 'latest',
+      mode: 'multicall',
+      calls: [
+        {
+          abi: erc20Abi,
+          functionName: 'symbol',
+          to: usdcAddress,
+        },
+      ],
+    }),
+  ])
+
+  expect(requests).toMatchInlineSnapshot(`
+    [
+      "eth_call",
+      "eth_call",
+    ]
+  `)
+})
+
+test('behavior: preserves concurrent failure boundaries', async () => {
+  const requests: string[] = []
+
+  const proxy = Client.create({
+    batch: { multicall: { deployless: true } },
+    chain: client.chain,
+    transport: custom({
+      async request({ method, params }: { method: string; params: unknown }) {
+        requests.push(method)
+        return client.request({ method, params })
+      },
+    }),
+  })
+
+  const [failed, successful] = await Promise.allSettled([
+    Actions.multicall(proxy, {
+      allowFailure: false,
+      mode: 'multicall',
+      calls: [
+        {
+          abi: wagmiAbi,
+          args: [1n],
+          functionName: 'mint',
+          to: wagmiAddress,
+        },
+      ],
+    }),
+    Actions.multicall(proxy, {
+      mode: 'multicall',
+      calls: [
+        {
+          abi: erc20Abi,
+          functionName: 'name',
+          to: usdcAddress,
+        },
+      ],
+    }),
+  ])
+
+  expect(failed.status).toMatchInlineSnapshot(`"rejected"`)
+  expect(successful).toMatchInlineSnapshot(`
+    {
+      "status": "fulfilled",
+      "value": {
+        "results": [
+          {
+            "error": undefined,
+            "result": "USD Coin",
+            "status": "success",
+          },
+        ],
+      },
+    }
+  `)
+  expect(requests).toMatchInlineSnapshot(`
+    [
+      "eth_call",
+    ]
+  `)
+})
+
+test('behavior: respects batch size across concurrent multicalls', async () => {
+  const requests: string[] = []
+
+  const proxy = Client.create({
+    batch: { multicall: { batchSize: 4, deployless: true } },
+    chain: client.chain,
+    transport: custom({
+      async request({ method, params }: { method: string; params: unknown }) {
+        requests.push(method)
+        return client.request({ method, params })
+      },
+    }),
+  })
+
+  await Promise.all([
+    Actions.multicall(proxy, {
+      mode: 'multicall',
+      calls: [
+        {
+          abi: erc20Abi,
+          functionName: 'name',
+          to: usdcAddress,
+        },
+      ],
+    }),
+    Actions.multicall(proxy, {
+      mode: 'multicall',
+      calls: [
+        {
+          abi: erc20Abi,
+          functionName: 'symbol',
+          to: usdcAddress,
+        },
+      ],
+    }),
+  ])
+
+  expect(requests).toMatchInlineSnapshot(`
+    [
+      "eth_call",
+      "eth_call",
+    ]
+  `)
+})
+
 test('args: mode (multicall decodes failures)', async () => {
   const { results } = await Actions.multicall(client, {
     mode: 'multicall',
