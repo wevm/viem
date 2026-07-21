@@ -84,7 +84,7 @@ export declare namespace from {
   type ParameterValue<
     token extends Parameters,
     key extends keyof Parameters,
-  > = token extends { [_ in key]?: infer value } ? value : undefined
+  > = key extends keyof token ? token[key] : undefined
 
   type Parameters<
     addresses extends Record<number, Address.Address> = Record<
