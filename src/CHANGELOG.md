@@ -1,5 +1,13 @@
 # viem
 
+## 2.55.6
+
+### Patch Changes
+
+- [#4878](https://github.com/wevm/viem/pull/4878) [`fe79685307b4f85ba6d1d2c3ed3a8be3a62e9f3a`](https://github.com/wevm/viem/commit/fe79685307b4f85ba6d1d2c3ed3a8be3a62e9f3a) Thanks [@decofe](https://github.com/decofe)! - Added `tempoBlockNumber` to the return value of `zone.getZoneInfo`.
+
+  **Breaking (viem/tempo):** Replaced `zone.waitForDepositStatus` with `zone.waitForTempoBlock`, backed by the new zone info field, and removed `zone.getDepositStatus` with the underlying RPC method.
+
 ## 2.55.5
 
 ### Patch Changes
