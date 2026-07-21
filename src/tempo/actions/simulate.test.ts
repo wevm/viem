@@ -43,7 +43,7 @@ describe('simulateBlocks', () => {
       {
         "calls": [
           {
-            "gasUsed": 22080n,
+            "gasUsed": 271644n,
             "logs": [],
             "status": "success",
           },
@@ -88,7 +88,7 @@ describe('simulateBlocks', () => {
       ),
     }).toMatchInlineSnapshot(`
       {
-        "gasUsed": 287170n,
+        "gasUsed": 539270n,
         "logs": [
           {
             "address": "0x20c0000000000000000000000000000000000001",
@@ -100,7 +100,7 @@ describe('simulateBlocks', () => {
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
               "0x0000000000000000000000008c8d35429f74ec245f8ef2f4fd1e551cff97d650",
             ],
-            "transactionHash": "0x1cf44b23d9c272c374ae0e2539b96673f0bf2e07a17afc696e4e3a4e256b7cef",
+            "transactionHash": "0x9f28dc5a4f517fd897be777b9d825503afc02f0d778e934c9560e4143d47ff2e",
             "transactionIndex": 0,
           },
         ],
