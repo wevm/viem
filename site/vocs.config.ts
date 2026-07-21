@@ -56,7 +56,7 @@ export default defineConfig({
   iconUrl: { light: '/favicons/light.png', dark: '/favicons/dark.png' },
   logoUrl: { light: '/icon-light.png', dark: '/icon-dark.png' },
   codeHighlight: {
-    // Vocs 2.5.3 includes the unsupported `sol` alias in its defaults.
+    // Vocs includes the unsupported `sol` alias in its defaults.
     langs: ['bash', 'html', 'json', 'sh', 'ts'],
     themes: {
       light: shikiLight,
