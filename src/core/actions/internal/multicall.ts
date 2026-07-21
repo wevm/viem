@@ -86,7 +86,9 @@ export function hasStateOverrideForAddress(
 
 let requestOptionsId = 0
 const requestOptionsIds = new WeakMap<object, number>()
-function getRequestOptionsId(
+
+/** Returns an identity-stable key for request options. */
+export function getRequestOptionsId(
   requestOptions: RequestOptions,
 ): number | 'default' {
   if (!requestOptions) return 'default'

@@ -9,6 +9,7 @@ import * as ContractError from '../ContractError.js'
 import { BaseError } from '../Errors.js'
 import type * as RpcError from '../RpcError.js'
 import { isAbortError } from '../internal/errors.js'
+import { createBatchScheduler } from '../internal/promise.js'
 import type { Prettify } from '../internal/types.js'
 import type { Call, CallResults, Calls } from './internal/calls.js'
 import { resolveReturnShape } from './internal/contract.js'
@@ -17,6 +18,7 @@ import { toDeploylessCallViaBytecodeData } from './internal/deployless.js'
 import {
   aggregate3Abi,
   getMulticallAddress,
+  getRequestOptionsId,
   isMethodNotSupportedError,
 } from './internal/multicall.js'
 import { simulate } from './block/simulate.js'
@@ -40,6 +42,17 @@ const tokenUriAbi = /*#__PURE__*/ Abi.from([
 const getBalanceFn = /*#__PURE__*/ AbiFunction.from(
   'function getBalance(address)',
 )
+
+type Aggregate3Call = {
+  allowFailure: boolean
+  callData: Hex.Hex
+  target: Address.Address
+}
+
+type Aggregate3Result = {
+  returnData: Hex.Hex
+  success: boolean
+}
 
 /** Per-client `eth_simulateV1` support, learned from method-not-found rejections. */
 const simulateV1Support = /*#__PURE__*/ new Map<string, boolean>()
@@ -445,11 +458,6 @@ async function executeMulticall(
     multicallAddress_ ??
     getMulticallAddress(client, { blockNumber, deployless })
 
-  type Aggregate3Call = {
-    allowFailure: boolean
-    callData: Hex.Hex
-    target: Address.Address
-  }
   type EncodedCall = {
     call: Call
     error?: Error | undefined
@@ -516,8 +524,25 @@ async function executeMulticall(
   const block =
     typeof blockNumber === 'bigint' ? Hex.fromNumber(blockNumber) : blockTag
 
+  const batching = Boolean(client.batch?.multicall)
+  const batches = batching
+    ? chunks.flatMap((chunk) => chunk.map((call) => [call]))
+    : chunks
   const chunkResults = await Promise.allSettled(
-    chunks.map(async (chunk) => {
+    batches.map(async (chunk) => {
+      if (batching)
+        return [
+          await scheduleMulticall(client, {
+            batchSize,
+            block,
+            call: chunk[0]!,
+            from,
+            multicallAddress,
+            requestOptions,
+            stateOverride,
+          }),
+        ]
+
       const calldata = AbiFunction.encodeData(aggregate3Abi, [chunk])
 
       const request =
@@ -543,7 +568,7 @@ async function executeMulticall(
 
       return AbiFunction.decodeResult(aggregate3Abi, response as Hex.Hex, {
         as: 'Object',
-      }) as readonly { returnData: Hex.Hex; success: boolean }[]
+      }) as readonly Aggregate3Result[]
     }),
   )
 
@@ -558,7 +583,7 @@ async function executeMulticall(
     // A failed chunk request (e.g. network error) fails each of its calls.
     if (chunkResult.status === 'rejected') {
       if (!allowFailure) throw chunkResult.reason
-      for (let j = 0; j < chunks[i]!.length; j++) {
+      for (let j = 0; j < batches[i]!.length; j++) {
         results.push({
           error: chunkResult.reason as Error,
           result: undefined,
@@ -570,7 +595,7 @@ async function executeMulticall(
     }
 
     for (const [j, { returnData, success }] of chunkResult.value.entries()) {
-      const { callData } = chunks[i]![j]!
+      const { callData } = batches[i]![j]!
       const { call, error: encodeError } = encoded[resultIndex]!
       const { abi, args, functionName, to } = call
       resultIndex++
@@ -610,6 +635,89 @@ async function executeMulticall(
     throw new BaseError('multicall results mismatch')
 
   return { results: applyAllowFailure(results, allowFailure) }
+}
+
+async function scheduleMulticall(
+  client: Client.Client,
+  options: {
+    batchSize: number
+    block: Hex.Hex | Block.Tag
+    call: Aggregate3Call
+    from: Address.Address | undefined
+    multicallAddress: Address.Address | null
+    requestOptions?: RequestOptions
+    stateOverride?: StateOverrides.StateOverrides | undefined
+  },
+): Promise<Aggregate3Result> {
+  const {
+    batchSize,
+    block,
+    call,
+    from,
+    multicallAddress,
+    requestOptions,
+    stateOverride,
+  } = options
+  const { wait = 0 } =
+    typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}
+  const rpcStateOverride = stateOverride
+    ? StateOverrides.toRpc(stateOverride)
+    : undefined
+
+  const { schedule } = createBatchScheduler<
+    Aggregate3Call,
+    readonly Aggregate3Result[]
+  >({
+    id: JSON.stringify([
+      'multicall',
+      client.uid,
+      batchSize,
+      block,
+      from,
+      multicallAddress,
+      getRequestOptionsId(requestOptions),
+      rpcStateOverride,
+    ]),
+    wait,
+    shouldSplitBatch(calls) {
+      if (batchSize <= 0) return false
+      const size = calls.reduce(
+        (size, { callData }) => size + (callData.length - 2) / 2,
+        0,
+      )
+      return size > batchSize
+    },
+    async fn(calls) {
+      const calldata = AbiFunction.encodeData(aggregate3Abi, [calls])
+      const request =
+        multicallAddress === null
+          ? {
+              data: toDeploylessCallViaBytecodeData({
+                code: multicall3Bytecode,
+                data: calldata,
+              }),
+              from,
+            }
+          : { data: calldata, from, to: multicallAddress }
+
+      const response = await client.request(
+        {
+          method: 'eth_call',
+          params: rpcStateOverride
+            ? [request, block, rpcStateOverride]
+            : [request, block],
+        },
+        requestOptions,
+      )
+
+      return AbiFunction.decodeResult(aggregate3Abi, response as Hex.Hex, {
+        as: 'Object',
+      }) as readonly Aggregate3Result[]
+    },
+  })
+
+  const [result] = await schedule(call)
+  return result
 }
 
 /** Collapses status objects to bare results when `allowFailure` is `false`. */
