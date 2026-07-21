@@ -2,6 +2,10 @@
 
 Returns deposit processing status for a given Tempo block number.
 
+:::warning Deprecated
+Use [`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo) and compare `tempoBlockNumber` instead. The underlying `zone_getDepositStatus` RPC method is being removed.
+:::
+
 Use [`zone.waitForDepositStatus`](/tempo/actions/zone.waitForDepositStatus) when you need to wait until processing completes.
 
 ## Usage

@@ -2,6 +2,10 @@
 
 Waits until a zone has processed the deposits from a Tempo block.
 
+:::warning Deprecated
+Poll [`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo) and compare `tempoBlockNumber` instead. The underlying `zone_getDepositStatus` RPC method is being removed.
+:::
+
 ## Usage
 
 :::code-group

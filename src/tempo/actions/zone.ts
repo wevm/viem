@@ -967,6 +967,7 @@ export namespace getAuthorizationTokenInfo {
  * @param client - Zone client.
  * @param parameters - Parameters including the Tempo block number.
  * @returns Deposit status.
+ * @deprecated Use {@link getZoneInfo} and compare `tempoBlockNumber` instead.
  */
 export async function getDepositStatus<
   chain extends Chain | undefined,
@@ -1071,6 +1072,7 @@ export namespace getDepositStatus {
  * @param client - Zone client.
  * @param parameters - Tempo block number and polling options.
  * @returns The processed deposit status.
+ * @deprecated Poll {@link getZoneInfo} and compare `tempoBlockNumber` instead.
  */
 export async function waitForDepositStatus<
   chain extends Chain | undefined,
