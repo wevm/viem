@@ -2336,15 +2336,18 @@ export default defineConfig({
               collapsed: true,
               items: [
                 {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'Overview',
                   link: '/tempo/guides/earn',
                 },
                 {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'Deposit & Withdraw',
                   link: '/tempo/guides/earn/deposit-withdraw',
                 },
                 {
-                  text: 'Earn with Zones',
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Earn with Private Zones',
                   link: '/tempo/guides/earn/zones',
                 },
               ],
@@ -2611,54 +2614,67 @@ export default defineConfig({
               collapsed: true,
               items: [
                 {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'deposit',
                   link: '/tempo/actions/earn.deposit',
                 },
                 {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'depositShares',
                   link: '/tempo/actions/earn.depositShares',
                 },
                 {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'getFeeState',
                   link: '/tempo/actions/earn.getFeeState',
                 },
                 {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'getPosition',
                   link: '/tempo/actions/earn.getPosition',
                 },
                 {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'getRedeemQuote',
                   link: '/tempo/actions/earn.getRedeemQuote',
                 },
                 {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'getVault',
                   link: '/tempo/actions/earn.getVault',
                 },
                 {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'getWithdrawQuote',
                   link: '/tempo/actions/earn.getWithdrawQuote',
                 },
                 {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'privateDeposit',
                   link: '/tempo/actions/earn.privateDeposit',
                 },
                 {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'privateRedeem',
                   link: '/tempo/actions/earn.privateRedeem',
                 },
                 {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'redeem',
                   link: '/tempo/actions/earn.redeem',
                 },
                 {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'waitForPrivateDeposit',
                   link: '/tempo/actions/earn.waitForPrivateDeposit',
                 },
                 {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'waitForPrivateRedeem',
                   link: '/tempo/actions/earn.waitForPrivateRedeem',
                 },
                 {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'withdrawExact',
                   link: '/tempo/actions/earn.withdrawExact',
                 },
