@@ -1070,6 +1070,29 @@ describe('earn', () => {
         isAddressEqual(swappedDepositCallback.outputToken, stack.shareToken),
       ).toBe(true)
 
+      const boundedSwappedDeposit = await Actions.earn.privateDeposit.prepare(
+        mainnetClient,
+        {
+          assetAmount: 1n,
+          assetToken: addresses.alphaUsd,
+          gateway,
+          recipient: account.address,
+          recoveryRecipient,
+          shareAmountMin: 4n,
+          vaultAssetAmountMin: 3n,
+        },
+      )
+      const [boundedSwappedDepositCallback] = decodeAbiParameters(
+        Abis.zoneGatewayCallbackData,
+        boundedSwappedDeposit.data,
+      )
+      expect(boundedSwappedDepositCallback).toMatchObject({
+        flow: 0,
+        minOutputAmount: 0n,
+        minVaultAssets: 3n,
+        minVaultShares: 4n,
+      })
+
       const preparedDeposit = await Actions.earn.privateDeposit.prepare(
         mainnetClient,
         {
@@ -1082,6 +1105,7 @@ describe('earn', () => {
           recoveryRecipient,
           returnMemo: keccak256('0x02'),
           shareAmountMin: 1n,
+          vaultAssetAmountMin: 2n,
           withdrawalMemo: keccak256('0x03'),
         },
       )

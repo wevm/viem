@@ -74,7 +74,9 @@ const info = await zoneClient.zone.waitForTempoBlock({
 :::
 
 Pass `assetToken` when the Zone asset differs from the vault asset. The gateway swaps it before the
-deposit. Use `shareAmount` with `slippageBps` when you have a quote instead of an exact share floor.
+deposit. Set `vaultAssetAmountMin` to bound the vault assets produced by that swap. This is
+independent from the vault share bound. Use `shareAmount` with `slippageBps` when you have a quote
+instead of an exact share floor.
 
 ### Redeem Zone Vault Shares
 

@@ -627,6 +627,9 @@ test('decorated earn writes preserve shapes', async () => {
 })
 
 test('zone deposit bounds and recipients are required', async () => {
+  expectTypeOf<
+    earnActions.privateDeposit.prepare.Args['vaultAssetAmountMin']
+  >().toEqualTypeOf<bigint | undefined>()
   await earnActions.privateDeposit.prepare(client, {
     actionId: hash,
     assetAmount: 1n,
@@ -637,6 +640,7 @@ test('zone deposit bounds and recipients are required', async () => {
     recoveryRecipient: address,
     returnMemo: hash,
     shareAmountMin: 1n,
+    vaultAssetAmountMin: 1n,
     withdrawalMemo: hash,
   })
   await earnActions.privateDeposit.prepare(client, {
@@ -647,6 +651,7 @@ test('zone deposit bounds and recipients are required', async () => {
     recoveryRecipient: address,
     shareAmount: 1n,
     slippageBps: 50,
+    vaultAssetAmountMin: 1n,
   })
   // @ts-expect-error bare slippage cannot quote a Zone deposit
   await earnActions.privateDeposit.prepare(client, {
@@ -750,10 +755,12 @@ test('prepared zone requests compose with Zone withdrawals', async () => {
 test('decorated zone earn actions preserve helpers and results', async () => {
   const prepared = await decoratedClient.earn.privateDeposit.prepare({
     assetAmount: 1n,
+    assetToken: address,
     gateway: address,
     recipient: address,
     recoveryRecipient: address,
     shareAmountMin: 1n,
+    vaultAssetAmountMin: 1n,
   })
   expectTypeOf(
     prepared,

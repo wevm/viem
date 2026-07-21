@@ -967,10 +967,12 @@ export namespace depositSharesSync {
  * ```ts
  * const prepared = await Actions.earn.privateDeposit.prepare(parentClient, {
  *   assetAmount: 100_000_000n,
+ *   assetToken: '0x...',
  *   gateway: '0x...',
  *   recipient: '0x...',
  *   recoveryRecipient: '0x...',
  *   shareAmountMin: 99_500_000n,
+ *   vaultAssetAmountMin: 99_000_000n,
  * })
  * const hash = await Actions.earn.privateDeposit(zoneClient, prepared)
  * ```
@@ -1039,15 +1041,16 @@ export namespace privateDeposit {
         zoneId: config.zoneId,
       })
     const shareAmountMin = resolveMinimumShareAmount(parameters)
+    const direct = isAddressEqual(assetToken, config.vaultAsset)
     const data = encodeAbiParameters(Abis.zoneGatewayCallbackData, [
       {
         flow: 0,
         outputToken: config.shareToken,
         keyIndex,
         encrypted,
-        minVaultAssets: isAddressEqual(assetToken, config.vaultAsset)
+        minVaultAssets: direct
           ? assetAmount
-          : 0n,
+          : (parameters.vaultAssetAmountMin ?? 0n),
         minVaultShares: shareAmountMin,
         minOutputAmount: 0n,
         actionId,
@@ -1076,6 +1079,8 @@ export namespace privateDeposit {
       assetAmount: bigint
       /** Asset token withdrawn from the Zone. @default gateway vault asset */
       assetToken?: Address | undefined
+      /** Minimum gateway vault assets accepted after swapping `assetToken`. @default `0n` */
+      vaultAssetAmountMin?: bigint | undefined
     } & MinimumShareAmountParameters
     export type ReturnValue = PreparedZoneRequest
     export type ErrorType = BaseErrorType

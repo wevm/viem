@@ -64,6 +64,30 @@ const hash = await zoneClient.earn.privateDeposit(prepared)
 // @log: 0x1234...abcd
 ```
 
+### Swap-Routed Deposits
+
+Pass `assetToken` when the Zone asset differs from the gateway vault asset. Set
+`vaultAssetAmountMin` to bound the gateway vault assets produced by that swap, and set the share
+bound independently.
+
+```ts twoslash
+import { client as parentClient } from './viem.config'
+import { client as zoneClient } from './zones.config'
+
+const prepared = await parentClient.earn.privateDeposit.prepare({
+  assetAmount: 100_000_000n,
+  assetToken: '0x0000000000000000000000000000000000000002',
+  gateway: '0x0000000000000000000000000000000000000001',
+  recipient: zoneClient.account.address,
+  recoveryRecipient: parentClient.account.address,
+  shareAmountMin: 98_500_000n,
+  vaultAssetAmountMin: 99_000_000n,
+})
+```
+
+When `assetToken` is the gateway vault asset, the action always requires the exact withdrawn
+`assetAmount`. For swap-routed deposits, omitting `vaultAssetAmountMin` preserves the zero minimum.
+
 ## Return Type
 
 ```ts
@@ -118,6 +142,14 @@ Assets withdrawn from the Zone, in base units.
 - **Default:** The gateway vault asset
 
 Asset token withdrawn from the Zone. The gateway swaps it into the vault asset when needed.
+
+### vaultAssetAmountMin (optional)
+
+- **Type:** `bigint`
+- **Default:** `0n` for swap-routed deposits
+
+Minimum gateway vault assets accepted after swapping `assetToken`. This bound works alongside the
+vault share bound. Direct vault-asset deposits always use the exact withdrawn `assetAmount` instead.
 
 ### callbackGas (optional)
 

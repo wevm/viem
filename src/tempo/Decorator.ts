@@ -1892,10 +1892,12 @@ type DecoratorBase<
      * ```ts
      * const prepared = await parentClient.earn.privateDeposit.prepare({
      *   assetAmount: 100_000_000n,
+     *   assetToken: '0x...',
      *   gateway: '0x...',
      *   recipient: '0x...',
      *   recoveryRecipient: '0x...',
      *   shareAmountMin: 99_500_000n,
+     *   vaultAssetAmountMin: 99_000_000n,
      * })
      * const hash = await zoneClient.earn.privateDeposit(prepared)
      * ```
