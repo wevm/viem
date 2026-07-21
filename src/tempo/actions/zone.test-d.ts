@@ -132,3 +132,11 @@ test('getZoneInfo returns the imported Tempo block number', async () => {
 
   expectTypeOf(info.tempoBlockNumber).toEqualTypeOf<bigint>()
 })
+
+test('waitForTempoBlock returns zone info', async () => {
+  const info = await zoneActions.waitForTempoBlock(zoneClient, {
+    tempoBlockNumber: 1n,
+  })
+
+  expectTypeOf(info).toEqualTypeOf<zoneActions.getZoneInfo.ReturnType>()
+})

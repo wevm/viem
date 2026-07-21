@@ -80,7 +80,7 @@ const { receipt } = await client.zone.encryptedDepositSync({
 
 ### Confirm Zone Import
 
-After depositing, poll [`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo) until `tempoBlockNumber` is at least the deposit receipt block number. Then read the recipient balance inside the zone.
+After depositing, call [`zone.waitForTempoBlock`](/tempo/actions/zone.waitForTempoBlock) with the deposit receipt block number. The action resolves once the zone has imported that Tempo block. Then read the recipient balance inside the zone.
 
 ## Best Practices
 

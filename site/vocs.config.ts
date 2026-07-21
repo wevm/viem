@@ -3088,6 +3088,10 @@ export default defineConfig({
                   text: 'signAuthorizationToken',
                   link: '/tempo/actions/zone.signAuthorizationToken',
                 },
+                {
+                  text: 'waitForTempoBlock',
+                  link: '/tempo/actions/zone.waitForTempoBlock',
+                },
               ],
             },
           ],

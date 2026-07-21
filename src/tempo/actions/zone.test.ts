@@ -270,6 +270,19 @@ describe('getZoneInfo', () => {
   })
 })
 
+describe('waitForTempoBlock', () => {
+  test('behavior: returns after the zone imports the block', async () => {
+    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
+    const current = await zoneActions.getZoneInfo(zoneClient)
+
+    const info = await zoneActions.waitForTempoBlock(zoneClient, {
+      tempoBlockNumber: current.tempoBlockNumber,
+    })
+
+    expect(info).toEqual(current)
+  })
+})
+
 describe('getAuthorizationTokenInfo', () => {
   test('behavior: returns account and expiry', async () => {
     await zoneActions.signAuthorizationToken(zoneClient, { zoneId })

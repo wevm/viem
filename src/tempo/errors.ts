@@ -1,5 +1,19 @@
 import { BaseError } from '../errors/base.js'
 
+export type WaitForTempoBlockTimeoutErrorType =
+  WaitForTempoBlockTimeoutError & {
+    name: 'WaitForTempoBlockTimeoutError'
+  }
+
+export class WaitForTempoBlockTimeoutError extends BaseError {
+  constructor({ tempoBlockNumber }: { tempoBlockNumber: bigint }) {
+    super(
+      `Timed out while waiting for Tempo block "${tempoBlockNumber}" to be imported by the zone.`,
+      { name: 'WaitForTempoBlockTimeoutError' },
+    )
+  }
+}
+
 export type InvalidFeeTokenErrorType = InvalidFeeTokenError & {
   name: 'InvalidFeeTokenError'
 }

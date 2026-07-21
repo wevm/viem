@@ -30,8 +30,16 @@ import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain, GetChainParameter } from '../../types/chain.js'
 import type { Compute, UnionOmit } from '../../types/utils.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
+import { type ObserveErrorType, observe } from '../../utils/observe.js'
+import { type PollErrorType, poll } from '../../utils/poll.js'
+import { withResolvers } from '../../utils/promise/withResolvers.js'
+import { stringify } from '../../utils/stringify.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import {
+  WaitForTempoBlockTimeoutError,
+  type WaitForTempoBlockTimeoutErrorType,
+} from '../errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -1049,6 +1057,106 @@ export namespace getZoneInfo {
   }
 
   export type ErrorType = RequestErrorType | BaseErrorType
+}
+
+/**
+ * Waits for a zone to import a Tempo block.
+ *
+ * @example
+ * ```ts
+ * import { createClient } from 'viem'
+ * import { Actions } from 'viem/tempo'
+ * import { http, zoneModerato } from 'viem/tempo/zones'
+ *
+ * const client = createClient({
+ *   chain: zoneModerato(7),
+ *   transport: http(),
+ * })
+ *
+ * const info = await Actions.zone.waitForTempoBlock(client, {
+ *   tempoBlockNumber: 42n,
+ * })
+ * ```
+ *
+ * @param client - Zone client.
+ * @param parameters - Tempo block number and polling options.
+ * @returns Zone metadata after the block has been imported.
+ */
+export async function waitForTempoBlock<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: waitForTempoBlock.Parameters,
+): Promise<waitForTempoBlock.ReturnType> {
+  const {
+    pollingInterval = client.pollingInterval,
+    tempoBlockNumber,
+    timeout = 60_000,
+  } = parameters
+  const observerId = stringify([
+    'waitForTempoBlock',
+    client.uid,
+    tempoBlockNumber,
+  ])
+  const { promise, reject, resolve } =
+    withResolvers<waitForTempoBlock.ReturnType>()
+
+  let timer: ReturnType<typeof setTimeout> | undefined
+  let unobserve: () => void
+  const cleanup = () => {
+    clearTimeout(timer)
+    unobserve()
+  }
+
+  unobserve = observe(observerId, { reject, resolve }, (emit) => {
+    const unpoll = poll(
+      async () => {
+        try {
+          const info = await getZoneInfo(client)
+          if (info.tempoBlockNumber < tempoBlockNumber) return
+          unpoll()
+          emit.resolve(info)
+        } catch (error) {
+          unpoll()
+          emit.reject(error)
+        }
+      },
+      {
+        emitOnBegin: true,
+        interval: pollingInterval,
+      },
+    )
+
+    return unpoll
+  })
+
+  timer = timeout
+    ? setTimeout(() => {
+        reject(new WaitForTempoBlockTimeoutError({ tempoBlockNumber }))
+      }, timeout)
+    : undefined
+
+  return await promise.finally(cleanup)
+}
+
+export namespace waitForTempoBlock {
+  export type Parameters = {
+    /** Polling frequency in milliseconds. @default `client.pollingInterval` */
+    pollingInterval?: number | undefined
+    /** Tempo block number to wait for. */
+    tempoBlockNumber: bigint
+    /** Timeout in milliseconds. @default `60_000` */
+    timeout?: number | undefined
+  }
+
+  export type ReturnType = getZoneInfo.ReturnType
+
+  export type ErrorType =
+    | getZoneInfo.ErrorType
+    | ObserveErrorType
+    | PollErrorType
+    | WaitForTempoBlockTimeoutErrorType
 }
 
 /**

@@ -4970,6 +4970,15 @@ type DecoratorBase<
      */
     getZoneInfo: () => Promise<zoneActions.getZoneInfo.ReturnType>
     /**
+     * Waits for a zone to import a Tempo block.
+     *
+     * @param parameters - Tempo block number and polling options.
+     * @returns Zone metadata after the block has been imported.
+     */
+    waitForTempoBlock: (
+      parameters: zoneActions.waitForTempoBlock.Parameters,
+    ) => Promise<zoneActions.waitForTempoBlock.ReturnType>
+    /**
      * Requests a withdrawal from a zone to the parent Tempo chain.
      * Batches approve and withdrawal into a single transaction.
      *
@@ -5487,6 +5496,7 @@ export function decorator() {
         'requestVerifiableWithdrawal',
         'requestVerifiableWithdrawalSync',
         'signAuthorizationToken',
+        'waitForTempoBlock',
       ]),
     } as Decorator<chain, account>
   }
