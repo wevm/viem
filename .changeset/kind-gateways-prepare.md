@@ -2,4 +2,4 @@
 'viem': patch
 ---
 
-`viem/tempo`: Added private Earn request overrides for correlation IDs, callback gas, fallback recipients, and memos.
+`viem/tempo`: Updated Earn contract artifacts, added private request overrides, and exposed quote call builders.

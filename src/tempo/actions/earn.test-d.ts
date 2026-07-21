@@ -85,6 +85,14 @@ test('getFeeState claimable shares stay optional', async () => {
 })
 
 test('quote reads return bigint amounts', async () => {
+  const redeemCall = earnActions.getRedeemQuote.call({
+    shareAmount: 1n,
+    vault: address,
+  })
+  const withdrawCall = earnActions.getWithdrawQuote.call({
+    assetAmount: 1n,
+    vault: address,
+  })
   const assetAmount = await earnActions.getRedeemQuote(client, {
     shareAmount: 1n,
     vault: address,
@@ -94,6 +102,8 @@ test('quote reads return bigint amounts', async () => {
     vault: address,
   })
 
+  expectTypeOf(redeemCall.functionName).toEqualTypeOf<'previewRedeem'>()
+  expectTypeOf(withdrawCall.functionName).toEqualTypeOf<'previewWithdraw'>()
   expectTypeOf(assetAmount).toEqualTypeOf<bigint>()
   expectTypeOf(shareAmount).toEqualTypeOf<bigint>()
   expectTypeOf(earnActions).not.toHaveProperty('previewRedeem')

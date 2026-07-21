@@ -1320,10 +1320,7 @@ export async function getRedeemQuote<chain extends Chain | undefined>(
   const { shareAmount, vault, ...rest } = parameters
   return readContract(client, {
     ...rest,
-    abi: Abis.vaultAdapter,
-    address: vault,
-    args: [shareAmount],
-    functionName: 'previewRedeem',
+    ...getRedeemQuote.call({ shareAmount, vault }),
   })
 }
 
@@ -1339,6 +1336,22 @@ export namespace getRedeemQuote {
   export type ReturnValue = bigint
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
+
+  /**
+   * Defines a call to the vault's `previewRedeem` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { shareAmount, vault } = args
+    return defineCall({
+      address: vault,
+      abi: Abis.vaultAdapter,
+      args: [shareAmount],
+      functionName: 'previewRedeem',
+    })
+  }
 }
 
 /**
@@ -1632,10 +1645,7 @@ export async function getWithdrawQuote<chain extends Chain | undefined>(
   const { assetAmount, vault, ...rest } = parameters
   return readContract(client, {
     ...rest,
-    abi: Abis.vaultAdapter,
-    address: vault,
-    args: [assetAmount],
-    functionName: 'previewWithdraw',
+    ...getWithdrawQuote.call({ assetAmount, vault }),
   })
 }
 
@@ -1651,6 +1661,22 @@ export namespace getWithdrawQuote {
   export type ReturnValue = bigint
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
+
+  /**
+   * Defines a call to the vault's `previewWithdraw` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { assetAmount, vault } = args
+    return defineCall({
+      address: vault,
+      abi: Abis.vaultAdapter,
+      args: [assetAmount],
+      functionName: 'previewWithdraw',
+    })
+  }
 }
 
 /**
