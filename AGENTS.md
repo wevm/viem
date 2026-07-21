@@ -335,6 +335,10 @@ When encountering situations that require judgment:
 
 Tests should be co-located with actions in `*action-name*.test.ts` files. Reference contract tests in `test/tempo/crates/precompiles/` for expected behavior. 
 
+- Run `pnpm check:types` and `pnpm build:types` sequentially, never concurrently. `build:types`
+  writes the ignored `src/_types` tree and must start with that directory absent to avoid TypeScript
+  reading generated declarations as inputs. Remove `src/_types` again before `check:types`.
+
 See `src/tempo/actions/token.test.ts` for a comprehensive example of test patterns and structure.
 
 #### Test Structure

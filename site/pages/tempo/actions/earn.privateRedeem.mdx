@@ -86,6 +86,7 @@ type PreparedZoneRequest = {
   data: Hex
   fallbackRecipient: Address
   fromBlock: bigint
+  memo?: Hex
   to: Address
   token: Address
   zoneId: number
@@ -96,6 +97,14 @@ Pass the prepared value directly to `earn.privateRedeem` or `earn.privateRedeemS
 that its parent and Zone chain IDs match the Zone client.
 
 ## Prepare Parameters
+
+### actionId (optional)
+
+- **Type:** `Hex`
+- **Default:** A random `bytes32` value
+
+Correlation ID encoded in the gateway callback. Supply one when deterministic request preparation is
+needed.
 
 ### assetAmount (optional)
 
@@ -116,6 +125,20 @@ Minimum assets returned to the Zone.
 
 Asset token returned to the Zone. A different token uses the gateway swap.
 
+### callbackGas (optional)
+
+- **Type:** `bigint`
+- **Default:** `10_000_000n`
+
+Gas reserved for the parent-chain gateway callback.
+
+### fallbackRecipient (optional)
+
+- **Type:** `Address`
+- **Default:** `recoveryRecipient`
+
+Public recipient if the parent-chain gateway callback fails.
+
 ### gateway
 
 - **Type:** `Address`
@@ -132,7 +155,13 @@ Encrypted Zone recipient for the returned assets.
 
 - **Type:** `Address`
 
-Public Tempo recipient if either cross-chain leg fails.
+Public Tempo recipient if the encrypted return deposit fails.
+
+### returnMemo (optional)
+
+- **Type:** `Hex`
+
+Memo encrypted with the returned Zone deposit.
 
 ### shareAmount
 
@@ -145,6 +174,12 @@ Vault shares withdrawn from the Zone, in base units.
 - **Type:** `number`
 
 Slippage tolerance below the provided or live quote, in basis points. For example, `50` means 0.5%.
+
+### withdrawalMemo (optional)
+
+- **Type:** `Hex`
+
+Memo attached to the Zone withdrawal.
 
 <ReadParameters />
 

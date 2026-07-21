@@ -726,7 +726,17 @@ export namespace privateDeposit {
   ): Promise<prepare.ReturnValue> {
     const chainId = client.chain?.id
     if (!chainId) throw new Error('`chain` is required.')
-    const { assetAmount, gateway, recipient, recoveryRecipient } = parameters
+    const {
+      actionId = Hex.random(32),
+      assetAmount,
+      callbackGas = zoneGatewayCallbackGas,
+      fallbackRecipient = parameters.recoveryRecipient,
+      gateway,
+      recipient,
+      recoveryRecipient,
+      returnMemo,
+      withdrawalMemo,
+    } = parameters
     const readParameters = pickReadParameters(parameters)
     const [fromBlock, config] = await Promise.all([
       getBlockNumber(client, { cacheTime: 0 }),
@@ -736,11 +746,11 @@ export namespace privateDeposit {
     const { encrypted, keyIndex } =
       await zoneActions.encryptedDeposit.prepareRecipient(client, {
         ...readParameters,
+        memo: returnMemo,
         portalAddress: config.zonePortal,
         recipient,
         zoneId: config.zoneId,
       })
-    const actionId = Hex.random(32)
     const shareAmountMin = resolveMinimumShareAmount(parameters)
     const data = encodeAbiParameters(Abis.zoneGatewayCallbackData, [
       {
@@ -760,11 +770,12 @@ export namespace privateDeposit {
     return {
       actionId,
       amount: assetAmount,
-      callbackGas: zoneGatewayCallbackGas,
+      callbackGas,
       chainId,
       data,
-      fallbackRecipient: recoveryRecipient,
+      fallbackRecipient,
       fromBlock,
+      memo: withdrawalMemo,
       to: gateway,
       token: assetToken,
       zoneId: config.zoneId,
@@ -773,17 +784,11 @@ export namespace privateDeposit {
 
   export namespace prepare {
     export type Parameters = Omit<ReadParameters, 'account'> & Args
-    export type Args = {
+    export type Args = PrivatePreparationParameters & {
       /** Assets withdrawn from the Zone, base units. */
       assetAmount: bigint
       /** Asset token withdrawn from the Zone. @default gateway vault asset */
       assetToken?: Address | undefined
-      /** Gateway identifying the vault and Zone configuration. */
-      gateway: Address
-      /** Encrypted recipient for the returned vault shares. */
-      recipient: Address
-      /** Public recipient if either cross-chain leg fails. */
-      recoveryRecipient: Address
     } & MinimumShareAmountParameters
     export type ReturnValue = PreparedZoneRequest
     export type ErrorType = BaseErrorType
@@ -2006,7 +2011,17 @@ export namespace privateRedeem {
   ): Promise<prepare.ReturnValue> {
     const chainId = client.chain?.id
     if (!chainId) throw new Error('`chain` is required.')
-    const { gateway, recipient, recoveryRecipient, shareAmount } = parameters
+    const {
+      actionId = Hex.random(32),
+      callbackGas = zoneGatewayCallbackGas,
+      fallbackRecipient = parameters.recoveryRecipient,
+      gateway,
+      recipient,
+      recoveryRecipient,
+      returnMemo,
+      shareAmount,
+      withdrawalMemo,
+    } = parameters
     const readParameters = pickReadParameters(parameters)
     const [fromBlock, config] = await Promise.all([
       getBlockNumber(client, { cacheTime: 0 }),
@@ -2019,6 +2034,7 @@ export namespace privateRedeem {
     const [{ encrypted, keyIndex }, assetAmountMin] = await Promise.all([
       zoneActions.encryptedDeposit.prepareRecipient(client, {
         ...readParameters,
+        memo: returnMemo,
         portalAddress: config.zonePortal,
         recipient,
         zoneId: config.zoneId,
@@ -2042,7 +2058,6 @@ export namespace privateRedeem {
         )
       })(),
     ])
-    const actionId = Hex.random(32)
     const direct = isAddressEqual(assetToken, config.vaultAsset)
     const data = encodeAbiParameters(Abis.zoneGatewayCallbackData, [
       {
@@ -2060,11 +2075,12 @@ export namespace privateRedeem {
     return {
       actionId,
       amount: shareAmount,
-      callbackGas: zoneGatewayCallbackGas,
+      callbackGas,
       chainId,
       data,
-      fallbackRecipient: recoveryRecipient,
+      fallbackRecipient,
       fromBlock,
+      memo: withdrawalMemo,
       to: gateway,
       token: config.shareToken,
       zoneId: config.zoneId,
@@ -2072,16 +2088,11 @@ export namespace privateRedeem {
   }
 
   export namespace prepare {
-    export type Parameters = Omit<ReadParameters, 'account'> & {
-      /** Vault shares withdrawn from the Zone, base units. */
-      shareAmount: bigint
-      /** Gateway identifying the vault and Zone configuration. */
-      gateway: Address
-      /** Encrypted recipient for the returned assets. */
-      recipient: Address
-      /** Public recipient if either cross-chain leg fails. */
-      recoveryRecipient: Address
-    } & (
+    export type Parameters = Omit<ReadParameters, 'account'> &
+      PrivatePreparationParameters & {
+        /** Vault shares withdrawn from the Zone, base units. */
+        shareAmount: bigint
+      } & (
         | ({
             /** Asset token returned to the Zone. @default gateway vault asset */
             assetToken?: undefined
@@ -2628,6 +2639,25 @@ type MinimumShareAmountParameters = OneOf<
     }
 >
 
+type PrivatePreparationParameters = {
+  /** Optional caller-supplied correlation id. @default Random bytes32 */
+  actionId?: Hex.Hex | undefined
+  /** Gas reserved for the parent-chain callback. @default `10_000_000n` */
+  callbackGas?: bigint | undefined
+  /** Public recipient if the parent-chain callback fails. @default `recoveryRecipient` */
+  fallbackRecipient?: Address | undefined
+  /** Gateway identifying the vault and Zone configuration. */
+  gateway: Address
+  /** Encrypted recipient for the returned tokens. */
+  recipient: Address
+  /** Public recipient if the encrypted return fails. */
+  recoveryRecipient: Address
+  /** Optional memo encrypted with the returned Zone deposit. */
+  returnMemo?: Hex.Hex | undefined
+  /** Optional memo attached to the Zone withdrawal. */
+  withdrawalMemo?: Hex.Hex | undefined
+}
+
 type PreparedZoneRequest = {
   /** Correlation id for the matching wait action. */
   actionId: Hex.Hex
@@ -2643,6 +2673,8 @@ type PreparedZoneRequest = {
   fallbackRecipient: Address
   /** Parent-chain block before the withdrawal is submitted. */
   fromBlock: bigint
+  /** Optional memo attached to the Zone withdrawal. */
+  memo?: Hex.Hex | undefined
   /** Zone gateway receiving the withdrawal. */
   to: Address
   /** Token withdrawn from the Zone. */
