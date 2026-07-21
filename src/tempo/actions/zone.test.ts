@@ -34,10 +34,8 @@ import {
   factoryAddress,
   getClient as getZoneClient,
   portalAddress,
-  http as zoneHttp,
   zoneId,
 } from '~test/tempo/zones.js'
-import { WaitForDepositStatusTimeoutError } from '../errors.js'
 import { getWithdrawalSenderTag } from '../internal/getWithdrawalSenderTag.js'
 import * as Storage from '../Storage.js'
 import * as ZoneAbis from '../zones/Abis.js'
@@ -283,7 +281,21 @@ describe('getZoneInfo', () => {
     expect(info.zoneId).toBe(zoneId)
     expect(info.chainId).toBe(zoneClient.chain.id)
     expect(info.sequencer).toBeDefined()
+    expect(info.tempoBlockNumber).toBeGreaterThanOrEqual(0n)
     expect(info.zoneTokens).toBeDefined()
+  })
+})
+
+describe('waitForTempoBlock', () => {
+  test('behavior: returns after the zone imports the block', async () => {
+    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
+    const current = await zoneActions.getZoneInfo(zoneClient)
+
+    const info = await zoneActions.waitForTempoBlock(zoneClient, {
+      tempoBlockNumber: current.tempoBlockNumber,
+    })
+
+    expect(info).toEqual(current)
   })
 })
 
@@ -295,101 +307,6 @@ describe('getAuthorizationTokenInfo', () => {
 
     expect(info.account.toLowerCase()).toBe(account.address.toLowerCase())
     expect(info.expiresAt).toBeGreaterThan(0n)
-  })
-})
-
-describe('getDepositStatus', () => {
-  test('behavior: returns deposit status for block', async () => {
-    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
-
-    const status = await zoneActions.getDepositStatus(zoneClient, {
-      tempoBlockNumber: 1n,
-    })
-
-    expect(typeof status.processed).toBe('boolean')
-    expect(typeof status.tempoBlockNumber).toBe('bigint')
-    expect(typeof status.zoneProcessedThrough).toBe('bigint')
-    expect(Array.isArray(status.deposits)).toBe(true)
-  })
-})
-
-describe('waitForDepositStatus', () => {
-  test('behavior: waits for deposit processing', async () => {
-    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
-    const { receipt } = await zoneActions.depositSync(
-      mainnetClient,
-      depositParameters,
-    )
-
-    const [result, concurrentResult] = await Promise.all([
-      zoneActions.waitForDepositStatus(zoneClient, {
-        pollingInterval: 100,
-        tempoBlockNumber: receipt.blockNumber,
-        timeout: 0,
-      }),
-      zoneActions.waitForDepositStatus(zoneClient, {
-        pollingInterval: 100,
-        tempoBlockNumber: receipt.blockNumber,
-        timeout: 30_000,
-      }),
-    ])
-
-    expect(result.processed).toBe(true)
-    expect(result.tempoBlockNumber).toBe(receipt.blockNumber)
-    expect(result.zoneProcessedThrough).toBeGreaterThanOrEqual(
-      receipt.blockNumber,
-    )
-    expect(result.deposits[0]).toMatchObject({
-      amount: parseUnits('1', 6),
-      kind: 'regular',
-      recipient: account.address.toLowerCase(),
-      sender: account.address.toLowerCase(),
-      status: 'processed',
-    })
-    expect(concurrentResult).toEqual(result)
-
-    await expect(
-      zoneActions.waitForDepositStatus(zoneClient, {
-        pollingInterval: 100,
-        tempoBlockNumber: receipt.blockNumber,
-        timeout: 2_000,
-      }),
-    ).resolves.toMatchObject({
-      deposits: result.deposits,
-      processed: true,
-      tempoBlockNumber: receipt.blockNumber,
-    })
-  }, 40_000)
-
-  test('error: unprocessed block times out', async () => {
-    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
-    const tempoBlockNumber = BigInt(
-      await mainnetClient.request({ method: 'eth_blockNumber' }),
-    )
-
-    await expect(
-      zoneActions.getDepositStatus(zoneClient, { tempoBlockNumber }),
-    ).resolves.toMatchObject({ processed: false, tempoBlockNumber })
-
-    await expect(
-      zoneActions.waitForDepositStatus(zoneClient, {
-        pollingInterval: 10,
-        tempoBlockNumber,
-        timeout: 100,
-      }),
-    ).rejects.toBeInstanceOf(WaitForDepositStatusTimeoutError)
-  })
-
-  test('error: propagates zone RPC errors', async () => {
-    const client = getZoneClient({
-      transport: zoneHttp(undefined, { storage: Storage.memory() }),
-    })
-
-    await expect(
-      zoneActions.waitForDepositStatus(client, {
-        tempoBlockNumber: 1n,
-      }),
-    ).rejects.toThrow('HTTP request failed')
   })
 })
 
@@ -1123,7 +1040,7 @@ describe('earn', () => {
         token: stack.asset,
         zoneId,
       })
-      await Actions.zone.waitForDepositStatus(zoneClient, {
+      await Actions.zone.waitForTempoBlock(zoneClient, {
         pollingInterval: 100,
         tempoBlockNumber: assetDeposit.receipt.blockNumber,
       })
@@ -1219,21 +1136,10 @@ describe('earn', () => {
       expect(deposit.shares).toBe(assetAmount)
       expect(deposit.vaultAssets).toBe(assetAmount)
 
-      const shareStatus = await Actions.zone.waitForDepositStatus(zoneClient, {
+      await Actions.zone.waitForTempoBlock(zoneClient, {
         pollingInterval: 100,
         tempoBlockNumber: deposit.tempoBlockNumber,
       })
-      const returnedShare = shareStatus.deposits.find(
-        ({ depositHash }) => depositHash === deposit.zoneDepositHash,
-      )
-      if (!returnedShare) throw new Error('Share deposit not found.')
-      expect(returnedShare).toMatchObject({
-        amount: deposit.shares,
-        kind: 'encrypted',
-        memo: keccak256('0x02'),
-        status: 'processed',
-      })
-      expect(isAddressEqual(returnedShare.token, stack.shareToken)).toBe(true)
       const shareBalance = await Actions.token.getBalance(zoneClient, {
         account: account.address,
         token: stack.shareToken,
@@ -1321,21 +1227,10 @@ describe('earn', () => {
       expect(redeem.shares).toBe(deposit.shares)
       expect(redeem.vaultAssets).toBe(assetAmount)
 
-      const assetStatus = await Actions.zone.waitForDepositStatus(zoneClient, {
+      await Actions.zone.waitForTempoBlock(zoneClient, {
         pollingInterval: 100,
         tempoBlockNumber: redeem.tempoBlockNumber,
       })
-      const returnedAsset = assetStatus.deposits.find(
-        ({ depositHash }) => depositHash === redeem.zoneDepositHash,
-      )
-      if (!returnedAsset) throw new Error('Asset deposit not found.')
-      expect(returnedAsset).toMatchObject({
-        amount: redeem.outputAmount,
-        kind: 'encrypted',
-        memo: keccak256('0x05'),
-        status: 'processed',
-      })
-      expect(isAddressEqual(returnedAsset.token, stack.asset)).toBe(true)
 
       const [assetBalance, finalShareBalance] = await Promise.all([
         Actions.token.getBalance(zoneClient, {

@@ -338,6 +338,9 @@ Tests should be co-located with actions in `*action-name*.test.ts` files. Refere
 - Run `pnpm check:types` and `pnpm build:types` sequentially, never concurrently. `build:types`
   writes the ignored `src/_types` tree and must start with that directory absent to avoid TypeScript
   reading generated declarations as inputs. Remove `src/_types` again before `check:types`.
+- Local Tempo tests intentionally run against `VITE_TEMPO_TAG=latest`. Before submitting fixture
+  transactions with expiring nonces, wait until `getBlock` returns a nonzero timestamp; the node's
+  startup signal can arrive before the first canonical block is available through RPC.
 
 See `src/tempo/actions/token.test.ts` for a comprehensive example of test patterns and structure.
 

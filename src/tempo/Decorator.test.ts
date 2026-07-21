@@ -76,7 +76,7 @@ describe('decorator', () => {
     expect(typeof client2.token.watchUpdateQuoteToken).toBe('function')
     expect(typeof client2.accessKey.verifyHash).toBe('function')
     expect(typeof client2.zone.getEncryptionKey).toBe('function')
-    expect(typeof client2.zone.waitForDepositStatus).toBe('function')
+    expect(typeof client2.zone.waitForTempoBlock).toBe('function')
     expect(typeof client2.earn.waitForPrivateDeposit).toBe('function')
     expect(typeof client2.earn.waitForPrivateRedeem).toBe('function')
   })

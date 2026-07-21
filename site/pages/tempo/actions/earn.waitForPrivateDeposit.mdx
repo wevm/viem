@@ -27,8 +27,8 @@ const result = await client.earn.waitForPrivateDeposit({
 :::
 
 Use `tempoBlockNumber` from the result with
-[`zone.waitForDepositStatus`](/tempo/actions/zone.waitForDepositStatus) to confirm that the returned
-shares were processed inside the Zone.
+[`zone.waitForTempoBlock`](/tempo/actions/zone.waitForTempoBlock) to confirm that the returned shares
+were imported by the Zone.
 
 ## Return Type
 

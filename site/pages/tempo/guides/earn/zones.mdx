@@ -57,10 +57,10 @@ const deposit = await parentClient.earn.waitForPrivateDeposit({
 })
 // @log: { shares: 99_750_000n, tempoBlockNumber: 123456n, ... }
 
-const status = await zoneClient.zone.waitForDepositStatus({
+const info = await zoneClient.zone.waitForTempoBlock({
   tempoBlockNumber: deposit.tempoBlockNumber,
 })
-// @log: { processed: true, ... }
+// @log: { tempoBlockNumber: 123456n, ... }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -108,10 +108,10 @@ const redemption = await parentClient.earn.waitForPrivateRedeem({
 })
 // @log: { outputAmount: 99_000_000n, tempoBlockNumber: 123457n, ... }
 
-const status = await zoneClient.zone.waitForDepositStatus({
+const info = await zoneClient.zone.waitForTempoBlock({
   tempoBlockNumber: redemption.tempoBlockNumber,
 })
-// @log: { processed: true, ... }
+// @log: { tempoBlockNumber: 123457n, ... }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

@@ -373,18 +373,23 @@ async function startZone(
 export async function restart(client: Client<Transport, Chain>) {
   if (nodeEnv !== 'localnet') return
   await fetch(`${client.chain.rpcUrls.default.http[0]}/restart`)
+  await setup(client)
+}
+
+async function waitForBlock(client: Client<Transport, Chain>) {
   await withRetry(
     async () => {
       const block = await getBlock(client)
       if (block.timestamp === 0n)
-        throw new Error('Tempo has not produced a block after restart.')
+        throw new Error('Tempo has not produced a block.')
     },
     { delay: 50, retryCount: 100 },
   )
-  await setup(client)
 }
 
 export async function setup(client: Client<Transport, Chain>) {
+  await waitForBlock(client)
+
   // Mint liquidity for fee tokens.
   await Promise.all(
     [1n, 2n, 3n].map((id) =>

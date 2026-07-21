@@ -33,16 +33,16 @@ export class WaitForPrivateDepositTimeoutError extends BaseError {
   }
 }
 
-export type WaitForDepositStatusTimeoutErrorType =
-  WaitForDepositStatusTimeoutError & {
-    name: 'WaitForDepositStatusTimeoutError'
+export type WaitForTempoBlockTimeoutErrorType =
+  WaitForTempoBlockTimeoutError & {
+    name: 'WaitForTempoBlockTimeoutError'
   }
 
-export class WaitForDepositStatusTimeoutError extends BaseError {
+export class WaitForTempoBlockTimeoutError extends BaseError {
   constructor({ tempoBlockNumber }: { tempoBlockNumber: bigint }) {
     super(
-      `Timed out while waiting for deposits from Tempo block "${tempoBlockNumber}" to be processed.`,
-      { name: 'WaitForDepositStatusTimeoutError' },
+      `Timed out while waiting for Tempo block "${tempoBlockNumber}" to be imported by the zone.`,
+      { name: 'WaitForTempoBlockTimeoutError' },
     )
   }
 }

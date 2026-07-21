@@ -27,8 +27,8 @@ const result = await client.earn.waitForPrivateRedeem({
 :::
 
 Use `tempoBlockNumber` from the result with
-[`zone.waitForDepositStatus`](/tempo/actions/zone.waitForDepositStatus) to confirm that the returned
-assets were processed inside the Zone.
+[`zone.waitForTempoBlock`](/tempo/actions/zone.waitForTempoBlock) to confirm that the returned assets
+were imported by the Zone.
 
 ## Return Type
 

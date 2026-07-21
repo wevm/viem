@@ -37,8 +37,8 @@ import { stringify } from '../../utils/stringify.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
 import {
-  WaitForDepositStatusTimeoutError,
-  type WaitForDepositStatusTimeoutErrorType,
+  WaitForTempoBlockTimeoutError,
+  type WaitForTempoBlockTimeoutErrorType,
 } from '../errors.js'
 import { getWithdrawalSenderTag } from '../internal/getWithdrawalSenderTag.js'
 import type {
@@ -947,220 +947,6 @@ export namespace getAuthorizationTokenInfo {
 }
 
 /**
- * Returns deposit processing status for a given Tempo block number.
- *
- * @example
- * ```ts
- * import { createClient } from 'viem'
- * import { http, zoneModerato } from 'viem/tempo/zones'
- * import { Actions } from 'viem/tempo'
- *
- * const client = createClient({
- *   chain: zoneModerato(7),
- *   transport: http(),
- * })
- *
- * const status = await Actions.zone.getDepositStatus(client, {
- *   tempoBlockNumber: 42n,
- * })
- * ```
- *
- * @param client - Zone client.
- * @param parameters - Parameters including the Tempo block number.
- * @returns Deposit status.
- */
-export async function getDepositStatus<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: getDepositStatus.Parameters,
-): Promise<getDepositStatus.ReturnType> {
-  const { tempoBlockNumber } = parameters
-  const status = await client.request<{
-    Method: 'zone_getDepositStatus'
-    Parameters: [Hex.Hex]
-    ReturnType: getDepositStatus.RpcReturnType
-  }>({
-    method: 'zone_getDepositStatus',
-    params: [Hex.fromNumber(tempoBlockNumber)],
-  })
-
-  return {
-    deposits: status.deposits.map((deposit) => ({
-      amount: Hex.toBigInt(deposit.amount),
-      depositHash: deposit.depositHash,
-      kind: deposit.kind,
-      memo: deposit.memo,
-      recipient: deposit.recipient,
-      sender: deposit.sender,
-      status: deposit.status,
-      token: deposit.token,
-    })),
-    processed: status.processed,
-    tempoBlockNumber: Hex.toBigInt(status.tempoBlockNumber),
-    zoneProcessedThrough: Hex.toBigInt(status.zoneProcessedThrough),
-  }
-}
-
-export namespace getDepositStatus {
-  export type DepositStatus = 'failed' | 'pending' | 'processed'
-  export type DepositKind = 'encrypted' | 'regular'
-
-  export type DepositRpc = {
-    amount: Hex.Hex
-    depositHash: Hex.Hex
-    kind: DepositKind
-    memo: Hex.Hex | null
-    recipient: Address | null
-    sender: Address
-    status: DepositStatus
-    token: Address
-  }
-
-  export type Deposit = {
-    amount: bigint
-    depositHash: Hex.Hex
-    kind: DepositKind
-    memo: Hex.Hex | null
-    recipient: Address | null
-    sender: Address
-    status: DepositStatus
-    token: Address
-  }
-
-  export type RpcReturnType = {
-    deposits: readonly DepositRpc[]
-    processed: boolean
-    tempoBlockNumber: Hex.Hex
-    zoneProcessedThrough: Hex.Hex
-  }
-
-  export type Parameters = {
-    tempoBlockNumber: bigint
-  }
-
-  export type ReturnType = {
-    deposits: readonly Deposit[]
-    processed: boolean
-    tempoBlockNumber: bigint
-    zoneProcessedThrough: bigint
-  }
-
-  export type ErrorType = RequestErrorType | BaseErrorType
-}
-
-/**
- * Waits for a Tempo block's deposits to be processed by a zone.
- *
- * @example
- * ```ts
- * import { createClient } from 'viem'
- * import { Actions } from 'viem/tempo'
- * import { http, zoneModerato } from 'viem/tempo/zones'
- *
- * const client = createClient({
- *   chain: zoneModerato(7),
- *   transport: http(),
- * })
- *
- * const status = await Actions.zone.waitForDepositStatus(client, {
- *   tempoBlockNumber: 42n,
- * })
- * ```
- *
- * @param client - Zone client.
- * @param parameters - Tempo block number and polling options.
- * @returns The processed deposit status.
- */
-export async function waitForDepositStatus<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: waitForDepositStatus.Parameters,
-): Promise<waitForDepositStatus.ReturnType> {
-  const {
-    pollingInterval = client.pollingInterval,
-    tempoBlockNumber,
-    timeout = 60_000,
-  } = parameters
-  const observerId = stringify([
-    'waitForDepositStatus',
-    client.uid,
-    tempoBlockNumber,
-  ])
-  const { promise, reject, resolve } =
-    withResolvers<waitForDepositStatus.ReturnType>()
-
-  let timer: ReturnType<typeof setTimeout> | undefined
-  let unobserve: () => void
-  const cleanup = () => {
-    clearTimeout(timer)
-    unobserve()
-  }
-  const resolve_ = (status: waitForDepositStatus.ReturnType) => {
-    cleanup()
-    resolve(status)
-  }
-  const reject_ = (error: unknown) => {
-    cleanup()
-    reject(error)
-  }
-
-  unobserve = observe(
-    observerId,
-    { reject: reject_, resolve: resolve_ },
-    (emit) => {
-      const unpoll = poll(
-        async () => {
-          try {
-            const status = await getDepositStatus(client, { tempoBlockNumber })
-            if (!status.processed) return
-            unpoll()
-            emit.resolve(status)
-          } catch (error) {
-            unpoll()
-            emit.reject(error)
-          }
-        },
-        {
-          emitOnBegin: true,
-          interval: pollingInterval,
-        },
-      )
-
-      return unpoll
-    },
-  )
-
-  timer = timeout
-    ? setTimeout(() => {
-        reject_(new WaitForDepositStatusTimeoutError({ tempoBlockNumber }))
-      }, timeout)
-    : undefined
-
-  return await promise
-}
-
-export namespace waitForDepositStatus {
-  export type Parameters = getDepositStatus.Parameters & {
-    /** Polling frequency in milliseconds. @default `client.pollingInterval` */
-    pollingInterval?: number | undefined
-    /** Timeout in milliseconds. @default `60_000` */
-    timeout?: number | undefined
-  }
-
-  export type ReturnType = getDepositStatus.ReturnType
-
-  export type ErrorType =
-    | getDepositStatus.ErrorType
-    | ObserveErrorType
-    | PollErrorType
-    | WaitForDepositStatusTimeoutErrorType
-}
-
-/**
  * Returns the fee required for a withdrawal from a zone, given a callback gas
  * limit.
  *
@@ -1248,6 +1034,7 @@ export async function getZoneInfo<
   return {
     chainId: Hex.toNumber(info.chainId),
     sequencer: info.sequencer,
+    tempoBlockNumber: Hex.toBigInt(info.tempoBlockNumber),
     zoneId: Hex.toNumber(info.zoneId),
     zoneTokens: info.zoneTokens,
   }
@@ -1257,6 +1044,7 @@ export namespace getZoneInfo {
   export type RpcReturnType = {
     chainId: Hex.Hex
     sequencer: Address
+    tempoBlockNumber: Hex.Hex
     zoneId: Hex.Hex
     zoneTokens: readonly Address[]
   }
@@ -1264,11 +1052,112 @@ export namespace getZoneInfo {
   export type ReturnType = {
     chainId: number
     sequencer: Address
+    tempoBlockNumber: bigint
     zoneId: number
     zoneTokens: readonly Address[]
   }
 
   export type ErrorType = RequestErrorType | BaseErrorType
+}
+
+/**
+ * Waits for a zone to import a Tempo block.
+ *
+ * @example
+ * ```ts
+ * import { createClient } from 'viem'
+ * import { Actions } from 'viem/tempo'
+ * import { http, zoneModerato } from 'viem/tempo/zones'
+ *
+ * const client = createClient({
+ *   chain: zoneModerato(7),
+ *   transport: http(),
+ * })
+ *
+ * const info = await Actions.zone.waitForTempoBlock(client, {
+ *   tempoBlockNumber: 42n,
+ * })
+ * ```
+ *
+ * @param client - Zone client.
+ * @param parameters - Tempo block number and polling options.
+ * @returns Zone metadata after the block has been imported.
+ */
+export async function waitForTempoBlock<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: waitForTempoBlock.Parameters,
+): Promise<waitForTempoBlock.ReturnType> {
+  const {
+    pollingInterval = client.pollingInterval,
+    tempoBlockNumber,
+    timeout = 60_000,
+  } = parameters
+  const observerId = stringify([
+    'waitForTempoBlock',
+    client.uid,
+    tempoBlockNumber,
+  ])
+  const { promise, reject, resolve } =
+    withResolvers<waitForTempoBlock.ReturnType>()
+
+  let timer: ReturnType<typeof setTimeout> | undefined
+  let unobserve: () => void
+  const cleanup = () => {
+    clearTimeout(timer)
+    unobserve()
+  }
+
+  unobserve = observe(observerId, { reject, resolve }, (emit) => {
+    const unpoll = poll(
+      async () => {
+        try {
+          const info = await getZoneInfo(client)
+          if (info.tempoBlockNumber < tempoBlockNumber) return
+          unpoll()
+          emit.resolve(info)
+        } catch (error) {
+          unpoll()
+          emit.reject(error)
+        }
+      },
+      {
+        emitOnBegin: true,
+        interval: pollingInterval,
+      },
+    )
+
+    return unpoll
+  })
+
+  timer = timeout
+    ? setTimeout(() => {
+        reject(new WaitForTempoBlockTimeoutError({ tempoBlockNumber }))
+      }, timeout)
+    : undefined
+
+  return await promise.finally(cleanup)
+}
+
+export namespace waitForTempoBlock {
+  export type Parameters = {
+    /** Polling frequency in milliseconds. @default `client.pollingInterval` */
+    pollingInterval?: number | undefined
+    /** Tempo block number to wait for. */
+    tempoBlockNumber: bigint
+    /** Timeout in milliseconds. @default `60_000` */
+    timeout?: number | undefined
+  }
+
+  export type ReturnType = getZoneInfo.ReturnType
+
+  export type ErrorType =
+    | getZoneInfo.ErrorType
+    | ObserveErrorType
+    | PollErrorType
+    | WaitForTempoBlockTimeoutErrorType
 }
 
 /**

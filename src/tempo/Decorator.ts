@@ -5454,47 +5454,6 @@ type DecoratorBase<
      */
     getAuthorizationTokenInfo: () => Promise<zoneActions.getAuthorizationTokenInfo.ReturnType>
     /**
-     * Returns deposit processing status for a given Tempo block number.
-     *
-     * @example
-     * ```ts
-     * import { createClient } from 'viem'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: zoneModerato(7),
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const status = await client.zone.getDepositStatus({
-     *   tempoBlockNumber: 1n,
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The deposit status.
-     */
-    getDepositStatus: (
-      parameters: zoneActions.getDepositStatus.Parameters,
-    ) => Promise<zoneActions.getDepositStatus.ReturnType>
-    /**
-     * Waits for a Tempo block's deposits to be processed by a zone.
-     *
-     * @example
-     * ```ts
-     * const status = await client.zone.waitForDepositStatus({
-     *   tempoBlockNumber: 1n,
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The processed deposit status.
-     */
-    waitForDepositStatus: (
-      parameters: zoneActions.waitForDepositStatus.Parameters,
-    ) => Promise<zoneActions.waitForDepositStatus.ReturnType>
-    /**
      * Returns the withdrawal fee for a given gas limit.
      *
      * @example
@@ -5537,6 +5496,15 @@ type DecoratorBase<
      * @returns The zone metadata.
      */
     getZoneInfo: () => Promise<zoneActions.getZoneInfo.ReturnType>
+    /**
+     * Waits for a zone to import a Tempo block.
+     *
+     * @param parameters - Tempo block number and polling options.
+     * @returns Zone metadata after the block has been imported.
+     */
+    waitForTempoBlock: (
+      parameters: zoneActions.waitForTempoBlock.Parameters,
+    ) => Promise<zoneActions.waitForTempoBlock.ReturnType>
     /**
      * Requests a withdrawal from a zone to the parent Tempo chain.
      * Batches approve and withdrawal into a single transaction.
@@ -6076,7 +6044,6 @@ export function decorator() {
         'encryptedDeposit',
         'encryptedDepositSync',
         'getAuthorizationTokenInfo',
-        'getDepositStatus',
         'getEncryptionKey',
         'getWithdrawalFee',
         'getZoneInfo',
@@ -6085,7 +6052,7 @@ export function decorator() {
         'requestVerifiableWithdrawal',
         'requestVerifiableWithdrawalSync',
         'signAuthorizationToken',
-        'waitForDepositStatus',
+        'waitForTempoBlock',
       ]),
     } as Decorator<chain, account>
   }

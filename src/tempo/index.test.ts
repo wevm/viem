@@ -48,7 +48,7 @@ test('exports tempo', () => {
       "WebCryptoP256",
       "GetVaultEngineChangedError",
       "WaitForPrivateDepositTimeoutError",
-      "WaitForDepositStatusTimeoutError",
+      "WaitForTempoBlockTimeoutError",
       "WaitForPrivateRedeemTimeoutError",
       "InvalidFeeTokenError",
       "FeeTokenNotTip20Error",
