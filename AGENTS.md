@@ -335,6 +335,10 @@ When encountering situations that require judgment:
 
 Tests should be co-located with actions in `*action-name*.test.ts` files. Reference contract tests in `test/tempo/crates/precompiles/` for expected behavior. 
 
+- Local Tempo tests intentionally run against `VITE_TEMPO_TAG=latest`. Before submitting fixture
+  transactions with expiring nonces, wait until `getBlock` returns a nonzero timestamp; the node's
+  startup signal can arrive before the first canonical block is available through RPC.
+
 See `src/tempo/actions/token.test.ts` for a comprehensive example of test patterns and structure.
 
 #### Test Structure
