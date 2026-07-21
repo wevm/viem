@@ -5555,14 +5555,14 @@ type DecoratorBase<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const { receipt } = await client.zone.requestWithdrawalSync({
+     * const { receipt, senderTag } = await client.zone.requestWithdrawalSync({
      *   token: '0x20c0...0001',
      *   amount: 1_000_000n,
      * })
      * ```
      *
      * @param parameters - Parameters.
-     * @returns The transaction receipt.
+     * @returns The transaction receipt and sender tag for the parent-chain withdrawal event.
      */
     requestWithdrawalSync: (
       parameters: zoneActions.requestWithdrawalSync.Parameters<chain, account>,

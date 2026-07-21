@@ -5,7 +5,9 @@ import { sendTransaction } from '../../actions/wallet/sendTransaction.js'
 import { tempoModerato } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
+import type { Hash } from '../../types/misc.js'
 import { decorator } from '../Decorator.js'
+import type { TransactionReceipt } from '../Transaction.js'
 import { zoneModerato } from '../zones/index.js'
 import * as zoneActions from './zone.js'
 
@@ -121,6 +123,34 @@ test('withdrawal callback gas is distinct from transaction gas', async () => {
   })
 })
 
+test('requestWithdrawalSync returns a receipt and sender tag', async () => {
+  const result = await zoneActions.requestWithdrawalSync(zoneClient, {
+    amount: 1n,
+    token: '0x20c0000000000000000000000000000000000000',
+  })
+
+  expectTypeOf(
+    result,
+  ).toEqualTypeOf<zoneActions.requestWithdrawalSync.ReturnValue>()
+  expectTypeOf(result.receipt).toEqualTypeOf<TransactionReceipt>()
+  expectTypeOf(result.senderTag).toEqualTypeOf<Hash>()
+
+  const explicitAccountClient = createClient({
+    chain: zoneModerato(7),
+    transport,
+  })
+  const explicitResult = await zoneActions.requestWithdrawalSync(
+    explicitAccountClient,
+    {
+      account: '0x0000000000000000000000000000000000000001',
+      amount: 1n,
+      token: '0x20c0000000000000000000000000000000000000',
+    },
+  )
+
+  expectTypeOf(explicitResult.senderTag).toEqualTypeOf<Hash>()
+})
+
 test('decorated requestWithdrawal.prepare preserves client types', async () => {
   const prepared = await decoratedZoneClient.zone.requestWithdrawal.prepare({
     amount: 1n,
@@ -130,6 +160,16 @@ test('decorated requestWithdrawal.prepare preserves client types', async () => {
   expectTypeOf(prepared.maxFee).toEqualTypeOf<bigint>()
   expectTypeOf(prepared.request.type).toEqualTypeOf<'tempo'>()
   await sendTransaction(zoneClient, prepared.request)
+})
+
+test('decorated requestWithdrawalSync returns a receipt and sender tag', async () => {
+  const result = await decoratedZoneClient.zone.requestWithdrawalSync({
+    amount: 1n,
+    token: '0x20c0000000000000000000000000000000000000',
+  })
+
+  expectTypeOf(result.receipt).toEqualTypeOf<TransactionReceipt>()
+  expectTypeOf(result.senderTag).toEqualTypeOf<Hash>()
 })
 
 test('encryptedDeposit still accepts plaintext parameters', async () => {

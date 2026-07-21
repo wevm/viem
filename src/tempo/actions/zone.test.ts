@@ -7,14 +7,17 @@ import {
   decodeAbiParameters,
   decodeFunctionData,
   encodeFunctionData,
+  encodePacked,
   type Hash,
   isAddressEqual,
+  keccak256,
   parseEventLogs,
   zeroHash,
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import {
   getTransaction,
+  getTransactionReceipt,
   readContract,
   waitForTransactionReceipt,
   writeContract,
@@ -35,6 +38,7 @@ import {
   zoneId,
 } from '~test/tempo/zones.js'
 import { WaitForDepositStatusTimeoutError } from '../errors.js'
+import { getWithdrawalSenderTag } from '../internal/getWithdrawalSenderTag.js'
 import * as Storage from '../Storage.js'
 import * as ZoneAbis from '../zones/Abis.js'
 import { getPortalAddress } from '../zones/zone.js'
@@ -769,6 +773,18 @@ describe('depositSync', () => {
 })
 
 describe('requestWithdrawal', () => {
+  test('behavior: derives a deterministic Solidity-compatible sender tag', () => {
+    expect(
+      getWithdrawalSenderTag({
+        sender: '0x0000000000000000000000000000000000000001',
+        transactionHash:
+          '0x1111111111111111111111111111111111111111111111111111111111111111',
+      }),
+    ).toMatchInlineSnapshot(
+      `"0x7d1d33bbd5371cad19c9200930eb7f1f5374473cdfb76b88a1bcc0d0a2efc5bc"`,
+    )
+  })
+
   test('behavior: encodes the 8-argument outbox requestWithdrawal call', () => {
     const [, call] = zoneActions.requestWithdrawal.calls({
       amount: 1n,
@@ -860,22 +876,65 @@ describe('requestWithdrawal', () => {
     expect(receipt.status).toBe('success')
   }, 20_000)
 
-  test('behavior: requests withdrawal from zone to parent chain', async () => {
+  test('behavior: returns the receipt and sender tag for client and explicit accounts', async () => {
     await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
 
     const info = await zoneActions.getZoneInfo(zoneClient)
     const zoneToken = info.zoneTokens[0]!
 
     const amount = parseUnits('0.01', 6)
-    await ensureZoneBalance(zoneToken, amount)
+    await ensureZoneBalance(zoneToken, amount * 2n)
 
-    const result = await zoneActions.requestWithdrawalSync(zoneClient, {
-      token: zoneToken,
-      amount,
+    const clientAccountResult = await zoneActions.requestWithdrawalSync(
+      zoneClient,
+      {
+        amount,
+        token: zoneToken,
+      },
+    )
+    const clientAccountReceipt = await getTransactionReceipt(zoneClient, {
+      hash: clientAccountResult.receipt.transactionHash,
     })
 
-    expect(result.receipt).toBeDefined()
-    expect(result.receipt.status).toBe('success')
+    expect(clientAccountResult.receipt).toEqual(clientAccountReceipt)
+    expect(clientAccountResult.receipt.status).toBe('success')
+    expect(clientAccountResult.senderTag).toBe(
+      keccak256(
+        encodePacked(
+          ['address', 'bytes32'],
+          [account.address, clientAccountResult.receipt.transactionHash],
+        ),
+      ),
+    )
+
+    const explicitAccountClient = getZoneClient({})
+    await zoneActions.signAuthorizationToken(explicitAccountClient, {
+      account,
+      zoneId,
+    })
+    const explicitAccountResult = await zoneActions.requestWithdrawalSync(
+      explicitAccountClient,
+      {
+        account,
+        amount,
+        token: zoneToken,
+      },
+    )
+    const explicitAccountReceipt = await getTransactionReceipt(
+      explicitAccountClient,
+      { hash: explicitAccountResult.receipt.transactionHash },
+    )
+
+    expect(explicitAccountResult.receipt).toEqual(explicitAccountReceipt)
+    expect(explicitAccountResult.receipt.status).toBe('success')
+    expect(explicitAccountResult.senderTag).toBe(
+      keccak256(
+        encodePacked(
+          ['address', 'bytes32'],
+          [account.address, explicitAccountResult.receipt.transactionHash],
+        ),
+      ),
+    )
   }, 20_000)
 
   test('error: no account', async () => {
