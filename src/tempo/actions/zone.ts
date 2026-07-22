@@ -56,6 +56,8 @@ import type { TransactionReceipt } from '../Transaction.js'
 import * as ZoneAbis from '../zones/Abis.js'
 import { getPortalAddress } from '../zones/zone.js'
 
+const defaultWithdrawalGas = 10_000_000n
+
 export type EncryptedPayload = {
   ciphertext: Hex.Hex
   ephemeralPubkeyX: Hex.Hex
@@ -1029,11 +1031,23 @@ export async function getZoneInfo<
     method: 'zone_getZoneInfo',
     params: [],
   })
+  const tempoBlockNumber =
+    info.tempoBlockNumber ??
+    (
+      await client.request<{
+        Method: 'zone_getDepositStatus'
+        Parameters: [Hex.Hex]
+        ReturnType: { zoneProcessedThrough: Hex.Hex }
+      }>({
+        method: 'zone_getDepositStatus',
+        params: ['0x0'],
+      })
+    ).zoneProcessedThrough
 
   return {
     chainId: Hex.toNumber(info.chainId),
-    sequencer: info.sequencer,
-    tempoBlockNumber: Hex.toBigInt(info.tempoBlockNumber),
+    sequencers: 'sequencers' in info ? info.sequencers : [info.sequencer],
+    tempoBlockNumber: Hex.toBigInt(tempoBlockNumber),
     zoneId: Hex.toNumber(info.zoneId),
     zoneTokens: info.zoneTokens,
   }
@@ -1041,18 +1055,35 @@ export async function getZoneInfo<
 
 export namespace getZoneInfo {
   export type RpcReturnType = {
+    /** Zone chain ID. */
     chainId: Hex.Hex
-    sequencer: Address
-    tempoBlockNumber: Hex.Hex
+    /** Latest Tempo block imported by the zone. */
+    tempoBlockNumber?: Hex.Hex | undefined
+    /** Zone ID. */
     zoneId: Hex.Hex
+    /** Enabled zone token addresses. */
     zoneTokens: readonly Address[]
-  }
+  } & (
+    | {
+        /** Active sequencer addresses. */
+        sequencers: readonly Address[]
+      }
+    | {
+        /** Active sequencer address. */
+        sequencer: Address
+      }
+  )
 
   export type ReturnType = {
+    /** Zone chain ID. */
     chainId: number
-    sequencer: Address
+    /** Active sequencer addresses. */
+    sequencers: readonly Address[]
+    /** Latest Tempo block imported by the zone. */
     tempoBlockNumber: bigint
+    /** Zone ID. */
     zoneId: number
+    /** Enabled zone token addresses. */
     zoneTokens: readonly Address[]
   }
 
@@ -1207,6 +1238,7 @@ export async function requestWithdrawal<
   return sendTransaction(client, {
     ...pickWriteParameters(parameters as never),
     calls: requestWithdrawal.calls(args),
+    gas: parameters.gas ?? defaultWithdrawalGas,
   } as never) as never
 }
 
@@ -1358,6 +1390,7 @@ export namespace requestWithdrawal {
         to,
         token,
       }),
+      gas: transactionRequest.gas ?? defaultWithdrawalGas,
     } as never)
     const feePerGas = request.maxFeePerGas ?? request.gasPrice
     if (typeof request.gas !== 'bigint' || typeof feePerGas !== 'bigint')
@@ -1489,6 +1522,7 @@ export async function requestWithdrawalSync<
     ...pickWriteParameters(parameters as never),
     ...pickWriteSyncParameters(parameters as never),
     calls: requestWithdrawal.calls(args),
+    gas: parameters.gas ?? defaultWithdrawalGas,
     throwOnReceiptRevert,
   } as never)
   return { receipt }
@@ -1562,6 +1596,7 @@ export async function requestVerifiableWithdrawal<
   return sendTransaction(client, {
     ...pickWriteParameters(parameters as never),
     calls: requestVerifiableWithdrawal.calls(args),
+    gas: parameters.gas ?? defaultWithdrawalGas,
   } as never) as never
 }
 
@@ -1676,6 +1711,7 @@ export async function requestVerifiableWithdrawalSync<
     ...pickWriteParameters(parameters as never),
     ...pickWriteSyncParameters(parameters as never),
     calls: requestVerifiableWithdrawal.calls(args),
+    gas: parameters.gas ?? defaultWithdrawalGas,
     throwOnReceiptRevert,
   } as never)
   return { receipt }

@@ -12,8 +12,13 @@ import { pathUsd } from '../../../src/tempo/Addresses.js'
 import * as actions from '../../../src/tempo/actions/index.js'
 import { withRetry } from '../../../src/utils/promise/withRetry.js'
 import { accounts, nodeEnv } from './config.js'
+import { createTempo } from './prool.tmp.js'
 
 export const port = 9545
+
+/** Dev key used to provision and administer local Zones. */
+export const zoneAdminKey =
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 
 export const rpcUrl = (() => {
   // Explicit override (e.g. a custom devnet) wins over env presets. Useful for
@@ -49,23 +54,31 @@ export async function createServer() {
     return `sha-${sha}`
   })()
 
+  const zones = import.meta.env.VITE_TEMPO_ZONES === 'true'
   const args = {
     // Match Tempo's production cadence when Zone consumes every L1 block.
-    blockTime:
-      import.meta.env.VITE_TEMPO_ZONES === 'true'
-        ? '500ms'
-        : process.env.CI
-          ? '50ms'
-          : '2ms',
+    blockTime: zones ? '500ms' : process.env.CI ? '50ms' : '2ms',
     log: import.meta.env.VITE_TEMPO_LOG,
     port,
   } satisfies Instance.tempo.Parameters
+  const image = tag?.startsWith('sha256:')
+    ? `ghcr.io/tempoxyz/tempo@${tag}`
+    : `ghcr.io/tempoxyz/tempo:${tag ?? 'latest'}`
+  const artifactsTag = import.meta.env.VITE_TEMPO_ZONE_XTASK_TAG
+  const instance =
+    zones && artifactsTag
+      ? createTempo({
+          ...args,
+          artifactsImage: artifactsTag.startsWith('sha256:')
+            ? `ghcr.io/tempoxyz/tempo-zone-xtask@${artifactsTag}`
+            : `ghcr.io/tempoxyz/tempo-zone-xtask:${artifactsTag}`,
+          image,
+          ownerKey: zoneAdminKey,
+        })
+      : TestContainers.Instance.tempo({ ...args, image })
 
   return Server.create({
-    instance: TestContainers.Instance.tempo({
-      ...args,
-      image: `ghcr.io/tempoxyz/tempo:${tag ?? 'latest'}`,
-    }),
+    instance,
     port,
   })
 }
@@ -92,8 +105,6 @@ type StartedZone = Zone & {
 export type DefineZoneParameters = {
   /** Existing factory to reuse for unique zone IDs. */
   factoryAddress?: `0x${string}` | undefined
-  /** L1 provisioning key. Use distinct keys for concurrent instances. */
-  key?: `0x${string}` | undefined
 }
 
 export type ZoneInstance = {
@@ -152,6 +163,9 @@ async function startZone(
     throw new Error('Local zones require `VITE_TEMPO_ENV=localnet`.')
 
   const tag = import.meta.env.VITE_TEMPO_ZONE_TAG ?? 'latest'
+  const image = tag.startsWith('sha256:')
+    ? `ghcr.io/tempoxyz/tempo-zone@${tag}`
+    : `ghcr.io/tempoxyz/tempo-zone:${tag}`
 
   // The zone container reaches this worker's L1 through the prool server
   // (`host.docker.internal` resolves to the host; the server proxies WS).
@@ -162,13 +176,10 @@ async function startZone(
 
   const instance = TestContainers.Instance.tempoZone({
     dev: {
-      // anvil #1; the default dev key is anvil #0 (= `accounts[0]`), which
-      // would race nonces with test transactions.
-      key:
-        parameters.key ??
-        '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
+      // Anvil #1 owns the native factory and avoids test-account nonce races.
+      key: zoneAdminKey,
     },
-    image: `ghcr.io/tempoxyz/tempo-zone:${tag}`,
+    image,
     l1: {
       factoryAddress: parameters.factoryAddress,
       rpcUrl: l1RpcUrl,
