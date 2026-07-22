@@ -13,12 +13,6 @@ runs:
       with:
         package_json_file: ./wagmi/package.json
 
-    - name: Set up node
-      uses: actions/setup-node@v4
-      with:
-        cache: pnpm
-        cache-dependency-path: ./wagmi/pnpm-lock.yaml
-
     - name: Build viem
       shell: bash
       run: pnpm build
