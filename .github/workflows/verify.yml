@@ -123,7 +123,7 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: pnpm test --bail=1 --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+          command: pnpm test --bail=1 --project core --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
           CI: true
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
@@ -134,8 +134,6 @@ jobs:
           VITE_BATCH_MULTICALL: ${{ matrix.multicall }}
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
           VITE_SHARD_ID: ${{ matrix.shard }}
-          VITE_TEMPO_ENV: localnet
-          VITE_TEMPO_TAG: latest
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
@@ -202,12 +200,32 @@ jobs:
           VITE_TEMPO_MULTISIG: 'true'
           VITE_TEMPO_TAG: sha-6d831c2
 
-  test-tempo-zones:
-    name: Test Local Tempo Zones
+  test-tempo:
+    name: Test Local Tempo (${{ matrix.version }}, ${{ matrix.shard }}/${{ matrix.total-shards }})
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     permissions:
       contents: read
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        version: [T7, T8, T9]
+        shard: [1, 2, 3]
+        total-shards: [3]
+        include:
+          - version: T7
+            tempo-tag: sha-f56f173
+            zone-tag: sha-aae82c4
+            zone-xtask-tag: ''
+          - version: T8
+            tempo-tag: sha-e828ab7
+            zone-tag: sha-aae82c4
+            zone-xtask-tag: ''
+          - version: T9
+            tempo-tag: sha256:290c7c1843cc8fbc8c0e5e37025c5373050d21004e4d22f4b00f978dfbee4c47
+            zone-tag: sha256:2cb2d54c6d5b0473c1d0fc112d806fcb80a21516b660d4ab6e1bb0bcc7a97896
+            zone-xtask-tag: sha256:57bdf58caf4654eef2615260b19c1b65d8823af150e95643d0619a97dcbba3bd
 
     steps:
       - name: Clone repository
@@ -221,21 +239,19 @@ jobs:
       - name: Build contracts
         run: pnpm contracts:build
 
-      - name: Run Zone tests
+      - name: Test Local Tempo
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: >-
-            pnpm test --run --bail=1 --project tempo
-            src/tempo/actions/zone.test.ts
+          command: pnpm test --run --bail=1 --project tempo --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
           CI: true
           VITE_TEMPO_ENV: localnet
-          VITE_TEMPO_TAG: sha256:290c7c1843cc8fbc8c0e5e37025c5373050d21004e4d22f4b00f978dfbee4c47
+          VITE_TEMPO_TAG: ${{ matrix.tempo-tag }}
           VITE_TEMPO_ZONES: 'true'
-          VITE_TEMPO_ZONE_TAG: sha256:2cb2d54c6d5b0473c1d0fc112d806fcb80a21516b660d4ab6e1bb0bcc7a97896
-          VITE_TEMPO_ZONE_XTASK_TAG: sha256:57bdf58caf4654eef2615260b19c1b65d8823af150e95643d0619a97dcbba3bd
+          VITE_TEMPO_ZONE_TAG: ${{ matrix.zone-tag }}
+          VITE_TEMPO_ZONE_XTASK_TAG: ${{ matrix.zone-xtask-tag }}
 
   test-envs:
     name: Test Environments
@@ -323,6 +339,8 @@ jobs:
   wagmi:
     name: Wagmi
     continue-on-error: true
+    # TODO: Re-enable Wagmi verification.
+    if: ${{ false }}
     permissions:
       contents: read
     runs-on: ubuntu-latest

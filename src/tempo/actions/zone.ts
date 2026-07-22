@@ -57,6 +57,8 @@ import type { TransactionReceipt } from '../Transaction.js'
 import * as ZoneAbis from '../zones/Abis.js'
 import { getPortalAddress } from '../zones/zone.js'
 
+const defaultWithdrawalGas = 10_000_000n
+
 export type EncryptedPayload = {
   ciphertext: Hex.Hex
   ephemeralPubkeyX: Hex.Hex
@@ -1030,11 +1032,23 @@ export async function getZoneInfo<
     method: 'zone_getZoneInfo',
     params: [],
   })
+  const tempoBlockNumber =
+    info.tempoBlockNumber ??
+    (
+      await client.request<{
+        Method: 'zone_getDepositStatus'
+        Parameters: [Hex.Hex]
+        ReturnType: { zoneProcessedThrough: Hex.Hex }
+      }>({
+        method: 'zone_getDepositStatus',
+        params: ['0x0'],
+      })
+    ).zoneProcessedThrough
 
   return {
     chainId: Hex.toNumber(info.chainId),
-    sequencers: info.sequencers,
-    tempoBlockNumber: Hex.toBigInt(info.tempoBlockNumber),
+    sequencers: 'sequencers' in info ? info.sequencers : [info.sequencer],
+    tempoBlockNumber: Hex.toBigInt(tempoBlockNumber),
     zoneId: Hex.toNumber(info.zoneId),
     zoneTokens: info.zoneTokens,
   }
@@ -1044,15 +1058,22 @@ export namespace getZoneInfo {
   export type RpcReturnType = {
     /** Zone chain ID. */
     chainId: Hex.Hex
-    /** Active sequencer addresses. */
-    sequencers: readonly Address[]
     /** Latest Tempo block imported by the zone. */
-    tempoBlockNumber: Hex.Hex
+    tempoBlockNumber?: Hex.Hex | undefined
     /** Zone ID. */
     zoneId: Hex.Hex
     /** Enabled zone token addresses. */
     zoneTokens: readonly Address[]
-  }
+  } & (
+    | {
+        /** Active sequencer addresses. */
+        sequencers: readonly Address[]
+      }
+    | {
+        /** Active sequencer address. */
+        sequencer: Address
+      }
+  )
 
   export type ReturnType = {
     /** Zone chain ID. */
@@ -1218,7 +1239,7 @@ export async function requestWithdrawal<
   return sendTransaction(client, {
     ...pickWriteParameters(parameters as never),
     calls: requestWithdrawal.calls(args),
-    gas: parameters.gas ?? requestWithdrawalGas,
+    gas: parameters.gas ?? defaultWithdrawalGas,
   } as never) as never
 }
 
@@ -1370,7 +1391,7 @@ export namespace requestWithdrawal {
         to,
         token,
       }),
-      gas: transactionRequest.gas ?? requestWithdrawalGas,
+      gas: transactionRequest.gas ?? defaultWithdrawalGas,
     } as never)
     const feePerGas = request.maxFeePerGas ?? request.gasPrice
     if (typeof request.gas !== 'bigint' || typeof feePerGas !== 'bigint')
@@ -1523,7 +1544,7 @@ export async function requestWithdrawalSync<
     ...pickWriteParameters(parameters as never),
     ...pickWriteSyncParameters(parameters as never),
     calls: requestWithdrawal.calls(args),
-    gas: parameters.gas ?? requestWithdrawalGas,
+    gas: parameters.gas ?? defaultWithdrawalGas,
     throwOnReceiptRevert,
   } as never)
   const senderTag = getWithdrawalSenderTag({
@@ -1603,7 +1624,7 @@ export async function requestVerifiableWithdrawal<
   return sendTransaction(client, {
     ...pickWriteParameters(parameters as never),
     calls: requestVerifiableWithdrawal.calls(args),
-    gas: parameters.gas ?? requestWithdrawalGas,
+    gas: parameters.gas ?? defaultWithdrawalGas,
   } as never) as never
 }
 
@@ -1718,7 +1739,7 @@ export async function requestVerifiableWithdrawalSync<
     ...pickWriteParameters(parameters as never),
     ...pickWriteSyncParameters(parameters as never),
     calls: requestVerifiableWithdrawal.calls(args),
-    gas: parameters.gas ?? requestWithdrawalGas,
+    gas: parameters.gas ?? defaultWithdrawalGas,
     throwOnReceiptRevert,
   } as never)
   return { receipt }
@@ -1942,5 +1963,3 @@ function buildDepositHkdfInfo(
 function ceilDiv(numerator: bigint, denominator: bigint) {
   return (numerator + denominator - 1n) / denominator
 }
-
-const requestWithdrawalGas = 10_000_000n

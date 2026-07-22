@@ -18,6 +18,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 import {
   getTransaction,
   getTransactionReceipt,
+  readContract,
   waitForTransactionReceipt,
   writeContract,
 } from 'viem/actions'
@@ -35,6 +36,7 @@ import {
   portalAddress,
   zoneId,
 } from '~test/tempo/zones.js'
+import { createHttpServer } from '~test/utils.js'
 import { getWithdrawalSenderTag } from '../internal/getWithdrawalSenderTag.js'
 import * as Storage from '../Storage.js'
 import * as ZoneAbis from '../zones/Abis.js'
@@ -119,23 +121,61 @@ async function ensureZoneBalance(zoneToken: Address, minimumBalance: bigint) {
 async function createUnconfiguredZone() {
   if (!factoryAddress) throw new Error('ZoneFactory is unavailable.')
 
-  const hash = await writeContract(portalAdminClient, {
-    account: portalAdmin,
-    address: factoryAddress,
-    abi: ZoneAbis.zoneFactory,
-    functionName: 'createZone',
-    args: [
-      {
-        initialToken: parentToken,
-        admin: account.address,
-        sequencers: [account.address],
-        threshold: 1,
-        rpcUrl: 'http://127.0.0.1:0',
-      },
-    ],
-    gas: 20_000_000n,
-  })
-  const receipt = await waitForTransactionReceipt(portalAdminClient, { hash })
+  const info = await zoneClient.request<{
+    Method: 'zone_getZoneInfo'
+    Parameters: []
+    ReturnType: zoneActions.getZoneInfo.RpcReturnType
+  }>({ method: 'zone_getZoneInfo', params: [] })
+  const hash =
+    'sequencers' in info
+      ? await writeContract(portalAdminClient, {
+          account: portalAdmin,
+          address: factoryAddress,
+          abi: ZoneAbis.zoneFactory,
+          functionName: 'createZone',
+          args: [
+            {
+              initialToken: parentToken,
+              admin: account.address,
+              sequencers: [account.address],
+              threshold: 1,
+              rpcUrl: 'http://127.0.0.1:0',
+            },
+          ],
+          gas: 20_000_000n,
+        })
+      : await (async () => {
+          const verifier = await readContract(mainnetClient, {
+            address: factoryAddress,
+            abi: ZoneAbis.zoneFactory,
+            functionName: 'verifier',
+          })
+          const genesisTempoBlockNumber = BigInt(
+            await mainnetClient.request({ method: 'eth_blockNumber' }),
+          )
+          return writeContract(mainnetClient, {
+            account,
+            address: factoryAddress,
+            abi: ZoneAbis.zoneFactory,
+            functionName: 'createZone',
+            args: [
+              {
+                initialToken: parentToken,
+                admin: account.address,
+                sequencer: account.address,
+                verifier,
+                zoneParams: {
+                  genesisBlockHash: zeroHash,
+                  genesisTempoBlockHash: zeroHash,
+                  genesisTempoBlockNumber,
+                },
+                rpcUrl: 'http://127.0.0.1:0',
+              },
+            ],
+            gas: 20_000_000n,
+          })
+        })()
+  const receipt = await waitForTransactionReceipt(mainnetClient, { hash })
   const [event] = parseEventLogs({
     abi: ZoneAbis.zoneFactory,
     eventName: 'ZoneCreated',
@@ -267,6 +307,55 @@ describe('getZoneInfo', () => {
     expect(isAddressEqual(info.sequencers[0]!, portalAdmin.address)).toBe(true)
     expect(info.tempoBlockNumber).toBeGreaterThanOrEqual(0n)
     expect(info.zoneTokens).toBeDefined()
+  })
+
+  test('behavior: normalizes a response without a block number', async () => {
+    const server = await createHttpServer(async (req, res) => {
+      let body = ''
+      req.setEncoding('utf8')
+      for await (const chunk of req) body += chunk
+      const request = JSON.parse(body)
+      const result =
+        request.method === 'zone_getZoneInfo'
+          ? {
+              chainId: '0x1922a1a1',
+              sequencer: account.address,
+              zoneId: '0x1',
+              zoneTokens: [parentToken],
+            }
+          : { zoneProcessedThrough: '0x1' }
+
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          id: request.id,
+          jsonrpc: '2.0',
+          result,
+        }),
+      )
+    })
+
+    try {
+      const client = createClient({ transport: http(server.url) })
+
+      const info = await zoneActions.getZoneInfo(client)
+
+      expect(info).toMatchInlineSnapshot(`
+        {
+          "chainId": 421700001,
+          "sequencers": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          ],
+          "tempoBlockNumber": 1n,
+          "zoneId": 1,
+          "zoneTokens": [
+            "0x20c0000000000000000000000000000000000000",
+          ],
+        }
+      `)
+    } finally {
+      await server.close()
+    }
   })
 })
 
