@@ -16,6 +16,8 @@ runs:
 
     - name: Set up node
       uses: actions/setup-node@v4
+      env:
+        NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS: 'false'
       with:
         cache: pnpm
         cache-dependency-path: ./wagmi/pnpm-lock.yaml
