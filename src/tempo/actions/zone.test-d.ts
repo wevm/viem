@@ -127,9 +127,10 @@ test('getEncryptionKey returns the active key and index', async () => {
   })
 })
 
-test('getZoneInfo returns the imported Tempo block number', async () => {
+test('getZoneInfo returns sequencers and the imported Tempo block number', async () => {
   const info = await zoneActions.getZoneInfo(zoneClient)
 
+  expectTypeOf(info.sequencers).toEqualTypeOf<readonly Address[]>()
   expectTypeOf(info.tempoBlockNumber).toEqualTypeOf<bigint>()
 })
 

@@ -7,13 +7,13 @@ import {
   decodeFunctionData,
   encodeFunctionData,
   type Hash,
+  isAddressEqual,
   parseEventLogs,
   zeroHash,
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import {
   getTransaction,
-  readContract,
   waitForTransactionReceipt,
   writeContract,
 } from 'viem/actions'
@@ -22,7 +22,7 @@ import { parseUnits } from 'viem/utils'
 import { describe, expect, test } from 'vitest'
 import { accounts } from '~test/constants.js'
 import { chain, http, nodeEnv } from '~test/tempo/config.js'
-import { defineZone } from '~test/tempo/prool.js'
+import { defineZone, zoneAdminKey } from '~test/tempo/prool.js'
 import {
   factoryAddress,
   getClient as getZoneClient,
@@ -36,8 +36,15 @@ import * as tokenActions from './token.js'
 import * as zoneActions from './zone.js'
 
 const account = privateKeyToAccount(accounts[0].privateKey)
+const portalAdmin = privateKeyToAccount(zoneAdminKey)
 const mainnetClient = createClient({
   account,
+  chain,
+  pollingInterval: 100,
+  transport: http(),
+})
+const portalAdminClient = createClient({
+  account: portalAdmin,
   chain,
   pollingInterval: 100,
   transport: http(),
@@ -104,16 +111,8 @@ async function ensureZoneBalance(zoneToken: Address, minimumBalance: bigint) {
 async function createUnconfiguredZone() {
   if (!factoryAddress) throw new Error('ZoneFactory is unavailable.')
 
-  const verifier = await readContract(mainnetClient, {
-    address: factoryAddress,
-    abi: ZoneAbis.zoneFactory,
-    functionName: 'verifier',
-  })
-  const genesisTempoBlockNumber = BigInt(
-    await mainnetClient.request({ method: 'eth_blockNumber' }),
-  )
-  const hash = await writeContract(mainnetClient, {
-    account,
+  const hash = await writeContract(portalAdminClient, {
+    account: portalAdmin,
     address: factoryAddress,
     abi: ZoneAbis.zoneFactory,
     functionName: 'createZone',
@@ -121,19 +120,14 @@ async function createUnconfiguredZone() {
       {
         initialToken: parentToken,
         admin: account.address,
-        sequencer: account.address,
-        verifier,
-        zoneParams: {
-          genesisBlockHash: zeroHash,
-          genesisTempoBlockHash: zeroHash,
-          genesisTempoBlockNumber,
-        },
+        sequencers: [account.address],
+        threshold: 1,
         rpcUrl: 'http://127.0.0.1:0',
       },
     ],
     gas: 20_000_000n,
   })
-  const receipt = await waitForTransactionReceipt(mainnetClient, { hash })
+  const receipt = await waitForTransactionReceipt(portalAdminClient, { hash })
   const [event] = parseEventLogs({
     abi: ZoneAbis.zoneFactory,
     eventName: 'ZoneCreated',
@@ -161,10 +155,7 @@ describe('zone instance', () => {
     async () => {
       if (!factoryAddress) throw new Error('ZoneFactory is unavailable.')
 
-      const secondary = defineZone({
-        factoryAddress,
-        key: accounts[2].privateKey,
-      })
+      const secondary = defineZone({ factoryAddress })
 
       try {
         const [zone_, sameZone] = await Promise.all([
@@ -264,7 +255,8 @@ describe('getZoneInfo', () => {
 
     expect(info.zoneId).toBe(zoneId)
     expect(info.chainId).toBe(zoneClient.chain.id)
-    expect(info.sequencer).toBeDefined()
+    expect(info.sequencers).toHaveLength(1)
+    expect(isAddressEqual(info.sequencers[0]!, portalAdmin.address)).toBe(true)
     expect(info.tempoBlockNumber).toBeGreaterThanOrEqual(0n)
     expect(info.zoneTokens).toBeDefined()
   })
