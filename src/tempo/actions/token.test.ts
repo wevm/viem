@@ -2752,13 +2752,11 @@ describe('watchAdminRole', () => {
 describe('watchRole', () => {
   test('default', async () => {
     // Create a new token for testing
-    const { token: address } = await actions.token.createSync(client, {
+    const { receipt, token: address } = await actions.token.createSync(client, {
       currency: 'USD',
       name: 'Role Watch Token',
       symbol: 'ROLE',
     })
-
-    await setTimeout(100)
 
     const receivedRoleUpdates: Array<{
       args: actions.token.watchRole.Args
@@ -2769,6 +2767,7 @@ describe('watchRole', () => {
     const unwatch = actions.token.watchRole(client, {
       token: address,
       onRoleUpdated: (args, log) => {
+        if (log.blockNumber <= receipt.blockNumber) return
         receivedRoleUpdates.push({ args, log })
       },
     })
