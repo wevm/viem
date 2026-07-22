@@ -3,6 +3,7 @@ import {
   type Address,
   type ClientConfig,
   createClient,
+  createTransport,
   defineChain,
   type Transport,
   type Account as viem_Account,
@@ -55,11 +56,43 @@ export const zone = local
 
 export const rpcUrl = zone.rpcUrls.default.http[0]!
 
-export const http = (url = rpcUrl, config: ZoneHttpConfig = {}) =>
-  zoneHttp(url, {
+export const http = (url = rpcUrl, config: ZoneHttpConfig = {}) => {
+  const transport = zoneHttp(url, {
     ...debugOptions({ rpcUrl: url }),
     ...config,
   })
+  if (nodeEnv !== 'localnet') return transport
+
+  // TODO: Remove this compatibility transport once `tempo-zone dev` supports Tempo's native TIP-1091 ZoneFactory and the pinned Zone image exposes `tempoBlockNumber`.
+  return ((parameters) => {
+    const { config: transportConfig, value } = transport(parameters)
+    return createTransport(
+      {
+        ...transportConfig,
+        async request(args) {
+          const info = await transportConfig.request(args)
+          if (
+            args.method !== 'zone_getZoneInfo' ||
+            typeof info !== 'object' ||
+            info === null ||
+            'tempoBlockNumber' in info
+          )
+            return info as never
+
+          const status = (await transportConfig.request({
+            method: 'zone_getDepositStatus',
+            params: ['0x0'],
+          })) as { zoneProcessedThrough: string }
+          return {
+            ...info,
+            tempoBlockNumber: status.zoneProcessedThrough,
+          } as never
+        },
+      },
+      value,
+    )
+  }) satisfies Transport
+}
 
 export function getClient<
   accountOrAddress extends viem_Account | Address | undefined = undefined,
