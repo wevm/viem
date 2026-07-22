@@ -1,0 +1,188 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `earn.privateRedeem`
+
+Withdraws vault shares from a private Zone, redeems them on Tempo, and returns the assets to an
+encrypted Zone recipient.
+
+## Usage
+
+Prepare the encrypted callback with a parent Tempo client, then submit the withdrawal with the Zone
+client.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client as parentClient } from './viem.config'
+import { client as zoneClient } from './zones.config'
+
+const prepared = await parentClient.earn.privateRedeem.prepare({
+  gateway: '0x0000000000000000000000000000000000000001',
+  recipient: zoneClient.account.address,
+  recoveryRecipient: parentClient.account.address,
+  shareAmount: 100_000_000n,
+  slippageBps: 50,
+})
+
+const { receipt, senderTag } = await zoneClient.earn.privateRedeemSync(prepared)
+// @log: { transactionHash: '0x1234...abcd', ... }
+console.log('Sender tag:', senderTag)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+The synchronous action confirms the Zone withdrawal. Use
+[`earn.waitForPrivateRedeem`](/tempo/actions/earn.waitForPrivateRedeem) to wait for the parent-chain
+redemption. `senderTag` identifies the corresponding parent-chain `WithdrawalProcessed` event.
+
+### Asynchronous Usage
+
+Use `earn.privateRedeem` to return the Zone transaction hash immediately.
+
+```ts twoslash
+import { client as parentClient } from './viem.config'
+import { client as zoneClient } from './zones.config'
+
+const prepared = await parentClient.earn.privateRedeem.prepare({
+  assetAmountMin: 99_000_000n,
+  gateway: '0x0000000000000000000000000000000000000001',
+  recipient: zoneClient.account.address,
+  recoveryRecipient: parentClient.account.address,
+  shareAmount: 100_000_000n,
+})
+
+const hash = await zoneClient.earn.privateRedeem(prepared)
+// @log: 0x1234...abcd
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  receipt: TransactionReceipt
+  senderTag: Hash
+}
+```
+
+The asynchronous action returns the transaction hash instead.
+
+## Prepare Return Type
+
+```ts
+type PreparedZoneRequest = {
+  actionId: Hex
+  amount: bigint
+  callbackGas: bigint
+  chainId: number
+  data: Hex
+  fallbackRecipient: Address
+  fromBlock: bigint
+  memo?: Hex
+  to: Address
+  token: Address
+  zoneId: number
+}
+```
+
+Pass the prepared value directly to `earn.privateRedeem` or `earn.privateRedeemSync`. The action checks
+that its parent and Zone chain IDs match the Zone client.
+
+## Prepare Parameters
+
+### actionId (optional)
+
+- **Type:** `Hex`
+- **Default:** A random `bytes32` value
+
+Correlation ID encoded in the gateway callback. Supply one when deterministic request preparation is
+needed.
+
+### assetAmount (optional)
+
+- **Type:** `bigint`
+
+Quoted asset output. Provide it with `slippageBps` to avoid a live vault quote.
+
+### assetAmountMin (optional)
+
+- **Type:** `bigint`
+
+Minimum assets returned to the Zone.
+
+### assetToken (optional)
+
+- **Type:** `Address`
+- **Default:** The gateway vault asset
+
+Asset token returned to the Zone. A different token uses the gateway swap.
+
+### callbackGas (optional)
+
+- **Type:** `bigint`
+- **Default:** `10_000_000n`
+
+Gas reserved for the parent-chain gateway callback.
+
+### fallbackRecipient (optional)
+
+- **Type:** `Address`
+- **Default:** `recoveryRecipient`
+
+Public recipient if the parent-chain gateway callback fails.
+
+### gateway
+
+- **Type:** `Address`
+
+Gateway identifying the vault and Zone configuration.
+
+### recipient
+
+- **Type:** `Address`
+
+Encrypted Zone recipient for the returned assets.
+
+### recoveryRecipient
+
+- **Type:** `Address`
+
+Public Tempo recipient if the encrypted return deposit fails.
+
+### returnMemo (optional)
+
+- **Type:** `Hex`
+
+Memo encrypted with the returned Zone deposit.
+
+### shareAmount
+
+- **Type:** `bigint`
+
+Vault shares withdrawn from the Zone, in base units.
+
+### slippageBps (optional)
+
+- **Type:** `number`
+
+Slippage tolerance below the provided or live quote, in basis points. For example, `50` means 0.5%.
+
+### withdrawalMemo (optional)
+
+- **Type:** `Hex`
+
+Memo attached to the Zone withdrawal.
+
+<ReadParameters />
+
+## Transaction Parameters
+
+<WriteParameters />

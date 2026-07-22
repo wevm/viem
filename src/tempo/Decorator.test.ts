@@ -31,6 +31,7 @@ describe('decorator', () => {
         "amm",
         "channel",
         "dex",
+        "earn",
         "faucet",
         "nonce",
         "fee",
@@ -61,6 +62,10 @@ describe('decorator', () => {
     )
     expect(typeof client2.zone.requestWithdrawal.prepare).toBe('function')
     expect(typeof client2.zone.getEncryptionKey.calls).toBe('function')
+    expect(typeof client2.earn.privateDeposit.prepare).toBe('function')
+    expect(typeof client2.earn.privateDeposit.calls).toBe('function')
+    expect(typeof client2.earn.privateRedeem.prepare).toBe('function')
+    expect(typeof client2.earn.privateRedeem.calls).toBe('function')
   })
 
   test('binds missing action entries', () => {
@@ -72,6 +77,8 @@ describe('decorator', () => {
     expect(typeof client2.accessKey.verifyHash).toBe('function')
     expect(typeof client2.zone.getEncryptionKey).toBe('function')
     expect(typeof client2.zone.waitForTempoBlock).toBe('function')
+    expect(typeof client2.earn.waitForPrivateDeposit).toBe('function')
+    expect(typeof client2.earn.waitForPrivateRedeem).toBe('function')
   })
 
   test('binds pure and client-first call helpers', () => {

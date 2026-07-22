@@ -335,6 +335,9 @@ When encountering situations that require judgment:
 
 Tests should be co-located with actions in `*action-name*.test.ts` files. Reference contract tests in `test/tempo/crates/precompiles/` for expected behavior. 
 
+- Run `pnpm check:types` and `pnpm build:types` sequentially, never concurrently. `build:types`
+  writes the ignored `src/_types` tree and must start with that directory absent to avoid TypeScript
+  reading generated declarations as inputs. Remove `src/_types` again before `check:types`.
 - Local Tempo tests intentionally run against `VITE_TEMPO_TAG=latest`. Before submitting fixture
   transactions with expiring nonces, wait until `getBlock` returns a nonzero timestamp; the node's
   startup signal can arrive before the first canonical block is available through RPC.

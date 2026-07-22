@@ -1,0 +1,237 @@
+---
+description: Restrict who can enter an Earn vault while preserving existing holders' ability to exit.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Protect an Earn Vault
+
+## Overview
+
+A protected Earn vault attaches an exit-safe TIP-403 policy to its vault share token. The policy
+allows every sender, while one whitelist controls who can receive transfers and newly minted vault
+shares.
+
+Eligibility applies to the share recipient, not the account funding a deposit. Removing an account
+from the whitelist prevents it from receiving more shares, but does not freeze the shares it already
+holds. Those shares continue to reflect vault value until they are redeemed.
+
+The always-allow sender rule preserves the EarnToken side of an exit. Keep the vault adapter and
+every other required protocol recipient eligible so an existing holder can transfer shares through
+the adapter and redeem.
+
+:::warning
+Policy configuration submits three or four sequential transactions and is not atomic. Validate the
+completed policy before publishing the vault.
+:::
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo) whose account can change the vault
+share token's transfer policy.
+
+### Configure and Validate the Policy
+
+Read the share token with [`earn.getVault`](/tempo/actions/earn.getVault), then use
+[`earn.configureExitSafePolicy`](/tempo/actions/earn.configureExitSafePolicy) to create and attach the
+policy. Include every address that must receive EarnToken during normal operation.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const vault = '0x0000000000000000000000000000000000000001'
+const accessAdministrator = '0x0000000000000000000000000000000000000002'
+const requiredMembers = [
+  vault,
+  '0x0000000000000000000000000000000000000003',
+  '0x0000000000000000000000000000000000000004',
+] as const
+
+const { shareToken } = await client.earn.getVault({ vault })
+const { policy } = await client.earn.configureExitSafePolicy({
+  accessAdministrator,
+  initialMembers: requiredMembers,
+  shareToken,
+})
+
+await client.earn.validateExitSafePolicy({
+  accessAdministrator,
+  policy,
+  requiredMembers,
+  shareToken,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The first member is the vault adapter. Replace the other placeholders with the gateway, Portal,
+fee recipient, governance, or other deployment-specific addresses that need to receive EarnToken.
+Store all four returned policy IDs with the deployment record.
+
+[`earn.validateExitSafePolicy`](/tempo/actions/earn.validateExitSafePolicy) checks the token's attached
+policy, its compound components, the whitelist administrator, and every required member's transfer
+and mint eligibility.
+
+### Fund an Eligible Recipient
+
+Check the recipient policy with
+[`policy.isAuthorized`](/tempo/actions/policy.isAuthorized) before funding another account through
+[`earn.depositSync`](/tempo/actions/earn.deposit). The caller supplies the assets, while the
+`recipient` receives the vault shares.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const recipient = '0x0000000000000000000000000000000000000003'
+const recipientPolicyId = 2n
+const eligible = await client.policy.isAuthorized({
+  policyId: recipientPolicyId,
+  user: recipient,
+})
+
+if (!eligible) throw new Error('Recipient is not eligible for this vault.')
+
+const result = await client.earn.depositSync({
+  assetAmount: 100_000_000n,
+  recipient,
+  shareAmount: 99_900_000n,
+  slippageBps: 50,
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: { assetAmount: 100_000_000n, recipient: '0x0000...0003', ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Only the EarnToken recipient must pass this eligibility policy. Asset-token policies, receive
+policies, and other account restrictions still apply independently.
+
+### Update Eligibility
+
+The access administrator can add or remove members with
+[`policy.modifyWhitelistSync`](/tempo/actions/policy.modifyWhitelist).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const member = '0x0000000000000000000000000000000000000003'
+const recipientPolicyId = 2n
+
+await client.policy.modifyWhitelistSync({
+  address: member,
+  allowed: true,
+  policyId: recipientPolicyId,
+})
+
+const eligible = await client.policy.isAuthorized({
+  policyId: recipientPolicyId,
+  user: member,
+})
+// @log: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Pass `allowed: false` to revoke admission. Do not remove the vault adapter, required gateway
+components, a fee recipient with pending fees, or a receiver with an open asynchronous claim.
+Revalidate all required protocol members after every change.
+
+### Exit After Eligibility Removal
+
+A removed holder cannot receive more EarnToken, but the exit-safe sender policy still lets it read
+the position with [`earn.getPosition`](/tempo/actions/earn.getPosition) and send existing shares to
+an eligible vault adapter with [`earn.redeemSync`](/tempo/actions/earn.redeem).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const vault = '0x0000000000000000000000000000000000000001'
+const { shareBalance } = await client.earn.getPosition({ vault })
+
+const result = await client.earn.redeemSync({
+  shareAmount: shareBalance,
+  slippageBps: 50,
+  vault,
+})
+// @log: { assetAmount: 99_000_000n, shareAmount: 99_500_000n, ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+This preserves the EarnToken policy side of the exit. The vault must still support the requested
+exit, and its asset token and other protocol components must remain operational.
+
+## Best Practices
+
+### Validate Before Publishing
+
+Do not treat the configuration receipts as proof of the final policy. Run
+`earn.validateExitSafePolicy` after setup and whenever required membership changes.
+
+### Protect Required Recipients
+
+Maintain a deployment-specific list of every protocol address that receives EarnToken. A generic
+whitelist update does not protect those addresses from accidental removal.
+
+### Treat Eligibility as Admission Control
+
+Use removal to stop new shares from entering an account, not to confiscate or freeze its existing
+position. Existing shares continue to participate in changes to vault value until exit.
+
+### Separate Policy Administration
+
+Assign the eligibility policy to an administrator designed for ongoing access decisions. Keep vault
+operation and policy administration responsibilities explicit.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:circle-dollar-sign"
+    title="Deposit & Withdraw"
+    description="Enter an Earn vault, inspect a position, and choose an exit shape."
+    to="/tempo/guides/earn/deposit-withdraw"
+  />
+  <Card
+    icon="lucide:shield-check"
+    title="Validate Exit Safety"
+    description="Check the attached policy, administrator, and required recipients."
+    to="/tempo/actions/earn.validateExitSafePolicy"
+  />
+  <Card
+    icon="lucide:list-checks"
+    title="Transfer Policies"
+    description="Create policies and manage whitelist membership."
+    to="/tempo/guides/transfer-policies"
+  />
+  <Card
+    icon="lucide:user-round-check"
+    title="Manage Members"
+    description="Add or remove addresses from an existing whitelist."
+    to="/tempo/actions/policy.modifyWhitelist"
+  />
+</Cards>

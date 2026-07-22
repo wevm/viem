@@ -1,0 +1,143 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `earn.deposit`
+
+Deposits assets into a vault and mints vault shares to a recipient.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.earn.depositSync({
+  assetAmount: 100_000_000n,
+  shareAmount: 99_900_000n,
+  slippageBps: 50,
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: {
+//   assetAmount: 100_000_000n,
+//   caller: '0x...',
+//   receipt: { ... },
+//   recipient: '0x...',
+//   shareAmount: 99_500_500n,
+// }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The action reads and approves `assetToken`, then deposits it in one transaction. `shareAmount` is a
+quote; `slippageBps` converts it into the minimum accepted share amount.
+
+### Set an Exact Minimum
+
+Use `shareAmountMin` when you already have a minimum vault share output.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.earn.depositSync({
+  assetAmount: 100_000_000n,
+  shareAmountMin: 99_500_000n,
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: { assetAmount: 100_000_000n, shareAmount: 99_750_000n, ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+`earn.depositSync` waits for inclusion and returns the decoded deposit event. Use `earn.deposit` to
+return the transaction hash immediately.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const vault = '0x0000000000000000000000000000000000000001'
+const hash = await client.earn.deposit({
+  assetAmount: 100_000_000n,
+  shareAmountMin: 99_500_000n,
+  vault,
+})
+// @log: 0x1234...abcd
+
+const receipt = await client.waitForTransactionReceipt({ hash })
+const { args } = Actions.earn.deposit.extractEvent(receipt.logs, { vault })
+// @log: { assets: 100_000_000n, shares: 99_750_000n, ... }
+```
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  /** Assets deposited. */
+  assetAmount: bigint
+  /** Depositing caller. */
+  caller: Address
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+  /** Vault share recipient. */
+  recipient: Address
+  /** Vault shares minted. */
+  shareAmount: bigint
+}
+```
+
+The asynchronous action returns the transaction hash instead.
+
+## Parameters
+
+### assetAmount
+
+- **Type:** `bigint | { decimals?: number | undefined; formatted: string }`
+
+Assets to deposit. A `bigint` uses base units; a formatted value uses the vault asset's decimals
+unless `decimals` is provided.
+
+### recipient (optional)
+
+- **Type:** `Address`
+- **Default:** `account.address`
+
+Vault share recipient.
+
+### shareAmount (optional)
+
+- **Type:** `bigint`
+
+Quoted vault share output. Provide it with `slippageBps`, or provide `shareAmountMin` instead.
+
+### shareAmountMin (optional)
+
+- **Type:** `bigint`
+
+Minimum vault shares to accept. It must be greater than zero and cannot be combined with
+`shareAmount` or `slippageBps`.
+
+### slippageBps (optional)
+
+- **Type:** `number`
+
+Slippage tolerance below `shareAmount`, in basis points. For example, `50` means 0.5%.
+
+### vault
+
+- **Type:** `Address`
+
+Vault address.
+
+<WriteParameters />

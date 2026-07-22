@@ -51,6 +51,7 @@ import {
   pickWriteParameters,
   pickWriteSyncParameters,
 } from '../internal/utils.js'
+import * as WithdrawalSenderTag from '../internal/WithdrawalSenderTag.js'
 import * as Storage from '../Storage.js'
 import type { TransactionReceipt } from '../Transaction.js'
 import * as ZoneAbis from '../zones/Abis.js'
@@ -1481,26 +1482,47 @@ type WithdrawalCalls = ReturnType<typeof requestWithdrawal.calls>
  *
  * @example
  * ```ts
- * import { createClient } from 'viem'
+ * import { createClient, createPublicClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { http, zoneModerato } from 'viem/tempo/zones'
+ * import { tempoModerato } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
+ * import {
+ *   Abis,
+ *   getPortalAddress,
+ *   http as zoneHttp,
+ *   zoneModerato,
+ * } from 'viem/tempo/zones'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
  *   chain: zoneModerato(7),
- *   transport: http(),
+ *   transport: zoneHttp(),
  * })
  *
- * const result = await Actions.zone.requestWithdrawalSync(client, {
- *   token: '0x20c0...0001',
- *   amount: 1_000_000n,
+ * const { receipt, senderTag } =
+ *   await Actions.zone.requestWithdrawalSync(client, {
+ *     amount: 1_000_000n,
+ *     token: '0x20c0...0001',
+ *   })
+ *
+ * // `senderTag` identifies the indexed WithdrawalProcessed event emitted on
+ * // the parent Tempo chain after the withdrawal is processed.
+ * const tempoClient = createPublicClient({
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ * const [withdrawal] = await tempoClient.getContractEvents({
+ *   address: getPortalAddress(tempoModerato.id, 7),
+ *   abi: Abis.zonePortal,
+ *   eventName: 'WithdrawalProcessed',
+ *   args: { senderTag },
+ *   fromBlock: 0n,
  * })
  * ```
  *
  * @param client - Wallet client connected to the zone chain.
  * @param parameters - Withdrawal parameters.
- * @returns The transaction receipt.
+ * @returns The transaction receipt and sender tag for the parent-chain withdrawal event.
  */
 export async function requestWithdrawalSync<
   chain extends Chain | undefined,
@@ -1511,10 +1533,10 @@ export async function requestWithdrawalSync<
 ): Promise<requestWithdrawalSync.ReturnValue> {
   const { account = client.account, throwOnReceiptRevert = true } = parameters
 
-  const account_ = account ? parseAccount(account) : undefined
   if (!account) throw new Error('`account` is required.')
+  const account_ = parseAccount(account)
 
-  const to = parameters.to ?? account_?.address
+  const to = parameters.to ?? account_.address
   if (!to) throw new Error('`to` is required.')
 
   const args = { ...parameters, to }
@@ -1525,7 +1547,11 @@ export async function requestWithdrawalSync<
     gas: parameters.gas ?? defaultWithdrawalGas,
     throwOnReceiptRevert,
   } as never)
-  return { receipt }
+  const senderTag = WithdrawalSenderTag.from({
+    sender: account_.address,
+    transactionHash: receipt.transactionHash,
+  })
+  return { receipt, senderTag }
 }
 
 export namespace requestWithdrawalSync {
@@ -1540,6 +1566,8 @@ export namespace requestWithdrawalSync {
   export type ReturnValue = Compute<{
     /** Transaction receipt. */
     receipt: TransactionReceipt
+    /** Sender tag identifying the indexed parent-chain `WithdrawalProcessed` event. */
+    senderTag: Hex.Hex
   }>
 
   // TODO: exhaustive error type

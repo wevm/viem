@@ -1,0 +1,100 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `earn.getPosition`
+
+Gets an account's asset and vault share balances, allowances, and current share value.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const position = await client.earn.getPosition({
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: {
+//   assetAllowance: 0n,
+//   assetBalance: 250_000_000n,
+//   assetToken: '0x20c0...0001',
+//   shareAllowance: 0n,
+//   shareBalance: 99_500_000n,
+//   shareToken: '0x20c0...0002',
+//   value: 100_000_000n,
+// }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Read Another Account
+
+Pass `account` to inspect a position other than the client account.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const position = await client.earn.getPosition({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: {
+//   assetAllowance: 0n,
+//   assetBalance: 250_000_000n,
+//   assetToken: '0x20c0...0001',
+//   shareAllowance: 0n,
+//   shareBalance: 99_500_000n,
+//   shareToken: '0x20c0...0002',
+//   value: 100_000_000n,
+// }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  /** Assets the vault may spend from the account. */
+  assetAllowance: bigint
+  /** Asset balance held by the account. */
+  assetBalance: bigint
+  /** Token accepted by the vault. */
+  assetToken: Address
+  /** Vault shares the vault may spend from the account. */
+  shareAllowance: bigint
+  /** Vault share balance held by the account. */
+  shareBalance: bigint
+  /** Token representing vault shares. */
+  shareToken: Address
+  /** Current asset value of the vault share balance, including fees. */
+  value: bigint
+}
+```
+
+## Parameters
+
+### account (optional)
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Account whose position is returned.
+
+### vault
+
+- **Type:** `Address`
+
+Vault address.
+
+<ReadParameters />

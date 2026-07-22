@@ -156,11 +156,11 @@ importers:
         specifier: ^0.14.0
         version: 0.14.0
       ox:
-        specifier: 0.14.31
-        version: 0.14.31(typescript@5.9.3)(zod@4.4.3)
+        specifier: 0.14.32
+        version: 0.14.32(typescript@5.9.3)(zod@4.4.3)
       permissionless:
         specifier: ^0.2.57
-        version: 0.2.57(ox@0.14.31(typescript@5.9.3)(zod@4.4.3))
+        version: 0.2.57(ox@0.14.32(typescript@5.9.3)(zod@4.4.3))
       prool:
         specifier: ~0.2.8
         version: 0.2.8(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0)
@@ -682,8 +682,8 @@ importers:
         specifier: 1.0.7
         version: 1.0.7(ws@8.21.0)
       ox:
-        specifier: 0.14.31
-        version: 0.14.31(typescript@5.9.3)(zod@4.4.3)
+        specifier: 0.14.32
+        version: 0.14.32(typescript@5.9.3)(zod@4.4.3)
       ws:
         specifier: 8.21.0
         version: 8.21.0
@@ -5566,14 +5566,6 @@ packages:
       typescript:
         optional: true
 
-  ox@0.14.24:
-    resolution: {integrity: sha512-mviaFeN/cSkj/1B7EJKB3fYzQ4E3y7CDmR7Iqei1QUT0M1Zkuo0kNI/ewBnShf7h5r57gp68/DFltjNu5HJCYQ==}
-    peerDependencies:
-      typescript: ^5.9.3
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
   ox@0.14.30:
     resolution: {integrity: sha512-LI11uu+8iiM1B3CLckgd++YF1a0A2k5wDoM9ZeQMiL21BOzQs6L//BLS6hb1HSEKCyycdDIQLsVQx9MjpcC0hA==}
     peerDependencies:
@@ -5582,8 +5574,8 @@ packages:
       typescript:
         optional: true
 
-  ox@0.14.31:
-    resolution: {integrity: sha512-WqtI37YEJCV6wkLw877FPrwWHwXEFrVZLecqBqQQjUmFhATjd+upfaKpWHXrhKaRUPMU6LH8T1lydHBda5ww5A==}
+  ox@0.14.32:
+    resolution: {integrity: sha512-EPB214GvtsP2TtAYZXkNdizLzGp6PXtfaHcRrD4pcBk/D0Y7ZCNv71QgwrjeCsZ+82moVeMlZZG+NDEIUfxMpw==}
     peerDependencies:
       typescript: ^5.9.3
     peerDependenciesMeta:
@@ -10283,7 +10275,7 @@ snapshots:
       idb-keyval: 6.2.2
       mipd: 0.0.7(typescript@5.9.3)
       mppx: 0.6.5(@modelcontextprotocol/sdk@1.26.0(@cfworker/json-schema@4.1.1))(express@5.2.1)(hono@4.12.27)(typescript@5.9.3)(viem@src)
-      ox: 0.14.24(typescript@5.9.3)(zod@4.3.6)
+      ox: 0.14.32(typescript@5.9.3)(zod@4.3.6)
       webauthx: 0.1.2(typescript@5.9.3)(zod@4.3.6)
       zod: 4.3.6
       zustand: 5.0.13(@types/react@19.0.8)(react@19.2.6)(use-sync-external-store@1.6.0(react@19.2.6))
@@ -12905,21 +12897,6 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.14.24(typescript@5.9.3)(zod@4.3.6):
-    dependencies:
-      '@adraffy/ens-normalize': 1.11.1
-      '@noble/ciphers': 1.3.0
-      '@noble/curves': 1.9.1
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@5.9.3)(zod@4.3.6)
-      eventemitter3: 5.0.1
-    optionalDependencies:
-      typescript: 5.9.3
-    transitivePeerDependencies:
-      - zod
-
   ox@0.14.30(typescript@5.9.3)(zod@3.25.76):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
@@ -12950,7 +12927,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.14.31(typescript@5.9.3)(zod@4.3.6):
+  ox@0.14.32(typescript@5.9.3)(zod@4.3.6):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
@@ -12965,7 +12942,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.14.31(typescript@5.9.3)(zod@4.4.3):
+  ox@0.14.32(typescript@5.9.3)(zod@4.4.3):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
@@ -13115,9 +13092,9 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.57(ox@0.14.31(typescript@5.9.3)(zod@4.4.3)):
+  permissionless@0.2.57(ox@0.14.32(typescript@5.9.3)(zod@4.4.3)):
     optionalDependencies:
-      ox: 0.14.31(typescript@5.9.3)(zod@4.4.3)
+      ox: 0.14.32(typescript@5.9.3)(zod@4.4.3)
 
   picocolors@1.1.1: {}
 
@@ -14860,7 +14837,7 @@ snapshots:
 
   webauthx@0.1.2(typescript@5.9.3)(zod@4.3.6):
     dependencies:
-      ox: 0.14.31(typescript@5.9.3)(zod@4.3.6)
+      ox: 0.14.32(typescript@5.9.3)(zod@4.3.6)
     transitivePeerDependencies:
       - typescript
       - zod

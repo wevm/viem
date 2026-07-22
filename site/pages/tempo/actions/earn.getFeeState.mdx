@@ -1,0 +1,117 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `earn.getFeeState`
+
+Gets a vault's active fee configuration, pending fees, and fee baselines.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const fees = await client.earn.getFeeState({
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: {
+//   config: { excess: { ... }, fixedFees: [...] },
+//   configId: 1n,
+//   feesActive: true,
+//   highWaterMark: 1_000_000_000_000_000_000n,
+//   preview: { totalFeeAssets: 10_000n, totalFeeShares: 9_950n, ... },
+//   targetBase: 1_000_000_000_000_000_000n,
+// }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Include Claimable Shares
+
+Pass a fee recipient to include its currently claimable vault shares.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const fees = await client.earn.getFeeState({
+  recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: { claimableShares: 9_950n, ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  /** Claimable fee shares for `recipient`. */
+  claimableShares?: bigint | undefined
+  /** Active fee configuration. */
+  config: FeeConfig
+  /** Active fee configuration id. */
+  configId: bigint
+  /** Whether fees are active. */
+  feesActive: boolean
+  /** Post-fee high-water mark per vault share. */
+  highWaterMark: bigint
+  /** Pending fee amounts. */
+  preview: FeePreview
+  /** Excess-return fee target per vault share. */
+  targetBase: bigint
+}
+
+type FeeConfig = {
+  excess: {
+    account: Address
+    annualTargetRate: bigint
+    enabled: boolean
+    excessFeeRate: bigint
+  }
+  fixedFees: readonly { account: Address; rate: bigint }[]
+}
+
+type FeePreview = {
+  activeAssets: bigint
+  allocations: readonly {
+    account: Address
+    feeAssets: bigint
+    feeShares: bigint
+  }[]
+  excessFeeAssets: bigint
+  fixedFeeAssets: bigint
+  positiveAccrualAssets: bigint
+  postFeeValuePerShare: bigint
+  preFeeValuePerShare: bigint
+  targetValuePerShare: bigint
+  totalFeeAssets: bigint
+  totalFeeShares: bigint
+}
+```
+
+## Parameters
+
+### recipient (optional)
+
+- **Type:** `Address`
+
+Fee recipient whose claimable vault shares are included.
+
+### vault
+
+- **Type:** `Address`
+
+Vault address.
+
+<ReadParameters />

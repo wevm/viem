@@ -1,0 +1,83 @@
+# `earn.configureExitSafePolicy`
+
+Creates and attaches an admission-only TIP-403 policy to an Earn vault share token. Existing
+holders can continue sending shares, while recipients and mint recipients must belong to the same
+whitelist.
+
+The action submits three or four sequential transactions and is not atomic. Use
+[`earn.validateExitSafePolicy`](/tempo/actions/earn.validateExitSafePolicy) to verify the final
+onchain state before publishing a protected deployment.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { policy, receipts } = await client.earn.configureExitSafePolicy({
+  accessAdministrator: '0x0000000000000000000000000000000000000002',
+  initialMembers: [
+    '0x0000000000000000000000000000000000000003',
+    '0x0000000000000000000000000000000000000004',
+  ],
+  shareToken: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  policy: {
+    transferPolicyId: bigint
+    senderPolicyId: bigint
+    recipientPolicyId: bigint
+    mintRecipientPolicyId: bigint
+  }
+  receipts: {
+    eligibilityPolicy: TransactionReceipt
+    compoundPolicy: TransactionReceipt
+    tokenPolicy: TransactionReceipt
+    policyAdmin?: TransactionReceipt
+  }
+}
+```
+
+`senderPolicyId` is the always-allow policy. `recipientPolicyId` and
+`mintRecipientPolicyId` identify the same whitelist.
+
+## Parameters
+
+### accessAdministrator
+
+- **Type:** `Address`
+
+Address that will administer recipient eligibility. The admin-transfer transaction is skipped when
+this is the calling account.
+
+### initialMembers
+
+- **Type:** `readonly Address[]`
+
+Addresses initially eligible to receive transfers and mints. Duplicate addresses are removed. At
+least one member is required.
+
+### shareToken
+
+- **Type:** `Address`
+
+Earn vault share token. The calling account must be authorized to change its transfer policy.
+
+### account (optional)
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Account that creates the policies and changes the share token transfer policy.

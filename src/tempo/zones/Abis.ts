@@ -96,6 +96,17 @@ export const zoneFactory = [
 
 export const zonePortal = [
   {
+    name: 'WithdrawalProcessed',
+    type: 'event',
+    inputs: [
+      { name: 'to', type: 'address', indexed: true },
+      { name: 'senderTag', type: 'bytes32', indexed: true },
+      { name: 'token', type: 'address', indexed: false },
+      { name: 'amount', type: 'uint128', indexed: false },
+      { name: 'callbackSuccess', type: 'bool', indexed: false },
+    ],
+  },
+  {
     name: 'deposit',
     type: 'function',
     stateMutability: 'nonpayable',
