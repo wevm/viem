@@ -1,0 +1,55 @@
+# `zone.waitForTempoBlock`
+
+Waits until a zone has imported a Tempo block.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './zones.config'
+
+const info = await client.zone.waitForTempoBlock({
+  tempoBlockNumber: 123456n,
+})
+
+console.log('Imported Tempo block:', info.tempoBlockNumber)
+// @log: Imported Tempo block: 123456n
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+The action polls [`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo) and resolves when the zone's
+`tempoBlockNumber` reaches the requested block.
+
+## Return Value
+
+`Actions.zone.getZoneInfo.ReturnType`
+
+Returns the same zone metadata as [`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo).
+
+## Parameters
+
+### pollingInterval (optional)
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Polling frequency in milliseconds.
+
+### tempoBlockNumber
+
+- **Type:** `bigint`
+
+Tempo block number to wait for.
+
+### timeout (optional)
+
+- **Type:** `number`
+- **Default:** `60_000`
+
+Maximum time to wait in milliseconds. Set to `0` to disable the timeout.

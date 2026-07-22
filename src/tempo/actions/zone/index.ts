@@ -6,7 +6,6 @@ export { encryptedDepositSync } from './encryptedDepositSync.js'
 /** Errors thrown by Zone Actions. */
 export * as Errors from './Errors.js'
 export { getAuthorizationTokenInfo } from './getAuthorizationTokenInfo.js'
-export { getDepositStatus } from './getDepositStatus.js'
 export { getEncryptionKey } from './getEncryptionKey.js'
 export { getWithdrawalFee } from './getWithdrawalFee.js'
 export { getZoneInfo } from './getZoneInfo.js'
@@ -20,4 +19,4 @@ export type {
   PreparedEncryptedDeposit,
   PreparedEncryptedDepositRecipient,
 } from './types.js'
-export { waitForDepositStatus } from './waitForDepositStatus.js'
+export { waitForTempoBlock } from './waitForTempoBlock.js'

@@ -17,6 +17,7 @@
     "docs:sync-utils": "bun scripts/docs:sync-utils.ts",
     "exports:update": "bun scripts/exports:update.ts",
     "gen:tempo-abis": "bun scripts/gen:tempo-abis.ts",
+    "gen:tempo-earn-abis": "bun scripts/generateTempoEarnAbis.ts && vp fmt src/tempo/Abis.ts test/src/tempo/earnContracts.ts",
     "gen:tokenlist": "bun scripts/gen:tokenlist.ts && vp check --fix src/tokens",
     "knip": "knip --production --no-tag-hints",
     "postinstall": "pnpm dev",
@@ -273,7 +274,7 @@
   },
   "dependencies": {
     "abitype": "1.3.0",
-    "ox": "1.0.3"
+    "ox": "1.0.4"
   },
   "exports": {
     ".": {

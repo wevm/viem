@@ -1,12 +1,14 @@
 import * as TestContainers from 'prool/testcontainers'
 import { Server } from 'prool/vitest'
 import { inject } from 'vitest'
+import { Value } from 'ox'
 
 import { Actions, Token } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
-import { Account, Client, http } from 'viem/tempo'
+import { Account, Actions as TempoActions, Client, http } from 'viem/tempo'
 
 import * as constants from './constants.js'
+import * as TempoZoneGenesis from './tempoZoneGenesis.js'
 
 export const port = Number(process.env.VITE_TEMPO_PORT ?? 9545)
 
@@ -18,6 +20,9 @@ export const zone = defineZone()
 
 /** Tempo localnet dev accounts (the anvil "test … junk" mnemonic). */
 export const accounts = constants.accounts
+
+/** Dev key that owns and provisions local Zone factories. */
+export const zoneAdminKey = accounts[1].privateKey
 
 export const alphaUsd = '0x20c0000000000000000000000000000000000001'
 export const pathUsd = '0x20c0000000000000000000000000000000000000'
@@ -102,6 +107,26 @@ export declare namespace getClient {
   }
 }
 
+/** Creates and funds a TIP-20 token for Tempo integration tests. */
+export async function setupToken(client: ReturnType<typeof getClient>) {
+  const token = await TempoActions.token.createSync(client, {
+    currency: 'USD',
+    name: 'Test Token',
+    symbol: 'TST',
+  })
+  await TempoActions.token.grantRolesSync(client, {
+    roles: ['issuer'],
+    to: client.account.address,
+    token: token.token,
+  })
+  await TempoActions.token.mintSync(client, {
+    amount: Value.from('10000', 6),
+    to: client.account.address,
+    token: token.token,
+  })
+  return token
+}
+
 /** Lazily booted dedicated Tempo node handle. */
 export type NodeInstance = {
   /** Boots the node once and returns its RPC URL. */
@@ -118,9 +143,7 @@ export function defineNode(): NodeInstance {
     start() {
       started ??= instance.start().then(async () => {
         const url = `http://${instance.host}:${instance.port}`
-        // `latest` can still be the genesis block right after the boot log.
-        while ((await getLatestTimestamp(url)) === 0n)
-          await new Promise((resolve) => setTimeout(resolve, 50))
+        await waitForBlock(url)
         return url
       })
       return started
@@ -133,7 +156,7 @@ export function defineNode(): NodeInstance {
   }
 }
 
-async function getLatestTimestamp(url: string) {
+async function getLatestTimestamp(url: string, signal: AbortSignal) {
   const response = await fetch(url, {
     body: JSON.stringify({
       id: 1,
@@ -143,11 +166,25 @@ async function getLatestTimestamp(url: string) {
     }),
     headers: { 'Content-Type': 'application/json' },
     method: 'POST',
+    signal,
   })
   const { result } = (await response.json()) as {
     result?: { timestamp?: string } | null
   }
   return BigInt(result?.timestamp ?? 0)
+}
+
+async function waitForBlock(url: string) {
+  const signal = AbortSignal.timeout(150_000)
+  while (!signal.aborted) {
+    try {
+      if ((await getLatestTimestamp(url, signal)) > 0n) return
+    } catch (error) {
+      if (signal.aborted) throw error
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50))
+  }
+  throw signal.reason
 }
 
 /** Registers `address` as a validator (dev account 0 is the config owner). */
@@ -188,6 +225,7 @@ export async function mintLiquidity(
 
 /** Mints fee-AMM liquidity for the genesis tokens (fee-token validity). */
 export async function setup() {
+  await waitForBlock(rpcUrl)
   const client = getClient()
   await Promise.all(
     [1n, 2n, 3n].map((id) =>
@@ -228,8 +266,6 @@ type StartedZone = Zone & { stop(): Promise<void> }
 export type DefineZoneOptions = {
   /** Existing factory reused to allocate another zone ID. */
   factoryAddress?: `0x${string}` | undefined
-  /** Parent-chain provisioning key. */
-  privateKey?: `0x${string}` | undefined
 }
 
 /** Lazily provisioned local zone handle. */
@@ -286,9 +322,9 @@ async function startZone(options: DefineZoneOptions): Promise<StartedZone> {
   )
   const instance = TestContainers.Instance.tempoZone({
     dev: {
-      key: options.privateKey ?? accounts[1].privateKey,
+      key: zoneAdminKey,
     },
-    image: `ghcr.io/tempoxyz/tempo-zone:${tag}`,
+    image: resolveImage('ghcr.io/tempoxyz/tempo-zone', tag),
     l1: {
       factoryAddress: options.factoryAddress,
       rpcUrl: l1RpcUrl,
@@ -317,9 +353,7 @@ async function startZone(options: DefineZoneOptions): Promise<StartedZone> {
     throw new Error(`Failed to parse zone provisioning output:\n\n${logs}`)
   }
 
-  const { privateRpc } = instance._internal as {
-    privateRpc?: { host: string; port: number } | undefined
-  }
+  const privateRpc = instance.endpoints.privateRpc
   if (!privateRpc) {
     await instance.stop().catch(() => {})
     throw new Error('Failed to resolve zone private RPC endpoint.')
@@ -329,27 +363,53 @@ async function startZone(options: DefineZoneOptions): Promise<StartedZone> {
     chainId,
     factoryAddress,
     portalAddress,
-    privateRpcUrl: `http://${privateRpc.host}:${privateRpc.port}`,
-    rpcUrl: `http://${instance.host}:${instance.port}`,
+    privateRpcUrl: `${privateRpc.protocol}://${privateRpc.host}:${privateRpc.port}`,
+    rpcUrl: instance.url,
     stop: () => instance.stop(),
     zoneId,
   }
 }
 
 /** Creates a Dockerized Tempo node instance. */
-export function createInstance() {
+export function createInstance(options: createInstance.Options = {}) {
   const tag = process.env.VITE_TEMPO_TAG ?? 'latest'
+  const blockTime = options.zones ? '500ms' : process.env.CI ? '50ms' : '2ms'
+  const image = resolveImage('ghcr.io/tempoxyz/tempo', tag)
+  if (options.zones) {
+    const artifactsTag = process.env.VITE_TEMPO_ZONE_XTASK_TAG
+    return TempoZoneGenesis.create({
+      ...(artifactsTag
+        ? {
+            artifactsImage: resolveImage(
+              'ghcr.io/tempoxyz/tempo-zone-xtask',
+              artifactsTag,
+            ),
+          }
+        : {}),
+      blockTime,
+      image,
+      log: process.env.VITE_TEMPO_LOG,
+      ownerKey: zoneAdminKey,
+    })
+  }
   return TestContainers.Instance.tempo({
-    // Match Tempo's production cadence when Zone consumes every L1 block.
-    // 2ms blocks busy-loop the node; starved CI runners need a saner pace.
-    blockTime:
-      process.env.VITE_TEMPO_ZONES === 'true'
-        ? '500ms'
-        : process.env.CI
-          ? '50ms'
-          : '2ms',
-    image: `ghcr.io/tempoxyz/tempo:${tag}`,
+    blockTime,
+    image,
+    log: process.env.VITE_TEMPO_LOG,
     port,
     startupTimeout: 75_000,
   })
+}
+
+export declare namespace createInstance {
+  type Options = {
+    /** Installs the L1 state required by Zones. */
+    zones?: boolean | undefined
+  }
+}
+
+function resolveImage(name: string, reference: string) {
+  return reference.startsWith('sha256:')
+    ? `${name}@${reference}`
+    : `${name}:${reference}`
 }

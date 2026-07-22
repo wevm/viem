@@ -19,6 +19,7 @@ import type { requestWithdrawal } from './requestWithdrawal.js'
 
 const zeroHash =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
+const defaultGas = 10_000_000n
 
 /**
  * Requests a verifiable withdrawal from a zone to the parent Tempo chain via the ZoneOutbox contract.
@@ -87,6 +88,7 @@ export namespace requestVerifiableWithdrawal {
       ...(action === sendSync ? pickWriteSyncParameters(options) : {}),
       account,
       calls: requestVerifiableWithdrawal.calls({ ...options, to }),
+      gas: options.gas ?? defaultGas,
     })
   }
 

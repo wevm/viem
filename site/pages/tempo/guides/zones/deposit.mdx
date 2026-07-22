@@ -10,7 +10,8 @@ import { Card, Cards } from 'vocs'
 
 Funds enter a zone by depositing them from Tempo Mainnet into the zone's contract. The deposit is
 submitted on Mainnet against the L1 client, and the corresponding balance appears inside the zone once
-the deposit is processed. An encrypted deposit additionally hides the recipient from the public chain.
+the zone imports its Tempo block. An encrypted deposit additionally hides the recipient from the public
+chain.
 
 [See the Zone Bridging specification](https://docs.tempo.xyz/protocol/zones/bridging)
 
@@ -72,20 +73,23 @@ const { receipt } = await client.zone.encryptedDepositSync({
 
 :::
 
-### Check Deposit Status
+### Confirm Zone Import
 
-After depositing, confirm the funds have landed inside the zone with
-[`zone.getDepositStatus`](/tempo/actions/zone.getDepositStatus), querying by the Mainnet block number
-of your deposit. This call runs against the zone client.
+After depositing, call [`zone.waitForTempoBlock`](/tempo/actions/zone.waitForTempoBlock) with the
+deposit receipt's block number. The action runs against the zone client and resolves once the zone has
+imported that Tempo block.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './zones.config'
 
-const status = await client.zone.getDepositStatus({
+const info = await client.zone.waitForTempoBlock({
   tempoBlockNumber: 123456n,
 })
+
+console.log('Imported Tempo block:', info.tempoBlockNumber)
+// @log: Imported Tempo block: 123456n
 ```
 
 ```ts twoslash [zones.config.ts] filename="zones.config.ts"
@@ -98,9 +102,9 @@ const status = await client.zone.getDepositStatus({
 
 ### Deposit on Mainnet, Read on the Zone
 
-Deposits are L1 actions sent with your Mainnet client, while status and balance reads are zone actions
-sent with your zone client. Keep both clients configured so you can submit a deposit and then confirm
-it landed.
+Deposits are L1 actions sent with your Mainnet client, while imported-block and balance reads are zone
+actions sent with your zone client. Keep both clients configured so you can submit a deposit and then
+confirm it landed.
 
 ### Prefer Encrypted Deposits for Privacy
 
@@ -117,8 +121,8 @@ Validate the public transaction details before broadcasting a prepared payload f
 
 ### Track the Deposit Block Number
 
-`zone.getDepositStatus` is keyed by the Mainnet block number of the deposit. Capture it from the
-deposit receipt so you can reliably poll for processing.
+`zone.waitForTempoBlock` is keyed by the Mainnet block number of the deposit. Capture it from the
+deposit receipt so you can wait for the zone to import it.
 
 ## See More
 

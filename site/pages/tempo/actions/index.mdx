@@ -53,6 +53,22 @@
 | [`dex.watchOrderFilled`](/tempo/actions/dex.watchOrderFilled) | Watches `OrderFilled` events on the DEX |
 | [`dex.watchOrderPlaced`](/tempo/actions/dex.watchOrderPlaced) | Watches `OrderPlaced` events on the DEX |
 | [`dex.withdraw`](/tempo/actions/dex.withdraw) | Withdraws tokens from the DEX to the caller's wallet |
+| **Earn Actions** | |
+| [`earn.configureExitSafePolicy`](/tempo/actions/earn.configureExitSafePolicy) | Configures an admission-only policy for an Earn vault share token |
+| [`earn.deposit`](/tempo/actions/earn.deposit) | Deposits assets into an Earn vault |
+| [`earn.depositShares`](/tempo/actions/earn.depositShares) | Deposits existing venue shares into an Earn vault |
+| [`earn.getFeeState`](/tempo/actions/earn.getFeeState) | Gets active fees, fee baselines, and pending fee amounts |
+| [`earn.getPosition`](/tempo/actions/earn.getPosition) | Gets an account's Earn balances, allowances, and current value |
+| [`earn.getRedeemQuote`](/tempo/actions/earn.getRedeemQuote) | Gets the asset output for an exact vault share input |
+| [`earn.getVault`](/tempo/actions/earn.getVault) | Gets an Earn vault's configuration, state, and capabilities |
+| [`earn.getWithdrawQuote`](/tempo/actions/earn.getWithdrawQuote) | Gets the shares required for an exact asset output |
+| [`earn.privateDeposit`](/tempo/actions/earn.privateDeposit) | Deposits Zone assets into an Earn vault and returns private shares |
+| [`earn.privateRedeem`](/tempo/actions/earn.privateRedeem) | Redeems private Earn shares and returns assets to a Zone |
+| [`earn.redeem`](/tempo/actions/earn.redeem) | Redeems an exact number of vault shares |
+| [`earn.validateExitSafePolicy`](/tempo/actions/earn.validateExitSafePolicy) | Validates an Earn vault share token's exit-safe policy |
+| [`earn.waitForPrivateDeposit`](/tempo/actions/earn.waitForPrivateDeposit) | Waits for a private Earn deposit to complete on Tempo |
+| [`earn.waitForPrivateRedeem`](/tempo/actions/earn.waitForPrivateRedeem) | Waits for a private Earn redemption to complete on Tempo |
+| [`earn.withdrawExact`](/tempo/actions/earn.withdrawExact) | Withdraws an exact asset amount from an Earn vault |
 | **Faucet Actions** | |
 | [`faucet.fund`](/tempo/actions/faucet.fund) | Funds an account with testnet tokens |
 | **Fee Actions** | |
@@ -143,11 +159,10 @@
 | [`zone.deposit`](/tempo/actions/zone.deposit) | Deposits tokens into a zone from the parent Tempo chain |
 | [`zone.encryptedDeposit`](/tempo/actions/zone.encryptedDeposit) | Deposits tokens into a zone from the parent Tempo chain, encrypting the recipient and memo for the zone sequencer |
 | [`zone.getAuthorizationTokenInfo`](/tempo/actions/zone.getAuthorizationTokenInfo) | Returns the authenticated account address and token expiry from the current authorization token |
-| [`zone.getDepositStatus`](/tempo/actions/zone.getDepositStatus) | Returns deposit processing status for a given parent Tempo chain block number |
 | [`zone.getEncryptionKey`](/tempo/actions/zone.getEncryptionKey) | Returns the active sequencer encryption key for a zone |
 | [`zone.getWithdrawalFee`](/tempo/actions/zone.getWithdrawalFee) | Returns the fee required for a withdrawal from a zone, given a callback gas limit |
-| [`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo) | Returns metadata about the current zone |
+| [`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo) | Returns zone metadata, including active sequencers and the latest imported Tempo block |
 | [`zone.requestVerifiableWithdrawal`](/tempo/actions/zone.requestVerifiableWithdrawal) | Requests a verifiable withdrawal from a zone to the parent Tempo chain. The zone sequencer encrypts the sender's identity for the provided `revealTo` public key |
 | [`zone.requestWithdrawal`](/tempo/actions/zone.requestWithdrawal) | Requests a withdrawal from a zone to the parent Tempo chain |
 | [`zone.signAuthorizationToken`](/tempo/actions/zone.signAuthorizationToken) | Signs a zone authorization token and stores it for the zone HTTP transport. The token authenticates subsequent zone RPC requests via the `X-Authorization-Token` header |
-| [`zone.waitForDepositStatus`](/tempo/actions/zone.waitForDepositStatus) | Waits for a Tempo block's deposits to be processed by a zone |
+| [`zone.waitForTempoBlock`](/tempo/actions/zone.waitForTempoBlock) | Waits for a zone to import a Tempo block |

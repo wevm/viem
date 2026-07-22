@@ -21,6 +21,7 @@ import { getAccount, getAddress, type ZoneWriteParameters } from './internal.js'
 
 const zeroHash =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
+const defaultGas = 10_000_000n
 
 /**
  * Requests a withdrawal from a zone to the parent Tempo chain via the ZoneOutbox contract.
@@ -98,6 +99,7 @@ export namespace requestWithdrawal {
       ...(action === sendSync ? pickWriteSyncParameters(options) : {}),
       account,
       calls: requestWithdrawal.calls({ ...options, to }),
+      gas: options.gas ?? defaultGas,
     })
   }
 
@@ -179,6 +181,7 @@ export namespace requestWithdrawal {
         to,
         token,
       }),
+      gas: options.gas ?? defaultGas,
     })
     const gas: unknown = request.gas
     const feePerGas: unknown = request.maxFeePerGas ?? request.gasPrice

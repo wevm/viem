@@ -3,6 +3,7 @@
 /** Tempo domain primitives, re-exported from `ox/tempo`. */
 export {
   Channel,
+  EarnShares,
   KeyAuthorization,
   MultisigConfig,
   Period,
@@ -28,7 +29,7 @@ export { http } from '../core/transports/http.js'
 /** Creates a WebSocket JSON-RPC transport. */
 export { webSocket } from '../core/transports/webSocket.js'
 
-/** ABIs of the Tempo precompiles. */
+/** ABIs of the Tempo precompiles and Earn contracts. */
 export * as Abis from './Abis.js'
 
 /** Utilities & types for Tempo accounts: root signers & access keys. */
@@ -52,7 +53,7 @@ export * as Client from './Client.js'
 /** Tempo action decorator for a Client's `.extend`. */
 export { type Decorator as TempoActions, tempoActions } from './Decorator.js'
 
-/** Tempo fee-token errors. */
+/** Tempo errors. */
 export * from './errors.js'
 
 /** Helpers producing unix timestamps for key expiries. */

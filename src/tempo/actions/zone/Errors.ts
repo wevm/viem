@@ -1,1 +1,1 @@
-export { WaitForDepositStatusTimeoutError } from './waitForDepositStatus.js'
+export { WaitForTempoBlockTimeoutError } from './waitForTempoBlock.js'

@@ -24,6 +24,14 @@ import * as Concurrent from './internal/concurrent.js'
 const maxExpirySecs = 25
 const maxUint256 = 2n ** 256n - 1n
 
+/** Returns a random past timestamp for unique expiring transactions. */
+function randomValidAfter(): number {
+  const now = BigInt(Math.floor(Date.now() / 1_000))
+  const latest = now - 60n
+  if (latest <= 0n) return 0
+  return Number(BigInt(Hex.random(8)) % latest)
+}
+
 /** Tempo EOA default-delegation designator. */
 const delegationCode = '0xef01007702c00000000000000000000000000000000000'
 
@@ -177,7 +185,7 @@ export const chainConfig = {
         const request = r as PrepareRequest
 
         if (phase === 'afterFillParameters') {
-          if (request.feePayer) {
+          if (request.feePayer && !request.feePayerSignature) {
             // Fee-paid transactions are gas-estimated with a dummy secp256k1
             // signature and a null fee-payer signature; larger envelope
             // signatures cost more intrinsic gas.
@@ -323,6 +331,8 @@ export const chainConfig = {
         if (useExpiringNonce) {
           request.nonceKey = maxUint256
           request.nonce = 0
+          if (typeof request.validAfter === 'undefined')
+            request.validAfter = randomValidAfter()
           if (typeof request.validBefore === 'undefined')
             request.validBefore = Math.floor(Date.now() / 1000) + maxExpirySecs
         } else if (typeof request.nonceKey !== 'undefined') {

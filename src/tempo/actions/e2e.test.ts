@@ -1,4 +1,4 @@
-import { P256, Secp256k1, WebCryptoP256 } from 'ox'
+import { P256, Secp256k1, Signature, WebCryptoP256 } from 'ox'
 import { TxEnvelopeTempo } from 'ox/tempo'
 import { createServer } from '~test/http.js'
 import * as tempo from '~test/tempo.js'
@@ -481,7 +481,7 @@ describe('withRelay', () => {
   const feePayer = Account.fromSecp256k1(feePayerKey)
 
   /** Boots a relay: co-signs fee payer handoffs, proxies the rest to the node. */
-  async function createRelayServer() {
+  async function createRelayServer(options: { sponsorFills?: boolean } = {}) {
     const methods: string[] = []
 
     // The fee payer handoff format (`0x78`) shares the `0x76` body; swap the
@@ -518,6 +518,49 @@ describe('withRelay', () => {
               jsonrpc: '2.0',
               result: cosign(request.params[0]),
             })
+
+          if (
+            request.method === 'eth_fillTransaction' &&
+            options.sponsorFills
+          ) {
+            const response = await fetch(tempo.rpcUrl, {
+              body: JSON.stringify(request),
+              headers: { 'Content-Type': 'application/json' },
+              method: 'POST',
+            })
+            const json = (await response.json()) as {
+              error?: unknown
+              id: number
+              jsonrpc: '2.0'
+              result?: {
+                raw: `0x76${string}`
+                tx: Record<string, unknown>
+              }
+            }
+            if (!json.result) return respond(json)
+            const envelope: TxEnvelopeTempo.TxEnvelopeTempo = {
+              ...TxEnvelopeTempo.deserialize(json.result.raw),
+              feeToken: tempo.pathUsd,
+            }
+            const sender = request.params[0].from
+            const feePayerSignature = Secp256k1.sign({
+              payload: TxEnvelopeTempo.getFeePayerSignPayload(envelope, {
+                sender,
+              }),
+              privateKey: feePayerKey,
+            })
+            return respond({
+              ...json,
+              result: {
+                ...json.result,
+                tx: {
+                  ...json.result.tx,
+                  feePayerSignature: Signature.toRpc(feePayerSignature),
+                  feeToken: tempo.pathUsd,
+                },
+              },
+            })
+          }
 
           // Raw submissions carry the handoff payload; co-sign before
           // proxying. Everything else (e.g. `eth_fillTransaction`) proxies
@@ -583,6 +626,66 @@ describe('withRelay', () => {
       }
     },
   )
+
+  test('identical sponsored transactions have unique hashes', async () => {
+    const relay = await createRelayServer()
+    try {
+      const sender = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
+      const client = Client.create({
+        account: sender,
+        chain: tempoLocalnet,
+        pollingInterval: 100,
+        transport: withRelay(http(tempo.rpcUrl), http(relay.url)),
+      })
+
+      const receipts = await Promise.all(
+        Array.from({ length: 3 }, () =>
+          Actions.transaction.sendSync(client, {
+            calls: [{ to }],
+            feePayer: true,
+          }),
+        ),
+      )
+
+      expect(
+        new Set(receipts.map(({ transactionHash }) => transactionHash)).size,
+      ).toBe(receipts.length)
+      expect(receipts.every(({ status }) => status === 'success')).toBe(true)
+    } finally {
+      await relay.close()
+    }
+  })
+
+  test('access key preserves fill-time sponsorship', async () => {
+    const relay = await createRelayServer({ sponsorFills: true })
+    try {
+      const root = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
+      const account = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
+        access: root,
+      })
+      const keyAuthorization = await Account.signKeyAuthorization(root, {
+        chainId: tempoLocalnet.id,
+        key: account,
+      })
+      const client = Client.create({
+        account,
+        chain: tempoLocalnet,
+        pollingInterval: 100,
+        transport: withRelay(http(tempo.rpcUrl), http(relay.url)),
+      })
+
+      const receipt = await Actions.transaction.sendSync(client, {
+        calls: [{ to }],
+        feePayer: true,
+        keyAuthorization,
+      })
+
+      expect(receipt.status).toBe('success')
+      expect(relay.methods).toEqual(['eth_fillTransaction'])
+    } finally {
+      await relay.close()
+    }
+  })
 })
 
 /** JSON-RPC method-not-found error (forces the manual prepare path). */

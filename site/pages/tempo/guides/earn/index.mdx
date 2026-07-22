@@ -1,0 +1,83 @@
+---
+description: Deposit assets into Tempo Earn vaults, track vault shares, and withdraw accrued value.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Earn
+
+## Overview
+
+Earn vaults put deposited assets into a yield venue and issue vault shares that represent the
+position. The asset value of those shares can change as the venue earns yield and the vault accrues
+fees.
+
+Each action takes a vault address. Use
+[`earn.getVault`](/tempo/actions/earn.getVault) to inspect its asset token, current venue integration,
+state, and supported actions before depositing.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const vault = await client.earn.getVault({
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: {
+// @log:   assetToken: '0x20c0...0001',
+// @log:   capabilities: { exactWithdraw: true, inKindDeposit: true, syncRedeem: true, ... },
+// @log:   depositsPaused: false,
+// @log:   shareToken: '0x20c0...0002',
+// @log:   ...
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Assets are the TIP-20 tokens accepted by a vault. Vault shares are TIP-20 tokens representing a
+proportional claim on the vault's assets. Venue shares are positions held by the vault in its
+underlying yield venue.
+
+<Cards>
+  <Card
+    icon="lucide:circle-dollar-sign"
+    title="Deposit & Withdraw"
+    description="Enter an Earn vault, inspect a position, and choose an exit shape."
+    to="/tempo/guides/earn/deposit-withdraw"
+  />
+  <Card
+    icon="lucide:shield-check"
+    title="Protected Vaults"
+    description="Restrict who can receive vault shares without freezing existing positions."
+    to="/tempo/guides/earn/protected-vaults"
+  />
+  <Card
+    icon="lucide:lock-keyhole"
+    title="Earn with Private Zones"
+    description="Deposit into and redeem from a vault through a private Zone."
+    to="/tempo/guides/earn/zones"
+  />
+  <Card
+    icon="lucide:landmark"
+    title="Inspect a Vault"
+    description="Read vault configuration, accounting state, and supported actions."
+    to="/tempo/actions/earn.getVault"
+  />
+  <Card
+    icon="lucide:wallet-cards"
+    title="Inspect a Position"
+    description="Read asset and vault share balances, allowances, and current value."
+    to="/tempo/actions/earn.getPosition"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="Earn Actions"
+    description="Browse the complete earn action reference."
+    to="/tempo/actions/earn.deposit"
+  />
+</Cards>

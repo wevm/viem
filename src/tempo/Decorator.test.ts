@@ -2,7 +2,7 @@ import { AbiEvent, Address, Hex, P256, Secp256k1, Value } from 'ox'
 import { Channel, VirtualAddress } from 'ox/tempo'
 import * as tempo from '~test/tempo.js'
 import { Actions as CoreActions } from 'viem'
-import { Account, Abis, Client, http } from 'viem/tempo'
+import { Account, Abis, Actions, Client, http } from 'viem/tempo'
 import { expect, test } from 'vitest'
 
 const account = Account.fromSecp256k1(tempo.accounts[0]!.privateKey)
@@ -59,7 +59,7 @@ test('binds zone actions', () => {
     getEncryptionKeyCalls: 'calls' in offlineClient.zone.getEncryptionKey,
     getWithdrawalFee: typeof offlineClient.zone.getWithdrawalFee,
     requestWithdrawalPrepare: 'prepare' in offlineClient.zone.requestWithdrawal,
-    waitForDepositStatus: typeof offlineClient.zone.waitForDepositStatus,
+    waitForTempoBlock: typeof offlineClient.zone.waitForTempoBlock,
   }).toMatchInlineSnapshot(`
     {
       "encryptedDepositPrepareRecipient": false,
@@ -67,9 +67,110 @@ test('binds zone actions', () => {
       "getEncryptionKeyCalls": false,
       "getWithdrawalFee": "function",
       "requestWithdrawalPrepare": false,
-      "waitForDepositStatus": "function",
+      "waitForTempoBlock": "function",
     }
   `)
+})
+
+test('binds earn actions and helpers', () => {
+  const offlineClient = Client.create({
+    transport: http('http://127.0.0.1:0'),
+  })
+
+  expect(Object.keys(offlineClient.earn).sort()).toMatchInlineSnapshot(`
+    [
+      "configureExitSafePolicy",
+      "deposit",
+      "depositShares",
+      "depositSharesSync",
+      "depositSync",
+      "getFeeState",
+      "getPosition",
+      "getRedeemQuote",
+      "getVault",
+      "getWithdrawQuote",
+      "privateDeposit",
+      "privateDepositSync",
+      "privateRedeem",
+      "privateRedeemSync",
+      "redeem",
+      "redeemSync",
+      "validateExitSafePolicy",
+      "waitForPrivateDeposit",
+      "waitForPrivateRedeem",
+      "withdrawExact",
+      "withdrawExactSync",
+    ]
+  `)
+  expect({
+    deposit: Object.keys(offlineClient.earn.deposit).sort(),
+    depositShares: Object.keys(offlineClient.earn.depositShares).sort(),
+    getRedeemQuote: Object.keys(offlineClient.earn.getRedeemQuote).sort(),
+    getVault: Object.keys(offlineClient.earn.getVault).sort(),
+    getWithdrawQuote: Object.keys(offlineClient.earn.getWithdrawQuote).sort(),
+    privateDeposit: Object.keys(offlineClient.earn.privateDeposit).sort(),
+    privateRedeem: Object.keys(offlineClient.earn.privateRedeem).sort(),
+    redeem: Object.keys(offlineClient.earn.redeem).sort(),
+    withdrawExact: Object.keys(offlineClient.earn.withdrawExact).sort(),
+  }).toMatchInlineSnapshot(`
+    {
+      "deposit": [
+        "call",
+        "calls",
+        "estimateGas",
+        "extractEvent",
+        "simulate",
+      ],
+      "depositShares": [
+        "call",
+        "calls",
+        "estimateGas",
+        "extractEvent",
+        "simulate",
+      ],
+      "getRedeemQuote": [
+        "call",
+      ],
+      "getVault": [
+        "calls",
+      ],
+      "getWithdrawQuote": [
+        "call",
+      ],
+      "privateDeposit": [
+        "calls",
+        "prepare",
+      ],
+      "privateRedeem": [
+        "calls",
+        "prepare",
+      ],
+      "redeem": [
+        "call",
+        "calls",
+        "estimateGas",
+        "extractEvent",
+        "simulate",
+      ],
+      "withdrawExact": [
+        "call",
+        "calls",
+        "estimateGas",
+        "extractEvent",
+        "simulate",
+      ],
+    }
+  `)
+
+  const options = {
+    assetAmount: 1n,
+    recipient: account.address,
+    shareAmountMin: 1n,
+    vault: account2.address,
+  } as const
+  expect(offlineClient.earn.deposit.call(options)).toEqual(
+    Actions.earn.deposit.call(offlineClient, options),
+  )
 })
 
 test('wallet actions use wallet RPC methods', async () => {

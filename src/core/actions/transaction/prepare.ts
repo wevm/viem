@@ -159,6 +159,9 @@ export async function prepare<
     )
       return false
     if (supportsFill.get(client.uid) === false) return false
+    // Sponsorship signatures are only produced by `eth_fillTransaction`.
+    if (parameters.length > 0 && request.feePayer && !request.feePayerSignature)
+      return true
     if (!parameters.includes('fees') && !parameters.includes('gas'))
       return false
     if (parameters.includes('chainId') && typeof request.chainId !== 'number')

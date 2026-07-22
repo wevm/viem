@@ -792,6 +792,7 @@ describe('transaction.prepare', () => {
     )
     expect(request.nonceKey).toBe(2n ** 256n - 1n)
     expect(request.nonce).toBe(0)
+    expect(request.validAfter).toBeLessThan(Date.now() / 1000)
     expect(request.validBefore).toBeGreaterThan(Date.now() / 1000)
   })
 
@@ -803,12 +804,18 @@ describe('transaction.prepare', () => {
     expect(request.nonceKey).toBe(2n ** 256n - 1n)
   })
 
-  test('expiring nonce: explicit validBefore is preserved', async () => {
+  test('expiring nonce: explicit validity window is preserved', async () => {
     const request = await prepare(
-      { feeToken: baseRequest.feeToken, nonceKey: 'expiring', validBefore: 42 },
+      {
+        feeToken: baseRequest.feeToken,
+        nonceKey: 'expiring',
+        validAfter: 21,
+        validBefore: 42,
+      },
       { client, phase: 'beforeFillTransaction' },
     )
     expect(request.nonceKey).toBe(2n ** 256n - 1n)
+    expect(request.validAfter).toBe(21)
     expect(request.validBefore).toBe(42)
   })
 
@@ -883,6 +890,17 @@ describe('transaction.prepare', () => {
       { client, phase: 'afterFillParameters' },
     )
     expect(accessKey.gas).toBe(110_000n)
+
+    const signed = await prepare(
+      {
+        account: { address: sender, source: 'accessKey' },
+        feePayer: true,
+        feePayerSignature: { r: '0x1', s: '0x1', yParity: 0 },
+        gas: 100_000n,
+      },
+      { client, phase: 'afterFillParameters' },
+    )
+    expect(signed.gas).toBe(100_000n)
 
     // No fee payer, no bump.
     const plain = await prepare(

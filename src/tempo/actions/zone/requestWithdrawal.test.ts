@@ -1,4 +1,5 @@
 import * as tempo from '~test/tempo.js'
+import { AbiParameters, Hash } from 'ox'
 import { expect, test } from 'vitest'
 
 import { Account, Client, http } from 'viem/tempo'
@@ -94,6 +95,15 @@ test('behavior: prepares a withdrawal', async () => {
     maxPriorityFeePerGas: 1_000_000_001n,
     nonce: 0,
   })
+
+  const withDefaultGas = await requestWithdrawal.prepare(client, {
+    amount: 1n,
+    maxFeePerGas: 1n,
+    maxPriorityFeePerGas: 1n,
+    nonce: 0,
+    token: tempo.pathUsd,
+  })
+  expect(withDefaultGas.request.gas).toMatchInlineSnapshot('10000000n')
 })
 
 test('error: prepared fee parameters unavailable', async () => {
@@ -137,18 +147,25 @@ test('behavior: sends withdrawals', async () => {
   await expect(
     requestWithdrawal(client, {
       amount: 0n,
-      gas: 1_000_000n,
       to: recipient,
       token: tempo.pathUsd,
     }),
   ).resolves.toMatch(/^0x[\da-f]{64}$/)
 
-  const { receipt } = await requestWithdrawalSync(client, {
+  const { receipt, senderTag } = await requestWithdrawalSync(client, {
     amount: 0n,
     gas: 1_000_000n,
     token: tempo.pathUsd,
   })
   expect(receipt.status).toMatchInlineSnapshot('"success"')
+  expect(senderTag).toBe(
+    Hash.keccak256(
+      AbiParameters.encodePacked(
+        ['address', 'bytes32'],
+        [account.address, receipt.transactionHash],
+      ),
+    ),
+  )
 })
 
 test('error: no account', async () => {

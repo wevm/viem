@@ -100,7 +100,7 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=4096
 
   test:
-    name: 'Test Local (transport: ${{ matrix.transport-mode }}, multicall: ${{ matrix.multicall }}, ${{ matrix.shard }}/${{ matrix.total-shards }})'
+    name: 'Test Core Local (transport: ${{ matrix.transport-mode }}, multicall: ${{ matrix.multicall }}, ${{ matrix.shard }}/${{ matrix.total-shards }})'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -130,7 +130,7 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: pnpm test --bail=1 --coverage --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+          command: pnpm test --bail=1 --coverage --project core --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
           CI: true
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
@@ -141,8 +141,6 @@ jobs:
           VITE_BATCH_MULTICALL: ${{ matrix.multicall }}
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
           VITE_SHARD_ID: ${{ matrix.shard }}
-          VITE_TEMPO_ENV: localnet
-          VITE_TEMPO_TAG: latest
 
       # Fork workflows cannot authenticate to Codecov for this private repository.
       - name: Upload coverage reports to Codecov
@@ -211,12 +209,33 @@ jobs:
           VITE_TEMPO_MULTISIG: 'true'
           VITE_TEMPO_TAG: sha-6d831c2
 
-  test-tempo-zones:
-    name: Test Local Tempo Zones
+  test-tempo:
+    name: Test Local Tempo (${{ matrix.hardfork }}, ${{ matrix.shard }}/${{ matrix.total-shards }})
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     permissions:
       contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        hardfork: [T7, T8, T9]
+        shard: [1, 2, 3]
+        total-shards: [3]
+        include:
+          - hardfork: T7
+            tempo-tag: sha-f56f173
+            zone-tag: sha-aae82c4
+            zone-xtask-tag: ''
+          - hardfork: T8
+            tempo-tag: sha-e828ab7
+            zone-tag: sha-aae82c4
+            zone-xtask-tag: ''
+          - hardfork: T9
+            tempo-tag: sha256:290c7c1843cc8fbc8c0e5e37025c5373050d21004e4d22f4b00f978dfbee4c47
+            zone-tag: sha256:2cb2d54c6d5b0473c1d0fc112d806fcb80a21516b660d4ab6e1bb0bcc7a97896
+            zone-xtask-tag: sha256:57bdf58caf4654eef2615260b19c1b65d8823af150e95643d0619a97dcbba3bd
 
     steps:
       - name: Clone repository
@@ -229,19 +248,29 @@ jobs:
       - name: Build contracts
         run: pnpm contracts:build
 
-      - name: Run tests
+      - name: Test Local Tempo
         uses: nick-fields/retry@v4
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: pnpm test --run --bail=1 --project tempo src/tempo/actions/zone/integration.test.ts
+          command: pnpm test --run --bail=1 --coverage --project tempo --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
           CI: true
           VITE_TEMPO_ENV: localnet
-          # TODO: Restore latest tags once Tempo includes the ZoneFactory contract.
-          VITE_TEMPO_TAG: sha-e828ab7
+          VITE_TEMPO_HARDFORK: ${{ matrix.hardfork }}
+          VITE_TEMPO_TAG: ${{ matrix.tempo-tag }}
           VITE_TEMPO_ZONES: 'true'
-          VITE_TEMPO_ZONE_TAG: sha-aae82c4
+          VITE_TEMPO_ZONE_TAG: ${{ matrix.zone-tag }}
+          VITE_TEMPO_ZONE_XTASK_TAG: ${{ matrix.zone-xtask-tag }}
+
+      - name: Upload coverage reports to Codecov
+        if: github.actor != 'dependabot[bot]' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: codecov/codecov-action@v6
+        with:
+          disable_search: true
+          fail_ci_if_error: true
+          files: ./coverage/lcov.info
+          use_oidc: true
 
   test-envs:
     name: Test Environments

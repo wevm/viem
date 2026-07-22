@@ -1,4 +1,42 @@
+import type { Address, Hex } from 'ox'
+
 import * as Errors from '../core/Errors.js'
+
+/** Thrown when a vault changes engines during a state read. */
+export class GetVaultEngineChangedError extends Errors.BaseError {
+  override readonly name = 'Actions.earn.getVault.EngineChangedError'
+
+  constructor(options: { vault: Address.Address }) {
+    super(`Engine of vault "${options.vault}" changed while reading.`, {
+      metaMessages: [
+        'An engine migration raced the snapshot; state from two different engines cannot be mixed.',
+        'Retry the read.',
+      ],
+    })
+  }
+}
+
+/** Thrown when a private deposit is not found before the timeout. */
+export class WaitForPrivateDepositTimeoutError extends Errors.BaseError {
+  override readonly name = 'Actions.earn.waitForPrivateDeposit.TimeoutError'
+
+  constructor(options: { actionId: Hex.Hex; gateway: Address.Address }) {
+    super(
+      `Timed out while waiting for Zone deposit "${options.actionId}" at gateway "${options.gateway}".`,
+    )
+  }
+}
+
+/** Thrown when a private redemption is not found before the timeout. */
+export class WaitForPrivateRedeemTimeoutError extends Errors.BaseError {
+  override readonly name = 'Actions.earn.waitForPrivateRedeem.TimeoutError'
+
+  constructor(options: { actionId: Hex.Hex; gateway: Address.Address }) {
+    super(
+      `Timed out while waiting for Zone redemption "${options.actionId}" at gateway "${options.gateway}".`,
+    )
+  }
+}
 
 /** Thrown when a fee token is not a valid TIP-20 fee token. */
 export class InvalidFeeTokenError extends Errors.BaseError<

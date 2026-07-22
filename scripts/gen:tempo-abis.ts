@@ -97,6 +97,7 @@ type GitHubTag = {
 const githubApi = 'https://api.github.com/repos/tempoxyz/tempo'
 const tagPrefix = 'tempo-contracts@'
 const out = Path.resolve(import.meta.dirname, '../src/tempo/Abis.ts')
+const earnMarker = '// Earn source: tempoxyz/earn at '
 const sync = process.argv.includes('--sync')
 const source = sync ? await getLatestSource() : getTrackedSource()
 if (!new RegExp(`^${tagPrefix}\\d+\\.\\d+\\.\\d+$`).test(source.ref))
@@ -105,6 +106,12 @@ if (!/^[0-9a-f]{40}$/.test(source.commit))
   throw new Error(`Invalid Tempo commit: ${source.commit}.`)
 
 const { content, files } = await getPrecompileSources(source.commit)
+const earnSlice = (() => {
+  if (!Fs.existsSync(out)) return undefined
+  const content = Fs.readFileSync(out, 'utf8')
+  const index = content.indexOf(earnMarker)
+  return index === -1 ? undefined : content.slice(index)
+})()
 
 type InterfaceDefinition = {
   name: string
@@ -314,6 +321,7 @@ for (const [exportName, abi] of Object.entries(extraAbis)) {
 // Generate concatenated `abis` export
 // Pure IIFE keeps the aggregate tree-shakable for consumers not using it.
 output += `/** All Tempo precompile ABIs, concatenated. */\nexport const abis = /*#__PURE__*/ (() =>\n  [\n${exportNames.map((n) => `    ...${n},`).join('\n')}\n  ] as const)()\n`
+if (earnSlice) output += `\n${earnSlice}`
 
 writeAtomic(out, output)
 

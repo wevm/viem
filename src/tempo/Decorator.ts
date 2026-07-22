@@ -6,6 +6,7 @@ import * as accessKey from './actions/accessKey/index.js'
 import * as amm from './actions/amm/index.js'
 import * as channel from './actions/channel/index.js'
 import * as dex from './actions/dex/index.js'
+import * as earn from './actions/earn.js'
 import * as faucet from './actions/faucet/index.js'
 import * as fee from './actions/fee/index.js'
 import * as nonce from './actions/nonce/index.js'
@@ -122,6 +123,109 @@ export function tempoActions() {
       watchOrderPlaced: (options) => dex.watchOrderPlaced(client, options),
       withdraw: (options) => dex.withdraw(client, options),
       withdrawSync: (options) => dex.withdrawSync(client, options),
+    },
+    earn: {
+      configureExitSafePolicy: (options) =>
+        earn.configureExitSafePolicy(client, options),
+      deposit: Object.assign(
+        (options: earn.deposit.Options) => earn.deposit(client, options),
+        {
+          call: (args: earn.deposit.call.Args) =>
+            earn.deposit.call(client, args),
+          calls: earn.deposit.calls,
+          estimateGas: (options: earn.deposit.Options) =>
+            earn.deposit.estimateGas(client, options),
+          extractEvent: earn.deposit.extractEvent,
+          simulate: (options: earn.deposit.Options) =>
+            earn.deposit.simulate(client, options),
+        },
+      ),
+      depositShares: Object.assign(
+        (options: earn.depositShares.Options) =>
+          earn.depositShares(client, options),
+        {
+          call: (args: earn.depositShares.call.Args) =>
+            earn.depositShares.call(client, args),
+          calls: earn.depositShares.calls,
+          estimateGas: (options: earn.depositShares.Options) =>
+            earn.depositShares.estimateGas(client, options),
+          extractEvent: earn.depositShares.extractEvent,
+          simulate: (options: earn.depositShares.Options) =>
+            earn.depositShares.simulate(client, options),
+        },
+      ),
+      depositSharesSync: (options) => earn.depositSharesSync(client, options),
+      depositSync: (options) => earn.depositSync(client, options),
+      getFeeState: (options) => earn.getFeeState(client, options),
+      getPosition: (options) => earn.getPosition(client, options),
+      getRedeemQuote: Object.assign(
+        (options: earn.getRedeemQuote.Options) =>
+          earn.getRedeemQuote(client, options),
+        { call: earn.getRedeemQuote.call },
+      ),
+      getVault: Object.assign(
+        (options: earn.getVault.Options) => earn.getVault(client, options),
+        { calls: earn.getVault.calls },
+      ),
+      getWithdrawQuote: Object.assign(
+        (options: earn.getWithdrawQuote.Options) =>
+          earn.getWithdrawQuote(client, options),
+        { call: earn.getWithdrawQuote.call },
+      ),
+      privateDeposit: Object.assign(
+        (options: earn.privateDeposit.Options<account>) =>
+          earn.privateDeposit(client, options),
+        {
+          calls: earn.privateDeposit.calls,
+          prepare: (options: earn.privateDeposit.prepare.Options) =>
+            earn.privateDeposit.prepare(client, options),
+        },
+      ),
+      privateDepositSync: (options) => earn.privateDepositSync(client, options),
+      privateRedeem: Object.assign(
+        (options: earn.privateRedeem.Options<account>) =>
+          earn.privateRedeem(client, options),
+        {
+          calls: earn.privateRedeem.calls,
+          prepare: (options: earn.privateRedeem.prepare.Options) =>
+            earn.privateRedeem.prepare(client, options),
+        },
+      ),
+      privateRedeemSync: (options) => earn.privateRedeemSync(client, options),
+      redeem: Object.assign(
+        (options: earn.redeem.Options) => earn.redeem(client, options),
+        {
+          call: (args: earn.redeem.call.Args) => earn.redeem.call(client, args),
+          calls: earn.redeem.calls,
+          estimateGas: (options: earn.redeem.Options) =>
+            earn.redeem.estimateGas(client, options),
+          extractEvent: earn.redeem.extractEvent,
+          simulate: (options: earn.redeem.Options) =>
+            earn.redeem.simulate(client, options),
+        },
+      ),
+      redeemSync: (options) => earn.redeemSync(client, options),
+      validateExitSafePolicy: (options) =>
+        earn.validateExitSafePolicy(client, options),
+      waitForPrivateDeposit: (options) =>
+        earn.waitForPrivateDeposit(client, options),
+      waitForPrivateRedeem: (options) =>
+        earn.waitForPrivateRedeem(client, options),
+      withdrawExact: Object.assign(
+        (options: earn.withdrawExact.Options) =>
+          earn.withdrawExact(client, options),
+        {
+          call: (args: earn.withdrawExact.call.Args) =>
+            earn.withdrawExact.call(client, args),
+          calls: earn.withdrawExact.calls,
+          estimateGas: (options: earn.withdrawExact.Options) =>
+            earn.withdrawExact.estimateGas(client, options),
+          extractEvent: earn.withdrawExact.extractEvent,
+          simulate: (options: earn.withdrawExact.Options) =>
+            earn.withdrawExact.simulate(client, options),
+        },
+      ),
+      withdrawExactSync: (options) => earn.withdrawExactSync(client, options),
     },
     faucet: {
       fund: (options) => faucet.fund(client, options),
@@ -278,7 +382,6 @@ export function tempoActions() {
         zone.encryptedDepositSync(client, options),
       getAuthorizationTokenInfo: (options) =>
         zone.getAuthorizationTokenInfo(client, options),
-      getDepositStatus: (options) => zone.getDepositStatus(client, options),
       getEncryptionKey: (options) => zone.getEncryptionKey(client, options),
       getWithdrawalFee: (options) => zone.getWithdrawalFee(client, options),
       getZoneInfo: (options) => zone.getZoneInfo(client, options),
@@ -291,8 +394,7 @@ export function tempoActions() {
         zone.requestWithdrawalSync(client, options),
       signAuthorizationToken: (options) =>
         zone.signAuthorizationToken(client, options),
-      waitForDepositStatus: (options) =>
-        zone.waitForDepositStatus(client, options),
+      waitForTempoBlock: (options) => zone.waitForTempoBlock(client, options),
     },
   })
 }
@@ -1893,6 +1995,539 @@ export type Decorator<
     withdrawSync: (
       options: dex.withdrawSync.Options,
     ) => Promise<dex.withdrawSync.ReturnType>
+  }
+  earn: {
+    /**
+     * Creates and attaches an admission-only TIP-403 policy to an Earn vault.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     * const result = await client.earn.configureExitSafePolicy({
+     *   accessAdministrator: '0x…',
+     *   initialMembers: ['0x…'],
+     *   shareToken: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The configured policy and transaction receipts.
+     */
+    configureExitSafePolicy: (
+      options: earn.configureExitSafePolicy.Options<account>,
+    ) => Promise<earn.configureExitSafePolicy.ReturnType>
+    /**
+     * Deposits assets into a vault and mints shares to the recipient.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     * const hash = await client.earn.deposit({
+     *   assetAmount: 100_000_000n,
+     *   shareAmount: 99_900_000n,
+     *   slippageBps: 50,
+     *   vault: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction hash.
+     */
+    deposit: ((
+      options: earn.deposit.Options,
+    ) => Promise<earn.deposit.ReturnType>) & {
+      /** Defines a deposit contract call. */
+      call: (
+        args: earn.deposit.call.Args,
+      ) => ReturnType<typeof earn.deposit.call>
+      /** Defines the approval and deposit calls. */
+      calls: typeof earn.deposit.calls
+      /** Estimates the gas required for a deposit. */
+      estimateGas: (options: earn.deposit.Options) => Promise<bigint>
+      /** Extracts the `Deposited` event from logs. */
+      extractEvent: typeof earn.deposit.extractEvent
+      /** Simulates a deposit. */
+      simulate: (
+        options: earn.deposit.Options,
+      ) => ReturnType<typeof earn.deposit.simulate>
+    }
+    /**
+     * Deposits venue shares into a vault and mints vault shares.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     * const hash = await client.earn.depositShares({
+     *   earnShareAmount: 499_000_000n,
+     *   slippageBps: 30,
+     *   vault: '0x…',
+     *   venueShareAmount: 500_000_000n,
+     *   venueShareToken: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction hash.
+     */
+    depositShares: ((
+      options: earn.depositShares.Options,
+    ) => Promise<earn.depositShares.ReturnType>) & {
+      /** Defines a venue share deposit call. */
+      call: (
+        args: earn.depositShares.call.Args,
+      ) => ReturnType<typeof earn.depositShares.call>
+      /** Defines the approval and venue share deposit calls. */
+      calls: typeof earn.depositShares.calls
+      /** Estimates the gas required for a venue share deposit. */
+      estimateGas: (options: earn.depositShares.Options) => Promise<bigint>
+      /** Extracts the `VenueSharesDeposited` event from logs. */
+      extractEvent: typeof earn.depositShares.extractEvent
+      /** Simulates a venue share deposit. */
+      simulate: (
+        options: earn.depositShares.Options,
+      ) => ReturnType<typeof earn.depositShares.simulate>
+    }
+    /**
+     * Deposits venue shares and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     * const result = await client.earn.depositSharesSync({
+     *   earnShareAmount: 499_000_000n,
+     *   slippageBps: 30,
+     *   vault: '0x…',
+     *   venueShareAmount: 500_000_000n,
+     *   venueShareToken: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
+     */
+    depositSharesSync: (
+      options: earn.depositSharesSync.Options,
+    ) => Promise<earn.depositSharesSync.ReturnType>
+    /**
+     * Deposits assets and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     * const result = await client.earn.depositSync({
+     *   assetAmount: 100_000_000n,
+     *   shareAmountMin: 99_500_000n,
+     *   vault: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
+     */
+    depositSync: (
+      options: earn.depositSync.Options,
+    ) => Promise<earn.depositSync.ReturnType>
+    /**
+     * Gets the vault's active fee configuration and pending fees.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     * const feeState = await client.earn.getFeeState({
+     *   vault: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The active fee state.
+     */
+    getFeeState: (
+      options: earn.getFeeState.Options,
+    ) => Promise<earn.getFeeState.ReturnType>
+    /**
+     * Gets an account's vault balances, allowances, and current share value.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     * const position = await client.earn.getPosition({
+     *   account: '0x…',
+     *   vault: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The account's vault position.
+     */
+    getPosition: (
+      options: earn.getPosition.Options<account>,
+    ) => Promise<earn.getPosition.ReturnType>
+    /**
+     * Gets the asset output for an exact vault share input.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     * const assetAmount = await client.earn.getRedeemQuote({
+     *   shareAmount: 100_000_000n,
+     *   vault: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The quoted asset output.
+     */
+    getRedeemQuote: ((
+      options: earn.getRedeemQuote.Options,
+    ) => Promise<earn.getRedeemQuote.ReturnType>) & {
+      /** Defines a `previewRedeem` contract call. */
+      call: typeof earn.getRedeemQuote.call
+    }
+    /**
+     * Gets a vault's configuration, accounting state, and capabilities.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     * const vault = await client.earn.getVault({ vault: '0x…' })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The vault state.
+     */
+    getVault: ((
+      options: earn.getVault.Options,
+    ) => Promise<earn.getVault.ReturnType>) & {
+      /** Defines the reads used to get the vault state. */
+      calls: typeof earn.getVault.calls
+    }
+    /**
+     * Gets the vault shares required for an exact asset output.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     * const shareAmount = await client.earn.getWithdrawQuote({
+     *   assetAmount: 250_000_000n,
+     *   vault: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The quoted vault share input.
+     */
+    getWithdrawQuote: ((
+      options: earn.getWithdrawQuote.Options,
+    ) => Promise<earn.getWithdrawQuote.ReturnType>) & {
+      /** Defines a `previewWithdraw` contract call. */
+      call: typeof earn.getWithdrawQuote.call
+    }
+    /**
+     * Withdraws assets from a Zone and deposits them into a parent-chain vault.
+     *
+     * @example
+     * ```ts
+     * const prepared = await parentClient.earn.privateDeposit.prepare({
+     *   assetAmount: 100_000_000n,
+     *   gateway: '0x…',
+     *   recipient: '0x…',
+     *   recoveryRecipient: '0x…',
+     *   shareAmountMin: 99_500_000n,
+     * })
+     * const hash = await zoneClient.earn.privateDeposit(prepared)
+     * ```
+     *
+     * @param options - Options.
+     * @returns The Zone transaction hash.
+     */
+    privateDeposit: ((
+      options: earn.privateDeposit.Options<account>,
+    ) => Promise<earn.privateDeposit.ReturnType>) & {
+      /** Defines the prepared Zone withdrawal calls. */
+      calls: typeof earn.privateDeposit.calls
+      /** Prepares an encrypted private deposit. */
+      prepare: (
+        options: earn.privateDeposit.prepare.Options,
+      ) => ReturnType<typeof earn.privateDeposit.prepare>
+    }
+    /**
+     * Requests a private deposit and waits for the Zone transaction receipt.
+     *
+     * @example
+     * ```ts
+     * const result = await zoneClient.earn.privateDepositSync(prepared)
+     * ```
+     *
+     * @param options - Options.
+     * @returns The receipt and withdrawal sender tag.
+     */
+    privateDepositSync: (
+      options: earn.privateDepositSync.Options<account>,
+    ) => Promise<earn.privateDepositSync.ReturnType>
+    /**
+     * Withdraws vault shares from a Zone and redeems them on the parent chain.
+     *
+     * @example
+     * ```ts
+     * const prepared = await parentClient.earn.privateRedeem.prepare({
+     *   gateway: '0x…',
+     *   recipient: '0x…',
+     *   recoveryRecipient: '0x…',
+     *   shareAmount: 100_000_000n,
+     *   slippageBps: 50,
+     * })
+     * const hash = await zoneClient.earn.privateRedeem(prepared)
+     * ```
+     *
+     * @param options - Options.
+     * @returns The Zone transaction hash.
+     */
+    privateRedeem: ((
+      options: earn.privateRedeem.Options<account>,
+    ) => Promise<earn.privateRedeem.ReturnType>) & {
+      /** Defines the prepared Zone withdrawal calls. */
+      calls: typeof earn.privateRedeem.calls
+      /** Prepares an encrypted private redemption. */
+      prepare: (
+        options: earn.privateRedeem.prepare.Options,
+      ) => ReturnType<typeof earn.privateRedeem.prepare>
+    }
+    /**
+     * Requests a private redemption and waits for the Zone receipt.
+     *
+     * @example
+     * ```ts
+     * const result = await zoneClient.earn.privateRedeemSync(prepared)
+     * ```
+     *
+     * @param options - Options.
+     * @returns The receipt and withdrawal sender tag.
+     */
+    privateRedeemSync: (
+      options: earn.privateRedeemSync.Options<account>,
+    ) => Promise<earn.privateRedeemSync.ReturnType>
+    /**
+     * Redeems vault shares for assets sent to the recipient.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     * const hash = await client.earn.redeem({
+     *   shareAmount: 100_000_000n,
+     *   slippageBps: 50,
+     *   vault: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction hash.
+     */
+    redeem: ((
+      options: earn.redeem.Options,
+    ) => Promise<earn.redeem.ReturnType>) & {
+      /** Defines a redeem contract call. */
+      call: (args: earn.redeem.call.Args) => ReturnType<typeof earn.redeem.call>
+      /** Defines the approval and redeem calls. */
+      calls: typeof earn.redeem.calls
+      /** Estimates the gas required for a redemption. */
+      estimateGas: (options: earn.redeem.Options) => Promise<bigint>
+      /** Extracts the `Redeemed` event from logs. */
+      extractEvent: typeof earn.redeem.extractEvent
+      /** Simulates a redemption. */
+      simulate: (
+        options: earn.redeem.Options,
+      ) => ReturnType<typeof earn.redeem.simulate>
+    }
+    /**
+     * Redeems vault shares and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     * const result = await client.earn.redeemSync({
+     *   assetAmountMin: 99_500_000n,
+     *   shareAmount: 100_000_000n,
+     *   vault: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
+     */
+    redeemSync: (
+      options: earn.redeemSync.Options,
+    ) => Promise<earn.redeemSync.ReturnType>
+    /**
+     * Verifies an Earn vault's exit-safe TIP-403 policy.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     * await client.earn.validateExitSafePolicy({
+     *   accessAdministrator: '0x…',
+     *   policy: {
+     *     mintRecipientPolicyId: 2n,
+     *     recipientPolicyId: 2n,
+     *     senderPolicyId: 1n,
+     *     transferPolicyId: 3n,
+     *   },
+     *   requiredMembers: ['0x…'],
+     *   shareToken: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns Nothing when the policy is valid.
+     */
+    validateExitSafePolicy: (
+      options: earn.validateExitSafePolicy.Options,
+    ) => Promise<earn.validateExitSafePolicy.ReturnType>
+    /**
+     * Waits for a private deposit to complete on the parent chain.
+     *
+     * @example
+     * ```ts
+     * const result = await parentClient.earn.waitForPrivateDeposit({
+     *   actionId: prepared.actionId,
+     *   fromBlock: prepared.fromBlock,
+     *   gateway: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The completed gateway deposit.
+     */
+    waitForPrivateDeposit: (
+      options: earn.waitForPrivateDeposit.Options,
+    ) => Promise<earn.waitForPrivateDeposit.ReturnType>
+    /**
+     * Waits for a private redemption to complete on the parent chain.
+     *
+     * @example
+     * ```ts
+     * const result = await parentClient.earn.waitForPrivateRedeem({
+     *   actionId: prepared.actionId,
+     *   fromBlock: prepared.fromBlock,
+     *   gateway: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The completed gateway redemption.
+     */
+    waitForPrivateRedeem: (
+      options: earn.waitForPrivateRedeem.Options,
+    ) => Promise<earn.waitForPrivateRedeem.ReturnType>
+    /**
+     * Withdraws an exact asset amount up to a vault share limit.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     * const hash = await client.earn.withdrawExact({
+     *   assetAmount: 40_000_000n,
+     *   slippageBps: 50,
+     *   vault: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction hash.
+     */
+    withdrawExact: ((
+      options: earn.withdrawExact.Options,
+    ) => Promise<earn.withdrawExact.ReturnType>) & {
+      /** Defines an exact withdrawal contract call. */
+      call: (
+        args: earn.withdrawExact.call.Args,
+      ) => ReturnType<typeof earn.withdrawExact.call>
+      /** Defines the approval and exact withdrawal calls. */
+      calls: typeof earn.withdrawExact.calls
+      /** Estimates the gas required for an exact withdrawal. */
+      estimateGas: (options: earn.withdrawExact.Options) => Promise<bigint>
+      /** Extracts the `WithdrewExact` event from logs. */
+      extractEvent: typeof earn.withdrawExact.extractEvent
+      /** Simulates an exact withdrawal. */
+      simulate: (
+        options: earn.withdrawExact.Options,
+      ) => ReturnType<typeof earn.withdrawExact.simulate>
+    }
+    /**
+     * Withdraws an exact asset amount and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     * const result = await client.earn.withdrawExactSync({
+     *   assetAmount: 40_000_000n,
+     *   shareAmountMax: 40_200_000n,
+     *   vault: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
+     */
+    withdrawExactSync: (
+      options: earn.withdrawExactSync.Options,
+    ) => Promise<earn.withdrawExactSync.ReturnType>
   }
   faucet: {
     /**
@@ -4529,26 +5164,6 @@ export type Decorator<
       options?: zone.getAuthorizationTokenInfo.Options,
     ) => Promise<zone.getAuthorizationTokenInfo.ReturnType>
     /**
-     * Returns deposit processing status for a given Tempo block number.
-     *
-     * @example
-     * ```ts
-     * import { Client, http } from 'viem/tempo'
-     *
-     * const client = Client.create({ transport: http() })
-     *
-     * const status = await client.zone.getDepositStatus({
-     *   tempoBlockNumber: 42n,
-     * })
-     * ```
-     *
-     * @param options - Options.
-     * @returns Deposit status.
-     */
-    getDepositStatus: (
-      options: zone.getDepositStatus.Options,
-    ) => Promise<zone.getDepositStatus.ReturnType>
-    /**
      * Returns the fee required for a withdrawal from a zone, given a callback
      * gas limit.
      *
@@ -4713,7 +5328,7 @@ export type Decorator<
       options?: zone.signAuthorizationToken.Options<account>,
     ) => Promise<zone.signAuthorizationToken.ReturnType>
     /**
-     * Waits for a Tempo block's deposits to be processed by a zone.
+     * Waits for a zone to import a Tempo block.
      *
      * @example
      * ```ts
@@ -4721,16 +5336,16 @@ export type Decorator<
      *
      * const client = Client.create({ transport: http() })
      *
-     * const status = await client.zone.waitForDepositStatus({
+     * const info = await client.zone.waitForTempoBlock({
      *   tempoBlockNumber: 42n,
      * })
      * ```
      *
-     * @param options - Options.
-     * @returns The processed deposit status.
+     * @param options - Tempo block number and polling options.
+     * @returns Zone metadata after the block has been imported.
      */
-    waitForDepositStatus: (
-      options: zone.waitForDepositStatus.Options,
-    ) => Promise<zone.waitForDepositStatus.ReturnType>
+    waitForTempoBlock: (
+      options: zone.waitForTempoBlock.Options,
+    ) => Promise<zone.waitForTempoBlock.ReturnType>
   }
 } & ([chain, account] extends [unknown, unknown] ? unknown : never)

@@ -2649,7 +2649,7 @@ Breaking changes:
 - Account authorization accepts the shared authorization shape. Access-key helpers return checksummed addresses, while deprecated Zod re-exports and version options were removed.
 - `TempoAddress` was removed in favor of checksummed `Address.Address` values.
 
-Updated Zone deposits for current portals and added dynamic addresses, bounceback recipients, encryption-key reads, and deposit-status waiting.
+Updated Zone deposits for current portals and added dynamic addresses, bounceback recipients, encryption-key reads, and Tempo-block waiting.
 
 ```ts
 await Actions.zone.deposit(client, {
@@ -2661,7 +2661,7 @@ await Actions.zone.deposit(client, {
 })
 
 const key = await Actions.zone.getEncryptionKey(client, { portalAddress, zoneId }) // [!code ++]
-const status = await Actions.zone.waitForDepositStatus(zoneClient, { tempoBlockNumber }) // [!code ++]
+const info = await Actions.zone.waitForTempoBlock(zoneClient, { tempoBlockNumber }) // [!code ++]
 ```
 
 The `withRelay.type` constant was removed; relay transports retained the `'relay'` type discriminant.

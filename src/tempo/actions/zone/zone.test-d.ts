@@ -1,4 +1,4 @@
-import type { Hex } from 'ox'
+import type { Address, Hex } from 'ox'
 import { describe, expectTypeOf, test } from 'vitest'
 
 import { Actions as CoreActions } from 'viem'
@@ -11,7 +11,6 @@ import { depositSync } from './depositSync.js'
 import { encryptedDeposit } from './encryptedDeposit.js'
 import { encryptedDepositSync } from './encryptedDepositSync.js'
 import { getAuthorizationTokenInfo } from './getAuthorizationTokenInfo.js'
-import { getDepositStatus } from './getDepositStatus.js'
 import { getWithdrawalFee } from './getWithdrawalFee.js'
 import { getZoneInfo } from './getZoneInfo.js'
 import { requestVerifiableWithdrawal } from './requestVerifiableWithdrawal.js'
@@ -92,16 +91,14 @@ describe('zone action types', () => {
         })
       ).receipt,
     ).not.toBeAny()
-    expectTypeOf(
-      (
-        await requestWithdrawalSync(client, {
-          amount: 1n,
-          pollingInterval: 100,
-          timeout: 1_000,
-          token: '0x20C0000000000000000000000000000000000001',
-        })
-      ).receipt,
-    ).not.toBeAny()
+    const withdrawal = await requestWithdrawalSync(client, {
+      amount: 1n,
+      pollingInterval: 100,
+      timeout: 1_000,
+      token: '0x20C0000000000000000000000000000000000001',
+    })
+    expectTypeOf(withdrawal.receipt).not.toBeAny()
+    expectTypeOf(withdrawal.senderTag).toEqualTypeOf<Hex.Hex>()
     expectTypeOf(
       (
         await requestVerifiableWithdrawalSync(client, {
@@ -167,24 +164,21 @@ describe('zone action types', () => {
     expectTypeOf(
       await getAuthorizationTokenInfo(client),
     ).toEqualTypeOf<getAuthorizationTokenInfo.ReturnType>()
-    expectTypeOf(
-      await getDepositStatus(client, { tempoBlockNumber: 1n }),
-    ).toEqualTypeOf<getDepositStatus.ReturnType>()
     const encryptionKey = await Actions.zone.getEncryptionKey(client, {
       zoneId: 7,
     })
     expectTypeOf(encryptionKey.publicKey.prefix).toEqualTypeOf<2 | 3>()
     expectTypeOf(
-      await Actions.zone.waitForDepositStatus(client, {
+      await Actions.zone.waitForTempoBlock(client, {
         tempoBlockNumber: 1n,
       }),
-    ).toEqualTypeOf<getDepositStatus.ReturnType>()
+    ).toEqualTypeOf<getZoneInfo.ReturnType>()
     expectTypeOf(
       await getWithdrawalFee(client, { callbackGas: 100_000n }),
     ).toEqualTypeOf<bigint>()
-    expectTypeOf(
-      await getZoneInfo(client),
-    ).toEqualTypeOf<getZoneInfo.ReturnType>()
+    const info = await getZoneInfo(client)
+    expectTypeOf(info.sequencers).toEqualTypeOf<readonly Address.Address[]>()
+    expectTypeOf(info.tempoBlockNumber).toEqualTypeOf<bigint>()
     expectTypeOf(
       await signAuthorizationToken(client),
     ).toEqualTypeOf<signAuthorizationToken.ReturnType>()
@@ -198,10 +192,10 @@ describe('zone action types', () => {
 
   test('error exports', () => {
     expectTypeOf(
-      new Actions.zone.Errors.WaitForDepositStatusTimeoutError({
+      new Actions.zone.Errors.WaitForTempoBlockTimeoutError({
         tempoBlockNumber: 1n,
       }),
-    ).toEqualTypeOf<Actions.zone.Errors.WaitForDepositStatusTimeoutError>()
+    ).toEqualTypeOf<Actions.zone.Errors.WaitForTempoBlockTimeoutError>()
 
     type FlatErrorKey = Extract<keyof typeof Actions.zone, `${string}Error`>
 

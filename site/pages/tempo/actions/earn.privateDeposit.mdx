@@ -1,0 +1,221 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `earn.privateDeposit`
+
+Withdraws assets from a private Zone, deposits them into an Earn vault, and returns the vault shares
+to an encrypted Zone recipient.
+
+## Usage
+
+Prepare the encrypted callback with a parent Tempo client, then submit the withdrawal with the Zone
+client.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client as parentClient } from './viem.config'
+import { client as zoneClient } from './zones.config'
+
+const prepared = await parentClient.earn.privateDeposit.prepare({
+  assetAmount: 100_000_000n,
+  gateway: '0x0000000000000000000000000000000000000001',
+  recipient: zoneClient.account.address,
+  recoveryRecipient: parentClient.account.address,
+  shareAmountMin: 99_500_000n,
+})
+
+const { receipt, senderTag } = await zoneClient.earn.privateDepositSync(prepared)
+// @log: { transactionHash: '0x1234...abcd', ... }
+console.log('Sender tag:', senderTag)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+The synchronous action confirms the Zone withdrawal. Use
+[`earn.waitForPrivateDeposit`](/tempo/actions/earn.waitForPrivateDeposit) to wait for the parent-chain vault
+deposit. `senderTag` identifies the corresponding parent-chain `WithdrawalProcessed` event.
+
+### Asynchronous Usage
+
+Use `earn.privateDeposit` to return the Zone transaction hash immediately.
+
+```ts twoslash
+import { client as parentClient } from './viem.config'
+import { client as zoneClient } from './zones.config'
+
+const prepared = await parentClient.earn.privateDeposit.prepare({
+  assetAmount: 100_000_000n,
+  gateway: '0x0000000000000000000000000000000000000001',
+  recipient: zoneClient.account.address,
+  recoveryRecipient: parentClient.account.address,
+  shareAmountMin: 99_500_000n,
+})
+
+const hash = await zoneClient.earn.privateDeposit(prepared)
+// @log: 0x1234...abcd
+```
+
+### Swap-Routed Deposits
+
+Pass `assetToken` when the Zone asset differs from the gateway vault asset. Set
+`vaultAssetAmountMin` to bound the gateway vault assets produced by that swap, and set the share
+bound independently.
+
+```ts twoslash
+import { client as parentClient } from './viem.config'
+import { client as zoneClient } from './zones.config'
+
+const prepared = await parentClient.earn.privateDeposit.prepare({
+  assetAmount: 100_000_000n,
+  assetToken: '0x0000000000000000000000000000000000000002',
+  gateway: '0x0000000000000000000000000000000000000001',
+  recipient: zoneClient.account.address,
+  recoveryRecipient: parentClient.account.address,
+  shareAmountMin: 98_500_000n,
+  vaultAssetAmountMin: 99_000_000n,
+})
+```
+
+When `assetToken` is the gateway vault asset, the action always requires the exact withdrawn
+`assetAmount`. For swap-routed deposits, omitting `vaultAssetAmountMin` preserves the zero minimum.
+
+## Return Type
+
+```ts
+type ReturnType = {
+  receipt: TransactionReceipt
+  senderTag: Hash
+}
+```
+
+The asynchronous action returns the transaction hash instead.
+
+## Prepare Return Type
+
+```ts
+type PreparedZoneRequest = {
+  actionId: Hex
+  amount: bigint
+  callbackGas: bigint
+  chainId: number
+  data: Hex
+  fallbackRecipient: Address
+  fromBlock: bigint
+  memo?: Hex
+  to: Address
+  token: Address
+  zoneId: number
+}
+```
+
+Pass the prepared value directly to `earn.privateDeposit` or `earn.privateDepositSync`. The action checks
+that its parent and Zone chain IDs match the Zone client.
+
+## Prepare Parameters
+
+### actionId (optional)
+
+- **Type:** `Hex`
+- **Default:** A random `bytes32` value
+
+Correlation ID encoded in the gateway callback. Supply one when deterministic request preparation is
+needed.
+
+### assetAmount
+
+- **Type:** `bigint`
+
+Assets withdrawn from the Zone, in base units.
+
+### assetToken (optional)
+
+- **Type:** `Address`
+- **Default:** The gateway vault asset
+
+Contract address of the asset token withdrawn from the Zone. The gateway swaps it into the vault
+asset when needed.
+
+### vaultAssetAmountMin (optional)
+
+- **Type:** `bigint`
+- **Default:** `0n` for swap-routed deposits
+
+Minimum gateway vault assets accepted after swapping `assetToken`. This bound works alongside the
+vault share bound. Direct vault-asset deposits always use the exact withdrawn `assetAmount` instead.
+
+### callbackGas (optional)
+
+- **Type:** `bigint`
+- **Default:** `10_000_000n`
+
+Gas reserved for the parent-chain gateway callback.
+
+### fallbackRecipient (optional)
+
+- **Type:** `Address`
+- **Default:** `recoveryRecipient`
+
+Public recipient if the parent-chain gateway callback fails.
+
+### gateway
+
+- **Type:** `Address`
+
+Gateway identifying the vault and Zone configuration.
+
+### recipient
+
+- **Type:** `Address`
+
+Encrypted Zone recipient for the returned vault shares.
+
+### recoveryRecipient
+
+- **Type:** `Address`
+
+Public Tempo recipient if the encrypted return deposit fails.
+
+### returnMemo (optional)
+
+- **Type:** `Hex`
+
+Memo encrypted with the returned Zone deposit.
+
+### shareAmount (optional)
+
+- **Type:** `bigint`
+
+Quoted vault share output. Provide it with `slippageBps`, or provide `shareAmountMin` instead.
+
+### shareAmountMin (optional)
+
+- **Type:** `bigint`
+
+Minimum vault shares returned to the Zone.
+
+### slippageBps (optional)
+
+- **Type:** `number`
+
+Slippage tolerance below `shareAmount`, in basis points. For example, `50` means 0.5%.
+
+### withdrawalMemo (optional)
+
+- **Type:** `Hex`
+
+Memo attached to the Zone withdrawal.
+
+<ReadParameters />
+
+## Transaction Parameters
+
+<WriteParameters />

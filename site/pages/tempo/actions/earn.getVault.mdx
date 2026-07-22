@@ -1,0 +1,110 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `earn.getVault`
+
+Gets a vault's configuration, accounting state, and supported actions.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const vault = await client.earn.getVault({
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: {
+//   assetToken: '0x20c0...0001',
+//   asyncJanitor: '0x0000...0000',
+//   capabilities: {
+//     asyncRedeem: false,
+//     exactWithdraw: true,
+//     inKindDeposit: true,
+//     syncRedeem: true,
+//   },
+//   depositsPaused: false,
+//   emergencyGuardian: '0x0000...0000',
+//   engine: {
+//     address: '0x0000...0002',
+//     name: 'Example Vault',
+//     symbol: 'evUSD',
+//     totalAssets: 1_000_000_000n,
+//   },
+//   engineMigrationMode: 'userOnly',
+//   engineShares: 1_000_000_000n,
+//   feesActive: true,
+//   isSynced: true,
+//   operator: '0x0000...0003',
+//   pendingRedeemCount: 0n,
+//   shareSupply: 995_000_000n,
+//   shareToken: '0x20c0...0002',
+// }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  /** Token accepted by the vault. */
+  assetToken: Address
+  /** Address allowed to cancel queued redemptions. */
+  asyncJanitor: Address
+  /** Actions supported by the current venue integration. */
+  capabilities: {
+    asyncRedeem: boolean
+    exactWithdraw: boolean
+    inKindDeposit: boolean
+    syncRedeem: boolean
+  }
+  /** Whether new deposits are paused. */
+  depositsPaused: boolean
+  /** Address allowed to pause deposits. */
+  emergencyGuardian: Address
+  /** Current venue integration. */
+  engine: {
+    address: Address
+    name: string
+    symbol: string
+    totalAssets: bigint
+  }
+  /** Who may change the venue integration. */
+  engineMigrationMode: 'operatorEnabled' | 'userOnly'
+  /** Venue shares held for the vault. */
+  engineShares: bigint
+  /** Whether fees are active. */
+  feesActive: boolean
+  /** Whether vault share supply matches its asset backing. */
+  isSynced: boolean
+  /** Vault governance address. */
+  operator: Address
+  /** Open queued redemptions. */
+  pendingRedeemCount: bigint
+  /** Active vault share supply. */
+  shareSupply: bigint
+  /** Token representing vault shares. */
+  shareToken: Address
+}
+```
+
+## Parameters
+
+### vault
+
+- **Type:** `Address`
+
+Vault address.
+
+<ReadParameters />
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `GetVaultEngineChangedError` | The vault changed venue integrations while its state was being read. |

@@ -33,9 +33,18 @@ export async function getZoneInfo<
     method: 'zone_getZoneInfo',
     params: [],
   })) as getZoneInfo.RpcReturnType
+  const tempoBlockNumber =
+    info.tempoBlockNumber ??
+    (
+      (await client.request({
+        method: 'zone_getDepositStatus',
+        params: ['0x0'],
+      })) as { zoneProcessedThrough: Hex.Hex }
+    ).zoneProcessedThrough
   return {
     chainId: Hex.toNumber(info.chainId),
-    sequencer: info.sequencer,
+    sequencers: 'sequencers' in info ? info.sequencers : [info.sequencer],
+    tempoBlockNumber: Hex.toBigInt(tempoBlockNumber),
     zoneId: Hex.toNumber(info.zoneId),
     zoneTokens: info.zoneTokens,
   }
@@ -44,15 +53,34 @@ export async function getZoneInfo<
 export namespace getZoneInfo {
   export type Options = Record<string, never>
   export type RpcReturnType = {
+    /** Zone chain ID. */
     chainId: Hex.Hex
-    sequencer: Address.Address
+    /** Latest Tempo block imported by the zone. */
+    tempoBlockNumber?: Hex.Hex | undefined
+    /** Zone ID. */
     zoneId: Hex.Hex
+    /** Enabled zone token addresses. */
     zoneTokens: readonly Address.Address[]
-  }
+  } & (
+    | {
+        /** Active sequencer addresses. */
+        sequencers: readonly Address.Address[]
+      }
+    | {
+        /** Active sequencer address. */
+        sequencer: Address.Address
+      }
+  )
   export type ReturnType = {
+    /** Zone chain ID. */
     chainId: number
-    sequencer: Address.Address
+    /** Active sequencer addresses. */
+    sequencers: readonly Address.Address[]
+    /** Latest Tempo block imported by the zone. */
+    tempoBlockNumber: bigint
+    /** Zone ID. */
     zoneId: number
+    /** Enabled zone token addresses. */
     zoneTokens: readonly Address.Address[]
   }
   export type ErrorType = Errors.GlobalErrorType

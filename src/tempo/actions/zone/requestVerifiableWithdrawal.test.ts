@@ -55,7 +55,6 @@ test('behavior: sends verifiable withdrawals', async () => {
   await expect(
     requestVerifiableWithdrawal(client, {
       amount: 0n,
-      gas: 1_000_000n,
       revealTo,
       to: recipient,
       token: tempo.pathUsd,

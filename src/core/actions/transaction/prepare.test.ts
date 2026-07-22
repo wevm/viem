@@ -499,6 +499,46 @@ describe('behavior: attemptFill', () => {
     ).toBe(false)
   })
 
+  test('when a fee payer signature is requested', async () => {
+    expect(
+      await attemptedFill({
+        chainId: 1,
+        feePayer: true,
+        gas: 21000n,
+        maxFeePerGas: Value.fromGwei('100'),
+        maxPriorityFeePerGas: Value.fromGwei('5'),
+        nonce: 5,
+      }),
+    ).toBe(true)
+  })
+
+  test('when a fee payer signature is requested without fees or gas', async () => {
+    expect(
+      await attemptedFill({
+        feePayer: true,
+        parameters: ['nonce'],
+      }),
+    ).toBe(true)
+  })
+
+  test('not when fee payer parameters are empty', async () => {
+    expect(await attemptedFill({ feePayer: true, parameters: [] })).toBe(false)
+  })
+
+  test('not when the fee payer signature is already set', async () => {
+    expect(
+      await attemptedFill({
+        chainId: 1,
+        feePayer: true,
+        feePayerSignature: { r: '0x1', s: '0x1', yParity: 0 },
+        gas: 21000n,
+        maxFeePerGas: Value.fromGwei('100'),
+        maxPriorityFeePerGas: Value.fromGwei('5'),
+        nonce: 5,
+      }),
+    ).toBe(false)
+  })
+
   test('not when parameters exclude fees and gas', async () => {
     expect(
       await attemptedFill({ parameters: ['nonce', 'chainId', 'type'] }),

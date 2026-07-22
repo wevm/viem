@@ -8,29 +8,32 @@ function respond(res: ServerResponse, result: unknown) {
   res.end(JSON.stringify({ id: 1, jsonrpc: '2.0', result }))
 }
 
-test('returns a processed deposit status to concurrent callers', async () => {
+test('returns zone info to concurrent callers after importing the block', async () => {
   const responses = [
     {
-      deposits: [],
-      processed: false,
-      tempoBlockNumber: '0x2a',
-      zoneProcessedThrough: '0x29',
+      chainId: '0x1',
+      sequencers: ['0x0000000000000000000000000000000000000001'],
+      tempoBlockNumber: '0x29',
+      zoneId: '0x2',
+      zoneTokens: [],
     },
     {
-      deposits: [],
-      processed: true,
+      chainId: '0x1',
+      sequencers: ['0x0000000000000000000000000000000000000001'],
       tempoBlockNumber: '0x2a',
-      zoneProcessedThrough: '0x2b',
+      zoneId: '0x2',
+      zoneTokens: [],
     },
   ]
   const server = await createServer((_req, res) => {
     respond(
       res,
       responses.shift() ?? {
-        deposits: [],
-        processed: true,
+        chainId: '0x1',
+        sequencers: ['0x0000000000000000000000000000000000000001'],
         tempoBlockNumber: '0x63',
-        zoneProcessedThrough: '0x63',
+        zoneId: '0x2',
+        zoneTokens: [],
       },
     )
   })
@@ -41,26 +44,29 @@ test('returns a processed deposit status to concurrent callers', async () => {
       pollingInterval: 10,
       transport: http(server.url),
     })
-    const [status, concurrentStatus] = await Promise.all([
-      Actions.zone.waitForDepositStatus(client, {
+    const [info, concurrentInfo] = await Promise.all([
+      Actions.zone.waitForTempoBlock(client, {
         tempoBlockNumber: 42n,
         timeout: 0,
       }),
-      Actions.zone.waitForDepositStatus(client, {
+      Actions.zone.waitForTempoBlock(client, {
         tempoBlockNumber: 42n,
         timeout: 1_000,
       }),
     ])
 
-    expect(status).toMatchInlineSnapshot(`
+    expect(info).toMatchInlineSnapshot(`
       {
-        "deposits": [],
-        "processed": true,
+        "chainId": 1,
+        "sequencers": [
+          "0x0000000000000000000000000000000000000001",
+        ],
         "tempoBlockNumber": 42n,
-        "zoneProcessedThrough": 43n,
+        "zoneId": 2,
+        "zoneTokens": [],
       }
     `)
-    expect(concurrentStatus).toEqual(status)
+    expect(concurrentInfo).toEqual(info)
   } finally {
     await server.close()
   }
@@ -69,10 +75,11 @@ test('returns a processed deposit status to concurrent callers', async () => {
 test('throws when the timeout elapses', async () => {
   const server = await createServer((_req, res) => {
     respond(res, {
-      deposits: [],
-      processed: false,
-      tempoBlockNumber: '0x2a',
-      zoneProcessedThrough: '0x29',
+      chainId: '0x1',
+      sequencers: ['0x0000000000000000000000000000000000000001'],
+      tempoBlockNumber: '0x29',
+      zoneId: '0x2',
+      zoneTokens: [],
     })
   })
 
@@ -82,15 +89,15 @@ test('throws when the timeout elapses', async () => {
       pollingInterval: 10,
       transport: http(server.url),
     })
-    const pending = Actions.zone.waitForDepositStatus(client, {
+    const pending = Actions.zone.waitForTempoBlock(client, {
       tempoBlockNumber: 42n,
       timeout: 25,
     })
     await expect(pending).rejects.toThrow(
-      Actions.zone.Errors.WaitForDepositStatusTimeoutError,
+      Actions.zone.Errors.WaitForTempoBlockTimeoutError,
     )
     await expect(pending).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Actions.zone.waitForDepositStatus.TimeoutError: Timed out while waiting for deposits from Tempo block "42" to be processed.
+      [Actions.zone.waitForTempoBlock.TimeoutError: Timed out while waiting for Tempo block "42" to be imported by the zone.
 
       Version: viem@2.52.1]
     `)
@@ -112,7 +119,7 @@ test('propagates zone RPC errors', async () => {
       transport: http(server.url, { retryCount: 0 }),
     })
     await expect(
-      Actions.zone.waitForDepositStatus(client, {
+      Actions.zone.waitForTempoBlock(client, {
         tempoBlockNumber: 42n,
       }),
     ).rejects.toThrow('HTTP request failed')

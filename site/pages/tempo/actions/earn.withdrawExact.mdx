@@ -1,0 +1,136 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `earn.withdrawExact`
+
+Withdraws an exact asset amount while limiting the vault shares burned.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.earn.withdrawExactSync({
+  assetAmount: 40_000_000n,
+  slippageBps: 50,
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: {
+//   assetAmount: 40_000_000n,
+//   caller: '0x...',
+//   receipt: { ... },
+//   recipient: '0x...',
+//   shareAmount: 40_100_000n,
+// }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+When only `slippageBps` is provided, the action gets a live
+[`earn.getWithdrawQuote`](/tempo/actions/earn.getWithdrawQuote) and derives the maximum vault share
+input. The transaction approves and burns the required shares atomically.
+
+### Set an Exact Maximum
+
+Use `shareAmountMax` when you already know the most vault shares you will burn.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.earn.withdrawExactSync({
+  assetAmount: 40_000_000n,
+  shareAmountMax: 40_250_000n,
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: { assetAmount: 40_000_000n, shareAmount: 40_100_000n, ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+`earn.withdrawExactSync` waits for inclusion and returns the decoded withdrawal event. Use
+`earn.withdrawExact` to return the transaction hash immediately.
+
+```ts twoslash
+import { client } from './viem.config'
+
+const hash = await client.earn.withdrawExact({
+  assetAmount: 40_000_000n,
+  shareAmountMax: 40_250_000n,
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: 0x1234...abcd
+```
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  /** Exact assets received. */
+  assetAmount: bigint
+  /** Withdrawing caller. */
+  caller: Address
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+  /** Asset recipient. */
+  recipient: Address
+  /** Vault shares burned. */
+  shareAmount: bigint
+}
+```
+
+The asynchronous action returns the transaction hash instead.
+
+## Parameters
+
+### assetAmount
+
+- **Type:** `bigint | { decimals?: number | undefined; formatted: string }`
+
+Exact assets to receive. A `bigint` uses base units; a formatted value uses the vault asset's
+decimals unless `decimals` is provided.
+
+### recipient (optional)
+
+- **Type:** `Address`
+- **Default:** `account.address`
+
+Asset recipient.
+
+### shareAmount (optional)
+
+- **Type:** `bigint`
+
+Quoted vault share input. Provide it with `slippageBps` to avoid a live quote.
+
+### shareAmountMax (optional)
+
+- **Type:** `bigint`
+
+Maximum vault shares to burn. It cannot be combined with `shareAmount` or `slippageBps`.
+
+### slippageBps (optional)
+
+- **Type:** `number`
+
+Slippage headroom above the provided or live quote, in basis points. For example, `50` means 0.5%.
+
+### vault
+
+- **Type:** `Address`
+
+Vault address.
+
+<WriteParameters />

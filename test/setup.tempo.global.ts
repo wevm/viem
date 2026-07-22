@@ -9,17 +9,18 @@ declare module 'vitest' {
   }
 }
 
-const setupServer = Server.setup({
-  // Zone containers reach this proxy through host.docker.internal.
-  host: '::',
-  instance: createInstance(),
-  port,
-  setup(server, project: TestProject) {
-    project.provide('tempoServer', server)
-  },
-})
-
 export default async function (project: TestProject) {
   if (process.env.OFFLINE) return
+  const setupServer = Server.setup({
+    // Zone containers reach this proxy through host.docker.internal.
+    host: '::',
+    instance: createInstance({
+      zones: process.env.VITE_TEMPO_ZONES === 'true',
+    }),
+    port,
+    setup(server, project: TestProject) {
+      project.provide('tempoServer', server)
+    },
+  })
   return setupServer(project)
 }

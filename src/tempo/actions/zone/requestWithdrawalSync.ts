@@ -1,11 +1,12 @@
-import type { Errors } from 'ox'
+import type { Errors, Hex } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { sendSync } from '../../../core/actions/transaction/sendSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
-import type { ReceiptReturn } from './internal.js'
+import * as WithdrawalSenderTag from '../../internal/WithdrawalSenderTag.js'
+import { getAccount, getAddress, type ReceiptReturn } from './internal.js'
 import { requestWithdrawal } from './requestWithdrawal.js'
 
 /**
@@ -28,7 +29,7 @@ import { requestWithdrawal } from './requestWithdrawal.js'
  *
  * @param client - Client.
  * @param options - Options.
- * @returns The transaction receipt.
+ * @returns The transaction receipt and parent-chain withdrawal sender tag.
  */
 export async function requestWithdrawalSync<
   chain extends Chain.Chain | undefined,
@@ -42,13 +43,23 @@ export async function requestWithdrawalSync<
     ...options,
     throwOnReceiptRevert,
   })
-  return { receipt }
+  const account = getAccount(options.account ?? client.account)
+  return {
+    receipt,
+    senderTag: WithdrawalSenderTag.from({
+      sender: getAddress(account),
+      transactionHash: receipt.transactionHash,
+    }),
+  }
 }
 
 export namespace requestWithdrawalSync {
   export type Options<
     account extends Account.Account | undefined = Account.Account | undefined,
   > = requestWithdrawal.Options<account> & WriteSyncParameters
-  export type ReturnType = ReceiptReturn<sendSync.ReturnType>
+  export type ReturnType = ReceiptReturn<sendSync.ReturnType> & {
+    /** Sender tag identifying the parent-chain `WithdrawalProcessed` event. */
+    senderTag: Hex.Hex
+  }
   export type ErrorType = Errors.GlobalErrorType
 }

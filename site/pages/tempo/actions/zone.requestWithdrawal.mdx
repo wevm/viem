@@ -13,13 +13,15 @@ Batches an approval and a ZoneOutbox withdrawal request into a single transactio
 ```ts twoslash [example.ts]
 import { client } from './zones.config'
 
-const { receipt } = await client.zone.requestWithdrawalSync({
+const { receipt, senderTag } = await client.zone.requestWithdrawalSync({
   amount: 100_000_000n,
   token: '0x20c0000000000000000000000000000000000001',
 })
 
 console.log('Transaction hash:', receipt.transactionHash)
 // @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+console.log('Withdrawal sender tag:', senderTag)
+// @log: Withdrawal sender tag: 0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
 ```
 
 ```ts twoslash [zones.config.ts] filename="zones.config.ts"
@@ -87,10 +89,13 @@ type PreparedWithdrawal = {
 type ReturnType = {
   /** Transaction receipt. */
   receipt: TransactionReceipt
+  /** Sender tag identifying the parent-chain WithdrawalProcessed event. */
+  senderTag: Hex
 }
 ```
 
-The transaction receipt. The non-sync `zone.requestWithdrawal` action returns the transaction hash.
+The transaction receipt and sender tag for the parent-chain `WithdrawalProcessed` event. The non-sync
+`zone.requestWithdrawal` action returns the transaction hash.
 
 ## Parameters
 
@@ -138,5 +143,8 @@ Recipient address on the parent Tempo chain.
 - **Type:** `Address`
 
 Token address to withdraw.
+
+For this action, the inherited `gas` parameter defaults to `10_000_000n`. It limits the Zone
+transaction and is independent of `callbackGas`.
 
 <WriteParameters />
