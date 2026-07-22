@@ -2347,6 +2347,11 @@ export default defineConfig({
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Protected Vaults',
+                  link: '/tempo/guides/earn/protected-vaults',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'Earn with Private Zones',
                   link: '/tempo/guides/earn/zones',
                 },
@@ -2615,6 +2620,11 @@ export default defineConfig({
               items: [
                 {
                   badge: { text: 'EXP', variant: 'warning' },
+                  text: 'configureExitSafePolicy',
+                  link: '/tempo/actions/earn.configureExitSafePolicy',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'deposit',
                   link: '/tempo/actions/earn.deposit',
                 },
@@ -2662,6 +2672,11 @@ export default defineConfig({
                   badge: { text: 'EXP', variant: 'warning' },
                   text: 'redeem',
                   link: '/tempo/actions/earn.redeem',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'validateExitSafePolicy',
+                  link: '/tempo/actions/earn.validateExitSafePolicy',
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },

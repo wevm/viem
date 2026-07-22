@@ -22,8 +22,9 @@ do not use them in production.
 
 ## Recipes
 
-These recipes assume you have [set up a Tempo client](/tempo) and
-[connected to a Zone](/tempo/guides/zones/connect).
+These recipes assume you have [set up a Tempo client](/tempo),
+[connected to a Zone](/tempo/guides/zones/connect), and
+[deposited the required assets into it](/tempo/guides/zones/deposit).
 
 ### Deposit Zone Assets into a Vault
 
@@ -39,11 +40,11 @@ import { client as zoneClient } from './zones.config'
 
 const gateway = '0x0000000000000000000000000000000000000001'
 const prepared = await parentClient.earn.privateDeposit.prepare({
-  assetAmount: 100_000_000n, // [!code focus]
+  assetAmount: 100_000_000n,
   gateway,
-  recipient: zoneClient.account.address, // [!code focus]
+  recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
-  shareAmountMin: 99_500_000n, // [!code focus]
+  shareAmountMin: 99_500_000n,
 })
 
 const { receipt, senderTag } = await zoneClient.earn.privateDepositSync(prepared)
@@ -73,10 +74,58 @@ const info = await zoneClient.zone.waitForTempoBlock({
 
 :::
 
+Use `shareAmount` with `slippageBps` when you have a quote instead of an exact share floor.
+
+### Deposit Another Zone Asset
+
 Pass `assetToken` when the Zone asset differs from the vault asset. The gateway swaps it before the
-deposit. Set `vaultAssetAmountMin` to bound the vault assets produced by that swap. This is
-independent from the vault share bound. Use `shareAmount` with `slippageBps` when you have a quote
-instead of an exact share floor.
+deposit. Set `vaultAssetAmountMin` to bound the vault assets produced by that swap independently from
+the vault share bound.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client as parentClient } from './viem.config'
+import { client as zoneClient } from './zones.config'
+
+const alternateAsset = '0x20c0000000000000000000000000000000000002'
+const gateway = '0x0000000000000000000000000000000000000001'
+const prepared = await parentClient.earn.privateDeposit.prepare({
+  assetAmount: 100_000_000n,
+  assetToken: alternateAsset,
+  gateway,
+  recipient: zoneClient.account.address,
+  recoveryRecipient: parentClient.account.address,
+  shareAmountMin: 98_500_000n,
+  vaultAssetAmountMin: 99_000_000n,
+})
+
+const { receipt } = await zoneClient.earn.privateDepositSync(prepared)
+// @log: { transactionHash: '0x1234...abcd', ... }
+
+const deposit = await parentClient.earn.waitForPrivateDeposit({
+  actionId: prepared.actionId,
+  fromBlock: prepared.fromBlock,
+  gateway,
+})
+
+await zoneClient.zone.waitForTempoBlock({
+  tempoBlockNumber: deposit.tempoBlockNumber,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+The gateway must support a swap route from `assetToken` to the vault asset. Omitting
+`vaultAssetAmountMin` accepts any non-reverting swap output, so set a deliberate bound.
 
 ### Redeem Zone Vault Shares
 
@@ -93,10 +142,10 @@ import { client as zoneClient } from './zones.config'
 const gateway = '0x0000000000000000000000000000000000000001'
 const prepared = await parentClient.earn.privateRedeem.prepare({
   gateway,
-  recipient: zoneClient.account.address, // [!code focus]
+  recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
-  shareAmount: 99_750_000n, // [!code focus]
-  slippageBps: 50, // [!code focus]
+  shareAmount: 99_750_000n,
+  slippageBps: 50,
 })
 
 const { receipt, senderTag } = await zoneClient.earn.privateRedeemSync(prepared)
@@ -127,7 +176,171 @@ const info = await zoneClient.zone.waitForTempoBlock({
 :::
 
 Pass `assetAmountMin` for an exact output floor, or pass `assetAmount` with `slippageBps` when you
-already have a recent quote. Set `assetToken` to return another Zone asset through the gateway swap.
+already have a recent quote.
+
+### Redeem into Another Zone Asset
+
+Set `assetToken` to swap the redeemed vault asset before returning it to the Zone. For an alternate
+output token, `assetAmountMin` bounds the final post-swap amount.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client as parentClient } from './viem.config'
+import { client as zoneClient } from './zones.config'
+
+const alternateAsset = '0x20c0000000000000000000000000000000000002'
+const gateway = '0x0000000000000000000000000000000000000001'
+const prepared = await parentClient.earn.privateRedeem.prepare({
+  assetAmountMin: 98_500_000n,
+  assetToken: alternateAsset,
+  gateway,
+  recipient: zoneClient.account.address,
+  recoveryRecipient: parentClient.account.address,
+  shareAmount: 99_750_000n,
+})
+
+const { receipt } = await zoneClient.earn.privateRedeemSync(prepared)
+// @log: { transactionHash: '0x1234...abcd', ... }
+
+const redemption = await parentClient.earn.waitForPrivateRedeem({
+  actionId: prepared.actionId,
+  fromBlock: prepared.fromBlock,
+  gateway,
+})
+
+await zoneClient.zone.waitForTempoBlock({
+  tempoBlockNumber: redemption.tempoBlockNumber,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+The gateway must support a route from the vault asset to `assetToken`. A live vault quote cannot
+quote the swap output, so provide `assetAmountMin` or an alternate-asset quote with `slippageBps`.
+
+### Return Funds to Another Zone Recipient
+
+The Zone account submitting a private action can encrypt the returned assets for another address in
+the same Zone. The sender supplies the private balance and pays the withdrawal fee.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client as parentClient } from './viem.config'
+import { client as zoneClient } from './zones.config'
+
+const beneficiary = '0x2222222222222222222222222222222222222222'
+const gateway = '0x0000000000000000000000000000000000000001'
+const prepared = await parentClient.earn.privateRedeem.prepare({
+  gateway,
+  recipient: beneficiary,
+  recoveryRecipient: parentClient.account.address,
+  shareAmount: 99_750_000n,
+  slippageBps: 50,
+})
+
+const { receipt } = await zoneClient.earn.privateRedeemSync(prepared)
+// @log: { transactionHash: '0x1234...abcd', ... }
+
+const redemption = await parentClient.earn.waitForPrivateRedeem({
+  actionId: prepared.actionId,
+  fromBlock: prepared.fromBlock,
+  gateway,
+})
+
+await zoneClient.zone.waitForTempoBlock({
+  tempoBlockNumber: redemption.tempoBlockNumber,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+The same `recipient` behavior applies to `earn.privateDeposit.prepare`. The recipient is encrypted,
+but the action amount, timing, gateway, and recovery address remain public at the privacy boundary.
+
+### Move Existing Venue Shares into a Zone
+
+Compose [`earn.depositShares.calls`](/tempo/actions/earn.depositShares) with
+[`zone.encryptedDeposit.calls`](/tempo/actions/zone.encryptedDeposit) to approve venue shares, mint
+EarnToken, approve it to the Zone Portal, and deposit it to an encrypted recipient in one atomic
+transaction.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abis } from 'viem/tempo'
+import { client as parentClient } from './viem.config'
+import { client as zoneClient } from './zones.config'
+
+const vaultAddress = '0x0000000000000000000000000000000000000001'
+const venueShareToken = '0x20c0000000000000000000000000000000000001'
+const venueShareAmount = 500_000_000n
+const zoneId = 7
+
+const vault = await parentClient.earn.getVault({ vault: vaultAddress })
+const earnShareAmount = await parentClient.readContract({
+  abi: Abis.vaultAdapter,
+  address: vaultAddress,
+  args: [venueShareAmount],
+  functionName: 'sharesToTokens',
+})
+const encrypted = await parentClient.zone.encryptedDeposit.prepare({
+  amount: earnShareAmount,
+  bouncebackRecipient: parentClient.account.address,
+  recipient: zoneClient.account.address,
+  token: vault.shareToken,
+  zoneId,
+})
+
+const calls = [
+  ...parentClient.earn.depositShares.calls({
+    earnShareAmountMin: earnShareAmount,
+    engine: vault.engine.address,
+    recipient: parentClient.account.address,
+    vault: vaultAddress,
+    venueShareAmount,
+    venueShareToken,
+  }),
+  ...parentClient.zone.encryptedDeposit.calls(encrypted),
+]
+
+const receipt = await parentClient.sendTransactionSync({ calls })
+// @log: { transactionHash: '0x1234...abcd', ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+:::warning
+The encrypted deposit moves the fixed `earnShareAmount`. If the vault mints less, the exact minimum
+reverts the whole batch. If it mints more, the difference remains public. Settle fees and quote
+immediately before submission. When an exact quote is not reliable, use two transactions: call
+`earn.depositSharesSync`, then pass its returned `earnShareAmount` to `zone.encryptedDepositSync`.
+:::
 
 ## Best Practices
 
@@ -165,6 +378,12 @@ event on Tempo, then wait for the encrypted deposit to be processed inside the Z
     title="Connect to a Zone"
     description="Authenticate a Zone client before reading balances or submitting withdrawals."
     to="/tempo/guides/zones/connect"
+  />
+  <Card
+    icon="lucide:arrow-down-to-line"
+    title="Deposit to a Zone"
+    description="Fund a Zone with a public or encrypted recipient."
+    to="/tempo/guides/zones/deposit"
   />
   <Card
     icon="lucide:arrow-up-from-line"

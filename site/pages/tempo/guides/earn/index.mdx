@@ -22,15 +22,15 @@ state, and supported actions before depositing.
 import { client } from './viem.config'
 
 const vault = await client.earn.getVault({
-  vault: '0x0000000000000000000000000000000000000001', // [!code focus]
+  vault: '0x0000000000000000000000000000000000000001',
 })
 // @log: {
-//   assetToken: '0x20c0...0001',
-//   capabilities: { exactWithdraw: true, inKindDeposit: true, syncRedeem: true, ... },
-//   depositsPaused: false,
-//   shareToken: '0x20c0...0002',
-//   ...
-// }
+// @log:   assetToken: '0x20c0...0001',
+// @log:   capabilities: { exactWithdraw: true, inKindDeposit: true, syncRedeem: true, ... },
+// @log:   depositsPaused: false,
+// @log:   shareToken: '0x20c0...0002',
+// @log:   ...
+// @log: }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -49,6 +49,12 @@ underlying yield venue.
     title="Deposit & Withdraw"
     description="Enter an Earn vault, inspect a position, and choose an exit shape."
     to="/tempo/guides/earn/deposit-withdraw"
+  />
+  <Card
+    icon="lucide:shield-check"
+    title="Protected Vaults"
+    description="Restrict who can receive vault shares without freezing existing positions."
+    to="/tempo/guides/earn/protected-vaults"
   />
   <Card
     icon="lucide:lock-keyhole"
