@@ -340,8 +340,6 @@ jobs:
   wagmi:
     name: Wagmi
     continue-on-error: true
-    # TODO: Re-enable Wagmi verification.
-    if: ${{ false }}
     permissions:
       contents: read
     runs-on: ubuntu-latest
