@@ -21,6 +21,7 @@ import * as Addresses from '../../../src/tempo/Addresses.js'
 import type { Account } from '../../../src/tempo/index.js'
 import { accounts, addresses } from './config.js'
 import * as EarnContracts from './earnContracts.js'
+import * as LegacyZoneGateway from './legacyZoneGateway.js'
 
 /**
  * Deploys a full local Earn stack from the vendored artifacts, mirroring
@@ -171,6 +172,7 @@ export async function deployEarnGateway(
   const {
     adapter,
     defaultSwapper,
+    legacyCallback = false,
     owner = client.account.address,
     portalClient,
   } = options
@@ -182,11 +184,19 @@ export async function deployEarnGateway(
     address: portal,
     functionName: 'messenger',
   })
-  const gateway = await deployContract(client, {
-    abi: EarnContracts.zoneGateway.abi,
-    args: [adapter, defaultSwapper, portal, messenger, owner],
-    bytecode: EarnContracts.zoneGateway.bytecode,
-  })
+  // TODO: Remove when T9 launches.
+  const args = [adapter, defaultSwapper, portal, messenger, owner] as const
+  const gateway = legacyCallback
+    ? await deployContract(client, {
+        abi: LegacyZoneGateway.abi,
+        args,
+        bytecode: LegacyZoneGateway.bytecode,
+      })
+    : await deployContract(client, {
+        abi: EarnContracts.zoneGateway.abi,
+        args,
+        bytecode: EarnContracts.zoneGateway.bytecode,
+      })
 
   const [asset, shareToken] = await Promise.all([
     readContract(client, {
@@ -229,6 +239,8 @@ export declare namespace deployEarnGateway {
     adapter: Address
     /** Swapper for cross-asset flows. */
     defaultSwapper: Address
+    /** Adapts the T7/T8 four-argument Zone callback. @default false */
+    legacyCallback?: boolean | undefined
     /** Gateway owner. @default `client.account.address` */
     owner?: Address | undefined
     /** Portal administrator client. */

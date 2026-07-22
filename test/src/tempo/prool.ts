@@ -65,17 +65,20 @@ export async function createServer() {
     ? `ghcr.io/tempoxyz/tempo@${tag}`
     : `ghcr.io/tempoxyz/tempo:${tag ?? 'latest'}`
   const artifactsTag = import.meta.env.VITE_TEMPO_ZONE_XTASK_TAG
-  const instance =
-    zones && artifactsTag
-      ? createTempo({
-          ...args,
-          artifactsImage: artifactsTag.startsWith('sha256:')
-            ? `ghcr.io/tempoxyz/tempo-zone-xtask@${artifactsTag}`
-            : `ghcr.io/tempoxyz/tempo-zone-xtask:${artifactsTag}`,
-          image,
-          ownerKey: zoneAdminKey,
-        })
-      : TestContainers.Instance.tempo({ ...args, image })
+  const instance = zones
+    ? createTempo({
+        ...args,
+        ...(artifactsTag
+          ? {
+              artifactsImage: artifactsTag.startsWith('sha256:')
+                ? `ghcr.io/tempoxyz/tempo-zone-xtask@${artifactsTag}`
+                : `ghcr.io/tempoxyz/tempo-zone-xtask:${artifactsTag}`,
+            }
+          : {}),
+        image,
+        ownerKey: zoneAdminKey,
+      })
+    : TestContainers.Instance.tempo({ ...args, image })
 
   return Server.create({
     instance,

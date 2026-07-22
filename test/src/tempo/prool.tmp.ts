@@ -1,5 +1,5 @@
-// TODO: Remove after https://github.com/tempoxyz/tempo/pull/6916 and
-// https://github.com/tempoxyz/zones/pull/767 merge.
+// TODO: Remove when T9 launches after https://github.com/tempoxyz/tempo/pull/6916 and
+// https://github.com/tempoxyz/zones/pull/767 land.
 import { execFileSync } from 'node:child_process'
 import { AbiParameters, Address, Hash, Hex, Secp256k1 } from 'ox'
 import { Instance } from 'prool'
@@ -68,7 +68,7 @@ type ZoneArtifacts = {
 }
 
 type Parameters = {
-  artifactsImage: string
+  artifactsImage?: string | undefined
   blockTime: string
   image: string
   log?: Instance.tempo.Parameters['log'] | undefined
@@ -84,7 +84,7 @@ export function createTempo(parameters: Parameters) {
 }
 
 function buildZoneGenesis(options: {
-  artifactsImage: string
+  artifactsImage?: string | undefined
   image: string
   ownerKey: `0x${string}`
 }) {
@@ -106,6 +106,15 @@ function buildZoneGenesis(options: {
     { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 },
   )
   const genesis = JSON.parse(dumped) as Genesis
+  const artifactsImage = options.artifactsImage
+  if (!artifactsImage) {
+    genesis.alloc[historyStorage.address] = {
+      balance: '0x0',
+      code: historyStorage.code,
+      nonce: '0x1',
+    }
+    return `${JSON.stringify(genesis)}\n`
+  }
   const artifacts = JSON.parse(
     execFileSync(
       'docker',
@@ -116,7 +125,7 @@ function buildZoneGenesis(options: {
         'linux/amd64',
         '--entrypoint',
         '/usr/bin/jq',
-        options.artifactsImage,
+        artifactsImage,
         '-n',
         '--slurpfile',
         'portal',

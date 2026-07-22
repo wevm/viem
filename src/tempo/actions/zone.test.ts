@@ -60,6 +60,9 @@ const portalAdminClient = createClient({
   transport: http(),
 })
 const zoneClient = getZoneClient({ account })
+// TODO: Remove when T9 launches.
+const hardfork = import.meta.env.VITE_TEMPO_HARDFORK
+const legacyZoneCallback = hardfork === 'T7' || hardfork === 'T8'
 const parentToken = '0x20c0000000000000000000000000000000000000'
 const depositParameters = {
   amount: parseUnits('1', 6),
@@ -1093,6 +1096,7 @@ describe('earn', () => {
       const { gateway } = await deployEarnGateway(mainnetClient, {
         adapter: stack.adapter,
         defaultSwapper: account.address,
+        legacyCallback: legacyZoneCallback,
         owner: account.address,
         portalClient: portalAdminClient,
         zonePortal: portalAddress,
