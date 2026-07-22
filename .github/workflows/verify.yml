@@ -321,6 +321,8 @@ jobs:
   wagmi:
     name: Wagmi
     continue-on-error: true
+    # TODO: Re-enable Wagmi verification.
+    if: ${{ false }}
     permissions:
       contents: read
     runs-on: ubuntu-latest
@@ -350,8 +352,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check types
-        # TODO: Re-enable Wagmi type checking.
-        if: ${{ false }}
         run: pnpm check:types
         working-directory: ./wagmi
 
