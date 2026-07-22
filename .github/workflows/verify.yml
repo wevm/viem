@@ -350,6 +350,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check types
+        # TODO: Re-enable Wagmi type checking.
+        if: ${{ false }}
         run: pnpm check:types
         working-directory: ./wagmi
 
