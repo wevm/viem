@@ -45,8 +45,13 @@ export function fromBlobs<
   const data = createCursor(new Uint8Array(length))
   let active = true
 
-  for (const blob of blobs) {
+  for (const [index, blob] of blobs.entries()) {
     const cursor = createCursor(blob)
+    // The terminator byte (`0x80` followed by zero-padding) is only ever
+    // written to the last blob – every preceding blob is completely filled
+    // with data. Only look for the terminator in the last blob, otherwise a
+    // `0x80` data byte at the end of a full blob is misread as the terminator.
+    const isLastBlob = index === blobs.length - 1
     while (active && cursor.position < blob.length) {
       // First byte will be a zero 0x00 byte – we can skip.
       cursor.incrementPosition(1)
@@ -58,7 +63,9 @@ export function fromBlobs<
       for (const _ in Array.from({ length: consume })) {
         const byte = cursor.readByte()
         const isTerminator =
-          byte === 0x80 && !cursor.inspectBytes(cursor.remaining).includes(0x80)
+          isLastBlob &&
+          byte === 0x80 &&
+          !cursor.inspectBytes(cursor.remaining).includes(0x80)
         if (isTerminator) {
           active = false
           break

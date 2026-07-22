@@ -32,3 +32,20 @@ test('https://github.com/wevm/viem/issues/1986', () => {
   const blobs = toBlobs({ data })
   expect(fromBlobs({ blobs: blobs })).toEqual(data)
 })
+
+test('round-trip: full blob ending in a 0x80 data byte', () => {
+  // one blob's data capacity: `fieldElementsPerBlob * (bytesPerFieldElement - 1)`.
+  const size = 4096 * 31
+  const data = new Uint8Array(size).fill(1)
+  data[size - 1] = 0x80
+  const blobs = toBlobs({ data })
+  expect(fromBlobs({ blobs })).toEqual(data)
+})
+
+test('round-trip: full blob ending in a 0x80 data byte, then another blob', () => {
+  const size = 4096 * 31
+  const data = new Uint8Array(size + 100).fill(1)
+  data[size - 1] = 0x80
+  const blobs = toBlobs({ data })
+  expect(fromBlobs({ blobs })).toEqual(data)
+})
