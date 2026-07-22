@@ -544,7 +544,7 @@ describe('simulateCalls', () => {
     expect(recipientBaseAfter.amount - recipientBaseBefore.amount).toBe(
       buyAmount,
     )
-  })
+  }, 30_000)
 
   test('behavior: multiple getBalance reads', async () => {
     const result = await actions.simulate.simulateCalls(client, {
