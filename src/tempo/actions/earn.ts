@@ -453,10 +453,7 @@ export namespace deposit {
     const { recipient, vault } = args
     const shareAmountMin = (() => {
       if (args.shareAmountMin !== undefined) return args.shareAmountMin
-      return EarnShares.minimumOutput(
-        args.shareAmount,
-        BigInt(args.slippageBps),
-      )
+      return EarnShares.minimumOutput(args.shareAmount, args.slippageBps)
     })()
     return defineCall({
       address: vault,
@@ -596,7 +593,7 @@ export namespace deposit {
  *
  * const { shareAmount } = await Actions.earn.depositSync(client, {
  *   assetAmount: 100_000_000n,
- *   shareAmountMin: EarnShares.minimumOutput(99_900_000n, 50n),
+ *   shareAmountMin: EarnShares.minimumOutput(99_900_000n, 50),
  *   vault: '0x...',
  * })
  * ```
@@ -758,10 +755,7 @@ export namespace depositShares {
     const { recipient, vault, venueShareAmount } = args
     const earnShareAmountMin = (() => {
       if (args.earnShareAmountMin !== undefined) return args.earnShareAmountMin
-      return EarnShares.minimumOutput(
-        args.earnShareAmount,
-        BigInt(args.slippageBps),
-      )
+      return EarnShares.minimumOutput(args.earnShareAmount, args.slippageBps)
     })()
     return defineCall({
       address: vault,
@@ -2117,10 +2111,7 @@ export namespace redeem {
     const { recipient, vault } = args
     const assetAmountMin = (() => {
       if (args.assetAmountMin !== undefined) return args.assetAmountMin
-      return EarnShares.minimumOutput(
-        args.assetAmount,
-        BigInt(args.slippageBps),
-      )
+      return EarnShares.minimumOutput(args.assetAmount, args.slippageBps)
     })()
     return defineCall({
       address: vault,
@@ -2397,21 +2388,18 @@ export namespace privateRedeem {
       }),
       (async () => {
         if (parameters.assetAmountMin !== undefined)
-          return EarnShares.minimumOutput(parameters.assetAmountMin, 0n)
+          return EarnShares.minimumOutput(parameters.assetAmountMin, 0)
         if (parameters.assetAmount !== undefined)
           return EarnShares.minimumOutput(
             parameters.assetAmount,
-            BigInt(parameters.slippageBps),
+            parameters.slippageBps,
           )
         const assetAmount = await getRedeemQuote(client, {
           ...readParameters,
           shareAmount,
           vault: config.vaultAdapter,
         })
-        return EarnShares.minimumOutput(
-          assetAmount,
-          BigInt(parameters.slippageBps),
-        )
+        return EarnShares.minimumOutput(assetAmount, parameters.slippageBps)
       })(),
     ])
     const direct = isAddressEqual(assetToken, config.vaultAsset)
@@ -3043,10 +3031,10 @@ const zoneGatewayCallbackGas = 10_000_000n
 
 function resolveMinimumShareAmount(parameters: MinimumShareAmountParameters) {
   if (parameters.shareAmountMin !== undefined)
-    return EarnShares.minimumOutput(parameters.shareAmountMin, 0n)
+    return EarnShares.minimumOutput(parameters.shareAmountMin, 0)
   return EarnShares.minimumOutput(
     parameters.shareAmount,
-    BigInt(parameters.slippageBps),
+    parameters.slippageBps,
   )
 }
 
@@ -3273,15 +3261,19 @@ async function toWithdrawExactArgs(
 /** Raises a quoted input by basis points with ceiling rounding. @internal */
 function maximumInput(shareAmount: bigint, slippageBps: number): bigint {
   if (shareAmount <= 0n)
-    throw new EarnShares.InvalidExpectedOutputError({ expected: shareAmount })
-  const slippage = BigInt(slippageBps)
-  if (slippage < 0n || slippage >= EarnShares.basisPointScale)
-    throw new EarnShares.InvalidSlippageError({ slippageBps: slippage })
-  const numerator = shareAmount * (EarnShares.basisPointScale + slippage)
-  // Adding the denominator minus one converts floor division to ceiling.
-  return (
-    (numerator + EarnShares.basisPointScale - 1n) / EarnShares.basisPointScale
+    throw new EarnShares.InvalidExpectedOutputError({
+      expectedAmount: shareAmount,
+    })
+  if (
+    !Number.isInteger(slippageBps) ||
+    slippageBps < 0 ||
+    slippageBps >= EarnShares.basisPointScale
   )
+    throw new EarnShares.InvalidSlippageError({ slippageBps })
+  const scale = BigInt(EarnShares.basisPointScale)
+  const numerator = shareAmount * (scale + BigInt(slippageBps))
+  // Adding the denominator minus one converts floor division to ceiling.
+  return (numerator + scale - 1n) / scale
 }
 
 /**

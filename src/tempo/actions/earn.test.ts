@@ -184,7 +184,7 @@ describe('deposit', { timeout: 30_000 }, () => {
 
     const hash = await Actions.earn.deposit(client, {
       assetAmount: parseUnits('100', 6),
-      shareAmountMin: EarnShares.minimumOutput(parseUnits('100', 6), 50n),
+      shareAmountMin: EarnShares.minimumOutput(parseUnits('100', 6), 50),
       vault: stack.adapter,
     })
     const receipt = await waitForTransactionReceipt(client, { hash })
@@ -421,7 +421,7 @@ describe('depositSync', { timeout: 30_000 }, () => {
     const { caller, receipt, recipient, ...result } =
       await Actions.earn.depositSync(client, {
         assetAmount: parseUnits('100', 6),
-        shareAmountMin: EarnShares.minimumOutput(parseUnits('100', 6), 50n),
+        shareAmountMin: EarnShares.minimumOutput(parseUnits('100', 6), 50),
         vault: stack.adapter,
       })
 
@@ -462,7 +462,7 @@ describe('depositShares', { timeout: 30_000 }, () => {
     await acquireVenueShares(stack, parseUnits('500', 6))
 
     const hash = await Actions.earn.depositShares(client, {
-      earnShareAmountMin: EarnShares.minimumOutput(parseUnits('500', 6), 30n),
+      earnShareAmountMin: EarnShares.minimumOutput(parseUnits('500', 6), 30),
       vault: stack.adapter,
       venueShareAmount: parseUnits('500', 6),
       venueShareToken: stack.venue,
@@ -490,7 +490,7 @@ describe('depositShares', { timeout: 30_000 }, () => {
 
     const receipt = await sendTransactionSync(client, {
       calls: Actions.earn.depositShares.calls({
-        earnShareAmountMin: EarnShares.minimumOutput(parseUnits('500', 6), 30n),
+        earnShareAmountMin: EarnShares.minimumOutput(parseUnits('500', 6), 30),
         engine: stack.engine,
         recipient: account.address,
         vault: stack.adapter,
@@ -582,7 +582,7 @@ describe('depositSharesSync', { timeout: 30_000 }, () => {
 
     const { caller, receipt, recipient, ...result } =
       await Actions.earn.depositSharesSync(client, {
-        earnShareAmountMin: EarnShares.minimumOutput(parseUnits('500', 6), 30n),
+        earnShareAmountMin: EarnShares.minimumOutput(parseUnits('500', 6), 30),
         vault: stack.adapter,
         venueShareAmount: parseUnits('500', 6),
         venueShareToken: stack.venue,
@@ -795,20 +795,20 @@ describe('getVault', { timeout: 30_000 }, () => {
 
 describe('minimumOutput', () => {
   test('default', () => {
-    expect(EarnShares.minimumOutput(1_000_000n, 50n)).toBe(995_000n)
+    expect(EarnShares.minimumOutput(1_000_000n, 50)).toBe(995_000n)
   })
 
   test('behavior: zero slippage keeps the expected output', () => {
-    expect(EarnShares.minimumOutput(1_000_000n, 0n)).toBe(1_000_000n)
+    expect(EarnShares.minimumOutput(1_000_000n, 0)).toBe(1_000_000n)
   })
 
   test('behavior: floors the bound to 1n', () => {
-    expect(EarnShares.minimumOutput(10n, 9_999n)).toBe(1n)
+    expect(EarnShares.minimumOutput(10n, 9_999)).toBe(1n)
   })
 
   test('error: zero expected', () => {
     expect(() =>
-      EarnShares.minimumOutput(0n, 50n),
+      EarnShares.minimumOutput(0n, 50),
     ).toThrowErrorMatchingInlineSnapshot(
       `[EarnShares.InvalidExpectedOutputError: Expected output \`0\` must be greater than zero.]`,
     )
@@ -816,11 +816,11 @@ describe('minimumOutput', () => {
 
   test('error: invalid slippage', () => {
     expect(() =>
-      EarnShares.minimumOutput(1_000_000n, 10_000n),
+      EarnShares.minimumOutput(1_000_000n, 10_000),
     ).toThrowErrorMatchingInlineSnapshot(`
       [EarnShares.InvalidSlippageError: Slippage tolerance \`10000\` is invalid.
 
-      Slippage must be at least 0 and below 10000 basis points.]
+      Slippage must be a whole number from 0 through 9999 basis points.]
     `)
   })
 })
@@ -901,7 +901,7 @@ describe('redeem', { timeout: 30_000 }, () => {
     })
     // No manual approve: the plain action embeds the exact approval leg.
     const hash = await Actions.earn.redeem(client, {
-      assetAmountMin: EarnShares.minimumOutput(assetAmount, 50n),
+      assetAmountMin: EarnShares.minimumOutput(assetAmount, 50),
       shareAmount: parseUnits('100', 6),
       vault: stack.adapter,
     })
@@ -980,7 +980,7 @@ describe('redeem', { timeout: 30_000 }, () => {
       vault: stack.adapter,
     })
 
-    expect(request.args?.[2]).toBe(EarnShares.minimumOutput(assetAmount, 50n))
+    expect(request.args?.[2]).toBe(EarnShares.minimumOutput(assetAmount, 50))
   })
 
   test('behavior: slippageBps floors a live preview', async () => {
@@ -1027,7 +1027,7 @@ describe('redeem', { timeout: 30_000 }, () => {
       vault: stack.adapter,
     })
 
-    expect(request.args?.[2]).toBe(EarnShares.minimumOutput(quote, 50n))
+    expect(request.args?.[2]).toBe(EarnShares.minimumOutput(quote, 50))
   })
 
   test('error: slippageBps floor reverts when the rate moves between quote and execution', async () => {
@@ -1054,7 +1054,7 @@ describe('redeem', { timeout: 30_000 }, () => {
     await expect(
       simulateContract(client, {
         ...Actions.earn.redeem.call({
-          assetAmountMin: EarnShares.minimumOutput(quote, 50n),
+          assetAmountMin: EarnShares.minimumOutput(quote, 50),
           recipient: account.address,
           shareAmount: parseUnits('100', 6),
           vault: stack.adapter,
@@ -1111,7 +1111,7 @@ describe('redeemSync', { timeout: 30_000 }, () => {
 
     const { caller, receipt, recipient, ...result } =
       await Actions.earn.redeemSync(client, {
-        assetAmountMin: EarnShares.minimumOutput(parseUnits('40', 6), 50n),
+        assetAmountMin: EarnShares.minimumOutput(parseUnits('40', 6), 50),
         shareAmount: parseUnits('40', 6),
         vault: stack.adapter,
       })
@@ -1215,7 +1215,23 @@ describe('withdrawExact', { timeout: 30_000 }, () => {
     ).toThrowErrorMatchingInlineSnapshot(
       `[EarnShares.InvalidSlippageError: Slippage tolerance \`10000\` is invalid.
 
-Slippage must be at least 0 and below 10000 basis points.]`,
+Slippage must be a whole number from 0 through 9999 basis points.]`,
+    )
+  })
+
+  test('error: calls rejects fractional slippageBps', () => {
+    expect(() =>
+      Actions.earn.withdrawExact.call({
+        assetAmount: 40n,
+        recipient: `0x${'cc'.repeat(20)}`,
+        shareAmount: 100n,
+        slippageBps: 0.5,
+        vault: `0x${'aa'.repeat(20)}`,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[EarnShares.InvalidSlippageError: Slippage tolerance \`0.5\` is invalid.
+
+Slippage must be a whole number from 0 through 9999 basis points.]`,
     )
   })
 

@@ -178,7 +178,7 @@ test('decorated earn reads preserve shapes', async () => {
 
 test('minimumOutput lives on EarnShares, not the earn family', () => {
   expectTypeOf(EarnShares.minimumOutput).toEqualTypeOf<
-    (expected: bigint, slippageBps: bigint) => bigint
+    (expectedAmount: bigint, slippageBps: number) => bigint
   >()
   expectTypeOf(earnActions).not.toHaveProperty('minimumOutput')
   expectTypeOf(decoratedClient.earn).not.toHaveProperty('minimumOutput')

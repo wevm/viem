@@ -20,7 +20,6 @@ catalogs:
       version: 19.2.6
 
 overrides:
-  ox: https://pkg.pr.new/ox@310
   typescript: ^5.9.3
   '@opentelemetry/api@^1.8.0': ~1.7.0
   permissionless>viem: workspace:*
@@ -157,11 +156,11 @@ importers:
         specifier: ^0.14.0
         version: 0.14.0
       ox:
-        specifier: https://pkg.pr.new/ox@310
-        version: https://pkg.pr.new/ox@310(typescript@5.9.3)(zod@4.4.3)
+        specifier: 0.14.32
+        version: 0.14.32(typescript@5.9.3)(zod@4.4.3)
       permissionless:
         specifier: ^0.2.57
-        version: 0.2.57(ox@https://pkg.pr.new/ox@310(typescript@5.9.3)(zod@4.4.3))
+        version: 0.2.57(ox@0.14.32(typescript@5.9.3)(zod@4.4.3))
       prool:
         specifier: ~0.2.8
         version: 0.2.8(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0)
@@ -683,8 +682,8 @@ importers:
         specifier: 1.0.7
         version: 1.0.7(ws@8.21.0)
       ox:
-        specifier: https://pkg.pr.new/ox@310
-        version: https://pkg.pr.new/ox@310(typescript@5.9.3)(zod@4.4.3)
+        specifier: 0.14.32
+        version: 0.14.32(typescript@5.9.3)(zod@4.4.3)
       ws:
         specifier: 8.21.0
         version: 8.21.0
@@ -5559,9 +5558,24 @@ packages:
   outvariant@1.4.0:
     resolution: {integrity: sha512-AlWY719RF02ujitly7Kk/0QlV+pXGFDHrHf9O2OKqyqgBieaPOIeuSkL8sRK6j2WK+/ZAURq2kZsY0d8JapUiw==}
 
-  ox@https://pkg.pr.new/ox@310:
-    resolution: {integrity: sha512-Z7RD3QuXcd0KmHKArvTJGo5NkVXIYdNazK+LRuUXsvR8g2eqV5Sz60K4CqzjKyPiTzhQdEDHKP6rLJXg+KuJOQ==, tarball: https://pkg.pr.new/ox@310}
-    version: 0.14.32-5317daa.0
+  ox@0.14.15:
+    resolution: {integrity: sha512-3TubCmbKen/cuZQzX0qDbOS5lojjdSZ90lqKxWIDWd5siuJ0IJBaTXMYs8eMPLcraqnOwGZazz3apHPGiRCkGQ==}
+    peerDependencies:
+      typescript: ^5.9.3
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  ox@0.14.30:
+    resolution: {integrity: sha512-LI11uu+8iiM1B3CLckgd++YF1a0A2k5wDoM9ZeQMiL21BOzQs6L//BLS6hb1HSEKCyycdDIQLsVQx9MjpcC0hA==}
+    peerDependencies:
+      typescript: ^5.9.3
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  ox@0.14.32:
+    resolution: {integrity: sha512-EPB214GvtsP2TtAYZXkNdizLzGp6PXtfaHcRrD4pcBk/D0Y7ZCNv71QgwrjeCsZ+82moVeMlZZG+NDEIUfxMpw==}
     peerDependencies:
       typescript: ^5.9.3
     peerDependenciesMeta:
@@ -5685,7 +5699,6 @@ packages:
 
   permissionless@0.2.57:
     resolution: {integrity: sha512-QrzAoQGYPV/NJ2x5Sj18h7qed6f+kCyQAojrncN091UPiGqHjFNjgdsgreiv8pxlQgF4UcpuJUvsHLpOEBd6cQ==}
-    version: 0.2.57
     peerDependencies:
       ox: ^0.8.0
       viem: workspace:*
@@ -10262,7 +10275,7 @@ snapshots:
       idb-keyval: 6.2.2
       mipd: 0.0.7(typescript@5.9.3)
       mppx: 0.6.5(@modelcontextprotocol/sdk@1.26.0(@cfworker/json-schema@4.1.1))(express@5.2.1)(hono@4.12.27)(typescript@5.9.3)(viem@src)
-      ox: https://pkg.pr.new/ox@310(typescript@5.9.3)(zod@4.3.6)
+      ox: 0.14.32(typescript@5.9.3)(zod@4.3.6)
       webauthx: 0.1.2(typescript@5.9.3)(zod@4.3.6)
       zod: 4.3.6
       zustand: 5.0.13(@types/react@19.0.8)(react@19.2.6)(use-sync-external-store@1.6.0(react@19.2.6))
@@ -12667,7 +12680,7 @@ snapshots:
   mppx@0.6.5(@modelcontextprotocol/sdk@1.26.0(@cfworker/json-schema@4.1.1))(express@5.2.1)(hono@4.12.27)(typescript@5.9.3)(viem@src):
     dependencies:
       incur: 0.3.25
-      ox: https://pkg.pr.new/ox@310(typescript@5.9.3)(zod@4.3.6)
+      ox: 0.14.15(typescript@5.9.3)(zod@4.3.6)
       viem: link:src
       zod: 4.3.6
     optionalDependencies:
@@ -12869,22 +12882,7 @@ snapshots:
 
   outvariant@1.4.0: {}
 
-  ox@https://pkg.pr.new/ox@310(typescript@5.9.3)(zod@3.25.76):
-    dependencies:
-      '@adraffy/ens-normalize': 1.11.1
-      '@noble/ciphers': 1.3.0
-      '@noble/curves': 1.9.1
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76)
-      eventemitter3: 5.0.1
-    optionalDependencies:
-      typescript: 5.9.3
-    transitivePeerDependencies:
-      - zod
-
-  ox@https://pkg.pr.new/ox@310(typescript@5.9.3)(zod@4.3.6):
+  ox@0.14.15(typescript@5.9.3)(zod@4.3.6):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
@@ -12899,7 +12897,52 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@https://pkg.pr.new/ox@310(typescript@5.9.3)(zod@4.4.3):
+  ox@0.14.30(typescript@5.9.3)(zod@3.25.76):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.1
+      '@noble/ciphers': 1.3.0
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76)
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - zod
+
+  ox@0.14.30(typescript@5.9.3)(zod@4.4.3):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.1
+      '@noble/ciphers': 1.3.0
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.2.3(typescript@5.9.3)(zod@4.4.3)
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - zod
+
+  ox@0.14.32(typescript@5.9.3)(zod@4.3.6):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.1
+      '@noble/ciphers': 1.3.0
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.2.3(typescript@5.9.3)(zod@4.3.6)
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - zod
+
+  ox@0.14.32(typescript@5.9.3)(zod@4.4.3):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
@@ -13049,9 +13092,9 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.57(ox@https://pkg.pr.new/ox@310(typescript@5.9.3)(zod@4.4.3)):
+  permissionless@0.2.57(ox@0.14.32(typescript@5.9.3)(zod@4.4.3)):
     optionalDependencies:
-      ox: https://pkg.pr.new/ox@310(typescript@5.9.3)(zod@4.4.3)
+      ox: 0.14.32(typescript@5.9.3)(zod@4.4.3)
 
   picocolors@1.1.1: {}
 
@@ -14482,7 +14525,7 @@ snapshots:
       '@scure/bip39': 1.6.0
       abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76)
       isows: 1.0.7(ws@8.21.0)
-      ox: https://pkg.pr.new/ox@310(typescript@5.9.3)(zod@3.25.76)
+      ox: 0.14.30(typescript@5.9.3)(zod@3.25.76)
       ws: 8.21.0
     optionalDependencies:
       typescript: 5.9.3
@@ -14499,7 +14542,7 @@ snapshots:
       '@scure/bip39': 1.6.0
       abitype: 1.2.3(typescript@5.9.3)(zod@4.4.3)
       isows: 1.0.7(ws@8.21.0)
-      ox: https://pkg.pr.new/ox@310(typescript@5.9.3)(zod@4.4.3)
+      ox: 0.14.30(typescript@5.9.3)(zod@4.4.3)
       ws: 8.21.0
     optionalDependencies:
       typescript: 5.9.3
@@ -14794,7 +14837,7 @@ snapshots:
 
   webauthx@0.1.2(typescript@5.9.3)(zod@4.3.6):
     dependencies:
-      ox: https://pkg.pr.new/ox@310(typescript@5.9.3)(zod@4.3.6)
+      ox: 0.14.32(typescript@5.9.3)(zod@4.3.6)
     transitivePeerDependencies:
       - typescript
       - zod
