@@ -29,6 +29,7 @@ import {
   portalAddress,
   zoneId,
 } from '~test/tempo/zones.js'
+import { createHttpServer } from '~test/utils.js'
 import * as Storage from '../Storage.js'
 import * as ZoneAbis from '../zones/Abis.js'
 import { getPortalAddress } from '../zones/zone.js'
@@ -259,6 +260,52 @@ describe('getZoneInfo', () => {
     expect(isAddressEqual(info.sequencers[0]!, portalAdmin.address)).toBe(true)
     expect(info.tempoBlockNumber).toBeGreaterThanOrEqual(0n)
     expect(info.zoneTokens).toBeDefined()
+  })
+
+  test('behavior: normalizes the pre-T9 sequencer response', async () => {
+    const server = await createHttpServer(async (req, res) => {
+      let body = ''
+      req.setEncoding('utf8')
+      for await (const chunk of req) body += chunk
+      const request = JSON.parse(body)
+
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          id: request.id,
+          jsonrpc: '2.0',
+          result: {
+            chainId: '0x1922a1a1',
+            sequencer: account.address,
+            tempoBlockNumber: '0x1',
+            zoneId: '0x1',
+            zoneTokens: [parentToken],
+          },
+        }),
+      )
+    })
+
+    try {
+      const client = createClient({ transport: http(server.url) })
+
+      const info = await zoneActions.getZoneInfo(client)
+
+      expect(info).toMatchInlineSnapshot(`
+        {
+          "chainId": 421700001,
+          "sequencers": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          ],
+          "tempoBlockNumber": 1n,
+          "zoneId": 1,
+          "zoneTokens": [
+            "0x20c0000000000000000000000000000000000000",
+          ],
+        }
+      `)
+    } finally {
+      await server.close()
+    }
   })
 })
 
