@@ -37,7 +37,7 @@ import {
   zoneId,
 } from '~test/tempo/zones.js'
 import { createHttpServer } from '~test/utils.js'
-import { getWithdrawalSenderTag } from '../internal/getWithdrawalSenderTag.js'
+import * as WithdrawalSenderTag from '../internal/WithdrawalSenderTag.js'
 import * as Storage from '../Storage.js'
 import * as ZoneAbis from '../zones/Abis.js'
 import { getPortalAddress } from '../zones/zone.js'
@@ -765,7 +765,7 @@ describe('depositSync', () => {
 describe('requestWithdrawal', () => {
   test('behavior: derives a deterministic Solidity-compatible sender tag', () => {
     expect(
-      getWithdrawalSenderTag({
+      WithdrawalSenderTag.from({
         sender: '0x0000000000000000000000000000000000000001',
         transactionHash:
           '0x1111111111111111111111111111111111111111111111111111111111111111',

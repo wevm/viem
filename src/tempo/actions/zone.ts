@@ -40,7 +40,6 @@ import {
   WaitForTempoBlockTimeoutError,
   type WaitForTempoBlockTimeoutErrorType,
 } from '../errors.js'
-import { getWithdrawalSenderTag } from '../internal/getWithdrawalSenderTag.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -52,6 +51,7 @@ import {
   pickWriteParameters,
   pickWriteSyncParameters,
 } from '../internal/utils.js'
+import * as WithdrawalSenderTag from '../internal/WithdrawalSenderTag.js'
 import * as Storage from '../Storage.js'
 import type { TransactionReceipt } from '../Transaction.js'
 import * as ZoneAbis from '../zones/Abis.js'
@@ -1547,7 +1547,7 @@ export async function requestWithdrawalSync<
     gas: parameters.gas ?? defaultWithdrawalGas,
     throwOnReceiptRevert,
   } as never)
-  const senderTag = getWithdrawalSenderTag({
+  const senderTag = WithdrawalSenderTag.from({
     sender: account_.address,
     transactionHash: receipt.transactionHash,
   })
