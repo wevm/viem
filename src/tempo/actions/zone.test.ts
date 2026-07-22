@@ -7,6 +7,7 @@ import {
   decodeFunctionData,
   encodeFunctionData,
   type Hash,
+  isAddressEqual,
   parseEventLogs,
   zeroHash,
 } from 'viem'
@@ -22,13 +23,14 @@ import { parseUnits } from 'viem/utils'
 import { describe, expect, test } from 'vitest'
 import { accounts } from '~test/constants.js'
 import { chain, http, nodeEnv } from '~test/tempo/config.js'
-import { defineZone } from '~test/tempo/prool.js'
+import { defineZone, zoneAdminKey } from '~test/tempo/prool.js'
 import {
   factoryAddress,
   getClient as getZoneClient,
   portalAddress,
   zoneId,
 } from '~test/tempo/zones.js'
+import { createHttpServer } from '~test/utils.js'
 import * as Storage from '../Storage.js'
 import * as ZoneAbis from '../zones/Abis.js'
 import { getPortalAddress } from '../zones/zone.js'
@@ -36,8 +38,15 @@ import * as tokenActions from './token.js'
 import * as zoneActions from './zone.js'
 
 const account = privateKeyToAccount(accounts[0].privateKey)
+const portalAdmin = privateKeyToAccount(zoneAdminKey)
 const mainnetClient = createClient({
   account,
+  chain,
+  pollingInterval: 100,
+  transport: http(),
+})
+const portalAdminClient = createClient({
+  account: portalAdmin,
   chain,
   pollingInterval: 100,
   transport: http(),
@@ -104,35 +113,60 @@ async function ensureZoneBalance(zoneToken: Address, minimumBalance: bigint) {
 async function createUnconfiguredZone() {
   if (!factoryAddress) throw new Error('ZoneFactory is unavailable.')
 
-  const verifier = await readContract(mainnetClient, {
-    address: factoryAddress,
-    abi: ZoneAbis.zoneFactory,
-    functionName: 'verifier',
-  })
-  const genesisTempoBlockNumber = BigInt(
-    await mainnetClient.request({ method: 'eth_blockNumber' }),
-  )
-  const hash = await writeContract(mainnetClient, {
-    account,
-    address: factoryAddress,
-    abi: ZoneAbis.zoneFactory,
-    functionName: 'createZone',
-    args: [
-      {
-        initialToken: parentToken,
-        admin: account.address,
-        sequencer: account.address,
-        verifier,
-        zoneParams: {
-          genesisBlockHash: zeroHash,
-          genesisTempoBlockHash: zeroHash,
-          genesisTempoBlockNumber,
-        },
-        rpcUrl: 'http://127.0.0.1:0',
-      },
-    ],
-    gas: 20_000_000n,
-  })
+  const info = await zoneClient.request<{
+    Method: 'zone_getZoneInfo'
+    Parameters: []
+    ReturnType: zoneActions.getZoneInfo.RpcReturnType
+  }>({ method: 'zone_getZoneInfo', params: [] })
+  const hash =
+    'sequencers' in info
+      ? await writeContract(portalAdminClient, {
+          account: portalAdmin,
+          address: factoryAddress,
+          abi: ZoneAbis.zoneFactory,
+          functionName: 'createZone',
+          args: [
+            {
+              initialToken: parentToken,
+              admin: account.address,
+              sequencers: [account.address],
+              threshold: 1,
+              rpcUrl: 'http://127.0.0.1:0',
+            },
+          ],
+          gas: 20_000_000n,
+        })
+      : await (async () => {
+          const verifier = await readContract(mainnetClient, {
+            address: factoryAddress,
+            abi: ZoneAbis.zoneFactory,
+            functionName: 'verifier',
+          })
+          const genesisTempoBlockNumber = BigInt(
+            await mainnetClient.request({ method: 'eth_blockNumber' }),
+          )
+          return writeContract(mainnetClient, {
+            account,
+            address: factoryAddress,
+            abi: ZoneAbis.zoneFactory,
+            functionName: 'createZone',
+            args: [
+              {
+                initialToken: parentToken,
+                admin: account.address,
+                sequencer: account.address,
+                verifier,
+                zoneParams: {
+                  genesisBlockHash: zeroHash,
+                  genesisTempoBlockHash: zeroHash,
+                  genesisTempoBlockNumber,
+                },
+                rpcUrl: 'http://127.0.0.1:0',
+              },
+            ],
+            gas: 20_000_000n,
+          })
+        })()
   const receipt = await waitForTransactionReceipt(mainnetClient, { hash })
   const [event] = parseEventLogs({
     abi: ZoneAbis.zoneFactory,
@@ -161,10 +195,7 @@ describe('zone instance', () => {
     async () => {
       if (!factoryAddress) throw new Error('ZoneFactory is unavailable.')
 
-      const secondary = defineZone({
-        factoryAddress,
-        key: accounts[2].privateKey,
-      })
+      const secondary = defineZone({ factoryAddress })
 
       try {
         const [zone_, sameZone] = await Promise.all([
@@ -264,9 +295,59 @@ describe('getZoneInfo', () => {
 
     expect(info.zoneId).toBe(zoneId)
     expect(info.chainId).toBe(zoneClient.chain.id)
-    expect(info.sequencer).toBeDefined()
+    expect(info.sequencers).toHaveLength(1)
+    expect(isAddressEqual(info.sequencers[0]!, portalAdmin.address)).toBe(true)
     expect(info.tempoBlockNumber).toBeGreaterThanOrEqual(0n)
     expect(info.zoneTokens).toBeDefined()
+  })
+
+  test('behavior: normalizes a response without a block number', async () => {
+    const server = await createHttpServer(async (req, res) => {
+      let body = ''
+      req.setEncoding('utf8')
+      for await (const chunk of req) body += chunk
+      const request = JSON.parse(body)
+      const result =
+        request.method === 'zone_getZoneInfo'
+          ? {
+              chainId: '0x1922a1a1',
+              sequencer: account.address,
+              zoneId: '0x1',
+              zoneTokens: [parentToken],
+            }
+          : { zoneProcessedThrough: '0x1' }
+
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          id: request.id,
+          jsonrpc: '2.0',
+          result,
+        }),
+      )
+    })
+
+    try {
+      const client = createClient({ transport: http(server.url) })
+
+      const info = await zoneActions.getZoneInfo(client)
+
+      expect(info).toMatchInlineSnapshot(`
+        {
+          "chainId": 421700001,
+          "sequencers": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          ],
+          "tempoBlockNumber": 1n,
+          "zoneId": 1,
+          "zoneTokens": [
+            "0x20c0000000000000000000000000000000000000",
+          ],
+        }
+      `)
+    } finally {
+      await server.close()
+    }
   })
 })
 
@@ -722,7 +803,7 @@ describe('requestWithdrawal', () => {
     })
     expect(prepared.request.calls).toHaveLength(2)
     expect(prepared.request.type).toBe('tempo')
-    expect(prepared.request.gas).toBeGreaterThan(0n)
+    expect(prepared.request.gas).toBe(10_000_000n)
     const denominator = 1_000_000_000_000n
     expect(prepared.maxFee).toBe(
       (prepared.request.gas * prepared.request.maxFeePerGas +

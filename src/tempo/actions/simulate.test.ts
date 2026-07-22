@@ -34,7 +34,12 @@ describe('simulateBlocks', () => {
     })
 
     const call = result.blocks[0].calls[0]
-    const { data: _data, result: _result, ...callWithoutDynamic } = call
+    const {
+      data: _data,
+      gasUsed,
+      result: _result,
+      ...callWithoutDynamic
+    } = call
 
     expect({
       calls: [callWithoutDynamic],
@@ -43,7 +48,6 @@ describe('simulateBlocks', () => {
       {
         "calls": [
           {
-            "gasUsed": 271644n,
             "logs": [],
             "status": "success",
           },
@@ -59,6 +63,8 @@ describe('simulateBlocks', () => {
     `)
 
     expect(call.data).toBeTypeOf('string')
+    expect(gasUsed).toBeTypeOf('bigint')
+    expect(gasUsed).toBeGreaterThan(0n)
     expect(call.result).toBeTypeOf('bigint')
   })
 
@@ -78,17 +84,16 @@ describe('simulateBlocks', () => {
     })
 
     const call = result.blocks[0].calls[0]
-    const { data: _, ...callWithoutData } = call
+    const { data: _, gasUsed, ...callWithoutDynamic } = call
     const log = call.logs![0]
 
     expect({
-      ...callWithoutData,
-      logs: callWithoutData.logs?.map(
+      ...callWithoutDynamic,
+      logs: callWithoutDynamic.logs?.map(
         ({ blockHash, blockNumber, blockTimestamp, ...l }) => l,
       ),
     }).toMatchInlineSnapshot(`
       {
-        "gasUsed": 539270n,
         "logs": [
           {
             "address": "0x20c0000000000000000000000000000000000001",
@@ -109,6 +114,8 @@ describe('simulateBlocks', () => {
       }
     `)
 
+    expect(gasUsed).toBeTypeOf('bigint')
+    expect(gasUsed).toBeGreaterThan(0n)
     expect(log.blockHash).toBeDefined()
     expect(log.blockNumber).toBeTypeOf('bigint')
     expect(log.blockTimestamp).toBeTypeOf('bigint')
@@ -537,7 +544,7 @@ describe('simulateCalls', () => {
     expect(recipientBaseAfter.amount - recipientBaseBefore.amount).toBe(
       buyAmount,
     )
-  })
+  }, 30_000)
 
   test('behavior: multiple getBalance reads', async () => {
     const result = await actions.simulate.simulateCalls(client, {

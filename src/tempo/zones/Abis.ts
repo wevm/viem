@@ -5,6 +5,19 @@ export const zoneFactory = [
     inputs: [
       { name: 'zoneId', type: 'uint32', indexed: true },
       { name: 'portal', type: 'address', indexed: true },
+      { name: 'initialToken', type: 'address', indexed: false },
+      { name: 'admin', type: 'address', indexed: false },
+      { name: 'sequencers', type: 'address[]', indexed: false },
+      { name: 'threshold', type: 'uint8', indexed: false },
+      { name: 'verifier', type: 'address', indexed: false },
+    ],
+  },
+  {
+    type: 'event',
+    name: 'ZoneCreated',
+    inputs: [
+      { name: 'zoneId', type: 'uint32', indexed: true },
+      { name: 'portal', type: 'address', indexed: true },
       { name: 'messenger', type: 'address', indexed: true },
       { name: 'initialToken', type: 'address', indexed: false },
       { name: 'admin', type: 'address', indexed: false },
@@ -17,6 +30,28 @@ export const zoneFactory = [
         type: 'uint64',
         indexed: false,
       },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'createZone',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'params',
+        type: 'tuple',
+        components: [
+          { name: 'initialToken', type: 'address' },
+          { name: 'admin', type: 'address' },
+          { name: 'sequencers', type: 'address[]' },
+          { name: 'threshold', type: 'uint8' },
+          { name: 'rpcUrl', type: 'string' },
+        ],
+      },
+    ],
+    outputs: [
+      { name: 'zoneId', type: 'uint32' },
+      { name: 'portal', type: 'address' },
     ],
   },
   {
