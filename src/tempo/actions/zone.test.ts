@@ -714,7 +714,7 @@ describe('requestWithdrawal', () => {
     })
     expect(prepared.request.calls).toHaveLength(2)
     expect(prepared.request.type).toBe('tempo')
-    expect(prepared.request.gas).toBeGreaterThan(0n)
+    expect(prepared.request.gas).toBe(10_000_000n)
     const denominator = 1_000_000_000_000n
     expect(prepared.maxFee).toBe(
       (prepared.request.gas * prepared.request.maxFeePerGas +
