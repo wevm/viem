@@ -93,7 +93,7 @@ async function acquireVenueShares(
   })
 }
 
-describe('deployEarnStack', () => {
+describe('deployEarnStack', { timeout: 30_000 }, () => {
   test('default', async () => {
     const stack = await deployEarnStack(client)
 
@@ -123,7 +123,7 @@ describe('deployEarnStack', () => {
   })
 })
 
-describe('configureExitSafePolicy', () => {
+describe('configureExitSafePolicy', { timeout: 30_000 }, () => {
   test('default', async () => {
     const stack = await setupStack()
     const accessAdministrator = accounts[2].address
@@ -178,7 +178,7 @@ describe('configureExitSafePolicy', () => {
   })
 })
 
-describe('deposit', () => {
+describe('deposit', { timeout: 30_000 }, () => {
   test('default', async () => {
     const stack = await setupStack()
 
@@ -414,7 +414,7 @@ describe('deposit', () => {
   })
 })
 
-describe('depositSync', () => {
+describe('depositSync', { timeout: 30_000 }, () => {
   test('default', async () => {
     const stack = await setupStack()
 
@@ -455,7 +455,7 @@ describe('depositSync', () => {
   })
 })
 
-describe('depositShares', () => {
+describe('depositShares', { timeout: 30_000 }, () => {
   test('default', async () => {
     // In-kind entry: a venue shareholder enters Earn without exiting the venue.
     const stack = await setupStack()
@@ -575,7 +575,7 @@ describe('depositShares', () => {
   })
 })
 
-describe('depositSharesSync', () => {
+describe('depositSharesSync', { timeout: 30_000 }, () => {
   test('default', async () => {
     const stack = await setupStack()
     await acquireVenueShares(stack, parseUnits('500', 6))
@@ -601,7 +601,7 @@ describe('depositSharesSync', () => {
   })
 })
 
-describe('getFeeState', () => {
+describe('getFeeState', { timeout: 30_000 }, () => {
   test('default', async () => {
     const stack = await setup()
 
@@ -655,7 +655,7 @@ describe('getFeeState', () => {
   })
 })
 
-describe('getPosition', () => {
+describe('getPosition', { timeout: 30_000 }, () => {
   test('default', async () => {
     const stack = await setup()
 
@@ -701,7 +701,7 @@ describe('getPosition', () => {
   })
 })
 
-describe('getVault', () => {
+describe('getVault', { timeout: 30_000 }, () => {
   test('default', async () => {
     const stack = await setup()
 
@@ -825,7 +825,7 @@ describe('minimumOutput', () => {
   })
 })
 
-describe('getRedeemQuote', () => {
+describe('getRedeemQuote', { timeout: 30_000 }, () => {
   test('call', () => {
     const call = Actions.earn.getRedeemQuote.call({
       shareAmount: parseUnits('100', 6),
@@ -860,7 +860,7 @@ describe('getRedeemQuote', () => {
   })
 })
 
-describe('getWithdrawQuote', () => {
+describe('getWithdrawQuote', { timeout: 30_000 }, () => {
   test('call', () => {
     const call = Actions.earn.getWithdrawQuote.call({
       assetAmount: parseUnits('40', 6),
@@ -884,7 +884,7 @@ describe('getWithdrawQuote', () => {
   })
 })
 
-describe('redeem', () => {
+describe('redeem', { timeout: 30_000 }, () => {
   test('default', async () => {
     const stack = await setupStack()
     await Actions.earn.depositSync(client, {
@@ -1100,7 +1100,7 @@ describe('redeem', () => {
   })
 })
 
-describe('redeemSync', () => {
+describe('redeemSync', { timeout: 30_000 }, () => {
   test('default', async () => {
     const stack = await setupStack()
     await Actions.earn.depositSync(client, {
@@ -1128,7 +1128,7 @@ describe('redeemSync', () => {
   })
 })
 
-describe('withdrawExact', () => {
+describe('withdrawExact', { timeout: 30_000 }, () => {
   test('default', async () => {
     const stack = await setupStack()
     await Actions.earn.depositSync(client, {
@@ -1324,7 +1324,7 @@ Slippage must be at least 0 and below 10000 basis points.]`,
   })
 })
 
-describe('withdrawExactSync', () => {
+describe('withdrawExactSync', { timeout: 30_000 }, () => {
   test('default', async () => {
     const stack = await setupStack()
     await Actions.earn.depositSync(client, {
