@@ -1168,6 +1168,37 @@ describe('deposit.calls', () => {
             {
               "inputs": [
                 {
+                  "indexed": true,
+                  "name": "to",
+                  "type": "address",
+                },
+                {
+                  "indexed": true,
+                  "name": "senderTag",
+                  "type": "bytes32",
+                },
+                {
+                  "indexed": false,
+                  "name": "token",
+                  "type": "address",
+                },
+                {
+                  "indexed": false,
+                  "name": "amount",
+                  "type": "uint128",
+                },
+                {
+                  "indexed": false,
+                  "name": "callbackSuccess",
+                  "type": "bool",
+                },
+              ],
+              "name": "WithdrawalProcessed",
+              "type": "event",
+            },
+            {
+              "inputs": [
+                {
                   "name": "_token",
                   "type": "address",
                 },
