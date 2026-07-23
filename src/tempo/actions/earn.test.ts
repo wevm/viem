@@ -325,7 +325,7 @@ describe('deposit', { timeout: 30_000 }, () => {
         earnAmountMin: 0n,
         vault: stack.adapter,
       }),
-    ).rejects.toThrow('ZeroMinimumShares')
+    ).rejects.toThrow('ZeroMinimumEarnAmount')
   })
 
   test('behavior: slippageBps floors a caller-supplied quote', async () => {
@@ -356,7 +356,7 @@ describe('deposit', { timeout: 30_000 }, () => {
         earnAmountMin: parseUnits('100', 6) + 1n,
         vault: stack.adapter,
       }),
-    ).rejects.toThrow('MinimumSharesNotMet')
+    ).rejects.toThrow('MinimumEarnAmountNotMet')
   })
 
   test('error: slippageBps bound reverts when donated yield moves the rate', async () => {
@@ -381,7 +381,7 @@ describe('deposit', { timeout: 30_000 }, () => {
         slippageBps: 50,
         vault: stack.adapter,
       }),
-    ).rejects.toThrow('MinimumSharesNotMet')
+    ).rejects.toThrow('MinimumEarnAmountNotMet')
     // The atomic plain action hits the same revert at gas estimation.
     await expect(
       Actions.earn.deposit(client, {
@@ -577,7 +577,7 @@ describe('depositVenueShares', { timeout: 30_000 }, () => {
         venueShares: 100n,
         venueShareToken: stack.venue,
       }),
-    ).rejects.toThrow('ZeroMinimumShares')
+    ).rejects.toThrow('ZeroMinimumEarnAmount')
   })
 })
 
@@ -1316,7 +1316,7 @@ Slippage must be a whole number from 0 through 9999 basis points.]`,
         earnAmountMax: earnAmount - 1n,
         vault: stack.adapter,
       }),
-    ).rejects.toThrow('ExceedsMaxShares')
+    ).rejects.toThrow('ExceedsMaxEarnAmount')
   })
 
   test('error: residual backing', async () => {

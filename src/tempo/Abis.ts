@@ -2990,7 +2990,7 @@ export const abis = [
   ...validatorConfigV2,
 ] as const
 
-// Earn source: tempoxyz/earn at 90410c3b629ef721bf2c14a08350cc76c54e44b6. Do not modify manually.
+// Earn source: tempoxyz/earn at 1a53d368f8806b71cfa7fbe25b4709deca29149d. Do not modify manually.
 
 export const earnFactory = [
   {
@@ -3340,9 +3340,9 @@ export const erc4626Engine = [
     type: 'event',
     name: 'Deposited',
     inputs: [
-      { name: 'receiver', type: 'address', indexed: true },
+      { name: 'adapter', type: 'address', indexed: true },
       { name: 'assets', type: 'uint256', indexed: false },
-      { name: 'shares', type: 'uint256', indexed: false },
+      { name: 'engineShares', type: 'uint256', indexed: false },
     ],
     anonymous: false,
   },
@@ -3369,7 +3369,7 @@ export const erc4626Engine = [
     name: 'Redeemed',
     inputs: [
       { name: 'receiver', type: 'address', indexed: true },
-      { name: 'shares', type: 'uint256', indexed: false },
+      { name: 'engineShares', type: 'uint256', indexed: false },
       { name: 'assets', type: 'uint256', indexed: false },
     ],
     anonymous: false,
@@ -3379,8 +3379,8 @@ export const erc4626Engine = [
     name: 'VenueSharesDeposited',
     inputs: [
       { name: 'from', type: 'address', indexed: true },
-      { name: 'requestedShares', type: 'uint256', indexed: false },
-      { name: 'receivedShares', type: 'uint256', indexed: false },
+      { name: 'requestedVenueShares', type: 'uint256', indexed: false },
+      { name: 'receivedEngineShares', type: 'uint256', indexed: false },
     ],
     anonymous: false,
   },
@@ -3390,7 +3390,7 @@ export const erc4626Engine = [
     inputs: [
       { name: 'receiver', type: 'address', indexed: true },
       { name: 'assets', type: 'uint256', indexed: false },
-      { name: 'sharesBurned', type: 'uint256', indexed: false },
+      { name: 'engineSharesBurned', type: 'uint256', indexed: false },
     ],
     anonymous: false,
   },
@@ -3401,12 +3401,12 @@ export const erc4626Engine = [
     type: 'error',
     name: 'InsufficientAssetsReceived',
     inputs: [
-      { name: 'minimum', type: 'uint256' },
-      { name: 'actual', type: 'uint256' },
+      { name: 'minimumAssets', type: 'uint256' },
+      { name: 'actualAssets', type: 'uint256' },
     ],
   },
-  { type: 'error', name: 'InvalidShareDecimals', inputs: [] },
-  { type: 'error', name: 'NoSharesReceived', inputs: [] },
+  { type: 'error', name: 'InvalidVenueShareDecimals', inputs: [] },
+  { type: 'error', name: 'NoVenueSharesReceived', inputs: [] },
   {
     type: 'error',
     name: 'NotAdapter',
@@ -3441,14 +3441,14 @@ export const vaultAdapter = [
   },
   {
     type: 'function',
-    name: 'anchorEngineShares',
+    name: 'anchorEarnSupply',
     inputs: [],
     outputs: [{ name: '', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
-    name: 'anchorSupply',
+    name: 'anchorEngineShares',
     inputs: [],
     outputs: [{ name: '', type: 'uint256' }],
     stateMutability: 'view',
@@ -3676,7 +3676,7 @@ export const vaultAdapter = [
     name: 'migrateEngine',
     inputs: [
       { name: 'newEngine', type: 'address' },
-      { name: 'minNewShares', type: 'uint256' },
+      { name: 'minNewEngineShares', type: 'uint256' },
       { name: 'minAssetsRetained', type: 'uint256' },
     ],
     outputs: [{ name: 'newEngineShares', type: 'uint256' }],
@@ -3854,7 +3854,7 @@ export const vaultAdapter = [
       { name: 'assets', type: 'uint256', indexed: false },
       { name: 'venueShares', type: 'uint256', indexed: false },
       { name: 'anchorEngineShares', type: 'uint256', indexed: false },
-      { name: 'anchorSupply', type: 'uint256', indexed: false },
+      { name: 'anchorEarnSupply', type: 'uint256', indexed: false },
     ],
     anonymous: false,
   },
@@ -3907,7 +3907,7 @@ export const vaultAdapter = [
       { name: 'newEngineShares', type: 'uint256', indexed: false },
       { name: 'totalEarnSupply', type: 'uint256', indexed: false },
       { name: 'anchorEngineShares', type: 'uint256', indexed: false },
-      { name: 'anchorSupply', type: 'uint256', indexed: false },
+      { name: 'anchorEarnSupply', type: 'uint256', indexed: false },
     ],
     anonymous: false,
   },
@@ -4000,19 +4000,19 @@ export const vaultAdapter = [
     name: 'EngineCapabilityUnsupported',
     inputs: [{ name: 'interfaceId', type: 'bytes4' }],
   },
-  { type: 'error', name: 'ExceedsMaxShares', inputs: [] },
+  { type: 'error', name: 'ExceedsMaxEarnAmount', inputs: [] },
   {
     type: 'error',
     name: 'ExcessiveConversionLoss',
     inputs: [
-      { name: 'inputShares', type: 'uint256' },
-      { name: 'representedShares', type: 'uint256' },
+      { name: 'inputEngineShares', type: 'uint256' },
+      { name: 'representedEngineShares', type: 'uint256' },
     ],
   },
-  { type: 'error', name: 'InitialShareSupplyNotZero', inputs: [] },
+  { type: 'error', name: 'InitialEarnSupplyNotZero', inputs: [] },
   { type: 'error', name: 'InsufficientOutput', inputs: [] },
+  { type: 'error', name: 'InvalidEarnDecimals', inputs: [] },
   { type: 'error', name: 'InvalidEngineShareScale', inputs: [] },
-  { type: 'error', name: 'InvalidShareDecimals', inputs: [] },
   { type: 'error', name: 'InvalidSwapOverride', inputs: [] },
   {
     type: 'error',
@@ -4024,13 +4024,21 @@ export const vaultAdapter = [
   },
   {
     type: 'error',
-    name: 'MinimumSharesNotMet',
+    name: 'MinimumEarnAmountNotMet',
     inputs: [
-      { name: 'minimumShares', type: 'uint256' },
-      { name: 'actualShares', type: 'uint256' },
+      { name: 'minimumEarnAmount', type: 'uint256' },
+      { name: 'actualEarnAmount', type: 'uint256' },
     ],
   },
-  { type: 'error', name: 'NoShareSupply', inputs: [] },
+  {
+    type: 'error',
+    name: 'MinimumEngineSharesNotMet',
+    inputs: [
+      { name: 'minimumEngineShares', type: 'uint256' },
+      { name: 'actualEngineShares', type: 'uint256' },
+    ],
+  },
+  { type: 'error', name: 'NoEarnSupply', inputs: [] },
   { type: 'error', name: 'NotEmergencyGuardianOrOperator', inputs: [] },
   { type: 'error', name: 'NotEngine', inputs: [] },
   { type: 'error', name: 'NotFeeAdministrator', inputs: [] },
@@ -4052,7 +4060,8 @@ export const vaultAdapter = [
   { type: 'error', name: 'ZeroAddress', inputs: [] },
   { type: 'error', name: 'ZeroAmount', inputs: [] },
   { type: 'error', name: 'ZeroMinimumAssets', inputs: [] },
-  { type: 'error', name: 'ZeroMinimumShares', inputs: [] },
+  { type: 'error', name: 'ZeroMinimumEarnAmount', inputs: [] },
+  { type: 'error', name: 'ZeroMinimumEngineShares', inputs: [] },
 ] as const
 
 export const earnFees = [
@@ -4134,6 +4143,13 @@ export const earnFees = [
     inputs: [{ name: 'guardian', type: 'address' }],
     outputs: [],
     stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'earnScale',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -4385,13 +4401,6 @@ export const earnFees = [
   },
   {
     type: 'function',
-    name: 'shareScale',
-    inputs: [],
-    outputs: [{ name: '', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
     name: 'shouldChargeRedeem',
     inputs: [{ name: 'requestId', type: 'bytes32' }],
     outputs: [{ name: '', type: 'bool' }],
@@ -4513,7 +4522,7 @@ export const vaultEngine = [
     type: 'function',
     name: 'deposit',
     inputs: [{ name: 'assets', type: 'uint256' }],
-    outputs: [{ name: 'shares', type: 'uint256' }],
+    outputs: [{ name: 'engineShares', type: 'uint256' }],
     stateMutability: 'nonpayable',
   },
   {
@@ -4555,20 +4564,20 @@ export const vaultEngine = [
     type: 'function',
     name: 'totalShares',
     inputs: [],
-    outputs: [{ name: 'shares', type: 'uint256' }],
+    outputs: [{ name: 'engineShares', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
     name: 'valueOf',
-    inputs: [{ name: 'shares', type: 'uint256' }],
+    inputs: [{ name: 'engineShares', type: 'uint256' }],
     outputs: [{ name: 'assets', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
     name: 'previewRedeem',
-    inputs: [{ name: 'shares', type: 'uint256' }],
+    inputs: [{ name: 'engineShares', type: 'uint256' }],
     outputs: [{ name: 'assets', type: 'uint256' }],
     stateMutability: 'view',
   },
@@ -4576,7 +4585,7 @@ export const vaultEngine = [
     type: 'function',
     name: 'redeem',
     inputs: [
-      { name: 'shares', type: 'uint256' },
+      { name: 'engineShares', type: 'uint256' },
       { name: 'receiver', type: 'address' },
       { name: 'minAssets', type: 'uint256' },
     ],
@@ -4587,7 +4596,7 @@ export const vaultEngine = [
     type: 'function',
     name: 'previewWithdraw',
     inputs: [{ name: 'assets', type: 'uint256' }],
-    outputs: [{ name: 'shares', type: 'uint256' }],
+    outputs: [{ name: 'engineShares', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
@@ -4597,7 +4606,7 @@ export const vaultEngine = [
       { name: 'assets', type: 'uint256' },
       { name: 'receiver', type: 'address' },
     ],
-    outputs: [{ name: 'shares', type: 'uint256' }],
+    outputs: [{ name: 'engineShares', type: 'uint256' }],
     stateMutability: 'nonpayable',
   },
 ] as const
@@ -4607,14 +4616,14 @@ export const vaultEngineAsync = [
     type: 'function',
     name: 'cancelRedeem',
     inputs: [{ name: 'requestId', type: 'bytes32' }],
-    outputs: [{ name: 'shares', type: 'uint256' }],
+    outputs: [{ name: 'engineShares', type: 'uint256' }],
     stateMutability: 'nonpayable',
   },
   {
     type: 'function',
     name: 'requestRedeem',
     inputs: [
-      { name: 'shares', type: 'uint256' },
+      { name: 'engineShares', type: 'uint256' },
       { name: 'requestData', type: 'bytes' },
     ],
     outputs: [{ name: 'requestId', type: 'bytes32' }],
@@ -4648,10 +4657,10 @@ export const earnContributionController = [
     name: 'fund',
     inputs: [
       { name: 'funder', type: 'address' },
-      { name: 'requested', type: 'uint256' },
-      { name: 'maxShareSupply', type: 'uint256' },
+      { name: 'requestedAssets', type: 'uint256' },
+      { name: 'maxEarnSupply', type: 'uint256' },
     ],
-    outputs: [{ name: 'funded', type: 'uint256' }],
+    outputs: [{ name: 'fundedAssets', type: 'uint256' }],
     stateMutability: 'nonpayable',
   },
   {
@@ -4666,10 +4675,18 @@ export const earnContributionController = [
     name: 'Funded',
     inputs: [
       { name: 'funder', type: 'address', indexed: true },
-      { name: 'requested', type: 'uint256', indexed: false },
-      { name: 'funded', type: 'uint256', indexed: false },
+      { name: 'requestedAssets', type: 'uint256', indexed: false },
+      { name: 'fundedAssets', type: 'uint256', indexed: false },
     ],
     anonymous: false,
+  },
+  {
+    type: 'error',
+    name: 'EarnSupplyOutOfBounds',
+    inputs: [
+      { name: 'earnSupply', type: 'uint256' },
+      { name: 'maxEarnSupply', type: 'uint256' },
+    ],
   },
   { type: 'error', name: 'Inactive', inputs: [] },
   { type: 'error', name: 'NotSelf', inputs: [] },
@@ -4684,14 +4701,6 @@ export const earnContributionController = [
     inputs: [{ name: 'account', type: 'address' }],
   },
   { type: 'error', name: 'ReentrantCall', inputs: [] },
-  {
-    type: 'error',
-    name: 'ShareSupplyOutOfBounds',
-    inputs: [
-      { name: 'supply', type: 'uint256' },
-      { name: 'maxShareSupply', type: 'uint256' },
-    ],
-  },
   { type: 'error', name: 'TokenCallFailed', inputs: [] },
   { type: 'error', name: 'TokenCallFalse', inputs: [] },
   { type: 'error', name: 'ZeroAddress', inputs: [] },
@@ -4764,9 +4773,9 @@ export const vedaEngine = [
     type: 'event',
     name: 'Deposited',
     inputs: [
-      { name: 'receiver', type: 'address', indexed: true },
+      { name: 'adapter', type: 'address', indexed: true },
       { name: 'assets', type: 'uint256', indexed: false },
-      { name: 'shares', type: 'uint256', indexed: false },
+      { name: 'engineShares', type: 'uint256', indexed: false },
     ],
     anonymous: false,
   },
@@ -4832,7 +4841,7 @@ export const vedaEngine = [
     name: 'RedeemCancelledOnQueue',
     inputs: [
       { name: 'requestId', type: 'bytes32', indexed: true },
-      { name: 'shares', type: 'uint128', indexed: false },
+      { name: 'venueShares', type: 'uint128', indexed: false },
     ],
     anonymous: false,
   },
@@ -4852,7 +4861,7 @@ export const vedaEngine = [
     inputs: [
       { name: 'requestId', type: 'bytes32', indexed: true },
       { name: 'assetOut', type: 'address', indexed: true },
-      { name: 'shares', type: 'uint128', indexed: false },
+      { name: 'venueShares', type: 'uint128', indexed: false },
     ],
     anonymous: false,
   },
@@ -4861,7 +4870,7 @@ export const vedaEngine = [
     name: 'Redeemed',
     inputs: [
       { name: 'receiver', type: 'address', indexed: true },
-      { name: 'shares', type: 'uint256', indexed: false },
+      { name: 'engineShares', type: 'uint256', indexed: false },
       { name: 'assets', type: 'uint256', indexed: false },
     ],
     anonymous: false,
@@ -4916,7 +4925,7 @@ export const vedaEngine = [
     inputs: [
       { name: 'receiver', type: 'address', indexed: true },
       { name: 'assets', type: 'uint256', indexed: false },
-      { name: 'sharesBurned', type: 'uint256', indexed: false },
+      { name: 'engineSharesBurned', type: 'uint256', indexed: false },
     ],
     anonymous: false,
   },
@@ -4927,7 +4936,7 @@ export const vedaEngine = [
     name: 'AssetsNotArrived',
     inputs: [{ name: 'requestId', type: 'bytes32' }],
   },
-  { type: 'error', name: 'CannotSweepBackingShares', inputs: [] },
+  { type: 'error', name: 'CannotSweepVenueShares', inputs: [] },
   {
     type: 'error',
     name: 'ClaimNotClaimable',
@@ -4970,7 +4979,6 @@ export const vedaEngine = [
       { name: 'currentTime', type: 'uint256' },
     ],
   },
-  { type: 'error', name: 'InvalidShareDecimals', inputs: [] },
   {
     type: 'error',
     name: 'InvalidVedaPeriphery',
@@ -4993,8 +5001,9 @@ export const vedaEngine = [
       { name: 'maxRate', type: 'uint256' },
     ],
   },
+  { type: 'error', name: 'InvalidVenueShareDecimals', inputs: [] },
   { type: 'error', name: 'NoPublishedVedaPeriphery', inputs: [] },
-  { type: 'error', name: 'NoSharesReceived', inputs: [] },
+  { type: 'error', name: 'NoVenueSharesReceived', inputs: [] },
   {
     type: 'error',
     name: 'NotAdapter',
@@ -5032,11 +5041,6 @@ export const vedaEngine = [
   },
   {
     type: 'error',
-    name: 'SharesTooLarge',
-    inputs: [{ name: 'shares', type: 'uint256' }],
-  },
-  {
-    type: 'error',
     name: 'SolveUnderfunded',
     inputs: [
       { name: 'asset', type: 'address' },
@@ -5062,6 +5066,11 @@ export const vedaEngine = [
       { name: 'minRate', type: 'uint256' },
       { name: 'maxRate', type: 'uint256' },
     ],
+  },
+  {
+    type: 'error',
+    name: 'VenueSharesTooLarge',
+    inputs: [{ name: 'venueShares', type: 'uint256' }],
   },
   { type: 'error', name: 'ZeroAddress', inputs: [] },
 ] as const
