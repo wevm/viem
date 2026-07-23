@@ -4,6 +4,7 @@ export { http, type ZoneHttpConfig } from './transport.js'
 export {
   from,
   getPortalAddress,
+  messengerAddresses,
   portalAddresses,
   zone,
   zoneModerato,

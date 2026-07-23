@@ -4,6 +4,7 @@ import { describe, expect, test } from 'vitest'
 import {
   from,
   getPortalAddress,
+  messengerAddresses,
   portalAddresses,
   zone,
   zoneModerato,
@@ -11,8 +12,8 @@ import {
 
 describe('getPortalAddress', () => {
   test('returns a configured portal address', () => {
-    expect(getPortalAddress(tempoModerato.id, 7)).toBe(
-      portalAddresses[tempoModerato.id][7],
+    expect(getPortalAddress(tempoModerato.id, 1)).toBe(
+      portalAddresses[tempoModerato.id][1],
     )
   })
 
@@ -25,6 +26,27 @@ describe('getPortalAddress', () => {
 
 describe('from', () => {
   test('uses zone metadata overrides', () => {
+    expect(zoneModerato(1)).toMatchObject({
+      contracts: {
+        messenger: {
+          [tempoModerato.id]: {
+            address: messengerAddresses[tempoModerato.id][1],
+          },
+        },
+        portal: {
+          [tempoModerato.id]: {
+            address: portalAddresses[tempoModerato.id][1],
+          },
+        },
+      },
+      id: ZoneId.toChainId(1),
+      name: 'Zone E',
+      rpcUrls: {
+        default: { http: ['https://rpc-zone-e.testnet.tempo.xyz'] },
+      },
+      sourceId: tempoModerato.id,
+      supportsTransactionReplacementDetection: false,
+    })
     expect(zoneModerato(6)).toMatchObject({
       id: ZoneId.toChainId(6),
       name: 'Zone A',
@@ -37,11 +59,11 @@ describe('from', () => {
   })
 
   test('builds default zone metadata', () => {
-    expect(zone(8)).toMatchObject({
-      id: ZoneId.toChainId(8),
-      name: 'Tempo Zone 008',
+    expect(zone(1)).toMatchObject({
+      id: ZoneId.toChainId(1),
+      name: 'Tempo Zone 001',
       rpcUrls: {
-        default: { http: ['https://rpc-zone-008.tempo.xyz'] },
+        default: { http: ['https://rpc-zone-001.tempo.xyz'] },
       },
       sourceId: tempo.id,
       supportsTransactionReplacementDetection: false,
@@ -49,11 +71,11 @@ describe('from', () => {
   })
 
   test('builds a custom zone factory', () => {
-    expect(from({ rpcHost: 'example.com', sourceId: 1 })(123)).toMatchObject({
-      id: ZoneId.toChainId(123),
-      name: 'Tempo Zone 123',
+    expect(from({ rpcHost: 'example.com', sourceId: 1 })(6)).toMatchObject({
+      id: ZoneId.toChainId(6),
+      name: 'Tempo Zone 006',
       rpcUrls: {
-        default: { http: ['https://rpc-zone-123.example.com'] },
+        default: { http: ['https://rpc-zone-006.example.com'] },
       },
       sourceId: 1,
       supportsTransactionReplacementDetection: false,
