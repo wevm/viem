@@ -31,6 +31,7 @@ const origin = 'https://v1.oxlib.sh'
 const srcUtilsDir = join(import.meta.dirname, '../src/utils')
 const outDir = join(import.meta.dirname, '../site/pages/docs/utilities')
 const sidebarPath = join(import.meta.dirname, '../site/sidebar.generated.ts')
+const syncMarkerPath = join(outDir, '.synced')
 
 type Augmented = {
   /** ox doc route base override (when the ox doc module name differs). */
@@ -561,7 +562,7 @@ async function main() {
   // `--if-needed` skips the sync when the generated output is already present
   // (used by `docs:dev` to avoid re-fetching ox docs on every start).
   const ifNeeded = process.argv.includes('--if-needed')
-  if (ifNeeded && existsSync(sidebarPath) && existsSync(outDir)) {
+  if (ifNeeded && existsSync(syncMarkerPath)) {
     console.log(
       'Utilities docs already synced — skipping (run `pnpm docs:sync-utils` to refresh).',
     )
@@ -607,6 +608,7 @@ async function main() {
   if (!only) {
     writeSidebar(synced)
     writeUtilitiesGitignore(allModules)
+    writeFileSync(syncMarkerPath, '')
   }
 
   const pageCount = synced.reduce(

@@ -2,7 +2,7 @@
 
 Estimates the gas required to successfully execute a contract write (`nonpayable`/`payable`) function call.
 
-Internally, it encodes the call (via [`encodeFunctionData`](/docs/utilities/AbiFunction)) and delegates to [estimateGas](/docs/actions/public/transaction/estimateGas). Reverts are mapped to a rich `ContractError.ContractFunctionExecutionError` with the decoded revert reason where available.
+Internally, it encodes the call (via [`AbiFunction.encodeData`](/docs/utilities/abifunction/encodeData)) and delegates to [estimateGas](/docs/actions/public/transaction/estimateGas). Reverts are mapped to a rich `ContractError.ContractFunctionExecutionError` with the decoded revert reason where available.
 
 ## Usage
 

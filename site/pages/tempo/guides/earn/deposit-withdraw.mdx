@@ -250,8 +250,8 @@ const result = await client.earn.withdrawExactSync({
 Use the `.calls` builder when an Earn entry belongs inside a larger atomic Tempo transaction. The
 builder takes the asset token contract address and returns both the token approval and vault action.
 Simulate the complete batch with
-[`simulate.simulateCalls`](/tempo/actions/simulate.simulateCalls), since `earn.deposit.simulate`
-assumes the approval already exists.
+[`block.simulate`](/docs/actions/public/block/simulate), since `earn.deposit.simulate` assumes the
+approval already exists.
 
 :::code-group
 
@@ -266,16 +266,15 @@ const calls = client.earn.deposit.calls({
   vault: '0x0000000000000000000000000000000000000001',
 })
 
-const simulation = await client.simulate.simulateCalls({
-  account: client.account,
-  calls,
+const [simulation] = await client.block.simulate({
+  blocks: [{ calls }],
   validation: true,
 })
 
-if (simulation.results.some((result) => result.status === 'failure'))
+if (simulation.calls.some((result) => result.status === 'failure'))
   throw new Error('Earn batch simulation failed.')
 
-const receipt = await client.sendTransactionSync({ calls })
+const receipt = await client.transaction.sendSync({ calls })
 // @log: { transactionHash: '0x1234...abcd', ... }
 ```
 

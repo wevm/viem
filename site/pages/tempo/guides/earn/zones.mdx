@@ -286,7 +286,7 @@ transaction.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Abis } from 'viem/tempo'
+import { Abis, Actions } from 'viem/tempo'
 import { client as parentClient } from './viem.config'
 import { client as zoneClient } from './zones.config'
 
@@ -296,13 +296,13 @@ const venueShareAmount = 500_000_000n
 const zoneId = 7
 
 const vault = await parentClient.earn.getVault({ vault: vaultAddress })
-const earnShareAmount = await parentClient.readContract({
+const earnShareAmount = await parentClient.contract.read({
   abi: Abis.vaultAdapter,
   address: vaultAddress,
   args: [venueShareAmount],
   functionName: 'sharesToTokens',
 })
-const encrypted = await parentClient.zone.encryptedDeposit.prepare({
+const encrypted = await Actions.zone.encryptedDeposit.prepare(parentClient, {
   amount: earnShareAmount,
   bouncebackRecipient: parentClient.account.address,
   recipient: zoneClient.account.address,
@@ -319,10 +319,10 @@ const calls = [
     venueShareAmount,
     venueShareToken,
   }),
-  ...parentClient.zone.encryptedDeposit.calls(encrypted),
+  ...Actions.zone.encryptedDeposit.calls(encrypted),
 ]
 
-const receipt = await parentClient.sendTransactionSync({ calls })
+const receipt = await parentClient.transaction.sendSync({ calls })
 // @log: { transactionHash: '0x1234...abcd', ... }
 ```
 

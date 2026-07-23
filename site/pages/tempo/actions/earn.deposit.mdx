@@ -75,7 +75,7 @@ const hash = await client.earn.deposit({
 })
 // @log: 0x1234...abcd
 
-const receipt = await client.waitForTransactionReceipt({ hash })
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.earn.deposit.extractEvent(receipt.logs, { vault })
 // @log: { assets: 100_000_000n, shares: 99_750_000n, ... }
 ```

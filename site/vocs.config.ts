@@ -24,6 +24,7 @@ try {
 // `checkOnly` twoslashers (whose relative `baseUrl` resolve against different
 // directories).
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const oxDist = resolve(root, 'node_modules/ox/dist')
 
 const badge = (kind: 'public' | 'test' | 'wallet') =>
   ({
@@ -3031,9 +3032,15 @@ export default defineConfig({
         baseUrl: root,
         skipLibCheck: true,
         skipDefaultLibCheck: true,
-        // Resolve `viem` to live source so snippets type-check against the
-        // working tree instead of the (potentially stale) built `dist/`.
         paths: {
+          // Pin Ox to the root workspace installation used by Viem source.
+          ox: [`${oxDist}/index.d.ts`],
+          'ox/*': [
+            `${oxDist}/core/*.d.ts`,
+            `${oxDist}/*/index.d.ts`,
+            `${oxDist}/*.d.ts`,
+          ],
+          // Resolve `viem` to live source instead of the built `dist/`.
           viem: [`${root}/src/index.ts`],
           'viem/*': [`${root}/src/*/index.ts`, `${root}/src/*.ts`],
         },
