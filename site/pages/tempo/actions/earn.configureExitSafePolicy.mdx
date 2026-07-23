@@ -1,6 +1,6 @@
 # `earn.configureExitSafePolicy`
 
-Creates and attaches an admission-only TIP-403 policy to an Earn vault share token. Existing
+Creates and attaches an admission-only TIP-403 policy to an Earn EarnShare token. Existing
 holders can continue sending shares, while recipients and mint recipients must belong to the same
 whitelist.
 
@@ -21,7 +21,7 @@ const { policy, receipts } = await client.earn.configureExitSafePolicy({
     '0x0000000000000000000000000000000000000003',
     '0x0000000000000000000000000000000000000004',
   ],
-  shareToken: '0x20c0000000000000000000000000000000000001',
+  earnShare: '0x20c0000000000000000000000000000000000001',
 })
 ```
 
@@ -69,11 +69,11 @@ this is the calling account.
 Addresses initially eligible to receive transfers and mints. Duplicate addresses are removed. At
 least one member is required.
 
-### shareToken
+### earnShare
 
 - **Type:** `Address`
 
-Earn vault share token. The calling account must be authorized to change its transfer policy.
+Earn EarnShare token. The calling account must be authorized to change its transfer policy.
 
 ### account (optional)
 

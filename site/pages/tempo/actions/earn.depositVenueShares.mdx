@@ -1,8 +1,8 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `earn.depositShares`
+# `earn.depositVenueShares`
 
-Deposits venue shares into a vault and mints vault shares to a recipient.
+Deposits venue shares into a vault and mints EarnShare to a recipient.
 
 ## Usage
 
@@ -11,20 +11,20 @@ Deposits venue shares into a vault and mints vault shares to a recipient.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const result = await client.earn.depositSharesSync({
-  earnShareAmount: 499_000_000n,
+const result = await client.earn.depositVenueSharesSync({
+  earnShares: 499_000_000n,
   slippageBps: 30,
-  vault: '0x0000000000000000000000000000000000000002',
-  venueShareAmount: 500_000_000n,
+  earnVault: '0x0000000000000000000000000000000000000002',
+  venueShares: 500_000_000n,
   venueShareToken: '0x20c0000000000000000000000000000000000001',
 })
 // @log: {
 //   caller: '0x...',
-//   earnShareAmount: 498_750_000n,
+//   earnShares: 498_750_000n,
 //   receipt: { ... },
-//   receivedVenueShareAmount: 500_000_000n,
+//   receivedVenueShares: 500_000_000n,
 //   recipient: '0x...',
-//   venueShareAmount: 500_000_000n,
+//   venueShares: 500_000_000n,
 // }
 ```
 
@@ -39,16 +39,16 @@ the venue shares in one transaction.
 
 ### Asynchronous Usage
 
-`earn.depositSharesSync` waits for inclusion and returns the decoded deposit event. Use
-`earn.depositShares` to return the transaction hash immediately.
+`earn.depositVenueSharesSync` waits for inclusion and returns the decoded deposit event. Use
+`earn.depositVenueShares` to return the transaction hash immediately.
 
 ```ts twoslash
 import { client } from './viem.config'
 
-const hash = await client.earn.depositShares({
-  earnShareAmountMin: 497_000_000n,
-  vault: '0x0000000000000000000000000000000000000002',
-  venueShareAmount: 500_000_000n,
+const hash = await client.earn.depositVenueShares({
+  minEarnShares: 497_000_000n,
+  earnVault: '0x0000000000000000000000000000000000000002',
+  venueShares: 500_000_000n,
   venueShareToken: '0x20c0000000000000000000000000000000000001',
 })
 // @log: 0x1234...abcd
@@ -60,16 +60,16 @@ const hash = await client.earn.depositShares({
 type ReturnValue = {
   /** Depositing caller. */
   caller: Address
-  /** Vault shares minted. */
-  earnShareAmount: bigint
+  /** EarnShare minted. */
+  earnShares: bigint
   /** Transaction receipt. */
   receipt: TransactionReceipt
   /** Venue shares measured as received by the integration. */
-  receivedVenueShareAmount: bigint
-  /** Vault share recipient. */
+  receivedVenueShares: bigint
+  /** EarnShare recipient. */
   recipient: Address
   /** Venue shares requested for transfer. */
-  venueShareAmount: bigint
+  venueShares: bigint
 }
 ```
 
@@ -77,39 +77,39 @@ The asynchronous action returns the transaction hash instead.
 
 ## Parameters
 
-### earnShareAmount (optional)
+### earnShares (optional)
 
 - **Type:** `bigint`
 
-Quoted vault share output. Provide it with `slippageBps`, or provide `earnShareAmountMin` instead.
+Quoted EarnShare output. Provide it with `slippageBps`, or provide `minEarnShares` instead.
 
-### earnShareAmountMin (optional)
+### minEarnShares (optional)
 
 - **Type:** `bigint`
 
-Minimum vault shares to accept. It must be greater than zero and cannot be combined with
-`earnShareAmount` or `slippageBps`.
+Minimum EarnShare to accept. It must be greater than zero and cannot be combined with
+`earnShares` or `slippageBps`.
 
 ### recipient (optional)
 
 - **Type:** `Address`
 - **Default:** `account.address`
 
-Vault share recipient.
+EarnShare recipient.
 
 ### slippageBps (optional)
 
 - **Type:** `number`
 
-Slippage tolerance below `earnShareAmount`, in basis points. For example, `30` means 0.3%.
+Slippage tolerance below `earnShares`, in basis points. For example, `30` means 0.3%.
 
-### vault
+### earnVault
 
 - **Type:** `Address`
 
-Vault address.
+EarnVault address.
 
-### venueShareAmount
+### venueShares
 
 - **Type:** `bigint`
 

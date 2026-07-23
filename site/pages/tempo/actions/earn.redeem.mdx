@@ -2,7 +2,7 @@ import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
 # `earn.redeem`
 
-Redeems an exact number of vault shares for assets sent to a recipient.
+Redeems an exact number of EarnShare for assets sent to a recipient.
 
 ## Usage
 
@@ -12,16 +12,16 @@ Redeems an exact number of vault shares for assets sent to a recipient.
 import { client } from './viem.config'
 
 const result = await client.earn.redeemSync({
-  shareAmount: 100_000_000n,
+  earnShares: 100_000_000n,
   slippageBps: 50,
-  vault: '0x0000000000000000000000000000000000000001',
+  earnVault: '0x0000000000000000000000000000000000000001',
 })
 // @log: {
 //   assetAmount: 99_500_000n,
 //   caller: '0x...',
 //   receipt: { ... },
 //   recipient: '0x...',
-//   shareAmount: 100_000_000n,
+//   earnShares: 100_000_000n,
 // }
 ```
 
@@ -33,7 +33,7 @@ const result = await client.earn.redeemSync({
 
 When only `slippageBps` is provided, the action gets a live
 [`earn.getRedeemQuote`](/tempo/actions/earn.getRedeemQuote) and derives the minimum asset output.
-The transaction approves the vault shares and redeems them atomically.
+The transaction approves the EarnShare and redeems them atomically.
 
 ### Use an Existing Quote
 
@@ -46,11 +46,11 @@ import { client } from './viem.config'
 
 const result = await client.earn.redeemSync({
   assetAmount: 99_750_000n,
-  shareAmount: 100_000_000n,
+  earnShares: 100_000_000n,
   slippageBps: 50,
-  vault: '0x0000000000000000000000000000000000000001',
+  earnVault: '0x0000000000000000000000000000000000000001',
 })
-// @log: { assetAmount: 99_500_000n, shareAmount: 100_000_000n, ... }
+// @log: { assetAmount: 99_500_000n, earnShares: 100_000_000n, ... }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -69,8 +69,8 @@ import { client } from './viem.config'
 
 const hash = await client.earn.redeem({
   assetAmountMin: 99_000_000n,
-  shareAmount: 100_000_000n,
-  vault: '0x0000000000000000000000000000000000000001',
+  earnShares: 100_000_000n,
+  earnVault: '0x0000000000000000000000000000000000000001',
 })
 // @log: 0x1234...abcd
 ```
@@ -87,8 +87,8 @@ type ReturnValue = {
   receipt: TransactionReceipt
   /** Asset recipient. */
   recipient: Address
-  /** Vault shares burned. */
-  shareAmount: bigint
+  /** EarnShare burned. */
+  earnShares: bigint
 }
 ```
 
@@ -116,11 +116,11 @@ Minimum assets to accept. It must be greater than zero and cannot be combined wi
 
 Asset recipient.
 
-### shareAmount
+### earnShares
 
 - **Type:** `bigint | { decimals?: number | undefined; formatted: string }`
 
-Vault shares to redeem. A `bigint` uses base units; a formatted value uses the share token's
+EarnShare to redeem. A `bigint` uses base units; a formatted value uses the share token's
 decimals unless `decimals` is provided.
 
 ### slippageBps (optional)
@@ -129,10 +129,10 @@ decimals unless `decimals` is provided.
 
 Slippage tolerance below the provided or live quote, in basis points. For example, `50` means 0.5%.
 
-### vault
+### earnVault
 
 - **Type:** `Address`
 
-Vault address.
+EarnVault address.
 
 <WriteParameters />

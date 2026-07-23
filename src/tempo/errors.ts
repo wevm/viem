@@ -2,18 +2,19 @@ import type { Address } from 'abitype'
 import type { Hex } from 'ox'
 import { BaseError } from '../errors/base.js'
 
-export type GetVaultEngineChangedErrorType = GetVaultEngineChangedError & {
-  name: 'GetVaultEngineChangedError'
-}
+export type GetEarnVaultEngineChangedErrorType =
+  GetEarnVaultEngineChangedError & {
+    name: 'GetEarnVaultEngineChangedError'
+  }
 
-export class GetVaultEngineChangedError extends BaseError {
-  constructor({ vault }: { vault: Address }) {
-    super(`Engine of vault "${vault}" changed while reading.`, {
+export class GetEarnVaultEngineChangedError extends BaseError {
+  constructor({ earnVault }: { earnVault: Address }) {
+    super(`Engine of EarnVault "${earnVault}" changed while reading.`, {
       metaMessages: [
         'An engine migration raced the snapshot; state from two different engines cannot be mixed.',
         'Retry the read.',
       ],
-      name: 'GetVaultEngineChangedError',
+      name: 'GetEarnVaultEngineChangedError',
     })
   }
 }

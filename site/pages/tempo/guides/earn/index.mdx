@@ -1,5 +1,5 @@
 ---
-description: Deposit assets into Tempo Earn vaults, track vault shares, and withdraw accrued value.
+description: Deposit assets into Tempo Earn vaults, track EarnShare, and withdraw accrued value.
 ---
 
 import { Card, Cards } from 'vocs'
@@ -8,12 +8,12 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-Earn vaults put deposited assets into a yield venue and issue vault shares that represent the
+Earn vaults put deposited assets into a yield venue and issue EarnShare that represent the
 position. The asset value of those shares can change as the venue earns yield and the vault accrues
 fees.
 
-Each action takes a vault address. Use
-[`earn.getVault`](/tempo/actions/earn.getVault) to inspect its asset token, current venue integration,
+Each action takes a EarnVault address. Use
+[`earn.getEarnVault`](/tempo/actions/earn.getEarnVault) to inspect its asset token, current venue integration,
 state, and supported actions before depositing.
 
 :::code-group
@@ -21,14 +21,14 @@ state, and supported actions before depositing.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const vault = await client.earn.getVault({
-  vault: '0x0000000000000000000000000000000000000001',
+const earnVault = await client.earn.getEarnVault({
+  earnVault: '0x0000000000000000000000000000000000000001',
 })
 // @log: {
 // @log:   assetToken: '0x20c0...0001',
-// @log:   capabilities: { exactWithdraw: true, inKindDeposit: true, syncRedeem: true, ... },
+// @log:   capabilities: { exactWithdraw: true, inKindDeposit: true, redeem: true, ... },
 // @log:   depositsPaused: false,
-// @log:   shareToken: '0x20c0...0002',
+// @log:   earnShare: '0x20c0...0002',
 // @log:   ...
 // @log: }
 ```
@@ -39,7 +39,7 @@ const vault = await client.earn.getVault({
 
 :::
 
-Assets are the TIP-20 tokens accepted by a vault. Vault shares are TIP-20 tokens representing a
+Assets are the TIP-20 tokens accepted by a earnVault. EarnShare are TIP-20 tokens representing a
 proportional claim on the vault's assets. Venue shares are positions held by the vault in its
 underlying yield venue.
 
@@ -47,13 +47,13 @@ underlying yield venue.
   <Card
     icon="lucide:circle-dollar-sign"
     title="Deposit & Withdraw"
-    description="Enter an Earn vault, inspect a position, and choose an exit shape."
+    description="Enter an Earn earnVault, inspect a position, and choose an exit shape."
     to="/tempo/guides/earn/deposit-withdraw"
   />
   <Card
     icon="lucide:shield-check"
     title="Protected Vaults"
-    description="Restrict who can receive vault shares without freezing existing positions."
+    description="Restrict who can receive EarnShare without freezing existing positions."
     to="/tempo/guides/earn/protected-vaults"
   />
   <Card
@@ -66,12 +66,12 @@ underlying yield venue.
     icon="lucide:landmark"
     title="Inspect a Vault"
     description="Read vault configuration, accounting state, and supported actions."
-    to="/tempo/actions/earn.getVault"
+    to="/tempo/actions/earn.getEarnVault"
   />
   <Card
     icon="lucide:wallet-cards"
     title="Inspect a Position"
-    description="Read asset and vault share balances, allowances, and current value."
+    description="Read asset and EarnShare balances, allowances, and current value."
     to="/tempo/actions/earn.getPosition"
   />
   <Card

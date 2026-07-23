@@ -12,7 +12,7 @@ Gets a vault's active fee configuration, pending fees, and fee baselines.
 import { client } from './viem.config'
 
 const fees = await client.earn.getFeeState({
-  vault: '0x0000000000000000000000000000000000000001',
+  earnVault: '0x0000000000000000000000000000000000000001',
 })
 // @log: {
 //   config: { excess: { ... }, fixedFees: [...] },
@@ -32,7 +32,7 @@ const fees = await client.earn.getFeeState({
 
 ### Include Claimable Shares
 
-Pass a fee recipient to include its currently claimable vault shares.
+Pass a fee recipient to include its currently claimable EarnShare.
 
 :::code-group
 
@@ -41,7 +41,7 @@ import { client } from './viem.config'
 
 const fees = await client.earn.getFeeState({
   recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  vault: '0x0000000000000000000000000000000000000001',
+  earnVault: '0x0000000000000000000000000000000000000001',
 })
 // @log: { claimableShares: 9_950n, ... }
 ```
@@ -64,11 +64,11 @@ type ReturnValue = {
   configId: bigint
   /** Whether fees are active. */
   feesActive: boolean
-  /** Post-fee high-water mark per vault share. */
+  /** Post-fee high-water mark per EarnShare. */
   highWaterMark: bigint
   /** Pending fee amounts. */
   preview: FeePreview
-  /** Excess-return fee target per vault share. */
+  /** Excess-return fee target per EarnShare. */
   targetBase: bigint
 }
 
@@ -106,12 +106,12 @@ type FeePreview = {
 
 - **Type:** `Address`
 
-Fee recipient whose claimable vault shares are included.
+Fee recipient whose claimable EarnShare are included.
 
-### vault
+### earnVault
 
 - **Type:** `Address`
 
-Vault address.
+EarnVault address.
 
 <ReadParameters />

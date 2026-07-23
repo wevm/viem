@@ -2,7 +2,7 @@
 export const abi = [
   {
     inputs: [
-      { name: 'vaultAdapter_', type: 'address' },
+      { name: 'earnVault_', type: 'address' },
       { name: 'defaultSwapper_', type: 'address' },
       { name: 'zonePortal_', type: 'address' },
       { name: 'zoneMessenger_', type: 'address' },

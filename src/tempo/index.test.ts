@@ -46,7 +46,7 @@ test('exports tempo', () => {
       "withRelay",
       "WebAuthnP256",
       "WebCryptoP256",
-      "GetVaultEngineChangedError",
+      "GetEarnVaultEngineChangedError",
       "WaitForPrivateDepositTimeoutError",
       "WaitForTempoBlockTimeoutError",
       "WaitForPrivateRedeemTimeoutError",

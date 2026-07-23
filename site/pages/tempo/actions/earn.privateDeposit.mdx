@@ -3,7 +3,7 @@ import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
 # `earn.privateDeposit`
 
-Withdraws assets from a private Zone, deposits them into an Earn vault, and returns the vault shares
+Withdraws assets from a private Zone, deposits them into an Earn earnVault, and returns the EarnShare
 to an encrypted Zone recipient.
 
 ## Usage
@@ -22,7 +22,7 @@ const prepared = await parentClient.earn.privateDeposit.prepare({
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
-  shareAmountMin: 99_500_000n,
+  minEarnShares: 99_500_000n,
 })
 
 const { receipt, senderTag } = await zoneClient.earn.privateDepositSync(prepared)
@@ -57,7 +57,7 @@ const prepared = await parentClient.earn.privateDeposit.prepare({
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
-  shareAmountMin: 99_500_000n,
+  minEarnShares: 99_500_000n,
 })
 
 const hash = await zoneClient.earn.privateDeposit(prepared)
@@ -80,7 +80,7 @@ const prepared = await parentClient.earn.privateDeposit.prepare({
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
-  shareAmountMin: 98_500_000n,
+  minEarnShares: 98_500_000n,
   vaultAssetAmountMin: 99_000_000n,
 })
 ```
@@ -149,7 +149,7 @@ Asset token withdrawn from the Zone. The gateway swaps it into the vault asset w
 - **Default:** `0n` for swap-routed deposits
 
 Minimum gateway vault assets accepted after swapping `assetToken`. This bound works alongside the
-vault share bound. Direct vault-asset deposits always use the exact withdrawn `assetAmount` instead.
+EarnShare bound. Direct vault-asset deposits always use the exact withdrawn `assetAmount` instead.
 
 ### callbackGas (optional)
 
@@ -175,7 +175,7 @@ Gateway identifying the vault and Zone configuration.
 
 - **Type:** `Address`
 
-Encrypted Zone recipient for the returned vault shares.
+Encrypted Zone recipient for the returned EarnShare.
 
 ### recoveryRecipient
 
@@ -189,23 +189,23 @@ Public Tempo recipient if the encrypted return deposit fails.
 
 Memo encrypted with the returned Zone deposit.
 
-### shareAmount (optional)
+### earnShares (optional)
 
 - **Type:** `bigint`
 
-Quoted vault share output. Provide it with `slippageBps`, or provide `shareAmountMin` instead.
+Quoted EarnShare output. Provide it with `slippageBps`, or provide `minEarnShares` instead.
 
-### shareAmountMin (optional)
+### minEarnShares (optional)
 
 - **Type:** `bigint`
 
-Minimum vault shares returned to the Zone.
+Minimum EarnShare returned to the Zone.
 
 ### slippageBps (optional)
 
 - **Type:** `number`
 
-Slippage tolerance below `shareAmount`, in basis points. For example, `50` means 0.5%.
+Slippage tolerance below `earnShares`, in basis points. For example, `50` means 0.5%.
 
 ### withdrawalMemo (optional)
 

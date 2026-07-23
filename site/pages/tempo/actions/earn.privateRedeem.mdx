@@ -3,7 +3,7 @@ import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
 # `earn.privateRedeem`
 
-Withdraws vault shares from a private Zone, redeems them on Tempo, and returns the assets to an
+Withdraws EarnShare from a private Zone, redeems them on Tempo, and returns the assets to an
 encrypted Zone recipient.
 
 ## Usage
@@ -21,7 +21,7 @@ const prepared = await parentClient.earn.privateRedeem.prepare({
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
-  shareAmount: 100_000_000n,
+  earnShares: 100_000_000n,
   slippageBps: 50,
 })
 
@@ -57,7 +57,7 @@ const prepared = await parentClient.earn.privateRedeem.prepare({
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
-  shareAmount: 100_000_000n,
+  earnShares: 100_000_000n,
 })
 
 const hash = await zoneClient.earn.privateRedeem(prepared)
@@ -163,11 +163,11 @@ Public Tempo recipient if the encrypted return deposit fails.
 
 Memo encrypted with the returned Zone deposit.
 
-### shareAmount
+### earnShares
 
 - **Type:** `bigint`
 
-Vault shares withdrawn from the Zone, in base units.
+EarnShare withdrawn from the Zone, in base units.
 
 ### slippageBps (optional)
 

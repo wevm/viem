@@ -1092,12 +1092,12 @@ describe('earn', () => {
         token: parentToken,
       })
       const { earnRouter } = await deployEarnRouter(mainnetClient, {
-        adapter: stack.adapter,
+        earnVault: stack.earnVault,
         portalClient: portalAdminClient,
         zonePortal: portalAddress,
       })
       const privateRoute = {
-        adapter: stack.adapter,
+        earnVault: stack.earnVault,
         earnRouter,
         portalAddress,
         zoneId,
@@ -1131,7 +1131,7 @@ describe('earn', () => {
           assetToken: addresses.alphaUsd,
           recipient: account.address,
           recoveryRecipient,
-          earnAmountMin: 2n,
+          minEarnShares: 2n,
         },
       )
       const [swappedDepositCallback] = decodeAbiParameters(
@@ -1142,10 +1142,10 @@ describe('earn', () => {
         flow: 0,
         minOutputAmount: 0n,
         minVaultAssets: 0n,
-        minEarnAmount: 2n,
+        minEarnShares: 2n,
       })
       expect(
-        isAddressEqual(swappedDepositCallback.outputToken, stack.earnToken),
+        isAddressEqual(swappedDepositCallback.outputToken, stack.earnShare),
       ).toBe(true)
 
       const boundedSwappedDeposit = await Actions.earn.privateDeposit.prepare(
@@ -1156,7 +1156,7 @@ describe('earn', () => {
           assetToken: addresses.alphaUsd,
           recipient: account.address,
           recoveryRecipient,
-          earnAmountMin: 4n,
+          minEarnShares: 4n,
           vaultAssetAmountMin: 3n,
         },
       )
@@ -1168,7 +1168,7 @@ describe('earn', () => {
         flow: 0,
         minOutputAmount: 0n,
         minVaultAssets: 3n,
-        minEarnAmount: 4n,
+        minEarnShares: 4n,
       })
 
       const preparedDeposit = await Actions.earn.privateDeposit.prepare(
@@ -1182,7 +1182,7 @@ describe('earn', () => {
           recipient: account.address,
           recoveryRecipient,
           returnMemo: keccak256('0x02'),
-          earnAmountMin: 1n,
+          minEarnShares: 1n,
           vaultAssetAmountMin: 2n,
           withdrawalMemo: keccak256('0x03'),
         },
@@ -1204,9 +1204,9 @@ describe('earn', () => {
         flow: 0,
         minOutputAmount: 0n,
         minVaultAssets: assetAmount,
-        minEarnAmount: 1n,
+        minEarnShares: 1n,
       })
-      expect(isAddressEqual(depositCallback.outputToken, stack.earnToken)).toBe(
+      expect(isAddressEqual(depositCallback.outputToken, stack.earnShare)).toBe(
         true,
       )
       expect(
@@ -1241,18 +1241,18 @@ describe('earn', () => {
       expect(deposit.actionId).toBe(preparedDeposit.actionId)
       expect(deposit.inputAmount).toBe(assetAmount)
       expect(isAddressEqual(deposit.inputToken, stack.asset)).toBe(true)
-      expect(deposit.earnAmount).toBe(assetAmount)
+      expect(deposit.earnShares).toBe(assetAmount)
       expect(deposit.vaultAssets).toBe(assetAmount)
 
       await Actions.zone.waitForTempoBlock(zoneClient, {
         pollingInterval: 100,
         tempoBlockNumber: deposit.tempoBlockNumber,
       })
-      const earnBalance = await Actions.token.getBalance(zoneClient, {
+      const earnShareBalance = await Actions.token.getBalance(zoneClient, {
         account: account.address,
-        token: stack.earnToken,
+        token: stack.earnShare,
       })
-      expect(earnBalance.amount).toBe(deposit.earnAmount)
+      expect(earnShareBalance.amount).toBe(deposit.earnShares)
 
       const swappedRedeem = await Actions.earn.privateRedeem.prepare(
         mainnetClient,
@@ -1262,7 +1262,7 @@ describe('earn', () => {
           assetToken: addresses.alphaUsd,
           recipient: account.address,
           recoveryRecipient,
-          earnAmount: 1n,
+          earnShares: 1n,
         },
       )
       const [swappedRedeemCallback] = decodeAbiParameters(
@@ -1273,7 +1273,7 @@ describe('earn', () => {
         flow: 1,
         minOutputAmount: 2n,
         minVaultAssets: 1n,
-        minEarnAmount: 0n,
+        minEarnShares: 0n,
       })
       expect(
         isAddressEqual(swappedRedeemCallback.outputToken, addresses.alphaUsd),
@@ -1289,7 +1289,7 @@ describe('earn', () => {
           recipient: account.address,
           recoveryRecipient,
           returnMemo: keccak256('0x05'),
-          earnAmount: earnBalance.amount,
+          earnShares: earnShareBalance.amount,
           slippageBps: 0,
           withdrawalMemo: keccak256('0x06'),
         },
@@ -1311,7 +1311,7 @@ describe('earn', () => {
         flow: 1,
         minOutputAmount: 0n,
         minVaultAssets: assetAmount,
-        minEarnAmount: 0n,
+        minEarnShares: 0n,
       })
       expect(isAddressEqual(redeemCallback.outputToken, stack.asset)).toBe(true)
       expect(
@@ -1338,7 +1338,7 @@ describe('earn', () => {
       expect(redeem.actionId).toBe(preparedRedeem.actionId)
       expect(isAddressEqual(redeem.outputToken, stack.asset)).toBe(true)
       expect(redeem.outputAmount).toBe(assetAmount)
-      expect(redeem.earnAmount).toBe(deposit.earnAmount)
+      expect(redeem.earnShares).toBe(deposit.earnShares)
       expect(redeem.vaultAssets).toBe(assetAmount)
 
       await Actions.zone.waitForTempoBlock(zoneClient, {
@@ -1353,7 +1353,7 @@ describe('earn', () => {
         }),
         Actions.token.getBalance(zoneClient, {
           account: account.address,
-          token: stack.earnToken,
+          token: stack.earnShare,
         }),
       ])
       expect(assetBalance.amount).toBeGreaterThanOrEqual(assetAmount)

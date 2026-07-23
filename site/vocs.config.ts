@@ -2630,8 +2630,8 @@ export default defineConfig({
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },
-                  text: 'depositShares',
-                  link: '/tempo/actions/earn.depositShares',
+                  text: 'depositVenueShares',
+                  link: '/tempo/actions/earn.depositVenueShares',
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },
@@ -2650,8 +2650,8 @@ export default defineConfig({
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },
-                  text: 'getVault',
-                  link: '/tempo/actions/earn.getVault',
+                  text: 'getEarnVault',
+                  link: '/tempo/actions/earn.getEarnVault',
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },

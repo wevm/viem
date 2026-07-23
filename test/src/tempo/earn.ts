@@ -25,8 +25,8 @@ import * as EarnContracts from './earnContracts.js'
 /**
  * Deploys a full local Earn stack from the vendored artifacts, mirroring
  * `earn/localnet/foundry/script/DeployLocalEarn.s.sol`: `Simple4626Vault`
- * venue -> `ERC4626Engine` -> `VaultAdapter` implementation -> `EarnFactory`
- * -> `factory.deploy` -> `engine.initializeAdapter`. Deploys are sequential
+ * venue -> `ERC4626Engine` -> `EarnVault` implementation -> `EarnFactory`
+ * -> `factory.deploy` -> `engine.initializeEarnVault`. Deploys are sequential
  * since Tempo allows one contract creation per transaction.
  */
 export async function deployEarnStack(
@@ -53,8 +53,8 @@ export async function deployEarnStack(
     bytecode: EarnContracts.erc4626Engine.bytecode,
   })
   const implementation = await deployContract(client, {
-    abi: EarnContracts.vaultAdapter.abi,
-    bytecode: EarnContracts.vaultAdapter.bytecode,
+    abi: EarnContracts.earnVault.abi,
+    bytecode: EarnContracts.earnVault.bytecode,
   })
   const earnFeesImplementation = await deployContract(client, {
     abi: EarnContracts.earnFees.abi,
@@ -91,17 +91,17 @@ export async function deployEarnStack(
     logs: receipt.logs,
   })
   if (!deployed) throw new Error('`EarnStackDeployed` event not found.')
-  const { earnFees, earnToken, vaultAdapter: adapter } = deployed.args
+  const { earnFees, earnShare, earnVault } = deployed.args
 
   await writeContractSync(client, {
     abi: Abis.erc4626Engine,
     address: engine,
-    args: [adapter],
-    functionName: 'initializeAdapter',
+    args: [earnVault],
+    functionName: 'initializeEarnVault',
   })
 
   return {
-    adapter,
+    earnVault,
     asset,
     // Demo-only yield injection: adds venue assets without minting shares.
     async donate(assets: bigint) {
@@ -122,7 +122,7 @@ export async function deployEarnStack(
     earnFees,
     factory,
     seats: { ...seats, operator },
-    earnToken,
+    earnShare,
     venue,
   }
 }
@@ -145,8 +145,8 @@ export declare namespace deployEarnStack {
   }
 
   export type ReturnValue = {
-    /** Deployed `VaultAdapter` proxy. */
-    adapter: Address
+    /** Deployed `EarnVault` proxy. */
+    earnVault: Address
     /** Venue base asset. */
     asset: Address
     /** Injects venue yield via `Simple4626Vault.donate`. */
@@ -159,8 +159,8 @@ export declare namespace deployEarnStack {
     factory: Address
     /** Seat accounts wired into the deployment. */
     seats: Seats
-    /** EarnToken (TIP-20) issued by the adapter. */
-    earnToken: Address
+    /** EarnShare (TIP-20) issued by the earnVault. */
+    earnShare: Address
     /** Deployed `Simple4626Vault` venue. */
     venue: Address
   }
@@ -168,14 +168,14 @@ export declare namespace deployEarnStack {
 
 /**
  * Deploys a `EarnRouter` against the given zone portal and Zone-enables the
- * stack's asset and EarnToken (localnet precedent: both legs must be
+ * stack's asset and EarnShare (localnet precedent: both legs must be
  * Zone-enabled).
  */
 export async function deployEarnRouter(
   client: Client<Transport, Chain, viem_Account>,
   options: deployEarnRouter.Options,
 ): Promise<deployEarnRouter.ReturnValue> {
-  const { adapter, portalClient } = options
+  const { earnVault, portalClient } = options
   const portal = options.zonePortal
 
   const earnRouter = await deployContract(client, {
@@ -183,19 +183,19 @@ export async function deployEarnRouter(
     bytecode: EarnContracts.earnRouter.bytecode,
   })
 
-  const [asset, earnToken] = await Promise.all([
+  const [asset, earnShare] = await Promise.all([
     readContract(client, {
-      abi: Abis.vaultAdapter,
-      address: adapter,
+      abi: Abis.earnVault,
+      address: earnVault,
       functionName: 'asset',
     }),
     readContract(client, {
-      abi: Abis.vaultAdapter,
-      address: adapter,
-      functionName: 'earnToken',
+      abi: Abis.earnVault,
+      address: earnVault,
+      functionName: 'earnShare',
     }),
   ])
-  for (const token of [asset, earnToken]) {
+  for (const token of [asset, earnShare]) {
     const enabled = await readContract(client, {
       abi: portalAbi,
       address: portal,
@@ -220,8 +220,8 @@ export async function deployEarnRouter(
 
 export declare namespace deployEarnRouter {
   export type Options = {
-    /** `VaultAdapter` whose tokens should be enabled in the test Zone. */
-    adapter: Address
+    /** `EarnVault` whose tokens should be enabled in the test Zone. */
+    earnVault: Address
     /** Portal administrator client. */
     portalClient: Client<Transport, Chain, viem_Account>
     /** Zone portal on the parent chain. */
@@ -234,7 +234,7 @@ export declare namespace deployEarnRouter {
   }
 }
 
-/** `IVaultFees.FeeInit` shape for `factory.deploy`. */
+/** `IEarnFees.FeeInit` shape for `factory.deploy`. */
 export type FeeInit = {
   administrator: Address
   excessFeeCap: bigint
@@ -263,7 +263,7 @@ type Seats = {
   feeAdministrator: Account.RootAccount
   /** Fee emergency-disable seat. */
   feeGuardian: Account.RootAccount
-  /** Adapter governance seat (the deployer). */
+  /** EarnVault governance seat (the deployer). */
   operator: viem_Account
 }
 

@@ -45,10 +45,10 @@ const abiSlices: readonly {
     events: ['EarnStackDeployed'],
     exportName: 'earnFactory',
     functions: [
-      'computeEarnSalt',
+      'computeEarnShareSalt',
       'deploy',
       'predictEarnFees',
-      'predictEarnToken',
+      'predictEarnShare',
     ],
   },
   {
@@ -58,35 +58,31 @@ const abiSlices: readonly {
     exportName: 'erc4626Engine',
     functions: [
       'acceptOwnership',
-      'initializeAdapter',
+      'initializeEarnVault',
       'owner',
       'pendingOwner',
       'renounceOwnership',
       'transferOwnership',
     ],
   },
-  { contracts: ['VaultAdapter'], exportName: 'vaultAdapter' },
+  { contracts: ['EarnVault'], exportName: 'earnVault' },
   {
     contracts: ['EarnFees'],
     exportName: 'earnFees',
   },
   {
-    contracts: [
-      'IVaultEngine',
-      'IVaultEngineRedeem',
-      'IVaultEngineExactWithdraw',
-    ],
-    exportName: 'vaultEngine',
+    contracts: ['IEarnEngine', 'IEarnEngineRedeem', 'IEarnEngineExactWithdraw'],
+    exportName: 'earnEngine',
     functions: true,
   },
   {
-    contracts: ['IVaultEngineAsyncRedeem'],
-    exportName: 'vaultEngineAsync',
+    contracts: ['IEarnEngineAsyncRedeem'],
+    exportName: 'earnEngineAsyncRedeem',
     functions: true,
   },
   {
-    contracts: ['IVaultEngineInKindDeposit'],
-    exportName: 'vaultEngineShares',
+    contracts: ['IEarnEngineInKindDeposit'],
+    exportName: 'earnEngineInKindDeposit',
     functions: true,
   },
   {
@@ -124,7 +120,7 @@ const abiSlices: readonly {
 const deployables: readonly { contract: string; exportName: string }[] = [
   { contract: 'Simple4626Vault', exportName: 'simple4626Vault' },
   { contract: 'ERC4626Engine', exportName: 'erc4626Engine' },
-  { contract: 'VaultAdapter', exportName: 'vaultAdapter' },
+  { contract: 'EarnVault', exportName: 'earnVault' },
   { contract: 'EarnFees', exportName: 'earnFees' },
   { contract: 'EarnFactory', exportName: 'earnFactory' },
   { contract: 'EarnRouter', exportName: 'earnRouter' },

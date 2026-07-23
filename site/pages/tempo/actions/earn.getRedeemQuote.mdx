@@ -2,7 +2,7 @@ import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
 # `earn.getRedeemQuote`
 
-Gets the asset output for an exact vault share input, including fees.
+Gets the asset output for an exact EarnShare input, including fees.
 
 ## Usage
 
@@ -12,8 +12,8 @@ Gets the asset output for an exact vault share input, including fees.
 import { client } from './viem.config'
 
 const assetAmount = await client.earn.getRedeemQuote({
-  shareAmount: 100_000_000n,
-  vault: '0x0000000000000000000000000000000000000001',
+  earnShares: 100_000_000n,
+  earnVault: '0x0000000000000000000000000000000000000001',
 })
 // @log: 99_500_000n
 ```
@@ -32,16 +32,16 @@ The quoted asset output in base units.
 
 ## Parameters
 
-### shareAmount
+### earnShares
 
 - **Type:** `bigint`
 
-Exact number of vault shares to redeem, in base units.
+Exact number of EarnShare to redeem, in base units.
 
-### vault
+### earnVault
 
 - **Type:** `Address`
 
-Vault address.
+EarnVault address.
 
 <ReadParameters />

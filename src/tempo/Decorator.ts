@@ -1745,7 +1745,7 @@ type DecoratorBase<
   }
   earn: {
     /**
-     * Creates and attaches an admission-only TIP-403 policy to an Earn vault
+     * Creates and attaches an admission-only TIP-403 policy to an Earn earnVault
      * share token. Existing holders remain able to send shares while
      * recipients and mint recipients must belong to the same whitelist.
      *
@@ -1754,7 +1754,7 @@ type DecoratorBase<
      * const { policy } = await client.earn.configureExitSafePolicy({
      *   accessAdministrator: '0x...',
      *   initialMembers: ['0x...', '0x...'],
-     *   shareToken: '0x...',
+     *   earnShare: '0x...',
      * })
      * ```
      *
@@ -1765,7 +1765,7 @@ type DecoratorBase<
       parameters: earnActions.configureExitSafePolicy.Parameters<account>,
     ) => Promise<earnActions.configureExitSafePolicy.ReturnValue>
     /**
-     * Deposits assets into a vault and mints vault shares to `recipient`. The
+     * Deposits assets into a earnVault and mints earnVault shares to `recipient`. The
      * transaction includes the required asset approval.
      *
      * @example
@@ -1783,8 +1783,8 @@ type DecoratorBase<
      *
      * const hash = await client.earn.deposit({
      *   assetAmount: 100_000_000n,
-     *   shareAmountMin: 99_400_000n,
-     *   vault: '0x...',
+     *   minEarnShares: 99_400_000n,
+     *   earnVault: '0x...',
      * })
      * ```
      *
@@ -1795,7 +1795,7 @@ type DecoratorBase<
       parameters: earnActions.deposit.Parameters<chain, account>,
     ) => Promise<earnActions.deposit.ReturnValue>
     /**
-     * Deposits venue shares into a vault and mints vault shares to
+     * Deposits venue shares into a earnVault and mints earnVault shares to
      * `recipient`. The transaction includes the required venue share approval.
      *
      * @example
@@ -1812,9 +1812,9 @@ type DecoratorBase<
      * }).extend(tempoActions())
      *
      * const hash = await client.earn.depositVenueShares({
-     *   earnShareAmountMin: 499_000_000n,
-     *   vault: '0x...',
-     *   venueShareAmount: 500_000_000n,
+     *   minEarnShares: 499_000_000n,
+     *   earnVault: '0x...',
+     *   venueShares: 500_000_000n,
      *   venueShareToken: '0x...',
      * })
      * ```
@@ -1841,10 +1841,10 @@ type DecoratorBase<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const { earnShareAmount } = await client.earn.depositVenueSharesSync({
-     *   earnShareAmountMin: 499_000_000n,
-     *   vault: '0x...',
-     *   venueShareAmount: 500_000_000n,
+     * const { earnShares } = await client.earn.depositVenueSharesSync({
+     *   minEarnShares: 499_000_000n,
+     *   earnVault: '0x...',
+     *   venueShares: 500_000_000n,
      *   venueShareToken: '0x...',
      * })
      * ```
@@ -1871,10 +1871,10 @@ type DecoratorBase<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const { shareAmount } = await client.earn.depositSync({
+     * const { earnShares } = await client.earn.depositSync({
      *   assetAmount: 100_000_000n,
-     *   shareAmountMin: 99_400_000n,
-     *   vault: '0x...',
+     *   minEarnShares: 99_400_000n,
+     *   earnVault: '0x...',
      * })
      * ```
      *
@@ -1885,7 +1885,7 @@ type DecoratorBase<
       parameters: earnActions.depositSync.Parameters<chain, account>,
     ) => Promise<earnActions.depositSync.ReturnValue>
     /**
-     * Withdraws assets from a Zone and deposits them into a vault on the
+     * Withdraws assets from a Zone and deposits them into a earnVault on the
      * parent chain.
      *
      * @example
@@ -1896,7 +1896,7 @@ type DecoratorBase<
      *   gateway: '0x...',
      *   recipient: '0x...',
      *   recoveryRecipient: '0x...',
-     *   shareAmountMin: 99_500_000n,
+     *   minEarnShares: 99_500_000n,
      *   vaultAssetAmountMin: 99_000_000n,
      * })
      * const hash = await zoneClient.earn.privateDeposit(prepared)
@@ -1925,7 +1925,7 @@ type DecoratorBase<
       parameters: earnActions.privateDepositSync.Parameters<chain, account>,
     ) => Promise<earnActions.privateDepositSync.ReturnValue>
     /**
-     * Gets the vault's active fee configuration, pending fees, and fee baselines.
+     * Gets the earnVault's active fee configuration, pending fees, and fee baselines.
      *
      * @example
      * ```ts
@@ -1939,7 +1939,7 @@ type DecoratorBase<
      * }).extend(tempoActions())
      *
      * const feeState = await client.earn.getFeeState({
-     *   vault: '0x...',
+     *   earnVault: '0x...',
      * })
      * ```
      *
@@ -1950,7 +1950,7 @@ type DecoratorBase<
       parameters: earnActions.getFeeState.Parameters,
     ) => Promise<earnActions.getFeeState.ReturnValue>
     /**
-     * Gets an account's asset and vault share balances, allowances, and
+     * Gets an account's asset and earnVault share balances, allowances, and
      * current share value. The value includes fees.
      *
      * @example
@@ -1967,19 +1967,19 @@ type DecoratorBase<
      * }).extend(tempoActions())
      *
      * const position = await client.earn.getPosition({
-     *   vault: '0x...',
+     *   earnVault: '0x...',
      * })
      * ```
      *
      * @param parameters - Parameters.
-     * @returns The asset and vault share balances, allowances, and value.
+     * @returns The asset and earnVault share balances, allowances, and value.
      */
     getPosition: (
       parameters: earnActions.getPosition.Parameters<account>,
     ) => Promise<earnActions.getPosition.ReturnValue>
     /**
-     * Gets the vault's addresses, configuration, accounting state, and
-     * supported actions. Throws `GetVaultEngineChangedError` if its engine
+     * Gets the earnVault's addresses, configuration, accounting state, and
+     * supported actions. Throws `GetEarnVaultEngineChangedError` if its engine
      * changes mid-read.
      *
      * @example
@@ -1993,19 +1993,19 @@ type DecoratorBase<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const vault = await client.earn.getVault({
-     *   vault: '0x...',
+     * const earnVault = await client.earn.getEarnVault({
+     *   earnVault: '0x...',
      * })
      * ```
      *
      * @param parameters - Parameters.
-     * @returns The vault state and metadata.
+     * @returns The earnVault state and metadata.
      */
-    getVault: (
-      parameters: earnActions.getVault.Parameters,
-    ) => Promise<earnActions.getVault.ReturnValue>
+    getEarnVault: (
+      parameters: earnActions.getEarnVault.Parameters,
+    ) => Promise<earnActions.getEarnVault.ReturnValue>
     /**
-     * Gets the asset output for an exact vault share input, including fees.
+     * Gets the asset output for an exact earnVault share input, including fees.
      *
      * @example
      * ```ts
@@ -2019,8 +2019,8 @@ type DecoratorBase<
      * }).extend(tempoActions())
      *
      * const assetAmount = await client.earn.getRedeemQuote({
-     *   shareAmount: 100_000_000n,
-     *   vault: '0x...',
+     *   earnShares: 100_000_000n,
+     *   earnVault: '0x...',
      * })
      * ```
      *
@@ -2031,7 +2031,7 @@ type DecoratorBase<
       parameters: earnActions.getRedeemQuote.Parameters,
     ) => Promise<earnActions.getRedeemQuote.ReturnValue>
     /**
-     * Gets the vault shares required for an exact asset output, including
+     * Gets the earnVault shares required for an exact asset output, including
      * fees and ceiling rounding.
      *
      * @example
@@ -2045,21 +2045,21 @@ type DecoratorBase<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const shareAmount = await client.earn.getWithdrawQuote({
+     * const earnShares = await client.earn.getWithdrawQuote({
      *   assetAmount: 250_000_000n,
-     *   vault: '0x...',
+     *   earnVault: '0x...',
      * })
      * ```
      *
      * @param parameters - Parameters.
-     * @returns The required vault share input, ceiling-rounded.
+     * @returns The required earnVault share input, ceiling-rounded.
      */
     getWithdrawQuote: (
       parameters: earnActions.getWithdrawQuote.Parameters,
     ) => Promise<earnActions.getWithdrawQuote.ReturnValue>
     /**
-     * Redeems vault shares for assets sent to `recipient`. The transaction
-     * includes the required vault share approval.
+     * Redeems earnVault shares for assets sent to `recipient`. The transaction
+     * includes the required earnVault share approval.
      *
      * @example
      * ```ts
@@ -2075,9 +2075,9 @@ type DecoratorBase<
      * }).extend(tempoActions())
      *
      * const hash = await client.earn.redeem({
-     *   shareAmount: 100_000_000n,
+     *   earnShares: 100_000_000n,
      *   slippageBps: 50,
-     *   vault: '0x...',
+     *   earnVault: '0x...',
      * })
      * ```
      *
@@ -2088,7 +2088,7 @@ type DecoratorBase<
       parameters: earnActions.redeem.Parameters<chain, account>,
     ) => Promise<earnActions.redeem.ReturnValue>
     /**
-     * Redeems vault shares and returns the confirmed receipt and event data.
+     * Redeems earnVault shares and returns the confirmed receipt and event data.
      *
      * @example
      * ```ts
@@ -2105,8 +2105,8 @@ type DecoratorBase<
      *
      * const { assetAmount } = await client.earn.redeemSync({
      *   assetAmountMin: 99_500_000n,
-     *   shareAmount: 100_000_000n,
-     *   vault: '0x...',
+     *   earnShares: 100_000_000n,
+     *   earnVault: '0x...',
      * })
      * ```
      *
@@ -2117,7 +2117,7 @@ type DecoratorBase<
       parameters: earnActions.redeemSync.Parameters<chain, account>,
     ) => Promise<earnActions.redeemSync.ReturnValue>
     /**
-     * Withdraws vault shares from a Zone and redeems them on the parent chain.
+     * Withdraws earnVault shares from a Zone and redeems them on the parent chain.
      *
      * @example
      * ```ts
@@ -2125,7 +2125,7 @@ type DecoratorBase<
      *   gateway: '0x...',
      *   recipient: '0x...',
      *   recoveryRecipient: '0x...',
-     *   shareAmount: 100_000_000n,
+     *   earnShares: 100_000_000n,
      *   slippageBps: 50,
      * })
      * const hash = await zoneClient.earn.privateRedeem(prepared)
@@ -2190,7 +2190,7 @@ type DecoratorBase<
       parameters: earnActions.waitForPrivateRedeem.Parameters,
     ) => Promise<earnActions.waitForPrivateRedeem.ReturnType>
     /**
-     * Verifies that an Earn vault share token uses the expected exit-safe
+     * Verifies that an Earn earnVault share token uses the expected exit-safe
      * TIP-403 policy and that every required member can receive transfers and
      * mints.
      *
@@ -2200,7 +2200,7 @@ type DecoratorBase<
      *   accessAdministrator: '0x...',
      *   policy,
      *   requiredMembers: ['0x...', '0x...'],
-     *   shareToken: '0x...',
+     *   earnShare: '0x...',
      * })
      * ```
      *
@@ -2212,7 +2212,7 @@ type DecoratorBase<
     ) => Promise<earnActions.validateExitSafePolicy.ReturnValue>
     /**
      * Withdraws an exact asset amount to `recipient`, up to the specified
-     * vault share limit. The transaction includes the required vault share
+     * earnVault share limit. The transaction includes the required earnVault share
      * approval; use `redeem` for a full exit.
      *
      * @example
@@ -2231,7 +2231,7 @@ type DecoratorBase<
      * const hash = await client.earn.withdrawExact({
      *   assetAmount: 40_000_000n,
      *   slippageBps: 50,
-     *   vault: '0x...',
+     *   earnVault: '0x...',
      * })
      * ```
      *
@@ -2257,10 +2257,10 @@ type DecoratorBase<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const { shareAmount } = await client.earn.withdrawExactSync({
+     * const { earnShares } = await client.earn.withdrawExactSync({
      *   assetAmount: 40_000_000n,
-     *   shareAmountMax: 40_200_000n,
-     *   vault: '0x...',
+     *   maxEarnShares: 40_200_000n,
+     *   earnVault: '0x...',
      * })
      * ```
      *
@@ -5892,7 +5892,7 @@ export function decorator() {
         'getFeeState',
         'getPosition',
         'getRedeemQuote',
-        'getVault',
+        'getEarnVault',
         'getWithdrawQuote',
         'redeem',
         'redeemSync',

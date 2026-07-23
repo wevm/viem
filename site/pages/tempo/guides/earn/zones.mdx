@@ -9,7 +9,7 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 Earn vaults live on the public Tempo chain, while a Zone keeps balances and recipients private. A
-Zone gateway moves assets or vault shares to the public chain, performs the vault action, then sends
+Zone gateway moves assets or EarnShare to the public chain, performs the vault action, then sends
 the result back to an encrypted recipient inside the Zone.
 
 The vault transaction and recovery address are public. The recipient of the returned Zone deposit is
@@ -44,7 +44,7 @@ const prepared = await parentClient.earn.privateDeposit.prepare({
   gateway,
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
-  shareAmountMin: 99_500_000n,
+  minEarnShares: 99_500_000n,
 })
 
 const { receipt, senderTag } = await zoneClient.earn.privateDepositSync(prepared)
@@ -74,13 +74,13 @@ const info = await zoneClient.zone.waitForTempoBlock({
 
 :::
 
-Use `shareAmount` with `slippageBps` when you have a quote instead of an exact share floor.
+Use `earnShares` with `slippageBps` when you have a quote instead of an exact share floor.
 
 ### Deposit Another Zone Asset
 
 Pass `assetToken` when the Zone asset differs from the vault asset. The gateway swaps it before the
 deposit. Set `vaultAssetAmountMin` to bound the vault assets produced by that swap independently from
-the vault share bound.
+the EarnShare bound.
 
 :::code-group
 
@@ -96,7 +96,7 @@ const prepared = await parentClient.earn.privateDeposit.prepare({
   gateway,
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
-  shareAmountMin: 98_500_000n,
+  minEarnShares: 98_500_000n,
   vaultAssetAmountMin: 99_000_000n,
 })
 
@@ -129,7 +129,7 @@ The gateway must support a swap route from `assetToken` to the vault asset. Omit
 
 ### Redeem Zone Vault Shares
 
-Use [`earn.privateRedeem.prepare`](/tempo/actions/earn.privateRedeem) to withdraw vault shares from the Zone
+Use [`earn.privateRedeem.prepare`](/tempo/actions/earn.privateRedeem) to withdraw EarnShare from the Zone
 and redeem them on the parent chain. Omitting `assetToken` returns the vault asset and lets the action
 derive the minimum output from a live vault quote.
 
@@ -144,7 +144,7 @@ const prepared = await parentClient.earn.privateRedeem.prepare({
   gateway,
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
-  shareAmount: 99_750_000n,
+  earnShares: 99_750_000n,
   slippageBps: 50,
 })
 
@@ -197,7 +197,7 @@ const prepared = await parentClient.earn.privateRedeem.prepare({
   gateway,
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
-  shareAmount: 99_750_000n,
+  earnShares: 99_750_000n,
 })
 
 const { receipt } = await zoneClient.earn.privateRedeemSync(prepared)
@@ -244,7 +244,7 @@ const prepared = await parentClient.earn.privateRedeem.prepare({
   gateway,
   recipient: beneficiary,
   recoveryRecipient: parentClient.account.address,
-  shareAmount: 99_750_000n,
+  earnShares: 99_750_000n,
   slippageBps: 50,
 })
 
@@ -277,9 +277,9 @@ but the action amount, timing, gateway, and recovery address remain public at th
 
 ### Move Existing Venue Shares into a Zone
 
-Compose [`earn.depositShares.calls`](/tempo/actions/earn.depositShares) with
+Compose [`earn.depositVenueShares.calls`](/tempo/actions/earn.depositVenueShares) with
 [`zone.encryptedDeposit.calls`](/tempo/actions/zone.encryptedDeposit) to approve venue shares, mint
-EarnToken, approve it to the Zone Portal, and deposit it to an encrypted recipient in one atomic
+EarnShare, approve it to the Zone Portal, and deposit it to an encrypted recipient in one atomic
 transaction.
 
 :::code-group
@@ -289,33 +289,33 @@ import { Abis } from 'viem/tempo'
 import { client as parentClient } from './viem.config'
 import { client as zoneClient } from './zones.config'
 
-const vaultAddress = '0x0000000000000000000000000000000000000001'
+const earnVaultAddress = '0x0000000000000000000000000000000000000001'
 const venueShareToken = '0x20c0000000000000000000000000000000000001'
-const venueShareAmount = 500_000_000n
+const venueShares = 500_000_000n
 const zoneId = 7
 
-const vault = await parentClient.earn.getVault({ vault: vaultAddress })
-const earnShareAmount = await parentClient.readContract({
-  abi: Abis.vaultAdapter,
-  address: vaultAddress,
-  args: [venueShareAmount],
-  functionName: 'sharesToTokens',
+const earnVault = await parentClient.earn.getEarnVault({ earnVault: earnVaultAddress })
+const earnShares = await parentClient.readContract({
+  abi: Abis.earnVault,
+  address: earnVaultAddress,
+  args: [venueShares],
+  functionName: 'convertEngineSharesToEarnShares',
 })
 const encrypted = await parentClient.zone.encryptedDeposit.prepare({
-  amount: earnShareAmount,
+  amount: earnShares,
   bouncebackRecipient: parentClient.account.address,
   recipient: zoneClient.account.address,
-  token: vault.shareToken,
+  token: earnVault.earnShare,
   zoneId,
 })
 
 const calls = [
-  ...parentClient.earn.depositShares.calls({
-    earnShareAmountMin: earnShareAmount,
-    engine: vault.engine.address,
+  ...parentClient.earn.depositVenueShares.calls({
+    minEarnShares: earnShares,
+    engine: earnVault.engine.address,
     recipient: parentClient.account.address,
-    vault: vaultAddress,
-    venueShareAmount,
+    earnVault: earnVaultAddress,
+    venueShares,
     venueShareToken,
   }),
   ...parentClient.zone.encryptedDeposit.calls(encrypted),
@@ -336,10 +336,10 @@ const receipt = await parentClient.sendTransactionSync({ calls })
 :::
 
 :::warning
-The encrypted deposit moves the fixed `earnShareAmount`. If the vault mints less, the exact minimum
+The encrypted deposit moves the fixed `earnShares`. If the vault mints less, the exact minimum
 reverts the whole batch. If it mints more, the difference remains public. Settle fees and quote
 immediately before submission. When an exact quote is not reliable, use two transactions: call
-`earn.depositSharesSync`, then pass its returned `earnShareAmount` to `zone.encryptedDepositSync`.
+`earn.depositVenueSharesSync`, then pass its returned `earnShares` to `zone.encryptedDepositSync`.
 :::
 
 ## Best Practices
@@ -395,6 +395,6 @@ event on Tempo, then wait for the encrypted deposit to be processed inside the Z
     icon="lucide:landmark"
     title="Inspect a Vault"
     description="Read vault configuration, state, and supported actions."
-    to="/tempo/actions/earn.getVault"
+    to="/tempo/actions/earn.getEarnVault"
   />
 </Cards>

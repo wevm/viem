@@ -2,7 +2,7 @@ import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
 # `earn.validateExitSafePolicy`
 
-Verifies that an Earn vault share token uses an expected exit-safe TIP-403 policy and that every
+Verifies that an Earn EarnShare token uses an expected exit-safe TIP-403 policy and that every
 required member can receive transfers and mints.
 
 The action throws when the token policy, compound components, whitelist administrator, or member
@@ -27,7 +27,7 @@ await client.earn.validateExitSafePolicy({
     '0x0000000000000000000000000000000000000003',
     '0x0000000000000000000000000000000000000004',
   ],
-  shareToken: '0x20c0000000000000000000000000000000000001',
+  earnShare: '0x20c0000000000000000000000000000000000001',
 })
 ```
 
@@ -62,10 +62,10 @@ the recipient and mint-recipient policy IDs must match.
 
 Addresses that must be authorized as recipients and mint recipients.
 
-### shareToken
+### earnShare
 
 - **Type:** `Address`
 
-Earn vault share token expected to use the compound transfer policy.
+Earn EarnShare token expected to use the compound transfer policy.
 
 <ReadParameters />

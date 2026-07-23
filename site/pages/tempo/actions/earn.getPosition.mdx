@@ -2,7 +2,7 @@ import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
 # `earn.getPosition`
 
-Gets an account's asset and vault share balances, allowances, and current share value.
+Gets an account's asset and EarnShare balances, allowances, and current share value.
 
 ## Usage
 
@@ -12,15 +12,15 @@ Gets an account's asset and vault share balances, allowances, and current share 
 import { client } from './viem.config'
 
 const position = await client.earn.getPosition({
-  vault: '0x0000000000000000000000000000000000000001',
+  earnVault: '0x0000000000000000000000000000000000000001',
 })
 // @log: {
 //   assetAllowance: 0n,
 //   assetBalance: 250_000_000n,
 //   assetToken: '0x20c0...0001',
-//   shareAllowance: 0n,
-//   shareBalance: 99_500_000n,
-//   shareToken: '0x20c0...0002',
+//   earnShareAllowance: 0n,
+//   earnShareBalance: 99_500_000n,
+//   earnShare: '0x20c0...0002',
 //   value: 100_000_000n,
 // }
 ```
@@ -42,15 +42,15 @@ import { client } from './viem.config'
 
 const position = await client.earn.getPosition({
   account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  vault: '0x0000000000000000000000000000000000000001',
+  earnVault: '0x0000000000000000000000000000000000000001',
 })
 // @log: {
 //   assetAllowance: 0n,
 //   assetBalance: 250_000_000n,
 //   assetToken: '0x20c0...0001',
-//   shareAllowance: 0n,
-//   shareBalance: 99_500_000n,
-//   shareToken: '0x20c0...0002',
+//   earnShareAllowance: 0n,
+//   earnShareBalance: 99_500_000n,
+//   earnShare: '0x20c0...0002',
 //   value: 100_000_000n,
 // }
 ```
@@ -69,15 +69,15 @@ type ReturnValue = {
   assetAllowance: bigint
   /** Asset balance held by the account. */
   assetBalance: bigint
-  /** Token accepted by the vault. */
+  /** Token accepted by the earnVault. */
   assetToken: Address
-  /** Vault shares the vault may spend from the account. */
-  shareAllowance: bigint
-  /** Vault share balance held by the account. */
-  shareBalance: bigint
-  /** Token representing vault shares. */
-  shareToken: Address
-  /** Current asset value of the vault share balance, including fees. */
+  /** EarnShare the vault may spend from the account. */
+  earnShareAllowance: bigint
+  /** EarnShare balance held by the account. */
+  earnShareBalance: bigint
+  /** Token representing EarnShare. */
+  earnShare: Address
+  /** Current asset value of the EarnShare balance, including fees. */
   value: bigint
 }
 ```
@@ -91,10 +91,10 @@ type ReturnValue = {
 
 Account whose position is returned.
 
-### vault
+### earnVault
 
 - **Type:** `Address`
 
-Vault address.
+EarnVault address.
 
 <ReadParameters />

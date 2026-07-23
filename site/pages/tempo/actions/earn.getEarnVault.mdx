@@ -1,8 +1,8 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `earn.getVault`
+# `earn.getEarnVault`
 
-Gets a vault's configuration, accounting state, and supported actions.
+Gets an EarnVault's configuration, accounting state, and supported actions.
 
 ## Usage
 
@@ -11,17 +11,17 @@ Gets a vault's configuration, accounting state, and supported actions.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const vault = await client.earn.getVault({
-  vault: '0x0000000000000000000000000000000000000001',
+const earnVault = await client.earn.getEarnVault({
+  earnVault: '0x0000000000000000000000000000000000000001',
 })
 // @log: {
 //   assetToken: '0x20c0...0001',
 //   asyncJanitor: '0x0000...0000',
 //   capabilities: {
-//     asyncRedeem: false,
+//     aredeem: false,
 //     exactWithdraw: true,
 //     inKindDeposit: true,
-//     syncRedeem: true,
+//     redeem: true,
 //   },
 //   depositsPaused: false,
 //   emergencyGuardian: '0x0000...0000',
@@ -34,11 +34,11 @@ const vault = await client.earn.getVault({
 //   engineMigrationMode: 'userOnly',
 //   engineShares: 1_000_000_000n,
 //   feesActive: true,
-//   isSynced: true,
+//   isAccountingAligned: true,
 //   operator: '0x0000...0003',
-//   pendingRedeemCount: 0n,
-//   shareSupply: 995_000_000n,
-//   shareToken: '0x20c0...0002',
+//   openRedeemRequestCount: 0n,
+//   totalEarnShares: 995_000_000n,
+//   earnShare: '0x20c0...0002',
 // }
 ```
 
@@ -52,16 +52,16 @@ const vault = await client.earn.getVault({
 
 ```ts
 type ReturnValue = {
-  /** Token accepted by the vault. */
+  /** Token accepted by the EarnVault. */
   assetToken: Address
   /** Address allowed to cancel queued redemptions. */
   asyncJanitor: Address
   /** Actions supported by the current venue integration. */
   capabilities: {
-    asyncRedeem: boolean
+    aredeem: boolean
     exactWithdraw: boolean
     inKindDeposit: boolean
-    syncRedeem: boolean
+    redeem: boolean
   }
   /** Whether new deposits are paused. */
   depositsPaused: boolean
@@ -76,30 +76,30 @@ type ReturnValue = {
   }
   /** Who may change the venue integration. */
   engineMigrationMode: 'operatorEnabled' | 'userOnly'
-  /** Venue shares held for the vault. */
+  /** Venue shares held for the EarnVault. */
   engineShares: bigint
   /** Whether fees are active. */
   feesActive: boolean
-  /** Whether vault share supply matches its asset backing. */
-  isSynced: boolean
-  /** Vault governance address. */
+  /** Whether EarnShare supply matches its asset backing. */
+  isAccountingAligned: boolean
+  /** EarnVault operator address. */
   operator: Address
   /** Open queued redemptions. */
-  pendingRedeemCount: bigint
-  /** Active vault share supply. */
-  shareSupply: bigint
-  /** Token representing vault shares. */
-  shareToken: Address
+  openRedeemRequestCount: bigint
+  /** Active EarnShare supply. */
+  totalEarnShares: bigint
+  /** EarnShare token. */
+  earnShare: Address
 }
 ```
 
 ## Parameters
 
-### vault
+### earnVault
 
 - **Type:** `Address`
 
-Vault address.
+EarnVault address.
 
 <ReadParameters />
 
@@ -107,4 +107,4 @@ Vault address.
 
 | Error | Description |
 | --- | --- |
-| `GetVaultEngineChangedError` | The vault changed venue integrations while its state was being read. |
+| `GetEarnVaultEngineChangedError` | The EarnVault changed venue integrations while its state was being read. |

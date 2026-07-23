@@ -14,7 +14,7 @@ the transaction executes.
 
 ## Recipes
 
-These recipes assume you have [set up a Tempo client](/tempo) and selected a vault address.
+These recipes assume you have [set up a Tempo client](/tempo) and selected a EarnVault address.
 
 ### Inspect the Vault
 
@@ -26,13 +26,13 @@ and the action you need is supported.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const vault = await client.earn.getVault({
-  vault: '0x0000000000000000000000000000000000000001',
+const earnVault = await client.earn.getEarnVault({
+  earnVault: '0x0000000000000000000000000000000000000001',
 })
 // @log: {
-// @log:   capabilities: { exactWithdraw: true, inKindDeposit: true, syncRedeem: true, ... },
+// @log:   capabilities: { exactWithdraw: true, inKindDeposit: true, redeem: true, ... },
 // @log:   depositsPaused: false,
-// @log:   isSynced: true,
+// @log:   isAccountingAligned: true,
 // @log:   ...
 // @log: }
 ```
@@ -45,7 +45,7 @@ const vault = await client.earn.getVault({
 
 ### Deposit Assets
 
-Use [`earn.depositSync`](/tempo/actions/earn.deposit) with a current vault share quote and a slippage
+Use [`earn.depositSync`](/tempo/actions/earn.deposit) with a current EarnShare quote and a slippage
 tolerance. The action derives a minimum share output, then approves and deposits the vault asset.
 
 :::code-group
@@ -55,11 +55,11 @@ import { client } from './viem.config'
 
 const result = await client.earn.depositSync({
   assetAmount: 100_000_000n,
-  shareAmount: 99_900_000n,
+  earnShares: 99_900_000n,
   slippageBps: 50,
-  vault: '0x0000000000000000000000000000000000000001',
+  earnVault: '0x0000000000000000000000000000000000000001',
 })
-// @log: { assetAmount: 100_000_000n, shareAmount: 99_500_500n, receipt: { ... }, ... }
+// @log: { assetAmount: 100_000_000n, earnShares: 99_500_500n, receipt: { ... }, ... }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -68,13 +68,13 @@ const result = await client.earn.depositSync({
 
 :::
 
-There is no live deposit quote action. Obtain `shareAmount` from the vault provider or another trusted
+There is no live deposit quote action. Obtain `earnShares` from the vault provider or another trusted
 quote source close to submission. If that source already gives you an acceptable floor, pass it as
-`shareAmountMin` instead.
+`minEarnShares` instead.
 
 ### Deposit for Another Recipient
 
-Set `recipient` when the account supplying assets should mint vault shares to another address. This
+Set `recipient` when the account supplying assets should mint EarnShare to another address. This
 supports treasury funding, gifting, and sponsored entry without transferring asset custody first.
 
 :::code-group
@@ -85,8 +85,8 @@ import { client } from './viem.config'
 const result = await client.earn.depositSync({
   assetAmount: 100_000_000n,
   recipient: '0x1111111111111111111111111111111111111111',
-  shareAmountMin: 99_500_000n,
-  vault: '0x0000000000000000000000000000000000000001',
+  minEarnShares: 99_500_000n,
+  earnVault: '0x0000000000000000000000000000000000000001',
 })
 // @log: { assetAmount: 100_000_000n, recipient: '0x1111...1111', ... }
 ```
@@ -102,7 +102,7 @@ still burns shares from the sending account. It only directs the resulting asset
 
 ### Deposit Venue Shares
 
-Use [`earn.depositSharesSync`](/tempo/actions/earn.depositShares) to move an existing venue position
+Use [`earn.depositVenueSharesSync`](/tempo/actions/earn.depositVenueShares) to move an existing venue position
 into a vault without first converting it back to assets. The vault must report
 `capabilities.inKindDeposit: true`.
 
@@ -111,13 +111,13 @@ into a vault without first converting it back to assets. The vault must report
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const result = await client.earn.depositSharesSync({
-  earnShareAmountMin: 497_000_000n,
-  vault: '0x0000000000000000000000000000000000000002',
-  venueShareAmount: 500_000_000n,
+const result = await client.earn.depositVenueSharesSync({
+  minEarnShares: 497_000_000n,
+  earnVault: '0x0000000000000000000000000000000000000002',
+  venueShares: 500_000_000n,
   venueShareToken: '0x20c0000000000000000000000000000000000001',
 })
-// @log: { earnShareAmount: 498_750_000n, receivedVenueShareAmount: 500_000_000n, ... }
+// @log: { earnShares: 498_750_000n, receivedVenueShares: 500_000_000n, ... }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -128,7 +128,7 @@ const result = await client.earn.depositSharesSync({
 
 ### Inspect a Position
 
-Use [`earn.getPosition`](/tempo/actions/earn.getPosition) to read the account's current vault shares
+Use [`earn.getPosition`](/tempo/actions/earn.getPosition) to read the account's current EarnShare
 and their asset value before choosing an exit.
 
 :::code-group
@@ -137,11 +137,11 @@ and their asset value before choosing an exit.
 import { client } from './viem.config'
 
 const position = await client.earn.getPosition({
-  vault: '0x0000000000000000000000000000000000000001',
+  earnVault: '0x0000000000000000000000000000000000000001',
 })
 // @log: {
 // @log:   assetBalance: 250_000_000n,
-// @log:   shareBalance: 99_500_000n,
+// @log:   earnShareBalance: 99_500_000n,
 // @log:   value: 100_000_000n,
 // @log:   ...
 // @log: }
@@ -155,7 +155,7 @@ const position = await client.earn.getPosition({
 
 ### Track Yield and Fees
 
-Vault shares are non-rebasing. Their count can stay fixed while their redeemable asset value changes.
+EarnShare are non-rebasing. Their count can stay fixed while their redeemable asset value changes.
 Compare [`earn.getPosition`](/tempo/actions/earn.getPosition),
 [`earn.getRedeemQuote`](/tempo/actions/earn.getRedeemQuote), and
 [`earn.getFeeState`](/tempo/actions/earn.getFeeState) to show the current net position and pending fee
@@ -166,22 +166,22 @@ liability.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const vault = '0x0000000000000000000000000000000000000001'
-const position = await client.earn.getPosition({ vault })
+const earnVault = '0x0000000000000000000000000000000000000001'
+const position = await client.earn.getPosition({ earnVault })
 const [redeemQuote, feeState] = await Promise.all([
   client.earn.getRedeemQuote({
-    shareAmount: position.shareBalance,
-    vault,
+    earnShares: position.earnShareBalance,
+    earnVault,
   }),
-  client.earn.getFeeState({ vault }),
+  client.earn.getFeeState({ earnVault }),
 ])
 
 console.log({
   pendingFees: feeState.preview.totalFeeAssets,
   redeemQuote,
-  shareBalance: position.shareBalance,
+  earnShareBalance: position.earnShareBalance,
 })
-// @log: { pendingFees: 250_000n, redeemQuote: 100_000_000n, shareBalance: 99_500_000n }
+// @log: { pendingFees: 250_000n, redeemQuote: 100_000_000n, earnShareBalance: 99_500_000n }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -205,11 +205,11 @@ output.
 import { client } from './viem.config'
 
 const result = await client.earn.redeemSync({
-  shareAmount: 99_500_000n,
+  earnShares: 99_500_000n,
   slippageBps: 50,
-  vault: '0x0000000000000000000000000000000000000001',
+  earnVault: '0x0000000000000000000000000000000000000001',
 })
-// @log: { assetAmount: 99_000_000n, shareAmount: 99_500_000n, receipt: { ... }, ... }
+// @log: { assetAmount: 99_000_000n, earnShares: 99_500_000n, receipt: { ... }, ... }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -218,7 +218,7 @@ const result = await client.earn.redeemSync({
 
 :::
 
-To redeem the whole position, pass `position.shareBalance` as `shareAmount`.
+To redeem the whole position, pass `position.earnShareBalance` as `earnShares`.
 
 ### Withdraw Exact Assets
 
@@ -234,9 +234,9 @@ import { client } from './viem.config'
 const result = await client.earn.withdrawExactSync({
   assetAmount: 40_000_000n,
   slippageBps: 50,
-  vault: '0x0000000000000000000000000000000000000001',
+  earnVault: '0x0000000000000000000000000000000000000001',
 })
-// @log: { assetAmount: 40_000_000n, shareAmount: 40_100_000n, receipt: { ... }, ... }
+// @log: { assetAmount: 40_000_000n, earnShares: 40_100_000n, receipt: { ... }, ... }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -261,8 +261,8 @@ const calls = client.earn.deposit.calls({
   assetAmount: 100_000_000n,
   assetToken: '0x20c0000000000000000000000000000000000001',
   recipient: client.account.address,
-  shareAmountMin: 99_500_000n,
-  vault: '0x0000000000000000000000000000000000000001',
+  minEarnShares: 99_500_000n,
+  earnVault: '0x0000000000000000000000000000000000000001',
 })
 
 const simulation = await client.simulate.simulateCalls({
@@ -291,8 +291,8 @@ explicitly when composing them.
 
 ### Always Bound Execution
 
-Use `shareAmountMin`, `earnShareAmountMin`, or `assetAmountMin` to set an exact floor. Use
-`shareAmountMax` to set an exact withdrawal ceiling, or derive any bound from a quote with
+Use `minEarnShares`, `minEarnShares`, or `assetAmountMin` to set an exact floor. Use
+`maxEarnShares` to set an exact withdrawal ceiling, or derive any bound from a quote with
 `slippageBps`.
 
 ### Quote Close to Submission
@@ -307,7 +307,7 @@ Use `redeem` when the share input is fixed or you want to exit the full position
 
 ### Check Vault State
 
-Do not deposit while `depositsPaused` is true. Check `isSynced` and the relevant capability before
+Do not deposit while `depositsPaused` is true. Check `isAccountingAligned` and the relevant capability before
 using specialized entry or exit actions.
 
 ### Keep Exits Available During a Pause

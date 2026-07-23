@@ -2,7 +2,7 @@ import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
 # `earn.getWithdrawQuote`
 
-Gets the vault shares required for an exact asset output, including fees.
+Gets the EarnShare required for an exact asset output, including fees.
 
 ## Usage
 
@@ -11,9 +11,9 @@ Gets the vault shares required for an exact asset output, including fees.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const shareAmount = await client.earn.getWithdrawQuote({
+const earnShares = await client.earn.getWithdrawQuote({
   assetAmount: 100_000_000n,
-  vault: '0x0000000000000000000000000000000000000001',
+  earnVault: '0x0000000000000000000000000000000000000001',
 })
 // @log: 100_500_000n
 ```
@@ -28,7 +28,7 @@ const shareAmount = await client.earn.getWithdrawQuote({
 
 `bigint`
 
-The required vault share input in base units, rounded up.
+The required EarnShare input in base units, rounded up.
 
 ## Parameters
 
@@ -38,10 +38,10 @@ The required vault share input in base units, rounded up.
 
 Exact number of assets to receive, in base units.
 
-### vault
+### earnVault
 
 - **Type:** `Address`
 
-Vault address.
+EarnVault address.
 
 <ReadParameters />
