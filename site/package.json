@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node scripts/copy-vocs-theme.mjs && vocs build",
     "dev": "vocs dev",
-    "prebuild": "pnpm --dir .. docs:sync-utils --if-needed",
+    "prebuild": "node ../scripts/docs:sync-utils.ts --if-needed",
     "preview": "vocs preview",
     "sync:vocs": "node scripts/copy-vocs-theme.mjs"
   },
