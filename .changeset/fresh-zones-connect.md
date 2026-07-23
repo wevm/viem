@@ -2,4 +2,4 @@
 'viem': patch
 ---
 
-Added Zone E metadata, address registries, and source-chain Portal and Messenger contracts.
+`viem/tempo`: Added Zone E metadata, address registries, and Portal and Messenger contracts.

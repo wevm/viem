@@ -1,19 +1,13 @@
 import { ZoneId } from 'ox/tempo'
 import { tempo, tempoModerato } from 'viem/chains'
+import { Addresses } from 'viem/tempo/zones'
 import { describe, expect, test } from 'vitest'
-import {
-  from,
-  getPortalAddress,
-  messengerAddresses,
-  portalAddresses,
-  zone,
-  zoneModerato,
-} from './zone.js'
+import { from, getPortalAddress, zone, zoneModerato } from './zone.js'
 
 describe('getPortalAddress', () => {
   test('returns a configured portal address', () => {
     expect(getPortalAddress(tempoModerato.id, 1)).toBe(
-      portalAddresses[tempoModerato.id][1],
+      Addresses.portal[tempoModerato.id][1],
     )
   })
 
@@ -29,13 +23,11 @@ describe('from', () => {
     expect(zoneModerato(1)).toMatchObject({
       contracts: {
         messenger: {
-          [tempoModerato.id]: {
-            address: messengerAddresses[tempoModerato.id][1],
-          },
+          address: Addresses.messenger[tempoModerato.id][1],
         },
         portal: {
           [tempoModerato.id]: {
-            address: portalAddresses[tempoModerato.id][1],
+            address: Addresses.portal[tempoModerato.id][1],
           },
         },
       },
