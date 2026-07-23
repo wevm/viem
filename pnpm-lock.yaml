@@ -402,6 +402,12 @@ importers:
       '@iconify-json/vscode-icons':
         specifier: 1.2.40
         version: 1.2.40
+      '@takumi-rs/image-response':
+        specifier: 0.62.8
+        version: 0.62.8
+      '@takumi-rs/wasm':
+        specifier: 0.62.8
+        version: 0.62.8
       '@types/node':
         specifier: 'catalog:'
         version: 24.5.2
@@ -429,6 +435,9 @@ importers:
       tailwindcss:
         specifier: ^4.3.0
         version: 4.3.0
+      tsx:
+        specifier: ^4.17.0
+        version: 4.21.0
       typescript:
         specifier: catalog:ts5
         version: 5.9.3
