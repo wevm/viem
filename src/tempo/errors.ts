@@ -23,11 +23,17 @@ export type WaitForPrivateDepositTimeoutErrorType =
     name: 'WaitForPrivateDepositTimeoutError'
   }
 
-/** Thrown when a Zone gateway deposit event is not found before the timeout. */
+/** Thrown when an EarnRouter Zone deposit event is not found before the timeout. */
 export class WaitForPrivateDepositTimeoutError extends BaseError {
-  constructor({ actionId, gateway }: { actionId: Hex.Hex; gateway: Address }) {
+  constructor({
+    actionId,
+    earnRouter,
+  }: {
+    actionId: Hex.Hex
+    earnRouter: Address
+  }) {
     super(
-      `Timed out while waiting for Zone deposit "${actionId}" at gateway "${gateway}".`,
+      `Timed out while waiting for Zone deposit "${actionId}" at EarnRouter "${earnRouter}".`,
       { name: 'WaitForPrivateDepositTimeoutError' },
     )
   }
@@ -52,11 +58,17 @@ export type WaitForPrivateRedeemTimeoutErrorType =
     name: 'WaitForPrivateRedeemTimeoutError'
   }
 
-/** Thrown when a Zone gateway redeem event is not found before the timeout. */
+/** Thrown when an EarnRouter Zone redeem event is not found before the timeout. */
 export class WaitForPrivateRedeemTimeoutError extends BaseError {
-  constructor({ actionId, gateway }: { actionId: Hex.Hex; gateway: Address }) {
+  constructor({
+    actionId,
+    earnRouter,
+  }: {
+    actionId: Hex.Hex
+    earnRouter: Address
+  }) {
     super(
-      `Timed out while waiting for Zone redemption "${actionId}" at gateway "${gateway}".`,
+      `Timed out while waiting for Zone redemption "${actionId}" at EarnRouter "${earnRouter}".`,
       { name: 'WaitForPrivateRedeemTimeoutError' },
     )
   }

@@ -1811,7 +1811,7 @@ type DecoratorBase<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const hash = await client.earn.depositShares({
+     * const hash = await client.earn.depositVenueShares({
      *   earnShareAmountMin: 499_000_000n,
      *   vault: '0x...',
      *   venueShareAmount: 500_000_000n,
@@ -1822,9 +1822,9 @@ type DecoratorBase<
      * @param parameters - Parameters.
      * @returns The transaction hash.
      */
-    depositShares: (
-      parameters: earnActions.depositShares.Parameters<chain, account>,
-    ) => Promise<earnActions.depositShares.ReturnValue>
+    depositVenueShares: (
+      parameters: earnActions.depositVenueShares.Parameters<chain, account>,
+    ) => Promise<earnActions.depositVenueShares.ReturnValue>
     /**
      * Deposits venue shares and returns the confirmed receipt and event data.
      *
@@ -1841,7 +1841,7 @@ type DecoratorBase<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const { earnShareAmount } = await client.earn.depositSharesSync({
+     * const { earnShareAmount } = await client.earn.depositVenueSharesSync({
      *   earnShareAmountMin: 499_000_000n,
      *   vault: '0x...',
      *   venueShareAmount: 500_000_000n,
@@ -1852,9 +1852,9 @@ type DecoratorBase<
      * @param parameters - Parameters.
      * @returns The transaction receipt and event data.
      */
-    depositSharesSync: (
-      parameters: earnActions.depositSharesSync.Parameters<chain, account>,
-    ) => Promise<earnActions.depositSharesSync.ReturnValue>
+    depositVenueSharesSync: (
+      parameters: earnActions.depositVenueSharesSync.Parameters<chain, account>,
+    ) => Promise<earnActions.depositVenueSharesSync.ReturnValue>
     /**
      * Deposits assets and returns the confirmed receipt and event data.
      *
@@ -5885,8 +5885,8 @@ export function decorator() {
         'configureExitSafePolicy',
         'deposit',
         'depositSync',
-        'depositShares',
-        'depositSharesSync',
+        'depositVenueShares',
+        'depositVenueSharesSync',
         'privateDeposit',
         'privateDepositSync',
         'getFeeState',

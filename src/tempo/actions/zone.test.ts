@@ -28,7 +28,7 @@ import { parseUnits } from 'viem/utils'
 import { describe, expect, test } from 'vitest'
 import { accounts } from '~test/constants.js'
 import { addresses, chain, http, nodeEnv } from '~test/tempo/config.js'
-import { deployEarnGateway, deployEarnStack } from '~test/tempo/earn.js'
+import { deployEarnRouter, deployEarnStack } from '~test/tempo/earn.js'
 import { defineZone, zoneAdminKey } from '~test/tempo/prool.js'
 import {
   factoryAddress,
@@ -61,8 +61,6 @@ const portalAdminClient = createClient({
 })
 const zoneClient = getZoneClient({ account })
 // TODO: Remove when T9 launches.
-const hardfork = import.meta.env.VITE_TEMPO_HARDFORK
-const legacyZoneCallback = hardfork === 'T7' || hardfork === 'T8'
 const parentToken = '0x20c0000000000000000000000000000000000000'
 const depositParameters = {
   amount: parseUnits('1', 6),
@@ -1081,7 +1079,7 @@ describe('requestVerifiableWithdrawal', () => {
 
 describe('earn', () => {
   test.runIf(nodeEnv === 'localnet')(
-    'behavior: deposits and redeems through a Zone gateway',
+    'behavior: deposits and redeems through a Zone earnRouter',
     async () => {
       await Actions.zone.signAuthorizationToken(zoneClient, { zoneId })
 
@@ -1093,14 +1091,17 @@ describe('earn', () => {
         to: portalAdmin.address,
         token: parentToken,
       })
-      const { gateway } = await deployEarnGateway(mainnetClient, {
+      const { earnRouter } = await deployEarnRouter(mainnetClient, {
         adapter: stack.adapter,
-        defaultSwapper: account.address,
-        legacyCallback: legacyZoneCallback,
-        owner: account.address,
         portalClient: portalAdminClient,
         zonePortal: portalAddress,
       })
+      const privateRoute = {
+        adapter: stack.adapter,
+        earnRouter,
+        portalAddress,
+        zoneId,
+      } as const
 
       const callbackGas = 10_000_000n
       // Exercise a non-default value below the Zone callback gas ceiling.
@@ -1125,63 +1126,63 @@ describe('earn', () => {
       const swappedDeposit = await Actions.earn.privateDeposit.prepare(
         mainnetClient,
         {
+          ...privateRoute,
           assetAmount: 1n,
           assetToken: addresses.alphaUsd,
-          gateway,
           recipient: account.address,
           recoveryRecipient,
-          shareAmountMin: 2n,
+          earnAmountMin: 2n,
         },
       )
       const [swappedDepositCallback] = decodeAbiParameters(
-        Abis.zoneGatewayCallbackData,
+        Abis.earnRouterCallbackData,
         swappedDeposit.data,
       )
       expect(swappedDepositCallback).toMatchObject({
         flow: 0,
         minOutputAmount: 0n,
         minVaultAssets: 0n,
-        minVaultShares: 2n,
+        minEarnAmount: 2n,
       })
       expect(
-        isAddressEqual(swappedDepositCallback.outputToken, stack.shareToken),
+        isAddressEqual(swappedDepositCallback.outputToken, stack.earnToken),
       ).toBe(true)
 
       const boundedSwappedDeposit = await Actions.earn.privateDeposit.prepare(
         mainnetClient,
         {
+          ...privateRoute,
           assetAmount: 1n,
           assetToken: addresses.alphaUsd,
-          gateway,
           recipient: account.address,
           recoveryRecipient,
-          shareAmountMin: 4n,
+          earnAmountMin: 4n,
           vaultAssetAmountMin: 3n,
         },
       )
       const [boundedSwappedDepositCallback] = decodeAbiParameters(
-        Abis.zoneGatewayCallbackData,
+        Abis.earnRouterCallbackData,
         boundedSwappedDeposit.data,
       )
       expect(boundedSwappedDepositCallback).toMatchObject({
         flow: 0,
         minOutputAmount: 0n,
         minVaultAssets: 3n,
-        minVaultShares: 4n,
+        minEarnAmount: 4n,
       })
 
       const preparedDeposit = await Actions.earn.privateDeposit.prepare(
         mainnetClient,
         {
+          ...privateRoute,
           actionId: keccak256('0x01'),
           assetAmount,
           callbackGas: callbackGasOverride,
           fallbackRecipient: accounts[2].address,
-          gateway,
           recipient: account.address,
           recoveryRecipient,
           returnMemo: keccak256('0x02'),
-          shareAmountMin: 1n,
+          earnAmountMin: 1n,
           vaultAssetAmountMin: 2n,
           withdrawalMemo: keccak256('0x03'),
         },
@@ -1195,7 +1196,7 @@ describe('earn', () => {
         zoneId,
       })
       const [depositCallback] = decodeAbiParameters(
-        Abis.zoneGatewayCallbackData,
+        Abis.earnRouterCallbackData,
         preparedDeposit.data,
       )
       expect(depositCallback).toMatchObject({
@@ -1203,13 +1204,19 @@ describe('earn', () => {
         flow: 0,
         minOutputAmount: 0n,
         minVaultAssets: assetAmount,
-        minVaultShares: 1n,
+        minEarnAmount: 1n,
       })
+      expect(isAddressEqual(depositCallback.outputToken, stack.earnToken)).toBe(
+        true,
+      )
       expect(
-        isAddressEqual(depositCallback.outputToken, stack.shareToken),
-      ).toBe(true)
-      expect(
-        isAddressEqual(depositCallback.refundRecipient, recoveryRecipient),
+        isAddressEqual(
+          decodeAbiParameters(
+            Abis.earnRouterZoneReturn,
+            depositCallback.destinationData,
+          )[0].refundRecipient,
+          recoveryRecipient,
+        ),
       ).toBe(true)
       await expect(
         Actions.earn.privateDeposit(zoneClient, {
@@ -1228,45 +1235,45 @@ describe('earn', () => {
       const deposit = await Actions.earn.waitForPrivateDeposit(mainnetClient, {
         actionId: preparedDeposit.actionId,
         fromBlock: preparedDeposit.fromBlock,
-        gateway,
+        earnRouter,
         pollingInterval: 100,
       })
       expect(deposit.actionId).toBe(preparedDeposit.actionId)
       expect(deposit.inputAmount).toBe(assetAmount)
       expect(isAddressEqual(deposit.inputToken, stack.asset)).toBe(true)
-      expect(deposit.shares).toBe(assetAmount)
+      expect(deposit.earnAmount).toBe(assetAmount)
       expect(deposit.vaultAssets).toBe(assetAmount)
 
       await Actions.zone.waitForTempoBlock(zoneClient, {
         pollingInterval: 100,
         tempoBlockNumber: deposit.tempoBlockNumber,
       })
-      const shareBalance = await Actions.token.getBalance(zoneClient, {
+      const earnBalance = await Actions.token.getBalance(zoneClient, {
         account: account.address,
-        token: stack.shareToken,
+        token: stack.earnToken,
       })
-      expect(shareBalance.amount).toBe(deposit.shares)
+      expect(earnBalance.amount).toBe(deposit.earnAmount)
 
       const swappedRedeem = await Actions.earn.privateRedeem.prepare(
         mainnetClient,
         {
+          ...privateRoute,
           assetAmountMin: 2n,
           assetToken: addresses.alphaUsd,
-          gateway,
           recipient: account.address,
           recoveryRecipient,
-          shareAmount: 1n,
+          earnAmount: 1n,
         },
       )
       const [swappedRedeemCallback] = decodeAbiParameters(
-        Abis.zoneGatewayCallbackData,
+        Abis.earnRouterCallbackData,
         swappedRedeem.data,
       )
       expect(swappedRedeemCallback).toMatchObject({
         flow: 1,
         minOutputAmount: 2n,
         minVaultAssets: 1n,
-        minVaultShares: 0n,
+        minEarnAmount: 0n,
       })
       expect(
         isAddressEqual(swappedRedeemCallback.outputToken, addresses.alphaUsd),
@@ -1275,14 +1282,14 @@ describe('earn', () => {
       const preparedRedeem = await Actions.earn.privateRedeem.prepare(
         mainnetClient,
         {
+          ...privateRoute,
           actionId: keccak256('0x04'),
           callbackGas: callbackGasOverride,
           fallbackRecipient: accounts[2].address,
-          gateway,
           recipient: account.address,
           recoveryRecipient,
           returnMemo: keccak256('0x05'),
-          shareAmount: shareBalance.amount,
+          earnAmount: earnBalance.amount,
           slippageBps: 0,
           withdrawalMemo: keccak256('0x06'),
         },
@@ -1296,7 +1303,7 @@ describe('earn', () => {
         zoneId,
       })
       const [redeemCallback] = decodeAbiParameters(
-        Abis.zoneGatewayCallbackData,
+        Abis.earnRouterCallbackData,
         preparedRedeem.data,
       )
       expect(redeemCallback).toMatchObject({
@@ -1304,11 +1311,17 @@ describe('earn', () => {
         flow: 1,
         minOutputAmount: 0n,
         minVaultAssets: assetAmount,
-        minVaultShares: 0n,
+        minEarnAmount: 0n,
       })
       expect(isAddressEqual(redeemCallback.outputToken, stack.asset)).toBe(true)
       expect(
-        isAddressEqual(redeemCallback.refundRecipient, recoveryRecipient),
+        isAddressEqual(
+          decodeAbiParameters(
+            Abis.earnRouterZoneReturn,
+            redeemCallback.destinationData,
+          )[0].refundRecipient,
+          recoveryRecipient,
+        ),
       ).toBe(true)
       const acceptedRedeem = await Actions.earn.privateRedeemSync(
         zoneClient,
@@ -1319,13 +1332,13 @@ describe('earn', () => {
       const redeem = await Actions.earn.waitForPrivateRedeem(mainnetClient, {
         actionId: preparedRedeem.actionId,
         fromBlock: preparedRedeem.fromBlock,
-        gateway,
+        earnRouter,
         pollingInterval: 100,
       })
       expect(redeem.actionId).toBe(preparedRedeem.actionId)
       expect(isAddressEqual(redeem.outputToken, stack.asset)).toBe(true)
       expect(redeem.outputAmount).toBe(assetAmount)
-      expect(redeem.shares).toBe(deposit.shares)
+      expect(redeem.earnAmount).toBe(deposit.earnAmount)
       expect(redeem.vaultAssets).toBe(assetAmount)
 
       await Actions.zone.waitForTempoBlock(zoneClient, {
@@ -1333,18 +1346,18 @@ describe('earn', () => {
         tempoBlockNumber: redeem.tempoBlockNumber,
       })
 
-      const [assetBalance, finalShareBalance] = await Promise.all([
+      const [assetBalance, finalEarnBalance] = await Promise.all([
         Actions.token.getBalance(zoneClient, {
           account: account.address,
           token: stack.asset,
         }),
         Actions.token.getBalance(zoneClient, {
           account: account.address,
-          token: stack.shareToken,
+          token: stack.earnToken,
         }),
       ])
       expect(assetBalance.amount).toBeGreaterThanOrEqual(assetAmount)
-      expect(finalShareBalance.amount).toBe(0n)
+      expect(finalEarnBalance.amount).toBe(0n)
     },
     480_000,
   )
