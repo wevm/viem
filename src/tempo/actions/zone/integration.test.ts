@@ -84,6 +84,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         method: 'zone_getZoneInfo',
         params: [],
       })) as Actions.zone.getZoneInfo.RpcReturnType
+      // Ox uses tuple property order to select an overloaded ABI function.
       const unconfiguredZoneReceipt =
         'sequencers' in rpcInfo
           ? await CoreActions.contract.writeSync(zoneAdminClient, {
@@ -91,11 +92,11 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
               address: factoryAddress,
               args: [
                 {
-                  admin: account.address,
                   initialToken: tempo.pathUsd,
-                  rpcUrl: 'http://127.0.0.1:0',
+                  admin: account.address,
                   sequencers: [account.address],
                   threshold: 1,
+                  rpcUrl: 'http://127.0.0.1:0',
                 },
               ],
               functionName: 'createZone',
@@ -115,9 +116,8 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
                 address: factoryAddress,
                 args: [
                   {
-                    admin: account.address,
                     initialToken: tempo.pathUsd,
-                    rpcUrl: 'http://127.0.0.1:0',
+                    admin: account.address,
                     sequencer: account.address,
                     verifier,
                     zoneParams: {
@@ -125,6 +125,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
                       genesisTempoBlockHash: zeroHash,
                       genesisTempoBlockNumber,
                     },
+                    rpcUrl: 'http://127.0.0.1:0',
                   },
                 ],
                 functionName: 'createZone',

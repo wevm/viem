@@ -19,6 +19,14 @@ test('exports the zone factory ABI', () => {
           "type": "event",
         },
         {
+          "name": "ZoneCreated",
+          "type": "event",
+        },
+        {
+          "name": "createZone",
+          "type": "function",
+        },
+        {
           "name": "createZone",
           "type": "function",
         },

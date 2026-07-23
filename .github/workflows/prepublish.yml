@@ -20,8 +20,11 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
-      - name: Prepublish
+      - name: Prepare prerelease
         run: |
           pnpm version prerelease --preid $(git rev-parse --short=7 HEAD) --no-git-tag-version
           pnpm changeset:prepublish
-          pnpx pkg-pr-new publish --pnpm --compact '.'
+
+      - name: Publish prerelease
+        if: github.repository == 'wevm/viem'
+        run: pnpx pkg-pr-new publish --pnpm --compact '.'

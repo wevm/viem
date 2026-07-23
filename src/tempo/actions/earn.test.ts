@@ -1,6 +1,6 @@
 import { Address, Value } from 'ox'
 import { TokenRole } from 'ox/tempo'
-import { Actions as CoreActions } from 'viem'
+import { Actions as CoreActions, Client as CoreClient } from 'viem'
 import {
   Account,
   Abis,
@@ -1400,7 +1400,10 @@ describe('privateDeposit', () => {
   })
 
   test('error: prepared request parent chain does not match the client', async () => {
-    const noChainClient = Client.create({ account, transport: http() })
+    const noChainClient = CoreClient.create({
+      account,
+      transport: http(rpcUrl),
+    })
     await expect(
       Actions.earn.privateDeposit(noChainClient, { ...prepared, chain: null }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
