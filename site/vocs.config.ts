@@ -38,7 +38,9 @@ export default defineConfig({
   baseUrl:
     process.env.VERCEL_ENV === 'production'
       ? 'https://viem.sh'
-      : process.env.VERCEL_URL,
+      : process.env.VERCEL_GIT_COMMIT_REF === 'v3'
+        ? 'https://v3.viem.sh'
+        : process.env.VERCEL_URL,
   title: 'Viem',
   titleTemplate: '%s · Viem',
   description:
