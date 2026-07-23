@@ -20,7 +20,7 @@ export function getPortalAddress(
 }
 
 type ZoneContracts = {
-  messenger: { address: `0x${string}` }
+  messenger: Record<number, { address: `0x${string}` } | undefined>
   portal: Record<number, { address: `0x${string}` } | undefined>
 }
 
@@ -35,7 +35,9 @@ const overrides = {
     1: {
       contracts: {
         messenger: {
-          address: Addresses.messenger[tempoModerato.id][1],
+          [tempoModerato.id]: {
+            address: Addresses.messenger[tempoModerato.id][1],
+          },
         },
         portal: {
           [tempoModerato.id]: {

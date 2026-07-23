@@ -23,7 +23,9 @@ describe('from', () => {
     expect(zoneModerato(1)).toMatchObject({
       contracts: {
         messenger: {
-          address: Addresses.messenger[tempoModerato.id][1],
+          [tempoModerato.id]: {
+            address: Addresses.messenger[tempoModerato.id][1],
+          },
         },
         portal: {
           [tempoModerato.id]: {
