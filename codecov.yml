@@ -1,6 +1,7 @@
 codecov:
   notify:
-    after_n_builds: 6
+    # 6 Core shards and 9 Tempo hardfork shards.
+    after_n_builds: 15
 
 coverage:
   status:
