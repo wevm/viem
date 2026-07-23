@@ -25,6 +25,16 @@ try {
 // directories).
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const oxDist = resolve(root, 'node_modules/ox/dist')
+const vercelEnvironment = process.env.VERCEL_ENV
+const vercelRef = process.env.VERCEL_GIT_COMMIT_REF
+const isV3 =
+  vercelRef === 'v3' || process.env.VERCEL_GIT_REPO_SLUG === 'viem-v3'
+// Remote sync prunes stale vectors, so v3 must not share production's index.
+const aiIndex = isV3
+  ? 'viem-docs-v3'
+  : vercelEnvironment === 'preview'
+    ? undefined
+    : 'viem-docs'
 
 const badge = (kind: 'public' | 'test' | 'wallet') =>
   ({
@@ -35,12 +45,11 @@ const badge = (kind: 'public' | 'test' | 'wallet') =>
 
 export default defineConfig({
   accentColor: 'light-dark(#51741f, #bfd655)',
-  baseUrl:
-    process.env.VERCEL_ENV === 'production'
+  baseUrl: isV3
+    ? 'https://v3.viem.sh'
+    : vercelEnvironment === 'production'
       ? 'https://viem.sh'
-      : process.env.VERCEL_GIT_COMMIT_REF === 'v3'
-        ? 'https://v3.viem.sh'
-        : process.env.VERCEL_URL,
+      : process.env.VERCEL_URL,
   title: 'Viem',
   titleTemplate: '%s · Viem',
   description:
@@ -535,17 +544,19 @@ export default defineConfig({
       return 1
     },
   },
-  ai: {
-    retriever: Retriever.local({
-      embedding: Embedding.cloudflare(),
-      reranker: Reranker.cloudflare(),
-      sources: [
-        { url: 'https://wagmi.sh/llms.txt', label: 'wagmi', weight: 0.8 },
-      ],
-      // Remote store keeps vectors out of the server bundle entirely.
-      vectorStore: VectorStore.cloudflare({ index: 'viem-docs' }),
-    }),
-  },
+  ai: aiIndex
+    ? {
+        retriever: Retriever.local({
+          embedding: Embedding.cloudflare(),
+          reranker: Reranker.cloudflare(),
+          sources: [
+            { url: 'https://wagmi.sh/llms.txt', label: 'wagmi', weight: 0.8 },
+          ],
+          // Remote store keeps vectors out of the server bundle entirely.
+          vectorStore: VectorStore.cloudflare({ index: aiIndex }),
+        }),
+      }
+    : undefined,
   sidebar: {
     '/docs': [
       {
