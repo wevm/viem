@@ -15,3 +15,8 @@ coverage:
         target: 95%
         threshold: 0%
         if_not_found: failure
+
+parsers:
+  lcov:
+    # Match Vitest line coverage; branch coverage has its own threshold.
+    partials_as_hits: true
