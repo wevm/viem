@@ -1,5 +1,15 @@
 # viem
 
+## 2.55.8
+
+### Patch Changes
+
+- [#4890](https://github.com/wevm/viem/pull/4890) [`3078687aabea3064fc868f395114f41815895685`](https://github.com/wevm/viem/commit/3078687aabea3064fc868f395114f41815895685) Thanks [@parvahuja](https://github.com/parvahuja)! - `viem/tempo`: Fixed gas estimation for sponsored access key transactions prepared without gas.
+
+- [#4891](https://github.com/wevm/viem/pull/4891) [`c067f1a0c540afb54e27864b601064fb1c6e5249`](https://github.com/wevm/viem/commit/c067f1a0c540afb54e27864b601064fb1c6e5249) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added Zone E metadata, address registries, and Portal and Messenger contracts.
+
+- [#4891](https://github.com/wevm/viem/pull/4891) [`c067f1a0c540afb54e27864b601064fb1c6e5249`](https://github.com/wevm/viem/commit/c067f1a0c540afb54e27864b601064fb1c6e5249) Thanks [@jxom](https://github.com/jxom)! - **Breaking(viem/tempo)**: Removed `portalAddresses`.
+
 ## 2.55.7
 
 ### Patch Changes
