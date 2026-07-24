@@ -9,6 +9,10 @@ test('zoneFactory supports both parameter shapes', () => {
     args: [
       {
         initialToken: zeroAddress,
+        accessMode: false,
+        gatewayMode: false,
+        allowedAccounts: [],
+        zoneGateways: [],
         admin: zeroAddress,
         sequencers: [zeroAddress],
         threshold: 1,

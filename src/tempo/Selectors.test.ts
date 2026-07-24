@@ -31,17 +31,17 @@ const selectorMaps = {
 // Earn slices are ABIs of user-deployed contracts, not precompiles;
 // `Selectors` covers the precompile set only.
 const earnAbis = new Set<string>([
+  'earnContributionController',
+  'earnEngine',
+  'earnEngineAsyncRedeem',
+  'earnEngineInKindDeposit',
   'earnFactory',
+  'earnFees',
+  'earnRouter',
+  'earnRouterCallbackData',
+  'earnVault',
   'erc4626Engine',
-  'vaultAdapter',
-  'vaultEngine',
-  'vaultEngineAsync',
-  'vaultEngineShares',
-  'vaultRewards',
   'vedaEngine',
-  'zoneGateway',
-  'zoneGatewayBase',
-  'zoneGatewayCallbackData',
 ])
 
 const selectorFixtures = Object.entries(Abis)

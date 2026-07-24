@@ -2,7 +2,7 @@ import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
 # `earn.deposit`
 
-Deposits assets into a vault and mints vault shares to a recipient.
+Deposits assets into a vault and mints Earn shares to a recipient.
 
 ## Usage
 
@@ -37,7 +37,7 @@ quote; `slippageBps` converts it into the minimum accepted share amount.
 
 ### Set an Exact Minimum
 
-Use `shareAmountMin` when you already have a minimum vault share output.
+Use `shareAmountMin` when you already have a minimum Earn share output.
 
 :::code-group
 
@@ -90,9 +90,9 @@ type ReturnValue = {
   caller: Address
   /** Transaction receipt. */
   receipt: TransactionReceipt
-  /** Vault share recipient. */
+  /** Earn share recipient. */
   recipient: Address
-  /** Vault shares minted. */
+  /** Earn shares minted. */
   shareAmount: bigint
 }
 ```
@@ -113,19 +113,19 @@ unless `decimals` is provided.
 - **Type:** `Address`
 - **Default:** `account.address`
 
-Vault share recipient.
+Earn share recipient.
 
 ### shareAmount (optional)
 
 - **Type:** `bigint`
 
-Quoted vault share output. Provide it with `slippageBps`, or provide `shareAmountMin` instead.
+Quoted Earn share output. Provide it with `slippageBps`, or provide `shareAmountMin` instead.
 
 ### shareAmountMin (optional)
 
 - **Type:** `bigint`
 
-Minimum vault shares to accept. It must be greater than zero and cannot be combined with
+Minimum Earn shares to accept. It must be greater than zero and cannot be combined with
 `shareAmount` or `slippageBps`.
 
 ### slippageBps (optional)

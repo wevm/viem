@@ -3,7 +3,7 @@ import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
 # `earn.privateDeposit`
 
-Withdraws assets from a private Zone, deposits them into an Earn vault, and returns the vault shares
+Withdraws assets from a private Zone, deposits them into an Earn vault, and returns the Earn shares
 to an encrypted Zone recipient.
 
 ## Usage
@@ -23,6 +23,8 @@ const prepared = await parentClient.earn.privateDeposit.prepare({
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
   shareAmountMin: 99_500_000n,
+  vault: '0x0000000000000000000000000000000000000002',
+  zoneId: 7,
 })
 
 const { receipt, senderTag } = await zoneClient.earn.privateDepositSync(prepared)
@@ -58,6 +60,8 @@ const prepared = await parentClient.earn.privateDeposit.prepare({
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
   shareAmountMin: 99_500_000n,
+  vault: '0x0000000000000000000000000000000000000002',
+  zoneId: 7,
 })
 
 const hash = await zoneClient.earn.privateDeposit(prepared)
@@ -66,9 +70,8 @@ const hash = await zoneClient.earn.privateDeposit(prepared)
 
 ### Swap-Routed Deposits
 
-Pass `assetToken` when the Zone asset differs from the gateway vault asset. Set
-`vaultAssetAmountMin` to bound the gateway vault assets produced by that swap, and set the share
-bound independently.
+Pass `assetToken` when the Zone asset differs from the vault asset. Set `vaultAssetAmountMin` to
+bound the vault assets produced by that swap, and set the share bound independently.
 
 ```ts twoslash
 import { client as parentClient } from './viem.config'
@@ -81,12 +84,14 @@ const prepared = await parentClient.earn.privateDeposit.prepare({
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
   shareAmountMin: 98_500_000n,
+  vault: '0x0000000000000000000000000000000000000003',
   vaultAssetAmountMin: 99_000_000n,
+  zoneId: 7,
 })
 ```
 
-When `assetToken` is the gateway vault asset, the action always requires the exact withdrawn
-`assetAmount`. For swap-routed deposits, omitting `vaultAssetAmountMin` preserves the zero minimum.
+When `assetToken` is the vault asset, the action always requires the exact withdrawn `assetAmount`.
+For swap-routed deposits, omitting `vaultAssetAmountMin` preserves the zero minimum.
 
 ## Return Type
 
@@ -139,17 +144,9 @@ Assets withdrawn from the Zone, in base units.
 ### assetToken (optional)
 
 - **Type:** `Address`
-- **Default:** The gateway vault asset
+- **Default:** The vault asset
 
 Asset token withdrawn from the Zone. The gateway swaps it into the vault asset when needed.
-
-### vaultAssetAmountMin (optional)
-
-- **Type:** `bigint`
-- **Default:** `0n` for swap-routed deposits
-
-Minimum gateway vault assets accepted after swapping `assetToken`. This bound works alongside the
-vault share bound. Direct vault-asset deposits always use the exact withdrawn `assetAmount` instead.
 
 ### callbackGas (optional)
 
@@ -169,13 +166,20 @@ Public recipient if the parent-chain gateway callback fails.
 
 - **Type:** `Address`
 
-Gateway identifying the vault and Zone configuration.
+Zone gateway that processes the parent-chain callback.
+
+### portalAddress (optional)
+
+- **Type:** `Address`
+- **Default:** Derived from `zoneId`
+
+Source Zone portal on the parent chain.
 
 ### recipient
 
 - **Type:** `Address`
 
-Encrypted Zone recipient for the returned vault shares.
+Encrypted Zone recipient for the returned Earn shares.
 
 ### recoveryRecipient
 
@@ -193,13 +197,13 @@ Memo encrypted with the returned Zone deposit.
 
 - **Type:** `bigint`
 
-Quoted vault share output. Provide it with `slippageBps`, or provide `shareAmountMin` instead.
+Quoted Earn share output. Provide it with `slippageBps`, or provide `shareAmountMin` instead.
 
 ### shareAmountMin (optional)
 
 - **Type:** `bigint`
 
-Minimum vault shares returned to the Zone.
+Minimum Earn shares returned to the Zone.
 
 ### slippageBps (optional)
 
@@ -207,11 +211,31 @@ Minimum vault shares returned to the Zone.
 
 Slippage tolerance below `shareAmount`, in basis points. For example, `50` means 0.5%.
 
+### vault
+
+- **Type:** `Address`
+
+Earn vault receiving the assets.
+
+### vaultAssetAmountMin (optional)
+
+- **Type:** `bigint`
+- **Default:** `0n` for swap-routed deposits
+
+Minimum vault assets accepted after swapping `assetToken`. This bound works alongside the Earn
+share bound. Direct vault-asset deposits always use the exact withdrawn `assetAmount` instead.
+
 ### withdrawalMemo (optional)
 
 - **Type:** `Hex`
 
 Memo attached to the Zone withdrawal.
+
+### zoneId
+
+- **Type:** `number`
+
+Source Zone receiving the returned Earn shares.
 
 <ReadParameters />
 

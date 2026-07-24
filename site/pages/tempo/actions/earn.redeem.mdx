@@ -2,7 +2,7 @@ import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
 # `earn.redeem`
 
-Redeems an exact number of vault shares for assets sent to a recipient.
+Redeems an exact number of Earn shares for assets sent to a recipient.
 
 ## Usage
 
@@ -33,7 +33,7 @@ const result = await client.earn.redeemSync({
 
 When only `slippageBps` is provided, the action gets a live
 [`earn.getRedeemQuote`](/tempo/actions/earn.getRedeemQuote) and derives the minimum asset output.
-The transaction approves the vault shares and redeems them atomically.
+The transaction approves the Earn shares and redeems them atomically.
 
 ### Use an Existing Quote
 
@@ -87,7 +87,7 @@ type ReturnValue = {
   receipt: TransactionReceipt
   /** Asset recipient. */
   recipient: Address
-  /** Vault shares burned. */
+  /** Earn shares burned. */
   shareAmount: bigint
 }
 ```
@@ -120,7 +120,7 @@ Asset recipient.
 
 - **Type:** `bigint | { decimals?: number | undefined; formatted: string }`
 
-Vault shares to redeem. A `bigint` uses base units; a formatted value uses the share token's
+Earn shares to redeem. A `bigint` uses base units; a formatted value uses the share token's
 decimals unless `decimals` is provided.
 
 ### slippageBps (optional)

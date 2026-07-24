@@ -8,8 +8,8 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-A protected Earn vault attaches an exit-safe TIP-403 policy to its vault share token. The policy
-allows every sender, while one whitelist controls who can receive transfers and newly minted vault
+A protected Earn vault attaches an exit-safe TIP-403 policy to its Earn share token. The policy
+allows every sender, while one whitelist controls who can receive transfers and newly minted Earn
 shares.
 
 Eligibility applies to the share recipient, not the account funding a deposit. Removing an account
@@ -27,7 +27,7 @@ completed policy before publishing the vault.
 
 ## Recipes
 
-These recipes assume you have [set up a Tempo client](/tempo) whose account can change the vault
+These recipes assume you have [set up a Tempo client](/tempo) whose account can change the Earn
 share token's transfer policy.
 
 ### Configure and Validate the Policy
@@ -83,7 +83,7 @@ and mint eligibility.
 Check the recipient policy with
 [`policy.isAuthorized`](/tempo/actions/policy.isAuthorized) before funding another account through
 [`earn.depositSync`](/tempo/actions/earn.deposit). The caller supplies the assets, while the
-`recipient` receives the vault shares.
+`recipient` receives the Earn shares.
 
 :::code-group
 

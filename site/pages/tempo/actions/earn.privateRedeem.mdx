@@ -3,7 +3,7 @@ import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
 # `earn.privateRedeem`
 
-Withdraws vault shares from a private Zone, redeems them on Tempo, and returns the assets to an
+Withdraws Earn shares from a private Zone, redeems them on Tempo, and returns the assets to an
 encrypted Zone recipient.
 
 ## Usage
@@ -23,6 +23,8 @@ const prepared = await parentClient.earn.privateRedeem.prepare({
   recoveryRecipient: parentClient.account.address,
   shareAmount: 100_000_000n,
   slippageBps: 50,
+  vault: '0x0000000000000000000000000000000000000002',
+  zoneId: 7,
 })
 
 const { receipt, senderTag } = await zoneClient.earn.privateRedeemSync(prepared)
@@ -58,6 +60,8 @@ const prepared = await parentClient.earn.privateRedeem.prepare({
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
   shareAmount: 100_000_000n,
+  vault: '0x0000000000000000000000000000000000000002',
+  zoneId: 7,
 })
 
 const hash = await zoneClient.earn.privateRedeem(prepared)
@@ -121,7 +125,7 @@ Minimum assets returned to the Zone.
 ### assetToken (optional)
 
 - **Type:** `Address`
-- **Default:** The gateway vault asset
+- **Default:** The vault asset
 
 Asset token returned to the Zone. A different token uses the gateway swap.
 
@@ -143,7 +147,14 @@ Public recipient if the parent-chain gateway callback fails.
 
 - **Type:** `Address`
 
-Gateway identifying the vault and Zone configuration.
+Zone gateway that processes the parent-chain callback.
+
+### portalAddress (optional)
+
+- **Type:** `Address`
+- **Default:** Derived from `zoneId`
+
+Source Zone portal on the parent chain.
 
 ### recipient
 
@@ -167,7 +178,7 @@ Memo encrypted with the returned Zone deposit.
 
 - **Type:** `bigint`
 
-Vault shares withdrawn from the Zone, in base units.
+Earn shares withdrawn from the Zone, in base units.
 
 ### slippageBps (optional)
 
@@ -175,11 +186,23 @@ Vault shares withdrawn from the Zone, in base units.
 
 Slippage tolerance below the provided or live quote, in basis points. For example, `50` means 0.5%.
 
+### vault
+
+- **Type:** `Address`
+
+Earn vault whose shares are redeemed.
+
 ### withdrawalMemo (optional)
 
 - **Type:** `Hex`
 
 Memo attached to the Zone withdrawal.
+
+### zoneId
+
+- **Type:** `number`
+
+Source Zone receiving the returned assets.
 
 <ReadParameters />
 

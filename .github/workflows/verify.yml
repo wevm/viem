@@ -223,9 +223,9 @@ jobs:
             zone-tag: sha-aae82c4
             zone-xtask-tag: ''
           - hardfork: T9
-            tempo-tag: sha256:290c7c1843cc8fbc8c0e5e37025c5373050d21004e4d22f4b00f978dfbee4c47
-            zone-tag: sha256:2cb2d54c6d5b0473c1d0fc112d806fcb80a21516b660d4ab6e1bb0bcc7a97896
-            zone-xtask-tag: sha256:57bdf58caf4654eef2615260b19c1b65d8823af150e95643d0619a97dcbba3bd
+            tempo-tag: sha256:20bcf40f19b251bcd2fdeae8b2db47eab16d3d8facab513dcfaab6cf3f4f7590
+            zone-tag: sha256:22c2d61174ba5d1dcc474b6de4310f129c6e4cb8bd2a4c08746e00602134a979
+            zone-xtask-tag: sha256:95ee688789c205f6ff608ecad747918f811fb6c985f7339182e4d7b2e9a083aa
 
     steps:
       - name: Clone repository
