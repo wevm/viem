@@ -6,13 +6,13 @@ import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
 import * as contract from '~test/contract.js'
 
-const client = anvil.getClient(anvil.mainnet)
+const client = anvil.getClient(anvil.local)
 const account = constants.accounts[0].address
 const recipient = constants.accounts[1].address
 
 const accountClient = Client.create({
   account,
-  transport: http(anvil.mainnet.rpcUrl.http),
+  transport: http(anvil.local.rpcUrl.http),
 })
 
 const erc721 = Contract.from({
@@ -84,7 +84,7 @@ test('write rejects without a client or per-call account', async () => {
   expect(contract.write).toBeDefined()
   await expect(
     // @ts-expect-error account is required without a client account
-    contract.write.emitTransfer({ args: [account, recipient, 1n] }),
+    contract.write.emitTransfer([account, recipient, 1n]),
   ).rejects.toThrowError(Account.NotFoundError)
 })
 
@@ -96,18 +96,18 @@ test('write group accepts a per-call account without a client account', async ()
   const fresh = Contract.from({
     abi: generated.Events.abi,
     address,
-    client: Client.create({ transport: http(anvil.mainnet.rpcUrl.http) }),
+    client: Client.create({ transport: http(anvil.local.rpcUrl.http) }),
   })
   const args = [account, recipient, 1n] as const
 
   expect(
-    (await fresh.estimateGas.emitTransfer({ account, args })) > 0n,
+    (await fresh.estimateGas.emitTransfer(args, { account })) > 0n,
   ).toMatchInlineSnapshot(`true`)
   expect(
-    (await fresh.simulate.emitTransfer({ account, args })).result,
+    (await fresh.simulate.emitTransfer(args, { account })).result,
   ).toMatchInlineSnapshot(`undefined`)
 
-  const hash = await fresh.write.emitTransfer({ account, args })
+  const hash = await fresh.write.emitTransfer(args, { account })
   await Actions.block.mine(client, { blocks: 1 })
   const receipt = await Actions.transaction.getReceipt(client, { hash })
   expect(receipt.status).toMatchInlineSnapshot(`"success"`)
@@ -118,10 +118,10 @@ test('binds function and event action options', async () => {
 
   const args = [account, recipient, 1n] as const
   expect(
-    (await events.estimateGas.emitTransfer({ account, args })) > 0n,
+    (await events.estimateGas.emitTransfer(args, { account })) > 0n,
   ).toMatchInlineSnapshot(`true`)
   expect(
-    (await events.simulate.emitTransfer({ account, args })).result,
+    (await events.simulate.emitTransfer(args, { account })).result,
   ).toMatchInlineSnapshot(`undefined`)
 
   const filter = await events.createEventFilter.Transfer({
@@ -131,7 +131,7 @@ test('binds function and event action options', async () => {
   const watcher = events.watchEvent.Transfer({ poll: true })
   watcher.off()
 
-  const hash = await events.write.emitTransfer({ account, args })
+  const hash = await events.write.emitTransfer(args, { account })
   await Actions.block.mine(client, { blocks: 1 })
   const receipt = await Actions.transaction.getReceipt(client, { hash })
 

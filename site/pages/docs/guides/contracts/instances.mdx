@@ -11,7 +11,7 @@ import { Card, Cards } from 'vocs'
 [`Contract.from`](/docs/contract/instances) creates an interface bound to an ABI, address, and Client.
 Its `read`, `write`, `simulate`, `estimateGas`, and event methods are derived from the ABI, which
 removes repeated configuration from code that uses the same contract many times. The `write`
-group requires the Client to have an [Account](/docs/accounts).
+group requires an [Account](/docs/accounts) on the Client or per call.
 
 ## Recipes
 
@@ -34,9 +34,9 @@ const usdc = Contract.from({
   client,
 })
 
-const balance = await usdc.read.balanceOf({
-  args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
-})
+const balance = await usdc.read.balanceOf([
+  '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+])
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -62,12 +62,10 @@ const usdc = Contract.from({
   client,
 })
 
-const { result } = await usdc.simulate.transfer({
-  args: [
-    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-    Value.from('1', 6),
-  ],
-})
+const { result } = await usdc.simulate.transfer([
+  '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  Value.from('1', 6),
+])
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

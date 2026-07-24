@@ -27,15 +27,18 @@ const contract = Contract.from({
   client,
 })
 
-const hash = await contract.write.transfer({ // [!code focus]
-  args: ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n], // [!code focus]
-}) // [!code focus]
+const hash = await contract.write.transfer([ // [!code focus]
+  '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  1n, // [!code focus]
+]) // [!code focus]
 // @log: '0x...'
 ```
 
 ## Options
 
-The options of [`Actions.contract.write`](/docs/actions/wallet/contract/write#parameters) minus the bound `abi`, `address`, and `functionName`, such as `args`, `value` (payable functions only), and transaction-request fields like `nonce` and fees.
+Function arguments are passed as the first parameter. The second parameter accepts the options of [`Actions.contract.write`](/docs/actions/wallet/contract/write#parameters) minus the bound `abi`, `address`, `args`, and `functionName`, such as `value` (payable functions only) and transaction-request fields like `nonce` and fees.
+
+When a function has no inputs, omit the arguments array and pass options as the first parameter.
 
 ## Return Value
 

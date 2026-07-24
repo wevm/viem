@@ -27,9 +27,9 @@ const contract = Contract.from({
   client,
 })
 
-const balance = await contract.read.balanceOf({
-  args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
-})
+const balance = await contract.read.balanceOf([
+  '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+])
 ```
 
 <Cards>

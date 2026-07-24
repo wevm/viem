@@ -17,12 +17,14 @@ const contract = Contract.from({
   client,
 })
 
-const balance = await contract.read.balanceOf({
-  args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
-})
+const balance = await contract.read.balanceOf([
+  '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+])
 ```
 
-If you only call a contract once or twice, the standalone [Contract Actions](/docs/actions/public/contract/read) (`Actions.contract.read`, [`Actions.contract.write`](/docs/actions/wallet/contract/write), etc.) avoid creating an instance. Method options are the matching action's options minus the bound `abi`, `address`, and `functionName`/`eventName`.
+Contract function arguments are passed as the first parameter, with the matching action's remaining options as the second parameter. Functions without inputs accept the options as their only parameter.
+
+If you only call a contract once or twice, the standalone [Contract Actions](/docs/actions/public/contract/read) (`Actions.contract.read`, [`Actions.contract.write`](/docs/actions/wallet/contract/write), etc.) avoid creating an instance. Event method options are the matching action's options minus the bound `abi`, `address`, and `eventName`.
 
 ## Methods
 

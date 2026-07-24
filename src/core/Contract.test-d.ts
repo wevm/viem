@@ -104,41 +104,41 @@ test('preserves the bound ABI and address', () => {
   >()
 })
 
-test('infers function args and return values from one options bag', async () => {
+test('infers positional function args and options', async () => {
   const contract = Contract.from({ abi, address, client: accountClient })
 
-  const balance = await contract.read.balanceOf({ args: [recipient] })
+  const balance = await contract.read.balanceOf([recipient], {
+    blockTag: 'latest',
+  })
   expectTypeOf(balance).toEqualTypeOf<bigint>()
 
-  const owner = await contract.read.lookup({ args: [1n] })
+  const owner = await contract.read.lookup([1n])
   expectTypeOf(owner).toEqualTypeOf<Address.Address>()
 
-  const id = await contract.read.lookup({ args: [recipient] })
+  const id = await contract.read.lookup([recipient])
   expectTypeOf(id).toEqualTypeOf<bigint>()
 
-  const gas = contract.estimateGas.transfer({ args: [recipient, 1n] })
+  const gas = contract.estimateGas.transfer([recipient, 1n])
   expectTypeOf(gas).toEqualTypeOf<Promise<bigint>>()
 
-  const simulation = await contract.simulate.transfer({
-    args: [recipient, 1n],
-  })
+  const simulation = await contract.simulate.transfer([recipient, 1n])
   expectTypeOf(simulation.result).toEqualTypeOf<boolean>()
 
-  const hash = contract.write.transfer({ args: [recipient, 1n] })
+  const hash = contract.write.transfer([recipient, 1n])
   expectTypeOf(hash).toEqualTypeOf<Promise<Hex.Hex>>()
 
   contract.write.deposit({ value: 1n })
   contract.write.deposit()
 
   // A hoisted client account keeps `account` optional, but per-call overrides work.
-  contract.write.transfer({ account: address, args: [recipient, 1n] })
+  contract.write.transfer([recipient, 1n], { account: address })
 
-  // @ts-expect-error args belong inside the options bag
-  contract.read.balanceOf([recipient])
+  // @ts-expect-error args are the first positional parameter
+  contract.read.balanceOf({ args: [recipient] })
   // @ts-expect-error balanceOf requires an address argument
   contract.read.balanceOf()
   // @ts-expect-error nonpayable functions cannot receive value
-  contract.write.transfer({ args: [recipient, 1n], value: 1n })
+  contract.write.transfer([recipient, 1n], { value: 1n })
 })
 
 test('threads as through read and simulate', async () => {
@@ -229,18 +229,17 @@ test('requires a per-call account when the client has none', () => {
     | 'write'
   >()
 
-  const hash = contract.write.transfer({
+  const hash = contract.write.transfer([recipient, 1n], {
     account: recipient,
-    args: [recipient, 1n],
   })
   expectTypeOf(hash).toEqualTypeOf<Promise<Hex.Hex>>()
 
   // @ts-expect-error account is required without a client account
-  contract.write.transfer({ args: [recipient, 1n] })
+  contract.write.transfer([recipient, 1n])
   // @ts-expect-error options with an account are required without a client account
   contract.write.deposit()
   // @ts-expect-error args are still inferred alongside a per-call account
-  contract.write.transfer({ account: recipient, args: [recipient] })
+  contract.write.transfer([recipient], { account: recipient })
 })
 
 test('keeps write when the client account is widened', () => {
@@ -250,9 +249,9 @@ test('keeps write when the client account is widened', () => {
     client: client as Client.Client,
   })
   expectTypeOf(contract.write.transfer).toBeFunction()
-  contract.write.transfer({ account: recipient, args: [recipient, 1n] })
+  contract.write.transfer([recipient, 1n], { account: recipient })
   // @ts-expect-error account is required when the client account may be absent
-  contract.write.transfer({ args: [recipient, 1n] })
+  contract.write.transfer([recipient, 1n])
 })
 
 test('keeps all groups for a widened ABI', () => {
@@ -270,4 +269,9 @@ test('keeps all groups for a widened ABI', () => {
   expectTypeOf(contract.createEventFilter.Anything!).toBeFunction()
   expectTypeOf(contract.getLogs.Anything!).toBeFunction()
   expectTypeOf(contract.watchEvent.Anything!).toBeFunction()
+
+  contract.read.anything!()
+  contract.read.anything!([])
+  contract.write.anything!()
+  contract.write.anything!([])
 })

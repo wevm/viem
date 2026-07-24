@@ -41,9 +41,9 @@ export type Contract<
  *   client,
  * })
  *
- * const balance = await contract.read.balanceOf({
- *   args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
- * })
+ * const balance = await contract.read.balanceOf([
+ *   '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+ * ])
  * ```
  *
  * @param options - Contract ABI, address, and Client.
@@ -77,7 +77,7 @@ export function from<
   const contract: RuntimeContract = { abi, address }
 
   if (readNames.size)
-    contract.read = createMethods(readNames, (functionName, options) =>
+    contract.read = createFunctionMethods(readNames, (functionName, options) =>
       read_(client, {
         ...options,
         abi,
@@ -87,25 +87,29 @@ export function from<
     )
 
   if (writeNames.size) {
-    contract.estimateGas = createMethods(writeNames, (functionName, options) =>
-      estimateGas_(client, {
-        ...options,
-        abi,
-        address,
-        functionName,
-      } as estimateGas_.Options),
+    contract.estimateGas = createFunctionMethods(
+      writeNames,
+      (functionName, options) =>
+        estimateGas_(client, {
+          ...options,
+          abi,
+          address,
+          functionName,
+        } as estimateGas_.Options),
     )
-    contract.simulate = createMethods(writeNames, (functionName, options) =>
-      simulate_(client, {
-        ...options,
-        abi,
-        address,
-        functionName,
-      } as simulate_.Options),
+    contract.simulate = createFunctionMethods(
+      writeNames,
+      (functionName, options) =>
+        simulate_(client, {
+          ...options,
+          abi,
+          address,
+          functionName,
+        } as simulate_.Options),
     )
     // Reject missing accounts eagerly so the failure surfaces as
     // `Account.NotFoundError` instead of a wrapped `ContractError`.
-    contract.write = createMethods(
+    contract.write = createFunctionMethods(
       writeNames,
       async (functionName, options) => {
         if (!options.account && !client.account)
@@ -121,7 +125,7 @@ export function from<
   }
 
   if (eventNames.size) {
-    contract.createEventFilter = createMethods(
+    contract.createEventFilter = createEventMethods(
       eventNames,
       (eventName, options) =>
         createEventFilter_(client, {
@@ -131,7 +135,7 @@ export function from<
           eventName,
         } as createEventFilter_.Options),
     )
-    contract.getLogs = createMethods(eventNames, (eventName, options) =>
+    contract.getLogs = createEventMethods(eventNames, (eventName, options) =>
       getLogs_(client, {
         ...options,
         abi,
@@ -139,7 +143,7 @@ export function from<
         eventName,
       } as getLogs_.Options),
     )
-    contract.watchEvent = createMethods(eventNames, (eventName, options) =>
+    contract.watchEvent = createEventMethods(eventNames, (eventName, options) =>
       watchEvent_(client, {
         ...options,
         abi,
@@ -274,7 +278,8 @@ type ReadMethod<
     ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
   as extends 'Object' | 'Array' = 'Object',
 >(
-  ...parameters: OptionsParameter<
+  ...parameters: FunctionParameters<
+    args,
     BindFunctionOptions<read_.Options<abi, functionName, args, as>>
   >
 ) => Promise<read_.ReturnType<abi, functionName, args, as>>
@@ -289,7 +294,8 @@ type EstimateGasMethod<
     functionName
   > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
 >(
-  ...parameters: OptionsParameter<
+  ...parameters: FunctionParameters<
+    args,
     BindFunctionOptions<estimateGas_.Options<abi, functionName, args>>
   >
 ) => Promise<estimateGas_.ReturnType>
@@ -305,7 +311,8 @@ type SimulateMethod<
   > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
   as extends 'Object' | 'Array' = 'Object',
 >(
-  ...parameters: OptionsParameter<
+  ...parameters: FunctionParameters<
+    args,
     BindFunctionOptions<simulate_.Options<abi, functionName, args, as>>
   >
 ) => Promise<simulate_.ReturnType<abi, functionName, args, as>>
@@ -321,7 +328,8 @@ type WriteMethod<
     functionName
   > = ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
 >(
-  ...parameters: OptionsParameter<
+  ...parameters: FunctionParameters<
+    args,
     BindFunctionOptions<
       write_.Options<abi, functionName, args, client['chain']>
     > &
@@ -380,7 +388,7 @@ type WatchEventMethod<
 ) => watchEvent_.ReturnType<abi, eventName, strict>
 
 type BindFunctionOptions<options> = options extends object
-  ? Prettify<Omit<options, 'abi' | 'address' | 'functionName'>>
+  ? Prettify<Omit<options, 'abi' | 'address' | 'args' | 'functionName'>>
   : never
 
 type BindEventOptions<options> = options extends object
@@ -390,6 +398,16 @@ type BindEventOptions<options> = options extends object
 type OptionsParameter<options> = {} extends options
   ? [options?: options | undefined]
   : [options: options]
+
+type FunctionParameters<args, options> = readonly unknown[] extends args
+  ?
+      | OptionsParameter<options>
+      | [args: args, ...parameters: OptionsParameter<options>]
+  : args extends readonly []
+    ? OptionsParameter<options>
+    : args extends readonly unknown[]
+      ? [args: args, ...parameters: OptionsParameter<options>]
+      : never
 
 type RuntimeAbiItem = {
   name?: unknown
@@ -402,13 +420,33 @@ type RuntimeContract = {
   address: Address.Address
 } & Record<string, unknown>
 
-type RuntimeMethod = (options?: Record<string, unknown> | undefined) => unknown
+type RuntimeFunctionMethod = (
+  argsOrOptions?: unknown[] | Record<string, unknown> | undefined,
+  options?: Record<string, unknown> | undefined,
+) => unknown
 
-function createMethods(
+type RuntimeEventMethod = (
+  options?: Record<string, unknown> | undefined,
+) => unknown
+
+function createFunctionMethods(
   names: ReadonlySet<string>,
   fn: (name: string, options: Record<string, unknown>) => unknown,
 ) {
-  const methods: Record<string, RuntimeMethod> = Object.create(null)
+  const methods: Record<string, RuntimeFunctionMethod> = Object.create(null)
+  for (const name of names)
+    methods[name] = (argsOrOptions = {}, options = {}) =>
+      Array.isArray(argsOrOptions)
+        ? fn(name, { ...options, args: argsOrOptions })
+        : fn(name, argsOrOptions)
+  return methods
+}
+
+function createEventMethods(
+  names: ReadonlySet<string>,
+  fn: (name: string, options: Record<string, unknown>) => unknown,
+) {
+  const methods: Record<string, RuntimeEventMethod> = Object.create(null)
   for (const name of names) methods[name] = (options = {}) => fn(name, options)
   return methods
 }

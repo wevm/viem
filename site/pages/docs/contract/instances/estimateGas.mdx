@@ -25,15 +25,18 @@ const contract = Contract.from({
   client,
 })
 
-const gas = await contract.estimateGas.transfer({ // [!code focus]
-  args: ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n], // [!code focus]
-}) // [!code focus]
+const gas = await contract.estimateGas.transfer([ // [!code focus]
+  '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  1n, // [!code focus]
+]) // [!code focus]
 // @log: 51441n
 ```
 
 ## Options
 
-The options of [`Actions.contract.estimateGas`](/docs/actions/public/contract/estimateGas#parameters) minus the bound `abi`, `address`, and `functionName`, such as `args` and `account` (to estimate as a specific sender).
+Function arguments are passed as the first parameter. The optional second parameter accepts the options of [`Actions.contract.estimateGas`](/docs/actions/public/contract/estimateGas#parameters) minus the bound `abi`, `address`, `args`, and `functionName`, such as `account` (to estimate as a specific sender).
+
+When a function has no inputs, omit the arguments array and pass options as the first parameter.
 
 ## Return Value
 

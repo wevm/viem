@@ -154,7 +154,7 @@ const local = Account.from({
 
 ### Contract Instances
 
-Contract instances now bind one client through `Contract.from`. Event reads were renamed, and function arguments moved into each method's options bag.
+Contract instances now bind one client through `Contract.from`. Event reads were renamed, while function arguments remain the first positional parameter.
 
 See [Contract](#contract).
 
@@ -167,10 +167,9 @@ const contract = getContract({ // [!code --]
   address, // [!code --]
   client: { public: publicClient, wallet: walletClient }, // [!code --]
 }) // [!code --]
-const balance = await contract.read.balanceOf([owner]) // [!code --]
 const logs = await contract.getEvents.Transfer() // [!code --]
 const contract = Contract.from({ abi, address, client }) // [!code ++]
-const balance = await contract.read.balanceOf({ args: [owner] }) // [!code ++]
+const balance = await contract.read.balanceOf([owner])
 const logs = await contract.getLogs.Transfer() // [!code ++]
 ```
 
@@ -575,7 +574,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `getChainId` | `Actions.chains.getId` | [Actions](#actions) |
 | `GetChainParameter` | Removed; compose action namespace types | [Actions](#actions) |
 | `getCode` | `Actions.address.getCode` | [Actions: Address](#address) |
-| `getContract` | `Contract.from` (binds one client; args in options bag) | [Actions: Contract](#contract) |
+| `getContract` | `Contract.from` (binds one client; preserves positional args) | [Actions: Contract](#contract) |
 | `getContractAddress` | `ContractAddress.from` (no `opcode`; dispatches on `salt`) | [Utilities: Address](#address-1) |
 | `GetContractAddressOptions` | `ContractAddress.from.Options` | [Utilities: Address](#address-1) |
 | `getContractError` | `ContractError.fromError` | [Subpath Entrypoints](#subpath-entrypoints) |
