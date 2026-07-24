@@ -1,0 +1,22 @@
+schema_version = "1.4"
+
+[task]
+name = "viem/guides-block-simulate"
+version = "1.0.0"
+description = "Simulate a block of ETH transfers without mutating state."
+
+[metadata]
+area = "guides"
+tier = "anvil-fork"
+
+[verifier]
+timeout_sec = 300.0
+
+[agent]
+timeout_sec = 900.0
+
+[environment]
+build_timeout_sec = 1200.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 10240

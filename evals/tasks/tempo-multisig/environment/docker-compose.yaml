@@ -1,0 +1,51 @@
+# Merged on top of Harbor's base compose config; `main` is auto-configured.
+services:
+  main:
+    depends_on:
+      tempo:
+        condition: service_healthy
+  tempo:
+    # Pinned build with native multisig envelope support (matches CI's
+    # tempo-multisig project image).
+    image: ghcr.io/tempoxyz/tempo:sha-6d831c2
+    platform: linux/amd64
+    command:
+      - node
+      - --datadir=/data
+      - --dev
+      - --dev.block-time=50ms
+      - --engine.disable-precompile-cache
+      - --engine.legacy-state-root
+      - --faucet.enabled
+      - --faucet.address
+      - "0x20c0000000000000000000000000000000000000"
+      - "0x20c0000000000000000000000000000000000001"
+      - "0x20c0000000000000000000000000000000000002"
+      - "0x20c0000000000000000000000000000000000003"
+      - --faucet.amount=1000000000000
+      - --faucet.private-key=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+      - --faucet.node-address=http://localhost:8545
+      - --http.addr=0.0.0.0
+      - --http.api=all
+      - --http.corsdomain=*
+      - --http.port=8545
+      - --port=8555
+      - --authrpc.port=8575
+      - --ws
+      - --ws.addr=0.0.0.0
+      - --ws.api=all
+      - --ws.port=8545
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - -c
+        - |
+          body='{"jsonrpc":"2.0","id":1,"method":"eth_getBlockByNumber","params":["latest",false]}'
+          exec 3<>/dev/tcp/127.0.0.1/8545 || exit 1
+          printf 'POST / HTTP/1.1\r\nHost: localhost\r\nContent-Type: application/json\r\nContent-Length: %s\r\nConnection: close\r\n\r\n%s' "$${#body}" "$$body" >&3
+          grep -qE '"timestamp":"0x[1-9a-f]' <&3
+      interval: 3s
+      timeout: 10s
+      retries: 60
+      start_period: 20s

@@ -1,0 +1,22 @@
+schema_version = "1.4"
+
+[task]
+name = "viem/tokens-transfer-human-amount"
+version = "1.0.0"
+description = "Transfer USDC with a human-readable amount string using viem."
+
+[metadata]
+area = "tokens"
+tier = "anvil-fork"
+
+[verifier]
+timeout_sec = 300.0
+
+[agent]
+timeout_sec = 900.0
+
+[environment]
+build_timeout_sec = 1200.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 10240

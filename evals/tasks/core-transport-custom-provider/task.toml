@@ -1,0 +1,22 @@
+schema_version = "1.4"
+
+[task]
+name = "viem/core-transport-custom-provider"
+version = "1.0.0"
+description = "Wrap an EIP-1193 provider object with viem and read an ETH balance."
+
+[metadata]
+area = "core"
+tier = "anvil-fork"
+
+[verifier]
+timeout_sec = 300.0
+
+[agent]
+timeout_sec = 900.0
+
+[environment]
+build_timeout_sec = 1200.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 10240

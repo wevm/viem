@@ -1,0 +1,173 @@
+name: Evals
+
+on:
+  pull_request:
+    paths: ['evals/**']
+  workflow_dispatch:
+    inputs:
+      agent:
+        description: Harbor agent
+        default: claude-code
+      model:
+        description: Model (LiteLLM format)
+        default: anthropic/claude-opus-4-8
+      n_attempts:
+        description: Attempts per task (pass@k)
+        default: '1'
+      task_filter:
+        description: Task name glob passed to --include-task-name
+        default: '*'
+      skill_variant:
+        description: Inject the bundled Viem skill and MCP server
+        type: boolean
+        default: false
+
+concurrency:
+  group: evals-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate Tasks
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Install Harbor
+        uses: astral-sh/setup-uv@v7
+
+      - run: uv tool install harbor
+
+      - name: Detect changed tasks
+        id: changed
+        run: |
+          base="origin/${{ github.base_ref }}"
+          git fetch origin "${{ github.base_ref }}" --depth=1
+          tasks=$(git diff --name-only "$base"...HEAD -- evals/tasks | cut -d/ -f1-3 | sort -u)
+          infra=$(git diff --name-only "$base"...HEAD -- evals/base evals/scripts | head -1)
+          # Infra changes revalidate a smoke subset on top of changed tasks.
+          if [ -n "$infra" ]; then
+            tasks=$(printf '%s\n%s\n%s\n%s\n' "$tasks" \
+              evals/tasks/core-read-block-number \
+              evals/tasks/core-erc20-balance \
+              evals/tasks/migration-v2-file | sort -u)
+          fi
+          tasks=$(echo "$tasks" | sed '/^$/d')
+          echo "tasks<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$tasks" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "Changed tasks:"; echo "$tasks"
+
+      - name: Pack viem
+        if: steps.changed.outputs.tasks != ''
+        run: node evals/scripts/pack-viem.mjs
+
+      - name: Build images
+        if: steps.changed.outputs.tasks != ''
+        run: node evals/scripts/build-images.mjs
+        env:
+          EVALS_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
+
+      - name: Oracle must pass, nop must fail
+        if: steps.changed.outputs.tasks != ''
+        run: |
+          set -e
+          while IFS= read -r task; do
+            [ -d "$task" ] || continue
+            name=$(basename "$task")
+            echo "::group::$name"
+            harbor run -p "$task" -a oracle -o /tmp/evals-ci --job-name "oracle-$name" -y
+            node evals/scripts/check-job.mjs "/tmp/evals-ci/oracle-$name" 1
+            harbor run -p "$task" -a nop -o /tmp/evals-ci --job-name "nop-$name" -y
+            node evals/scripts/check-job.mjs "/tmp/evals-ci/nop-$name" 0
+            echo "::endgroup::"
+          done <<'TASKS'
+          ${{ steps.changed.outputs.tasks }}
+          TASKS
+
+  run:
+    name: Run Evals
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    permissions:
+      contents: read
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v6
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Install Harbor
+        uses: astral-sh/setup-uv@v7
+
+      - run: uv tool install harbor
+
+      - name: Pack viem
+        run: node evals/scripts/pack-viem.mjs
+
+      - name: Build images
+        run: node evals/scripts/build-images.mjs
+        env:
+          EVALS_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
+
+      - name: Run
+        run: |
+          extra=()
+          if [ "${{ inputs.skill_variant }}" = "true" ]; then
+            extra+=(--skill evals/.artifacts/skills/viem)
+            extra+=(--mcp-config evals/mcp/viem.json)
+          fi
+          harbor run -p evals/tasks \
+            -a "${{ inputs.agent }}" \
+            -m "${{ inputs.model }}" \
+            -k "${{ inputs.n_attempts }}" \
+            -i "${{ inputs.task_filter }}" \
+            -n 3 -y \
+            -o evals/jobs --job-name "ci-${{ github.run_id }}" \
+            "${extra[@]}"
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Summary
+        if: always()
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import json, pathlib
+          job = pathlib.Path("evals/jobs/ci-${{ github.run_id }}")
+          rows = []
+          for trial in sorted(job.iterdir()):
+              result = trial / "result.json"
+              if not result.is_file(): continue
+              data = json.loads(result.read_text())
+              rewards = (data.get("verifier_result") or {}).get("rewards") or {}
+              error = (data.get("exception_info") or {}).get("exception_type") or ""
+              rows.append((trial.name, rewards, error))
+          print("| Trial | Reward | Build | Types | Runtime | v3 Idioms | Error |")
+          print("| --- | --- | --- | --- | --- | --- | --- |")
+          for name, rewards, error in rows:
+              get = lambda key: rewards.get(key, "")
+              print(f"| {name} | {get('reward')} | {get('build')} | {get('types')} | {get('runtime')} | {get('v3_idioms')} | {error} |")
+          passed = sum(1 for _, rewards, _ in rows if rewards.get("reward") == 1)
+          print(f"\n**{passed}/{len(rows)} trials passed**")
+          EOF
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evals-results-${{ github.run_id }}
+          path: evals/jobs

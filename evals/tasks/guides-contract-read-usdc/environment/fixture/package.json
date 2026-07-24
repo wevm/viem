@@ -1,0 +1,15 @@
+{
+  "name": "contract-read-usdc",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "viem": "file:/opt/viem-3.0.0.tgz"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

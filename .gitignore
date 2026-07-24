@@ -27,6 +27,13 @@ generated.ts
 # Committed so tests/CI can import contract artifacts without running Foundry.
 !contracts/generated.ts
 
+# evals
+# The bare `tasks` rule above would swallow the eval suite; re-include it.
+!evals/tasks/
+evals/.artifacts/
+evals/base/viem.tgz
+evals/jobs/
+
 # docs
 site/.cache
 site/dist

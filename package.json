@@ -255,6 +255,7 @@
     "typescript"
   ],
   "files": [
+    "SKILL.md",
     "dist",
     "src",
     "!src/**/*.bench-d.ts",

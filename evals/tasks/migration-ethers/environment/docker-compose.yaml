@@ -1,0 +1,14 @@
+# Merged on top of Harbor's base compose config; `main` is auto-configured.
+services:
+  main:
+    depends_on:
+      anvil:
+        condition: service_healthy
+  anvil:
+    image: viem-evals-anvil
+    pull_policy: never
+    healthcheck:
+      test: ["CMD", "sh", "-c", "test -f /tmp/ready"]
+      interval: 2s
+      timeout: 10s
+      retries: 60

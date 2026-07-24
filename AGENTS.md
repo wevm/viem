@@ -56,7 +56,9 @@ This document contains general guidelines for AI agents working on the Viem code
   - Named imports are fine for `internal/types.ts`.
   - Named imports are fine for single-function helpers like `stringify`, `uid`, and `wait`.
   - Named imports are fine for non-namespace third-party packages like `vitest`.
-- **ox imports use barrel named imports**; never deep-import `ox/<Module>` paths.
+- **External consumers and eval solutions use viem entrypoints**; never import `ox` directly outside package implementation code.
+  - Import utility namespaces and types such as `Address`, `Hex`, and `Value` from `viem/utils`.
+- **Internal ox imports use barrel named imports**; never deep-import `ox/<Module>` paths.
   - Use `import { Hex, Value } from 'ox'` and `import type { Address } from 'ox'`.
   - Tempo modules come from `import { TxEnvelopeTempo } from 'ox/tempo'`.
   - Zod schemas come from `import { z } from 'ox/zod'`; tempo zod lives at `z.tempo.<Module>`.
@@ -68,6 +70,12 @@ This document contains general guidelines for AI agents working on the Viem code
   - Test actions live in their domain namespaces, such as `Actions.block.mine`.
   - Decorator usage prefers named imports like `testActions`.
   - Do not use named imports for individual actions.
+- **Inject clients into eval helpers**; create clients at the consumer or grader scope, never inside the exported operation.
+  - Pass the client as the first positional parameter.
+  - Put every remaining input in one named `options` object.
+  - Type the parameter as `Client.Client`; add client generics only when chain, account, transport, tokens, schema, or extensions are type-significant.
+  - Client-configuration exercises may export a module-scoped client. Extension exercises receive the base client and may return its extended type.
+  - Migration evals preserve their stated legacy signatures.
 - **Minimize `as any`**; avoid new `as any` where a safer assertion is practical, but do not mass-rewrite existing crypto, tuple, and inference glue that already relies on it.
 - **No `as never`**; treat a needed `as never` as a bug in the surrounding types and fix the
   types instead. Known root causes and their fixes:
@@ -176,6 +184,8 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Source docs first**; public API documentation usually belongs in TSDoc near the exported source.
 - **Site pages**; human-written docs live under `site/pages/`.
   - Generated site page files are not edited by hand.
+- **The root skill routes to the Viem MCP server**; keep `SKILL.md` limited to MCP usage.
+  Do not bundle a duplicate documentation corpus.
 
 ## Type Conventions
 
