@@ -4,20 +4,16 @@ export async function collectBlockNumbers(
   client: Client.Client,
   options: collectBlockNumbers.Options,
 ): Promise<bigint[]> {
-  const { count } = options
-  if (count <= 0) return []
+  if (options.count <= 0) return []
 
   const numbers: bigint[] = []
   const watch = Actions.block.watchNumber(client)
 
   try {
-    await new Promise<void>((resolve, reject) => {
-      watch.onBlockNumber((blockNumber) => {
-        numbers.push(blockNumber)
-        if (numbers.length >= count) resolve()
-      })
-      watch.onError(reject)
-    })
+    for await (const { blockNumber } of watch) {
+      numbers.push(blockNumber)
+      if (numbers.length === options.count) return numbers
+    }
     return numbers
   } finally {
     watch.off()
