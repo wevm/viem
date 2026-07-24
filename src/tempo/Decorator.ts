@@ -1897,7 +1897,9 @@ type DecoratorBase<
      *   recipient: '0x...',
      *   recoveryRecipient: '0x...',
      *   shareAmountMin: 99_500_000n,
+     *   vault: '0x...',
      *   vaultAssetAmountMin: 99_000_000n,
+     *   zoneId: 7,
      * })
      * const hash = await zoneClient.earn.privateDeposit(prepared)
      * ```
@@ -2127,6 +2129,8 @@ type DecoratorBase<
      *   recoveryRecipient: '0x...',
      *   shareAmount: 100_000_000n,
      *   slippageBps: 50,
+     *   vault: '0x...',
+     *   zoneId: 7,
      * })
      * const hash = await zoneClient.earn.privateRedeem(prepared)
      * ```
@@ -2162,6 +2166,7 @@ type DecoratorBase<
      *   actionId: prepared.actionId,
      *   fromBlock: prepared.fromBlock,
      *   gateway: '0x...',
+     *   vault: '0x...',
      * })
      * ```
      *
@@ -2180,6 +2185,7 @@ type DecoratorBase<
      *   actionId: prepared.actionId,
      *   fromBlock: prepared.fromBlock,
      *   gateway: '0x...',
+     *   vault: '0x...',
      * })
      * ```
      *

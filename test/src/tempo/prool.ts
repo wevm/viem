@@ -181,6 +181,10 @@ async function startZone(
     dev: {
       // Anvil #1 owns the native factory and avoids test-account nonce races.
       key: zoneAdminKey,
+      ...(import.meta.env.VITE_TEMPO_HARDFORK !== 'T7' &&
+      import.meta.env.VITE_TEMPO_HARDFORK !== 'T8'
+        ? { token: pathUsd }
+        : {}),
     },
     image,
     l1: {

@@ -10,7 +10,7 @@ import { Card, Cards } from 'vocs'
 
 Earn vaults live on the public Tempo chain, while a Zone keeps balances and recipients private. A
 Zone gateway moves assets or vault shares to the public chain, performs the vault action, then sends
-the result back to an encrypted recipient inside the Zone.
+the result back to an encrypted recipient inside the same source Zone.
 
 The vault transaction and recovery address are public. The recipient of the returned Zone deposit is
 encrypted, and the resulting balance stays private inside the Zone.
@@ -39,12 +39,16 @@ import { client as parentClient } from './viem.config'
 import { client as zoneClient } from './zones.config'
 
 const gateway = '0x0000000000000000000000000000000000000001'
+const vault = '0x0000000000000000000000000000000000000002'
+const zoneId = 7
 const prepared = await parentClient.earn.privateDeposit.prepare({
   assetAmount: 100_000_000n,
   gateway,
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
   shareAmountMin: 99_500_000n,
+  vault,
+  zoneId,
 })
 
 const { receipt, senderTag } = await zoneClient.earn.privateDepositSync(prepared)
@@ -55,6 +59,7 @@ const deposit = await parentClient.earn.waitForPrivateDeposit({
   actionId: prepared.actionId,
   fromBlock: prepared.fromBlock,
   gateway,
+  vault,
 })
 // @log: { shares: 99_750_000n, tempoBlockNumber: 123456n, ... }
 
@@ -90,6 +95,8 @@ import { client as zoneClient } from './zones.config'
 
 const alternateAsset = '0x20c0000000000000000000000000000000000002'
 const gateway = '0x0000000000000000000000000000000000000001'
+const vault = '0x0000000000000000000000000000000000000002'
+const zoneId = 7
 const prepared = await parentClient.earn.privateDeposit.prepare({
   assetAmount: 100_000_000n,
   assetToken: alternateAsset,
@@ -97,7 +104,9 @@ const prepared = await parentClient.earn.privateDeposit.prepare({
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
   shareAmountMin: 98_500_000n,
+  vault,
   vaultAssetAmountMin: 99_000_000n,
+  zoneId,
 })
 
 const { receipt } = await zoneClient.earn.privateDepositSync(prepared)
@@ -107,6 +116,7 @@ const deposit = await parentClient.earn.waitForPrivateDeposit({
   actionId: prepared.actionId,
   fromBlock: prepared.fromBlock,
   gateway,
+  vault,
 })
 
 await zoneClient.zone.waitForTempoBlock({
@@ -124,8 +134,9 @@ await zoneClient.zone.waitForTempoBlock({
 
 :::
 
-The gateway must support a swap route from `assetToken` to the vault asset. Omitting
-`vaultAssetAmountMin` accepts any non-reverting swap output, so set a deliberate bound.
+The router uses the vault's `depositSwapOverride` for `assetToken` when configured, otherwise it
+uses Tempo's canonical stablecoin DEX. Omitting `vaultAssetAmountMin` accepts any non-reverting swap
+output, so set a deliberate bound.
 
 ### Redeem Zone Vault Shares
 
@@ -140,12 +151,16 @@ import { client as parentClient } from './viem.config'
 import { client as zoneClient } from './zones.config'
 
 const gateway = '0x0000000000000000000000000000000000000001'
+const vault = '0x0000000000000000000000000000000000000002'
+const zoneId = 7
 const prepared = await parentClient.earn.privateRedeem.prepare({
   gateway,
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
   shareAmount: 99_750_000n,
   slippageBps: 50,
+  vault,
+  zoneId,
 })
 
 const { receipt, senderTag } = await zoneClient.earn.privateRedeemSync(prepared)
@@ -156,6 +171,7 @@ const redemption = await parentClient.earn.waitForPrivateRedeem({
   actionId: prepared.actionId,
   fromBlock: prepared.fromBlock,
   gateway,
+  vault,
 })
 // @log: { outputAmount: 99_000_000n, tempoBlockNumber: 123457n, ... }
 
@@ -191,6 +207,8 @@ import { client as zoneClient } from './zones.config'
 
 const alternateAsset = '0x20c0000000000000000000000000000000000002'
 const gateway = '0x0000000000000000000000000000000000000001'
+const vault = '0x0000000000000000000000000000000000000002'
+const zoneId = 7
 const prepared = await parentClient.earn.privateRedeem.prepare({
   assetAmountMin: 98_500_000n,
   assetToken: alternateAsset,
@@ -198,6 +216,8 @@ const prepared = await parentClient.earn.privateRedeem.prepare({
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
   shareAmount: 99_750_000n,
+  vault,
+  zoneId,
 })
 
 const { receipt } = await zoneClient.earn.privateRedeemSync(prepared)
@@ -207,6 +227,7 @@ const redemption = await parentClient.earn.waitForPrivateRedeem({
   actionId: prepared.actionId,
   fromBlock: prepared.fromBlock,
   gateway,
+  vault,
 })
 
 await zoneClient.zone.waitForTempoBlock({
@@ -224,8 +245,9 @@ await zoneClient.zone.waitForTempoBlock({
 
 :::
 
-The gateway must support a route from the vault asset to `assetToken`. A live vault quote cannot
-quote the swap output, so provide `assetAmountMin` or an alternate-asset quote with `slippageBps`.
+The router uses the vault's `redeemSwapOverride` for `assetToken` when configured, otherwise it uses
+Tempo's canonical stablecoin DEX. A live vault quote cannot quote the swap output, so provide
+`assetAmountMin` or an alternate-asset quote with `slippageBps`.
 
 ### Return Funds to Another Zone Recipient
 
@@ -240,12 +262,16 @@ import { client as zoneClient } from './zones.config'
 
 const beneficiary = '0x2222222222222222222222222222222222222222'
 const gateway = '0x0000000000000000000000000000000000000001'
+const vault = '0x0000000000000000000000000000000000000002'
+const zoneId = 7
 const prepared = await parentClient.earn.privateRedeem.prepare({
   gateway,
   recipient: beneficiary,
   recoveryRecipient: parentClient.account.address,
   shareAmount: 99_750_000n,
   slippageBps: 50,
+  vault,
+  zoneId,
 })
 
 const { receipt } = await zoneClient.earn.privateRedeemSync(prepared)
@@ -255,6 +281,7 @@ const redemption = await parentClient.earn.waitForPrivateRedeem({
   actionId: prepared.actionId,
   fromBlock: prepared.fromBlock,
   gateway,
+  vault,
 })
 
 await zoneClient.zone.waitForTempoBlock({
@@ -296,10 +323,10 @@ const zoneId = 7
 
 const vault = await parentClient.earn.getVault({ vault: vaultAddress })
 const earnShareAmount = await parentClient.readContract({
-  abi: Abis.vaultAdapter,
+  abi: Abis.earnVault,
   address: vaultAddress,
   args: [venueShareAmount],
-  functionName: 'sharesToTokens',
+  functionName: 'convertEngineSharesToEarnShares',
 })
 const encrypted = await parentClient.zone.encryptedDeposit.prepare({
   amount: earnShareAmount,

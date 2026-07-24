@@ -60,7 +60,6 @@ const portalAdminClient = createClient({
   transport: http(),
 })
 const zoneClient = getZoneClient({ account })
-// TODO: Remove when T9 launches.
 const hardfork = import.meta.env.VITE_TEMPO_HARDFORK
 const legacyZoneCallback = hardfork === 'T7' || hardfork === 'T8'
 const parentToken = '0x20c0000000000000000000000000000000000000'
@@ -1080,7 +1079,7 @@ describe('requestVerifiableWithdrawal', () => {
 })
 
 describe('earn', () => {
-  test.runIf(nodeEnv === 'localnet')(
+  test.runIf(nodeEnv === 'localnet' && !legacyZoneCallback)(
     'behavior: deposits and redeems through a Zone gateway',
     async () => {
       await Actions.zone.signAuthorizationToken(zoneClient, { zoneId })
@@ -1095,12 +1094,15 @@ describe('earn', () => {
       })
       const { gateway } = await deployEarnGateway(mainnetClient, {
         adapter: stack.adapter,
-        defaultSwapper: account.address,
-        legacyCallback: legacyZoneCallback,
-        owner: account.address,
         portalClient: portalAdminClient,
         zonePortal: portalAddress,
       })
+      const privatePreparation = {
+        gateway,
+        portalAddress,
+        vault: stack.adapter,
+        zoneId,
+      } as const
 
       const callbackGas = 10_000_000n
       // Exercise a non-default value below the Zone callback gas ceiling.
@@ -1127,21 +1129,21 @@ describe('earn', () => {
         {
           assetAmount: 1n,
           assetToken: addresses.alphaUsd,
-          gateway,
+          ...privatePreparation,
           recipient: account.address,
           recoveryRecipient,
           shareAmountMin: 2n,
         },
       )
       const [swappedDepositCallback] = decodeAbiParameters(
-        Abis.zoneGatewayCallbackData,
+        Abis.earnRouterCallbackData,
         swappedDeposit.data,
       )
       expect(swappedDepositCallback).toMatchObject({
         flow: 0,
+        minEarnShares: 2n,
         minOutputAmount: 0n,
         minVaultAssets: 0n,
-        minVaultShares: 2n,
       })
       expect(
         isAddressEqual(swappedDepositCallback.outputToken, stack.shareToken),
@@ -1152,7 +1154,7 @@ describe('earn', () => {
         {
           assetAmount: 1n,
           assetToken: addresses.alphaUsd,
-          gateway,
+          ...privatePreparation,
           recipient: account.address,
           recoveryRecipient,
           shareAmountMin: 4n,
@@ -1160,14 +1162,14 @@ describe('earn', () => {
         },
       )
       const [boundedSwappedDepositCallback] = decodeAbiParameters(
-        Abis.zoneGatewayCallbackData,
+        Abis.earnRouterCallbackData,
         boundedSwappedDeposit.data,
       )
       expect(boundedSwappedDepositCallback).toMatchObject({
         flow: 0,
+        minEarnShares: 4n,
         minOutputAmount: 0n,
         minVaultAssets: 3n,
-        minVaultShares: 4n,
       })
 
       const preparedDeposit = await Actions.earn.privateDeposit.prepare(
@@ -1177,7 +1179,7 @@ describe('earn', () => {
           assetAmount,
           callbackGas: callbackGasOverride,
           fallbackRecipient: accounts[2].address,
-          gateway,
+          ...privatePreparation,
           recipient: account.address,
           recoveryRecipient,
           returnMemo: keccak256('0x02'),
@@ -1195,21 +1197,24 @@ describe('earn', () => {
         zoneId,
       })
       const [depositCallback] = decodeAbiParameters(
-        Abis.zoneGatewayCallbackData,
+        Abis.earnRouterCallbackData,
         preparedDeposit.data,
       )
       expect(depositCallback).toMatchObject({
         actionId: keccak256('0x01'),
         flow: 0,
+        minEarnShares: 1n,
         minOutputAmount: 0n,
         minVaultAssets: assetAmount,
-        minVaultShares: 1n,
       })
       expect(
         isAddressEqual(depositCallback.outputToken, stack.shareToken),
       ).toBe(true)
       expect(
-        isAddressEqual(depositCallback.refundRecipient, recoveryRecipient),
+        isAddressEqual(
+          depositCallback.zoneReturn.refundRecipient,
+          recoveryRecipient,
+        ),
       ).toBe(true)
       await expect(
         Actions.earn.privateDeposit(zoneClient, {
@@ -1230,6 +1235,7 @@ describe('earn', () => {
         fromBlock: preparedDeposit.fromBlock,
         gateway,
         pollingInterval: 100,
+        vault: stack.adapter,
       })
       expect(deposit.actionId).toBe(preparedDeposit.actionId)
       expect(deposit.inputAmount).toBe(assetAmount)
@@ -1252,21 +1258,21 @@ describe('earn', () => {
         {
           assetAmountMin: 2n,
           assetToken: addresses.alphaUsd,
-          gateway,
+          ...privatePreparation,
           recipient: account.address,
           recoveryRecipient,
           shareAmount: 1n,
         },
       )
       const [swappedRedeemCallback] = decodeAbiParameters(
-        Abis.zoneGatewayCallbackData,
+        Abis.earnRouterCallbackData,
         swappedRedeem.data,
       )
       expect(swappedRedeemCallback).toMatchObject({
         flow: 1,
+        minEarnShares: 0n,
         minOutputAmount: 2n,
         minVaultAssets: 1n,
-        minVaultShares: 0n,
       })
       expect(
         isAddressEqual(swappedRedeemCallback.outputToken, addresses.alphaUsd),
@@ -1278,7 +1284,7 @@ describe('earn', () => {
           actionId: keccak256('0x04'),
           callbackGas: callbackGasOverride,
           fallbackRecipient: accounts[2].address,
-          gateway,
+          ...privatePreparation,
           recipient: account.address,
           recoveryRecipient,
           returnMemo: keccak256('0x05'),
@@ -1296,19 +1302,22 @@ describe('earn', () => {
         zoneId,
       })
       const [redeemCallback] = decodeAbiParameters(
-        Abis.zoneGatewayCallbackData,
+        Abis.earnRouterCallbackData,
         preparedRedeem.data,
       )
       expect(redeemCallback).toMatchObject({
         actionId: keccak256('0x04'),
         flow: 1,
+        minEarnShares: 0n,
         minOutputAmount: 0n,
         minVaultAssets: assetAmount,
-        minVaultShares: 0n,
       })
       expect(isAddressEqual(redeemCallback.outputToken, stack.asset)).toBe(true)
       expect(
-        isAddressEqual(redeemCallback.refundRecipient, recoveryRecipient),
+        isAddressEqual(
+          redeemCallback.zoneReturn.refundRecipient,
+          recoveryRecipient,
+        ),
       ).toBe(true)
       const acceptedRedeem = await Actions.earn.privateRedeemSync(
         zoneClient,
@@ -1321,6 +1330,7 @@ describe('earn', () => {
         fromBlock: preparedRedeem.fromBlock,
         gateway,
         pollingInterval: 100,
+        vault: stack.adapter,
       })
       expect(redeem.actionId).toBe(preparedRedeem.actionId)
       expect(isAddressEqual(redeem.outputToken, stack.asset)).toBe(true)

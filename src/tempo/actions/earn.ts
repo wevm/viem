@@ -62,6 +62,7 @@ import {
   resolveTokenWithDecimals,
 } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
+import { getPortalAddress } from '../zones/zone.js'
 import * as policyActions from './policy.js'
 import * as tokenActions from './token.js'
 import * as zoneActions from './zone.js'
@@ -428,7 +429,7 @@ export namespace deposit {
     const [args, assetToken] = await Promise.all([
       toDepositArgs(client, parameters as never),
       readContract(client, {
-        abi: Abis.vaultAdapter,
+        abi: Abis.earnVault,
         address: parameters.vault,
         functionName: 'asset',
       }),
@@ -457,7 +458,7 @@ export namespace deposit {
     })()
     return defineCall({
       address: vault,
-      abi: Abis.vaultAdapter,
+      abi: Abis.earnVault,
       functionName: 'deposit',
       args: [
         internal_Token.toBaseUnits(args.assetAmount, undefined),
@@ -526,7 +527,7 @@ export namespace deposit {
     // Earn contracts are user-deployed: several adapters can emit the same
     // signature in one receipt, so filter by emitting address before decode.
     const [log] = parseEventLogs({
-      abi: Abis.vaultAdapter,
+      abi: Abis.earnVault,
       eventName: 'Deposited',
       logs: logs.filter((log) => isAddressEqual(log.address, vault)),
     })
@@ -567,7 +568,7 @@ export namespace deposit {
   >(
     client: Client<Transport, chain, account>,
     parameters: deposit.Parameters<chain, account>,
-  ): Promise<SimulateContractReturnType<typeof Abis.vaultAdapter, 'deposit'>> {
+  ): Promise<SimulateContractReturnType<typeof Abis.earnVault, 'deposit'>> {
     return simulateContract(client, {
       ...pickWriteParameters(parameters as never),
       ...deposit.call(await toDepositArgs(client, parameters as never)),
@@ -620,7 +621,7 @@ export async function depositSync<
     caller: args.caller,
     receipt,
     recipient: args.receiver,
-    shareAmount: args.shares,
+    shareAmount: args.earnShares,
   }
 }
 
@@ -727,7 +728,7 @@ export namespace depositShares {
     parameters: depositShares.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const engine = await readContract(client, {
-      abi: Abis.vaultAdapter,
+      abi: Abis.earnVault,
       address: parameters.vault,
       functionName: 'engine',
     })
@@ -759,8 +760,8 @@ export namespace depositShares {
     })()
     return defineCall({
       address: vault,
-      abi: Abis.vaultAdapter,
-      functionName: 'depositShares',
+      abi: Abis.earnVault,
+      functionName: 'depositVenueShares',
       args: [venueShareAmount, recipient, earnShareAmountMin],
     })
   }
@@ -825,7 +826,7 @@ export namespace depositShares {
     // Earn contracts are user-deployed: several adapters can emit the same
     // signature in one receipt, so filter by emitting address before decode.
     const [log] = parseEventLogs({
-      abi: Abis.vaultAdapter,
+      abi: Abis.earnVault,
       eventName: 'VenueSharesDeposited',
       logs: logs.filter((log) => isAddressEqual(log.address, vault)),
     })
@@ -867,7 +868,7 @@ export namespace depositShares {
     client: Client<Transport, chain, account>,
     parameters: depositShares.Parameters<chain, account>,
   ): Promise<
-    SimulateContractReturnType<typeof Abis.vaultAdapter, 'depositShares'>
+    SimulateContractReturnType<typeof Abis.earnVault, 'depositVenueShares'>
   > {
     return simulateContract(client, {
       ...pickWriteParameters(parameters as never),
@@ -966,7 +967,9 @@ export namespace depositSharesSync {
  *   recipient: '0x...',
  *   recoveryRecipient: '0x...',
  *   shareAmountMin: 99_500_000n,
+ *   vault: '0x...',
  *   vaultAssetAmountMin: 99_000_000n,
+ *   zoneId: 7,
  * })
  * const hash = await Actions.earn.privateDeposit(zoneClient, prepared)
  * ```
@@ -996,8 +999,8 @@ export namespace privateDeposit {
   export type ErrorType = zoneActions.requestWithdrawal.ErrorType
 
   /**
-   * Builds an encrypted Zone withdrawal that deposits into the gateway's
-   * vault and returns the resulting shares to the Zone.
+   * Builds an encrypted Zone withdrawal that deposits into the selected vault
+   * and returns the resulting shares to the Zone.
    *
    * @param client - Parent-chain client.
    * @param parameters - Deposit intent and recovery parameters.
@@ -1015,15 +1018,26 @@ export namespace privateDeposit {
       callbackGas = zoneGatewayCallbackGas,
       fallbackRecipient = parameters.recoveryRecipient,
       gateway,
+      portalAddress: portalAddress_,
       recipient,
       recoveryRecipient,
       returnMemo,
+      vault,
       withdrawalMemo,
+      zoneId,
     } = parameters
+    const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
     const readParameters = pickReadParameters(parameters)
     const [fromBlock, config] = await Promise.all([
       getBlockNumber(client, { cacheTime: 0 }),
-      getZoneGatewayConfig(client, { ...readParameters, gateway }),
+      getZoneGatewayConfig(client, {
+        ...readParameters,
+        flow: 0,
+        gateway,
+        vault,
+        zoneId,
+        zonePortal: portalAddress,
+      }),
     ])
     const assetToken = parameters.assetToken ?? config.vaultAsset
     const { encrypted, keyIndex } =
@@ -1036,19 +1050,18 @@ export namespace privateDeposit {
       })
     const shareAmountMin = resolveMinimumShareAmount(parameters)
     const direct = isAddressEqual(assetToken, config.vaultAsset)
-    const data = encodeAbiParameters(Abis.zoneGatewayCallbackData, [
+    const data = encodeAbiParameters(Abis.earnRouterCallbackData, [
       {
+        actionId,
+        earnVault: config.vault,
         flow: 0,
-        outputToken: config.shareToken,
-        keyIndex,
-        encrypted,
+        minEarnShares: shareAmountMin,
+        minOutputAmount: 0n,
         minVaultAssets: direct
           ? assetAmount
           : (parameters.vaultAssetAmountMin ?? 0n),
-        minVaultShares: shareAmountMin,
-        minOutputAmount: 0n,
-        actionId,
-        refundRecipient: recoveryRecipient,
+        outputToken: config.shareToken,
+        zoneReturn: { encrypted, keyIndex, refundRecipient: recoveryRecipient },
       },
     ])
     return {
@@ -1071,9 +1084,9 @@ export namespace privateDeposit {
     export type Args = PrivatePreparationParameters & {
       /** Assets withdrawn from the Zone, base units. */
       assetAmount: bigint
-      /** Asset token withdrawn from the Zone. @default gateway vault asset */
+      /** Asset token withdrawn from the Zone. @default vault asset */
       assetToken?: Address | undefined
-      /** Minimum gateway vault assets accepted after swapping `assetToken`. @default `0n` */
+      /** Minimum vault assets accepted after swapping `assetToken`. @default `0n` */
       vaultAssetAmountMin?: bigint | undefined
     } & MinimumShareAmountParameters
     export type ReturnValue = PreparedZoneRequest
@@ -1130,6 +1143,7 @@ export namespace privateDepositSync {
  *   actionId: prepared.actionId,
  *   fromBlock: prepared.fromBlock,
  *   gateway: '0x...',
+ *   vault: '0x...',
  * })
  * ```
  *
@@ -1147,15 +1161,17 @@ export async function waitForPrivateDeposit<chain extends Chain | undefined>(
     gateway,
     pollingInterval = client.pollingInterval,
     timeout = 60_000,
+    vault,
   } = parameters
   const event = getAbiItem({
-    abi: Abis.zoneGateway,
+    abi: Abis.earnRouter,
     name: 'EarnDeposit',
   })
   const observerId = stringify([
     'waitForPrivateDeposit',
     client.uid,
     gateway,
+    vault,
     actionId,
     fromBlock,
   ])
@@ -1186,7 +1202,7 @@ export async function waitForPrivateDeposit<chain extends Chain | undefined>(
           try {
             const [log] = await getLogs(client, {
               address: gateway,
-              args: { actionId },
+              args: { actionId, earnVault: vault },
               event,
               fromBlock,
               strict: true,
@@ -1198,7 +1214,7 @@ export async function waitForPrivateDeposit<chain extends Chain | undefined>(
               actionId: log.args.actionId,
               inputAmount: log.args.inputAmount,
               inputToken: log.args.inputToken,
-              shares: log.args.shares,
+              shares: log.args.earnShares,
               tempoBlockNumber: log.blockNumber,
               vaultAssets: log.args.vaultAssets,
               zoneDepositHash: log.args.zoneDepositHash,
@@ -1236,6 +1252,8 @@ export namespace waitForPrivateDeposit {
     pollingInterval?: number | undefined
     /** Timeout in milliseconds; `0` disables it. @default `60_000` */
     timeout?: number | undefined
+    /** Vault address. */
+    vault: Address
   }
   export type ReturnType = {
     /** Correlation id for the completed deposit. */
@@ -1289,30 +1307,36 @@ export async function getFeeState<chain extends Chain | undefined>(
   parameters: getFeeState.Parameters,
 ): Promise<getFeeState.ReturnValue> {
   const { recipient, vault, ...rest } = parameters
+  const fees = await readContract(client, {
+    ...rest,
+    abi: Abis.earnVault,
+    address: vault,
+    functionName: 'earnFees',
+  })
   const contracts = [
     defineCall({
-      address: vault,
-      abi: Abis.vaultAdapter,
+      address: fees,
+      abi: Abis.earnFees,
       functionName: 'currentFeeConfigId',
     }),
     defineCall({
-      address: vault,
-      abi: Abis.vaultAdapter,
+      address: fees,
+      abi: Abis.earnFees,
       functionName: 'feesActive',
     }),
     defineCall({
-      address: vault,
-      abi: Abis.vaultAdapter,
+      address: fees,
+      abi: Abis.earnFees,
       functionName: 'highWaterMark',
     }),
     defineCall({
-      address: vault,
-      abi: Abis.vaultAdapter,
+      address: fees,
+      abi: Abis.earnFees,
       functionName: 'previewAccruedFees',
     }),
     defineCall({
-      address: vault,
-      abi: Abis.vaultAdapter,
+      address: fees,
+      abi: Abis.earnFees,
       functionName: 'targetBase',
     }),
   ] as const
@@ -1322,8 +1346,8 @@ export async function getFeeState<chain extends Chain | undefined>(
     toFeeConfig(
       await readContract(client, {
         ...rest,
-        abi: Abis.vaultAdapter,
-        address: vault,
+        abi: Abis.earnFees,
+        address: fees,
         functionName: 'feeConfig',
         args: [configId],
       }),
@@ -1336,9 +1360,9 @@ export async function getFeeState<chain extends Chain | undefined>(
         contracts: [
           ...contracts,
           defineCall({
-            address: vault,
-            abi: Abis.vaultAdapter,
-            functionName: 'claimableFeeShares',
+            address: fees,
+            abi: Abis.earnFees,
+            functionName: 'claimableEarnShares',
             args: [recipient],
           }),
         ],
@@ -1485,13 +1509,13 @@ export async function getPosition<
     contracts: [
       defineCall({
         address: vault,
-        abi: Abis.vaultAdapter,
+        abi: Abis.earnVault,
         functionName: 'asset',
       }),
       defineCall({
         address: vault,
-        abi: Abis.vaultAdapter,
-        functionName: 'shareToken',
+        abi: Abis.earnVault,
+        functionName: 'earnShare',
       }),
     ],
     deployless: true,
@@ -1530,7 +1554,7 @@ export async function getPosition<
     })
   const value = await readContract(client, {
     ...rest,
-    abi: Abis.vaultAdapter,
+    abi: Abis.earnVault,
     address: vault,
     args: [shareBalance],
     functionName: 'previewRedeem',
@@ -1620,7 +1644,7 @@ export namespace getRedeemQuote {
   export type Parameters = Omit<ReadParameters, 'account'> & Args
   /** Asset output, including fees. */
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.vaultAdapter,
+    typeof Abis.earnVault,
     'previewRedeem',
     never
   >
@@ -1652,7 +1676,7 @@ export namespace getRedeemQuote {
     const { shareAmount, vault } = args
     return defineCall({
       address: vault,
-      abi: Abis.vaultAdapter,
+      abi: Abis.earnVault,
       args: [shareAmount],
       functionName: 'previewRedeem',
     })
@@ -1688,12 +1712,20 @@ export async function getVault<chain extends Chain | undefined>(
   parameters: getVault.Parameters,
 ): Promise<getVault.ReturnValue> {
   const { vault, ...rest } = parameters
-  const engine = await readContract(client, {
-    ...rest,
-    abi: Abis.vaultAdapter,
-    address: vault,
-    functionName: 'engine',
-  })
+  const [engine, fees] = await Promise.all([
+    readContract(client, {
+      ...rest,
+      abi: Abis.earnVault,
+      address: vault,
+      functionName: 'engine',
+    }),
+    readContract(client, {
+      ...rest,
+      abi: Abis.earnVault,
+      address: vault,
+      functionName: 'earnFees',
+    }),
+  ])
   const [
     assetToken,
     engine_,
@@ -1718,7 +1750,7 @@ export async function getVault<chain extends Chain | undefined>(
   ] = await multicall(client, {
     ...rest,
     allowFailure: false,
-    contracts: getVault.calls({ engine, vault }),
+    contracts: getVault.calls({ engine, fees, vault }),
     deployless: true,
   })
   if (!isAddressEqual(engine, engine_))
@@ -1801,116 +1833,116 @@ export namespace getVault {
   export type ErrorType = GetVaultEngineChangedErrorType | BaseErrorType
 
   /**
-   * Defines the reads used by {@link getVault}. Pass the vault's current
-   * engine address.
+   * Defines the reads used by {@link getVault}. Pass the current engine and
+   * fee contract addresses.
    *
    * @param args - Arguments.
    * @returns The calls.
    */
-  export function calls(args: Args & { engine: Address }) {
-    const { engine, vault } = args
+  export function calls(args: Args & { engine: Address; fees: Address }) {
+    const { engine, fees, vault } = args
     return [
       defineCall({
         address: vault,
-        abi: Abis.vaultAdapter,
+        abi: Abis.earnVault,
         functionName: 'asset',
       }),
       defineCall({
         address: vault,
-        abi: Abis.vaultAdapter,
+        abi: Abis.earnVault,
         functionName: 'engine',
       }),
       defineCall({
         address: vault,
-        abi: Abis.vaultAdapter,
-        functionName: 'shareToken',
+        abi: Abis.earnVault,
+        functionName: 'earnShare',
       }),
       defineCall({
         address: vault,
-        abi: Abis.vaultAdapter,
+        abi: Abis.earnVault,
         functionName: 'operator',
       }),
       defineCall({
         address: vault,
-        abi: Abis.vaultAdapter,
+        abi: Abis.earnVault,
         functionName: 'emergencyGuardian',
       }),
       defineCall({
         address: vault,
-        abi: Abis.vaultAdapter,
+        abi: Abis.earnVault,
         functionName: 'asyncJanitor',
       }),
       defineCall({
         address: vault,
-        abi: Abis.vaultAdapter,
+        abi: Abis.earnVault,
         functionName: 'engineMigrationMode',
       }),
       defineCall({
         address: vault,
-        abi: Abis.vaultAdapter,
+        abi: Abis.earnVault,
         functionName: 'depositsPaused',
       }),
       defineCall({
         address: vault,
-        abi: Abis.vaultAdapter,
+        abi: Abis.earnVault,
         functionName: 'engineShares',
       }),
       defineCall({
         address: vault,
-        abi: Abis.vaultAdapter,
-        functionName: 'shareSupply',
+        abi: Abis.earnVault,
+        functionName: 'totalEarnShares',
       }),
       defineCall({
         address: vault,
-        abi: Abis.vaultAdapter,
-        functionName: 'isSynced',
+        abi: Abis.earnVault,
+        functionName: 'isAccountingAligned',
       }),
       defineCall({
         address: vault,
-        abi: Abis.vaultAdapter,
-        functionName: 'pendingRedeemCount',
+        abi: Abis.earnVault,
+        functionName: 'openRedeemRequestCount',
       }),
       defineCall({
-        address: vault,
-        abi: Abis.vaultAdapter,
+        address: fees,
+        abi: Abis.earnFees,
         functionName: 'feesActive',
       }),
       defineCall({
         address: engine,
-        abi: Abis.vaultEngine,
+        abi: Abis.earnEngine,
         functionName: 'totalAssets',
       }),
       defineCall({
         address: engine,
-        abi: Abis.vaultEngine,
+        abi: Abis.earnEngine,
         functionName: 'name',
       }),
       defineCall({
         address: engine,
-        abi: Abis.vaultEngine,
+        abi: Abis.earnEngine,
         functionName: 'symbol',
       }),
       defineCall({
         address: engine,
-        abi: Abis.vaultEngine,
+        abi: Abis.earnEngine,
         functionName: 'supportsInterface',
         args: [interfaceIds.asyncRedeem],
       }),
       defineCall({
         address: engine,
-        abi: Abis.vaultEngine,
+        abi: Abis.earnEngine,
         functionName: 'supportsInterface',
         args: [interfaceIds.exactWithdraw],
       }),
       defineCall({
         address: engine,
-        abi: Abis.vaultEngine,
+        abi: Abis.earnEngine,
         functionName: 'supportsInterface',
         args: [interfaceIds.inKindDeposit],
       }),
       defineCall({
         address: engine,
-        abi: Abis.vaultEngine,
+        abi: Abis.earnEngine,
         functionName: 'supportsInterface',
         args: [interfaceIds.syncRedeem],
       }),
@@ -1964,7 +1996,7 @@ export namespace getWithdrawQuote {
   export type Parameters = Omit<ReadParameters, 'account'> & Args
   /** Required vault share input, ceiling-rounded. */
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.vaultAdapter,
+    typeof Abis.earnVault,
     'previewWithdraw',
     never
   >
@@ -1996,7 +2028,7 @@ export namespace getWithdrawQuote {
     const { assetAmount, vault } = args
     return defineCall({
       address: vault,
-      abi: Abis.vaultAdapter,
+      abi: Abis.earnVault,
       args: [assetAmount],
       functionName: 'previewWithdraw',
     })
@@ -2086,9 +2118,9 @@ export namespace redeem {
     const [args, shareToken] = await Promise.all([
       toRedeemArgs(client, parameters as never),
       readContract(client, {
-        abi: Abis.vaultAdapter,
+        abi: Abis.earnVault,
         address: parameters.vault,
-        functionName: 'shareToken',
+        functionName: 'earnShare',
       }),
     ])
     return (await action(client, {
@@ -2115,7 +2147,7 @@ export namespace redeem {
     })()
     return defineCall({
       address: vault,
-      abi: Abis.vaultAdapter,
+      abi: Abis.earnVault,
       functionName: 'redeem',
       args: [
         internal_Token.toBaseUnits(args.shareAmount, undefined),
@@ -2184,7 +2216,7 @@ export namespace redeem {
     // Earn contracts are user-deployed: several adapters can emit the same
     // signature in one receipt, so filter by emitting address before decode.
     const [log] = parseEventLogs({
-      abi: Abis.vaultAdapter,
+      abi: Abis.earnVault,
       eventName: 'Redeemed',
       logs: logs.filter((log) => isAddressEqual(log.address, vault)),
     })
@@ -2225,7 +2257,7 @@ export namespace redeem {
   >(
     client: Client<Transport, chain, account>,
     parameters: redeem.Parameters<chain, account>,
-  ): Promise<SimulateContractReturnType<typeof Abis.vaultAdapter, 'redeem'>> {
+  ): Promise<SimulateContractReturnType<typeof Abis.earnVault, 'redeem'>> {
     return simulateContract(client, {
       ...pickWriteParameters(parameters as never),
       ...redeem.call(await toRedeemArgs(client, parameters as never)),
@@ -2278,7 +2310,7 @@ export async function redeemSync<
     caller: args.caller,
     receipt,
     recipient: args.receiver,
-    shareAmount: args.shares,
+    shareAmount: args.earnShares,
   }
 }
 
@@ -2316,6 +2348,8 @@ export namespace redeemSync {
  *   recoveryRecipient: '0x...',
  *   shareAmount: 100_000_000n,
  *   slippageBps: 50,
+ *   vault: '0x...',
+ *   zoneId: 7,
  * })
  * const hash = await Actions.earn.privateRedeem(zoneClient, prepared)
  * ```
@@ -2363,20 +2397,31 @@ export namespace privateRedeem {
       callbackGas = zoneGatewayCallbackGas,
       fallbackRecipient = parameters.recoveryRecipient,
       gateway,
+      portalAddress: portalAddress_,
       recipient,
       recoveryRecipient,
       returnMemo,
       shareAmount,
+      vault,
       withdrawalMemo,
+      zoneId,
     } = parameters
+    const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
     const readParameters = pickReadParameters(parameters)
     const [fromBlock, config] = await Promise.all([
       getBlockNumber(client, { cacheTime: 0 }),
-      getZoneGatewayConfig(client, { ...readParameters, gateway }),
+      getZoneGatewayConfig(client, {
+        ...readParameters,
+        flow: 1,
+        gateway,
+        vault,
+        zoneId,
+        zonePortal: portalAddress,
+      }),
     ])
     const assetToken = parameters.assetToken ?? config.vaultAsset
     if (isAddressEqual(assetToken, config.shareToken))
-      throw new Error('`assetToken` cannot be the gateway vault share token.')
+      throw new Error('`assetToken` cannot be the vault share token.')
 
     const [{ encrypted, keyIndex }, assetAmountMin] = await Promise.all([
       zoneActions.encryptedDeposit.prepareRecipient(client, {
@@ -2397,23 +2442,22 @@ export namespace privateRedeem {
         const assetAmount = await getRedeemQuote(client, {
           ...readParameters,
           shareAmount,
-          vault: config.vaultAdapter,
+          vault: config.vault,
         })
         return EarnShares.minimumOutput(assetAmount, parameters.slippageBps)
       })(),
     ])
     const direct = isAddressEqual(assetToken, config.vaultAsset)
-    const data = encodeAbiParameters(Abis.zoneGatewayCallbackData, [
+    const data = encodeAbiParameters(Abis.earnRouterCallbackData, [
       {
-        flow: 1,
-        outputToken: assetToken,
-        keyIndex,
-        encrypted,
-        minVaultAssets: direct ? assetAmountMin : 1n,
-        minVaultShares: 0n,
-        minOutputAmount: direct ? 0n : assetAmountMin,
         actionId,
-        refundRecipient: recoveryRecipient,
+        earnVault: config.vault,
+        flow: 1,
+        minEarnShares: 0n,
+        minOutputAmount: direct ? 0n : assetAmountMin,
+        minVaultAssets: direct ? assetAmountMin : 1n,
+        outputToken: assetToken,
+        zoneReturn: { encrypted, keyIndex, refundRecipient: recoveryRecipient },
       },
     ])
     return {
@@ -2438,7 +2482,7 @@ export namespace privateRedeem {
         shareAmount: bigint
       } & (
         | ({
-            /** Asset token returned to the Zone. @default gateway vault asset */
+            /** Asset token returned to the Zone. @default vault asset */
             assetToken?: undefined
           } & OneOf<
             | {
@@ -2515,6 +2559,7 @@ export namespace privateRedeemSync {
  *   actionId: prepared.actionId,
  *   fromBlock: prepared.fromBlock,
  *   gateway: '0x...',
+ *   vault: '0x...',
  * })
  * ```
  *
@@ -2532,15 +2577,17 @@ export async function waitForPrivateRedeem<chain extends Chain | undefined>(
     gateway,
     pollingInterval = client.pollingInterval,
     timeout = 60_000,
+    vault,
   } = parameters
   const event = getAbiItem({
-    abi: Abis.zoneGateway,
+    abi: Abis.earnRouter,
     name: 'EarnRedeem',
   })
   const observerId = stringify([
     'waitForPrivateRedeem',
     client.uid,
     gateway,
+    vault,
     actionId,
     fromBlock,
   ])
@@ -2571,7 +2618,7 @@ export async function waitForPrivateRedeem<chain extends Chain | undefined>(
           try {
             const [log] = await getLogs(client, {
               address: gateway,
-              args: { actionId },
+              args: { actionId, earnVault: vault },
               event,
               fromBlock,
               strict: true,
@@ -2583,7 +2630,7 @@ export async function waitForPrivateRedeem<chain extends Chain | undefined>(
               actionId: log.args.actionId,
               outputAmount: log.args.outputAmount,
               outputToken: log.args.outputToken,
-              shares: log.args.shares,
+              shares: log.args.earnShares,
               tempoBlockNumber: log.blockNumber,
               vaultAssets: log.args.vaultAssets,
               zoneDepositHash: log.args.zoneDepositHash,
@@ -2621,6 +2668,8 @@ export namespace waitForPrivateRedeem {
     pollingInterval?: number | undefined
     /** Timeout in milliseconds; `0` disables it. @default `60_000` */
     timeout?: number | undefined
+    /** Vault address. */
+    vault: Address
   }
   export type ReturnType = {
     /** Correlation id for the completed redemption. */
@@ -2730,9 +2779,9 @@ export namespace withdrawExact {
     const [args, shareToken] = await Promise.all([
       toWithdrawExactArgs(client, parameters as never),
       readContract(client, {
-        abi: Abis.vaultAdapter,
+        abi: Abis.earnVault,
         address: parameters.vault,
-        functionName: 'shareToken',
+        functionName: 'earnShare',
       }),
     ])
     return (await action(client, {
@@ -2759,7 +2808,7 @@ export namespace withdrawExact {
     })()
     return defineCall({
       address: vault,
-      abi: Abis.vaultAdapter,
+      abi: Abis.earnVault,
       functionName: 'withdrawExact',
       args: [
         internal_Token.toBaseUnits(args.assetAmount, undefined),
@@ -2830,7 +2879,7 @@ export namespace withdrawExact {
     // Earn contracts are user-deployed: several adapters can emit the same
     // signature in one receipt, so filter by emitting address before decode.
     const [log] = parseEventLogs({
-      abi: Abis.vaultAdapter,
+      abi: Abis.earnVault,
       eventName: 'WithdrewExact',
       logs: logs.filter((log) => isAddressEqual(log.address, vault)),
     })
@@ -2874,7 +2923,7 @@ export namespace withdrawExact {
     client: Client<Transport, chain, account>,
     parameters: withdrawExact.Parameters<chain, account>,
   ): Promise<
-    SimulateContractReturnType<typeof Abis.vaultAdapter, 'withdrawExact'>
+    SimulateContractReturnType<typeof Abis.earnVault, 'withdrawExact'>
   > {
     return simulateContract(client, {
       ...pickWriteParameters(parameters as never),
@@ -2930,7 +2979,7 @@ export async function withdrawExactSync<
     caller: args.caller,
     receipt,
     recipient: args.receiver,
-    shareAmount: args.sharesBurned,
+    shareAmount: args.earnSharesBurned,
   }
 }
 
@@ -2990,16 +3039,22 @@ type PrivatePreparationParameters = {
   callbackGas?: bigint | undefined
   /** Public recipient if the parent-chain callback fails. @default `recoveryRecipient` */
   fallbackRecipient?: Address | undefined
-  /** Gateway identifying the vault and Zone configuration. */
+  /** Zone gateway address. */
   gateway: Address
+  /** Source Zone portal on the parent chain. @default Derived from `zoneId` */
+  portalAddress?: Address | undefined
   /** Encrypted recipient for the returned tokens. */
   recipient: Address
   /** Public recipient if the encrypted return fails. */
   recoveryRecipient: Address
   /** Optional memo encrypted with the returned Zone deposit. */
   returnMemo?: Hex.Hex | undefined
+  /** Vault address. */
+  vault: Address
   /** Optional memo attached to the Zone withdrawal. */
   withdrawalMemo?: Hex.Hex | undefined
+  /** Source Zone receiving the output. */
+  zoneId: number
 }
 
 type PreparedZoneRequest = {
@@ -3068,75 +3123,64 @@ function pickReadParameters(parameters: Omit<ReadParameters, 'account'>) {
 
 async function getZoneGatewayConfig<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  parameters: Omit<ReadParameters, 'account'> & { gateway: Address },
+  parameters: Omit<ReadParameters, 'account'> & {
+    flow: 0 | 1
+    gateway: Address
+    vault: Address
+    zoneId: number
+    zonePortal: Address
+  },
 ) {
-  const { gateway, ...rest } = parameters
-  const [
-    vaultAdapter,
-    vaultAsset,
-    shareToken,
-    zoneId,
-    zonePortal,
-    supportsAsyncFlow,
-  ] = await multicall(client, {
+  const { flow, gateway, vault, zoneId, zonePortal, ...rest } = parameters
+  const [vaultAsset, shareToken, supportsFlow] = await multicall(client, {
     ...rest,
     allowFailure: false,
     contracts: [
       {
-        abi: Abis.zoneGateway,
-        address: gateway,
-        functionName: 'vaultAdapter',
+        abi: Abis.earnVault,
+        address: vault,
+        functionName: 'asset',
       },
       {
-        abi: Abis.zoneGateway,
-        address: gateway,
-        functionName: 'vaultAsset',
+        abi: Abis.earnVault,
+        address: vault,
+        functionName: 'earnShare',
       },
       {
-        abi: Abis.zoneGateway,
+        abi: Abis.earnRouter,
         address: gateway,
-        functionName: 'shareToken',
-      },
-      {
-        abi: Abis.zoneGateway,
-        address: gateway,
-        functionName: 'zoneId',
-      },
-      {
-        abi: Abis.zoneGateway,
-        address: gateway,
-        functionName: 'zonePortal',
-      },
-      {
-        abi: Abis.zoneGateway,
-        address: gateway,
-        args: [2],
+        args: [flow],
         functionName: 'supportsFlow',
       },
     ],
     deployless: true,
   })
-  if (supportsAsyncFlow)
-    throw new Error('Async Zone gateways are not supported.')
-  return { shareToken, vaultAdapter, vaultAsset, zoneId, zonePortal }
+  if (!supportsFlow) throw new Error('Zone gateway flow is not supported.')
+  return {
+    shareToken,
+    vault,
+    vaultAsset,
+    zoneId,
+    zonePortal,
+  }
 }
 
 // ERC-165 ids of the optional engine capability interfaces (XOR of each
 // interface's function selectors).
 const interfaceIds = {
-  /** `IVaultEngineAsync`. */
+  /** `IEarnEngineAsyncRedeem`. */
   asyncRedeem: '0xa1a6a1d7',
-  /** `IVaultEngineExactWithdraw`. */
+  /** `IEarnEngineExactWithdraw`. */
   exactWithdraw: '0x0adfb0b9',
-  /** `IVaultEngineShares`. */
-  inKindDeposit: '0x7d28a2f2',
-  /** `IVaultEngineSync`. */
-  syncRedeem: '0x370457f4',
+  /** `IEarnEngineInKindDeposit`. */
+  inKindDeposit: '0xce4790a9',
+  /** `IEarnEngineRedeem`. */
+  syncRedeem: '0x94a2d467',
 } as const
 
-/** Trims the decoded `IVaultFees.FeeConfig` to its active fixed-fee count. */
+/** Trims the decoded `FeeConfig` to its active fixed-fee count. */
 function toFeeConfig(
-  config: ReadContractReturnType<typeof Abis.vaultAdapter, 'feeConfig'>,
+  config: ReadContractReturnType<typeof Abis.earnFees, 'feeConfig'>,
 ): FeeConfig {
   return {
     excess: config.excess,
@@ -3144,15 +3188,32 @@ function toFeeConfig(
   }
 }
 
-/** Trims the decoded `IVaultFees.FeePreview` to its active allocation count. */
+/** Maps decoded fee fields to the action result. */
 function toFeePreview(
-  preview: ReadContractReturnType<
-    typeof Abis.vaultAdapter,
-    'previewAccruedFees'
-  >,
+  preview: ReadContractReturnType<typeof Abis.earnFees, 'previewAccruedFees'>,
 ): FeePreview {
-  const { allocationCount, allocations, ...rest } = preview
-  return { ...rest, allocations: allocations.slice(0, allocationCount) }
+  const {
+    allocationCount,
+    allocations,
+    postFeeValuePerEarnShare,
+    preFeeValuePerEarnShare,
+    targetValuePerEarnShare,
+    totalFeeEarnShares,
+    ...rest
+  } = preview
+  return {
+    ...rest,
+    allocations: allocations
+      .slice(0, allocationCount)
+      .map(({ feeEarnShares, ...allocation }) => ({
+        ...allocation,
+        feeShares: feeEarnShares,
+      })),
+    postFeeValuePerShare: postFeeValuePerEarnShare,
+    preFeeValuePerShare: preFeeValuePerEarnShare,
+    targetValuePerShare: targetValuePerEarnShare,
+    totalFeeShares: totalFeeEarnShares,
+  }
 }
 
 /** Resolves `deposit` parameters into the adapter call args. @internal */
@@ -3294,9 +3355,9 @@ async function toBaseUnitsLive(
   if (amount.decimals !== undefined)
     return internal_Token.toBaseUnits(amount, amount.decimals)
   const address = await readContract(client, {
-    abi: Abis.vaultAdapter,
+    abi: Abis.earnVault,
     address: vault,
-    functionName: token,
+    functionName: token === 'asset' ? 'asset' : 'earnShare',
   })
   const { decimals } = await resolveTokenWithDecimals(client, {
     token: address,
