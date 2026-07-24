@@ -2990,7 +2990,7 @@ export const abis = [
   ...validatorConfigV2,
 ] as const
 
-// Earn source: tempoxyz/earn at 23e793218cd012bf2805e7795fa2e872853b4341. Do not modify manually.
+// Earn source: tempoxyz/earn at 88b4599dec499b95d50e3bf02f8771985c34c1d4. Do not modify manually.
 
 export const earnFactory = [
   {
@@ -5027,7 +5027,7 @@ export const vedaEngine = [
   },
   {
     type: 'error',
-    name: 'RateChangedWithinBlock',
+    name: 'RateChangedWithinTransaction',
     inputs: [
       { name: 'expected', type: 'uint256' },
       { name: 'actual', type: 'uint256' },
@@ -5078,106 +5078,6 @@ export const vedaEngine = [
 export const earnRouter = [
   {
     type: 'function',
-    name: 'deposit',
-    inputs: [
-      { name: 'earnVault', type: 'address' },
-      { name: 'assets', type: 'uint256' },
-      { name: 'minEarnShares', type: 'uint256' },
-      { name: 'recipient', type: 'address' },
-    ],
-    outputs: [{ name: 'earnShares', type: 'uint256' }],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'depositFromVault',
-    inputs: [
-      { name: 'earnVault', type: 'address' },
-      { name: 'sourceVault', type: 'address' },
-      { name: 'sourceVaultShares', type: 'uint256' },
-      { name: 'minRedeemedAssets', type: 'uint256' },
-      { name: 'minEarnShares', type: 'uint256' },
-      { name: 'recipient', type: 'address' },
-    ],
-    outputs: [
-      { name: 'assets', type: 'uint256' },
-      { name: 'earnShares', type: 'uint256' },
-    ],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'depositFromVaultToZone',
-    inputs: [
-      { name: 'earnVault', type: 'address' },
-      { name: 'sourceVault', type: 'address' },
-      { name: 'sourceVaultShares', type: 'uint256' },
-      { name: 'minRedeemedAssets', type: 'uint256' },
-      { name: 'minEarnShares', type: 'uint256' },
-      {
-        name: 'delivery',
-        type: 'tuple',
-        components: [
-          { name: 'portal', type: 'address' },
-          { name: 'keyIndex', type: 'uint256' },
-          {
-            name: 'encrypted',
-            type: 'tuple',
-            components: [
-              { name: 'ephemeralPubkeyX', type: 'bytes32' },
-              { name: 'ephemeralPubkeyYParity', type: 'uint8' },
-              { name: 'ciphertext', type: 'bytes' },
-              { name: 'nonce', type: 'bytes12' },
-              { name: 'tag', type: 'bytes16' },
-            ],
-          },
-          { name: 'refundRecipient', type: 'address' },
-        ],
-      },
-    ],
-    outputs: [
-      { name: 'assets', type: 'uint256' },
-      { name: 'earnShares', type: 'uint256' },
-      { name: 'zoneDepositHash', type: 'bytes32' },
-    ],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'depositToZone',
-    inputs: [
-      { name: 'earnVault', type: 'address' },
-      { name: 'assets', type: 'uint256' },
-      { name: 'minEarnShares', type: 'uint256' },
-      {
-        name: 'delivery',
-        type: 'tuple',
-        components: [
-          { name: 'portal', type: 'address' },
-          { name: 'keyIndex', type: 'uint256' },
-          {
-            name: 'encrypted',
-            type: 'tuple',
-            components: [
-              { name: 'ephemeralPubkeyX', type: 'bytes32' },
-              { name: 'ephemeralPubkeyYParity', type: 'uint8' },
-              { name: 'ciphertext', type: 'bytes' },
-              { name: 'nonce', type: 'bytes12' },
-              { name: 'tag', type: 'bytes16' },
-            ],
-          },
-          { name: 'refundRecipient', type: 'address' },
-        ],
-      },
-    ],
-    outputs: [
-      { name: 'earnShares', type: 'uint256' },
-      { name: 'zoneDepositHash', type: 'bytes32' },
-    ],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
     name: 'onWithdrawalReceived',
     inputs: [
       { name: 'sourceZoneId', type: 'uint32' },
@@ -5188,52 +5088,6 @@ export const earnRouter = [
       { name: 'callbackData', type: 'bytes' },
     ],
     outputs: [{ name: '', type: 'bytes4' }],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'redeem',
-    inputs: [
-      { name: 'earnVault', type: 'address' },
-      { name: 'earnShares', type: 'uint256' },
-      { name: 'minAssets', type: 'uint256' },
-      { name: 'recipient', type: 'address' },
-    ],
-    outputs: [{ name: 'assets', type: 'uint256' }],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'redeemToZone',
-    inputs: [
-      { name: 'earnVault', type: 'address' },
-      { name: 'earnShares', type: 'uint256' },
-      { name: 'minAssets', type: 'uint256' },
-      {
-        name: 'delivery',
-        type: 'tuple',
-        components: [
-          { name: 'portal', type: 'address' },
-          { name: 'keyIndex', type: 'uint256' },
-          {
-            name: 'encrypted',
-            type: 'tuple',
-            components: [
-              { name: 'ephemeralPubkeyX', type: 'bytes32' },
-              { name: 'ephemeralPubkeyYParity', type: 'uint8' },
-              { name: 'ciphertext', type: 'bytes' },
-              { name: 'nonce', type: 'bytes12' },
-              { name: 'tag', type: 'bytes16' },
-            ],
-          },
-          { name: 'refundRecipient', type: 'address' },
-        ],
-      },
-    ],
-    outputs: [
-      { name: 'assets', type: 'uint256' },
-      { name: 'zoneDepositHash', type: 'bytes32' },
-    ],
     stateMutability: 'nonpayable',
   },
   {
@@ -5271,113 +5125,6 @@ export const earnRouter = [
     ],
     anonymous: false,
   },
-  {
-    type: 'event',
-    name: 'PrivateDepositRoutedToPublic',
-    inputs: [
-      { name: 'actionId', type: 'bytes32', indexed: true },
-      { name: 'earnVault', type: 'address', indexed: true },
-      { name: 'recipient', type: 'address', indexed: true },
-      { name: 'inputToken', type: 'address', indexed: false },
-      { name: 'inputAmount', type: 'uint256', indexed: false },
-      { name: 'vaultAssets', type: 'uint256', indexed: false },
-      { name: 'earnShares', type: 'uint256', indexed: false },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'PrivateRedeemRoutedToPublic',
-    inputs: [
-      { name: 'actionId', type: 'bytes32', indexed: true },
-      { name: 'earnVault', type: 'address', indexed: true },
-      { name: 'recipient', type: 'address', indexed: true },
-      { name: 'outputToken', type: 'address', indexed: false },
-      { name: 'earnShares', type: 'uint256', indexed: false },
-      { name: 'vaultAssets', type: 'uint256', indexed: false },
-      { name: 'outputAmount', type: 'uint256', indexed: false },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'PublicDepositRouted',
-    inputs: [
-      { name: 'caller', type: 'address', indexed: true },
-      { name: 'earnVault', type: 'address', indexed: true },
-      { name: 'recipient', type: 'address', indexed: true },
-      { name: 'assets', type: 'uint256', indexed: false },
-      { name: 'earnShares', type: 'uint256', indexed: false },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'PublicDepositRoutedToZone',
-    inputs: [
-      { name: 'caller', type: 'address', indexed: true },
-      { name: 'earnVault', type: 'address', indexed: true },
-      { name: 'portal', type: 'address', indexed: true },
-      { name: 'assets', type: 'uint256', indexed: false },
-      { name: 'earnShares', type: 'uint256', indexed: false },
-      { name: 'zoneDepositHash', type: 'bytes32', indexed: false },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'PublicRedeemRouted',
-    inputs: [
-      { name: 'caller', type: 'address', indexed: true },
-      { name: 'earnVault', type: 'address', indexed: true },
-      { name: 'recipient', type: 'address', indexed: true },
-      { name: 'earnShares', type: 'uint256', indexed: false },
-      { name: 'assets', type: 'uint256', indexed: false },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'PublicRedeemRoutedToZone',
-    inputs: [
-      { name: 'caller', type: 'address', indexed: true },
-      { name: 'earnVault', type: 'address', indexed: true },
-      { name: 'portal', type: 'address', indexed: true },
-      { name: 'earnShares', type: 'uint256', indexed: false },
-      { name: 'assets', type: 'uint256', indexed: false },
-      { name: 'zoneDepositHash', type: 'bytes32', indexed: false },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'VaultDepositRouted',
-    inputs: [
-      { name: 'caller', type: 'address', indexed: true },
-      { name: 'earnVault', type: 'address', indexed: true },
-      { name: 'sourceVault', type: 'address', indexed: true },
-      { name: 'recipient', type: 'address', indexed: false },
-      { name: 'sourceVaultShares', type: 'uint256', indexed: false },
-      { name: 'assets', type: 'uint256', indexed: false },
-      { name: 'earnShares', type: 'uint256', indexed: false },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'VaultDepositRoutedToZone',
-    inputs: [
-      { name: 'caller', type: 'address', indexed: true },
-      { name: 'earnVault', type: 'address', indexed: true },
-      { name: 'sourceVault', type: 'address', indexed: true },
-      { name: 'portal', type: 'address', indexed: false },
-      { name: 'sourceVaultShares', type: 'uint256', indexed: false },
-      { name: 'assets', type: 'uint256', indexed: false },
-      { name: 'earnShares', type: 'uint256', indexed: false },
-      { name: 'zoneDepositHash', type: 'bytes32', indexed: false },
-    ],
-    anonymous: false,
-  },
   { type: 'error', name: 'AmountOverflow', inputs: [] },
   { type: 'error', name: 'BadFlow', inputs: [] },
   { type: 'error', name: 'InsufficientOutput', inputs: [] },
@@ -5397,44 +5144,38 @@ export const earnRouter = [
   { type: 'error', name: 'ZeroAmount', inputs: [] },
 ] as const
 
-// `EarnRouter.CallbackData` parameter for `encodeAbiParameters`.
+// `ZoneOnlyEarnRouter.CallbackData` parameter for `encodeAbiParameters`.
 export const earnRouterCallbackData = [
   {
     components: [
       { name: 'flow', type: 'uint8' },
       { name: 'earnVault', type: 'address' },
-      { name: 'destination', type: 'uint8' },
       { name: 'outputToken', type: 'address' },
       { name: 'minVaultAssets', type: 'uint128' },
       { name: 'minEarnShares', type: 'uint128' },
       { name: 'minOutputAmount', type: 'uint128' },
       { name: 'actionId', type: 'bytes32' },
-      { name: 'destinationData', type: 'bytes' },
-    ],
-    name: 'callbackData',
-    type: 'tuple',
-  },
-] as const
-
-// `EarnRouter.ZoneReturn` parameter for `encodeAbiParameters`.
-export const earnRouterZoneReturn = [
-  {
-    components: [
-      { name: 'keyIndex', type: 'uint256' },
       {
         components: [
-          { name: 'ephemeralPubkeyX', type: 'bytes32' },
-          { name: 'ephemeralPubkeyYParity', type: 'uint8' },
-          { name: 'ciphertext', type: 'bytes' },
-          { name: 'nonce', type: 'bytes12' },
-          { name: 'tag', type: 'bytes16' },
+          { name: 'keyIndex', type: 'uint256' },
+          {
+            components: [
+              { name: 'ephemeralPubkeyX', type: 'bytes32' },
+              { name: 'ephemeralPubkeyYParity', type: 'uint8' },
+              { name: 'ciphertext', type: 'bytes' },
+              { name: 'nonce', type: 'bytes12' },
+              { name: 'tag', type: 'bytes16' },
+            ],
+            name: 'encrypted',
+            type: 'tuple',
+          },
+          { name: 'refundRecipient', type: 'address' },
         ],
-        name: 'encrypted',
+        name: 'zoneReturn',
         type: 'tuple',
       },
-      { name: 'refundRecipient', type: 'address' },
     ],
-    name: 'zoneReturn',
+    name: 'callbackData',
     type: 'tuple',
   },
 ] as const

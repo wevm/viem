@@ -1064,14 +1064,10 @@ export namespace privateDeposit {
       })
     const minEarnShares = resolveMinEarnShares(parameters)
     const direct = isAddressEqual(assetToken, vaultAsset)
-    const destinationData = encodeAbiParameters(Abis.earnRouterZoneReturn, [
-      { encrypted, keyIndex, refundRecipient: recoveryRecipient },
-    ])
     const data = encodeAbiParameters(Abis.earnRouterCallbackData, [
       {
         flow: 0,
         earnVault,
-        destination: 0,
         outputToken: earnShare,
         minVaultAssets: direct
           ? assetAmount
@@ -1079,7 +1075,7 @@ export namespace privateDeposit {
         minEarnShares,
         minOutputAmount: 0n,
         actionId,
-        destinationData,
+        zoneReturn: { encrypted, keyIndex, refundRecipient: recoveryRecipient },
       },
     ])
     return {
@@ -2475,20 +2471,16 @@ export namespace privateRedeem {
       })(),
     ])
     const direct = isAddressEqual(assetToken, vaultAsset)
-    const destinationData = encodeAbiParameters(Abis.earnRouterZoneReturn, [
-      { encrypted, keyIndex, refundRecipient: recoveryRecipient },
-    ])
     const data = encodeAbiParameters(Abis.earnRouterCallbackData, [
       {
         flow: 1,
         earnVault,
-        destination: 0,
         outputToken: assetToken,
         minVaultAssets: direct ? assetAmountMin : 1n,
         minEarnShares: 0n,
         minOutputAmount: direct ? 0n : assetAmountMin,
         actionId,
-        destinationData,
+        zoneReturn: { encrypted, keyIndex, refundRecipient: recoveryRecipient },
       },
     ])
     return {
@@ -3070,7 +3062,7 @@ type PrivatePreparationParameters = {
   callbackGas?: bigint | undefined
   /** Public recipient if the parent-chain callback fails. @default `recoveryRecipient` */
   fallbackRecipient?: Address | undefined
-  /** Network-level universal EarnRouter. */
+  /** Network-level ZoneOnlyEarnRouter. */
   earnRouter: Address
   /** Canonical source Zone portal. @default resolved from `chain` and `zoneId` */
   portalAddress?: Address | undefined

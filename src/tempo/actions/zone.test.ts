@@ -1211,10 +1211,7 @@ describe('earn', () => {
       )
       expect(
         isAddressEqual(
-          decodeAbiParameters(
-            Abis.earnRouterZoneReturn,
-            depositCallback.destinationData,
-          )[0].refundRecipient,
+          depositCallback.zoneReturn.refundRecipient,
           recoveryRecipient,
         ),
       ).toBe(true)
@@ -1316,10 +1313,7 @@ describe('earn', () => {
       expect(isAddressEqual(redeemCallback.outputToken, stack.asset)).toBe(true)
       expect(
         isAddressEqual(
-          decodeAbiParameters(
-            Abis.earnRouterZoneReturn,
-            redeemCallback.destinationData,
-          )[0].refundRecipient,
+          redeemCallback.zoneReturn.refundRecipient,
           recoveryRecipient,
         ),
       ).toBe(true)

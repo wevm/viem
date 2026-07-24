@@ -167,7 +167,7 @@ export declare namespace deployEarnStack {
 }
 
 /**
- * Deploys a `EarnRouter` against the given zone portal and Zone-enables the
+ * Deploys a `ZoneOnlyEarnRouter` against the given Zone Portal and Zone-enables the
  * stack's asset and EarnShare (localnet precedent: both legs must be
  * Zone-enabled).
  */
@@ -229,7 +229,7 @@ export declare namespace deployEarnRouter {
   }
 
   export type ReturnValue = {
-    /** Deployed `EarnRouter`. */
+    /** Deployed `ZoneOnlyEarnRouter`. */
     earnRouter: Address
   }
 }

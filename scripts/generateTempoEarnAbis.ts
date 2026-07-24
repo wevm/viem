@@ -100,20 +100,11 @@ const abiSlices: readonly {
     functions: ['claimRedeem', 'getClaim', 'rate', 'settled'],
   },
   {
-    contracts: ['EarnRouter'],
+    contracts: ['ZoneOnlyEarnRouter'],
     errors: true,
     events: true,
     exportName: 'earnRouter',
-    functions: [
-      'deposit',
-      'depositFromVault',
-      'depositFromVaultToZone',
-      'depositToZone',
-      'onWithdrawalReceived',
-      'redeem',
-      'redeemToZone',
-      'supportsFlow',
-    ],
+    functions: ['onWithdrawalReceived', 'supportsFlow'],
   },
 ]
 
@@ -123,7 +114,7 @@ const deployables: readonly { contract: string; exportName: string }[] = [
   { contract: 'EarnVault', exportName: 'earnVault' },
   { contract: 'EarnFees', exportName: 'earnFees' },
   { contract: 'EarnFactory', exportName: 'earnFactory' },
-  { contract: 'EarnRouter', exportName: 'earnRouter' },
+  { contract: 'ZoneOnlyEarnRouter', exportName: 'earnRouter' },
   {
     contract: 'EarnContributionController',
     exportName: 'earnContributionController',
@@ -189,33 +180,34 @@ function extractStruct(file: string, name: string) {
     })
 }
 
-// CallbackData is decoded directly and does not appear in a contract ABI.
-function callbackDataParameter(): AbiParameter[] {
-  const components = extractStruct(
-    Path.join(checkout, 'src/periphery/EarnRouter.sol'),
-    'CallbackData',
-  ).map(({ name, type }) => {
-    if (type === 'Flow') return { name, type: 'uint8' }
-    if (type === 'Destination') return { name, type: 'uint8' }
-    return { name, type }
-  })
-  return [{ components, name: 'callbackData', type: 'tuple' }]
-}
-
-function zoneReturnParameter(): AbiParameter[] {
+function zoneReturnComponents(): AbiParameter[] {
   const encrypted = extractStruct(
     Path.join(checkout, 'src/interfaces/external/tempo/IZone.sol'),
     'EncryptedDepositPayload',
   )
-  const components = extractStruct(
-    Path.join(checkout, 'src/periphery/EarnRouter.sol'),
+  return extractStruct(
+    Path.join(checkout, 'src/periphery/EarnRouterBase.sol'),
     'ZoneReturn',
   ).map(({ name, type }) => {
     if (type === 'EncryptedDepositPayload')
       return { components: encrypted, name, type: 'tuple' }
     return { name, type }
   })
-  return [{ components, name: 'zoneReturn', type: 'tuple' }]
+}
+
+// CallbackData is decoded directly and does not appear in a contract ABI.
+function callbackDataParameter(): AbiParameter[] {
+  const zoneReturn = zoneReturnComponents()
+  const components = extractStruct(
+    Path.join(checkout, 'src/periphery/ZoneOnlyEarnRouter.sol'),
+    'CallbackData',
+  ).map(({ name, type }) => {
+    if (type === 'Flow') return { name, type: 'uint8' }
+    if (type === 'ZoneReturn')
+      return { components: zoneReturn, name, type: 'tuple' }
+    return { name, type }
+  })
+  return [{ components, name: 'callbackData', type: 'tuple' }]
 }
 
 function generateAbiSlice(commit: string) {
@@ -234,7 +226,7 @@ function generateAbiSlice(commit: string) {
       })
     return `export const ${slice.exportName} = ${JSON.stringify(sliceAbi(abi, slice))} as const`
   })
-  return `${earnMarker}${commit}. Do not modify manually.\n\n${slices.join('\n\n')}\n\n// \`EarnRouter.CallbackData\` parameter for \`encodeAbiParameters\`.\nexport const earnRouterCallbackData = ${JSON.stringify(callbackDataParameter())} as const\n\n// \`EarnRouter.ZoneReturn\` parameter for \`encodeAbiParameters\`.\nexport const earnRouterZoneReturn = ${JSON.stringify(zoneReturnParameter())} as const\n`
+  return `${earnMarker}${commit}. Do not modify manually.\n\n${slices.join('\n\n')}\n\n// \`ZoneOnlyEarnRouter.CallbackData\` parameter for \`encodeAbiParameters\`.\nexport const earnRouterCallbackData = ${JSON.stringify(callbackDataParameter())} as const\n`
 }
 
 function generateContracts(commit: string) {

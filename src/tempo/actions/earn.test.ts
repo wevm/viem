@@ -93,6 +93,29 @@ async function acquireVenueShares(
   })
 }
 
+describe('earnRouter ABI', () => {
+  test('exposes only the canonical Zone-only surface', () => {
+    const functions = Abis.earnRouter
+      .filter((item) => item.type === 'function')
+      .map((item) => item.name)
+    expect(functions).toEqual(['onWithdrawalReceived', 'supportsFlow'])
+    expect(
+      Abis.earnRouterCallbackData[0].components.map(
+        (component) => component.name,
+      ),
+    ).toEqual([
+      'flow',
+      'earnVault',
+      'outputToken',
+      'minVaultAssets',
+      'minEarnShares',
+      'minOutputAmount',
+      'actionId',
+      'zoneReturn',
+    ])
+  })
+})
+
 describe('deployEarnStack', { timeout: 30_000 }, () => {
   test('default', async () => {
     const stack = await deployEarnStack(client)
