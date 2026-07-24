@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const viction = /*#__PURE__*/ Chain.from({
   id: 88,
@@ -10,6 +11,9 @@ export const viction = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'VIC Scan',
     url: 'https://vicscan.xyz',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

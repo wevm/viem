@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const pulsechain = /*#__PURE__*/ Chain.from({
   id: 369,
@@ -16,6 +17,7 @@ export const pulsechain = /*#__PURE__*/ Chain.from({
     apiUrl: 'https://api.scan.pulsechain.com/api',
   },
   contracts: {
+    create2: Contracts.create2,
     ensRegistry: {
       address: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e',
     },

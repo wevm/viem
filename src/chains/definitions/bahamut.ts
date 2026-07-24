@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const bahamut = /*#__PURE__*/ Chain.from({
   id: 5165,
@@ -20,5 +21,8 @@ export const bahamut = /*#__PURE__*/ Chain.from({
     name: 'Ftnscan',
     url: 'https://www.ftnscan.com',
     apiUrl: 'https://www.ftnscan.com/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

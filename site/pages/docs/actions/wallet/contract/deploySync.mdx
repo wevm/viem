@@ -2,7 +2,9 @@
 
 Deploys a contract to the network synchronously, and returns the transaction receipt.
 
-Constructor arguments are ABI-encoded with the deployment bytecode, then broadcast as a contract creation transaction. The deployed address is available on `receipt.contractAddress`.
+Constructor arguments are ABI-encoded with the deployment bytecode, then broadcast as a contract creation transaction. For direct CREATE deployments, the deployed address is available on `receipt.contractAddress`.
+
+For CREATE2 deployments, `receipt.contractAddress` is `null` because the transaction targets the deployer contract. Compute the address locally with `ContractAddress.fromCreate2`, as shown in the [deploy CREATE2 example](/docs/actions/wallet/contract/deploy#deploy-deterministically-with-create2).
 
 ## Usage
 

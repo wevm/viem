@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const orderlySepolia = /*#__PURE__*/ Chain.from({
   id: 4460,
@@ -10,6 +11,9 @@ export const orderlySepolia = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Orderly Explorer',
     url: 'https://explorerl2new-orderly-l2-4460-sepolia-8tc3sd7dvy.t.conduit.xyz',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

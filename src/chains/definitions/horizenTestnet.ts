@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const horizenTestnet = /*#__PURE__*/ Chain.from({
   id: 2651420,
@@ -14,6 +15,9 @@ export const horizenTestnet = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Horizen Testnet Caldera Explorer',
     url: 'https://horizen-testnet.explorer.caldera.xyz',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const citreaTestnet = /*#__PURE__*/ Chain.from({
   id: 5115,
@@ -11,6 +12,9 @@ export const citreaTestnet = /*#__PURE__*/ Chain.from({
     name: 'Citrea Explorer',
     url: 'https://explorer.testnet.citrea.xyz',
     apiUrl: 'https://explorer.testnet.citrea.xyz/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

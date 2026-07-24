@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const lukso = /*#__PURE__*/ Chain.from({
   id: 42,
@@ -18,6 +19,7 @@ export const lukso = /*#__PURE__*/ Chain.from({
     apiUrl: 'https://api.explorer.execution.mainnet.lukso.network/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 468183,

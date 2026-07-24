@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const lensTestnet = /*#__PURE__*/ Chain.from({
   id: 37_111,
@@ -12,6 +13,9 @@ export const lensTestnet = /*#__PURE__*/ Chain.from({
     name: 'Lens Block Explorer',
     url: 'https://block-explorer.testnet.lens.dev',
     apiUrl: 'https://block-explorer-api.staging.lens.dev/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

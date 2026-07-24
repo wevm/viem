@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const beamTestnet = /*#__PURE__*/ Chain.from({
   id: 13337,
@@ -17,6 +18,7 @@ export const beamTestnet = /*#__PURE__*/ Chain.from({
     url: 'https://subnets-test.avax.network/beam',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0x9bf49b704ee2a095b95c1f2d4eb9010510c41c9e',
       blockCreated: 3,

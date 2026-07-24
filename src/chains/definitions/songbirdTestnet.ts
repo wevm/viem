@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const songbirdTestnet = /*#__PURE__*/ Chain.from({
   id: 16,
@@ -13,6 +14,9 @@ export const songbirdTestnet = /*#__PURE__*/ Chain.from({
     name: 'Coston Explorer',
     url: 'https://coston-explorer.flare.network',
     apiUrl: 'https://coston-explorer.flare.network/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

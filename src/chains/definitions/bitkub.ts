@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const bitkub = /*#__PURE__*/ Chain.from({
   id: 96,
@@ -11,5 +12,8 @@ export const bitkub = /*#__PURE__*/ Chain.from({
     name: 'KUB Chain Mainnet Explorer',
     url: 'https://www.bkcscan.com',
     apiUrl: 'https://www.bkcscan.com/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

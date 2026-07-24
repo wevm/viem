@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const swanProximaTestnet = /*#__PURE__*/ Chain.from({
   id: 20241133,
@@ -8,6 +9,9 @@ export const swanProximaTestnet = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Swan Explorer',
     url: 'https://proxima-explorer.swanchain.io',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

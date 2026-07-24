@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const eni = /*#__PURE__*/ Chain.from({
   id: 173,
@@ -12,6 +13,9 @@ export const eni = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'ENI Explorer',
     url: 'https://scan.eniac.network',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

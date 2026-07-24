@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 11_155_111 // sepolia
@@ -18,6 +19,7 @@ export const soneiumMinato = /*#__PURE__*/ Chain.from({
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     disputeGameFactory: {
       [sourceId]: {
         address: '0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01',

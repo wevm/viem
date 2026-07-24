@@ -1,4 +1,5 @@
 import * as Chain from '../../../core/Chain.js'
+import * as Contracts from '../../../core/internal/contracts.js'
 
 export const skaleBaseSepoliaTestnet = /*#__PURE__*/ Chain.from({
   id: 324705682,
@@ -11,6 +12,9 @@ export const skaleBaseSepoliaTestnet = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'SKALE Explorer',
     url: 'https://base-sepolia-testnet-explorer.skalenodes.com/',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

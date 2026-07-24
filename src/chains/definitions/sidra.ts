@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const sidraChain = /*#__PURE__*/ Chain.from({
   id: 97_453,
@@ -14,5 +15,8 @@ export const sidraChain = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Sidra Chain Explorer',
     url: 'https://ledger.sidrachain.com',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

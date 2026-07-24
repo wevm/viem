@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const merlin = /*#__PURE__*/ Chain.from({
   id: 4200,
@@ -13,5 +14,8 @@ export const merlin = /*#__PURE__*/ Chain.from({
     name: 'blockscout',
     url: 'https://scan.merlinchain.io',
     apiUrl: 'https://scan.merlinchain.io/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

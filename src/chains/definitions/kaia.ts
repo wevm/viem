@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const kaia = /*#__PURE__*/ Chain.from({
   id: 8_217,
@@ -15,6 +16,7 @@ export const kaia = /*#__PURE__*/ Chain.from({
     apiUrl: 'https://api-cypress.klaytnscope.com/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 96002415,

@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const mantraEVM = /*#__PURE__*/ Chain.from({
   id: 5888,
@@ -15,5 +16,8 @@ export const mantraEVM = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'MANTRA Blockscout Explorer',
     url: 'https://blockscout.mantrascan.io',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

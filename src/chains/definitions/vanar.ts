@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const vanar = /*#__PURE__*/ Chain.from({
   id: 2040,
@@ -10,6 +11,9 @@ export const vanar = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Vanar Mainnet Explorer',
     url: 'https://explorer.vanarchain.com/',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

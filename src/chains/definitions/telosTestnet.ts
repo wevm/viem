@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const telosTestnet = /*#__PURE__*/ Chain.from({
   id: 41,
@@ -12,6 +13,9 @@ export const telosTestnet = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Teloscan (testnet)',
     url: 'https://testnet.teloscan.io/',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

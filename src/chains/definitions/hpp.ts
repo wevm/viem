@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const hpp = /*#__PURE__*/ Chain.from({
   id: 190415,
@@ -11,6 +12,9 @@ export const hpp = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'HPP Mainnet Explorer',
     url: 'https://explorer.hpp.io',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

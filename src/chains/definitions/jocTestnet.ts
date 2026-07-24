@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const jocTestnet = /*#__PURE__*/ Chain.from({
   id: 10081,
@@ -18,6 +19,9 @@ export const jocTestnet = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Testnet Block Explorer',
     url: 'https://explorer.testnet.japanopenchain.org',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

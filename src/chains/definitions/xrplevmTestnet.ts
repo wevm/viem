@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const xrplevmTestnet = /*#__PURE__*/ Chain.from({
   id: 1449000,
@@ -15,6 +16,7 @@ export const xrplevmTestnet = /*#__PURE__*/ Chain.from({
     apiUrl: 'https://explorer.testnet.xrplevm.org/api/v2',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0x82Cc144D7d0AD4B1c27cb41420e82b82Ad6e9B31',
       blockCreated: 492302,

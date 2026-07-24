@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const lumiaMainnet = /*#__PURE__*/ Chain.from({
   id: 994873017,
@@ -12,6 +13,7 @@ export const lumiaMainnet = /*#__PURE__*/ Chain.from({
     url: 'https://explorer.lumia.org/',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 3975939,

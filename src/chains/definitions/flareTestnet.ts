@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const flareTestnet = /*#__PURE__*/ Chain.from({
   id: 114,
@@ -13,6 +14,9 @@ export const flareTestnet = /*#__PURE__*/ Chain.from({
     name: 'Coston2 Explorer',
     url: 'https://coston2-explorer.flare.network',
     apiUrl: 'https://coston2-explorer.flare.network/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

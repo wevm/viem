@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const confluxESpace = /*#__PURE__*/ Chain.from({
   id: 1_030,
@@ -13,6 +14,7 @@ export const confluxESpace = /*#__PURE__*/ Chain.from({
     url: 'https://evm.confluxscan.org',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xEFf0078910f638cd81996cc117bccD3eDf2B072F',
       blockCreated: 68602935,

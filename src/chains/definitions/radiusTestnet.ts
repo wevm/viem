@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const radiusTestnet = /*#__PURE__*/ Chain.from({
   id: 72_344,
@@ -10,6 +11,9 @@ export const radiusTestnet = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Radius Test Network Explorer',
     url: 'https://testnet.radiustech.xyz',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

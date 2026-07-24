@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const sapphireTestnet = /*#__PURE__*/ Chain.from({
   id: 23295,
@@ -11,6 +12,9 @@ export const sapphireTestnet = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Oasis Explorer',
     url: 'https://explorer.oasis.io/testnet/sapphire',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

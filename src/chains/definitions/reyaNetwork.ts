@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const reyaNetwork = /*#__PURE__*/ Chain.from({
   id: 1729,
@@ -11,6 +12,9 @@ export const reyaNetwork = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Reya Network Explorer',
     url: 'https://explorer.reya.network',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

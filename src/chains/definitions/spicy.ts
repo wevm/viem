@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const spicy = /*#__PURE__*/ Chain.from({
   id: 88_882,
@@ -22,6 +23,9 @@ export const spicy = /*#__PURE__*/ Chain.from({
     name: 'Chiliz Explorer',
     url: 'http://spicy-explorer.chiliz.com',
     apiUrl: 'http://spicy-explorer.chiliz.com/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

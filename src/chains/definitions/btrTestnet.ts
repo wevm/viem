@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const btrTestnet = /*#__PURE__*/ Chain.from({
   id: 200810,
@@ -15,6 +16,9 @@ export const btrTestnet = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Bitlayer(BTR) Scan',
     url: 'https://testnet.btrscan.com',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

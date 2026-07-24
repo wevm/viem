@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const metadium = /*#__PURE__*/ Chain.from({
   id: 11,
@@ -12,6 +13,9 @@ export const metadium = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Metadium Explorer',
     url: 'https://explorer.metadium.com',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

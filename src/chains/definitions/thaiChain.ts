@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const thaiChain = /*#__PURE__*/ Chain.from({
   id: 7,
@@ -13,6 +14,7 @@ export const thaiChain = /*#__PURE__*/ Chain.from({
     apiUrl: 'https://exp.thaichain.org/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0x0DaD6130e832c21719C5CE3bae93454E16A84826',
       blockCreated: 4806386,

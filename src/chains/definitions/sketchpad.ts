@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const sketchpad = /*#__PURE__*/ Chain.from({
   id: 984123,
@@ -15,6 +16,9 @@ export const sketchpad = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Sketchpad Explorer',
     url: 'https://explorer.sketchpad-1.forma.art',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

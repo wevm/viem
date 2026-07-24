@@ -14,6 +14,7 @@ import * as Chain from '../core/Chain.js'
 import { getCode } from '../core/actions/address/getCode.js'
 import { read } from '../core/actions/contract/read.js'
 import { verifyDefault, type verifyHash } from '../core/actions/verifyHash.js'
+import * as Contracts from '../core/internal/contracts.js'
 import * as Abis from './Abis.js'
 import * as Addresses from './Addresses.js'
 import type * as Capabilities from './Capabilities.js'
@@ -106,6 +107,11 @@ export type ChainConfig = {
       toRpc: (request: TransactionRequest) => TransactionRequestRpc
     }
   }
+  /** Tempo predeployed contracts. */
+  contracts: {
+    /** Canonical CREATE2 deployer. */
+    create2: Chain.Chain.Contract
+  }
   transaction: {
     getSignPayload: (
       envelope: Envelope | TxEnvelope.TxEnvelope,
@@ -170,6 +176,12 @@ export const chainConfig = {
     transactionRequest: {
       fromRpc: decodeRequest,
       toRpc: encodeRequest,
+    },
+  },
+  contracts: {
+    create2: {
+      ...Contracts.create2,
+      blockCreated: 0,
     },
   },
   transaction: {
@@ -527,7 +539,12 @@ export const chainConfig = {
   },
 } satisfies Pick<
   Chain.Chain,
-  'blockTime' | 'codecs' | 'extendSchema' | 'transaction' | 'verifyHash'
+  | 'blockTime'
+  | 'codecs'
+  | 'contracts'
+  | 'extendSchema'
+  | 'transaction'
+  | 'verifyHash'
 > as ChainConfig
 
 /** Untyped envelopes are assumed tempo (they flow from `toEnvelope`). @internal */

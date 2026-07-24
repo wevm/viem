@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 1 // mainnet
@@ -18,6 +19,7 @@ export const shape = /*#__PURE__*/ Chain.from({
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     l2OutputOracle: {
       [sourceId]: {
         address: '0x6Ef8c69CfE4635d866e3E02732068022c06e724D',

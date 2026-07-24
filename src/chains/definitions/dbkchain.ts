@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const dbkchain = /*#__PURE__*/ Chain.from({
   id: 20_240_603,
@@ -10,6 +11,9 @@ export const dbkchain = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'DBK Chain Explorer',
     url: 'https://scan.dbkchain.io',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

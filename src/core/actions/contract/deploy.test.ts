@@ -10,6 +10,7 @@ import {
   testActions,
 } from 'viem'
 import { mainnet } from 'viem/chains'
+import { AbiConstructor, ContractAddress, Hash, Hex } from 'viem/utils'
 
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
@@ -148,4 +149,55 @@ test('encodes constructor args', async () => {
   ).toMatchInlineSnapshot(
     `"000000000000000000000000000000000000000000000000000000000000007b"`,
   )
+})
+
+test('args: salt', async () => {
+  await setup()
+  const client = Client.create({
+    chain: mainnet,
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
+  const abi = [
+    {
+      type: 'constructor',
+      inputs: [{ name: 'value', type: 'uint256' }],
+      stateMutability: 'nonpayable',
+    },
+  ] as const
+  const args = [123n] as const
+  const bytecode = generated.Events.bytecode.object
+  const salt = Hash.keccak256(Hex.fromString('Actions.contract.deploy'))
+  const address = ContractAddress.fromCreate2({
+    bytecode: AbiConstructor.encode(abi, { args, bytecode }),
+    from: mainnet.contracts.create2.address,
+    salt,
+  })
+
+  const hash = await Actions.contract.deploy(client, {
+    abi,
+    account: local,
+    args,
+    bytecode,
+    salt,
+  })
+  await testClient.block.mine({ blocks: 1 })
+
+  const [code, receipt, transaction] = await Promise.all([
+    Actions.address.getCode(client, { address }),
+    Actions.transaction.getReceipt(client, { hash }),
+    Actions.transaction.get(client, { hash }),
+  ])
+  expect({
+    contractAddress: receipt.contractAddress,
+    hasCode: code !== undefined && code !== '0x',
+    status: receipt.status,
+    to: transaction.to?.toLowerCase(),
+  }).toMatchInlineSnapshot(`
+    {
+      "contractAddress": null,
+      "hasCode": true,
+      "status": "success",
+      "to": "0x4e59b44847b379578588920ca78fbf26c0b4956c",
+    }
+  `)
 })

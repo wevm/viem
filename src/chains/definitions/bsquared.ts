@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const bsquared = /*#__PURE__*/ Chain.from({
   id: 223,
@@ -14,5 +15,8 @@ export const bsquared = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'blockscout',
     url: 'https://explorer.bsquared.network',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

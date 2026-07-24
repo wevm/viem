@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const mapProtocol = /*#__PURE__*/ Chain.from({
   id: 22776,
@@ -12,6 +13,9 @@ export const mapProtocol = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'MAPO Scan',
     url: 'https://maposcan.io',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

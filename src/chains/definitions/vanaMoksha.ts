@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const vanaMoksha = /*#__PURE__*/ Chain.from({
   id: 14800,
@@ -16,6 +17,7 @@ export const vanaMoksha = /*#__PURE__*/ Chain.from({
     apiUrl: 'https://moksha.vanascan.io/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xD8d2dFca27E8797fd779F8547166A2d3B29d360E',
       blockCreated: 732283,

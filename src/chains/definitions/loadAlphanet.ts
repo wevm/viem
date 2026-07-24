@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const loadAlphanet = /*#__PURE__*/ Chain.from({
   id: 9496,
@@ -8,6 +9,9 @@ export const loadAlphanet = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Load Alphanet Explorer',
     url: 'https://explorer.load.network',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 11_155_111 // sepolia
@@ -18,6 +19,7 @@ export const ancient8Sepolia = /*#__PURE__*/ Chain.from({
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     l2OutputOracle: {
       [sourceId]: {
         address: '0x942fD5017c0F60575930D8574Eaca13BEcD6e1bB',

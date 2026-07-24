@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const domaTestnet = /*#__PURE__*/ Chain.from({
   id: 97_476,
@@ -12,6 +13,9 @@ export const domaTestnet = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Doma Testnet Explorer',
     url: 'https://explorer-testnet.doma.xyz',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

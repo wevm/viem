@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const abstract = /*#__PURE__*/ Chain.from({
   blockTime: 200,
@@ -18,6 +19,7 @@ export const abstract = /*#__PURE__*/ Chain.from({
     url: 'https://abscan.org',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xAa4De41dba0Ca5dCBb288b7cC6b708F3aaC759E7',
       blockCreated: 5288,

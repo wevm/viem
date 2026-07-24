@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const classic = /*#__PURE__*/ Chain.from({
   id: 61,
@@ -12,5 +13,8 @@ export const classic = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Blockscout',
     url: 'https://blockscout.com/etc/mainnet',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

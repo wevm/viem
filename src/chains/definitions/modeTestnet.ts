@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 11_155_111 // sepolia
@@ -18,6 +19,7 @@ export const modeTestnet = /*#__PURE__*/ Chain.from({
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     l2OutputOracle: {
       [sourceId]: {
         address: '0x2634BD65ba27AB63811c74A63118ACb312701Bfa',

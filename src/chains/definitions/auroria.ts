@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const auroria = /*#__PURE__*/ Chain.from({
   id: 205205,
@@ -14,6 +15,9 @@ export const auroria = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Auroria Testnet Explorer',
     url: 'https://auroria.explorer.stratisevm.com',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

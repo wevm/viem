@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const zksync = /*#__PURE__*/ Chain.from({
   blockTime: 200,
@@ -19,6 +20,7 @@ export const zksync = /*#__PURE__*/ Chain.from({
     apiUrl: 'https://block-explorer-api.mainnet.zksync.io/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xF9cda624FBC7e059355ce98a31693d299FACd963',
       blockCreated: 3908235,

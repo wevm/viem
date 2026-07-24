@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const immutableZkEvmTestnet = /*#__PURE__*/ Chain.from({
   id: 13473,
@@ -16,6 +17,7 @@ export const immutableZkEvmTestnet = /*#__PURE__*/ Chain.from({
     url: 'https://explorer.testnet.immutable.com/',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0x2CC787Ed364600B0222361C4188308Fa8E68bA60',
       blockCreated: 5977391,

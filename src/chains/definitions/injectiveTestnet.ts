@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const injectiveTestnet = /*#__PURE__*/ Chain.from({
   id: 1439,
@@ -16,6 +17,9 @@ export const injectiveTestnet = /*#__PURE__*/ Chain.from({
     name: 'Injective Explorer',
     url: 'https://testnet.blockscout.injective.network',
     apiUrl: 'https://testnet.blockscout.injective.network/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

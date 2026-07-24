@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const zeroGMainnet = /*#__PURE__*/ Chain.from({
   id: 16_661,
@@ -10,6 +11,9 @@ export const zeroGMainnet = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: '0G BlockChain Explorer',
     url: 'https://chainscan.0g.ai',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

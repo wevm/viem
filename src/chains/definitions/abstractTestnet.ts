@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const abstractTestnet = /*#__PURE__*/ Chain.from({
   blockTime: 200,
@@ -16,6 +17,7 @@ export const abstractTestnet = /*#__PURE__*/ Chain.from({
   },
   testnet: true,
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xF9cda624FBC7e059355ce98a31693d299FACd963',
       blockCreated: 358349,

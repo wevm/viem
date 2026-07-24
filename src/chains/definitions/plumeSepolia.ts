@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 const sourceId = 11_155_111 // sepolia
 
@@ -20,6 +21,7 @@ export const plumeSepolia = /*#__PURE__*/ Chain.from({
     apiUrl: 'https://testnet-explorer.plume.org/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 199_712,

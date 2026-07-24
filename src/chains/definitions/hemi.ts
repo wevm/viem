@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const hemi = /*#__PURE__*/ Chain.from({
   id: 43111,
@@ -15,6 +16,9 @@ export const hemi = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'blockscout',
     url: 'https://explorer.hemi.xyz',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

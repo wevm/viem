@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
 
 const sourceId = 1 // mainnet
@@ -18,6 +19,7 @@ export const superseed = /*#__PURE__*/ Chain.from({
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     disputeGameFactory: {
       [sourceId]: {
         address: '0x8b097CF1f9BbD9cbFD0DD561858a1FCbC8857Be0',

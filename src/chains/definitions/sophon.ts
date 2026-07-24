@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const sophon = /*#__PURE__*/ Chain.from({
   blockTime: 200,
@@ -18,6 +19,7 @@ export const sophon = /*#__PURE__*/ Chain.from({
     url: 'https://explorer.sophon.xyz',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0x5f4867441d2416cA88B1b3fd38f21811680CD2C8',
       blockCreated: 116,

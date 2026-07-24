@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const eduChain = /*#__PURE__*/ Chain.from({
   id: 41923,
@@ -14,6 +15,9 @@ export const eduChain = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'EDU Chain Explorer',
     url: 'https://educhain.blockscout.com/',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

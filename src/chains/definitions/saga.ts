@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const saga = /*#__PURE__*/ Chain.from({
   id: 5464,
@@ -14,6 +15,7 @@ export const saga = /*#__PURE__*/ Chain.from({
     url: 'https://sagaevm.sagaexplorer.io',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0x864DDc9B50B9A0dF676d826c9B9EDe9F8913a160',
       blockCreated: 467530,

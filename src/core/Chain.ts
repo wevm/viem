@@ -98,6 +98,8 @@ export declare namespace Chain {
         | { [sourceId: number]: Contract | undefined }
         | undefined
     } & {
+      /** CREATE2 deployer contract. */
+      create2?: Contract | undefined
       ensRegistry?: Contract | undefined
       ensUniversalResolver?: Contract | undefined
       multicall3?: Contract | undefined

@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const lumoz = /*#__PURE__*/ Chain.from({
   id: 96_370,
@@ -14,6 +15,9 @@ export const lumoz = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Lumoz Scan',
     url: 'https://scan.lumoz.info',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

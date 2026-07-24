@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 // src/chains/definitions/example.ts
 
 export const botanix = /*#__PURE__*/ Chain.from({
@@ -12,5 +13,8 @@ export const botanix = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Botanixscan',
     url: 'https://botanixscan.io',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

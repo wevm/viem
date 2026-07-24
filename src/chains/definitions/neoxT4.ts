@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const neoxT4 = /*#__PURE__*/ Chain.from({
   id: 12227332,
@@ -10,6 +11,9 @@ export const neoxT4 = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'neox-scan',
     url: 'https://xt4scan.ngd.network',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

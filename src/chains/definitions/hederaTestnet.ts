@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const hederaTestnet = /*#__PURE__*/ Chain.from({
   id: 296,
@@ -14,6 +15,9 @@ export const hederaTestnet = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Hashscan',
     url: 'https://hashscan.io/testnet',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

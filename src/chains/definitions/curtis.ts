@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const curtis = /*#__PURE__*/ Chain.from({
   id: 33_111,
@@ -10,6 +11,9 @@ export const curtis = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Curtis Explorer',
     url: 'https://explorer.curtis.apechain.com',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

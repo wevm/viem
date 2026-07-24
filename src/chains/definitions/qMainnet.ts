@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const qMainnet = /*#__PURE__*/ Chain.from({
   id: 35441,
@@ -13,5 +14,8 @@ export const qMainnet = /*#__PURE__*/ Chain.from({
     name: 'Q Mainnet Explorer',
     url: 'https://explorer.q.org',
     apiUrl: 'https://explorer.q.org/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

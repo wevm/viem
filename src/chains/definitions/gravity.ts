@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const gravity = /*#__PURE__*/ Chain.from({
   id: 1625,
@@ -13,6 +14,7 @@ export const gravity = /*#__PURE__*/ Chain.from({
     apiUrl: 'https://explorer.gravity.xyz/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xf8ac4BEB2F75d2cFFb588c63251347fdD629B92c',
       blockCreated: 16851,

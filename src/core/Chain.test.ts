@@ -5,6 +5,10 @@ import { Chain } from 'viem'
 import { base } from '../chains/definitions/base.js'
 import { mainnet } from '../chains/definitions/mainnet.js'
 import { optimism } from '../chains/definitions/optimism.js'
+import { tempo } from '../chains/definitions/tempo.js'
+import { tempoDevnet } from '../chains/definitions/tempoDevnet.js'
+import { tempoLocalnet } from '../chains/definitions/tempoLocalnet.js'
+import { tempoModerato as tempoTestnet } from '../chains/definitions/tempoModerato.js'
 
 describe('from', () => {
   test('default', () => {
@@ -71,6 +75,52 @@ describe('extract', () => {
 })
 
 describe('getContractAddress', () => {
+  test('returns the CREATE2 deployer address', () => {
+    expect(
+      Chain.getContractAddress({ chain: mainnet, contract: 'create2' }),
+    ).toMatchInlineSnapshot(`"0x4e59b44847b379578588920ca78fbf26c0b4956c"`)
+  })
+
+  test('returns the Tempo CREATE2 deployer contracts', () => {
+    expect(
+      [tempo, tempoTestnet, tempoDevnet, tempoLocalnet].map((chain) => ({
+        contract: chain.contracts.create2,
+        id: chain.id,
+      })),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "contract": {
+            "address": "0x4e59b44847b379578588920ca78fbf26c0b4956c",
+            "blockCreated": 0,
+          },
+          "id": 4217,
+        },
+        {
+          "contract": {
+            "address": "0x4e59b44847b379578588920ca78fbf26c0b4956c",
+            "blockCreated": 0,
+          },
+          "id": 42431,
+        },
+        {
+          "contract": {
+            "address": "0x4e59b44847b379578588920ca78fbf26c0b4956c",
+            "blockCreated": 0,
+          },
+          "id": 31318,
+        },
+        {
+          "contract": {
+            "address": "0x4e59b44847b379578588920ca78fbf26c0b4956c",
+            "blockCreated": 0,
+          },
+          "id": 1337,
+        },
+      ]
+    `)
+  })
+
   test('returns the contract address', () => {
     expect(
       Chain.getContractAddress({ chain: mainnet, contract: 'multicall3' }),

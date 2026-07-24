@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const hashkeyTestnet = /*#__PURE__*/ Chain.from({
   id: 133,
@@ -14,6 +15,9 @@ export const hashkeyTestnet = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'HashKey Chain Testnet explorer',
     url: 'https://testnet-explorer.hsk.xyz',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

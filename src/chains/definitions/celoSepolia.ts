@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 const sourceId = 11_155_111 // sepolia
 // source https://storage.googleapis.com/cel2-rollup-files/celo-sepolia/deployment-l1.json
@@ -19,6 +20,7 @@ export const celoSepolia = /*#__PURE__*/ Chain.from({
     apiUrl: 'https://celo-sepolia.blockscout.com/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 1,

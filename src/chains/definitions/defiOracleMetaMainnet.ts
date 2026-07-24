@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const defiOracleMetaMainnet = /*#__PURE__*/ Chain.from({
   id: 138,
@@ -27,5 +28,8 @@ export const defiOracleMetaMainnet = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Blockscout',
     url: 'https://explorer.d-bis.org',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

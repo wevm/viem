@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const somnia = /*#__PURE__*/ Chain.from({
   id: 5031,
@@ -14,6 +15,7 @@ export const somnia = /*#__PURE__*/ Chain.from({
     apiUrl: 'https://explorer.somnia.network/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0x5e44F178E8cF9B2F5409B6f18ce936aB817C5a11',
       blockCreated: 38516341,

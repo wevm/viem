@@ -10,6 +10,7 @@ import {
   walletActions,
 } from 'viem'
 import { mainnet } from 'viem/chains'
+import { ContractAddress, Hash, Hex } from 'viem/utils'
 
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
@@ -146,4 +147,40 @@ test('encodes constructor args', async () => {
   ).toMatchInlineSnapshot(
     `"000000000000000000000000000000000000000000000000000000000000007b"`,
   )
+})
+
+test('args: salt', async () => {
+  await setup()
+  const salt = Hash.keccak256(Hex.fromString('Actions.contract.deploySync'))
+  const address = ContractAddress.fromCreate2({
+    bytecode: payableBytecode,
+    from: mainnet.contracts.create2.address,
+    salt,
+  })
+
+  const receipt = await Actions.contract.deploySync(client, {
+    abi: [],
+    account: local,
+    bytecode: payableBytecode,
+    create2Address: mainnet.contracts.create2.address,
+    salt,
+    value: ether,
+  })
+  const [balance, code] = await Promise.all([
+    Actions.address.getBalance(client, { address }),
+    Actions.address.getCode(client, { address }),
+  ])
+  expect({
+    balance,
+    contractAddress: receipt.contractAddress,
+    hasCode: code !== undefined && code !== '0x',
+    status: receipt.status,
+  }).toMatchInlineSnapshot(`
+    {
+      "balance": 1000000000000000000n,
+      "contractAddress": null,
+      "hasCode": true,
+      "status": "success",
+    }
+  `)
 })

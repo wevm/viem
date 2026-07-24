@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const zilliqa = /*#__PURE__*/ Chain.from({
   id: 32769,
@@ -10,6 +11,9 @@ export const zilliqa = /*#__PURE__*/ Chain.from({
   blockExplorers: {
     name: 'Ethernal',
     url: 'https://evmx.zilliqa.com',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

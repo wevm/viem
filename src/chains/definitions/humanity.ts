@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const humanity = /*#__PURE__*/ Chain.from({
   id: 6_985_385,
@@ -15,6 +16,9 @@ export const humanity = /*#__PURE__*/ Chain.from({
     name: 'Humanity Mainnet Explorer',
     url: 'https://humanity-mainnet.explorer.alchemy.com',
     apiUrl: 'https://humanity-mainnet.explorer.alchemy.com/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

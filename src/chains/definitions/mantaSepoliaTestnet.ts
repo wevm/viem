@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const mantaSepoliaTestnet = /*#__PURE__*/ Chain.from({
   id: 3_441_006,
@@ -17,6 +18,7 @@ export const mantaSepoliaTestnet = /*#__PURE__*/ Chain.from({
     apiUrl: 'https://pacific-explorer.sepolia-testnet.manta.network/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xca54918f7B525C8df894668846506767412b53E3',
       blockCreated: 479584,

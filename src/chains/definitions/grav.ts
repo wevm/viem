@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const grav = /*#__PURE__*/ Chain.from({
   id: 127001,
@@ -12,6 +13,8 @@ export const grav = /*#__PURE__*/ Chain.from({
     url: 'https://mainnet-explorer.gravity.xyz',
     apiUrl: 'https://mainnet-explorer.gravity.xyz/api',
   },
-  contracts: {},
+  contracts: {
+    create2: Contracts.create2,
+  },
   testnet: false,
 })

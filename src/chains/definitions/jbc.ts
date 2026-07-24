@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const jbc = /*#__PURE__*/ Chain.from({
   id: 8899,
@@ -13,6 +14,7 @@ export const jbc = /*#__PURE__*/ Chain.from({
     apiUrl: 'https://exp-l1.jibchain.net/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xc0C8C486D1466C57Efe13C2bf000d4c56F47CBdC',
       blockCreated: 2299048,

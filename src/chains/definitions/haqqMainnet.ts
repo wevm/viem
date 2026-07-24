@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const haqqMainnet = /*#__PURE__*/ Chain.from({
   id: 11235,
@@ -15,5 +16,8 @@ export const haqqMainnet = /*#__PURE__*/ Chain.from({
     name: 'HAQQ Explorer',
     url: 'https://explorer.haqq.network',
     apiUrl: 'https://explorer.haqq.network/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

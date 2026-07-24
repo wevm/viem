@@ -1,8 +1,8 @@
 import type { Abi } from 'abitype'
-import { AbiConstructor } from 'ox'
-import type { Errors, Hex } from 'ox'
+import { AbiConstructor, Hex } from 'ox'
+import type { Address, Errors } from 'ox'
 
-import type * as Chain from '../../Chain.js'
+import * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
 import type { DistributiveOmit } from '../../internal/types.js'
 import type {
@@ -15,6 +15,9 @@ import { sendSync } from '../transaction/sendSync.js'
 /**
  * Deploys a contract to the network synchronously, returning the transaction
  * receipt.
+ *
+ * When `salt` is provided, the contract is deployed with CREATE2 through
+ * `create2Address`, or the target chain's `contracts.create2` address.
  *
  * @example
  * ```ts
@@ -41,8 +44,19 @@ export async function deploySync<
   client: Client.Client<chain>,
   options: deploySync.Options<abi, chain>,
 ): Promise<deploySync.ReturnType<chain>> {
-  const { abi, args, bytecode, ...rest } = options as deploySync.Options
-  const data = AbiConstructor.encode(abi, { args, bytecode })
+  const { abi, args, bytecode, create2Address, salt, ...rest } =
+    options as deploySync.Options
+  const initCode = AbiConstructor.encode(abi, { args, bytecode })
+  const data =
+    salt === undefined ? initCode : Hex.concat(Hex.padLeft(salt, 32), initCode)
+  const to = (() => {
+    if (salt === undefined) return rest.authorizationList ? null : undefined
+    if (create2Address !== undefined) return create2Address
+
+    const chain = rest.chain ?? client.chain
+    if (!chain) throw new Chain.NotFoundError()
+    return Chain.getContractAddress({ chain, contract: 'create2' })
+  })()
 
   return await getAction(
     client,
@@ -50,7 +64,7 @@ export async function deploySync<
     'transaction.sendSync',
   )({
     ...rest,
-    ...(rest.authorizationList ? { to: null } : {}),
+    ...(to !== undefined ? { to } : {}),
     data,
   } as sendSync.Options<chain>)
 }
@@ -70,13 +84,14 @@ export declare namespace deploySync {
       : true,
   > = DistributiveOmit<
     sendSync.Options<chain>,
-    'accessList' | 'data' | 'to'
+    'accessList' | 'chain' | 'data' | 'to'
   > & {
     /** Contract ABI. */
     abi: abi
     /** Contract deployment bytecode. */
     bytecode: Hex.Hex
-  } & (hasConstructor extends false
+  } & Create2Options<chain> &
+    (hasConstructor extends false
       ? { args?: undefined }
       : readonly [] extends allArgs
         ? {
@@ -101,5 +116,54 @@ export declare namespace deploySync {
   type ErrorType =
     | sendSync.ErrorType
     | AbiConstructor.encode.ErrorType
+    | Chain.NotFoundError
+    | Chain.getContractAddress.ErrorType
+    | Hex.concat.ErrorType
+    | Hex.padLeft.ErrorType
     | Errors.GlobalErrorType
+}
+
+type Create2Options<chain extends Chain.Chain | undefined> =
+  | (ChainOptions & {
+      /** CREATE2 deployer address. */
+      create2Address?: undefined
+      /** CREATE2 deployment salt. */
+      salt?: undefined
+    })
+  | (ChainOptions & {
+      /** CREATE2 deployer address. */
+      create2Address: Address.Address
+      /** CREATE2 deployment salt. */
+      salt: Hex.Hex
+    })
+  | {
+      /** Chain the transaction targets. */
+      chain: Create2Chain
+      /** CREATE2 deployer address. @default chain.contracts.create2.address */
+      create2Address?: Address.Address | undefined
+      /** CREATE2 deployment salt. */
+      salt: Hex.Hex
+    }
+  | ([chain] extends [Create2Chain]
+      ? {
+          /** Pass `null` to skip the current-chain assertion. @default client.chain */
+          chain?: null | undefined
+          /** CREATE2 deployer address. @default client.chain.contracts.create2.address */
+          create2Address?: Address.Address | undefined
+          /** CREATE2 deployment salt. */
+          salt: Hex.Hex
+        }
+      : never)
+
+type ChainOptions = {
+  /**
+   * Chain the transaction targets. Pass `null` to skip the current-chain
+   * assertion.
+   * @default client.chain
+   */
+  chain?: Chain.Chain | null | undefined
+}
+
+type Create2Chain = Chain.Chain & {
+  contracts: { create2: { address: Address.Address } }
 }

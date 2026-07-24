@@ -1,4 +1,5 @@
 import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 export const metisSepolia = /*#__PURE__*/ Chain.from({
   id: 59902,
@@ -22,6 +23,7 @@ export const metisSepolia = /*#__PURE__*/ Chain.from({
     apiUrl: 'https://sepolia-explorer.metisdevops.link/api-docs',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 224185,
