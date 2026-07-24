@@ -2,7 +2,7 @@ import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
 # `earn.getPosition`
 
-Gets an account's asset and vault share balances, allowances, and current share value.
+Gets an account's asset and Earn share balances, allowances, and current share value.
 
 ## Usage
 
@@ -71,13 +71,13 @@ type ReturnValue = {
   assetBalance: bigint
   /** Token accepted by the vault. */
   assetToken: Address
-  /** Vault shares the vault may spend from the account. */
+  /** Earn shares the vault may spend from the account. */
   shareAllowance: bigint
-  /** Vault share balance held by the account. */
+  /** Earn share balance held by the account. */
   shareBalance: bigint
-  /** Token representing vault shares. */
+  /** Token representing Earn shares. */
   shareToken: Address
-  /** Current asset value of the vault share balance, including fees. */
+  /** Current asset value of the Earn share balance, including fees. */
   value: bigint
 }
 ```

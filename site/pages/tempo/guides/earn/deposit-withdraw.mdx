@@ -45,7 +45,7 @@ const vault = await client.earn.getVault({
 
 ### Deposit Assets
 
-Use [`earn.depositSync`](/tempo/actions/earn.deposit) with a current vault share quote and a slippage
+Use [`earn.depositSync`](/tempo/actions/earn.deposit) with a current Earn share quote and a slippage
 tolerance. The action derives a minimum share output, then approves and deposits the vault asset.
 
 :::code-group
@@ -74,7 +74,7 @@ quote source close to submission. If that source already gives you an acceptable
 
 ### Deposit for Another Recipient
 
-Set `recipient` when the account supplying assets should mint vault shares to another address. This
+Set `recipient` when the account supplying assets should mint Earn shares to another address. This
 supports treasury funding, gifting, and sponsored entry without transferring asset custody first.
 
 :::code-group
@@ -128,7 +128,7 @@ const result = await client.earn.depositSharesSync({
 
 ### Inspect a Position
 
-Use [`earn.getPosition`](/tempo/actions/earn.getPosition) to read the account's current vault shares
+Use [`earn.getPosition`](/tempo/actions/earn.getPosition) to read the account's current Earn shares
 and their asset value before choosing an exit.
 
 :::code-group
@@ -155,7 +155,7 @@ const position = await client.earn.getPosition({
 
 ### Track Yield and Fees
 
-Vault shares are non-rebasing. Their count can stay fixed while their redeemable asset value changes.
+Earn shares are non-rebasing. Their count can stay fixed while their redeemable asset value changes.
 Compare [`earn.getPosition`](/tempo/actions/earn.getPosition),
 [`earn.getRedeemQuote`](/tempo/actions/earn.getRedeemQuote), and
 [`earn.getFeeState`](/tempo/actions/earn.getFeeState) to show the current net position and pending fee
@@ -193,7 +193,7 @@ console.log({
 Venue yield and protocol contributions can increase value per share. Fixed and excess-return fees
 reduce the net redemption quote and appear in the fee preview before they are settled.
 
-### Redeem Vault Shares
+### Redeem Earn Shares
 
 Use [`earn.redeemSync`](/tempo/actions/earn.redeem) when the number of shares leaving the position is
 fixed. Passing only `slippageBps` makes the action fetch a live asset quote and derive the minimum

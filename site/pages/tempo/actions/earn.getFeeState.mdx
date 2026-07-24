@@ -32,7 +32,7 @@ const fees = await client.earn.getFeeState({
 
 ### Include Claimable Shares
 
-Pass a fee recipient to include its currently claimable vault shares.
+Pass a fee recipient to include its currently claimable Earn shares.
 
 :::code-group
 
@@ -64,11 +64,11 @@ type ReturnValue = {
   configId: bigint
   /** Whether fees are active. */
   feesActive: boolean
-  /** Post-fee high-water mark per vault share. */
+  /** Post-fee high-water mark per Earn share. */
   highWaterMark: bigint
   /** Pending fee amounts. */
   preview: FeePreview
-  /** Excess-return fee target per vault share. */
+  /** Excess-return fee target per Earn share. */
   targetBase: bigint
 }
 
@@ -106,7 +106,7 @@ type FeePreview = {
 
 - **Type:** `Address`
 
-Fee recipient whose claimable vault shares are included.
+Fee recipient whose claimable Earn shares are included.
 
 ### vault
 

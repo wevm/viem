@@ -70,9 +70,9 @@ import * as zoneActions from './zone.js'
 /** TIP-403 policy ID that allows every sender, recipient, and mint recipient. */
 export const alwaysAllowPolicyId = 1n
 
-/** Admission-only TIP-403 policy attached to an Earn vault share token. */
+/** Admission-only TIP-403 policy attached to an Earn share token. */
 export type ExitSafePolicy = {
-  /** Compound policy attached to the vault share token. */
+  /** Compound policy attached to the Earn share token. */
   transferPolicyId: bigint
   /** Sender policy. Must be {@link alwaysAllowPolicyId} so holders can exit. */
   senderPolicyId: bigint
@@ -88,14 +88,14 @@ export type ExitSafePolicyReceipts = {
   eligibilityPolicy: TransactionReceipt
   /** Compound policy creation receipt. */
   compoundPolicy: TransactionReceipt
-  /** Vault share token policy update receipt. */
+  /** Earn share token policy update receipt. */
   tokenPolicy: TransactionReceipt
   /** Eligibility policy admin transfer receipt, when an administrator is provided. */
   policyAdmin?: TransactionReceipt | undefined
 }
 
 /**
- * Creates and attaches an admission-only TIP-403 policy to an Earn vault share
+ * Creates and attaches an admission-only TIP-403 policy to an Earn share
  * token. Existing holders remain able to send shares while recipients and mint
  * recipients must belong to the same whitelist.
  *
@@ -124,7 +124,7 @@ export type ExitSafePolicyReceipts = {
  *   })
  * ```
  *
- * @param client - Client authorized to change the vault share token policy.
+ * @param client - Client authorized to change the Earn share token policy.
  * @param parameters - Share token, administrator, and initial members.
  * @returns The configured policy IDs and transaction receipts.
  */
@@ -206,9 +206,9 @@ export namespace configureExitSafePolicy {
   export type Args = {
     /** Address that will administer recipient eligibility. */
     accessAdministrator: Address
-    /** Addresses initially eligible to receive or be minted vault shares. */
+    /** Addresses initially eligible to receive or be minted Earn shares. */
     initialMembers: readonly Address[]
-    /** Earn vault share token. */
+    /** Earn share token. */
     shareToken: Address
   }
   export type Parameters<
@@ -225,7 +225,7 @@ export namespace configureExitSafePolicy {
 }
 
 /**
- * Verifies that an Earn vault share token uses the expected exit-safe TIP-403
+ * Verifies that an Earn share token uses the expected exit-safe TIP-403
  * policy and that every required member can receive transfers and mints.
  *
  * @example
@@ -308,7 +308,7 @@ export async function validateExitSafePolicy<chain extends Chain | undefined>(
     ])
 
   if (tokenPolicyId !== policy.transferPolicyId)
-    throw new Error('Earn vault share token transfer policy mismatch.')
+    throw new Error('Earn share token transfer policy mismatch.')
   if (
     compound[0] !== policy.senderPolicyId ||
     compound[1] !== policy.recipientPolicyId ||
@@ -338,9 +338,9 @@ export namespace validateExitSafePolicy {
     accessAdministrator: Address
     /** Expected exit-safe policy IDs. */
     policy: ExitSafePolicy
-    /** Addresses that must be eligible to receive or be minted vault shares. */
+    /** Addresses that must be eligible to receive or be minted Earn shares. */
     requiredMembers: readonly Address[]
-    /** Earn vault share token. */
+    /** Earn share token. */
     shareToken: Address
   }
   export type Parameters = Omit<ReadParameters, 'account'> & Args
@@ -350,7 +350,7 @@ export namespace validateExitSafePolicy {
 }
 
 /**
- * Deposits assets into a vault and mints vault shares to `recipient`. The
+ * Deposits assets into a vault and mints Earn shares to `recipient`. The
  * transaction includes the required asset approval.
  *
  * @example
@@ -392,17 +392,17 @@ export namespace deposit {
   export type Args = {
     /** Assets to deposit; base units or `{ formatted, decimals? }` (asset decimals). */
     assetAmount: internal_Token.AmountInput
-    /** Vault share recipient. @default `account.address` */
+    /** Earn share recipient. @default `account.address` */
     recipient?: Address | undefined
     /** Vault address. */
     vault: Address
   } & OneOf<
     | {
-        /** Minimum vault share output to accept; must be greater than zero. */
+        /** Minimum Earn share output to accept; must be greater than zero. */
         shareAmountMin: bigint
       }
     | {
-        /** Quoted vault share output; floored by `slippageBps`. */
+        /** Quoted Earn share output; floored by `slippageBps`. */
         shareAmount: bigint
         /** Slippage tolerance in basis points under `shareAmount` (50 = 0.5%). */
         slippageBps: number
@@ -471,17 +471,17 @@ export namespace deposit {
     export type Args = {
       /** Assets to deposit; base units or `{ formatted, decimals? }` (asset decimals). */
       assetAmount: internal_Token.AmountInput
-      /** Vault share recipient. */
+      /** Earn share recipient. */
       recipient: Address
       /** Vault address. */
       vault: Address
     } & OneOf<
       | {
-          /** Minimum vault share output to accept. */
+          /** Minimum Earn share output to accept. */
           shareAmountMin: bigint
         }
       | {
-          /** Quoted vault share output; floored by `slippageBps`. */
+          /** Quoted Earn share output; floored by `slippageBps`. */
           shareAmount: bigint
           /** Slippage tolerance in basis points under `shareAmount` (50 = 0.5%). */
           slippageBps: number
@@ -638,9 +638,9 @@ export namespace depositSync {
     caller: Address
     /** Transaction receipt. */
     receipt: TransactionReceipt
-    /** Vault share recipient. */
+    /** Earn share recipient. */
     recipient: Address
-    /** Vault shares minted. */
+    /** Earn shares minted. */
     shareAmount: bigint
   }>
   // TODO: exhaustive error type
@@ -648,7 +648,7 @@ export namespace depositSync {
 }
 
 /**
- * Deposits venue shares into a vault and mints vault shares to `recipient`.
+ * Deposits venue shares into a vault and mints Earn shares to `recipient`.
  * The transaction includes the required venue share approval.
  *
  * @example
@@ -691,7 +691,7 @@ export namespace depositShares {
   export type Args = {
     /** Venue shares to deposit, base units. */
     venueShareAmount: bigint
-    /** Vault share recipient. @default `account.address` */
+    /** Earn share recipient. @default `account.address` */
     recipient?: Address | undefined
     /** Vault address. */
     vault: Address
@@ -699,11 +699,11 @@ export namespace depositShares {
     venueShareToken: Address
   } & OneOf<
     | {
-        /** Minimum vault share output to accept; must be greater than zero. */
+        /** Minimum Earn share output to accept; must be greater than zero. */
         earnShareAmountMin: bigint
       }
     | {
-        /** Quoted vault share output; floored by `slippageBps`. */
+        /** Quoted Earn share output; floored by `slippageBps`. */
         earnShareAmount: bigint
         /** Slippage tolerance in basis points under `earnShareAmount` (50 = 0.5%). */
         slippageBps: number
@@ -769,17 +769,17 @@ export namespace depositShares {
     export type Args = {
       /** Venue shares to deposit, base units. */
       venueShareAmount: bigint
-      /** Vault share recipient. */
+      /** Earn share recipient. */
       recipient: Address
       /** Vault address. */
       vault: Address
     } & OneOf<
       | {
-          /** Minimum vault share output to accept. */
+          /** Minimum Earn share output to accept. */
           earnShareAmountMin: bigint
         }
       | {
-          /** Quoted vault share output; floored by `slippageBps`. */
+          /** Quoted Earn share output; floored by `slippageBps`. */
           earnShareAmount: bigint
           /** Slippage tolerance in basis points under `earnShareAmount` (50 = 0.5%). */
           slippageBps: number
@@ -939,13 +939,13 @@ export namespace depositSharesSync {
   export type ReturnValue = Compute<{
     /** Depositing caller. */
     caller: Address
-    /** Vault shares minted. */
+    /** Earn shares minted. */
     earnShareAmount: bigint
     /** Transaction receipt. */
     receipt: TransactionReceipt
     /** Venue shares measured as received by the engine. */
     receivedVenueShareAmount: bigint
-    /** Vault share recipient. */
+    /** Earn share recipient. */
     recipient: Address
     /** Venue shares requested for pull. */
     venueShareAmount: bigint
@@ -1262,7 +1262,7 @@ export namespace waitForPrivateDeposit {
     inputAmount: bigint
     /** Token delivered to the gateway. */
     inputToken: Address
-    /** Vault shares returned to the Zone. */
+    /** Earn shares returned to the Zone. */
     shares: bigint
     /** Parent-chain block containing the gateway event. */
     tempoBlockNumber: bigint
@@ -1397,7 +1397,7 @@ export async function getFeeState<chain extends Chain | undefined>(
 
 export namespace getFeeState {
   export type Args = {
-    /** Optional fee recipient whose claimable vault shares are included. */
+    /** Optional fee recipient whose claimable Earn shares are included. */
     recipient?: Address | undefined
     /** Vault address. */
     vault: Address
@@ -1412,11 +1412,11 @@ export namespace getFeeState {
     configId: bigint
     /** Whether fees are configured and not emergency-disabled. */
     feesActive: boolean
-    /** Post-fee high-water mark per vault share. */
+    /** Post-fee high-water mark per Earn share. */
     highWaterMark: bigint
     /** Pending fee amounts. */
     preview: FeePreview
-    /** Excess-return fee target per vault share. */
+    /** Excess-return fee target per Earn share. */
     targetBase: bigint
   }
   // TODO: exhaustive error type
@@ -1442,9 +1442,9 @@ export type FeeConfig = {
 
 /** Pending vault fee amounts. */
 export type FeePreview = {
-  /** Assets backing active vault shares. */
+  /** Assets backing active Earn shares. */
   activeAssets: bigint
-  /** Fee allocations in assets and vault shares. */
+  /** Fee allocations in assets and Earn shares. */
   allocations: readonly {
     account: Address
     feeAssets: bigint
@@ -1456,20 +1456,20 @@ export type FeePreview = {
   fixedFeeAssets: bigint
   /** Accrual above the high-water mark, asset units. */
   positiveAccrualAssets: bigint
-  /** Scaled asset value per vault share after fees. */
+  /** Scaled asset value per Earn share after fees. */
   postFeeValuePerShare: bigint
-  /** Scaled asset value per vault share before fees. */
+  /** Scaled asset value per Earn share before fees. */
   preFeeValuePerShare: bigint
-  /** Scaled excess-fee target per vault share. */
+  /** Scaled excess-fee target per Earn share. */
   targetValuePerShare: bigint
   /** Total fee liability, asset units. */
   totalFeeAssets: bigint
-  /** Vault shares minted to cover the total fee. */
+  /** Earn shares minted to cover the total fee. */
   totalFeeShares: bigint
 }
 
 /**
- * Gets an account's asset and vault share balances, allowances, and current
+ * Gets an account's asset and Earn share balances, allowances, and current
  * share value. The value includes fees.
  *
  * @example
@@ -1491,7 +1491,7 @@ export type FeePreview = {
  *
  * @param client - Client.
  * @param parameters - Parameters.
- * @returns The asset and vault share balances, allowances, and value.
+ * @returns The asset and Earn share balances, allowances, and value.
  */
 export async function getPosition<
   chain extends Chain | undefined,
@@ -1586,13 +1586,13 @@ export namespace getPosition {
     assetBalance: bigint
     /** Token accepted by the vault. */
     assetToken: Address
-    /** Vault shares the vault may spend from the account. */
+    /** Earn shares the vault may spend from the account. */
     shareAllowance: bigint
-    /** Vault share balance held by the account. */
+    /** Earn share balance held by the account. */
     shareBalance: bigint
-    /** Token representing vault shares. */
+    /** Token representing Earn shares. */
     shareToken: Address
-    /** Current asset value of the vault share balance, including fees. */
+    /** Current asset value of the Earn share balance, including fees. */
     value: bigint
   }
   // TODO: exhaustive error type
@@ -1600,7 +1600,7 @@ export namespace getPosition {
 }
 
 /**
- * Gets the asset output for an exact vault share input, including fees.
+ * Gets the asset output for an exact Earn share input, including fees.
  *
  * @example
  * ```ts
@@ -1636,7 +1636,7 @@ export async function getRedeemQuote<chain extends Chain | undefined>(
 
 export namespace getRedeemQuote {
   export type Args = {
-    /** Exact vault share input, base units. */
+    /** Exact Earn share input, base units. */
     shareAmount: bigint
     /** Vault address. */
     vault: Address
@@ -1818,15 +1818,15 @@ export namespace getVault {
     engineShares: bigint
     /** Whether fees are configured and not emergency-disabled. */
     feesActive: boolean
-    /** Whether vault share supply matches its asset backing. */
+    /** Whether Earn share supply matches its asset backing. */
     isSynced: boolean
     /** Vault governance address. */
     operator: Address
     /** Open queued redemptions. */
     pendingRedeemCount: bigint
-    /** Active vault share supply. */
+    /** Active Earn share supply. */
     shareSupply: bigint
-    /** Token representing vault shares. */
+    /** Token representing Earn shares. */
     shareToken: Address
   }
   // TODO: exhaustive error type
@@ -1951,7 +1951,7 @@ export namespace getVault {
 }
 
 /**
- * Gets the vault shares required for an exact asset output, including fees
+ * Gets the Earn shares required for an exact asset output, including fees
  * and ceiling rounding.
  *
  * @example
@@ -1973,7 +1973,7 @@ export namespace getVault {
  *
  * @param client - Client.
  * @param parameters - Parameters.
- * @returns The required vault share input, ceiling-rounded.
+ * @returns The required Earn share input, ceiling-rounded.
  */
 export async function getWithdrawQuote<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
@@ -1994,7 +1994,7 @@ export namespace getWithdrawQuote {
     vault: Address
   }
   export type Parameters = Omit<ReadParameters, 'account'> & Args
-  /** Required vault share input, ceiling-rounded. */
+  /** Required Earn share input, ceiling-rounded. */
   export type ReturnValue = ReadContractReturnType<
     typeof Abis.earnVault,
     'previewWithdraw',
@@ -2036,8 +2036,8 @@ export namespace getWithdrawQuote {
 }
 
 /**
- * Redeems vault shares for assets sent to `recipient`. The transaction
- * includes the required vault share approval.
+ * Redeems Earn shares for assets sent to `recipient`. The transaction
+ * includes the required Earn share approval.
  *
  * @example
  * ```ts
@@ -2075,7 +2075,7 @@ export async function redeem<
 
 export namespace redeem {
   export type Args = {
-    /** Vault shares to redeem; base units or `{ formatted, decimals? }`. */
+    /** Earn shares to redeem; base units or `{ formatted, decimals? }`. */
     shareAmount: internal_Token.AmountInput
     /** Asset recipient. @default `account.address` */
     recipient?: Address | undefined
@@ -2105,7 +2105,7 @@ export namespace redeem {
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
 
-  /** @internal Shared dispatch; reads the vault share token for the approval. */
+  /** @internal Shared dispatch; reads the Earn share token for the approval. */
   export async function inner<
     action extends typeof sendTransaction | typeof sendTransactionSync,
     chain extends Chain | undefined,
@@ -2130,7 +2130,7 @@ export namespace redeem {
   }
 
   /**
-   * Defines a redeem call without an approval. Provide vault share decimals
+   * Defines a redeem call without an approval. Provide Earn share decimals
    * for formatted inputs and an explicit output bound because this builder performs no reads.
    *
    * @param parameters - Client (optional), followed by the call arguments.
@@ -2158,7 +2158,7 @@ export namespace redeem {
   }
   export namespace call {
     export type Args = {
-      /** Vault shares to redeem; base units or `{ formatted, decimals? }`. */
+      /** Earn shares to redeem; base units or `{ formatted, decimals? }`. */
       shareAmount: internal_Token.AmountInput
       /** Asset recipient. */
       recipient: Address
@@ -2179,7 +2179,7 @@ export namespace redeem {
   }
 
   /**
-   * Defines the vault share approval and redeem calls for atomic execution.
+   * Defines the Earn share approval and redeem calls for atomic execution.
    * Pass `shareToken` explicitly because this builder performs no reads.
    *
    * @param args - Arguments.
@@ -2187,7 +2187,7 @@ export namespace redeem {
    */
   export function calls(
     args: call.Args & {
-      /** Vault share token approved for the redemption. */
+      /** Earn share token approved for the redemption. */
       shareToken: Address
     },
   ) {
@@ -2225,7 +2225,7 @@ export namespace redeem {
   }
 
   /**
-   * Estimates gas for a redemption, assuming enough vault share allowance.
+   * Estimates gas for a redemption, assuming enough Earn share allowance.
    *
    * @param client - Client.
    * @param parameters - Parameters.
@@ -2245,7 +2245,7 @@ export namespace redeem {
   }
 
   /**
-   * Simulates a redemption, assuming enough vault share allowance.
+   * Simulates a redemption, assuming enough Earn share allowance.
    *
    * @param client - Client.
    * @param parameters - Parameters.
@@ -2266,7 +2266,7 @@ export namespace redeem {
 }
 
 /**
- * Redeems vault shares and returns the confirmed receipt and event data.
+ * Redeems Earn shares and returns the confirmed receipt and event data.
  *
  * @example
  * ```ts
@@ -2329,7 +2329,7 @@ export namespace redeemSync {
     receipt: TransactionReceipt
     /** Asset recipient. */
     recipient: Address
-    /** Vault shares burned. */
+    /** Earn shares burned. */
     shareAmount: bigint
   }>
   // TODO: exhaustive error type
@@ -2337,7 +2337,7 @@ export namespace redeemSync {
 }
 
 /**
- * Withdraws vault shares from a Zone and redeems them on the parent chain. Use
+ * Withdraws Earn shares from a Zone and redeems them on the parent chain. Use
  * {@link privateRedeem.prepare} to build the encrypted callback.
  *
  * @example
@@ -2379,7 +2379,7 @@ export namespace privateRedeem {
   export type ErrorType = zoneActions.requestWithdrawal.ErrorType
 
   /**
-   * Builds an encrypted Zone withdrawal that redeems vault shares and returns
+   * Builds an encrypted Zone withdrawal that redeems Earn shares and returns
    * the resulting assets to the Zone.
    *
    * @param client - Parent-chain client.
@@ -2421,7 +2421,7 @@ export namespace privateRedeem {
     ])
     const assetToken = parameters.assetToken ?? config.vaultAsset
     if (isAddressEqual(assetToken, config.shareToken))
-      throw new Error('`assetToken` cannot be the vault share token.')
+      throw new Error('`assetToken` cannot be the Earn share token.')
 
     const [{ encrypted, keyIndex }, assetAmountMin] = await Promise.all([
       zoneActions.encryptedDeposit.prepareRecipient(client, {
@@ -2478,7 +2478,7 @@ export namespace privateRedeem {
   export namespace prepare {
     export type Parameters = Omit<ReadParameters, 'account'> &
       PrivatePreparationParameters & {
-        /** Vault shares withdrawn from the Zone, base units. */
+        /** Earn shares withdrawn from the Zone, base units. */
         shareAmount: bigint
       } & (
         | ({
@@ -2678,7 +2678,7 @@ export namespace waitForPrivateRedeem {
     outputAmount: bigint
     /** Token returned to the Zone. */
     outputToken: Address
-    /** Vault shares redeemed. */
+    /** Earn shares redeemed. */
     shares: bigint
     /** Parent-chain block containing the gateway event. */
     tempoBlockNumber: bigint
@@ -2696,8 +2696,8 @@ export namespace waitForPrivateRedeem {
 }
 
 /**
- * Withdraws an exact asset amount to `recipient`, up to the specified vault
- * share limit. The transaction includes the required vault share approval;
+ * Withdraws an exact asset amount to `recipient`, up to the specified Earn
+ * share limit. The transaction includes the required Earn share approval;
  * use {@link redeem} for a full exit.
  *
  * @example
@@ -2744,7 +2744,7 @@ export namespace withdrawExact {
     vault: Address
   } & OneOf<
     | {
-        /** Maximum vault share input to burn. */
+        /** Maximum Earn share input to burn. */
         shareAmountMax: bigint
       }
     | {
@@ -2752,7 +2752,7 @@ export namespace withdrawExact {
         slippageBps: number
       }
     | {
-        /** Quoted vault share input; raised by `slippageBps`. */
+        /** Quoted Earn share input; raised by `slippageBps`. */
         shareAmount: bigint
         /** Slippage tolerance in basis points over `shareAmount` (50 = 0.5%). */
         slippageBps: number
@@ -2766,7 +2766,7 @@ export namespace withdrawExact {
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
 
-  /** @internal Shared dispatch; reads the vault share token for the approval. */
+  /** @internal Shared dispatch; reads the Earn share token for the approval. */
   export async function inner<
     action extends typeof sendTransaction | typeof sendTransactionSync,
     chain extends Chain | undefined,
@@ -2827,11 +2827,11 @@ export namespace withdrawExact {
       vault: Address
     } & OneOf<
       | {
-          /** Maximum vault share input to burn. */
+          /** Maximum Earn share input to burn. */
           shareAmountMax: bigint
         }
       | {
-          /** Quoted vault share input; raised by `slippageBps`. */
+          /** Quoted Earn share input; raised by `slippageBps`. */
           shareAmount: bigint
           /** Slippage tolerance in basis points over `shareAmount` (50 = 0.5%). */
           slippageBps: number
@@ -2840,7 +2840,7 @@ export namespace withdrawExact {
   }
 
   /**
-   * Defines the vault share approval and withdrawal calls for atomic
+   * Defines the Earn share approval and withdrawal calls for atomic
    * execution. Pass `shareToken` explicitly because this builder performs no reads.
    *
    * @param args - Arguments.
@@ -2848,7 +2848,7 @@ export namespace withdrawExact {
    */
   export function calls(
     args: call.Args & {
-      /** Vault share token approved for the withdrawal. */
+      /** Earn share token approved for the withdrawal. */
       shareToken: Address
     },
   ) {
@@ -2888,7 +2888,7 @@ export namespace withdrawExact {
   }
 
   /**
-   * Estimates gas for an exact withdrawal, assuming enough vault share allowance.
+   * Estimates gas for an exact withdrawal, assuming enough Earn share allowance.
    *
    * @param client - Client.
    * @param parameters - Parameters.
@@ -2910,7 +2910,7 @@ export namespace withdrawExact {
   }
 
   /**
-   * Simulates an exact withdrawal, assuming enough vault share allowance.
+   * Simulates an exact withdrawal, assuming enough Earn share allowance.
    *
    * @param client - Client.
    * @param parameters - Parameters.
@@ -2999,7 +2999,7 @@ export namespace withdrawExactSync {
     receipt: TransactionReceipt
     /** Asset recipient. */
     recipient: Address
-    /** Vault shares burned. */
+    /** Earn shares burned. */
     shareAmount: bigint
   }>
   // TODO: exhaustive error type
@@ -3021,11 +3021,11 @@ type MinimumAssetAmountParameters = OneOf<
 
 type MinimumShareAmountParameters = OneOf<
   | {
-      /** Minimum vault shares returned to the Zone. */
+      /** Minimum Earn shares returned to the Zone. */
       shareAmountMin: bigint
     }
   | {
-      /** Quoted vault shares returned to the Zone. */
+      /** Quoted Earn shares returned to the Zone. */
       shareAmount: bigint
       /** Slippage tolerance under `shareAmount` (50 = 0.5%). */
       slippageBps: number
@@ -3339,7 +3339,7 @@ function maximumInput(shareAmount: bigint, slippageBps: number): bigint {
 
 /**
  * Converts an amount to base units, resolving missing decimals with live
- * reads of the vault's asset or share token. Vault share tokens are not
+ * reads of the vault's asset or share token. Earn share tokens are not
  * genesis-declared, so nothing is cached. @internal
  */
 async function toBaseUnitsLive(

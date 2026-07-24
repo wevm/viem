@@ -66,7 +66,7 @@ async function setupStack() {
   return deployEarnStack(client, { asset })
 }
 
-// The asset, vault share, and venue share tokens all expose the same `approve`.
+// The asset, Earn share, and venue share tokens all expose the same `approve`.
 async function approve(options: {
   amount: bigint
   spender: Address
@@ -109,7 +109,7 @@ describe('deployEarnStack', { timeout: 30_000 }, () => {
         address: stack.adapter,
         functionName: 'earnShare',
       }),
-      // The factory wires the adapter as the vault share token's sole issuer.
+      // The factory wires the adapter as the Earn share token's sole issuer.
       readContract(client, {
         abi: Abis.tip20,
         address: stack.shareToken,
@@ -1323,7 +1323,7 @@ Slippage must be a whole number from 0 through 9999 basis points.]`,
       shareAmountMin: 1n,
       vault: stack.adapter,
     })
-    // Contributed backing adds venue shares without minting vault shares, so a
+    // Contributed backing adds venue shares without minting Earn shares, so a
     // rounded-up full-supply burn would strand venue dust.
     await approve({
       amount: parseUnits('50', 6),

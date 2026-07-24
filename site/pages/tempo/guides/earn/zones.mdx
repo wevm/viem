@@ -9,7 +9,7 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 Earn vaults live on the public Tempo chain, while a Zone keeps balances and recipients private. A
-Zone gateway moves assets or vault shares to the public chain, performs the vault action, then sends
+Zone gateway moves assets or Earn shares to the public chain, performs the vault action, then sends
 the result back to an encrypted recipient inside the same source Zone.
 
 The vault transaction and recovery address are public. The recipient of the returned Zone deposit is
@@ -85,7 +85,7 @@ Use `shareAmount` with `slippageBps` when you have a quote instead of an exact s
 
 Pass `assetToken` when the Zone asset differs from the vault asset. The gateway swaps it before the
 deposit. Set `vaultAssetAmountMin` to bound the vault assets produced by that swap independently from
-the vault share bound.
+the Earn share bound.
 
 :::code-group
 
@@ -138,9 +138,9 @@ The router uses the vault's `depositSwapOverride` for `assetToken` when configur
 uses Tempo's canonical stablecoin DEX. Omitting `vaultAssetAmountMin` accepts any non-reverting swap
 output, so set a deliberate bound.
 
-### Redeem Zone Vault Shares
+### Redeem Zone Earn Shares
 
-Use [`earn.privateRedeem.prepare`](/tempo/actions/earn.privateRedeem) to withdraw vault shares from the Zone
+Use [`earn.privateRedeem.prepare`](/tempo/actions/earn.privateRedeem) to withdraw Earn shares from the Zone
 and redeem them on the parent chain. Omitting `assetToken` returns the vault asset and lets the action
 derive the minimum output from a live vault quote.
 

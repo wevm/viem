@@ -3,7 +3,7 @@ import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
 # `earn.privateDeposit`
 
-Withdraws assets from a private Zone, deposits them into an Earn vault, and returns the vault shares
+Withdraws assets from a private Zone, deposits them into an Earn vault, and returns the Earn shares
 to an encrypted Zone recipient.
 
 ## Usage
@@ -179,7 +179,7 @@ Source Zone portal on the parent chain.
 
 - **Type:** `Address`
 
-Encrypted Zone recipient for the returned vault shares.
+Encrypted Zone recipient for the returned Earn shares.
 
 ### recoveryRecipient
 
@@ -197,13 +197,13 @@ Memo encrypted with the returned Zone deposit.
 
 - **Type:** `bigint`
 
-Quoted vault share output. Provide it with `slippageBps`, or provide `shareAmountMin` instead.
+Quoted Earn share output. Provide it with `slippageBps`, or provide `shareAmountMin` instead.
 
 ### shareAmountMin (optional)
 
 - **Type:** `bigint`
 
-Minimum vault shares returned to the Zone.
+Minimum Earn shares returned to the Zone.
 
 ### slippageBps (optional)
 
@@ -222,7 +222,7 @@ Earn vault receiving the assets.
 - **Type:** `bigint`
 - **Default:** `0n` for swap-routed deposits
 
-Minimum vault assets accepted after swapping `assetToken`. This bound works alongside the vault
+Minimum vault assets accepted after swapping `assetToken`. This bound works alongside the Earn
 share bound. Direct vault-asset deposits always use the exact withdrawn `assetAmount` instead.
 
 ### withdrawalMemo (optional)
@@ -235,7 +235,7 @@ Memo attached to the Zone withdrawal.
 
 - **Type:** `number`
 
-Source Zone receiving the returned vault shares.
+Source Zone receiving the returned Earn shares.
 
 <ReadParameters />
 
