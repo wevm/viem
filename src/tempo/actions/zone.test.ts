@@ -138,6 +138,10 @@ async function createUnconfiguredZone() {
           args: [
             {
               initialToken: parentToken,
+              accessMode: false,
+              gatewayMode: false,
+              allowedAccounts: [],
+              zoneGateways: [],
               admin: account.address,
               sequencers: [account.address],
               threshold: 1,
