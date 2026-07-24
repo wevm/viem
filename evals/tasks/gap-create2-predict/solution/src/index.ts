@@ -1,22 +1,20 @@
-import { Actions, type Client } from 'viem'
+import { Actions, Addresses, type Chain, type Client } from 'viem'
 import { ContractAddress, type Hex } from 'viem/utils'
 
-const deployer = '0x4e59b44847b379578588920ca78fbf26c0b4956c'
-
-export async function deployDeterministic(
-  client: Client.Client,
-  options: deployDeterministic.Options,
-) {
+export async function deployDeterministic<
+  const chain extends Chain.Chain & {
+    contracts: { create2: Chain.Chain.Contract }
+  },
+>(client: Client.Client<chain>, options: deployDeterministic.Options) {
   const { bytecode, salt } = options
   const predicted = ContractAddress.fromCreate2({
     bytecode,
-    from: deployer,
+    from: Addresses.create2,
     salt,
   })
   await Actions.contract.deploySync(client, {
     abi: [],
     bytecode,
-    create2Address: deployer,
     salt,
   })
   const code = await Actions.address.getCode(client, { address: predicted })

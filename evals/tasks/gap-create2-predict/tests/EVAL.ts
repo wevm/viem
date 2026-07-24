@@ -39,7 +39,10 @@ async function rpc(method: string, params: unknown[]) {
 }
 
 test('uses viem', () => {
-  expect(readFileSync('src/index.ts', 'utf8')).toMatch(/from ['"]viem/)
+  const source = readFileSync('src/index.ts', 'utf8')
+  expect(source).toMatch(/from ['"]viem/)
+  expect(source).toMatch(/Actions\.contract\.deploy(?:Sync)?\(/)
+  expect(source).toMatch(/Addresses\.create2/)
 })
 
 test('predicts the CREATE2 address and deploys code there', async () => {

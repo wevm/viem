@@ -1660,6 +1660,14 @@ export default defineConfig({
         ],
       },
       {
+        text: 'Addresses',
+        collapsed: true,
+        items: [
+          { text: 'Overview', link: '/docs/addresses' },
+          { text: 'CREATE2 Deployer', link: '/docs/addresses/create2' },
+        ],
+      },
+      {
         text: 'Chains',
         collapsed: true,
         items: [

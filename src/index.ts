@@ -51,6 +51,18 @@ export {
 } from './core/actions/index.js'
 
 /**
+ * Canonical contract addresses shared across EVM chains.
+ *
+ * @example
+ * ```ts
+ * import { Addresses } from 'viem'
+ *
+ * const deployer = Addresses.create2
+ * ```
+ */
+export * as Addresses from './core/Addresses.js'
+
+/**
  * Types for typed wallet capabilities exchanged over RPC. Augment the
  * `Register` interface to type capabilities per RPC method.
  */

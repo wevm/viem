@@ -1,0 +1,40 @@
+# CREATE2 Deployer
+
+## Overview
+
+`Addresses.create2` is the address of the canonical CREATE2 deployer. Viem configures it on chains where its deployment has been verified.
+
+## Recipes
+
+### Predict a Contract Address
+
+Use `Addresses.create2` when calculating the address of a deterministic deployment.
+
+```ts twoslash
+import { Addresses } from 'viem'
+import { ContractAddress } from 'viem/utils'
+
+const address = ContractAddress.fromCreate2({
+  bytecode: '0x6000',
+  from: Addresses.create2, // [!code focus]
+  salt: '0x000000000000000000000000000000000000000000000000000000000000002a',
+})
+```
+
+## `Addresses.create2`
+
+The address of the canonical CREATE2 deployer.
+
+### Usage
+
+```ts twoslash
+import { Addresses } from 'viem'
+
+const address = Addresses.create2
+```
+
+### Return Value
+
+`Address.Address`
+
+The canonical CREATE2 deployer address.

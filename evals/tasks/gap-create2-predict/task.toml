@@ -3,7 +3,7 @@ schema_version = "1.4"
 [task]
 name = "viem/gap-create2-predict"
 version = "1.0.0"
-description = "Predict a CREATE2 address and deploy through the deterministic deployer."
+description = "Predict a CREATE2 address and deploy through the chain-configured deployer."
 
 [metadata]
 area = "gap"
