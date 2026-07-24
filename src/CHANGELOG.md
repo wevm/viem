@@ -1,5 +1,13 @@
 # viem
 
+## 2.55.9
+
+### Patch Changes
+
+- [#4898](https://github.com/wevm/viem/pull/4898) [`4062bf5549e635f92de4a0cf70451ca6ea31704b`](https://github.com/wevm/viem/commit/4062bf5549e635f92de4a0cf70451ca6ea31704b) Thanks [@jxom](https://github.com/jxom)! - Updated Tempo Earn actions
+
+- [#4894](https://github.com/wevm/viem/pull/4894) [`efd29f713f5ebd1f385be03ae67c4da3471dc89c`](https://github.com/wevm/viem/commit/efd29f713f5ebd1f385be03ae67c4da3471dc89c) Thanks [@jxom](https://github.com/jxom)! - Updated `ox` to `0.14.33`.
+
 ## 2.55.8
 
 ### Patch Changes
