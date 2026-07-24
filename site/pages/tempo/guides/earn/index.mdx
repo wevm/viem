@@ -1,5 +1,5 @@
 ---
-description: Deposit assets into Tempo Earn vaults, track vault shares, and withdraw accrued value.
+description: Deposit assets into Tempo Earn vaults, track Earn shares, and withdraw accrued value.
 ---
 
 import { Card, Cards } from 'vocs'
@@ -8,7 +8,7 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-Earn vaults put deposited assets into a yield venue and issue vault shares that represent the
+Earn vaults put deposited assets into a yield venue and issue Earn shares that represent the
 position. The asset value of those shares can change as the venue earns yield and the vault accrues
 fees.
 
@@ -39,7 +39,7 @@ const vault = await client.earn.getVault({
 
 :::
 
-Assets are the TIP-20 tokens accepted by a vault. Vault shares are TIP-20 tokens representing a
+Assets are the TIP-20 tokens accepted by a vault. Earn shares are TIP-20 tokens representing a
 proportional claim on the vault's assets. Venue shares are positions held by the vault in its
 underlying yield venue.
 
@@ -53,7 +53,7 @@ underlying yield venue.
   <Card
     icon="lucide:shield-check"
     title="Protected Vaults"
-    description="Restrict who can receive vault shares without freezing existing positions."
+    description="Restrict who can receive Earn shares without freezing existing positions."
     to="/tempo/guides/earn/protected-vaults"
   />
   <Card
@@ -71,7 +71,7 @@ underlying yield venue.
   <Card
     icon="lucide:wallet-cards"
     title="Inspect a Position"
-    description="Read asset and vault share balances, allowances, and current value."
+    description="Read asset and Earn share balances, allowances, and current value."
     to="/tempo/actions/earn.getPosition"
   />
   <Card

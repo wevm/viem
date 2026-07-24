@@ -1745,8 +1745,8 @@ type DecoratorBase<
   }
   earn: {
     /**
-     * Creates and attaches an admission-only TIP-403 policy to an Earn vault
-     * share token. Existing holders remain able to send shares while
+     * Creates and attaches an admission-only TIP-403 policy to an Earn share
+     * token. Existing holders remain able to send shares while
      * recipients and mint recipients must belong to the same whitelist.
      *
      * @example
@@ -1765,7 +1765,7 @@ type DecoratorBase<
       parameters: earnActions.configureExitSafePolicy.Parameters<account>,
     ) => Promise<earnActions.configureExitSafePolicy.ReturnValue>
     /**
-     * Deposits assets into a vault and mints vault shares to `recipient`. The
+     * Deposits assets into a vault and mints Earn shares to `recipient`. The
      * transaction includes the required asset approval.
      *
      * @example
@@ -1795,7 +1795,7 @@ type DecoratorBase<
       parameters: earnActions.deposit.Parameters<chain, account>,
     ) => Promise<earnActions.deposit.ReturnValue>
     /**
-     * Deposits venue shares into a vault and mints vault shares to
+     * Deposits venue shares into a vault and mints Earn shares to
      * `recipient`. The transaction includes the required venue share approval.
      *
      * @example
@@ -1897,7 +1897,9 @@ type DecoratorBase<
      *   recipient: '0x...',
      *   recoveryRecipient: '0x...',
      *   shareAmountMin: 99_500_000n,
+     *   vault: '0x...',
      *   vaultAssetAmountMin: 99_000_000n,
+     *   zoneId: 7,
      * })
      * const hash = await zoneClient.earn.privateDeposit(prepared)
      * ```
@@ -1950,7 +1952,7 @@ type DecoratorBase<
       parameters: earnActions.getFeeState.Parameters,
     ) => Promise<earnActions.getFeeState.ReturnValue>
     /**
-     * Gets an account's asset and vault share balances, allowances, and
+     * Gets an account's asset and Earn share balances, allowances, and
      * current share value. The value includes fees.
      *
      * @example
@@ -1972,7 +1974,7 @@ type DecoratorBase<
      * ```
      *
      * @param parameters - Parameters.
-     * @returns The asset and vault share balances, allowances, and value.
+     * @returns The asset and Earn share balances, allowances, and value.
      */
     getPosition: (
       parameters: earnActions.getPosition.Parameters<account>,
@@ -2005,7 +2007,7 @@ type DecoratorBase<
       parameters: earnActions.getVault.Parameters,
     ) => Promise<earnActions.getVault.ReturnValue>
     /**
-     * Gets the asset output for an exact vault share input, including fees.
+     * Gets the asset output for an exact Earn share input, including fees.
      *
      * @example
      * ```ts
@@ -2031,7 +2033,7 @@ type DecoratorBase<
       parameters: earnActions.getRedeemQuote.Parameters,
     ) => Promise<earnActions.getRedeemQuote.ReturnValue>
     /**
-     * Gets the vault shares required for an exact asset output, including
+     * Gets the Earn shares required for an exact asset output, including
      * fees and ceiling rounding.
      *
      * @example
@@ -2052,14 +2054,14 @@ type DecoratorBase<
      * ```
      *
      * @param parameters - Parameters.
-     * @returns The required vault share input, ceiling-rounded.
+     * @returns The required Earn share input, ceiling-rounded.
      */
     getWithdrawQuote: (
       parameters: earnActions.getWithdrawQuote.Parameters,
     ) => Promise<earnActions.getWithdrawQuote.ReturnValue>
     /**
-     * Redeems vault shares for assets sent to `recipient`. The transaction
-     * includes the required vault share approval.
+     * Redeems Earn shares for assets sent to `recipient`. The transaction
+     * includes the required Earn share approval.
      *
      * @example
      * ```ts
@@ -2088,7 +2090,7 @@ type DecoratorBase<
       parameters: earnActions.redeem.Parameters<chain, account>,
     ) => Promise<earnActions.redeem.ReturnValue>
     /**
-     * Redeems vault shares and returns the confirmed receipt and event data.
+     * Redeems Earn shares and returns the confirmed receipt and event data.
      *
      * @example
      * ```ts
@@ -2117,7 +2119,7 @@ type DecoratorBase<
       parameters: earnActions.redeemSync.Parameters<chain, account>,
     ) => Promise<earnActions.redeemSync.ReturnValue>
     /**
-     * Withdraws vault shares from a Zone and redeems them on the parent chain.
+     * Withdraws Earn shares from a Zone and redeems them on the parent chain.
      *
      * @example
      * ```ts
@@ -2127,6 +2129,8 @@ type DecoratorBase<
      *   recoveryRecipient: '0x...',
      *   shareAmount: 100_000_000n,
      *   slippageBps: 50,
+     *   vault: '0x...',
+     *   zoneId: 7,
      * })
      * const hash = await zoneClient.earn.privateRedeem(prepared)
      * ```
@@ -2162,6 +2166,7 @@ type DecoratorBase<
      *   actionId: prepared.actionId,
      *   fromBlock: prepared.fromBlock,
      *   gateway: '0x...',
+     *   vault: '0x...',
      * })
      * ```
      *
@@ -2180,6 +2185,7 @@ type DecoratorBase<
      *   actionId: prepared.actionId,
      *   fromBlock: prepared.fromBlock,
      *   gateway: '0x...',
+     *   vault: '0x...',
      * })
      * ```
      *
@@ -2190,7 +2196,7 @@ type DecoratorBase<
       parameters: earnActions.waitForPrivateRedeem.Parameters,
     ) => Promise<earnActions.waitForPrivateRedeem.ReturnType>
     /**
-     * Verifies that an Earn vault share token uses the expected exit-safe
+     * Verifies that an Earn share token uses the expected exit-safe
      * TIP-403 policy and that every required member can receive transfers and
      * mints.
      *
@@ -2212,7 +2218,7 @@ type DecoratorBase<
     ) => Promise<earnActions.validateExitSafePolicy.ReturnValue>
     /**
      * Withdraws an exact asset amount to `recipient`, up to the specified
-     * vault share limit. The transaction includes the required vault share
+     * Earn share limit. The transaction includes the required Earn share
      * approval; use `redeem` for a full exit.
      *
      * @example

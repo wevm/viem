@@ -2,7 +2,7 @@ import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
 # `earn.depositShares`
 
-Deposits venue shares into a vault and mints vault shares to a recipient.
+Deposits venue shares into a vault and mints Earn shares to a recipient.
 
 ## Usage
 
@@ -60,13 +60,13 @@ const hash = await client.earn.depositShares({
 type ReturnValue = {
   /** Depositing caller. */
   caller: Address
-  /** Vault shares minted. */
+  /** Earn shares minted. */
   earnShareAmount: bigint
   /** Transaction receipt. */
   receipt: TransactionReceipt
   /** Venue shares measured as received by the integration. */
   receivedVenueShareAmount: bigint
-  /** Vault share recipient. */
+  /** Earn share recipient. */
   recipient: Address
   /** Venue shares requested for transfer. */
   venueShareAmount: bigint
@@ -81,13 +81,13 @@ The asynchronous action returns the transaction hash instead.
 
 - **Type:** `bigint`
 
-Quoted vault share output. Provide it with `slippageBps`, or provide `earnShareAmountMin` instead.
+Quoted Earn share output. Provide it with `slippageBps`, or provide `earnShareAmountMin` instead.
 
 ### earnShareAmountMin (optional)
 
 - **Type:** `bigint`
 
-Minimum vault shares to accept. It must be greater than zero and cannot be combined with
+Minimum Earn shares to accept. It must be greater than zero and cannot be combined with
 `earnShareAmount` or `slippageBps`.
 
 ### recipient (optional)
@@ -95,7 +95,7 @@ Minimum vault shares to accept. It must be greater than zero and cannot be combi
 - **Type:** `Address`
 - **Default:** `account.address`
 
-Vault share recipient.
+Earn share recipient.
 
 ### slippageBps (optional)
 

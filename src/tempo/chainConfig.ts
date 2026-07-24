@@ -68,7 +68,11 @@ export const chainConfig = {
       // Actual tx has larger keychain/webAuthn sigs + real fee payer sig, costing more intrinsic gas.
       if (phase === 'afterFillParameters') {
         // Fee payer signature covers the gas limit, so the relay must set it before signing and Viem must not change it afterward.
-        if (request.feePayer && !request.feePayerSignature) {
+        if (
+          typeof request.gas !== 'undefined' &&
+          request.feePayer &&
+          !request.feePayerSignature
+        ) {
           if (request.keyAuthorization?.signature.type === 'webAuthn')
             request.gas = (request.gas ?? 0n) + 20_000n
           else if (request.account?.source === 'accessKey')

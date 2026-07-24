@@ -1,6 +1,6 @@
 # `earn.waitForPrivateRedeem`
 
-Waits for a Zone gateway to redeem vault shares on the parent Tempo chain.
+Waits for a Zone gateway to redeem Earn shares on the parent Tempo chain.
 
 ## Usage
 
@@ -16,6 +16,7 @@ const result = await client.earn.waitForPrivateRedeem({
   actionId: '0x0000000000000000000000000000000000000000000000000000000000000001',
   fromBlock: 123456n,
   gateway: '0x0000000000000000000000000000000000000001',
+  vault: '0x0000000000000000000000000000000000000002',
 })
 // @log: { outputAmount: 99_000_000n, tempoBlockNumber: 123457n, ... }
 ```
@@ -77,3 +78,9 @@ Polling frequency in milliseconds.
 - **Default:** `60_000`
 
 Maximum time to wait in milliseconds. Set to `0` to disable the timeout.
+
+### vault
+
+- **Type:** `Address`
+
+Vault used to filter matching redemption events.
