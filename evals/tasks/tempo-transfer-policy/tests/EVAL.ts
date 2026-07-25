@@ -1,22 +1,12 @@
 import { readFileSync } from 'node:fs'
-import { beforeAll, expect, test } from 'vitest'
-import { tempoLocalnet } from 'viem/chains'
-import { Account, Client, http } from 'viem/tempo'
-import { addMember, setupGatedToken, transferGated } from '../src/index.ts'
+import { beforeAll, expect, expectTypeOf, test } from 'vitest'
+import { example } from '../src/index.ts'
 
 const rpcUrl = 'http://tempo:8545'
 const pathUsd = '0x20c0000000000000000000000000000000000000'
 const sender = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
-const senderKey =
-  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 const member = '0x4545454545454545454545454545454545454545'
 const nonMember = '0x4646464646464646464646464646464646464646'
-const client = Client.create({
-  account: Account.fromSecp256k1(senderKey),
-  chain: tempoLocalnet,
-  pollingInterval: 100,
-  transport: http(rpcUrl),
-})
 
 async function rpc(method: string, params: unknown[]) {
   const res = await fetch(rpcUrl, {
@@ -45,40 +35,19 @@ beforeAll(async () => {
   throw new Error('failed to fund dev account 0 with pathUSD')
 }, 120_000)
 
-test('uses viem', () => {
-  expect(readFileSync('src/index.ts', 'utf8')).toMatch(/from ['"]viem/)
-})
+test('exports a zero-input viem example', () => {
+  expectTypeOf(example).parameters.toEqualTypeOf<[]>()
+  const source = readFileSync('src/index.ts', 'utf8')
+  expect(source).toMatch(/from ['"]viem/)
+  expect(source).toMatch(/\bContractFunctionRevertedError\b/)
+}, 60_000)
 
-let token: `0x${string}`
-let policyId: bigint
-
-test('sets up a whitelist-gated token holding the initial supply', async () => {
-  const result = await setupGatedToken(client)
-  expect(result?.token).toMatch(/^0x[0-9a-fA-F]{40}$/)
-  expect(typeof result?.policyId).toBe('bigint')
-  token = result.token
-  policyId = result.policyId
-  expect(await balanceOf(token, sender)).toBe(1_000_000_000n)
-}, 180_000)
-
-test('non-whitelisted transfer reverts and moves nothing', async () => {
-  await expect(
-    transferGated(client, { amount: 1_000_000n, to: nonMember, token }),
-  ).rejects.toThrow()
-  expect(await balanceOf(token, nonMember)).toBe(0n)
-  expect(await balanceOf(token, sender)).toBe(1_000_000_000n)
-}, 120_000)
-
-test('whitelisted transfer moves exact units', async () => {
-  await addMember(client, { member, policyId })
-  const before = await balanceOf(token, member)
-  const result = await transferGated(client, {
-    amount: 2_500_000n,
-    to: member,
-    token,
-  })
-  expect(result?.receipt).toBeTruthy()
-  expect(['success', '0x1']).toContain(result.receipt.status)
-  expect((await balanceOf(token, member)) - before).toBe(2_500_000n)
-  expect(await balanceOf(token, sender)).toBe(997_500_000n)
+test('rejects nonmembers and transfers to a member', async () => {
+  const result = await example()
+  expect(typeof result.policyId).toBe('bigint')
+  expect(result.rejected).toBe(true)
+  expect(['success', '0x1']).toContain(result.transfer.receipt.status)
+  expect(await balanceOf(result.token, nonMember)).toBe(0n)
+  expect(await balanceOf(result.token, member)).toBe(2_500_000n)
+  expect(await balanceOf(result.token, sender)).toBe(997_500_000n)
 }, 120_000)

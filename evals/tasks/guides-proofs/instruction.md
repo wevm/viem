@@ -1,14 +1,10 @@
-Our audit tooling needs to verify a contract's storage against a block's
-state root without trusting the RPC provider.
+Implement and export a zero-argument function named `example` in
+`src/index.ts`.
 
-Implement `getStorageProof` in `src/index.ts`. It receives a Viem client first
-and an options object containing a contract address and a single 32-byte
-storage key. Return the account's Merkle proof data
-for the latest block: the account proof nodes, the account's storage root, and
-a proof entry for the requested key.
+Construct an Ethereum mainnet client at module scope. Return an account and
+storage proof for slot zero of USDC at
+`0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48`.
 
 Use the `viem` library already installed in this project. An Ethereum mainnet
-RPC endpoint is available at `http://anvil:8545`. Do not add any new
-dependencies.
-
+RPC endpoint is available at `http://anvil:8545`. Do not add dependencies.
 When you are done, `npm run build` must pass.

@@ -7,6 +7,7 @@ description = "Sum gas used across all receipts of a block with viem."
 
 [metadata]
 area = "gap"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

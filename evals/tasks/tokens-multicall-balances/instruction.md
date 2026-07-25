@@ -1,14 +1,16 @@
-Our portfolio dashboard shows the USDC balances of three watched wallets side
-by side. Fetching each balance with its own RPC round trip is too slow.
+Our portfolio dashboard shows three Ethereum mainnet USDC balances side by
+side. USDC lives at `0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48`.
 
-Implement `getUsdcBalances` in `src/index.ts` so that
-`getUsdcBalances(client, { accounts: [a, b, c] })` returns the USDC balances of the three accounts,
-in the same order, as bigints in base units (USDC lives at
-`0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48` and has 6 decimals). Batch the
-three reads into a single RPC request instead of three separate ones.
+Implement and export a zero-input `example` function in `src/index.ts`. Create
+an Ethereum mainnet client at module scope and read the USDC balances of these
+accounts in one batched request:
 
-Use the `viem` library already installed in this project. An Ethereum mainnet
-RPC endpoint is available at `http://anvil:8545`. Do not add any new
-dependencies.
+- `0x28C6c06298d514Db089934071355E5743bf21d60`
+- `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`
+- `0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC`
+
+Return the three balances as bigints in the same order. Use the `viem` library
+already installed in this project. The RPC endpoint is available at
+`http://anvil:8545`. Do not add any new dependencies.
 
 When you are done, `npm run build` must pass.

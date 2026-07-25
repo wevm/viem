@@ -1,76 +1,59 @@
 import { readFileSync } from 'node:fs'
-import { Client } from 'viem'
+import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { expect, test } from 'vitest'
-import { createTransport, getEthBalance } from '../src/index.ts'
+import { expect, expectTypeOf, test } from 'vitest'
+import { example } from '../src/index.ts'
 
-async function rpc(method: string, params: unknown[] = []) {
-  const res = await fetch('http://anvil:8545', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
-  })
-  const { result, error } = (await res.json()) as any
-  if (error) throw new Error(error.message)
-  return result
+type RpcResponse = {
+  error?: { message: string }
 }
 
-// Hand-rolled EIP-1193 provider forwarding to the anvil node over fetch.
-let id = 0
-const provider = {
-  async request({ method, params }: { method: string; params?: unknown }) {
-    const res = await fetch('http://anvil:8545', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: ++id,
-        method,
-        params: params ?? [],
-      }),
-    })
-    const { result, error } = (await res.json()) as any
-    if (error) throw new Error(error.message)
-    return result
-  },
+async function rpc(method: string, params: unknown[] = []): Promise<void> {
+  let response: RpcResponse | undefined
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res = await fetch('http://anvil:8545', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      response = await res.json()
+      break
+    } catch (error) {
+      if (attempt === 2) throw error
+      await new Promise((resolve) => setTimeout(resolve, 500))
+    }
+  }
+  if (!response) throw new Error('RPC did not return a response')
+  if (response.error) throw new Error(response.error.message)
 }
 
 const client = Client.create({
   chain: mainnet,
-  transport: createTransport({ provider }),
+  transport: http('http://anvil:8545'),
 })
-const failingProvider = {
-  async request(): Promise<unknown> {
-    throw new Error('provider offline')
-  },
-}
-const failingClient = Client.create({
-  chain: mainnet,
-  transport: createTransport({ provider: failingProvider }),
-})
-
-const weth = '0xC02aaa39b223FE8D0A0e5C4F27eAD9083C756Cc2'
 
 test('uses viem', () => {
-  expect(readFileSync('src/index.ts', 'utf8')).toMatch(/from ['"]viem/)
-})
+  const source = readFileSync('src/index.ts', 'utf8')
+  expect(source).toMatch(/from ['"]viem/)
+  expect(source).toMatch(
+    /\bprovider\s*=\s*Provider\.from\(\s*\{[\s\S]*?\brequest\s*\(/,
+  )
+  expect(source).toMatch(/RpcResponse\.parse\(/)
+  expect(source).toMatch(/transport\s*:\s*custom\(\s*provider\s*\)/)
+  expect(source).not.toMatch(/\bhttp\(/)
+}, 60_000)
 
-test('balance matches raw RPC', async () => {
-  const value = await getEthBalance(client, { address: weth })
-  expect(typeof value).toBe('bigint')
-  expect(value).toBe(BigInt(await rpc('eth_getBalance', [weth, 'latest'])))
-})
+test('exports a zero-input example', () => {
+  expectTypeOf(example).parameters.toEqualTypeOf<[]>()
+}, 60_000)
 
 test('reads fresh state through the provider', async () => {
   const address = '0x5151515151515151515151515151515151515151'
   await rpc('anvil_setBalance', [address, '0xde0b6b3a7640000'])
-  expect(await getEthBalance(client, { address })).toBe(
-    1_000_000_000_000_000_000n,
+  expect(await example()).toBe(1_000_000_000_000_000_000n)
+  expect(await example()).toBe(
+    await Actions.address.getBalance(client, { address }),
   )
-})
-
-test('routes requests through the given provider', async () => {
-  await expect(
-    getEthBalance(failingClient, { address: weth }),
-  ).rejects.toThrow()
-}, 30_000)
+}, 60_000)

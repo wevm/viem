@@ -7,6 +7,7 @@ description = "Batch token balance reads where one call fails, with per-call res
 
 [metadata]
 area = "gap"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

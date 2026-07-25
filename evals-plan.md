@@ -6,6 +6,7 @@ Plan for an agent-eval harness built on [Harbor](https://www.harborframework.com
 
 - Fresh start off latest `v3` in the main checkout. The `jxom/evals` worktree is not migrated; its content (3 pilot tasks, package logic, and prompt/grader authoring rules) is copied over selectively as reference.
 - Per-page task grouping: one task per docs page/topic, distilled to its most meaningful use case(s), not one task per recipe. Target ~120-150 tasks at full build-out.
+- Every non-migration task exports one concrete zero-input `example()` workflow.
 - Forked anvil is the default EVM runtime (pinned block). Forks are fully writable (impersonation, cheatcodes, sends), so write flows run against real mainnet state.
 - Packed tarball self-reports version `3.0.0` (pack step rewrites the `2.52.x` field).
 - v2-emission detection is a secondary reward metric, not the pass/fail gate.
@@ -40,7 +41,7 @@ evals/
   mcp/viem.json           # Viem MCP server configuration for agent runs
   tasks/<area>-<slug>/    # one Harbor task per docs page/topic
     instruction.md        # problem-statement prompt; never names target APIs
-    task.toml             # timeouts, metadata (area, source page, tier)
+    task.toml             # timeouts, metadata (area, contract, source page, tier)
     environment/          # Dockerfile or docker-compose.yaml (sidecars)
     solution/solve.sh     # copies committed solution files into place
     tests/
@@ -73,14 +74,19 @@ Dropped per maintainer decision (2026-07-22): erc4337 (Alto bundler) and op-stac
 `tests/test.sh` writes `/logs/verifier/reward.json` with named metrics:
 
 - `build` (0/1): `npm run build` (`tsc --noEmit`) in the fixture against the installed tarball. Primary gate; v3 ships no legacy entrypoints, so nearly all v2-shaped code already fails here.
+- `types` (0/1): strict TypeScript checking of the hidden grader and candidate
+  surface. Feature tasks require a zero-input `example()`.
 - `runtime` (0/1): `vitest run` on `tests/EVAL.ts` (copied in at verify time, structurally hidden from the agent) asserting observable state on the sidecar: balance deltas, `receipt.status`, decoded logs, reverts.
 - `v3_idioms` (0/1): grep deny-list over the agent's source: `create(Public|Wallet|Test)Client`, `from 'viem/(actions|accounts|account-abstraction|experimental|celo|zksync|linea|ens|siwe|nonce)'`, `\bparseEther\b`, `getContract\(`, `rpcUrls\.default`, `onBlock:`, `instanceof BaseError`, `contracts:` near `multicall`.
-- `reward` = `build && runtime`. `v3_idioms` reports separately and aggregates as a v2-leak rate in `metric.py`.
+- `reward` = `build && types && runtime`. `v3_idioms` reports separately and
+  aggregates as a v2-leak rate in `metric.py`.
 
 Task self-validation replaces `verify-solutions.ts`:
 
 - `harbor run -p <task> -a oracle` must score 1 (runs `solution/solve.sh`).
 - `harbor run -p <task> -a nop` must score 0.
+- `node evals/scripts/check-contracts.mjs` validates task metadata, fixtures,
+  exports, and grader imports before Harbor runs.
 - Wrong-answer fixtures from the worktree become oracle-style negative checks where they add value (v2-shaped solution must fail `build`).
 
 ## Task Inventory

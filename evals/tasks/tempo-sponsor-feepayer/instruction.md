@@ -1,25 +1,17 @@
-Our app covers transaction fees on behalf of its users so sending money feels
-gasless to them.
+Our app covers a user's Tempo transaction fee with a separate sponsor account.
 
-Implement `sponsoredTransfer` in `src/index.ts` so it transfers pathUSD from a
-user's account to a recipient while a separate sponsor account pays the
-transaction fees:
+Implement and export a zero-input `example` function in `src/index.ts`. Create
+a module-scoped Tempo localnet client for the sender derived from private key
+`0x4bbbf85ce3377467afe5d46f804f221813b2bb87f24d81f60f1fcdbf7cbf4356`
+and a local sponsor account from private key
+`0x92db14e403b83dfe3df233f83dfa3a0d7096f21ca9b0d6d6b8d88b2b4ec1564e`.
+Send `12.34` pathUSD to
+`0x4545454545454545454545454545454545454545`, with the sponsor paying every
+fee in pathUSD. Wait for confirmation and return the result.
 
-- The first argument is a Tempo client carrying the user's sending account.
-- `options.feePayer` is the sponsor's local Account. Every fee for the
-  transaction must be paid by the sponsor (in pathUSD), never by the sender.
-- `options.to` is the recipient address.
-- `options.amount` is a human-readable decimal string (for example `'10.5'` means
-  10.5 pathUSD).
-
-pathUSD is a TIP-20 stablecoin at `0x20c0000000000000000000000000000000000000`
-with 6 decimals. The sender's pathUSD balance must decrease by exactly the
-transfer amount and nothing more. Wait until the transfer is confirmed on
-chain before returning, and return an object that includes the transaction
-receipt under a `receipt` key.
-
-Use the `viem` library already installed in this project. A Tempo RPC endpoint
-(Tempo localnet, chain id 1337) is available at `http://tempo:8545`. Do not
-add any new dependencies.
+pathUSD is at `0x20c0000000000000000000000000000000000000`
+with 6 decimals. Use the `viem` library already installed in this project.
+Configure the client with `http://tempo:8545` and a 100 ms polling interval.
+Do not add any new dependencies.
 
 When you are done, `npm run build` must pass.

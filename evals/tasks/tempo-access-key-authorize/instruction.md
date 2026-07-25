@@ -1,35 +1,21 @@
-Our wallet backend lets users provision a session key: a P256 (secp256r1) key
-that signs transactions on behalf of their account, capped by a pathUSD
-spending allowance.
+Our Tempo wallet provisions a P256 session key with a pathUSD spending cap.
 
-Implement two functions in `src/index.ts`:
+Implement and export a zero-input `example` function in `src/index.ts`. At
+module scope, derive the root account from private key
+`0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`
+and its P256 access key from scalar
+`0x1111111111111111111111111111111111111111111111111111111111111111`.
+Create a Tempo localnet client for each.
 
-- `authorizeSessionKey` registers the session key on the root account:
-  - The first argument is a Tempo client carrying the root account.
-  - `options.accessKey` is the P256 access-key Account to authorize.
-  - `options.limit` is a human-readable pathUSD amount (for example `'100'` means the
-    key may spend at most 100 pathUSD). The authorization should stay valid
-    for at least several minutes.
-  - Wait until the authorization is confirmed on chain and return an object
-    that includes the transaction receipt under a `receipt` key.
+Authorize the key for one hour with a `100` pathUSD limit, then use it to send
+`30.5` pathUSD to `0x5151515151515151515151515151515151515151`. Finally try
+to send `75` pathUSD to `0x5252525252525252525252525252525252525252`, which
+exceeds the remaining limit. Return both confirmed results and whether the
+oversized transfer was rejected. Only classify the expected contract revert
+as rejection; let unrelated errors propagate.
 
-- `sendWithSessionKey` transfers pathUSD out of the root account, signed by
-  the session key:
-  - The first argument is a Tempo client carrying the authorized P256 access
-    key Account.
-  - `options.to` is the recipient address; `options.amount` is a human-readable pathUSD
-    amount (for example `'10.5'` means 10.5 pathUSD).
-  - Wait until the transfer is confirmed on chain and return an object that
-    includes the transaction receipt under a `receipt` key. If the transfer
-    is not allowed (for example it exceeds the key's remaining allowance),
-    the returned promise must reject.
-
-pathUSD is a TIP-20 stablecoin at `0x20c0000000000000000000000000000000000000`
-with 6 decimals. Transactions signed by the session key must pay their fees in
-pathUSD (fees also count against the key's allowance).
-
-Use the `viem` library already installed in this project. A Tempo RPC endpoint
-(Tempo localnet, chain id 1337) is available at `http://tempo:8545`. Do not
-add any new dependencies.
+pathUSD is `0x20c0000000000000000000000000000000000000`
+with 6 decimals and also pays access-key fees. Use the installed `viem`,
+`http://tempo:8545`, and a 100 ms polling interval. Do not add dependencies.
 
 When you are done, `npm run build` must pass.

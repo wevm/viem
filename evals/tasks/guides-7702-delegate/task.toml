@@ -7,6 +7,7 @@ description = "Sign an EIP-7702 authorization and install a delegation with viem
 
 [metadata]
 area = "guides"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

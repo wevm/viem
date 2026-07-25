@@ -7,6 +7,7 @@ description = "Query historical ERC-20 Transfer logs and watch for the next one 
 
 [metadata]
 area = "guides"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

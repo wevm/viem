@@ -1,15 +1,11 @@
-import { Actions, type Client, fallback, http } from 'viem'
+import { Actions, Client, fallback, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
-export function createTransport(options: createTransport.Options) {
-  return fallback(options.urls.map((url) => http(url)))
-}
+const client = Client.create({
+  chain: mainnet,
+  transport: fallback([http('http://anvil:1'), http('http://anvil:8545')]),
+})
 
-export declare namespace createTransport {
-  type Options = {
-    urls: readonly string[]
-  }
-}
-
-export function getBlockNumber(client: Client.Client): Promise<bigint> {
+export function example() {
   return Actions.block.getNumber(client)
 }

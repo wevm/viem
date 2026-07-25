@@ -1,61 +1,50 @@
 import { readFileSync } from 'node:fs'
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { expect, test } from 'vitest'
-import { completeTransferRequest } from '../src/index.ts'
+import { expect, expectTypeOf, test } from 'vitest'
+import { example } from '../src/index.ts'
+
+const sourceText = readFileSync('src/index.ts', 'utf8')
+const from = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+const to = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
 
 async function rpc(method: string, params: unknown[]) {
-  const res = await fetch('http://anvil:8545', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
-  })
-  const { result, error } = (await res.json()) as any
+  // Retry transient DNS/socket failures seen under parallel suite load.
+  const payload = await (async () => {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        const response = await fetch('http://anvil:8545', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
+        })
+        return (await response.json()) as any
+      } catch (error) {
+        if (attempt === 2) throw error
+        await new Promise((resolve) => setTimeout(resolve, 500))
+      }
+    }
+  })()
+  const { result, error } = payload
   if (error) throw new Error(error.message)
   return result
 }
 
-const from = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
-const to = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
+test('exports a zero-input Viem example', () => {
+  expect(sourceText).toMatch(/from ['"]viem/)
+  expect(sourceText).toMatch(/\bActions\.transaction\.fill\s*\(/)
+  expect(sourceText).toMatch(/^const \w*client\s*=\s*Client\.create\s*\(/im)
+  expectTypeOf(example).parameters.toEqualTypeOf<[]>()
+}, 60_000)
 
-const client = Client.create({
-  chain: mainnet,
-  transport: http('http://anvil:8545'),
-})
-
-const numeric = (value: unknown) =>
-  typeof value === 'bigint' || typeof value === 'number'
-
-test('uses viem', () => {
-  expect(readFileSync('src/index.ts', 'utf8')).toMatch(/from ['"]viem/)
-})
-
-test('node fills nonce, gas, fees, and chain id', async () => {
-  const filled = await completeTransferRequest(client, {
-    amountEther: '0.25',
-    from,
-    to,
-  })
-
-  // The supplied fields survive the round trip.
-  expect(String(filled.to).toLowerCase()).toBe(to.toLowerCase())
-  expect(BigInt(filled.value)).toBe(250_000_000_000_000_000n)
-
-  // Nonce matches the sender's on-chain transaction count.
-  const count = BigInt(await rpc('eth_getTransactionCount', [from, 'latest']))
-  expect(numeric(filled.nonce)).toBe(true)
-  expect(BigInt(filled.nonce)).toBe(count)
-
-  // Gas covers a plain transfer.
-  expect(numeric(filled.gas)).toBe(true)
-  expect(BigInt(filled.gas)).toBeGreaterThanOrEqual(21_000n)
-  expect(BigInt(filled.gas)).toBeLessThan(100_000n)
-
-  // Fee fields are resolved.
-  expect(numeric(filled.maxFeePerGas)).toBe(true)
-  expect(BigInt(filled.maxFeePerGas)).toBeGreaterThan(0n)
-  expect(numeric(filled.maxPriorityFeePerGas)).toBe(true)
-
-  // Chain id pins to mainnet.
-  expect(Number(filled.chainId)).toBe(1)
+test('fills every required transfer field', async () => {
+  const transaction = await example()
+  expect(String(transaction.from).toLowerCase()).toBe(from.toLowerCase())
+  expect(String(transaction.to).toLowerCase()).toBe(to.toLowerCase())
+  expect(transaction.value).toBe(250_000_000_000_000_000n)
+  expect(BigInt(transaction.nonce!)).toBe(
+    BigInt(await rpc('eth_getTransactionCount', [from, 'latest'])),
+  )
+  expect(BigInt(transaction.gas!)).toBeGreaterThanOrEqual(21_000n)
+  expect(BigInt(transaction.maxFeePerGas!)).toBeGreaterThan(0n)
+  expect(transaction.maxPriorityFeePerGas).toBeDefined()
+  expect(transaction.chainId).toBe(1)
 }, 60_000)

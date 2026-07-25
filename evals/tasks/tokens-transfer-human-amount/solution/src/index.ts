@@ -1,24 +1,20 @@
-import { Actions, type Client } from 'viem'
+import { Account, Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import type { Address } from 'viem/utils'
 import { usdc } from 'viem/tokens'
 
-export async function transferUsdc(
-  client: Client.Client,
-  options: transferUsdc.Options,
-) {
-  const { amount, to } = options
+const client = Client.create({
+  account: Account.fromPrivateKey(
+    '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a',
+  ),
+  chain: mainnet,
+  transport: http('http://anvil:8545'),
+})
+
+export async function example() {
   const { receipt } = await Actions.token.transferSync(client, {
-    amount: { formatted: amount },
-    to,
+    amount: { formatted: '1.5' },
+    to: '0x4242424242424242424242424242424242424242',
     token: usdc(mainnet.id).address,
   })
   return receipt
-}
-
-export declare namespace transferUsdc {
-  type Options = {
-    amount: string
-    to: Address.Address
-  }
 }

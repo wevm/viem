@@ -1,20 +1,14 @@
-Our treasury dashboard tracks a custom stablecoin, Vault USD (symbol `VUSD`,
-6 decimals), that is deployed to a different address in each environment, so
-the contract address is only known at runtime.
+Our treasury dashboard tracks Vault USD (`VUSD`), a USD-denominated token with
+6 decimals. In this environment its mainnet contract is
+`0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48`.
 
-Implement two functions in `src/index.ts`:
+Implement and export a zero-input `example` function in `src/index.ts`. Define
+Vault USD at module scope, attach that definition to a module-scoped Ethereum
+mainnet client, and use its `VUSD` symbol to read the balance of
+`0x28C6c06298d514Db089934071355E5743bf21d60`. Return the amount in base units,
+the token decimals, and the formatted balance.
 
-- `defineVusd({ tokenAddress })` creates a reusable token definition for Vault
-  USD whose mainnet (chain id 1) contract address is `tokenAddress`.
-- `getTokenBalance(client, { holder })` reads the holder's balance from a
-  client configured with that definition, referring to the token by its symbol rather
-  than its contract address, and
-  returns `{ amount, decimals, formatted }`, where `amount` is the balance in
-  base units as a bigint, `decimals` is the token's decimals, and `formatted`
-  is the human-readable balance string.
-
-Use the `viem` library already installed in this project. An Ethereum mainnet
-RPC endpoint is available at `http://anvil:8545`. Do not add any new
-dependencies.
+Use the `viem` library already installed in this project. The RPC endpoint is
+available at `http://anvil:8545`. Do not add any new dependencies.
 
 When you are done, `npm run build` must pass.

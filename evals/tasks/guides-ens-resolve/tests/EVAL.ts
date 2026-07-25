@@ -1,27 +1,19 @@
 import { readFileSync } from 'node:fs'
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { expect, test } from 'vitest'
-import { resolveEnsAddress, resolveEnsName } from '../src/index.ts'
+import { expect, expectTypeOf, test } from 'vitest'
+import { example } from '../src/index.ts'
 
-const vitalik = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' as const
+const sourceText = readFileSync('src/index.ts', 'utf8')
+const vitalik = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 
-const client = Client.create({
-  chain: mainnet,
-  transport: http('http://anvil:8545'),
-})
-
-test('uses viem', () => {
-  expect(readFileSync('src/index.ts', 'utf8')).toMatch(/from ['"]viem/)
-})
-
-test('resolves an ENS name to its address', async () => {
-  const address = await resolveEnsAddress(client, { name: 'vitalik.eth' })
-  expect(address?.toLowerCase()).toBe(vitalik.toLowerCase())
+test('exports a zero-input Viem example', () => {
+  expect(sourceText).toMatch(/from ['"]viem/)
+  expect(sourceText).toMatch(/^const \w*client\s*=\s*Client\.create\s*\(/im)
+  expect(sourceText).toMatch(/\bEns\.normalize\s*\(/)
+  expectTypeOf(example).parameters.toEqualTypeOf<[]>()
 }, 60_000)
 
-test('reverse-resolves an address to its primary name', async () => {
-  await expect(resolveEnsName(client, { address: vitalik })).resolves.toBe(
-    'vitalik.eth',
-  )
+test('resolves the ENS forward and reverse records', async () => {
+  const result = await example()
+  expect(result.address?.toLowerCase()).toBe(vitalik.toLowerCase())
+  expect(result.name).toBe('vitalik.eth')
 }, 60_000)

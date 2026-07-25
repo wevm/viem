@@ -1,30 +1,18 @@
-import { Actions, type Client } from 'viem'
-import { type Address, Ens } from 'viem/utils'
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
 
-export async function resolveEnsAddress(
-  client: Client.Client,
-  options: resolveEnsAddress.Options,
-) {
-  return Actions.ens.getAddress(client, {
-    name: Ens.normalize(options.name),
-  })
-}
+const client = Client.create({
+  chain: mainnet,
+  transport: http('http://anvil:8545'),
+})
 
-export async function resolveEnsName(
-  client: Client.Client,
-  options: resolveEnsName.Options,
-): Promise<string | null> {
-  return Actions.ens.getName(client, { address: options.address })
-}
+const address = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 
-export declare namespace resolveEnsAddress {
-  type Options = {
-    name: string
-  }
-}
-
-export declare namespace resolveEnsName {
-  type Options = {
-    address: Address.Address
-  }
+export async function example() {
+  const [resolvedAddress, name] = await Promise.all([
+    Actions.ens.getAddress(client, { name: Ens.normalize('vitalik.eth') }),
+    Actions.ens.getName(client, { address }),
+  ])
+  return { address: resolvedAddress, name }
 }

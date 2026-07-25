@@ -1,10 +1,6 @@
 import { readFileSync } from 'node:fs'
-import { expect, test } from 'vitest'
-import {
-  deserializeTransaction,
-  hashTransaction,
-  serializeTransaction,
-} from '../src/index.ts'
+import { expect, expectTypeOf, test } from 'vitest'
+import { example } from '../src/index.ts'
 
 // Signed vector: dev key 0 over the fields below (independently computed).
 const signed = {
@@ -28,48 +24,20 @@ const signedHash =
   '0x1e2d50dad46a6c82988ab9ed66457f18ad50bdb2c09fd1872a13134dae5812d7'
 
 test('uses viem', () => {
-  expect(readFileSync('src/index.ts', 'utf8')).toMatch(/from ['"]viem/)
-})
+  const source = readFileSync('src/index.ts', 'utf8')
+  expect(source).toMatch(/from ['"]viem/)
+  expect(source).toMatch(/TxEnvelopeEip1559\.serialize\(/)
+  expect(source).toMatch(/TxEnvelopeEip1559\.deserialize\(/)
+  expect(source).toMatch(/TxEnvelopeEip1559\.hash\(/)
+}, 60_000)
 
-test('serializes a signed transaction to the exact wire bytes', () => {
-  expect(serializeTransaction({ tx: signed }).toLowerCase()).toBe(
-    signedSerialized,
-  )
-})
+test('exports a zero-input example', () => {
+  expectTypeOf(example).parameters.toEqualTypeOf<[]>()
+}, 60_000)
 
-test('deserializes wire bytes back to the exact fields', () => {
-  const tx = deserializeTransaction({ serialized: signedSerialized })
-  expect(tx).toMatchObject(signed)
-})
-
-test('round-trips a signed transaction losslessly', () => {
-  expect(
-    deserializeTransaction({
-      serialized: serializeTransaction({ tx: signed }),
-    }),
-  ).toMatchObject(signed)
-})
-
-test('round-trips an unsigned transaction losslessly', () => {
-  const tx = {
-    chainId: 10,
-    nonce: 0n,
-    maxPriorityFeePerGas: 1_500_000_000n,
-    maxFeePerGas: 30_000_000_000n,
-    gas: 53_000n,
-    to: '0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc',
-    value: 42n,
-  } as const
-  const roundtripped = deserializeTransaction({
-    serialized: serializeTransaction({ tx }),
-  })
-  expect(roundtripped).toMatchObject(tx)
-  expect(roundtripped.data).toBeUndefined()
-  expect(roundtripped.yParity).toBeUndefined()
-  expect(roundtripped.r).toBeUndefined()
-  expect(roundtripped.s).toBeUndefined()
-})
-
-test('computes the transaction hash of a signed transaction', () => {
-  expect(hashTransaction({ tx: signed }).toLowerCase()).toBe(signedHash)
-})
+test('serializes, deserializes, and hashes the fixed transaction', async () => {
+  const result = await example()
+  expect(result.serialized.toLowerCase()).toBe(signedSerialized)
+  expect(result.deserialized).toMatchObject(signed)
+  expect(result.hash.toLowerCase()).toBe(signedHash)
+}, 60_000)

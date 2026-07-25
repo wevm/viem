@@ -1,28 +1,62 @@
-import { Actions, type Client } from 'viem'
+import { Actions, Client, ContractError, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { Abi, Abis } from 'viem/utils'
 
-export async function batchRead<const calls extends readonly unknown[]>(
-  client: Client.Client,
-  options: batchRead.Options<calls>,
-): Promise<
-  Actions.multicall.ReturnType<typeof mainnet, calls, 'auto', false>['results']
-> {
-  // The public intersection validates every descriptor while preserving the tuple.
-  const parameters = {
+const client = Client.create({
+  chain: mainnet,
+  transport: http('http://anvil:8545'),
+})
+
+const holder = '0x28C6c06298d514Db089934071355E5743bf21d60'
+const token = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+
+export async function example() {
+  const { results: values } = await Actions.multicall(client, {
     allowFailure: false,
-    calls: options.reads,
-  } as Actions.multicall.Options<calls, 'auto', false>
-  const { results } = await Actions.multicall(client, parameters)
-  return results as Actions.multicall.ReturnType<
-    typeof mainnet,
-    calls,
-    'auto',
-    false
-  >['results']
-}
+    calls: [
+      {
+        abi: Abis.erc20,
+        args: [holder],
+        functionName: 'balanceOf',
+        to: token,
+      },
+      {
+        abi: Abis.erc20,
+        functionName: 'totalSupply',
+        to: token,
+      },
+      {
+        abi: Abis.erc20,
+        functionName: 'decimals',
+        to: token,
+      },
+    ],
+  })
 
-export declare namespace batchRead {
-  type Options<calls extends readonly unknown[]> = {
-    reads: calls & Actions.multicall.Options<calls, 'auto', false>['calls']
-  }
+  const rejected = await Actions.multicall(client, {
+    allowFailure: false,
+    calls: [
+      {
+        abi: Abis.erc20,
+        functionName: 'decimals',
+        to: token,
+      },
+      {
+        abi: Abi.from(['function doesNotExist() view returns (uint256)']),
+        functionName: 'doesNotExist',
+        to: token,
+      },
+    ],
+  })
+    .then(() => false)
+    .catch((error: unknown) => {
+      if (
+        error instanceof ContractError.ContractFunctionExecutionError &&
+        error.cause instanceof ContractError.ContractFunctionZeroDataError
+      )
+        return true
+      throw error
+    })
+
+  return { rejected, values }
 }

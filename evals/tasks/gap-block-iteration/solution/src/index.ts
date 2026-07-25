@@ -1,26 +1,22 @@
-import { Actions, type Client } from 'viem'
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
-export async function collectBlockNumbers(
-  client: Client.Client,
-  options: collectBlockNumbers.Options,
-): Promise<readonly bigint[]> {
-  const { count } = options
-  if (count <= 0) return []
+const client = Client.create({
+  chain: mainnet,
+  pollingInterval: 200,
+  transport: http('http://anvil:8545'),
+})
+
+export async function example(): Promise<readonly bigint[]> {
   const watch = Actions.block.watch(client)
   const numbers: bigint[] = []
   try {
     for await (const { block } of watch) {
       numbers.push(block.number)
-      if (numbers.length >= count) break
+      if (numbers.length === 3) break
     }
   } finally {
     watch.off()
   }
   return numbers
-}
-
-export declare namespace collectBlockNumbers {
-  type Options = {
-    count: number
-  }
 }

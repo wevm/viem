@@ -1,61 +1,72 @@
-import type { Client } from 'viem'
-import { Actions, Channel } from 'viem/tempo'
-import { type Address, type Hex, Value } from 'viem/utils'
+import { Account, Actions, Channel, Client, http } from 'viem/tempo'
+import { tempoLocalnet } from 'viem/chains'
+import { Value } from 'viem/utils'
 
 const pathUsd = '0x20c0000000000000000000000000000000000000'
+const client = Client.create({
+  account: Account.fromSecp256k1(
+    '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+  ),
+  chain: tempoLocalnet,
+  pollingInterval: 100,
+  transport: http('http://tempo:8545'),
+})
 
-export async function openChannel(
-  client: Client.Client,
-  options: openChannel.Options,
-) {
-  const { deposit, payee } = options
-  const { receipt, ...opened } = await Actions.channel.openSync(client, {
-    deposit: Value.from(deposit, 6),
-    payee,
+export async function example() {
+  const firstOpened = await Actions.channel.openSync(client, {
+    deposit: Value.from('100', 6),
+    payee: '0x4242424242424242424242424242424242424242',
     token: pathUsd,
   })
-  return {
-    channel: Channel.from(opened),
-    channelId: opened.channelId,
-    receipt,
-  }
-}
-
-export async function topUpChannel(
-  client: Client.Client,
-  options: topUpChannel.Options,
-) {
-  const { additionalDeposit, channel } = options
-  const { receipt } = await Actions.channel.topUpSync(client, {
-    additionalDeposit: Value.from(additionalDeposit, 6),
-    channel,
+  const firstChannel = Channel.from(firstOpened)
+  const firstTopUp = await Actions.channel.topUpSync(client, {
+    additionalDeposit: Value.from('25.5', 6),
+    channel: firstChannel,
   })
-  return { receipt }
-}
+  const firstState = await Actions.channel.getStates(client, {
+    channel: firstOpened.channelId,
+  })
 
-export async function getChannelState(
-  client: Client.Client,
-  options: getChannelState.Options,
-) {
-  return Actions.channel.getStates(client, { channel: options.channelId })
-}
+  const secondOpened = await Actions.channel.openSync(client, {
+    deposit: Value.from('3.25', 6),
+    payee: '0x4343434343434343434343434343434343434343',
+    token: pathUsd,
+  })
+  const secondChannel = Channel.from(secondOpened)
+  const secondTopUp = await Actions.channel.topUpSync(client, {
+    additionalDeposit: Value.from('0.75', 6),
+    channel: secondChannel,
+  })
+  const secondState = await Actions.channel.getStates(client, {
+    channel: secondOpened.channelId,
+  })
 
-export declare namespace getChannelState {
-  type Options = {
-    channelId: Hex.Hex
-  }
-}
+  const thirdOpened = await Actions.channel.openSync(client, {
+    deposit: Value.from('1', 6),
+    payee: '0x4343434343434343434343434343434343434343',
+    token: pathUsd,
+  })
+  const thirdState = await Actions.channel.getStates(client, {
+    channel: thirdOpened.channelId,
+  })
 
-export declare namespace openChannel {
-  type Options = {
-    deposit: string
-    payee: Address.Address
-  }
-}
-
-export declare namespace topUpChannel {
-  type Options = {
-    additionalDeposit: string
-    channel: Channel.Channel
+  return {
+    first: {
+      channel: firstChannel,
+      opened: firstOpened,
+      state: firstState,
+      topUp: firstTopUp,
+    },
+    second: {
+      channel: secondChannel,
+      opened: secondOpened,
+      state: secondState,
+      topUp: secondTopUp,
+    },
+    third: {
+      channel: Channel.from(thirdOpened),
+      opened: thirdOpened,
+      state: thirdState,
+    },
   }
 }

@@ -1,88 +1,62 @@
-import type { Client } from 'viem'
-import { Actions } from 'viem/tempo'
+import { Account, Actions, Client, http } from 'viem/tempo'
+import { tempoLocalnet } from 'viem/chains'
 import type { Address } from 'viem/utils'
 
-export async function createToken(
-  client: Client.Client,
-  options: createToken.Options,
-) {
-  const { name, symbol } = options
-  const account = client.account
-  if (!account) throw new Error('account is required')
+const client = Client.create({
+  account: Account.fromSecp256k1(
+    '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+  ),
+  chain: tempoLocalnet,
+  pollingInterval: 100,
+  transport: http('http://tempo:8545'),
+})
+
+async function state(token: Address.Address, account = client.account.address) {
+  const [balance, supply] = await Promise.all([
+    Actions.token.getBalance(client, { account, decimals: 6, token }),
+    Actions.token.getTotalSupply(client, { decimals: 6, token }),
+  ])
+  return { balance: balance.amount, totalSupply: supply.amount }
+}
+
+export async function example() {
   const { token } = await Actions.token.createSync(client, {
     currency: 'USD',
-    name,
-    symbol,
+    name: 'Eval Supply Token',
+    symbol: 'EVS',
   })
   await Actions.token.grantRolesSync(client, {
     roles: ['issuer'],
-    to: account.address,
+    to: client.account.address,
     token,
   })
-  return { token }
-}
-
-export async function mintToken(
-  client: Client.Client,
-  options: mintToken.Options,
-) {
-  const { amount, to, token } = options
-  const { receipt } = await Actions.token.mintSync(client, {
-    amount: { decimals: 6, formatted: amount },
-    to,
-    token,
-  })
-  const [balance, totalSupply] = await Promise.all([
-    Actions.token.getBalance(client, {
-      account: to,
-      decimals: 6,
+  const firstReceipt = (
+    await Actions.token.mintSync(client, {
+      amount: { decimals: 6, formatted: '12.5' },
+      to: client.account.address,
       token,
-    }),
-    Actions.token.getTotalSupply(client, {
-      decimals: 6,
+    })
+  ).receipt
+  const first = { receipt: firstReceipt, ...(await state(token)) }
+
+  const secondReceipt = (
+    await Actions.token.mintSync(client, {
+      amount: { decimals: 6, formatted: '3.25' },
+      to: '0x4242424242424242424242424242424242424242',
       token,
-    }),
-  ])
-  return { balance: balance.amount, receipt, totalSupply: totalSupply.amount }
-}
+    })
+  ).receipt
+  const second = {
+    receipt: secondReceipt,
+    ...(await state(token, '0x4242424242424242424242424242424242424242')),
+  }
 
-export async function burnToken(
-  client: Client.Client,
-  options: burnToken.Options,
-) {
-  const { amount, token } = options
-  const { receipt } = await Actions.token.burnSync(client, {
-    amount: { decimals: 6, formatted: amount },
-    token,
-  })
-  const [balance, totalSupply] = await Promise.all([
-    Actions.token.getBalance(client, { decimals: 6, token }),
-    Actions.token.getTotalSupply(client, {
-      decimals: 6,
+  const burnReceipt = (
+    await Actions.token.burnSync(client, {
+      amount: { decimals: 6, formatted: '4.25' },
       token,
-    }),
-  ])
-  return { balance: balance.amount, receipt, totalSupply: totalSupply.amount }
-}
-
-export declare namespace burnToken {
-  type Options = {
-    amount: string
-    token: Address.Address
-  }
-}
-
-export declare namespace createToken {
-  type Options = {
-    name: string
-    symbol: string
-  }
-}
-
-export declare namespace mintToken {
-  type Options = {
-    amount: string
-    to: Address.Address
-    token: Address.Address
-  }
+    })
+  ).receipt
+  const burn = { receipt: burnReceipt, ...(await state(token)) }
+  return { burn, first, second, token }
 }

@@ -1,47 +1,14 @@
 import { readFileSync } from 'node:fs'
-import { beforeAll, expect, test } from 'vitest'
-import { tempoLocalnet } from 'viem/chains'
-import { Account, Client, http } from 'viem/tempo'
-import {
-  grantSpendingKey,
-  remainingAllowance,
-  revokeSpendingKey,
-  spendWithKey,
-} from '../src/index.ts'
+import { beforeAll, expect, expectTypeOf, test } from 'vitest'
+import { example } from '../src/index.ts'
 
 const rpcUrl = 'http://tempo:8545'
 const pathUsd = '0x20c0000000000000000000000000000000000000'
 const keychain = '0xaaaaaaaa00000000000000000000000000000000'
 const root = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
-const rootKey =
-  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
-// Deterministic secp256k1 access keypair (not a dev account).
-const accessKeyPriv =
-  '0x5fe1a3c2f2f7cbb2e6c8e6b092de2e04ae0d24a655e42e15a4f0f37b78f4e989'
 const accessKeyAddr = '0xaf2e3fc2f8c2f582836715c908a98a6d30c72aca'
 const recipient = '0x4242424242424242424242424242424242424242'
 const limit = 50_000_000n // 50 pathUSD
-const rootAccount = Account.fromSecp256k1(rootKey)
-const accessKey = Account.fromSecp256k1(accessKeyPriv, {
-  access: rootAccount,
-})
-const rootClient = Client.create({
-  account: rootAccount,
-  chain: tempoLocalnet,
-  pollingInterval: 100,
-  transport: http(rpcUrl),
-})
-const accessClient = Client.create({
-  account: accessKey,
-  chain: tempoLocalnet,
-  pollingInterval: 100,
-  transport: http(rpcUrl),
-})
-const readClient = Client.create({
-  chain: tempoLocalnet,
-  pollingInterval: 100,
-  transport: http(rpcUrl),
-})
 
 async function rpc(method: string, params: unknown[]) {
   const res = await fetch(rpcUrl, {
@@ -86,60 +53,24 @@ beforeAll(async () => {
   throw new Error('failed to fund dev account 0 with pathUSD')
 }, 120_000)
 
-test('uses viem', () => {
-  expect(readFileSync('src/index.ts', 'utf8')).toMatch(/from ['"]viem/)
-})
+test('exports a zero-input viem example', () => {
+  expectTypeOf(example).parameters.toEqualTypeOf<[]>()
+  const source = readFileSync('src/index.ts', 'utf8')
+  expect(source).toMatch(/from ['"]viem/)
+  expect(source).toMatch(/\bContractFunctionRevertedError\b/)
+}, 60_000)
 
-test('authorizes a spending-limited access key', async () => {
-  const result = await grantSpendingKey(rootClient, { accessKey, limit })
-  expect(result?.receipt).toBeTruthy()
-  expect(['success', '0x1']).toContain(result.receipt.status)
-  expect(await remainingLimit()).toBe(limit)
-  expect(
-    await remainingAllowance(readClient, {
-      accessKey: accessKeyAddr,
-      account: root,
-    }),
-  ).toBe(limit)
-}, 120_000)
-
-test('a spend through the key draws down the remaining limit', async () => {
+test('spends through and revokes the limited key', async () => {
   const before = await balanceOf(recipient)
-  const result = await spendWithKey(accessClient, {
-    amount: 5_000_000n,
-    to: recipient,
-  })
-  expect(result?.receipt).toBeTruthy()
-  expect(['success', '0x1']).toContain(result.receipt.status)
+  const result = await example()
+
+  expect(['success', '0x1']).toContain(result.authorization.receipt.status)
+  expect(['success', '0x1']).toContain(result.transfer.receipt.status)
+  expect(['success', '0x1']).toContain(result.revocation.receipt.status)
+  expect(result.before).toBe(limit)
+  expect(result.after).toBeLessThan(limit)
   expect((await balanceOf(recipient)) - before).toBe(5_000_000n)
-
-  const remaining = await remainingLimit()
-  expect(remaining).toBeLessThan(limit)
-  expect(
-    await remainingAllowance(readClient, {
-      accessKey: accessKeyAddr,
-      account: root,
-    }),
-  ).toBe(remaining)
-}, 120_000)
-
-test('revoking the key blocks further spends', async () => {
-  const result = await revokeSpendingKey(rootClient, {
-    accessKey: accessKeyAddr,
-  })
-  expect(result?.receipt).toBeTruthy()
-  expect(['success', '0x1']).toContain(result.receipt.status)
+  expect(await remainingLimit()).toBe(result.after)
   expect(await isRevoked()).toBe(true)
-
-  const before = await balanceOf(recipient)
-  const outcome = await spendWithKey(accessClient, {
-    amount: 1_000_000n,
-    to: recipient,
-  }).then(
-    (result) => ({ rejected: false as const, result }),
-    () => ({ rejected: true as const }),
-  )
-  if (!outcome.rejected)
-    expect(['success', '0x1']).not.toContain(outcome.result.receipt.status)
-  expect(await balanceOf(recipient)).toBe(before)
+  expect(result.rejected).toBe(true)
 }, 120_000)

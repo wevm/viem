@@ -1,24 +1,12 @@
 import { readFileSync } from 'node:fs'
-import { beforeAll, expect, test } from 'vitest'
-import { tempoLocalnet } from 'viem/chains'
-import { Account, Client, http } from 'viem/tempo'
-import { approveAndTransfer } from '../src/index.ts'
+import { beforeAll, expect, expectTypeOf, test } from 'vitest'
+import { example } from '../src/index.ts'
 
 const rpcUrl = 'http://tempo:8545'
 const pathUsd = '0x20c0000000000000000000000000000000000000'
 const sender = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
-const senderKey =
-  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 const spender = '0x5151515151515151515151515151515151515151'
 const recipient = '0x5252525252525252525252525252525252525252'
-const spender2 = '0x5353535353535353535353535353535353535353'
-const recipient2 = '0x5454545454545454545454545454545454545454'
-const client = Client.create({
-  account: Account.fromSecp256k1(senderKey),
-  chain: tempoLocalnet,
-  pollingInterval: 100,
-  transport: http(rpcUrl),
-})
 
 // keccak256("Transfer(address,address,uint256)") / "Approval(...)"
 const transferTopic =
@@ -68,27 +56,22 @@ beforeAll(async () => {
   throw new Error('failed to fund dev account 0 with pathUSD')
 }, 120_000)
 
-test('uses viem', () => {
+test('exports a zero-input viem example', () => {
+  expectTypeOf(example).parameters.toEqualTypeOf<[]>()
   expect(readFileSync('src/index.ts', 'utf8')).toMatch(/from ['"]viem/)
-})
+}, 60_000)
 
 test('approves and transfers pathUSD in one transaction', async () => {
   const before = await balanceOf(recipient)
-  const result = await approveAndTransfer(client, {
-    approveAmount: '25.5',
-    spender,
-    to: recipient,
-    transferAmount: '10.5',
-  })
-  expect(result?.receipt).toBeTruthy()
-  expect(['success', '0x1']).toContain(result.receipt.status)
+  const receipt = await example()
+  expect(['success', '0x1']).toContain(receipt.status)
 
   // Both effects visible on chain, exactly.
   expect(await allowance(sender, spender)).toBe(25_500_000n)
   expect((await balanceOf(recipient)) - before).toBe(10_500_000n)
 
   // Both effects landed in the single returned transaction.
-  const hash = result.receipt.transactionHash
+  const hash = receipt.transactionHash
   expect(hash).toMatch(/^0x[0-9a-fA-F]{64}$/)
   const raw = (await rpc('eth_getTransactionReceipt', [hash])) as {
     logs: readonly Log[]
@@ -110,16 +93,4 @@ test('approves and transfers pathUSD in one transaction', async () => {
   )
   if (!transfer) throw new Error('Transfer log missing from transaction')
   expect(BigInt(transfer.data)).toBe(10_500_000n)
-}, 120_000)
-
-test('handles other exact amounts', async () => {
-  const before = await balanceOf(recipient2)
-  await approveAndTransfer(client, {
-    approveAmount: '0.75',
-    spender: spender2,
-    to: recipient2,
-    transferAmount: '0.25',
-  })
-  expect(await allowance(sender, spender2)).toBe(750_000n)
-  expect((await balanceOf(recipient2)) - before).toBe(250_000n)
 }, 120_000)

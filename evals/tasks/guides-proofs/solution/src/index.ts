@@ -1,20 +1,16 @@
-import { Actions, type Client } from 'viem'
-import type { Address, Hex } from 'viem/utils'
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
-export async function getStorageProof(
-  client: Client.Client,
-  options: getStorageProof.Options,
-) {
-  const { address, storageKey } = options
+const client = Client.create({
+  chain: mainnet,
+  transport: http('http://anvil:8545'),
+})
+
+export function example() {
   return Actions.address.getProof(client, {
-    address,
-    storageKeys: [storageKey],
+    address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    storageKeys: [
+      '0x0000000000000000000000000000000000000000000000000000000000000000',
+    ],
   })
-}
-
-export declare namespace getStorageProof {
-  type Options = {
-    address: Address.Address
-    storageKey: Hex.Hex
-  }
 }

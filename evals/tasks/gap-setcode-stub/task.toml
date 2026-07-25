@@ -7,6 +7,7 @@ description = "Stub a contract in place with test-node state controls and read a
 
 [metadata]
 area = "gap"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

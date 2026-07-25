@@ -1,21 +1,12 @@
-Our transaction service builds unsigned transfers for a downstream account that
-cannot compute gas, fees, or nonces itself. The connected node is able to
-complete a partially-specified transaction with every field required for
-signing.
+Implement and export a zero-argument function named `example` in
+`src/index.ts`.
 
-Implement `completeTransferRequest` in `src/index.ts`. It receives a Viem
-client first and an options object containing:
-
-- `from`, the address the transfer will be sent from.
-- `to`, the recipient address.
-- `amountEther`, a decimal string denominated in ether (e.g. `'0.25'`).
-
-Build a request containing only the sender, recipient, and value, ask the node
-to resolve every remaining field it needs (nonce, gas, fees, chain id, ...),
-and return the completed transaction object.
+Construct an Ethereum mainnet client at module scope. Ask the connected node
+to complete every field needed to sign a 0.25 ETH transfer from
+`0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266` to
+`0x70997970C51812dc3A010C7d01b50e0d17dc79C8`, then return the completed
+transaction.
 
 Use the `viem` library already installed in this project. An Ethereum mainnet
-RPC endpoint is available at `http://anvil:8545`. Do not add any new
-dependencies.
-
+RPC endpoint is available at `http://anvil:8545`. Do not add dependencies.
 When you are done, `npm run build` must pass.

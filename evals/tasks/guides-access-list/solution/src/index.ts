@@ -1,29 +1,17 @@
-import { Actions, type Client } from 'viem'
-import { type Abi, AbiFunction } from 'viem/utils'
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis, AbiFunction } from 'viem/utils'
 
-export async function buildAccessList<
-  const abi extends Abi.Abi,
-  functionName extends buildAccessList.FunctionName<abi>,
->(client: Client.Client, options: buildAccessList.Options<abi, functionName>) {
-  // Viem's public options enforce the generic contract before encoding.
-  const {
-    abi,
-    address,
-    args = [],
-    functionName,
-  } = options as Actions.contract.read.Options
+const client = Client.create({
+  chain: mainnet,
+  transport: http('http://anvil:8545'),
+})
+
+const usdc = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+
+export function example() {
   return Actions.transaction.createAccessList(client, {
-    data: AbiFunction.encodeData(AbiFunction.fromAbi(abi, functionName), args),
-    to: address,
+    data: AbiFunction.encodeData(Abis.erc20, 'name'),
+    to: usdc,
   })
-}
-
-export declare namespace buildAccessList {
-  type FunctionName<abi extends Abi.Abi> =
-    Actions.contract.read.Options<abi>['functionName']
-
-  type Options<
-    abi extends Abi.Abi,
-    functionName extends FunctionName<abi>,
-  > = Actions.contract.read.Options<abi, functionName>
 }

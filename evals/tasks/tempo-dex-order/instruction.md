@@ -1,35 +1,17 @@
-Our trading desk makes markets for newly issued stablecoins on Tempo's
-built-in stablecoin DEX.
+Our trading desk needs to manage resting orders on Tempo's enshrined DEX.
 
-Implement the following functions in `src/index.ts`:
+Implement and export a zero-input `example` function in `src/index.ts`. Create
+a module-scoped Tempo localnet client for the maker derived from private key
+`0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`.
 
-- `createMarket`: the first argument is a Tempo client carrying the market
-  maker account. Issue a new TIP-20 stablecoin
-  (currency `USD`) with the given `name` and `symbol` from the account
-  supplied as `options.name` and `options.symbol`, give that account the token's issuer role, mint
-  exactly 1,000,000 tokens to it (the token uses 6 decimals), and register a
-  DEX trading pair for the token against the default quote stablecoin
-  (pathUSD at `0x20c0000000000000000000000000000000000000`). Return
-  `{ base, quote }` with the new token's address and the pair's quote token
-  address.
-- `placeLimitOrder`: the first argument is a Tempo client carrying the maker
-  account. Rest a limit order on the pair's book. The options object contains
-  `{ token, amount, tick, side }`, where `token` is the base
-  token address, `amount` is a bigint in the token's base units, `tick` is
-  the integer price tick, and `side` is `'buy'` or `'sell'`. Wait until the
-  order is confirmed on chain, then return `{ orderId, receipt }`.
-- `getOrderInfo`: the first argument is a Tempo client. Read the resting order
-  identified by `options.orderId` and
-  return `{ maker, amount, remaining, tick, isBid }`.
-- `getBestTicks`: the first argument is a Tempo client. Read the pair identified
-  by `options.base` and `options.quote` and return
-  `{ bestBidTick, bestAskTick }`.
-- `cancelOrder`: the first argument is a Tempo client carrying the maker
-  account. Cancel `options.orderId` and wait for confirmation. Return
-  `{ receipt }`.
+Create a USD TIP-20 token named `Desk Dollar` with symbol `DESKUSD`, grant the
+maker issuance permission, mint exactly 1,000,000 tokens, and list its pathUSD
+pair. Place a 250-token buy order at tick 40, read the order and order book,
+then cancel it. Place a 100-token sell order at tick -60, read it and the
+order book, then cancel it too. Wait for every write to confirm and return the
+market plus each placement, order read, book read, and cancellation.
 
-Use the `viem` library already installed in this project. A Tempo RPC
-endpoint (Tempo localnet, chain id 1337) is available at `http://tempo:8545`.
-Do not add any new dependencies.
+Tokens have 6 decimals. Use the installed `viem`, `http://tempo:8545`, and a
+100 ms polling interval. Do not add dependencies.
 
 When you are done, `npm run build` must pass.

@@ -23,7 +23,7 @@ const recipient = '0x4242424242424242424242424242424242424242'
 
 test('uses viem', () => {
   expect(readFileSync('src/client.ts', 'utf8')).toMatch(/from ['"]viem/)
-})
+}, 60_000)
 
 test('balance matches raw RPC', async () => {
   await rpc('anvil_setBalance', [
@@ -35,7 +35,7 @@ test('balance matches raw RPC', async () => {
   expect(wei).toBe(raw)
   expect(wei).toBe(123_456_000_000_000_000_000n)
   expect(ether).toBe('123.456')
-})
+}, 60_000)
 
 test('payment moves exact ETH with a success receipt', async () => {
   const before = BigInt(await rpc('eth_getBalance', [recipient, 'latest']))

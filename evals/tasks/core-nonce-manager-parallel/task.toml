@@ -7,6 +7,7 @@ description = "Send parallel ETH transfers from one key with managed nonces."
 
 [metadata]
 area = "core"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

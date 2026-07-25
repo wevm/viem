@@ -1,26 +1,11 @@
 import { readFileSync } from 'node:fs'
-import { beforeAll, expect, test } from 'vitest'
-import { tempoLocalnet } from 'viem/chains'
-import { Account, Client, http } from 'viem/tempo'
-import {
-  pauseToken,
-  setupToken,
-  transferToken,
-  unpauseToken,
-} from '../src/index.ts'
+import { beforeAll, expect, expectTypeOf, test } from 'vitest'
+import { example } from '../src/index.ts'
 
 const rpcUrl = 'http://tempo:8545'
 const pathUsd = '0x20c0000000000000000000000000000000000000'
 const sender = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
-const senderKey =
-  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 const recipient = '0x4545454545454545454545454545454545454545'
-const client = Client.create({
-  account: Account.fromSecp256k1(senderKey),
-  chain: tempoLocalnet,
-  pollingInterval: 100,
-  transport: http(rpcUrl),
-})
 
 async function rpc(method: string, params: unknown[]) {
   const res = await fetch(rpcUrl, {
@@ -57,37 +42,19 @@ beforeAll(async () => {
   throw new Error('failed to fund dev account 0 with pathUSD')
 }, 120_000)
 
-test('uses viem', () => {
-  expect(readFileSync('src/index.ts', 'utf8')).toMatch(/from ['"]viem/)
-})
+test('exports a zero-input viem example', () => {
+  expectTypeOf(example).parameters.toEqualTypeOf<[]>()
+  const source = readFileSync('src/index.ts', 'utf8')
+  expect(source).toMatch(/from ['"]viem/)
+  expect(source).toMatch(/\bContractFunctionRevertedError\b/)
+}, 60_000)
 
-let token: `0x${string}`
-
-test('issues a token with 1000 minted to the issuer', async () => {
-  token = (await setupToken(client)) as `0x${string}`
-  expect(token).toMatch(/^0x[0-9a-fA-F]{40}$/)
-  expect(await balanceOf(token, sender)).toBe(1_000_000_000n)
-}, 120_000)
-
-test('transfer rejects while paused', async () => {
-  await pauseToken(client, { token })
-  expect(await isPaused(token)).toBe(true)
-  await expect(
-    transferToken(client, { amount: '5', to: recipient, token }),
-  ).rejects.toThrow()
-  expect(await balanceOf(token, recipient)).toBe(0n)
-}, 120_000)
-
-test('transfer succeeds with exact delta after unpause', async () => {
-  await unpauseToken(client, { token })
-  expect(await isPaused(token)).toBe(false)
-  const before = await balanceOf(token, recipient)
-  const result = await transferToken(client, {
-    amount: '12.5',
-    to: recipient,
-    token,
-  })
-  expect(result?.receipt).toBeTruthy()
-  expect(['success', '0x1']).toContain(result.receipt.status)
-  expect((await balanceOf(token, recipient)) - before).toBe(12_500_000n)
+test('blocks transfers while paused, then resumes them', async () => {
+  const result = await example()
+  expect(result.token).toMatch(/^0x[0-9a-fA-F]{40}$/)
+  expect(result.rejected).toBe(true)
+  expect(await isPaused(result.token)).toBe(false)
+  expect(['success', '0x1']).toContain(result.transfer.receipt.status)
+  expect(await balanceOf(result.token, sender)).toBe(987_500_000n)
+  expect(await balanceOf(result.token, recipient)).toBe(12_500_000n)
 }, 120_000)

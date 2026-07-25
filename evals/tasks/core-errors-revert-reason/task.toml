@@ -7,6 +7,7 @@ description = "Decode a contract call's revert reason string with viem."
 
 [metadata]
 area = "core"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

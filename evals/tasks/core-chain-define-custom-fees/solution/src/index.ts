@@ -1,7 +1,7 @@
-import { Actions, Chain, type Client } from 'viem'
+import { Actions, Chain, Client, http } from 'viem'
 import { Value } from 'viem/utils'
 
-export const chain = Chain.from({
+const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
@@ -11,6 +11,14 @@ export const chain = Chain.from({
   },
 })
 
-export function estimateFees(client: Client.Client) {
-  return Actions.fee.estimateFeesPerGas(client)
+const client = Client.create({
+  chain,
+  transport: http(),
+})
+
+export async function example() {
+  return {
+    chain,
+    fees: await Actions.fee.estimateFeesPerGas(client),
+  }
 }

@@ -1,25 +1,32 @@
-import { Actions, type Client, custom } from 'viem'
-import type { Address } from 'viem/utils'
+import { Actions, Client, custom } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Provider, RpcResponse } from 'viem/utils'
 
-export function createTransport(options: createTransport.Options) {
-  return custom(options.provider)
-}
+let id = 0
 
-export declare namespace createTransport {
-  type Options = {
-    provider: Parameters<typeof custom>[0]
-  }
-}
+const provider = Provider.from({
+  async request({ method, params }: { method: string; params?: unknown }) {
+    const response = await fetch('http://anvil:8545', {
+      body: JSON.stringify({
+        id: ++id,
+        jsonrpc: '2.0',
+        method,
+        params: params ?? [],
+      }),
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+    })
+    return RpcResponse.parse(await response.json())
+  },
+})
 
-export function getEthBalance(
-  client: Client.Client,
-  options: getEthBalance.Options,
-): Promise<bigint> {
-  return Actions.address.getBalance(client, { address: options.address })
-}
+const client = Client.create({
+  chain: mainnet,
+  transport: custom(provider),
+})
 
-export declare namespace getEthBalance {
-  type Options = {
-    address: Address.Address
-  }
+export function example() {
+  return Actions.address.getBalance(client, {
+    address: '0x5151515151515151515151515151515151515151',
+  })
 }

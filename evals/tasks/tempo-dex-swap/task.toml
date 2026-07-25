@@ -7,6 +7,7 @@ description = "Quote and execute an exact-output stablecoin swap on Tempo's DEX 
 
 [metadata]
 area = "tempo"
+contract = "example"
 tier = "tempo"
 
 [verifier]

@@ -1,28 +1,17 @@
-Our payments service lets a partner account pull pathUSD from a customer
-account.
+Our Tempo payments service lets a partner pull pathUSD from a customer.
 
-Implement three functions in `src/index.ts`:
+Implement and export a zero-input `example` function in `src/index.ts`. Create
+module-scoped Tempo localnet clients for the owner from private key
+`0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`
+and the spender from private key
+`0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d`.
+Approve the spender for `75.5` pathUSD, read the allowance, then have the
+spender move `20.25` pathUSD from the owner to
+`0x4545454545454545454545454545454545454545`. Read the remaining allowance
+and return both writes and allowance values.
 
-- `approveSpender`: the first argument is a Tempo client carrying the owner
-  account. It authorizes `options.spender` to spend up to `options.amount`
-  pathUSD on its
-  behalf. Wait until the approval is confirmed on chain, and return an object
-  that includes the transaction receipt under a `receipt` key.
-- `getAllowance`: the first argument is a Tempo client. Return the remaining
-  pathUSD amount that `options.spender` may spend from `options.owner`, as a
-  bigint in base units.
-- `spendAllowance`: the first argument is a Tempo client carrying the spender
-  account. It uses its authorization to move `options.amount` pathUSD out of
-  `options.owner` and into `options.to`. Wait until the transfer is confirmed on
-  chain, and return an object that includes the transaction receipt under a
-  `receipt` key.
-
-Amount values are human-readable decimal strings (for example `'10.5'`
-means 10.5 pathUSD). pathUSD is a TIP-20 stablecoin at
-`0x20c0000000000000000000000000000000000000` with 6 decimals.
-
-Use the `viem` library already installed in this project. A Tempo RPC endpoint
-(Tempo localnet, chain id 1337) is available at `http://tempo:8545`. Do not
-add any new dependencies.
+pathUSD is `0x20c0000000000000000000000000000000000000`
+with 6 decimals. Use the installed `viem`, `http://tempo:8545`, and a 100 ms
+polling interval. Do not add dependencies.
 
 When you are done, `npm run build` must pass.

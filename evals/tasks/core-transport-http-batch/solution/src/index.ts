@@ -1,16 +1,12 @@
-import { Actions, type Client, http } from 'viem'
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
-export function createTransport(options: createTransport.Options) {
-  return http(options.url, { batch: true })
-}
+const client = Client.create({
+  chain: mainnet,
+  transport: http('http://127.0.0.1:18545', { batch: true }),
+})
 
-export declare namespace createTransport {
-  type Options = {
-    url: string
-  }
-}
-
-export async function getNetworkSnapshot(client: Client.Client) {
+export async function example() {
   const [blockNumber, chainId, gasPrice] = await Promise.all([
     Actions.block.getNumber(client),
     Actions.chains.getId(client),

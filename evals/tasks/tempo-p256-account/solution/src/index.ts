@@ -1,29 +1,36 @@
-import type { Client } from 'viem'
-import { Account, Actions, P256 } from 'viem/tempo'
+import { Account, Actions, Client, http, P256 } from 'viem/tempo'
+import { tempoLocalnet } from 'viem/chains'
 import type { Address } from 'viem/utils'
 
 const pathUsd = '0x20c0000000000000000000000000000000000000'
+const client = Client.create({
+  chain: tempoLocalnet,
+  feeToken: pathUsd,
+  pollingInterval: 100,
+  transport: http('http://tempo:8545'),
+})
 
-export async function transferFromNewAccount(
-  client: Client.Client,
-  options: transferFromNewAccount.Options,
-) {
-  const { amount, to } = options
+async function transfer(options: { amount: string; to: Address.Address }) {
   const account = Account.fromP256(P256.randomPrivateKey())
-  await Actions.faucet.fundSync(client, { account, timeout: 60_000 })
+  await Actions.faucet.fundSync(client, { account })
   const { receipt } = await Actions.token.transferSync(client, {
     account,
-    amount: { decimals: 6, formatted: amount },
+    amount: { decimals: 6, formatted: options.amount },
     feeToken: pathUsd,
-    to,
+    to: options.to,
     token: pathUsd,
   })
   return { receipt, sender: account.address }
 }
 
-export declare namespace transferFromNewAccount {
-  type Options = {
-    amount: string
-    to: Address.Address
-  }
+export async function example() {
+  const first = await transfer({
+    amount: '10.5',
+    to: '0x5151515151515151515151515151515151515151',
+  })
+  const second = await transfer({
+    amount: '0.25',
+    to: '0x5252525252525252525252525252525252525252',
+  })
+  return { first, second }
 }

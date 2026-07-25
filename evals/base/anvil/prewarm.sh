@@ -18,6 +18,8 @@ wethUsdc3000=0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8
 multicall3=0xcA11bde05977b3631167028862bE2a173976CA11
 create2Deployer=0x4e59b44847b379578588920ca78fbf26c0b4956c
 ensUniversalResolver=0xeeeeeeee14d718c2b47d9923deab1335e144eeee
+ethUsdFeed=0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419
+btcUsdFeed=0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c
 whale=0x28C6c06298d514Db089934071355E5743bf21d60
 dev0=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 dev1=0x70997970C51812dc3A010C7d01b50e0d17dc79C8
@@ -45,6 +47,8 @@ cast call $weth "balanceOf(address)(uint256)" $whale --rpc-url $rpc >/dev/null
 cast code $multicall3 --rpc-url $rpc >/dev/null
 cast code $create2Deployer --rpc-url $rpc >/dev/null
 cast code $ensUniversalResolver --rpc-url $rpc >/dev/null
+cast call $ethUsdFeed 'latestRoundData()' --rpc-url $rpc >/dev/null
+cast call $btcUsdFeed 'latestRoundData()' --rpc-url $rpc >/dev/null
 
 # Uniswap V3 pool state graders read.
 for pool in $wethUsdc500 $wethUsdc3000; do

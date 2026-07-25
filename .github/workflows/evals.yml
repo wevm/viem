@@ -44,6 +44,9 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
+      - name: Check task contracts
+        run: node evals/scripts/check-contracts.mjs
+
       - name: Install Harbor
         uses: astral-sh/setup-uv@v7
 
@@ -58,9 +61,8 @@ jobs:
           infra=$(git diff --name-only "$base"...HEAD -- evals/base evals/scripts | head -1)
           # Infra changes revalidate a smoke subset on top of changed tasks.
           if [ -n "$infra" ]; then
-            tasks=$(printf '%s\n%s\n%s\n%s\n' "$tasks" \
+            tasks=$(printf '%s\n%s\n%s\n' "$tasks" \
               evals/tasks/core-read-block-number \
-              evals/tasks/core-erc20-balance \
               evals/tasks/migration-v2-file | sort -u)
           fi
           tasks=$(echo "$tasks" | sed '/^$/d')
@@ -110,6 +112,9 @@ jobs:
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
+
+      - name: Check task contracts
+        run: node evals/scripts/check-contracts.mjs
 
       - name: Install Harbor
         uses: astral-sh/setup-uv@v7

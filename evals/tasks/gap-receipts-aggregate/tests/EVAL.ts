@@ -1,23 +1,32 @@
 import { readFileSync } from 'node:fs'
-import { Client, http } from 'viem'
+import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { expect, test } from 'vitest'
-import { getBlockGasUsed } from '../src/index.ts'
+import { expect, expectTypeOf, test } from 'vitest'
+import { example } from '../src/index.ts'
 
-const client = Client.create({
-  chain: mainnet,
-  transport: http('http://anvil:8545'),
-})
+type RpcResponse = {
+  error?: { message: string }
+}
 
-async function rpc(method: string, params: unknown[]) {
-  const res = await fetch('http://anvil:8545', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
-  })
-  const { result, error } = (await res.json()) as any
-  if (error) throw new Error(error.message)
-  return result
+async function rpc(method: string, params: unknown[]): Promise<void> {
+  let response: RpcResponse | undefined
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const result = await fetch('http://anvil:8545', {
+        body: JSON.stringify({ id: 1, jsonrpc: '2.0', method, params }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+      })
+      if (!result.ok) throw new Error(`HTTP ${result.status}`)
+      response = await result.json()
+      break
+    } catch (error) {
+      if (attempt === 2) throw error
+      await new Promise((resolve) => setTimeout(resolve, 500))
+    }
+  }
+  if (!response) throw new Error('RPC did not return a response')
+  if (response.error) throw new Error(response.error.message)
 }
 
 const senders = [
@@ -29,9 +38,21 @@ const senders = [
 // delegations on the fork.
 const recipient = '0x4242424242424242424242424242424242424242'
 
-test('uses viem', () => {
-  expect(readFileSync('src/index.ts', 'utf8')).toMatch(/from ['"]viem/)
+const client = Client.create({
+  chain: mainnet,
+  transport: http('http://anvil:8545'),
 })
+
+test('gets block receipts and reduces their gas', () => {
+  const source = readFileSync('src/index.ts', 'utf8')
+  expect(source).toMatch(/from ['"]viem/)
+  expect(source).toMatch(/Actions\.block\.getReceipts/)
+  expect(source).toMatch(/\.reduce\s*\(/)
+}, 60_000)
+
+test('takes no inputs', () => {
+  expectTypeOf(example).parameters.toEqualTypeOf<[]>()
+}, 60_000)
 
 test('sums receipt gas of a multi-transaction block', async () => {
   await rpc('anvil_setAutomine', [false])
@@ -45,13 +66,11 @@ test('sums receipt gas of a multi-transaction block', async () => {
     await rpc('anvil_setAutomine', [true])
   }
 
-  const block = await rpc('eth_getBlockByNumber', ['latest', false])
+  const block = await Actions.block.get(client)
   expect(block.transactions).toHaveLength(3)
 
-  const total = await getBlockGasUsed(client, {
-    blockNumber: BigInt(block.number),
-  })
-  expect(total).toBe(BigInt(block.gasUsed))
+  const total = await example()
+  expect(total).toBe(block.gasUsed)
   // 3 plain ETH transfers at intrinsic gas.
   expect(total).toBe(63_000n)
-}, 60_000)
+}, 120_000)

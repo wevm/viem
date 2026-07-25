@@ -1,18 +1,10 @@
-Our explorer's account page shows a full state snapshot for any address.
+Implement and export a zero-argument function named `example` in
+`src/index.ts`.
 
-Implement `getAccountState` in `src/index.ts`. It receives a Viem client first
-and an options object containing an address (a `0x`-prefixed hex string).
-Return an object with:
-
-- `balance`: the address's ETH balance in wei, as a bigint.
-- `nonce`: the address's transaction count, as a number.
-- `code`: the bytecode deployed at the address, as a hex string (`undefined`
-  if the address has no code).
-- `storageSlot0`: the raw 32-byte value stored at the address's storage slot
-  `0`, as a hex string.
+Construct an Ethereum mainnet client at module scope. Concurrently read the
+ETH balance, transaction count, bytecode, and storage slot zero of
+`0x53e205a3d2286c93630f4e1de81b95dbbf2ec241`, then return all four values.
 
 Use the `viem` library already installed in this project. An Ethereum mainnet
-RPC endpoint is available at `http://anvil:8545`. Do not add any new
-dependencies.
-
+RPC endpoint is available at `http://anvil:8545`. Do not add dependencies.
 When you are done, `npm run build` must pass.

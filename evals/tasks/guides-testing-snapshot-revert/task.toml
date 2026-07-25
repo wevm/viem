@@ -7,6 +7,7 @@ description = "Snapshot node state, mutate a balance with test actions, then rev
 
 [metadata]
 area = "guides"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

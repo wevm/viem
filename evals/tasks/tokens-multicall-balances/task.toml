@@ -7,6 +7,7 @@ description = "Read three USDC balances in a single batched request with token c
 
 [metadata]
 area = "tokens"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

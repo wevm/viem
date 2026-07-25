@@ -1,76 +1,52 @@
-import type { Client } from 'viem'
-import { Abis, Actions } from 'viem/tempo'
-import { AbiEvent, type Address, type Hex } from 'viem/utils'
+import { Abis, Account, Actions, Client, http } from 'viem/tempo'
+import { tempoLocalnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
 
 const pathUsd = '0x20c0000000000000000000000000000000000000'
+const senderClient = Client.create({
+  account: Account.fromSecp256k1(
+    '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+  ),
+  chain: tempoLocalnet,
+  pollingInterval: 100,
+  transport: http('http://tempo:8545'),
+})
 
-export async function setBlockingPolicy(client: Client.Client) {
-  const { receipt } = await Actions.receivePolicy.setSync(client, {
+const recipientClient = Client.create({
+  account: Account.fromSecp256k1(
+    '0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a',
+  ),
+  chain: tempoLocalnet,
+  pollingInterval: 100,
+  transport: http('http://tempo:8545'),
+})
+
+export async function example() {
+  const policy = await Actions.receivePolicy.setSync(recipientClient, {
     claimer: 'sender',
     senderPolicyId: 'reject-all',
   })
-  return { receipt }
-}
-
-export async function sendTokens(
-  client: Client.Client,
-  options: sendTokens.Options,
-) {
-  const { amount, to } = options
-  const { receipt } = await Actions.token.transferSync(client, {
-    amount: { decimals: 6, formatted: amount },
-    to,
+  const transfer = await Actions.token.transferSync(senderClient, {
+    amount: { decimals: 6, formatted: '12.5' },
+    to: recipientClient.account.address,
     token: pathUsd,
   })
   const [blocked] = AbiEvent.extractLogs(
     Abis.receivePolicyGuard,
-    receipt.logs,
-    {
-      eventName: 'TransferBlocked',
-      strict: true,
-    },
+    transfer.receipt.logs,
+    { eventName: 'TransferBlocked', strict: true },
   )
   if (!blocked) throw new Error('transfer was not blocked')
-  return { claimReceipt: blocked.args.receipt, receipt }
-}
-
-export async function getBlockedAmount(
-  client: Client.Client,
-  options: getBlockedAmount.Options,
-) {
-  return Actions.receivePolicy.getBlockedBalance(client, {
-    receipt: options.claimReceipt,
-  })
-}
-
-export async function claimBlockedFunds(
-  client: Client.Client,
-  options: claimBlockedFunds.Options,
-) {
-  const { claimReceipt, to } = options
-  const { receipt } = await Actions.receivePolicy.claimSync(client, {
+  const claimReceipt = blocked.args.receipt
+  const before = await Actions.receivePolicy.getBlockedBalance(senderClient, {
     receipt: claimReceipt,
-    to,
   })
-  return { receipt }
-}
-
-export declare namespace claimBlockedFunds {
-  type Options = {
-    claimReceipt: Hex.Hex
-    to: Address.Address
-  }
-}
-
-export declare namespace getBlockedAmount {
-  type Options = {
-    claimReceipt: Hex.Hex
-  }
-}
-
-export declare namespace sendTokens {
-  type Options = {
-    amount: string
-    to: Address.Address
-  }
+  const claim = await Actions.receivePolicy.claimSync(senderClient, {
+    receipt: claimReceipt,
+    to: '0x4545454545454545454545454545454545454545',
+  })
+  const after = await Actions.receivePolicy.getBlockedBalance(senderClient, {
+    receipt: claimReceipt,
+  })
+  return { after, before, claim, claimReceipt, policy, transfer }
 }

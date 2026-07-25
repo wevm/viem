@@ -7,6 +7,7 @@ description = "Send ETH from a custom account built around a single sign functio
 
 [metadata]
 area = "core"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

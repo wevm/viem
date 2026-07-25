@@ -7,6 +7,7 @@ description = "Place, inspect, and cancel a limit order on Tempo's stablecoin DE
 
 [metadata]
 area = "tempo"
+contract = "example"
 tier = "tempo"
 
 [verifier]

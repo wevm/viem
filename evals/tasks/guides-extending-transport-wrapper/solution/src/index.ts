@@ -1,37 +1,39 @@
-import { Actions, type Client, Transport } from 'viem'
+import { Actions, Client, http, Transport } from 'viem'
+import { mainnet } from 'viem/chains'
 
 let requestCount = 0
 
-/** Wraps `transport`, counting every request forwarded to it. */
-export function counted(options: counted.Options) {
+function counted(transport: Transport.Transport) {
   return Transport.from({
     key: 'counted',
     name: 'Counted',
     type: 'counted',
     setup(parameters) {
-      const inner = options.transport.setup({
-        ...parameters,
-        retryCount: 0,
-      })
+      const inner = transport.setup({ ...parameters, retryCount: 0 })
       return {
         retryCount: parameters.retryCount,
-        request(args, requestOptions) {
+        request(args, options) {
           requestCount++
-          return inner.request(args, requestOptions)
+          return inner.request(args, options)
         },
       }
     },
   })
 }
 
-export declare namespace counted {
-  type Options = {
-    transport: Transport.Transport
-  }
-}
+const client = Client.create({
+  cacheTime: 0,
+  chain: mainnet,
+  transport: counted(http('http://anvil:8545')),
+})
 
-export async function readBlockNumber(client: Client.Client) {
-  await Actions.block.getNumber(client)
+async function read() {
   const blockNumber = await Actions.block.getNumber(client)
   return { blockNumber, requestCount }
+}
+
+export async function example() {
+  const first = await read()
+  const second = await read()
+  return { first, second }
 }

@@ -7,6 +7,7 @@ description = "Open, top up, and read a TIP-20 payment channel on Tempo with vie
 
 [metadata]
 area = "tempo"
+contract = "example"
 tier = "tempo"
 
 [verifier]

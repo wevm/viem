@@ -7,6 +7,7 @@ description = "Create a client defaulting to the pending block tag and read a pe
 
 [metadata]
 area = "core"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

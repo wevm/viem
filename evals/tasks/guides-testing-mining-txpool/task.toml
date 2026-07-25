@@ -7,6 +7,7 @@ description = "Pause automatic mining, queue transfers in the transaction pool, 
 
 [metadata]
 area = "guides"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

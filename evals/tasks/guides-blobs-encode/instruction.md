@@ -1,15 +1,10 @@
-Our rollup posts batches of data to Ethereum as EIP-4844 blob sidecars, and we
-need helpers to prepare that data before sending and to recover it afterwards.
+Implement and export a zero-argument function named `example` in
+`src/index.ts`.
 
-Implement both functions in `src/index.ts`:
+Create a string containing `31 * 4096 + 1000` copies of `y`, encode it into
+EIP-4844 blobs, decode those blobs back into text, and return the blobs
+together with the decoded value. The input is intentionally larger than one
+blob's usable capacity.
 
-- `encodeBlobs({ value })` takes a UTF-8 string and returns it encoded as an array
-  of EIP-4844 blobs (`0x`-prefixed hex strings), ready to attach to a blob
-  transaction.
-- `decodeBlobs({ blobs })` takes an array produced by `encodeBlobs` and returns
-  the original string.
-
-Use the `viem` library already installed in this project. Do not add any new
-dependencies.
-
-When you are done, `npm run build` must pass.
+Use the `viem` library already installed in this project. Do not add
+dependencies. When you are done, `npm run build` must pass.

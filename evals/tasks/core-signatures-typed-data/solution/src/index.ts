@@ -1,15 +1,19 @@
 import { Account } from 'viem'
-import { type Address, type Hex, TypedData } from 'viem/utils'
+import { TypedData } from 'viem/utils'
 
-export type Order = {
-  maker: Address.Address
-  taker: Address.Address
-  amount: bigint
-  nonce: bigint
-}
+const account = Account.fromPrivateKey(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+)
 
-function toTypedData(order: Order) {
-  return {
+const order = {
+  amount: 1_000_000n,
+  maker: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  nonce: 1n,
+  taker: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+} as const
+
+export async function example() {
+  const typedData = {
     domain: { chainId: 1, name: 'Order Book', version: '1' },
     message: order,
     primaryType: 'Order',
@@ -22,33 +26,15 @@ function toTypedData(order: Order) {
       ],
     },
   } as const
-}
-
-export async function signOrder(options: signOrder.Options): Promise<Hex.Hex> {
-  const { order, privateKey } = options
-  return Account.fromPrivateKey(privateKey).signTypedData(toTypedData(order))
-}
-
-export declare namespace signOrder {
-  type Options = {
-    order: Order
-    privateKey: Hex.Hex
-  }
-}
-
-export function recoverOrderAddress(
-  options: recoverOrderAddress.Options,
-): Address.Address {
-  const { order, signature } = options
-  return TypedData.recoverAddress({
-    ...toTypedData(order),
+  const signature = await account.signTypedData(typedData)
+  const recovered = TypedData.recoverAddress({
+    ...typedData,
     signature,
   })
-}
-
-export declare namespace recoverOrderAddress {
-  type Options = {
-    order: Order
-    signature: Hex.Hex
-  }
+  const changedRecovered = TypedData.recoverAddress({
+    ...typedData,
+    message: { ...order, amount: 2_000_000n },
+    signature,
+  })
+  return { changedRecovered, recovered, signature }
 }

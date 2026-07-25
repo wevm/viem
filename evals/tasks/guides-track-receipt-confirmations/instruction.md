@@ -1,18 +1,15 @@
-Our payments service needs to submit transfers, prove they landed, and report
-how deeply buried each one is.
+Implement and export a zero-argument function named `example` in
+`src/index.ts`.
 
-Implement two functions in `src/index.ts`:
-
-- `sendPaymentAndWait(client, { to, amountEther })`: using a client bound to
-  the signing account, send `amountEther` ETH (a decimal string, e.g. `'1'`) to
-  `to`, wait until the transaction is included in a block, and return its receipt
-  (an object including `status`, `transactionHash`, and `blockNumber`).
-- `getConfirmationCount(client, { hash })`: return the number of blocks that have
-  confirmed the transaction with the given hash, as a bigint (`0n` if it is
-  still pending).
+Construct an account-bound Ethereum mainnet client at module scope using
+private key
+`0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`.
+Send 1 ETH to `0x4242424242424242424242424242424242424242`, return its
+confirmed receipt, record its confirmation count, mine three blocks, and
+record the new count. Also submit a one-wei transfer while automatic mining is
+disabled and record its zero confirmation count. Restore automatic mining
+before returning all four results.
 
 Use the `viem` library already installed in this project. An Ethereum mainnet
-RPC endpoint is available at `http://anvil:8545`. Do not add any new
-dependencies.
-
+RPC endpoint is available at `http://anvil:8545`. Do not add dependencies.
 When you are done, `npm run build` must pass.

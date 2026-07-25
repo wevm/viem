@@ -1,45 +1,40 @@
 import { readFileSync } from 'node:fs'
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { expect, test } from 'vitest'
-import { getFirstPendingHash } from '../src/index.ts'
+import { expect, expectTypeOf, test } from 'vitest'
+import { example } from '../src/index.ts'
 
-async function rpc(method: string, params: unknown[] = []) {
-  const res = await fetch('http://anvil:8545', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
-  })
-  const { result, error } = (await res.json()) as any
+const sourceText = readFileSync('src/index.ts', 'utf8')
+async function rpc(method: string, params: unknown[]) {
+  // Retry transient DNS/socket failures seen under parallel suite load.
+  const payload = await (async () => {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        const response = await fetch('http://anvil:8545', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
+        })
+        return (await response.json()) as any
+      } catch (error) {
+        if (attempt === 2) throw error
+        await new Promise((resolve) => setTimeout(resolve, 500))
+      }
+    }
+  })()
+  const { result, error } = payload
   if (error) throw new Error(error.message)
   return result
 }
 
-const sender = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
-const recipient = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
-
-const client = Client.create({
-  chain: mainnet,
-  pollingInterval: 200,
-  transport: http('http://anvil:8545'),
-})
-
-test('uses viem', () => {
-  expect(readFileSync('src/index.ts', 'utf8')).toMatch(/from ['"]viem/)
-})
-
-test('resolves with the hash of the first pending transaction', async () => {
-  await rpc('anvil_setAutomine', [false])
-  try {
-    const pending = getFirstPendingHash(client)
-    // Give the watcher time to attach to the pool before broadcasting.
-    await new Promise((resolve) => setTimeout(resolve, 2_000))
-    const hash = await rpc('eth_sendTransaction', [
-      { from: sender, to: recipient, value: '0x1' },
-    ])
-    expect(await pending).toBe(hash)
-  } finally {
-    await rpc('anvil_setAutomine', [true])
-    await rpc('anvil_mine', ['0x1'])
-  }
+test('exports a zero-input Viem example', () => {
+  expect(sourceText).toMatch(/from ['"]viem/)
+  expect(sourceText).toMatch(/^const \w*client\s*=\s*Client\.create\s*\(/im)
+  expectTypeOf(example).parameters.toEqualTypeOf<[]>()
 }, 60_000)
+
+test('returns the first observed pending transaction hash', async () => {
+  const { hash, observed } = await example()
+  expect(observed).toBe(hash)
+  const receipt = await rpc('eth_getTransactionReceipt', [hash])
+  expect(receipt.status).toBe('0x1')
+  expect(await rpc('anvil_getAutomine', [])).toBe(true)
+}, 120_000)

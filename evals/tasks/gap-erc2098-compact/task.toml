@@ -7,6 +7,7 @@ description = "Convert a 65-byte signature to ERC-2098 compact form and back wit
 
 [metadata]
 area = "gap"
+contract = "example"
 tier = "offline"
 
 [verifier]

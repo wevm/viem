@@ -7,6 +7,7 @@ description = "Batch ERC-20 metadata and balance reads into one request, with a 
 
 [metadata]
 area = "guides"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

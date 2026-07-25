@@ -1,33 +1,23 @@
-Our treasury service delegates limited spending authority on Tempo: the root
-account authorizes a session "access key" that may spend pathUSD up to a cap,
-and operations staff need tooling to inspect what a key has left, spend
-through it, and revoke it the moment it is no longer trusted.
+Our Tempo treasury grants, inspects, spends through, and revokes a limited
+session key.
 
-Implement the following functions in `src/index.ts`:
+Implement and export a zero-input `example` function in `src/index.ts`. At
+module scope, derive the root account from private key
+`0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`
+and its secp256k1 access key from private key
+`0x5fe1a3c2f2f7cbb2e6c8e6b092de2e04ae0d24a655e42e15a4f0f37b78f4e989`.
+Create a Tempo localnet client for each.
 
-- `grantSpendingKey`: the first argument is a Tempo client carrying the root
-  account. Authorize `options.accessKey` on that account. The key must be
-  allowed to spend at most `options.limit` base
-  units of pathUSD, and must expire roughly one hour in the future. Wait for
-  confirmation and return an object that includes the transaction receipt
-  under a `receipt` key.
-- `remainingAllowance`: the first argument is a Tempo client. Return the
-  remaining pathUSD spending allowance (base units, as a `bigint`) of
-  `options.accessKey` on `options.account`.
-- `spendWithKey`: the first argument is a Tempo client carrying the authorized
-  access-key Account. Transfer `options.amount` base units of pathUSD to
-  `options.to`. Pay fees in pathUSD. Wait for confirmation and return an
-  object that includes the receipt under a `receipt` key.
-- `revokeSpendingKey`: the first argument is a Tempo client carrying the root
-  account. Revoke the access key at `options.accessKey`, so the key can no
-  longer act for the account. Wait for confirmation and return an object
-  that includes the receipt under a `receipt` key.
+Authorize the key for one hour with a 50,000,000-base-unit pathUSD limit.
+Read its remaining limit, spend 5,000,000 base units to
+`0x4242424242424242424242424242424242424242`, read the reduced limit, then
+revoke the key. Attempt another 1,000,000-base-unit spend and return the
+write results, both limits, and whether that final spend was rejected. Only
+classify the expected contract revert as rejection; let unrelated errors
+propagate.
 
-pathUSD is a TIP-20 stablecoin at `0x20c0000000000000000000000000000000000000`
-with 6 decimals.
-
-Use the `viem` library already installed in this project. A Tempo RPC endpoint
-(Tempo localnet, chain id 1337) is available at `http://tempo:8545`. Do not
-add any new dependencies.
+pathUSD is `0x20c0000000000000000000000000000000000000`.
+Use the installed `viem`, `http://tempo:8545`, and a 100 ms polling interval.
+Do not add dependencies.
 
 When you are done, `npm run build` must pass.

@@ -1,108 +1,75 @@
-import type { Client } from 'viem'
-import { Actions } from 'viem/tempo'
-import type { Address } from 'viem/utils'
+import { Account, Actions, Client, http } from 'viem/tempo'
+import { tempoLocalnet } from 'viem/chains'
 
-export async function createMarket(
-  client: Client.Client,
-  options: createMarket.Options,
-) {
-  const { name, symbol } = options
-  const account = client.account
-  if (!account) throw new Error('account is required')
+const client = Client.create({
+  account: Account.fromSecp256k1(
+    '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+  ),
+  chain: tempoLocalnet,
+  pollingInterval: 100,
+  transport: http('http://tempo:8545'),
+})
+
+export async function example() {
   const { token: base } = await Actions.token.createSync(client, {
     currency: 'USD',
-    name,
-    symbol,
+    name: 'Desk Dollar',
+    symbol: 'DESKUSD',
   })
   await Actions.token.grantRolesSync(client, {
     roles: ['issuer'],
-    to: account.address,
+    to: client.account.address,
     token: base,
   })
   await Actions.token.mintSync(client, {
     amount: 1_000_000_000_000n,
-    to: account.address,
+    to: client.account.address,
     token: base,
   })
   const { quote } = await Actions.dex.createPairSync(client, { base })
-  return { base, quote }
-}
 
-export async function placeLimitOrder(
-  client: Client.Client,
-  options: placeLimitOrder.Options,
-) {
-  const { amount, side, tick, token } = options
-  const { orderId, receipt } = await Actions.dex.placeSync(client, {
-    amount,
-    tick,
-    token,
-    type: side,
+  const buyPlaced = await Actions.dex.placeSync(client, {
+    amount: 250_000_000n,
+    tick: 40,
+    token: base,
+    type: 'buy',
   })
-  return { orderId, receipt }
-}
+  const buyOrder = await Actions.dex.getOrder(client, {
+    orderId: buyPlaced.orderId,
+  })
+  const buyBook = await Actions.dex.getOrderbook(client, { base, quote })
+  const buyCanceled = await Actions.dex.cancelSync(client, {
+    orderId: buyPlaced.orderId,
+  })
 
-export declare namespace placeLimitOrder {
-  type Options = {
-    amount: bigint
-    side: 'buy' | 'sell'
-    tick: number
-    token: Address.Address
-  }
-}
+  const sellPlaced = await Actions.dex.placeSync(client, {
+    amount: 100_000_000n,
+    tick: -60,
+    token: base,
+    type: 'sell',
+  })
+  const sellOrder = await Actions.dex.getOrder(client, {
+    orderId: sellPlaced.orderId,
+  })
+  const sellBook = await Actions.dex.getOrderbook(client, { base, quote })
+  const sellCanceled = await Actions.dex.cancelSync(client, {
+    orderId: sellPlaced.orderId,
+  })
 
-export async function getOrderInfo(
-  client: Client.Client,
-  options: getOrderInfo.Options,
-) {
-  const { amount, isBid, maker, remaining, tick } = await Actions.dex.getOrder(
-    client,
-    options,
-  )
-  return { amount, isBid, maker, remaining, tick }
-}
-
-export async function getBestTicks(
-  client: Client.Client,
-  options: getBestTicks.Options,
-) {
-  const { bestAskTick, bestBidTick } = await Actions.dex.getOrderbook(
-    client,
-    options,
-  )
-  return { bestAskTick, bestBidTick }
-}
-
-export async function cancelOrder(
-  client: Client.Client,
-  options: cancelOrder.Options,
-) {
-  const { receipt } = await Actions.dex.cancelSync(client, options)
-  return { receipt }
-}
-
-export declare namespace cancelOrder {
-  type Options = {
-    orderId: bigint
-  }
-}
-
-export declare namespace createMarket {
-  type Options = {
-    name: string
-    symbol: string
-  }
-}
-
-export declare namespace getBestTicks {
-  type Options = {
-    base: Address.Address
-    quote: Address.Address
-  }
-}
-
-export declare namespace getOrderInfo {
-  type Options = {
-    orderId: bigint
+  return {
+    base,
+    buy: {
+      book: buyBook,
+      canceled: buyCanceled,
+      order: buyOrder,
+      placed: buyPlaced,
+    },
+    quote,
+    sell: {
+      book: sellBook,
+      canceled: sellCanceled,
+      order: sellOrder,
+      placed: sellPlaced,
+    },
   }
 }

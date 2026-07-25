@@ -7,6 +7,7 @@ description = "Extend a client with public actions and a custom health namespace
 
 [metadata]
 area = "core"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

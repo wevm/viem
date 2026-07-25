@@ -7,6 +7,7 @@ description = "Gate TIP-20 transfers with a whitelist policy on Tempo with viem.
 
 [metadata]
 area = "tempo"
+contract = "example"
 tier = "tempo"
 
 [verifier]

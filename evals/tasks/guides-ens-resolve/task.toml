@@ -7,6 +7,7 @@ description = "Resolve an ENS name to an address and reverse-resolve its primary
 
 [metadata]
 area = "guides"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

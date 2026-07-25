@@ -7,6 +7,7 @@ description = "Seed USDC from a whale on an Anvil fork using test-node account c
 
 [metadata]
 area = "guides"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

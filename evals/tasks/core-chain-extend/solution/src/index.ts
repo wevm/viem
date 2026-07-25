@@ -1,16 +1,12 @@
-import type { Chain } from 'viem'
 import { mainnet } from 'viem/chains'
 
-export function withContract<const name extends string>(
-  options: withContract.Options<name>,
-) {
+export function example() {
   return mainnet.extend({
-    contracts: { ...mainnet.contracts, ...options.contracts },
+    contracts: {
+      ...mainnet.contracts,
+      registry: {
+        address: '0x000000000000000000000000000000000000c0dE',
+      },
+    },
   })
-}
-
-export declare namespace withContract {
-  type Options<name extends string> = {
-    contracts: Record<name, Chain.Chain.Contract>
-  }
 }

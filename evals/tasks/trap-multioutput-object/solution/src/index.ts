@@ -1,25 +1,21 @@
-import { Actions, type Client } from 'viem'
-import { Abi, type Address } from 'viem/utils'
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
 
-const eip5267Abi = Abi.from([
+const abi = Abi.from([
   'function eip712Domain() view returns (bytes1 fields, string name, string version, uint256 chainId, address verifyingContract, bytes32 salt, uint256[] extensions)',
 ])
 
-export async function getSigningDomain(
-  client: Client.Client,
-  options: getSigningDomain.Options,
-) {
-  // Named multi-output results decode to an object keyed by output names.
-  const { name, version, chainId } = await Actions.contract.read(client, {
-    abi: eip5267Abi,
-    address: options.token,
+const client = Client.create({
+  chain: mainnet,
+  transport: http('http://anvil:8545'),
+})
+
+export async function example() {
+  const { chainId, name, version } = await Actions.contract.read(client, {
+    abi,
+    address: '0x4c9EDD5852cd905f086C759E8383e09bff1E68B3',
     functionName: 'eip712Domain',
   })
-  return { name, version, chainId }
-}
-
-export declare namespace getSigningDomain {
-  type Options = {
-    token: Address.Address
-  }
+  return { chainId, name, version }
 }

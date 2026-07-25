@@ -7,6 +7,7 @@ description = "Derive a chain from mainnet with a custom contract entry."
 
 [metadata]
 area = "core"
+contract = "example"
 tier = "offline"
 
 [verifier]

@@ -7,6 +7,7 @@ description = "Collect upcoming block numbers by iterating a block stream."
 
 [metadata]
 area = "gap"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

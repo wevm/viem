@@ -7,6 +7,7 @@ description = "Predict a CREATE2 address and deploy through the chain-configured
 
 [metadata]
 area = "gap"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

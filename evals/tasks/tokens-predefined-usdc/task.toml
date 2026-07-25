@@ -7,6 +7,7 @@ description = "Resolve the predefined USDC token's mainnet address and read its 
 
 [metadata]
 area = "tokens"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

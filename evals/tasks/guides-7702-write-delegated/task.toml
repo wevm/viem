@@ -7,6 +7,7 @@ description = "Write through EIP-7702 delegated code at an EOA address with viem
 
 [metadata]
 area = "guides"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

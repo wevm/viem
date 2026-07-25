@@ -7,6 +7,7 @@ description = "Dry-run a USDC transfer as an arbitrary sender with an eth_call f
 
 [metadata]
 area = "gap"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

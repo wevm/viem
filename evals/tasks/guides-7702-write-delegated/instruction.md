@@ -1,20 +1,13 @@
-Our onboarding flow upgrades user accounts with EIP-7702. Some accounts are
-already upgraded: the account's code delegates to a shared storage contract,
-so calls to the account address execute that contract's code against the
-account's own storage. The delegated implementation exposes:
+Implement and export a zero-argument function named `example` in
+`src/index.ts`.
 
-- `function store(uint256 value)` writes `value` into storage.
-- `function retrieve() view returns (uint256)` reads the stored value.
-
-Implement `writeDelegated` in `src/index.ts`. It receives a Viem client bound
-to an account whose delegation is already installed on chain, followed by an
-options object containing `value`. Do not sign or broadcast any new
-authorization. Send a transaction from that account to its own address calling
-`store(value)`, wait until it is confirmed on chain, then call `retrieve()` at
-the account address and return the result as a bigint.
+Construct an account-bound Ethereum mainnet client at module scope using
+private key
+`0xd52ca50b7cca7d19e9a2301bd3a1bb5a471db800093e8823db7f9f49f6bed834`.
+The account is already delegated to an implementation exposing
+`store(uint256)` and `retrieve()`. Write `741852963` through the account,
+read it back through the same account address, and return the stored bigint.
 
 Use the `viem` library already installed in this project. An Ethereum mainnet
-RPC endpoint is available at `http://anvil:8545`. Do not add any new
-dependencies.
-
+RPC endpoint is available at `http://anvil:8545`. Do not add dependencies.
 When you are done, `npm run build` must pass.

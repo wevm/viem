@@ -1,35 +1,21 @@
-Our trading desk lists its own USD stablecoin on Tempo's enshrined DEX and
-buys exact amounts of it programmatically.
+Our trading desk lists a USD stablecoin on Tempo's enshrined DEX and buys exact
+amounts from its order book.
 
-Implement three functions in `src/index.ts`:
+Implement and export a zero-input `example` function in `src/index.ts`. Create
+module-scoped Tempo localnet clients for the maker derived from private key
+`0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`
+and the taker derived from
+`0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d`.
 
-`setupMarket` receives a Tempo client carrying the maker account and an
-options object containing `name` and `symbol`. The account should:
+Create a USD TIP-20 token named `Eval Market` with symbol `EVAL`, grant the
+maker issuance permission, mint exactly 1,000,000 tokens, and list its pathUSD
+pair. Rest a 500-token sell order at tick 100. Quote and buy exactly 25 tokens,
+using that quote as the maximum input, then quote and buy another 10 tokens the
+same way. Wait for every write to confirm and return the market, resting order,
+both quotes, and both buy results.
 
-- Create a new USD-denominated TIP-20 token (6 decimals) called `name` with
-  symbol `symbol`, administered by that account.
-- Grant that same account the token's issuer role, then mint it exactly
-  1,000,000 tokens.
-- List a trading pair for the token on the DEX (pairs quote against pathUSD).
-- Rest a limit sell order on the book: 500 tokens at tick 100 (0.1% above the
-  1.000 peg).
-- Wait for each step to confirm before the next, and return `{ base, quote }`:
-  the new token's address and the pair's quote-token address.
-
-`quoteBuy` receives a Tempo client and an options object containing `tokenIn`,
-`tokenOut`, and `amountOut`. It returns, as a bigint, the amount of `tokenIn`
-(in base units) the DEX currently charges to buy exactly `amountOut` base
-units of `tokenOut`.
-
-`buyExact` receives a Tempo client carrying the buyer account and an options
-object containing `tokenIn`, `tokenOut`, `amountOut`, and `maxAmountIn`. It
-executes that buy, failing if the cost would exceed `maxAmountIn`. Wait until
-the swap is confirmed on chain and return an object that includes the
-transaction receipt under a `receipt` key.
-
-Use the `viem` library already installed in this project. A Tempo RPC endpoint
-(Tempo localnet, chain id 1337) is available at `http://tempo:8545`. pathUSD
-is the TIP-20 stablecoin at `0x20c0000000000000000000000000000000000000` with
-6 decimals. Do not add any new dependencies.
+Tokens have 6 decimals. pathUSD is
+`0x20c0000000000000000000000000000000000000`. Use the installed `viem`,
+`http://tempo:8545`, and a 100 ms polling interval. Do not add dependencies.
 
 When you are done, `npm run build` must pass.

@@ -1,12 +1,14 @@
-import { Actions, type Client } from 'viem'
+import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import type { Address } from 'viem/utils'
 import { usdc } from 'viem/tokens'
 
-export function getUsdcAddress(): Address.Address {
-  return usdc(mainnet.id).address
-}
+const client = Client.create({
+  chain: mainnet,
+  transport: http('http://anvil:8545'),
+})
 
-export async function getUsdcMetadata(client: Client.Client) {
-  return Actions.token.getMetadata(client, { token: getUsdcAddress() })
+export async function example() {
+  const address = usdc(mainnet.id).address
+  const metadata = await Actions.token.getMetadata(client, { token: address })
+  return { address, ...metadata }
 }

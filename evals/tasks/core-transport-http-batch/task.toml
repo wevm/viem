@@ -7,6 +7,7 @@ description = "Batch concurrent JSON-RPC reads into a single HTTP request."
 
 [metadata]
 area = "core"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

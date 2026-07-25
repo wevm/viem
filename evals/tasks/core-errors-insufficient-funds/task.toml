@@ -7,6 +7,7 @@ description = "Classify an insufficient-funds send failure with viem's error tax
 
 [metadata]
 area = "core"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

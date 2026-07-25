@@ -1,17 +1,18 @@
-import { Actions, type Client } from 'viem'
-import { type Address, Value } from 'viem/utils'
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Value } from 'viem/utils'
 
-export async function sendEth(client: Client.Client, options: sendEth.Options) {
-  const { amountEther, to } = options
+const client = Client.create({
+  account: Account.fromPrivateKey(
+    '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+  ),
+  chain: mainnet,
+  transport: http('http://anvil:8545'),
+})
+
+export function example() {
   return Actions.transaction.sendSync(client, {
-    to,
-    value: Value.fromEther(amountEther),
+    to: '0x4242424242424242424242424242424242424242',
+    value: Value.fromEther('1.5'),
   })
-}
-
-export declare namespace sendEth {
-  type Options = {
-    amountEther: string
-    to: Address.Address
-  }
 }

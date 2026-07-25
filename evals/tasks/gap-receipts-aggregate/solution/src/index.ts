@@ -1,17 +1,15 @@
-import { Actions, type Client } from 'viem'
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
-export async function getBlockGasUsed(
-  client: Client.Client,
-  options: getBlockGasUsed.Options,
-): Promise<bigint> {
+const client = Client.create({
+  chain: mainnet,
+  transport: http('http://anvil:8545'),
+})
+
+export async function example() {
+  const blockNumber = await Actions.block.getNumber(client)
   const receipts = await Actions.block.getReceipts(client, {
-    blockNumber: options.blockNumber,
+    blockNumber,
   })
   return receipts.reduce((sum, receipt) => sum + receipt.gasUsed, 0n)
-}
-
-export declare namespace getBlockGasUsed {
-  type Options = {
-    blockNumber: bigint
-  }
 }

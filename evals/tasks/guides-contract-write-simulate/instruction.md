@@ -1,25 +1,15 @@
-Our treasury service moves ERC-20 tokens, and every transfer must be
-validated against current chain state before any transaction is broadcast.
+Implement and export a zero-argument function named `example` in
+`src/index.ts`.
 
-Implement `transferToken` in `src/index.ts`. It receives a Viem client bound to
-the sender account first and an options object containing an ERC-20 token
-contract address, recipient address, and amount in the token's base units. It
-must:
+Construct an Ethereum mainnet client at module scope for the impersonated USDC
+holder `0x28C6c06298d514Db089934071355E5743bf21d60`. Simulate a transfer of
+12,345,678 USDC base units to
+`0x4242424242424242424242424242424242424242`, submit the request produced by
+the successful simulation, wait for confirmation, and return the simulated
+result, receipt, amount, recipient, and token address. Always stop
+impersonating the holder.
 
-1. Dry-run the token contract's `transfer(to, amount)` call against current
-   chain state from the sender's address, without broadcasting anything, and
-   capture the boolean the function returns.
-2. Only if that dry run succeeds, broadcast the same validated call as a
-   transaction and wait for it to be confirmed on chain.
-3. Return `{ simulated, receipt }`, where `simulated` is the boolean from
-   step 1 and `receipt` is the confirmed transaction receipt (including its
-   `status` and `transactionHash`).
-
-If the dry run reverts, the error must propagate to the caller and no
-transaction may be sent.
-
-Use the `viem` library already installed in this project. An Ethereum mainnet
-RPC endpoint is available at `http://anvil:8545`. Do not add any new
-dependencies.
-
-When you are done, `npm run build` must pass.
+Use the `viem` library already installed in this project. USDC is deployed at
+`0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48`, and an Ethereum mainnet RPC
+endpoint is available at `http://anvil:8545`. Do not add dependencies. When
+you are done, `npm run build` must pass.

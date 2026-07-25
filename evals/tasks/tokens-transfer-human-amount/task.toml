@@ -7,6 +7,7 @@ description = "Transfer USDC with a human-readable amount string using viem."
 
 [metadata]
 area = "tokens"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

@@ -1,40 +1,73 @@
 import { readFileSync } from 'node:fs'
-import { Client, http } from 'viem'
+import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { expect, test } from 'vitest'
-import { wouldTransferSucceed } from '../src/index.ts'
+import { expect, expectTypeOf, test } from 'vitest'
+import { example } from '../src/index.ts'
+
+const token = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+const whale = '0x28C6c06298d514Db089934071355E5743bf21d60'
+const empty = '0xa1484a31504c80e30ce0a25c8f94dbaee9cde6bc'
+const recipient = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
 
 const client = Client.create({
   chain: mainnet,
   transport: http('http://anvil:8545'),
 })
 
-// Binance 14: holds 31_872_448_355 USDC base units at the pinned fork block.
-const whale = '0x28C6c06298d514Db089934071355E5743bf21d60'
-// Fresh address: no history, zero USDC balance.
-const empty = '0xa1484a31504c80e30ce0a25c8f94dbaee9cde6bc'
+test('uses call identity without sending transactions', () => {
+  const source = readFileSync('src/index.ts', 'utf8')
+  expect(source).toMatch(/from ['"]viem/)
+  expect(source).toMatch(/Actions\.call/)
+  expect(source).toMatch(/account\s*:/)
+}, 60_000)
 
-test('uses viem', () => {
-  expect(readFileSync('src/index.ts', 'utf8')).toMatch(/from ['"]viem/)
-})
+test('exports a zero-input example', () => {
+  expectTypeOf(example).parameters.toEqualTypeOf<[]>()
+}, 60_000)
 
-test('whale can transfer a small amount', async () => {
-  expect(
-    await wouldTransferSucceed(client, { amount: 1_000_000n, from: whale }),
-  ).toBe(true)
-}, 30_000)
+test('reports the three dry-run outcomes', async () => {
+  const [
+    blockNumber,
+    emptyNonce,
+    emptyBalance,
+    recipientBalance,
+    whaleBalance,
+  ] = await Promise.all([
+    Actions.block.getNumber(client),
+    Actions.address.getTransactionCount(client, { address: empty }),
+    Actions.token.getBalance(client, { account: empty, token }),
+    Actions.token.getBalance(client, { account: recipient, token }),
+    Actions.token.getBalance(client, { account: whale, token }),
+  ])
+  const whaleNonce = await Actions.address.getTransactionCount(client, {
+    address: whale,
+  })
 
-test('whale cannot transfer more than its balance', async () => {
-  expect(
-    await wouldTransferSucceed(client, {
-      amount: 40_000_000_000n,
-      from: whale,
-    }),
-  ).toBe(false)
-}, 30_000)
+  expect(await example()).toEqual({
+    empty: false,
+    overBalance: false,
+    small: true,
+  })
 
-test('fresh empty address cannot transfer', async () => {
-  expect(
-    await wouldTransferSucceed(client, { amount: 1_000_000n, from: empty }),
-  ).toBe(false)
-}, 30_000)
+  const [
+    blockNumber_after,
+    emptyNonce_after,
+    emptyBalance_after,
+    recipientBalance_after,
+    whaleBalance_after,
+    whaleNonce_after,
+  ] = await Promise.all([
+    Actions.block.getNumber(client),
+    Actions.address.getTransactionCount(client, { address: empty }),
+    Actions.token.getBalance(client, { account: empty, token }),
+    Actions.token.getBalance(client, { account: recipient, token }),
+    Actions.token.getBalance(client, { account: whale, token }),
+    Actions.address.getTransactionCount(client, { address: whale }),
+  ])
+  expect(blockNumber_after).toBe(blockNumber)
+  expect(emptyNonce_after).toBe(emptyNonce)
+  expect(emptyBalance_after.amount).toBe(emptyBalance.amount)
+  expect(recipientBalance_after.amount).toBe(recipientBalance.amount)
+  expect(whaleBalance_after.amount).toBe(whaleBalance.amount)
+  expect(whaleNonce_after).toBe(whaleNonce)
+}, 60_000)

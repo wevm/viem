@@ -1,20 +1,23 @@
 Our release pipeline publishes the same contract to many chains and must know
-the contract's address before the deployment transaction is ever sent.
+the contract's address before the deployment transaction is sent.
 
-Implement `deployDeterministic` in `src/index.ts`. It receives a Viem client
-bound to the funded deployment account first and an options object containing
-a contract's creation bytecode and 32-byte salt. It must:
+Export a zero-input `example()` function from `src/index.ts`. It should:
 
-1. Compute locally (before sending anything) the CREATE2 address the contract
-   will live at using Viem's canonical CREATE2 deployer address. The resulting
-   address depends on the deployer's address, the salt, and the creation
-   bytecode.
-2. Deploy with Viem's contract deployment action and wait until the transaction
-   is included. Use the client's chain configuration and the supplied salt;
-   do not hard-code a deployer address or manually construct its calldata.
-3. Confirm the contract's code exists on chain, then return
-   `{ predicted, deployed }`: `predicted` is the locally computed address and
-   `deployed` is the address the code actually lives at.
+1. Locally predict the CREATE2 address for creation bytecode
+   `0x6001600c60003960016000f300` and salt
+   `0x000000000000000000000000000000000000000000000000000000000000002a`
+   using Viem's canonical CREATE2 deployer address.
+2. Deploy that bytecode with CREATE2 and wait for inclusion. Use the chain's
+   configured deployer rather than hard-coding its address or constructing
+   deployer calldata manually.
+3. Confirm code exists at the predicted address.
+4. Return `{ predicted, deployed }`, where both values identify the deployed
+   contract.
+
+Create the Ethereum mainnet client at module scope with a 100 ms polling
+interval, the available RPC endpoint, and the account derived from Anvil's
+first funded private key:
+`0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`.
 
 Use the `viem` library already installed in this project. An Ethereum mainnet
 RPC endpoint is available at `http://anvil:8545`. Do not add any new

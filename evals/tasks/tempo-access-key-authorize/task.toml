@@ -7,6 +7,7 @@ description = "Authorize a P256 session key with a pathUSD spending limit and sp
 
 [metadata]
 area = "tempo"
+contract = "example"
 tier = "tempo"
 
 [verifier]

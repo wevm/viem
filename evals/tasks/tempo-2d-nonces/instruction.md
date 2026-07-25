@@ -1,37 +1,19 @@
-Our payments service fans out several stablecoin payouts from a single
-account at once. Tempo supports this natively: every account has
-two-dimensional nonces, where each nonce key (any value greater than 0)
-tracks its own independent transaction sequence, so transactions on
-different keys do not have to wait for one another.
+Our Tempo payments service fans out three pathUSD payouts concurrently using
+independent two-dimensional nonce keys.
 
-Implement two functions in `src/index.ts`:
+Implement and export a zero-input `example` function in `src/index.ts`. Create
+a module-scoped Tempo localnet client for the account derived from private key
+`0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`.
+Submit these transfers concurrently and wait for all three:
 
-Each function receives a Tempo client as its first argument and one options
-object as its second argument.
+- `1.5` pathUSD to `0x5151515151515151515151515151515151515151` on key `77001`
+- `2.25` pathUSD to `0x5252525252525252525252525252525252525252` on key `77002`
+- `3.75` pathUSD to `0x5353535353535353535353535353535353535353` on key `77003`
 
-`sendParallelTransfers`
-
-- The client carries the sending account.
-- `options.transfers` is an array of `{ to, amount, nonceKey }` entries: the
-  recipient address, a human-readable pathUSD amount (for example `'1.5'`
-  means 1.5 pathUSD), and the distinct nonce key (a bigint) that transfer
-  must be sent under.
-- Submit all transfers concurrently (do not wait for one transfer to
-  confirm before submitting the next), each under its own nonce key, and
-  wait until every transfer is confirmed on chain.
-- Return an object with a `receipts` array containing the transaction
-  receipts in the same order as `transfers`.
-
-`readNonce`
-
-- Return the current on-chain nonce (as a bigint) for
-  `options.account` and `options.nonceKey`.
-
-pathUSD is a TIP-20 stablecoin at `0x20c0000000000000000000000000000000000000`
-with 6 decimals.
-
-Use the `viem` library already installed in this project. A Tempo RPC endpoint
-(Tempo localnet, chain id 1337) is available at `http://tempo:8545`. Do not
-add any new dependencies.
+Read each resulting on-chain nonce and also read unused key `606060606`.
+Return the receipts and nonce values. pathUSD is
+`0x20c0000000000000000000000000000000000000` with 6 decimals. Use the
+installed `viem`, `http://tempo:8545`, and a 100 ms polling interval.
+Do not add dependencies.
 
 When you are done, `npm run build` must pass.

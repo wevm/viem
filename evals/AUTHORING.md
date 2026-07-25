@@ -41,6 +41,7 @@ description = "<one line>"
 
 [metadata]
 area = "<area>"
+contract = "example" # or "migration"
 tier = "offline" # or "anvil-fork" | "tempo"
 
 [verifier]
@@ -141,14 +142,14 @@ const client = Client.create({
   installed in this project", "Do not add any new dependencies", "When you
   are done, `npm run build` must pass."
 - Describe inputs and outputs in prose. Do not provide TypeScript declarations,
-  aliases, interfaces, generic parameters, or references to starter types. The
-  agent owns the public type design and must preserve ABI-derived inference.
+  aliases, interfaces, generic parameters, or references to starter types.
 - Use `address` for recovered identities and `account` for signing capability.
   Apply this terminology consistently across eval-owned prose, identifiers,
   and API names.
-- Client-using operations receive a client as their first positional input.
-  Describe all remaining inputs as one named options object. Solutions use
-  `Client.Client` unless a configured client generic is type-significant.
+- Feature prompts request one exported zero-input `example` function.
+  Describe the complete concrete workflow and the value it returns.
+- Client-using examples define their configured client at module scope. The
+  prompt must not ask the agent to export the client.
 - Migration tasks instead ship broken legacy code and ask to make the build
   pass without changing exported names, signatures, or behavior.
 
@@ -160,12 +161,10 @@ const client = Client.create({
 - `tsconfig.json`: copy verbatim (strict, nodenext, noEmit, include src).
 - Feature-task entry points contain only `// TODO(agent): implement`. They must
   not declare functions or types. Migration tasks keep their broken legacy code.
-- Functions should take their inputs (addresses, amounts) as parameters so the
-  grader can exercise them against fresh state.
-- Create clients in the grader at module scope and pass them into operations.
-  Never require an operation to construct its own client.
-- Pure operations take one named options object. The only ordinary positional
-  parameter is an injected client.
+- Feature solutions export only `example()` and take no inputs. Use fixed,
+  documented values or perform setup inside the workflow.
+- Client-using solutions construct private configured clients at module scope.
+  Graders never import candidate clients.
 
 ## Verifier Rules
 
@@ -176,30 +175,23 @@ VERBATIM. Do not edit the deny list or reward wiring.
 time, invisible to the agent while it works):
 
 - The verifier typechecks this file under strict TypeScript settings before
-  running it. Calls and `expectTypeOf` assertions define the hidden public type
-  contract without exposing declarations in the challenge.
-- Exercise ABI-derived inputs and outputs without `any` casts. Add negative
-  `@ts-expect-error` cases where a generic must reject invalid names or args.
-
-- Import the agent's exports via `import { fn } from '../src/index.ts'`.
-- Prefer RUNTIME assertions on observable chain state: balance deltas,
-  `receipt.status === 'success'`, decoded log args, reverts, pinned fork
-  values. Static source regexes are a last resort (keep the single
-  "uses viem" import check).
-- Assert chain state with a raw JSON-RPC helper (independent of viem):
+  running it. Feature graders assert that `example` has no parameters:
 
   ```ts
-  async function rpc(method: string, params: unknown[]) {
-    const res = await fetch('http://anvil:8545', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
-    })
-    const { result, error } = (await res.json()) as any
-    if (error) throw new Error(error.message)
-    return result
-  }
+  expectTypeOf(example).parameters.toEqualTypeOf<[]>()
   ```
+
+- Feature graders import only `example` from the candidate module and always
+  call `await example()`. Assert the returned value; never discard it when also
+  checking side effects.
+- Prefer RUNTIME assertions on observable chain state: balance deltas,
+  `receipt.status === 'success'`, decoded log args, reverts, pinned fork
+  values. Static source regexes are a last resort for configuration that cannot
+  be observed independently; otherwise keep only the "uses viem" import check.
+- Prefer a verifier-owned Viem client for ordinary chain reads. The candidate
+  cannot modify grader imports, so this remains independent of its solution.
+- Use raw JSON-RPC for Anvil controls, transport-level behavior, or fields the
+  public actions do not expose. Keep the helper local and typed.
 
 - Test SETUP may do anything: deploy fixture contracts (bytecode from
   `contracts/generated.ts` in this repo, inlined into EVAL.ts), fund accounts
@@ -219,20 +211,20 @@ time, invisible to the agent while it works):
 
 - `solution/solve.sh`: `cp /solution/src/<file>.ts /app/src/<file>.ts` (bash,
   absolute paths).
-- The solution must be idiomatic v3 (`Actions.*`, `Client.create` when client
-  construction is under test, and `Value`/`Hex` from `viem/utils`) and never
-  import `ox` directly. It runs through the same verifier and must score
-  `v3_idioms: 1`.
-- Client-using exports receive the client first and a named options object
-  second. Type the parameter as `Client.Client` unless its configured generics
-  are type-significant. Client construction belongs at module scope only when
-  client configuration is the behavior under test.
+- The solution must be idiomatic v3 (`Actions.*`, `Client.create`, and
+  `Value`/`Hex` from `viem/utils`) and never import `ox` directly. It runs
+  through the same verifier and must score `v3_idioms: 1`.
+- Every feature solution exports only the zero-input `example` surface needed
+  by the task. Keep configured clients private at module scope and implement
+  single-use behavior directly in `example`.
 
 ## Validate Before You Finish
 
 From the repo root, with your task at `evals/tasks/<id>`:
 
 ```sh
+node evals/scripts/check-contracts.mjs
+
 harbor run -p /Users/jxom/git/viem/evals/tasks/<id> -a oracle -o /tmp/evals-validate --job-name oracle-<id> -y
 node evals/scripts/check-job.mjs /tmp/evals-validate/oracle-<id> 1
 

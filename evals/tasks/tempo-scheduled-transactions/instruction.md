@@ -1,28 +1,17 @@
-Our payouts service signs stablecoin transfers ahead of time and lets the
-network hold them until a release time passes.
+Our payouts service submits a Tempo stablecoin transfer before its release
+time and lets the network hold it until the window opens.
 
-Implement `scheduleTransfer` in `src/index.ts` so it submits a pathUSD
-transfer that only becomes valid for inclusion after a given time:
+Implement and export a zero-input `example` function in `src/index.ts`. Create
+a module-scoped Tempo localnet client for the account derived from private key
+`0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`.
+Read the current chain time, submit a `12.5` pathUSD transfer to
+`0x5151515151515151515151515151515151515151` that becomes valid six seconds
+later, wait for it to confirm, and return the result and release timestamp.
+The signed transaction must carry the validity window; do not sleep before
+sending an ordinary transfer.
 
-- The first argument is a Tempo client carrying the sending account.
-- `options.to` is the recipient address.
-- `options.amount` is a human-readable decimal string (for example `'12.5'` means
-  12.5 pathUSD).
-- `options.validAfter` is a Unix timestamp in seconds. The transfer must not execute
-  at any time before it; the network may only include it once that time has
-  passed.
-
-The signed transaction itself must encode this validity window so the chain
-enforces it; do not simply have your code sleep before sending an ordinary
-transfer. Submit right away, wait until the transfer is confirmed on chain,
-and return an object that includes the transaction receipt under a `receipt`
-key. Release times are only ever a few seconds in the future.
-
-pathUSD is a TIP-20 stablecoin at `0x20c0000000000000000000000000000000000000`
-with 6 decimals.
-
-Use the `viem` library already installed in this project. A Tempo RPC endpoint
-(Tempo localnet, chain id 1337) is available at `http://tempo:8545`. Do not
-add any new dependencies.
+pathUSD is at `0x20c0000000000000000000000000000000000000`
+with 6 decimals. Use the installed `viem`, `http://tempo:8545`, and a 100 ms
+polling interval. Do not add dependencies.
 
 When you are done, `npm run build` must pass.

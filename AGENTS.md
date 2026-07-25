@@ -70,12 +70,12 @@ This document contains general guidelines for AI agents working on the Viem code
   - Test actions live in their domain namespaces, such as `Actions.block.mine`.
   - Decorator usage prefers named imports like `testActions`.
   - Do not use named imports for individual actions.
-- **Inject clients into eval helpers**; create clients at the consumer or grader scope, never inside the exported operation.
-  - Pass the client as the first positional parameter.
-  - Put every remaining input in one named `options` object.
-  - Type the parameter as `Client.Client`; add client generics only when chain, account, transport, tokens, schema, or extensions are type-significant.
-  - Client-configuration exercises may export a module-scoped client. Extension exercises receive the base client and may return its extended type.
-  - Migration evals preserve their stated legacy signatures.
+- **Eval feature tasks export `example()`**; every non-migration eval exports one
+  zero-parameter `example` function and no other public surface.
+  - Client-using solutions construct private configured clients at module scope.
+  - Graders import only `example`, call it without arguments, and assert its returned value plus any relevant side effects.
+  - Implement single-use behavior directly in `example`; do not add reusable exports, generics, or option types for the grader.
+  - Migration evals preserve their stated legacy signatures and do not require `example`.
 - **Minimize `as any`**; avoid new `as any` where a safer assertion is practical, but do not mass-rewrite existing crypto, tuple, and inference glue that already relies on it.
 - **No `as never`**; treat a needed `as never` as a bug in the surrounding types and fix the
   types instead. Known root causes and their fixes:

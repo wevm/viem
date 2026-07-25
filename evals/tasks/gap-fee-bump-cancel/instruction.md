@@ -2,10 +2,12 @@ Our wallet backend needs a "redirect while pending" flow: when a transfer is
 still waiting to be mined, we replace it with a higher-fee transfer to a
 corrected recipient.
 
-Implement `replaceTransfer` in `src/index.ts`. It receives a Viem client first
-and an options object containing a sender (an unlocked dev account on the
-node), original recipient, replacement recipient, and transfer value in wei.
-It must:
+Implement and export a zero-input `example()` function in `src/index.ts`.
+Construct an Ethereum mainnet client at module scope. Use the unlocked sender
+`0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`, original recipient
+`0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC`, replacement recipient
+`0x90F79bf6EB2c4f870365E785982E1f101E93b906`, and value
+`1234567890123456` wei. It must:
 
 1. Disable the node's automatic block mining (it is enabled by default) so the
    first transfer stays pending.

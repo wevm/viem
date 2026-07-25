@@ -1,12 +1,16 @@
-import { Actions, type Client } from 'viem'
-import type { Address } from 'viem/utils'
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
-export async function withTemporaryBalance(
-  client: Client.Client,
-  options: withTemporaryBalance.Options,
-) {
-  const { address, value } = options
+const client = Client.create({
+  chain: mainnet,
+  transport: http('http://anvil:8545'),
+})
+
+const address = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
+
+export async function example() {
   const before = await Actions.address.getBalance(client, { address })
+  const value = before + 123_456_789n
   const id = await Actions.state.snapshot(client)
   const during = await (async () => {
     try {
@@ -17,12 +21,5 @@ export async function withTemporaryBalance(
     }
   })()
   const after = await Actions.address.getBalance(client, { address })
-  return { before, during, after }
-}
-
-export declare namespace withTemporaryBalance {
-  type Options = {
-    address: Address.Address
-    value: bigint
-  }
+  return { after, before, during }
 }

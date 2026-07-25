@@ -5,11 +5,13 @@ the hex signature computed with the key. The sending identity must be built
 around that single signing function (plus the key's public key or address).
 Do not pass the raw key to a ready-made key-to-account helper.
 
-Implement `sendEth` in `src/index.ts`. It receives a Viem client as its first
-argument and an options object containing the raw private key, recipient
-address, and amount in wei. It must send that amount of ETH from the key's
-address to the recipient, wait for the transaction to be mined, and return an
-object with at least the receipt's `from`, `status`, and `transactionHash`.
+Implement and export a zero-input `example()` function in `src/index.ts`.
+Construct an Ethereum mainnet client at module scope. Build a signing identity
+around one hash-signing function using private key
+`0xf71f379f68c738d29b7a90474497eb9ce74c699bb9ada94bda359f8c2f101263`.
+Send 1 ETH to `0x4242424242424242424242424242424242424242`, wait for the
+transaction to be mined, and return its receipt.
+
 Use the `viem` library already installed in this project. An Ethereum mainnet
 RPC endpoint is available at `http://anvil:8545`. Do not add any new
 dependencies.

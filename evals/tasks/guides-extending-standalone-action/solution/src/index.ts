@@ -1,39 +1,31 @@
-import {
-  type Account,
-  Actions,
-  type Chain,
-  type Client,
-  type Token,
-  type Transport,
-} from 'viem'
-import type { Address } from 'viem/utils'
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
-export async function getAccountSummary(
-  client: Client.Client,
-  options: getAccountSummary.Options,
-): Promise<getAccountSummary.ReturnType> {
+const address = '0x1111111111111111111111111111111111111111'
+
+const baseClient = Client.create({
+  chain: mainnet,
+  transport: http('http://anvil:8545'),
+})
+
+async function getAccountSummary(client: Client.Client) {
   const [balance, nonce] = await Promise.all([
-    Actions.address.getBalance(client, options),
-    Actions.address.getTransactionCount(client, options),
+    Actions.address.getBalance(client, { address }),
+    Actions.address.getTransactionCount(client, { address }),
   ])
   return { balance, nonce }
 }
 
-export declare namespace getAccountSummary {
-  type Options = { address: Address.Address }
-  type ReturnType = { balance: bigint; nonce: number }
-}
+const client = baseClient.extend((client) => ({
+  accounts: {
+    getSummary: () => getAccountSummary(client),
+  },
+}))
 
-export function extendAppClient<
-  const chain extends Chain.Chain | undefined,
-  account extends Account.Account | undefined,
-  transport extends Transport.Transport,
-  tokens extends Token.Tokens | undefined,
->(client: Client.Client<chain, account, transport, tokens>) {
-  return client.extend((client) => ({
-    accounts: {
-      getSummary: (options: getAccountSummary.Options) =>
-        getAccountSummary(client, options),
-    },
-  }))
+export async function example() {
+  const [viaAction, viaMethod] = await Promise.all([
+    getAccountSummary(client),
+    client.accounts.getSummary(),
+  ])
+  return { viaAction, viaMethod }
 }

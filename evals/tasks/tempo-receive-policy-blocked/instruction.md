@@ -1,36 +1,21 @@
-Our compliance service uses account receive policies to control incoming
-stablecoin transfers and to recover funds that a policy blocks.
+Our Tempo compliance service blocks incoming funds and lets the original
+sender reclaim them.
 
-On Tempo, an account can install a receive policy that rejects incoming
-senders. A transfer into such an account still succeeds on chain, but instead
-of crediting the recipient the network holds the funds and the transaction
-emits an event carrying an encoded claim receipt (a hex byte string). An
-authorized claimer (here: the original sender) can later release the held
-funds to a destination address.
+Implement and export a zero-input `example` function in `src/index.ts`. Create
+module-scoped Tempo localnet clients for the sender derived from private key
+`0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`
+and the receiving account derived from private key
+`0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a`.
+Install a receive policy that rejects every sender and lets the original
+sender reclaim blocked transfers.
 
-Implement the following in `src/index.ts`. pathUSD is a TIP-20 stablecoin at
-`0x20c0000000000000000000000000000000000000` with 6 decimals. Every function
-that sends a transaction must wait until it is confirmed on chain before
-returning.
+Send `12.5` pathUSD to the receiving account, extract the encoded claim
+receipt from the blocked-transfer event, and read the blocked amount. Then
+claim it to `0x4545454545454545454545454545454545454545` and read the blocked
+amount again. Return both writes, the claim receipt, and both amounts.
 
-- `setBlockingPolicy`: the only argument is a Tempo client carrying the
-  receiving account. Install a policy that rejects every incoming sender and
-  authorizes the original sender of a blocked transfer to reclaim it. Return
-  an object with the transaction receipt under a `receipt` key.
-- `sendTokens`: the first argument is a Tempo client carrying the sender
-  account. Transfer `options.amount` pathUSD (a human-readable decimal string,
-  for example `'12.5'`) to `options.to`. The recipient's policy will block the
-  transfer. Return `{ receipt, claimReceipt }` where `claimReceipt` is the
-  encoded claim receipt emitted for the blocked transfer.
-- `getBlockedAmount`: the first argument is a Tempo client. Return the amount
-  currently held for `options.claimReceipt`, in base units as a `bigint`.
-- `claimBlockedFunds`: the first argument is a Tempo client carrying the
-  original sender account. Release the funds identified by
-  `options.claimReceipt` to `options.to`. Return an
-  object with the transaction receipt under a `receipt` key.
-
-Use the `viem` library already installed in this project. A Tempo RPC endpoint
-(Tempo localnet, chain id 1337) is available at `http://tempo:8545`. Do not
-add any new dependencies.
+pathUSD is `0x20c0000000000000000000000000000000000000`
+with 6 decimals. Use the installed `viem`, `http://tempo:8545`, and a 100 ms
+polling interval. Do not add dependencies.
 
 When you are done, `npm run build` must pass.

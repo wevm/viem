@@ -1,24 +1,18 @@
-import { Actions, type Client } from 'viem'
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
-export async function getLatestBlock(client: Client.Client) {
-  return Actions.block.get(client)
-}
+const client = Client.create({
+  chain: mainnet,
+  transport: http('http://anvil:8545'),
+})
 
-export async function getFinalizedBlock(client: Client.Client) {
-  return Actions.block.get(client, { blockTag: 'finalized' })
-}
-
-export async function countBlockTransactions(
-  client: Client.Client,
-  options: countBlockTransactions.Options,
-): Promise<number> {
-  return Actions.block.getTransactionCount(client, {
-    blockNumber: options.blockNumber,
+export async function example() {
+  const [latest, finalized] = await Promise.all([
+    Actions.block.get(client),
+    Actions.block.get(client, { blockTag: 'finalized' }),
+  ])
+  const transactionCount = await Actions.block.getTransactionCount(client, {
+    blockNumber: latest.number,
   })
-}
-
-export declare namespace countBlockTransactions {
-  type Options = {
-    blockNumber: bigint
-  }
+  return { finalized, latest, transactionCount }
 }

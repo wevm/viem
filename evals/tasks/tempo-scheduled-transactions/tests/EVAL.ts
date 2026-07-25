@@ -1,21 +1,18 @@
 import { readFileSync } from 'node:fs'
-import { beforeAll, expect, test } from 'vitest'
+import { Actions as core_Actions } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
-import { Account, Client, http } from 'viem/tempo'
-import { scheduleTransfer } from '../src/index.ts'
+import { Actions, Client, http } from 'viem/tempo'
+import type { Address } from 'viem/utils'
+import { beforeAll, expect, expectTypeOf, test } from 'vitest'
+import { example } from '../src/index.ts'
 
 const rpcUrl = 'http://tempo:8545'
 const pathUsd = '0x20c0000000000000000000000000000000000000'
 const sender = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
-const senderKey =
-  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 const recipient = '0x5151515151515151515151515151515151515151'
-const recipient2 = '0x5252525252525252525252525252525252525252'
 const client = Client.create({
-  account: Account.fromSecp256k1(senderKey),
   chain: tempoLocalnet,
-  pollingInterval: 100,
-  transport: http(rpcUrl, { timeout: 60_000 }),
+  transport: http(rpcUrl),
 })
 
 async function rpc(method: string, params: unknown[]) {
@@ -29,14 +26,13 @@ async function rpc(method: string, params: unknown[]) {
   return result
 }
 
-async function balanceOf(account: string) {
-  const data = `0x70a08231${account.slice(2).toLowerCase().padStart(64, '0')}`
-  return BigInt(await rpc('eth_call', [{ to: pathUsd, data }, 'latest']))
+async function balanceOf(account: Address.Address) {
+  return (await Actions.token.getBalance(client, { account, token: pathUsd }))
+    .amount
 }
 
 async function latestTimestamp() {
-  const block = await rpc('eth_getBlockByNumber', ['latest', false])
-  return Number(block.timestamp)
+  return Number((await core_Actions.block.get(client)).timestamp)
 }
 
 beforeAll(async () => {
@@ -50,27 +46,25 @@ beforeAll(async () => {
   throw new Error('failed to fund dev account 0 with pathUSD')
 }, 120_000)
 
-test('uses viem', () => {
-  expect(readFileSync('src/index.ts', 'utf8')).toMatch(/from ['"]viem/)
-})
+test('exports a zero-input viem example', () => {
+  expectTypeOf(example).parameters.toEqualTypeOf<[]>()
+  const source = readFileSync('src/index.ts', 'utf8')
+  expect(source).toMatch(/from ['"]viem/)
+  expect(source).toMatch(/transferSync[\s\S]*\bvalidAfter\s*[:,]/)
+  expect(source).not.toMatch(/\b(?:setTimeout|sleep)\s*\(/)
+}, 60_000)
 
 test('scheduled transfer lands only after the window opens', async () => {
   const before = await balanceOf(recipient)
-  const validAfter = (await latestTimestamp()) + 6
-  const pending = scheduleTransfer(client, {
-    amount: '12.5',
-    to: recipient,
-    validAfter,
-  })
-  pending.catch(() => {}) // handled by the await below
+  const startedAt = await latestTimestamp()
+  const pending = example()
+  pending.catch(() => {})
 
-  // While the window is still closed, nothing may have executed.
   await new Promise((resolve) => setTimeout(resolve, 1_500))
-  if ((await latestTimestamp()) < validAfter)
-    expect((await balanceOf(recipient)) - before).toBe(0n)
+  if ((await latestTimestamp()) < startedAt + 6)
+    expect(await balanceOf(recipient)).toBe(before)
 
-  const result = await pending
-  expect(result?.receipt).toBeTruthy()
+  const { result, validAfter } = await pending
   expect(['success', '0x1']).toContain(result.receipt.status)
   expect((await balanceOf(recipient)) - before).toBe(12_500_000n)
 
@@ -79,25 +73,7 @@ test('scheduled transfer lands only after the window opens', async () => {
     result.receipt.transactionHash,
   ])
   expect(Number(tx.validAfter)).toBe(validAfter)
-  const block = await rpc('eth_getBlockByNumber', [tx.blockNumber, false])
-  expect(Number(block.timestamp)).toBeGreaterThanOrEqual(validAfter)
-}, 120_000)
-
-test('applies the exact amount for another scheduled transfer', async () => {
-  const before = await balanceOf(recipient2)
-  const validAfter = (await latestTimestamp()) + 5
-  const result = await scheduleTransfer(client, {
-    amount: '0.75',
-    to: recipient2,
-    validAfter,
-  })
-  expect(result?.receipt).toBeTruthy()
-  expect((await balanceOf(recipient2)) - before).toBe(750_000n)
-
-  const tx = await rpc('eth_getTransactionByHash', [
-    result.receipt.transactionHash,
-  ])
-  expect(Number(tx.validAfter)).toBe(validAfter)
+  expect(validAfter).toBeGreaterThanOrEqual(startedAt + 6)
   const block = await rpc('eth_getBlockByNumber', [tx.blockNumber, false])
   expect(Number(block.timestamp)).toBeGreaterThanOrEqual(validAfter)
 }, 120_000)

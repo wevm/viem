@@ -1,16 +1,18 @@
 Our backend builds ERC-20 calls and parses their raw results without a full
 client.
 
-Implement the two functions in `src/index.ts`:
+Implement and export a zero-input `example()` function in `src/index.ts`. It
+must:
 
-- `encodeTransferData(options)` receives an options object containing a
-  recipient and amount, then returns the complete calldata (a `0x`-prefixed
-  hex string including the 4-byte selector) for an ERC-20
-  `transfer(address,uint256)` call. Derive the call's ABI definition by parsing
-  its human-readable Solidity signature; do not hand-assemble hex.
-- `decodeBalanceResult(options)` receives an options object containing the raw
-  hex data returned by an ERC-20 `balanceOf(address)` call and decodes it into
-  a bigint.
+- Parse the human-readable Solidity definition for
+  `transfer(address,uint256)` and encode calldata that transfers `1000000`
+  units to `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`.
+- Parse the human-readable Solidity definition for `balanceOf(address)` and
+  decode
+  `0x000000000000000000000000000000000000000000000000000000076bbef763`.
+
+Return the encoded calldata and decoded bigint. Do not hand-assemble the
+calldata.
 
 Use the `viem` library already installed in this project. Do not add any new
 dependencies.

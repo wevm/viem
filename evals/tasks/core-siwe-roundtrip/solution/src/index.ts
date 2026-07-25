@@ -1,35 +1,43 @@
-import { Account, Actions, type Client } from 'viem'
-import { type Hex, Siwe } from 'viem/utils'
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Siwe } from 'viem/utils'
 
-export function buildSignInMessage(options: buildSignInMessage.Options) {
-  return Siwe.createMessage({ ...options, chainId: 1, version: '1' })
-}
+const client = Client.create({
+  chain: mainnet,
+  transport: http('http://anvil:8545'),
+})
 
-export declare namespace buildSignInMessage {
-  type Options = Pick<Siwe.Message, 'address' | 'domain' | 'nonce' | 'uri'>
-}
-
-export async function signSignInMessage(options: signSignInMessage.Options) {
-  const { message, privateKey } = options
-  return Account.fromPrivateKey(privateKey).signMessage({ message })
-}
-
-export declare namespace signSignInMessage {
-  type Options = {
-    message: string
-    privateKey: Hex.Hex
-  }
-}
-
-export async function verifySignIn(
-  client: Client.Client,
-  options: verifySignIn.Options,
-) {
-  return Actions.verifySiweMessage(client, options)
-}
-
-export declare namespace verifySignIn {
-  type Options = Required<
-    Pick<Actions.verifySiweMessage.Options, 'message' | 'nonce' | 'signature'>
-  >
+export async function example() {
+  const message = Siwe.createMessage({
+    address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    chainId: 1,
+    domain: 'example.com',
+    nonce: 'foobarbaz12',
+    uri: 'https://example.com/login',
+    version: '1',
+  })
+  const signature = await Account.fromPrivateKey(
+    '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+  ).signMessage({ message })
+  const signature_other = await Account.fromPrivateKey(
+    '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
+  ).signMessage({ message })
+  const [verified, alteredNonce, wrongSignature] = await Promise.all([
+    Actions.verifySiweMessage(client, {
+      message,
+      nonce: 'foobarbaz12',
+      signature,
+    }),
+    Actions.verifySiweMessage(client, {
+      message,
+      nonce: 'deadbeef00',
+      signature,
+    }),
+    Actions.verifySiweMessage(client, {
+      message,
+      nonce: 'foobarbaz12',
+      signature: signature_other,
+    }),
+  ])
+  return { alteredNonce, message, signature, verified, wrongSignature }
 }

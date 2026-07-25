@@ -1,33 +1,18 @@
-Our stablecoin platform separates duties: an admin account controls a token's
-roles, while a separate operator account is granted permission to mint supply.
-On Tempo, TIP-20 tokens use role-based access control, and the `issuer` role
-is required to mint.
+Our Tempo stablecoin platform separates token administration from issuance.
 
-Implement the following functions in `src/index.ts`:
+Implement and export a zero-input `example` function in `src/index.ts`. Create
+module-scoped Tempo localnet clients for the admin derived from private key
+`0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`
+and the minter derived from private key
+`0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d`.
+Create `Role Token` (`ROLE`), confirm the minter initially lacks issuance
+permission, grant it, mint 25,000,000 base units to
+`0x4545454545454545454545454545454545454545`, revoke it, and demonstrate
+that another 1,000,000-base-unit mint fails. Return the token, permission
+checks, write results, and rejection result. Only classify the expected
+contract revert as rejection; let unrelated errors propagate.
 
-- `createToken`: the first argument is a Tempo client carrying the admin
-  account. Create a new TIP-20 token (currency `USD`) named by
-  `options.name` and `options.symbol`. Return an
-  object that includes the new token's address under a `token` key.
-- `grantMintRole`: the first argument is a Tempo client carrying the admin
-  account. Grant the `issuer` role on `options.token` to `options.grantee`.
-- `hasMintRole`: the first argument is a Tempo client. Return `true` if
-  `options.account` holds the `issuer` role on `options.token`, otherwise
-  `false`.
-- `mintTokens`: the first argument is a Tempo client carrying the minter
-  account. Mint `options.amount` base units of `options.token` to `options.to`.
-  If the mint is not
-  permitted or the transaction fails, this function must throw.
-- `revokeMintRole`: the first argument is a Tempo client carrying the admin
-  account. Revoke the `issuer` role on `options.token` from
-  `options.grantee`.
-
-Every function that sends a transaction must wait until it is confirmed on
-chain before returning, and must return an object that includes the
-transaction receipt under a `receipt` key.
-
-Use the `viem` library already installed in this project. A Tempo RPC endpoint
-(Tempo localnet, chain id 1337) is available at `http://tempo:8545`. Do not
-add any new dependencies.
+Use the installed `viem`, `http://tempo:8545`, and a 100 ms polling interval.
+Do not add dependencies.
 
 When you are done, `npm run build` must pass.

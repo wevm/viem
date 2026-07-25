@@ -7,6 +7,7 @@ description = "Collect the first 3 new block numbers, then fully stop the watche
 
 [metadata]
 area = "trap"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

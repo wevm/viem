@@ -7,6 +7,7 @@ description = "Migrate an ethers v6 module to viem preserving behavior."
 
 [metadata]
 area = "migration"
+contract = "migration"
 tier = "anvil-fork"
 
 [verifier]

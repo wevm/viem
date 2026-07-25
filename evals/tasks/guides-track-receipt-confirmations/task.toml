@@ -7,6 +7,7 @@ description = "Send a transaction, wait for its receipt, and read its confirmati
 
 [metadata]
 area = "guides"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

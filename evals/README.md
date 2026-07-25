@@ -5,13 +5,14 @@ Each task drops a coding agent into a sandboxed fixture project (with a real
 node as a sidecar) and grades the result deterministically. See
 [evals-plan.md](../evals-plan.md) for the full design.
 
-99 tasks across three tiers: offline (pure computation), anvil-fork (mainnet
+98 tasks across three tiers: offline (pure computation), anvil-fork (mainnet
 fork pinned at block 24000000, writable), and tempo (local Tempo node).
 Areas: `core-` (client/chain/account/transport/errors), `guides-` (docs guide
 flows), `tokens-`, `tempo-`, `migration-`/`trap-` (v2-habit detectors), and
-`gap-` (composed workflows no guide covers). Every task ships a reference
-solution that must pass the grader (oracle) and an untouched fixture baseline
-that must fail it (nop); CI enforces both on changed tasks.
+`gap-` (composed workflows no guide covers). Every non-migration task grades a
+concrete zero-input `example()` workflow. Every task ships a reference solution
+that must pass the grader (oracle) and an untouched fixture baseline that must
+fail it (nop); CI enforces both on changed tasks.
 
 ## Prerequisites
 
@@ -24,6 +25,7 @@ that must fail it (nop); CI enforces both on changed tasks.
 ```sh
 node evals/scripts/pack-viem.mjs      # packs viem@3.0.0 and its MCP skill
 node evals/scripts/build-images.mjs   # builds viem-evals-base + viem-evals-anvil
+node evals/scripts/check-contracts.mjs
 harbor run -p evals/tasks -a oracle   # every task must score 1
 harbor run -p evals/tasks -a nop      # every task must score 0
 harbor run -p evals/tasks -a claude-code -m anthropic/claude-opus-4-8 -n 4 -k 4
@@ -68,7 +70,8 @@ environment facts, validation loop). Summary:
 - Name it `<area>-<slug>` (`core-`, `guides-`, `tempo-`, `tokens-`, `gap-`,
   `migration-`, `trap-`).
 - Feature tasks: the prompt describes the user-facing problem. Never name the
-  target API in `instruction.md` or fixture comments.
+  target API in `instruction.md` or fixture comments. Export one zero-input
+  `example()` workflow.
 - Migration tasks: the fixture ships real legacy code that fails the build;
   the prompt asks to make it compile without changing behavior.
 - Prefer runtime assertions (balance deltas, receipt status, pinned fork
@@ -79,6 +82,8 @@ environment facts, validation loop). Summary:
   history-free addresses (verify `eth_getCode` is `0x` at the pinned block).
 - Every task must pass `harbor run -a oracle` and fail `harbor run -a nop`
   before it ships.
+- Run `node evals/scripts/check-contracts.mjs` to verify task metadata and
+  exported surfaces before Harbor.
 
 ## Fork Determinism
 

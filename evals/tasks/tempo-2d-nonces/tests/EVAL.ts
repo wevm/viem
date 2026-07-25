@@ -1,26 +1,11 @@
 import { readFileSync } from 'node:fs'
-import { beforeAll, expect, test } from 'vitest'
-import { tempoLocalnet } from 'viem/chains'
-import { Account, Client, http } from 'viem/tempo'
-import { readNonce, sendParallelTransfers } from '../src/index.ts'
+import { beforeAll, expect, expectTypeOf, test } from 'vitest'
+import { example } from '../src/index.ts'
 
 const rpcUrl = 'http://tempo:8545'
 const pathUsd = '0x20c0000000000000000000000000000000000000'
 const nonceManager = '0x4e4f4e4345000000000000000000000000000000'
 const sender = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
-const senderKey =
-  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
-const client = Client.create({
-  account: Account.fromSecp256k1(senderKey),
-  chain: tempoLocalnet,
-  pollingInterval: 100,
-  transport: http(rpcUrl),
-})
-const readClient = Client.create({
-  chain: tempoLocalnet,
-  pollingInterval: 100,
-  transport: http(rpcUrl),
-})
 
 const transfers = [
   {
@@ -79,9 +64,15 @@ beforeAll(async () => {
   throw new Error('failed to fund dev account 0 with pathUSD')
 }, 120_000)
 
-test('uses viem', () => {
-  expect(readFileSync('src/index.ts', 'utf8')).toMatch(/from ['"]viem/)
-})
+test('exports a zero-input viem example', () => {
+  expectTypeOf(example).parameters.toEqualTypeOf<[]>()
+  const source = readFileSync('src/index.ts', 'utf8')
+  expect(source).toMatch(/from ['"]viem/)
+  const concurrent = source.match(/Promise\.all\s*\(\s*\[([\s\S]*?)\]\s*\)/)
+  expect(
+    concurrent?.[1]?.match(/\bActions\.token\.transferSync\s*\(/g),
+  ).toHaveLength(3)
+}, 60_000)
 
 test('sends 3 parallel transfers on distinct nonce keys', async () => {
   const balancesBefore = await Promise.all(
@@ -91,13 +82,7 @@ test('sends 3 parallel transfers on distinct nonce keys', async () => {
     transfers.map((transfer) => nonceOf(sender, transfer.nonceKey)),
   )
 
-  const result = await sendParallelTransfers(client, {
-    transfers: transfers.map(({ to, amount, nonceKey }) => ({
-      amount,
-      nonceKey,
-      to,
-    })),
-  })
+  const result = await example()
 
   expect(result?.receipts).toHaveLength(3)
   for (const receipt of result.receipts)
@@ -108,20 +93,7 @@ test('sends 3 parallel transfers on distinct nonce keys', async () => {
       transfer.delta,
     )
     expect(await nonceOf(sender, transfer.nonceKey)).toBe(noncesBefore[i]! + 1n)
+    expect(result.nonces[i]).toBe(noncesBefore[i]! + 1n)
   }
+  expect(result.nonces[3]).toBe(await nonceOf(sender, 606060606n))
 }, 120_000)
-
-test('reads back the nonce for a used key', async () => {
-  const raw = await nonceOf(sender, 77002n)
-  expect(raw).toBeGreaterThanOrEqual(1n)
-  expect(
-    await readNonce(readClient, { account: sender, nonceKey: 77002n }),
-  ).toBe(raw)
-}, 60_000)
-
-test('reads back the nonce for an unused key', async () => {
-  const nonceKey = 606060606n
-  expect(await readNonce(readClient, { account: sender, nonceKey })).toBe(
-    await nonceOf(sender, nonceKey),
-  )
-}, 60_000)

@@ -7,6 +7,7 @@ description = "Sign an EIP-191 personal message and verify it with viem."
 
 [metadata]
 area = "core"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

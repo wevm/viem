@@ -7,6 +7,7 @@ description = "Create, sign, and verify a Sign-In with Ethereum message with vie
 
 [metadata]
 area = "core"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

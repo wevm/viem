@@ -1,22 +1,12 @@
 import { readFileSync } from 'node:fs'
-import { beforeAll, expect, test } from 'vitest'
-import { tempoLocalnet } from 'viem/chains'
-import { Account, Client, http } from 'viem/tempo'
-import { transferToken } from '../src/index.ts'
+import { beforeAll, expect, expectTypeOf, test } from 'vitest'
+import { example } from '../src/index.ts'
 
 const rpcUrl = 'http://tempo:8545'
 const pathUsd = '0x20c0000000000000000000000000000000000000'
 const alphaUsd = '0x20c0000000000000000000000000000000000001'
 const sender = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
-const senderKey =
-  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 const recipient = '0x4242424242424242424242424242424242424242'
-const client = Client.create({
-  account: Account.fromSecp256k1(senderKey),
-  chain: tempoLocalnet,
-  pollingInterval: 100,
-  transport: http(rpcUrl),
-})
 
 async function rpc(method: string, params: unknown[]) {
   const res = await fetch(rpcUrl, {
@@ -49,18 +39,16 @@ beforeAll(async () => {
   throw new Error('failed to fund dev account 0 with pathUSD and AlphaUSD')
 }, 120_000)
 
-test('uses viem', () => {
+test('exports a zero-input viem example', () => {
+  expectTypeOf(example).parameters.toEqualTypeOf<[]>()
   expect(readFileSync('src/index.ts', 'utf8')).toMatch(/from ['"]viem/)
-})
+}, 60_000)
 
 test('transfers 12.5 pathUSD with the fee debited in AlphaUSD', async () => {
   const recipientBefore = await balanceOf(pathUsd, recipient)
   const senderAlphaBefore = await balanceOf(alphaUsd, sender)
 
-  const result = await transferToken(client, {
-    amount: '12.5',
-    to: recipient,
-  })
+  const result = await example()
   expect(result?.receipt).toBeTruthy()
   expect(['success', '0x1']).toContain(result.receipt.status)
 

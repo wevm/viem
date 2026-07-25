@@ -61,7 +61,7 @@ export async function getBalance(
   token: `0x${string}`,
   owner: `0x${string}`,
 ): Promise<bigint> {
-  return tokenContract(token).read.balanceOf({ args: [owner] })
+  return tokenContract(token).read.balanceOf([owner])
 }
 
 export async function getMetadata(token: `0x${string}`): Promise<{

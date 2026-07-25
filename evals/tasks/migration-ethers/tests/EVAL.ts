@@ -21,11 +21,11 @@ async function rpc(method: string, params: unknown[]) {
 
 test('uses viem', () => {
   expect(readFileSync('src/payments.ts', 'utf8')).toMatch(/from ['"]viem/)
-})
+}, 60_000)
 
 test('reads the block number', async () => {
   expect(Number(await getBlockNumber())).toBeGreaterThanOrEqual(24_000_000)
-})
+}, 60_000)
 
 test('sends a payment and preserves behavior', async () => {
   const beforeWei = BigInt(await rpc('eth_getBalance', [recipient, 'latest']))
@@ -36,4 +36,4 @@ test('sends a payment and preserves behavior', async () => {
   const after = Number(await getBalance(recipient))
   expect(afterWei - beforeWei).toBe(1_000_000_000_000_000_000n)
   expect(after - before).toBeCloseTo(1, 3)
-})
+}, 120_000)

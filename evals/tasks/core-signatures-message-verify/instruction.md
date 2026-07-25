@@ -3,14 +3,16 @@ message with their wallet, then checking that signature server-side. Checks
 must also hold for smart contract wallets, so validate signatures against the
 chain instead of only recovering an address locally.
 
-Implement both functions in `src/index.ts`:
+Implement and export a zero-input `example()` function in `src/index.ts`.
+Construct an Ethereum mainnet client at module scope. Sign
+`viem evals: prove account ownership` with private key
+`0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`
+using the standard Ethereum personal-message scheme.
 
-- `signPersonalMessage(options)`: receives an options object containing a
-  private key and message, signs it with the standard Ethereum personal
-  message scheme (EIP-191), and returns the hex signature.
-- `verifySignature(client, options)`: receives a Viem client and an options
-  object containing an address, message, and signature. It returns `true` when
-  the signature is valid for that message and address, and `false` otherwise.
+Verify the signature against the chain for the matching address, the changed
+message `viem evals: prove account 0wnership`, and the wrong address
+`0x70997970C51812dc3A010C7d01b50e0d17dc79C8`. Return the signature and all
+three verification results.
 
 Use the `viem` library already installed in this project. An Ethereum mainnet
 RPC endpoint is available at `http://anvil:8545`. Do not add any new

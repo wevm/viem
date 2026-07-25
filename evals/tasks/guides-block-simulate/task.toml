@@ -7,6 +7,7 @@ description = "Simulate a block of ETH transfers without mutating state."
 
 [metadata]
 area = "guides"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

@@ -7,6 +7,7 @@ description = "Sign an off-chain payment channel voucher and settle it on-chain 
 
 [metadata]
 area = "tempo"
+contract = "example"
 tier = "tempo"
 
 [verifier]

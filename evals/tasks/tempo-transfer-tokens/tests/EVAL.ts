@@ -1,22 +1,12 @@
 import { readFileSync } from 'node:fs'
-import { beforeAll, expect, test } from 'vitest'
-import { tempoLocalnet } from 'viem/chains'
-import { Account, Client, http } from 'viem/tempo'
-import { transferToken } from '../src/index.ts'
+import { beforeAll, expect, expectTypeOf, test } from 'vitest'
+import { example } from '../src/index.ts'
 
 const rpcUrl = 'http://tempo:8545'
 const pathUsd = '0x20c0000000000000000000000000000000000000'
 const sender = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
-const senderKey =
-  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 const recipient = '0x4242424242424242424242424242424242424242'
 const recipient2 = '0x4343434343434343434343434343434343434343'
-const client = Client.create({
-  account: Account.fromSecp256k1(senderKey),
-  chain: tempoLocalnet,
-  pollingInterval: 100,
-  transport: http(rpcUrl),
-})
 
 async function rpc(method: string, params: unknown[]) {
   const res = await fetch(rpcUrl, {
@@ -45,23 +35,18 @@ beforeAll(async () => {
   throw new Error('failed to fund dev account 0 with pathUSD')
 }, 120_000)
 
-test('uses viem', () => {
+test('exports a zero-input viem example', () => {
+  expectTypeOf(example).parameters.toEqualTypeOf<[]>()
   expect(readFileSync('src/index.ts', 'utf8')).toMatch(/from ['"]viem/)
-})
+}, 60_000)
 
-test('transfers 10.5 pathUSD to a fresh recipient', async () => {
-  const before = await balanceOf(recipient)
-  const result = await transferToken(client, {
-    amount: '10.5',
-    to: recipient,
-  })
-  expect(result?.receipt).toBeTruthy()
-  expect(['success', '0x1']).toContain(result.receipt.status)
-  expect((await balanceOf(recipient)) - before).toBe(10_500_000n)
-}, 120_000)
+test('transfers both human-readable amounts', async () => {
+  const firstBefore = await balanceOf(recipient)
+  const secondBefore = await balanceOf(recipient2)
+  const result = await example()
 
-test('transfers an exact base-unit amount for another value', async () => {
-  const before = await balanceOf(recipient2)
-  await transferToken(client, { amount: '0.25', to: recipient2 })
-  expect((await balanceOf(recipient2)) - before).toBe(250_000n)
+  expect(['success', '0x1']).toContain(result.first.receipt.status)
+  expect(['success', '0x1']).toContain(result.second.receipt.status)
+  expect((await balanceOf(recipient)) - firstBefore).toBe(10_500_000n)
+  expect((await balanceOf(recipient2)) - secondBefore).toBe(250_000n)
 }, 120_000)

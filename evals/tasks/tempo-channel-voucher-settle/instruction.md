@@ -1,32 +1,21 @@
-Our machine-payments service uses Tempo payment channels. A payer locks a
-TIP-20 deposit in a channel for a payee, then pays off-chain by signing
-vouchers. A voucher is a signed promise for the cumulative total paid over the
-channel's life, and the payee captures the funds by submitting the latest
-voucher on-chain.
+Our machine-payments service uses Tempo payment channels and off-chain
+vouchers.
 
-Implement two functions in `src/index.ts`:
+Implement and export a zero-input `example` function in `src/index.ts`. Create
+module-scoped Tempo localnet clients for the payer derived from private key
+`0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`
+and the payee derived from
+`0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d`.
+Use pathUSD for transaction fees.
 
-- `openChannel` receives a Tempo client carrying the payer account and opens
-  a payment channel to `options.payee`, funded with
-  `options.deposit` AlphaUSD.
-  Return an object with a `channel` key describing the opened channel; the
-  value is passed back to `settleVoucher` unchanged, so use whatever shape you
-  need.
-- `settleVoucher` receives a Tempo client carrying the payee account.
-  `options.payer` is the payer's local Account. Have it sign an off-chain
-  voucher authorizing a cumulative total of `options.amount` AlphaUSD for
-  `options.channel`, then submit that voucher on-chain with the payee client.
-  Wait until settlement is confirmed and return an object
-  that includes the settlement transaction receipt under a `receipt` key.
+Open a 100 AlphaUSD channel to the payee, sign a voucher for a cumulative 32.5
+AlphaUSD with the payer, and settle it with the payee. Repeat the workflow in a
+fresh 10 AlphaUSD channel with a 0.75 AlphaUSD voucher. Wait for every write to
+confirm and return both opened channels and settlements.
 
-AlphaUSD is a TIP-20 stablecoin at `0x20c0000000000000000000000000000000000001`
-with 6 decimals. Deposit and amount values are human-readable decimal strings
-(for example `'10.5'` means 10.5 AlphaUSD). Our accounts pay transaction fees
-in pathUSD (`0x20c0000000000000000000000000000000000000`), never in AlphaUSD,
-so settled AlphaUSD amounts land exactly.
-
-Use the `viem` library already installed in this project. A Tempo RPC endpoint
-(Tempo localnet, chain id 1337) is available at `http://tempo:8545`. Do not
-add any new dependencies.
+AlphaUSD is `0x20c0000000000000000000000000000000000001` and pathUSD is
+`0x20c0000000000000000000000000000000000000`. Both have 6 decimals. Use the
+installed `viem`, `http://tempo:8545`, and a 100 ms polling interval. Do not
+add dependencies.
 
 When you are done, `npm run build` must pass.

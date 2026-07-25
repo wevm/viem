@@ -7,6 +7,7 @@ description = "Transfer TIP-20 tokens on Tempo with viem."
 
 [metadata]
 area = "tempo"
+contract = "example"
 tier = "tempo"
 
 [verifier]

@@ -7,6 +7,7 @@ description = "Serialize, deserialize, and hash an EIP-1559 transaction envelope
 
 [metadata]
 area = "gap"
+contract = "example"
 tier = "offline"
 
 [verifier]

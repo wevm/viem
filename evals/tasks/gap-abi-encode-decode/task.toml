@@ -7,6 +7,7 @@ description = "Encode ERC-20 calldata and decode a call result with viem ABI uti
 
 [metadata]
 area = "gap"
+contract = "example"
 tier = "offline"
 
 [verifier]

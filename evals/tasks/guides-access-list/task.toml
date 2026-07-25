@@ -7,6 +7,7 @@ description = "Create an EIP-2930 access list for a contract call with viem."
 
 [metadata]
 area = "guides"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

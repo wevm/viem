@@ -7,6 +7,7 @@ description = "Migrate a legacy viem contract-instance module so it compiles and
 
 [metadata]
 area = "migration"
+contract = "migration"
 tier = "anvil-fork"
 
 [verifier]

@@ -1,4 +1,5 @@
-import { Actions, type Client } from 'viem'
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
 import { Abi } from 'viem/utils'
 
 const abi = Abi.from([
@@ -6,29 +7,25 @@ const abi = Abi.from([
   'function retrieve() view returns (uint256)',
 ])
 
-export async function writeDelegated(
-  client: Client.Client,
-  options: writeDelegated.Options,
-): Promise<bigint> {
-  const account = client.account
-  if (!account) throw new Error('client account required')
+const client = Client.create({
+  account: Account.fromPrivateKey(
+    '0xd52ca50b7cca7d19e9a2301bd3a1bb5a471db800093e8823db7f9f49f6bed834',
+  ),
+  chain: mainnet,
+  pollingInterval: 100,
+  transport: http('http://anvil:8545'),
+})
 
+export async function example() {
   await Actions.contract.writeSync(client, {
     abi,
-    address: account.address,
-    args: [options.value],
+    address: client.account.address,
+    args: [741_852_963n],
     functionName: 'store',
   })
-
   return Actions.contract.read(client, {
     abi,
-    address: account.address,
+    address: client.account.address,
     functionName: 'retrieve',
   })
-}
-
-export declare namespace writeDelegated {
-  type Options = {
-    value: bigint
-  }
 }

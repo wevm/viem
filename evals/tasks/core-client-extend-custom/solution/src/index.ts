@@ -1,20 +1,13 @@
-import {
-  type Account,
-  Actions,
-  type Chain,
-  type Client,
-  publicActions,
-  type Token,
-  type Transport,
-} from 'viem'
+import { Actions, Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
 
-export function extendAppClient<
-  const chain extends Chain.Chain | undefined,
-  account extends Account.Account | undefined,
-  transport extends Transport.Transport,
-  tokens extends Token.Tokens | undefined,
->(client: Client.Client<chain, account, transport, tokens>) {
-  return client.extend(publicActions()).extend((client) => ({
+const client = Client.create({
+  chain: mainnet,
+  transport: http('http://anvil:8545'),
+})
+
+export async function example() {
+  const appClient = client.extend(publicActions()).extend((client) => ({
     health: {
       async check() {
         const [blockNumber, chainId] = await Promise.all([
@@ -25,4 +18,14 @@ export function extendAppClient<
       },
     },
   }))
+
+  const [health, blockNumber] = await Promise.all([
+    appClient.health.check(),
+    appClient.block.getNumber(),
+  ])
+  return {
+    blockNumber,
+    chain: appClient.chain,
+    health,
+  }
 }

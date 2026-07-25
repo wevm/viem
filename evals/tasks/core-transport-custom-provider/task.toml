@@ -7,6 +7,7 @@ description = "Wrap an EIP-1193 provider object with viem and read an ETH balanc
 
 [metadata]
 area = "core"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

@@ -1,4 +1,5 @@
-import { Actions, type Client, Errors, RpcError } from 'viem'
+import { Actions, Client, Errors, http, RpcError } from 'viem'
+import { mainnet } from 'viem/chains'
 import { AbiFunction, type Address } from 'viem/utils'
 
 const usdc = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
@@ -8,10 +9,15 @@ const transfer = AbiFunction.from(
   'function transfer(address to, uint256 amount) returns (bool)',
 )
 
-export async function wouldTransferSucceed(
-  client: Client.Client,
-  options: wouldTransferSucceed.Options,
-): Promise<boolean> {
+const client = Client.create({
+  chain: mainnet,
+  transport: http('http://anvil:8545'),
+})
+
+async function wouldTransferSucceed(options: {
+  amount: bigint
+  from: Address.Address
+}): Promise<boolean> {
   const { amount, from } = options
   try {
     await Actions.call(client, {
@@ -30,9 +36,17 @@ export async function wouldTransferSucceed(
   }
 }
 
-export declare namespace wouldTransferSucceed {
-  type Options = {
-    amount: bigint
-    from: Address.Address
+export async function example() {
+  const whale = '0x28C6c06298d514Db089934071355E5743bf21d60'
+  return {
+    empty: await wouldTransferSucceed({
+      amount: 1_000_000n,
+      from: '0xa1484a31504c80e30ce0a25c8f94dbaee9cde6bc',
+    }),
+    overBalance: await wouldTransferSucceed({
+      amount: 40_000_000_000n,
+      from: whale,
+    }),
+    small: await wouldTransferSucceed({ amount: 1_000_000n, from: whale }),
   }
 }

@@ -7,6 +7,7 @@ description = "Set and use an account's default fee token on Tempo with viem."
 
 [metadata]
 area = "tempo"
+contract = "example"
 tier = "tempo"
 
 [verifier]

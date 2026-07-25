@@ -1,30 +1,16 @@
-Our checkout service needs to grant a spending allowance and pay a merchant
-in one atomic on-chain step.
+Our Tempo checkout grants an allowance and pays a merchant atomically.
 
-Implement `approveAndTransfer` in `src/index.ts` so it performs two pathUSD
-operations:
+Implement and export a zero-input `example` function in `src/index.ts`. Create
+a module-scoped Tempo localnet client for the account derived from private key
+`0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`.
+In one transaction, approve
+`0x5151515151515151515151515151515151515151` for `25.5` pathUSD and transfer
+`10.5` pathUSD to `0x5252525252525252525252525252525252525252`.
+Wait for confirmation and return the receipt. Both operations must share one
+signature and transaction hash.
 
-1. Approve `spender` to spend `approveAmount` pathUSD on behalf of the
-   sending account.
-2. Transfer `transferAmount` pathUSD to `to`.
-
-Both operations must be batched into ONE transaction (a single signature and
-a single transaction hash) so they succeed or fail together. Do not send two
-separate transactions.
-
-- The first argument is a Tempo client carrying the sending account.
-- `options.spender` is the address granted the allowance.
-- `options.to` is the transfer recipient.
-- `options.approveAmount` and `options.transferAmount` are human-readable decimal strings
-  (for example `'10.5'` means 10.5 pathUSD).
-
-pathUSD is a TIP-20 stablecoin at `0x20c0000000000000000000000000000000000000`
-with 6 decimals. Wait until the transaction is confirmed on chain before
-returning, and return an object that includes the transaction receipt under a
-`receipt` key.
-
-Use the `viem` library already installed in this project. A Tempo RPC endpoint
-(Tempo localnet, chain id 1337) is available at `http://tempo:8545`. Do not
-add any new dependencies.
+pathUSD is `0x20c0000000000000000000000000000000000000`
+with 6 decimals. Use the installed `viem`, `http://tempo:8545`, and a 100 ms
+polling interval. Do not add dependencies.
 
 When you are done, `npm run build` must pass.

@@ -1,20 +1,16 @@
-Our payments service needs to send stablecoins between accounts.
+Our payments service needs to send Tempo stablecoins between accounts.
 
-Implement `transferToken` in `src/index.ts` so it transfers pathUSD from one
-account to another:
+Implement and export a zero-input `example` function in `src/index.ts`. Create
+a module-scoped Tempo localnet client for the account derived from private key
+`0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`.
+Transfer `10.5` pathUSD to
+`0x4242424242424242424242424242424242424242` and `0.25` pathUSD to
+`0x4343434343434343434343434343434343434343`. Express both amounts as
+human-readable decimals, wait for confirmation, and return both results.
 
-- The first argument is a Tempo client carrying the sending account.
-- `options.to` is the recipient address.
-- `options.amount` is a human-readable decimal string (for example `'10.5'` means
-  10.5 pathUSD).
-
-pathUSD is a TIP-20 stablecoin at `0x20c0000000000000000000000000000000000000`
-with 6 decimals. Wait until the transfer is confirmed on chain before
-returning, and return an object that includes the transaction receipt under a
-`receipt` key.
-
-Use the `viem` library already installed in this project. A Tempo RPC endpoint
-(Tempo localnet, chain id 1337) is available at `http://tempo:8545`. Do not
-add any new dependencies.
+pathUSD is at `0x20c0000000000000000000000000000000000000`
+with 6 decimals. Use the `viem` library already installed in this project.
+Configure the client with `http://tempo:8545` and a 100 ms polling interval.
+Do not add any new dependencies.
 
 When you are done, `npm run build` must pass.

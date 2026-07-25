@@ -1,11 +1,17 @@
-import { Actions, type Client, ContractError } from 'viem'
-import { type Abi, AbiFunction, type Address } from 'viem/utils'
+import { Actions, Client, ContractError, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi, AbiFunction } from 'viem/utils'
 
-export async function getRevertReason<const abi extends Abi.Abi>(
-  client: Client.Client,
-  options: getRevertReason.Options<abi>,
-): Promise<string> {
-  const { abi, address, functionName } = options
+const client = Client.create({
+  chain: mainnet,
+  transport: http('http://anvil:8545'),
+})
+
+const abi = Abi.from(['function buyBeans()'])
+const address = '0x1111111111111111111111111111111111111111'
+
+export async function example(): Promise<string> {
+  const functionName = 'buyBeans'
   const data = AbiFunction.encodeData(abi, functionName)
   try {
     await Actions.call(client, { data, to: address })
@@ -26,21 +32,4 @@ export async function getRevertReason<const abi extends Abi.Abi>(
     throw error
   }
   throw new Error('call did not revert')
-}
-
-export declare namespace getRevertReason {
-  type FunctionName<abi extends Abi.Abi> = {
-    [name in AbiFunction.Name<abi>]: AbiFunction.FromAbi<
-      abi,
-      name
-    >['inputs'] extends readonly []
-      ? name
-      : never
-  }[AbiFunction.Name<abi>]
-
-  type Options<abi extends Abi.Abi> = {
-    abi: abi
-    address: Address.Address
-    functionName: FunctionName<abi>
-  }
 }

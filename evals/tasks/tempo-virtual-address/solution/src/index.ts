@@ -1,49 +1,43 @@
-import type { Client } from 'viem'
-import { Actions, VirtualAddress, VirtualMaster } from 'viem/tempo'
-import type { Address, Hex } from 'viem/utils'
+import {
+  Account,
+  Actions,
+  Client,
+  http,
+  VirtualAddress,
+  VirtualMaster,
+} from 'viem/tempo'
+import { tempoLocalnet } from 'viem/chains'
 
-export async function registerMasterAddress(
-  client: Client.Client,
-  options: registerMasterAddress.Options,
-) {
-  const account = client.account
-  if (!account) throw new Error('account is required')
+const client = Client.create({
+  account: Account.fromSecp256k1(
+    '0x2e0834786285daccd064ca17f1654f67b4aef298acbb82cef9ec422fb4975622',
+  ),
+  chain: tempoLocalnet,
+  pollingInterval: 100,
+  transport: http('http://tempo:8545'),
+})
+
+export async function example() {
   const mined = await VirtualMaster.mineSaltAsync({
-    address: account.address,
-    start: options.saltStart,
+    address: client.account.address,
+    start: 0x2807fa600n,
   })
   if (!mined) throw new Error('no valid salt found')
-  return Actions.virtualAddress.registerMasterSync(client, {
+  const registration = await Actions.virtualAddress.registerMasterSync(client, {
     salt: mined.salt,
   })
-}
-
-export function deriveVirtualAddress(options: deriveVirtualAddress.Options) {
-  return VirtualAddress.from(options)
-}
-
-export async function resolveVirtualAddress(
-  client: Client.Client,
-  options: resolveVirtualAddress.Options,
-) {
-  return Actions.virtualAddress.resolve(client, options)
-}
-
-export declare namespace deriveVirtualAddress {
-  type Options = {
-    masterId: Hex.Hex
-    userTag: Hex.Hex
-  }
-}
-
-export declare namespace registerMasterAddress {
-  type Options = {
-    saltStart: bigint
-  }
-}
-
-export declare namespace resolveVirtualAddress {
-  type Options = {
-    address: Address.Address
-  }
+  const virtualAddress = VirtualAddress.from({
+    masterId: registration.masterId,
+    userTag: '0x010203040506',
+  })
+  const resolved = await Actions.virtualAddress.resolve(client, {
+    address: virtualAddress,
+  })
+  const direct = await Actions.virtualAddress.resolve(client, {
+    address: registration.masterAddress,
+  })
+  const unknown = await Actions.virtualAddress.resolve(client, {
+    address: '0xdeadbeeffdfdfdfdfdfdfdfdfdfd010203040506',
+  })
+  return { direct, registration, resolved, unknown, virtualAddress }
 }

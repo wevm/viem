@@ -7,6 +7,7 @@ description = "Decode an ERC-5267 named multi-output read into an object."
 
 [metadata]
 area = "trap"
+contract = "example"
 tier = "anvil-fork"
 
 [verifier]

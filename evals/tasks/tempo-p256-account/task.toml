@@ -7,6 +7,7 @@ description = "Create a P256 account, fund it via the faucet, and transfer pathU
 
 [metadata]
 area = "tempo"
+contract = "example"
 tier = "tempo"
 
 [verifier]

@@ -7,6 +7,7 @@ description = "Provide and withdraw fee-AMM liquidity on Tempo with viem."
 
 [metadata]
 area = "tempo"
+contract = "example"
 tier = "tempo"
 
 [verifier]

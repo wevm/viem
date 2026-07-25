@@ -79,7 +79,7 @@ beforeAll(async () => {
 
 test('uses viem', () => {
   expect(readFileSync('src/token.ts', 'utf8')).toMatch(/from ['"]viem/)
-})
+}, 60_000)
 
 test('reads match raw eth_call', async () => {
   const aliceBalance = await getBalance(token, alice)

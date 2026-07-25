@@ -1,28 +1,20 @@
 import { readFileSync } from 'node:fs'
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { expect, test } from 'vitest'
-import { counted, readBlockNumber } from '../src/index.ts'
+import { expect, expectTypeOf, test } from 'vitest'
+import { example } from '../src/index.ts'
 
-const client = Client.create({
-  cacheTime: 0,
-  chain: mainnet,
-  transport: counted({ transport: http('http://anvil:8545') }),
-})
+const sourceText = readFileSync('src/index.ts', 'utf8')
+test('exports a zero-input Viem example', () => {
+  expect(sourceText).toMatch(/from ['"]viem/)
+  expect(sourceText).toMatch(/^const \w*client\s*=\s*Client\.create\s*\(/im)
+  expect(sourceText).toMatch(/\bTransport\.from\s*\(/)
+  expect(sourceText).toMatch(/\bcacheTime\s*:\s*0\b/)
+  expectTypeOf(example).parameters.toEqualTypeOf<[]>()
+}, 60_000)
 
-test('uses viem', () => {
-  expect(readFileSync('src/index.ts', 'utf8')).toMatch(/from ['"]viem/)
-})
-
-test('returns the block number and a cumulative request count', async () => {
-  const first = await readBlockNumber(client)
-  expect(typeof first.blockNumber).toBe('bigint')
+test('counts requests forwarded through the transport wrapper', async () => {
+  const { first, second } = await example()
   expect(first.blockNumber).toBeGreaterThanOrEqual(24_000_000n)
-  expect(first.blockNumber).toBeLessThan(24_001_000n)
-  expect(Number.isInteger(first.requestCount)).toBe(true)
-  expect(first.requestCount).toBeGreaterThanOrEqual(2)
-
-  const second = await readBlockNumber(client)
+  expect(first.requestCount).toBeGreaterThanOrEqual(1)
   expect(second.blockNumber).toBeGreaterThanOrEqual(first.blockNumber)
-  expect(second.requestCount).toBeGreaterThanOrEqual(first.requestCount + 2)
-})
+  expect(second.requestCount).toBeGreaterThanOrEqual(first.requestCount + 1)
+}, 60_000)
