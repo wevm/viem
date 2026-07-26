@@ -1,10 +1,10 @@
 # getMetadata
 
-Gets the metadata (`decimals`, `name`, `symbol`) of an ERC-20 token. Fields declared on the client's tokens are used as-is; any missing field is fetched from the contract.
+Gets the metadata (`decimals`, `name`, `symbol`, `totalSupply`) of an ERC-20 token. Declared fields are used as-is; the total supply and missing fields are fetched from the contract.
 
 ## Usage
 
-This example gets the metadata (`decimals`, `name`, `symbol`) of an ERC-20 token.
+This example gets the metadata (`decimals`, `name`, `symbol`, `totalSupply`) of an ERC-20 token.
 
 :::code-group
 
@@ -14,7 +14,12 @@ import { client } from './viem.config'
 const metadata = await client.token.getMetadata({
   token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
 })
-// @log: { decimals: 6, name: 'USD Coin', symbol: 'USDC' }
+// @log: {
+//   decimals: 6,
+//   name: 'USD Coin',
+//   symbol: 'USDC',
+//   totalSupply: 52_000_000_000_000_000n,
+// }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -44,7 +49,12 @@ import { client } from './viem.config'
 const metadata = await Actions.token.getMetadata(client, {
   token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
 })
-// @log: { decimals: 6, name: 'USD Coin', symbol: 'USDC' }
+// @log: {
+//   decimals: 6,
+//   name: 'USD Coin',
+//   symbol: 'USDC',
+//   totalSupply: 52_000_000_000_000_000n,
+// }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -63,7 +73,7 @@ export const client = Client.create({
 
 ## Return Value
 
-`{ decimals: number; name: string; symbol: string }`
+`{ decimals: number; name: string; symbol: string; totalSupply: bigint }`
 
 The token metadata.
 
@@ -110,7 +120,7 @@ const metadata = await Actions.token.getMetadata(client, {
 
 - **Type:** `Address | string`
 
-The token to read: a contract `address`, or a symbol declared on the client's [`tokens`](/docs/clients/create) array. Declared metadata is returned without a network request.
+The token to read: a contract `address`, or a symbol declared on the client's [`tokens`](/docs/clients/create) array. Declared name, symbol, and decimals are reused; total supply is read from the contract.
 
 ```ts twoslash
 // @noErrors
@@ -133,4 +143,4 @@ const metadata = await client.token.getMetadata({
 
 | Error | Description |
 | --- | --- |
-| `ContractError.ContractFunctionExecutionError` | A `decimals`/`name`/`symbol` call could not be executed. |
+| `ContractError.ContractFunctionExecutionError` | A `decimals`/`name`/`symbol`/`totalSupply` call could not be executed. |

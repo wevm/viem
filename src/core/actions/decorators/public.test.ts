@@ -277,7 +277,11 @@ describe('token', () => {
 
   describe('getMetadata', () => {
     test('default: by token symbol', async () => {
-      const metadata = await client.token.getMetadata({ token: 'usdc' })
+      const { totalSupply, ...metadata } = await client.token.getMetadata({
+        token: 'usdc',
+      })
+      expect(totalSupply).toBeTypeOf('bigint')
+      expect(totalSupply).toBeGreaterThan(0n)
       expect(metadata).toMatchInlineSnapshot(`
         {
           "decimals": 6,

@@ -4,10 +4,11 @@ description: Read token metadata.
 
 # token.getMetadata
 
-Reads the metadata (`decimals`, `name`, `symbol`) of a token.
+Reads the metadata (`decimals`, `name`, `symbol`, `totalSupply`) of a token.
 
 Fields declared on the connected Client's [`tokens` array](/tokens/tokens#token-lookup)
-are used as-is; any missing field is fetched from the token contract.
+are used as-is. The total supply and any missing fields are fetched from the
+token contract.
 
 ## Usage
 
@@ -17,7 +18,12 @@ are used as-is; any missing field is fetched from the token contract.
 import { client } from './viem.config'
 
 const metadata = await client.token.getMetadata({ token: 'usdc' })
-// @log: { decimals: 6, name: 'USD Coin', symbol: 'USDC' }
+// @log: {
+//   decimals: 6,
+//   name: 'USD Coin',
+//   symbol: 'USDC',
+//   totalSupply: 52_000_000_000_000_000n,
+// }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -36,6 +42,8 @@ type ReturnType = {
   name: string
   /** Ticker symbol of the token. */
   symbol: string
+  /** Total token supply in base units. */
+  totalSupply: bigint
 }
 ```
 

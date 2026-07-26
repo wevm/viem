@@ -13,10 +13,11 @@ import {
 } from './internal.js'
 
 /**
- * Gets the metadata (`decimals`, `name`, `symbol`) of an ERC-20 token.
+ * Gets the metadata (`decimals`, `name`, `symbol`, `totalSupply`) of an ERC-20
+ * token.
  *
- * Fields declared on the Client's `tokens` array are used as-is; any missing
- * field is fetched from the token contract.
+ * Fields declared on the Client's `tokens` array are used as-is. The total
+ * supply and any missing fields are fetched from the token contract.
  *
  * @example
  * ```ts
@@ -32,7 +33,7 @@ import {
  *
  * @param client - Client.
  * @param options - Options.
- * @returns The token metadata (`decimals`, `name`, `symbol`).
+ * @returns The token metadata (`decimals`, `name`, `symbol`, `totalSupply`).
  */
 export async function getMetadata<
   chain extends Chain.Chain | undefined,
@@ -46,7 +47,7 @@ export async function getMetadata<
   const { address } = resolveToken(client, { token })
   const declared = findDeclaredToken(client, token)
 
-  const [decimals, name, symbol] = await Promise.all([
+  const [decimals, name, symbol, totalSupply] = await Promise.all([
     declared?.decimals ??
       read(client, {
         ...rest,
@@ -58,12 +59,19 @@ export async function getMetadata<
       read(client, { ...rest, abi: erc20Abi, address, functionName: 'name' }),
     declared?.symbol ??
       read(client, { ...rest, abi: erc20Abi, address, functionName: 'symbol' }),
+    read(client, {
+      ...rest,
+      abi: erc20Abi,
+      address,
+      functionName: 'totalSupply',
+    }),
   ])
 
   return {
     decimals: decimals as number,
     name: name as string,
     symbol: symbol as string,
+    totalSupply: totalSupply as bigint,
   }
 }
 
@@ -83,5 +91,7 @@ export declare namespace getMetadata {
     name: string
     /** Ticker symbol of the token. */
     symbol: string
+    /** Total token supply in base units. */
+    totalSupply: bigint
   }
 }

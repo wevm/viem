@@ -8,7 +8,11 @@ const dai = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
 
 describe('getMetadata', () => {
   test('default', async () => {
-    const metadata = await getMetadata(client, { token: usdc })
+    const { totalSupply, ...metadata } = await getMetadata(client, {
+      token: usdc,
+    })
+    expect(totalSupply).toBeTypeOf('bigint')
+    expect(totalSupply).toBeGreaterThan(0n)
     expect(metadata).toMatchInlineSnapshot(`
       {
         "decimals": 6,
@@ -19,7 +23,11 @@ describe('getMetadata', () => {
   })
 
   test('token: resolves metadata from client tokens', async () => {
-    const metadata = await getMetadata(client, { token: 'usdc' })
+    const { totalSupply, ...metadata } = await getMetadata(client, {
+      token: 'usdc',
+    })
+    expect(totalSupply).toBeTypeOf('bigint')
+    expect(totalSupply).toBeGreaterThan(0n)
     expect(metadata).toMatchInlineSnapshot(`
       {
         "decimals": 6,
@@ -30,7 +38,11 @@ describe('getMetadata', () => {
   })
 
   test('fetch: reads metadata from an undeclared token contract', async () => {
-    const metadata = await getMetadata(client, { token: dai })
+    const { totalSupply, ...metadata } = await getMetadata(client, {
+      token: dai,
+    })
+    expect(totalSupply).toBeTypeOf('bigint')
+    expect(totalSupply).toBeGreaterThan(0n)
     expect(metadata).toMatchInlineSnapshot(`
       {
         "decimals": 18,

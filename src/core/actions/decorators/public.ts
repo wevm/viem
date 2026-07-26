@@ -1234,7 +1234,8 @@ export declare namespace publicActions {
         ) => ReturnType<typeof token.getBalance.call>
       }
       /**
-       * Gets the metadata (`decimals`, `name`, `symbol`) of an ERC-20 token.
+       * Gets the metadata (`decimals`, `name`, `symbol`, `totalSupply`) of an
+       * ERC-20 token.
        *
        * @example
        * ```ts
