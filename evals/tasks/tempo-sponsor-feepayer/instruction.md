@@ -6,8 +6,8 @@ a module-scoped Tempo localnet client for the sender derived from private key
 and a local sponsor account from private key
 `0x92db14e403b83dfe3df233f83dfa3a0d7096f21ca9b0d6d6b8d88b2b4ec1564e`.
 Send `12.34` pathUSD to
-`0x4545454545454545454545454545454545454545`, with the sponsor paying every
-fee in pathUSD. Wait for confirmation and return the result.
+`0x4545454545454545454545454545454545454545`, with the sponsor paying the
+fee. Wait for confirmation and return the result.
 
 pathUSD is at `0x20c0000000000000000000000000000000000000`
 with 6 decimals. Use the `viem` library already installed in this project.

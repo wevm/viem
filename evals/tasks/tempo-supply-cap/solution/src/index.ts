@@ -1,47 +1,45 @@
 import { ContractError } from 'viem'
-import { Account, Actions, Client, http } from 'viem/tempo'
 import { tempoLocalnet } from 'viem/chains'
-import { type Address, Value } from 'viem/utils'
+import { Account, Actions, Client, http } from 'viem/tempo'
+import { Value } from 'viem/utils'
 
-const pathUsd = '0x20c0000000000000000000000000000000000000'
 const client = Client.create({
   account: Account.fromSecp256k1(
     '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
   ),
   chain: tempoLocalnet,
-  feeToken: pathUsd,
   pollingInterval: 100,
   transport: http('http://tempo:8545'),
 })
 
-async function launch(options: {
-  cap: string
-  name: string
-  symbol: string
-  to: Address.Address
-}) {
-  const amount = Value.from(options.cap, 6)
-  const { token } = await Actions.token.createSync(client, {
+export async function example() {
+  const firstAmount = Value.from('1000', 6)
+  const firstRecipient = '0x4242424242424242424242424242424242424242'
+  const { token: firstToken } = await Actions.token.createSync(client, {
     currency: 'USD',
-    name: options.name,
-    symbol: options.symbol,
+    name: 'Capped Coin',
+    symbol: 'CAPA',
   })
   await Actions.token.grantRolesSync(client, {
     roles: ['issuer'],
     to: client.account.address,
-    token,
+    token: firstToken,
   })
   await Actions.token.setSupplyCapSync(client, {
-    supplyCap: amount,
-    token,
+    supplyCap: firstAmount,
+    token: firstToken,
   })
-  const { receipt } = await Actions.token.mintSync(client, {
-    amount,
-    to: options.to,
-    token,
+  const firstMint = await Actions.token.mintSync(client, {
+    amount: firstAmount,
+    to: firstRecipient,
+    token: firstToken,
   })
-  const rejected = await Actions.token
-    .mintSync(client, { amount: 1n, to: options.to, token })
+  const firstRejected = await Actions.token
+    .mintSync(client, {
+      amount: 1n,
+      to: firstRecipient,
+      token: firstToken,
+    })
     .then(() => false)
     .catch((error: unknown) => {
       if (
@@ -51,21 +49,46 @@ async function launch(options: {
         return true
       throw error
     })
-  return { receipt, rejected, token }
-}
 
-export async function example() {
-  const first = await launch({
-    cap: '1000',
-    name: 'Capped Coin',
-    symbol: 'CAPA',
-    to: '0x4242424242424242424242424242424242424242',
-  })
-  const second = await launch({
-    cap: '0.25',
+  const secondAmount = Value.from('0.25', 6)
+  const secondRecipient = '0x4343434343434343434343434343434343434343'
+  const { token: secondToken } = await Actions.token.createSync(client, {
+    currency: 'USD',
     name: 'Capped Coin B',
     symbol: 'CAPB',
-    to: '0x4343434343434343434343434343434343434343',
   })
-  return { first, second }
+  await Actions.token.grantRolesSync(client, {
+    roles: ['issuer'],
+    to: client.account.address,
+    token: secondToken,
+  })
+  await Actions.token.setSupplyCapSync(client, {
+    supplyCap: secondAmount,
+    token: secondToken,
+  })
+  const secondMint = await Actions.token.mintSync(client, {
+    amount: secondAmount,
+    to: secondRecipient,
+    token: secondToken,
+  })
+  const secondRejected = await Actions.token
+    .mintSync(client, {
+      amount: 1n,
+      to: secondRecipient,
+      token: secondToken,
+    })
+    .then(() => false)
+    .catch((error: unknown) => {
+      if (
+        error instanceof ContractError.ContractFunctionExecutionError &&
+        error.cause instanceof ContractError.ContractFunctionRevertedError
+      )
+        return true
+      throw error
+    })
+
+  return {
+    first: { ...firstMint, rejected: firstRejected, token: firstToken },
+    second: { ...secondMint, rejected: secondRejected, token: secondToken },
+  }
 }

@@ -5,7 +5,7 @@ import { example } from '../src/index.ts'
 test('uses viem', () => {
   const source = readFileSync('src/index.ts', 'utf8')
   expect(source).toMatch(/from ['"]viem/)
-  expect(source).toMatch(/AbiFunction\.from\(/)
+  expect(source).toMatch(/Abis\.erc20/)
   expect(source).toMatch(/AbiFunction\.encodeData\(/)
   expect(source).toMatch(/AbiFunction\.decodeResult\(/)
 }, 60_000)

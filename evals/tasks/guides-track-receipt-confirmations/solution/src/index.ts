@@ -19,11 +19,11 @@ export async function example() {
     value: Value.fromEther('1'),
   })
   const before = await Actions.transaction.getConfirmations(client, {
-    hash: receipt.transactionHash,
+    transactionReceipt: receipt,
   })
   await Actions.block.mine(client, { blocks: 3 })
   const after = await Actions.transaction.getConfirmations(client, {
-    hash: receipt.transactionHash,
+    transactionReceipt: receipt,
   })
 
   await Actions.block.setAutomine(client, { enabled: false })

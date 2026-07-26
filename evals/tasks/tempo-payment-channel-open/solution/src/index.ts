@@ -1,8 +1,7 @@
-import { Account, Actions, Channel, Client, http } from 'viem/tempo'
 import { tempoLocalnet } from 'viem/chains'
+import { Account, Actions, Addresses, Channel, Client, http } from 'viem/tempo'
 import { Value } from 'viem/utils'
 
-const pathUsd = '0x20c0000000000000000000000000000000000000'
 const client = Client.create({
   account: Account.fromSecp256k1(
     '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
@@ -16,7 +15,7 @@ export async function example() {
   const firstOpened = await Actions.channel.openSync(client, {
     deposit: Value.from('100', 6),
     payee: '0x4242424242424242424242424242424242424242',
-    token: pathUsd,
+    token: Addresses.pathUsd,
   })
   const firstChannel = Channel.from(firstOpened)
   const firstTopUp = await Actions.channel.topUpSync(client, {
@@ -24,30 +23,28 @@ export async function example() {
     channel: firstChannel,
   })
   const firstState = await Actions.channel.getStates(client, {
-    channel: firstOpened.channelId,
+    channel: firstChannel,
   })
 
   const secondOpened = await Actions.channel.openSync(client, {
     deposit: Value.from('3.25', 6),
     payee: '0x4343434343434343434343434343434343434343',
-    token: pathUsd,
+    token: Addresses.pathUsd,
   })
   const secondChannel = Channel.from(secondOpened)
   const secondTopUp = await Actions.channel.topUpSync(client, {
     additionalDeposit: Value.from('0.75', 6),
     channel: secondChannel,
   })
-  const secondState = await Actions.channel.getStates(client, {
-    channel: secondOpened.channelId,
-  })
 
   const thirdOpened = await Actions.channel.openSync(client, {
     deposit: Value.from('1', 6),
     payee: '0x4343434343434343434343434343434343434343',
-    token: pathUsd,
+    token: Addresses.pathUsd,
   })
-  const thirdState = await Actions.channel.getStates(client, {
-    channel: thirdOpened.channelId,
+  const thirdChannel = Channel.from(thirdOpened)
+  const [secondState, thirdState] = await Actions.channel.getStates(client, {
+    channel: [secondChannel, thirdChannel],
   })
 
   return {
@@ -64,7 +61,7 @@ export async function example() {
       topUp: secondTopUp,
     },
     third: {
-      channel: Channel.from(thirdOpened),
+      channel: thirdChannel,
       opened: thirdOpened,
       state: thirdState,
     },

@@ -1,8 +1,8 @@
-import { Account, Actions, Client, http } from 'viem/tempo'
 import { tempoLocalnet } from 'viem/chains'
+import { Account, Actions, Addresses, Client, http } from 'viem/tempo'
+import { Value } from 'viem/utils'
 
-const pathUsd = '0x20c0000000000000000000000000000000000000'
-const feePayer = Account.fromSecp256k1(
+const sponsor = Account.fromSecp256k1(
   '0x92db14e403b83dfe3df233f83dfa3a0d7096f21ca9b0d6d6b8d88b2b4ec1564e',
 )
 
@@ -17,10 +17,9 @@ const client = Client.create({
 
 export function example() {
   return Actions.token.transferSync(client, {
-    amount: { decimals: 6, formatted: '12.34' },
-    feePayer,
-    feeToken: pathUsd,
+    amount: Value.from('12.34', 6),
+    feePayer: sponsor,
     to: '0x4545454545454545454545454545454545454545',
-    token: pathUsd,
+    token: Addresses.pathUsd,
   })
 }

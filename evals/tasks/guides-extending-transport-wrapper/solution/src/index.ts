@@ -3,13 +3,18 @@ import { mainnet } from 'viem/chains'
 
 let requestCount = 0
 
-function counted(transport: Transport.Transport) {
-  return Transport.from({
+const client = Client.create({
+  cacheTime: 0,
+  chain: mainnet,
+  transport: Transport.from({
     key: 'counted',
     name: 'Counted',
     type: 'counted',
     setup(parameters) {
-      const inner = transport.setup({ ...parameters, retryCount: 0 })
+      const inner = http('http://anvil:8545').setup({
+        ...parameters,
+        retryCount: 0,
+      })
       return {
         retryCount: parameters.retryCount,
         request(args, options) {
@@ -18,22 +23,17 @@ function counted(transport: Transport.Transport) {
         },
       }
     },
-  })
-}
-
-const client = Client.create({
-  cacheTime: 0,
-  chain: mainnet,
-  transport: counted(http('http://anvil:8545')),
+  }),
 })
 
-async function read() {
-  const blockNumber = await Actions.block.getNumber(client)
-  return { blockNumber, requestCount }
-}
-
 export async function example() {
-  const first = await read()
-  const second = await read()
+  const first = {
+    blockNumber: await Actions.block.getNumber(client),
+    requestCount,
+  }
+  const second = {
+    blockNumber: await Actions.block.getNumber(client),
+    requestCount,
+  }
   return { first, second }
 }

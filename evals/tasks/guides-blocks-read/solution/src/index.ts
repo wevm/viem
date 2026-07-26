@@ -11,8 +11,9 @@ export async function example() {
     Actions.block.get(client),
     Actions.block.get(client, { blockTag: 'finalized' }),
   ])
-  const transactionCount = await Actions.block.getTransactionCount(client, {
-    blockNumber: latest.number,
-  })
-  return { finalized, latest, transactionCount }
+  return {
+    finalized,
+    latest,
+    transactionCount: latest.transactions.length,
+  }
 }

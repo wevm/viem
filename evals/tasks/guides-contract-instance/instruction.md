@@ -1,11 +1,11 @@
 Implement and export a zero-argument function named `example` in
 `src/index.ts`.
 
-At module scope, construct an Ethereum mainnet client and attach a contract
-instance to USDC at `0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48`. Through that
-instance, read its symbol, decimals, and the balance of
-`0x28C6c06298d514Db089934071355E5743bf21d60`. Simulate transferring
-1,234,567 base units from that holder to
+At module scope, construct an Ethereum mainnet client. Use Viem's token actions
+to read the symbol and decimals of USDC at
+`0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48` and the base-unit balance of
+`0x28C6c06298d514Db089934071355E5743bf21d60`. Simulate transferring 1,234,567
+base units from that holder to
 `0x4242424242424242424242424242424242424242` without broadcasting. Return
 the reads and simulated result.
 

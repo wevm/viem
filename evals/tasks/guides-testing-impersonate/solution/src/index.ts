@@ -13,13 +13,12 @@ const client = Client.create({
 export async function example() {
   await Actions.address.impersonate(client, { address: whale })
   try {
-    const hash = await Actions.token.transfer(client, {
+    const { receipt } = await Actions.token.transferSync(client, {
       amount: 12_345_678n,
       to: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC',
       token,
     })
-    await Actions.transaction.waitForReceipt(client, { hash }).receipt
-    return hash
+    return receipt.transactionHash
   } finally {
     await Actions.address.stopImpersonating(client, { address: whale })
   }

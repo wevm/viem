@@ -1,6 +1,7 @@
 import { ContractError } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
 import { Account, Actions, Client, http } from 'viem/tempo'
+import { Value } from 'viem/utils'
 
 const client = Client.create({
   account: Account.fromSecp256k1(
@@ -12,6 +13,7 @@ const client = Client.create({
 })
 
 export async function example() {
+  const recipient = '0x4545454545454545454545454545454545454545'
   const { token } = await Actions.token.createSync(client, {
     currency: 'USD',
     name: 'Halt USD',
@@ -23,15 +25,15 @@ export async function example() {
     token,
   })
   await Actions.token.mintSync(client, {
-    amount: { decimals: 6, formatted: '1000' },
+    amount: Value.from('1000', 6),
     to: client.account.address,
     token,
   })
   await Actions.token.pauseSync(client, { token })
   const rejected = await Actions.token
     .transferSync(client, {
-      amount: { decimals: 6, formatted: '5' },
-      to: '0x4545454545454545454545454545454545454545',
+      amount: Value.from('5', 6),
+      to: recipient,
       token,
     })
     .then(() => false)
@@ -45,8 +47,8 @@ export async function example() {
     })
   await Actions.token.unpauseSync(client, { token })
   const transfer = await Actions.token.transferSync(client, {
-    amount: { decimals: 6, formatted: '12.5' },
-    to: '0x4545454545454545454545454545454545454545',
+    amount: Value.from('12.5', 6),
+    to: recipient,
     token,
   })
   return { rejected, token, transfer }

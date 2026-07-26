@@ -1,16 +1,10 @@
 import { Value } from 'viem/utils'
 
-import { getWalletClient, publicClient } from './client.js'
+import { client } from './client.js'
 
-export async function sendPayment(
-  privateKey: `0x${string}`,
-  to: `0x${string}`,
-  amountEther: string,
-) {
-  const walletClient = getWalletClient(privateKey)
-  const hash = await walletClient.transaction.send({
+export async function sendPayment(to: `0x${string}`, amountEther: string) {
+  return client.transaction.sendSync({
     to,
     value: Value.fromEther(amountEther),
   })
-  return publicClient.transaction.waitForReceipt({ hash }).receipt
 }

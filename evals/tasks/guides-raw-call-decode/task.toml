@@ -3,7 +3,7 @@ schema_version = "1.4"
 [task]
 name = "viem/guides-raw-call-decode"
 version = "1.0.0"
-description = "Execute a raw eth_call with hand-encoded calldata and decode the result."
+description = "Execute a raw eth_call with ABI-encoded calldata and decode the result."
 
 [metadata]
 area = "guides"

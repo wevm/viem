@@ -11,13 +11,11 @@ const client = Client.create({
 })
 
 export async function example() {
-  const { request } = await Actions.transaction.prepare(client, {
+  const transaction = await Actions.transaction.sign(client, {
+    prepare: true,
     to: '0x4242424242424242424242424242424242424242',
     value: Value.fromEther('1'),
   })
-  const transaction = await Actions.transaction.sign(client, request)
-  const hash = await Actions.transaction.sendRaw(client, { transaction })
-  const receipt = await Actions.transaction.waitForReceipt(client, { hash })
-    .receipt
-  return { hash, receipt }
+  const receipt = await Actions.transaction.sendRawSync(client, { transaction })
+  return { hash: receipt.transactionHash, receipt }
 }

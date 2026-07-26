@@ -30,14 +30,16 @@ export async function example() {
     masterId: registration.masterId,
     userTag: '0x010203040506',
   })
-  const resolved = await Actions.virtualAddress.resolve(client, {
-    address: virtualAddress,
-  })
-  const direct = await Actions.virtualAddress.resolve(client, {
-    address: registration.masterAddress,
-  })
-  const unknown = await Actions.virtualAddress.resolve(client, {
-    address: '0xdeadbeeffdfdfdfdfdfdfdfdfdfd010203040506',
-  })
+  const [resolved, direct, unknown] = await Promise.all([
+    Actions.virtualAddress.resolve(client, {
+      address: virtualAddress,
+    }),
+    Actions.virtualAddress.resolve(client, {
+      address: registration.masterAddress,
+    }),
+    Actions.virtualAddress.resolve(client, {
+      address: '0xdeadbeeffdfdfdfdfdfdfdfdfdfd010203040506',
+    }),
+  ])
   return { direct, registration, resolved, unknown, virtualAddress }
 }

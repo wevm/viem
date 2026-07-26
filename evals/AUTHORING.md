@@ -76,6 +76,9 @@ Prague, automine ON. Use `mainnet` from `viem/chains`.
   - `0x70997970C51812dc3A010C7d01b50e0d17dc79C8` key `0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d`
   - `0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC` key `0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a`
   - `0x90F79bf6EB2c4f870365E785982E1f101E93b906` key `0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6`
+- Prefer these accounts for writes. Wrap their ETH into WETH when an ERC-20
+  balance is needed; impersonate fork accounts only when impersonation is the
+  behavior under test.
 - All real mainnet state at the pinned block is available: USDC at
   `0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48` (Binance 14
   `0x28C6c06298d514Db089934071355E5743bf21d60` holds `31872448355` base units),
@@ -193,11 +196,10 @@ time, invisible to the agent while it works):
 - Use raw JSON-RPC for Anvil controls, transport-level behavior, or fields the
   public actions do not expose. Keep the helper local and typed.
 
-- Test SETUP may do anything: deploy fixture contracts (bytecode from
-  `contracts/generated.ts` in this repo, inlined into EVAL.ts), fund accounts
-  with `anvil_setBalance`, move whale tokens via `anvil_impersonateAccount` +
-  `eth_sendTransaction`, toggle `anvil_setAutomine`. Keep setup in the test
-  body or `beforeAll`.
+- Test SETUP may deploy fixture contracts (bytecode from
+  `contracts/generated.ts` in this repo, inlined into EVAL.ts), fund default
+  accounts, wrap WETH, or toggle `anvil_setAutomine`. Keep setup in the test
+  body or `beforeAll`; reserve impersonation for tasks that explicitly test it.
 - Values must be deterministic: pinned block state, exact bigint deltas, or
   round-trip equalities. No wall-clock or ordering assumptions beyond automine.
 - EVERY test and hook gets an explicit timeout (>= 60_000ms; 120_000 for

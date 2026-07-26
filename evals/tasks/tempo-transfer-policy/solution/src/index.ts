@@ -1,8 +1,8 @@
 import { ContractError } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
 import { Account, Actions, Client, http } from 'viem/tempo'
+import { Value } from 'viem/utils'
 
-const admin = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
 const member = '0x4545454545454545454545454545454545454545'
 const client = Client.create({
   account: Account.fromSecp256k1(
@@ -21,24 +21,24 @@ export async function example() {
   })
   await Actions.token.grantRolesSync(client, {
     roles: ['issuer'],
-    to: admin,
+    to: client.account.address,
     token,
   })
   await Actions.token.mintSync(client, {
-    amount: 1_000_000_000n,
-    to: admin,
+    amount: Value.from('1000', 6),
+    to: client.account.address,
     token,
   })
   const { policyId } = await Actions.policy.createSync(client, {
-    addresses: [admin],
-    admin,
+    addresses: [client.account.address],
+    admin: client.account.address,
     type: 'whitelist',
   })
   await Actions.token.changeTransferPolicySync(client, { policyId, token })
 
   const rejected = await Actions.token
     .transferSync(client, {
-      amount: 1_000_000n,
+      amount: Value.from('1', 6),
       to: '0x4646464646464646464646464646464646464646',
       token,
     })
@@ -57,7 +57,7 @@ export async function example() {
     policyId,
   })
   const transfer = await Actions.token.transferSync(client, {
-    amount: 2_500_000n,
+    amount: Value.from('2.5', 6),
     to: member,
     token,
   })

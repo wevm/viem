@@ -1,9 +1,8 @@
-import { Actions, RpcError } from 'viem'
-import { Account, Client, http } from 'viem/tempo'
+import { RpcError } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
+import { Account, Actions, Addresses, Client, http } from 'viem/tempo'
 import { Value } from 'viem/utils'
 
-const pathUsd = '0x20c0000000000000000000000000000000000000'
 const client = Client.create({
   account: Account.fromSecp256k1(
     '0x4bbbf85ce3377467afe5d46f804f221813b2bb87f24d81f60f1fcdbf7cbf4356',
@@ -33,32 +32,31 @@ export async function example() {
   })
   const amount = Value.from('10.5', 6)
   await Actions.token.transferSync(client, {
-    amount: amount + 1_000_000n,
+    amount: Value.from('11.5', 6),
     to: multisig.address,
-    token: pathUsd,
+    token: Addresses.pathUsd,
   })
-  const { request } = await Actions.transaction.prepare(client, {
+  const { request } = await client.transaction.prepare({
     account: multisig,
     calls: [
-      Actions.token.transfer.call(client, {
+      Actions.token.transfer.call({
         amount,
         to: '0x4545454545454545454545454545454545454545',
-        token: pathUsd,
+        token: Addresses.pathUsd,
       }),
     ],
-    feeToken: pathUsd,
   })
   const signatures = await Promise.all([
-    Actions.transaction.sign(client, {
+    client.signTransaction({
       ...request,
       account: firstOwner,
     }),
-    Actions.transaction.sign(client, {
+    client.signTransaction({
       ...request,
       account: thirdOwner,
     }),
   ])
-  const receipt = await Actions.transaction.sendSync(client, {
+  const receipt = await client.transaction.sendSync({
     ...request,
     account: multisig,
     signatures,
@@ -83,30 +81,26 @@ export async function example() {
   })
   const rejectedAmount = Value.from('3', 6)
   await Actions.token.transferSync(client, {
-    amount: rejectedAmount + 1_000_000n,
+    amount: Value.from('4', 6),
     to: rejectedMultisig.address,
-    token: pathUsd,
+    token: Addresses.pathUsd,
   })
-  const { request: rejectedRequest } = await Actions.transaction.prepare(
-    client,
-    {
-      account: rejectedMultisig,
-      calls: [
-        Actions.token.transfer.call(client, {
-          amount: rejectedAmount,
-          to: '0x4646464646464646464646464646464646464646',
-          token: pathUsd,
-        }),
-      ],
-      feeToken: pathUsd,
-    },
-  )
-  const rejectedSignature = await Actions.transaction.sign(client, {
+  const { request: rejectedRequest } = await client.transaction.prepare({
+    account: rejectedMultisig,
+    calls: [
+      Actions.token.transfer.call({
+        amount: rejectedAmount,
+        to: '0x4646464646464646464646464646464646464646',
+        token: Addresses.pathUsd,
+      }),
+    ],
+  })
+  const rejectedSignature = await client.signTransaction({
     ...rejectedRequest,
     account: fifthOwner,
   })
-  const rejected = await Actions.transaction
-    .sendSync(client, {
+  const rejected = await client.transaction
+    .sendSync({
       ...rejectedRequest,
       account: rejectedMultisig,
       signatures: [rejectedSignature],

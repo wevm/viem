@@ -1,9 +1,8 @@
-import { Account, Actions, Client, http } from 'viem/tempo'
+import { Account, Actions, Addresses, Client, http } from 'viem/tempo'
 import { tempoLocalnet } from 'viem/chains'
+import { Value } from 'viem/utils'
 
 const alphaUsd = '0x20c0000000000000000000000000000000000001'
-const pathUsd = '0x20c0000000000000000000000000000000000000'
-const provider = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
 const client = Client.create({
   account: Account.fromSecp256k1(
     '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
@@ -15,41 +14,45 @@ const client = Client.create({
 
 export async function example() {
   const first = await Actions.amm.mintSync(client, {
-    to: provider,
+    to: client.account.address,
     userTokenAddress: alphaUsd,
-    validatorTokenAddress: pathUsd,
-    validatorTokenAmount: 25_000_000n,
+    validatorTokenAddress: Addresses.pathUsd,
+    validatorTokenAmount: Value.from('25', 6),
   })
   const second = await Actions.amm.mintSync(client, {
-    to: provider,
+    to: client.account.address,
     userTokenAddress: alphaUsd,
-    validatorTokenAddress: pathUsd,
-    validatorTokenAmount: 10_000_000n,
+    validatorTokenAddress: Addresses.pathUsd,
+    validatorTokenAmount: Value.from('10', 6),
   })
-  const poolBeforeBurn = await Actions.amm.getPool(client, {
-    userToken: alphaUsd,
-    validatorToken: pathUsd,
-  })
-  const liquidityBeforeBurn = await Actions.amm.getLiquidityBalance(client, {
-    address: provider,
-    userToken: alphaUsd,
-    validatorToken: pathUsd,
-  })
+  const [liquidityBeforeBurn, poolBeforeBurn] = await Promise.all([
+    Actions.amm.getLiquidityBalance(client, {
+      address: client.account.address,
+      userToken: alphaUsd,
+      validatorToken: Addresses.pathUsd,
+    }),
+    Actions.amm.getPool(client, {
+      userToken: alphaUsd,
+      validatorToken: Addresses.pathUsd,
+    }),
+  ])
   const burn = await Actions.amm.burnSync(client, {
     liquidity: liquidityBeforeBurn,
-    to: provider,
+    to: client.account.address,
     userToken: alphaUsd,
-    validatorToken: pathUsd,
+    validatorToken: Addresses.pathUsd,
   })
-  const poolAfterBurn = await Actions.amm.getPool(client, {
-    userToken: alphaUsd,
-    validatorToken: pathUsd,
-  })
-  const liquidityAfterBurn = await Actions.amm.getLiquidityBalance(client, {
-    address: provider,
-    userToken: alphaUsd,
-    validatorToken: pathUsd,
-  })
+  const [liquidityAfterBurn, poolAfterBurn] = await Promise.all([
+    Actions.amm.getLiquidityBalance(client, {
+      address: client.account.address,
+      userToken: alphaUsd,
+      validatorToken: Addresses.pathUsd,
+    }),
+    Actions.amm.getPool(client, {
+      userToken: alphaUsd,
+      validatorToken: Addresses.pathUsd,
+    }),
+  ])
   return {
     burn,
     first,

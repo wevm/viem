@@ -32,6 +32,7 @@ beforeAll(async () => {
 test('exports a zero-input Viem example', () => {
   expect(sourceText).toMatch(/from ['"]viem/)
   expect(sourceText).toMatch(/^const \w*client\s*=\s*Client\.create\s*\(/im)
+  expect(sourceText).toMatch(/\.transactions\.length/)
   expectTypeOf(example).parameters.toEqualTypeOf<[]>()
 }, 60_000)
 

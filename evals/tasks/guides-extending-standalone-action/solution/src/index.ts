@@ -3,10 +3,14 @@ import { mainnet } from 'viem/chains'
 
 const address = '0x1111111111111111111111111111111111111111'
 
-const baseClient = Client.create({
+const client = Client.create({
   chain: mainnet,
   transport: http('http://anvil:8545'),
-})
+}).extend((client) => ({
+  accounts: {
+    getSummary: () => getAccountSummary(client),
+  },
+}))
 
 async function getAccountSummary(client: Client.Client) {
   const [balance, nonce] = await Promise.all([
@@ -15,12 +19,6 @@ async function getAccountSummary(client: Client.Client) {
   ])
   return { balance, nonce }
 }
-
-const client = baseClient.extend((client) => ({
-  accounts: {
-    getSummary: () => getAccountSummary(client),
-  },
-}))
 
 export async function example() {
   const [viaAction, viaMethod] = await Promise.all([

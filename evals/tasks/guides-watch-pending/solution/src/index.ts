@@ -12,25 +12,26 @@ const client = Client.create({
 
 export async function example() {
   await Actions.block.setAutomine(client, { enabled: false })
-  let stopWatching = () => {}
+  const watch = Actions.transaction.watchPending(client)
   try {
-    const pending = new Promise<`0x${string}`>((resolve, reject) => {
-      const watch = Actions.transaction.watchPending(client)
-      stopWatching = () => watch.off()
-      watch.onTransactions(([hash]) => {
-        if (!hash) return
-        resolve(hash)
-      })
-      watch.onError(reject)
-    })
+    const pending = (async () => {
+      for await (const { hashes } of watch) {
+        const [hash] = hashes
+        if (hash) return hash
+      }
+      throw new Error('Pending transaction watcher stopped.')
+    })()
     await new Promise((resolve) => setTimeout(resolve, client.pollingInterval))
-    const hash = await Actions.transaction.send(client, {
-      to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
-      value: 1n,
-    })
-    return { hash, observed: await pending }
+    const [hash, observed] = await Promise.all([
+      Actions.transaction.send(client, {
+        to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+        value: 1n,
+      }),
+      pending,
+    ])
+    return { hash, observed }
   } finally {
-    stopWatching()
+    watch.off()
     await Actions.block.setAutomine(client, { enabled: true })
     await Actions.block.mine(client, { blocks: 1 })
   }

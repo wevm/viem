@@ -2,22 +2,15 @@ import { ContractError } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
 import { Account, Actions, Client, http } from 'viem/tempo'
 
-const grantee = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
+const admin = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+)
+const minter = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
+)
 const recipient = '0x4545454545454545454545454545454545454545'
-
 const client = Client.create({
-  account: Account.fromSecp256k1(
-    '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
-  ),
-  chain: tempoLocalnet,
-  pollingInterval: 100,
-  transport: http('http://tempo:8545'),
-})
-
-const granteeClient = Client.create({
-  account: Account.fromSecp256k1(
-    '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
-  ),
+  account: admin,
   chain: tempoLocalnet,
   pollingInterval: 100,
   transport: http('http://tempo:8545'),
@@ -30,37 +23,39 @@ export async function example() {
     symbol: 'ROLE',
   })
   const before = await Actions.token.hasRole(client, {
-    account: grantee,
+    account: minter.address,
     role: 'issuer',
     token,
   })
   const grant = await Actions.token.grantRolesSync(client, {
     roles: ['issuer'],
-    to: grantee,
+    to: minter.address,
     token,
   })
   const granted = await Actions.token.hasRole(client, {
-    account: grantee,
+    account: minter.address,
     role: 'issuer',
     token,
   })
-  const mint = await Actions.token.mintSync(granteeClient, {
+  const mint = await Actions.token.mintSync(client, {
+    account: minter,
     amount: 25_000_000n,
     to: recipient,
     token,
   })
   const revoke = await Actions.token.revokeRolesSync(client, {
-    from: grantee,
+    from: minter.address,
     roles: ['issuer'],
     token,
   })
   const revoked = await Actions.token.hasRole(client, {
-    account: grantee,
+    account: minter.address,
     role: 'issuer',
     token,
   })
   const rejected = await Actions.token
-    .mintSync(granteeClient, {
+    .mintSync(client, {
+      account: minter,
       amount: 1_000_000n,
       to: recipient,
       token,

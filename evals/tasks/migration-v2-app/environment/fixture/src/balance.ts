@@ -1,8 +1,8 @@
 import { formatEther } from 'viem'
 
-import { publicClient } from './client.js'
+import { client } from './client.js'
 
 export async function getEthBalance(address: `0x${string}`) {
-  const wei = await publicClient.getBalance({ address })
+  const wei = await client.getBalance({ address })
   return { wei, ether: formatEther(wei) }
 }

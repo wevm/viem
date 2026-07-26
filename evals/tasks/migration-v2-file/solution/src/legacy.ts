@@ -1,16 +1,14 @@
-import { Account, Client, http, publicActions, walletActions } from 'viem'
+import { Account, Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { Value } from 'viem/utils'
 
-const rpcUrl = 'http://anvil:8545'
-
-const publicClient = Client.create({
+const client = Client.create({
   chain: mainnet,
-  transport: http(rpcUrl),
-}).extend(publicActions())
+  transport: http('http://anvil:8545'),
+})
 
 export async function getEthBalance(address: `0x${string}`): Promise<string> {
-  const balance = await publicClient.address.getBalance({ address })
+  const balance = await Actions.address.getBalance(client, { address })
   return Value.formatEther(balance)
 }
 
@@ -19,19 +17,13 @@ export async function sendPayment(
   to: `0x${string}`,
   amountEther: string,
 ) {
-  const account = Account.fromPrivateKey(privateKey)
-  const walletClient = Client.create({
-    account,
-    chain: mainnet,
-    transport: http(rpcUrl),
-  }).extend(walletActions())
-  const hash = await walletClient.transaction.send({
+  return Actions.transaction.sendSync(client, {
+    account: Account.fromPrivateKey(privateKey),
     to,
     value: Value.fromEther(amountEther),
   })
-  return publicClient.transaction.waitForReceipt({ hash }).receipt
 }
 
 export async function getLatestBlockNumber(): Promise<bigint> {
-  return publicClient.block.getNumber()
+  return Actions.block.getNumber(client)
 }

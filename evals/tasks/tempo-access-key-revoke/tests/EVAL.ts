@@ -57,6 +57,9 @@ test('exports a zero-input viem example', () => {
   expectTypeOf(example).parameters.toEqualTypeOf<[]>()
   const source = readFileSync('src/index.ts', 'utf8')
   expect(source).toMatch(/from ['"]viem/)
+  expect(source.match(/\bClient\.create\s*\(/g)).toHaveLength(1)
+  expect(source).toMatch(/\bActions\.accessKey\.signAuthorization\s*\(/)
+  expect(source).toMatch(/\bkeyAuthorization\b/)
   expect(source).toMatch(/\bContractFunctionRevertedError\b/)
 }, 60_000)
 
@@ -64,13 +67,16 @@ test('spends through and revokes the limited key', async () => {
   const before = await balanceOf(recipient)
   const result = await example()
 
-  expect(['success', '0x1']).toContain(result.authorization.receipt.status)
   expect(['success', '0x1']).toContain(result.transfer.receipt.status)
   expect(['success', '0x1']).toContain(result.revocation.receipt.status)
-  expect(result.before).toBe(limit)
-  expect(result.after).toBeLessThan(limit)
+  expect(result.keyAuthorization.address.toLowerCase()).toBe(accessKeyAddr)
+  expect(result.keyAuthorization.limits).toMatchObject([
+    { limit, token: pathUsd },
+  ])
+  expect(result.limit).toBe(limit)
+  expect(result.remaining).toBeLessThan(limit)
   expect((await balanceOf(recipient)) - before).toBe(5_000_000n)
-  expect(await remainingLimit()).toBe(result.after)
+  expect(await remainingLimit()).toBe(result.remaining)
   expect(await isRevoked()).toBe(true)
   expect(result.rejected).toBe(true)
 }, 120_000)

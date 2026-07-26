@@ -1,8 +1,7 @@
-import { Actions } from 'viem'
-import { Account, Actions as tempo_Actions, Client, http } from 'viem/tempo'
 import { tempoLocalnet } from 'viem/chains'
+import { Account, Actions, Addresses, Client, http } from 'viem/tempo'
+import { Value } from 'viem/utils'
 
-const pathUsd = '0x20c0000000000000000000000000000000000000'
 const client = Client.create({
   account: Account.fromSecp256k1(
     '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
@@ -13,18 +12,20 @@ const client = Client.create({
 })
 
 export async function example() {
-  const { timestamp } = await Actions.block.get(client)
+  const { timestamp } = await client.block.get()
   const validAfter = Number(timestamp) + 6
-  const gas = await tempo_Actions.token.transfer.estimateGas(client, {
-    amount: { decimals: 6, formatted: '12.5' },
-    to: '0x5151515151515151515151515151515151515151',
-    token: pathUsd,
+  const amount = Value.from('12.5', 6)
+  const to = '0x5151515151515151515151515151515151515151'
+  const gas = await Actions.token.transfer.estimateGas(client, {
+    amount,
+    to,
+    token: Addresses.pathUsd,
   })
-  const result = await tempo_Actions.token.transferSync(client, {
-    amount: { decimals: 6, formatted: '12.5' },
+  const result = await Actions.token.transferSync(client, {
+    amount,
     gas,
-    to: '0x5151515151515151515151515151515151515151',
-    token: pathUsd,
+    to,
+    token: Addresses.pathUsd,
     validAfter,
   })
   return { result, validAfter }

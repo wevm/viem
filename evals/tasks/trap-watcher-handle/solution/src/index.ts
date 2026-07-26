@@ -7,19 +7,16 @@ const client = Client.create({
   transport: http('http://anvil:8545'),
 })
 
-export function example(): Promise<bigint[]> {
+export async function example() {
   const numbers: bigint[] = []
-  return new Promise((resolve, reject) => {
-    const watch = Actions.block.watchNumber(client)
-    watch.onBlockNumber((blockNumber) => {
+  const watch = Actions.block.watchNumber(client)
+  try {
+    for await (const { blockNumber } of watch) {
       numbers.push(blockNumber)
-      if (numbers.length < 3) return
-      watch.off()
-      resolve(numbers)
-    })
-    watch.onError((error) => {
-      watch.off()
-      reject(error)
-    })
-  })
+      if (numbers.length === 3) return numbers
+    }
+    throw new Error('Block watcher stopped.')
+  } finally {
+    watch.off()
+  }
 }

@@ -3,7 +3,7 @@ schema_version = "1.4"
 [task]
 name = "viem/guides-contract-write-simulate"
 version = "1.0.0"
-description = "Simulate an ERC-20 transfer, then write it and return the receipt."
+description = "Simulate an ERC-20 transfer, synchronously send its request, and return the receipt."
 
 [metadata]
 area = "guides"

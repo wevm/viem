@@ -15,8 +15,6 @@ const client = Client.create({
 
 export async function example() {
   await Actions.amm.mintSync(client, {
-    feeToken: pathUsd,
-    nonceKey: (1n << 255n) + 7n,
     to: client.account.address,
     userTokenAddress: alphaUsd,
     validatorTokenAddress: pathUsd,

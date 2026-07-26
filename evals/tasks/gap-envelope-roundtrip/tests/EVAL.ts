@@ -26,6 +26,7 @@ const signedHash =
 test('uses viem', () => {
   const source = readFileSync('src/index.ts', 'utf8')
   expect(source).toMatch(/from ['"]viem/)
+  expect(source).toMatch(/TxEnvelopeEip1559\.from\(/)
   expect(source).toMatch(/TxEnvelopeEip1559\.serialize\(/)
   expect(source).toMatch(/TxEnvelopeEip1559\.deserialize\(/)
   expect(source).toMatch(/TxEnvelopeEip1559\.hash\(/)

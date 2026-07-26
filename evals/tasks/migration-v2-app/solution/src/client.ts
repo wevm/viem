@@ -1,17 +1,12 @@
 import { Account, Client, http, publicActions, walletActions } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const rpcUrl = 'http://anvil:8545'
-
-export const publicClient = Client.create({
+export const client = Client.create({
+  account: Account.fromPrivateKey(
+    '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+  ),
   chain: mainnet,
-  transport: http(rpcUrl),
-}).extend(publicActions())
-
-export function getWalletClient(privateKey: `0x${string}`) {
-  return Client.create({
-    account: Account.fromPrivateKey(privateKey),
-    chain: mainnet,
-    transport: http(rpcUrl),
-  }).extend(walletActions())
-}
+  transport: http('http://anvil:8545'),
+})
+  .extend(publicActions())
+  .extend(walletActions())

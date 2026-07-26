@@ -18,6 +18,8 @@ test('uses call identity without sending transactions', () => {
   const source = readFileSync('src/index.ts', 'utf8')
   expect(source).toMatch(/from ['"]viem/)
   expect(source).toMatch(/Actions\.call/)
+  expect(source).toMatch(/Abis\.erc20/)
+  expect(source).toMatch(/AbiFunction\.encodeData/)
   expect(source).toMatch(/account\s*:/)
 }, 60_000)
 

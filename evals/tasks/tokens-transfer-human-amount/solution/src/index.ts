@@ -1,6 +1,7 @@
 import { Account, Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { usdc } from 'viem/tokens'
+
+const token = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
 
 const client = Client.create({
   account: Account.fromPrivateKey(
@@ -11,10 +12,14 @@ const client = Client.create({
 })
 
 export async function example() {
+  await Actions.transaction.sendSync(client, {
+    to: token,
+    value: 2_000_000_000_000_000_000n,
+  })
   const { receipt } = await Actions.token.transferSync(client, {
-    amount: { formatted: '1.5' },
+    amount: { decimals: 18, formatted: '1.5' },
     to: '0x4242424242424242424242424242424242424242',
-    token: usdc(mainnet.id).address,
+    token,
   })
   return receipt
 }

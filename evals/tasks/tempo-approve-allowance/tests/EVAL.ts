@@ -63,7 +63,9 @@ beforeAll(async () => {
 
 test('exports a zero-input viem example', () => {
   expectTypeOf(example).parameters.toEqualTypeOf<[]>()
-  expect(readFileSync('src/index.ts', 'utf8')).toMatch(/from ['"]viem/)
+  const source = readFileSync('src/index.ts', 'utf8')
+  expect(source).toMatch(/from ['"]viem/)
+  expect(source.match(/\bClient\.create\s*\(/g)).toHaveLength(1)
 }, 60_000)
 
 test('approves, reads, and spends the allowance', async () => {

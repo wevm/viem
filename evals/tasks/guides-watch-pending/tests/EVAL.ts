@@ -27,6 +27,8 @@ async function rpc(method: string, params: unknown[]) {
 
 test('exports a zero-input Viem example', () => {
   expect(sourceText).toMatch(/from ['"]viem/)
+  expect(sourceText).toMatch(/\bActions\.transaction\.watchPending\s*\(/)
+  expect(sourceText).toMatch(/\bfor\s+await\s*\(/)
   expect(sourceText).toMatch(/^const \w*client\s*=\s*Client\.create\s*\(/im)
   expectTypeOf(example).parameters.toEqualTypeOf<[]>()
 }, 60_000)

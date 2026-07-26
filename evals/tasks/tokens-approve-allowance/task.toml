@@ -3,7 +3,7 @@ schema_version = "1.4"
 [task]
 name = "viem/tokens-approve-allowance"
 version = "1.0.0"
-description = "Approve a USDC spender, read the allowance, and spend part of it."
+description = "Approve a WETH spender, read the allowance, and spend part of it."
 
 [metadata]
 area = "tokens"

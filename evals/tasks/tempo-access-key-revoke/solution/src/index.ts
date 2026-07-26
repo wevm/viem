@@ -1,8 +1,8 @@
 import { ContractError } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
-import { Account, Actions, Client, Expiry, http } from 'viem/tempo'
+import { Account, Actions, Addresses, Client, Expiry, http } from 'viem/tempo'
+import { Value } from 'viem/utils'
 
-const pathUsd = '0x20c0000000000000000000000000000000000000'
 const root = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
 )
@@ -10,6 +10,7 @@ const accessKey = Account.fromSecp256k1(
   '0x5fe1a3c2f2f7cbb2e6c8e6b092de2e04ae0d24a655e42e15a4f0f37b78f4e989',
   { access: root },
 )
+const limit = Value.from('50', 6)
 
 const client = Client.create({
   account: root,
@@ -18,47 +19,32 @@ const client = Client.create({
   transport: http('http://tempo:8545'),
 })
 
-const accessClient = Client.create({
-  account: accessKey,
-  chain: tempoLocalnet,
-  pollingInterval: 100,
-  transport: http('http://tempo:8545'),
-})
-
-async function remaining() {
-  const result = await Actions.accessKey.getRemainingLimit(client, {
-    accessKey: accessKey.address,
-    account: root.address,
-    token: pathUsd,
-  })
-  return result.remaining
-}
-
 export async function example() {
-  const authorization = await Actions.accessKey.authorizeSync(client, {
+  const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
     accessKey,
     expiry: Expiry.hours(1),
-    feeToken: pathUsd,
-    limits: [{ limit: 50_000_000n, token: pathUsd }],
+    limits: [{ limit, token: Addresses.pathUsd }],
   })
-  const before = await remaining()
-  const transfer = await Actions.token.transferSync(accessClient, {
-    amount: 5_000_000n,
-    feeToken: pathUsd,
+  const transfer = await Actions.token.transferSync(client, {
+    account: accessKey,
+    amount: Value.from('5', 6),
+    keyAuthorization,
     to: '0x4242424242424242424242424242424242424242',
-    token: pathUsd,
+    token: Addresses.pathUsd,
   })
-  const after = await remaining()
+  const { remaining } = await Actions.accessKey.getRemainingLimit(client, {
+    accessKey,
+    token: Addresses.pathUsd,
+  })
   const revocation = await Actions.accessKey.revokeSync(client, {
-    accessKey: accessKey.address,
-    feeToken: pathUsd,
+    accessKey,
   })
   const rejected = await Actions.token
-    .transferSync(accessClient, {
-      amount: 1_000_000n,
-      feeToken: pathUsd,
+    .transferSync(client, {
+      account: accessKey,
+      amount: Value.from('1', 6),
       to: '0x4242424242424242424242424242424242424242',
-      token: pathUsd,
+      token: Addresses.pathUsd,
     })
     .then(() => false)
     .catch((error: unknown) => {
@@ -69,5 +55,5 @@ export async function example() {
         return true
       throw error
     })
-  return { after, authorization, before, rejected, revocation, transfer }
+  return { keyAuthorization, limit, rejected, remaining, revocation, transfer }
 }

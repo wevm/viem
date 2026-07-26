@@ -10,25 +10,25 @@ const client = Client.create({
   transport: http('http://anvil:8545'),
 })
 
-async function stubContract(options: {
-  address: Address.Address
-  value: bigint
-}) {
-  const { address, value } = options
-  await Actions.address.setCode(client, { address, bytecode })
-  await Actions.address.setStorageAt(client, {
-    address,
-    index: 0,
-    value: Hex.fromNumber(value, { size: 32 }),
-  })
-  return Actions.contract.read(client, {
-    abi,
-    address,
-    functionName: 'getValue',
-  })
-}
-
 export async function example() {
+  async function stubContract(options: {
+    address: Address.Address
+    value: bigint
+  }) {
+    const { address, value } = options
+    await Actions.address.setCode(client, { address, bytecode })
+    await Actions.address.setStorageAt(client, {
+      address,
+      index: 0,
+      value: Hex.fromNumber(value, { size: 32 }),
+    })
+    return Actions.contract.read(client, {
+      abi,
+      address,
+      functionName: 'getValue',
+    })
+  }
+
   const first = await stubContract({
     address: '0x51ab7042d3cbeff0e5c25671e419b1682d29d757',
     value: 481_516_234_233n,

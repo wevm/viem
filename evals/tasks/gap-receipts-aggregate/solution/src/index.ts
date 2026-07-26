@@ -7,9 +7,6 @@ const client = Client.create({
 })
 
 export async function example() {
-  const blockNumber = await Actions.block.getNumber(client)
-  const receipts = await Actions.block.getReceipts(client, {
-    blockNumber,
-  })
+  const receipts = await Actions.block.getReceipts(client)
   return receipts.reduce((sum, receipt) => sum + receipt.gasUsed, 0n)
 }

@@ -1,8 +1,8 @@
-import { Actions, ContractError } from 'viem'
+import { ContractError } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
-import { Account, Actions as tempo_Actions, Client, http } from 'viem/tempo'
+import { Account, Actions, Addresses, Client, http } from 'viem/tempo'
+import { Value } from 'viem/utils'
 
-const pathUsd = '0x20c0000000000000000000000000000000000000'
 const client = Client.create({
   account: Account.fromSecp256k1(
     '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
@@ -13,20 +13,20 @@ const client = Client.create({
 })
 
 export async function example() {
-  const { timestamp } = await Actions.block.get(client)
+  const { timestamp } = await client.block.get()
   const deadline = Number(timestamp) + 60
-  const result = await tempo_Actions.token.transferSync(client, {
-    amount: { decimals: 6, formatted: '10.5' },
+  const result = await Actions.token.transferSync(client, {
+    amount: Value.from('10.5', 6),
     to: '0x4545454545454545454545454545454545454545',
-    token: pathUsd,
+    token: Addresses.pathUsd,
     validBefore: deadline,
   })
 
-  const expired = await tempo_Actions.token
+  const expired = await Actions.token
     .transferSync(client, {
-      amount: { decimals: 6, formatted: '3.25' },
+      amount: Value.from('3.25', 6),
       to: '0x4646464646464646464646464646464646464646',
-      token: pathUsd,
+      token: Addresses.pathUsd,
       validBefore: Number(timestamp) - 10,
     })
     .then(() => false)

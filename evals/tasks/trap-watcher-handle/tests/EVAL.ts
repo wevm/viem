@@ -19,6 +19,7 @@ test('exports a zero-input viem example', () => {
   expectTypeOf(example).parameters.toEqualTypeOf<[]>()
   const source = readFileSync('src/index.ts', 'utf8')
   expect(source).toMatch(/from ['"]viem/)
+  expect(source).toMatch(/\bfor\s+await\s*\(/)
   expect(source).toMatch(/\.off\s*\(\s*\)/)
 }, 60_000)
 

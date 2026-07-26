@@ -30,9 +30,9 @@ async function rpc(method: string, params: unknown[]) {
 
 test('exports a zero-input Viem example', () => {
   expect(sourceText).toMatch(/from ['"]viem/)
-  expect(sourceText).toMatch(/\bActions\.transaction\.prepare\s*\(/)
-  expect(sourceText).toMatch(/\bActions\.transaction\.sendRaw\s*\(/)
   expect(sourceText).toMatch(/\bActions\.transaction\.sign\s*\(/)
+  expect(sourceText).toMatch(/\bprepare\s*:\s*true\b/)
+  expect(sourceText).toMatch(/\bActions\.transaction\.sendRawSync\s*\(/)
   expect(sourceText).toMatch(/^const \w*client\s*=\s*Client\.create\s*\(/im)
   expectTypeOf(example).parameters.toEqualTypeOf<[]>()
 }, 60_000)

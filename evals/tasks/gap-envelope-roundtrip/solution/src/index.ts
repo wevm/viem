@@ -1,6 +1,6 @@
 import { TxEnvelopeEip1559 } from 'viem/utils'
 
-const transaction = {
+const transaction = TxEnvelopeEip1559.from({
   chainId: 1,
   data: '0xdeadbeef',
   gas: 21_000n,
@@ -12,13 +12,13 @@ const transaction = {
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1_000_000_000_000_000_000n,
   yParity: 0,
-} as const
+})
 
 export function example() {
   const serialized = TxEnvelopeEip1559.serialize(transaction)
   return {
     deserialized: TxEnvelopeEip1559.deserialize(serialized),
-    hash: TxEnvelopeEip1559.hash(TxEnvelopeEip1559.from(transaction)),
+    hash: TxEnvelopeEip1559.hash(transaction),
     serialized,
   }
 }

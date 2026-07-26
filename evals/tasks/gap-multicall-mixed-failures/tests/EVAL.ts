@@ -19,8 +19,9 @@ const client = Client.create({
 test('uses a failure-tolerant multicall', () => {
   const source = readFileSync('src/index.ts', 'utf8')
   expect(source).toMatch(/from ['"]viem/)
-  expect(source).toMatch(/Actions\.multicall/)
-  expect(source).toMatch(/Actions\.token\.getBalance\.call/)
+  expect(source).toMatch(/batch\s*:\s*\{\s*multicall\s*:\s*true\s*\}/)
+  expect(source).toMatch(/Promise\.allSettled/)
+  expect(source).toMatch(/Actions\.token\.getBalance/)
 }, 60_000)
 
 test('takes no inputs', () => {
@@ -45,13 +46,10 @@ test('mixed batch: per-call statuses, correct values, order preserved', async ()
   const results = await example()
 
   expect(results).toHaveLength(3)
-
-  expect(results[0]!.status).toBe('success')
-  expect((results[0] as { balance: bigint }).balance).toBe(expectedUsdc.amount)
-
-  expect(results[1]!.status).toBe('failure')
-  expect((results[1] as { error: Error }).error).toBeInstanceOf(Error)
-
-  expect(results[2]!.status).toBe('success')
-  expect((results[2] as { balance: bigint }).balance).toBe(expectedWeth.amount)
+  expect(results[0]).toEqual({ status: 'fulfilled', value: expectedUsdc })
+  expect(results[1]?.status).toBe('rejected')
+  if (results[1]?.status !== 'rejected')
+    throw new Error('expected the non-token read to fail')
+  expect(results[1].reason).toBeInstanceOf(Error)
+  expect(results[2]).toEqual({ status: 'fulfilled', value: expectedWeth })
 }, 60_000)

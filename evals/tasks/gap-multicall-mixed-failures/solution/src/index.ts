@@ -9,19 +9,15 @@ const tokens = [
 ] as const
 
 const client = Client.create({
+  batch: { multicall: true },
   chain: mainnet,
   transport: http('http://anvil:8545'),
 })
 
-export async function example() {
-  const { results } = await Actions.multicall(client, {
-    calls: tokens.map((token) =>
-      Actions.token.getBalance.call(client, { account: holder, token }),
+export function example() {
+  return Promise.allSettled(
+    tokens.map((token) =>
+      Actions.token.getBalance(client, { account: holder, token }),
     ),
-  })
-  return results.map((entry) =>
-    entry.status === 'success'
-      ? { status: 'success', balance: entry.result }
-      : { status: 'failure', error: entry.error },
   )
 }

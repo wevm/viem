@@ -37,11 +37,13 @@ async function balanceOf(address: string) {
 test('exports a zero-input Viem example', () => {
   expect(sourceText).toMatch(/from ['"]viem/)
   expect(sourceText).toMatch(/^const \w*client\s*=\s*Client\.create\s*\(/im)
-  expect(sourceText).toMatch(/\bContract\.from\s*\(/)
+  expect(sourceText).toMatch(/\bActions\.token\.getMetadata\s*\(/)
+  expect(sourceText).toMatch(/\bActions\.token\.getBalance\s*\(/)
+  expect(sourceText).toMatch(/\bActions\.token\.transfer\.simulate\s*\(/)
   expectTypeOf(example).parameters.toEqualTypeOf<[]>()
 }, 60_000)
 
-test('reads and simulates through a contract instance', async () => {
+test('reads and simulates with token actions', async () => {
   const balances = [await balanceOf(holder), await balanceOf(recipient)]
   const nonce = await rpc('eth_getTransactionCount', [holder, 'latest'])
   const report = await example()

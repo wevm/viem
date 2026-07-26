@@ -3,7 +3,7 @@ schema_version = "1.4"
 [task]
 name = "viem/tokens-transfer-human-amount"
 version = "1.0.0"
-description = "Transfer USDC with a human-readable amount string using viem."
+description = "Transfer WETH with a human-readable amount string using viem."
 
 [metadata]
 area = "tokens"

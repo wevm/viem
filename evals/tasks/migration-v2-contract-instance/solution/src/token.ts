@@ -1,67 +1,18 @@
 import { Client, Contract, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
 
 const client = Client.create({
   chain: mainnet,
   transport: http('http://anvil:8545'),
 })
 
-const abi = [
-  {
-    type: 'function',
-    name: 'balanceOf',
-    stateMutability: 'view',
-    inputs: [{ name: 'owner', type: 'address' }],
-    outputs: [{ type: 'uint256' }],
-  },
-  {
-    type: 'function',
-    name: 'name',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'string' }],
-  },
-  {
-    type: 'function',
-    name: 'symbol',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'string' }],
-  },
-  {
-    type: 'function',
-    name: 'decimals',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'uint8' }],
-  },
-  {
-    type: 'function',
-    name: 'totalSupply',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'uint256' }],
-  },
-  {
-    type: 'event',
-    name: 'Transfer',
-    inputs: [
-      { name: 'from', type: 'address', indexed: true },
-      { name: 'to', type: 'address', indexed: true },
-      { name: 'value', type: 'uint256', indexed: false },
-    ],
-  },
-] as const
-
-function tokenContract(token: `0x${string}`) {
-  return Contract.from({ abi, address: token, client })
-}
-
 export async function getBalance(
   token: `0x${string}`,
   owner: `0x${string}`,
 ): Promise<bigint> {
-  return tokenContract(token).read.balanceOf([owner])
+  const contract = Contract.from({ abi: Abis.erc20, address: token, client })
+  return contract.read.balanceOf([owner])
 }
 
 export async function getMetadata(token: `0x${string}`): Promise<{
@@ -70,7 +21,7 @@ export async function getMetadata(token: `0x${string}`): Promise<{
   symbol: string
   totalSupply: bigint
 }> {
-  const contract = tokenContract(token)
+  const contract = Contract.from({ abi: Abis.erc20, address: token, client })
   const [name, symbol, decimals, totalSupply] = await Promise.all([
     contract.read.name(),
     contract.read.symbol(),
@@ -84,7 +35,8 @@ export async function getTransfers(
   token: `0x${string}`,
   range: { fromBlock: bigint; toBlock: bigint },
 ): Promise<{ from: `0x${string}`; to: `0x${string}`; value: bigint }[]> {
-  const logs = await tokenContract(token).getLogs.Transfer({
+  const contract = Contract.from({ abi: Abis.erc20, address: token, client })
+  const logs = await contract.getLogs.Transfer({
     fromBlock: range.fromBlock,
     strict: true,
     toBlock: range.toBlock,

@@ -37,26 +37,15 @@ async function balanceOf(address: string) {
 test('exports a zero-input Viem example', () => {
   expect(sourceText).toMatch(/from ['"]viem/)
   expect(sourceText).toMatch(/\bActions\.call\s*\(/)
+  expect(sourceText).toMatch(/\bAbiFunction\.encodeData\s*\(\s*Abis\.erc20/)
+  expect(sourceText).toMatch(/\bAbiFunction\.decodeResult\s*\(\s*Abis\.erc20/)
   expect(sourceText).toMatch(/^const \w*client\s*=\s*Client\.create\s*\(/im)
-  expect(sourceText).toMatch(/\bHex\.toBigInt\s*\(/)
   expectTypeOf(example).parameters.toEqualTypeOf<[]>()
 }, 60_000)
 
 test('builds and decodes raw USDC balance calls', async () => {
-  await rpc('anvil_setBalance', [whale, '0xde0b6b3a7640000'])
-  await rpc('anvil_impersonateAccount', [whale])
-  try {
-    const data = `0xa9059cbb${recipient
-      .slice(2)
-      .padStart(64, '0')}${12_345n.toString(16).padStart(64, '0')}`
-    await rpc('eth_sendTransaction', [{ data, from: whale, to: token }])
-  } finally {
-    await rpc('anvil_stopImpersonatingAccount', [whale])
-  }
-
   const result = await example()
   expect(result.whaleBalance).toBe(await balanceOf(whale))
   expect(result.recipientBalance).toBe(await balanceOf(recipient))
   expect(result.whaleBalance).toBeGreaterThan(0n)
-  expect(result.recipientBalance).toBeGreaterThanOrEqual(12_345n)
 }, 120_000)

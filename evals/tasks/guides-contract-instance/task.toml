@@ -3,7 +3,7 @@ schema_version = "1.4"
 [task]
 name = "viem/guides-contract-instance"
 version = "1.0.0"
-description = "Bind an ERC-20 contract once and run reads plus a transfer preview through it."
+description = "Read ERC-20 token data and preview a transfer with Viem's token actions."
 
 [metadata]
 area = "guides"

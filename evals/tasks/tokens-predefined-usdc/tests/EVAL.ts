@@ -18,4 +18,6 @@ test('resolves mainnet USDC and reads its metadata', async () => {
   expect(result.decimals).toBe(6)
   expect(result.name).toBe('USD Coin')
   expect(result.symbol).toBe('USDC')
+  expect(result.totalSupply).toBeTypeOf('bigint')
+  expect(result.totalSupply).toBeGreaterThan(0n)
 }, 60_000)

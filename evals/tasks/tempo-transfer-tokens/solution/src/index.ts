@@ -1,5 +1,6 @@
-import { Account, Actions, Client, http } from 'viem/tempo'
 import { tempoLocalnet } from 'viem/chains'
+import { Account, Actions, Addresses, Client, http } from 'viem/tempo'
+import { Value } from 'viem/utils'
 
 const client = Client.create({
   account: Account.fromSecp256k1(
@@ -10,18 +11,16 @@ const client = Client.create({
   transport: http('http://tempo:8545'),
 })
 
-const token = '0x20c0000000000000000000000000000000000000'
-
 export async function example() {
   const first = await Actions.token.transferSync(client, {
-    amount: { decimals: 6, formatted: '10.5' },
+    amount: Value.from('10.5', 6),
     to: '0x4242424242424242424242424242424242424242',
-    token,
+    token: Addresses.pathUsd,
   })
   const second = await Actions.token.transferSync(client, {
-    amount: { decimals: 6, formatted: '0.25' },
+    amount: Value.from('0.25', 6),
     to: '0x4343434343434343434343434343434343434343',
-    token,
+    token: Addresses.pathUsd,
   })
   return { first, second }
 }

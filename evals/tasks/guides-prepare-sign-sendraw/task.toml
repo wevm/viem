@@ -3,7 +3,7 @@ schema_version = "1.4"
 [task]
 name = "viem/guides-prepare-sign-sendraw"
 version = "1.0.0"
-description = "Prepare, sign offline, and broadcast a raw transaction with viem."
+description = "Prepare while signing, then synchronously broadcast a raw transaction with viem."
 
 [metadata]
 area = "guides"

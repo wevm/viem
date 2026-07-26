@@ -3,7 +3,7 @@ schema_version = "1.4"
 [task]
 name = "viem/tokens-predefined-usdc"
 version = "1.0.0"
-description = "Resolve the predefined USDC token's mainnet address and read its on-chain metadata."
+description = "Resolve predefined mainnet USDC and read its on-chain metadata and total supply."
 
 [metadata]
 area = "tokens"
