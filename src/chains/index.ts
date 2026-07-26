@@ -227,6 +227,7 @@ export { form } from './definitions/form.js'
 export { forma } from './definitions/forma.js'
 export { formTestnet } from './definitions/formTestnet.js'
 export { forta } from './definitions/forta.js'
+export { fem } from './definitions/fem.js'
 /** @deprecated Use `anvil` instead. */
 export { foundry } from './definitions/foundry.js'
 export { fraxtal } from './definitions/fraxtal.js'
