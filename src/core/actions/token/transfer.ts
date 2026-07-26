@@ -165,7 +165,7 @@ export namespace transfer {
    *
    * @param client - Client.
    * @param options - Options.
-   * @returns The simulation result and write request.
+   * @returns The simulation result and transaction request.
    */
   export async function simulate<
     chain extends Chain.Chain | undefined,

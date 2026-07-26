@@ -142,11 +142,13 @@ const gas = await client.token.transfer.estimateGas({
   token: 'usdc',
 })
 
-const { result } = await client.token.transfer.simulate({
+const { request, result } = await client.token.transfer.simulate({
   amount: { formatted: '1' },
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   token: 'usdc',
 })
+
+const receipt = await client.transaction.sendSync(request)
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

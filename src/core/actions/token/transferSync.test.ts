@@ -13,6 +13,7 @@ import {
   usdc,
 } from '~test/token.js'
 import { approve } from './approve.js'
+import { transfer } from './transfer.js'
 import { transferSync } from './transferSync.js'
 
 const spender = accounts[6].address
@@ -22,6 +23,20 @@ beforeAll(async () => {
   await prepareAccount(holder)
   await prepareAccount(spender)
   await testClient.block.setAutomine({ enabled: true })
+})
+
+describe('transfer.simulate', () => {
+  test('request: transaction.sendSync', async () => {
+    const { request, result } = await transfer.simulate(client, {
+      account: holder,
+      amount: 1n,
+      to,
+      token: usdc,
+    })
+    expect(result).toBe(true)
+    const receipt = await Actions.transaction.sendSync(client, request)
+    expect(receipt.status).toBe('success')
+  })
 })
 
 describe('transferSync', () => {
