@@ -56,7 +56,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Named imports are fine for `internal/types.ts`.
   - Named imports are fine for single-function helpers like `stringify`, `uid`, and `wait`.
   - Named imports are fine for non-namespace third-party packages like `vitest`.
-- **External consumers and eval solutions use viem entrypoints**; never import `ox` directly outside package implementation code.
+- **External consumers use viem entrypoints**; never import `ox` directly outside package implementation code.
   - Import utility namespaces and types such as `Address`, `Hex`, and `Value` from `viem/utils`.
 - **Internal ox imports use barrel named imports**; never deep-import `ox/<Module>` paths.
   - Use `import { Hex, Value } from 'ox'` and `import type { Address } from 'ox'`.
@@ -70,12 +70,6 @@ This document contains general guidelines for AI agents working on the Viem code
   - Test actions live in their domain namespaces, such as `Actions.block.mine`.
   - Decorator usage prefers named imports like `testActions`.
   - Do not use named imports for individual actions.
-- **Eval feature tasks export `example()`**; every non-migration eval exports one
-  zero-parameter `example` function and no other public surface.
-  - Client-using solutions construct private configured clients at module scope.
-  - Graders import only `example`, call it without arguments, and assert its returned value plus any relevant side effects.
-  - Implement single-use behavior directly in `example`; do not add reusable exports, generics, or option types for the grader.
-  - Migration evals preserve their stated legacy signatures and do not require `example`.
 - **Minimize `as any`**; avoid new `as any` where a safer assertion is practical, but do not mass-rewrite existing crypto, tuple, and inference glue that already relies on it.
 - **No `as never`**; treat a needed `as never` as a bug in the surrounding types and fix the
   types instead. Known root causes and their fixes:
