@@ -16,3 +16,7 @@ requires no authentication.
 3. Use `list_pages`, `list_sources`, `list_source_files`, or `get_file_tree` only when search
    cannot locate the relevant material.
 4. Confirm the public import, signature, types, and generics before changing code.
+
+## Migrating from v2
+
+Refer to the [Viem v2 Migration Guide](https://viem.sh/docs/v2-migration) when migrating from Viem v2.
