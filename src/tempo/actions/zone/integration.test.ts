@@ -171,7 +171,6 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
       const imported = await Actions.zone.waitForTempoBlock(zoneClient, {
         pollingInterval: 100,
         tempoBlockNumber: deposit.receipt.blockNumber,
-        timeout: 30_000,
       })
       expect(imported.tempoBlockNumber).toBeGreaterThanOrEqual(
         deposit.receipt.blockNumber,
@@ -206,7 +205,6 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         {
           pollingInterval: 100,
           tempoBlockNumber: encryptedDeposit.receipt.blockNumber,
-          timeout: 30_000,
         },
       )
       expect(encryptedImported.tempoBlockNumber).toBeGreaterThanOrEqual(

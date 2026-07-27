@@ -19,6 +19,7 @@ auditConfig:
   ignoreGhsas:
     - GHSA-444r-cwp2-x5xf # Alto's Fastify major has no patched release.
     - GHSA-8988-4f7v-96qf # Alto's OpenTelemetry major has no patched release.
+    - GHSA-c96f-x56v-gq3h # Alto's Fastify major has no patched release.
     - GHSA-jx2c-rxcm-jvmq # Alto's Fastify major has no patched release.
     - GHSA-mrq3-vjjr-p77c # Alto's Fastify major has no patched release.
 

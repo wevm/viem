@@ -11,6 +11,7 @@ test('exports', () => {
       "publicActions",
       "testActions",
       "walletActions",
+      "Addresses",
       "Capabilities",
       "Chain",
       "Client",
