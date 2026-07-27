@@ -337,7 +337,7 @@ export async function prepareTransactionRequest<
     return chainId
   }
 
-  const account = account_ ? parseAccount(account_) : account_
+  let account = account_ ? parseAccount(account_) : account_
 
   let nonce = request.nonce
   if (
@@ -366,6 +366,8 @@ export async function prepareTransactionRequest<
       },
     )
     nonce ??= request.nonce
+    const sender = request.account ?? (request as TransactionRequest).from
+    account = sender ? parseAccount(sender) : undefined
   }
 
   const attemptFill = (() => {
@@ -380,6 +382,31 @@ export async function prepareTransactionRequest<
 
     // Do not attempt if `eth_fillTransaction` is not supported.
     if (supportsFillTransaction.get(client.uid) === false) return false
+
+    // Always attempt if the caller explicitly requested a non-empty set of
+    // `parameters` and a fee payer signature is being requested (e.g. Tempo
+    // sponsorship via `feePayer: true`/`Account`) and has not already been
+    // filled. The fee payer signature can only be obtained as a side effect
+    // of `eth_fillTransaction` (the relay co-signs the returned transaction),
+    // so it must be called even when nonce/gas/fees are already fully
+    // populated, or when the caller's `parameters` option omits `'fees'`/
+    // `'gas'` entirely — otherwise the transaction silently ends up without
+    // a fee payer signature. This check intentionally runs before the
+    // `shouldAttempt` gate below, since fee-payer sponsorship is independent
+    // of which parameters the caller opted into filling.
+    //
+    // The `parameters.length > 0` guard excludes internal micro-prepare calls
+    // that explicitly pass an empty `parameters` array (e.g. `estimateGas`'s
+    // internal `prepareTransactionRequest` call for local accounts) — those
+    // are deliberately scoped to fill nothing, and should not independently
+    // re-attempt `eth_fillTransaction` for fee-payer sponsorship.
+    if (
+      parameters.length > 0 &&
+      'feePayer' in request &&
+      (request as any).feePayer &&
+      !('feePayerSignature' in request && (request as any).feePayerSignature)
+    )
+      return true
 
     // Should attempt `eth_fillTransaction` if "fees" or "gas" are required to be populated,
     // otherwise, can just use the other individual calls.

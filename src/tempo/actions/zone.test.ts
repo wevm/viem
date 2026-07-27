@@ -4,33 +4,40 @@ import * as Secp256k1 from 'ox/Secp256k1'
 import {
   type Address,
   createClient,
+  decodeAbiParameters,
   decodeFunctionData,
   encodeFunctionData,
+  encodePacked,
   type Hash,
+  isAddressEqual,
+  keccak256,
   parseEventLogs,
   zeroHash,
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import {
   getTransaction,
+  getTransactionReceipt,
   readContract,
   waitForTransactionReceipt,
   writeContract,
 } from 'viem/actions'
 import { tempoModerato } from 'viem/chains'
+import { Abis, Actions } from 'viem/tempo'
 import { parseUnits } from 'viem/utils'
 import { describe, expect, test } from 'vitest'
 import { accounts } from '~test/constants.js'
-import { chain, http, nodeEnv } from '~test/tempo/config.js'
-import { defineZone } from '~test/tempo/prool.js'
+import { addresses, chain, http, nodeEnv } from '~test/tempo/config.js'
+import { deployEarnGateway, deployEarnStack } from '~test/tempo/earn.js'
+import { defineZone, zoneAdminKey } from '~test/tempo/prool.js'
 import {
   factoryAddress,
   getClient as getZoneClient,
   portalAddress,
-  http as zoneHttp,
   zoneId,
 } from '~test/tempo/zones.js'
-import { WaitForDepositStatusTimeoutError } from '../errors.js'
+import { createHttpServer } from '~test/utils.js'
+import * as WithdrawalSenderTag from '../internal/WithdrawalSenderTag.js'
 import * as Storage from '../Storage.js'
 import * as ZoneAbis from '../zones/Abis.js'
 import { getPortalAddress } from '../zones/zone.js'
@@ -38,13 +45,23 @@ import * as tokenActions from './token.js'
 import * as zoneActions from './zone.js'
 
 const account = privateKeyToAccount(accounts[0].privateKey)
+const portalAdmin = privateKeyToAccount(zoneAdminKey)
+const recoveryRecipient = accounts[2].address
 const mainnetClient = createClient({
   account,
   chain,
   pollingInterval: 100,
   transport: http(),
 })
+const portalAdminClient = createClient({
+  account: portalAdmin,
+  chain,
+  pollingInterval: 100,
+  transport: http(),
+})
 const zoneClient = getZoneClient({ account })
+const hardfork = import.meta.env.VITE_TEMPO_HARDFORK
+const legacyZoneCallback = hardfork === 'T7' || hardfork === 'T8'
 const parentToken = '0x20c0000000000000000000000000000000000000'
 const depositParameters = {
   amount: parseUnits('1', 6),
@@ -106,35 +123,64 @@ async function ensureZoneBalance(zoneToken: Address, minimumBalance: bigint) {
 async function createUnconfiguredZone() {
   if (!factoryAddress) throw new Error('ZoneFactory is unavailable.')
 
-  const verifier = await readContract(mainnetClient, {
-    address: factoryAddress,
-    abi: ZoneAbis.zoneFactory,
-    functionName: 'verifier',
-  })
-  const genesisTempoBlockNumber = BigInt(
-    await mainnetClient.request({ method: 'eth_blockNumber' }),
-  )
-  const hash = await writeContract(mainnetClient, {
-    account,
-    address: factoryAddress,
-    abi: ZoneAbis.zoneFactory,
-    functionName: 'createZone',
-    args: [
-      {
-        initialToken: parentToken,
-        admin: account.address,
-        sequencer: account.address,
-        verifier,
-        zoneParams: {
-          genesisBlockHash: zeroHash,
-          genesisTempoBlockHash: zeroHash,
-          genesisTempoBlockNumber,
-        },
-        rpcUrl: 'http://127.0.0.1:0',
-      },
-    ],
-    gas: 20_000_000n,
-  })
+  const info = await zoneClient.request<{
+    Method: 'zone_getZoneInfo'
+    Parameters: []
+    ReturnType: zoneActions.getZoneInfo.RpcReturnType
+  }>({ method: 'zone_getZoneInfo', params: [] })
+  const hash =
+    'sequencers' in info
+      ? await writeContract(portalAdminClient, {
+          account: portalAdmin,
+          address: factoryAddress,
+          abi: ZoneAbis.zoneFactory,
+          functionName: 'createZone',
+          args: [
+            {
+              initialToken: parentToken,
+              accessMode: false,
+              gatewayMode: false,
+              allowedAccounts: [],
+              zoneGateways: [],
+              admin: account.address,
+              sequencers: [account.address],
+              threshold: 1,
+              rpcUrl: 'http://127.0.0.1:0',
+            },
+          ],
+          gas: 20_000_000n,
+        })
+      : await (async () => {
+          const verifier = await readContract(mainnetClient, {
+            address: factoryAddress,
+            abi: ZoneAbis.zoneFactory,
+            functionName: 'verifier',
+          })
+          const genesisTempoBlockNumber = BigInt(
+            await mainnetClient.request({ method: 'eth_blockNumber' }),
+          )
+          return writeContract(mainnetClient, {
+            account,
+            address: factoryAddress,
+            abi: ZoneAbis.zoneFactory,
+            functionName: 'createZone',
+            args: [
+              {
+                initialToken: parentToken,
+                admin: account.address,
+                sequencer: account.address,
+                verifier,
+                zoneParams: {
+                  genesisBlockHash: zeroHash,
+                  genesisTempoBlockHash: zeroHash,
+                  genesisTempoBlockNumber,
+                },
+                rpcUrl: 'http://127.0.0.1:0',
+              },
+            ],
+            gas: 20_000_000n,
+          })
+        })()
   const receipt = await waitForTransactionReceipt(mainnetClient, { hash })
   const [event] = parseEventLogs({
     abi: ZoneAbis.zoneFactory,
@@ -163,10 +209,7 @@ describe('zone instance', () => {
     async () => {
       if (!factoryAddress) throw new Error('ZoneFactory is unavailable.')
 
-      const secondary = defineZone({
-        factoryAddress,
-        key: accounts[2].privateKey,
-      })
+      const secondary = defineZone({ factoryAddress })
 
       try {
         const [zone_, sameZone] = await Promise.all([
@@ -266,8 +309,72 @@ describe('getZoneInfo', () => {
 
     expect(info.zoneId).toBe(zoneId)
     expect(info.chainId).toBe(zoneClient.chain.id)
-    expect(info.sequencer).toBeDefined()
+    expect(info.sequencers).toHaveLength(1)
+    expect(isAddressEqual(info.sequencers[0]!, portalAdmin.address)).toBe(true)
+    expect(info.tempoBlockNumber).toBeGreaterThanOrEqual(0n)
     expect(info.zoneTokens).toBeDefined()
+  })
+
+  test('behavior: normalizes a response without a block number', async () => {
+    const server = await createHttpServer(async (req, res) => {
+      let body = ''
+      req.setEncoding('utf8')
+      for await (const chunk of req) body += chunk
+      const request = JSON.parse(body)
+      const result =
+        request.method === 'zone_getZoneInfo'
+          ? {
+              chainId: '0x1922a1a1',
+              sequencer: account.address,
+              zoneId: '0x1',
+              zoneTokens: [parentToken],
+            }
+          : { zoneProcessedThrough: '0x1' }
+
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          id: request.id,
+          jsonrpc: '2.0',
+          result,
+        }),
+      )
+    })
+
+    try {
+      const client = createClient({ transport: http(server.url) })
+
+      const info = await zoneActions.getZoneInfo(client)
+
+      expect(info).toMatchInlineSnapshot(`
+        {
+          "chainId": 421700001,
+          "sequencers": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          ],
+          "tempoBlockNumber": 1n,
+          "zoneId": 1,
+          "zoneTokens": [
+            "0x20c0000000000000000000000000000000000000",
+          ],
+        }
+      `)
+    } finally {
+      await server.close()
+    }
+  })
+})
+
+describe('waitForTempoBlock', () => {
+  test('behavior: returns after the zone imports the block', async () => {
+    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
+    const current = await zoneActions.getZoneInfo(zoneClient)
+
+    const info = await zoneActions.waitForTempoBlock(zoneClient, {
+      tempoBlockNumber: current.tempoBlockNumber,
+    })
+
+    expect(info).toEqual(current)
   })
 })
 
@@ -279,101 +386,6 @@ describe('getAuthorizationTokenInfo', () => {
 
     expect(info.account.toLowerCase()).toBe(account.address.toLowerCase())
     expect(info.expiresAt).toBeGreaterThan(0n)
-  })
-})
-
-describe('getDepositStatus', () => {
-  test('behavior: returns deposit status for block', async () => {
-    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
-
-    const status = await zoneActions.getDepositStatus(zoneClient, {
-      tempoBlockNumber: 1n,
-    })
-
-    expect(typeof status.processed).toBe('boolean')
-    expect(typeof status.tempoBlockNumber).toBe('bigint')
-    expect(typeof status.zoneProcessedThrough).toBe('bigint')
-    expect(Array.isArray(status.deposits)).toBe(true)
-  })
-})
-
-describe('waitForDepositStatus', () => {
-  test('behavior: waits for deposit processing', async () => {
-    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
-    const { receipt } = await zoneActions.depositSync(
-      mainnetClient,
-      depositParameters,
-    )
-
-    const [result, concurrentResult] = await Promise.all([
-      zoneActions.waitForDepositStatus(zoneClient, {
-        pollingInterval: 100,
-        tempoBlockNumber: receipt.blockNumber,
-        timeout: 0,
-      }),
-      zoneActions.waitForDepositStatus(zoneClient, {
-        pollingInterval: 100,
-        tempoBlockNumber: receipt.blockNumber,
-        timeout: 30_000,
-      }),
-    ])
-
-    expect(result.processed).toBe(true)
-    expect(result.tempoBlockNumber).toBe(receipt.blockNumber)
-    expect(result.zoneProcessedThrough).toBeGreaterThanOrEqual(
-      receipt.blockNumber,
-    )
-    expect(result.deposits[0]).toMatchObject({
-      amount: parseUnits('1', 6),
-      kind: 'regular',
-      recipient: account.address.toLowerCase(),
-      sender: account.address.toLowerCase(),
-      status: 'processed',
-    })
-    expect(concurrentResult).toEqual(result)
-
-    await expect(
-      zoneActions.waitForDepositStatus(zoneClient, {
-        pollingInterval: 100,
-        tempoBlockNumber: receipt.blockNumber,
-        timeout: 2_000,
-      }),
-    ).resolves.toMatchObject({
-      deposits: result.deposits,
-      processed: true,
-      tempoBlockNumber: receipt.blockNumber,
-    })
-  }, 40_000)
-
-  test('error: unprocessed block times out', async () => {
-    await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
-    const tempoBlockNumber = BigInt(
-      await mainnetClient.request({ method: 'eth_blockNumber' }),
-    )
-
-    await expect(
-      zoneActions.getDepositStatus(zoneClient, { tempoBlockNumber }),
-    ).resolves.toMatchObject({ processed: false, tempoBlockNumber })
-
-    await expect(
-      zoneActions.waitForDepositStatus(zoneClient, {
-        pollingInterval: 10,
-        tempoBlockNumber,
-        timeout: 100,
-      }),
-    ).rejects.toBeInstanceOf(WaitForDepositStatusTimeoutError)
-  })
-
-  test('error: propagates zone RPC errors', async () => {
-    const client = getZoneClient({
-      transport: zoneHttp(undefined, { storage: Storage.memory() }),
-    })
-
-    await expect(
-      zoneActions.waitForDepositStatus(client, {
-        tempoBlockNumber: 1n,
-      }),
-    ).rejects.toThrow('HTTP request failed')
   })
 })
 
@@ -757,6 +769,18 @@ describe('depositSync', () => {
 })
 
 describe('requestWithdrawal', () => {
+  test('behavior: derives a deterministic Solidity-compatible sender tag', () => {
+    expect(
+      WithdrawalSenderTag.from({
+        sender: '0x0000000000000000000000000000000000000001',
+        transactionHash:
+          '0x1111111111111111111111111111111111111111111111111111111111111111',
+      }),
+    ).toMatchInlineSnapshot(
+      `"0x7d1d33bbd5371cad19c9200930eb7f1f5374473cdfb76b88a1bcc0d0a2efc5bc"`,
+    )
+  })
+
   test('behavior: encodes the 8-argument outbox requestWithdrawal call', () => {
     const [, call] = zoneActions.requestWithdrawal.calls({
       amount: 1n,
@@ -805,7 +829,7 @@ describe('requestWithdrawal', () => {
     })
     expect(prepared.request.calls).toHaveLength(2)
     expect(prepared.request.type).toBe('tempo')
-    expect(prepared.request.gas).toBeGreaterThan(0n)
+    expect(prepared.request.gas).toBe(10_000_000n)
     const denominator = 1_000_000_000_000n
     expect(prepared.maxFee).toBe(
       (prepared.request.gas * prepared.request.maxFeePerGas +
@@ -848,22 +872,65 @@ describe('requestWithdrawal', () => {
     expect(receipt.status).toBe('success')
   }, 20_000)
 
-  test('behavior: requests withdrawal from zone to parent chain', async () => {
+  test('behavior: returns the receipt and sender tag for client and explicit accounts', async () => {
     await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
 
     const info = await zoneActions.getZoneInfo(zoneClient)
     const zoneToken = info.zoneTokens[0]!
 
     const amount = parseUnits('0.01', 6)
-    await ensureZoneBalance(zoneToken, amount)
+    await ensureZoneBalance(zoneToken, amount * 2n)
 
-    const result = await zoneActions.requestWithdrawalSync(zoneClient, {
-      token: zoneToken,
-      amount,
+    const clientAccountResult = await zoneActions.requestWithdrawalSync(
+      zoneClient,
+      {
+        amount,
+        token: zoneToken,
+      },
+    )
+    const clientAccountReceipt = await getTransactionReceipt(zoneClient, {
+      hash: clientAccountResult.receipt.transactionHash,
     })
 
-    expect(result.receipt).toBeDefined()
-    expect(result.receipt.status).toBe('success')
+    expect(clientAccountResult.receipt).toEqual(clientAccountReceipt)
+    expect(clientAccountResult.receipt.status).toBe('success')
+    expect(clientAccountResult.senderTag).toBe(
+      keccak256(
+        encodePacked(
+          ['address', 'bytes32'],
+          [account.address, clientAccountResult.receipt.transactionHash],
+        ),
+      ),
+    )
+
+    const explicitAccountClient = getZoneClient({})
+    await zoneActions.signAuthorizationToken(explicitAccountClient, {
+      account,
+      zoneId,
+    })
+    const explicitAccountResult = await zoneActions.requestWithdrawalSync(
+      explicitAccountClient,
+      {
+        account,
+        amount,
+        token: zoneToken,
+      },
+    )
+    const explicitAccountReceipt = await getTransactionReceipt(
+      explicitAccountClient,
+      { hash: explicitAccountResult.receipt.transactionHash },
+    )
+
+    expect(explicitAccountResult.receipt).toEqual(explicitAccountReceipt)
+    expect(explicitAccountResult.receipt.status).toBe('success')
+    expect(explicitAccountResult.senderTag).toBe(
+      keccak256(
+        encodePacked(
+          ['address', 'bytes32'],
+          [account.address, explicitAccountResult.receipt.transactionHash],
+        ),
+      ),
+    )
   }, 20_000)
 
   test('error: no account', async () => {
@@ -1013,4 +1080,286 @@ describe('requestVerifiableWithdrawal', () => {
       zoneActions.requestVerifiableWithdrawalSync(zoneClient, parameters),
     ).rejects.toThrow('`to` is required.')
   })
+})
+
+describe('earn', () => {
+  test.runIf(nodeEnv === 'localnet' && !legacyZoneCallback)(
+    'behavior: deposits and redeems through a Zone gateway',
+    async () => {
+      await Actions.zone.signAuthorizationToken(zoneClient, { zoneId })
+
+      const stack = await deployEarnStack(mainnetClient, {
+        asset: parentToken,
+      })
+      await Actions.token.transferSync(mainnetClient, {
+        amount: parseUnits('100', 6),
+        to: portalAdmin.address,
+        token: parentToken,
+      })
+      const { gateway } = await deployEarnGateway(mainnetClient, {
+        adapter: stack.adapter,
+        portalClient: portalAdminClient,
+        zonePortal: portalAddress,
+      })
+      const privatePreparation = {
+        gateway,
+        portalAddress,
+        vault: stack.adapter,
+        zoneId,
+      } as const
+
+      const callbackGas = 10_000_000n
+      // Exercise a non-default value below the Zone callback gas ceiling.
+      const callbackGasOverride = callbackGas - 1n
+      const withdrawalFee = await Actions.zone.getWithdrawalFee(zoneClient, {
+        callbackGas,
+      })
+      const assetAmount = parseUnits('10', 6)
+      const assetDepositAmount =
+        assetAmount + withdrawalFee * 2n + parseUnits('10', 6)
+      const assetDeposit = await Actions.zone.depositSync(mainnetClient, {
+        amount: assetDepositAmount,
+        portalAddress,
+        token: stack.asset,
+        zoneId,
+      })
+      await Actions.zone.waitForTempoBlock(zoneClient, {
+        pollingInterval: 100,
+        tempoBlockNumber: assetDeposit.receipt.blockNumber,
+      })
+
+      const swappedDeposit = await Actions.earn.privateDeposit.prepare(
+        mainnetClient,
+        {
+          assetAmount: 1n,
+          assetToken: addresses.alphaUsd,
+          ...privatePreparation,
+          recipient: account.address,
+          recoveryRecipient,
+          shareAmountMin: 2n,
+        },
+      )
+      const [swappedDepositCallback] = decodeAbiParameters(
+        Abis.earnRouterCallbackData,
+        swappedDeposit.data,
+      )
+      expect(swappedDepositCallback).toMatchObject({
+        flow: 0,
+        minEarnShares: 2n,
+        minOutputAmount: 0n,
+        minVaultAssets: 0n,
+      })
+      expect(
+        isAddressEqual(swappedDepositCallback.outputToken, stack.shareToken),
+      ).toBe(true)
+
+      const boundedSwappedDeposit = await Actions.earn.privateDeposit.prepare(
+        mainnetClient,
+        {
+          assetAmount: 1n,
+          assetToken: addresses.alphaUsd,
+          ...privatePreparation,
+          recipient: account.address,
+          recoveryRecipient,
+          shareAmountMin: 4n,
+          vaultAssetAmountMin: 3n,
+        },
+      )
+      const [boundedSwappedDepositCallback] = decodeAbiParameters(
+        Abis.earnRouterCallbackData,
+        boundedSwappedDeposit.data,
+      )
+      expect(boundedSwappedDepositCallback).toMatchObject({
+        flow: 0,
+        minEarnShares: 4n,
+        minOutputAmount: 0n,
+        minVaultAssets: 3n,
+      })
+
+      const preparedDeposit = await Actions.earn.privateDeposit.prepare(
+        mainnetClient,
+        {
+          actionId: keccak256('0x01'),
+          assetAmount,
+          callbackGas: callbackGasOverride,
+          fallbackRecipient: accounts[2].address,
+          ...privatePreparation,
+          recipient: account.address,
+          recoveryRecipient,
+          returnMemo: keccak256('0x02'),
+          shareAmountMin: 1n,
+          vaultAssetAmountMin: 2n,
+          withdrawalMemo: keccak256('0x03'),
+        },
+      )
+      expect(preparedDeposit).toMatchObject({
+        actionId: keccak256('0x01'),
+        callbackGas: callbackGasOverride,
+        chainId: chain.id,
+        fallbackRecipient: accounts[2].address,
+        memo: keccak256('0x03'),
+        zoneId,
+      })
+      const [depositCallback] = decodeAbiParameters(
+        Abis.earnRouterCallbackData,
+        preparedDeposit.data,
+      )
+      expect(depositCallback).toMatchObject({
+        actionId: keccak256('0x01'),
+        flow: 0,
+        minEarnShares: 1n,
+        minOutputAmount: 0n,
+        minVaultAssets: assetAmount,
+      })
+      expect(
+        isAddressEqual(depositCallback.outputToken, stack.shareToken),
+      ).toBe(true)
+      expect(
+        isAddressEqual(
+          depositCallback.zoneReturn.refundRecipient,
+          recoveryRecipient,
+        ),
+      ).toBe(true)
+      await expect(
+        Actions.earn.privateDeposit(zoneClient, {
+          ...preparedDeposit,
+          zoneId: preparedDeposit.zoneId + 1,
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[Error: Prepared Zone request Zone ID does not match client chain.]`,
+      )
+      const acceptedDeposit = await Actions.earn.privateDepositSync(
+        zoneClient,
+        preparedDeposit,
+      )
+      expect(acceptedDeposit.receipt.status).toBe('success')
+
+      const deposit = await Actions.earn.waitForPrivateDeposit(mainnetClient, {
+        actionId: preparedDeposit.actionId,
+        fromBlock: preparedDeposit.fromBlock,
+        gateway,
+        pollingInterval: 100,
+        vault: stack.adapter,
+      })
+      expect(deposit.actionId).toBe(preparedDeposit.actionId)
+      expect(deposit.inputAmount).toBe(assetAmount)
+      expect(isAddressEqual(deposit.inputToken, stack.asset)).toBe(true)
+      expect(deposit.shares).toBe(assetAmount)
+      expect(deposit.vaultAssets).toBe(assetAmount)
+
+      await Actions.zone.waitForTempoBlock(zoneClient, {
+        pollingInterval: 100,
+        tempoBlockNumber: deposit.tempoBlockNumber,
+      })
+      const shareBalance = await Actions.token.getBalance(zoneClient, {
+        account: account.address,
+        token: stack.shareToken,
+      })
+      expect(shareBalance.amount).toBe(deposit.shares)
+
+      const swappedRedeem = await Actions.earn.privateRedeem.prepare(
+        mainnetClient,
+        {
+          assetAmountMin: 2n,
+          assetToken: addresses.alphaUsd,
+          ...privatePreparation,
+          recipient: account.address,
+          recoveryRecipient,
+          shareAmount: 1n,
+        },
+      )
+      const [swappedRedeemCallback] = decodeAbiParameters(
+        Abis.earnRouterCallbackData,
+        swappedRedeem.data,
+      )
+      expect(swappedRedeemCallback).toMatchObject({
+        flow: 1,
+        minEarnShares: 0n,
+        minOutputAmount: 2n,
+        minVaultAssets: 1n,
+      })
+      expect(
+        isAddressEqual(swappedRedeemCallback.outputToken, addresses.alphaUsd),
+      ).toBe(true)
+
+      const preparedRedeem = await Actions.earn.privateRedeem.prepare(
+        mainnetClient,
+        {
+          actionId: keccak256('0x04'),
+          callbackGas: callbackGasOverride,
+          fallbackRecipient: accounts[2].address,
+          ...privatePreparation,
+          recipient: account.address,
+          recoveryRecipient,
+          returnMemo: keccak256('0x05'),
+          shareAmount: shareBalance.amount,
+          slippageBps: 0,
+          withdrawalMemo: keccak256('0x06'),
+        },
+      )
+      expect(preparedRedeem).toMatchObject({
+        actionId: keccak256('0x04'),
+        callbackGas: callbackGasOverride,
+        chainId: chain.id,
+        fallbackRecipient: accounts[2].address,
+        memo: keccak256('0x06'),
+        zoneId,
+      })
+      const [redeemCallback] = decodeAbiParameters(
+        Abis.earnRouterCallbackData,
+        preparedRedeem.data,
+      )
+      expect(redeemCallback).toMatchObject({
+        actionId: keccak256('0x04'),
+        flow: 1,
+        minEarnShares: 0n,
+        minOutputAmount: 0n,
+        minVaultAssets: assetAmount,
+      })
+      expect(isAddressEqual(redeemCallback.outputToken, stack.asset)).toBe(true)
+      expect(
+        isAddressEqual(
+          redeemCallback.zoneReturn.refundRecipient,
+          recoveryRecipient,
+        ),
+      ).toBe(true)
+      const acceptedRedeem = await Actions.earn.privateRedeemSync(
+        zoneClient,
+        preparedRedeem,
+      )
+      expect(acceptedRedeem.receipt.status).toBe('success')
+
+      const redeem = await Actions.earn.waitForPrivateRedeem(mainnetClient, {
+        actionId: preparedRedeem.actionId,
+        fromBlock: preparedRedeem.fromBlock,
+        gateway,
+        pollingInterval: 100,
+        vault: stack.adapter,
+      })
+      expect(redeem.actionId).toBe(preparedRedeem.actionId)
+      expect(isAddressEqual(redeem.outputToken, stack.asset)).toBe(true)
+      expect(redeem.outputAmount).toBe(assetAmount)
+      expect(redeem.shares).toBe(deposit.shares)
+      expect(redeem.vaultAssets).toBe(assetAmount)
+
+      await Actions.zone.waitForTempoBlock(zoneClient, {
+        pollingInterval: 100,
+        tempoBlockNumber: redeem.tempoBlockNumber,
+      })
+
+      const [assetBalance, finalShareBalance] = await Promise.all([
+        Actions.token.getBalance(zoneClient, {
+          account: account.address,
+          token: stack.asset,
+        }),
+        Actions.token.getBalance(zoneClient, {
+          account: account.address,
+          token: stack.shareToken,
+        }),
+      ])
+      expect(assetBalance.amount).toBeGreaterThanOrEqual(assetAmount)
+      expect(finalShareBalance.amount).toBe(0n)
+    },
+    480_000,
+  )
 })

@@ -28,8 +28,24 @@ const selectorMaps = {
   validatorConfigV2: Selectors.validatorConfigV2,
 } satisfies Record<string, SelectorMap>
 
+// Earn slices are ABIs of user-deployed contracts, not precompiles;
+// `Selectors` covers the precompile set only.
+const earnAbis = new Set<string>([
+  'earnContributionController',
+  'earnEngine',
+  'earnEngineAsyncRedeem',
+  'earnEngineInKindDeposit',
+  'earnFactory',
+  'earnFees',
+  'earnRouter',
+  'earnRouterCallbackData',
+  'earnVault',
+  'erc4626Engine',
+  'vedaEngine',
+])
+
 const selectorFixtures = Object.entries(Abis)
-  .filter(([name]) => name !== 'abis')
+  .filter(([name]) => name !== 'abis' && !earnAbis.has(name))
   .map(([name, abi]) => ({
     name,
     abi,

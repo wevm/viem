@@ -9,6 +9,7 @@ const extensions: Record<string, string[]> = {
 }
 
 const out = Path.resolve(import.meta.dirname, '../src/tempo/Abis.ts')
+const earnMarker = '// Earn source: tempoxyz/earn at '
 const selectorsOut = Path.resolve(
   import.meta.dirname,
   '../src/tempo/Selectors.ts',
@@ -171,6 +172,13 @@ for (const solMatch of content.matchAll(solBlockRegex)) {
   }
 }
 
+const earnSlice = (() => {
+  if (!Fs.existsSync(out)) return undefined
+  const content = Fs.readFileSync(out, 'utf8')
+  const index = content.indexOf(earnMarker)
+  return index === -1 ? undefined : content.slice(index)
+})()
+
 // Generate the output file
 try {
   Fs.rmSync(out)
@@ -280,6 +288,7 @@ Fs.appendFileSync(
   out,
   `export const abis = [\n${exportNames.map((n) => `  ...${n},`).join('\n')}\n] as const\n`,
 )
+if (earnSlice) Fs.appendFileSync(out, `\n${earnSlice}`)
 
 try {
   Fs.rmSync(selectorsOut)

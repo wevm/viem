@@ -404,6 +404,7 @@ describe('watchAdminUpdated', () => {
 
     const logs: any[] = []
     const unwatch = actions.policy.watchAdminUpdated(client, {
+      args: { admin: account2.address, policyId },
       onAdminUpdated: (args, log) => {
         logs.push({ args, log })
       },

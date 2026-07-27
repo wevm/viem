@@ -1,6 +1,6 @@
-# `zone.waitForDepositStatus`
+# `zone.waitForTempoBlock`
 
-Waits until a zone has processed the deposits from a Tempo block.
+Waits until a zone has imported a Tempo block.
 
 ## Usage
 
@@ -9,11 +9,11 @@ Waits until a zone has processed the deposits from a Tempo block.
 ```ts twoslash [example.ts]
 import { client } from './zones.config'
 
-const status = await client.zone.waitForDepositStatus({
+const info = await client.zone.waitForTempoBlock({
   tempoBlockNumber: 123456n,
 })
 
-console.log('Deposits:', status.deposits)
+console.log('Imported Tempo block:', info.tempoBlockNumber)
 ```
 
 ```ts twoslash [zones.config.ts] filename="zones.config.ts"
@@ -22,18 +22,11 @@ console.log('Deposits:', status.deposits)
 
 :::
 
-The action polls [`zone.getDepositStatus`](/tempo/actions/zone.getDepositStatus) and resolves when `processed` is `true`.
+The action polls [`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo) and resolves when the zone's `tempoBlockNumber` reaches the requested block.
 
 ## Return Type
 
-```ts
-type ReturnType = {
-  deposits: Deposit[]
-  processed: boolean
-  tempoBlockNumber: bigint
-  zoneProcessedThrough: bigint
-}
-```
+Returns the same zone metadata as [`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo).
 
 ## Parameters
 
@@ -41,7 +34,7 @@ type ReturnType = {
 
 - **Type:** `bigint`
 
-Tempo block number containing the deposits.
+Tempo block number to wait for.
 
 ### pollingInterval (optional)
 

@@ -1,5 +1,69 @@
 # viem
 
+## 2.55.9
+
+### Patch Changes
+
+- [#4898](https://github.com/wevm/viem/pull/4898) [`4062bf5549e635f92de4a0cf70451ca6ea31704b`](https://github.com/wevm/viem/commit/4062bf5549e635f92de4a0cf70451ca6ea31704b) Thanks [@jxom](https://github.com/jxom)! - Updated Tempo Earn actions
+
+- [#4894](https://github.com/wevm/viem/pull/4894) [`efd29f713f5ebd1f385be03ae67c4da3471dc89c`](https://github.com/wevm/viem/commit/efd29f713f5ebd1f385be03ae67c4da3471dc89c) Thanks [@jxom](https://github.com/jxom)! - Updated `ox` to `0.14.33`.
+
+## 2.55.8
+
+### Patch Changes
+
+- [#4890](https://github.com/wevm/viem/pull/4890) [`3078687aabea3064fc868f395114f41815895685`](https://github.com/wevm/viem/commit/3078687aabea3064fc868f395114f41815895685) Thanks [@parvahuja](https://github.com/parvahuja)! - `viem/tempo`: Fixed gas estimation for sponsored access key transactions prepared without gas.
+
+- [#4891](https://github.com/wevm/viem/pull/4891) [`c067f1a0c540afb54e27864b601064fb1c6e5249`](https://github.com/wevm/viem/commit/c067f1a0c540afb54e27864b601064fb1c6e5249) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added Zone E metadata, address registries, and Portal and Messenger contracts.
+
+- [#4891](https://github.com/wevm/viem/pull/4891) [`c067f1a0c540afb54e27864b601064fb1c6e5249`](https://github.com/wevm/viem/commit/c067f1a0c540afb54e27864b601064fb1c6e5249) Thanks [@jxom](https://github.com/jxom)! - **Breaking(viem/tempo)**: Removed `portalAddresses`.
+
+## 2.55.7
+
+### Patch Changes
+
+- [#4881](https://github.com/wevm/viem/pull/4881) [`34c30a01012e326682a1ef365ee6599b2510e9da`](https://github.com/wevm/viem/commit/34c30a01012e326682a1ef365ee6599b2510e9da) Thanks [@jxom](https://github.com/jxom)! - `tempo/viem`: Added earn actions
+
+- [#4888](https://github.com/wevm/viem/pull/4888) [`944a011e2edabfc4aa5ed59b8ee201486e0dc74b`](https://github.com/wevm/viem/commit/944a011e2edabfc4aa5ed59b8ee201486e0dc74b) Thanks [@jxom](https://github.com/jxom)! - Fixed `fromBlobs` misreading a `0x80` data byte at a blob boundary as the terminator.
+
+- [#4887](https://github.com/wevm/viem/pull/4887) [`b693174dde06dd322b6f88508fb37231d38b620b`](https://github.com/wevm/viem/commit/b693174dde06dd322b6f88508fb37231d38b620b) Thanks [@jxom](https://github.com/jxom)! - Fixed `bytesToBigInt` and `bytesToNumber` (and `fromBytes` with `to: "bigint" | "number"`) scaling the decoded value when a `size` larger than the input byte length was provided.
+
+- [#4880](https://github.com/wevm/viem/pull/4880) [`0095510ba5051931eb89d05c8a9b33b3a65ff356`](https://github.com/wevm/viem/commit/0095510ba5051931eb89d05c8a9b33b3a65ff356) Thanks [@tmm](https://github.com/tmm)! - Fixed Tempo access key transactions failing by preserving the gas limit covered by fee payer signatures returned from `eth_fillTransaction`.
+
+- [#4884](https://github.com/wevm/viem/pull/4884) [`14a2537066f353092d4b6cc77941c018fde8f6c8`](https://github.com/wevm/viem/commit/14a2537066f353092d4b6cc77941c018fde8f6c8) Thanks [@jxom](https://github.com/jxom)! - Replaced `zone.getZoneInfo.sequencer` with `sequencers`.
+
+## 2.55.6
+
+### Patch Changes
+
+- [#4878](https://github.com/wevm/viem/pull/4878) [`fe79685307b4f85ba6d1d2c3ed3a8be3a62e9f3a`](https://github.com/wevm/viem/commit/fe79685307b4f85ba6d1d2c3ed3a8be3a62e9f3a) Thanks [@decofe](https://github.com/decofe)! - Added `tempoBlockNumber` to the return value of `zone.getZoneInfo`.
+
+  **Breaking (viem/tempo):** Replaced `zone.waitForDepositStatus` with `zone.waitForTempoBlock`, backed by the new zone info field, and removed `zone.getDepositStatus` with the underlying RPC method.
+
+## 2.55.5
+
+### Patch Changes
+
+- [#4865](https://github.com/wevm/viem/pull/4865) [`d993c2c331f4bedb76ecb78250c7858603bbdd62`](https://github.com/wevm/viem/commit/d993c2c331f4bedb76ecb78250c7858603bbdd62) Thanks [@jxom](https://github.com/jxom)! - Batched compatible concurrent `multicall` actions into one aggregate call.
+
+- [#4863](https://github.com/wevm/viem/pull/4863) [`b6f7349221d4d3b51e4094634fa2839b5a448c24`](https://github.com/wevm/viem/commit/b6f7349221d4d3b51e4094634fa2839b5a448c24) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Updated multisig implementation.
+
+- [#4868](https://github.com/wevm/viem/pull/4868) [`cb7d66f966e9eea501b075eeb0f14a7ddd0c35fc`](https://github.com/wevm/viem/commit/cb7d66f966e9eea501b075eeb0f14a7ddd0c35fc) Thanks [@jsutaria](https://github.com/jsutaria)! - Ensured `prepareTransactionRequest` fetched Tempo fee payer signatures when the caller's `parameters` option omitted `fees`/`gas`.
+
+- [#4866](https://github.com/wevm/viem/pull/4866) [`5ee7eb12b248a1e72f37196d1fbb25d38283723f`](https://github.com/wevm/viem/commit/5ee7eb12b248a1e72f37196d1fbb25d38283723f) Thanks [@jsutaria](https://github.com/jsutaria)! - Ensured `prepareTransactionRequest` fetched Tempo fee payer signatures for fully specified transactions.
+
+## 2.55.4
+
+### Patch Changes
+
+- [#4848](https://github.com/wevm/viem/pull/4848) [`dceac56692bb2db5b710908321ab722195de79a2`](https://github.com/wevm/viem/commit/dceac56692bb2db5b710908321ab722195de79a2) Thanks [@jxom](https://github.com/jxom)! - Updated Ethereum's default RPC URL.
+
+- [#4851](https://github.com/wevm/viem/pull/4851) [`2b1f8deeac868a3480e1ede7f6fd6066995f36a1`](https://github.com/wevm/viem/commit/2b1f8deeac868a3480e1ede7f6fd6066995f36a1) Thanks [@nezouse](https://github.com/nezouse)! - Add `blockTime` to Robinhood chain definition
+
+- [#4858](https://github.com/wevm/viem/pull/4858) [`1de66e727e5f328d111cf41bca29731a5af4afb4`](https://github.com/wevm/viem/commit/1de66e727e5f328d111cf41bca29731a5af4afb4) Thanks [@decofe](https://github.com/decofe)! - Defaulted omitted `validAfter` values to random past timestamps for Tempo expiring-nonce transactions, preventing otherwise-identical transactions from sharing a nonce hash.
+
+- [#4852](https://github.com/wevm/viem/pull/4852) [`99b14341b807767cd783863ac645331f4b1cd708`](https://github.com/wevm/viem/commit/99b14341b807767cd783863ac645331f4b1cd708) Thanks [@nezouse](https://github.com/nezouse)! - Add `blockTime` to xLayer chain definition
+
 ## 2.55.3
 
 ### Patch Changes

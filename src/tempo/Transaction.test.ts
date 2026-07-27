@@ -1,3 +1,4 @@
+import { MultisigConfig } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import { prepareTransactionRequest, signTransaction } from '../actions/index.js'
@@ -309,6 +310,40 @@ describe('serialize', () => {
     )
 
     expect(serialized.startsWith('0x76')).toBe(true)
+  })
+
+  test('behavior: explicit nonce key omits multisig init', async () => {
+    const owners = [accounts[1], accounts[2]] as const
+    const multisig = MultisigConfig.from({
+      threshold: 2,
+      owners: owners.map((owner) => ({ owner: owner.address, weight: 1 })),
+    })
+    const transaction = {
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      chainId: 1,
+      multisig,
+      nonce: 0,
+      nonceKey: 1n,
+    } as const
+    const signatures = await Promise.all(
+      owners.map((owner) => owner.signTransaction(transaction)),
+    )
+
+    const serialized = await Transaction.serialize({
+      ...transaction,
+      signatures,
+    })
+    const { signature } = Transaction.deserialize(serialized as `0x76${string}`)
+    expect(signature?.type).toBe('multisig')
+    if (signature?.type !== 'multisig') throw new Error('unreachable')
+    const { account, signatures: approvals, ...rest } = signature
+    expect(account).toBeDefined()
+    expect(approvals).toHaveLength(2)
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "type": "multisig",
+      }
+    `)
   })
 })
 

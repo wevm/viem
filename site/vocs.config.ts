@@ -190,17 +190,24 @@ export default defineConfig({
       return 1
     },
   },
-  ai: {
-    retriever: Retriever.local({
-      embedding: Embedding.cloudflare(),
-      reranker: Reranker.cloudflare(),
-      sources: [
-        { url: 'https://wagmi.sh/llms.txt', label: 'wagmi', weight: 0.8 },
-      ],
-      // Remote store keeps vectors out of the server bundle entirely.
-      vectorStore: VectorStore.cloudflare({ index: 'viem-docs' }),
-    }),
-  },
+  ai:
+    process.env.CLOUDFLARE_ACCOUNT_ID && process.env.CLOUDFLARE_API_TOKEN
+      ? {
+          retriever: Retriever.local({
+            embedding: Embedding.cloudflare(),
+            reranker: Reranker.cloudflare(),
+            sources: [
+              {
+                url: 'https://wagmi.sh/llms.txt',
+                label: 'wagmi',
+                weight: 0.8,
+              },
+            ],
+            // Remote store keeps vectors out of the server bundle entirely.
+            vectorStore: VectorStore.cloudflare({ index: 'viem-docs' }),
+          }),
+        }
+      : undefined,
   sidebar: {
     '/docs/': [
       {
@@ -2332,6 +2339,32 @@ export default defineConfig({
               ],
             },
             {
+              text: 'Earn',
+              collapsed: true,
+              items: [
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Overview',
+                  link: '/tempo/guides/earn',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Deposit & Withdraw',
+                  link: '/tempo/guides/earn/deposit-withdraw',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Protected Vaults',
+                  link: '/tempo/guides/earn/protected-vaults',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Earn with Private Zones',
+                  link: '/tempo/guides/earn/zones',
+                },
+              ],
+            },
+            {
               text: 'Virtual Addresses',
               collapsed: true,
               items: [
@@ -2585,6 +2618,87 @@ export default defineConfig({
                 {
                   text: 'withdraw',
                   link: '/tempo/actions/channel.withdraw',
+                },
+              ],
+            },
+            {
+              text: 'Earn',
+              collapsed: true,
+              items: [
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'configureExitSafePolicy',
+                  link: '/tempo/actions/earn.configureExitSafePolicy',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'deposit',
+                  link: '/tempo/actions/earn.deposit',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'depositShares',
+                  link: '/tempo/actions/earn.depositShares',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getFeeState',
+                  link: '/tempo/actions/earn.getFeeState',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getPosition',
+                  link: '/tempo/actions/earn.getPosition',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getRedeemQuote',
+                  link: '/tempo/actions/earn.getRedeemQuote',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getVault',
+                  link: '/tempo/actions/earn.getVault',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getWithdrawQuote',
+                  link: '/tempo/actions/earn.getWithdrawQuote',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'privateDeposit',
+                  link: '/tempo/actions/earn.privateDeposit',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'privateRedeem',
+                  link: '/tempo/actions/earn.privateRedeem',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'redeem',
+                  link: '/tempo/actions/earn.redeem',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'validateExitSafePolicy',
+                  link: '/tempo/actions/earn.validateExitSafePolicy',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'waitForPrivateDeposit',
+                  link: '/tempo/actions/earn.waitForPrivateDeposit',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'waitForPrivateRedeem',
+                  link: '/tempo/actions/earn.waitForPrivateRedeem',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'withdrawExact',
+                  link: '/tempo/actions/earn.withdrawExact',
                 },
               ],
             },
@@ -3065,10 +3179,6 @@ export default defineConfig({
                   link: '/tempo/actions/zone.getAuthorizationTokenInfo',
                 },
                 {
-                  text: 'getDepositStatus',
-                  link: '/tempo/actions/zone.getDepositStatus',
-                },
-                {
                   text: 'getEncryptionKey',
                   link: '/tempo/actions/zone.getEncryptionKey',
                 },
@@ -3093,8 +3203,8 @@ export default defineConfig({
                   link: '/tempo/actions/zone.signAuthorizationToken',
                 },
                 {
-                  text: 'waitForDepositStatus',
-                  link: '/tempo/actions/zone.waitForDepositStatus',
+                  text: 'waitForTempoBlock',
+                  link: '/tempo/actions/zone.waitForTempoBlock',
                 },
               ],
             },

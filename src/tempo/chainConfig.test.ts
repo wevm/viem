@@ -48,6 +48,11 @@ describe('prepareTransactionRequest', () => {
     expect(requests[1]?.nonce).toBe(0)
     expect(requests[2]?.nonce).toBe(0)
 
+    // All should be immediately valid
+    expect(requests[0]?.validAfter).toBeLessThan(now)
+    expect(requests[1]?.validAfter).toBeLessThan(now)
+    expect(requests[2]?.validAfter).toBeLessThan(now)
+
     // All should have validBefore set within 30 seconds
     expect(requests[0]?.validBefore).toBeGreaterThanOrEqual(now)
     expect(requests[0]?.validBefore).toBeLessThanOrEqual(now + 31)
@@ -84,6 +89,33 @@ describe('prepareTransactionRequest', () => {
     expect(request?.validBefore).toBeUndefined()
   })
 
+  test('behavior: does not set gas when gas is not prepared', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: accounts.at(0)!,
+    })
+    const request = await prepareTransactionRequest(client, {
+      account: accessKey,
+      feePayer: true,
+      parameters: [],
+    })
+
+    expect(request.gas).toBeUndefined()
+  })
+
+  test('behavior: bumps prepared gas for sponsored access keys', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: accounts.at(0)!,
+    })
+    const request = await prepareTransactionRequest(client, {
+      account: accessKey,
+      feePayer: true,
+      gas: 33_000n,
+      parameters: [],
+    })
+
+    expect(request.gas).toBe(43_000n)
+  })
+
   test('behavior: nonceKey expiring uses expiring nonces', async () => {
     const now = Math.floor(Date.now() / 1000)
     const request = await prepareTransactionRequest(client, {
@@ -95,13 +127,16 @@ describe('prepareTransactionRequest', () => {
     expect(request?.validBefore).toBeLessThanOrEqual(now + 31)
   })
 
-  test('behavior: explicit validBefore is preserved', async () => {
+  test('behavior: explicit validity window is preserved', async () => {
+    const customValidAfter = Math.floor(Date.now() / 1000) - 15
     const customValidBefore = Math.floor(Date.now() / 1000) + 15
     const request = await prepareTransactionRequest(client, {
       feePayer: true,
+      validAfter: customValidAfter,
       validBefore: customValidBefore,
     })
     expect(request?.nonceKey).toBe(maxUint256)
+    expect(request?.validAfter).toBe(customValidAfter)
     expect(request?.validBefore).toBe(customValidBefore)
   })
 

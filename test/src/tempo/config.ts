@@ -36,13 +36,13 @@ const accountsMnemonic = (() => {
   return generateMnemonic(english)
 })()
 
-export const accounts = Array.from({ length: 20 }, (_, i) => {
+export const accounts = Array.from({ length: 21 }, (_, i) => {
   const privateKey = Mnemonic.toPrivateKey(accountsMnemonic, {
     as: 'Hex',
     path: Mnemonic.path({ account: i }),
   })
   return Account.fromSecp256k1(privateKey)
-}) as unknown as FixedArray<Account.RootAccount, 20>
+}) as unknown as FixedArray<Account.RootAccount, 21>
 
 export const addresses = {
   pathUsd: '0x20c0000000000000000000000000000000000000',

@@ -3,20 +3,14 @@ import { tempo } from '../../chains/definitions/tempo.js'
 import { tempoModerato } from '../../chains/definitions/tempoModerato.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 import { chainConfig } from '../chainConfig.js'
-
-export const portalAddresses = {
-  [tempoModerato.id]: {
-    6: '0x7069DeC4E64Fd07334A0933eDe836C17259c9B23',
-    7: '0x3F5296303400B56271b476F5A0B9cBF74350D6Ac',
-  },
-} as const satisfies Record<number, Record<number, `0x${string}`>>
+import * as Addresses from './Addresses.js'
 
 export function getPortalAddress(
   chainId: number,
   zoneId: number,
 ): `0x${string}` {
   const address = (
-    portalAddresses as Record<number, Record<number, `0x${string}`>>
+    Addresses.portal as Record<number, Record<number, `0x${string}`>>
   )[chainId]?.[zoneId]
   if (!address)
     throw new Error(
@@ -25,21 +19,45 @@ export function getPortalAddress(
   return address
 }
 
+type ZoneContracts = {
+  messenger: Record<number, { address: `0x${string}` } | undefined>
+  portal: Record<number, { address: `0x${string}` } | undefined>
+}
+
 type Override = {
+  contracts?: ZoneContracts | undefined
   name: string
   rpcUrl: string
 }
 
 const overrides = {
-  6: {
-    name: 'Zone A',
-    rpcUrl: 'https://rpc-zone-a.testnet.tempo.xyz',
+  [tempoModerato.id]: {
+    1: {
+      contracts: {
+        messenger: {
+          [tempoModerato.id]: {
+            address: Addresses.messenger[tempoModerato.id][1],
+          },
+        },
+        portal: {
+          [tempoModerato.id]: {
+            address: Addresses.portal[tempoModerato.id][1],
+          },
+        },
+      },
+      name: 'Zone E',
+      rpcUrl: 'https://rpc-zone-e.testnet.tempo.xyz',
+    },
+    6: {
+      name: 'Zone A',
+      rpcUrl: 'https://rpc-zone-a.testnet.tempo.xyz',
+    },
+    7: {
+      name: 'Zone B',
+      rpcUrl: 'https://rpc-zone-b.testnet.tempo.xyz',
+    },
   },
-  7: {
-    name: 'Zone B',
-    rpcUrl: 'https://rpc-zone-b.testnet.tempo.xyz',
-  },
-} as const satisfies Record<number, Override>
+} as const satisfies Record<number, Record<number, Override>>
 
 export const zone = /*#__PURE__*/ from({
   sourceId: tempo.id,
@@ -57,10 +75,13 @@ export function from(options: from.Options) {
     const chainId = ZoneId.toChainId(id)
     const paddedId = String(id).padStart(3, '0')
 
-    const override = (overrides as Record<number, Override>)[id]
+    const override = (overrides as Record<number, Record<number, Override>>)[
+      options.sourceId
+    ]?.[id]
 
     return defineChain({
       ...chainConfig,
+      ...(override?.contracts ? { contracts: override.contracts } : {}),
       id: chainId,
       name: override?.name ?? `Tempo Zone ${paddedId}`,
       nativeCurrency: {

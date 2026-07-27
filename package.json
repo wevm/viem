@@ -10,7 +10,7 @@
     "build:esm": "tsc --project ./tsconfig.build.json --outDir ./src/_esm && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./src/_esm/package.json",
     "build:trustedSetups:start": "mv src/node/trustedSetups.ts src/node/trustedSetups_esm.ts && mv src/node/trustedSetups_cjs.ts src/node/trustedSetups.ts",
     "build:trustedSetups:end": "mv src/node/trustedSetups.ts src/node/trustedSetups_cjs.ts && mv src/node/trustedSetups_esm.ts src/node/trustedSetups.ts",
-    "build:types": "tsc --project ./tsconfig.build.json --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap",
+    "build:types": "rm -rf ./src/_types && tsc --project ./tsconfig.build.json --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap && printf '{\"type\":\"module\"}' > ./src/_types/package.json",
     "changeset:prepublish": "pnpm version:update && pnpm build && bun scripts/prepublishOnly.ts",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
     "changeset:version": "pnpm install --lockfile-only && changeset version && pnpm version:update && pnpm check",
@@ -24,6 +24,7 @@
     "check:types": "tsc -b",
     "check:unused": "pnpm clean && knip",
     "gen:tempo-abis": "bun scripts/generateTempoAbis.ts && biome check --write --unsafe src/tempo/Abis.ts src/tempo/Selectors.ts",
+    "gen:tempo-earn-abis": "bun scripts/generateTempoEarnAbis.ts && biome check --write --unsafe src/tempo/Abis.ts test/src/tempo/earnContracts.ts",
     "gen:tokenlist": "bun scripts/generateTokenlist.ts && biome check --write --unsafe src/tokens && pnpm gen:token-lookup",
     "gen:token-lookup": "bun scripts/generateTokenLookup.ts && biome check --write --unsafe site/data/tokens.ts",
     "postinstall": "git submodule update --init --recursive && pnpm contracts:build",
@@ -65,7 +66,7 @@
     "ethers": "^6.15.0",
     "knip": "^5.64.0",
     "micro-eth-signer": "^0.14.0",
-    "ox": "0.14.30",
+    "ox": "0.14.33",
     "permissionless": "^0.2.57",
     "prool": "~0.2.8",
     "publint": "^0.2.12",
@@ -202,7 +203,7 @@
     {
       "name": "import { tempoTestnet } from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "67 kB",
+      "limit": "68 kB",
       "import": "{ tempoTestnet }"
     },
     {
