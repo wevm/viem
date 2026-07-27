@@ -3014,13 +3014,13 @@ export const abis = /*#__PURE__*/ (() =>
     ...validatorConfig,
   ] as const)()
 
-// Earn source: tempoxyz/earn at 6b7729fd9b9e9751ebd57460c43817217af7771d. Do not modify manually.
+// Earn source: tempoxyz/earn at 4794b0ce4f611af7afe87587522e0087e690422f. Do not modify manually.
 
 /** ABI of the Earn factory contract. */
 export const earnFactory = [
   {
     type: 'function',
-    name: 'computeShareSalt',
+    name: 'computeEarnShareSalt',
     inputs: [
       {
         name: 'params',
@@ -3138,14 +3138,76 @@ export const earnFactory = [
       },
     ],
     outputs: [
-      { name: 'shareToken', type: 'address' },
-      { name: 'vaultAdapter', type: 'address' },
+      { name: 'earnShare', type: 'address' },
+      { name: 'earnVault', type: 'address' },
+      { name: 'earnFees', type: 'address' },
     ],
     stateMutability: 'nonpayable',
   },
   {
     type: 'function',
-    name: 'predictShareToken',
+    name: 'predictEarnFees',
+    inputs: [
+      {
+        name: 'params',
+        type: 'tuple',
+        components: [
+          { name: 'deploymentId', type: 'bytes32' },
+          { name: 'engine', type: 'address' },
+          { name: 'owner', type: 'address' },
+          {
+            name: 'controls',
+            type: 'tuple',
+            components: [
+              { name: 'emergencyGuardian', type: 'address' },
+              { name: 'asyncJanitor', type: 'address' },
+              { name: 'migrationMode', type: 'uint8' },
+            ],
+          },
+          {
+            name: 'fees',
+            type: 'tuple',
+            components: [
+              { name: 'administrator', type: 'address' },
+              { name: 'guardian', type: 'address' },
+              { name: 'fixedFeeCap', type: 'uint96' },
+              { name: 'excessFeeCap', type: 'uint96' },
+              {
+                name: 'initialConfig',
+                type: 'tuple',
+                components: [
+                  { name: 'fixedFeeCount', type: 'uint8' },
+                  {
+                    name: 'fixedFees',
+                    type: 'tuple[4]',
+                    components: [
+                      { name: 'account', type: 'address' },
+                      { name: 'rate', type: 'uint96' },
+                    ],
+                  },
+                  {
+                    name: 'excess',
+                    type: 'tuple',
+                    components: [
+                      { name: 'enabled', type: 'bool' },
+                      { name: 'account', type: 'address' },
+                      { name: 'annualTargetRate', type: 'uint96' },
+                      { name: 'excessFeeRate', type: 'uint96' },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'predictEarnShare',
     inputs: [
       {
         name: 'params',
@@ -3208,33 +3270,45 @@ export const earnFactory = [
     type: 'event',
     name: 'EarnStackDeployed',
     inputs: [
-      { name: 'vaultAdapter', type: 'address', indexed: true },
-      { name: 'shareToken', type: 'address', indexed: true },
-      { name: 'engine', type: 'address', indexed: true },
+      { name: 'earnVault', type: 'address', indexed: true },
+      { name: 'earnShare', type: 'address', indexed: true },
+      { name: 'earnFees', type: 'address', indexed: true },
+      { name: 'engine', type: 'address', indexed: false },
       { name: 'asset', type: 'address', indexed: false },
       { name: 'owner', type: 'address', indexed: false },
       { name: 'deploymentId', type: 'bytes32', indexed: false },
       { name: 'emergencyGuardian', type: 'address', indexed: false },
       { name: 'asyncJanitor', type: 'address', indexed: false },
       { name: 'migrationMode', type: 'uint8', indexed: false },
-      { name: 'shareSalt', type: 'bytes32', indexed: false },
+      { name: 'earnShareSalt', type: 'bytes32', indexed: false },
       { name: 'controlConfigHash', type: 'bytes32', indexed: false },
       { name: 'feeConfigHash', type: 'bytes32', indexed: false },
+      { name: 'earnFeesSalt', type: 'bytes32', indexed: false },
     ],
     anonymous: false,
   },
   { type: 'error', name: 'AdminHandoffFailed', inputs: [] },
-  { type: 'error', name: 'EmptyDeploymentId', inputs: [] },
-  { type: 'error', name: 'EmptyShareMetadata', inputs: [] },
-  { type: 'error', name: 'FactoryCannotBeFinalOwner', inputs: [] },
-  { type: 'error', name: 'InvalidAdapterImplementation', inputs: [] },
-  { type: 'error', name: 'IssuerGrantFailed', inputs: [] },
   {
     type: 'error',
-    name: 'ShareTokenAlreadyExists',
-    inputs: [{ name: 'shareToken', type: 'address' }],
+    name: 'EarnShareAlreadyExists',
+    inputs: [{ name: 'earnShare', type: 'address' }],
   },
-  { type: 'error', name: 'ShareTokenSupplyNotZero', inputs: [] },
+  { type: 'error', name: 'EarnShareSupplyNotZero', inputs: [] },
+  { type: 'error', name: 'EmptyDeploymentId', inputs: [] },
+  { type: 'error', name: 'EmptyEarnShareMetadata', inputs: [] },
+  { type: 'error', name: 'FactoryCannotBeFinalOwner', inputs: [] },
+  { type: 'error', name: 'FailedDeployment', inputs: [] },
+  {
+    type: 'error',
+    name: 'InsufficientBalance',
+    inputs: [
+      { name: 'balance', type: 'uint256' },
+      { name: 'needed', type: 'uint256' },
+    ],
+  },
+  { type: 'error', name: 'InvalidEarnFeesImplementation', inputs: [] },
+  { type: 'error', name: 'InvalidEarnVaultImplementation', inputs: [] },
+  { type: 'error', name: 'IssuerGrantFailed', inputs: [] },
   { type: 'error', name: 'ZeroAddress', inputs: [] },
 ] as const
 
@@ -3249,8 +3323,8 @@ export const erc4626Engine = [
   },
   {
     type: 'function',
-    name: 'initializeCore',
-    inputs: [{ name: 'core_', type: 'address' }],
+    name: 'initializeEarnVault',
+    inputs: [{ name: 'earnVault_', type: 'address' }],
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -3284,18 +3358,18 @@ export const erc4626Engine = [
   },
   {
     type: 'event',
-    name: 'CoreInitialized',
-    inputs: [{ name: 'core', type: 'address', indexed: true }],
+    name: 'Deposited',
+    inputs: [
+      { name: 'earnVault', type: 'address', indexed: true },
+      { name: 'assets', type: 'uint256', indexed: false },
+      { name: 'engineShares', type: 'uint256', indexed: false },
+    ],
     anonymous: false,
   },
   {
     type: 'event',
-    name: 'Deposited',
-    inputs: [
-      { name: 'receiver', type: 'address', indexed: true },
-      { name: 'assets', type: 'uint256', indexed: false },
-      { name: 'shares', type: 'uint256', indexed: false },
-    ],
+    name: 'EarnVaultInitialized',
+    inputs: [{ name: 'earnVault', type: 'address', indexed: true }],
     anonymous: false,
   },
   {
@@ -3321,7 +3395,7 @@ export const erc4626Engine = [
     name: 'Redeemed',
     inputs: [
       { name: 'receiver', type: 'address', indexed: true },
-      { name: 'shares', type: 'uint256', indexed: false },
+      { name: 'engineShares', type: 'uint256', indexed: false },
       { name: 'assets', type: 'uint256', indexed: false },
     ],
     anonymous: false,
@@ -3331,8 +3405,8 @@ export const erc4626Engine = [
     name: 'VenueSharesDeposited',
     inputs: [
       { name: 'from', type: 'address', indexed: true },
-      { name: 'requestedShares', type: 'uint256', indexed: false },
-      { name: 'receivedShares', type: 'uint256', indexed: false },
+      { name: 'requestedVenueShares', type: 'uint256', indexed: false },
+      { name: 'receivedEngineShares', type: 'uint256', indexed: false },
     ],
     anonymous: false,
   },
@@ -3342,17 +3416,26 @@ export const erc4626Engine = [
     inputs: [
       { name: 'receiver', type: 'address', indexed: true },
       { name: 'assets', type: 'uint256', indexed: false },
-      { name: 'sharesBurned', type: 'uint256', indexed: false },
+      { name: 'engineSharesBurned', type: 'uint256', indexed: false },
     ],
     anonymous: false,
   },
   { type: 'error', name: 'AlreadyInitialized', inputs: [] },
-  { type: 'error', name: 'CoreNotSet', inputs: [] },
+  { type: 'error', name: 'EarnVaultNotSet', inputs: [] },
   { type: 'error', name: 'EmptyMetadata', inputs: [] },
-  { type: 'error', name: 'NoSharesReceived', inputs: [] },
   {
     type: 'error',
-    name: 'NotCore',
+    name: 'InsufficientAssetsReceived',
+    inputs: [
+      { name: 'minimumAssets', type: 'uint256' },
+      { name: 'actualAssets', type: 'uint256' },
+    ],
+  },
+  { type: 'error', name: 'InvalidVenueShareDecimals', inputs: [] },
+  { type: 'error', name: 'NoVenueSharesReceived', inputs: [] },
+  {
+    type: 'error',
+    name: 'NotEarnVault',
     inputs: [{ name: 'caller', type: 'address' }],
   },
   {
@@ -3370,8 +3453,8 @@ export const erc4626Engine = [
   { type: 'error', name: 'ZeroAddress', inputs: [] },
 ] as const
 
-/** ABI of the vault adapter contract. */
-export const vaultAdapter = [
+/** ABI of the Earn vault contract. */
+export const earnVault = [
   { type: 'constructor', inputs: [], stateMutability: 'nonpayable' },
   {
     type: 'function',
@@ -3379,20 +3462,20 @@ export const vaultAdapter = [
     inputs: [],
     outputs: [
       { name: 'feeAssets', type: 'uint256' },
-      { name: 'feeShares', type: 'uint256' },
+      { name: 'feeEarnShares', type: 'uint256' },
     ],
     stateMutability: 'nonpayable',
   },
   {
     type: 'function',
-    name: 'anchorEngineShares',
+    name: 'anchorEarnShares',
     inputs: [],
     outputs: [{ name: '', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
-    name: 'anchorSupply',
+    name: 'anchorEngineShares',
     inputs: [],
     outputs: [{ name: '', type: 'uint256' }],
     stateMutability: 'view',
@@ -3413,27 +3496,13 @@ export const vaultAdapter = [
   },
   {
     type: 'function',
-    name: 'cancelRedeemAsync',
-    inputs: [{ name: 'requestId', type: 'bytes32' }],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'claimFeeShares',
+    name: 'cancelRedeem',
     inputs: [
-      { name: 'to', type: 'address' },
-      { name: 'shares', type: 'uint256' },
+      { name: 'requestId', type: 'bytes32' },
+      { name: 'minReceiverEarnShares', type: 'uint256' },
     ],
     outputs: [],
     stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'claimableFeeShares',
-    inputs: [{ name: 'recipient', type: 'address' }],
-    outputs: [{ name: 'shares', type: 'uint256' }],
-    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -3444,9 +3513,16 @@ export const vaultAdapter = [
   },
   {
     type: 'function',
-    name: 'currentFeeConfigId',
-    inputs: [],
-    outputs: [{ name: '', type: 'uint64' }],
+    name: 'convertEngineSharesToEarnShares',
+    inputs: [{ name: 'engineShares_', type: 'uint256' }],
+    outputs: [{ name: 'earnShares', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'convertToEngineShares',
+    inputs: [{ name: 'earnShares', type: 'uint256' }],
+    outputs: [{ name: 'engineShares_', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
@@ -3455,14 +3531,21 @@ export const vaultAdapter = [
     inputs: [
       { name: 'assets', type: 'uint256' },
       { name: 'receiver', type: 'address' },
-      { name: 'minShares', type: 'uint256' },
+      { name: 'minEarnShares', type: 'uint256' },
     ],
-    outputs: [{ name: 'shares', type: 'uint256' }],
+    outputs: [{ name: 'earnShares', type: 'uint256' }],
     stateMutability: 'nonpayable',
   },
   {
     type: 'function',
-    name: 'depositShares',
+    name: 'depositSwapOverride',
+    inputs: [{ name: 'inputToken', type: 'address' }],
+    outputs: [{ name: 'swapAdapter', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'depositVenueShares',
     inputs: [
       { name: 'venueShares', type: 'uint256' },
       { name: 'receiver', type: 'address' },
@@ -3487,9 +3570,16 @@ export const vaultAdapter = [
   },
   {
     type: 'function',
-    name: 'emergencyFeesDisabled',
+    name: 'earnFees',
     inputs: [],
-    outputs: [{ name: '', type: 'bool' }],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'earnShare',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
     stateMutability: 'view',
   },
   {
@@ -3522,13 +3612,6 @@ export const vaultAdapter = [
   },
   {
     type: 'function',
-    name: 'excessFeeCap',
-    inputs: [],
-    outputs: [{ name: '', type: 'uint96' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
     name: 'feeAdministrator',
     inputs: [],
     outputs: [{ name: '', type: 'address' }],
@@ -3536,59 +3619,9 @@ export const vaultAdapter = [
   },
   {
     type: 'function',
-    name: 'feeConfig',
-    inputs: [{ name: 'configId', type: 'uint64' }],
-    outputs: [
-      {
-        name: '',
-        type: 'tuple',
-        components: [
-          { name: 'fixedFeeCount', type: 'uint8' },
-          {
-            name: 'fixedFees',
-            type: 'tuple[4]',
-            components: [
-              { name: 'account', type: 'address' },
-              { name: 'rate', type: 'uint96' },
-            ],
-          },
-          {
-            name: 'excess',
-            type: 'tuple',
-            components: [
-              { name: 'enabled', type: 'bool' },
-              { name: 'account', type: 'address' },
-              { name: 'annualTargetRate', type: 'uint96' },
-              { name: 'excessFeeRate', type: 'uint96' },
-            ],
-          },
-        ],
-      },
-    ],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
     name: 'feeGuardian',
     inputs: [],
     outputs: [{ name: '', type: 'address' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'feeRemainder',
-    inputs: [
-      { name: 'configId', type: 'uint64' },
-      { name: 'slot', type: 'uint8' },
-    ],
-    outputs: [{ name: '', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'feesActive',
-    inputs: [],
-    outputs: [{ name: '', type: 'bool' }],
     stateMutability: 'view',
   },
   {
@@ -3604,24 +3637,11 @@ export const vaultAdapter = [
   },
   {
     type: 'function',
-    name: 'fixedFeeCap',
-    inputs: [],
-    outputs: [{ name: '', type: 'uint96' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'highWaterMark',
-    inputs: [],
-    outputs: [{ name: '', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
     name: 'initialize',
     inputs: [
       { name: 'engine_', type: 'address' },
-      { name: 'shareToken_', type: 'address' },
+      { name: 'earnShare_', type: 'address' },
+      { name: 'earnFees_', type: 'address' },
       { name: 'operator_', type: 'address' },
       {
         name: 'controlInit_',
@@ -3673,7 +3693,7 @@ export const vaultAdapter = [
   },
   {
     type: 'function',
-    name: 'isSynced',
+    name: 'isAccountingAligned',
     inputs: [],
     outputs: [{ name: '', type: 'bool' }],
     stateMutability: 'view',
@@ -3683,11 +3703,18 @@ export const vaultAdapter = [
     name: 'migrateEngine',
     inputs: [
       { name: 'newEngine', type: 'address' },
-      { name: 'minNewShares', type: 'uint256' },
+      { name: 'minNewEngineShares', type: 'uint256' },
       { name: 'minAssetsRetained', type: 'uint256' },
     ],
-    outputs: [{ name: 'newShares', type: 'uint256' }],
+    outputs: [{ name: 'newEngineShares', type: 'uint256' }],
     stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'openRedeemRequestCount',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -3707,13 +3734,8 @@ export const vaultAdapter = [
         components: [
           { name: 'receiver', type: 'address' },
           { name: 'requester', type: 'address' },
-          { name: 'burnedEarnToken', type: 'uint256' },
+          { name: 'burnedEarnShares', type: 'uint256' },
           { name: 'venueShares', type: 'uint256' },
-          { name: 'requestValue', type: 'uint256' },
-          { name: 'highWaterValue', type: 'uint256' },
-          { name: 'targetValue', type: 'uint256' },
-          { name: 'feeConfigId', type: 'uint64' },
-          { name: 'requestedAt', type: 'uint40' },
           { name: 'open', type: 'bool' },
         ],
       },
@@ -3722,48 +3744,8 @@ export const vaultAdapter = [
   },
   {
     type: 'function',
-    name: 'pendingRedeemCount',
-    inputs: [],
-    outputs: [{ name: '', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'previewAccruedFees',
-    inputs: [],
-    outputs: [
-      {
-        name: 'result',
-        type: 'tuple',
-        components: [
-          { name: 'activeAssets', type: 'uint256' },
-          { name: 'positiveAccrualAssets', type: 'uint256' },
-          { name: 'fixedFeeAssets', type: 'uint256' },
-          { name: 'excessFeeAssets', type: 'uint256' },
-          { name: 'totalFeeAssets', type: 'uint256' },
-          { name: 'totalFeeShares', type: 'uint256' },
-          { name: 'preFeeValuePerShare', type: 'uint256' },
-          { name: 'postFeeValuePerShare', type: 'uint256' },
-          { name: 'targetValuePerShare', type: 'uint256' },
-          { name: 'allocationCount', type: 'uint8' },
-          {
-            name: 'allocations',
-            type: 'tuple[5]',
-            components: [
-              { name: 'account', type: 'address' },
-              { name: 'feeAssets', type: 'uint256' },
-              { name: 'feeShares', type: 'uint256' },
-            ],
-          },
-        ],
-      },
-    ],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
     name: 'previewRedeem',
-    inputs: [{ name: 'shares', type: 'uint256' }],
+    inputs: [{ name: 'earnShares', type: 'uint256' }],
     outputs: [{ name: 'assets', type: 'uint256' }],
     stateMutability: 'view',
   },
@@ -3771,14 +3753,14 @@ export const vaultAdapter = [
     type: 'function',
     name: 'previewWithdraw',
     inputs: [{ name: 'assets', type: 'uint256' }],
-    outputs: [{ name: 'shares', type: 'uint256' }],
+    outputs: [{ name: 'earnShares', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
     name: 'redeem',
     inputs: [
-      { name: 'shares', type: 'uint256' },
+      { name: 'earnShares', type: 'uint256' },
       { name: 'receiver', type: 'address' },
       { name: 'minAssets', type: 'uint256' },
     ],
@@ -3787,13 +3769,30 @@ export const vaultAdapter = [
   },
   {
     type: 'function',
-    name: 'requestRedeemAsync',
+    name: 'redeemSwapOverride',
+    inputs: [{ name: 'outputToken', type: 'address' }],
+    outputs: [{ name: 'swapAdapter', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'requestRedeem',
     inputs: [
-      { name: 'shares', type: 'uint256' },
+      { name: 'earnShares', type: 'uint256' },
       { name: 'engineData', type: 'bytes' },
       { name: 'receiver', type: 'address' },
     ],
     outputs: [{ name: 'requestId', type: 'bytes32' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'setDepositSwapOverride',
+    inputs: [
+      { name: 'inputToken', type: 'address' },
+      { name: 'swapAdapter', type: 'address' },
+    ],
+    outputs: [],
     stateMutability: 'nonpayable',
   },
   {
@@ -3848,49 +3847,17 @@ export const vaultAdapter = [
   },
   {
     type: 'function',
-    name: 'shareSupply',
-    inputs: [],
-    outputs: [{ name: '', type: 'uint256' }],
-    stateMutability: 'view',
+    name: 'setRedeemSwapOverride',
+    inputs: [
+      { name: 'outputToken', type: 'address' },
+      { name: 'swapAdapter', type: 'address' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
-    name: 'shareToken',
-    inputs: [],
-    outputs: [{ name: '', type: 'address' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'sharesToTokens',
-    inputs: [{ name: 'shares', type: 'uint256' }],
-    outputs: [{ name: '', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'targetBase',
-    inputs: [],
-    outputs: [{ name: '', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'targetStartedAt',
-    inputs: [],
-    outputs: [{ name: '', type: 'uint40' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'tokensToShares',
-    inputs: [{ name: 'tokens', type: 'uint256' }],
-    outputs: [{ name: '', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'totalClaimableFeeShares',
+    name: 'totalEarnShares',
     inputs: [],
     outputs: [{ name: '', type: 'uint256' }],
     stateMutability: 'view',
@@ -3901,9 +3868,9 @@ export const vaultAdapter = [
     inputs: [
       { name: 'assets', type: 'uint256' },
       { name: 'receiver', type: 'address' },
-      { name: 'maxShares', type: 'uint256' },
+      { name: 'maxEarnShares', type: 'uint256' },
     ],
-    outputs: [{ name: 'sharesBurned', type: 'uint256' }],
+    outputs: [{ name: 'earnSharesBurned', type: 'uint256' }],
     stateMutability: 'nonpayable',
   },
   {
@@ -3914,7 +3881,7 @@ export const vaultAdapter = [
       { name: 'assets', type: 'uint256', indexed: false },
       { name: 'venueShares', type: 'uint256', indexed: false },
       { name: 'anchorEngineShares', type: 'uint256', indexed: false },
-      { name: 'anchorSupply', type: 'uint256', indexed: false },
+      { name: 'anchorEarnShares', type: 'uint256', indexed: false },
     ],
     anonymous: false,
   },
@@ -3929,12 +3896,21 @@ export const vaultAdapter = [
   },
   {
     type: 'event',
+    name: 'DepositSwapOverrideSet',
+    inputs: [
+      { name: 'inputToken', type: 'address', indexed: true },
+      { name: 'swapAdapter', type: 'address', indexed: true },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
     name: 'Deposited',
     inputs: [
       { name: 'caller', type: 'address', indexed: true },
       { name: 'receiver', type: 'address', indexed: true },
       { name: 'assets', type: 'uint256', indexed: false },
-      { name: 'shares', type: 'uint256', indexed: false },
+      { name: 'earnShares', type: 'uint256', indexed: false },
     ],
     anonymous: false,
   },
@@ -3953,14 +3929,531 @@ export const vaultAdapter = [
     inputs: [
       { name: 'oldEngine', type: 'address', indexed: true },
       { name: 'newEngine', type: 'address', indexed: true },
-      { name: 'oldShares', type: 'uint256', indexed: false },
+      { name: 'oldEngineShares', type: 'uint256', indexed: false },
       { name: 'assetsMoved', type: 'uint256', indexed: false },
-      { name: 'newShares', type: 'uint256', indexed: false },
-      { name: 'shareSupply', type: 'uint256', indexed: false },
+      { name: 'newEngineShares', type: 'uint256', indexed: false },
+      { name: 'totalEarnShares', type: 'uint256', indexed: false },
       { name: 'anchorEngineShares', type: 'uint256', indexed: false },
-      { name: 'anchorSupply', type: 'uint256', indexed: false },
+      { name: 'anchorEarnShares', type: 'uint256', indexed: false },
     ],
     anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'RedeemCancelled',
+    inputs: [
+      { name: 'requestId', type: 'bytes32', indexed: true },
+      { name: 'receiver', type: 'address', indexed: true },
+      { name: 'earnShares', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'RedeemFinalized',
+    inputs: [
+      { name: 'requestId', type: 'bytes32', indexed: true },
+      { name: 'receiver', type: 'address', indexed: true },
+      { name: 'earnShares', type: 'uint256', indexed: false },
+      { name: 'asset', type: 'address', indexed: false },
+      { name: 'assets', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'RedeemRequested',
+    inputs: [
+      { name: 'requestId', type: 'bytes32', indexed: true },
+      { name: 'requester', type: 'address', indexed: true },
+      { name: 'receiver', type: 'address', indexed: true },
+      { name: 'earnShares', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'RedeemSwapOverrideSet',
+    inputs: [
+      { name: 'outputToken', type: 'address', indexed: true },
+      { name: 'swapAdapter', type: 'address', indexed: true },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'Redeemed',
+    inputs: [
+      { name: 'caller', type: 'address', indexed: true },
+      { name: 'receiver', type: 'address', indexed: true },
+      { name: 'earnShares', type: 'uint256', indexed: false },
+      { name: 'assets', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'VenueSharesDeposited',
+    inputs: [
+      { name: 'caller', type: 'address', indexed: true },
+      { name: 'receiver', type: 'address', indexed: true },
+      { name: 'requestedVenueShares', type: 'uint256', indexed: false },
+      { name: 'receivedVenueShares', type: 'uint256', indexed: false },
+      { name: 'earnShares', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'WithdrewExact',
+    inputs: [
+      { name: 'caller', type: 'address', indexed: true },
+      { name: 'receiver', type: 'address', indexed: true },
+      { name: 'assets', type: 'uint256', indexed: false },
+      { name: 'earnSharesBurned', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  { type: 'error', name: 'AlreadyInitialized', inputs: [] },
+  { type: 'error', name: 'DepositsPaused', inputs: [] },
+  {
+    type: 'error',
+    name: 'DuplicateRequest',
+    inputs: [{ name: 'requestId', type: 'bytes32' }],
+  },
+  { type: 'error', name: 'EngineAssetMismatch', inputs: [] },
+  {
+    type: 'error',
+    name: 'EngineCapabilityUnsupported',
+    inputs: [{ name: 'interfaceId', type: 'bytes4' }],
+  },
+  { type: 'error', name: 'ExceedsMaxEarnShares', inputs: [] },
+  {
+    type: 'error',
+    name: 'ExcessiveConversionLoss',
+    inputs: [
+      { name: 'inputEngineShares', type: 'uint256' },
+      { name: 'representedEngineShares', type: 'uint256' },
+    ],
+  },
+  { type: 'error', name: 'InitialEarnShareSupplyNotZero', inputs: [] },
+  { type: 'error', name: 'InsufficientOutput', inputs: [] },
+  { type: 'error', name: 'InvalidEarnDecimals', inputs: [] },
+  { type: 'error', name: 'InvalidEngineShareScale', inputs: [] },
+  { type: 'error', name: 'InvalidSwapOverride', inputs: [] },
+  {
+    type: 'error',
+    name: 'MinimumAssetsNotMet',
+    inputs: [
+      { name: 'minimumAssets', type: 'uint256' },
+      { name: 'actualAssets', type: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'MinimumEarnSharesNotMet',
+    inputs: [
+      { name: 'minimumEarnShares', type: 'uint256' },
+      { name: 'actualEarnShares', type: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'MinimumEngineSharesNotMet',
+    inputs: [
+      { name: 'minimumEngineShares', type: 'uint256' },
+      { name: 'actualEngineShares', type: 'uint256' },
+    ],
+  },
+  { type: 'error', name: 'NoEarnShares', inputs: [] },
+  { type: 'error', name: 'NotEmergencyGuardianOrOperator', inputs: [] },
+  { type: 'error', name: 'NotEngine', inputs: [] },
+  { type: 'error', name: 'NotFeeAdministrator', inputs: [] },
+  { type: 'error', name: 'NotFeeGuardian', inputs: [] },
+  { type: 'error', name: 'NotOperator', inputs: [] },
+  { type: 'error', name: 'NotRequesterOrJanitor', inputs: [] },
+  { type: 'error', name: 'OperatorMigrationDisabled', inputs: [] },
+  { type: 'error', name: 'PendingRedeemsOpen', inputs: [] },
+  { type: 'error', name: 'ReentrantCall', inputs: [] },
+  {
+    type: 'error',
+    name: 'RequestNotOpen',
+    inputs: [{ name: 'requestId', type: 'bytes32' }],
+  },
+  { type: 'error', name: 'ResidualBacking', inputs: [] },
+  { type: 'error', name: 'SameEngine', inputs: [] },
+  { type: 'error', name: 'TokenCallFailed', inputs: [] },
+  { type: 'error', name: 'TokenCallFalse', inputs: [] },
+  { type: 'error', name: 'ZeroAddress', inputs: [] },
+  { type: 'error', name: 'ZeroAmount', inputs: [] },
+  { type: 'error', name: 'ZeroMinimumAssets', inputs: [] },
+  { type: 'error', name: 'ZeroMinimumEarnShares', inputs: [] },
+  { type: 'error', name: 'ZeroMinimumEngineShares', inputs: [] },
+] as const
+
+/** ABI of the Earn fees contract. */
+export const earnFees = [
+  { type: 'constructor', inputs: [], stateMutability: 'nonpayable' },
+  {
+    type: 'function',
+    name: 'accrueFees',
+    inputs: [],
+    outputs: [
+      {
+        name: 'result',
+        type: 'tuple',
+        components: [
+          { name: 'activeAssets', type: 'uint256' },
+          { name: 'positiveAccrualAssets', type: 'uint256' },
+          { name: 'fixedFeeAssets', type: 'uint256' },
+          { name: 'excessFeeAssets', type: 'uint256' },
+          { name: 'totalFeeAssets', type: 'uint256' },
+          { name: 'totalFeeEarnShares', type: 'uint256' },
+          { name: 'preFeeValuePerEarnShare', type: 'uint256' },
+          { name: 'postFeeValuePerEarnShare', type: 'uint256' },
+          { name: 'targetValuePerEarnShare', type: 'uint256' },
+          { name: 'allocationCount', type: 'uint8' },
+          {
+            name: 'allocations',
+            type: 'tuple[5]',
+            components: [
+              { name: 'account', type: 'address' },
+              { name: 'feeAssets', type: 'uint256' },
+              { name: 'feeEarnShares', type: 'uint256' },
+            ],
+          },
+        ],
+      },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'claim',
+    inputs: [
+      { name: 'to', type: 'address' },
+      { name: 'earnShares', type: 'uint256' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'claimableEarnShares',
+    inputs: [{ name: 'recipient', type: 'address' }],
+    outputs: [{ name: 'earnShares', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'closeRedeemRequest',
+    inputs: [{ name: 'requestId', type: 'bytes32' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'currentFeeConfigId',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint64' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'disableFees',
+    inputs: [{ name: 'guardian', type: 'address' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'earnShare',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'earnShareScale',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'earnVault',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'excessFeeCap',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint96' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'feeConfig',
+    inputs: [{ name: 'configId', type: 'uint64' }],
+    outputs: [
+      {
+        name: '',
+        type: 'tuple',
+        components: [
+          { name: 'fixedFeeCount', type: 'uint8' },
+          {
+            name: 'fixedFees',
+            type: 'tuple[4]',
+            components: [
+              { name: 'account', type: 'address' },
+              { name: 'rate', type: 'uint96' },
+            ],
+          },
+          {
+            name: 'excess',
+            type: 'tuple',
+            components: [
+              { name: 'enabled', type: 'bool' },
+              { name: 'account', type: 'address' },
+              { name: 'annualTargetRate', type: 'uint96' },
+              { name: 'excessFeeRate', type: 'uint96' },
+            ],
+          },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'feeRemainder',
+    inputs: [
+      { name: 'configId', type: 'uint64' },
+      { name: 'slot', type: 'uint8' },
+    ],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'feesActive',
+    inputs: [],
+    outputs: [{ name: '', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'feesDisabled',
+    inputs: [],
+    outputs: [{ name: '', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'fixedFeeCap',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint96' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'highWaterMark',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'initialize',
+    inputs: [
+      { name: 'earnVault_', type: 'address' },
+      { name: 'earnShare_', type: 'address' },
+      {
+        name: 'init',
+        type: 'tuple',
+        components: [
+          { name: 'administrator', type: 'address' },
+          { name: 'guardian', type: 'address' },
+          { name: 'fixedFeeCap', type: 'uint96' },
+          { name: 'excessFeeCap', type: 'uint96' },
+          {
+            name: 'initialConfig',
+            type: 'tuple',
+            components: [
+              { name: 'fixedFeeCount', type: 'uint8' },
+              {
+                name: 'fixedFees',
+                type: 'tuple[4]',
+                components: [
+                  { name: 'account', type: 'address' },
+                  { name: 'rate', type: 'uint96' },
+                ],
+              },
+              {
+                name: 'excess',
+                type: 'tuple',
+                components: [
+                  { name: 'enabled', type: 'bool' },
+                  { name: 'account', type: 'address' },
+                  { name: 'annualTargetRate', type: 'uint96' },
+                  { name: 'excessFeeRate', type: 'uint96' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'initializeBaselines',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'pendingFeeSnapshot',
+    inputs: [{ name: 'requestId', type: 'bytes32' }],
+    outputs: [
+      {
+        name: '',
+        type: 'tuple',
+        components: [
+          { name: 'burnedEarnShares', type: 'uint256' },
+          { name: 'requestValue', type: 'uint256' },
+          { name: 'highWaterValue', type: 'uint256' },
+          { name: 'targetValue', type: 'uint256' },
+          { name: 'feeConfigId', type: 'uint64' },
+          { name: 'requestedAt', type: 'uint40' },
+          { name: 'open', type: 'bool' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'previewAccruedFees',
+    inputs: [],
+    outputs: [
+      {
+        name: 'result',
+        type: 'tuple',
+        components: [
+          { name: 'activeAssets', type: 'uint256' },
+          { name: 'positiveAccrualAssets', type: 'uint256' },
+          { name: 'fixedFeeAssets', type: 'uint256' },
+          { name: 'excessFeeAssets', type: 'uint256' },
+          { name: 'totalFeeAssets', type: 'uint256' },
+          { name: 'totalFeeEarnShares', type: 'uint256' },
+          { name: 'preFeeValuePerEarnShare', type: 'uint256' },
+          { name: 'postFeeValuePerEarnShare', type: 'uint256' },
+          { name: 'targetValuePerEarnShare', type: 'uint256' },
+          { name: 'allocationCount', type: 'uint8' },
+          {
+            name: 'allocations',
+            type: 'tuple[5]',
+            components: [
+              { name: 'account', type: 'address' },
+              { name: 'feeAssets', type: 'uint256' },
+              { name: 'feeEarnShares', type: 'uint256' },
+            ],
+          },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'recordRedeemRequest',
+    inputs: [
+      { name: 'requestId', type: 'bytes32' },
+      { name: 'burnedEarnShares', type: 'uint256' },
+      { name: 'requestValue', type: 'uint256' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'setFeeConfig',
+    inputs: [
+      {
+        name: 'config',
+        type: 'tuple',
+        components: [
+          { name: 'fixedFeeCount', type: 'uint8' },
+          {
+            name: 'fixedFees',
+            type: 'tuple[4]',
+            components: [
+              { name: 'account', type: 'address' },
+              { name: 'rate', type: 'uint96' },
+            ],
+          },
+          {
+            name: 'excess',
+            type: 'tuple',
+            components: [
+              { name: 'enabled', type: 'bool' },
+              { name: 'account', type: 'address' },
+              { name: 'annualTargetRate', type: 'uint96' },
+              { name: 'excessFeeRate', type: 'uint96' },
+            ],
+          },
+        ],
+      },
+    ],
+    outputs: [{ name: 'configId', type: 'uint64' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'settleCancelledRedeem',
+    inputs: [
+      { name: 'requestId', type: 'bytes32' },
+      { name: 'returnedValue', type: 'uint256' },
+      { name: 'activeSupply', type: 'uint256' },
+      { name: 'activeAssets', type: 'uint256' },
+      { name: 'totalReentryEarnShares', type: 'uint256' },
+    ],
+    outputs: [{ name: 'feeEarnShares', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'shouldChargeRedeem',
+    inputs: [{ name: 'requestId', type: 'bytes32' }],
+    outputs: [{ name: '', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'targetBase',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'targetStartedAt',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint40' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'totalClaimableEarnShares',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
   },
   {
     type: 'event',
@@ -3994,22 +4487,22 @@ export const vaultAdapter = [
   },
   {
     type: 'event',
-    name: 'FeeSharesAllocated',
+    name: 'FeeEarnSharesAllocated',
     inputs: [
       { name: 'configId', type: 'uint64', indexed: true },
       { name: 'recipient', type: 'address', indexed: true },
       { name: 'feeAssets', type: 'uint256', indexed: false },
-      { name: 'feeShares', type: 'uint256', indexed: false },
+      { name: 'feeEarnShares', type: 'uint256', indexed: false },
     ],
     anonymous: false,
   },
   {
     type: 'event',
-    name: 'FeeSharesClaimed',
+    name: 'FeeEarnSharesClaimed',
     inputs: [
       { name: 'recipient', type: 'address', indexed: true },
       { name: 'to', type: 'address', indexed: true },
-      { name: 'shares', type: 'uint256', indexed: false },
+      { name: 'earnShares', type: 'uint256', indexed: false },
     ],
     anonymous: false,
   },
@@ -4021,9 +4514,9 @@ export const vaultAdapter = [
       { name: 'activeAssets', type: 'uint256', indexed: false },
       { name: 'positiveAccrualAssets', type: 'uint256', indexed: false },
       { name: 'feeAssets', type: 'uint256', indexed: false },
-      { name: 'feeShares', type: 'uint256', indexed: false },
+      { name: 'feeEarnShares', type: 'uint256', indexed: false },
       { name: 'highWaterMark', type: 'uint256', indexed: false },
-      { name: 'targetValuePerShare', type: 'uint256', indexed: false },
+      { name: 'targetValuePerEarnShare', type: 'uint256', indexed: false },
     ],
     anonymous: false,
   },
@@ -4033,146 +4526,20 @@ export const vaultAdapter = [
     inputs: [{ name: 'guardian', type: 'address', indexed: true }],
     anonymous: false,
   },
-  {
-    type: 'event',
-    name: 'RedeemCancelled',
-    inputs: [
-      { name: 'requestId', type: 'bytes32', indexed: true },
-      { name: 'receiver', type: 'address', indexed: true },
-      { name: 'shares', type: 'uint256', indexed: false },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'RedeemFinalized',
-    inputs: [
-      { name: 'requestId', type: 'bytes32', indexed: true },
-      { name: 'receiver', type: 'address', indexed: true },
-      { name: 'shares', type: 'uint256', indexed: false },
-      { name: 'asset', type: 'address', indexed: false },
-      { name: 'amount', type: 'uint256', indexed: false },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'RedeemRequested',
-    inputs: [
-      { name: 'requestId', type: 'bytes32', indexed: true },
-      { name: 'requester', type: 'address', indexed: true },
-      { name: 'receiver', type: 'address', indexed: true },
-      { name: 'shares', type: 'uint256', indexed: false },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'Redeemed',
-    inputs: [
-      { name: 'caller', type: 'address', indexed: true },
-      { name: 'receiver', type: 'address', indexed: true },
-      { name: 'shares', type: 'uint256', indexed: false },
-      { name: 'assets', type: 'uint256', indexed: false },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'VenueSharesDeposited',
-    inputs: [
-      { name: 'caller', type: 'address', indexed: true },
-      { name: 'receiver', type: 'address', indexed: true },
-      { name: 'requestedVenueShares', type: 'uint256', indexed: false },
-      { name: 'receivedVenueShares', type: 'uint256', indexed: false },
-      { name: 'earnShares', type: 'uint256', indexed: false },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'WithdrewExact',
-    inputs: [
-      { name: 'caller', type: 'address', indexed: true },
-      { name: 'receiver', type: 'address', indexed: true },
-      { name: 'assets', type: 'uint256', indexed: false },
-      { name: 'sharesBurned', type: 'uint256', indexed: false },
-    ],
-    anonymous: false,
-  },
   { type: 'error', name: 'AlreadyInitialized', inputs: [] },
-  { type: 'error', name: 'DepositsPaused', inputs: [] },
-  {
-    type: 'error',
-    name: 'DuplicateRequest',
-    inputs: [{ name: 'requestId', type: 'bytes32' }],
-  },
-  { type: 'error', name: 'EngineAssetMismatch', inputs: [] },
-  {
-    type: 'error',
-    name: 'EngineCapabilityUnsupported',
-    inputs: [{ name: 'interfaceId', type: 'bytes4' }],
-  },
-  { type: 'error', name: 'ExceedsMaxShares', inputs: [] },
-  {
-    type: 'error',
-    name: 'ExcessiveConversionLoss',
-    inputs: [
-      { name: 'inputShares', type: 'uint256' },
-      { name: 'representedShares', type: 'uint256' },
-    ],
-  },
   { type: 'error', name: 'FeeCapTooHigh', inputs: [] },
   { type: 'error', name: 'FeesPermanentlyDisabled', inputs: [] },
-  { type: 'error', name: 'InitialShareSupplyNotZero', inputs: [] },
-  { type: 'error', name: 'InsufficientClaimableFeeShares', inputs: [] },
-  { type: 'error', name: 'InsufficientOutput', inputs: [] },
+  { type: 'error', name: 'InsufficientClaimableEarnShares', inputs: [] },
   { type: 'error', name: 'InvalidFeeClaimReceiver', inputs: [] },
   { type: 'error', name: 'InvalidFeeConfiguration', inputs: [] },
-  { type: 'error', name: 'InvalidShareDecimals', inputs: [] },
-  {
-    type: 'error',
-    name: 'MinimumAssetsNotMet',
-    inputs: [
-      { name: 'minimumAssets', type: 'uint256' },
-      { name: 'actualAssets', type: 'uint256' },
-    ],
-  },
-  {
-    type: 'error',
-    name: 'MinimumSharesNotMet',
-    inputs: [
-      { name: 'minimumShares', type: 'uint256' },
-      { name: 'actualShares', type: 'uint256' },
-    ],
-  },
-  { type: 'error', name: 'NoShareSupply', inputs: [] },
-  { type: 'error', name: 'NotEmergencyGuardianOrOperator', inputs: [] },
-  { type: 'error', name: 'NotEngine', inputs: [] },
-  { type: 'error', name: 'NotFeeAdministrator', inputs: [] },
-  { type: 'error', name: 'NotFeeGuardian', inputs: [] },
-  { type: 'error', name: 'NotOperator', inputs: [] },
-  { type: 'error', name: 'NotRequesterOrJanitor', inputs: [] },
-  { type: 'error', name: 'OperatorMigrationDisabled', inputs: [] },
-  { type: 'error', name: 'PendingRedeemsOpen', inputs: [] },
+  { type: 'error', name: 'NotEarnVault', inputs: [] },
   { type: 'error', name: 'ReentrantCall', inputs: [] },
-  {
-    type: 'error',
-    name: 'RequestNotOpen',
-    inputs: [{ name: 'requestId', type: 'bytes32' }],
-  },
-  { type: 'error', name: 'ResidualBacking', inputs: [] },
-  { type: 'error', name: 'SameEngine', inputs: [] },
-  { type: 'error', name: 'TokenCallFailed', inputs: [] },
-  { type: 'error', name: 'TokenCallFalse', inputs: [] },
   { type: 'error', name: 'ZeroAddress', inputs: [] },
   { type: 'error', name: 'ZeroAmount', inputs: [] },
-  { type: 'error', name: 'ZeroMinimumAssets', inputs: [] },
-  { type: 'error', name: 'ZeroMinimumShares', inputs: [] },
 ] as const
 
-/** ABI of the synchronous vault engine interfaces. */
-export const vaultEngine = [
+/** ABI of the synchronous Earn engine interfaces. */
+export const earnEngine = [
   {
     type: 'function',
     name: 'asset',
@@ -4184,7 +4551,7 @@ export const vaultEngine = [
     type: 'function',
     name: 'deposit',
     inputs: [{ name: 'assets', type: 'uint256' }],
-    outputs: [{ name: 'shares', type: 'uint256' }],
+    outputs: [{ name: 'engineShares', type: 'uint256' }],
     stateMutability: 'nonpayable',
   },
   {
@@ -4192,6 +4559,13 @@ export const vaultEngine = [
     name: 'name',
     inputs: [],
     outputs: [{ name: '', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'shareScale',
+    inputs: [],
+    outputs: [{ name: 'scale', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
@@ -4219,20 +4593,20 @@ export const vaultEngine = [
     type: 'function',
     name: 'totalShares',
     inputs: [],
-    outputs: [{ name: 'shares', type: 'uint256' }],
+    outputs: [{ name: 'engineShares', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
     name: 'valueOf',
-    inputs: [{ name: 'shares', type: 'uint256' }],
+    inputs: [{ name: 'engineShares', type: 'uint256' }],
     outputs: [{ name: 'assets', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
     name: 'previewRedeem',
-    inputs: [{ name: 'shares', type: 'uint256' }],
+    inputs: [{ name: 'engineShares', type: 'uint256' }],
     outputs: [{ name: 'assets', type: 'uint256' }],
     stateMutability: 'view',
   },
@@ -4240,8 +4614,9 @@ export const vaultEngine = [
     type: 'function',
     name: 'redeem',
     inputs: [
-      { name: 'shares', type: 'uint256' },
+      { name: 'engineShares', type: 'uint256' },
       { name: 'receiver', type: 'address' },
+      { name: 'minAssets', type: 'uint256' },
     ],
     outputs: [{ name: 'assets', type: 'uint256' }],
     stateMutability: 'nonpayable',
@@ -4250,7 +4625,7 @@ export const vaultEngine = [
     type: 'function',
     name: 'previewWithdraw',
     inputs: [{ name: 'assets', type: 'uint256' }],
-    outputs: [{ name: 'shares', type: 'uint256' }],
+    outputs: [{ name: 'engineShares', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
@@ -4260,25 +4635,25 @@ export const vaultEngine = [
       { name: 'assets', type: 'uint256' },
       { name: 'receiver', type: 'address' },
     ],
-    outputs: [{ name: 'shares', type: 'uint256' }],
+    outputs: [{ name: 'engineShares', type: 'uint256' }],
     stateMutability: 'nonpayable',
   },
 ] as const
 
-/** ABI of the asynchronous vault engine interface. */
-export const vaultEngineAsync = [
+/** ABI of the asynchronous Earn engine interface. */
+export const earnEngineAsyncRedeem = [
   {
     type: 'function',
     name: 'cancelRedeem',
     inputs: [{ name: 'requestId', type: 'bytes32' }],
-    outputs: [{ name: 'shares', type: 'uint256' }],
+    outputs: [{ name: 'engineShares', type: 'uint256' }],
     stateMutability: 'nonpayable',
   },
   {
     type: 'function',
     name: 'requestRedeem',
     inputs: [
-      { name: 'shares', type: 'uint256' },
+      { name: 'engineShares', type: 'uint256' },
       { name: 'requestData', type: 'bytes' },
     ],
     outputs: [{ name: 'requestId', type: 'bytes32' }],
@@ -4286,22 +4661,22 @@ export const vaultEngineAsync = [
   },
 ] as const
 
-/** ABI of the in-kind vault engine interface. */
-export const vaultEngineShares = [
+/** ABI of the in-kind Earn engine interface. */
+export const earnEngineInKindDeposit = [
   {
     type: 'function',
-    name: 'depositShares',
+    name: 'depositInKind',
     inputs: [
-      { name: 'shares', type: 'uint256' },
+      { name: 'venueShares', type: 'uint256' },
       { name: 'from', type: 'address' },
     ],
-    outputs: [{ name: 'sharesReceived', type: 'uint256' }],
+    outputs: [{ name: 'engineSharesReceived', type: 'uint256' }],
     stateMutability: 'nonpayable',
   },
 ] as const
 
-/** ABI of the vault rewards contract. */
-export const vaultRewards = [
+/** ABI of the Earn contribution controller contract. */
+export const earnContributionController = [
   {
     type: 'function',
     name: 'active',
@@ -4314,9 +4689,10 @@ export const vaultRewards = [
     name: 'fund',
     inputs: [
       { name: 'funder', type: 'address' },
-      { name: 'requested', type: 'uint256' },
+      { name: 'requestedAssets', type: 'uint256' },
+      { name: 'maxEarnShareSupply', type: 'uint256' },
     ],
-    outputs: [{ name: 'funded', type: 'uint256' }],
+    outputs: [{ name: 'fundedAssets', type: 'uint256' }],
     stateMutability: 'nonpayable',
   },
   {
@@ -4331,10 +4707,18 @@ export const vaultRewards = [
     name: 'Funded',
     inputs: [
       { name: 'funder', type: 'address', indexed: true },
-      { name: 'requested', type: 'uint256', indexed: false },
-      { name: 'funded', type: 'uint256', indexed: false },
+      { name: 'requestedAssets', type: 'uint256', indexed: false },
+      { name: 'fundedAssets', type: 'uint256', indexed: false },
     ],
     anonymous: false,
+  },
+  {
+    type: 'error',
+    name: 'EarnShareSupplyOutOfBounds',
+    inputs: [
+      { name: 'earnShareSupply', type: 'uint256' },
+      { name: 'maxEarnShareSupply', type: 'uint256' },
+    ],
   },
   { type: 'error', name: 'Inactive', inputs: [] },
   { type: 'error', name: 'NotSelf', inputs: [] },
@@ -4370,6 +4754,7 @@ export const vedaEngine = [
     outputs: [
       { name: 'open', type: 'bool' },
       { name: 'paid', type: 'bool' },
+      { name: 'claimable', type: 'bool' },
       { name: 'recorded', type: 'bool' },
       {
         name: 'request',
@@ -4413,17 +4798,11 @@ export const vedaEngine = [
   },
   {
     type: 'event',
-    name: 'CoreInitialized',
-    inputs: [{ name: 'core', type: 'address', indexed: true }],
-    anonymous: false,
-  },
-  {
-    type: 'event',
     name: 'Deposited',
     inputs: [
-      { name: 'receiver', type: 'address', indexed: true },
+      { name: 'earnVault', type: 'address', indexed: true },
       { name: 'assets', type: 'uint256', indexed: false },
-      { name: 'shares', type: 'uint256', indexed: false },
+      { name: 'engineShares', type: 'uint256', indexed: false },
     ],
     anonymous: false,
   },
@@ -4435,6 +4814,12 @@ export const vedaEngine = [
       { name: 'to', type: 'address', indexed: true },
       { name: 'amount', type: 'uint256', indexed: false },
     ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'EarnVaultInitialized',
+    inputs: [{ name: 'earnVault', type: 'address', indexed: true }],
     anonymous: false,
   },
   {
@@ -4454,6 +4839,15 @@ export const vedaEngine = [
       { name: 'requestId', type: 'bytes32', indexed: true },
       { name: 'asset', type: 'address', indexed: true },
       { name: 'amount', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'MaxRateAgeUpdated',
+    inputs: [
+      { name: 'oldMaxRateAge', type: 'uint64', indexed: false },
+      { name: 'newMaxRateAge', type: 'uint64', indexed: false },
     ],
     anonymous: false,
   },
@@ -4480,7 +4874,7 @@ export const vedaEngine = [
     name: 'RedeemCancelledOnQueue',
     inputs: [
       { name: 'requestId', type: 'bytes32', indexed: true },
-      { name: 'shares', type: 'uint128', indexed: false },
+      { name: 'venueShares', type: 'uint128', indexed: false },
     ],
     anonymous: false,
   },
@@ -4500,7 +4894,7 @@ export const vedaEngine = [
     inputs: [
       { name: 'requestId', type: 'bytes32', indexed: true },
       { name: 'assetOut', type: 'address', indexed: true },
-      { name: 'shares', type: 'uint128', indexed: false },
+      { name: 'venueShares', type: 'uint128', indexed: false },
     ],
     anonymous: false,
   },
@@ -4509,7 +4903,7 @@ export const vedaEngine = [
     name: 'Redeemed',
     inputs: [
       { name: 'receiver', type: 'address', indexed: true },
-      { name: 'shares', type: 'uint256', indexed: false },
+      { name: 'engineShares', type: 'uint256', indexed: false },
       { name: 'assets', type: 'uint256', indexed: false },
     ],
     anonymous: false,
@@ -4545,11 +4939,26 @@ export const vedaEngine = [
   },
   {
     type: 'event',
+    name: 'VedaPeripheryUpdated',
+    inputs: [
+      { name: 'registryVersion', type: 'uint64', indexed: true },
+      { name: 'oldTeller', type: 'address', indexed: true },
+      { name: 'oldQueue', type: 'address', indexed: true },
+      { name: 'oldAccountant', type: 'address', indexed: false },
+      { name: 'newTeller', type: 'address', indexed: false },
+      { name: 'newQueue', type: 'address', indexed: false },
+      { name: 'newAccountant', type: 'address', indexed: false },
+      { name: 'validatedRate', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
     name: 'WithdrewExact',
     inputs: [
       { name: 'receiver', type: 'address', indexed: true },
       { name: 'assets', type: 'uint256', indexed: false },
-      { name: 'sharesBurned', type: 'uint256', indexed: false },
+      { name: 'engineSharesBurned', type: 'uint256', indexed: false },
     ],
     anonymous: false,
   },
@@ -4559,13 +4968,17 @@ export const vedaEngine = [
     name: 'AssetsNotArrived',
     inputs: [{ name: 'requestId', type: 'bytes32' }],
   },
-  { type: 'error', name: 'CannotSweepBackingShares', inputs: [] },
+  { type: 'error', name: 'CannotSweepVenueShares', inputs: [] },
+  {
+    type: 'error',
+    name: 'ClaimNotClaimable',
+    inputs: [{ name: 'requestId', type: 'bytes32' }],
+  },
   {
     type: 'error',
     name: 'ClaimNotOpen',
     inputs: [{ name: 'requestId', type: 'bytes32' }],
   },
-  { type: 'error', name: 'CoreNotSet', inputs: [] },
   {
     type: 'error',
     name: 'CreditExceedsBalance',
@@ -4575,7 +4988,55 @@ export const vedaEngine = [
       { name: 'wantTotal', type: 'uint256' },
     ],
   },
-  { type: 'error', name: 'NoSharesReceived', inputs: [] },
+  { type: 'error', name: 'DepositsNotPaused', inputs: [] },
+  {
+    type: 'error',
+    name: 'DuplicateRequest',
+    inputs: [{ name: 'requestId', type: 'bytes32' }],
+  },
+  { type: 'error', name: 'EarnVaultNotSet', inputs: [] },
+  {
+    type: 'error',
+    name: 'InvalidAsset',
+    inputs: [
+      { name: 'expected', type: 'address' },
+      { name: 'actual', type: 'address' },
+    ],
+  },
+  { type: 'error', name: 'InvalidMaxRateAge', inputs: [] },
+  {
+    type: 'error',
+    name: 'InvalidRateTimestamp',
+    inputs: [
+      { name: 'updatedAt', type: 'uint256' },
+      { name: 'currentTime', type: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'InvalidVedaPeriphery',
+    inputs: [{ name: 'account', type: 'address' }],
+  },
+  {
+    type: 'error',
+    name: 'InvalidVedaPeripheryWiring',
+    inputs: [
+      { name: 'component', type: 'address' },
+      { name: 'expected', type: 'address' },
+      { name: 'actual', type: 'address' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'InvalidVedaRateBounds',
+    inputs: [
+      { name: 'minRate', type: 'uint256' },
+      { name: 'maxRate', type: 'uint256' },
+    ],
+  },
+  { type: 'error', name: 'InvalidVenueShareDecimals', inputs: [] },
+  { type: 'error', name: 'NoPublishedVedaPeriphery', inputs: [] },
+  { type: 'error', name: 'NoVenueSharesReceived', inputs: [] },
   {
     type: 'error',
     name: 'NotAuthorizedForwarder',
@@ -4583,7 +5044,7 @@ export const vedaEngine = [
   },
   {
     type: 'error',
-    name: 'NotCore',
+    name: 'NotEarnVault',
     inputs: [{ name: 'caller', type: 'address' }],
   },
   { type: 'error', name: 'NotSelf', inputs: [] },
@@ -4597,6 +5058,14 @@ export const vedaEngine = [
     name: 'OwnableUnauthorizedAccount',
     inputs: [{ name: 'account', type: 'address' }],
   },
+  {
+    type: 'error',
+    name: 'RateChangedWithinTransaction',
+    inputs: [
+      { name: 'expected', type: 'uint256' },
+      { name: 'actual', type: 'uint256' },
+    ],
+  },
   { type: 'error', name: 'ReentrantCall', inputs: [] },
   {
     type: 'error',
@@ -4605,28 +5074,62 @@ export const vedaEngine = [
   },
   {
     type: 'error',
-    name: 'SharesTooLarge',
-    inputs: [{ name: 'shares', type: 'uint256' }],
+    name: 'SolveUnderfunded',
+    inputs: [
+      { name: 'asset', type: 'address' },
+      { name: 'delivered', type: 'uint256' },
+      { name: 'required', type: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'StaleAccountantRate',
+    inputs: [
+      { name: 'updatedAt', type: 'uint256' },
+      { name: 'currentTime', type: 'uint256' },
+      { name: 'maxAge', type: 'uint256' },
+    ],
   },
   { type: 'error', name: 'TransferFailed', inputs: [] },
+  {
+    type: 'error',
+    name: 'VedaRateOutOfBounds',
+    inputs: [
+      { name: 'rate', type: 'uint256' },
+      { name: 'minRate', type: 'uint256' },
+      { name: 'maxRate', type: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'VenueSharesTooLarge',
+    inputs: [{ name: 'venueShares', type: 'uint256' }],
+  },
   { type: 'error', name: 'ZeroAddress', inputs: [] },
 ] as const
 
-/** ABI of the Earn Zone gateway contract. */
-export const zoneGateway = [
+/** ABI of the Zone-only Earn router contract. */
+export const earnRouter = [
   {
     type: 'function',
-    name: 'defaultSwapper',
+    name: 'STABLECOIN_DEX',
     inputs: [],
     outputs: [{ name: '', type: 'address' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
-    name: 'shareToken',
-    inputs: [],
-    outputs: [{ name: '', type: 'address' }],
-    stateMutability: 'view',
+    name: 'onWithdrawalReceived',
+    inputs: [
+      { name: 'sourceZoneId', type: 'uint32' },
+      { name: 'sourcePortal', type: 'address' },
+      { name: '', type: 'bytes32' },
+      { name: 'token', type: 'address' },
+      { name: 'amount', type: 'uint128' },
+      { name: 'callbackData', type: 'bytes' },
+    ],
+    outputs: [{ name: '', type: 'bytes4' }],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -4636,49 +5139,15 @@ export const zoneGateway = [
     stateMutability: 'pure',
   },
   {
-    type: 'function',
-    name: 'vaultAdapter',
-    inputs: [],
-    outputs: [{ name: '', type: 'address' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'vaultAsset',
-    inputs: [],
-    outputs: [{ name: '', type: 'address' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'zoneId',
-    inputs: [],
-    outputs: [{ name: '', type: 'uint32' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'zoneMessenger',
-    inputs: [],
-    outputs: [{ name: '', type: 'address' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'zonePortal',
-    inputs: [],
-    outputs: [{ name: '', type: 'address' }],
-    stateMutability: 'view',
-  },
-  {
     type: 'event',
     name: 'EarnDeposit',
     inputs: [
       { name: 'actionId', type: 'bytes32', indexed: true },
+      { name: 'earnVault', type: 'address', indexed: true },
       { name: 'inputToken', type: 'address', indexed: true },
       { name: 'inputAmount', type: 'uint256', indexed: false },
       { name: 'vaultAssets', type: 'uint256', indexed: false },
-      { name: 'shares', type: 'uint256', indexed: false },
+      { name: 'earnShares', type: 'uint256', indexed: false },
       { name: 'zoneDepositHash', type: 'bytes32', indexed: false },
     ],
     anonymous: false,
@@ -4688,158 +5157,64 @@ export const zoneGateway = [
     name: 'EarnRedeem',
     inputs: [
       { name: 'actionId', type: 'bytes32', indexed: true },
+      { name: 'earnVault', type: 'address', indexed: true },
       { name: 'outputToken', type: 'address', indexed: true },
-      { name: 'shares', type: 'uint256', indexed: false },
+      { name: 'earnShares', type: 'uint256', indexed: false },
       { name: 'vaultAssets', type: 'uint256', indexed: false },
       { name: 'outputAmount', type: 'uint256', indexed: false },
       { name: 'zoneDepositHash', type: 'bytes32', indexed: false },
     ],
     anonymous: false,
   },
+  { type: 'error', name: 'AmountOverflow', inputs: [] },
+  { type: 'error', name: 'BadFlow', inputs: [] },
+  { type: 'error', name: 'InsufficientOutput', inputs: [] },
+  { type: 'error', name: 'InvalidEarnVault', inputs: [] },
+  { type: 'error', name: 'InvalidSourcePortal', inputs: [] },
+  { type: 'error', name: 'InvalidTargetPortal', inputs: [] },
+  { type: 'error', name: 'InvalidToken', inputs: [] },
+  { type: 'error', name: 'NotZoneMessenger', inputs: [] },
+  { type: 'error', name: 'ReentrantCall', inputs: [] },
+  { type: 'error', name: 'ResidualBalance', inputs: [] },
+  { type: 'error', name: 'TokenCallFailed', inputs: [] },
+  { type: 'error', name: 'TokenCallFalse', inputs: [] },
+  { type: 'error', name: 'WrongEarnShare', inputs: [] },
+  { type: 'error', name: 'WrongOutputToken', inputs: [] },
+  { type: 'error', name: 'WrongSourceAsset', inputs: [] },
+  { type: 'error', name: 'ZeroAddress', inputs: [] },
+  { type: 'error', name: 'ZeroAmount', inputs: [] },
 ] as const
 
-/** ABI of the Earn Zone gateway base contract. */
-export const zoneGatewayBase = [
-  {
-    type: 'function',
-    name: 'acceptOwnership',
-    inputs: [],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'depositSwapperFor',
-    inputs: [{ name: 'token', type: 'address' }],
-    outputs: [{ name: 'swapper', type: 'address' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'owner',
-    inputs: [],
-    outputs: [{ name: '', type: 'address' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'pendingOwner',
-    inputs: [],
-    outputs: [{ name: '', type: 'address' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'redeemSwapperFor',
-    inputs: [{ name: 'token', type: 'address' }],
-    outputs: [{ name: 'swapper', type: 'address' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'renounceOwnership',
-    inputs: [],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'setDepositRoute',
-    inputs: [
-      { name: 'inputToken', type: 'address' },
-      { name: 'swapper', type: 'address' },
-    ],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'setRedeemRoute',
-    inputs: [
-      { name: 'outputToken', type: 'address' },
-      { name: 'swapper', type: 'address' },
-    ],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'transferOwnership',
-    inputs: [{ name: 'newOwner', type: 'address' }],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'event',
-    name: 'DepositRouteUpdated',
-    inputs: [
-      { name: 'inputToken', type: 'address', indexed: true },
-      { name: 'swapper', type: 'address', indexed: true },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'OwnershipTransferStarted',
-    inputs: [
-      { name: 'previousOwner', type: 'address', indexed: true },
-      { name: 'newOwner', type: 'address', indexed: true },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'OwnershipTransferred',
-    inputs: [
-      { name: 'previousOwner', type: 'address', indexed: true },
-      { name: 'newOwner', type: 'address', indexed: true },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'RedeemRouteUpdated',
-    inputs: [
-      { name: 'outputToken', type: 'address', indexed: true },
-      { name: 'swapper', type: 'address', indexed: true },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'TokenRescued',
-    inputs: [
-      { name: 'token', type: 'address', indexed: true },
-      { name: 'receiver', type: 'address', indexed: true },
-      { name: 'amount', type: 'uint256', indexed: false },
-    ],
-    anonymous: false,
-  },
-] as const
-
-/** ABI parameter for `ZoneGateway.CallbackData`. */
-export const zoneGatewayCallbackData = [
+/** ABI parameter for encoding `ZoneOnlyEarnRouter.CallbackData`. */
+export const earnRouterCallbackData = [
   {
     components: [
       { name: 'flow', type: 'uint8' },
+      { name: 'earnVault', type: 'address' },
       { name: 'outputToken', type: 'address' },
-      { name: 'keyIndex', type: 'uint256' },
-      {
-        components: [
-          { name: 'ephemeralPubkeyX', type: 'bytes32' },
-          { name: 'ephemeralPubkeyYParity', type: 'uint8' },
-          { name: 'ciphertext', type: 'bytes' },
-          { name: 'nonce', type: 'bytes12' },
-          { name: 'tag', type: 'bytes16' },
-        ],
-        name: 'encrypted',
-        type: 'tuple',
-      },
       { name: 'minVaultAssets', type: 'uint128' },
-      { name: 'minVaultShares', type: 'uint128' },
+      { name: 'minEarnShares', type: 'uint128' },
       { name: 'minOutputAmount', type: 'uint128' },
       { name: 'actionId', type: 'bytes32' },
-      { name: 'refundRecipient', type: 'address' },
+      {
+        components: [
+          { name: 'keyIndex', type: 'uint256' },
+          {
+            components: [
+              { name: 'ephemeralPubkeyX', type: 'bytes32' },
+              { name: 'ephemeralPubkeyYParity', type: 'uint8' },
+              { name: 'ciphertext', type: 'bytes' },
+              { name: 'nonce', type: 'bytes12' },
+              { name: 'tag', type: 'bytes16' },
+            ],
+            name: 'encrypted',
+            type: 'tuple',
+          },
+          { name: 'refundRecipient', type: 'address' },
+        ],
+        name: 'zoneReturn',
+        type: 'tuple',
+      },
     ],
     name: 'callbackData',
     type: 'tuple',

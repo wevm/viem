@@ -44,5 +44,8 @@ export const tip403Registry = '0x403c000000000000000000000000000000000000'
 /** Address of the validator config precompile. */
 export const validator = '0xcccccccc00000000000000000000000000000000'
 
+/** Address of the validator config V2 precompile. */
+export const validatorV2 = '0xcccccccc00000000000000000000000000000001'
+
 /** Address of the zone outbox precompile. */
 export const zoneOutbox = '0x1c00000000000000000000000000000000000002'

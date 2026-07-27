@@ -2,9 +2,9 @@ import { tempo, tempoModerato } from 'viem/chains'
 import { ZoneId } from 'viem/tempo'
 import {
   Abis,
+  Addresses,
   from,
   getPortalAddress,
-  portalAddresses,
   zone,
   zoneModerato,
 } from 'viem/tempo/zones'
@@ -40,8 +40,8 @@ test('exports the zone factory ABI', () => {
 
 describe('getPortalAddress', () => {
   test('returns a configured portal address', () => {
-    expect(getPortalAddress(tempoModerato.id, 7)).toBe(
-      portalAddresses[tempoModerato.id][7],
+    expect(getPortalAddress(tempoModerato.id, 1)).toBe(
+      Addresses.portal[tempoModerato.id][1],
     )
   })
 
@@ -54,6 +54,25 @@ describe('getPortalAddress', () => {
 
 describe('from', () => {
   test('uses zone metadata overrides', () => {
+    expect(zoneModerato(1)).toMatchObject({
+      contracts: {
+        messenger: {
+          [tempoModerato.id]: {
+            address: Addresses.messenger[tempoModerato.id][1],
+          },
+        },
+        portal: {
+          [tempoModerato.id]: {
+            address: Addresses.portal[tempoModerato.id][1],
+          },
+        },
+      },
+      id: ZoneId.toChainId(1),
+      name: 'Zone E',
+      rpcUrls: { http: 'https://rpc-zone-e.testnet.tempo.xyz' },
+      sourceId: tempoModerato.id,
+      supportsTransactionReplacementDetection: false,
+    })
     expect(zoneModerato(6)).toMatchObject({
       id: ZoneId.toChainId(6),
       name: 'Zone A',

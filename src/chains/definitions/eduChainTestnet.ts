@@ -10,13 +10,12 @@ export const eduChainTestnet = /*#__PURE__*/ Chain.from({
     symbol: 'EDU',
   },
   rpcUrls: {
-    http: 'https://rpc.open-campus-codex.gelato.digital/',
-    ws: 'wss://ws.open-campus-codex.gelato.digital',
+    http: 'https://rpc.testnet.educhain.xyz',
+    ws: 'wss://rpc.testnet.educhain.xyz',
   },
   blockExplorers: {
     name: 'EDU Chain Testnet Explorer',
-    url: 'https://opencampus-codex.blockscout.com',
-    apiUrl: 'https://opencampus-codex.blockscout.com/api',
+    url: 'https://explorer.testnet.educhain.xyz/',
   },
   contracts: {
     create2: Contracts.create2,

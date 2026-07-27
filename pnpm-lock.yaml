@@ -85,8 +85,8 @@ catalogs:
       specifier: ^19.2.7
       version: 19.2.7
     react-server-dom-webpack:
-      specifier: 19.2.6
-      version: 19.2.6
+      specifier: 19.2.8
+      version: 19.2.8
     sherif:
       specifier: ^1.11.1
       version: 1.11.1
@@ -157,12 +157,13 @@ overrides:
   fastify@>=5.0.0: '>=5.8.5'
   follow-redirects@<1.16.0: 1.16.0
   uuid@<14.0.0: 14.0.0
-  postcss@<8.5.10: 8.5.10
+  postcss@<8.5.18: 8.5.18
   protobufjs@<=7.6.4: 7.6.5
   protobufjs@>=8.0.0 <8.6.6: 8.6.6
   '@protobufjs/utf8@<=1.1.0': 1.1.1
   '@opentelemetry/sdk-node@<0.217.0': 0.217.0
   find-my-way@>=5.5.0 <8.2.2: ^8.2.2
+  find-my-way@>=9.0.0 <9.6.1: 9.7.0
   glob@>=10.3.7 <=11.0.3: '>=11.1.0'
   hono: '>=4.12.27'
   js-yaml@<3.15.0: 3.15.0
@@ -186,7 +187,7 @@ overrides:
   serialize-javascript@<7.0.5: 7.0.5
   serve-static@<1.16.0: ^1.16.0
   smol-toml@<1.6.1: 1.6.1
-  tar: '>=7.5.19'
+  tar: '>=7.5.21'
   tar-fs@>=3.0.0 <3.1.1: '>=3.1.1'
   tmp@<0.2.7: 0.2.7
   undici@>=7.0.0 <7.28.0: 7.28.0
@@ -204,7 +205,7 @@ overrides:
   picomatch@<2.3.2: 2.3.2
   picomatch@>=4.0.0 <4.0.4: 4.0.4
   srvx@<0.11.13: 0.11.13
-  brace-expansion@>=4.0.0 <5.0.7: 5.0.7
+  brace-expansion@>=4.0.0 <5.0.8: 5.0.8
   yaml@>=2.0.0 <2.8.3: 2.8.3
   '@vitejs/plugin-rsc@<=0.5.25': 0.5.26
   next@>=16.0.0-beta.0 <16.2.11: 16.2.11
@@ -258,7 +259,7 @@ importers:
         version: 0.13.3
       '@size-limit/preset-big-lib':
         specifier: 'catalog:'
-        version: 12.1.0(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.15)(size-limit@12.1.0(jiti@2.7.0))(supports-color@8.1.1)
+        version: 12.1.0(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.18)(size-limit@12.1.0(jiti@2.7.0))(supports-color@8.1.1)
       '@types/bun':
         specifier: 'catalog:'
         version: 1.3.14
@@ -428,7 +429,7 @@ importers:
         version: 19.2.7(react@19.2.7)
       react-server-dom-webpack:
         specifier: 'catalog:'
-        version: 19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 19.2.8(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       shiki:
         specifier: 3.21.0
         version: 3.21.0
@@ -446,10 +447,10 @@ importers:
         version: 8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
       vocs:
         specifier: 'catalog:'
-        version: 2.6.1(patch_hash=64deb3e59faea39bcf829fdbf710ac84cfda16db07c4f0351e2eaf50252cc0e2)(@types/react@19.2.17)(@vue/compiler-sfc@3.5.39)(change-case@5.4.4)(esbuild@0.27.2)(next@16.2.11(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(rolldown@1.0.3)(supports-color@8.1.1)(typescript@5.9.3)(vite@8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(waku@1.0.0-beta.6(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
+        version: 2.6.1(patch_hash=64deb3e59faea39bcf829fdbf710ac84cfda16db07c4f0351e2eaf50252cc0e2)(@types/react@19.2.17)(@vue/compiler-sfc@3.5.39)(change-case@5.4.4)(esbuild@0.27.2)(next@16.2.11(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.8(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(rolldown@1.0.3)(supports-color@8.1.1)(typescript@5.9.3)(vite@8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(waku@1.0.0-beta.6(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.8(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
       waku:
         specifier: 'catalog:'
-        version: 1.0.0-beta.6(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
+        version: 1.0.0-beta.6(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.8(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
 
 packages:
 
@@ -4148,9 +4149,9 @@ packages:
     resolution: {integrity: sha512-2cGmJupaNgg+QUwVLAucDuWuoMZ6EX9iHDRswZ5lsNYEmwPaRknMPCLZz07yTzVq/83p4o/wzbDZbBrTvGGTIw==}
     engines: {node: '>=18'}
 
-  brace-expansion@5.0.7:
-    resolution: {integrity: sha512-7oFy703dxfY3/NLxC1fh2SUCQ0H9rmAY+5EpDVfXjUTTs+HEwR2nYaqLv+GWcTsumwxPfiz6CzCNkwXwBUwqCA==}
-    engines: {node: 18 || 20 || >=22}
+  brace-expansion@5.0.8:
+    resolution: {integrity: sha512-JZyDyq3D4AUifKTPOB7DELf6XsB3WdPuNxCtob1vFXPsSXhdAiHBWJ/tJ8HAc9aH84BK+5JFZLNkJKx3G9kzQg==}
+    engines: {node: 20 || >=22}
 
   braces@3.0.3:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
@@ -6286,12 +6287,8 @@ packages:
     resolution: {integrity: sha512-LKWqWJRhstyYo9pGvgor/ivk2w94eSjE3RGVuzLGlr3NmD8bf7RcYGze1mNdEHRP6TRP6rMuDHk5t44hnTRyow==}
     engines: {node: '>=14.19.0'}
 
-  postcss@8.5.10:
-    resolution: {integrity: sha512-pMMHxBOZKFU6HgAZ4eyGnwXF/EvPGGqUr0MnZ5+99485wwW41kW91A4LOGxSHhgugZmSChL5AlElNdwlNgcnLQ==}
-    engines: {node: ^10 || ^12 || >=14}
-
-  postcss@8.5.15:
-    resolution: {integrity: sha512-FfR8sjd4em2T6fb3I2MwAJU7HWVMr9zba+enmQeeWFfCbm+UOC/0X4DS8XtpUTMwWMGbjKYP7xjfNekzyGmB3A==}
+  postcss@8.5.18:
+    resolution: {integrity: sha512-xdB1oSLHbz1vRWgCDalrCqEFTWzFlhqFC5tIHLMOSUIjhm3XXQ1qrFy8S/ESr1JYRRXqM3c1QFiMZUJdUTqyMQ==}
     engines: {node: ^10 || ^12 || >=14}
 
   postgres-array@2.0.0:
@@ -6445,12 +6442,12 @@ packages:
   react-is@17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
 
-  react-server-dom-webpack@19.2.6:
-    resolution: {integrity: sha512-762YXjBPc6hw2V16k4x1sdnw0mxghcSPzoiOhefGYjiTguJLCImGBUz6EjznPIfqKhWgLtpaQMlBhp66N8dKrw==}
+  react-server-dom-webpack@19.2.8:
+    resolution: {integrity: sha512-rFO1VJZ+cH9ZH6hGy9+qmIsmZHZpCMKJZXhWHqT71UnSfg+w+W+gwrwp58MVzMqdFquG8GF1c6C8q0OGphkEdg==}
     engines: {node: '>=0.10.0'}
     peerDependencies:
-      react: ^19.2.6
-      react-dom: ^19.2.6
+      react: ^19.2.8
+      react-dom: ^19.2.8
       webpack: 5.104.1
 
   react@19.2.3:
@@ -7041,8 +7038,8 @@ packages:
   tar-stream@3.1.7:
     resolution: {integrity: sha512-qJj60CXt7IU1Ffyc3NJMjh6EkuCFej46zUqJ4J7pqYlThyd9bO0XBTmcOIhSzZJVWfsLks0+nle/j538YAW9RQ==}
 
-  tar@7.5.20:
-    resolution: {integrity: sha512-9FcyK4PA6+WbzlTM9WhQm6vB5W7cP7dUiPsv1g7YDwEQnQ1CGpK3MGlKk/ITVWMk05kHZuBhmVhiv8LZoy/PFQ==}
+  tar@7.5.22:
+    resolution: {integrity: sha512-MFO/QzvtAOmJbkhOaCTvbGcFN9L9b+JunIsDwaKljSOdcLMea3NJ1k9Usz/rjdfSXTq4dfzfeS7W4p4YOAAHeA==}
     engines: {node: '>=18'}
 
   tdigest@0.1.2:
@@ -10555,11 +10552,11 @@ snapshots:
     dependencies:
       size-limit: 12.1.0(jiti@2.7.0)
 
-  '@size-limit/preset-big-lib@12.1.0(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.15)(size-limit@12.1.0(jiti@2.7.0))(supports-color@8.1.1)':
+  '@size-limit/preset-big-lib@12.1.0(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.18)(size-limit@12.1.0(jiti@2.7.0))(supports-color@8.1.1)':
     dependencies:
       '@size-limit/file': 12.1.0(size-limit@12.1.0(jiti@2.7.0))
       '@size-limit/time': 12.1.0(size-limit@12.1.0(jiti@2.7.0))(supports-color@8.1.1)
-      '@size-limit/webpack': 12.1.0(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.15)(size-limit@12.1.0(jiti@2.7.0))
+      '@size-limit/webpack': 12.1.0(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.18)(size-limit@12.1.0(jiti@2.7.0))
       size-limit: 12.1.0(jiti@2.7.0)
     transitivePeerDependencies:
       - '@minify-html/node'
@@ -10590,11 +10587,11 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@size-limit/webpack@12.1.0(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.15)(size-limit@12.1.0(jiti@2.7.0))':
+  '@size-limit/webpack@12.1.0(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.18)(size-limit@12.1.0(jiti@2.7.0))':
     dependencies:
       nanoid: 5.1.11
       size-limit: 12.1.0(jiti@2.7.0)
-      webpack: 5.107.2(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.15)
+      webpack: 5.107.2(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.18)
     transitivePeerDependencies:
       - '@minify-html/node'
       - '@swc/core'
@@ -11064,7 +11061,7 @@ snapshots:
       '@rolldown/pluginutils': 1.0.1
       vite: 8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
 
-  '@vitejs/plugin-rsc@0.5.26(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(vite@8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))':
+  '@vitejs/plugin-rsc@0.5.26(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.8(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(vite@8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))':
     dependencies:
       '@rolldown/pluginutils': 1.0.0-rc.18
       es-module-lexer: 2.3.1
@@ -11078,7 +11075,7 @@ snapshots:
       vite: 8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
       vitefu: 1.1.3(vite@8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
     optionalDependencies:
-      react-server-dom-webpack: 19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      react-server-dom-webpack: 19.2.8(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
 
   '@vitest/coverage-v8@4.1.8(@voidzero-dev/vite-plus-test@0.1.24)':
     dependencies:
@@ -11109,7 +11106,7 @@ snapshots:
       '@oxc-project/runtime': 0.133.0
       '@oxc-project/types': 0.133.0
       lightningcss: 1.32.0
-      postcss: 8.5.10
+      postcss: 8.5.18
     optionalDependencies:
       '@arethetypeswrong/core': 0.18.3
       '@types/node': 24.5.2
@@ -11209,7 +11206,7 @@ snapshots:
       '@vue/shared': 3.5.39
       estree-walker: 2.0.2
       magic-string: 0.30.21
-      postcss: 8.5.15
+      postcss: 8.5.18
       source-map-js: 1.2.1
 
   '@vue/compiler-ssr@3.5.39':
@@ -11616,7 +11613,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  brace-expansion@5.0.7:
+  brace-expansion@5.0.8:
     dependencies:
       balanced-match: 4.0.3
 
@@ -13695,7 +13692,7 @@ snapshots:
 
   minimatch@10.2.3:
     dependencies:
-      brace-expansion: 5.0.7
+      brace-expansion: 5.0.8
 
   minimist@1.2.8: {}
 
@@ -13783,7 +13780,7 @@ snapshots:
       '@swc/helpers': 0.5.15
       baseline-browser-mapping: 2.10.8
       caniuse-lite: 1.0.30001769
-      postcss: 8.5.10
+      postcss: 8.5.18
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
       styled-jsx: 5.1.6(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.3)
@@ -13809,7 +13806,7 @@ snapshots:
       '@swc/helpers': 0.5.15
       baseline-browser-mapping: 2.10.8
       caniuse-lite: 1.0.30001769
-      postcss: 8.5.10
+      postcss: 8.5.18
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
       styled-jsx: 5.1.6(@babel/core@7.29.7(supports-color@8.1.1))(react@19.2.7)
@@ -14304,13 +14301,7 @@ snapshots:
 
   pngjs@7.0.0: {}
 
-  postcss@8.5.10:
-    dependencies:
-      nanoid: 3.3.12
-      picocolors: 1.1.1
-      source-map-js: 1.2.1
-
-  postcss@8.5.15:
+  postcss@8.5.18:
     dependencies:
       nanoid: 3.3.12
       picocolors: 1.1.1
@@ -14355,7 +14346,7 @@ snapshots:
       execa: 9.6.1
       get-port: 7.1.0
       http-proxy: 1.18.1(debug@4.4.3(supports-color@8.1.1))
-      tar: 7.5.20
+      tar: 7.5.22
     optionalDependencies:
       '@pimlico/alto': 0.0.18(supports-color@8.1.1)(typescript@7.0.2)
       testcontainers: 11.10.0(supports-color@8.1.1)
@@ -14495,7 +14486,7 @@ snapshots:
 
   react-is@17.0.2: {}
 
-  react-server-dom-webpack@19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  react-server-dom-webpack@19.2.8(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
       acorn-loose: 8.5.2
       neo-async: 2.6.2
@@ -15264,7 +15255,7 @@ snapshots:
       fast-fifo: 1.3.2
       streamx: 2.23.0
 
-  tar@7.5.20:
+  tar@7.5.22:
     dependencies:
       '@isaacs/fs-minipass': 4.0.1
       chownr: 3.0.0
@@ -15278,17 +15269,17 @@ snapshots:
 
   term-size@2.2.1: {}
 
-  terser-webpack-plugin@5.6.1(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.15)(webpack@5.107.2(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.15)):
+  terser-webpack-plugin@5.6.1(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.18)(webpack@5.107.2(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.18)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       terser: 5.36.0
-      webpack: 5.107.2(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.15)
+      webpack: 5.107.2(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.18)
     optionalDependencies:
       esbuild: 0.27.2
       lightningcss: 1.32.0
-      postcss: 8.5.15
+      postcss: 8.5.18
 
   terser@5.36.0:
     dependencies:
@@ -15710,7 +15701,7 @@ snapshots:
     dependencies:
       lightningcss: 1.32.0
       picomatch: 4.0.4
-      postcss: 8.5.15
+      postcss: 8.5.18
       rolldown: 1.0.3
       tinyglobby: 0.2.17
     optionalDependencies:
@@ -15726,7 +15717,7 @@ snapshots:
     dependencies:
       lightningcss: 1.32.0
       picomatch: 4.0.4
-      postcss: 8.5.15
+      postcss: 8.5.18
       rolldown: 1.0.3
       tinyglobby: 0.2.17
     optionalDependencies:
@@ -15742,7 +15733,7 @@ snapshots:
     optionalDependencies:
       vite: 8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
 
-  vocs@2.6.1(patch_hash=64deb3e59faea39bcf829fdbf710ac84cfda16db07c4f0351e2eaf50252cc0e2)(@types/react@19.2.17)(@vue/compiler-sfc@3.5.39)(change-case@5.4.4)(esbuild@0.27.2)(next@16.2.11(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(rolldown@1.0.3)(supports-color@8.1.1)(typescript@5.9.3)(vite@8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(waku@1.0.0-beta.6(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)):
+  vocs@2.6.1(patch_hash=64deb3e59faea39bcf829fdbf710ac84cfda16db07c4f0351e2eaf50252cc0e2)(@types/react@19.2.17)(@vue/compiler-sfc@3.5.39)(change-case@5.4.4)(esbuild@0.27.2)(next@16.2.11(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.8(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(rolldown@1.0.3)(supports-color@8.1.1)(typescript@5.9.3)(vite@8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(waku@1.0.0-beta.6(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.8(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)):
     dependencies:
       '@base-ui/react': 1.1.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@codesandbox/sandpack-react': 2.20.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -15772,7 +15763,7 @@ snapshots:
       '@takumi-rs/image-response': 0.62.8
       '@takumi-rs/wasm': 0.62.8
       '@vitejs/plugin-react': 6.0.2(vite@8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
-      '@vitejs/plugin-rsc': 0.5.26(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(vite@8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
+      '@vitejs/plugin-rsc': 0.5.26(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.8(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(vite@8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
       cac: 6.7.14
       cva: class-variance-authority@0.7.1
       debug: 4.4.3(supports-color@8.1.1)
@@ -15827,7 +15818,7 @@ snapshots:
       zod: 4.4.3
     optionalDependencies:
       vite: 8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
-      waku: 1.0.0-beta.6(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
+      waku: 1.0.0-beta.6(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.8(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
     transitivePeerDependencies:
       - '@cfworker/json-schema'
       - '@farmfe/core'
@@ -15886,18 +15877,18 @@ snapshots:
 
   w3c-keyname@2.2.8: {}
 
-  waku@1.0.0-beta.6(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3):
+  waku@1.0.0-beta.6(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.8(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3):
     dependencies:
       '@hono/node-server': 2.0.10(hono@4.12.30)
       '@vitejs/plugin-react': 6.0.2(vite@8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
-      '@vitejs/plugin-rsc': 0.5.26(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(vite@8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
+      '@vitejs/plugin-rsc': 0.5.26(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.8(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)(vite@8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
       dotenv: 17.4.2
       hono: 4.12.30
       magic-string: 0.30.21
       picocolors: 1.1.1
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
-      react-server-dom-webpack: 19.2.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      react-server-dom-webpack: 19.2.8(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       rsc-html-stream: 0.0.7
       vite: 8.0.16(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
     transitivePeerDependencies:
@@ -15935,7 +15926,7 @@ snapshots:
 
   webpack-virtual-modules@0.6.2: {}
 
-  webpack@5.107.2(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.15):
+  webpack@5.107.2(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.18):
     dependencies:
       '@types/estree': 1.0.8
       '@types/json-schema': 7.0.15
@@ -15957,7 +15948,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.3
       tapable: 2.3.3
-      terser-webpack-plugin: 5.6.1(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.15)(webpack@5.107.2(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.15))
+      terser-webpack-plugin: 5.6.1(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.18)(webpack@5.107.2(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.18))
       watchpack: 2.5.1
       webpack-sources: 3.5.0
     transitivePeerDependencies:

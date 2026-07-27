@@ -10,6 +10,10 @@ test('zoneFactory supports both parameter shapes', () => {
   const sequencerSet = AbiFunction.encodeData(Abis.zoneFactory, 'createZone', [
     {
       initialToken: zeroAddress,
+      accessMode: false,
+      gatewayMode: false,
+      allowedAccounts: [],
+      zoneGateways: [],
       admin: zeroAddress,
       sequencers: [zeroAddress],
       threshold: 1,

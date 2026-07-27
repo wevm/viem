@@ -233,6 +233,28 @@ test('behavior: baseFeeMultiplier value (integer)', async () => {
   )
 })
 
+test('behavior: baseFeeMultiplier value (decimal precision)', async () => {
+  const request = TransactionRequest.toRpc({
+    data: '0xdeadbeef',
+    from: account,
+    to: '0x0000000000000000000000000000000000000000',
+  })
+  const response = await client.request({
+    method: 'eth_fillTransaction',
+    params: [request],
+  })
+  const base = Transaction.fromRpc(response.tx).maxFeePerGas!
+
+  const { transaction } = await Actions.transaction.fill(client, {
+    account,
+    chain: { ...chain, fees: { baseFeeMultiplier: 1.09 } },
+    data: '0xdeadbeef',
+    to: '0x0000000000000000000000000000000000000000',
+  })
+
+  expect(transaction.maxFeePerGas).toBe((base * 109n) / 100n)
+})
+
 test('behavior: baseFeeMultiplier function (async)', async () => {
   const baseline = await Actions.transaction.fill(client, {
     account,

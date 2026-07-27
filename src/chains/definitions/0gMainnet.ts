@@ -9,7 +9,7 @@ export const zeroGMainnet = /*#__PURE__*/ Chain.from({
     http: 'https://evmrpc.0g.ai',
   },
   blockExplorers: {
-    name: '0G BlockChain Explorer',
+    name: '0G Chainscan',
     url: 'https://chainscan.0g.ai',
   },
   contracts: {

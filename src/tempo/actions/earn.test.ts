@@ -36,7 +36,7 @@ async function deployStackWithPosition() {
     token: stack.asset,
   })
   await CoreActions.contract.writeSync(client, {
-    abi: Abis.vaultAdapter,
+    abi: Abis.earnVault,
     address: stack.adapter,
     args: [Value.from('100', 6), account.address, 1n],
     functionName: 'deposit',
@@ -50,7 +50,7 @@ async function setupStack() {
   return deployEarnStack(client, { asset })
 }
 
-// The asset, vault share, and venue share tokens all expose the same `approve`.
+// The asset, Earn share, and venue share tokens all expose the same `approve`.
 async function approve(options: {
   amount: bigint
   spender: Address.Address
@@ -84,16 +84,16 @@ describe('deployEarnStack', { timeout: 30_000 }, () => {
 
     const [engine, shareToken, issuer] = await Promise.all([
       CoreActions.contract.read(client, {
-        abi: Abis.vaultAdapter,
+        abi: Abis.earnVault,
         address: stack.adapter,
         functionName: 'engine',
       }),
       CoreActions.contract.read(client, {
-        abi: Abis.vaultAdapter,
+        abi: Abis.earnVault,
         address: stack.adapter,
-        functionName: 'shareToken',
+        functionName: 'earnShare',
       }),
-      // The factory wires the adapter as the vault share token's sole issuer.
+      // The factory wires the adapter as the Earn share token's sole issuer.
       CoreActions.contract.read(client, {
         abi: Abis.tip20,
         address: stack.shareToken,
@@ -185,7 +185,7 @@ describe('deposit', { timeout: 30_000 }, () => {
     expect(eventArgs).toMatchInlineSnapshot(`
       {
         "assets": 100000000n,
-        "shares": 100000000n,
+        "earnShares": 100000000n,
       }
     `)
   })
@@ -308,7 +308,7 @@ describe('deposit', { timeout: 30_000 }, () => {
         shareAmountMin: 0n,
         vault: stack.adapter,
       }),
-    ).rejects.toThrow('ZeroMinimumShares')
+    ).rejects.toThrow('ZeroMinimumEarnShares')
   })
 
   test('behavior: slippageBps floors a caller-supplied quote', async () => {
@@ -339,7 +339,7 @@ describe('deposit', { timeout: 30_000 }, () => {
         shareAmountMin: Value.from('100', 6) + 1n,
         vault: stack.adapter,
       }),
-    ).rejects.toThrow('MinimumSharesNotMet')
+    ).rejects.toThrow('MinimumEarnSharesNotMet')
   })
 
   test('error: slippageBps bound reverts when donated yield moves the rate', async () => {
@@ -364,7 +364,7 @@ describe('deposit', { timeout: 30_000 }, () => {
         slippageBps: 50,
         vault: stack.adapter,
       }),
-    ).rejects.toThrow('MinimumSharesNotMet')
+    ).rejects.toThrow('MinimumEarnSharesNotMet')
     // The atomic plain action hits the same revert at gas estimation.
     await expect(
       Actions.earn.deposit(client, {
@@ -381,7 +381,7 @@ describe('deposit', { timeout: 30_000 }, () => {
     // Pause through the operator seat; the public pause action lands with the
     // operator family.
     await CoreActions.contract.writeSync(client, {
-      abi: Abis.vaultAdapter,
+      abi: Abis.earnVault,
       address: stack.adapter,
       args: [true],
       functionName: 'setDepositsPaused',
@@ -525,9 +525,9 @@ describe('depositShares', { timeout: 30_000 }, () => {
     expect(calls[0].functionName).toBe('approve')
     expect(calls[0].args).toEqual([engine, 500n])
     expect(calls[1].address).toBe(vault)
-    expect(calls[1].functionName).toBe('depositShares')
+    expect(calls[1].functionName).toBe('depositVenueShares')
     expect(calls[1].args).toEqual([500n, recipient, 1n])
-    expect(calls[1].data.slice(0, 10)).toBe('0x4778421a')
+    expect(calls[1].data.slice(0, 10)).toBe('0xf48e662c')
   })
 
   test('behavior: calls floors a caller-supplied quote', () => {
@@ -554,7 +554,7 @@ describe('depositShares', { timeout: 30_000 }, () => {
         venueShareAmount: 100n,
         venueShareToken: stack.venue,
       }),
-    ).rejects.toThrow('ZeroMinimumShares')
+    ).rejects.toThrow('ZeroMinimumEarnShares')
   })
 })
 
@@ -751,15 +751,17 @@ describe('getVault', { timeout: 30_000 }, () => {
 
   test('behavior: calls tuple targets the adapter and resolved engine', () => {
     const engine = `0x${'ee'.repeat(20)}` as const
+    const fees = `0x${'ff'.repeat(20)}` as const
     const vault = `0x${'aa'.repeat(20)}` as const
 
-    const calls = Actions.earn.getVault.calls({ engine, vault })
+    const calls = Actions.earn.getVault.calls({ engine, fees, vault })
 
     expect(calls).toHaveLength(20)
-    // Adapter reads come first, engine reads after.
-    expect(calls.slice(0, 13).every((call) => call.address === vault)).toBe(
+    // Vault reads come first, followed by fees and engine reads.
+    expect(calls.slice(0, 12).every((call) => call.address === vault)).toBe(
       true,
     )
+    expect(calls[12].address).toBe(fees)
     expect(calls.slice(13).every((call) => call.address === engine)).toBe(true)
     expect(calls[0].functionName).toBe('asset')
     expect(calls[0].data).toBe('0x38d52e0f')
@@ -770,10 +772,10 @@ describe('getVault', { timeout: 30_000 }, () => {
     // ERC-165 probes for the four optional engine capabilities.
     for (const call of calls.slice(16))
       expect(call.functionName).toBe('supportsInterface')
-    expect(calls[16].args).toEqual(['0xa1a6a1d7']) // IVaultEngineAsync
-    expect(calls[17].args).toEqual(['0x0adfb0b9']) // IVaultEngineExactWithdraw
-    expect(calls[18].args).toEqual(['0x7d28a2f2']) // IVaultEngineShares
-    expect(calls[19].args).toEqual(['0x370457f4']) // IVaultEngineSync
+    expect(calls[16].args).toEqual(['0xa1a6a1d7']) // IEarnEngineAsyncRedeem
+    expect(calls[17].args).toEqual(['0x0adfb0b9']) // IEarnEngineExactWithdraw
+    expect(calls[18].args).toEqual(['0xce4790a9']) // IEarnEngineInKindDeposit
+    expect(calls[19].args).toEqual(['0x94a2d467']) // IEarnEngineRedeem
     expect(calls[16].data.slice(0, 10)).toBe('0x01ffc9a7')
   })
 })
@@ -902,7 +904,7 @@ describe('redeem', { timeout: 30_000 }, () => {
     expect(eventArgs).toMatchInlineSnapshot(`
       {
         "assets": 150000000n,
-        "shares": 100000000n,
+        "earnShares": 100000000n,
       }
     `)
   })
@@ -1043,9 +1045,10 @@ describe('redeem', { timeout: 30_000 }, () => {
           shareAmount: Value.from('100', 6),
           vault: stack.adapter,
         }),
+        abi: [...Abis.earnVault, ...Abis.erc4626Engine],
         blockNumber: staleBlock,
       }),
-    ).rejects.toThrow('MinimumAssetsNotMet')
+    ).rejects.toThrow('InsufficientAssetsReceived')
   })
 
   test('error: zero assetAmountMin', async () => {
@@ -1074,13 +1077,14 @@ describe('redeem', { timeout: 30_000 }, () => {
       token: stack.shareToken,
     })
 
+    // The engine enforces this bound before the vault's fallback check.
     await expect(
       Actions.earn.redeem.simulate(client, {
         assetAmountMin: Value.from('100', 6) + 1n,
         shareAmount: Value.from('100', 6),
         vault: stack.adapter,
       }),
-    ).rejects.toThrow('MinimumAssetsNotMet')
+    ).rejects.toThrow('0xac362aa5')
   })
 })
 
@@ -1144,7 +1148,7 @@ describe('withdrawExact', { timeout: 30_000 }, () => {
     expect(eventArgs).toMatchInlineSnapshot(`
       {
         "assets": 40000000n,
-        "sharesBurned": 40000000n,
+        "earnSharesBurned": 40000000n,
       }
     `)
   })
@@ -1290,7 +1294,7 @@ Slippage must be a whole number from 0 through 9999 basis points.]`,
         shareAmountMax: shareAmount - 1n,
         vault: stack.adapter,
       }),
-    ).rejects.toThrow('ExceedsMaxShares')
+    ).rejects.toThrow('ExceedsMaxEarnShares')
   })
 
   test('error: residual backing', async () => {
@@ -1300,7 +1304,7 @@ Slippage must be a whole number from 0 through 9999 basis points.]`,
       shareAmountMin: 1n,
       vault: stack.adapter,
     })
-    // Contributed backing adds venue shares without minting vault shares, so a
+    // Contributed backing adds venue shares without minting Earn shares, so a
     // rounded-up full-supply burn would strand venue dust.
     await approve({
       amount: Value.from('50', 6),
@@ -1308,7 +1312,7 @@ Slippage must be a whole number from 0 through 9999 basis points.]`,
       token: stack.asset,
     })
     await CoreActions.contract.writeSync(client, {
-      abi: Abis.vaultAdapter,
+      abi: Abis.earnVault,
       address: stack.adapter,
       args: [Value.from('50', 6)],
       functionName: 'contribute',
@@ -1433,6 +1437,7 @@ describe('privateDeposit', () => {
         gateway: accounts[1].address,
         pollingInterval: 5,
         timeout: 20,
+        vault: accounts[2].address,
       }),
     ).rejects.toThrow(WaitForPrivateDepositTimeoutError)
   })
@@ -1470,6 +1475,7 @@ describe('privateRedeem', () => {
         gateway: accounts[1].address,
         pollingInterval: 5,
         timeout: 20,
+        vault: accounts[2].address,
       }),
     ).rejects.toThrow(WaitForPrivateRedeemTimeoutError)
   })

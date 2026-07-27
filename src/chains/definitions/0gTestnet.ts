@@ -4,12 +4,12 @@ import * as Contracts from '../../core/internal/contracts.js'
 export const zeroGTestnet = /*#__PURE__*/ Chain.from({
   id: 16_602,
   name: '0G Galileo Testnet',
-  nativeCurrency: { name: 'A0GI', symbol: 'A0GI', decimals: 18 },
+  nativeCurrency: { name: '0G', symbol: '0G', decimals: 18 },
   rpcUrls: {
     http: 'https://evmrpc-testnet.0g.ai',
   },
   blockExplorers: {
-    name: '0G BlockChain Explorer',
+    name: '0G Chainscan',
     url: 'https://chainscan-galileo.0g.ai',
   },
   contracts: {

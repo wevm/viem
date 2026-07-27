@@ -323,6 +323,10 @@ async function startZone(options: DefineZoneOptions): Promise<StartedZone> {
   const instance = TestContainers.Instance.tempoZone({
     dev: {
       key: zoneAdminKey,
+      ...(process.env.VITE_TEMPO_HARDFORK !== 'T7' &&
+      process.env.VITE_TEMPO_HARDFORK !== 'T8'
+        ? { token: pathUsd }
+        : {}),
     },
     image: resolveImage('ghcr.io/tempoxyz/tempo-zone', tag),
     l1: {

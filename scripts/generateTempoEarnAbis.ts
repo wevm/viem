@@ -46,7 +46,12 @@ const abiSlices: readonly {
     errors: true,
     events: ['EarnStackDeployed'],
     exportName: 'earnFactory',
-    functions: ['computeShareSalt', 'deploy', 'predictShareToken'],
+    functions: [
+      'computeEarnShareSalt',
+      'deploy',
+      'predictEarnFees',
+      'predictEarnShare',
+    ],
   },
   {
     contracts: ['ERC4626Engine'],
@@ -56,7 +61,7 @@ const abiSlices: readonly {
     exportName: 'erc4626Engine',
     functions: [
       'acceptOwnership',
-      'initializeCore',
+      'initializeEarnVault',
       'owner',
       'pendingOwner',
       'renounceOwnership',
@@ -64,38 +69,39 @@ const abiSlices: readonly {
     ],
   },
   {
-    contracts: ['VaultAdapter'],
-    description: 'ABI of the vault adapter contract.',
-    exportName: 'vaultAdapter',
+    contracts: ['EarnVault'],
+    description: 'ABI of the Earn vault contract.',
+    exportName: 'earnVault',
   },
   {
-    contracts: [
-      'IVaultEngine',
-      'IVaultEngineSync',
-      'IVaultEngineExactWithdraw',
-    ],
-    description: 'ABI of the synchronous vault engine interfaces.',
-    exportName: 'vaultEngine',
+    contracts: ['EarnFees'],
+    description: 'ABI of the Earn fees contract.',
+    exportName: 'earnFees',
+  },
+  {
+    contracts: ['IEarnEngine', 'IEarnEngineRedeem', 'IEarnEngineExactWithdraw'],
+    description: 'ABI of the synchronous Earn engine interfaces.',
+    exportName: 'earnEngine',
     functions: true,
   },
   {
-    contracts: ['IVaultEngineAsync'],
-    description: 'ABI of the asynchronous vault engine interface.',
-    exportName: 'vaultEngineAsync',
+    contracts: ['IEarnEngineAsyncRedeem'],
+    description: 'ABI of the asynchronous Earn engine interface.',
+    exportName: 'earnEngineAsyncRedeem',
     functions: true,
   },
   {
-    contracts: ['IVaultEngineShares'],
-    description: 'ABI of the in-kind vault engine interface.',
-    exportName: 'vaultEngineShares',
+    contracts: ['IEarnEngineInKindDeposit'],
+    description: 'ABI of the in-kind Earn engine interface.',
+    exportName: 'earnEngineInKindDeposit',
     functions: true,
   },
   {
-    contracts: ['VaultRewards'],
-    description: 'ABI of the vault rewards contract.',
+    contracts: ['EarnContributionController'],
+    description: 'ABI of the Earn contribution controller contract.',
     errors: true,
     events: ['Funded'],
-    exportName: 'vaultRewards',
+    exportName: 'earnContributionController',
     functions: ['active', 'fund', 'setActive'],
   },
   {
@@ -107,47 +113,26 @@ const abiSlices: readonly {
     functions: ['claimRedeem', 'getClaim', 'rate', 'settled'],
   },
   {
-    contracts: ['ZoneGateway'],
-    description: 'ABI of the Earn Zone gateway contract.',
-    events: ['EarnDeposit', 'EarnRedeem'],
-    exportName: 'zoneGateway',
-    functions: [
-      'defaultSwapper',
-      'shareToken',
-      'supportsFlow',
-      'vaultAdapter',
-      'vaultAsset',
-      'zoneId',
-      'zoneMessenger',
-      'zonePortal',
-    ],
-  },
-  {
-    contracts: ['ZoneGatewayBase'],
-    description: 'ABI of the Earn Zone gateway base contract.',
+    contracts: ['ZoneOnlyEarnRouter'],
+    description: 'ABI of the Zone-only Earn router contract.',
+    errors: true,
     events: true,
-    exportName: 'zoneGatewayBase',
-    functions: [
-      'acceptOwnership',
-      'depositSwapperFor',
-      'owner',
-      'pendingOwner',
-      'redeemSwapperFor',
-      'renounceOwnership',
-      'setDepositRoute',
-      'setRedeemRoute',
-      'transferOwnership',
-    ],
+    exportName: 'earnRouter',
+    functions: true,
   },
 ]
 
 const deployables: readonly { contract: string; exportName: string }[] = [
   { contract: 'Simple4626Vault', exportName: 'simple4626Vault' },
   { contract: 'ERC4626Engine', exportName: 'erc4626Engine' },
-  { contract: 'VaultAdapter', exportName: 'vaultAdapter' },
+  { contract: 'EarnVault', exportName: 'earnVault' },
+  { contract: 'EarnFees', exportName: 'earnFees' },
   { contract: 'EarnFactory', exportName: 'earnFactory' },
-  { contract: 'ZoneGateway', exportName: 'zoneGateway' },
-  { contract: 'VaultRewards', exportName: 'vaultRewards' },
+  { contract: 'ZoneOnlyEarnRouter', exportName: 'earnRouter' },
+  {
+    contract: 'EarnContributionController',
+    exportName: 'earnContributionController',
+  },
 ]
 
 function inspect(contract: string, field: string) {
@@ -209,20 +194,29 @@ function extractStruct(file: string, name: string) {
     })
 }
 
-// CallbackData is decoded directly and does not appear in a contract ABI.
-function callbackDataParameter(): AbiParameter[] {
-  const encrypted = extractStruct(
-    Path.join(checkout, 'src/interfaces/IZonePortal.sol'),
-    'EncryptedDepositPayload',
-  )
-  const components = extractStruct(
-    Path.join(checkout, 'src/zone-gateway/ZoneGateway.sol'),
-    'CallbackData',
-  ).map(({ name, type }) => {
+function structComponents(
+  file: string,
+  name: string,
+  nested: Record<string, readonly AbiParameter[]> = {},
+) {
+  return extractStruct(file, name).map(({ name, type }) => {
     if (type === 'Flow') return { name, type: 'uint8' }
-    if (type === 'IZonePortal.EncryptedDepositPayload')
-      return { components: encrypted, name, type: 'tuple' }
+    const components = nested[type]
+    if (components) return { components, name, type: 'tuple' }
     return { name, type }
+  })
+}
+
+function routerCallbackDataParameter() {
+  const zone = Path.join(checkout, 'src/interfaces/external/tempo/IZone.sol')
+  const base = Path.join(checkout, 'src/periphery/EarnRouterBase.sol')
+  const zoneOnly = Path.join(checkout, 'src/periphery/ZoneOnlyEarnRouter.sol')
+  const encrypted = structComponents(zone, 'EncryptedDepositPayload')
+  const zoneReturn = structComponents(base, 'ZoneReturn', {
+    EncryptedDepositPayload: encrypted,
+  })
+  const components = structComponents(zoneOnly, 'CallbackData', {
+    ZoneReturn: zoneReturn,
   })
   return [{ components, name: 'callbackData', type: 'tuple' }]
 }
@@ -243,7 +237,7 @@ function generateAbiSlice(commit: string) {
       })
     return `/** ${slice.description} */\nexport const ${slice.exportName} = ${JSON.stringify(sliceAbi(abi, slice))} as const`
   })
-  return `${earnMarker}${commit}. Do not modify manually.\n\n${slices.join('\n\n')}\n\n/** ABI parameter for \`ZoneGateway.CallbackData\`. */\nexport const zoneGatewayCallbackData = ${JSON.stringify(callbackDataParameter())} as const\n`
+  return `${earnMarker}${commit}. Do not modify manually.\n\n${slices.join('\n\n')}\n\n/** ABI parameter for encoding \`ZoneOnlyEarnRouter.CallbackData\`. */\nexport const earnRouterCallbackData = ${JSON.stringify(routerCallbackDataParameter())} as const\n`
 }
 
 function generateContracts(commit: string) {

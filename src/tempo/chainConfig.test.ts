@@ -871,6 +871,15 @@ describe('transaction.prepare', () => {
   })
 
   test('afterFillParameters: bumps gas for sponsored large signatures', async () => {
+    const unprepared = await prepare(
+      {
+        account: { address: sender, source: 'accessKey' },
+        feePayer: true,
+      },
+      { client, phase: 'afterFillParameters' },
+    )
+    expect(unprepared.gas).toBeUndefined()
+
     const webAuthn = await prepare(
       {
         feePayer: true,

@@ -10,14 +10,19 @@ export const eduChain = /*#__PURE__*/ Chain.from({
     symbol: 'EDU',
   },
   rpcUrls: {
-    http: 'https://rpc.edu-chain.raas.gelato.cloud',
+    http: 'https://rpc.educhain.xyz',
+    ws: 'wss://rpc.educhain.xyz',
   },
   blockExplorers: {
     name: 'EDU Chain Explorer',
-    url: 'https://educhain.blockscout.com/',
+    url: 'https://explorer.educhain.xyz/',
   },
   contracts: {
     create2: Contracts.create2,
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 16410660,
+    },
   },
   testnet: false,
 })

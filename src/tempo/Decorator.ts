@@ -1998,7 +1998,9 @@ export type Decorator<
   }
   earn: {
     /**
-     * Creates and attaches an admission-only TIP-403 policy to an Earn vault.
+     * Creates and attaches an admission-only TIP-403 policy to an Earn share
+     * token. Existing holders remain able to send shares while
+     * recipients and mint recipients must belong to the same whitelist.
      *
      * @example
      * ```ts
@@ -2022,7 +2024,8 @@ export type Decorator<
       options: earn.configureExitSafePolicy.Options<account>,
     ) => Promise<earn.configureExitSafePolicy.ReturnType>
     /**
-     * Deposits assets into a vault and mints shares to the recipient.
+     * Deposits assets into a vault and mints Earn shares to `recipient`. The
+     * transaction includes the required asset approval.
      *
      * @example
      * ```ts
@@ -2062,7 +2065,8 @@ export type Decorator<
       ) => ReturnType<typeof earn.deposit.simulate>
     }
     /**
-     * Deposits venue shares into a vault and mints vault shares.
+     * Deposits venue shares into a vault and mints Earn shares to
+     * `recipient`. The transaction includes the required venue share approval.
      *
      * @example
      * ```ts
@@ -2172,7 +2176,8 @@ export type Decorator<
       options: earn.getFeeState.Options,
     ) => Promise<earn.getFeeState.ReturnType>
     /**
-     * Gets an account's vault balances, allowances, and current share value.
+     * Gets an account's asset and Earn share balances, allowances, and
+     * current share value. The value includes fees.
      *
      * @example
      * ```ts
@@ -2186,13 +2191,13 @@ export type Decorator<
      * ```
      *
      * @param options - Options.
-     * @returns The account's vault position.
+     * @returns The asset and Earn share balances, allowances, and value.
      */
     getPosition: (
       options: earn.getPosition.Options<account>,
     ) => Promise<earn.getPosition.ReturnType>
     /**
-     * Gets the asset output for an exact vault share input.
+     * Gets the asset output for an exact Earn share input, including fees.
      *
      * @example
      * ```ts
@@ -2235,7 +2240,8 @@ export type Decorator<
       calls: typeof earn.getVault.calls
     }
     /**
-     * Gets the vault shares required for an exact asset output.
+     * Gets the Earn shares required for an exact asset output, including fees
+     * and ceiling rounding.
      *
      * @example
      * ```ts
@@ -2249,7 +2255,7 @@ export type Decorator<
      * ```
      *
      * @param options - Options.
-     * @returns The quoted vault share input.
+     * @returns The required Earn share input, ceiling-rounded.
      */
     getWithdrawQuote: ((
       options: earn.getWithdrawQuote.Options,
@@ -2268,6 +2274,9 @@ export type Decorator<
      *   recipient: '0x…',
      *   recoveryRecipient: '0x…',
      *   shareAmountMin: 99_500_000n,
+     *   vault: '0x…',
+     *   vaultAssetAmountMin: 99_000_000n,
+     *   zoneId: 7,
      * })
      * const hash = await zoneClient.earn.privateDeposit(prepared)
      * ```
@@ -2300,7 +2309,7 @@ export type Decorator<
       options: earn.privateDepositSync.Options<account>,
     ) => Promise<earn.privateDepositSync.ReturnType>
     /**
-     * Withdraws vault shares from a Zone and redeems them on the parent chain.
+     * Withdraws Earn shares from a Zone and redeems them on the parent chain.
      *
      * @example
      * ```ts
@@ -2310,6 +2319,8 @@ export type Decorator<
      *   recoveryRecipient: '0x…',
      *   shareAmount: 100_000_000n,
      *   slippageBps: 50,
+     *   vault: '0x…',
+     *   zoneId: 7,
      * })
      * const hash = await zoneClient.earn.privateRedeem(prepared)
      * ```
@@ -2342,7 +2353,8 @@ export type Decorator<
       options: earn.privateRedeemSync.Options<account>,
     ) => Promise<earn.privateRedeemSync.ReturnType>
     /**
-     * Redeems vault shares for assets sent to the recipient.
+     * Redeems Earn shares for assets sent to `recipient`. The transaction
+     * includes the required Earn share approval.
      *
      * @example
      * ```ts
@@ -2379,7 +2391,7 @@ export type Decorator<
       ) => ReturnType<typeof earn.redeem.simulate>
     }
     /**
-     * Redeems vault shares and waits for the transaction receipt.
+     * Redeems Earn shares and returns the confirmed receipt and event data.
      *
      * @example
      * ```ts
@@ -2403,7 +2415,8 @@ export type Decorator<
       options: earn.redeemSync.Options,
     ) => Promise<earn.redeemSync.ReturnType>
     /**
-     * Verifies an Earn vault's exit-safe TIP-403 policy.
+     * Verifies that an Earn share token uses the expected exit-safe TIP-403
+     * policy and that every required member can receive transfers and mints.
      *
      * @example
      * ```ts
@@ -2438,6 +2451,7 @@ export type Decorator<
      *   actionId: prepared.actionId,
      *   fromBlock: prepared.fromBlock,
      *   gateway: '0x…',
+     *   vault: '0x…',
      * })
      * ```
      *
@@ -2456,6 +2470,7 @@ export type Decorator<
      *   actionId: prepared.actionId,
      *   fromBlock: prepared.fromBlock,
      *   gateway: '0x…',
+     *   vault: '0x…',
      * })
      * ```
      *
@@ -2466,7 +2481,9 @@ export type Decorator<
       options: earn.waitForPrivateRedeem.Options,
     ) => Promise<earn.waitForPrivateRedeem.ReturnType>
     /**
-     * Withdraws an exact asset amount up to a vault share limit.
+     * Withdraws an exact asset amount to `recipient`, up to the specified Earn
+     * share limit. The transaction includes the required Earn share approval;
+     * use `redeem` for a full exit.
      *
      * @example
      * ```ts

@@ -2,7 +2,7 @@ import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
 # `earn.withdrawExact`
 
-Withdraws an exact asset amount while limiting the vault shares burned.
+Withdraws an exact asset amount while limiting the Earn shares burned.
 
 ## Usage
 
@@ -32,12 +32,12 @@ const result = await client.earn.withdrawExactSync({
 :::
 
 When only `slippageBps` is provided, the action gets a live
-[`earn.getWithdrawQuote`](/tempo/actions/earn.getWithdrawQuote) and derives the maximum vault share
+[`earn.getWithdrawQuote`](/tempo/actions/earn.getWithdrawQuote) and derives the maximum Earn share
 input. The transaction approves and burns the required shares atomically.
 
 ### Set an Exact Maximum
 
-Use `shareAmountMax` when you already know the most vault shares you will burn.
+Use `shareAmountMax` when you already know the most Earn shares you will burn.
 
 :::code-group
 
@@ -86,7 +86,7 @@ type ReturnValue = {
   receipt: TransactionReceipt
   /** Asset recipient. */
   recipient: Address
-  /** Vault shares burned. */
+  /** Earn shares burned. */
   shareAmount: bigint
 }
 ```
@@ -113,13 +113,13 @@ Asset recipient.
 
 - **Type:** `bigint`
 
-Quoted vault share input. Provide it with `slippageBps` to avoid a live quote.
+Quoted Earn share input. Provide it with `slippageBps` to avoid a live quote.
 
 ### shareAmountMax (optional)
 
 - **Type:** `bigint`
 
-Maximum vault shares to burn. It cannot be combined with `shareAmount` or `slippageBps`.
+Maximum Earn shares to burn. It cannot be combined with `shareAmount` or `slippageBps`.
 
 ### slippageBps (optional)
 

@@ -6,15 +6,14 @@ import { Account as TempoAccount, Abis, Addresses } from 'viem/tempo'
 
 import * as tempo from '../tempo.js'
 import * as EarnContracts from './earnContracts.js'
-import * as LegacyZoneGateway from './legacyZoneGateway.js'
 
 type EarnClient = ReturnType<typeof tempo.getClient>
 
 /**
  * Deploys a full local Earn stack from the vendored artifacts, mirroring
  * `earn/localnet/foundry/script/DeployLocalEarn.s.sol`: `Simple4626Vault`
- * venue -> `ERC4626Engine` -> `VaultAdapter` implementation -> `EarnFactory`
- * -> `factory.deploy` -> `engine.initializeCore`. Deploys are sequential
+ * venue -> `ERC4626Engine` -> `EarnVault` and `EarnFees` implementations ->
+ * `EarnFactory` -> `factory.deploy` -> `engine.initializeEarnVault`. Deploys are sequential
  * since Tempo allows one contract creation per transaction.
  */
 export async function deployEarnStack(
@@ -41,12 +40,16 @@ export async function deployEarnStack(
     bytecode: EarnContracts.erc4626Engine.bytecode,
   })
   const implementation = await deployContract(client, {
-    abi: EarnContracts.vaultAdapter.abi,
-    bytecode: EarnContracts.vaultAdapter.bytecode,
+    abi: EarnContracts.earnVault.abi,
+    bytecode: EarnContracts.earnVault.bytecode,
+  })
+  const feeImplementation = await deployContract(client, {
+    abi: EarnContracts.earnFees.abi,
+    bytecode: EarnContracts.earnFees.bytecode,
   })
   const factory = await deployContract(client, {
     abi: EarnContracts.earnFactory.abi,
-    args: [Addresses.tip20Factory, implementation],
+    args: [Addresses.tip20Factory, implementation, feeImplementation],
     bytecode: EarnContracts.earnFactory.bytecode,
   })
 
@@ -74,13 +77,17 @@ export async function deployEarnStack(
     strict: true,
   })
   if (!deployed) throw new Error('`EarnStackDeployed` event not found.')
-  const { shareToken, vaultAdapter: adapter } = deployed.args
+  const {
+    earnFees: feesAddress,
+    earnShare: shareToken,
+    earnVault: adapter,
+  } = deployed.args
 
   await Actions.contract.writeSync(client, {
     abi: Abis.erc4626Engine,
     address: engine,
     args: [adapter],
-    functionName: 'initializeCore',
+    functionName: 'initializeEarnVault',
   })
 
   return {
@@ -103,6 +110,7 @@ export async function deployEarnStack(
     },
     engine,
     factory,
+    fees: feesAddress,
     seats: { ...seats, operator },
     shareToken,
     venue,
@@ -127,7 +135,7 @@ export declare namespace deployEarnStack {
   }
 
   export type ReturnType = {
-    /** Deployed `VaultAdapter` proxy. */
+    /** Deployed `EarnVault` proxy. */
     adapter: Address.Address
     /** Venue base asset. */
     asset: Address.Address
@@ -137,9 +145,11 @@ export declare namespace deployEarnStack {
     engine: Address.Address
     /** Deployed `EarnFactory`. */
     factory: Address.Address
+    /** Deployed `EarnFees` clone. */
+    fees: Address.Address
     /** Seat accounts wired into the deployment. */
     seats: Seats
-    /** EarnToken (TIP-20) issued by the adapter. */
+    /** TIP-20 share token issued by the vault. */
     shareToken: Address.Address
     /** Deployed `Simple4626Vault` venue. */
     venue: Address.Address
@@ -147,52 +157,30 @@ export declare namespace deployEarnStack {
 }
 
 /**
- * Deploys a `ZoneGateway` against the given zone portal and Zone-enables the
- * stack's asset and EarnToken (localnet precedent: both legs must be
- * Zone-enabled).
+ * Deploys a Zone-only Earn gateway and enables the stack's tokens in the Zone.
  */
 export async function deployEarnGateway(
   client: EarnClient,
   options: deployEarnGateway.Options,
 ): Promise<deployEarnGateway.ReturnType> {
-  const {
-    adapter,
-    defaultSwapper,
-    legacyCallback = false,
-    owner = client.account.address,
-    portalClient,
-  } = options
+  const { adapter, portalClient } = options
   const portal = options.zonePortal
 
-  // The gateway constructor verifies `portal.messenger()`.
-  const messenger = await Actions.contract.read(client, {
-    abi: portalAbi,
-    address: portal,
-    functionName: 'messenger',
+  const gateway = await deployContract(client, {
+    abi: EarnContracts.earnRouter.abi,
+    bytecode: EarnContracts.earnRouter.bytecode,
   })
-  const args = [adapter, defaultSwapper, portal, messenger, owner] as const
-  const gateway = legacyCallback
-    ? await deployContract(client, {
-        abi: LegacyZoneGateway.abi,
-        args,
-        bytecode: LegacyZoneGateway.bytecode,
-      })
-    : await deployContract(client, {
-        abi: EarnContracts.zoneGateway.abi,
-        args,
-        bytecode: EarnContracts.zoneGateway.bytecode,
-      })
 
   const [asset, shareToken] = await Promise.all([
     Actions.contract.read(client, {
-      abi: Abis.vaultAdapter,
+      abi: Abis.earnVault,
       address: adapter,
       functionName: 'asset',
     }),
     Actions.contract.read(client, {
-      abi: Abis.vaultAdapter,
+      abi: Abis.earnVault,
       address: adapter,
-      functionName: 'shareToken',
+      functionName: 'earnShare',
     }),
   ])
   for (const token of [asset, shareToken]) {
@@ -213,19 +201,13 @@ export async function deployEarnGateway(
       })
   }
 
-  return { gateway, messenger }
+  return { gateway }
 }
 
 export declare namespace deployEarnGateway {
   export type Options = {
-    /** `VaultAdapter` the gateway serves. */
+    /** `EarnVault` whose tokens are enabled in the Zone. */
     adapter: Address.Address
-    /** Swapper for cross-asset flows. */
-    defaultSwapper: Address.Address
-    /** Adapts the T7/T8 four-argument Zone callback. @default false */
-    legacyCallback?: boolean | undefined
-    /** Gateway owner. @default `client.account.address` */
-    owner?: Address.Address | undefined
     /** Portal administrator client. */
     portalClient: EarnClient
     /** Zone portal on the parent chain. */
@@ -233,14 +215,12 @@ export declare namespace deployEarnGateway {
   }
 
   export type ReturnType = {
-    /** Deployed `ZoneGateway`. */
+    /** Deployed Zone-only Earn gateway. */
     gateway: Address.Address
-    /** Zone messenger resolved from the portal. */
-    messenger: Address.Address
   }
 }
 
-/** `IVaultFees.FeeInit` shape for `factory.deploy`. */
+/** `EarnFeesInit` shape for `factory.deploy`. */
 export type FeeInit = {
   administrator: Address.Address
   excessFeeCap: bigint
@@ -303,16 +283,8 @@ const inertFees: FeeInit = {
   },
 }
 
-// Minimal portal surface for gateway wiring: `IZonePortal.messenger` plus the
-// local portal's token enablement (`ILocalZonePortal` in earn/localnet).
+// Local portal token enablement.
 const portalAbi = [
-  {
-    inputs: [],
-    name: 'messenger',
-    outputs: [{ type: 'address' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
   {
     inputs: [{ name: 'token', type: 'address' }],
     name: 'enableToken',

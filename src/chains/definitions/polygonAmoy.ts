@@ -6,7 +6,7 @@ export const polygonAmoy = /*#__PURE__*/ Chain.from({
   name: 'Polygon Amoy',
   nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
   rpcUrls: {
-    http: 'https://rpc-amoy.polygon.technology',
+    http: 'https://polygon-amoy.drpc.org',
   },
   blockExplorers: {
     name: 'PolygonScan',

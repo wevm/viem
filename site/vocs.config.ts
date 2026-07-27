@@ -544,19 +544,22 @@ export default defineConfig({
       return 1
     },
   },
-  ai: aiIndex
-    ? {
-        retriever: Retriever.local({
-          embedding: Embedding.cloudflare(),
-          reranker: Reranker.cloudflare(),
-          sources: [
-            { url: 'https://wagmi.sh/llms.txt', label: 'wagmi', weight: 0.8 },
-          ],
-          // Remote store keeps vectors out of the server bundle entirely.
-          vectorStore: VectorStore.cloudflare({ index: aiIndex }),
-        }),
-      }
-    : undefined,
+  ai:
+    aiIndex &&
+    process.env.CLOUDFLARE_ACCOUNT_ID &&
+    process.env.CLOUDFLARE_API_TOKEN
+      ? {
+          retriever: Retriever.local({
+            embedding: Embedding.cloudflare(),
+            reranker: Reranker.cloudflare(),
+            sources: [
+              { url: 'https://wagmi.sh/llms.txt', label: 'wagmi', weight: 0.8 },
+            ],
+            // Remote store keeps vectors out of the server bundle entirely.
+            vectorStore: VectorStore.cloudflare({ index: aiIndex }),
+          }),
+        }
+      : undefined,
   sidebar: {
     '/docs': [
       {

@@ -197,16 +197,22 @@ export const chainConfig = {
         const request = r as PrepareRequest
 
         if (phase === 'afterFillParameters') {
-          if (request.feePayer && !request.feePayerSignature) {
+          if (
+            typeof request.gas !== 'undefined' &&
+            request.feePayer &&
+            !request.feePayerSignature
+          ) {
             // Fee-paid transactions are gas-estimated with a dummy secp256k1
             // signature and a null fee-payer signature; larger envelope
             // signatures cost more intrinsic gas.
+            const gas =
+              typeof request.gas === 'bigint'
+                ? request.gas
+                : BigInt(request.gas)
             if (request.keyAuthorization?.signature.type === 'webAuthn')
-              request.gas =
-                ((request.gas as bigint | undefined) ?? 0n) + 20_000n
+              request.gas = gas + 20_000n
             else if (request.account?.source === 'accessKey')
-              request.gas =
-                ((request.gas as bigint | undefined) ?? 0n) + 10_000n
+              request.gas = gas + 10_000n
           }
           return request as Record<string, unknown>
         }

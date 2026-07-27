@@ -93,6 +93,10 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
               args: [
                 {
                   initialToken: tempo.pathUsd,
+                  accessMode: false,
+                  gatewayMode: false,
+                  allowedAccounts: [],
+                  zoneGateways: [],
                   admin: account.address,
                   sequencers: [account.address],
                   threshold: 1,
@@ -275,7 +279,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
     },
   )
 
-  test(
+  test.skipIf(legacyZoneCallback)(
     'deposits and redeems through an Earn gateway',
     { retry: 0, timeout: 480_000 },
     async () => {
@@ -298,12 +302,15 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
       })
       const { gateway } = await deployEarnGateway(parentClient, {
         adapter: stack.adapter,
-        defaultSwapper: account.address,
-        legacyCallback: legacyZoneCallback,
-        owner: account.address,
         portalClient: zoneAdminClient,
         zonePortal: portalAddress,
       })
+      const privatePreparation = {
+        gateway,
+        portalAddress,
+        vault: stack.adapter,
+        zoneId: tempoZone.zoneId,
+      } as const
 
       const callbackGas = 10_000_000n
       // Exercise a non-default value below the Zone callback gas ceiling.
@@ -330,21 +337,21 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         {
           assetAmount: 1n,
           assetToken: tempo.alphaUsd,
-          gateway,
+          ...privatePreparation,
           recipient: account.address,
           recoveryRecipient,
           shareAmountMin: 2n,
         },
       )
       const [swappedDepositCallback] = AbiParameters.decode(
-        Abis.zoneGatewayCallbackData,
+        Abis.earnRouterCallbackData,
         swappedDeposit.data,
       )
       expect(swappedDepositCallback).toMatchObject({
         flow: 0,
+        minEarnShares: 2n,
         minOutputAmount: 0n,
         minVaultAssets: 0n,
-        minVaultShares: 2n,
       })
       expect(
         Address.isEqual(swappedDepositCallback.outputToken, stack.shareToken),
@@ -355,7 +362,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         {
           assetAmount: 1n,
           assetToken: tempo.alphaUsd,
-          gateway,
+          ...privatePreparation,
           recipient: account.address,
           recoveryRecipient,
           shareAmountMin: 4n,
@@ -363,14 +370,14 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         },
       )
       const [boundedSwappedDepositCallback] = AbiParameters.decode(
-        Abis.zoneGatewayCallbackData,
+        Abis.earnRouterCallbackData,
         boundedSwappedDeposit.data,
       )
       expect(boundedSwappedDepositCallback).toMatchObject({
         flow: 0,
+        minEarnShares: 4n,
         minOutputAmount: 0n,
         minVaultAssets: 3n,
-        minVaultShares: 4n,
       })
 
       const depositActionId = Hash.keccak256('0x01')
@@ -383,7 +390,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
           assetAmount,
           callbackGas: callbackGasOverride,
           fallbackRecipient: recoveryRecipient,
-          gateway,
+          ...privatePreparation,
           recipient: account.address,
           recoveryRecipient,
           returnMemo: depositReturnMemo,
@@ -401,21 +408,24 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         zoneId: tempoZone.zoneId,
       })
       const [depositCallback] = AbiParameters.decode(
-        Abis.zoneGatewayCallbackData,
+        Abis.earnRouterCallbackData,
         preparedDeposit.data,
       )
       expect(depositCallback).toMatchObject({
         actionId: depositActionId,
         flow: 0,
+        minEarnShares: 1n,
         minOutputAmount: 0n,
         minVaultAssets: assetAmount,
-        minVaultShares: 1n,
       })
       expect(
         Address.isEqual(depositCallback.outputToken, stack.shareToken),
       ).toBe(true)
       expect(
-        Address.isEqual(depositCallback.refundRecipient, recoveryRecipient),
+        Address.isEqual(
+          depositCallback.zoneReturn.refundRecipient,
+          recoveryRecipient,
+        ),
       ).toBe(true)
       await expect(
         Actions.earn.privateDeposit(zoneClient, {
@@ -436,6 +446,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         fromBlock: preparedDeposit.fromBlock,
         gateway,
         pollingInterval: 100,
+        vault: stack.adapter,
       })
       expect(deposit.actionId).toBe(preparedDeposit.actionId)
       expect(deposit.inputAmount).toBe(assetAmount)
@@ -458,21 +469,21 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         {
           assetAmountMin: 2n,
           assetToken: tempo.alphaUsd,
-          gateway,
+          ...privatePreparation,
           recipient: account.address,
           recoveryRecipient,
           shareAmount: 1n,
         },
       )
       const [swappedRedeemCallback] = AbiParameters.decode(
-        Abis.zoneGatewayCallbackData,
+        Abis.earnRouterCallbackData,
         swappedRedeem.data,
       )
       expect(swappedRedeemCallback).toMatchObject({
         flow: 1,
+        minEarnShares: 0n,
         minOutputAmount: 2n,
         minVaultAssets: 1n,
-        minVaultShares: 0n,
       })
       expect(
         Address.isEqual(swappedRedeemCallback.outputToken, tempo.alphaUsd),
@@ -487,7 +498,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
           actionId: redeemActionId,
           callbackGas: callbackGasOverride,
           fallbackRecipient: recoveryRecipient,
-          gateway,
+          ...privatePreparation,
           recipient: account.address,
           recoveryRecipient,
           returnMemo: redeemReturnMemo,
@@ -505,21 +516,24 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         zoneId: tempoZone.zoneId,
       })
       const [redeemCallback] = AbiParameters.decode(
-        Abis.zoneGatewayCallbackData,
+        Abis.earnRouterCallbackData,
         preparedRedeem.data,
       )
       expect(redeemCallback).toMatchObject({
         actionId: redeemActionId,
         flow: 1,
+        minEarnShares: 0n,
         minOutputAmount: 0n,
         minVaultAssets: assetAmount,
-        minVaultShares: 0n,
       })
       expect(Address.isEqual(redeemCallback.outputToken, stack.asset)).toBe(
         true,
       )
       expect(
-        Address.isEqual(redeemCallback.refundRecipient, recoveryRecipient),
+        Address.isEqual(
+          redeemCallback.zoneReturn.refundRecipient,
+          recoveryRecipient,
+        ),
       ).toBe(true)
       const acceptedRedeem = await Actions.earn.privateRedeemSync(
         zoneClient,
@@ -532,6 +546,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         fromBlock: preparedRedeem.fromBlock,
         gateway,
         pollingInterval: 100,
+        vault: stack.adapter,
       })
       expect(redeem.actionId).toBe(preparedRedeem.actionId)
       expect(Address.isEqual(redeem.outputToken, stack.asset)).toBe(true)

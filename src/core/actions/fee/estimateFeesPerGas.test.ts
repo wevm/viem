@@ -69,6 +69,21 @@ describe('chain `baseFeeMultiplier` override', () => {
     expect(maxFeePerGas).toBeTypeOf('bigint')
   })
 
+  test('value (decimal precision)', async () => {
+    expect(
+      await internal_estimateFeesPerGas(client, {
+        block: { baseFeePerGas: 100n } as Block.Block,
+        chain: { ...chain, fees: { baseFeeMultiplier: 1.09 } },
+        request: { maxPriorityFeePerGas: 1n },
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "maxFeePerGas": 110n,
+        "maxPriorityFeePerGas": 1n,
+      }
+    `)
+  })
+
   test('async fn', async () => {
     const { maxFeePerGas } = await Actions.fee.estimateFeesPerGas(client, {
       chain: { ...chain, fees: { baseFeeMultiplier: async () => 1.5 } },
