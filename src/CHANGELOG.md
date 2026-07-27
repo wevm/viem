@@ -1,5 +1,23 @@
 # viem
 
+## 2.55.10
+
+### Patch Changes
+
+- [#4873](https://github.com/wevm/viem/pull/4873) [`ccdf9a02c14d569bfde9cd1840bea59548f798cf`](https://github.com/wevm/viem/commit/ccdf9a02c14d569bfde9cd1840bea59548f798cf) Thanks [@decofe](https://github.com/decofe)! - Added `Addresses.validatorV2` for the Tempo Validator Config V2 precompile.
+
+- [#4856](https://github.com/wevm/viem/pull/4856) [`109ef0f8af627131dfb055e99bf43ec06625199a`](https://github.com/wevm/viem/commit/109ef0f8af627131dfb055e99bf43ec06625199a) Thanks [@ibruno](https://github.com/ibruno)! - Updated Polygon Amoy's deprecated default RPC URL.
+
+- [#4900](https://github.com/wevm/viem/pull/4900) [`3b78e9b78f8052da0ed20be6264c35e39e7f62f9`](https://github.com/wevm/viem/commit/3b78e9b78f8052da0ed20be6264c35e39e7f62f9) Thanks [@cristianizzo](https://github.com/cristianizzo)! - Fixed `formatUserOperationRequest` encoding an EIP-7702 authorization `yParity` of `0` as a 32-byte zero value instead of `0x00`.
+
+- [#4846](https://github.com/wevm/viem/pull/4846) [`0e6c671284aa9530142ccb3b17f697807b423890`](https://github.com/wevm/viem/commit/0e6c671284aa9530142ccb3b17f697807b423890) Thanks [@m4ttw4n](https://github.com/m4ttw4n)! - Updated EDU Chain and EDU Chain Testnet RPC URLs, block explorer URLs, and added multicall3 contract to EDU Chain mainnet
+
+- [#4861](https://github.com/wevm/viem/pull/4861) [`31f47493a18f9699d0c2d3d78ad09204a870c8fd`](https://github.com/wevm/viem/commit/31f47493a18f9699d0c2d3d78ad09204a870c8fd) Thanks [@wriches](https://github.com/wriches)! - Updated 0G Testnet native currency to `0G` and 0G explorer names, per [ethereum-lists/chains](https://github.com/ethereum-lists/chains/blob/master/_data/chains/eip155-16602.json).
+
+- [#4862](https://github.com/wevm/viem/pull/4862) [`e5a4ac4e96859f3aaad1eab8dde67ef584917b22`](https://github.com/wevm/viem/commit/e5a4ac4e96859f3aaad1eab8dde67ef584917b22) Thanks [@Kropiunig](https://github.com/Kropiunig)! - Fixed `estimateFeesPerGas` (and `fillTransaction`) rounding the base fee multiplier up via `Math.ceil`, which overshot the intended value for multipliers such as `1.09` (applied as `1.1`) due to floating-point error. The multiplier is now recovered with `Math.round`.
+
+- [#4903](https://github.com/wevm/viem/pull/4903) [`a20fc674487d32640c1ea5b1422e2fddc53f7723`](https://github.com/wevm/viem/commit/a20fc674487d32640c1ea5b1422e2fddc53f7723) Thanks [@nishant-uxs](https://github.com/nishant-uxs)! - Fixed missing `{"type":"module"}` marker in the emitted `_types/` folder so declaration files resolve correctly under TypeScript `nodenext`.
+
 ## 2.55.9
 
 ### Patch Changes
