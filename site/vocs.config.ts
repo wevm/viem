@@ -26,7 +26,10 @@ export const sponsors = {
     { name: 'Paradigm', url: 'https://paradigm.xyz' },
     { name: 'Tempo', url: 'https://tempo.xyz' },
   ],
-  largeEnterprise: [{ name: 'Stripe', url: 'https://www.stripe.com' }],
+  largeEnterprise: [
+    { name: 'Stripe', url: 'https://www.stripe.com' },
+    { name: 'Circle', url: 'https://www.circle.com' },
+  ],
   smallEnterprise: [
     { name: 'Family', url: 'https://twitter.com/family' },
     { name: 'Context', url: 'https://twitter.com/context' },
