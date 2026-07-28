@@ -141,7 +141,7 @@ overrides:
   '@arethetypeswrong/core>typescript': ^5.9.3
   '@babel/core': '>=7.29.6 <8'
   '@opentelemetry/api@^1.8.0': ~1.7.0
-  permissionless>viem: workspace:*
+  permissionless>viem: link:.
   '@babel/helpers@<7.26.10': 7.26.10
   '@babel/runtime@<7.26.10': 7.26.10
   '@grpc/grpc-js@>=1.14.0 <1.14.4': 1.14.4
@@ -317,6 +317,9 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
+      viem-v2:
+        specifier: 'catalog:'
+        version: viem@2.55.10(typescript@7.0.2)(zod@4.4.3)
       vite-plus:
         specifier: 'catalog:'
         version: 0.1.24(@arethetypeswrong/core@0.18.3)(@opentelemetry/api@1.7.0)(@types/node@24.5.2)(@vitest/coverage-v8@4.1.8)(esbuild@0.27.2)(jiti@2.7.0)(publint@0.3.21)(terser@5.36.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.8.3)
@@ -381,12 +384,6 @@ importers:
       viem:
         specifier: file:../../
         version: file:(typescript@7.0.2)(zod@4.4.3)
-
-  environments/v2:
-    dependencies:
-      viem-v2:
-        specifier: 'catalog:'
-        version: viem@2.55.10(typescript@7.0.2)(zod@4.4.3)
 
   environments/vite:
     dependencies:
@@ -6214,7 +6211,6 @@ packages:
     resolution: {integrity: sha512-QrzAoQGYPV/NJ2x5Sj18h7qed6f+kCyQAojrncN091UPiGqHjFNjgdsgreiv8pxlQgF4UcpuJUvsHLpOEBd6cQ==}
     peerDependencies:
       ox: ^0.8.0
-      viem: workspace:*
     peerDependenciesMeta:
       ox:
         optional: true
@@ -14244,6 +14240,8 @@ snapshots:
   pend@1.2.0: {}
 
   permissionless@0.2.57(ox@1.1.2(typescript@7.0.2)):
+    dependencies:
+      viem: 'link:'
     optionalDependencies:
       ox: 1.1.2(typescript@7.0.2)
 

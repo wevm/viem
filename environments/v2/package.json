@@ -1,8 +1,0 @@
-{
-  "name": "test-v2",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "viem-v2": "catalog:"
-  }
-}

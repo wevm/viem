@@ -65,6 +65,7 @@
     "solady-v288": "catalog:",
     "testcontainers": "catalog:",
     "typescript": "catalog:",
+    "viem-v2": "catalog:",
     "vite-plus": "catalog:",
     "vitest": "catalog:",
     "vp": "catalog:",

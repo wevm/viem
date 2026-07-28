@@ -32,7 +32,7 @@ overrides:
   '@arethetypeswrong/core>typescript': '^5.9.3'
   '@babel/core': '>=7.29.6 <8'
   '@opentelemetry/api@^1.8.0': '~1.7.0'
-  'permissionless>viem': 'workspace:*'
+  'permissionless>viem': 'link:.'
   '@babel/helpers@<7.26.10': '7.26.10'
   '@babel/runtime@<7.26.10': '7.26.10'
   '@grpc/grpc-js@>=1.14.0 <1.14.4': '1.14.4'
@@ -112,9 +112,6 @@ patchedDependencies:
   vocs@2.6.1: patches/vocs@2.6.1.patch
 
 provenance: true
-
-publicHoistPattern:
-  - viem-v2
 
 strictPeerDependencies: false
 
