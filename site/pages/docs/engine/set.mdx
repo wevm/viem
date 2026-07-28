@@ -1,0 +1,107 @@
+# Setting an Engine
+
+## Overview
+
+[`Engine.set`](/docs/engine/set) synchronously installs custom Engine slots. Slots and primitives
+are optional, and repeated calls merge with the current overrides.
+
+Use [`Engine.install`](/docs/engine/install) when an implementation requires asynchronous
+initialization.
+
+## Recipes
+
+### Override One Primitive
+
+Install a Node.js SHA-256 implementation while leaving every other primitive unchanged.
+
+```ts twoslash
+// @noErrors
+import { createHash } from 'node:crypto'
+import { Engine } from 'viem'
+import { Hash } from 'viem/utils'
+
+Engine.set({ // [!code focus:5]
+  Hash: {
+    sha256: (input) => createHash('sha256').update(input).digest(),
+  },
+})
+
+const digest = Hash.sha256('0xdeadbeef')
+// @log: '0x5f78c33274e43fa9de5659265c1d917e25c03722dcb0b8d27db8d5feaa813953'
+```
+
+### Merge Slots
+
+Separate calls merge primitives instead of replacing the complete registry.
+
+```ts twoslash
+import { Engine } from 'viem'
+import { Engine as NodeEngine } from 'viem/node'
+import { Engine as WasmEngine } from 'viem/wasm'
+
+const [node, wasm] = await Promise.all([
+  NodeEngine.engine(),
+  WasmEngine.engine(),
+])
+
+Engine.set({ Hash: node.Hash })
+Engine.set({
+  Mnemonic: wasm.Mnemonic, // [!code focus]
+})
+```
+
+## `Engine.set`
+
+Installs cryptographic implementations synchronously.
+
+### Usage
+
+```ts twoslash
+// @noErrors
+import { createHash } from 'node:crypto'
+import { Engine } from 'viem'
+
+Engine.set({
+  Hash: {
+    sha256: (input) => createHash('sha256').update(input).digest(),
+  },
+})
+```
+
+### Definition
+
+```ts
+function set(value: Engine.Engine): void
+```
+
+### Parameters
+
+#### value
+
+- **Type:** `Engine.Engine`
+
+The Engine slots to install. Omitted slots and primitives preserve the current override or default.
+
+```ts twoslash
+// @noErrors
+import { createHash } from 'node:crypto'
+import { Engine } from 'viem'
+// ---cut---
+Engine.set({ // [!code focus:5]
+  Hash: {
+    sha256: (input) => createHash('sha256').update(input).digest(),
+  },
+})
+```
+
+### Return Value
+
+`void`
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| [`Engine.InvalidSlotValueError`](/docs/engine/errors#engineinvalidslotvalueerror) | A slot is not an object or `undefined`. |
+| [`Engine.UnknownPrimitiveError`](/docs/engine/errors#engineunknownprimitiveerror) | A slot contains an unrecognized primitive. |
+| [`Engine.UnknownSlotError`](/docs/engine/errors#engineunknownsloterror) | The Engine contains an unrecognized slot. |

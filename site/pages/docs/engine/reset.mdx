@@ -1,0 +1,77 @@
+# Resetting an Engine
+
+## Overview
+
+[`Engine.reset`](/docs/engine/reset) removes installed overrides. Reset one slot when replacing a
+provider completely, or omit the slot to restore every cryptographic primitive to Viem's defaults.
+
+## Recipes
+
+### Reset One Slot
+
+Reset a slot before installing another provider when primitives omitted by the new provider should
+not remain installed.
+
+```ts twoslash
+import { Engine } from 'viem'
+import { Engine as NodeEngine } from 'viem/node'
+
+Engine.reset('Hash') // [!code focus]
+
+const { Hash } = await NodeEngine.engine()
+await Engine.install({ Hash })
+```
+
+### Reset Every Slot
+
+Restore Viem's default implementations between tests or isolated application runs.
+
+```ts twoslash
+import { Engine } from 'viem'
+
+Engine.reset() // [!code focus]
+```
+
+## `Engine.reset`
+
+Restores one slot or the complete Engine to its default implementations.
+
+### Usage
+
+```ts twoslash
+import { Engine } from 'viem'
+
+Engine.reset('Hash')
+Engine.reset()
+```
+
+### Definition
+
+```ts
+function reset(slot?: keyof Engine.Engine): void
+```
+
+### Parameters
+
+#### slot
+
+- **Type:** `keyof Engine.Engine`
+- **Optional**
+
+The slot to reset. When omitted, every slot is reset.
+
+```ts twoslash
+import { Engine } from 'viem'
+// ---cut---
+Engine.reset('Hash') // [!code focus]
+```
+
+### Return Value
+
+`void`
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| [`Engine.UnknownSlotError`](/docs/engine/errors#engineunknownsloterror) | `slot` is not a recognized Engine slot. |

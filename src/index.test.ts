@@ -17,6 +17,7 @@ test('exports', () => {
       "Client",
       "Contract",
       "ContractError",
+      "Engine",
       "Errors",
       "NonceManager",
       "RpcError",

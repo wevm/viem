@@ -1,0 +1,87 @@
+import { Card, Cards } from 'vocs'
+
+# Engine
+
+## Overview
+
+The **Engine** module configures the cryptographic implementations used by Viem's
+[cryptography utilities](/docs/utilities/hash). Viem uses portable JavaScript implementations by
+default. An Engine can replace individual primitives with WebAssembly, Node.js, or custom
+implementations without changing the utility APIs that call them.
+
+Engine slots are partial. An omitted slot or primitive keeps its current override, or uses Viem's
+default when no override is installed. The registry belongs to the loaded Ox module instance behind
+Viem and is resolved when a cryptographic function is called.
+
+| Entrypoint | Behavior |
+| --- | --- |
+| `viem` | Manages custom or prepared Engines. [`Engine.install`](/docs/engine/install) accepts an Engine value. |
+| `viem/wasm` | Compiles and installs every WebAssembly implementation supplied by the entrypoint. |
+| `viem/node` | Installs every `node:crypto` implementation supplied by the entrypoint. |
+
+```ts twoslash
+import { Engine } from 'viem/wasm'
+import { Hash } from 'viem/utils'
+
+await Engine.install()
+
+const digest = Hash.sha256('0xdeadbeef')
+// @log: '0x5f78c33274e43fa9de5659265c1d917e25c03722dcb0b8d27db8d5feaa813953'
+```
+
+<Cards>
+  <Card
+    title="WASM & Engines"
+    description="Use WebAssembly, Node.js, and custom cryptography Engines with Viem."
+    icon="lucide:cpu"
+    to="/docs/guides/engine"
+  />
+  <Card
+    title="Install an Engine"
+    description="Install a runtime Engine or a prepared set of slots."
+    icon="lucide:download"
+    to="/docs/engine/install"
+  />
+  <Card
+    title="Create an Engine"
+    description="Prepare a Node.js or WebAssembly Engine without installing it."
+    icon="lucide:package-plus"
+    to="/docs/engine/engine"
+  />
+  <Card
+    title="Inspect an Engine"
+    description="Read the currently installed overrides."
+    icon="lucide:search"
+    to="/docs/engine/get"
+  />
+  <Card
+    title="Set an Engine"
+    description="Synchronously install custom cryptographic implementations."
+    icon="lucide:settings"
+    to="/docs/engine/set"
+  />
+  <Card
+    title="Reset an Engine"
+    description="Restore one slot or every slot to its default."
+    icon="lucide:rotate-ccw"
+    to="/docs/engine/reset"
+  />
+  <Card
+    title="Scope an Engine"
+    description="Temporarily install an Engine for one synchronous function."
+    icon="lucide:brackets"
+    to="/docs/engine/with"
+  />
+  <Card
+    title="Errors"
+    description="Handle invalid slots, primitives, and asynchronous scopes."
+    icon="lucide:circle-alert"
+    to="/docs/engine/errors"
+  />
+  <Card
+    title="Types"
+    description="Reference Engine slots and primitive contracts."
+    icon="lucide:braces"
+    to="/docs/engine/types"
+  />
+</Cards>
