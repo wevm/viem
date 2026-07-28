@@ -8,11 +8,89 @@ This guide covers Viem v3 breaking changes and migration from Viem v2.
 
 v3 consolidates flat functions, types, and constants into module namespaces backed by [Ox](https://oxlib.sh) utilities.
 
-The guide is organized in three layers:
+The guide is organized in four layers:
 
+- [Migrate Incrementally](#migrate-incrementally): run v2 and v3 together while dependencies and application modules migrate.
 - [Notable Changes](#notable-changes): the structural changes that affect most applications, each with a canonical example.
 - [Quick Reference](#quick-reference): a flat, alphabetized v2 to v3 symbol table. Search it for any v2 export.
 - Per-area details: rename tables for mechanical moves and annotated samples for changed call shapes. Samples mark removed v2 usage and added v3 usage.
+
+## Migrate Incrementally
+
+If your application depends on packages that declare Viem v2 as a peer dependency, keep v2
+installed under the `viem` package name and alias v3. This works consistently across package
+managers. npm does not use a differently named alias such as `viem-legacy` to satisfy a peer
+dependency on `viem@2`.
+
+Instead, add Viem v3 to `dependencies`, not `overrides`, under a `viem-v3` alias:
+
+{/* TODO(v3): Replace `@next` with `@3` when Viem v3 is stable. */}
+
+```json
+{
+  "dependencies": {
+    "viem": "^2",
+    "viem-v3": "npm:viem@next"
+  }
+}
+```
+
+Existing dependencies and unmigrated code continue to import v2 from `viem`. Import v3 from
+`viem-v3` as you migrate each module:
+
+```ts
+import { Client, http } from 'viem-v3'
+import { mainnet } from 'viem-v3/chains'
+```
+
+Treat Accounts, Chains, Transports, and errors as version-specific. Share version-neutral
+boundaries such as RPC URLs, EIP-1193 providers, serialized values, or plain data.
+
+### Adapt Clients Between Versions
+
+Use `Client.toV2` to create a v2-compatible base Client from a v3 Client. Extend it with v2's
+native action decorators:
+
+```ts
+import { publicActions as publicActionsV2 } from 'viem'
+import { Client, http } from 'viem-v3'
+
+const client = Client.create({ transport: http() })
+const publicClientV2 = Client.toV2(client) // [!code focus]
+  .extend(publicActionsV2)
+```
+
+The one-argument form creates a chainless v2 Client. Pass a v2 Chain when v2 actions need its
+configuration:
+
+```ts
+import { publicActions as publicActionsV2 } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Client, http } from 'viem-v3'
+
+const client = Client.create({ transport: http() })
+const publicClientV2 = Client.toV2(client, { chain: mainnet }) // [!code focus]
+  .extend(publicActionsV2)
+```
+
+Use `Client.fromV2` in the other direction, then extend the result with v3 decorators:
+
+```ts
+import { createClient as createClientV2, http as httpV2 } from 'viem'
+import { Client, publicActions } from 'viem-v3'
+
+const clientV2 = createClientV2({ transport: httpV2() })
+const publicClient = Client.fromV2(clientV2) // [!code focus]
+  .extend(publicActions())
+```
+
+The adapters reuse request connectivity and preserve JSON-RPC Accounts and `ccipRead: false`. They
+do not translate local Accounts, custom extensions, subscriptions, Chain codecs or formatters,
+custom CCIP Read handlers, or error identities. Pass a native target-version Chain or Account when
+that behavior is needed.
+
+After all dependencies support Viem v3, install v3 as `viem`, replace `viem-v3` imports with `viem`,
+and remove the alias.
 
 ## Notable Changes
 

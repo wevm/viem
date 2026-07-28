@@ -150,6 +150,7 @@ catalog:
   solady-v288: npm:solady@0.0.288
   testcontainers: ^11.10.0
   typescript: 7.0.2
+  viem-v2: npm:viem@2.55.10
   vite: ^8.0.16
   vitest: npm:@voidzero-dev/vite-plus-test@0.1.24
   vite-plus: 0.1.24
