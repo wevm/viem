@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
+import * as Http from '~test/http.js'
 import { mainnet } from '../chains/definitions/mainnet.js'
 import { optimism } from '../chains/definitions/optimism.js'
 import { Account, Client, http } from 'viem'
@@ -355,6 +356,56 @@ describe('fromV2', () => {
 
     expect(client.account).toBe(account)
     expect(client.chain).toBe(mainnet)
+  })
+
+  test('uses the v3 Client retry layer', async () => {
+    const responses = [500, 200]
+    const server = await Http.createServer((_req, res) => {
+      const status = responses.shift()
+      if (status === 500) {
+        res.writeHead(500)
+        res.end('fail')
+        return
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ id: 1, jsonrpc: '2.0', result: '0x1' }))
+    })
+    try {
+      const source = createClientV2({
+        transport: httpV2(server.url, { retryCount: 3 }),
+      })
+      const client = Client.fromV2(source)
+
+      expect(await client.request({ method: 'eth_chainId' })).toBe('0x1')
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('does not stack the v2 Client retry layer', async () => {
+    const responses = [500, 200]
+    const server = await Http.createServer((_req, res) => {
+      const status = responses.shift()
+      if (status === 500) {
+        res.writeHead(500)
+        res.end('fail')
+        return
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ id: 1, jsonrpc: '2.0', result: '0x1' }))
+    })
+    try {
+      const source = createClientV2({
+        transport: httpV2(server.url, { retryCount: 3 }),
+      })
+      const client = Client.fromV2(source)
+
+      await expect(
+        client.request({ method: 'eth_chainId' }, { retryCount: 0 }),
+      ).rejects.toThrow()
+    } finally {
+      await server.close()
+    }
   })
 })
 

@@ -919,6 +919,10 @@ export default defineConfig({
               { text: 'Overview', link: '/docs/clients' },
               { text: 'Creating a Client', link: '/docs/clients/create' },
               { text: 'Resolving Clients', link: '/docs/clients/resolve' },
+              {
+                text: 'Adapting v2 Clients',
+                link: '/docs/clients/v2-adapters',
+              },
               { text: 'Overriding Actions', link: '/docs/clients/override' },
             ],
           },

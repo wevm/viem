@@ -520,10 +520,9 @@ export function fromV2<
     type: 'custom',
     setup() {
       return {
-        retryCount: 0,
         async request(parameters, options) {
           try {
-            return await request(parameters, options)
+            return await request(parameters, { ...options, retryCount: 0 })
           } catch (error) {
             throw Provider.parseError(error)
           }
