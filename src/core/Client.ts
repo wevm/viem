@@ -474,8 +474,11 @@ export declare namespace createResolver {
  * Client forwards requests through the v2 Client and can be extended with v3
  * action decorators.
  *
- * By default, only the chain id and a JSON-RPC Account cross the version
- * boundary. Pass v3-native values to preserve full Chain or Account behavior.
+ * The adapted Client derives its Chain from the source chain ID and carries
+ * only JSON-RPC Accounts by default. Pass v3-native values to preserve full
+ * Chain or Account behavior.
+ * The returned Client owns retries: forwarded requests disable the v2 Client's
+ * retry layer. Forwarded errors are normalized with `Provider.parseError`.
  *
  * @example
  * ```ts
@@ -582,7 +585,7 @@ export declare namespace fromV2 {
  *
  * The one-argument form creates a chainless Client and only preserves
  * JSON-RPC Accounts. Pass v2-native values to preserve full Chain or local
- * Account behavior.
+ * Account behavior. Requests preserve the v3 Client's error identities.
  *
  * @example
  * ```ts
