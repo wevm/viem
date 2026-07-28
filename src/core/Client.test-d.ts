@@ -6,15 +6,15 @@ import { mainnet } from '../chains/definitions/mainnet.js'
 import { optimism } from '../chains/definitions/optimism.js'
 import { Account, Chain, Client, http, Token, webSocket } from 'viem'
 import {
-  type ClientV2,
-  type PublicClientV2,
-  type TransportV2,
-  createClientV2,
-  httpV2,
-  mainnetV2,
-  privateKeyToAccountV2,
-  publicActionsV2,
-} from '../../environments/v2/index.js'
+  type Client as ClientV2,
+  type PublicClient as PublicClientV2,
+  type Transport as TransportV2,
+  createClient as createClientV2,
+  http as httpV2,
+  publicActions as publicActionsV2,
+} from 'viem-v2'
+import { privateKeyToAccount as privateKeyToAccountV2 } from 'viem-v2/accounts'
+import { mainnet as mainnetV2 } from 'viem-v2/chains'
 
 const { address, privateKey } = constants.accounts[0]
 

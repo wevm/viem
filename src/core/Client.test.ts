@@ -6,11 +6,11 @@ import { mainnet } from '../chains/definitions/mainnet.js'
 import { optimism } from '../chains/definitions/optimism.js'
 import { Account, Client, http } from 'viem'
 import {
-  createClientV2,
-  httpV2,
-  mainnetV2,
-  publicActionsV2,
-} from '../../environments/v2/index.js'
+  createClient as createClientV2,
+  http as httpV2,
+  publicActions as publicActionsV2,
+} from 'viem-v2'
+import { mainnet as mainnetV2 } from 'viem-v2/chains'
 
 const url = anvil.mainnet.rpcUrl.http
 const { address, privateKey } = constants.accounts[0]

@@ -113,6 +113,9 @@ patchedDependencies:
 
 provenance: true
 
+publicHoistPattern:
+  - viem-v2
+
 strictPeerDependencies: false
 
 catalog:
