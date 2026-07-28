@@ -111,12 +111,14 @@ documentation changes can surface API drift before publication.
 
 The site also publishes the same documentation in formats agents can consume directly:
 
+{/* TODO(v3): Restore `viem.sh` when Viem v3 is stable. */}
+
 - **Agent-aware Markdown:** Viem detects requests from coding agents and automatically serves each
   page as Markdown. For explicit access, open
-  [`why-viem.md`](https://viem.sh/docs/why-viem.md) or request `Accept: text/markdown`.
-- **LLM indexes:** coding agents can use [`llms.txt`](https://viem.sh/llms.txt) as a compact page
-  index or [`llms-full.txt`](https://viem.sh/llms-full.txt) as the full documentation corpus.
-- **MCP:** connect to [`https://viem.sh/api/mcp`](https://viem.sh/api/mcp) to search documentation
+  [`why-viem.md`](https://v3.viem.sh/docs/why-viem.md) or request `Accept: text/markdown`.
+- **LLM indexes:** coding agents can use [`llms.txt`](https://v3.viem.sh/llms.txt) as a compact page
+  index or [`llms-full.txt`](https://v3.viem.sh/llms-full.txt) as the full documentation corpus.
+- **MCP:** connect to [`https://v3.viem.sh/api/mcp`](https://v3.viem.sh/api/mcp) to search documentation
   and inspect source across Viem, Wagmi, Ox, and Tempo.
 
 These are direct representations of the docs and source, which gives agents better context than a

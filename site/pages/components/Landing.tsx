@@ -33,7 +33,8 @@ export type LandingProps = {
   }
 }
 
-const AGENT_PROMPT = `Read viem.sh and help me build my project with Viem. Add https://viem.sh/api/mcp as an MCP server. Refer to https://viem.sh/docs/v2-migration when migrating from Viem v2.`
+// TODO(v3): Restore `viem.sh` when Viem v3 is stable.
+const AGENT_PROMPT = `Read v3.viem.sh and help me build my project with Viem. Add https://v3.viem.sh/api/mcp as an MCP server. Refer to https://v3.viem.sh/docs/v2-migration when migrating from Viem v2.`
 
 // Package-manager icons for the install tabs.
 const pkgIcons: Record<Pkg, ReactNode> = {

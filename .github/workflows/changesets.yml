@@ -1,7 +1,7 @@
 name: Changesets
 on:
   push:
-    branches: [main]
+    branches: [main, v3]
   workflow_dispatch:
 
 concurrency:
@@ -80,7 +80,7 @@ jobs:
         id: changesets
         uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc
         with:
-          createGithubReleases: true
+          createGithubReleases: ${{ github.ref == 'refs/heads/main' }}
           publish: pnpm changeset:publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -88,7 +88,7 @@ jobs:
   docs:
     name: Deploy Docs
     needs: [verify, changesets, release]
-    if: always() && needs.verify.result == 'success' && needs.changesets.result == 'success' && (needs.release.result == 'success' || needs.release.result == 'skipped')
+    if: always() && github.ref == 'refs/heads/main' && needs.verify.result == 'success' && needs.changesets.result == 'success' && (needs.release.result == 'success' || needs.release.result == 'skipped')
     uses: ./.github/workflows/deploy-docs.yml
     secrets: inherit
     permissions:

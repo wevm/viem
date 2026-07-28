@@ -9,42 +9,46 @@ For small prototypes, you can also load Viem from an ESM CDN.
 
 ## Package Manager
 
+{/* TODO(v3): Remove `@next` when Viem v3 is stable. */}
+
 :::code-group
 
 ```bash [pnpm]
-pnpm add viem
+pnpm add viem@next
 ```
 
 ```bash [npm]
-npm install viem
+npm install viem@next
 ```
 
 ```bash [Yarn]
-yarn add viem
+yarn add viem@next
 ```
 
 ```bash [Bun]
-bun add viem
+bun add viem@next
 ```
 
 ```bash [Deno]
-deno add viem
+deno add npm:viem@next
 ```
 
 :::
 
-Unprefixed package names resolve to npm packages in current Deno releases. See the
-[`deno add` reference](https://docs.deno.com/runtime/reference/cli/add/) for configuration options.
+The `npm:` package specifier selects the npm registry explicitly. See the
+[`deno add` reference](https://docs.deno.com/runtime/reference/cli/add/) for other options.
 
 ## CDN
 
 Use an ESM-compatible CDN such as [esm.sh](https://esm.sh) when a package manager is not
 available. Pin the Viem major version in the URL to avoid unexpected breaking changes.
 
+{/* TODO(v3): Replace `@next` with `@3` when Viem v3 is stable. */}
+
 ```html
 <script type="module">
-  import { Actions, Client, http } from 'https://esm.sh/viem@3'
-  import { mainnet } from 'https://esm.sh/viem@3/chains'
+  import { Actions, Client, http } from 'https://esm.sh/viem@next'
+  import { mainnet } from 'https://esm.sh/viem@next/chains'
 
   const client = Client.create({
     chain: mainnet,
