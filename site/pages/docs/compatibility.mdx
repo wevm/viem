@@ -37,6 +37,7 @@ The APIs Viem needs depend on the modules and transports your application uses.
 | `fetch`, `Headers`, and `Response` | HTTP JSON-RPC, offchain reads, and fetched metadata. |
 | `AbortController` and `AbortSignal` | Request cancellation and timeouts. |
 | `crypto.getRandomValues` | Random keys and bytes. |
+| `WebAssembly` | The optional `viem/wasm` cryptography Engine. |
 
 Modern browsers, Node.js `>=24.5`, Bun, and current Deno releases provide these APIs. A different
 runtime must provide standards-compatible implementations for the features it uses.
@@ -63,12 +64,19 @@ compatibility data before choosing passkey features.
 
 Features that use Web Crypto P256 or encryption also require `globalThis.crypto.subtle`.
 
+### WASM & Engines
+
+The [`viem/wasm` Engine](/docs/guides/engine#wasm-web-assembly-engine) requires WebAssembly. The
+[`viem/node` Engine](/docs/guides/engine#node-engine) uses `node:crypto` and must not be imported
+into browser bundles.
+
 ## Runtime Entrypoints
 
 | Entrypoint | Purpose |
 | --- | --- |
-| `viem` | Portable Clients, Actions, transports, accounts, chains, and types. |
-| `viem/node` | Node.js IPC transport and trusted setup helpers. Do not import it into browser bundles. |
+| `viem` | Portable Clients, Actions, transports, accounts, chains, types, and Engine configuration. |
+| `viem/node` | Node.js cryptography Engine, IPC transport, and trusted setup helpers. Do not import it into browser bundles. |
+| `viem/wasm` | Portable WebAssembly cryptography Engine. |
 | `viem/window` | TypeScript augmentation for `window.ethereum`. It does not install a wallet provider at runtime. |
 
 Import `viem/window` once when a browser TypeScript project needs the injected provider typed:

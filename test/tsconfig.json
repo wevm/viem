@@ -48,6 +48,9 @@
       "viem/utils": [
         "../src/utils/index.ts"
       ],
+      "viem/wasm": [
+        "../src/wasm/index.ts"
+      ],
       "viem/window": [
         "../src/window/index.ts"
       ],

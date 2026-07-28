@@ -7,6 +7,7 @@ import {
   McpSource,
   Reranker,
   Retriever,
+  Twoslash,
   VectorStore,
 } from 'vocs/config'
 
@@ -25,6 +26,7 @@ try {
 // directories).
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const oxDist = resolve(root, 'node_modules/ox/dist')
+const oxDocsOrigin = 'https://v1.oxlib.sh'
 const vercelEnvironment = process.env.VERCEL_ENV
 const vercelRef = process.env.VERCEL_GIT_COMMIT_REF
 // TODO(v3): Remove the v3 deployment and source overrides when Viem v3 is stable.
@@ -43,6 +45,32 @@ const badge = (kind: 'public' | 'test' | 'wallet') =>
     test: { text: 'Test', variant: 'warning' as const },
     wallet: { text: 'Wallet', variant: 'tip' as const },
   })[kind]
+
+// Ox TSDoc uses site-relative links. Make inherited hover links absolute before Vocs checks them against Viem routes.
+const twoslashRenderer = Twoslash.Renderer.rich()
+const renderer = {
+  ...twoslashRenderer,
+  nodeStaticInfo(info, node) {
+    const value =
+      info.docs === undefined
+        ? info
+        : {
+            ...info,
+            docs: info.docs.replaceAll('](/api/', `](${oxDocsOrigin}/api/`),
+          }
+    return twoslashRenderer.nodeStaticInfo.call(this, value, node)
+  },
+  nodeQuery(info, node) {
+    const value =
+      info.docs === undefined
+        ? info
+        : {
+            ...info,
+            docs: info.docs.replaceAll('](/api/', `](${oxDocsOrigin}/api/`),
+          }
+    return twoslashRenderer.nodeQuery?.call(this, value, node) ?? node
+  },
+} satisfies typeof twoslashRenderer
 
 export default defineConfig({
   accentColor: 'light-dark(#51741f, #bfd655)',
@@ -875,6 +903,10 @@ export default defineConfig({
               },
             ],
           },
+          {
+            text: 'WASM & Engines',
+            link: '/docs/guides/engine',
+          },
         ],
       },
       {
@@ -903,6 +935,21 @@ export default defineConfig({
               { text: 'Rate Limit', link: '/docs/transports/rate-limit' },
             ],
           },
+        ],
+      },
+      {
+        text: 'Engine',
+        collapsed: true,
+        items: [
+          { text: 'Overview', link: '/docs/engine' },
+          { text: 'engine', link: '/docs/engine/engine' },
+          { text: 'get', link: '/docs/engine/get' },
+          { text: 'install', link: '/docs/engine/install' },
+          { text: 'reset', link: '/docs/engine/reset' },
+          { text: 'set', link: '/docs/engine/set' },
+          { text: 'with', link: '/docs/engine/with' },
+          { text: 'Errors', link: '/docs/engine/errors' },
+          { text: 'Types', link: '/docs/engine/types' },
         ],
       },
       {
@@ -3055,6 +3102,7 @@ export default defineConfig({
     },
   ],
   twoslash: {
+    renderer,
     twoslashOptions: {
       vfsRoot: root,
       compilerOptions: {

@@ -128,6 +128,22 @@ export * as Contract from './core/Contract.js'
 export * as ContractError from './core/ContractError.js'
 
 /**
+ * Configures the cryptographic implementations used by Viem.
+ *
+ * @example
+ * ```ts
+ * import { Engine } from 'viem'
+ *
+ * await Engine.install({
+ *   Hash: {
+ *     keccak256: () => new Uint8Array(32),
+ *   },
+ * })
+ * ```
+ */
+export { Engine } from 'ox'
+
+/**
  * Viem's {@link Errors.BaseError} class (the base of all Viem errors) and
  * error configuration.
  */
