@@ -27,6 +27,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const oxDist = resolve(root, 'node_modules/ox/dist')
 const vercelEnvironment = process.env.VERCEL_ENV
 const vercelRef = process.env.VERCEL_GIT_COMMIT_REF
+// TODO(v3): Remove the v3 deployment and source overrides when Viem v3 is stable.
 const isV3 =
   vercelRef === 'v3' || process.env.VERCEL_GIT_REPO_SLUG === 'viem-v3'
 // Remote sync prunes stale vectors, so v3 must not share production's index.
@@ -78,7 +79,11 @@ export default defineConfig({
   mcp: {
     enabled: true,
     sources: [
-      McpSource.github({ name: 'viem', repo: 'wevm/viem' }),
+      McpSource.github({
+        branch: isV3 ? 'v3' : 'main',
+        name: 'viem',
+        repo: 'wevm/viem',
+      }),
       McpSource.github({ name: 'wagmi', repo: 'wevm/wagmi' }),
       McpSource.github({ name: 'ox', repo: 'wevm/ox' }),
       McpSource.github({ name: 'tempo', repo: 'tempoxyz/tempo' }),

@@ -18,8 +18,10 @@ This guide installs Viem, creates a [Client](/docs/clients), and reads the lates
 
 Paste this prompt into your coding agent:
 
+{/* TODO(v3): Restore `viem.sh` when Viem v3 is stable. */}
+
 :::prompt
-Read viem.sh and help me build my project with Viem. Add https://viem.sh/api/mcp as an MCP server. Refer to https://viem.sh/docs/v2-migration when migrating from Viem v2.
+Read v3.viem.sh and help me build my project with Viem. Add https://v3.viem.sh/api/mcp as an MCP server. Refer to https://v3.viem.sh/docs/v2-migration when migrating from Viem v2.
 :::
 
 ## Quick Start
@@ -30,22 +32,24 @@ Read viem.sh and help me build my project with Viem. Add https://viem.sh/api/mcp
 
 Install Viem with your package manager.
 
+{/* TODO(v3): Remove `@next` when Viem v3 is stable. */}
+
 :::code-group
 
 ```bash [pnpm]
-pnpm add viem
+pnpm add viem@next
 ```
 
 ```bash [npm]
-npm install viem
+npm install viem@next
 ```
 
 ```bash [Yarn]
-yarn add viem
+yarn add viem@next
 ```
 
 ```bash [Bun]
-bun add viem
+bun add viem@next
 ```
 
 :::

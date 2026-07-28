@@ -6,9 +6,11 @@ description: Connect coding agents to the Viem MCP server for current documentat
 
 ## Overview
 
+{/* TODO(v3): Restore `viem.sh` when Viem v3 is stable. */}
+
 Connect the Viem MCP server to give coding agents direct access to current Viem documentation and
 source code. The server is read-only, uses Streamable HTTP at
-[`https://viem.sh/api/mcp`](https://viem.sh/api/mcp), and requires no authentication.
+[`https://v3.viem.sh/api/mcp`](https://v3.viem.sh/api/mcp), and requires no authentication.
 
 Agents can search and read the documentation, then inspect source across Viem, Wagmi, Ox, and
 Tempo.
@@ -24,22 +26,22 @@ Choose your coding agent, or copy the setup prompt into another agent.
 :::code-group
 
 ```text [Prompt]
-Set up the Viem MCP server for this coding agent. Use `https://viem.sh/api/mcp` as a user-level Streamable HTTP server named `viem`, then verify the connection. No authentication is required. Refer to https://viem.sh/docs/v2-migration when migrating from Viem v2.
+Set up the Viem MCP server for this coding agent. Use `https://v3.viem.sh/api/mcp` as a user-level Streamable HTTP server named `viem`, then verify the connection. No authentication is required. Refer to https://v3.viem.sh/docs/v2-migration when migrating from Viem v2.
 ```
 
 ```bash [Codex]
-codex mcp add viem --url https://viem.sh/api/mcp
+codex mcp add viem --url https://v3.viem.sh/api/mcp
 ```
 
 ```bash [Claude Code]
-claude mcp add --transport http --scope user viem https://viem.sh/api/mcp
+claude mcp add --transport http --scope user viem https://v3.viem.sh/api/mcp
 ```
 
 ```json [Cursor]
 {
   "mcpServers": {
     "viem": {
-      "url": "https://viem.sh/api/mcp"
+      "url": "https://v3.viem.sh/api/mcp"
     }
   }
 }
