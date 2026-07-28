@@ -221,7 +221,7 @@
   "[!start-pkg]": "",
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "2.52.1",
+  "version": "3.0.0-next.0",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
