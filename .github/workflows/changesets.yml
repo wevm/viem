@@ -53,9 +53,39 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  prerelease:
+    name: Publish prerelease
+    # Keep v3 prereleases independent from the stable release verification gate.
+    if: github.ref == 'refs/heads/v3' && needs.changesets.outputs.hasChangesets == 'false'
+    needs: changesets
+    runs-on: ubuntu-latest
+    # TODO: Add `environment: npm` after configuring the npm environment with required reviewers.
+    timeout-minutes: 5
+    permissions:
+      contents: write # create GitHub releases and tags after npm publish
+      id-token: write # authenticate to npm via trusted publishing
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+        with:
+          skip-cache: true # avoid cache poisoning attacks
+
+      - name: Publish to NPM
+        uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc
+        with:
+          createGithubReleases: false
+          publish: pnpm changeset:publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   release:
     name: Release
-    if: needs.changesets.outputs.hasChangesets == 'false'
+    if: github.ref == 'refs/heads/main' && needs.changesets.outputs.hasChangesets == 'false'
     needs: [verify, changesets]
     runs-on: ubuntu-latest
     # TODO: Add `environment: npm` after configuring the npm environment with required reviewers.
@@ -80,7 +110,7 @@ jobs:
         id: changesets
         uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc
         with:
-          createGithubReleases: ${{ github.ref == 'refs/heads/main' }}
+          createGithubReleases: true
           publish: pnpm changeset:publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
