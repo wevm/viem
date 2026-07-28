@@ -7,5 +7,5 @@
     "test-vite": "0.0.0",
     "site": "0.0.0"
   },
-  "changesets": []
+  "changesets": ["released-v3"]
 }
