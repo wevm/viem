@@ -12961,13 +12961,13 @@ snapshots:
 
   isexe@2.0.0: {}
 
-  isows@1.0.7(ws@8.21.1):
-    dependencies:
-      ws: 8.21.1
-
   isows@1.0.7(ws@8.21.0):
     dependencies:
       ws: 8.21.0
+
+  isows@1.0.7(ws@8.21.1):
+    dependencies:
+      ws: 8.21.1
 
   istanbul-lib-coverage@3.2.2: {}
 
