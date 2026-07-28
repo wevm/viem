@@ -2,9 +2,16 @@ import { describe, expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
+import * as Http from '~test/http.js'
 import { mainnet } from '../chains/definitions/mainnet.js'
 import { optimism } from '../chains/definitions/optimism.js'
 import { Account, Client, http } from 'viem'
+import {
+  createClient as createClientV2,
+  http as httpV2,
+  publicActions as publicActionsV2,
+} from 'viem-v2'
+import { mainnet as mainnetV2 } from 'viem-v2/chains'
 
 const url = anvil.mainnet.rpcUrl.http
 const { address, privateKey } = constants.accounts[0]
@@ -303,5 +310,206 @@ describe('extend', () => {
       .extend(() => ({ ns: { a: () => 'first' as const } }))
       .extend(() => ({ ns: { a: () => 'second' as const } }))
     expect(client.ns.a()).toBe('second')
+  })
+})
+
+describe('fromV2', () => {
+  test('creates a v3 Client over a v2-compatible Client', async () => {
+    const source = createClientV2({
+      account: address,
+      chain: mainnetV2,
+      experimental_blockTag: 'safe',
+      transport: httpV2(url),
+    })
+    const client = Client.fromV2(source)
+
+    expect(await client.request({ method: 'eth_chainId' })).toBe('0x1')
+    expect({
+      account: client.account,
+      blockTag: client.blockTag,
+      chain: client.chain,
+      transport: {
+        retryCount: client.transport.retryCount,
+      },
+    }).toMatchInlineSnapshot(`
+      {
+        "account": {
+          "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "type": "json-rpc",
+        },
+        "blockTag": "safe",
+        "chain": {
+          "id": 1,
+        },
+        "transport": {
+          "retryCount": 0,
+        },
+      }
+    `)
+    expect(client.uid).not.toBe(source.uid)
+  })
+
+  test('accepts v3 Chain and Account overrides', () => {
+    const account = Account.fromPrivateKey(privateKey)
+    const source = Client.toV2(Client.create({ transport: http(url) }))
+    const client = Client.fromV2(source, { account, chain: mainnet })
+
+    expect(client.account).toBe(account)
+    expect(client.chain).toBe(mainnet)
+  })
+
+  test('uses the v3 Client retry layer', async () => {
+    const responses = [500, 200]
+    const server = await Http.createServer((_req, res) => {
+      const status = responses.shift()
+      if (status === 500) {
+        res.writeHead(500)
+        res.end('fail')
+        return
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ id: 1, jsonrpc: '2.0', result: '0x1' }))
+    })
+    try {
+      const source = createClientV2({
+        transport: httpV2(server.url, { retryCount: 3 }),
+      })
+      const client = Client.fromV2(source)
+
+      expect(await client.request({ method: 'eth_chainId' })).toBe('0x1')
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('does not stack the v2 Client retry layer', async () => {
+    const responses = [500, 200]
+    const server = await Http.createServer((_req, res) => {
+      const status = responses.shift()
+      if (status === 500) {
+        res.writeHead(500)
+        res.end('fail')
+        return
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ id: 1, jsonrpc: '2.0', result: '0x1' }))
+    })
+    try {
+      const source = createClientV2({
+        transport: httpV2(server.url, { retryCount: 3 }),
+      })
+      const client = Client.fromV2(source)
+
+      await expect(
+        client.request({ method: 'eth_chainId' }, { retryCount: 0 }),
+      ).rejects.toThrow()
+    } finally {
+      await server.close()
+    }
+  })
+})
+
+describe('toV2', () => {
+  test('extends with v2 public actions', async () => {
+    const client = Client.toV2(Client.create({ transport: http(url) })).extend(
+      publicActionsV2,
+    )
+
+    expect({
+      blockNumber: await client.getBlockNumber(),
+      chainId: await client.getChainId(),
+    }).toMatchInlineSnapshot(`
+      {
+        "blockNumber": 24000000n,
+        "chainId": 1,
+      }
+    `)
+  })
+
+  test('creates a chainless v2-compatible base Client', async () => {
+    const source = Client.create({
+      account: address,
+      blockTag: 'safe',
+      chain: mainnet,
+      transport: http(url),
+    })
+    const client = Client.toV2(source)
+
+    expect(await client.request({ method: 'eth_chainId' })).toBe('0x1')
+    expect(client.request).toBe(source.request)
+    expect({
+      account: client.account,
+      chain: client.chain,
+      experimental_blockTag: client.experimental_blockTag,
+      transport: {
+        key: client.transport.key,
+        name: client.transport.name,
+        retryCount: client.transport.retryCount,
+        type: client.transport.type,
+      },
+    }).toMatchInlineSnapshot(`
+      {
+        "account": {
+          "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "type": "json-rpc",
+        },
+        "chain": undefined,
+        "experimental_blockTag": "safe",
+        "transport": {
+          "key": "custom",
+          "name": "Viem v3 Client",
+          "retryCount": 0,
+          "type": "custom",
+        },
+      }
+    `)
+    expect(client.uid).not.toBe(source.uid)
+  })
+
+  test('does not reuse a local Account', () => {
+    const source = Client.create({
+      account: Account.fromPrivateKey(privateKey),
+      transport: http(url),
+    })
+
+    expect(Client.toV2(source).account).toBeUndefined()
+  })
+
+  test('accepts v2 Chain and Account overrides', () => {
+    const account = { address, type: 'json-rpc' } as const
+    const client = Client.toV2(Client.create({ transport: http(url) }), {
+      account,
+      chain: mainnetV2,
+    })
+
+    expect(client.account).toBe(account)
+    expect(client.chain).toBe(mainnetV2)
+  })
+
+  test('uses v2 extension semantics', () => {
+    const client = Client.toV2(Client.create({ transport: http(url) }))
+      .extend(() => ({
+        token: { read: () => 'read' as const },
+      }))
+      .extend(() => ({
+        token: { write: () => 'write' as const },
+      }))
+
+    // Exercise the runtime guard with a decorator rejected by the public type.
+    type ExtendBaseKey = (fn: () => { key: string }) => typeof client
+    const extend = client.extend as unknown as ExtendBaseKey
+    const protectedClient = extend(() => ({ key: 'clobbered' }))
+
+    expect({
+      key: protectedClient.key,
+      read: protectedClient.token.read(),
+      write: protectedClient.token.write(),
+    }).toMatchInlineSnapshot(`
+      {
+        "key": "base",
+        "read": "read",
+        "write": "write",
+      }
+    `)
   })
 })

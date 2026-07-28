@@ -108,6 +108,9 @@ catalogs:
     typescript:
       specifier: 7.0.2
       version: 7.0.2
+    viem-v2:
+      specifier: npm:viem@2.55.10
+      version: 2.55.10
     vite:
       specifier: ^8.0.16
       version: 8.0.16
@@ -138,7 +141,7 @@ overrides:
   '@arethetypeswrong/core>typescript': ^5.9.3
   '@babel/core': '>=7.29.6 <8'
   '@opentelemetry/api@^1.8.0': ~1.7.0
-  permissionless>viem: workspace:*
+  permissionless>viem: link:.
   '@babel/helpers@<7.26.10': 7.26.10
   '@babel/runtime@<7.26.10': 7.26.10
   '@grpc/grpc-js@>=1.14.0 <1.14.4': 1.14.4
@@ -314,6 +317,9 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
+      viem-v2:
+        specifier: 'catalog:'
+        version: viem@2.55.10(typescript@7.0.2)(zod@4.4.3)
       vite-plus:
         specifier: 'catalog:'
         version: 0.1.24(@arethetypeswrong/core@0.18.3)(@opentelemetry/api@1.7.0)(@types/node@24.5.2)(@vitest/coverage-v8@4.1.8)(esbuild@0.27.2)(jiti@2.7.0)(publint@0.3.21)(terser@5.36.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.8.3)
@@ -6026,6 +6032,14 @@ packages:
       typescript:
         optional: true
 
+  ox@0.14.33:
+    resolution: {integrity: sha512-rooA/4o7bBof4Ge2VH/eovfNPb/AEEYyrNj03wggc55g5HZD8Pjs/OeWhttgjic3dDcqn0r29bDuvQEdTiUemQ==}
+    peerDependencies:
+      typescript: '>=5.4.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   ox@1.1.2:
     resolution: {integrity: sha512-jnHkaTNDSaj4zh1zIwsSLTGaF+G64RW7zwJp/PBMQvuQFTHsTUmkdHdZyxJH7gYpRH+MdIhhjmb0z59coOOKnQ==}
     peerDependencies:
@@ -6197,7 +6211,6 @@ packages:
     resolution: {integrity: sha512-QrzAoQGYPV/NJ2x5Sj18h7qed6f+kCyQAojrncN091UPiGqHjFNjgdsgreiv8pxlQgF4UcpuJUvsHLpOEBd6cQ==}
     peerDependencies:
       ox: ^0.8.0
-      viem: workspace:*
     peerDependenciesMeta:
       ox:
         optional: true
@@ -7431,6 +7444,14 @@ packages:
       typescript:
         optional: true
 
+  viem@2.55.10:
+    resolution: {integrity: sha512-Q9Ba+/ma81U2M5o5P2AQ7Ux8rTIwmCZvUcr8rKdQ22bV0IBFHllM2m5gWDP8hFaUN2nH2oW3QG44amRazflYNQ==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   'viem@file:':
     resolution: {directory: '', type: directory}
     engines: {node: '>=24.5'}
@@ -7616,6 +7637,18 @@ packages:
 
   wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
+
+  ws@8.21.0:
+    resolution: {integrity: sha512-Vsp28b7DRcimFQvrqu2Wek3z1iYxDCWqHYB8Qsnk/S4RfaCQzPGPyBNuVjJV3cd6UiKtUtp6sNM77gWvzcCH+g==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
 
   ws@8.21.1:
     resolution: {integrity: sha512-+0NTnW77fFN/DjQi6k/Sq/Yvk4Sgajw7urW8V+asjXnRgDs9gyGkdb7EzgfhA4goXsRIZKE28fzIXBHEzhuiWw==}
@@ -11371,6 +11404,11 @@ snapshots:
       typescript: 7.0.2
       zod: 3.25.76
 
+  abitype@1.2.3(typescript@7.0.2)(zod@4.4.3):
+    optionalDependencies:
+      typescript: 7.0.2
+      zod: 4.4.3
+
   abitype@1.3.0(typescript@5.9.3)(zod@4.4.3):
     optionalDependencies:
       typescript: 5.9.3
@@ -12927,6 +12965,10 @@ snapshots:
     dependencies:
       ws: 8.21.1
 
+  isows@1.0.7(ws@8.21.0):
+    dependencies:
+      ws: 8.21.0
+
   istanbul-lib-coverage@3.2.2: {}
 
   istanbul-lib-report@3.0.1:
@@ -13917,6 +13959,21 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
+  ox@0.14.33(typescript@7.0.2)(zod@4.4.3):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.1
+      '@noble/ciphers': 1.3.0
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.3.0(typescript@7.0.2)(zod@4.4.3)
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      typescript: 7.0.2
+    transitivePeerDependencies:
+      - zod
+
   ox@1.1.2(typescript@5.9.3):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
@@ -14183,6 +14240,8 @@ snapshots:
   pend@1.2.0: {}
 
   permissionless@0.2.57(ox@1.1.2(typescript@7.0.2)):
+    dependencies:
+      viem: 'link:'
     optionalDependencies:
       ox: 1.1.2(typescript@7.0.2)
 
@@ -15623,6 +15682,23 @@ snapshots:
       - utf-8-validate
       - zod
 
+  viem@2.55.10(typescript@7.0.2)(zod@4.4.3):
+    dependencies:
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.2.3(typescript@7.0.2)(zod@4.4.3)
+      isows: 1.0.7(ws@8.21.0)
+      ox: 0.14.33(typescript@7.0.2)(zod@4.4.3)
+      ws: 8.21.0
+    optionalDependencies:
+      typescript: 7.0.2
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+      - zod
+
   viem@file:(typescript@5.9.3)(zod@4.4.3):
     dependencies:
       abitype: 1.3.0(typescript@5.9.3)(zod@4.4.3)
@@ -15987,6 +16063,8 @@ snapshots:
       strip-ansi: 7.1.0
 
   wrappy@1.0.2: {}
+
+  ws@8.21.0: {}
 
   ws@8.21.1: {}
 

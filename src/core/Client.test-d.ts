@@ -5,6 +5,16 @@ import * as constants from '~test/constants.js'
 import { mainnet } from '../chains/definitions/mainnet.js'
 import { optimism } from '../chains/definitions/optimism.js'
 import { Account, Chain, Client, http, Token, webSocket } from 'viem'
+import {
+  type Client as ClientV2,
+  type PublicClient as PublicClientV2,
+  type Transport as TransportV2,
+  createClient as createClientV2,
+  http as httpV2,
+  publicActions as publicActionsV2,
+} from 'viem-v2'
+import { privateKeyToAccount as privateKeyToAccountV2 } from 'viem-v2/accounts'
+import { mainnet as mainnetV2 } from 'viem-v2/chains'
 
 const { address, privateKey } = constants.accounts[0]
 
@@ -213,4 +223,126 @@ test('createResolver.ReturnType: defaults to a broad chain', () => {
   const resolver = {} as Client.createResolver.ReturnType
   const client = resolver.getClient({ chainId: 1 })
   expectTypeOf(client.chain).toEqualTypeOf<Chain.Chain>()
+})
+
+test('fromV2: infers the safe v3 defaults', () => {
+  const source = createClientV2({
+    account: address,
+    chain: mainnetV2,
+    transport: httpV2(),
+  })
+  const client = Client.fromV2(source)
+
+  expectTypeOf(client.account).toEqualTypeOf<Account.JsonRpc<typeof address>>()
+  expectTypeOf(client.chain.id).toEqualTypeOf<1>()
+})
+
+test('fromV2: preserves v3 Chain and Account overrides', () => {
+  const account = Account.fromPrivateKey(privateKey)
+  const source = Client.toV2(Client.create({ transport: http() }))
+  const client = Client.fromV2(source, { account, chain: mainnet })
+
+  expectTypeOf(client.account).toEqualTypeOf<typeof account>()
+  expectTypeOf(client.chain).toEqualTypeOf<typeof mainnet>()
+})
+
+test('toV2: returns a chainless base Client by default', () => {
+  const client = Client.toV2(
+    Client.create({ account: address, chain: mainnet, transport: http() }),
+  )
+
+  expectTypeOf(client.account).toEqualTypeOf<{
+    address: typeof address
+    type: 'json-rpc'
+  }>()
+  expectTypeOf(client.chain).toEqualTypeOf<undefined>()
+})
+
+test('toV2: does not preserve local Accounts or v3 extensions', () => {
+  const source = Client.create({
+    account: Account.fromPrivateKey(privateKey),
+    transport: http(),
+  }).extend(() => ({ foo: () => 'foo' as const }))
+  const client = Client.toV2(source)
+
+  expectTypeOf(client.account).toEqualTypeOf<undefined>()
+  expectTypeOf<
+    'foo' extends keyof typeof client ? true : false
+  >().toEqualTypeOf<false>()
+})
+
+test('toV2: preserves v2 Chain and Account overrides', () => {
+  const account = { address, type: 'json-rpc' } as const
+  const client = Client.toV2(Client.create({ transport: http() }), {
+    account,
+    chain: mainnetV2,
+  })
+
+  expectTypeOf(client.account).toEqualTypeOf<typeof account>()
+  expectTypeOf(client.chain).toEqualTypeOf<typeof mainnetV2>()
+})
+
+test('toV2: accepts a complete v2 local Account override', () => {
+  const account = privateKeyToAccountV2(privateKey)
+  const client = Client.toV2(Client.create({ transport: http() }), { account })
+
+  expectTypeOf(client.account).toEqualTypeOf<typeof account>()
+  expectTypeOf(client).toMatchTypeOf<
+    ClientV2<TransportV2, undefined, typeof account>
+  >()
+})
+
+test('toV2: rejects an incomplete v2 local Account override', () => {
+  Client.toV2(Client.create({ transport: http() }), {
+    // @ts-expect-error local Accounts require the v2 signing interface
+    account: { address, type: 'local' },
+  })
+})
+
+test('toV2: accumulates v2-style extensions', () => {
+  const client = Client.toV2(Client.create({ transport: http() }))
+    .extend(() => ({ foo: () => 'foo' as const }))
+    .extend(() => ({ bar: () => 'bar' as const }))
+
+  expectTypeOf(client.foo).toEqualTypeOf<() => 'foo'>()
+  expectTypeOf(client.bar).toEqualTypeOf<() => 'bar'>()
+})
+
+test('toV2: cannot redefine base keys', () => {
+  Client.toV2(Client.create({ transport: http() })).extend(() => ({
+    // @ts-expect-error base key cannot be redefined
+    key: 'clobbered',
+  }))
+})
+
+test('v2 compatibility: adapts base and Public Clients', async () => {
+  const clientV3 = Client.create({ transport: http() })
+  const clientV2 = Client.toV2(clientV3)
+  const publicClientV2 = clientV2.extend(publicActionsV2)
+
+  expectTypeOf(clientV2).toMatchTypeOf<
+    ClientV2<TransportV2, undefined, undefined>
+  >()
+  expectTypeOf(publicClientV2).toMatchTypeOf<
+    PublicClientV2<TransportV2, undefined, undefined>
+  >()
+  expectTypeOf(await publicClientV2.getBlockNumber()).toEqualTypeOf<bigint>()
+})
+
+test('v2 compatibility: uses v2 protected-action constraints', () => {
+  const clientV2: ClientV2<TransportV2, undefined, undefined> = Client.toV2(
+    Client.create({ transport: http() }),
+  )
+
+  clientV2.extend(() => ({
+    // @ts-expect-error return type is incompatible with the v2 action
+    getBlockNumber: async () => 'wrong',
+  }))
+})
+
+test('v2 compatibility: accepts a v2 Client', () => {
+  const clientV2: ClientV2 = createClientV2({ transport: httpV2() })
+  const clientV3: Client.Client = Client.fromV2(clientV2)
+
+  expectTypeOf(clientV3).toMatchTypeOf<Client.Client>()
 })

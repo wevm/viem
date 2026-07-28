@@ -1,0 +1,298 @@
+# Adapting v2 Clients
+
+## Overview
+
+Use [`Client.fromV2`](#clientfromv2) and [`Client.toV2`](#clienttov2) to reuse request
+connectivity while an application runs Viem v2 and v3 together. Each adapter returns a base
+[Client](/docs/clients) that can be
+[extended with the target version's Action decorators](/docs/clients/create#extend-client-with-actions).
+
+The examples import Viem v3 from `viem` and Viem v2 from a `viem-v2` package alias. If a
+dependency requires Viem v2 as a peer dependency, follow the
+[incremental migration setup](/docs/v2-migration#migrate-incrementally) and swap the package
+aliases in these examples.
+
+```ts twoslash
+import { publicActions as publicActionsV2 } from 'viem-v2'
+import { Client, http } from 'viem'
+
+const client = Client.create({ transport: http() })
+const publicClientV2 = Client.toV2(client)
+  .extend(publicActionsV2)
+```
+
+The adapters preserve request connectivity, [JSON-RPC Accounts](/docs/accounts/json-rpc), and
+[`ccipRead: false`](/docs/clients/create#ccipread). `Client.fromV2` preserves the source chain ID,
+while `Client.toV2` creates a chainless Client by default.
+
+[Local Accounts](/docs/accounts) are not carried automatically. Custom
+[`.extend()` extensions](/docs/clients/create#extend-client-with-actions), subscriptions,
+[Chain](/docs/chains) codecs and formatters, and custom CCIP Read handlers are not translated across
+the version boundary. `Client.fromV2` normalizes forwarded v2 request errors with
+[`Provider.parseError`](/docs/utilities/provider/parseError), while `Client.toV2` preserves the
+source v3 Client's request error identities. Pass a native target-version Chain or Account when
+that behavior is required.
+
+## Recipes
+
+These recipes assume you have [set up Viem v3](/docs) as `viem` and aliased Viem v2 as `viem-v2`.
+
+### Extend a v3 Client with v2 Actions
+
+Use `Client.toV2` to create a v2-compatible base Client, then attach a v2 decorator. The resulting
+Client uses v2's action names and call shapes.
+
+```ts twoslash
+import { publicActions as publicActionsV2 } from 'viem-v2'
+import { Client, http } from 'viem'
+
+const client = Client.create({ transport: http() })
+const publicClientV2 = Client.toV2(client) // [!code focus]
+  .extend(publicActionsV2) // [!code focus]
+
+const blockNumber = await publicClientV2.getBlockNumber()
+```
+
+### Pass v2 Chain and Account Overrides
+
+`Client.toV2` does not translate a v3 Chain or local Account. Pass v2-native values when v2
+actions need their full behavior.
+
+```ts twoslash
+import { publicActions as publicActionsV2 } from 'viem-v2'
+import { privateKeyToAccount as privateKeyToAccountV2 } from 'viem-v2/accounts'
+import { mainnet as mainnetV2 } from 'viem-v2/chains'
+import { Client, http } from 'viem'
+
+const accountV2 = privateKeyToAccountV2('0x…')
+const client = Client.create({ transport: http() })
+const publicClientV2 = Client.toV2(client, {
+  account: accountV2, // [!code focus]
+  chain: mainnetV2, // [!code focus]
+}).extend(publicActionsV2)
+```
+
+### Extend a v2 Client with v3 Actions
+
+Use `Client.fromV2` to create a v3 base Client over a v2 Client's request connectivity, then attach
+a v3 decorator.
+
+```ts twoslash
+import {
+  createClient as createClientV2,
+  http as httpV2,
+} from 'viem-v2'
+import { Client, publicActions } from 'viem'
+
+const clientV2 = createClientV2({ transport: httpV2() })
+const publicClient = Client.fromV2(clientV2) // [!code focus]
+  .extend(publicActions()) // [!code focus]
+
+const blockNumber = await publicClient.block.getNumber()
+```
+
+The adapted Client applies the v3 transport retry budget. It disables retries in the forwarded v2
+request so the two versions do not multiply attempts.
+
+### Pass v3 Chain and Account Overrides
+
+By default, `Client.fromV2` preserves only the v2 Client's chain ID and JSON-RPC Account. Pass
+v3-native values to retain full Chain or local Account behavior.
+
+```ts twoslash
+import {
+  createClient as createClientV2,
+  http as httpV2,
+} from 'viem-v2'
+import { Account, Client, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const clientV2 = createClientV2({ transport: httpV2() })
+const account = Account.fromPrivateKey('0x…')
+const publicClient = Client.fromV2(clientV2, {
+  account, // [!code focus]
+  chain: mainnet, // [!code focus]
+}).extend(publicActions())
+```
+
+## `Client.fromV2`
+
+Creates a v3 base Client backed by a v2 Client's request connectivity.
+
+### Usage
+
+```ts twoslash
+import {
+  createClient as createClientV2,
+  http as httpV2,
+} from 'viem-v2'
+import { Client } from 'viem'
+
+const clientV2 = createClientV2({ transport: httpV2() })
+const client = Client.fromV2(clientV2)
+```
+
+### Parameters
+
+#### client
+
+- **Type:** `Client` (Viem v2)
+
+The v2 base Client whose request connectivity is reused.
+
+```ts twoslash
+import {
+  createClient as createClientV2,
+  http as httpV2,
+} from 'viem-v2'
+import { Client } from 'viem'
+const clientV2 = createClientV2({ transport: httpV2() })
+// ---cut---
+const client = Client.fromV2(
+  clientV2, // [!code focus]
+)
+```
+
+#### options
+
+- **Type:** `Client.fromV2.Options`
+- **Default:** `{}`
+
+Viem v3 Account and Chain overrides for the adapted Client.
+
+##### account
+
+- **Type:** `Account | Address`
+- **Optional**
+
+A v3 Account or address to use instead of the v2 Client's Account. Pass a v3 local Account to
+preserve its signing behavior.
+
+```ts twoslash
+import {
+  createClient as createClientV2,
+  http as httpV2,
+} from 'viem-v2'
+import { Account, Client } from 'viem'
+const clientV2 = createClientV2({ transport: httpV2() })
+const account = Account.fromPrivateKey('0x…')
+// ---cut---
+const client = Client.fromV2(clientV2, {
+  account, // [!code focus]
+})
+```
+
+##### chain
+
+- **Type:** `Chain | number`
+- **Optional**
+
+A v3 Chain or chain ID to use instead of the v2 Client's chain ID. Pass a full v3 Chain to preserve
+its contracts, codecs, formatters, and RPC metadata.
+
+```ts twoslash
+import {
+  createClient as createClientV2,
+  http as httpV2,
+} from 'viem-v2'
+import { Client } from 'viem'
+import { mainnet } from 'viem/chains'
+const clientV2 = createClientV2({ transport: httpV2() })
+// ---cut---
+const client = Client.fromV2(clientV2, {
+  chain: mainnet, // [!code focus]
+})
+```
+
+### Return Value
+
+`Client.fromV2.ReturnType`
+
+A v3 base Client backed by the v2 Client's request connectivity, ready to extend with v3
+decorators.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Address.InvalidAddressError` | The `account` override was an address string that failed validation. |
+
+## `Client.toV2`
+
+Creates a v2-compatible base Client backed by a v3 Client's request connectivity.
+
+### Usage
+
+```ts twoslash
+import { Client, http } from 'viem'
+
+const client = Client.create({ transport: http() })
+const clientV2 = Client.toV2(client)
+```
+
+### Parameters
+
+#### client
+
+- **Type:** `Client.Client`
+
+The v3 Client whose request connectivity is reused.
+
+```ts twoslash
+import { Client, http } from 'viem'
+const client = Client.create({ transport: http() })
+// ---cut---
+const clientV2 = Client.toV2(
+  client, // [!code focus]
+)
+```
+
+#### options
+
+- **Type:** `Client.toV2.Options`
+- **Default:** `{}`
+
+Viem v2 Account and Chain overrides for the adapted Client.
+
+##### account
+
+- **Type:** `Account` (Viem v2)
+- **Optional**
+
+A v2 JSON-RPC or local Account to use instead of the v3 Client's Account. Pass a v2 local Account
+to preserve its signing behavior.
+
+```ts twoslash
+import { privateKeyToAccount as privateKeyToAccountV2 } from 'viem-v2/accounts'
+import { Client, http } from 'viem'
+const accountV2 = privateKeyToAccountV2('0x…')
+const client = Client.create({ transport: http() })
+// ---cut---
+const clientV2 = Client.toV2(client, {
+  account: accountV2, // [!code focus]
+})
+```
+
+##### chain
+
+- **Type:** `Chain` (Viem v2)
+- **Optional**
+
+A v2 Chain to attach to the adapted Client. The Client is chainless when this option is omitted.
+
+```ts twoslash
+import { mainnet as mainnetV2 } from 'viem-v2/chains'
+import { Client, http } from 'viem'
+const client = Client.create({ transport: http() })
+// ---cut---
+const clientV2 = Client.toV2(client, {
+  chain: mainnetV2, // [!code focus]
+})
+```
+
+### Return Value
+
+`Client.toV2.ReturnType`
+
+A v2-compatible base Client backed by the v3 Client's request connectivity, ready to extend with
+v2 decorators.
