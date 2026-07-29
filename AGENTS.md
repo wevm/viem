@@ -6,6 +6,12 @@ This document contains general guidelines for AI agents working on the Viem code
 > emerges during development, append it to the relevant section of this file immediately. AGENTS.md
 > and referenced addenda are the source of truth for project conventions.
 
+## Friction Logging
+
+- Log papercuts and friction (tooling, docs, APIs, tests, conventions) as you hit them with `pnpx frog log`.
+- Do not add global, system, or internal friction.
+- Run `pnpx frog list` first to see what is already known.
+
 ## TypeScript Conventions
 
 - **Exact optional properties**; `exactOptionalPropertyTypes` is enabled.
@@ -307,12 +313,6 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Conventional commits**; use `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:` prefixes. Scope is optional (e.g. `feat(abi): add tuple formatter`).
 - **Preserve dirty work**; do not revert, clean, or overwrite local changes unless asked.
   - Never stage the user's untracked in-progress files.
-
-## Friction Logging
-
-- Log papercuts and friction (tooling, docs, APIs, tests, conventions) as you hit them with `pnpx frog log`.
-- Do not add global, system, or internal friction.
-- Run `pnpx frog list` first to see what is already known.
 
 ## Documentation (Site)
 
