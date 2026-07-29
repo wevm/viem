@@ -1,10 +1,52 @@
-# sendCalls
+# Send Calls [wallet.sendCalls]
 
-Requests the connected wallet to send a batch of calls ([EIP-5792](https://eips.ethereum.org/EIPS/eip-5792)).
+Requests the connected wallet to send a batch of calls
+([EIP-5792](https://eips.ethereum.org/EIPS/eip-5792)) and waits for inclusion.
 
 ## Usage
 
-This example requests the connected wallet to send a batch of calls ([EIP-5792](https://eips.ethereum.org/EIPS/eip-5792)).
+Use `sendCallsSync` to send a batch of calls and wait for their receipts.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const status = await client.wallet.sendCallsSync({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 69420n,
+    },
+  ],
+})
+// @log: {
+// @log:   atomic: true,
+// @log:   chainId: 1,
+// @log:   id: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+// @log:   receipts: [{ blockNumber: 12345678n, gasUsed: 21000n, status: 'success', ... }],
+// @log:   status: 'success',
+// @log:   statusCode: 200,
+// @log:   version: '2.0.0',
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+import 'viem/window'
+
+export const client = Client.create({
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+```
+
+:::
+
+### Asynchronous Usage
+
+Use `sendCalls` when the call bundle ID is needed immediately and status tracking happens
+elsewhere.
 
 :::code-group
 
@@ -40,7 +82,8 @@ export const client = Client.create({
 
 ### Standalone Action
 
-Call `Actions.wallet.sendCalls` directly by passing the Client as the first argument.
+Call `Actions.wallet.sendCallsSync` directly by passing the Client as the first argument. Use
+`Actions.wallet.sendCalls` for the asynchronous variant.
 
 :::code-group
 
@@ -48,20 +91,24 @@ Call `Actions.wallet.sendCalls` directly by passing the Client as the first argu
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-const { id } = await Actions.wallet.sendCalls(client, {
+const status = await Actions.wallet.sendCallsSync(client, {
   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   calls: [
-    {
-      data: '0xdeadbeef',
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-    },
     {
       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
       value: 69420n,
     },
   ],
 })
-// @log: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+// @log: {
+// @log:   atomic: true,
+// @log:   chainId: 1,
+// @log:   id: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+// @log:   receipts: [{ blockNumber: 12345678n, gasUsed: 21000n, status: 'success', ... }],
+// @log:   status: 'success',
+// @log:   statusCode: 200,
+// @log:   version: '2.0.0',
+// @log: }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -78,6 +125,69 @@ export const client = Client.create({
 :::
 
 ## Recipes
+
+### Require Successful Calls
+
+Set `throwOnFailure` to reject when the wallet reports a failed call bundle.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const status = await client.wallet.sendCallsSync({
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 69420n,
+    },
+  ],
+  throwOnFailure: true, // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+import 'viem/window'
+
+export const client = Client.create({
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+```
+
+:::
+
+### Set a Polling Deadline
+
+Set `pollingInterval` and `timeout` when the wallet needs a custom status polling window.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const status = await client.wallet.sendCallsSync({
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 69420n,
+    },
+  ],
+  pollingInterval: 1_000, // [!code focus]
+  timeout: 30_000, // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+import 'viem/window'
+
+export const client = Client.create({
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+```
+
+:::
 
 ### Batch Contract Calls
 
@@ -242,6 +352,15 @@ only when sending without that capability is acceptable.
 
 ## Return Value
 
+### Synchronous
+
+`{ atomic: boolean; capabilities?: Capabilities.Extract<'getCallsStatus', 'ReturnType'>; chainId: number | undefined; id: string; receipts: readonly Receipt[]; status: 'pending' | 'success' | 'failure' | undefined; statusCode: number; version: string }`
+
+The status and receipts of the call bundle. See
+[`Actions.wallet.getCallsStatus`](/docs/actions/wallet/getCallsStatus#return-value).
+
+### Asynchronous
+
 `{ id: string; capabilities?: object }`
 
 The identifier of the call batch (and any returned capabilities). Pass `id` to [`Actions.wallet.getCallsStatus`](/docs/actions/wallet/getCallsStatus) or [`Actions.wallet.waitForCallsStatus`](/docs/actions/wallet/waitForCallsStatus).
@@ -394,6 +513,74 @@ const { id } = await Actions.wallet.sendCalls(client, {
 })
 ```
 
+### pollingInterval
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Polling frequency, in milliseconds, while `sendCallsSync` waits for confirmation.
+
+```ts twoslash
+import { Actions } from 'viem'
+// [!include ~/snippets/docs/reference-client.ts:setup]
+// ---cut---
+const status = await Actions.wallet.sendCallsSync(client, {
+  calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
+  pollingInterval: 1_000, // [!code focus]
+})
+```
+
+### status
+
+- **Type:** `(result: Actions.wallet.getCallsStatus.ReturnType) => boolean`
+- **Default:** `({ statusCode }) => statusCode === 200 || statusCode >= 300`
+
+The predicate that determines when `sendCallsSync` stops waiting.
+
+```ts twoslash
+import { Actions } from 'viem'
+// [!include ~/snippets/docs/reference-client.ts:setup]
+// ---cut---
+const status = await Actions.wallet.sendCallsSync(client, {
+  calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
+  status: ({ status }) => status === 'success', // [!code focus]
+})
+```
+
+### throwOnFailure
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether `sendCallsSync` throws if the call bundle fails.
+
+```ts twoslash
+import { Actions } from 'viem'
+// [!include ~/snippets/docs/reference-client.ts:setup]
+// ---cut---
+const status = await Actions.wallet.sendCallsSync(client, {
+  calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
+  throwOnFailure: true, // [!code focus]
+})
+```
+
+### timeout
+
+- **Type:** `number`
+- **Default:** `Math.max((chain.blockTime ?? 0) * 3, 5_000)`
+
+Timeout, in milliseconds, before `sendCallsSync` stops waiting.
+
+```ts twoslash
+import { Actions } from 'viem'
+// [!include ~/snippets/docs/reference-client.ts:setup]
+// ---cut---
+const status = await Actions.wallet.sendCallsSync(client, {
+  calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
+  timeout: 30_000, // [!code focus]
+})
+```
+
 ### version
 
 - **Type:** `string`
@@ -416,4 +603,6 @@ const { id } = await Actions.wallet.sendCalls(client, {
 | Error | Description |
 | --- | --- |
 | `Actions.wallet.Errors.AtomicityNotSupportedError` | `forceAtomic` was set with multiple calls on fallback to `eth_sendTransaction`. |
+| `Actions.wallet.Errors.BundleFailedError` | The call bundle failed and `throwOnFailure` was enabled. |
 | `Actions.wallet.Errors.UnsupportedNonOptionalCapabilityError` | A non-optional capability was requested on fallback to `eth_sendTransaction`. |
+| `Actions.wallet.Errors.WaitForCallsStatusTimeoutError` | Timed out while waiting for the call bundle to be confirmed. |

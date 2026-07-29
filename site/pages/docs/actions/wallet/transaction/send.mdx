@@ -1,10 +1,43 @@
-# send
+# Send Transaction [transaction.send]
 
-Creates, signs, and sends a new transaction to the network. Local Accounts sign locally and broadcast via `eth_sendRawTransaction`; JSON-RPC Accounts broadcast via `eth_sendTransaction`.
+Creates, signs, and sends a transaction, then waits for its receipt. Local Accounts use the sync
+RPC. JSON-RPC Accounts broadcast normally, then poll for the receipt.
 
 ## Usage
 
-This example creates, signs, and sends a new transaction to the network.
+Use `sendSync` to send a transaction and wait for its receipt.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const receipt = await client.transaction.sendSync({
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: {
+// @log:   status: 'success',
+// @log:   transactionHash: '0x...',
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+### Asynchronous Usage
+
+Use `send` when the transaction hash is needed immediately and receipt tracking happens elsewhere.
 
 :::code-group
 
@@ -33,7 +66,8 @@ export const client = Client.create({
 
 ### Standalone Action
 
-Call `Actions.transaction.send` directly by passing the Client as the first argument.
+Call `Actions.transaction.sendSync` directly by passing the Client as the first argument. Use
+`Actions.transaction.send` for the asynchronous variant.
 
 :::code-group
 
@@ -41,11 +75,14 @@ Call `Actions.transaction.send` directly by passing the Client as the first argu
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-const hash = await Actions.transaction.send(client, {
+const receipt = await Actions.transaction.sendSync(client, {
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1n,
 })
-// @log: '0x...'
+// @log: {
+// @log:   status: 'success',
+// @log:   transactionHash: '0x...',
+// @log: }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -62,6 +99,69 @@ export const client = Client.create({
 :::
 
 ## Recipes
+
+### Wait for More Confirmations
+
+For a JSON-RPC Account, set `confirmations` when one included block is insufficient. The option
+does not apply to Local Account sync sends.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const receipt = await client.transaction.sendSync({
+  confirmations: 2, // [!code focus]
+  pollingInterval: 1_000, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+### Reject Reverts Within a Deadline
+
+Set `throwOnReceiptRevert` to reject a reverted receipt. Set `timeout` to bound receipt polling for
+JSON-RPC Accounts.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const receipt = await client.transaction.sendSync({
+  throwOnReceiptRevert: true, // [!code focus]
+  timeout: 30_000, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import 'viem/window'
+
+export const client = Client.create({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  chain: mainnet,
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+```
+
+:::
 
 ### Send with a Connected Wallet
 
@@ -163,6 +263,14 @@ export const client = Client.create({
 :::
 
 ## Return Value
+
+### Synchronous
+
+`TransactionReceipt`
+
+The transaction receipt.
+
+### Asynchronous
 
 `Hex`
 
@@ -329,6 +437,24 @@ const client = Client.create({ account, chain: mainnet, transport: http() })
 // ---cut---
 const hash = await Actions.transaction.send(client, {
   chain: optimism, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+### confirmations
+
+- **Type:** `number`
+- **Default:** `1`
+
+Number of confirmations that `sendSync` waits for when the action needs to poll for a receipt.
+
+```ts twoslash
+import { Actions } from 'viem'
+// [!include ~/snippets/docs/reference-client.ts:setup]
+// ---cut---
+const receipt = await Actions.transaction.sendSync(client, {
+  confirmations: 2, // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1n,
 })
@@ -512,6 +638,24 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
+### pollingInterval
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Polling frequency, in milliseconds, when `sendSync` needs to poll for a receipt.
+
+```ts twoslash
+import { Actions } from 'viem'
+// [!include ~/snippets/docs/reference-client.ts:setup]
+// ---cut---
+const receipt = await Actions.transaction.sendSync(client, {
+  pollingInterval: 1_000, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
 ### requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
@@ -528,6 +672,41 @@ const client = Client.create({ account, chain: mainnet, transport: http() })
 const controller = new AbortController()
 const hash = await Actions.transaction.send(client, {
   requestOptions: { signal: controller.signal }, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+
+Whether `sendSync` throws if the returned receipt status is `reverted`.
+
+```ts twoslash
+import { Actions } from 'viem'
+// [!include ~/snippets/docs/reference-client.ts:setup]
+// ---cut---
+const receipt = await Actions.transaction.sendSync(client, {
+  throwOnReceiptRevert: true, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+### timeout
+
+- **Type:** `number`
+- **Default:** `Math.max((chain.blockTime ?? 0) * 3, 5_000)`
+
+Timeout, in milliseconds, before `sendSync` stops waiting.
+
+```ts twoslash
+import { Actions } from 'viem'
+// [!include ~/snippets/docs/reference-client.ts:setup]
+// ---cut---
+const receipt = await Actions.transaction.sendSync(client, {
+  timeout: 60_000, // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1n,
 })
@@ -597,3 +776,4 @@ const hash = await Actions.transaction.send(client, {
 | `Account.NotFoundError` | No Account was provided on the Action or the Client. |
 | `Chain.NotFoundError` | No chain was provided and the Client has no chain. |
 | `Chain.MismatchError` | The chain does not match the connected network. |
+| `Actions.transaction.Errors.TransactionReceiptRevertedError` | The transaction receipt status was `reverted` and `throwOnReceiptRevert` was enabled. |

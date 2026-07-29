@@ -26,7 +26,7 @@ const account = Account.fromPrivateKey('0x...', {
 Pass a `nonceManager` when creating a [Local Account](/docs/accounts/local/private-key).
 
 Actions that send from the Account, including [`transaction.send`](/docs/actions/wallet/transaction/send)
-and [`transaction.sendSync`](/docs/actions/wallet/transaction/sendSync), consume a managed nonce.
+and [`transaction.sendSync`](/docs/actions/wallet/transaction/send), consume a managed nonce.
 
 Each transaction receives a distinct nonce, which prevents parallel sends from reusing one value.
 

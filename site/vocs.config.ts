@@ -527,7 +527,7 @@ export default defineConfig({
     },
     {
       source: '/docs/actions/public/contract/deploySync',
-      destination: '/docs/actions/wallet/contract/deploySync',
+      destination: '/docs/actions/wallet/contract/deploy',
       status: 308,
     },
     {
@@ -537,7 +537,7 @@ export default defineConfig({
     },
     {
       source: '/docs/actions/public/contract/writeSync',
-      destination: '/docs/actions/wallet/contract/writeSync',
+      destination: '/docs/actions/wallet/contract/write',
       status: 308,
     },
     {
@@ -552,17 +552,52 @@ export default defineConfig({
     },
     {
       source: '/docs/actions/public/transaction/sendRawSync',
-      destination: '/docs/actions/wallet/transaction/sendRawSync',
+      destination: '/docs/actions/wallet/transaction/sendRaw',
       status: 308,
     },
     {
       source: '/docs/actions/public/transaction/sendSync',
-      destination: '/docs/actions/wallet/transaction/sendSync',
+      destination: '/docs/actions/wallet/transaction/send',
       status: 308,
     },
     {
       source: '/docs/actions/public/transaction/sign',
       destination: '/docs/actions/wallet/transaction/sign',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/wallet/contract/deploySync',
+      destination: '/docs/actions/wallet/contract/deploy',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/wallet/contract/writeSync',
+      destination: '/docs/actions/wallet/contract/write',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/wallet/sendCallsSync',
+      destination: '/docs/actions/wallet/sendCalls',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/wallet/token/approveSync',
+      destination: '/docs/actions/wallet/token/approve',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/wallet/token/transferSync',
+      destination: '/docs/actions/wallet/token/transfer',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/wallet/transaction/sendRawSync',
+      destination: '/docs/actions/wallet/transaction/sendRaw',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/wallet/transaction/sendSync',
+      destination: '/docs/actions/wallet/transaction/send',
       status: 308,
     },
   ],
@@ -942,21 +977,6 @@ export default defineConfig({
         ],
       },
       {
-        text: 'Engine',
-        collapsed: true,
-        items: [
-          { text: 'Overview', link: '/docs/engine' },
-          { text: 'Create Engine', link: '/docs/engine/engine' },
-          { text: 'Inspect Engine', link: '/docs/engine/get' },
-          { text: 'Install Engine', link: '/docs/engine/install' },
-          { text: 'Reset Engine', link: '/docs/engine/reset' },
-          { text: 'Set Engine', link: '/docs/engine/set' },
-          { text: 'Scope Engine', link: '/docs/engine/with' },
-          { text: 'Errors', link: '/docs/engine/errors' },
-          { text: 'Types', link: '/docs/engine/types' },
-        ],
-      },
-      {
         text: 'Actions',
         collapsed: true,
         items: [
@@ -967,32 +987,32 @@ export default defineConfig({
             collapsed: true,
             items: [
               {
-                text: 'Balance',
+                text: 'Get Balance',
                 link: '/docs/actions/public/address/getBalance',
                 badge: badge('public'),
               },
               {
-                text: 'Bytecode',
+                text: 'Get Bytecode',
                 link: '/docs/actions/public/address/getCode',
                 badge: badge('public'),
               },
               {
-                text: 'Delegation',
+                text: 'Get Delegation',
                 link: '/docs/actions/public/address/getDelegation',
                 badge: badge('public'),
               },
               {
-                text: 'State Proof',
+                text: 'Get State Proof',
                 link: '/docs/actions/public/address/getProof',
                 badge: badge('public'),
               },
               {
-                text: 'Storage Value',
+                text: 'Get Storage Value',
                 link: '/docs/actions/public/address/getStorageAt',
                 badge: badge('public'),
               },
               {
-                text: 'Transaction Count',
+                text: 'Get Transaction Count',
                 link: '/docs/actions/public/address/getTransactionCount',
                 badge: badge('public'),
               },
@@ -1038,29 +1058,54 @@ export default defineConfig({
                 badge: badge('public'),
               },
               {
-                text: 'Block Details',
+                text: 'Get Block',
                 link: '/docs/actions/public/block/get',
                 badge: badge('public'),
               },
               {
-                text: 'Automine Status',
-                link: '/docs/actions/test/block/getAutomine',
-                badge: badge('test'),
-              },
-              {
-                text: 'Block Number',
+                text: 'Get Block Number',
                 link: '/docs/actions/public/block/getNumber',
                 badge: badge('public'),
               },
               {
-                text: 'Block Receipts',
+                text: 'Get Block Receipts',
                 link: '/docs/actions/public/block/getReceipts',
                 badge: badge('public'),
               },
               {
-                text: 'Transaction Count',
+                text: 'Get Transaction Count',
                 link: '/docs/actions/public/block/getTransactionCount',
                 badge: badge('public'),
+              },
+              {
+                text: 'Simulate Block',
+                link: '/docs/actions/public/block/simulate',
+                badge: badge('public'),
+              },
+              {
+                text: 'Watch Block Number',
+                link: '/docs/actions/public/block/watchNumber',
+                badge: badge('public'),
+              },
+              {
+                text: 'Watch Blocks',
+                link: '/docs/actions/public/block/watch',
+                badge: badge('public'),
+              },
+              {
+                text: 'Configure Automine',
+                link: '/docs/actions/test/block/setAutomine',
+                badge: badge('test'),
+              },
+              {
+                text: 'Configure Interval Mining',
+                link: '/docs/actions/test/block/setIntervalMining',
+                badge: badge('test'),
+              },
+              {
+                text: 'Get Automine Status',
+                link: '/docs/actions/test/block/getAutomine',
+                badge: badge('test'),
               },
               {
                 text: 'Increase Time',
@@ -1078,11 +1123,6 @@ export default defineConfig({
                 badge: badge('test'),
               },
               {
-                text: 'Configure Automine',
-                link: '/docs/actions/test/block/setAutomine',
-                badge: badge('test'),
-              },
-              {
                 text: 'Set Coinbase',
                 link: '/docs/actions/test/block/setCoinbase',
                 badge: badge('test'),
@@ -1090,11 +1130,6 @@ export default defineConfig({
               {
                 text: 'Set Gas Limit',
                 link: '/docs/actions/test/block/setGasLimit',
-                badge: badge('test'),
-              },
-              {
-                text: 'Configure Interval Mining',
-                link: '/docs/actions/test/block/setIntervalMining',
                 badge: badge('test'),
               },
               {
@@ -1112,21 +1147,6 @@ export default defineConfig({
                 link: '/docs/actions/test/block/setTimestampInterval',
                 badge: badge('test'),
               },
-              {
-                text: 'Simulate Block',
-                link: '/docs/actions/public/block/simulate',
-                badge: badge('public'),
-              },
-              {
-                text: 'Watch Blocks',
-                link: '/docs/actions/public/block/watch',
-                badge: badge('public'),
-              },
-              {
-                text: 'Watch Block Number',
-                link: '/docs/actions/public/block/watchNumber',
-                badge: badge('public'),
-              },
             ],
           },
           {
@@ -1134,13 +1154,13 @@ export default defineConfig({
             collapsed: true,
             items: [
               {
-                text: 'Execute Call',
-                link: '/docs/actions/public/call',
+                text: 'Batch Calls',
+                link: '/docs/actions/public/multicall',
                 badge: badge('public'),
               },
               {
-                text: 'Batch Calls',
-                link: '/docs/actions/public/multicall',
+                text: 'Execute Call',
+                link: '/docs/actions/public/call',
                 badge: badge('public'),
               },
             ],
@@ -1150,14 +1170,14 @@ export default defineConfig({
             collapsed: true,
             items: [
               {
+                text: 'Get Chain ID',
+                link: '/docs/actions/public/chains/getId',
+                badge: badge('public'),
+              },
+              {
                 text: 'Add Chain',
                 link: '/docs/actions/wallet/chains/add',
                 badge: badge('wallet'),
-              },
-              {
-                text: 'Chain ID',
-                link: '/docs/actions/public/chains/getId',
-                badge: badge('public'),
               },
               {
                 text: 'Switch Chain',
@@ -1176,27 +1196,17 @@ export default defineConfig({
                 badge: badge('public'),
               },
               {
-                text: 'Deploy Contract',
-                link: '/docs/actions/wallet/contract/deploy',
-                badge: badge('wallet'),
-              },
-              {
-                text: 'Deploy and Wait',
-                link: '/docs/actions/wallet/contract/deploySync',
-                badge: badge('wallet'),
-              },
-              {
                 text: 'Estimate Gas',
                 link: '/docs/actions/public/contract/estimateGas',
                 badge: badge('public'),
               },
               {
-                text: 'EIP-712 Domain',
+                text: 'Get EIP-712 Domain',
                 link: '/docs/actions/public/contract/getEip712Domain',
                 badge: badge('public'),
               },
               {
-                text: 'Event Logs',
+                text: 'Get Event Logs',
                 link: '/docs/actions/public/contract/getLogs',
                 badge: badge('public'),
               },
@@ -1216,13 +1226,13 @@ export default defineConfig({
                 badge: badge('public'),
               },
               {
-                text: 'Write Contract',
-                link: '/docs/actions/wallet/contract/write',
+                text: 'Deploy Contract',
+                link: '/docs/actions/wallet/contract/deploy',
                 badge: badge('wallet'),
               },
               {
-                text: 'Write and Wait',
-                link: '/docs/actions/wallet/contract/writeSync',
+                text: 'Write Contract',
+                link: '/docs/actions/wallet/contract/write',
                 badge: badge('wallet'),
               },
             ],
@@ -1232,28 +1242,49 @@ export default defineConfig({
             collapsed: true,
             items: [
               {
-                text: 'Resolve Address',
+                text: 'Get Address',
                 link: '/docs/actions/public/ens/getAddress',
                 badge: badge('public'),
               },
               {
-                text: 'Resolve Avatar',
+                text: 'Get Avatar',
                 link: '/docs/actions/public/ens/getAvatar',
                 badge: badge('public'),
               },
               {
-                text: 'Resolve Primary Name',
+                text: 'Get Primary Name',
                 link: '/docs/actions/public/ens/getName',
                 badge: badge('public'),
               },
               {
-                text: 'Resolver Address',
+                text: 'Get Resolver Address',
                 link: '/docs/actions/public/ens/getResolver',
                 badge: badge('public'),
               },
               {
-                text: 'Resolve Text Record',
+                text: 'Get Text Record',
                 link: '/docs/actions/public/ens/getText',
+                badge: badge('public'),
+              },
+            ],
+          },
+          {
+            text: 'Event',
+            collapsed: true,
+            items: [
+              {
+                text: 'Create Event Filter',
+                link: '/docs/actions/public/event/createFilter',
+                badge: badge('public'),
+              },
+              {
+                text: 'Get Event Logs',
+                link: '/docs/actions/public/event/getLogs',
+                badge: badge('public'),
+              },
+              {
+                text: 'Watch Events',
+                link: '/docs/actions/public/event/watch',
                 badge: badge('public'),
               },
             ],
@@ -1273,18 +1304,18 @@ export default defineConfig({
                 badge: badge('public'),
               },
               {
-                text: 'Blob Base Fee',
+                text: 'Get Blob Base Fee',
                 link: '/docs/actions/public/fee/getBlobBaseFee',
                 badge: badge('public'),
               },
               {
-                text: 'Gas Price',
-                link: '/docs/actions/public/fee/getGasPrice',
+                text: 'Get Fee History',
+                link: '/docs/actions/public/fee/getHistory',
                 badge: badge('public'),
               },
               {
-                text: 'Fee History',
-                link: '/docs/actions/public/fee/getHistory',
+                text: 'Get Gas Price',
+                link: '/docs/actions/public/fee/getGasPrice',
                 badge: badge('public'),
               },
             ],
@@ -1294,39 +1325,18 @@ export default defineConfig({
             collapsed: true,
             items: [
               {
-                text: 'Filter Changes',
+                text: 'Get Filter Changes',
                 link: '/docs/actions/public/filter/getChanges',
                 badge: badge('public'),
               },
               {
-                text: 'Filter Logs',
+                text: 'Get Filter Logs',
                 link: '/docs/actions/public/filter/getLogs',
                 badge: badge('public'),
               },
               {
                 text: 'Uninstall Filter',
                 link: '/docs/actions/public/filter/uninstall',
-                badge: badge('public'),
-              },
-            ],
-          },
-          {
-            text: 'Event',
-            collapsed: true,
-            items: [
-              {
-                text: 'Create Event Filter',
-                link: '/docs/actions/public/event/createFilter',
-                badge: badge('public'),
-              },
-              {
-                text: 'Event Logs',
-                link: '/docs/actions/public/event/getLogs',
-                badge: badge('public'),
-              },
-              {
-                text: 'Watch Events',
-                link: '/docs/actions/public/event/watch',
                 badge: badge('public'),
               },
             ],
@@ -1357,21 +1367,6 @@ export default defineConfig({
             collapsed: true,
             items: [
               {
-                text: 'Sign Message',
-                link: '/docs/actions/wallet/signMessage',
-                badge: badge('wallet'),
-              },
-              {
-                text: 'Sign Transaction',
-                link: '/docs/actions/wallet/signTransaction',
-                badge: badge('wallet'),
-              },
-              {
-                text: 'Sign Typed Data',
-                link: '/docs/actions/wallet/signTypedData',
-                badge: badge('wallet'),
-              },
-              {
                 text: 'Verify Hash',
                 link: '/docs/actions/public/verifyHash',
                 badge: badge('public'),
@@ -1390,6 +1385,21 @@ export default defineConfig({
                 text: 'Verify Typed Data',
                 link: '/docs/actions/public/verifyTypedData',
                 badge: badge('public'),
+              },
+              {
+                text: 'Sign Message',
+                link: '/docs/actions/wallet/signMessage',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Sign Transaction',
+                link: '/docs/actions/wallet/signTransaction',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Sign Typed Data',
+                link: '/docs/actions/wallet/signTypedData',
+                badge: badge('wallet'),
               },
             ],
           },
@@ -1429,43 +1439,33 @@ export default defineConfig({
             collapsed: true,
             items: [
               {
+                text: 'Get Allowance',
+                link: '/docs/actions/public/token/getAllowance',
+                badge: badge('public'),
+              },
+              {
+                text: 'Get Balance',
+                link: '/docs/actions/public/token/getBalance',
+                badge: badge('public'),
+              },
+              {
+                text: 'Get Metadata',
+                link: '/docs/actions/public/token/getMetadata',
+                badge: badge('public'),
+              },
+              {
+                text: 'Get Total Supply',
+                link: '/docs/actions/public/token/getTotalSupply',
+                badge: badge('public'),
+              },
+              {
                 text: 'Approve Spending',
                 link: '/docs/actions/wallet/token/approve',
                 badge: badge('wallet'),
               },
               {
-                text: 'Approve and Wait',
-                link: '/docs/actions/wallet/token/approveSync',
-                badge: badge('wallet'),
-              },
-              {
-                text: 'Token Allowance',
-                link: '/docs/actions/public/token/getAllowance',
-                badge: badge('public'),
-              },
-              {
-                text: 'Token Balance',
-                link: '/docs/actions/public/token/getBalance',
-                badge: badge('public'),
-              },
-              {
-                text: 'Token Metadata',
-                link: '/docs/actions/public/token/getMetadata',
-                badge: badge('public'),
-              },
-              {
-                text: 'Total Supply',
-                link: '/docs/actions/public/token/getTotalSupply',
-                badge: badge('public'),
-              },
-              {
                 text: 'Transfer Tokens',
                 link: '/docs/actions/wallet/token/transfer',
-                badge: badge('wallet'),
-              },
-              {
-                text: 'Transfer and Wait',
-                link: '/docs/actions/wallet/token/transferSync',
                 badge: badge('wallet'),
               },
             ],
@@ -1495,54 +1495,29 @@ export default defineConfig({
                 badge: badge('public'),
               },
               {
-                text: 'Transaction Details',
-                link: '/docs/actions/public/transaction/get',
-                badge: badge('public'),
-              },
-              {
-                text: 'Confirmations',
+                text: 'Get Confirmations',
                 link: '/docs/actions/public/transaction/getConfirmations',
                 badge: badge('public'),
               },
               {
-                text: 'Raw Transaction',
+                text: 'Get Raw Transaction',
                 link: '/docs/actions/public/transaction/getRaw',
                 badge: badge('public'),
               },
               {
-                text: 'Receipt',
+                text: 'Get Receipt',
                 link: '/docs/actions/public/transaction/getReceipt',
+                badge: badge('public'),
+              },
+              {
+                text: 'Get Transaction',
+                link: '/docs/actions/public/transaction/get',
                 badge: badge('public'),
               },
               {
                 text: 'Prepare Transaction',
                 link: '/docs/actions/public/transaction/prepare',
                 badge: badge('public'),
-              },
-              {
-                text: 'Send Transaction',
-                link: '/docs/actions/wallet/transaction/send',
-                badge: badge('wallet'),
-              },
-              {
-                text: 'Send Raw Transaction',
-                link: '/docs/actions/wallet/transaction/sendRaw',
-                badge: badge('wallet'),
-              },
-              {
-                text: 'Send Raw and Wait',
-                link: '/docs/actions/wallet/transaction/sendRawSync',
-                badge: badge('wallet'),
-              },
-              {
-                text: 'Send and Wait',
-                link: '/docs/actions/wallet/transaction/sendSync',
-                badge: badge('wallet'),
-              },
-              {
-                text: 'Sign Transaction',
-                link: '/docs/actions/wallet/transaction/sign',
-                badge: badge('wallet'),
               },
               {
                 text: 'Wait for Receipt',
@@ -1553,6 +1528,21 @@ export default defineConfig({
                 text: 'Watch Pending Transactions',
                 link: '/docs/actions/public/transaction/watchPending',
                 badge: badge('public'),
+              },
+              {
+                text: 'Send Raw Transaction',
+                link: '/docs/actions/wallet/transaction/sendRaw',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Send Transaction',
+                link: '/docs/actions/wallet/transaction/send',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Sign Transaction',
+                link: '/docs/actions/wallet/transaction/sign',
+                badge: badge('wallet'),
               },
             ],
           },
@@ -1566,7 +1556,7 @@ export default defineConfig({
                 badge: badge('test'),
               },
               {
-                text: 'Pool Status',
+                text: 'Get Pool Status',
                 link: '/docs/actions/test/txpool/getStatus',
                 badge: badge('test'),
               },
@@ -1592,27 +1582,27 @@ export default defineConfig({
                 badge: badge('wallet'),
               },
               {
-                text: 'Wallet Addresses',
+                text: 'Get Addresses',
                 link: '/docs/actions/wallet/getAddresses',
                 badge: badge('wallet'),
               },
               {
-                text: 'Wallet Assets',
+                text: 'Get Assets',
                 link: '/docs/actions/wallet/getAssets',
                 badge: badge('wallet'),
               },
               {
-                text: 'Call Status',
+                text: 'Get Call Status',
                 link: '/docs/actions/wallet/getCallsStatus',
                 badge: badge('wallet'),
               },
               {
-                text: 'Wallet Capabilities',
+                text: 'Get Capabilities',
                 link: '/docs/actions/wallet/getCapabilities',
                 badge: badge('wallet'),
               },
               {
-                text: 'Wallet Permissions',
+                text: 'Get Permissions',
                 link: '/docs/actions/wallet/getPermissions',
                 badge: badge('wallet'),
               },
@@ -1634,11 +1624,6 @@ export default defineConfig({
               {
                 text: 'Send Calls',
                 link: '/docs/actions/wallet/sendCalls',
-                badge: badge('wallet'),
-              },
-              {
-                text: 'Send Calls and Wait',
-                link: '/docs/actions/wallet/sendCallsSync',
                 badge: badge('wallet'),
               },
               {

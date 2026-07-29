@@ -1,10 +1,44 @@
-# approve
+# Approve Spending [token.approve]
 
-Approves a spender to transfer an amount of an ERC-20 token on behalf of the caller, and returns the transaction hash.
+Approves a spender to transfer an ERC-20 token, waits for the transaction receipt, and returns the
+decoded `Approval` event.
 
 ## Usage
 
-This example approves a spender to transfer an amount of an ERC-20 token on behalf of the caller, and returns the transaction hash.
+Use `approveSync` to approve token spending and wait for the decoded `Approval` event.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { owner, spender, value, receipt } = await client.token.approveSync({
+  amount: 250000000n,
+  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+// @log: { owner: '0x…', spender: '0x1111…', value: 250000000n, decimals: 6, formatted: '250', receipt: { … } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+### Asynchronous Usage
+
+Use `approve` when the transaction hash is needed immediately and receipt tracking happens
+elsewhere.
 
 :::code-group
 
@@ -36,7 +70,8 @@ export const client = Client.create({
 
 ### Standalone Action
 
-Call `Actions.token.approve` directly by passing the Client as the first argument.
+Call `Actions.token.approveSync` directly by passing the Client as the first argument. Use
+`Actions.token.approve` for the asynchronous variant.
 
 :::code-group
 
@@ -44,12 +79,12 @@ Call `Actions.token.approve` directly by passing the Client as the first argumen
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-const hash = await Actions.token.approve(client, {
+const { owner, spender, value, receipt } = await Actions.token.approveSync(client, {
   amount: 250000000n,
   spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
   token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
 })
-// @log: "0x4ca7ee652d57678f26e887c19671f76c1aff..."
+// @log: { owner: '0x…', spender: '0x1111…', value: 250000000n, decimals: 6, formatted: '250', receipt: { … } }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -65,10 +100,6 @@ export const client = Client.create({
 })
 ```
 
-:::
-
-:::tip
-Use [`Actions.token.approveSync`](/docs/actions/wallet/token/approveSync) to wait for the transaction receipt and decoded `Approval` event in a single call.
 :::
 
 ## Recipes
@@ -141,6 +172,15 @@ export const client = Client.create({
 :::
 
 ## Return Value
+
+### Synchronous
+
+`{ owner, spender, value, decimals?, formatted?, receipt }`
+
+The decoded `Approval` event args, transaction receipt, and formatted amount when the token's
+decimals are known.
+
+### Asynchronous
 
 `Hex`
 
@@ -329,6 +369,27 @@ const client = Client.create({ chain: mainnet, transport: http() })
 const hash = await Actions.token.approve(client, {
   amount: 250000000n,
   spender: '0x1111111254EEB25477B68fb85Ed929f73A960582', // [!code focus]
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether `approveSync` throws if the transaction receipt indicates a revert.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const result = await Actions.token.approveSync(client, {
+  amount: 250000000n,
+  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+  throwOnReceiptRevert: false, // [!code focus]
   token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
 })
 ```
