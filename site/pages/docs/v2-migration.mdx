@@ -977,7 +977,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `signMessage` | `Actions.signMessage` | [Signing & Verification](#signing--verification) |
 | `signTransaction` | `Actions.transaction.sign` (aliased as `Actions.signTransaction`) | [Actions: Transactions](#transactions) |
 | `SignTransactionRequest` | `Chain.ExtractTransactionRequest` | [Actions: Transactions](#transactions) |
-| `signTypedData` | `Actions.signTypedData` | [Signing & Verification](#signing--verification) |
+| `signTypedData` | `Actions.typedData.sign` | [Signing & Verification](#signing--verification) |
 | `Simple7702SmartAccountImplementation` | `Simple7702SmartAccount.Implementation` | [Smart Accounts](#smart-accounts) |
 | `simulateBlocks` | `Actions.block.simulate` (singular `stateOverride`) | [Call & Multicall](#call--multicall) |
 | `simulateCalls` | `Actions.multicall` with `mode: 'simulate'` | [Call & Multicall](#call--multicall) |
@@ -1073,8 +1073,8 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `verifyHash` (action) | `Actions.verifyHash` | [Signing & Verification](#signing--verification) |
 | `verifyHash` (local, with `publicKey`) | `Secp256k1.verify` (sync) | [Signatures & Keys](#signatures--keys) |
 | `verifyMessage` | `Actions.verifyMessage` | [Signing & Verification](#signing--verification) |
-| `verifySiweMessage` | `Actions.verifySiweMessage` | [Signing & Verification](#signing--verification) |
-| `verifyTypedData` | `Actions.verifyTypedData` | [Signing & Verification](#signing--verification) |
+| `verifySiweMessage` | `Actions.siwe.verify` | [Signing & Verification](#signing--verification) |
+| `verifyTypedData` | `Actions.typedData.verify` | [Signing & Verification](#signing--verification) |
 | `viem/package.json` | Removed (not exported) | [Subpath Entrypoints](#subpath-entrypoints) |
 | `waitForCallsStatus` | `Actions.wallet.waitForCallsStatus` | [Wallet & Capabilities](#wallet--capabilities) |
 | `WaitForCallsStatusTimeoutError` | `Actions.wallet.Errors.WaitForCallsStatusTimeoutError` | [Action & Transport Errors](#action--transport-errors) |
@@ -1134,7 +1134,7 @@ Most subpath entrypoints were removed in favor of namespaces exported from the p
 | `viem/experimental` (and ERC subpaths) | Graduated or removed ([Deprecated & Experimental Surface](#deprecated--experimental-surface)) |
 | `viem/nonce` | `NonceManager` namespace ([Nonce Manager](#nonce-manager)) |
 | `viem/package.json` | Removed (not exported) |
-| `viem/siwe` | `Siwe` namespace (from `viem/utils`) and `Actions.verifySiweMessage` ([Messages & ENS](#messages--ens)) |
+| `viem/siwe` | `Siwe` namespace (from `viem/utils`) and `Actions.siwe.verify` ([Messages & ENS](#messages--ens)) |
 | `viem/tokens` | `Token` namespace ([Tokens](#tokens-1)) |
 | `viem/utils` | Retained: the home of all Ox-backed utility namespaces, which are not re-exported from the package root ([Utilities](#utilities)) |
 
@@ -1930,18 +1930,17 @@ Request-shape types moved onto their owning namespaces:
 
 ### Signing & Verification
 
-The message and typed-data signing actions stay flat on `Actions`, as do the onchain verification
-actions. [`verifySiweMessage`](/docs/actions/public/verifySiweMessage) moved out of `viem/siwe` to
-join them.
+Message signing and general signature verification stay flat on `Actions`. Typed-data actions moved
+to `Actions.typedData`, while SIWE verification moved to `Actions.siwe`.
 
 | v2 | v3 |
 | --- | --- |
 | `signMessage(client, { account, message })` | `Actions.signMessage(client, { account, message })` |
-| `signTypedData(client, { account, ...typedData })` | `Actions.signTypedData(client, { account, ...typedData })` |
+| `signTypedData(client, { account, ...typedData })` | `Actions.typedData.sign(client, { account, ...typedData })` |
 | `verifyHash(client, options)` | `Actions.verifyHash(client, options)` |
 | `verifyMessage(client, options)` | `Actions.verifyMessage(client, options)` |
-| `verifySiweMessage(client, { message, signature })` | `Actions.verifySiweMessage(client, { message, signature })` |
-| `verifyTypedData(client, options)` | `Actions.verifyTypedData(client, options)` |
+| `verifySiweMessage(client, { message, signature })` | `Actions.siwe.verify(client, { message, signature })` |
+| `verifyTypedData(client, options)` | `Actions.typedData.verify(client, options)` |
 
 Added EIP-1898 block-hash context to the onchain verification actions and chain verification hooks.
 

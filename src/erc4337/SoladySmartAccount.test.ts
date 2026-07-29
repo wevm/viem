@@ -586,7 +586,7 @@ describe('message signing', () => {
     const signature = await account.signTypedData(value)
 
     expect(
-      await Actions.verifyTypedData(client, {
+      await Actions.typedData.verify(client, {
         ...value,
         address: account.address,
         signature,
@@ -608,7 +608,7 @@ describe('message signing', () => {
     const signature = await account.signTypedData(value)
 
     expect(
-      await Actions.verifyTypedData(client, {
+      await Actions.typedData.verify(client, {
         ...value,
         address: account.address,
         signature,

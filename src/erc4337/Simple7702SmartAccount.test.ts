@@ -377,7 +377,7 @@ test('EIP-7702 authorization and owner signatures', async () => {
     primaryType: 'Mail',
   } as const
   expect(
-    await Actions.verifyTypedData(client, {
+    await Actions.typedData.verify(client, {
       address: account.address,
       signature: await account.signTypedData(typedData),
       ...typedData,

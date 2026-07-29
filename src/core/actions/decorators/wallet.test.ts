@@ -117,7 +117,7 @@ test('decorates a client with wallet sign actions', async () => {
   expect(signed.startsWith('0x02')).toBe(true)
 
   expect(
-    await client.signTypedData({
+    await client.typedData.sign({
       ...constants.typedData.basic,
       account,
       primaryType: 'Mail',

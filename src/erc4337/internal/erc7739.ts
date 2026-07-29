@@ -4,7 +4,7 @@ import type { Address } from 'ox'
 import type * as Account from '../../core/Account.js'
 import type * as Client from '../../core/Client.js'
 import { getEip712Domain } from '../../core/actions/contract/getEip712Domain.js'
-import { signTypedData as signTypedData_ } from '../../core/actions/signTypedData.js'
+import { sign as signTypedData_ } from '../../core/actions/typedData/sign.js'
 
 type Options = {
   account: Account.Account

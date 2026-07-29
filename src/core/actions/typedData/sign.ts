@@ -1,8 +1,8 @@
 import { TypedData } from 'ox'
 import type { Address, Errors, Hex } from 'ox'
 
-import * as Account from '../Account.js'
-import type * as Client from '../Client.js'
+import * as Account from '../../Account.js'
+import type * as Client from '../../Client.js'
 
 type RequestOptions = Parameters<Client.Client['request']>[1]
 
@@ -22,7 +22,7 @@ type RequestOptions = Parameters<Client.Client['request']>[1]
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const signature = await Actions.signTypedData(client, {
+ * const signature = await Actions.typedData.sign(client, {
  *   domain: { name: 'Ether Mail', version: '1' },
  *   types: {
  *     Mail: [{ name: 'contents', type: 'string' }],
@@ -32,18 +32,18 @@ type RequestOptions = Parameters<Client.Client['request']>[1]
  * })
  * ```
  */
-export async function signTypedData<
+export async function sign<
   const typedData extends TypedData.TypedData | Record<string, unknown>,
   primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
 >(
   client: Client.Client,
-  options: signTypedData.Options<typedData, primaryType>,
-): Promise<signTypedData.ReturnType> {
+  options: sign.Options<typedData, primaryType>,
+): Promise<sign.ReturnType> {
   const {
     account: account_ = client.account,
     requestOptions,
     ...value
-  } = options as signTypedData.Options
+  } = options as sign.Options
 
   if (!account_) throw new Account.NotFoundError()
   const account =
@@ -63,7 +63,7 @@ export async function signTypedData<
   )
 }
 
-export declare namespace signTypedData {
+export declare namespace sign {
   type Options<
     typedData extends TypedData.TypedData | Record<string, unknown> =
       TypedData.TypedData,

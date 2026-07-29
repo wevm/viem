@@ -18,7 +18,7 @@ const types = {
 } as const
 
 test('returns a signature', async () => {
-  const signature = await Actions.signTypedData(client, {
+  const signature = await Actions.typedData.sign(client, {
     types,
     primaryType: 'Mail',
     message: {
@@ -31,7 +31,7 @@ test('returns a signature', async () => {
 })
 
 test('rejects an invalid primaryType', async () => {
-  await Actions.signTypedData(client, {
+  await Actions.typedData.sign(client, {
     types,
     // @ts-expect-error not a valid primaryType
     primaryType: 'NotAType',
