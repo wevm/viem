@@ -1,5 +1,5 @@
 import { AbiEvent, Address as Address_ } from 'ox'
-import type { Address, Errors, Log } from 'ox'
+import type { Address, Errors } from 'ox'
 import { VirtualAddress } from 'ox/tempo'
 
 import * as Account from '../../../core/Account.js'
@@ -153,7 +153,9 @@ export namespace set {
   }
 
   /** Extracts the `ReceivePolicyUpdated` event from logs. */
-  export function extractEvent(logs: readonly Log.Log[]) {
+  export function extractEvent<
+    const logs extends readonly AbiEvent.extractLogs.Log[],
+  >(logs: logs) {
     const [log] = AbiEvent.extractLogs(Abis.tip403Registry, logs, {
       eventName: 'ReceivePolicyUpdated',
       strict: true,
