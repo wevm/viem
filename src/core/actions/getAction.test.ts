@@ -87,6 +87,12 @@ test('behavior: `contract.read` consults a `call` override', async () => {
   ).toBe(69n)
 })
 
+test('behavior: merges stock decorator namespaces', () => {
+  const extended = client.extend(publicActions()).extend(walletActions())
+  expect(extended.typedData.sign).toBeTypeOf('function')
+  expect(extended.typedData.verify).toBeTypeOf('function')
+})
+
 test('behavior: routes through stock decorator methods identically', async () => {
   const { address } = await contract.deploy(client, {
     bytecode: generated.Erc721.bytecode.object,

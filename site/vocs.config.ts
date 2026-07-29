@@ -140,6 +140,23 @@ export default defineConfig({
       status: 308,
     },
 
+    // Signing and verification actions moved into domain namespaces.
+    {
+      source: '/docs/actions/wallet/signTypedData',
+      destination: '/docs/actions/wallet/typedData/sign',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/verifyTypedData',
+      destination: '/docs/actions/public/typedData/verify',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/verifySiweMessage',
+      destination: '/docs/actions/public/siwe/verify',
+      status: 308,
+    },
+
     // Account Abstraction v2 routes moved to v3 module namespaces.
     {
       source: '/account-abstraction/accounts/smart/toCoinbaseSmartAccount',
@@ -1378,12 +1395,12 @@ export default defineConfig({
               },
               {
                 text: 'Verify SIWE Message',
-                link: '/docs/actions/public/verifySiweMessage',
+                link: '/docs/actions/public/siwe/verify',
                 badge: badge('public'),
               },
               {
                 text: 'Verify Typed Data',
-                link: '/docs/actions/public/verifyTypedData',
+                link: '/docs/actions/public/typedData/verify',
                 badge: badge('public'),
               },
               {
@@ -1398,7 +1415,7 @@ export default defineConfig({
               },
               {
                 text: 'Sign Typed Data',
-                link: '/docs/actions/wallet/signTypedData',
+                link: '/docs/actions/wallet/typedData/sign',
                 badge: badge('wallet'),
               },
             ],

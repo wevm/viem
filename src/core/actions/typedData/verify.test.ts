@@ -44,7 +44,7 @@ test('verifies signed typed data', async () => {
   const signature = await localAccount.signTypedData(typedData)
 
   await expect(
-    Actions.verifyTypedData(client, {
+    Actions.typedData.verify(client, {
       ...typedData,
       address: localAccount.address,
       signature,
@@ -56,7 +56,7 @@ test('behavior: wrong message', async () => {
   const signature = await localAccount.signTypedData(typedData)
 
   await expect(
-    Actions.verifyTypedData(client, {
+    Actions.typedData.verify(client, {
       ...typedData,
       address: localAccount.address,
       message: {
@@ -72,7 +72,7 @@ test('behavior: wrong signer', async () => {
   const signature = await localAccount.signTypedData(typedData)
 
   await expect(
-    Actions.verifyTypedData(client, {
+    Actions.typedData.verify(client, {
       ...typedData,
       address: constants.accounts[1].address,
       signature,
@@ -85,7 +85,7 @@ test('decorator', async () => {
   const signature = await localAccount.signTypedData(typedData)
 
   await expect(
-    decorated.verifyTypedData({
+    decorated.typedData.verify({
       ...typedData,
       address: localAccount.address,
       signature,

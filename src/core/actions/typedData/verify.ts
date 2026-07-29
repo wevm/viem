@@ -1,8 +1,8 @@
 import { TypedData } from 'ox'
 import type { Errors } from 'ox'
 
-import type * as Client from '../Client.js'
-import { verifyHash } from './verifyHash.js'
+import type * as Client from '../../Client.js'
+import { verifyHash } from '../verifyHash.js'
 
 /**
  * Verifies that typed data was signed by the provided address, supporting
@@ -17,7 +17,7 @@ import { verifyHash } from './verifyHash.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const valid = await Actions.verifyTypedData(client, {
+ * const valid = await Actions.typedData.verify(client, {
  *   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
  *   domain: { name: 'Ether Mail', version: '1', chainId: 1 },
  *   types: {
@@ -29,13 +29,13 @@ import { verifyHash } from './verifyHash.js'
  * })
  * ```
  */
-export async function verifyTypedData<
+export async function verify<
   const typedData extends TypedData.TypedData | Record<string, unknown>,
   primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
 >(
   client: Client.Client,
-  options: verifyTypedData.Options<typedData, primaryType>,
-): Promise<verifyTypedData.ReturnType> {
+  options: verify.Options<typedData, primaryType>,
+): Promise<verify.ReturnType> {
   const {
     address,
     blockHash,
@@ -50,7 +50,7 @@ export async function verifyTypedData<
     requireCanonical,
     signature,
     ...typedData
-  } = options as verifyTypedData.Options
+  } = options as verify.Options
 
   return verifyHash(client, {
     address,
@@ -69,7 +69,7 @@ export async function verifyTypedData<
   } as verifyHash.Options)
 }
 
-export declare namespace verifyTypedData {
+export declare namespace verify {
   type Options<
     typedData extends TypedData.TypedData | Record<string, unknown> =
       TypedData.TypedData,

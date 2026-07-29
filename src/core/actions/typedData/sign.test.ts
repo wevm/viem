@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { Account, Actions } from 'viem'
+import { Account, Actions, walletActions } from 'viem'
 
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
@@ -10,7 +10,19 @@ const jsonRpcAccount = constants.accounts[0].address
 
 test('local account: basic', async () => {
   expect(
-    await Actions.signTypedData(client, {
+    await Actions.typedData.sign(client, {
+      ...constants.typedData.basic,
+      account,
+      primaryType: 'Mail',
+    }),
+  ).toMatchInlineSnapshot(
+    `"0x32f3d5975ba38d6c2fba9b95d5cbed1febaa68003d3d588d51f2de522ad54117760cfc249470a75232552e43991f53953a3d74edf6944553c6bef2469bb9e5921b"`,
+  )
+})
+
+test('decorator', async () => {
+  expect(
+    await client.extend(walletActions()).typedData.sign({
       ...constants.typedData.basic,
       account,
       primaryType: 'Mail',
@@ -22,7 +34,7 @@ test('local account: basic', async () => {
 
 test('json-rpc account: basic', async () => {
   expect(
-    await Actions.signTypedData(client, {
+    await Actions.typedData.sign(client, {
       ...constants.typedData.basic,
       account: jsonRpcAccount,
       primaryType: 'Mail',
@@ -37,7 +49,7 @@ test('inferred account', async () => {
     account: jsonRpcAccount,
   })
   expect(
-    await Actions.signTypedData(client, {
+    await Actions.typedData.sign(client, {
       ...constants.typedData.basic,
       primaryType: 'Mail',
     }),
@@ -48,7 +60,7 @@ test('inferred account', async () => {
 
 test('minimal: local account', async () => {
   expect(
-    await Actions.signTypedData(client, {
+    await Actions.typedData.sign(client, {
       types: {
         EIP712Domain: [],
       },
@@ -63,7 +75,7 @@ test('minimal: local account', async () => {
 
 test('minimal: json-rpc account', async () => {
   expect(
-    await Actions.signTypedData(client, {
+    await Actions.typedData.sign(client, {
       types: {
         EIP712Domain: [],
       },
@@ -80,7 +92,7 @@ test('minimal: json-rpc account', async () => {
 
 test('complex: local account', async () => {
   expect(
-    await Actions.signTypedData(client, {
+    await Actions.typedData.sign(client, {
       ...constants.typedData.complex,
       account,
       primaryType: 'Mail',
@@ -92,7 +104,7 @@ test('complex: local account', async () => {
 
 test('complex: json-rpc account', async () => {
   expect(
-    await Actions.signTypedData(client, {
+    await Actions.typedData.sign(client, {
       ...constants.typedData.complex,
       account: jsonRpcAccount,
       primaryType: 'Mail',
@@ -104,7 +116,7 @@ test('complex: json-rpc account', async () => {
 
 test('args: domain: empty', async () => {
   expect(
-    await Actions.signTypedData(client, {
+    await Actions.typedData.sign(client, {
       ...constants.typedData.complex,
       domain: undefined,
       account,
@@ -117,7 +129,7 @@ test('args: domain: empty', async () => {
 
 test('args: domain: zeroish chainId', async () => {
   expect(
-    await Actions.signTypedData(client, {
+    await Actions.typedData.sign(client, {
       ...constants.typedData.complex,
       domain: { chainId: 0 },
       account,
@@ -130,7 +142,7 @@ test('args: domain: zeroish chainId', async () => {
 
 test('args: domain: chainId', async () => {
   expect(
-    await Actions.signTypedData(client, {
+    await Actions.typedData.sign(client, {
       ...constants.typedData.complex,
       domain: { chainId: 1 },
       account,
@@ -143,7 +155,7 @@ test('args: domain: chainId', async () => {
 
 test('args: domain: empty name', async () => {
   expect(
-    await Actions.signTypedData(client, {
+    await Actions.typedData.sign(client, {
       ...constants.typedData.complex,
       domain: { name: '' },
       account,
@@ -156,7 +168,7 @@ test('args: domain: empty name', async () => {
 
 test('args: domain: name', async () => {
   expect(
-    await Actions.signTypedData(client, {
+    await Actions.typedData.sign(client, {
       ...constants.typedData.complex,
       domain: { name: 'Ether!' },
       account,
@@ -169,7 +181,7 @@ test('args: domain: name', async () => {
 
 test('args: domain: verifyingContract', async () => {
   expect(
-    await Actions.signTypedData(client, {
+    await Actions.typedData.sign(client, {
       ...constants.typedData.complex,
       domain: {
         verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
@@ -184,7 +196,7 @@ test('args: domain: verifyingContract', async () => {
 
 test('args: domain: salt', async () => {
   expect(
-    await Actions.signTypedData(client, {
+    await Actions.typedData.sign(client, {
       ...constants.typedData.complex,
       domain: {
         salt: '0x123512315aaaa1231313b1231b23b13b123aa12312211b1b1b111bbbb1affafa',
@@ -199,7 +211,7 @@ test('args: domain: salt', async () => {
 
 test('error: no account', async () => {
   await expect(
-    Actions.signTypedData(client, {
+    Actions.typedData.sign(client, {
       ...constants.typedData.basic,
       primaryType: 'Mail',
     }),
@@ -208,6 +220,6 @@ test('error: no account', async () => {
 
     Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
 
-    Version: viem@2.52.1]
+    Version: viem@3.0.0-next.1]
   `)
 })

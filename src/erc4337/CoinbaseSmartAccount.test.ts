@@ -509,7 +509,7 @@ test('deployed account signatures', async () => {
       message,
       signature: await account.signMessage({ message }),
     }),
-    typedData: await Actions.verifyTypedData(client, {
+    typedData: await Actions.typedData.verify(client, {
       address: account.address,
       signature: await account.signTypedData(typedData),
       ...typedData,
@@ -555,7 +555,7 @@ test('counterfactual account signatures', async () => {
       message,
       signature: await account.signMessage({ message }),
     }),
-    typedData: await Actions.verifyTypedData(client, {
+    typedData: await Actions.typedData.verify(client, {
       address: account.address,
       signature: await account.signTypedData(typedData),
       ...typedData,

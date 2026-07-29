@@ -1,8 +1,8 @@
 import { Hex, PersonalMessage, Siwe } from 'ox'
 import type { Address, Errors } from 'ox'
 
-import type * as Client from '../Client.js'
-import { verifyHash } from './verifyHash.js'
+import type * as Client from '../../Client.js'
+import { verifyHash } from '../verifyHash.js'
 
 /**
  * Verifies that an [EIP-4361](https://eips.ethereum.org/EIPS/eip-4361)
@@ -18,16 +18,16 @@ import { verifyHash } from './verifyHash.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const valid = await Actions.verifySiweMessage(client, {
+ * const valid = await Actions.siwe.verify(client, {
  *   message: 'example.com wants you to sign in with your Ethereum account…',
  *   signature: '0x…',
  * })
  * ```
  */
-export async function verifySiweMessage(
+export async function verify(
   client: Client.Client,
-  options: verifySiweMessage.Options,
-): Promise<verifySiweMessage.ReturnType> {
+  options: verify.Options,
+): Promise<verify.ReturnType> {
   const {
     address,
     domain,
@@ -58,7 +58,7 @@ export async function verifySiweMessage(
   } as verifyHash.Options)
 }
 
-export declare namespace verifySiweMessage {
+export declare namespace verify {
   type Options = Omit<verifyHash.Options, 'address' | 'hash'> & {
     /** Ethereum address to check against (defaults to the address in the message). */
     address?: Address.Address | undefined

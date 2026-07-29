@@ -79,8 +79,8 @@ const valid = await client.verifyMessage({ // [!code focus]
 
 ### Sign and Verify Typed Data
 
-[`signTypedData`](/docs/actions/wallet/signTypedData) binds structured data to a domain. Use
-[`verifyTypedData`](/docs/actions/public/verifyTypedData) with the same domain, types, and message.
+[`typedData.sign`](/docs/actions/wallet/typedData/sign) binds structured data to a domain. Use
+[`typedData.verify`](/docs/actions/public/typedData/verify) with the same domain, types, and message.
 
 :::code-group
 
@@ -94,8 +94,8 @@ const typedData = {
   types: { Mail: [{ name: 'contents', type: 'string' }] },
 } as const
 
-const signature = await client.signTypedData(typedData) // [!code focus]
-const valid = await client.verifyTypedData({ // [!code focus]
+const signature = await client.typedData.sign(typedData) // [!code focus]
+const valid = await client.typedData.verify({ // [!code focus]
   address: client.account.address, // [!code focus]
   signature, // [!code focus]
   ...typedData, // [!code focus]
@@ -112,7 +112,7 @@ const valid = await client.verifyTypedData({ // [!code focus]
 
 Create a message with [`Siwe.createMessage`](/docs/utilities/siwe/createMessage), sign it, then
 validate the expected domain and nonce with
-[`verifySiweMessage`](/docs/actions/public/verifySiweMessage).
+[`siwe.verify`](/docs/actions/public/siwe/verify).
 
 :::code-group
 
@@ -130,7 +130,7 @@ const message = Siwe.createMessage({
 })
 const signature = await client.signMessage({ message }) // [!code focus]
 
-const valid = await client.verifySiweMessage({ // [!code focus]
+const valid = await client.siwe.verify({ // [!code focus]
   domain: 'example.com', // [!code focus]
   message, // [!code focus]
   nonce: 'foobarbaz12', // [!code focus]

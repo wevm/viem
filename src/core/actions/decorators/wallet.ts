@@ -13,9 +13,9 @@ import type {
 import * as chains from '../chains/index.js'
 import * as contract from '../contract/index.js'
 import { signMessage } from '../signMessage.js'
-import { signTypedData } from '../signTypedData.js'
 import * as token from '../token/index.js'
 import * as transaction from '../transaction/index.js'
+import * as typedData from '../typedData/index.js'
 import * as wallet from '../wallet/index.js'
 
 /**
@@ -90,6 +90,9 @@ export function walletActions() {
       sendSync: (options) => transaction.sendSync(client, options),
       sign: (options) => transaction.sign(client, options),
     },
+    typedData: {
+      sign: (options) => typedData.sign(client, options),
+    },
     wallet: {
       connect: (options) => wallet.connect(client, options),
       disconnect: () => wallet.disconnect(client),
@@ -113,7 +116,6 @@ export function walletActions() {
     },
     signMessage: (options) => signMessage(client, options),
     signTransaction: (options) => transaction.sign(client, options),
-    signTypedData: (options) => signTypedData(client, options),
   })
 }
 
@@ -932,32 +934,35 @@ export declare namespace walletActions {
     signTransaction: (
       options: transaction.sign.Options<chain>,
     ) => Promise<transaction.sign.ReturnType>
-    /**
-     * Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data.
-     *
-     * @example
-     * ```ts
-     * import { Account, Client, http, walletActions } from 'viem'
-     * import { mainnet } from 'viem/chains'
-     *
-     * const client = Client.create({
-     *   account: Account.fromPrivateKey('0x…'),
-     *   chain: mainnet,
-     *   transport: http(),
-     * }).extend(walletActions())
-     * const signature = await client.signTypedData({
-     *   domain: { name: 'Ether Mail', version: '1' },
-     *   types: { Mail: [{ name: 'contents', type: 'string' }] },
-     *   primaryType: 'Mail',
-     *   message: { contents: 'hello world' },
-     * })
-     * ```
-     */
-    signTypedData: <
-      const typedData extends TypedData | Record<string, unknown>,
-      primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
-    >(
-      options: signTypedData.Options<typedData, primaryType>,
-    ) => Promise<signTypedData.ReturnType>
+    typedData: {
+      /**
+       * Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data.
+       *
+       * @example
+       * ```ts
+       * import { Account, Client, http, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   account: Account.fromPrivateKey('0x…'),
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(walletActions())
+       * const signature = await client.typedData.sign({
+       *   domain: { name: 'Ether Mail', version: '1' },
+       *   types: { Mail: [{ name: 'contents', type: 'string' }] },
+       *   primaryType: 'Mail',
+       *   message: { contents: 'hello world' },
+       * })
+       * ```
+       */
+      sign: <
+        const definition extends TypedData | Record<string, unknown>,
+        primaryType extends keyof definition | 'EIP712Domain' =
+          keyof definition,
+      >(
+        options: typedData.sign.Options<definition, primaryType>,
+      ) => Promise<typedData.sign.ReturnType>
+    }
   }
 }

@@ -26,7 +26,7 @@ test('verifies a signed SIWE message', async () => {
   const signature = await localAccount.signMessage({ message })
 
   await expect(
-    Actions.verifySiweMessage(client, {
+    Actions.siwe.verify(client, {
       message,
       signature,
     }),
@@ -38,7 +38,7 @@ test('args: address (mismatch fails)', async () => {
   const signature = await localAccount.signMessage({ message })
 
   await expect(
-    Actions.verifySiweMessage(client, {
+    Actions.siwe.verify(client, {
       address: constants.accounts[1].address,
       message,
       signature,
@@ -51,7 +51,7 @@ test('args: domain (mismatch fails)', async () => {
   const signature = await localAccount.signMessage({ message })
 
   await expect(
-    Actions.verifySiweMessage(client, {
+    Actions.siwe.verify(client, {
       domain: 'other.example.com',
       message,
       signature,
@@ -64,7 +64,7 @@ test('args: nonce (mismatch fails)', async () => {
   const signature = await localAccount.signMessage({ message })
 
   await expect(
-    Actions.verifySiweMessage(client, {
+    Actions.siwe.verify(client, {
       message,
       nonce: 'deadbeef00',
       signature,
@@ -79,7 +79,7 @@ test('behavior: wrong signer fails', async () => {
   ).signMessage({ message })
 
   await expect(
-    Actions.verifySiweMessage(client, {
+    Actions.siwe.verify(client, {
       message,
       signature,
     }),
@@ -90,7 +90,7 @@ test('behavior: unparsable message fails', async () => {
   const signature = await localAccount.signMessage({ message: 'not siwe' })
 
   await expect(
-    Actions.verifySiweMessage(client, {
+    Actions.siwe.verify(client, {
       message: 'not siwe',
       signature,
     }),
@@ -103,7 +103,7 @@ test('decorator', async () => {
   const signature = await localAccount.signMessage({ message })
 
   await expect(
-    decorated.verifySiweMessage({
+    decorated.siwe.verify({
       message,
       signature,
     }),
