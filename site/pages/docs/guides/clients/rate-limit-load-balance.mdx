@@ -27,13 +27,13 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({
   chain: mainnet,
-  transport: rateLimit( // [!code focus:7]
-    loadBalance([
-      http('https://1.rpc.example'),
-      http('https://2.rpc.example'),
-    ]),
-    { requestsPerSecond: 50 },
-  ),
+  transport: rateLimit( // [!code focus]
+    loadBalance([ // [!code focus]
+      http('https://1.rpc.example'), // [!code focus]
+      http('https://2.rpc.example'), // [!code focus]
+    ]), // [!code focus]
+    { requestsPerSecond: 50 }, // [!code focus]
+  ), // [!code focus]
 }).extend(publicActions())
 
 const blockNumber = await client.block.getNumber()
@@ -49,10 +49,10 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({
   chain: mainnet,
-  transport: loadBalance([ // [!code focus:4]
-    rateLimit(http('https://1.rpc.example'), { requestsPerSecond: 25 }),
-    rateLimit(http('https://2.rpc.example'), { requestsPerSecond: 10 }),
-  ]),
+  transport: loadBalance([ // [!code focus]
+    rateLimit(http('https://1.rpc.example'), { requestsPerSecond: 25 }), // [!code focus]
+    rateLimit(http('https://2.rpc.example'), { requestsPerSecond: 10 }), // [!code focus]
+  ]), // [!code focus]
 }).extend(publicActions())
 
 const [blockNumber, gasPrice] = await Promise.all([
@@ -73,13 +73,13 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({
   chain: mainnet,
-  transport: fallback([ // [!code focus:7]
-    rateLimit(http('https://archive.rpc.example'), {
-      methods: { include: ['eth_call', 'eth_getBalance'] },
-      requestsPerSecond: 20,
-    }),
-    http('https://rpc.example'),
-  ]),
+  transport: fallback([ // [!code focus]
+    rateLimit(http('https://archive.rpc.example'), { // [!code focus]
+      methods: { include: ['eth_call', 'eth_getBalance'] }, // [!code focus]
+      requestsPerSecond: 20, // [!code focus]
+    }), // [!code focus]
+    http('https://rpc.example'), // [!code focus]
+  ]), // [!code focus]
 }).extend(publicActions())
 
 const balance = await client.address.getBalance({

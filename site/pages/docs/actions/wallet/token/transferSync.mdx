@@ -1,6 +1,9 @@
 # transferSync
 
-Transfers an ERC-20 token, waits for the transaction receipt, and returns the decoded `Transfer` event data alongside it. When `from` is provided, it transfers on behalf of another account via `transferFrom`.
+Transfers an ERC-20 token and waits for the transaction receipt.
+Returns the receipt with the decoded `Transfer` event data.
+
+When you provide `from`, the action calls `transferFrom` on behalf of another account.
 
 ## Usage
 
@@ -75,7 +78,8 @@ The decoded `Transfer` event args (`from`, `to`, `value`), the transaction `rece
 
 ## Parameters
 
-Accepts the same parameters as [`transfer`](/docs/actions/wallet/token/transfer) (`amount`, `to`, `token`, `from`, `account`), plus the receipt options below.
+Accepts the same parameters as [`Actions.token.transfer`](/docs/actions/wallet/token/transfer)
+(`amount`, `to`, `token`, `from`, `account`), plus the receipt options below.
 
 ### throwOnReceiptRevert
 

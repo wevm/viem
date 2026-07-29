@@ -59,6 +59,43 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Set a Mapping Entry
+
+For a Solidity mapping declared at slot `0`, hash the encoded key and slot to derive its storage index.
+
+```ts twoslash
+import { Client, http, testActions } from 'viem'
+import { anvil } from 'viem/chains'
+import { AbiParameters, Hash } from 'viem/utils'
+
+const client = Client.create({
+  chain: anvil,
+  transport: http(),
+}).extend(testActions())
+
+const account = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+const index = Hash.keccak256( // [!code focus]
+  AbiParameters.encode( // [!code focus]
+    AbiParameters.from('address, uint256'), // [!code focus]
+    [account, 0n], // [!code focus]
+  ), // [!code focus]
+) // [!code focus]
+
+await client.address.setStorageAt({
+  address: '0xe846c6fcf817734ca4527b28ccb4aea2b6663c79',
+  index, // [!code focus]
+  value: '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
+})
+```
+
+## Return Value
+
+`void`
+
+No value is returned.
+
 ## Parameters
 
 ### address

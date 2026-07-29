@@ -13,7 +13,7 @@ dependencies explicit and let a bundler retain only the modules used by an appli
 
 ## Recipes
 
-These recipes use a base Client without an Action decorator.
+These recipes use a [base Client](/docs/clients/create) without an Action decorator.
 
 ### Call One Standalone Action
 
@@ -25,9 +25,9 @@ Call the namespaced Action directly when a module only needs one operation.
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-const balance = await Actions.address.getBalance(client, {
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-})
+const balance = await Actions.address.getBalance(client, { // [!code focus]
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -57,8 +57,8 @@ async function getAccountState(
   address: `0x${string}`,
 ) {
   const [balance, nonce] = await Promise.all([
-    Actions.address.getBalance(client, { address }),
-    Actions.address.getTransactionCount(client, { address }),
+    Actions.address.getBalance(client, { address }), // [!code focus]
+    Actions.address.getTransactionCount(client, { address }), // [!code focus]
   ])
   return { balance, nonce }
 }
@@ -104,7 +104,8 @@ import { mainnet } from 'viem/chains'
 export const client = Client.create({
   chain: mainnet,
   transport: http(),
-}).extend(publicActions())
+})
+  .extend(publicActions()) // [!code focus]
 ```
 
 :::

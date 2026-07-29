@@ -2,7 +2,9 @@
 
 Gets the avatar image URI for an ENS name.
 
-Resolves the `avatar` text record, including [CAIP-22/CAIP-29](https://github.com/ChainAgnostic/CAIPs) NFT records (fetching the NFT's token URI and metadata), and normalizes IPFS/Arweave URIs to gateway URLs. Unresolvable or invalid records return `null`.
+Resolves the `avatar` text record, including [CAIP-22/CAIP-29](https://github.com/ChainAgnostic/CAIPs) NFT records. Viem fetches the NFT token URI and metadata when required.
+
+Viem converts IPFS and Arweave URIs to gateway URLs. Unresolvable or invalid records return `null`.
 
 ## Usage
 
@@ -61,6 +63,37 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Use Custom Avatar Gateways
+
+Set `gatewayUrls` for CCIP Read and `assetGatewayUrls` for the resolved IPFS or Arweave asset.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Ens } from 'viem/utils'
+import { client } from './viem.config'
+
+const avatar = await client.ens.getAvatar({
+  assetGatewayUrls: { ipfs: 'https://cloudflare-ipfs.com' }, // [!code focus]
+  gatewayUrls: ['https://ccip.ens.xyz'], // [!code focus]
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
 ## Return Value
 
 `string | null`
@@ -94,6 +127,20 @@ const avatar = await Actions.ens.getAvatar(client, {
 
 Resolves against the state at a given block number.
 
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const avatar = await Actions.ens.getAvatar(client, {
+  blockNumber: 23_085_558n, // [!code focus]
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
 ### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
@@ -101,17 +148,58 @@ Resolves against the state at a given block number.
 
 Resolves against the state at a given block tag.
 
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const avatar = await Actions.ens.getAvatar(client, {
+  blockTag: 'finalized', // [!code focus]
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
 ### gatewayUrls
 
 - **Type:** `readonly string[]`
 
 Universal Resolver gateway URLs for CCIP-read requests. Defaults to the client-side batch gateway.
 
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const avatar = await Actions.ens.getAvatar(client, {
+  gatewayUrls: ['https://ccip.ens.xyz'], // [!code focus]
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
 ### name
 
 - **Type:** `string`
 
 The ENS name to resolve.
+
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const avatar = await Actions.ens.getAvatar(client, {
+  name: Ens.normalize('wevm.eth'), // [!code focus]
+})
+```
 
 ### strict
 
@@ -120,6 +208,20 @@ The ENS name to resolve.
 
 Whether to throw errors propagated from the Universal Resolver instead of returning `null`.
 
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const avatar = await Actions.ens.getAvatar(client, {
+  strict: true, // [!code focus]
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
 ### universalResolverAddress
 
 - **Type:** `Address`
@@ -127,8 +229,22 @@ Whether to throw errors propagated from the Universal Resolver instead of return
 
 Address of the ENS Universal Resolver contract.
 
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const avatar = await Actions.ens.getAvatar(client, {
+  universalResolverAddress: '0xeeeeeeee14d718c2b47d9923deab1335e144eeee', // [!code focus]
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
 ## Errors
 
 | Error | Description |
 | --- | --- |
-| `ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#strict); resolver and avatar-parse errors otherwise map to `null`). |
+| `ContractError.ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#strict); resolver and avatar-parse errors otherwise map to `null`). |

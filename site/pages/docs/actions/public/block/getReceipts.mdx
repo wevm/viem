@@ -79,11 +79,31 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Get Receipts by Block Hash
+
+Pass `blockHash` when the exact block hash is already known.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const receipts = await client.block.getReceipts({
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d', // [!code focus]
+})
+```
+
 ## Return Value
 
 `TransactionReceipt[]`
 
-The block's transaction receipts. When the connected Client's [`chain`](/docs/chains) defines a `schema.transactionReceipt` codec, each entry reflects that chain's custom receipt shape.
+The block's transaction receipts. When the connected Client's [`chain`](/docs/chains) defines a `codecs.transactionReceipt` codec, each entry reflects that chain's custom receipt shape.
 
 ## Parameters
 
@@ -124,7 +144,7 @@ const receipts = await Actions.block.getReceipts(client, {
 ### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
-- **Default:** `'latest'`
+- **Default:** `client.blockTag ?? 'latest'`
 
 Return the receipts of the block at the given tag.
 
@@ -143,4 +163,4 @@ const receipts = await Actions.block.getReceipts(client, {
 
 | Error | Description |
 | --- | --- |
-| `Block.NotFoundError` | The block could not be found. |
+| `Actions.block.Errors.BlockNotFoundError` | The block could not be found. |

@@ -102,3 +102,9 @@ const confirmations = await Actions.transaction.getConfirmations(client, {
   transactionReceipt: receipt, // [!code focus]
 })
 ```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Actions.transaction.Errors.TransactionNotFoundError` | The transaction could not be found. |

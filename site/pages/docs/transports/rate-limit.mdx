@@ -2,7 +2,11 @@
 
 ## Overview
 
-The [`rateLimit`](/docs/transports) transport throttles the throughput of an inner [Transport](/docs/transports) to at most `requestsPerSecond` requests per second. Requests beyond the budget are queued (FIFO) and dispatched as the budget refreshes, which is useful for staying under an RPC provider's rate limit.
+The [`rateLimit`](/docs/transports/rate-limit) transport limits an inner
+[Transport](/docs/transports) to `requestsPerSecond` requests each second.
+
+Requests beyond the budget enter a first-in, first-out queue. The Transport sends queued requests as
+the budget refreshes.
 
 ```ts twoslash
 import { http, rateLimit } from 'viem'
@@ -79,11 +83,7 @@ import { http, rateLimit } from 'viem'
 const transport = rateLimit(http(), { requestsPerSecond: 50 }) // [!code focus]
 ```
 
-#### options
-
-- **Type:** `rateLimit.Options`
-
-##### key
+#### options.key
 
 - **Type:** `string`
 - **Default:** `'rateLimit'`
@@ -99,7 +99,7 @@ const transport = rateLimit(http(), {
 })
 ```
 
-##### methods
+#### options.methods
 
 - **Type:** `{ include?: string[] } | { exclude?: string[] }`
 
@@ -114,7 +114,7 @@ const transport = rateLimit(http(), {
 })
 ```
 
-##### name
+#### options.name
 
 - **Type:** `string`
 - **Default:** `'Rate Limit'`
@@ -130,7 +130,7 @@ const transport = rateLimit(http(), {
 })
 ```
 
-##### requestsPerSecond
+#### options.requestsPerSecond
 
 - **Type:** `number`
 
@@ -144,7 +144,7 @@ const transport = rateLimit(http(), {
 })
 ```
 
-##### retryCount
+#### options.retryCount
 
 - **Type:** `number`
 - **Default:** `3`
@@ -160,7 +160,7 @@ const transport = rateLimit(http(), {
 })
 ```
 
-##### retryDelay
+#### options.retryDelay
 
 - **Type:** `number`
 - **Default:** `150`

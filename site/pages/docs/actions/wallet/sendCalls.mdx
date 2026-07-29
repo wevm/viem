@@ -66,20 +66,185 @@ const { id } = await Actions.wallet.sendCalls(client, {
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 import { Client, custom } from 'viem'
+import { mainnet } from 'viem/chains'
 import 'viem/window'
 
 export const client = Client.create({
+  chain: mainnet,
   transport: custom(window.ethereum!),
 })
 ```
 
 :::
 
+## Recipes
+
+### Batch Contract Calls
+
+Provide an ABI and function name to encode contract calls without preparing calldata separately.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abi } from 'viem/utils'
+import { client } from './viem.config'
+
+const { id } = await client.wallet.sendCalls({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  calls: [ // [!code focus]
+    { // [!code focus]
+      abi: Abi.from(['function mint()']), // [!code focus]
+      functionName: 'mint', // [!code focus]
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+})
+// @log: '0x...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import 'viem/window'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+```
+
+:::
+
+### Require Atomic Execution
+
+Set `forceAtomic` when every call must succeed or fail together. The wallet rejects the request if
+it cannot guarantee atomic execution.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { id } = await client.wallet.sendCalls({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    },
+    {
+      to: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC',
+      value: 1n,
+    },
+  ],
+  forceAtomic: true, // [!code focus]
+})
+// @log: '0x...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import 'viem/window'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+```
+
+:::
+
+### Request a Paymaster Capability
+
+Pass wallet-supported requirements through `capabilities`. This example accepts the paymaster URL
+as an application value instead of assuming a service.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+export async function sendSponsoredCalls(paymasterUrl: string) {
+  return client.wallet.sendCalls({
+    account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    calls: [
+      {
+        to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+        value: 1n,
+      },
+    ],
+    capabilities: { // [!code focus]
+      paymasterService: { url: paymasterUrl }, // [!code focus]
+    }, // [!code focus]
+  })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import 'viem/window'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+```
+
+:::
+
+Define wallet-specific capability types through the
+[`Capabilities` module](/docs/actions/capabilities).
+
+### Fall Back to Transactions
+
+Set `experimental_fallback` when the wallet might not support EIP-5792. Viem sends each call as a
+separate `eth_sendTransaction` request, so the fallback is not atomic.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { id } = await client.wallet.sendCalls({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    },
+    {
+      to: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC',
+      value: 1n,
+    },
+  ],
+  experimental_fallback: true, // [!code focus]
+})
+// @log: '0x...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import 'viem/window'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+```
+
+:::
+
+Fallback is unavailable when a requested capability is required. Mark a capability as optional
+only when sending without that capability is acceptable.
+
 ## Return Value
 
 `{ id: string; capabilities?: object }`
 
-The identifier of the call batch (and any returned capabilities). Pass `id` to [`getCallsStatus`](/docs/actions/wallet/getCallsStatus) or [`waitForCallsStatus`](/docs/actions/wallet/waitForCallsStatus).
+The identifier of the call batch (and any returned capabilities). Pass `id` to [`Actions.wallet.getCallsStatus`](/docs/actions/wallet/getCallsStatus) or [`Actions.wallet.waitForCallsStatus`](/docs/actions/wallet/waitForCallsStatus).
 
 ## Parameters
 
@@ -92,7 +257,7 @@ The Account (or address) the calls are sent from.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const { id } = await Actions.wallet.sendCalls(client, {
   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
@@ -104,12 +269,13 @@ const { id } = await Actions.wallet.sendCalls(client, {
 
 - **Type:** `Call[]`
 
-The batch of calls to send. Each call is either raw call data (`to`, `data`, `value`) or contract function parameters (`abi`, `functionName`, `args`).
+The batch of calls to send.
+Each call contains raw call data or contract function parameters.
 
 ```ts twoslash
 import { Actions } from 'viem'
 import { Abi } from 'viem/utils'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const { id } = await Actions.wallet.sendCalls(client, {
   calls: [ // [!code focus]
@@ -127,11 +293,11 @@ const { id } = await Actions.wallet.sendCalls(client, {
 
 - **Type:** `Capabilities`
 
-Capabilities to request from the wallet (e.g. paymaster service).
+Capabilities to request from the wallet, such as a paymaster service.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const { id } = await Actions.wallet.sendCalls(client, {
   calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
@@ -153,7 +319,7 @@ The chain the calls target.
 ```ts twoslash
 import { Actions } from 'viem'
 import { mainnet } from 'viem/chains'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const { id } = await Actions.wallet.sendCalls(client, {
   calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
@@ -169,7 +335,7 @@ Whether to fall back to `eth_sendTransaction` when the wallet does not support E
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const { id } = await Actions.wallet.sendCalls(client, {
   calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
@@ -186,7 +352,7 @@ Delay (in ms) between fallback transactions.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const { id } = await Actions.wallet.sendCalls(client, {
   calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
@@ -204,7 +370,7 @@ Whether the calls must be executed atomically.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const { id } = await Actions.wallet.sendCalls(client, {
   calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
@@ -220,7 +386,7 @@ A caller-supplied identifier for the call batch.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const { id } = await Actions.wallet.sendCalls(client, {
   calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
@@ -237,7 +403,7 @@ The EIP-5792 version to use.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const { id } = await Actions.wallet.sendCalls(client, {
   calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],

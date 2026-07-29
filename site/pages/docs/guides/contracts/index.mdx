@@ -9,10 +9,29 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 Contract Actions combine an ABI, address, and Client to provide end-to-end type inference. Viem
-infers function names, positional arguments, event names, and return values from the ABI while
-keeping reads, simulations, writes, deployments, and logs as separate operations.
+infers function names, positional arguments, event names, and return values from the ABI.
 
-## See More
+Reads, simulations, writes, deployments, and logs remain separate operations.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abis } from 'viem/utils'
+import { client } from './viem.config'
+
+const balance = await client.contract.read({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+  functionName: 'balanceOf',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
 
 <Cards>
   <Card icon="lucide:book-open" title="Read Contracts" description="Call view and pure functions without sending a transaction." to="/docs/guides/contracts/read" />

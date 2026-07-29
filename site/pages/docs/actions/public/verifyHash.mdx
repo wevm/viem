@@ -2,7 +2,9 @@
 
 Verifies a signature over a hash onchain, supporting Smart Contract Accounts (ERC-1271), counterfactual accounts (ERC-6492), delegated accounts (ERC-8010), and Externally Owned Accounts.
 
-Verification runs through the ERC-6492 universal validator (deployless by default, or via [`erc6492VerifierAddress`](#erc6492verifieraddress)). ERC-8010 wrapped signatures verify their delegation authorization and check `isValidSignature` on the delegated account. Plain ECDSA recovery covers EOAs.
+Without a chain-specific hook, ERC-1271 and ERC-6492 checks use the ERC-6492 universal validator. Viem uses a deployless call unless you set [`erc6492VerifierAddress`](#erc6492verifieraddress).
+
+ERC-8010 signatures verify their delegation authorization and call `isValidSignature` on the delegated account. ECDSA recovery verifies signatures from externally owned accounts.
 
 ## Usage
 
@@ -63,6 +65,73 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Prefer EOA Verification
+
+Set `mode: 'eoa'` to try local ECDSA recovery before onchain verification.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const valid = await client.verifyHash({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68',
+  mode: 'eoa', // [!code focus]
+  signature: '0x…',
+})
+```
+
+### Verify a Counterfactual Account
+
+Pass the deployment factory and calldata when the smart account has not been deployed.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const valid = await client.verifyHash({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  factory: '0x0000000000FFe8B47B3e2130213B802212439497', // [!code focus]
+  factoryData: '0xdeadbeef', // [!code focus]
+  hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68',
+  signature: '0x…',
+})
+```
+
+### Verify Against a Canonical Block
+
+Pass `blockHash` with `requireCanonical` when verification must use a canonical block.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const valid = await client.verifyHash({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  blockHash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus]
+  hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68',
+  requireCanonical: true, // [!code focus]
+  signature: '0x…',
+})
+```
+
 ## Return Value
 
 `boolean`
@@ -85,6 +154,26 @@ const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
 const valid = await Actions.verifyHash(client, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68',
+  signature: '0x…',
+})
+```
+
+### blockHash
+
+- **Type:** `Hex`
+
+Verifies against the state at a block identified by its hash.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const valid = await Actions.verifyHash(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  blockHash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus]
   hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68',
   signature: '0x…',
 })
@@ -113,7 +202,7 @@ const valid = await Actions.verifyHash(client, {
 ### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
-- **Default:** `'latest'`
+- **Default:** `client.blockTag ?? 'latest'`
 
 Verifies against the state at a given block tag.
 
@@ -179,12 +268,51 @@ const valid = await Actions.verifyHash(client, {
 
 Deployment calldata for the counterfactual smart account. See [`factory`](#factory).
 
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const valid = await Actions.verifyHash(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  factory: '0x0000000000FFe8B47B3e2130213B802212439497',
+  factoryData: '0xdeadbeef', // [!code focus]
+  hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68',
+  signature: '0x…',
+})
+```
+
+### hash
+
+- **Type:** `Hex`
+- **Required:** Yes
+
+The hash that was signed.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const valid = await Actions.verifyHash(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68', // [!code focus]
+  signature: '0x…',
+})
+```
+
 ### mode
 
 - **Type:** `'auto' | 'eoa' | string`
 - **Default:** `'auto'`
 
-Verification path to try first. `'eoa'` attempts local ECDSA recovery before any onchain verification (no RPC request when it succeeds); `'auto'` verifies onchain and falls back to ECDSA recovery. Chains with a custom `verifyHash` hook may define additional modes.
+The verification path to try first.
+
+`'eoa'` attempts local ECDSA recovery before onchain verification. A successful recovery does not make an RPC request.
+
+`'auto'` verifies onchain, then falls back to ECDSA recovery. A chain with a custom `verifyHash` hook can define additional modes.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -225,7 +353,7 @@ const valid = await Actions.verifyHash(client, {
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
-Per-request transport options (e.g. an `AbortSignal` to cancel the request).
+Per-request transport options (for example, an `AbortSignal` to cancel the request).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -238,6 +366,28 @@ const valid = await Actions.verifyHash(client, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68',
   requestOptions: { signal: controller.signal }, // [!code focus]
+  signature: '0x…',
+})
+```
+
+### requireCanonical
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Requires [`blockHash`](#blockhash) to identify a block in the canonical chain.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const valid = await Actions.verifyHash(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  blockHash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+  hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68',
+  requireCanonical: true, // [!code focus]
   signature: '0x…',
 })
 ```
@@ -265,4 +415,5 @@ const valid = await Actions.verifyHash(client, {
 
 | Error | Description |
 | --- | --- |
-| `RpcError.ExecutionError` | The verification request failed for a reason other than an invalid signature (invalid signatures resolve to `false`). |
+| `BlockParameter.RequireCanonicalError` | `requireCanonical` was provided without a `blockHash`. |
+| `RpcError.ExecutionError` | An RPC request failed without being handled as an invalid signature. |

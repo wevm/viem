@@ -9,12 +9,14 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 Create a Client with a [`custom` Transport](/docs/transports/custom) around an EIP-1193 provider.
-[`wallet.connect`](/docs/actions/wallet/connect) requests Accounts through `wallet_connect` and falls
-back to `eth_requestAccounts` when no capabilities were requested.
+
+[`wallet.connect`](/docs/actions/wallet/connect) requests Accounts through `wallet_connect`. It
+falls back to `eth_requestAccounts` when no capabilities were requested.
 
 ## Recipes
 
-These recipes assume an EIP-1193 provider is available in the application.
+These recipes assume an [EIP-1193 provider](/docs/transports/custom) is available in the
+application.
 
 ### Connect to the Wallet
 
@@ -25,7 +27,7 @@ The result contains the connected addresses and any capabilities granted to each
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { accounts } = await client.wallet.connect()
+const { accounts } = await client.wallet.connect() // [!code focus]
 const account = accounts[0]
 
 if (!account) throw new Error('No Account was returned.')
@@ -47,7 +49,7 @@ Use [`wallet.requestAddresses`](/docs/actions/wallet/requestAddresses) when only
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const addresses = await client.wallet.requestAddresses()
+const addresses = await client.wallet.requestAddresses() // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -66,7 +68,7 @@ to end the connection.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.wallet.disconnect()
+await client.wallet.disconnect() // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

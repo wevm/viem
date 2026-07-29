@@ -1,8 +1,25 @@
+import { Card, Cards } from 'vocs'
+
 # Contract Instances
 
 ## Overview
 
-Use [`Contract.from`](#contractfrom) to create a contract instance: a type-safe interface bound to an ABI, address, and [Client](/docs/clients). The instance exposes the contract's read functions, write functions, and events as methods, so repeated calls do not need to pass `abi`, `address`, and `functionName` each time.
+Use [`Contract.from`](/docs/contract/instances/create) to create a type-safe interface bound to an ABI, address, and [Client](/docs/clients).
+
+The instance exposes contract functions and events as methods. Repeated calls do not need to pass `abi`, `address`, and `functionName`.
+
+Pass contract function arguments as the first parameter. Pass supported call options as the second parameter.
+
+Functions without inputs accept the options as their only parameter.
+
+Use standalone [Contract Actions](/docs/actions/public/contract/read) when a call does not reuse the
+same ABI and address.
+
+Event methods accept filters and block ranges while the instance supplies the bound `abi`, `address`, and `eventName`.
+
+`Contract.from` constructs the instance synchronously and makes no RPC request.
+
+It does not check that the address is deployed or that its bytecode matches the ABI.
 
 ```ts twoslash
 import { Client, Contract, http } from 'viem'
@@ -13,119 +30,63 @@ const client = Client.create({ chain: mainnet, transport: http() })
 
 const contract = Contract.from({
   abi: Abis.erc20,
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
   client,
 })
 
 const balance = await contract.read.balanceOf([
-  '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  '0x0000000000000000000000000000000000000000',
 ])
+// @log: 0n
 ```
 
-Contract function arguments are passed as the first parameter, with the matching action's remaining options as the second parameter. Functions without inputs accept the options as their only parameter.
-
-If you only call a contract once or twice, the standalone [Contract Actions](/docs/actions/public/contract/read) (`Actions.contract.read`, [`Actions.contract.write`](/docs/actions/wallet/contract/write), etc.) avoid creating an instance. Event method options are the matching action's options minus the bound `abi`, `address`, and `eventName`.
-
-## Methods
-
-Methods are grouped by intent, each derived from the ABI:
-
-- [`contract.read`](/docs/contract/instances/read): read-only functions (`pure` and `view`).
-- [`contract.write`](/docs/contract/instances/write): state-mutating functions (`nonpayable` and `payable`).
-- [`contract.simulate`](/docs/contract/instances/simulate): dry-run a write and decode its result.
-- [`contract.estimateGas`](/docs/contract/instances/estimateGas): estimate a write's gas cost.
-- [`contract.createEventFilter`](/docs/contract/instances/createEventFilter): install an event filter.
-- [`contract.getLogs`](/docs/contract/instances/getLogs): fetch historical event logs.
-- [`contract.watchEvent`](/docs/contract/instances/watchEvent): watch incoming event logs.
-
-## `Contract.from`
-
-Creates a type-safe contract interface bound to an ABI, address, and Client.
-
-### Usage
-
-```ts twoslash
-import { Client, Contract, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Abis } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-
-const contract = Contract.from({
-  abi: Abis.erc20,
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  client,
-})
-```
-
-### Parameters
-
-#### options
-
-- **Type:** `Contract.from.Options`
-
-##### abi
-
-- **Type:** `Abi`
-
-The contract's ABI. Method names and argument types are derived from it, so pass a literal ABI such as `Abis.erc20` to preserve inference.
-
-```ts twoslash
-import { Client, Contract, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Abis } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const contract = Contract.from({
-  abi: Abis.erc20, // [!code focus]
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  client,
-})
-```
-
-##### address
-
-- **Type:** `Address`
-
-The address of the contract.
-
-```ts twoslash
-import { Client, Contract, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Abis } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const contract = Contract.from({
-  abi: Abis.erc20,
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-  client,
-})
-```
-
-##### client
-
-- **Type:** `Client`
-
-The Client used to execute the contract's actions. The [`write`](/docs/contract/instances/write) group requires an [Account](/docs/accounts) on the Client or per call.
-
-```ts twoslash
-import { Client, Contract, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Abis } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const contract = Contract.from({
-  abi: Abis.erc20,
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  client, // [!code focus]
-})
-```
-
-### Return Value
-
-`Contract`
-
-The contract instance: `{ abi, address }` plus the method groups derived from the ABI. Functions appear under `read` (`pure`/`view`) or under `estimateGas`, `simulate`, and `write` (`nonpayable`/`payable`); events appear under `createEventFilter`, `getLogs`, and `watchEvent`. Groups without a matching ABI item are omitted. On Client types with no Account, `write` methods require a per-call `account` option (calls reject with `Account.NotFoundError` when neither is provided).
+<Cards>
+  <Card
+    title="Create an Instance"
+    description="Bind an ABI, address, and Client."
+    icon="lucide:box"
+    to="/docs/contract/instances/create"
+  />
+  <Card
+    title="Read Functions"
+    description="Read state without sending a transaction."
+    icon="lucide:book-open"
+    to="/docs/contract/instances/read"
+  />
+  <Card
+    title="Write Functions"
+    description="Send state-changing contract transactions."
+    icon="lucide:pencil"
+    to="/docs/contract/instances/write"
+  />
+  <Card
+    title="Simulate Functions"
+    description="Run state-changing functions without sending a transaction."
+    icon="lucide:flask-conical"
+    to="/docs/contract/instances/simulate"
+  />
+  <Card
+    title="Estimate Gas"
+    description="Estimate the gas units that a state-changing function may use."
+    icon="lucide:gauge"
+    to="/docs/contract/instances/estimateGas"
+  />
+  <Card
+    title="Create Event Filters"
+    description="Install a typed filter for one contract event."
+    icon="lucide:list-filter"
+    to="/docs/contract/instances/createEventFilter"
+  />
+  <Card
+    title="Query Event Logs"
+    description="Fetch historical logs for one contract event."
+    icon="lucide:scroll-text"
+    to="/docs/contract/instances/getLogs"
+  />
+  <Card
+    title="Watch Events"
+    description="Watch new logs for one contract event."
+    icon="lucide:radio"
+    to="/docs/contract/instances/watchEvent"
+  />
+</Cards>

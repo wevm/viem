@@ -8,13 +8,15 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-Filters store incremental block or log changes inside the connected node. Create one for a block or
-event, poll it through [`filter.getChanges`](/docs/actions/public/filter/getChanges), then uninstall
-it when the consumer stops.
+Filters store incremental block or log changes inside the connected node.
+
+Create one for a block or event, poll it through
+[`filter.getChanges`](/docs/actions/public/filter/getChanges), then uninstall it when the consumer
+stops.
 
 ## Recipes
 
-These recipes assume you have [set up a Client](/docs) with `publicActions` and a provider that
+These recipes assume you have [set up a Client](/docs) with [`publicActions`](/docs/actions/public) and a provider that
 supports filters.
 
 ### Poll an Event Filter
@@ -27,14 +29,14 @@ supports filters.
 import { AbiEvent } from 'viem/utils'
 import { client } from './viem.config'
 
-const filter = await client.event.createFilter({
-  event: AbiEvent.from(
-    'event Transfer(address indexed from, address indexed to, uint256 value)',
-  ),
-})
+const filter = await client.event.createFilter({ // [!code focus]
+  event: AbiEvent.from( // [!code focus]
+    'event Transfer(address indexed from, address indexed to, uint256 value)', // [!code focus]
+  ), // [!code focus]
+}) // [!code focus]
 
-const logs = await client.filter.getChanges({ filter })
-await client.filter.uninstall({ filter })
+const logs = await client.filter.getChanges({ filter }) // [!code focus]
+await client.filter.uninstall({ filter }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -53,10 +55,10 @@ arrive.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const filter = await client.block.createFilter()
-const hashes = await client.filter.getChanges({ filter })
+const filter = await client.block.createFilter() // [!code focus]
+const hashes = await client.filter.getChanges({ filter }) // [!code focus]
 
-await client.filter.uninstall({ filter })
+await client.filter.uninstall({ filter }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -75,10 +77,10 @@ transaction hashes as they enter the connected node's pool.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const filter = await client.transaction.createPendingFilter()
-const hashes = await client.filter.getChanges({ filter })
+const filter = await client.transaction.createPendingFilter() // [!code focus]
+const hashes = await client.filter.getChanges({ filter }) // [!code focus]
 
-await client.filter.uninstall({ filter })
+await client.filter.uninstall({ filter }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

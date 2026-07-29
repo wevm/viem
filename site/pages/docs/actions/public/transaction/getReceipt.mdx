@@ -91,7 +91,7 @@ export const client = Client.create({
 
 `TransactionReceipt`
 
-The transaction receipt. When the connected Client's [`chain`](/docs/chains) defines a `schema.transactionReceipt` codec, the return type reflects that chain's custom receipt shape.
+The transaction receipt. When the connected Client's [`chain`](/docs/chains) defines a `codecs.transactionReceipt` codec, the return type reflects that chain's custom receipt shape.
 
 ## Parameters
 
@@ -116,4 +116,4 @@ const receipt = await Actions.transaction.getReceipt(client, {
 
 | Error | Description |
 | --- | --- |
-| `TransactionReceipt.NotFoundError` | The transaction receipt could not be found. |
+| `Actions.transaction.Errors.TransactionReceiptNotFoundError` | The transaction receipt could not be found. |

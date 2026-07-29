@@ -4,12 +4,15 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-The **Chain** module describes an EVM chain: its id, name, native currency, RPC endpoints, block explorers, contracts, and optional encoding behavior.
+The **Chain** module describes an EVM chain: its id, name, native currency, RPC endpoints, block
+explorers, contracts, and optional behavior.
 
-A `Chain` is plain data plus two optional behavior slots:
+A `Chain` is plain data that can also define:
 
 - **`codecs`**: bidirectional RPC to native codecs.
-- **`transaction`**: transaction signing & preparation hooks.
+- **`fees`**: chain-specific fee derivation.
+- **`transaction`**: transaction signing and preparation hooks.
+- **`verifyHash`**: chain-specific hash verification.
 
 ```ts twoslash
 import { Chain } from 'viem'

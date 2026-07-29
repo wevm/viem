@@ -9,13 +9,17 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 Fallible Viem functions expose an `ErrorType` in their namespace. For example,
-`Actions.contract.read.ErrorType` is the union of errors declared by
-[`contract.read`](/docs/actions/public/contract/read). Use these types in callbacks, application
-state, and wrappers without restating each possible failure.
+`Actions.contract.read.ErrorType` contains errors declared by
+[`Actions.contract.read`](/docs/actions/public/contract/read).
 
-TypeScript does not track the rejected type of a `Promise`, so values caught with `try...catch`
-remain `unknown`. Cast the value to the called function's `ErrorType`, then narrow concrete cases
-with Viem's error classes before reading their fields.
+Use these types in callbacks, application state, and wrappers without restating each possible
+failure.
+
+TypeScript does not track a `Promise` rejection type, so values caught with `try...catch` remain
+`unknown`.
+
+Cast the value to the called function's `ErrorType`. Before reading specific fields, narrow the
+value with a concrete Viem error class.
 
 ## Recipes
 
@@ -38,8 +42,10 @@ function getMessage(error: Actions.contract.read.ErrorType) { // [!code focus]
 
 ### Narrow a Caught Error
 
-Cast the caught value to the function's declared error union, then use a concrete class to narrow
-it. The class check validates the runtime value and exposes its specific fields to TypeScript.
+Cast the caught value to the function's declared error union. Then use a concrete class to narrow
+it.
+
+The class check validates the runtime value and exposes its fields to TypeScript.
 
 :::code-group
 
@@ -89,16 +95,16 @@ export async function getAccountState(
 }
 
 export declare namespace getAccountState {
-  export type ErrorType = // [!code focus:3]
-    | Actions.address.getBalance.ErrorType
-    | Actions.address.getTransactionCount.ErrorType
+  export type ErrorType = // [!code focus]
+    | Actions.address.getBalance.ErrorType // [!code focus]
+    | Actions.address.getTransactionCount.ErrorType // [!code focus]
 }
 ```
 
 ### Find a Nested Cause
 
 Actions add context while preserving the original failure in the cause chain. Narrow to
-`Errors.BaseError`, then use `walk` to find a specific nested error.
+[`Errors.BaseError`](/docs/errors/base-error), then use `walk` to find a specific nested error.
 
 :::code-group
 
@@ -114,10 +120,10 @@ try {
   })
 } catch (error) {
   if (error instanceof Errors.BaseError) {
-    const nonceError = error.walk( // [!code focus:4]
-      (cause) => cause instanceof RpcError.NonceTooLowError,
-    )
-    if (nonceError) console.error('Refresh the nonce and retry.')
+    const nonceError = error.walk( // [!code focus]
+      (cause) => cause instanceof RpcError.NonceTooLowError, // [!code focus]
+    ) // [!code focus]
+    if (nonceError) console.error('Refresh the nonce and retry.') // [!code focus]
   }
 }
 ```

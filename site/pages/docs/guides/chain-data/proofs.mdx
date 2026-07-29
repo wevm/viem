@@ -9,12 +9,13 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 [`address.getProof`](/docs/actions/public/address/getProof) calls `eth_getProof` and returns the
-account fields, account proof nodes, and proofs for requested storage keys. Consumers can verify the
-result against the state root of the selected block.
+account fields, account proof nodes, and proofs for requested storage keys.
+
+Consumers can verify the result against the state root of the selected block.
 
 ## Recipes
 
-These recipes assume you have [set up a Client](/docs) with `publicActions`.
+These recipes assume you have [set up a Client](/docs) with [`publicActions`](/docs/actions/public).
 
 ### Request an Account Proof
 
@@ -27,7 +28,7 @@ import { client } from './viem.config'
 
 const proof = await client.address.getProof({
   address: '0x4200000000000000000000000000000000000016',
-  storageKeys: [],
+  storageKeys: [], // [!code focus]
 })
 ```
 
@@ -49,9 +50,9 @@ import { client } from './viem.config'
 const proof = await client.address.getProof({
   address: '0x4200000000000000000000000000000000000016',
   blockNumber: 20_000_000n,
-  storageKeys: [
-    '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
-  ],
+  storageKeys: [ // [!code focus]
+    '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99', // [!code focus]
+  ], // [!code focus]
 })
 ```
 

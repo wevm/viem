@@ -8,11 +8,34 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-Viem is designed for composition. Build a standalone Action around a Client, bind it through a
-decorator when method syntax is useful, preserve the caller's inferred types, or provide new Chain
-and Transport behavior without taking ownership of application configuration.
+Viem is designed for composition. Build a standalone Action around a Client, then bind it through a
+decorator when method syntax is useful.
 
-## See More
+Extensions can preserve the caller's inferred types or provide Chain and Transport behavior without
+taking ownership of application configuration.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const balance = await Actions.address.getBalance(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
 
 <Cards>
   <Card icon="lucide:scissors" title="Tree-Shakable Actions" description="Call only the standalone Actions an application needs." to="/docs/guides/extending/tree-shakable-actions" />

@@ -2,7 +2,9 @@
 
 Watches incoming blocks, returning a watcher handle.
 
-The watcher uses a WebSocket / IPC subscription (`eth_subscribe` over `newHeads`) when the Client's transport supports it, otherwise it polls `eth_getBlockByNumber` on an interval. The underlying source starts lazily once the first listener (or iterator) attaches.
+The watcher subscribes to `newHeads` with `eth_subscribe` when the Client uses a WebSocket or IPC transport. Otherwise, the watcher polls `eth_getBlockByNumber`.
+
+The source starts when the first listener or iterator attaches.
 
 ## Usage
 
@@ -65,13 +67,58 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Emit the Current Full Block
+
+Set `emitOnBegin` to emit immediately and `includeTransactions` to include full transaction objects.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const watch = client.block.watch({
+  emitOnBegin: true, // [!code focus]
+  includeTransactions: true, // [!code focus]
+})
+
+watch.onBlock((block) => console.log(block.transactions))
+```
+
+### Backfill Missed Blocks
+
+Enable polling and `emitMissed` to fetch blocks that arrive between polling intervals.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const watch = client.block.watch({
+  emitMissed: true, // [!code focus]
+  poll: true, // [!code focus]
+  pollingInterval: 2_000, // [!code focus]
+})
+
+watch.onBlock((block) => console.log(block.number))
+```
+
 ## Return Value
 
 `Watcher`
 
 A watcher handle with the following members:
 
-### onBlock
+#### onBlock
 
 - **Type:** `(fn: (block: Block, prevBlock: Block | undefined) => void) => () => void`
 
@@ -93,7 +140,7 @@ const off = watch.onBlock((block, prevBlock) => { // [!code focus]
 off()
 ```
 
-### onError
+#### onError
 
 - **Type:** `(fn: (error: Error) => void) => () => void`
 
@@ -111,11 +158,11 @@ watch.onBlock(() => {})
 watch.onError((error) => console.error(error)) // [!code focus]
 ```
 
-### off
+#### off
 
 - **Type:** `() => void`
 
-Tears down the watcher: removes all listeners, ends all iterators, and stops the underlying poll / subscription. Idempotent and terminal.
+Tears down the watcher: removes all listeners, ends all iterators, and stops the underlying polling or subscription. Idempotent and terminal.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -129,7 +176,7 @@ watch.onBlock((block) => console.log(block.number))
 watch.off() // [!code focus]
 ```
 
-### `[Symbol.asyncIterator]`
+#### `[Symbol.asyncIterator]`
 
 - **Type:** `() => AsyncIterableIterator<{ block: Block; prevBlock: Block | undefined }>`
 
@@ -173,7 +220,7 @@ watch.onBlock((block) => console.log(block.number))
 - **Type:** `boolean`
 - **Default:** `false`
 
-Whether to emit the blocks missed between polls (e.g. when the block number jumps by more than one between intervals).
+Whether to emit the blocks missed between polls (for example, when the block number jumps by more than one between intervals).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -228,7 +275,7 @@ watch.onBlock((block) => console.log(block.transactions))
 ### poll
 
 - **Type:** `boolean`
-- **Default:** `false` for WebSocket / IPC transports, `true` otherwise
+- **Default:** `false` for WebSocket or IPC transports, `true` otherwise
 
 Whether to poll for new blocks instead of using a subscription. Defaults to `true` when the transport cannot subscribe.
 

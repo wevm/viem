@@ -73,7 +73,7 @@ The address of the contract to check.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const supported = await Actions.erc7821.supportsExecutionMode(client, {
   address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
@@ -85,11 +85,12 @@ const supported = await Actions.erc7821.supportsExecutionMode(client, {
 - **Type:** `'default' | 'opData' | 'batchOfBatches' | Hex`
 - **Default:** `'default'`
 
-The execution mode to check support for: plain calls (`'default'`), calls with additional data (`'opData'`), batch of batches (`'batchOfBatches'`), or a raw `bytes32` mode value.
+The execution mode to check.
+Use `'default'`, `'opData'`, `'batchOfBatches'`, or a raw `bytes32` mode value.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const supported = await Actions.erc7821.supportsExecutionMode(client, {
   address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',

@@ -1,6 +1,7 @@
 # getMetadata
 
-Gets the metadata (`decimals`, `name`, `symbol`, `totalSupply`) of an ERC-20 token. Declared fields are used as-is; the total supply and missing fields are fetched from the contract.
+Gets an ERC-20 token's declared metadata and fetches `totalSupply` plus any missing fields from the
+contract.
 
 ## Usage
 
@@ -71,6 +72,35 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Read Historical Token Metadata
+
+Use an undeclared token address with `blockNumber` to fetch every metadata field from historical contract state.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const metadata = await client.token.getMetadata({
+  blockNumber: 20_000_000n, // [!code focus]
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
 ## Return Value
 
 `{ decimals: number; name: string; symbol: string; totalSupply: bigint }`
@@ -97,6 +127,24 @@ const metadata = await Actions.token.getMetadata(client, {
 })
 ```
 
+### blockOverrides
+
+- **Type:** `BlockOverrides`
+
+Overrides block fields for the contract reads without changing chain state.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const metadata = await Actions.token.getMetadata(client, {
+  blockOverrides: { number: 42069n }, // [!code focus]
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
 ### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
@@ -116,11 +164,33 @@ const metadata = await Actions.token.getMetadata(client, {
 })
 ```
 
+### stateOverride
+
+- **Type:** `StateOverrides`
+
+Overrides account state for the contract reads without changing chain state.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const metadata = await Actions.token.getMetadata(client, {
+  stateOverride: { // [!code focus]
+    '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48': { balance: 1n }, // [!code focus]
+  }, // [!code focus]
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
 ### token
 
 - **Type:** `Address | string`
 
-The token to read: a contract `address`, or a symbol declared on the client's [`tokens`](/docs/clients/create) array. Declared name, symbol, and decimals are reused; total supply is read from the contract.
+The token to read: a contract `address`, or a symbol declared on the client's [`tokens`](/docs/clients/create) array.
+
+Declared name, symbol, and decimals are reused. Total supply is read from the contract.
 
 ```ts twoslash
 // @noErrors

@@ -55,6 +55,12 @@ export const client = Client.create({
 
 :::
 
+## Return Value
+
+`void`
+
+No value is returned.
+
 ## Parameters
 
 ### id
@@ -66,7 +72,7 @@ The ID of the chain to switch to.
 ```ts twoslash
 import { Actions } from 'viem'
 import { optimism } from 'viem/chains'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 await Actions.chains.switch(client, {
   id: optimism.id, // [!code focus]

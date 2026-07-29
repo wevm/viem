@@ -14,7 +14,7 @@ on the name.
 
 ## Recipes
 
-These recipes assume you have [set up a mainnet Client](/docs) with `publicActions`.
+These recipes assume you have [set up a mainnet Client](/docs) with [`publicActions`](/docs/actions/public).
 
 ### Resolve a Name to an Address
 
@@ -27,9 +27,9 @@ Normalize the name with [`Ens.normalize`](/docs/utilities/ens/normalize), then c
 import { Ens } from 'viem/utils'
 import { client } from './viem.config'
 
-const address = await client.ens.getAddress({
-  name: Ens.normalize('wevm.eth'),
-})
+const address = await client.ens.getAddress({ // [!code focus]
+  name: Ens.normalize('wevm.eth'), // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -47,9 +47,9 @@ const address = await client.ens.getAddress({
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const name = await client.ens.getName({
-  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
-})
+const name = await client.ens.getName({ // [!code focus]
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -71,9 +71,9 @@ import { Ens } from 'viem/utils'
 import { client } from './viem.config'
 
 const name = Ens.normalize('wevm.eth')
-const resolver = await client.ens.getResolver({ name })
-const avatar = await client.ens.getAvatar({ name })
-const url = await client.ens.getText({ key: 'url', name })
+const resolver = await client.ens.getResolver({ name }) // [!code focus]
+const avatar = await client.ens.getAvatar({ name }) // [!code focus]
+const url = await client.ens.getText({ key: 'url', name }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -92,7 +92,8 @@ record. Do not silently fall back to the unnormalized input.
 ### Forward-Verify Reverse Names
 
 For identity display, resolve the returned name back to an address and compare it with the original.
-Reverse records alone are controlled by the address owner and may point to an unrelated name.
+
+Reverse records are controlled by the address owner and may point to an unrelated name.
 
 ## See More
 

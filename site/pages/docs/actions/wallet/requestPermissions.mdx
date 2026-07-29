@@ -69,7 +69,7 @@ The permissions to request. Each key is a JSON-RPC method name mapped to its req
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const permissions = await Actions.wallet.requestPermissions(client, {
   eth_accounts: {}, // [!code focus]

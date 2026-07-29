@@ -2,9 +2,11 @@
 
 ## Overview
 
-`Engine.engine` prepares every implementation supplied by `viem/wasm` or `viem/node` without
-installing it. Use the returned value with [`Engine.install`](/docs/engine/install), combine its
-slots with another provider, or temporarily apply it with [`Engine.with`](/docs/engine/with).
+[`Engine.engine`](#engineengine) prepares every implementation from `viem/wasm` or `viem/node`
+without installing it.
+
+Pass the result to [`Engine.install`](/docs/engine/install), combine its slots with another
+provider, or apply it temporarily with [`Engine.with`](/docs/engine/with).
 
 The root `viem` entrypoint does not expose `Engine.engine`.
 
@@ -40,10 +42,10 @@ import { Engine as WasmEngine } from 'viem/wasm'
 import { Hash } from 'viem/utils'
 
 const wasm = await WasmEngine.engine()
-const digest = Engine.with( // [!code focus:4]
-  wasm,
-  () => Hash.sha256('0xdeadbeef'),
-)
+const digest = Engine.with( // [!code focus]
+  wasm, // [!code focus]
+  () => Hash.sha256('0xdeadbeef'), // [!code focus]
+) // [!code focus]
 // @log: '0x5f78c33274e43fa9de5659265c1d917e25c03722dcb0b8d27db8d5feaa813953'
 ```
 

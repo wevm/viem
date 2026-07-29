@@ -59,6 +59,33 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Clear an Account Balance
+
+Set `value` to `0n` to remove the account's native currency balance.
+
+```ts twoslash
+import { Client, http, testActions } from 'viem'
+import { anvil } from 'viem/chains'
+
+const client = Client.create({
+  chain: anvil,
+  transport: http(),
+}).extend(testActions())
+
+await client.address.setBalance({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  value: 0n, // [!code focus]
+})
+```
+
+## Return Value
+
+`void`
+
+No value is returned.
+
 ## Parameters
 
 ### address

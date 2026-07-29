@@ -51,6 +51,12 @@ export const client = Client.create({
 
 :::
 
+## Return Value
+
+`void`
+
+No value is returned.
+
 ## Parameters
 
 ### chain
@@ -62,7 +68,7 @@ The chain to add to the wallet.
 ```ts twoslash
 import { Actions } from 'viem'
 import { optimism } from 'viem/chains'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 await Actions.chains.add(client, {
   chain: optimism, // [!code focus]

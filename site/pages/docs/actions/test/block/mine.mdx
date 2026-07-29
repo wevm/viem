@@ -57,6 +57,33 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Mine Multiple Spaced Blocks
+
+Set `blocks` and `interval` to mine several blocks with a fixed timestamp interval in seconds.
+
+```ts twoslash
+import { Client, http, testActions } from 'viem'
+import { anvil } from 'viem/chains'
+
+const client = Client.create({
+  chain: anvil,
+  transport: http(),
+}).extend(testActions())
+
+await client.block.mine({
+  blocks: 5, // [!code focus]
+  interval: 12, // [!code focus]
+})
+```
+
+## Return Value
+
+`void`
+
+No value is returned.
+
 ## Parameters
 
 ### blocks

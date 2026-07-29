@@ -57,6 +57,30 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Reset to the Original Fork
+
+Omit fork options to reset the node to its original fork configuration.
+
+```ts twoslash
+import { Client, http, testActions } from 'viem'
+import { anvil } from 'viem/chains'
+
+const client = Client.create({
+  chain: anvil,
+  transport: http(),
+}).extend(testActions())
+
+await client.state.reset() // [!code focus]
+```
+
+## Return Value
+
+`void`
+
+No value is returned.
+
 ## Parameters
 
 ### blockNumber

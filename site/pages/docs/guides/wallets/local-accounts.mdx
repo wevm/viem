@@ -8,13 +8,14 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-A [Local Account](/docs/accounts/local/private-key) signs inside the application. Viem can derive one
-from a private key, mnemonic, HD key, or custom signing primitive and then use it for transactions,
-messages, typed data, and EIP-7702 authorizations.
+A [Local Account](/docs/accounts/local/private-key) signs inside the application. Viem can derive
+one from a private key, mnemonic, HD key, or custom signing primitive.
+
+The Account can sign transactions, messages, typed data, and EIP-7702 authorizations.
 
 ## Recipes
 
-These recipes create Accounts independently of a Client.
+These recipes create [Local Accounts](/docs/accounts) independently of a Client.
 
 ### Create from a Private Key
 
@@ -23,7 +24,7 @@ Use [`Account.fromPrivateKey`](/docs/accounts/local/private-key) for an existing
 ```ts twoslash
 import { Account } from 'viem'
 
-const account = Account.fromPrivateKey('0x...')
+const account = Account.fromPrivateKey('0x...') // [!code focus]
 ```
 
 ### Create from a Mnemonic
@@ -34,10 +35,10 @@ phrase controls several Accounts.
 ```ts twoslash
 import { Account } from 'viem'
 
-const account = Account.fromMnemonic(
-  'test test test test test test test test test test test junk',
-  { addressIndex: 1 },
-)
+const account = Account.fromMnemonic( // [!code focus]
+  'test test test test test test test test test test test junk', // [!code focus]
+  { addressIndex: 1 }, // [!code focus]
+) // [!code focus]
 ```
 
 ### Adapt a Custom Signer
@@ -52,10 +53,10 @@ declare const kms: {
   sign(hash: `0x${string}`): Promise<`0x${string}`>
 }
 
-const account = Account.from({
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  sign: ({ hash }) => kms.sign(hash),
-})
+const account = Account.from({ // [!code focus]
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  sign: ({ hash }) => kms.sign(hash), // [!code focus]
+}) // [!code focus]
 ```
 
 ## Best Practices

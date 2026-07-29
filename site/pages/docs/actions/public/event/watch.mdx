@@ -2,7 +2,11 @@
 
 Watches incoming event logs, returning a watcher handle.
 
-The watcher uses a WebSocket / IPC subscription (`eth_subscribe` over `logs`) when the Client's transport supports it. Otherwise it installs an event filter and polls `eth_getFilterChanges`, falling back to `eth_getLogs` across the block delta when the provider does not support filters. The underlying source starts lazily once the first listener (or iterator) attaches.
+The watcher subscribes to `logs` with `eth_subscribe` when the Client uses a WebSocket or IPC transport.
+
+Otherwise, the watcher polls an event filter. If the provider does not support filters, the watcher calls `eth_getLogs` for each block range.
+
+The source starts when the first listener or iterator attaches.
 
 ## Usage
 
@@ -75,13 +79,64 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Backfill Logs Individually
+
+Set `fromBlock` to start at a known block and `batch: false` to emit each matched log separately.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const watch = client.event.watch({
+  batch: false, // [!code focus]
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
+  fromBlock: 19_868_020n, // [!code focus]
+})
+
+watch.onLogs((logs) => console.log(logs))
+```
+
+### Use an Event Subscription
+
+Set `poll: false` with a WebSocket or IPC transport to use an `eth_subscribe` log subscription.
+
+```ts twoslash
+import { Client, publicActions, webSocket } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: webSocket(),
+}).extend(publicActions())
+
+const watch = client.event.watch({
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
+  poll: false, // [!code focus]
+})
+
+watch.onLogs((logs) => console.log(logs))
+```
+
 ## Return Value
 
 `Watcher`
 
 A watcher handle with the following members:
 
-### onLogs
+#### onLogs
 
 - **Type:** `(fn: (logs: Log[]) => void) => () => void`
 
@@ -105,7 +160,7 @@ const off = watch.onLogs((logs) => { // [!code focus]
 off()
 ```
 
-### onError
+#### onError
 
 - **Type:** `(fn: (error: Error) => void) => () => void`
 
@@ -125,11 +180,11 @@ watch.onLogs(() => {})
 watch.onError((error) => console.error(error)) // [!code focus]
 ```
 
-### off
+#### off
 
 - **Type:** `() => void`
 
-Tears down the watcher: removes all listeners, ends all iterators, stops the underlying poll / subscription, and uninstalls the filter. Idempotent and terminal.
+Tears down the watcher: removes all listeners, ends all iterators, stops the underlying polling or subscription, and uninstalls the filter. Idempotent and terminal.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -145,7 +200,7 @@ watch.onLogs((logs) => console.log(logs))
 watch.off() // [!code focus]
 ```
 
-### `[Symbol.asyncIterator]`
+#### `[Symbol.asyncIterator]`
 
 - **Type:** `() => AsyncIterableIterator<{ logs: Log[] }>`
 
@@ -294,7 +349,7 @@ watch.onLogs((logs) => console.log(logs))
 ### poll
 
 - **Type:** `boolean`
-- **Default:** `false` for WebSocket / IPC transports, `true` otherwise
+- **Default:** `false` for WebSocket or IPC transports, `true` otherwise
 
 Whether to poll for new logs instead of using a subscription. Defaults to `true` when the transport cannot subscribe or `fromBlock` is provided.
 
@@ -340,7 +395,9 @@ watch.onLogs((logs) => console.log(logs))
 - **Type:** `boolean`
 - **Default:** `false`
 
-Whether the logs must strictly match the indexed/non-indexed arguments on `event`. When `false`, logs that do not conform to the event's full ABI are still emitted (with partially decoded `args`).
+Whether logs must match every indexed and non-indexed argument in `event`.
+
+When `false`, the watcher also emits logs that do not match the full event ABI. These logs can contain partially decoded `args`.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -356,3 +413,16 @@ const watch = Actions.event.watch(client, {
 })
 watch.onLogs((logs) => console.log(logs))
 ```
+
+## Errors
+
+The watcher forwards RPC and Transport failures to `onError` and asynchronous iterators. Event
+setup can report these concrete errors:
+
+| Error | Description |
+| --- | --- |
+| `AbiEvent.FilterTypeNotSupportedError` | `args` includes an indexed tuple or array, which event topic filters do not support. |
+| `AbiParameters.InvalidTypeError` | `args` includes an indexed ABI type that the topic encoder does not support. |
+| `Address.InvalidAddressError` | `args` includes an invalid indexed address. |
+| `Hex.IntegerOutOfRangeError` | `args` includes an indexed integer outside the supported 256-bit range. |
+| `Hex.SizeExceedsPaddingSizeError` | An indexed fixed-bytes value exceeds the 32-byte topic size. |

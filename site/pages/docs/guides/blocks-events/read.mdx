@@ -14,7 +14,7 @@ raw RPC requests.
 
 ## Recipes
 
-These recipes assume you have [set up a Client](/docs) with `publicActions`.
+These recipes assume you have [set up a Client](/docs) with [`publicActions`](/docs/actions/public).
 
 ### Read the Latest Block
 
@@ -26,7 +26,7 @@ Request full transaction objects only when the application needs them.
 import { client } from './viem.config'
 
 const block = await client.block.get({
-  includeTransactions: true,
+  includeTransactions: true, // [!code focus]
 })
 ```
 
@@ -45,7 +45,7 @@ Use a block tag when the workflow needs a particular finality level.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const block = await client.block.get({ blockTag: 'finalized' })
+const block = await client.block.get({ blockTag: 'finalized' }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -67,8 +67,8 @@ import { client } from './viem.config'
 
 const blockNumber = 20_000_000n
 
-const receipts = await client.block.getReceipts({ blockNumber })
-const count = await client.block.getTransactionCount({ blockNumber })
+const receipts = await client.block.getReceipts({ blockNumber }) // [!code focus]
+const count = await client.block.getTransactionCount({ blockNumber }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

@@ -22,7 +22,7 @@ const publicClientV2 = Client.toV2(client)
 ```
 
 The adapters preserve request connectivity, [JSON-RPC Accounts](/docs/accounts/json-rpc), and
-[`ccipRead: false`](/docs/clients/create#ccipread). `Client.fromV2` preserves the source chain ID,
+[`ccipRead: false`](/docs/clients/create#optionsccipread). `Client.fromV2` preserves the source chain ID,
 while `Client.toV2` creates a chainless Client by default.
 
 [Local Accounts](/docs/accounts) are not carried automatically. Custom
@@ -153,14 +153,9 @@ const client = Client.fromV2(
 )
 ```
 
-#### options
-
-- **Type:** `Client.fromV2.Options`
-- **Default:** `{}`
-
 Viem v3 Account and Chain overrides for the adapted Client.
 
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Optional**
@@ -182,7 +177,7 @@ const client = Client.fromV2(clientV2, {
 })
 ```
 
-##### chain
+#### options.chain
 
 - **Type:** `Chain | number`
 - **Optional**
@@ -247,14 +242,9 @@ const clientV2 = Client.toV2(
 )
 ```
 
-#### options
-
-- **Type:** `Client.toV2.Options`
-- **Default:** `{}`
-
 Viem v2 Account and Chain overrides for the adapted Client.
 
-##### account
+#### options.account
 
 - **Type:** `Account` (Viem v2)
 - **Optional**
@@ -273,7 +263,7 @@ const clientV2 = Client.toV2(client, {
 })
 ```
 
-##### chain
+#### options.chain
 
 - **Type:** `Chain` (Viem v2)
 - **Optional**

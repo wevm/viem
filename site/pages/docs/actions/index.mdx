@@ -4,9 +4,12 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-**Actions** are functions that perform JSON-RPC requests against a [Client](/docs/clients). Each action takes a Client as its first argument, and is also available as a method once the matching decorator is attached to the Client via [`.extend()`](/docs/clients/create#extending-a-client).
+Actions perform JSON-RPC requests through a [Client](/docs/clients).
+Each standalone action takes a Client as its first argument.
 
-Decorators (such as [`publicActions`](/docs/actions/public) and [`walletActions`](/docs/actions/wallet)) attach a group of actions to a Client as methods. Import them from `viem`:
+Decorators attach related actions to a Client as methods.
+For example, [`publicActions`](/docs/actions/public) adds Public Actions through
+[`.extend()`](/docs/clients/create#extending-a-client).
 
 :::code-group
 
@@ -28,31 +31,6 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
-
-Call `Actions.block.getNumber` directly by passing the Client as the first argument.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const blockNumber = await Actions.block.getNumber(client)
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
 <Cards>
   <Card
     title="Public Actions"
@@ -68,7 +46,7 @@ export const client = Client.create({
   />
   <Card
     title="Test Actions"
-    description="Manipulate a local test node (anvil, hardhat, ganache): mine blocks, set balances, manage state, and more."
+    description="Mine blocks, set balances, and manage state on a local test node."
     icon="lucide:flask-conical"
     to="/docs/actions/test"
   />
@@ -77,5 +55,11 @@ export const client = Client.create({
     description="Execute call batches through an ERC-7821-compatible contract."
     icon="lucide:layers"
     to="/docs/actions/erc7821"
+  />
+  <Card
+    title="Capabilities"
+    description="Type wallet capability requests and responses."
+    icon="lucide:badge-check"
+    to="/docs/actions/capabilities"
   />
 </Cards>

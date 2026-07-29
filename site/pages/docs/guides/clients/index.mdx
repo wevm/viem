@@ -10,9 +10,10 @@ import { Card, Cards } from 'vocs'
 
 The [Client](/docs/clients) is the composition root of Viem. It binds a [Chain](/docs/chains), a
 [Transport](/docs/transports), an optional [Account](/docs/accounts), and opts into behavior
-through [`.extend()`](/docs/clients/create#extending-a-client). These guides cover setting a
-Client up, resolving Clients across several chains, and composing Transports that stay reliable
-through provider failures, rate limits, and long-lived subscriptions.
+through [`.extend()`](/docs/clients/create#extending-a-client).
+
+These guides cover Client setup, multichain resolution, and Transports that stay reliable through
+provider failures, rate limits, and long-lived subscriptions.
 
 ```ts twoslash
 import { Client, http, publicActions } from 'viem'
@@ -26,8 +27,6 @@ const client = Client.create({
 const blockNumber = await client.block.getNumber()
 // @log: 19868020n
 ```
-
-## See More
 
 <Cards>
   <Card icon="lucide:hammer" title="Set Up a Client" description="Compose a Chain, Transport, and Account, then tune batching, polling, and caching." to="/docs/guides/clients/setup" />

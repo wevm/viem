@@ -14,7 +14,7 @@ signs the authorization with a Local Account.
 
 ## Recipes
 
-These recipes assume you have [set up a Client](/docs) with a Local Account and `walletActions`.
+These recipes assume you have [set up a Client](/docs) with a Local Account and [`walletActions`](/docs/actions/wallet).
 
 ### Prepare an Authorization
 
@@ -25,10 +25,10 @@ The `address` is the implementation contract the EOA authorizes as its delegated
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const authorization = await client.wallet.prepareAuthorization({
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  executor: 'self',
-})
+const authorization = await client.wallet.prepareAuthorization({ // [!code focus]
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+  executor: 'self', // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -46,10 +46,10 @@ The Action can prepare and sign in one call.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const authorization = await client.wallet.signAuthorization({
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  executor: 'self',
-})
+const authorization = await client.wallet.signAuthorization({ // [!code focus]
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+  executor: 'self', // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

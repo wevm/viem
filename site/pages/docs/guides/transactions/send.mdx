@@ -9,13 +9,15 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 [`transaction.send`](/docs/actions/wallet/transaction/send) creates, signs, and broadcasts a
-transaction. A Local Account signs inside the application, while a JSON-RPC Account forwards the
-request to its wallet. Use [`transaction.sendSync`](/docs/actions/wallet/transaction/sendSync) when
-the next operation needs the confirmed receipt.
+transaction. A Local Account signs inside the application. A JSON-RPC Account forwards the request
+to its wallet.
+
+Use [`transaction.sendSync`](/docs/actions/wallet/transaction/sendSync) when the next operation
+needs the confirmed receipt.
 
 ## Recipes
 
-These recipes assume you have [set up a Client](/docs) with an Account and `walletActions`.
+These recipes assume you have [set up a Client](/docs) with an Account and [`walletActions`](/docs/actions/wallet).
 
 ### Send Native Token
 
@@ -27,10 +29,10 @@ Pass a recipient and a value in wei.
 import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
-const hash = await client.transaction.send({
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: Value.fromEther('1'),
-})
+const hash = await client.transaction.send({ // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  value: Value.fromEther('1'), // [!code focus]
+}) // [!code focus]
 // @log: '0x...'
 ```
 
@@ -53,10 +55,10 @@ Pass pre-encoded calldata through `data` when it is already available.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const hash = await client.transaction.send({
-  data: '0xa9059cbb00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c800000000000000000000000000000000000000000000000000000000000f4240',
-  to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-})
+const hash = await client.transaction.send({ // [!code focus]
+  data: '0xa9059cbb00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c800000000000000000000000000000000000000000000000000000000000f4240', // [!code focus]
+  to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -75,10 +77,10 @@ import { AbiFunction, Abis, Value } from 'viem/utils'
 import { client } from './viem.config'
 
 const hash = await client.transaction.send({
-  data: AbiFunction.encodeData(Abis.erc20, 'transfer', [
-    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-    Value.from('1', 6),
-  ]),
+  data: AbiFunction.encodeData(Abis.erc20, 'transfer', [ // [!code focus]
+    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+    Value.from('1', 6), // [!code focus]
+  ]), // [!code focus]
   to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
 })
 ```
@@ -103,10 +105,10 @@ Use the sync variant when the workflow needs the receipt before continuing.
 import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
-const receipt = await client.transaction.sendSync({
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: Value.fromEther('1'),
-})
+const receipt = await client.transaction.sendSync({ // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  value: Value.fromEther('1'), // [!code focus]
+}) // [!code focus]
 // @log: { status: 'success', transactionHash: '0x...', ... }
 ```
 
@@ -126,12 +128,12 @@ transaction hash is needed before confirmation.
 import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
-const hash = await client.transaction.send({
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: Value.fromEther('1'),
-})
+const hash = await client.transaction.send({ // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  value: Value.fromEther('1'), // [!code focus]
+}) // [!code focus]
 
-const { receipt } = client.transaction.waitForReceipt({ hash })
+const { receipt } = client.transaction.waitForReceipt({ hash }) // [!code focus]
 const result = await receipt
 // @log: { status: 'success', transactionHash: '0x...', ... }
 ```

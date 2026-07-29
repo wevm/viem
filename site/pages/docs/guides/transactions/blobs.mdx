@@ -9,8 +9,10 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 EIP-4844 transactions carry temporary blob data outside normal EVM calldata. Viem accepts encoded
-blobs and a KZG implementation, derives commitments and versioned hashes, signs the transaction,
-and broadcasts it through [`transaction.send`](/docs/actions/wallet/transaction/send).
+blobs and a KZG implementation.
+
+Viem derives commitments and versioned hashes, signs the transaction, and broadcasts it through
+[`transaction.send`](/docs/actions/wallet/transaction/send).
 
 ## Recipes
 
@@ -23,7 +25,7 @@ Use [`Blobs.from`](/docs/utilities/blobs/from) to split arbitrary bytes into cor
 ```ts twoslash
 import { Blobs, Hex } from 'viem/utils'
 
-const blobs = Blobs.from(Hex.fromString('Hello from a blob'))
+const blobs = Blobs.from(Hex.fromString('Hello from a blob')) // [!code focus]
 ```
 
 ### Configure KZG
@@ -36,8 +38,8 @@ trusted setup required by that implementation.
 import * as cKzg from 'c-kzg'
 import { Kzg } from 'viem/utils'
 
-cKzg.loadTrustedSetup('/path/to/trusted-setup.txt')
-const kzg = Kzg.from(cKzg)
+cKzg.loadTrustedSetup('/path/to/trusted-setup.txt') // [!code focus]
+const kzg = Kzg.from(cKzg) // [!code focus]
 ```
 
 ### Send a Blob Transaction
@@ -55,8 +57,8 @@ import { client } from './viem.config'
 cKzg.loadTrustedSetup('/path/to/trusted-setup.txt')
 
 const hash = await client.transaction.send({
-  blobs: Blobs.from(Hex.fromString('Hello from a blob')),
-  kzg: Kzg.from(cKzg),
+  blobs: Blobs.from(Hex.fromString('Hello from a blob')), // [!code focus]
+  kzg: Kzg.from(cKzg), // [!code focus]
   to: '0x0000000000000000000000000000000000000000',
 })
 ```

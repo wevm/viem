@@ -88,7 +88,7 @@ const publicClient = Client.fromV2(clientV2) // [!code focus]
 
 The adapters reuse request connectivity and preserve
 [JSON-RPC Accounts](/docs/accounts/json-rpc) and
-[`ccipRead: false`](/docs/clients/create#ccipread). They do not translate local Accounts, custom
+[`ccipRead: false`](/docs/clients/create#optionsccipread). They do not translate local Accounts, custom
 extensions, subscriptions, Chain codecs or formatters, or custom CCIP Read handlers.
 `Client.fromV2` normalizes forwarded v2 request errors with
 [`Provider.parseError`](/docs/utilities/provider/parseError), while `Client.toV2` preserves the
@@ -119,7 +119,7 @@ const balance = await Actions.address.getBalance(client, { address: account.addr
 
 ### Client Creation
 
-Client factories were consolidated into `Client.create`. Extend the client for public or test behavior, and pass wallet accounts during creation.
+Client factories were consolidated into [`Client.create`](/docs/clients/create). Extend the client for public or test behavior, and pass wallet accounts during creation.
 
 Named client types collapsed into `Client.Client`. The typed RPC option was renamed from `rpcSchema` to `schema`.
 
@@ -191,9 +191,12 @@ const wei = Value.fromEther('1') // [!code ++]
 
 ### Chain Definitions
 
-Chain definitions now use `Chain.from`. RPC codecs and transaction hooks replace the formatter system.
+Chain definitions now use [`Chain.from`](/docs/chains/create). RPC codecs and transaction hooks replace the formatter system.
 
-Definitions are also minimal: only `id` is required, and `rpcUrls` and `blockExplorers` hold a single flattened entry instead of `default`-keyed maps, with `http` and `ws` accepting one URL or a list.
+Definitions are also minimal: only `id` is required. `rpcUrls` and `blockExplorers` each contain one
+flattened entry instead of `default`-keyed maps.
+
+The `http` and `ws` fields accept one URL or a list.
 
 Formatted type helpers moved under `Chain.Extract*`, and deprecated fee fields were removed. Define removed built-in chains locally.
 
@@ -238,7 +241,7 @@ const local = Account.from({
 
 ### Contract Instances
 
-Contract instances now bind one client through `Contract.from`. Event reads were renamed, while function arguments remain the first positional parameter.
+Contract instances now bind one client through [`Contract.from`](/docs/contract/instances/create). Event reads were renamed, while function arguments remain the first positional parameter.
 
 See [Contract](#contract).
 
@@ -278,7 +281,8 @@ const [value, ok] = await Actions.contract.read(client, { ...options, functionNa
 
 ### multicall Redesign
 
-`multicall` renamed its input fields and now returns a results envelope.
+[`Actions.multicall`](/docs/actions/public/multicall) renamed its input fields and now returns a
+results envelope.
 
 It uses `eth_simulateV1` by default, then falls back to multicall3 when unsupported. See [Call & Multicall](#call--multicall).
 
@@ -628,7 +632,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `FormatUserOperationReceiptErrorType` | Removed; no declared error union | [AA: Errors & Types](#errors--types) |
 | `formatUserOperationRequest` | `UserOperation.toRpc` | [User Operations](#user-operations) |
 | `fromBlobs` | `Blobs.to(blobs, 'Hex')` | [Blobs](#blobs) |
-| `fromBytes` | Typed `Bytes.to*` variants (e.g. `Bytes.toString`) | [Encoding & Units](#encoding--units) |
+| `fromBytes` | Typed `Bytes.to*` variants, such as `Bytes.toString` | [Encoding & Units](#encoding--units) |
 | `fromRlp` | `Rlp.toHex` | [Encoding & Units](#encoding--units) |
 | `FunctionSelectorNotRecognizedError` | `Actions.erc7821.Errors.FunctionSelectorNotRecognizedError` | [ERC-7821](#erc-7821) |
 | `generateMnemonic` | `Mnemonic.random` (options bag) | [Accounts](#accounts) |
@@ -1010,7 +1014,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `toAccount` | `Account.from` | [Accounts](#accounts) |
 | `toBlobs` | `Blobs.from` (positional) | [Blobs](#blobs) |
 | `toBlobSidecars` | Removed; sidecars attach automatically with `blobs` + `kzg` | [Blobs](#blobs) |
-| `toBytes` | Typed `Bytes.from*` variants (e.g. `Bytes.fromString`) | [Encoding & Units](#encoding--units) |
+| `toBytes` | Typed `Bytes.from*` variants, such as `Bytes.fromString` | [Encoding & Units](#encoding--units) |
 | `toCoinbaseSmartAccount` | `CoinbaseSmartAccount.from` (requires non-empty `owners`) | [Smart Accounts](#smart-accounts) |
 | `ToCoinTypeError` | `Ens.InvalidChainIdError` | [Messages & ENS](#messages--ens) |
 | `toEventHash` | `AbiItem.getSignatureHash` | [Hashing](#hashing) |
@@ -1019,7 +1023,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `toFunctionHash` | `AbiItem.getSignatureHash` | [Hashing](#hashing) |
 | `toFunctionSelector` | `AbiFunction.getSelector` | [Hashing](#hashing) |
 | `toFunctionSignature` | `AbiItem.getSignature` | [Hashing](#hashing) |
-| `toHex` | Typed `Hex.from*` variants (e.g. `Hex.fromNumber`) | [Encoding & Units](#encoding--units) |
+| `toHex` | Typed `Hex.from*` variants, such as `Hex.fromNumber` | [Encoding & Units](#encoding--units) |
 | `token.getBalance` (from `viem/actions`) | `Actions.token.getBalance` | [Actions: Tokens](#tokens) |
 | `TokenId` / `TokenIds` / `TokenIdOrAddress` | Removed; tokens selected by address | [Tempo](#tempo) |
 | `toPackedUserOperation` | `UserOperation.toPacked` (no EntryPoint 0.6) | [User Operations](#user-operations) |
@@ -1143,7 +1147,11 @@ const schema = z.RpcSchema.from({ // [!code ++]
 }) // [!code ++]
 ```
 
-Low-level request composition was internalized. Compose requests at the Client or Transport boundary. Action dispatch resolves through [`Actions.getAction`](/docs/clients/override), which consults actions attached to the Client via `.extend()`, so `getAction`-style overrides carry over.
+Low-level request composition was internalized. Compose requests at the Client or Transport
+boundary.
+
+Action dispatch resolves through [`Actions.getAction`](/docs/clients/override), which checks Actions
+attached through `.extend()`. Existing `getAction`-style overrides continue to apply.
 
 RPC client helpers moved to the `RpcClient` namespace. See [Transports](#transports).
 
@@ -1270,9 +1278,12 @@ All deprecated v2 surface was removed without dedicated replacements. Use each a
 The `viem/experimental` root and ERC subpaths were removed after surviving APIs graduated or moved behind smart-account implementations:
 
 - ERC-7846 connection actions and ERC-7811 asset reads graduated to the stable wallet namespace. Their decorators folded into the wallet decorator.
-- The ERC-7821 executor actions graduated to `Actions.erc7821` and root `erc7821Actions()` ([ERC-7821](#erc-7821)).
+- The ERC-7821 executor actions graduated to [`Actions.erc7821`](/docs/actions/erc7821) and root `erc7821Actions()` ([ERC-7821](#erc-7821)).
 - ERC-7715 `grantPermissions`, ERC-7895 `addSubAccount`, and the standalone ERC-7739 entrypoint were removed ([Removed ERCs](#removed-ercs)).
-- The experimental EIP-7702 authorization actions were folded into `Actions.wallet` ([Wallet & Capabilities](#wallet--capabilities)); the authorization utilities moved to the `Authorization` namespace ([Utilities: Transactions](#transactions-1)).
+- The experimental EIP-7702 authorization actions were folded into
+  [`Actions.wallet`](/docs/actions/wallet) ([Wallet & Capabilities](#wallet--capabilities)); the
+  authorization utilities moved to the `Authorization` namespace
+  ([Utilities: Transactions](#transactions-1)).
 
 ## Client
 
@@ -1472,9 +1483,16 @@ Chain construction and helpers moved onto the `Chain` namespace ([Chain Definiti
 | `filterChains({ chains, token })` | `Chain.filter({ chains, token })` (preserving token-support and testnet narrowing) |
 | `getChainContractAddress({ chain, contract })` | `Chain.getContractAddress({ chain, contract })` |
 
-The chain shape slimmed down. `name`, `nativeCurrency`, and `rpcUrls` are optional (only `id` is required), and a chain without `rpcUrls` requires an explicit URL on the Transport.
+The Chain shape is smaller. Only `id` is required; `name`, `nativeCurrency`, and `rpcUrls` are
+optional.
 
-`rpcUrls` and `blockExplorers` are single flattened entries instead of `default`-keyed maps. `rpcUrls.http` (and the renamed `ws`) accept one URL or a list; keyed alternates (e.g. a `blockscout` explorer entry) have no equivalent, so keep the primary entry.
+A Chain without `rpcUrls` requires an explicit Transport URL.
+
+`rpcUrls` and `blockExplorers` are single flattened entries instead of `default`-keyed maps.
+`rpcUrls.http` and the renamed `ws` accept one URL or a list.
+
+Keyed alternatives, such as a `blockscout` explorer entry, have no equivalent. Keep the primary
+entry.
 
 ```ts
 const chain = defineChain({ // [!code --]
@@ -1628,7 +1646,11 @@ Account parsing and filter types moved onto their owning namespaces. Per-call ch
 | `getBlockReceipts(client, options)` | `Actions.block.getReceipts(client, options)` |
 | `getBlockTransactionCount(client, options)` | `Actions.block.getTransactionCount(client, options)` |
 
-Block watchers (`watchBlocks`, `watchBlockNumber`) and the block filter producer moved with the other watchers and filters ([Events & Filters](#events--filters)); block-level simulation moved to `Actions.block.simulate` ([Call & Multicall](#call--multicall)).
+Block watchers (`watchBlocks`, `watchBlockNumber`) and the block filter producer moved with the
+other [watchers and filters](#events--filters).
+
+Block-level simulation moved to [`Actions.block.simulate`](/docs/actions/public/block/simulate).
+See [Call & Multicall](#call--multicall).
 
 ### Call & Multicall
 
@@ -1640,7 +1662,8 @@ By default, `multicall` uses `eth_simulateV1` and falls back to multicall3 when 
 
 Choose multicall mode for previous semantics or simulate mode for deterministic rich results.
 
-`simulateCalls` folded into `Actions.multicall` under simulate mode. Its tracing, validation, and result fields remain.
+`simulateCalls` folded into [`Actions.multicall`](/docs/actions/public/multicall) under simulate
+mode. Its tracing, validation, and result fields remain.
 
 Per-call addresses and state overrides use the same renamed fields as other v3 actions.
 
@@ -1662,7 +1685,9 @@ const { assetChanges, results } = await Actions.multicall(client, { // [!code ++
 })
 ```
 
-`simulateBlocks` moved under the `block` namespace as `block.simulate`, and the per-block/state override option is singular `stateOverride` with the record shape.
+`simulateBlocks` moved under the `block` namespace as
+[`block.simulate`](/docs/actions/public/block/simulate). The per-block and state override option is
+the singular `stateOverride` with a record shape.
 
 ```ts
 const result = await simulateBlocks(client, { // [!code --]
@@ -1769,7 +1794,9 @@ type TunnelOptions = CcipRead.tunnel.Options // [!code ++]
 
 `CcipRead.request` rejected unsafe URL forms and redirects and redacted gateway payloads, while `CcipRead.tunnel` redacted batch failures and rejected malformed success arrays instead of resolving `undefined`.
 
-Raw `offchainLookup` resolution became internal to `Actions.call`, and `AbiError` construction replaced its ABI item and selector constants.
+Raw `offchainLookup` resolution became internal to
+[`Actions.call`](/docs/actions/public/call), and `AbiError` construction replaced its ABI item and
+selector constants.
 
 ```ts
 import { AbiError, CcipRead } from 'viem/utils' // [!code ++]
@@ -1857,7 +1884,8 @@ Transaction actions moved under `Actions.transaction` (same options shape unless
 | `sendTransactionSync(client, options)` | `Actions.transaction.sendSync(client, options)` |
 | `signTransaction(client, options)` | `Actions.transaction.sign(client, options)` (also aliased flat as `Actions.signTransaction` and on the added `walletActions()` decorator) |
 
-`Actions.transaction.sendRaw`'s `serializedTransaction` option was renamed to `transaction` (same for `sendRawSync`).
+[`Actions.transaction.sendRaw`](/docs/actions/wallet/transaction/sendRaw) renamed its
+`serializedTransaction` option to `transaction`. The same change applies to `sendRawSync`.
 
 ```ts
 await sendRawTransaction(client, { serializedTransaction: '0x02f8…' }) // [!code --]
@@ -1888,7 +1916,9 @@ Transaction preparation no longer feeds derived fees into internal gas estimatio
 
 Caller-supplied fees are still forwarded.
 
-`Actions.transaction.estimateGas` encodes the request via the chain's `schema.transactionRequest` codec when declared, so chain-specific request fields reach the node.
+[`Actions.transaction.estimateGas`](/docs/actions/public/transaction/estimateGas) encodes the
+request through the chain's `codecs.transactionRequest` codec when declared. Chain-specific request
+fields reach the node.
 
 Request-shape types moved onto their owning namespaces:
 
@@ -1900,7 +1930,9 @@ Request-shape types moved onto their owning namespaces:
 
 ### Signing & Verification
 
-The message and typed-data signing actions stay flat on `Actions`, as do the onchain verification actions; `verifySiweMessage` moved out of `viem/siwe` to join them.
+The message and typed-data signing actions stay flat on `Actions`, as do the onchain verification
+actions. [`verifySiweMessage`](/docs/actions/public/verifySiweMessage) moved out of `viem/siwe` to
+join them.
 
 | v2 | v3 |
 | --- | --- |
@@ -1959,7 +1991,8 @@ const signed = await Actions.wallet.signAuthorization(client, { address }) // [!
 
 The ERC-7846 connection actions (`connect`/`disconnect`) and ERC-7811 `getAssets` also graduated into `Actions.wallet` ([ERC-7846 & ERC-7811](#erc-7846--erc-7811)).
 
-The deprecated `writeContracts` and `eip5792Actions` exports were replaced by ABI-aware `Actions.wallet.sendCalls` and `walletActions()`.
+The deprecated `writeContracts` and `eip5792Actions` exports were replaced by ABI-aware
+[`Actions.wallet.sendCalls`](/docs/actions/wallet/sendCalls) and `walletActions()`.
 
 ```ts
 import { Actions, walletActions } from 'viem' // [!code ++]
@@ -3096,8 +3129,8 @@ Redundant aliases were removed, and the byte array type moved onto `Bytes`.
 | `numberToHex(value)` | `Hex.fromNumber(value)` |
 | `stringToBytes(value)` | `Bytes.fromString(value)` |
 | `stringToHex(value)` | `Hex.fromString(value)` |
-| `toBytes(value)` | Typed `Bytes.from*` variants (e.g. `Bytes.fromString`) |
-| `toHex(value)` | Typed `Hex.from*` variants (e.g. `Hex.fromNumber`) |
+| `toBytes(value)` | Typed `Bytes.from*` variants, such as `Bytes.fromString` |
+| `toHex(value)` | Typed `Hex.from*` variants, such as `Hex.fromNumber` |
 
 Conversion options moved onto their owning function namespaces. They replace flat option and direction-specific conversion exports.
 
@@ -3200,7 +3233,9 @@ type Message = Siwe.Message // [!code ++]
 
 The SIWE invalid-field error moved to the `Siwe` namespace (`SiweInvalidMessageFieldError` → `Siwe.InvalidMessageFieldError`).
 
-ENS avatar-record and packet helpers were internalized; higher-level avatar resolution moved to `Actions.ens.getAvatar`, and the coin-type error moved to `Ens.InvalidChainIdError`.
+ENS avatar-record and packet helpers were internalized. Higher-level avatar resolution moved to
+[`Actions.ens.getAvatar`](/docs/actions/public/ens/getAvatar), and the coin-type error moved to
+`Ens.InvalidChainIdError`.
 
 ```ts
 import { parseAvatarRecord, packetToBytes, ToCoinTypeError } from 'viem/ens' // [!code --]

@@ -161,8 +161,7 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Alphabetize doc parameters**; option-bag properties are listed alphabetically.
   - Required and optional properties share the same ordering.
   - This matches source `Options` types.
-  - Covers `##### ` sub-properties under `#### options`.
-  - Covers `### ` entries for action options.
+  - Covers qualified fields such as `#### options.foo` and `##### options.rank.foo`.
   - Positional function arguments stay in signature order.
   - Applies to hand-written docs only.
   - Generated `utilities/` pages are synced from Ox.
@@ -358,21 +357,36 @@ Guidelines for authoring docs and guides under `site/pages/`.
       - Name each section after the identifier.
       - Example: ``## `Account.from` ``.
       - Include `### Usage`, `### Parameters`, `### Return Value`, and `### Errors` as applicable.
+
+### Action Pages
+
+- **Keep the established Action page layout.**
+  - Lead with purpose prose directly under the page title. Do not add `## Overview` or a separate
+    `## Actions.*` reference section.
+  - Add `## Usage`, with `### Standalone Action` inside it.
+  - Add `## Recipes` immediately after Usage only when the page has additional tasks to show.
+  - Follow with `## Return Value`, `## Parameters`, and `## Errors` as applicable.
+- **List single-options-object fields directly.**
+  - Use `### foo` for each field. Do not add an `options` heading or prefix field names with
+    `options.`.
+  - Use `#### foo` for fields nested under another field.
+- These Action page rules override the Module Pages structure above. Apply the remaining reference
+  content requirements at the heading levels defined here.
+
 - **Reference sections open with a one-line description**; place it under each function heading.
   - Describe what the function does.
   - Then add `### Usage`.
   - Keep it terse and sourced from TSDoc.
 - **`### Parameters` never uses tables**; list each parameter as its own heading.
-  - Use `#### options` for option bags.
-  - Use `##### foo` for nested option-bag fields.
+  - List option-bag fields directly as qualified peer headings, such as `#### options.foo`.
+    Do not add a redundant `#### options` heading.
+  - Preserve the full property path for nested fields, such as `##### options.rank.ping`.
   - Add `- **Type:**` and `- **Default:**` bullets when applicable.
   - Follow type bullets with prose.
-  - Do not prefix parameter headings with `options.`.
-  - Write `##### batch`, not `##### options.batch`.
   - Reserve tables for `### Errors`.
 - **Each parameter heading includes a focused example**; add a `ts twoslash` snippet.
   - Place it after the type bullets and prose.
-  - Cover each `##### foo` and scalar `#### param`.
+  - Cover every documented parameter and option field.
   - Show the parameter in realistic use.
   - Mark relevant lines with `// [!code focus]`.
   - Keep snippets minimal.

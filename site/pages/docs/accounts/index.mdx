@@ -8,7 +8,7 @@ The **Account** module represents an Ethereum account that can sign messages, tr
 
 Viem distinguishes between two kinds of account:
 
-- **Local Account**: signing happens locally from injected signing logic (a private key, mnemonic, KMS, etc.). The raw signing material is available to your program.
+- **Local Account**: signing happens locally through a private key, mnemonic, KMS, or other signing logic. The raw signing material is available to your program.
 - **JSON-RPC Account**: signing is delegated to a JSON-RPC provider (for example, a browser wallet). Only the address is known.
 
 ```ts twoslash
@@ -19,8 +19,6 @@ const account = Account.fromPrivateKey('0x...')
 account.address
 // '0x...'
 ```
-
-### Account Types
 
 <Cards>
   <Card
@@ -49,8 +47,14 @@ account.address
   />
   <Card
     title="Custom Accounts"
-    description="Local account backed by custom signing logic (KMS, HSM, etc.)."
+    description="Local account backed by custom signing logic, such as a KMS or HSM."
     icon="lucide:settings"
     to="/docs/accounts/local/custom"
+  />
+  <Card
+    title="Nonce Manager"
+    description="Coordinate transaction nonces across concurrent sends."
+    icon="lucide:list-ordered"
+    to="/docs/accounts/nonce-manager"
   />
 </Cards>

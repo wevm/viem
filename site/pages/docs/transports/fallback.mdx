@@ -2,7 +2,12 @@
 
 ## Overview
 
-The [`fallback`](/docs/transports) transport accepts a list of [Transports](/docs/transports) and attempts each in order, falling through to the next when one errors, unless the error is terminal (for example, a user rejection). When `rank` is enabled, the transports are periodically re-ordered by latency and stability so the healthiest endpoint is tried first.
+The [`fallback`](/docs/transports/fallback) transport sends a request through a list of
+[Transports](/docs/transports) in order. After an error, it tries the next Transport unless the
+error is terminal.
+
+For example, a user rejection is terminal. When `rank` is enabled, latency and stability determine
+which Transport receives the first request.
 
 ```ts twoslash
 import { fallback, http } from 'viem'
@@ -17,7 +22,8 @@ const transport = fallback([
 
 ### Falling Through Multiple Providers
 
-List transports in priority order. The first to succeed wins; failures fall through to the next.
+List Transports in priority order. The function returns the first successful response and continues
+past failures.
 
 ```ts twoslash
 import { fallback, http } from 'viem'
@@ -133,11 +139,7 @@ const transport = fallback([ // [!code focus]
 ]) // [!code focus]
 ```
 
-#### options
-
-- **Type:** `fallback.Options`
-
-##### key
+#### options.key
 
 - **Type:** `string`
 - **Default:** `'fallback'`
@@ -152,7 +154,7 @@ const transport = fallback([http(), http()], {
 })
 ```
 
-##### name
+#### options.name
 
 - **Type:** `string`
 - **Default:** `'Fallback'`
@@ -167,12 +169,12 @@ const transport = fallback([http(), http()], {
 })
 ```
 
-##### rank
+#### options.rank
 
 - **Type:** `boolean | RankOptions`
 - **Default:** `false`
 
-Enable ranking, or ranking options (see [Rank Options](#rank-options) below).
+Enable ranking, or pass an object to configure ranking.
 
 ```ts twoslash
 import { fallback, http } from 'viem'
@@ -182,57 +184,7 @@ const transport = fallback([http(), http()], {
 })
 ```
 
-##### retryCount
-
-- **Type:** `number`
-- **Default:** `3`
-
-Max retries per request.
-
-```ts twoslash
-import { fallback, http } from 'viem'
-// ---cut---
-const transport = fallback([http(), http()], {
-  retryCount: 5, // [!code focus]
-})
-```
-
-##### retryDelay
-
-- **Type:** `number`
-- **Default:** `150`
-
-Base delay (ms) between retries.
-
-```ts twoslash
-import { fallback, http } from 'viem'
-// ---cut---
-const transport = fallback([http(), http()], {
-  retryDelay: 200, // [!code focus]
-})
-```
-
-##### shouldThrow
-
-- **Type:** `(error: Error) => boolean`
-
-Whether an error is terminal (rethrow) rather than falling through.
-
-```ts twoslash
-import { fallback, http } from 'viem'
-// ---cut---
-const transport = fallback([http(), http()], {
-  shouldThrow(error) { // [!code focus]
-    return error.name === 'UserRejectedRequestError' // [!code focus]
-  }, // [!code focus]
-})
-```
-
-#### Rank Options
-
-The shape of `options.rank` when passed an object.
-
-##### rank.interval
+##### options.rank.interval
 
 - **Type:** `number`
 - **Default:** client `pollingInterval`
@@ -249,7 +201,7 @@ const transport = fallback([http(), http()], {
 })
 ```
 
-##### rank.ping
+##### options.rank.ping
 
 - **Type:** `(options: { transport: Transport.Instance }) => Promise<unknown>`
 
@@ -267,7 +219,7 @@ const transport = fallback([http(), http()], {
 })
 ```
 
-##### rank.sampleCount
+##### options.rank.sampleCount
 
 - **Type:** `number`
 - **Default:** `10`
@@ -284,7 +236,7 @@ const transport = fallback([http(), http()], {
 })
 ```
 
-##### rank.timeout
+##### options.rank.timeout
 
 - **Type:** `number`
 - **Default:** `1_000`
@@ -301,7 +253,7 @@ const transport = fallback([http(), http()], {
 })
 ```
 
-##### rank.weights
+##### options.rank.weights
 
 - **Type:** `{ latency?: number; stability?: number }`
 - **Default:** `{ latency: 0.3, stability: 0.7 }`
@@ -318,8 +270,55 @@ const transport = fallback([http(), http()], {
 })
 ```
 
+#### options.retryCount
+
+- **Type:** `number`
+- **Default:** `3`
+
+Max retries per request.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  retryCount: 5, // [!code focus]
+})
+```
+
+#### options.retryDelay
+
+- **Type:** `number`
+- **Default:** `150`
+
+Base delay (ms) between retries.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  retryDelay: 200, // [!code focus]
+})
+```
+
+#### options.shouldThrow
+
+- **Type:** `(error: Error) => boolean`
+
+Whether an error is terminal (rethrow) rather than falling through.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  shouldThrow(error) { // [!code focus]
+    return error.name === 'UserRejectedRequestError' // [!code focus]
+  }, // [!code focus]
+})
+```
+
 ### Return Value
 
-`Transport<'fallback', { onResponse, transports }>`
+`Transport<'fallback', { onResponse, stopRank, transports }>`
 
-A fallback transport. The instance exposes `onResponse(fn)` to observe each attempt and the resolved `transports`.
+A fallback transport. The instance exposes `onResponse(fn)`, `stopRank()`, and the resolved
+`transports`.

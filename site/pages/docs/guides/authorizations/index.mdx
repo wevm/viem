@@ -9,10 +9,27 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 EIP-7702 lets an externally owned account authorize contract code to execute on its behalf. Viem
-can prepare and sign an authorization, include it in a transaction, inspect the resulting
-delegation, and call an ERC-7821 execution interface exposed by the delegated account.
+can prepare and sign an authorization or include it in a transaction.
 
-## See More
+Viem can also inspect the resulting delegation and call an ERC-7821 execution interface exposed by
+the delegated account.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const authorization = await client.wallet.prepareAuthorization({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  executor: 'self',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
 
 <Cards>
   <Card icon="lucide:pen-line" title="Prepare & Sign" description="Prepare an EIP-7702 authorization and sign it with a wallet or Local Account." to="/docs/guides/authorizations/prepare-sign" />

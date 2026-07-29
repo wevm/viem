@@ -57,6 +57,36 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Read a Canonical Historical Balance
+
+Use `requireCanonical` with a block hash when the balance must come from the canonical chain.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const balance = await client.address.getBalance({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  blockHash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus]
+  requireCanonical: true, // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
 ## Return Value
 
 `bigint`
@@ -82,6 +112,24 @@ const balance = await Actions.address.getBalance(client, {
 })
 ```
 
+### blockHash
+
+- **Type:** `Hex`
+
+The balance at a block identified by its hash.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const balance = await Actions.address.getBalance(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  blockHash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus]
+})
+```
+
 ### blockNumber
 
 - **Type:** `bigint`
@@ -103,7 +151,7 @@ const balance = await Actions.address.getBalance(client, {
 ### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
-- **Default:** `'latest'`
+- **Default:** `client.blockTag ?? 'latest'`
 
 The balance at a given block tag.
 
@@ -116,6 +164,26 @@ const client = Client.create({ chain: mainnet, transport: http() })
 const balance = await Actions.address.getBalance(client, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   blockTag: 'safe', // [!code focus]
+})
+```
+
+### requireCanonical
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Requires [`blockHash`](#blockhash) to identify a block in the canonical chain.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const balance = await Actions.address.getBalance(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  blockHash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+  requireCanonical: true, // [!code focus]
 })
 ```
 

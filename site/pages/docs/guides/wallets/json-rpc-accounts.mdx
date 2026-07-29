@@ -9,8 +9,10 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 A [JSON-RPC Account](/docs/accounts/json-rpc) contains an address and delegates signing to the
-Client's Transport. Transaction, message, typed-data, and authorization requests are forwarded to
-the connected wallet instead of accessing private key material in the application.
+Client's Transport.
+
+Transaction, message, typed-data, and authorization requests are forwarded to the connected wallet
+instead of accessing private key material in the application.
 
 ## Recipes
 
@@ -24,9 +26,9 @@ Pass an address to [`Account.from`](/docs/accounts) and attach the result to the
 import { Account, Client, custom, walletActions } from 'viem'
 import 'viem/window'
 
-const account = Account.from(
-  '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-)
+const account = Account.from( // [!code focus]
+  '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+) // [!code focus]
 
 const client = Client.create({
   account,
@@ -45,15 +47,15 @@ import { Value } from 'viem/utils'
 import 'viem/window'
 
 const client = Client.create({
-  account: Account.from('0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'),
+  account: Account.from('0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'), // [!code focus]
   chain: mainnet,
   transport: custom(window.ethereum!),
 }).extend(walletActions())
 
-const hash = await client.transaction.send({
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: Value.fromEther('1'),
-})
+const hash = await client.transaction.send({ // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  value: Value.fromEther('1'), // [!code focus]
+}) // [!code focus]
 ```
 
 ## Best Practices

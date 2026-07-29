@@ -9,8 +9,10 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 [`transaction.prepare`](/docs/actions/public/transaction/prepare) resolves the nonce, chain ID,
-transaction type, gas, and fees required for signing. [`transaction.sign`](/docs/actions/wallet/transaction/sign)
-then produces a serialized signed transaction that can be stored, inspected, or broadcast with
+transaction type, gas, and fees required for signing.
+
+[`transaction.sign`](/docs/actions/wallet/transaction/sign) produces a serialized signed
+transaction that can be stored, inspected, or broadcast with
 [`transaction.sendRaw`](/docs/actions/wallet/transaction/sendRaw).
 
 ## Recipes
@@ -27,10 +29,10 @@ Prepare a request when signing happens in a later step or another component.
 import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
-const { request } = await client.transaction.prepare({
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: Value.fromEther('1'),
-})
+const { request } = await client.transaction.prepare({ // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  value: Value.fromEther('1'), // [!code focus]
+}) // [!code focus]
 // @log: { chainId: 1, gas: 21000n, nonce: 0, type: 'eip1559', ... }
 ```
 
@@ -50,13 +52,13 @@ Sign locally, then submit the serialized transaction to any compatible RPC provi
 import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
-const { request } = await client.transaction.prepare({
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: Value.fromEther('1'),
-})
-const transaction = await client.transaction.sign(request)
+const { request } = await client.transaction.prepare({ // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  value: Value.fromEther('1'), // [!code focus]
+}) // [!code focus]
+const transaction = await client.transaction.sign(request) // [!code focus]
 
-const hash = await client.transaction.sendRaw({ transaction })
+const hash = await client.transaction.sendRaw({ transaction }) // [!code focus]
 // @log: '0x...'
 ```
 
@@ -75,7 +77,7 @@ import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
 const transaction = await client.transaction.sign({
-  prepare: true,
+  prepare: true, // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: Value.fromEther('1'),
 })
@@ -100,10 +102,10 @@ the Accounts and storage slots a transaction touches before preparing it.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { accessList, gasUsed } = await client.transaction.createAccessList({
-  data: '0x06fdde03',
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-})
+const { accessList, gasUsed } = await client.transaction.createAccessList({ // [!code focus]
+  data: '0x06fdde03', // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -123,10 +125,10 @@ Use [`transaction.fill`](/docs/actions/public/transaction/fill) when the connect
 import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
-const { raw, transaction } = await client.transaction.fill({
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: Value.fromEther('1'),
-})
+const { raw, transaction } = await client.transaction.fill({ // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  value: Value.fromEther('1'), // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

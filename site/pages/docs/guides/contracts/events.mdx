@@ -14,7 +14,7 @@ WebSocket subscription when available, then falls back to filters or block-range
 
 ## Recipes
 
-These recipes assume you have [set up a Client](/docs) with `publicActions`.
+These recipes assume you have [set up a Client](/docs) with [`publicActions`](/docs/actions/public).
 
 ### Query Historical Transfers
 
@@ -26,16 +26,16 @@ Filter indexed event arguments and bound the request to a known block range.
 import { Abis } from 'viem/utils'
 import { client } from './viem.config'
 
-const logs = await client.contract.getLogs({
-  abi: Abis.erc20,
-  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-  args: {
-    from: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  },
-  eventName: 'Transfer',
-  fromBlock: 20_000_000n,
-  toBlock: 20_000_100n,
-})
+const logs = await client.contract.getLogs({ // [!code focus]
+  abi: Abis.erc20, // [!code focus]
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
+  args: { // [!code focus]
+    from: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  }, // [!code focus]
+  eventName: 'Transfer', // [!code focus]
+  fromBlock: 20_000_000n, // [!code focus]
+  toBlock: 20_000_100n, // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -54,16 +54,16 @@ Register listeners on the watcher and call `off` when the owning component is di
 import { Abis } from 'viem/utils'
 import { client } from './viem.config'
 
-const watch = client.contract.watchEvent({
-  abi: Abis.erc20,
-  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-  eventName: 'Transfer',
-})
+const watch = client.contract.watchEvent({ // [!code focus]
+  abi: Abis.erc20, // [!code focus]
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
+  eventName: 'Transfer', // [!code focus]
+}) // [!code focus]
 
-watch.onLogs((logs) => console.log(logs))
+watch.onLogs((logs) => console.log(logs)) // [!code focus]
 
 // Later
-watch.off()
+watch.off() // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -87,9 +87,9 @@ const watch = client.contract.watchEvent({
   eventName: 'Transfer',
 })
 
-for await (const { logs } of watch) {
-  console.log(logs)
-}
+for await (const { logs } of watch) { // [!code focus]
+  console.log(logs) // [!code focus]
+} // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

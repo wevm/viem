@@ -8,8 +8,10 @@ description: Connect coding agents to the Viem MCP server for current documentat
 
 {/* TODO(v3): Restore `viem.sh` when Viem v3 is stable. */}
 
-Connect the Viem MCP server to give coding agents direct access to current Viem documentation and
-source code. The server is read-only, uses Streamable HTTP at
+Connect the Viem MCP server to give coding agents access to current Viem documentation and source
+code.
+
+The server is read-only, uses Streamable HTTP at
 [`https://v3.viem.sh/api/mcp`](https://v3.viem.sh/api/mcp), and requires no authentication.
 
 Agents can search and read the documentation, then inspect source across Viem, Wagmi, Ox, and
@@ -51,8 +53,10 @@ claude mcp add --transport http --scope user viem https://v3.viem.sh/api/mcp
 
 ### Start a New Session
 
-Start a new agent session after adding the server. If the Codex desktop app or IDE extension is
-already open, restart it. In Codex or Claude Code, run `/mcp` to confirm that `viem` is connected.
+Start a new agent session after adding the server. Restart an open Codex desktop app or IDE
+extension.
+
+In Codex or Claude Code, run `/mcp` to confirm that `viem` is connected.
 
 ### Test the Connection
 

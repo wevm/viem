@@ -9,8 +9,9 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 Viem supports raw hashes, EIP-191 messages, EIP-712 typed data, and EIP-4361 Sign-In with Ethereum.
-A Local Account can sign each format, while a JSON-RPC Account supports message and typed data
-signing. Verification supports EOAs and compatible contract Accounts through
+A Local Account can sign each format. A JSON-RPC Account supports message and typed data signing.
+
+Verification supports EOAs and compatible contract Accounts through
 [`verifyHash`](/docs/actions/public/verifyHash).
 
 ## Recipes
@@ -30,13 +31,13 @@ import { client } from './viem.config'
 
 const hash =
   '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68'
-const signature = await client.account.sign({ hash })
+const signature = await client.account.sign({ hash }) // [!code focus]
 
-const valid = await client.verifyHash({
-  address: client.account.address,
-  hash,
-  signature,
-})
+const valid = await client.verifyHash({ // [!code focus]
+  address: client.account.address, // [!code focus]
+  hash, // [!code focus]
+  signature, // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -61,13 +62,13 @@ signature, and expected address with [`verifyMessage`](/docs/actions/public/veri
 import { client } from './viem.config'
 
 const message = 'Confirm account ownership'
-const signature = await client.signMessage({ message })
+const signature = await client.signMessage({ message }) // [!code focus]
 
-const valid = await client.verifyMessage({
-  address: client.account.address,
-  message,
-  signature,
-})
+const valid = await client.verifyMessage({ // [!code focus]
+  address: client.account.address, // [!code focus]
+  message, // [!code focus]
+  signature, // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -93,12 +94,12 @@ const typedData = {
   types: { Mail: [{ name: 'contents', type: 'string' }] },
 } as const
 
-const signature = await client.signTypedData(typedData)
-const valid = await client.verifyTypedData({
-  address: client.account.address,
-  signature,
-  ...typedData,
-})
+const signature = await client.signTypedData(typedData) // [!code focus]
+const valid = await client.verifyTypedData({ // [!code focus]
+  address: client.account.address, // [!code focus]
+  signature, // [!code focus]
+  ...typedData, // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -127,14 +128,14 @@ const message = Siwe.createMessage({
   uri: 'https://example.com/login',
   version: '1',
 })
-const signature = await client.signMessage({ message })
+const signature = await client.signMessage({ message }) // [!code focus]
 
-const valid = await client.verifySiweMessage({
-  domain: 'example.com',
-  message,
-  nonce: 'foobarbaz12',
-  signature,
-})
+const valid = await client.verifySiweMessage({ // [!code focus]
+  domain: 'example.com', // [!code focus]
+  message, // [!code focus]
+  nonce: 'foobarbaz12', // [!code focus]
+  signature, // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

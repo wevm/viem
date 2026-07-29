@@ -93,7 +93,7 @@ export const client = Client.create({
 
 ## Recipes
 
-These recipes call the action standalone with a Client as the first argument. Each is equivalent to the decorator form (`client.event.getLogs(...)`).
+Use a Client method or pass the Client to the standalone action.
 
 ### Fetching Logs for a Contract
 
@@ -105,7 +105,6 @@ import { mainnet } from 'viem/chains'
 import { AbiEvent } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
 const logs = await Actions.event.getLogs(client, {
   address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2', // [!code focus]
   event: AbiEvent.from(
@@ -124,7 +123,6 @@ import { mainnet } from 'viem/chains'
 import { AbiEvent } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
 const logs = await Actions.event.getLogs(client, {
   event: AbiEvent.from(
     'event Transfer(address indexed from, address indexed to, uint256 value)',
@@ -145,7 +143,6 @@ import { mainnet } from 'viem/chains'
 import { AbiEvent } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
 const logs = await Actions.event.getLogs(client, {
   event: AbiEvent.from(
     'event Transfer(address indexed from, address indexed to, uint256 value)',
@@ -169,7 +166,6 @@ import { mainnet } from 'viem/chains'
 import { AbiEvent } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
 const logs = await Actions.event.getLogs(client, {
   event: AbiEvent.from(
     'event Transfer(address indexed from, address indexed to, uint256 value)',
@@ -189,7 +185,6 @@ import { mainnet } from 'viem/chains'
 import { AbiEvent } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
 const logs = await Actions.event.getLogs(client, {
   blockHash: '0xabe69134e80a12f6a93d0aa18215b5b86c2fb338bae911790ca374a8716e01a4', // [!code focus]
   event: AbiEvent.from(
@@ -208,7 +203,6 @@ import { mainnet } from 'viem/chains'
 import { AbiEvent } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
 const logs = await Actions.event.getLogs(client, {
   events: [ // [!code focus]
     AbiEvent.from('event Approval(address indexed owner, address indexed spender, uint256 value)'), // [!code focus]
@@ -227,7 +221,6 @@ import { mainnet } from 'viem/chains'
 import { AbiEvent } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
 const logs = await Actions.event.getLogs(client, {
   event: AbiEvent.from(
     'event Transfer(address indexed from, address indexed to, uint256 value)',
@@ -238,17 +231,17 @@ const logs = await Actions.event.getLogs(client, {
 
 ## Return Value
 
-`Log[]`
+`readonly Log[]`
 
-A list of event logs. When an `event` (or `events`) is provided, each log is decoded with its `args` and `eventName`.
+A list of event logs. When you provide `event` or `events`, each log includes decoded `args` and `eventName` values.
 
 ## Parameters
 
 ### address
 
-- **Type:** `Address | Address[]`
+- **Type:** `Address | readonly Address[]`
 
-The address (or addresses) from which the logs originated.
+One or more addresses from which the logs originated.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -324,7 +317,7 @@ const logs = await Actions.event.getLogs(client, {
 
 ### events
 
-- **Type:** `AbiEvent[]`
+- **Type:** `readonly AbiEvent[]`
 
 A list of events to filter and decode the logs by. Mutually exclusive with `event`.
 
@@ -400,3 +393,13 @@ const logs = await Actions.event.getLogs(client, {
   toBlock: 19760240n, // [!code focus]
 })
 ```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `AbiEvent.FilterTypeNotSupportedError` | `args` includes an indexed tuple or array, which event topic filters do not support. |
+| `AbiParameters.InvalidTypeError` | `args` includes an indexed ABI type that the topic encoder does not support. |
+| `Address.InvalidAddressError` | `args` includes an invalid indexed address. |
+| `Hex.IntegerOutOfRangeError` | `args` includes an indexed integer outside the supported 256-bit range. |
+| `Hex.SizeExceedsPaddingSizeError` | An indexed fixed-bytes value exceeds the 32-byte topic size. |

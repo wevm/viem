@@ -1,8 +1,8 @@
 # connect
 
-Requests to connect account(s) with optional capabilities via [ERC-7846 `wallet_connect`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7846.md).
+Requests to connect accounts with optional capabilities via [ERC-7846 `wallet_connect`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7846.md).
 
-Falls back to [`requestAddresses`](/docs/actions/wallet/requestAddresses) (`eth_requestAccounts`) when the wallet does not support `wallet_connect` and no capabilities were requested.
+Falls back to [`Actions.wallet.requestAddresses`](/docs/actions/wallet/requestAddresses) (`eth_requestAccounts`) when the wallet does not support `wallet_connect` and no capabilities were requested.
 
 ## Usage
 
@@ -69,7 +69,7 @@ The connected accounts, each with its checksummed `address` and any [capabilitie
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const { accounts } = await Actions.wallet.connect(client, {
   capabilities: { // [!code focus]

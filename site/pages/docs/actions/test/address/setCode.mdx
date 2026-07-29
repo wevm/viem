@@ -57,6 +57,33 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Clear Account Bytecode
+
+Set `bytecode` to `0x` to remove the code stored at an address.
+
+```ts twoslash
+import { Client, http, testActions } from 'viem'
+import { anvil } from 'viem/chains'
+
+const client = Client.create({
+  chain: anvil,
+  transport: http(),
+}).extend(testActions())
+
+await client.address.setCode({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  bytecode: '0x', // [!code focus]
+})
+```
+
+## Return Value
+
+`void`
+
+No value is returned.
+
 ## Parameters
 
 ### address

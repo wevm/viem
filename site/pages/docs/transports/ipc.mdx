@@ -2,7 +2,12 @@
 
 ## Overview
 
-The [`ipc`](/docs/transports) transport carries JSON-RPC requests over a local IPC socket (a Unix domain socket or Windows named pipe), typically exposed by a node running on the same machine. Like [WebSocket](/docs/transports/websocket), it supports subscriptions and keeps the connection alive with automatic reconnect and resubscribe.
+The [`ipc`](/docs/transports/ipc) transport carries JSON-RPC requests over a local IPC socket. The
+socket can be a Unix domain socket or Windows named pipe.
+
+Nodes typically expose this socket on the same machine. Like
+[WebSocket](/docs/transports/websocket), IPC supports subscriptions, reconnection, and
+resubscription.
 
 It is Node-only, so it is imported from `viem/node` rather than the root entrypoint.
 
@@ -101,7 +106,7 @@ const transport = ipc('/tmp/reth.ipc')
 
 - **Type:** `string`
 
-The path to the IPC socket (e.g. `/tmp/reth.ipc`).
+The path to the IPC socket, such as `/tmp/reth.ipc`.
 
 ```ts twoslash
 import { ipc } from 'viem/node'
@@ -109,11 +114,7 @@ import { ipc } from 'viem/node'
 const transport = ipc('/tmp/reth.ipc') // [!code focus]
 ```
 
-#### options
-
-- **Type:** `ipc.Options`
-
-##### keepAlive
+#### options.keepAlive
 
 - **Type:** `boolean | { interval?: number }`
 - **Default:** `true`
@@ -128,7 +129,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### key
+#### options.key
 
 - **Type:** `string`
 - **Default:** `'ipc'`
@@ -143,7 +144,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### methods
+#### options.methods
 
 - **Type:** `{ include?: string[] } | { exclude?: string[] }`
 
@@ -157,7 +158,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### name
+#### options.name
 
 - **Type:** `string`
 - **Default:** `'IPC JSON-RPC'`
@@ -172,7 +173,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### reconnect
+#### options.reconnect
 
 - **Type:** `boolean | { maxRetries?: number; minReconnectionDelay?: number; maxReconnectionDelay?: number; reconnectionDelayGrowFactor?: number; minUptime?: number; connectionTimeout?: number; maxEnqueuedMessages?: number }`
 - **Default:** `true`
@@ -187,7 +188,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### retryCount
+#### options.retryCount
 
 - **Type:** `number`
 - **Default:** `3`
@@ -202,7 +203,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### retryDelay
+#### options.retryDelay
 
 - **Type:** `number`
 - **Default:** `150`
@@ -217,7 +218,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### timeout
+#### options.timeout
 
 - **Type:** `number`
 - **Default:** `10_000`

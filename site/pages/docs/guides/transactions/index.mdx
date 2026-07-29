@@ -9,11 +9,28 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 Viem provides a complete transaction lifecycle through the
-[`Actions.transaction`](/docs/actions/wallet/transaction/send) namespace. Build a request, estimate
-its cost, sign locally or through a wallet, broadcast it, and wait for confirmation without losing
-the Chain and Account types established by your Client.
+[`Actions.transaction`](/docs/actions/wallet/transaction/send) namespace.
 
-## See More
+Build a request, estimate its cost, sign locally or through a wallet, broadcast it, and wait for
+confirmation. The workflow preserves your Client's Chain and Account types.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const hash = await client.transaction.send({
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: Value.fromEther('1'),
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
 
 <Cards>
   <Card

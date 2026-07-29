@@ -61,6 +61,105 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Prepare Before Signing
+
+Set `prepare` when the request does not already contain its nonce, chain ID, gas, fee, and
+transaction type fields.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const signed = await client.transaction.sign({
+  prepare: true, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: '0x02f86b0180843b9aca008502540be400825208...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+### Sign with a Connected Wallet
+
+Use a JSON-RPC Account when a connected wallet holds the signing key. The wallet receives an
+`eth_signTransaction` request.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const signed = await client.transaction.sign({
+  prepare: true,
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: '0x02f86b0180843b9aca008502540be400825208...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import 'viem/window'
+
+export const client = Client.create({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  chain: mainnet,
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+```
+
+:::
+
+### Sign Blob Data
+
+Pass encoded blobs and a configured KZG adapter when signing an EIP-4844 transaction. Preparation
+derives the remaining blob and transaction fields.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Blobs, Hex, Kzg } from 'viem/utils'
+import { client } from './viem.config'
+
+export async function signBlob(kzg: Kzg.Kzg) {
+  return client.transaction.sign({
+    blobs: Blobs.from(Hex.fromString('Hello from a blob')), // [!code focus]
+    kzg, // [!code focus]
+    prepare: true, // [!code focus]
+    to: '0x0000000000000000000000000000000000000000',
+  })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
 ## Return Value
 
 `Hex`
@@ -208,7 +307,7 @@ const signed = await Actions.transaction.sign(client, {
 
 ### gas
 
-- **Type:** `bigint`
+- **Type:** `bigint | number | Hex`
 
 The gas limit for the transaction.
 
@@ -227,7 +326,7 @@ const signed = await Actions.transaction.sign(client, {
 
 ### gasPrice
 
-- **Type:** `bigint`
+- **Type:** `bigint | number | Hex`
 
 The legacy gas price (in wei). Mutually exclusive with `maxFeePerGas`/`maxPriorityFeePerGas`.
 
@@ -270,7 +369,7 @@ const signed = await Actions.transaction.sign(client, {
 
 ### maxFeePerBlobGas
 
-- **Type:** `bigint`
+- **Type:** `bigint | number | Hex`
 
 The max fee per blob gas (in wei) the sender is willing to pay (EIP-4844).
 
@@ -289,7 +388,7 @@ const signed = await Actions.transaction.sign(client, {
 
 ### maxFeePerGas
 
-- **Type:** `bigint`
+- **Type:** `bigint | number | Hex`
 
 The total fee per gas (in wei) the sender is willing to pay (EIP-1559).
 
@@ -308,7 +407,7 @@ const signed = await Actions.transaction.sign(client, {
 
 ### maxPriorityFeePerGas
 
-- **Type:** `bigint`
+- **Type:** `bigint | number | Hex`
 
 The max priority fee per gas (in wei) to pay to the block producer (EIP-1559).
 
@@ -327,7 +426,7 @@ const signed = await Actions.transaction.sign(client, {
 
 ### nonce
 
-- **Type:** `number`
+- **Type:** `bigint | number | Hex`
 
 The nonce to use for the transaction.
 
@@ -349,7 +448,11 @@ const signed = await Actions.transaction.sign(client, {
 - **Type:** `boolean`
 - **Default:** `false`
 
-Whether to [prepare](/docs/actions/public/transaction/prepare) the transaction request before signing (populating `nonce`, `chainId`, fees, `gas`, and `type`). When `false`, the request is signed as-is.
+Whether to use
+[`Actions.transaction.prepare`](/docs/actions/public/transaction/prepare) before signing.
+Preparation populates `nonce`, `chainId`, fees, `gas`, and `type`.
+
+When `false`, the action signs the request without preparing it.
 
 ```ts twoslash
 import { Account, Actions, Client, http } from 'viem'
@@ -409,7 +512,8 @@ const signed = await Actions.transaction.sign(client, {
 
 - **Type:** `string`
 
-Forces the transaction request to a specific type (e.g. `'eip1559'`, `'eip2930'`, `'legacy'`).
+Forces the transaction request to a specific type, such as `'eip1559'`, `'eip2930'`, or
+`'legacy'`.
 
 ```ts twoslash
 import { Account, Actions, Client, http } from 'viem'
@@ -426,7 +530,7 @@ const signed = await Actions.transaction.sign(client, {
 
 ### value
 
-- **Type:** `bigint`
+- **Type:** `bigint | number | Hex`
 
 The value (in wei) sent with the transaction.
 

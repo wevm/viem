@@ -141,11 +141,6 @@ const transport = withRelay(
 )
 ```
 
-### options
-
-- **Type:** `withRelay.Options`
-- **Default:** `{}`
-
 Options for transport metadata, request routing, retry behavior, and relay submission policy.
 
 ```ts twoslash
@@ -157,7 +152,7 @@ const transport = withRelay(http(), http('https://relay.example.com'), {
 })
 ```
 
-#### key
+### options.key
 
 - **Type:** `string | undefined`
 - **Default:** `'relay'`
@@ -172,7 +167,7 @@ const transport = withRelay(http(), http('https://relay.example.com'), {
 })
 ```
 
-#### methods
+### options.methods
 
 - **Type:** `{ include?: string[] } | { exclude?: string[] } | undefined`
 
@@ -186,7 +181,7 @@ const transport = withRelay(http(), http('https://relay.example.com'), {
 })
 ```
 
-#### name
+### options.name
 
 - **Type:** `string | undefined`
 - **Default:** `'Relay Proxy'`
@@ -201,7 +196,7 @@ const transport = withRelay(http(), http('https://relay.example.com'), {
 })
 ```
 
-#### policy
+### options.policy
 
 - **Type:** `'sign-only' | 'sign-and-broadcast' | undefined`
 - **Default:** `'sign-only'`
@@ -219,7 +214,7 @@ const transport = withRelay(http(), http('https://relay.example.com'), {
 })
 ```
 
-#### retryCount
+### options.retryCount
 
 - **Type:** `number | undefined`
 - **Default:** `3`
@@ -234,7 +229,7 @@ const transport = withRelay(http(), http('https://relay.example.com'), {
 })
 ```
 
-#### retryDelay
+### options.retryDelay
 
 - **Type:** `number | undefined`
 - **Default:** `150`

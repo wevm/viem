@@ -62,6 +62,68 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Sign Raw Bytes
+
+Pass `{ raw }` when the input is already encoded. Viem signs these bytes without applying UTF-8
+encoding first.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Hex } from 'viem/utils'
+import { client } from './viem.config'
+
+const signature = await client.signMessage({
+  message: { raw: Hex.fromString('hello world') }, // [!code focus]
+})
+// @log: '0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b8031...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+### Request a Signature from a Connected Wallet
+
+Use a JSON-RPC Account when a connected wallet holds the signing key. The wallet receives a
+`personal_sign` request and prompts the account holder.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const signature = await client.signMessage({
+  message: 'hello world',
+})
+// @log: '0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b8031...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import 'viem/window'
+
+export const client = Client.create({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  chain: mainnet,
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+```
+
+:::
+
 ## Return Value
 
 `Hex`
@@ -79,7 +141,7 @@ Account (or address) to sign with.
 
 ```ts twoslash
 import { Account, Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const signature = await Actions.signMessage(client, {
   account: Account.fromPrivateKey('0x…'), // [!code focus]
@@ -95,10 +157,29 @@ Message to sign. Pass `{ raw }` to sign over raw bytes without UTF-8 encoding.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const signature = await Actions.signMessage(client, {
   message: { raw: '0x68656c6c6f20776f726c64' }, // [!code focus]
+})
+```
+
+### requestOptions
+
+- **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
+
+Options forwarded to the `personal_sign` request for a JSON-RPC Account.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const controller = new AbortController()
+const signature = await Actions.signMessage(client, {
+  message: 'hello world',
+  requestOptions: { signal: controller.signal }, // [!code focus]
 })
 ```
 

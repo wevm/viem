@@ -2,7 +2,8 @@
 
 ## Overview
 
-A [Chain](/docs/chains) can describe how fees are derived via the optional `fees` property. It lets a chain override the values that fee-estimation actions return, which is useful for networks with non-standard fee markets or for applying a project-wide policy.
+A [Chain](/docs/chains) can define fee derivation through the optional `fees` property. Use this
+property for nonstandard fee markets or a project-wide fee policy.
 
 `fees` has three optional slots:
 
@@ -29,7 +30,11 @@ const chain = Chain.from({
 
 ### Setting a Default Priority Fee
 
-Set `fees.maxPriorityFeePerGas` to a fixed value (in wei) to skip the `eth_maxPriorityFeePerGas` RPC call and always use your own default. [`estimateMaxPriorityFeePerGas`](/docs/actions/public/fee/estimateMaxPriorityFeePerGas) returns this value verbatim.
+Set `fees.maxPriorityFeePerGas` to a fixed value in wei to skip the
+`eth_maxPriorityFeePerGas` RPC call.
+
+[`Actions.fee.estimateMaxPriorityFeePerGas`](/docs/actions/public/fee/estimateMaxPriorityFeePerGas)
+returns this value unchanged.
 
 ```ts twoslash
 import { Chain } from 'viem'
@@ -47,7 +52,11 @@ const chain = Chain.from({
 
 ### Deriving the Priority Fee Dynamically
 
-Provide a function for `fees.maxPriorityFeePerGas` to compute the priority fee from the latest block and the Client. Return `null` to fall back to the default derivation (the `eth_maxPriorityFeePerGas` RPC method, then `gasPrice - baseFeePerGas`).
+Provide a function for `fees.maxPriorityFeePerGas` to compute the priority fee from the latest block
+and Client.
+
+Return `null` to use the default derivation: `eth_maxPriorityFeePerGas`, followed by
+`gasPrice - baseFeePerGas` when needed.
 
 ```ts twoslash
 import { Chain } from 'viem'
@@ -68,7 +77,10 @@ const chain = Chain.from({
 
 ### Adjusting the Base Fee Multiplier
 
-Set `fees.baseFeeMultiplier` to scale the base fee when estimating `maxFeePerGas`, giving the transaction headroom against base-fee fluctuations between blocks. Defaults to `1.2`.
+Set `fees.baseFeeMultiplier` to scale the base fee when estimating `maxFeePerGas`. The additional
+amount accounts for base-fee changes between blocks.
+
+The default multiplier is `1.2`.
 
 ```ts twoslash
 import { Chain } from 'viem'
@@ -105,7 +117,10 @@ const chain = Chain.from({
 
 ### Fully Customizing Fee Estimation
 
-Provide `fees.estimateFeesPerGas` to take full control over the derived fee values. Use the supplied `multiply` helper to apply `baseFeeMultiplier`, and `type` to branch between `eip1559` and `legacy` fee shapes. Return `null` to fall back to the default derivation.
+Provide `fees.estimateFeesPerGas` to control the derived fee values. Use `multiply` to apply
+`baseFeeMultiplier`, and use `type` to select the fee shape.
+
+Return `null` to use the default derivation.
 
 ```ts twoslash
 import { Chain } from 'viem'
@@ -129,16 +144,41 @@ const chain = Chain.from({
 })
 ```
 
+### Set Fees from the Transaction Request
+
+Fee callbacks receive the transaction `request` when the caller provides one. Use the request to
+apply a transaction-specific fee policy.
+
+```ts twoslash
+import { Chain } from 'viem'
+
+const priorityAddress = '0x0000000000000000000000000000000000000001'
+
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  fees: {
+    maxPriorityFeePerGas({ request }) { // [!code focus]
+      if (request?.to === priorityAddress) return 2_000_000_000n // [!code focus]
+      return null // [!code focus]
+    }, // [!code focus]
+  },
+})
+```
+
 ## `Chain.Fees`
 
 Configuration describing how fees are derived for a [Chain](/docs/chains).
 
 ### fees.baseFeeMultiplier
 
-- **Type:** `number | ((args: { block: Block; client: Client }) => number | Promise<number>)`
+- **Type:** `number | ((args: { block: Block; client: Client; request?: TransactionRequest.toRpc.Input }) => number | Promise<number>)`
 - **Default:** `1.2`
 
-The multiplier applied to the base fee to account for fee fluctuations when estimating `maxFeePerGas`. Accepts a static number or a function of the latest block and Client.
+The multiplier applied to the base fee when estimating `maxFeePerGas`. Pass a number or a function
+that receives the latest block, Client, and optional transaction request.
 
 ```ts twoslash
 import { Chain } from 'viem'
@@ -154,33 +194,15 @@ const chain = Chain.from({
 })
 ```
 
-### fees.maxPriorityFeePerGas
-
-- **Type:** `bigint | ((args: { block: Block; client: Client }) => bigint | null | Promise<bigint | null>)`
-- **Optional**
-
-The default `maxPriorityFeePerGas` (in wei) used when a priority fee is not supplied. Overrides the return value of [`estimateMaxPriorityFeePerGas`](/docs/actions/public/fee/estimateMaxPriorityFeePerGas). A function may return `null` to fall back to the default derivation.
-
-```ts twoslash
-import { Chain } from 'viem'
-// ---cut---
-const chain = Chain.from({
-  id: 1,
-  name: 'Ethereum',
-  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { http: 'https://eth.merkle.io' },
-  fees: {
-    maxPriorityFeePerGas: 1_000_000_000n, // [!code focus]
-  },
-})
-```
-
 ### fees.estimateFeesPerGas
 
-- **Type:** `(args: { block: Block; client: Client; multiply: (x: bigint) => bigint; type: 'legacy' | 'eip1559' | 'eip4844' }) => FeeValues | null | Promise<FeeValues | null>`
+- **Type:** `(args: { block: Block; client: Client; multiply: (x: bigint) => bigint; request?: TransactionRequest.toRpc.Input; type: 'legacy' | 'eip1559' | 'eip4844' }) => FeeValues | null | Promise<FeeValues | null>`
 - **Optional**
 
-Full customization of the derived fee-per-gas values. The `multiply` helper applies `baseFeeMultiplier`, and `type` selects the fee shape. Return `null` to fall back to the default derivation.
+Controls the derived fee values. The `multiply` helper applies `baseFeeMultiplier`, and `type`
+selects the fee shape. The optional `request` contains the transaction request when available.
+
+Return `null` to use the default derivation.
 
 ```ts twoslash
 import { Chain } from 'viem'
@@ -199,6 +221,31 @@ const chain = Chain.from({
         maxPriorityFeePerGas, // [!code focus]
       } // [!code focus]
     }, // [!code focus]
+  },
+})
+```
+
+### fees.maxPriorityFeePerGas
+
+- **Type:** `bigint | ((args: { block: Block; client: Client; request?: TransactionRequest.toRpc.Input }) => bigint | null | Promise<bigint | null>)`
+- **Optional**
+
+The default `maxPriorityFeePerGas` in wei. This value overrides
+[`Actions.fee.estimateMaxPriorityFeePerGas`](/docs/actions/public/fee/estimateMaxPriorityFeePerGas).
+
+A function receives the latest block, Client, and optional transaction request. It can return
+`null` to use the default derivation.
+
+```ts twoslash
+import { Chain } from 'viem'
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  fees: {
+    maxPriorityFeePerGas: 1_000_000_000n, // [!code focus]
   },
 })
 ```

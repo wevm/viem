@@ -1,15 +1,101 @@
 ---
-description: Dry-run state-mutating contract functions through a typed contract instance.
+description: Simulate contract write functions through a typed contract instance.
 ---
 
 # contract.simulate
 
-Simulators for the ABI's state-mutating (`nonpayable`/`payable`) functions. Each maps to [`Actions.contract.simulate`](/docs/actions/public/contract/simulate) with `abi`, `address`, and `functionName` bound, executing the call without broadcasting a transaction.
+## Overview
 
-## Usage
+Use [`contract.simulate.<functionName>`](#contractsimulate) to execute a contract write function against current
+chain state without sending a transaction.
+
+The group contains one method for each write function in the contract's ABI.
+
+Each method supplies the bound ABI, address, and function name to
+[`Actions.contract.simulate`](/docs/actions/public/contract/simulate).
 
 ```ts twoslash
-import { Account, Client, Contract, http } from 'viem'
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+
+const { result } = await contract.simulate.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  { account: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' },
+)
+// @log: true
+```
+
+## Recipes
+
+### Simulate from an Account
+
+Pass an [Account](/docs/accounts) or address in the second parameter when the result depends on the transaction
+sender.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+
+const { result } = await contract.simulate.approve(
+  [
+    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    1n,
+  ],
+  {
+    account: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045', // [!code focus]
+  },
+)
+```
+
+### Simulate a No-Input Function
+
+For a function without inputs, pass its options as the first parameter. The `value` option is
+available only for payable functions.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi, Value } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const contract = Contract.from({
+  abi: Abi.from(['function deposit() payable']),
+  address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  client,
+})
+
+const simulation = await contract.simulate.deposit({ // [!code focus]
+  account: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+  value: Value.fromEther('0.01'), // [!code focus]
+}) // [!code focus]
+```
+
+### Send a Simulated Request
+
+The returned `request` contains the resolved function call. Pass it to
+[`Actions.contract.write`](/docs/actions/wallet/contract/write) after checking the decoded result.
+
+```ts twoslash
+import { Account, Actions, Client, Contract, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { Abis } from 'viem/utils'
 
@@ -21,25 +107,507 @@ const client = Client.create({
 
 const contract = Contract.from({
   abi: Abis.erc20,
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
   client,
 })
 
-const { result } = await contract.simulate.transfer([ // [!code focus]
-  '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
-  1n, // [!code focus]
-]) // [!code focus]
+const { request, result } = await contract.simulate.approve([
+  '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  1n,
+])
+
+if (result) {
+  const hash = await Actions.contract.write(client, request) // [!code focus]
+  // @log: '0x...'
+}
+```
+
+## `contract.simulate`
+
+Simulates a contract write function and returns its decoded result without broadcasting a
+transaction.
+
+### Usage
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+
+const { result } = await contract.simulate.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  { account: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' },
+)
 // @log: true
 ```
 
-## Options
+### Parameters
 
-Function arguments are passed as the first parameter. The optional second parameter accepts the options of [`Actions.contract.simulate`](/docs/actions/public/contract/simulate#parameters) minus the bound `abi`, `address`, `args`, and `functionName`, such as `account` (to simulate as a specific sender).
+#### args
 
-When a function has no inputs, omit the arguments array and pass options as the first parameter.
+- **Type:** Inferred from the ABI function
 
-## Return Value
+The positional function arguments. This parameter is required for functions with inputs. Omit it
+when the function has no inputs.
 
-`Promise<SimulateReturnType>`
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
 
-The decoded result of the simulated call, alongside the prepared request.
+const client = Client.create({ chain: mainnet, transport: http() })
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const simulation = await contract.simulate.approve(
+  [ // [!code focus]
+    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+    1n, // [!code focus]
+  ], // [!code focus]
+  { account: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' },
+)
+```
+
+The remaining [simulation options](/docs/actions/public/contract/simulate#parameters). Pass this
+object first when the function has no inputs.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const simulation = await contract.simulate.approve(
+  [
+    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    1n,
+  ],
+  { // [!code focus]
+    account: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045', // [!code focus]
+  }, // [!code focus]
+)
+```
+
+#### options.account
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+The account or address to use as `msg.sender`.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const simulation = await contract.simulate.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    account: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045', // [!code focus]
+  },
+)
+```
+
+#### options.as
+
+- **Type:** `'Object' | 'Array'`
+- **Default:** `'Object'`
+
+The shape for multiple named return values. Fully unnamed outputs remain arrays.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const contract = Contract.from({
+  abi: Abi.from([
+    'function mint() returns (uint256 tokenId, uint256 supply)',
+  ]),
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  client,
+})
+// ---cut---
+const simulation = await contract.simulate.mint({
+  as: 'Array', // [!code focus]
+})
+```
+
+#### options.authorizationList
+
+- **Type:** `AuthorizationList`
+- **Optional**
+
+The signed EIP-7702 authorization list to attach to the simulated call.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const simulation = await contract.simulate.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    authorizationList: [ // [!code focus]
+      { // [!code focus]
+        address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+        chainId: 1, // [!code focus]
+        nonce: 0n, // [!code focus]
+        r: '0x...', // [!code focus]
+        s: '0x...', // [!code focus]
+        yParity: 0, // [!code focus]
+      }, // [!code focus]
+    ], // [!code focus]
+  },
+)
+```
+
+#### options.blockHash
+
+- **Type:** `Hex`
+- **Optional**
+
+The block hash whose state to use. This option cannot be combined with `blockNumber` or `blockTag`.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const simulation = await contract.simulate.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d', // [!code focus]
+  },
+)
+```
+
+#### options.blockNumber
+
+- **Type:** `bigint`
+- **Optional**
+
+The block number whose state to use. This option cannot be combined with `blockHash` or `blockTag`.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const simulation = await contract.simulate.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    blockNumber: 20_000_000n, // [!code focus]
+  },
+)
+```
+
+#### options.blockOverrides
+
+- **Type:** `BlockOverrides`
+- **Optional**
+
+The block fields to override for the simulation.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const simulation = await contract.simulate.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    blockOverrides: { // [!code focus]
+      baseFeePerGas: 1_000_000_000n, // [!code focus]
+    }, // [!code focus]
+  },
+)
+```
+
+#### options.blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `client.blockTag ?? 'latest'`
+
+The block tag whose state to use. This option cannot be combined with `blockHash` or `blockNumber`.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const simulation = await contract.simulate.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    blockTag: 'pending', // [!code focus]
+  },
+)
+```
+
+#### options.dataSuffix
+
+- **Type:** `Hex`
+- **Default:** `client.dataSuffix`
+
+The data to append to the encoded function call. This value takes precedence over the Client's
+`dataSuffix`.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const simulation = await contract.simulate.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    dataSuffix: '0xdeadbeef', // [!code focus]
+  },
+)
+```
+
+#### options.factory
+
+- **Type:** `Address`
+- **Optional**
+
+The deployment factory for a counterfactual contract call. Provide `factoryData` with this option.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const simulation = await contract.simulate.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    factory: '0xE8Df82fA4E10e6A12a9Dab552bceA2acd26De9bb', // [!code focus]
+    factoryData: '0x...',
+  },
+)
+```
+
+#### options.factoryData
+
+- **Type:** `Hex`
+- **Optional**
+
+The calldata that asks `factory` to deploy the counterfactual contract.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const simulation = await contract.simulate.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    factory: '0xE8Df82fA4E10e6A12a9Dab552bceA2acd26De9bb',
+    factoryData: '0x...', // [!code focus]
+  },
+)
+```
+
+#### options.requestOptions
+
+- **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
+- **Optional**
+
+The transport options for this request.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+const controller = new AbortController()
+// ---cut---
+const simulation = await contract.simulate.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    requestOptions: { signal: controller.signal }, // [!code focus]
+  },
+)
+```
+
+#### options.requireCanonical
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether to reject a [`blockHash`](#optionsblockhash) that is not in the canonical chain.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const simulation = await contract.simulate.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+    requireCanonical: true, // [!code focus]
+  },
+)
+```
+
+#### options.stateOverride
+
+- **Type:** `StateOverrides`
+- **Optional**
+
+The account state to override for the simulation.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const simulation = await contract.simulate.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    stateOverride: { // [!code focus]
+      '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045': { // [!code focus]
+        balance: 1_000_000_000_000_000_000n, // [!code focus]
+      }, // [!code focus]
+    }, // [!code focus]
+  },
+)
+```
+
+#### options.value
+
+- **Type:** `bigint | number | Hex`
+- **Optional:** for payable functions
+
+The native currency value to send. This option is available only for payable functions.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi, Value } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const contract = Contract.from({
+  abi: Abi.from(['function deposit() payable']),
+  address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  client,
+})
+// ---cut---
+const simulation = await contract.simulate.deposit({
+  value: Value.fromEther('0.01'), // [!code focus]
+})
+```
+
+### Return Value
+
+`Promise<Actions.contract.simulate.ReturnType>`
+
+An object containing the decoded `result` and a prepared `request` for
+[`Actions.contract.write`](/docs/actions/wallet/contract/write).
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractError.ContractFunctionExecutionError` | The simulation failed. Inspect `cause` for a decoded revert reason or other underlying failure. |

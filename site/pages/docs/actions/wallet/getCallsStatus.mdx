@@ -1,6 +1,6 @@
 # getCallsStatus
 
-Returns the status & receipts of a call batch that was sent via [`sendCalls`](/docs/actions/wallet/sendCalls) ([EIP-5792](https://eips.ethereum.org/EIPS/eip-5792)).
+Returns the status and receipts of a call batch that was sent via [`Actions.wallet.sendCalls`](/docs/actions/wallet/sendCalls) ([EIP-5792](https://eips.ethereum.org/EIPS/eip-5792)).
 
 ## Usage
 
@@ -73,7 +73,7 @@ export const client = Client.create({
 
 ## Return Value
 
-`{ atomic, chainId, id, receipts, status, statusCode, version }`
+`{ atomic: boolean; capabilities?: Capabilities.Extract<'getCallsStatus', 'ReturnType'>; chainId: number | undefined; id: string; receipts: readonly Receipt[]; status: 'pending' | 'success' | 'failure' | undefined; statusCode: number; version: string }`
 
 The status of the call batch. `status` is `'pending' | 'success' | 'failure' | undefined`, and `receipts` contains the per-call transaction receipts.
 
@@ -83,11 +83,11 @@ The status of the call batch. `status` is `'pending' | 'success' | 'failure' | u
 
 - **Type:** `string`
 
-The identifier of the call batch (returned by [`sendCalls`](/docs/actions/wallet/sendCalls)).
+The identifier of the call batch (returned by [`Actions.wallet.sendCalls`](/docs/actions/wallet/sendCalls)).
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const { receipts, status } = await Actions.wallet.getCallsStatus(client, {
   id: '0xdeadbeef', // [!code focus]

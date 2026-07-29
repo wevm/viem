@@ -2,7 +2,11 @@
 
 ## Overview
 
-The [`webSocket`](/docs/transports) transport carries JSON-RPC requests over a reconnecting WebSocket connection. When no `url` is provided, it falls back to the [Chain](/docs/chains)'s default WebSocket RPC URL. Unlike [HTTP](/docs/transports/http), it supports JSON-RPC subscriptions and keeps the connection alive across requests, reconnecting and resubscribing automatically on closure.
+The [`webSocket`](/docs/transports/websocket) transport carries JSON-RPC requests over WebSocket.
+Without a `url`, it uses the [Chain](/docs/chains) default WebSocket RPC URL.
+
+Unlike [HTTP](/docs/transports/http), WebSocket supports JSON-RPC subscriptions. The Transport keeps
+the connection open across requests, then reconnects and restores subscriptions after closure.
 
 ```ts twoslash
 import { webSocket } from 'viem'
@@ -118,11 +122,7 @@ import { webSocket } from 'viem'
 const transport = webSocket('wss://eth.merkle.io') // [!code focus]
 ```
 
-#### options
-
-- **Type:** `webSocket.Options`
-
-##### keepAlive
+#### options.keepAlive
 
 - **Type:** `boolean | { interval?: number }`
 - **Default:** `true`
@@ -137,7 +137,7 @@ const transport = webSocket('wss://eth.merkle.io', {
 })
 ```
 
-##### key
+#### options.key
 
 - **Type:** `string`
 - **Default:** `'webSocket'`
@@ -152,7 +152,7 @@ const transport = webSocket('wss://eth.merkle.io', {
 })
 ```
 
-##### methods
+#### options.methods
 
 - **Type:** `{ include?: string[] } | { exclude?: string[] }`
 
@@ -166,7 +166,7 @@ const transport = webSocket('wss://eth.merkle.io', {
 })
 ```
 
-##### name
+#### options.name
 
 - **Type:** `string`
 - **Default:** `'WebSocket JSON-RPC'`
@@ -181,7 +181,7 @@ const transport = webSocket('wss://eth.merkle.io', {
 })
 ```
 
-##### reconnect
+#### options.reconnect
 
 - **Type:** `boolean | { maxRetries?: number; minReconnectionDelay?: number; maxReconnectionDelay?: number; reconnectionDelayGrowFactor?: number; minUptime?: number; connectionTimeout?: number; maxEnqueuedMessages?: number }`
 - **Default:** `true`
@@ -196,7 +196,7 @@ const transport = webSocket('wss://eth.merkle.io', {
 })
 ```
 
-##### retryCount
+#### options.retryCount
 
 - **Type:** `number`
 - **Default:** `3`
@@ -211,7 +211,7 @@ const transport = webSocket('wss://eth.merkle.io', {
 })
 ```
 
-##### retryDelay
+#### options.retryDelay
 
 - **Type:** `number`
 - **Default:** `150`
@@ -226,7 +226,7 @@ const transport = webSocket('wss://eth.merkle.io', {
 })
 ```
 
-##### timeout
+#### options.timeout
 
 - **Type:** `number`
 - **Default:** `10_000`

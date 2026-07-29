@@ -79,7 +79,7 @@ Token metadata. For `ERC20` assets, the contract `address`, `decimals`, and `sym
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const success = await Actions.wallet.watchAsset(client, {
   type: 'ERC20',
@@ -95,11 +95,11 @@ const success = await Actions.wallet.watchAsset(client, {
 
 - **Type:** `string`
 
-The asset's interface type (e.g. `'ERC20'`).
+The asset's interface type, such as `'ERC20'`.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const success = await Actions.wallet.watchAsset(client, {
   type: 'ERC20', // [!code focus]

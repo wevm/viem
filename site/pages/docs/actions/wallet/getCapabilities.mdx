@@ -1,6 +1,7 @@
 # getCapabilities
 
-Extracts capabilities that a connected wallet supports (e.g. paymasters, session keys, etc), as defined by [EIP-5792](https://eips.ethereum.org/EIPS/eip-5792).
+Retrieves capabilities such as paymasters and session keys from a connected wallet, as defined by
+[EIP-5792](https://eips.ethereum.org/EIPS/eip-5792).
 
 ## Usage
 
@@ -53,7 +54,7 @@ export const client = Client.create({
 
 `{ [chainId: number]: Capabilities }`
 
-The wallet's capabilities, keyed by chain id. When a `chainId` is provided, the capabilities for that chain are returned directly.
+The wallet's capabilities, keyed by chain ID. When a `chainId` is provided, the capabilities for that chain are returned directly.
 
 ## Parameters
 
@@ -66,7 +67,7 @@ The Account (or address) to get capabilities for.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const capabilities = await Actions.wallet.getCapabilities(client, {
   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
@@ -77,11 +78,11 @@ const capabilities = await Actions.wallet.getCapabilities(client, {
 
 - **Type:** `number`
 
-The chain id to scope capabilities to.
+The chain ID to scope capabilities to.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const capabilities = await Actions.wallet.getCapabilities(client, {
   chainId: 1, // [!code focus]

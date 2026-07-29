@@ -27,15 +27,15 @@ types, composable behavior, and escape hatches at every important boundary.
 ## Developer and Agent Experience
 
 Viem's APIs and documentation are structured to be predictable for both developers and coding
-agents. The same repeated shapes make the library easier to discover, explain, generate, and review.
+agents. The same repeated shapes support consistent discovery, explanations, generation, and review.
 
 ### Predictable APIs
 
 The core modules, [Clients](/docs/clients), [Actions](/docs/actions), [Accounts](/docs/accounts), and
-[Transports](/docs/transports), each represent a distinct domain. Folding functions and capabilities
-into namespaces makes each domain's functionality easier to discover. Humans can explore it through
-editor autocomplete, while coding agents can locate related APIs through repository search in their
-coding harness.
+[Transports](/docs/transports), each represent a distinct domain.
+
+Namespaces group each domain's functions and capabilities. Developers can use
+editor autocomplete, while coding agents can search the repository for related APIs.
 
 ```ts twoslash
 // @noErrors
@@ -105,9 +105,10 @@ your project.
 
 ### Agent-Readable Documentation
 
-API pages use consistent sections for usage, parameters, return values, errors, and focused
-examples. TypeScript examples marked with Twoslash are checked against the current Viem source, so
-documentation changes can surface API drift before publication.
+API pages use consistent sections for usage, parameters, return values, errors, and examples.
+Twoslash checks TypeScript examples against the current Viem source.
+
+These checks can reveal API drift before publication.
 
 The site also publishes the same documentation in formats agents can consume directly:
 
@@ -124,13 +125,14 @@ The site also publishes the same documentation in formats agents can consume dir
 These are direct representations of the docs and source, which gives agents better context than a
 browser page or isolated code snippet alone.
 
-[See more](/docs/agents)
+[Set Up the Viem MCP Server](/docs/agents)
 
 ### Types That Follow Your Inputs
 
-Viem leans heavily on strict types and type inference. Information passed into an API flows through
-its parameters and return type, providing precise autocomplete and catching invalid combinations
-before a request is sent.
+Viem uses strict types and type inference. API inputs determine parameter and return types, which
+provides precise autocomplete.
+
+The type system also rejects invalid combinations before a request is sent.
 
 Pass an ABI to [`Actions.contract.read`](/docs/actions/public/contract/read), for example, and the
 editor suggests valid function names, then narrows the arguments and return value for the selected
@@ -157,16 +159,17 @@ Type information is preserved as Clients are extended and APIs are composed.
 
 ## Stability
 
-Ethereum applications depend on behavior remaining predictable across networks and runtimes. Viem
-aims for near-100% test coverage and attempts to capture every behavioral edge case through focused
-unit and type tests, integrations against local and forked Ethereum nodes, and browser and runtime
-checks.
+Ethereum applications depend on predictable behavior across networks and runtimes. Viem targets
+near-100% test coverage across unit, type, integration, browser, and runtime tests.
+
+Integration tests run against local and forked Ethereum nodes.
 
 ## Bundle Size
 
-Viem publishes side-effect-free ESM so compatible bundlers can remove modules an application does
-not use. Domain entrypoints and opt-in decorators keep a base Client focused on the behavior it
-needs, rather than pulling every Action and environment-specific helper into the bundle.
+Viem publishes side-effect-free ESM so compatible bundlers can remove unused modules. Domain
+entrypoints and optional decorators keep a base Client focused on required behavior.
+
+Applications do not need to include every Action or environment-specific helper.
 
 ## Performance
 

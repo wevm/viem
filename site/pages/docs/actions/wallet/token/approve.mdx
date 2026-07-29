@@ -68,12 +68,81 @@ export const client = Client.create({
 :::
 
 :::tip
-Use [`approveSync`](/docs/actions/wallet/token/approveSync) to wait for the transaction receipt and decoded `Approval` event in a single call.
+Use [`Actions.token.approveSync`](/docs/actions/wallet/token/approveSync) to wait for the transaction receipt and decoded `Approval` event in a single call.
+:::
+
+## Recipes
+
+### Approve a Formatted Amount
+
+Declare the token on the Client to select it by symbol. Viem uses the declared decimals to convert
+the formatted amount to base units.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const hash = await client.token.approve({
+  amount: { formatted: '250' }, // [!code focus]
+  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+  token: 'usdc', // [!code focus]
+})
+// @log: "0x4ca7ee652d57678f26e887c19671f76c1aff..."
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+### Approve a Token by Address
+
+When the Client does not declare the token, pass its contract address. Include the token decimals
+when using a formatted amount.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const hash = await client.token.approve({
+  amount: { // [!code focus]
+    decimals: 6, // [!code focus]
+    formatted: '250', // [!code focus]
+  }, // [!code focus]
+  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
+})
+// @log: "0x4ca7ee652d57678f26e887c19671f76c1aff..."
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
 :::
 
 ## Return Value
 
-`Hash`
+`Hex`
 
 The transaction hash.
 
@@ -125,7 +194,7 @@ const hash = await client.token.approve({
 })
 ```
 
-### amount.decimals
+#### decimals
 
 - **Type:** `number`
 
@@ -139,6 +208,107 @@ const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
 const hash = await Actions.token.approve(client, {
   amount: { decimals: 6, formatted: '250' }, // [!code focus]
+  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+### chain
+
+- **Type:** `Chain | null`
+- **Default:** `client.chain`
+
+The target chain. Pass `null` to skip the current-chain assertion.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.token.approve(client, {
+  amount: 250000000n,
+  chain: mainnet, // [!code focus]
+  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+### gas
+
+- **Type:** `bigint | Hex`
+
+The gas limit for the transaction.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.token.approve(client, {
+  amount: 250000000n,
+  gas: 50_000n, // [!code focus]
+  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+### maxFeePerGas
+
+- **Type:** `bigint | number | Hex`
+
+The maximum total fee per gas.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.token.approve(client, {
+  amount: 250000000n,
+  maxFeePerGas: 30_000_000_000n, // [!code focus]
+  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+### maxPriorityFeePerGas
+
+- **Type:** `bigint | number | Hex`
+
+The maximum priority fee per gas.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.token.approve(client, {
+  amount: 250000000n,
+  maxPriorityFeePerGas: 1_000_000_000n, // [!code focus]
+  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+### nonce
+
+- **Type:** `bigint | Hex`
+
+The transaction nonce.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.token.approve(client, {
+  amount: 250000000n,
+  nonce: 12n, // [!code focus]
   spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
   token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
 })

@@ -2,7 +2,9 @@
 
 Watches incoming block numbers, returning a watcher handle.
 
-The watcher uses a WebSocket / IPC subscription (`eth_subscribe` over `newHeads`) when the Client's transport supports it, otherwise it polls `eth_blockNumber` on an interval. The underlying source starts lazily once the first listener (or iterator) attaches.
+The watcher subscribes to `newHeads` with `eth_subscribe` when the Client uses a WebSocket or IPC transport. Otherwise, the watcher polls `eth_blockNumber`.
+
+The source starts when the first listener or iterator attaches.
 
 ## Usage
 
@@ -65,13 +67,57 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Emit the Current Block Number
+
+Set `emitOnBegin` to receive the current block number when the watcher starts.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const watch = client.block.watchNumber({
+  emitOnBegin: true, // [!code focus]
+})
+
+watch.onBlockNumber((blockNumber) => console.log(blockNumber))
+```
+
+### Backfill Missed Block Numbers
+
+Enable polling and `emitMissed` to emit each block number that arrives between polling intervals.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const watch = client.block.watchNumber({
+  emitMissed: true, // [!code focus]
+  poll: true, // [!code focus]
+  pollingInterval: 2_000, // [!code focus]
+})
+
+watch.onBlockNumber((blockNumber) => console.log(blockNumber))
+```
+
 ## Return Value
 
 `Watcher`
 
 A watcher handle with the following members:
 
-### onBlockNumber
+#### onBlockNumber
 
 - **Type:** `(fn: (blockNumber: bigint, prevBlockNumber: bigint | undefined) => void) => () => void`
 
@@ -93,7 +139,7 @@ const off = watch.onBlockNumber((blockNumber, prevBlockNumber) => { // [!code fo
 off()
 ```
 
-### onError
+#### onError
 
 - **Type:** `(fn: (error: Error) => void) => () => void`
 
@@ -111,11 +157,11 @@ watch.onBlockNumber(() => {})
 watch.onError((error) => console.error(error)) // [!code focus]
 ```
 
-### off
+#### off
 
 - **Type:** `() => void`
 
-Tears down the watcher: removes all listeners, ends all iterators, and stops the underlying poll / subscription. Idempotent and terminal.
+Tears down the watcher: removes all listeners, ends all iterators, and stops the underlying polling or subscription. Idempotent and terminal.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -129,7 +175,7 @@ watch.onBlockNumber((blockNumber) => console.log(blockNumber))
 watch.off() // [!code focus]
 ```
 
-### `[Symbol.asyncIterator]`
+#### `[Symbol.asyncIterator]`
 
 - **Type:** `() => AsyncIterableIterator<{ blockNumber: bigint; prevBlockNumber: bigint | undefined }>`
 
@@ -154,7 +200,7 @@ for await (const { blockNumber } of watch) // [!code focus]
 - **Type:** `boolean`
 - **Default:** `false`
 
-Whether to emit the block numbers missed between polls (e.g. when the block number jumps by more than one between intervals).
+Whether to emit the block numbers missed between polls (for example, when the block number jumps by more than one between intervals).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -190,7 +236,7 @@ watch.onBlockNumber((blockNumber) => console.log(blockNumber))
 ### poll
 
 - **Type:** `boolean`
-- **Default:** `false` for WebSocket / IPC transports, `true` otherwise
+- **Default:** `false` for WebSocket or IPC transports, `true` otherwise
 
 Whether to poll for new block numbers instead of using a subscription. Defaults to `true` when the transport cannot subscribe.
 

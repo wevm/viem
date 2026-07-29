@@ -9,12 +9,14 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 [`call`](/docs/actions/public/call) executes `eth_call` with raw calldata and returns raw response
-bytes. It is useful for protocols without an ABI, already encoded payloads, deployless code, or
-advanced overrides. Prefer Contract Actions when an ABI is available.
+bytes.
+
+Use it for protocols without an ABI, already encoded payloads, deployless code, or advanced
+overrides. Prefer Contract Actions when an ABI is available.
 
 ## Recipes
 
-These recipes assume you have [set up a Client](/docs) with `publicActions`.
+These recipes assume you have [set up a Client](/docs) with [`publicActions`](/docs/actions/public).
 
 ### Execute Raw Calldata
 
@@ -25,10 +27,10 @@ The `name()` selector is `0x06fdde03`. Decode the returned bytes according to th
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { data } = await client.call({
-  data: '0x06fdde03',
-  to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-})
+const { data } = await client.call({ // [!code focus]
+  data: '0x06fdde03', // [!code focus]
+  to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -47,7 +49,7 @@ Set `account` when contract behavior depends on `msg.sender`.
 import { client } from './viem.config'
 
 const { data } = await client.call({
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
   data: '0x06fdde03',
   to: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
 })

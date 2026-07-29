@@ -9,13 +9,17 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 [`Client.create`](/docs/clients/create) composes a [Chain](/docs/chains), a
-[Transport](/docs/transports), and an optional [Account](/docs/accounts) into a Client. A bare
-Client only exposes a typed `request` function. Behavior is opted into with
+[Transport](/docs/transports), and an optional [Account](/docs/accounts) into a Client.
+
+A bare Client only exposes a typed `request` function. Add behavior with
 [`.extend()`](/docs/clients/create#extending-a-client) and decorators such as
-[`publicActions`](/docs/actions/public) and [`walletActions`](/docs/actions/wallet), so the Client
-carries exactly the Actions the application uses.
+[`publicActions`](/docs/actions/public) and [`walletActions`](/docs/actions/wallet).
+
+The Client then carries exactly the Actions that the application uses.
 
 ## Recipes
+
+These recipes assume you have [installed Viem](/docs/installation).
 
 ### Create a Public Client
 
@@ -27,8 +31,8 @@ import { Client, http, publicActions } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({
-  chain: mainnet, // [!code focus:2]
-  transport: http(),
+  chain: mainnet, // [!code focus]
+  transport: http(), // [!code focus]
 }).extend(publicActions()) // [!code focus]
 
 const blockNumber = await client.block.getNumber()
@@ -66,7 +70,7 @@ through a [`custom`](/docs/transports/custom) Transport.
 
 ### Batch Requests with Multicall
 
-Enable [`batch.multicall`](/docs/clients/create#batch) to aggregate concurrent `eth_call` requests
+Enable [`batch.multicall`](/docs/clients/create#optionsbatch) to aggregate concurrent `eth_call` requests
 from the same event-loop tick into one Multicall request.
 
 ```ts twoslash [example.ts]
@@ -105,16 +109,18 @@ with `Promise.allSettled` and explicit [`multicall`](/docs/actions/public/multic
 ### Tune Polling and Caching
 
 Watchers and polling Actions poll every `pollingInterval`, and cached responses live for
-`cacheTime`. By default the interval is derived from the Chain's block time (half a block, clamped
-between 500ms and 4 seconds) and `cacheTime` matches it.
+`cacheTime`.
+
+By default, the interval is half the Chain's block time, clamped between 500ms and 4 seconds.
+`cacheTime` matches the interval.
 
 ```ts twoslash [example.ts]
 import { Client, http, publicActions } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({
-  cacheTime: 4_000, // [!code focus:2]
-  pollingInterval: 1_000,
+  cacheTime: 4_000, // [!code focus]
+  pollingInterval: 1_000, // [!code focus]
   chain: mainnet,
   transport: http(),
 }).extend(publicActions())
@@ -125,8 +131,9 @@ watch.onBlockNumber((blockNumber) => console.log(blockNumber))
 
 ### Set a Default Block Tag
 
-Read Actions default to the `latest` block (or `pending` on chains with preconfirmations). Set
-[`blockTag`](/docs/clients/create#blocktag) when every read should target a different tag, such as
+Read Actions default to the `latest` block, or `pending` on chains with preconfirmations.
+
+Set [`blockTag`](/docs/clients/create#optionsblocktag) when every read should target another tag, such as
 `finalized` for reorg-safe reads.
 
 ```ts twoslash [example.ts]
@@ -156,8 +163,8 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({
   chain: mainnet,
-  retryCount: 5, // [!code focus:2]
-  timeout: 10_000,
+  retryCount: 5, // [!code focus]
+  timeout: 10_000, // [!code focus]
   transport: http(),
 }).extend(publicActions())
 
@@ -174,8 +181,7 @@ guide](/docs/guides/clients/resilient-transports).
 ### Create Once and Reuse
 
 Request deduplication, response caching, and Multicall batching live on the Client instance.
-Create one Client per chain at module scope and share it, instead of constructing a Client per
-call site.
+Create one Client per chain at module scope and share it.
 
 ### Extend Only What You Use
 

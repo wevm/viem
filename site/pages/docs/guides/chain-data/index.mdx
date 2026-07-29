@@ -12,7 +12,22 @@ Address and ENS Actions expose account state without requiring a contract ABI. R
 bytecode, nonces, and storage slots, verify Merkle proofs, or resolve human-readable ENS names and
 records.
 
-## See More
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const value = await client.address.getStorageAt({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  slot: '0x0',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
 
 <Cards>
   <Card icon="lucide:database" title="Address & Contract State" description="Read balances, code, nonces, and contract storage." to="/docs/guides/chain-data/state" />

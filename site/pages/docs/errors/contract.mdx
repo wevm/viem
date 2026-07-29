@@ -2,9 +2,21 @@
 
 ## Overview
 
-The **ContractError** module provides the errors thrown when executing a contract function fails: [Contract Actions](/docs/actions/public/contract/read) such as [`contract.read`](/docs/actions/public/contract/read), [`contract.write`](/docs/actions/wallet/contract/write), and [`contract.simulate`](/docs/actions/public/contract/simulate) throw a `ContractError.ContractFunctionExecutionError` that carries the contract call context (address, function, arguments, sender).
+The **ContractError** module provides errors for failed contract function execution.
 
-When the failure is an EVM revert, the error's `cause` is a `ContractError.ContractFunctionRevertedError` with the revert reason decoded against the contract's ABI: a plain `Error(string)` reason, a `Panic` code, or a custom error with its decoded arguments.
+[Contract Actions](/docs/actions/public/contract/read), including
+[`Actions.contract.read`](/docs/actions/public/contract/read),
+[`Actions.contract.write`](/docs/actions/wallet/contract/write), and
+[`Actions.contract.simulate`](/docs/actions/public/contract/simulate), throw
+`ContractError.ContractFunctionExecutionError`.
+
+The error identifies the contract function. It includes the address, arguments, and sender when
+those values are provided.
+
+For an EVM revert, the error's `cause` is
+`ContractError.ContractFunctionRevertedError`. Viem decodes the cause against the contract ABI.
+
+Decoded data can contain an `Error(string)` reason, `Panic` code, or custom error arguments.
 
 ```ts twoslash
 import { Actions, Client, ContractError, http } from 'viem'
@@ -30,7 +42,8 @@ try {
 
 ### Catching a Revert Reason
 
-Inspect the error's `cause`: a revert surfaces as a `ContractFunctionRevertedError` carrying the decoded `reason` (for `Error(string)` and `Panic` reverts) and the raw revert data.
+Inspect the error's `cause`. A revert produces `ContractFunctionRevertedError` with the decoded
+`reason` and raw revert data.
 
 ```ts twoslash
 import { Actions, Client, ContractError, http } from 'viem'
@@ -52,13 +65,14 @@ try {
     if (revert instanceof ContractError.ContractFunctionRevertedError) // [!code focus]
       console.log(revert.reason) // [!code focus]
     // @log: 'Amount exceeds maximum mintable.'
-  } // [!code focus]
+  }
 }
 ```
 
 ### Handling Custom Errors
 
-When the contract reverts with a custom error present on the ABI, `data` holds its decoded `name` and `args`. Reverts with a selector not found on the ABI expose the raw `signature` instead.
+When the ABI contains the custom error, `data` provides its decoded `name` and `args`. Otherwise,
+the error provides the raw `signature`.
 
 ```ts twoslash
 import { Actions, Client, ContractError, http } from 'viem'
@@ -92,7 +106,10 @@ try {
 
 ## `ContractError.fromError`
 
-Maps a raw error thrown while executing a contract function into the rich `ContractFunctionExecutionError`, decoding the revert reason against the provided ABI where possible. Contract Actions call this internally; reach for it when building custom contract actions.
+Converts a raw contract execution error to `ContractFunctionExecutionError`. When possible, the
+function decodes the revert reason against the provided ABI.
+
+Contract Actions call this function internally. Use it when you build a custom Contract Action.
 
 ### Usage
 
@@ -120,11 +137,136 @@ const contractError = ContractError.fromError(error, {
 
 The raw error thrown while executing the contract function.
 
-#### options
+```ts twoslash
+import { ContractError } from 'viem'
+import { Abi } from 'viem/utils'
 
-- **Type:** `ContractError.fromError.Options`
+const abi = Abi.from(['function mint(uint256 amount)'])
+declare const error: Error
+// ---cut---
+const contractError = ContractError.fromError(
+  error, // [!code focus]
+  { abi, args: [69420n], functionName: 'mint' },
+)
+```
 
-The contract call context: `abi` and `functionName` are required; `address`, `args`, `docsPath`, and `sender` are optional and enrich the error message.
+The contract call context.
+
+#### options.abi
+
+- **Type:** `Abi | readonly unknown[]`
+
+The contract ABI used to decode revert data.
+
+```ts twoslash
+import { ContractError } from 'viem'
+import { Abi } from 'viem/utils'
+
+declare const error: Error
+// ---cut---
+const contractError = ContractError.fromError(error, {
+  abi: Abi.from(['function mint(uint256 amount)']), // [!code focus]
+  functionName: 'mint',
+})
+```
+
+#### options.address
+
+- **Type:** `Address.Address`
+- **Optional**
+
+The contract address shown in the error context.
+
+```ts twoslash
+import { ContractError } from 'viem'
+import { Abi } from 'viem/utils'
+
+declare const error: Error
+// ---cut---
+const contractError = ContractError.fromError(error, {
+  abi: Abi.from(['function mint(uint256 amount)']),
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+  functionName: 'mint',
+})
+```
+
+#### options.args
+
+- **Type:** `unknown`
+- **Optional**
+
+The function arguments shown in the error context.
+
+```ts twoslash
+import { ContractError } from 'viem'
+import { Abi } from 'viem/utils'
+
+declare const error: Error
+// ---cut---
+const contractError = ContractError.fromError(error, {
+  abi: Abi.from(['function mint(uint256 amount)']),
+  args: [69420n], // [!code focus]
+  functionName: 'mint',
+})
+```
+
+#### options.docsPath
+
+- **Type:** `string`
+- **Optional**
+
+The documentation path appended to the error.
+
+```ts twoslash
+import { ContractError } from 'viem'
+import { Abi } from 'viem/utils'
+
+declare const error: Error
+// ---cut---
+const contractError = ContractError.fromError(error, {
+  abi: Abi.from(['function mint(uint256 amount)']),
+  docsPath: '/docs/contracts/mint', // [!code focus]
+  functionName: 'mint',
+})
+```
+
+#### options.functionName
+
+- **Type:** `string`
+
+The name of the called contract function.
+
+```ts twoslash
+import { ContractError } from 'viem'
+import { Abi } from 'viem/utils'
+
+declare const error: Error
+// ---cut---
+const contractError = ContractError.fromError(error, {
+  abi: Abi.from(['function mint(uint256 amount)']),
+  functionName: 'mint', // [!code focus]
+})
+```
+
+#### options.sender
+
+- **Type:** `Address.Address`
+- **Optional**
+
+The transaction sender shown in the error context.
+
+```ts twoslash
+import { ContractError } from 'viem'
+import { Abi } from 'viem/utils'
+
+declare const error: Error
+// ---cut---
+const contractError = ContractError.fromError(error, {
+  abi: Abi.from(['function mint(uint256 amount)']),
+  functionName: 'mint',
+  sender: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+})
+```
 
 ### Return Value
 
@@ -136,7 +278,7 @@ The wrapped error. Its `cause` is a `ContractFunctionRevertedError` (decoded rev
 
 | Error | Description |
 | --- | --- |
-| `ContractError.ContractFunctionExecutionError` | A contract function failed to execute. Carries `abi`, `args`, `contractAddress`, `functionName`, and `sender`, with the underlying failure as `cause`. |
+| `ContractError.ContractFunctionExecutionError` | A contract function failed to execute. Carries `abi` and `functionName`, with optional `args`, `contractAddress`, and `sender`. The underlying failure is available as `cause`. |
 | `ContractError.ContractFunctionRevertedError` | A contract function reverted. Carries the decoded `data` (`name`, `args`), the `reason` string, the `raw` revert data, and the `signature` when the selector is not on the ABI. |
 | `ContractError.ContractFunctionZeroDataError` | A contract function call returned no data (`0x`), for example when the address is not a contract. |
 | `ContractError.RawContractError` | A raw contract error carrying the revert `data` returned by a node. |

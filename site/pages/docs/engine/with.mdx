@@ -22,10 +22,10 @@ import { Hash } from 'viem/utils'
 
 const wasm = await WasmEngine.engine()
 
-const digest = Engine.with( // [!code focus:4]
-  wasm,
-  () => Hash.sha256('0xdeadbeef'),
-)
+const digest = Engine.with( // [!code focus]
+  wasm, // [!code focus]
+  () => Hash.sha256('0xdeadbeef'), // [!code focus]
+) // [!code focus]
 // @log: '0x5f78c33274e43fa9de5659265c1d917e25c03722dcb0b8d27db8d5feaa813953'
 ```
 

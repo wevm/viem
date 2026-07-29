@@ -2,9 +2,18 @@
 
 ## Overview
 
-The **RpcError** module provides the node (execution) error taxonomy: the failure modes a JSON-RPC node surfaces when validating or executing a transaction, such as reverts, underpriced fees, stale nonces, and insufficient funds. Actions map the raw RPC error onto these classes, so you can match failures with `instanceof` instead of parsing node-specific messages (geth, anvil, and friends word them differently).
+The **RpcError** module classifies JSON-RPC node failures during transaction validation or
+execution. These failures include reverts, underpriced fees, stale nonces, and insufficient funds.
 
-Execution actions ([`call`](/docs/actions/public/call), [`transaction.estimateGas`](/docs/actions/public/transaction/estimateGas), [`transaction.send`](/docs/actions/wallet/transaction/send), etc.) throw an `RpcError.ExecutionError` that renders the request arguments alongside the failure, with the matched taxonomy error preserved on `cause`.
+Actions map raw RPC errors to these classes. Use `instanceof` to match failures without parsing
+messages that vary between node implementations.
+
+Execution Actions, including [`Actions.call`](/docs/actions/public/call),
+[`Actions.transaction.estimateGas`](/docs/actions/public/transaction/estimateGas), and
+[`Actions.transaction.send`](/docs/actions/wallet/transaction/send), throw
+`RpcError.ExecutionError`.
+
+The error displays the request arguments and preserves the classified failure as `cause`.
 
 ```ts twoslash
 import { Actions, Client, http, RpcError } from 'viem'
@@ -82,7 +91,8 @@ try {
 
 ## Error Classes
 
-Each taxonomy class matches the node messages for its failure mode, regardless of node implementation.
+Each taxonomy class matches known node messages for its failure mode across supported
+implementations.
 
 | Error | Description |
 | --- | --- |

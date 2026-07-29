@@ -2,11 +2,11 @@
 
 Waits for a transaction to be included on a block (one confirmation by default), returning a watcher handle whose `receipt` promise resolves with the transaction receipt.
 
-Additionally supports replacement detection (e.g. sped-up or cancelled transactions). A transaction is replaced when another transaction is sent from the same `from` and `nonce`:
+Additionally supports replacement detection (for example, sped-up or cancelled transactions). A transaction is replaced when another transaction is sent from the same `from` and `nonce`:
 
-- `repriced`: the gas price was modified (e.g. different `maxFeePerGas`).
-- `cancelled`: the transaction was cancelled (e.g. self-send with `value` of `0`).
-- `replaced`: the transaction payload was changed (e.g. different `value` or `data`).
+- `repriced`: the gas price was modified (for example, different `maxFeePerGas`).
+- `cancelled`: the transaction was cancelled (for example, self-send with `value` of `0`).
+- `replaced`: the transaction payload was changed (for example, different `value` or `data`).
 
 ## Usage
 
@@ -77,17 +77,67 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Wait for Confirmations
+
+Set `confirmations` and polling options when downstream work requires a deeper confirmation threshold.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const watch = client.transaction.waitForReceipt({
+  confirmations: 3, // [!code focus]
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+  pollingInterval: 2_000, // [!code focus]
+  timeout: 120_000, // [!code focus]
+})
+
+const receipt = await watch.receipt
+```
+
+### Handle a Replacement Transaction
+
+Register `onReplaced` to handle a repriced, cancelled, or otherwise replaced transaction.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const watch = client.transaction.waitForReceipt({
+  checkReplacement: true, // [!code focus]
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+})
+
+watch.onReplaced(({ reason, replacedTransaction, transaction }) => { // [!code focus]
+  console.log(reason, replacedTransaction.hash, transaction.hash) // [!code focus]
+}) // [!code focus]
+```
+
 ## Return Value
 
 `Watcher`
 
 A watcher handle with the following members:
 
-### receipt
+#### receipt
 
 - **Type:** `Promise<TransactionReceipt>`
 
-Resolves with the transaction receipt once it is confirmed, or rejects if an error occurs or the timeout elapses. Remains pending if the watcher is torn down via [`off`](#off) before the receipt resolves.
+Resolves with the transaction receipt after confirmation. The promise rejects when an error occurs or the timeout elapses.
+
+The promise remains pending if [`off`](#off) stops the watcher before the receipt resolves.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -102,7 +152,7 @@ const { receipt } = Actions.transaction.waitForReceipt(client, {
 const result = await receipt // [!code focus]
 ```
 
-### onReceipt
+#### onReceipt
 
 - **Type:** `(fn: (receipt: TransactionReceipt) => void) => () => void`
 
@@ -124,7 +174,7 @@ const off = watch.onReceipt((receipt) => console.log(receipt.status)) // [!code 
 off()
 ```
 
-### onReplaced
+#### onReplaced
 
 - **Type:** `(fn: (response: { reason: 'cancelled' | 'replaced' | 'repriced'; replacedTransaction: Transaction; transaction: Transaction; transactionReceipt: TransactionReceipt }) => void) => () => void`
 
@@ -143,7 +193,7 @@ const watch = Actions.transaction.waitForReceipt(client, {
 watch.onReplaced((replacement) => console.log(replacement.reason)) // [!code focus]
 ```
 
-### onError
+#### onError
 
 - **Type:** `(fn: (error: Error) => void) => () => void`
 
@@ -162,7 +212,7 @@ const watch = Actions.transaction.waitForReceipt(client, {
 watch.onError((error) => console.error(error)) // [!code focus]
 ```
 
-### off
+#### off
 
 - **Type:** `() => void`
 
@@ -187,7 +237,7 @@ watch.off() // [!code focus]
 ### checkReplacement
 
 - **Type:** `boolean`
-- **Default:** `true`
+- **Default:** `client.chain?.supportsTransactionReplacementDetection ?? true`
 
 Whether to check for transaction replacements (repriced, cancelled, or replaced transactions).
 
@@ -242,7 +292,7 @@ const { receipt } = Actions.transaction.waitForReceipt(client, {
 ### pollingInterval
 
 - **Type:** `number`
-- **Default:** `client.pollingInterval`
+- **Default:** `client.chain?.preconfirmationTime ?? client.pollingInterval`
 
 Polling frequency (in milliseconds).
 
@@ -314,3 +364,11 @@ const { receipt } = Actions.transaction.waitForReceipt(client, {
   timeout: 60_000, // [!code focus]
 })
 ```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Actions.block.Errors.BlockNotFoundError` | A block required while waiting for the receipt could not be found. |
+| `Actions.transaction.Errors.TransactionReceiptNotFoundError` | The transaction receipt could not be found. |
+| `Actions.transaction.Errors.WaitForReceiptTimeoutError` | The receipt was not confirmed before `timeout` elapsed. |

@@ -26,15 +26,15 @@ Capture [`state.snapshot`](/docs/actions/test/state/snapshot) before arranging s
 import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
-const id = await client.state.snapshot()
+const id = await client.state.snapshot() // [!code focus]
 
 try {
-  await client.address.setBalance({
-    address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-    value: Value.fromEther('1'),
-  })
+  await client.address.setBalance({ // [!code focus]
+    address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+    value: Value.fromEther('1'), // [!code focus]
+  }) // [!code focus]
 } finally {
-  await client.state.revert({ id })
+  await client.state.revert({ id }) // [!code focus]
 }
 ```
 
@@ -55,14 +55,14 @@ the result to [`state.load`](/docs/actions/test/state/load) to restore it.
 import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
-const state = await client.state.dump()
+const state = await client.state.dump() // [!code focus]
 
-await client.address.setBalance({
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  value: Value.fromEther('0'),
-})
+await client.address.setBalance({ // [!code focus]
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  value: Value.fromEther('0'), // [!code focus]
+}) // [!code focus]
 
-await client.state.load({ state })
+await client.state.load({ state }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -81,7 +81,7 @@ fork history and return to a pinned upstream block.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.state.reset({ blockNumber: 20_000_000n })
+await client.state.reset({ blockNumber: 20_000_000n }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

@@ -32,7 +32,7 @@ export const client = Client.create({
 
 ### Standalone Action
 
-Call `Actions.block.createFilter` directly by passing the Client as the first argument.
+Call `Actions.filter.uninstall` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -70,7 +70,7 @@ Whether the filter was uninstalled.
 
 - **Type:** `Actions.filter.Filter`
 
-The filter to destroy. Its `request` function should point at the transport that created the filter id.
+The filter to destroy. Its `request` function must use the transport that created the filter ID.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'

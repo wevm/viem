@@ -26,16 +26,16 @@ to include it in a new block.
 import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
-await client.block.setAutomine({ enabled: false })
+await client.block.setAutomine({ enabled: false }) // [!code focus]
 
 try {
-  const hash = await client.transaction.send({
-    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-    value: Value.fromEther('1'),
-  })
-  await client.block.mine({ blocks: 1 })
+  const hash = await client.transaction.send({ // [!code focus]
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+    value: Value.fromEther('1'), // [!code focus]
+  }) // [!code focus]
+  await client.block.mine({ blocks: 1 }) // [!code focus]
 } finally {
-  await client.block.setAutomine({ enabled: true })
+  await client.block.setAutomine({ enabled: true }) // [!code focus]
 }
 ```
 
@@ -55,8 +55,8 @@ then mine a block to make the new time observable onchain.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.block.increaseTime({ seconds: 60 * 60 })
-await client.block.mine({ blocks: 1 })
+await client.block.increaseTime({ seconds: 60 * 60 }) // [!code focus]
+await client.block.mine({ blocks: 1 }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -75,8 +75,8 @@ Unix timestamp.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.block.setNextTimestamp({ timestamp: 2_000_000_000n })
-await client.block.mine({ blocks: 1 })
+await client.block.setNextTimestamp({ timestamp: 2_000_000_000n }) // [!code focus]
+await client.block.mine({ blocks: 1 }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -95,12 +95,12 @@ fixed interval while testing polling or subscription behavior.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.block.setAutomine({ enabled: false })
-await client.block.setIntervalMining({ interval: 2 })
+await client.block.setAutomine({ enabled: false }) // [!code focus]
+await client.block.setIntervalMining({ interval: 2 }) // [!code focus]
 
 // After the interval-mining assertion:
-await client.block.setIntervalMining({ interval: 0 })
-await client.block.setAutomine({ enabled: true })
+await client.block.setIntervalMining({ interval: 0 }) // [!code focus]
+await client.block.setAutomine({ enabled: true }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -124,14 +124,14 @@ import { client } from './viem.config'
 const id = await client.state.snapshot()
 
 try {
-  await client.block.setCoinbase({
-    address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  })
-  await client.block.setGasLimit({ gasLimit: 30_000_000n })
-  await client.block.setNextBaseFeePerGas({
-    baseFeePerGas: 1_000_000_000n,
-  })
-  await client.block.mine({ blocks: 1 })
+  await client.block.setCoinbase({ // [!code focus]
+    address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+  }) // [!code focus]
+  await client.block.setGasLimit({ gasLimit: 30_000_000n }) // [!code focus]
+  await client.block.setNextBaseFeePerGas({ // [!code focus]
+    baseFeePerGas: 1_000_000_000n, // [!code focus]
+  }) // [!code focus]
+  await client.block.mine({ blocks: 1 }) // [!code focus]
 } finally {
   await client.state.revert({ id })
 }

@@ -2,9 +2,10 @@
 
 ## Overview
 
-[`Engine.install`](/docs/engine/install) resolves an Engine and installs its slots atomically. The
-`viem/wasm` and `viem/node` entrypoints prepare and install their complete provider Engines with no
-arguments. The root `viem` entrypoint accepts custom or previously prepared slots.
+[`Engine.install`](/docs/engine/install) resolves an Engine and installs its slots atomically.
+
+The `viem/wasm` and `viem/node` entrypoints prepare and install complete provider Engines without
+arguments. The root `viem` entrypoint accepts custom or prepared slots.
 
 If any supplied slot rejects or validation fails, no resolved slots are installed. Repeated
 installations merge with the current overrides.

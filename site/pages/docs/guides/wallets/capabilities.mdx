@@ -27,7 +27,7 @@ import { client } from './viem.config'
 
 const capabilities = await client.wallet.getCapabilities({
   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  chainId: 1,
+  chainId: 1, // [!code focus]
 })
 ```
 
@@ -48,17 +48,17 @@ Submit through [`wallet.sendCalls`](/docs/actions/wallet/sendCalls), then wait w
 import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
-const { id } = await client.wallet.sendCalls({
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  calls: [
-    {
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-      value: Value.fromEther('1'),
-    },
-  ],
-})
+const { id } = await client.wallet.sendCalls({ // [!code focus]
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  calls: [ // [!code focus]
+    { // [!code focus]
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+      value: Value.fromEther('1'), // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+}) // [!code focus]
 
-const status = await client.wallet.waitForCallsStatus({ id })
+const status = await client.wallet.waitForCallsStatus({ id }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -77,7 +77,7 @@ native status interface for a batch.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.wallet.showCallsStatus({ id: '0xdeadbeef' })
+await client.wallet.showCallsStatus({ id: '0xdeadbeef' }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

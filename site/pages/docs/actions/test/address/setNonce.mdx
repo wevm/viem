@@ -57,6 +57,38 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Advance the Current Nonce
+
+Read the current nonce, then set the next value.
+
+```ts twoslash
+import { Client, http, publicActions, testActions } from 'viem'
+import { anvil } from 'viem/chains'
+
+const client = Client.create({
+  chain: anvil,
+  transport: http(),
+})
+  .extend(publicActions())
+  .extend(testActions())
+
+const address = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+const nonce = await client.address.getTransactionCount({ address })
+
+await client.address.setNonce({
+  address,
+  nonce: nonce + 1, // [!code focus]
+})
+```
+
+## Return Value
+
+`void`
+
+No value is returned.
+
 ## Parameters
 
 ### address

@@ -2,7 +2,11 @@
 
 ## Overview
 
-Use [`Client.createResolver`](#clientcreateresolver) to configure several [Chains](/docs/chains) and resolve a typed [Client](/docs/clients) for one chain at a time. Each Client is created on first use and reused for later requests with the same chain ID.
+Use [`Client.createResolver`](#clientcreateresolver) to configure several [Chains](/docs/chains) and
+resolve a typed [Client](/docs/clients) for one Chain at a time.
+
+The resolver creates each Client on first use and reuses it for later requests with the same Chain
+ID.
 
 Provide `transport` as either an exhaustive chain-ID map or a callback that returns a [Transport](/docs/transports) for the requested chain.
 
@@ -88,6 +92,51 @@ const client = resolver
 const blockNumber = await client.block.getNumber()
 ```
 
+### Configure Shared Multicall Batching
+
+Set `batch.multicall` once to apply the same aggregation policy to every resolved Client.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+
+const resolver = Client.createResolver({
+  batch: { // [!code focus]
+    multicall: { // [!code focus]
+      batchSize: 1_024, // [!code focus]
+      deployless: true, // [!code focus]
+      wait: 10, // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
+  chains: [mainnet, optimism],
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+```
+
+### Configure Shared CCIP Read
+
+Pass a `request` function to apply the same CCIP Read gateway policy to every resolved Client.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+import { CcipRead } from 'viem/utils'
+
+const resolver = Client.createResolver({
+  ccipRead: { // [!code focus]
+    request: CcipRead.request, // [!code focus]
+  }, // [!code focus]
+  chains: [mainnet, optimism],
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+```
+
 ## `Client.createResolver`
 
 Creates a resolver that lazily constructs a typed Client for each configured chain.
@@ -109,13 +158,10 @@ const resolver = Client.createResolver({
 
 ### Parameters
 
-#### options
+The resolver accepts the shared [`Client.create` options](/docs/clients/create#parameters). Shared
+options apply to every resolved Client.
 
-- **Type:** `Client.createResolver.Options`
-
-The resolver accepts the shared [`Client.create` options](/docs/clients/create#parameters). Shared options apply to every resolved Client.
-
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Optional**
@@ -136,19 +182,29 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### batch
+#### options.batch
 
-- **Type:** `{ multicall?: boolean | MulticallOptions }`
+- **Type:** `{ multicall?: boolean | { batchSize?: number; deployless?: boolean; wait?: number } }`
 - **Optional**
 
-`eth_call` multicall aggregation flags for every resolved Client.
+Configures `eth_call` multicall aggregation for every resolved Client. `batchSize` limits calldata
+bytes per chunk and defaults to `1_024`.
+
+`deployless` forces a bytecode call and defaults to `false`. `wait` delays a batch in milliseconds
+and defaults to `0`.
 
 ```ts twoslash
 import { Client, http } from 'viem'
 import { mainnet, optimism } from 'viem/chains'
 // ---cut---
 const resolver = Client.createResolver({
-  batch: { multicall: true }, // [!code focus]
+  batch: { // [!code focus]
+    multicall: { // [!code focus]
+      batchSize: 1_024, // [!code focus]
+      deployless: true, // [!code focus]
+      wait: 10, // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
   chains: [mainnet, optimism],
   transport: {
     [mainnet.id]: http(),
@@ -157,7 +213,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'pending'` when the chain preconfirms, otherwise `'latest'`
@@ -178,7 +234,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### cacheTime
+#### options.cacheTime
 
 - **Type:** `number`
 - **Default:** `pollingInterval`
@@ -199,7 +255,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### ccipRead
+#### options.ccipRead
 
 - **Type:** `CcipReadOptions | false`
 - **Default:** ENS Labs batch gateway
@@ -209,9 +265,12 @@ const resolver = Client.createResolver({
 ```ts twoslash
 import { Client, http } from 'viem'
 import { mainnet, optimism } from 'viem/chains'
+import { CcipRead } from 'viem/utils'
 // ---cut---
 const resolver = Client.createResolver({
-  ccipRead: false, // [!code focus]
+  ccipRead: { // [!code focus]
+    request: CcipRead.request, // [!code focus]
+  }, // [!code focus]
   chains: [mainnet, optimism],
   transport: {
     [mainnet.id]: http(),
@@ -220,7 +279,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### chains
+#### options.chains
 
 - **Type:** `readonly [Chain, ...Chain[]]`
 
@@ -239,7 +298,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### dataSuffix
+#### options.dataSuffix
 
 - **Type:** `Hex`
 - **Optional**
@@ -260,7 +319,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### key
+#### options.key
 
 - **Type:** `string`
 - **Default:** `'base'`
@@ -281,7 +340,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### name
+#### options.name
 
 - **Type:** `string`
 - **Default:** `'Base Client'`
@@ -302,7 +361,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### pollingInterval
+#### options.pollingInterval
 
 - **Type:** `number`
 - **Default:** derived from each chain's block time
@@ -323,7 +382,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### retryCount
+#### options.retryCount
 
 - **Type:** `number`
 - **Optional**
@@ -344,7 +403,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### schema
+#### options.schema
 
 - **Type:** `RpcSchema.Generic | z.RpcSchema`
 - **Optional**
@@ -368,7 +427,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### timeout
+#### options.timeout
 
 - **Type:** `number`
 - **Optional**
@@ -389,7 +448,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### tokens
+#### options.tokens
 
 - **Type:** `readonly Token[]`
 - **Optional**
@@ -411,7 +470,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### transport
+#### options.transport
 
 - **Type:** `Record<chains[number]['id'], Transport> | ((options: { chainId: chains[number]['id'] }) => Transport)`
 
@@ -430,7 +489,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### type
+#### options.type
 
 - **Type:** `string`
 - **Default:** `'base'`
@@ -480,11 +539,7 @@ const client = resolver.getClient({ chainId: optimism.id })
 
 ### Parameters
 
-#### options
-
-- **Type:** `{ chainId: chains[number]['id'] }`
-
-##### chainId
+#### options.chainId
 
 - **Type:** `chains[number]['id']`
 
@@ -511,7 +566,8 @@ const client = resolver.getClient({
 
 `Client`
 
-The Client whose chain type corresponds to `chainId`. Transport maps also preserve the transport type for that ID, while callbacks preserve their overall return type.
+The Client whose Chain type corresponds to `chainId`. Transport maps preserve the Transport type
+for that ID, while callbacks preserve their overall return type.
 
 ### Errors
 

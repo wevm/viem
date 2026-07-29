@@ -2,7 +2,9 @@
 
 Verifies that an [EIP-4361](https://eips.ethereum.org/EIPS/eip-4361) (Sign-In with Ethereum) formatted message was signed, supporting Smart Contract Accounts (ERC-1271/6492/8010) and Externally Owned Accounts.
 
-The message is parsed and validated (address, domain, nonce, scheme, and time window) before the signature verifies via [`verifyHash`](/docs/actions/public/verifyHash), which also accepts all of its options. Parse and validation failures resolve to `false`.
+Viem parses and validates the message's address, domain, nonce, scheme, and time window before calling [`verifyHash`](/docs/actions/public/verifyHash).
+
+This action accepts every `verifyHash` option. Parsing and validation failures resolve to `false`.
 
 ## Usage
 
@@ -63,6 +65,42 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Validate the Sign-In Request
+
+Pass expected request fields to bind verification to a domain, nonce, and URI scheme. Set `time` to validate the message's time window.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const message =
+  'example.com wants you to sign in with your Ethereum account:\n0xA0Cf798816D4b9b9866b5330EEa46a18382f251e\n\n\nURI: https://example.com/path\nVersion: 1\nChain ID: 1\nNonce: foobarbaz12\nIssued At: 2026-01-01T00:00:00.000Z\nExpiration Time: 2026-01-01T01:00:00.000Z'
+
+const valid = await client.verifySiweMessage({
+  domain: 'example.com', // [!code focus]
+  message,
+  nonce: 'foobarbaz12', // [!code focus]
+  scheme: 'https', // [!code focus]
+  signature: '0x…',
+  time: new Date('2026-01-01T00:30:00.000Z'), // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
 ## Return Value
 
 `boolean`
@@ -71,7 +109,8 @@ Whether the message is valid and was signed by the address in the message.
 
 ## Parameters
 
-Accepts every [`verifyHash` parameter](/docs/actions/public/verifyHash#parameters) except `hash` and `address` (the address defaults to the one in the message), plus:
+Accepts every [`verifyHash` parameter](/docs/actions/public/verifyHash#parameters) except `hash` and
+`address` (the address defaults to the one in the message), plus:
 
 ### address
 
@@ -118,6 +157,19 @@ const valid = await Actions.verifySiweMessage(client, {
 - **Type:** `string`
 
 The full EIP-4361 formatted message that was signed.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+declare const message: string
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const valid = await Actions.verifySiweMessage(client, {
+  message, // [!code focus]
+  signature: '0x…',
+})
+```
 
 ### nonce
 

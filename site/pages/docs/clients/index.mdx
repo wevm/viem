@@ -4,13 +4,21 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-The **Client** is the composition root of Viem. It binds together the three pieces every interaction needs:
+The **Client** combines the three pieces that every interaction needs:
 
 - **[Chain](/docs/chains)**: chain config and RPC-to-native codecs.
 - **[Transport](/docs/transports)**: the wire that carries JSON-RPC requests.
 - **[Account](/docs/accounts)** (optional): the Account that Actions requiring one default to.
 
-[`Client.create`](/docs/clients/create) constructs one Client. [`Client.createResolver`](/docs/clients/resolve) lazily constructs typed Clients across a configured set of chains. A bare client exposes a typed [`request`](/docs/clients/create) function and the resolved chain, account, and transport. Actions are attached with the chainable [`.extend()`](/docs/clients/create), so the client only carries the behavior you opt into.
+[`Client.create`](/docs/clients/create) constructs one Client.
+[`Client.createResolver`](/docs/clients/resolve) constructs typed Clients on demand for configured
+Chains.
+
+A base Client exposes a typed [`request`](/docs/clients/create) function and its resolved Chain,
+Account, and Transport.
+
+Use [`.extend()`](/docs/clients/create#extending-a-client) to attach Actions. The Client only includes
+the behavior that you add.
 
 [`Client.fromV2`](/docs/clients/v2-adapters#clientfromv2) and [`Client.toV2`](/docs/clients/v2-adapters#clienttov2) adapt base Clients between Viem v2 and v3 during an incremental migration.
 
@@ -42,5 +50,11 @@ const client = Client.create({
     description="Reuse request connectivity across Viem v2 and v3 Clients."
     icon="lucide:repeat-2"
     to="/docs/clients/v2-adapters"
+  />
+  <Card
+    title="Overriding Actions"
+    description="Intercept nested Actions with Client extensions."
+    icon="lucide:replace"
+    to="/docs/clients/override"
   />
 </Cards>

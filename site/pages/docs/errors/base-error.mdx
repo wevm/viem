@@ -2,9 +2,14 @@
 
 ## Overview
 
-`Errors.BaseError` is the base error class inherited by all errors thrown by Viem.
+[`Errors.BaseError`](#errorsbaseerror) is the base error class inherited by all errors thrown by
+Viem.
 
-It extends ox's `BaseError`, so every Viem error is also an ox error (`instanceof Errors.BaseError` holds across the stack) and ox errors compose as `cause` without wrapping. Docs origin and version attribution default to the values set via [`Errors.setConfig`](/docs/errors/configuration).
+It extends Ox's `BaseError`, so every Viem error is also an Ox error. The
+`instanceof Errors.BaseError` check works across the stack.
+
+Ox errors become the `cause` without another wrapper. Documentation origin and version attribution
+use the values from [`Errors.setConfig`](/docs/errors/configuration).
 
 ```ts twoslash
 import { Errors } from 'viem'
@@ -94,11 +99,7 @@ import { Errors } from 'viem'
 throw new Errors.BaseError('An error occurred.') // [!code focus]
 ```
 
-#### options
-
-- **Type:** `Errors.BaseError.Options`
-
-##### cause
+#### options.cause
 
 - **Type:** `Error`
 
@@ -114,7 +115,7 @@ throw new Errors.BaseError('An error occurred.', {
 })
 ```
 
-##### details
+#### options.details
 
 - **Type:** `string`
 
@@ -128,7 +129,7 @@ throw new Errors.BaseError('An error occurred.', {
 })
 ```
 
-##### docsOrigin
+#### options.docsOrigin
 
 - **Type:** `string`
 
@@ -142,7 +143,7 @@ throw new Errors.BaseError('An error occurred.', {
 })
 ```
 
-##### docsPath
+#### options.docsPath
 
 - **Type:** `string`
 
@@ -156,7 +157,7 @@ throw new Errors.BaseError('An error occurred.', {
 })
 ```
 
-##### metaMessages
+#### options.metaMessages
 
 - **Type:** `readonly (string | undefined)[]`
 
@@ -170,7 +171,7 @@ throw new Errors.BaseError('An error occurred.', {
 })
 ```
 
-##### version
+#### options.version
 
 - **Type:** `string`
 

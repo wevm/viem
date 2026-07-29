@@ -79,11 +79,51 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Get a Transaction from a Historical Block
+
+Pass `blockNumber` and `index` to select a transaction by its position in a historical block.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const transaction = await client.transaction.get({
+  blockNumber: 19_868_020n, // [!code focus]
+  index: 0, // [!code focus]
+})
+```
+
+### Get a Pending Transaction
+
+Pass the `pending` block tag and an index to read a transaction from the node's pending block.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const transaction = await client.transaction.get({
+  blockTag: 'pending', // [!code focus]
+  index: 0, // [!code focus]
+})
+```
+
 ## Return Value
 
 `Transaction`
 
-Information about the transaction. When the connected Client's [`chain`](/docs/chains) defines a `schema.transaction` codec, the return type reflects that chain's custom transaction shape.
+Information about the transaction. When the connected Client's [`chain`](/docs/chains) defines a `codecs.transaction` codec, the return type reflects that chain's custom transaction shape.
 
 ## Parameters
 
@@ -217,4 +257,4 @@ const transaction = await Actions.transaction.get(client, {
 
 | Error | Description |
 | --- | --- |
-| `Transaction.NotFoundError` | The transaction could not be found. |
+| `Actions.transaction.Errors.TransactionNotFoundError` | The transaction could not be found. |

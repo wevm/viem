@@ -61,6 +61,107 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Send with a Connected Wallet
+
+Use a JSON-RPC Account when a connected wallet holds the signing key. The wallet receives an
+`eth_sendTransaction` request and handles transaction approval and signing.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const hash = await client.transaction.send({
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: '0x...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import 'viem/window'
+
+export const client = Client.create({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  chain: mainnet,
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+```
+
+:::
+
+### Reuse Estimated Fees
+
+Estimate EIP-1559 fees first when you need to inspect one fee quote before sending. Pass the
+returned fields to the transaction.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const fees = await client.fee.estimateFeesPerGas() // [!code focus]
+
+const hash = await client.transaction.send({
+  ...fees, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: '0x...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, publicActions, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+})
+  .extend(publicActions())
+  .extend(walletActions())
+```
+
+:::
+
+### Send Blob Data
+
+Pass encoded blobs and a configured KZG adapter for an EIP-4844 transaction. See
+[Blob Transactions](/docs/guides/transactions/blobs) to configure the adapter.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Blobs, Hex, Kzg } from 'viem/utils'
+import { client } from './viem.config'
+
+export async function sendBlob(kzg: Kzg.Kzg) {
+  return client.transaction.send({
+    blobs: Blobs.from(Hex.fromString('Hello from a blob')), // [!code focus]
+    kzg, // [!code focus]
+    to: '0x0000000000000000000000000000000000000000',
+  })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
 ## Return Value
 
 `Hex`
@@ -115,7 +216,7 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-### account.nonceManager
+#### nonceManager
 
 - **Type:** `NonceManager`
 
@@ -275,7 +376,7 @@ const hash = await Actions.transaction.send(client, {
 
 ### gas
 
-- **Type:** `bigint`
+- **Type:** `bigint | number | Hex`
 
 The gas limit for the transaction. Estimated automatically when omitted (Local Accounts).
 
@@ -294,7 +395,7 @@ const hash = await Actions.transaction.send(client, {
 
 ### gasPrice
 
-- **Type:** `bigint`
+- **Type:** `bigint | number | Hex`
 
 The legacy gas price (in wei). Mutually exclusive with `maxFeePerGas`/`maxPriorityFeePerGas`.
 
@@ -337,7 +438,7 @@ const hash = await Actions.transaction.send(client, {
 
 ### maxFeePerBlobGas
 
-- **Type:** `bigint`
+- **Type:** `bigint | number | Hex`
 
 The max fee per blob gas (in wei) the sender is willing to pay (EIP-4844).
 
@@ -356,7 +457,7 @@ const hash = await Actions.transaction.send(client, {
 
 ### maxFeePerGas
 
-- **Type:** `bigint`
+- **Type:** `bigint | number | Hex`
 
 The total fee per gas (in wei) the sender is willing to pay (EIP-1559).
 
@@ -375,7 +476,7 @@ const hash = await Actions.transaction.send(client, {
 
 ### maxPriorityFeePerGas
 
-- **Type:** `bigint`
+- **Type:** `bigint | number | Hex`
 
 The max priority fee per gas (in wei) to pay to the block producer (EIP-1559).
 
@@ -394,7 +495,7 @@ const hash = await Actions.transaction.send(client, {
 
 ### nonce
 
-- **Type:** `number`
+- **Type:** `bigint | number | Hex`
 
 The nonce to use for the transaction. Derived automatically when omitted.
 
@@ -455,7 +556,7 @@ const hash = await Actions.transaction.send(client, {
 
 - **Type:** `string`
 
-Forces the transaction to a specific type (e.g. `'eip1559'`, `'eip2930'`, `'legacy'`).
+Forces the transaction to a specific type, such as `'eip1559'`, `'eip2930'`, or `'legacy'`.
 
 ```ts twoslash
 import { Account, Actions, Client, http } from 'viem'
@@ -472,7 +573,7 @@ const hash = await Actions.transaction.send(client, {
 
 ### value
 
-- **Type:** `bigint`
+- **Type:** `bigint | number | Hex`
 
 The value (in wei) sent with the transaction.
 

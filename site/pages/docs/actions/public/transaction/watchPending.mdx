@@ -2,7 +2,11 @@
 
 Watches incoming pending transaction hashes, returning a watcher handle.
 
-The watcher uses a WebSocket / IPC subscription (`eth_subscribe` over `newPendingTransactions`) when the Client's transport supports it, otherwise it installs a pending-transaction filter and polls `eth_getFilterChanges` on an interval. The underlying source starts lazily once the first listener (or iterator) attaches.
+The watcher subscribes to `newPendingTransactions` with `eth_subscribe` when the Client uses a WebSocket or IPC transport.
+
+Otherwise, the watcher installs a pending transaction filter and polls `eth_getFilterChanges`.
+
+The source starts when the first listener or iterator attaches.
 
 ## Usage
 
@@ -65,13 +69,57 @@ export const client = Client.create({
 
 :::
 
+## Recipes
+
+### Poll and Emit One Hash at a Time
+
+Set `batch: false` to emit one hash per callback while polling at a custom interval.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const watch = client.transaction.watchPending({
+  batch: false, // [!code focus]
+  poll: true, // [!code focus]
+  pollingInterval: 2_000, // [!code focus]
+})
+
+watch.onTransactions((hashes) => console.log(hashes))
+```
+
+### Use a Pending Transaction Subscription
+
+Set `poll: false` with a WebSocket or IPC transport to use an `eth_subscribe` pending-transaction subscription.
+
+```ts twoslash
+import { Client, publicActions, webSocket } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: webSocket(),
+}).extend(publicActions())
+
+const watch = client.transaction.watchPending({
+  poll: false, // [!code focus]
+})
+
+watch.onTransactions((hashes) => console.log(hashes))
+```
+
 ## Return Value
 
 `Watcher`
 
 A watcher handle with the following members:
 
-### onTransactions
+#### onTransactions
 
 - **Type:** `(fn: (hashes: readonly Hex[]) => void) => () => void`
 
@@ -93,7 +141,7 @@ const off = watch.onTransactions((hashes) => { // [!code focus]
 off()
 ```
 
-### onError
+#### onError
 
 - **Type:** `(fn: (error: Error) => void) => () => void`
 
@@ -111,11 +159,11 @@ watch.onTransactions(() => {})
 watch.onError((error) => console.error(error)) // [!code focus]
 ```
 
-### off
+#### off
 
 - **Type:** `() => void`
 
-Tears down the watcher: removes all listeners, ends all iterators, stops the underlying poll / subscription, and uninstalls the filter. Idempotent and terminal.
+Tears down the watcher: removes all listeners, ends all iterators, stops the underlying polling or subscription, and uninstalls the filter. Idempotent and terminal.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -129,7 +177,7 @@ watch.onTransactions((hashes) => console.log(hashes))
 watch.off() // [!code focus]
 ```
 
-### `[Symbol.asyncIterator]`
+#### `[Symbol.asyncIterator]`
 
 - **Type:** `() => AsyncIterableIterator<{ hashes: readonly Hex[] }>`
 
@@ -171,7 +219,7 @@ watch.onTransactions((hashes) => console.log(hashes))
 ### poll
 
 - **Type:** `boolean`
-- **Default:** `false` for WebSocket / IPC transports, `true` otherwise
+- **Default:** `false` for WebSocket or IPC transports, `true` otherwise
 
 Whether to poll for new pending transactions instead of using a subscription. Defaults to `true` when the transport cannot subscribe.
 

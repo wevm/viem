@@ -2,9 +2,14 @@
 
 ## Overview
 
-The [`loadBalance`](/docs/transports) transport distributes requests across a list of [Transports](/docs/transports) using a round-robin algorithm: each request is routed to the next transport in the list, wrapping back to the first after the last. Use it to spread load evenly across multiple RPC endpoints.
+The [`loadBalance`](/docs/transports/load-balance) transport distributes requests across
+[Transports](/docs/transports) in sequence. After the final Transport, the next request uses the
+first one.
 
-Unlike [`fallback`](/docs/transports/fallback), it does not retry a failed request on the next transport: it rotates on every request regardless of outcome.
+Use this Transport to distribute load evenly across RPC endpoints.
+
+Unlike [`fallback`](/docs/transports/fallback), `loadBalance` does not retry a failed request through
+the next Transport. Every request advances the sequence regardless of its result.
 
 ```ts twoslash
 import { http, loadBalance } from 'viem'
@@ -86,11 +91,7 @@ const transport = loadBalance([ // [!code focus]
 ]) // [!code focus]
 ```
 
-#### options
-
-- **Type:** `loadBalance.Options`
-
-##### key
+#### options.key
 
 - **Type:** `string`
 - **Default:** `'loadBalance'`
@@ -105,7 +106,7 @@ const transport = loadBalance([http(), http()], {
 })
 ```
 
-##### methods
+#### options.methods
 
 - **Type:** `{ include?: string[] } | { exclude?: string[] }`
 
@@ -119,7 +120,7 @@ const transport = loadBalance([http(), http()], {
 })
 ```
 
-##### name
+#### options.name
 
 - **Type:** `string`
 - **Default:** `'Load Balance'`
@@ -134,7 +135,7 @@ const transport = loadBalance([http(), http()], {
 })
 ```
 
-##### retryCount
+#### options.retryCount
 
 - **Type:** `number`
 - **Default:** `3`
@@ -149,7 +150,7 @@ const transport = loadBalance([http(), http()], {
 })
 ```
 
-##### retryDelay
+#### options.retryDelay
 
 - **Type:** `number`
 - **Default:** `150`

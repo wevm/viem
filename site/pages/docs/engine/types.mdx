@@ -2,12 +2,29 @@
 
 ## Overview
 
-An Engine is a partial map of cryptographic slots. Every slot and primitive is optional, so an
-Engine can replace one function while all other calls continue through their current override or
+An Engine is a partial map of cryptographic slots. Every slot and primitive is optional.
+
+An Engine can replace one function while other calls continue through their current override or
 Viem's default implementation.
 
 Binary values cross the Engine boundary as `Uint8Array` values. Viem's public utility modules
 perform Hex and Bytes conversion outside that boundary.
+
+## Recipes
+
+### Type a Partial Engine
+
+Use `Engine.Engine` when a module provides only selected cryptographic slots.
+
+```ts twoslash
+import type { Engine } from 'viem'
+
+declare const Hash: NonNullable<Engine.Engine['Hash']>
+
+const engine = {
+  Hash, // [!code focus]
+} satisfies Engine.Engine
+```
 
 ## `Engine.Engine`
 
