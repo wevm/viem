@@ -98,15 +98,9 @@ export const client = Client.create({
 <Cards>
   <Card
     title="Send Calls"
-    description="Submit one or more calls to a wallet."
+    description="Submit calls and wait for completion, or return asynchronously."
     icon="lucide:send"
     to="/docs/actions/wallet/sendCalls"
-  />
-  <Card
-    title="Send Calls and Wait"
-    description="Submit calls and wait for completion."
-    icon="lucide:clock-arrow-up"
-    to="/docs/actions/wallet/sendCallsSync"
   />
   <Card
     title="Get Call Status"
@@ -191,27 +185,15 @@ export const client = Client.create({
 <Cards>
   <Card
     title="Deploy Contract"
-    description="Deploy a contract and return its transaction hash."
+    description="Deploy a contract and wait for its receipt, or return asynchronously."
     icon="lucide:rocket"
     to="/docs/actions/wallet/contract/deploy"
   />
   <Card
-    title="Deploy and Wait"
-    description="Deploy a contract and wait for its receipt."
-    icon="lucide:clock-arrow-up"
-    to="/docs/actions/wallet/contract/deploySync"
-  />
-  <Card
     title="Write Contract"
-    description="Execute a write function on a contract."
+    description="Write to a contract and wait for its receipt, or return asynchronously."
     icon="lucide:file-pen"
     to="/docs/actions/wallet/contract/write"
-  />
-  <Card
-    title="Write and Wait"
-    description="Execute a write function and wait for its receipt."
-    icon="lucide:clock-arrow-up"
-    to="/docs/actions/wallet/contract/writeSync"
   />
 </Cards>
 
@@ -220,27 +202,15 @@ export const client = Client.create({
 <Cards>
   <Card
     title="Approve Token"
-    description="Approve ERC-20 token spending."
+    description="Approve token spending and wait for its receipt, or return asynchronously."
     icon="lucide:badge-check"
     to="/docs/actions/wallet/token/approve"
   />
   <Card
-    title="Approve and Wait"
-    description="Approve token spending and wait for its receipt."
-    icon="lucide:clock-arrow-up"
-    to="/docs/actions/wallet/token/approveSync"
-  />
-  <Card
     title="Transfer Token"
-    description="Transfer an ERC-20, ERC-721, or ERC-1155 token."
+    description="Transfer a token and wait for its receipt, or return asynchronously."
     icon="lucide:arrow-right-left"
     to="/docs/actions/wallet/token/transfer"
-  />
-  <Card
-    title="Transfer and Wait"
-    description="Transfer a token and wait for its receipt."
-    icon="lucide:clock-arrow-up"
-    to="/docs/actions/wallet/token/transferSync"
   />
 </Cards>
 
@@ -249,27 +219,15 @@ export const client = Client.create({
 <Cards>
   <Card
     title="Send Transaction"
-    description="Prepare, sign, and send a transaction."
+    description="Send a transaction and wait for its receipt, or return asynchronously."
     icon="lucide:send"
     to="/docs/actions/wallet/transaction/send"
   />
   <Card
-    title="Send and Wait"
-    description="Send a transaction and wait for its receipt."
-    icon="lucide:clock-arrow-up"
-    to="/docs/actions/wallet/transaction/sendSync"
-  />
-  <Card
     title="Send Raw Transaction"
-    description="Broadcast a serialized transaction."
+    description="Broadcast a serialized transaction and wait, or return asynchronously."
     icon="lucide:radio"
     to="/docs/actions/wallet/transaction/sendRaw"
-  />
-  <Card
-    title="Send Raw and Wait"
-    description="Broadcast a serialized transaction and wait for its receipt."
-    icon="lucide:clock-arrow-up"
-    to="/docs/actions/wallet/transaction/sendRawSync"
   />
   <Card
     title="Sign Transaction"
