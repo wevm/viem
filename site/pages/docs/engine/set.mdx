@@ -20,11 +20,11 @@ import { createHash } from 'node:crypto'
 import { Engine } from 'viem'
 import { Hash } from 'viem/utils'
 
-Engine.set({ // [!code focus:5]
-  Hash: {
-    sha256: (input) => createHash('sha256').update(input).digest(),
-  },
-})
+Engine.set({ // [!code focus]
+  Hash: { // [!code focus]
+    sha256: (input) => createHash('sha256').update(input).digest(), // [!code focus]
+  }, // [!code focus]
+}) // [!code focus]
 
 const digest = Hash.sha256('0xdeadbeef')
 // @log: '0x5f78c33274e43fa9de5659265c1d917e25c03722dcb0b8d27db8d5feaa813953'
@@ -87,16 +87,18 @@ The Engine slots to install. Omitted slots and primitives preserve the current o
 import { createHash } from 'node:crypto'
 import { Engine } from 'viem'
 // ---cut---
-Engine.set({ // [!code focus:5]
-  Hash: {
-    sha256: (input) => createHash('sha256').update(input).digest(),
-  },
-})
+Engine.set({ // [!code focus]
+  Hash: { // [!code focus]
+    sha256: (input) => createHash('sha256').update(input).digest(), // [!code focus]
+  }, // [!code focus]
+}) // [!code focus]
 ```
 
 ### Return Value
 
 `void`
+
+No value is returned.
 
 ### Errors
 

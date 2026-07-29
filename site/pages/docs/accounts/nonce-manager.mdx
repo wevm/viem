@@ -2,7 +2,10 @@
 
 ## Overview
 
-A **Nonce Manager** manages and auto-increments transaction nonces for an [Account](/docs/accounts). It tracks a nonce per `(address, chainId)` pair, so multiple transactions can be prepared and broadcast in parallel without nonce collisions.
+A **Nonce Manager** manages and increments transaction nonces for an [Account](/docs/accounts). It
+tracks one nonce for each `(address, chainId)` pair.
+
+The manager lets you prepare and broadcast concurrent transactions without nonce collisions.
 
 Create a JSON-RPC-backed manager with [`NonceManager.jsonRpc`](#noncemanagerjsonrpc), which seeds nonces from the pending transaction count. Use [`NonceManager.from`](#noncemanagerfrom) to provide a custom source.
 
@@ -20,7 +23,12 @@ const account = Account.fromPrivateKey('0x...', {
 
 ### Attaching to an Account
 
-Pass a `nonceManager` when creating a [Local Account](/docs/accounts/local/private-key). Actions that send transactions from the account ([`transaction.send`](/docs/actions/wallet/transaction/send), [`transaction.sendSync`](/docs/actions/wallet/transaction/sendSync)) consume a managed nonce for each transaction, so parallel sends do not collide.
+Pass a `nonceManager` when creating a [Local Account](/docs/accounts/local/private-key).
+
+Actions that send from the Account, including [`transaction.send`](/docs/actions/wallet/transaction/send)
+and [`transaction.sendSync`](/docs/actions/wallet/transaction/sendSync), consume a managed nonce.
+
+Each transaction receives a distinct nonce, which prevents parallel sends from reusing one value.
 
 ```ts twoslash
 import { Account, Actions, Client, http, NonceManager } from 'viem'

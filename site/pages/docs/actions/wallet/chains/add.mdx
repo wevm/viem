@@ -1,10 +1,13 @@
 # add
 
+## Overview
+
 Adds an EVM chain to the wallet.
 
-## Usage
+## Recipes
 
-This example adds an EVM chain to the wallet.
+### Add a Chain
+
 
 :::code-group
 
@@ -12,7 +15,7 @@ This example adds an EVM chain to the wallet.
 import { optimism } from 'viem/chains'
 import { client } from './viem.config'
 
-await client.chains.add({ chain: optimism })
+await client.chains.add({ chain: optimism }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -26,9 +29,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.chains.add`
 
-Call `Actions.chains.add` directly by passing the Client as the first argument.
+Adds an EVM chain to the wallet.
+
+### Usage
+
+Call [`Actions.chains.add`](#actionschainsadd) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -51,9 +58,15 @@ export const client = Client.create({
 
 :::
 
-## Parameters
+### Parameters
 
-### chain
+#### options
+
+- **Type:** `Actions.chains.add.Options`
+
+The action options.
+
+##### chain
 
 - **Type:** `Chain`
 
@@ -62,9 +75,15 @@ The chain to add to the wallet.
 ```ts twoslash
 import { Actions } from 'viem'
 import { optimism } from 'viem/chains'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 await Actions.chains.add(client, {
   chain: optimism, // [!code focus]
 })
 ```
+
+### Return Value
+
+`void`
+
+No value is returned.

@@ -29,15 +29,15 @@ import { client } from './viem.config'
 
 const address = '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
 
-await client.address.impersonate({ address })
+await client.address.impersonate({ address }) // [!code focus]
 try {
-  await client.transaction.send({
-    account: Account.from(address),
-    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-    value: Value.fromEther('1'),
-  })
+  await client.transaction.send({ // [!code focus]
+    account: Account.from(address), // [!code focus]
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+    value: Value.fromEther('1'), // [!code focus]
+  }) // [!code focus]
 } finally {
-  await client.address.stopImpersonating({ address })
+  await client.address.stopImpersonating({ address }) // [!code focus]
 }
 ```
 
@@ -61,11 +61,11 @@ import { client } from './viem.config'
 
 const address = '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
 
-await client.address.setBalance({
-  address,
-  value: Value.fromEther('10'),
-})
-await client.address.setNonce({ address, nonce: 42 })
+await client.address.setBalance({ // [!code focus]
+  address, // [!code focus]
+  value: Value.fromEther('10'), // [!code focus]
+}) // [!code focus]
+await client.address.setNonce({ address, nonce: 42 }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -86,12 +86,12 @@ import { client } from './viem.config'
 
 const address = '0xe846c6fcf817734ca4527b28ccb4aea2b6663c79'
 
-await client.address.setCode({ address, bytecode: '0x60006000f3' })
-await client.address.setStorageAt({
-  address,
-  index: 0,
-  value: '0x000000000000000000000000000000000000000000000000000000000000002a',
-})
+await client.address.setCode({ address, bytecode: '0x60006000f3' }) // [!code focus]
+await client.address.setStorageAt({ // [!code focus]
+  address, // [!code focus]
+  index: 0, // [!code focus]
+  value: '0x000000000000000000000000000000000000000000000000000000000000002a', // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

@@ -1,19 +1,22 @@
 # requestAddresses
 
+## Overview
+
 Requests a list of accounts managed by a wallet.
 
 Sends a request to the wallet asking for permission to access the user's accounts via `eth_requestAccounts`. After the user accepts, it returns a list of account addresses.
 
-## Usage
+## Recipes
 
-This example requests a list of accounts managed by a wallet.
+### Request Wallet Addresses
+
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const addresses = await client.wallet.requestAddresses()
+const addresses = await client.wallet.requestAddresses() // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -27,9 +30,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.wallet.requestAddresses`
 
-Call `Actions.wallet.requestAddresses` directly by passing the Client as the first argument.
+Requests a list of accounts managed by a wallet.
+
+### Usage
+
+Call [`Actions.wallet.requestAddresses`](#actionswalletrequestaddresses) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -51,7 +58,7 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Return Value
 
 `readonly Address[]`
 

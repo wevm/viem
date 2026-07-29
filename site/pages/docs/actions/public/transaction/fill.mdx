@@ -1,21 +1,25 @@
 # fill
 
+## Overview
+
 Fills a transaction request with the fields required to be signed over, via `eth_fillTransaction`.
 
-## Usage
+## Recipes
 
-This example fills a transaction request with the fields required to be signed over, via `eth_fillTransaction`.
+### Fill a Transaction
+
+Fills a transaction request with the fields required to be signed over, via `eth_fillTransaction`.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { raw, transaction } = await client.transaction.fill({
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1n,
-})
+const { raw, transaction } = await client.transaction.fill({ // [!code focus]
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  value: 1n, // [!code focus]
+}) // [!code focus]
 // @log: {
 // @log:   raw: '0x02f8...',
 // @log:   transaction: {
@@ -44,9 +48,66 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Fill an Authorized Transaction
 
-Call `Actions.transaction.fill` directly by passing the Client as the first argument.
+Pass `authorizationList` when the transaction applies an EIP-7702 authorization.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const { transaction } = await client.transaction.fill({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  authorizationList: [ // [!code focus]
+    { // [!code focus]
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+      chainId: 1, // [!code focus]
+      nonce: 0n, // [!code focus]
+      r: '0x...', // [!code focus]
+      s: '0x...', // [!code focus]
+      yParity: 0, // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### Preserve Known Transaction Fields
+
+Provide known gas, fee, and nonce values when the node should fill only the remaining fields.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const { transaction } = await client.transaction.fill({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  gas: 21_000n, // [!code focus]
+  maxFeePerGas: 20_000_000_000n, // [!code focus]
+  maxPriorityFeePerGas: 1_000_000_000n, // [!code focus]
+  nonce: 69, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+## `Actions.transaction.fill`
+
+Fills a transaction request with the fields required to be signed over, via `eth_fillTransaction`.
+
+### Usage
+
+Call [`Actions.transaction.fill`](#actionstransactionfill) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -87,15 +148,34 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`{ capabilities?: object; raw: Hex; transaction: Transaction & { from: Address } }`
+#### options
 
-The raw signed-over transaction (`raw`), the filled `transaction`, and any node `capabilities` returned alongside it.
+- **Type:** `Actions.transaction.fill.Options`
 
-## Parameters
+Configure the request with the following options.
 
-### accessList
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { transaction } = await Actions.transaction.fill(client, { // [!code focus]
+  accessList: [ // [!code focus]
+    { // [!code focus]
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+      storageKeys: [ // [!code focus]
+        '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
+      ], // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+}) // [!code focus]
+```
+
+##### accessList
 
 - **Type:** `AccessList`
 
@@ -120,11 +200,12 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-### account
+##### account
 
 - **Type:** `Account | Address`
+- **Default:** `client.account`
 
-The Account (or address) the transaction is sent from (`from`).
+The Account object or address that sends the transaction. This option takes precedence over [`from`](#from).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -139,7 +220,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-### authorizationList
+##### authorizationList
 
 - **Type:** `AuthorizationList`
 
@@ -166,7 +247,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-### blobs
+##### blobs
 
 - **Type:** `readonly Hex[]`
 
@@ -185,7 +266,25 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-### chain
+##### blobVersionedHashes
+
+- **Type:** `readonly Hex[]`
+
+The versioned hashes of the EIP-4844 blobs in the transaction request.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { transaction } = await Actions.transaction.fill(client, {
+  blobVersionedHashes: ['0x...'], // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+##### chain
 
 - **Type:** `Chain`
 - **Default:** `client.chain`
@@ -206,7 +305,25 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-### data
+##### chainId
+
+- **Type:** `number | Hex`
+
+The chain ID to include in the transaction request.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { transaction } = await Actions.transaction.fill(client, {
+  chainId: 1, // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+##### data
 
 - **Type:** `Hex`
 
@@ -224,9 +341,27 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-### gas
+##### from
 
-- **Type:** `bigint`
+- **Type:** `Address`
+
+The raw sender address. Viem uses this field only when neither [`account`](#account) nor a Client Account is available.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { transaction } = await Actions.transaction.fill(client, {
+  from: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+##### gas
+
+- **Type:** `number | bigint | Hex`
 
 The gas limit for the transaction. When provided, it is preferred over the node-derived value.
 
@@ -242,9 +377,9 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-### gasPrice
+##### gasPrice
 
-- **Type:** `bigint`
+- **Type:** `number | bigint | Hex`
 
 The legacy gas price (in wei). Mutually exclusive with `maxFeePerGas`/`maxPriorityFeePerGas`.
 
@@ -260,9 +395,9 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-### maxFeePerBlobGas
+##### maxFeePerBlobGas
 
-- **Type:** `bigint`
+- **Type:** `number | bigint | Hex`
 
 The max fee per blob gas (in wei) the sender is willing to pay (EIP-4844).
 
@@ -278,9 +413,9 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-### maxFeePerGas
+##### maxFeePerGas
 
-- **Type:** `bigint`
+- **Type:** `number | bigint | Hex`
 
 The total fee per gas (in wei) the sender is willing to pay (EIP-1559). When provided, it is preferred over the node-derived value.
 
@@ -296,9 +431,9 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-### maxPriorityFeePerGas
+##### maxPriorityFeePerGas
 
-- **Type:** `bigint`
+- **Type:** `number | bigint | Hex`
 
 The max priority fee per gas (in wei) to pay to the block producer (EIP-1559).
 
@@ -314,9 +449,9 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-### nonce
+##### nonce
 
-- **Type:** `number`
+- **Type:** `number | bigint | Hex`
 
 The nonce to use for the transaction. When provided, it takes precedence over the [`nonceManager`](#noncemanager).
 
@@ -332,7 +467,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-### nonceManager
+##### nonceManager
 
 - **Type:** `NonceManager`
 
@@ -352,11 +487,11 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-### requestOptions
+##### requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
-Per-request transport options (e.g. an `AbortSignal` to cancel the request).
+Per-request transport options (for example, an `AbortSignal` to cancel the request).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -371,11 +506,11 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-### to
+##### to
 
-- **Type:** `Address`
+- **Type:** `Address | null`
 
-The contract address or recipient of the transaction.
+The transaction recipient. Pass `null` for a contract creation request.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -389,11 +524,11 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-### type
+##### type
 
 - **Type:** `string`
 
-Forces the transaction request to a specific type (e.g. `'eip1559'`, `'eip2930'`, `'legacy'`).
+Forces the transaction request to a specific type (for example, `'eip1559'`, `'eip2930'`, `'legacy'`).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -407,9 +542,9 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-### value
+##### value
 
-- **Type:** `bigint`
+- **Type:** `number | bigint | Hex`
 
 The value (in wei) sent with the transaction.
 
@@ -425,9 +560,17 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-## Errors
+### Return Value
+
+`{ capabilities?: object; raw: Hex; transaction: Transaction & { from: Address } }`
+
+The raw signed-over transaction (`raw`), the filled `transaction`, and any node `capabilities` returned alongside it.
+
+### Errors
 
 | Error | Description |
 | --- | --- |
 | `Actions.fee.Errors.BaseFeeScalarError` | The chain's `baseFeeMultiplier` resolved to a value less than `1`. |
-| `RpcError` | The node rejected the `eth_fillTransaction` request. |
+| `RpcError.ExecutionError` | The node could not execute the `eth_fillTransaction` request. |
+| `RpcError.FeeCapTooHighError` | `maxFeePerGas` exceeds the maximum allowed value. |
+| `RpcError.TipAboveFeeCapError` | `maxPriorityFeePerGas` is greater than `maxFeePerGas`. |

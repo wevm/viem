@@ -2,7 +2,11 @@
 
 ## Overview
 
-The [`http`](/docs/transports) transport carries JSON-RPC requests over HTTP. When no `url` is provided, it falls back to the [Chain](/docs/chains)'s default HTTP RPC URL. It can batch eligible requests into a single HTTP call, and exposes hooks over the underlying `fetch`.
+The [`http`](/docs/transports/http) transport carries JSON-RPC requests over HTTP. Without a `url`,
+it uses the [Chain](/docs/chains) default HTTP RPC URL.
+
+The Transport can batch eligible requests into one HTTP call. It also provides hooks for the
+underlying `fetch`.
 
 ```ts twoslash
 import { http } from 'viem'
@@ -197,6 +201,21 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
+##### maxResponseBodySize
+
+- **Type:** `number | false`
+- **Default:** `10_485_760`
+
+The maximum response body size in bytes. Set the option to `false` to disable the limit.
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://eth.merkle.io', {
+  maxResponseBodySize: 1_048_576, // [!code focus]
+})
+```
+
 ##### methods
 
 - **Type:** `{ include?: string[] } | { exclude?: string[] }`
@@ -328,4 +347,5 @@ An HTTP transport. The resolved `url` is exposed on the instance.
 
 | Error | Description |
 | --- | --- |
+| `RpcClient.ResponseBodyTooLargeError` | The response body exceeded `maxResponseBodySize`. |
 | `Transport.UrlRequiredError` | No `url` was provided and the chain has no default HTTP RPC URL. |

@@ -26,8 +26,8 @@ Use [`chains.add`](/docs/actions/wallet/chains/add) when the wallet does not kno
 import { optimism } from 'viem/chains'
 import { client } from './viem.config'
 
-await client.chains.add({ chain: optimism })
-await client.chains.switch({ id: optimism.id })
+await client.chains.add({ chain: optimism }) // [!code focus]
+await client.chains.switch({ id: optimism.id }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

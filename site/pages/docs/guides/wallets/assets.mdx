@@ -9,8 +9,10 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 [`wallet.getAssets`](/docs/actions/wallet/getAssets) reads native, ERC-20, ERC-721, or custom assets
-known by a wallet through ERC-7811. [`wallet.watchAsset`](/docs/actions/wallet/watchAsset) asks a
-wallet to add token metadata to its tracked asset list.
+known by a wallet through ERC-7811.
+
+[`wallet.watchAsset`](/docs/actions/wallet/watchAsset) asks a wallet to add token metadata to its
+tracked asset list.
 
 ## Recipes
 
@@ -26,8 +28,8 @@ Filter by Account and asset type when the application only needs part of the wal
 import { client } from './viem.config'
 
 const assets = await client.wallet.getAssets({
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  assetTypes: ['native', 'erc20'],
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  assetTypes: ['native', 'erc20'], // [!code focus]
 })
 ```
 
@@ -46,14 +48,14 @@ The wallet decides whether to accept the suggestion and how to display it.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const added = await client.wallet.watchAsset({
-  type: 'ERC20',
-  options: {
-    address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-    decimals: 6,
-    symbol: 'USDC',
-  },
-})
+const added = await client.wallet.watchAsset({ // [!code focus]
+  type: 'ERC20', // [!code focus]
+  options: { // [!code focus]
+    address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
+    decimals: 6, // [!code focus]
+    symbol: 'USDC', // [!code focus]
+  }, // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

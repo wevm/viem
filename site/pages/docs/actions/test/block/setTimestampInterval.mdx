@@ -1,19 +1,22 @@
 # setTimestampInterval
 
+## Overview
+
 Sets a block timestamp `interval`. The timestamp of future blocks will be computed as `lastBlock_timestamp + interval`.
 
-## Usage
+## Recipes
 
-This example sets a block timestamp `interval`.
+### Set the Timestamp Interval
+
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.block.setTimestampInterval({
-  interval: 5,
-})
+await client.block.setTimestampInterval({ // [!code focus]
+  interval: 5, // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -28,9 +31,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.block.setTimestampInterval`
 
-Call `Actions.block.setTimestampInterval` directly by passing the Client as the first argument.
+Sets a block timestamp `interval`. The timestamp of future blocks will be computed as `lastBlock_timestamp + interval`.
+
+### Usage
+
+Call [`Actions.block.setTimestampInterval`](#actionsblocksettimestampinterval) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -55,9 +62,15 @@ export const client = Client.create({
 
 :::
 
-## Parameters
+### Parameters
 
-### interval
+#### options
+
+- **Type:** `Actions.block.setTimestampInterval.Options`
+
+The action options.
+
+##### interval
 
 - **Type:** `number`
 
@@ -78,7 +91,7 @@ await Actions.block.setTimestampInterval(client, {
 })
 ```
 
-### mode
+##### mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`
@@ -99,3 +112,9 @@ await Actions.block.setTimestampInterval(client, {
   mode: 'hardhat', // [!code focus]
 })
 ```
+
+### Return Value
+
+`void`
+
+No value is returned.

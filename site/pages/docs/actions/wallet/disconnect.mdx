@@ -1,17 +1,20 @@
 # disconnect
 
-Requests to disconnect connected account(s) via [ERC-7846 `wallet_disconnect`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7846.md).
+## Overview
 
-## Usage
+Requests to disconnect connected accounts via [ERC-7846 `wallet_disconnect`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7846.md).
 
-This example requests to disconnect connected account(s) via [ERC-7846 `wallet_disconnect`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7846.md).
+## Recipes
+
+### Disconnect a Wallet
+
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.wallet.disconnect()
+await client.wallet.disconnect() // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -25,9 +28,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.wallet.disconnect`
 
-Call `Actions.wallet.disconnect` directly by passing the Client as the first argument.
+Requests to disconnect connected accounts via [ERC-7846 `wallet_disconnect`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7846.md).
+
+### Usage
+
+Call [`Actions.wallet.disconnect`](#actionswalletdisconnect) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -49,8 +56,8 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Return Value
 
 `void`
 
-No return value. The wallet revokes the connection established with [`connect`](/docs/actions/wallet/connect).
+No return value. The wallet revokes the connection established with [`Actions.wallet.connect`](/docs/actions/wallet/connect).

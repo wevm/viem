@@ -13,13 +13,16 @@ keep transport, execution, contract, and Action failures beside the domain that 
 
 ## Recipes
 
-These recipes assume you understand the provider's custom RPC contract and error behavior.
+These recipes assume you understand the
+[provider's custom RPC contract](/docs/transports/custom) and error behavior.
 
 ### Type a Custom RPC Method
 
 Pass a Zod RPC schema to [`Client.create`](/docs/clients/create#typing-a-custom-rpc-schema). The
-schema validates and types the method parameters and return value used by
+schema types the method parameters and return value used by
 [`client.request`](/docs/clients/create#typing-a-custom-rpc-schema).
+
+The schema provides TypeScript inference. It does not validate requests or responses at runtime.
 
 ```ts twoslash
 import { Client, http } from 'viem'
@@ -29,18 +32,18 @@ import { z } from 'viem/zod'
 const client = Client.create({
   chain: mainnet,
   transport: http('https://rpc.example'),
-  schema: z.RpcSchema.from({ // [!code focus:6]
-    app_getLabel: {
-      params: z.tuple([z.string()]),
-      returns: z.string(),
-    },
-  }),
+  schema: z.RpcSchema.from({ // [!code focus]
+    app_getLabel: { // [!code focus]
+      params: z.tuple([z.string()]), // [!code focus]
+      returns: z.string(), // [!code focus]
+    }, // [!code focus]
+  }), // [!code focus]
 })
 
-const label = await client.request({ // [!code focus:4]
-  method: 'app_getLabel',
-  params: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
-})
+const label = await client.request({ // [!code focus]
+  method: 'app_getLabel', // [!code focus]
+  params: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'], // [!code focus]
+}) // [!code focus]
 ```
 
 ### Wrap an EIP-1193 Provider
@@ -80,12 +83,12 @@ try {
     value: Value.fromEther('1'),
   })
 } catch (error) {
-  if (error instanceof Errors.BaseError) { // [!code focus:6]
-    const nonceError = error.walk(
-      (cause) => cause instanceof RpcError.NonceTooLowError,
-    )
-    if (nonceError) console.error('Refresh the nonce and retry.')
-  }
+  if (error instanceof Errors.BaseError) { // [!code focus]
+    const nonceError = error.walk( // [!code focus]
+      (cause) => cause instanceof RpcError.NonceTooLowError, // [!code focus]
+    ) // [!code focus]
+    if (nonceError) console.error('Refresh the nonce and retry.') // [!code focus]
+  } // [!code focus]
 }
 ```
 

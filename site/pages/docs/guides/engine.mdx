@@ -22,10 +22,13 @@ other public APIs that call them.
 
 Engines are partial. Anything they omit leaves the currently installed
 implementation unchanged, falling back to Viem's default when no override was
-installed earlier. [`Engine.install`](/docs/engine/install) resolves selected
-provider modules in parallel and installs them only after every module is
-ready. Calls merge, including within the same slot, and Viem selects an
-implementation when a cryptographic function is called.
+installed earlier.
+
+[`Engine.install`](/docs/engine/install) resolves selected provider modules in
+parallel and installs them only after every module is ready.
+
+Calls merge, including within the same slot. Viem selects an implementation
+when a cryptographic function is called.
 
 Install an engine once during application startup, before making cryptographic
 calls. The registry belongs to the loaded Ox module instance behind Viem, so
@@ -35,7 +38,7 @@ separate copies of Ox have separate registries.
 
 These recipes assume you have [installed Viem](/docs/installation).
 
-### Default Engine
+### Use the Default Engine
 
 No setup is required:
 
@@ -65,7 +68,7 @@ because defaults are fallbacks, not registered overrides.
 - It may not satisfy a policy requiring a particular native, hardware, or
   validated provider.
 
-### WASM (Web Assembly) Engine
+### Install the WASM Engine
 
 The WASM engine compiles and installs asynchronously:
 
@@ -88,8 +91,10 @@ The underlying Ox provider supplies the following partial slots:
 - `X25519`: public-key derivation and shared-secret calculation.
 
 Other operations keep their current implementation, or use Viem's default when
-no earlier override exists. In particular, asynchronous KDFs remain on the
-default because wrapping synchronous WASM in a promise would not make it yield.
+no earlier override exists.
+
+Asynchronous KDFs remain on the default because wrapping synchronous WASM in a
+promise would not make it yield.
 
 The `viem/wasm` entrypoint exposes an
 [`Engine.engine`](/docs/engine/engine) factory that prepares its slots without
@@ -101,9 +106,9 @@ import { Engine as WasmEngine } from 'viem/wasm'
 import { Hash } from 'viem/utils'
 
 const wasm = await WasmEngine.engine()
-await Engine.install({ // [!code focus:3]
-  Hash: wasm.Hash,
-})
+await Engine.install({ // [!code focus]
+  Hash: wasm.Hash, // [!code focus]
+}) // [!code focus]
 
 const digest = Hash.sha256('0xdeadbeef')
 ```
@@ -132,7 +137,7 @@ remains the normal formatted public API.
 - Uses Ox's pinned portable C implementations, which must stay reviewed and
   updated.
 
-### Node Engine
+### Install the Node Engine
 
 The Node engine uses the built-in `node:crypto` implementation. Its setup is
 asynchronous to match `viem/wasm`, although Node requires no compilation:
@@ -157,11 +162,15 @@ The underlying Ox provider supplies the following partial slots:
 - `X25519`: public-key derivation and shared-secret calculation.
 
 Other operations keep their current implementation, or use Viem's default when
-no earlier override exists. Node's `sha3-256` is not Ethereum Keccak256 and
-must not be substituted for it. Ed25519 verification stays on the default
-because Node/OpenSSL does not implement the ZIP-215 semantics required by Ox's
-Engine contract. Scrypt also stays on the default because OpenSSL rejects
-parameter combinations accepted by that contract.
+no earlier override exists.
+
+Node's `sha3-256` is not Ethereum Keccak256 and must not be substituted for it.
+
+Ed25519 verification stays on the default because Node/OpenSSL does not
+implement the ZIP-215 semantics required by Ox's Engine contract.
+
+Scrypt also stays on the default because OpenSSL rejects parameter combinations
+accepted by that contract.
 
 Install one prepared Node slot through the same core API:
 
@@ -171,9 +180,9 @@ import { Engine as NodeEngine } from 'viem/node'
 import { Hash } from 'viem/utils'
 
 const node = await NodeEngine.engine()
-await Engine.install({ // [!code focus:3]
-  Hash: node.Hash,
-})
+await Engine.install({ // [!code focus]
+  Hash: node.Hash, // [!code focus]
+}) // [!code focus]
 
 const digest = Hash.sha256('0xdeadbeef')
 ```
@@ -210,10 +219,10 @@ const [node, wasm] = await Promise.all([
   WasmEngine.engine(),
 ])
 
-await Engine.install({ // [!code focus:4]
-  Ed25519: wasm.Ed25519,
-  Hash: node.Hash,
-})
+await Engine.install({ // [!code focus]
+  Ed25519: wasm.Ed25519, // [!code focus]
+  Hash: node.Hash, // [!code focus]
+}) // [!code focus]
 
 const digest = Hash.sha256('0xdeadbeef')
 ```
@@ -223,8 +232,9 @@ slots atomically. If either factory rejects, nothing is installed.
 
 Repeated installations merge primitives. Installing Node's `Hash` after WASM
 keeps WASM-only BLAKE3 and Keccak256 installed while replacing the three
-overlapping hashes. Use [`Engine.reset`](/docs/engine/reset) first when
-replacing a slot completely:
+overlapping hashes.
+
+Use [`Engine.reset`](/docs/engine/reset) first when replacing a slot completely:
 
 ```ts twoslash
 import { Engine } from 'viem'
@@ -235,7 +245,7 @@ Engine.reset('Hash') // [!code focus]
 await Engine.install({ Hash: node.Hash }) // [!code focus]
 ```
 
-### Custom Engines
+### Install a Custom Engine
 
 Install any subset of Viem's engine contract with
 [`Engine.set`](/docs/engine/set):
@@ -243,11 +253,11 @@ Install any subset of Viem's engine contract with
 ```ts twoslash
 import { Engine } from 'viem'
 
-Engine.set({ // [!code focus:5]
-  Hash: {
-    keccak256: (input) => myKeccak256(input),
-  },
-})
+Engine.set({ // [!code focus]
+  Hash: { // [!code focus]
+    keccak256: (input) => myKeccak256(input), // [!code focus]
+  }, // [!code focus]
+}) // [!code focus]
 declare function myKeccak256(input: Uint8Array): Uint8Array
 ```
 
@@ -269,17 +279,18 @@ may be slots or promises of slots:
 ```ts twoslash
 import { Engine } from 'viem'
 
-await Engine.install({ // [!code focus:3]
-  Hash: Promise.resolve({ keccak256: myKeccak256 }),
-})
+await Engine.install({ // [!code focus]
+  Hash: Promise.resolve({ keccak256: myKeccak256 }), // [!code focus]
+}) // [!code focus]
 declare const myKeccak256: (input: Uint8Array) => Uint8Array
 ```
 
 Binary values cross engine boundaries as raw `Uint8Array` values. Ox performs
 `Hex` and `Bytes` conversion outside the engine boundary, and Viem re-exports
-the formatted APIs. Install explicitly rather than relying on a side-effect
-import: Viem declares `sideEffects: false`, so a bundler may drop an import that
-appears unused.
+the formatted APIs.
+
+Install explicitly instead of relying on a side-effect import. Viem declares
+`sideEffects: false`, so a bundler may drop an import that appears unused.
 
 **Benefits**
 
@@ -299,7 +310,7 @@ appears unused.
 - Installing an engine changes dispatch but does not remove defaults from the
   bundle.
 
-### Benchmarks
+### Run Engine Benchmarks
 
 Viem's Engine entrypoints re-export providers implemented by Ox. Run the
 upstream comparison from the Ox repository with:
@@ -309,7 +320,9 @@ pnpm bench:engines
 ```
 
 The harness covers every Engine slot and all 38 primitives in Ox's default
-Engine. The provider columns count the primitives each implementation supplies.
+Engine. The provider columns count the primitives that each implementation
+supplies.
+
 The corresponding Viem entrypoints use these same providers:
 
 | Slot          | Primitives | `ox`   | `ox/node` | `ox/wasm` | `alloy (Rust)` |
@@ -326,14 +339,22 @@ The corresponding Viem entrypoints use these same providers:
 
 `n/a` means the provider does not implement a primitive in that slot. The
 harness never times Ox's fallback under another engine's name.
-`alloy-primitives` provides Keccak256 only; it is a native reference, not an Ox
+
+`alloy-primitives` provides Keccak256 only. It is a native reference, not an Ox
 engine.
 
-Local runs on an Apple M4 Max with Node.js 25.9.0 and Rust 1.93.1, using 50 ms
-warmups, 200 ms measurement budgets, and three repeats, produced the following
-best-observed timings (lower is better). Speedup compares the fastest Ox engine
-in each row with `ox`; Alloy remains a reference only. The full command prints
-every primitive and input size:
+Local runs used an Apple M4 Max with Node.js 25.9.0 and Rust 1.93.1.
+
+Each run used 50 ms warmups, 200 ms measurement budgets, and three repeats.
+
+The table shows the best observed timings.
+
+Lower values are better.
+
+Speedup compares the fastest Ox engine in each row with `ox`. Alloy remains a
+reference only.
+
+The full command prints every primitive and input size:
 
 | Primitive and case                    | `ox`      | `ox/node` | `ox/wasm` | `alloy (Rust)` | Fastest Ox engine vs `ox` |
 | ------------------------------------- | --------- | --------- | --------- | -------------- | ------------------------- |
@@ -353,16 +374,21 @@ every primitive and input size:
 | `X25519.getSharedSecret`, 32 B key    | 597.48 µs | 47.00 µs  | 40.70 µs  | n/a            | 14.68× (wasm)             |
 
 The benchmark initializes engines outside the timed loops and sends each Ox
-call through the same engine resolver. It uses identical inputs, warmups,
-budgets, and repeats, and reports the best-observed repeat as a peak-throughput
-microbenchmark, not a latency distribution. It measures raw single-call
-byte-array implementations, not Ox formatting or whole applications. Because
-Viem re-exports the same implementations, these results describe its
-corresponding Engine choices but are not a separate Viem benchmark. Treat the
-results as runtime-specific: Node/OpenSSL, CPU acceleration, the WASM runtime,
-Rust compiler, JIT state, and input size can all change the ranking.
+call through the same engine resolver.
 
-### Testing
+It uses identical inputs, warmups, budgets, and repeats. The best-observed
+repeat represents a peak-throughput microbenchmark, not a latency distribution.
+
+The benchmark measures raw single-call byte-array implementations, not Ox
+formatting or whole applications.
+
+Viem re-exports the same implementations, so these results describe its Engine
+choices. They are not a separate Viem benchmark.
+
+Treat the results as runtime-specific. Node/OpenSSL, CPU acceleration, the WASM
+runtime, Rust compiler, JIT state, and input size can change the ranking.
+
+### Test Engine Implementations
 
 Reset the installed engine between tests:
 
@@ -384,10 +410,10 @@ import { Engine as WasmEngine } from 'viem/wasm'
 import { Hash } from 'viem/utils'
 
 const wasm = await WasmEngine.engine()
-const digest = Engine.with( // [!code focus:4]
-  wasm,
-  () => Hash.sha256('0xdeadbeef'),
-)
+const digest = Engine.with( // [!code focus]
+  wasm, // [!code focus]
+  () => Hash.sha256('0xdeadbeef'), // [!code focus]
+) // [!code focus]
 ```
 
 `Engine.with` rejects asynchronous functions because concurrent work could
@@ -400,11 +426,15 @@ signature, and key lengths rather than checking only that a call succeeds.
 
 The upstream Ox Engine test suite adds independent conformance coverage for
 NIST AES-CTR, RFC 7914 PBKDF2, RFC 8032 Ed25519, all 196 ZIP-215 verification
-cases, RFC 7748 X25519, libsodium's low-order X25519 corpus, official BLAKE3
-vectors, and English and Japanese BIP-39 vectors. Differential fuzz tests also
-cover subviews, input immutability, output ownership, interleaved providers,
-memory growth, and boundary-sized inputs. WASM conformance runs in Chromium,
-Firefox, and WebKit as well as Node.js.
+cases, and RFC 7748 X25519.
+
+Additional coverage includes libsodium's low-order X25519 corpus, official
+BLAKE3 vectors, and English and Japanese BIP-39 vectors.
+
+Differential fuzz tests also cover subviews, input immutability, output
+ownership, interleaved providers, memory growth, and boundary-sized inputs.
+
+WASM conformance runs in Chromium, Firefox, and WebKit as well as Node.js.
 
 ## Best Practices
 
@@ -412,30 +442,39 @@ Firefox, and WebKit as well as Node.js.
 
 Treat an engine as trusted code. Depending on the slot, it can receive HMAC
 keys, private keys, passwords, mnemonic phrases, and plaintext keystore
-material. `Engine.install` and `Engine.set` validate slot and primitive names,
-but they cannot validate correctness, constant-time behavior, or key handling.
+material.
+
+`Engine.install` and `Engine.set` validate slot and primitive names. They
+cannot validate correctness, constant-time behavior, or key handling.
 
 Viem's default Engine delegates to Ox's audited cryptographic implementations.
 The WASM Engine does not promise protection from timing or cache side channels.
+
 WebAssembly has
 [no constant-time execution guarantee](https://webassembly.org/docs/security/).
 Ox's WASM providers clear copied secret inputs, staged outputs, and explicit
 workspaces from linear memory in `finally` blocks, including after recoverable
-WebAssembly traps. They cannot clear caller-owned buffers, JavaScript strings,
-runtime-managed state, or every compiler-created stack temporary. This does
-not make the surrounding runtime side-channel resistant.
+WebAssembly traps.
+
+They cannot clear caller-owned buffers, JavaScript strings, runtime-managed
+state, or every compiler-created stack temporary.
+
+Clearing copied values does not make the surrounding runtime side-channel
+resistant.
 
 Ox's WASM curve and mnemonic provider pins
 [Monocypher 4.0.3](https://github.com/LoupVaillant/Monocypher/tree/4.0.3).
-Its published Cure53 audit covered version 3.1.1, not the 4.x series, and 4.0.3
-includes a fix recorded in Monocypher's
+
+The published Cure53 audit covered version 3.1.1, not the 4.x series. Version
+4.0.3 includes a fix recorded in Monocypher's
 [security disclosures](https://monocypher.org/quality-assurance/disclosures).
+
 The BLAKE3 provider pins the official portable C implementation and disables
 architecture-specific SIMD and atomics.
 
 The Node engine inherits the properties of the active Node and OpenSSL build.
-Using `node:crypto` does not itself mean FIPS mode is enabled or that every
-configured provider exposes RIPEMD-160.
+Using `node:crypto` does not enable FIPS mode or guarantee that every configured
+provider exposes RIPEMD-160.
 
 For threats involving precise timing measurement or hostile same-process code,
 use an OS keystore, hardware-backed signer, or isolated signing service.

@@ -4,14 +4,19 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-A **Transport** is the wire a [Client](/docs/clients) uses to carry JSON-RPC requests. It is a static identity (`key`/`name`/`type`) plus a `setup` the client calls to produce a live instance with a retry- and dedupe-wrapped `request` function.
+A **Transport** carries JSON-RPC requests for a [Client](/docs/clients). Its configuration includes a
+`key`, `name`, `type`, and `setup` function.
 
-Viem ships transports for the common wire protocols, plus composable transports that wrap others:
+The Client calls `setup` to create a request function with retry and duplicate-request handling.
+
+Viem provides transports for common protocols and composable transports that wrap other
+Transports:
 
 - **Wire transports**: [`http`](/docs/transports/http), [`webSocket`](/docs/transports/websocket), [`ipc`](/docs/transports/ipc), and [`custom`](/docs/transports/custom) (EIP-1193).
 - **Composing transports**: [`fallback`](/docs/transports/fallback), [`loadBalance`](/docs/transports/load-balance), and [`rateLimit`](/docs/transports/rate-limit) wrap one or more transports.
 
-Each transport is available both as a top-level sugar export (`http`, `webSocket`, ...) and on the `Transport` namespace (`Transport.http`, ...).
+Each Transport has a top-level convenience export, such as `http`. The same function is available
+on the `Transport` namespace as `Transport.http`.
 
 ```ts twoslash
 import { Client, http } from 'viem'

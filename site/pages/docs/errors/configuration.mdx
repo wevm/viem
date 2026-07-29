@@ -2,7 +2,14 @@
 
 ## Overview
 
-Use [`Errors.setConfig`](/docs/errors) to set Viem-scoped defaults applied to every [`Errors.BaseError`](/docs/errors/base-error) instance (merge semantics). This controls how errors are attributed: the docs origin rendered into `See:` URLs, and the version line. It is useful for consumers (for example, wagmi) that re-attribute errors. ox's global static options are never touched.
+Use [`Errors.setConfig`](/docs/errors/configuration) to set Viem defaults for every
+[`Errors.BaseError`](/docs/errors/base-error) instance. Each call merges the supplied values into
+the current configuration.
+
+The configuration controls the documentation origin in `See:` URLs and the version line. Wrapper
+libraries can use these values to change error attribution.
+
+This function does not change Ox's global static options.
 
 ```ts twoslash
 import { Errors } from 'viem'
@@ -83,3 +90,5 @@ Errors.setConfig({
 ### Return Value
 
 `void`
+
+No value is returned.

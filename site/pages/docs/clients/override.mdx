@@ -2,7 +2,13 @@
 
 ## Overview
 
-Actions attached to a [Client](/docs/clients) via [`.extend()`](/docs/clients/create#extending-a-client) intercept the nested action calls that core Actions make internally. For example, [`Actions.contract.write`](/docs/actions/wallet/contract/write) dispatches its transaction through the Client's `transaction.send` if one is attached, falling back to the standalone [`Actions.transaction.send`](/docs/actions/wallet/transaction/send).
+Actions attached through [`.extend()`](/docs/clients/create#extending-a-client) can intercept nested
+calls that core Actions make.
+
+For example, [`Actions.contract.write`](/docs/actions/wallet/contract/write) uses the
+[Client](/docs/clients)
+[`transaction.send`](/docs/actions/wallet/transaction/send) action when attached. Otherwise, it uses
+[`Actions.transaction.send`](/docs/actions/wallet/transaction/send).
 
 This resolution is performed by [`Actions.getAction`](#actionsgetaction), which is also available for library authors composing their own actions.
 
@@ -30,10 +36,18 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-Core Actions consult overrides at the following paths: `transaction.send`, `transaction.sendSync`, `transaction.prepare`, `transaction.estimateGas`, and `call`.
+Core Actions consult overrides at
+[`transaction.send`](/docs/actions/wallet/transaction/send),
+[`transaction.sendSync`](/docs/actions/wallet/transaction/sendSync),
+[`transaction.prepare`](/docs/actions/public/transaction/prepare),
+[`transaction.estimateGas`](/docs/actions/public/transaction/estimateGas), and
+[`call`](/docs/actions/public/call).
 
 :::note
-Actions attached by an earlier `.extend()` close over the Client as it existed at that point. An override attached in a later `.extend()` is not visible to nested calls made through an earlier extension's actions (including decorators), so attach overrides before decorators.
+Actions attached by `.extend()` capture the Client at that point. Earlier extensions cannot access
+overrides attached by a later extension.
+
+Attach overrides before decorators.
 :::
 
 ## Recipes
@@ -42,7 +56,10 @@ These recipes assume you have [set up a Client](/docs/clients/create).
 
 ### Intercept Nested Sends
 
-Attach a `transaction.send` action to route every dispatched transaction through custom logic, including transactions sent internally by [`Actions.contract.write`](/docs/actions/wallet/contract/write), `Actions.contract.deploy`, and token actions.
+Attach a `transaction.send` action to route every dispatched transaction through custom logic,
+including transactions sent internally by
+[`Actions.contract.write`](/docs/actions/wallet/contract/write),
+[`Actions.contract.deploy`](/docs/actions/wallet/contract/deploy), and token actions.
 
 ```ts twoslash
 import { Account, Actions, Client, http } from 'viem'
@@ -55,7 +72,7 @@ const client = Client.create({
 }).extend((client) => ({ // [!code focus]
   transaction: { // [!code focus]
     send: (options: Actions.transaction.send.Options<typeof mainnet>) => { // [!code focus]
-      // Custom dispatch logic (e.g. route through a relayer). // [!code focus]
+      // Custom dispatch logic, such as routing through a relayer. // [!code focus]
       return Actions.transaction.send(client, options) // [!code focus]
     }, // [!code focus]
   }, // [!code focus]
@@ -147,7 +164,10 @@ const send = Actions.getAction(
 
 - **Type:** `string`
 
-Dot-notation path of the action on the Client (e.g. `'transaction.send'`). Passed explicitly instead of being derived from `fn.name` since actions live on nested Client namespaces and minifiers may mangle function names.
+The action's dot-notation path on the Client, such as `'transaction.send'`.
+
+Pass the path explicitly because Actions use nested Client namespaces, and minifiers can change
+function names.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'

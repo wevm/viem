@@ -2,9 +2,16 @@
 
 ## Overview
 
-A **Private Key Account** (`Account.PrivateKey`) is a [local account](/docs/accounts) backed by a secp256k1 private key. It derives its public key and checksummed address from the key, and signs hashes, messages, transactions, typed data, and [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) authorizations locally.
+A **Private Key Account** (`Account.PrivateKey`) is a [local account](/docs/accounts) backed by a
+secp256k1 private key.
 
-Create one from an existing private key with [`Account.fromPrivateKey`](/docs/accounts), or generate a random one with [`Account.random`](/docs/accounts).
+The account derives its public key and checksummed address from the private key. It signs hashes,
+messages, transactions, typed data, and
+[EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) authorizations locally.
+
+Create one from an existing private key with
+[`Account.fromPrivateKey`](#accountfromprivatekey), or generate one with
+[`Account.random`](#accountrandom).
 
 ```ts twoslash
 import { Account } from 'viem'
@@ -19,9 +26,25 @@ account.publicKey
 
 ## Recipes
 
-:::warning[TODO]
-A holistic, end-to-end walkthrough of using a private key account (attaching it to a client and signing through actions) will be added once clients and actions are available.
-:::
+### Set a Default Client Account
+
+Pass the account to [`Client.create`](/docs/clients/create). Wallet Actions use this account when
+you do not pass an `account` option.
+
+```ts twoslash
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const account = Account.fromPrivateKey('0x...')
+
+const client = Client.create({
+  account, // [!code focus]
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+
+const signature = await client.signMessage({ message: 'hello world' })
+```
 
 ## `Account.fromPrivateKey`
 
@@ -54,6 +77,24 @@ import { Account } from 'viem'
 const account = Account.fromPrivateKey('0x...') // [!code focus]
 ```
 
+#### options
+
+- **Type:** `Account.fromPrivateKey.Options`
+
+##### nonceManager
+
+- **Type:** `NonceManager.NonceManager`
+
+The [nonce manager](/docs/accounts/nonce-manager) attached to the account.
+
+```ts twoslash
+import { Account, NonceManager } from 'viem'
+// ---cut---
+const account = Account.fromPrivateKey('0x...', {
+  nonceManager: NonceManager.jsonRpc(), // [!code focus]
+})
+```
+
 ### Return Value
 
 `Account.PrivateKey`
@@ -62,10 +103,9 @@ A private-key-backed local account (`keyType: 'secp256k1'`) exposing `address`, 
 
 ### Errors
 
-| Error                     | Description                                          |
-| ------------------------- | --------------------------------------------------- |
-| `PublicKey.InvalidError`  | The private key is invalid (or produces an invalid public key). |
-| `Errors.GlobalErrorType`  | A globally-handled error.                           |
+| Error | Description |
+| --- | --- |
+| `PublicKey.InvalidError` | The private key is invalid or produces an invalid public key. |
 
 ## `Account.random`
 
@@ -87,6 +127,6 @@ A private-key-backed local account (`keyType: 'secp256k1'`) generated from a ran
 
 ### Errors
 
-| Error                    | Description               |
-| ------------------------ | ------------------------- |
-| `Errors.GlobalErrorType` | A globally-handled error. |
+| Error | Description |
+| --- | --- |
+| `PublicKey.InvalidError` | The generated private key produces an invalid public key. |

@@ -1,19 +1,22 @@
 # increaseTime
 
+## Overview
+
 Jumps forward in time by the given amount of time, in seconds.
 
-## Usage
+## Recipes
 
-This example jumps forward in time by the given amount of time, in seconds.
+### Increase the Block Time
+
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const result = await client.block.increaseTime({
-  seconds: 420,
-})
+const result = await client.block.increaseTime({ // [!code focus]
+  seconds: 420, // [!code focus]
+}) // [!code focus]
 // @log: '0x1'
 ```
 
@@ -29,9 +32,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.block.increaseTime`
 
-Call `Actions.block.increaseTime` directly by passing the Client as the first argument.
+Jumps forward in time by the given amount of time, in seconds.
+
+### Usage
+
+Call [`Actions.block.increaseTime`](#actionsblockincreasetime) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -57,15 +64,15 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`Hex`
+#### options
 
-The new total offset (in seconds) applied to the block timestamp.
+- **Type:** `Actions.block.increaseTime.Options`
 
-## Parameters
+The action options.
 
-### seconds
+##### seconds
 
 - **Type:** `number`
 
@@ -84,3 +91,9 @@ const result = await Actions.block.increaseTime(client, {
   seconds: 420, // [!code focus]
 })
 ```
+
+### Return Value
+
+`Hex`
+
+The new total offset (in seconds) applied to the block timestamp.

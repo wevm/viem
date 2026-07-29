@@ -26,18 +26,18 @@ Use [`txpool.inspect`](/docs/actions/test/txpool/inspect) for the transaction su
 import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
-await client.block.setAutomine({ enabled: false })
+await client.block.setAutomine({ enabled: false }) // [!code focus]
 
 try {
-  const hash = await client.transaction.send({
-    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-    value: Value.fromEther('1'),
-  })
+  const hash = await client.transaction.send({ // [!code focus]
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+    value: Value.fromEther('1'), // [!code focus]
+  }) // [!code focus]
 
-  const status = await client.txpool.getStatus()
-  const transactions = await client.txpool.inspect()
+  const status = await client.txpool.getStatus() // [!code focus]
+  const transactions = await client.txpool.inspect() // [!code focus]
 } finally {
-  await client.block.setAutomine({ enabled: true })
+  await client.block.setAutomine({ enabled: true }) // [!code focus]
 }
 ```
 
@@ -58,16 +58,16 @@ transaction disappearing before inclusion.
 import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
-await client.block.setAutomine({ enabled: false })
+await client.block.setAutomine({ enabled: false }) // [!code focus]
 
 try {
-  const hash = await client.transaction.send({
-    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-    value: Value.fromEther('1'),
-  })
-  await client.txpool.dropTransaction({ hash })
+  const hash = await client.transaction.send({ // [!code focus]
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+    value: Value.fromEther('1'), // [!code focus]
+  }) // [!code focus]
+  await client.txpool.dropTransaction({ hash }) // [!code focus]
 } finally {
-  await client.block.setAutomine({ enabled: true })
+  await client.block.setAutomine({ enabled: true }) // [!code focus]
 }
 ```
 

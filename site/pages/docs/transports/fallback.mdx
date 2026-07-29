@@ -2,7 +2,12 @@
 
 ## Overview
 
-The [`fallback`](/docs/transports) transport accepts a list of [Transports](/docs/transports) and attempts each in order, falling through to the next when one errors, unless the error is terminal (for example, a user rejection). When `rank` is enabled, the transports are periodically re-ordered by latency and stability so the healthiest endpoint is tried first.
+The [`fallback`](/docs/transports/fallback) transport sends a request through a list of
+[Transports](/docs/transports) in order. After an error, it tries the next Transport unless the
+error is terminal.
+
+For example, a user rejection is terminal. When `rank` is enabled, latency and stability determine
+which Transport receives the first request.
 
 ```ts twoslash
 import { fallback, http } from 'viem'
@@ -17,7 +22,8 @@ const transport = fallback([
 
 ### Falling Through Multiple Providers
 
-List transports in priority order. The first to succeed wins; failures fall through to the next.
+List Transports in priority order. The function returns the first successful response and continues
+past failures.
 
 ```ts twoslash
 import { fallback, http } from 'viem'
@@ -172,13 +178,99 @@ const transport = fallback([http(), http()], {
 - **Type:** `boolean | RankOptions`
 - **Default:** `false`
 
-Enable ranking, or ranking options (see [Rank Options](#rank-options) below).
+Enable ranking, or pass an object to configure ranking.
 
 ```ts twoslash
 import { fallback, http } from 'viem'
 // ---cut---
 const transport = fallback([http(), http()], {
   rank: true, // [!code focus]
+})
+```
+
+###### rank.interval
+
+- **Type:** `number`
+- **Default:** client `pollingInterval`
+
+Polling interval (ms) at which each transport is pinged.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  rank: {
+    interval: 4_000, // [!code focus]
+  },
+})
+```
+
+###### rank.ping
+
+- **Type:** `(options: { transport: Transport.Instance }) => Promise<unknown>`
+
+Ping function used to determine latency.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  rank: {
+    async ping({ transport }) { // [!code focus]
+      return transport.request({ method: 'eth_blockNumber' }) // [!code focus]
+    }, // [!code focus]
+  },
+})
+```
+
+###### rank.sampleCount
+
+- **Type:** `number`
+- **Default:** `10`
+
+Number of previous samples to rank on.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  rank: {
+    sampleCount: 5, // [!code focus]
+  },
+})
+```
+
+###### rank.timeout
+
+- **Type:** `number`
+- **Default:** `1_000`
+
+Timeout (ms) when sampling transports.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  rank: {
+    timeout: 1_000, // [!code focus]
+  },
+})
+```
+
+###### rank.weights
+
+- **Type:** `{ latency?: number; stability?: number }`
+- **Default:** `{ latency: 0.3, stability: 0.7 }`
+
+Proportional weights applied to the latency and stability scores.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  rank: {
+    weights: { latency: 0.3, stability: 0.7 }, // [!code focus]
+  },
 })
 ```
 
@@ -228,98 +320,9 @@ const transport = fallback([http(), http()], {
 })
 ```
 
-#### Rank Options
-
-The shape of `options.rank` when passed an object.
-
-##### rank.interval
-
-- **Type:** `number`
-- **Default:** client `pollingInterval`
-
-Polling interval (ms) at which each transport is pinged.
-
-```ts twoslash
-import { fallback, http } from 'viem'
-// ---cut---
-const transport = fallback([http(), http()], {
-  rank: {
-    interval: 4_000, // [!code focus]
-  },
-})
-```
-
-##### rank.ping
-
-- **Type:** `(options: { transport: Transport.Instance }) => Promise<unknown>`
-
-Ping function used to determine latency.
-
-```ts twoslash
-import { fallback, http } from 'viem'
-// ---cut---
-const transport = fallback([http(), http()], {
-  rank: {
-    async ping({ transport }) { // [!code focus]
-      return transport.request({ method: 'eth_blockNumber' }) // [!code focus]
-    }, // [!code focus]
-  },
-})
-```
-
-##### rank.sampleCount
-
-- **Type:** `number`
-- **Default:** `10`
-
-Number of previous samples to rank on.
-
-```ts twoslash
-import { fallback, http } from 'viem'
-// ---cut---
-const transport = fallback([http(), http()], {
-  rank: {
-    sampleCount: 5, // [!code focus]
-  },
-})
-```
-
-##### rank.timeout
-
-- **Type:** `number`
-- **Default:** `1_000`
-
-Timeout (ms) when sampling transports.
-
-```ts twoslash
-import { fallback, http } from 'viem'
-// ---cut---
-const transport = fallback([http(), http()], {
-  rank: {
-    timeout: 1_000, // [!code focus]
-  },
-})
-```
-
-##### rank.weights
-
-- **Type:** `{ latency?: number; stability?: number }`
-- **Default:** `{ latency: 0.3, stability: 0.7 }`
-
-Proportional weights applied to the latency and stability scores.
-
-```ts twoslash
-import { fallback, http } from 'viem'
-// ---cut---
-const transport = fallback([http(), http()], {
-  rank: {
-    weights: { latency: 0.3, stability: 0.7 }, // [!code focus]
-  },
-})
-```
-
 ### Return Value
 
-`Transport<'fallback', { onResponse, transports }>`
+`Transport<'fallback', { onResponse, stopRank, transports }>`
 
-A fallback transport. The instance exposes `onResponse(fn)` to observe each attempt and the resolved `transports`.
+A fallback transport. The instance exposes `onResponse(fn)`, `stopRank()`, and the resolved
+`transports`.

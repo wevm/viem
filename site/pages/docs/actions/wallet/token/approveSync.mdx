@@ -1,21 +1,24 @@
 # approveSync
 
+## Overview
+
 Approves a spender to transfer an ERC-20 token, waits for the transaction receipt, and returns the decoded `Approval` event data alongside it.
 
-## Usage
+## Recipes
 
-This example approves a spender to transfer an ERC-20 token, waits for the transaction receipt, and returns the decoded `Approval` event data alongside it.
+### Approve Token Spending and Wait
+
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { owner, spender, value, receipt } = await client.token.approveSync({
-  amount: 250000000n,
-  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582',
-  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-})
+const { owner, spender, value, receipt } = await client.token.approveSync({ // [!code focus]
+  amount: 250000000n, // [!code focus]
+  spender: '0x1111111254EEB25477B68fb85Ed929f73A960582', // [!code focus]
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
+}) // [!code focus]
 // @log: { owner: '0x…', spender: '0x1111…', value: 250000000n, decimals: 6, formatted: '250', receipt: { … } }
 ```
 
@@ -34,9 +37,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.token.approveSync`
 
-Call `Actions.token.approveSync` directly by passing the Client as the first argument.
+Approves a spender to transfer an ERC-20 token, waits for the transaction receipt, and returns the decoded `Approval` event data alongside it.
+
+### Usage
+
+Call [`Actions.token.approveSync`](#actionstokenapprovesync) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -67,17 +74,17 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`{ owner, spender, value, decimals?, formatted?, receipt }`
+#### options
 
-The decoded `Approval` event args (`owner`, `spender`, `value`), the transaction `receipt`, and `decimals`/`formatted` when the token's decimals are known.
+- **Type:** `Actions.token.approveSync.Options`
 
-## Parameters
+The action options.
 
-Accepts the same parameters as [`approve`](/docs/actions/wallet/token/approve) (`amount`, `spender`, `token`, `account`), plus the receipt options below.
+Accepts the same parameters as [`Actions.token.approve`](/docs/actions/wallet/token/approve) (`amount`, `spender`, `token`, `account`), plus the receipt options below.
 
-### throwOnReceiptRevert
+##### throwOnReceiptRevert
 
 - **Type:** `boolean`
 - **Default:** `true`
@@ -98,7 +105,13 @@ const result = await Actions.token.approveSync(client, {
 })
 ```
 
-## Errors
+### Return Value
+
+`{ owner, spender, value, decimals?, formatted?, receipt }`
+
+The decoded `Approval` event args (`owner`, `spender`, `value`), the transaction `receipt`, and `decimals`/`formatted` when the token's decimals are known.
+
+### Errors
 
 | Error | Description |
 | --- | --- |

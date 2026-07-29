@@ -1,10 +1,16 @@
 # getLogs
 
+## Overview
+
 Returns a list of event logs emitted by a contract.
 
-## Usage
+## Recipes
 
-This example returns a list of event logs emitted by a contract.
+Use a Client method or pass the Client to the standalone action.
+
+### Get Contract Event Logs
+
+Returns a list of event logs emitted by a contract.
 
 :::code-group
 
@@ -12,10 +18,10 @@ This example returns a list of event logs emitted by a contract.
 import { Abis } from 'viem/utils'
 import { client } from './viem.config'
 
-const logs = await client.contract.getLogs({
-  abi: Abis.erc20,
-  eventName: 'Transfer',
-})
+const logs = await client.contract.getLogs({ // [!code focus]
+  abi: Abis.erc20, // [!code focus]
+  eventName: 'Transfer', // [!code focus]
+}) // [!code focus]
 // @log: [
 // @log:   {
 // @log:     address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
@@ -45,9 +51,135 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Fetching All Events for an ABI
 
-Call `Actions.contract.getLogs` directly by passing the Client as the first argument.
+Omit `eventName` to fetch and decode logs for every event in the `abi`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const logs = await Actions.contract.getLogs(client, {
+  abi: Abis.erc20, // [!code focus]
+})
+```
+
+### Fetching Events for a Contract
+
+Restrict logs to a single contract by passing its `address`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+const logs = await Actions.contract.getLogs(client, {
+  abi,
+  address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2', // [!code focus]
+})
+```
+
+### Fetching a Single Event
+
+Pass `eventName` to filter and decode logs by one event.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+const logs = await Actions.contract.getLogs(client, {
+  abi,
+  eventName: 'Transfer', // [!code focus]
+})
+```
+
+### Filtering by Indexed Arguments
+
+Pass `args` to filter logs by the indexed parameters of the named event.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+const logs = await Actions.contract.getLogs(client, {
+  abi,
+  eventName: 'Transfer',
+  args: { // [!code focus]
+    from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', // [!code focus]
+  }, // [!code focus]
+})
+```
+
+### Fetching Events Within a Block Range
+
+Pass `fromBlock` and `toBlock` to scope logs to a range of blocks.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+const logs = await Actions.contract.getLogs(client, {
+  abi,
+  fromBlock: 19760235n, // [!code focus]
+  toBlock: 19760240n, // [!code focus]
+})
+```
+
+### Fetching Events for a Single Block
+
+Pass `blockHash` to fetch logs from one block.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+const logs = await Actions.contract.getLogs(client, {
+  abi,
+  blockHash: '0xabe69134e80a12f6a93d0aa18215b5b86c2fb338bae911790ca374a8716e01a4', // [!code focus]
+})
+```
+
+### Strictly Decoding Logs
+
+Pass `strict: true` to only include logs whose topics and data conform exactly to the event.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+const logs = await Actions.contract.getLogs(client, {
+  abi,
+  eventName: 'Transfer',
+  strict: true, // [!code focus]
+})
+```
+
+## `Actions.contract.getLogs`
+
+Returns a list of event logs emitted by a contract.
+
+### Usage
+
+Call [`Actions.contract.getLogs`](#actionscontractgetlogs) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -89,13 +221,13 @@ export const client = Client.create({
 
 :::
 
-## Recipes
+### Parameters
 
-These recipes call the action standalone with a Client as the first argument. Each is equivalent to the decorator form (`client.contract.getLogs(...)`).
+#### options
 
-### Fetching All Events for an ABI
+- **Type:** `Actions.contract.getLogs.Options`
 
-Omit `eventName` to fetch and decode logs for every event in the `abi`.
+Configure the request with the following options.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -104,133 +236,12 @@ import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const logs = await Actions.contract.getLogs(client, {
+const logs = await Actions.contract.getLogs(client, { // [!code focus]
   abi: Abis.erc20, // [!code focus]
-})
+}) // [!code focus]
 ```
 
-### Fetching Events for a Contract
-
-Restrict logs to a single contract by passing its `address`.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Abis } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abis.erc20
-// ---cut---
-const logs = await Actions.contract.getLogs(client, {
-  abi,
-  address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2', // [!code focus]
-})
-```
-
-### Fetching a Single Event
-
-Pass `eventName` to filter and decode logs by one event.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Abis } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abis.erc20
-// ---cut---
-const logs = await Actions.contract.getLogs(client, {
-  abi,
-  eventName: 'Transfer', // [!code focus]
-})
-```
-
-### Filtering by Indexed Arguments
-
-Pass `args` to filter logs by the indexed parameters of the named event.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Abis } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abis.erc20
-// ---cut---
-const logs = await Actions.contract.getLogs(client, {
-  abi,
-  eventName: 'Transfer',
-  args: { // [!code focus]
-    from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', // [!code focus]
-  }, // [!code focus]
-})
-```
-
-### Fetching Events Within a Block Range
-
-Pass `fromBlock` and `toBlock` to scope logs to a range of blocks.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Abis } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abis.erc20
-// ---cut---
-const logs = await Actions.contract.getLogs(client, {
-  abi,
-  fromBlock: 19760235n, // [!code focus]
-  toBlock: 19760240n, // [!code focus]
-})
-```
-
-### Fetching Events for a Single Block
-
-Pass `blockHash` to fetch logs from one block.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Abis } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abis.erc20
-// ---cut---
-const logs = await Actions.contract.getLogs(client, {
-  abi,
-  blockHash: '0xabe69134e80a12f6a93d0aa18215b5b86c2fb338bae911790ca374a8716e01a4', // [!code focus]
-})
-```
-
-### Strictly Decoding Logs
-
-Pass `strict: true` to only include logs whose topics and data conform exactly to the event.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Abis } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abis.erc20
-// ---cut---
-const logs = await Actions.contract.getLogs(client, {
-  abi,
-  eventName: 'Transfer',
-  strict: true, // [!code focus]
-})
-```
-
-## Return Value
-
-`Log[]`
-
-A list of event logs decoded against the `abi`. Each log includes its `args` and `eventName`.
-
-## Parameters
-
-### abi
+##### abi
 
 - **Type:** `Abi`
 
@@ -248,11 +259,11 @@ const logs = await Actions.contract.getLogs(client, {
 })
 ```
 
-### address
+##### address
 
-- **Type:** `Address | Address[]`
+- **Type:** `Address | readonly Address[]`
 
-The address (or addresses) from which the logs originated.
+One or more addresses from which the logs originated.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -268,7 +279,7 @@ const logs = await Actions.contract.getLogs(client, {
 })
 ```
 
-### args
+##### args
 
 - **Type:** Inferred from `abi` and `eventName`.
 
@@ -291,7 +302,7 @@ const logs = await Actions.contract.getLogs(client, {
 })
 ```
 
-### blockHash
+##### blockHash
 
 - **Type:** `Hex`
 
@@ -311,7 +322,7 @@ const logs = await Actions.contract.getLogs(client, {
 })
 ```
 
-### eventName
+##### eventName
 
 - **Type:** `string`
 
@@ -331,7 +342,7 @@ const logs = await Actions.contract.getLogs(client, {
 })
 ```
 
-### fromBlock
+##### fromBlock
 
 - **Type:** `bigint | 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 
@@ -352,7 +363,7 @@ const logs = await Actions.contract.getLogs(client, {
 })
 ```
 
-### strict
+##### strict
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -374,7 +385,7 @@ const logs = await Actions.contract.getLogs(client, {
 })
 ```
 
-### toBlock
+##### toBlock
 
 - **Type:** `bigint | 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 
@@ -394,3 +405,20 @@ const logs = await Actions.contract.getLogs(client, {
   toBlock: 19760240n, // [!code focus]
 })
 ```
+
+### Return Value
+
+`readonly Log[]`
+
+A list of event logs decoded against the `abi`. Each log includes its `args` and `eventName`.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `AbiItem.NotFoundError` | The selected event is missing from the runtime ABI. |
+| `AbiEvent.FilterTypeNotSupportedError` | `args` includes an indexed tuple or array, which event topic filters do not support. |
+| `AbiParameters.InvalidTypeError` | `args` includes an indexed ABI type that the topic encoder does not support. |
+| `Address.InvalidAddressError` | `args` includes an invalid indexed address. |
+| `Hex.IntegerOutOfRangeError` | `args` includes an indexed integer outside the supported 256-bit range. |
+| `Hex.SizeExceedsPaddingSizeError` | An indexed fixed-bytes value exceeds the 32-byte topic size. |

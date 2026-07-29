@@ -8,13 +8,14 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-[`event.getLogs`](/docs/actions/public/event/getLogs) queries logs for one ABI event. Use Contract
-Actions when a full ABI is available, or the Event namespace when a single event signature is the
-most natural input.
+[`event.getLogs`](/docs/actions/public/event/getLogs) queries logs for one ABI event.
+
+Use Contract Actions when a full ABI is available. Use the Event namespace when a single event
+signature is the most natural input.
 
 ## Recipes
 
-These recipes assume you have [set up a Client](/docs) with `publicActions`.
+These recipes assume you have [set up a Client](/docs) with [`publicActions`](/docs/actions/public).
 
 ### Query an Event
 
@@ -26,17 +27,17 @@ Create the event from its human-readable signature and filter indexed arguments.
 import { AbiEvent } from 'viem/utils'
 import { client } from './viem.config'
 
-const logs = await client.event.getLogs({
-  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-  args: {
-    from: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  },
-  event: AbiEvent.from(
-    'event Transfer(address indexed from, address indexed to, uint256 value)',
-  ),
-  fromBlock: 20_000_000n,
-  toBlock: 20_000_100n,
-})
+const logs = await client.event.getLogs({ // [!code focus]
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
+  args: { // [!code focus]
+    from: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  }, // [!code focus]
+  event: AbiEvent.from( // [!code focus]
+    'event Transfer(address indexed from, address indexed to, uint256 value)', // [!code focus]
+  ), // [!code focus]
+  fromBlock: 20_000_000n, // [!code focus]
+  toBlock: 20_000_100n, // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -55,13 +56,13 @@ const logs = await client.event.getLogs({
 import { AbiEvent } from 'viem/utils'
 import { client } from './viem.config'
 
-const watch = client.event.watch({
-  event: AbiEvent.from(
-    'event Transfer(address indexed from, address indexed to, uint256 value)',
-  ),
-})
+const watch = client.event.watch({ // [!code focus]
+  event: AbiEvent.from( // [!code focus]
+    'event Transfer(address indexed from, address indexed to, uint256 value)', // [!code focus]
+  ), // [!code focus]
+}) // [!code focus]
 
-watch.onLogs((logs) => console.log(logs))
+watch.onLogs((logs) => console.log(logs)) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -85,9 +86,9 @@ const watch = client.event.watch({
   ),
 })
 
-for await (const { logs } of watch) {
-  console.log(logs)
-}
+for await (const { logs } of watch) { // [!code focus]
+  console.log(logs) // [!code focus]
+} // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

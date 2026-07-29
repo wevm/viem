@@ -14,7 +14,8 @@ decorators.
 
 ## Recipes
 
-These recipes keep the base Client configuration separate from application behavior.
+These recipes keep the [base Client configuration](/docs/clients/create) separate from application
+behavior.
 
 ### Add an Application Method
 
@@ -37,14 +38,14 @@ const base = Client.create({
   transport: http(),
 })
 
-export const client = base.extend((client) => ({
-  health: {
-    async check() {
-      await Actions.block.getNumber(client)
-      return true
-    },
-  },
-}))
+export const client = base.extend((client) => ({ // [!code focus]
+  health: { // [!code focus]
+    async check() { // [!code focus]
+      await Actions.block.getNumber(client) // [!code focus]
+      return true // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
+})) // [!code focus]
 ```
 
 :::
@@ -73,17 +74,17 @@ const base = Client.create({
   transport: http(),
 })
 
-export const client = base
-  .extend((client) => ({
-    metrics: {
-      getBlockNumber: () => Actions.block.getNumber(client),
-    },
-  }))
-  .extend((client) => ({
-    metrics: {
-      getGasPrice: () => Actions.fee.getGasPrice(client),
-    },
-  }))
+export const client = base // [!code focus]
+  .extend((client) => ({ // [!code focus]
+    metrics: { // [!code focus]
+      getBlockNumber: () => Actions.block.getNumber(client), // [!code focus]
+    }, // [!code focus]
+  })) // [!code focus]
+  .extend((client) => ({ // [!code focus]
+    metrics: { // [!code focus]
+      getGasPrice: () => Actions.fee.getGasPrice(client), // [!code focus]
+    }, // [!code focus]
+  })) // [!code focus]
 ```
 
 :::
@@ -117,9 +118,9 @@ export const client = Client.create({
   chain: mainnet,
   transport: http(),
 })
-  .extend(publicActions())
-  .extend(walletActions())
-  .extend(() => ({ app: { isReady: async () => true } }))
+  .extend(publicActions()) // [!code focus]
+  .extend(walletActions()) // [!code focus]
+  .extend(() => ({ app: { isReady: async () => true } })) // [!code focus]
 ```
 
 :::

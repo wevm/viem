@@ -1,21 +1,25 @@
 # prepare
 
-Prepares a transaction request for signing, by populating the fields required to be signed over (e.g. `nonce`, `chainId`, `type`, fees, `gas`).
+## Overview
 
-## Usage
+Prepares a transaction request for signing, by populating the fields required to be signed over (for example, `nonce`, `chainId`, `type`, fees, `gas`).
 
-This example prepares a transaction request for signing, by populating the fields required to be signed over (e.g.
+## Recipes
+
+### Prepare a Transaction
+
+Prepares a transaction request for signing, by populating the fields required to be signed over (for example, `nonce`, `chainId`, `type`, fees, `gas`).
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { request } = await client.transaction.prepare({
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1n,
-})
+const { request } = await client.transaction.prepare({ // [!code focus]
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  value: 1n, // [!code focus]
+}) // [!code focus]
 // @log: {
 // @log:   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 // @log:   chainId: 1,
@@ -42,9 +46,58 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Prepare Selected Parameters
 
-Call `Actions.transaction.prepare` directly by passing the Client as the first argument.
+Pass `parameters` when you only need specific missing fields.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const { request } = await client.transaction.prepare({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  parameters: ['fees', 'nonce'], // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+### Prepare Blob Sidecars
+
+Include `sidecars` in `parameters` to derive blob sidecars with a [KZG context](/docs/utilities/kzg/from).
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Kzg } from 'viem/utils'
+
+declare const kzg: Kzg.Kzg
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const { request } = await client.transaction.prepare({
+  blobs: ['0x1234'], // [!code focus]
+  kzg, // [!code focus]
+  parameters: ['blobVersionedHashes', 'sidecars'], // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+## `Actions.transaction.prepare`
+
+Prepares a transaction request for signing, by populating the fields required to be signed over (for example, `nonce`, `chainId`, `type`, fees, `gas`).
+
+### Usage
+
+Call [`Actions.transaction.prepare`](#actionstransactionprepare) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -83,15 +136,34 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`{ capabilities?: object; request: TransactionRequest }`
+#### options
 
-The prepared transaction `request` (with the populated fields), and any node `capabilities` returned alongside it.
+- **Type:** `Actions.transaction.prepare.Options`
 
-## Parameters
+Configure the request with the following options.
 
-### accessList
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { request } = await Actions.transaction.prepare(client, { // [!code focus]
+  accessList: [ // [!code focus]
+    { // [!code focus]
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+      storageKeys: [ // [!code focus]
+        '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
+      ], // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+}) // [!code focus]
+```
+
+##### accessList
 
 - **Type:** `AccessList`
 
@@ -116,11 +188,12 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-### account
+##### account
 
 - **Type:** `Account | Address`
+- **Default:** `client.account`
 
-The Account (or address) the transaction is sent from (`from`). Falls back to `client.account`.
+The Account or address that sends the transaction (`from`). Defaults to the Client's [`account`](/docs/clients/create#account).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -135,7 +208,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-### authorizationList
+##### authorizationList
 
 - **Type:** `AuthorizationList`
 
@@ -162,7 +235,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-### blobs
+##### blobs
 
 - **Type:** `readonly Hex[]`
 
@@ -184,7 +257,25 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-### chain
+##### blobVersionedHashes
+
+- **Type:** `readonly Hex[]`
+
+The versioned hashes of the EIP-4844 blobs in the transaction request.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { request } = await Actions.transaction.prepare(client, {
+  blobVersionedHashes: ['0x...'], // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+##### chain
 
 - **Type:** `Chain`
 - **Default:** `client.chain`
@@ -205,7 +296,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-### chainId
+##### chainId
 
 - **Type:** `number`
 
@@ -223,7 +314,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-### data
+##### data
 
 - **Type:** `Hex`
 
@@ -241,9 +332,27 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-### gas
+##### from
 
-- **Type:** `bigint`
+- **Type:** `Address`
+
+The raw sender address. Viem uses this field only when neither [`account`](#account) nor a Client Account is available.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { request } = await Actions.transaction.prepare(client, {
+  from: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+##### gas
+
+- **Type:** `number | bigint | Hex`
 
 The gas limit for the transaction. When provided, it is preferred over the node-derived value.
 
@@ -259,9 +368,9 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-### gasPrice
+##### gasPrice
 
-- **Type:** `bigint`
+- **Type:** `number | bigint | Hex`
 
 The legacy gas price (in wei). Mutually exclusive with `maxFeePerGas`/`maxPriorityFeePerGas`.
 
@@ -277,7 +386,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-### kzg
+##### kzg
 
 - **Type:** `Kzg`
 
@@ -299,9 +408,9 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-### maxFeePerBlobGas
+##### maxFeePerBlobGas
 
-- **Type:** `bigint`
+- **Type:** `number | bigint | Hex`
 
 The max fee per blob gas (in wei) the sender is willing to pay (EIP-4844).
 
@@ -317,9 +426,9 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-### maxFeePerGas
+##### maxFeePerGas
 
-- **Type:** `bigint`
+- **Type:** `number | bigint | Hex`
 
 The total fee per gas (in wei) the sender is willing to pay (EIP-1559). When provided, it is preferred over the node-derived value.
 
@@ -335,9 +444,9 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-### maxPriorityFeePerGas
+##### maxPriorityFeePerGas
 
-- **Type:** `bigint`
+- **Type:** `number | bigint | Hex`
 
 The max priority fee per gas (in wei) to pay to the block producer (EIP-1559).
 
@@ -353,9 +462,9 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-### nonce
+##### nonce
 
-- **Type:** `number`
+- **Type:** `number | bigint | Hex`
 
 The nonce to use for the transaction. When provided, it takes precedence over the [`nonceManager`](#noncemanager).
 
@@ -371,7 +480,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-### nonceManager
+##### nonceManager
 
 - **Type:** `NonceManager`
 
@@ -391,12 +500,12 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-### parameters
+##### parameters
 
-- **Type:** `readonly Parameter[]`
+- **Type:** `readonly ('blobVersionedHashes' | 'chainId' | 'fees' | 'gas' | 'nonce' | 'sidecars' | 'type')[]`
 - **Default:** `['blobVersionedHashes', 'chainId', 'fees', 'gas', 'nonce', 'type']`
 
-The fields to populate. Narrow this to prepare only a subset (e.g. fetch just the `nonce`).
+The fields to populate. Narrow this to prepare only a subset (for example, fetch only the `nonce`).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -412,11 +521,11 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-### to
+##### to
 
-- **Type:** `Address`
+- **Type:** `Address | null`
 
-The contract address or recipient of the transaction.
+The transaction recipient. Pass `null` for a contract creation request.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -430,11 +539,11 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-### type
+##### type
 
 - **Type:** `string`
 
-Forces the transaction request to a specific type (e.g. `'eip1559'`, `'eip2930'`, `'legacy'`).
+Forces the transaction request to a specific type (for example, `'eip1559'`, `'eip2930'`, `'legacy'`).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -448,9 +557,9 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-### value
+##### value
 
-- **Type:** `bigint`
+- **Type:** `number | bigint | Hex`
 
 The value (in wei) sent with the transaction.
 
@@ -466,10 +575,22 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-## Errors
+### Return Value
+
+`{ capabilities?: object; request: TransactionRequest }`
+
+The prepared transaction `request` (with the populated fields), and any node `capabilities` returned alongside it.
+
+### Errors
 
 | Error | Description |
 | --- | --- |
+| `Address.InvalidAddressError` | The Account address is invalid. |
+| `Actions.block.Errors.BlockNotFoundError` | The block used to prepare the transaction could not be found. |
+| `Actions.fee.Errors.BaseFeeScalarError` | The chain's `baseFeeMultiplier` resolved to a value less than `1`. |
 | `Actions.fee.Errors.Eip1559FeesNotSupportedError` | `maxFeePerGas`/`maxPriorityFeePerGas` were supplied for a `legacy`/`eip2930` transaction. |
 | `Actions.transaction.Errors.MaxFeePerGasTooLowError` | The supplied `maxFeePerGas` is lower than the estimated `maxPriorityFeePerGas`. |
-| `RpcError` | The node rejected one of the underlying RPC requests. |
+| `BlockParameter.RequireCanonicalError` | `requireCanonical` was provided without a `blockHash` in an underlying request. |
+| `RpcError.ExecutionError` | The node could not execute an underlying transaction request. |
+| `RpcError.FeeCapTooHighError` | `maxFeePerGas` exceeds the maximum allowed value. |
+| `RpcError.TipAboveFeeCapError` | `maxPriorityFeePerGas` is greater than `maxFeePerGas`. |

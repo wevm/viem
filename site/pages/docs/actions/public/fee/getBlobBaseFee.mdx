@@ -1,17 +1,21 @@
 # getBlobBaseFee
 
+## Overview
+
 Returns the base fee per blob gas (in wei).
 
-## Usage
+## Recipes
 
-This example returns the base fee per blob gas (in wei).
+### Read the Blob Base Fee
+
+Returns the base fee per blob gas (in wei).
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const blobBaseFee = await client.fee.getBlobBaseFee()
+const blobBaseFee = await client.fee.getBlobBaseFee() // [!code focus]
 // @log: 1n
 ```
 
@@ -27,9 +31,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.fee.getBlobBaseFee`
 
-Call `Actions.fee.getBlobBaseFee` directly by passing the Client as the first argument.
+Returns the base fee per blob gas (in wei).
+
+### Usage
+
+Call [`Actions.fee.getBlobBaseFee`](#actionsfeegetblobbasefee) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -53,7 +61,7 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Return Value
 
 `bigint`
 

@@ -13,7 +13,7 @@ counts, storage slots, and EIP-7702 delegations at the latest state or a selecte
 
 ## Recipes
 
-These recipes assume you have [set up a Client](/docs) with `publicActions`.
+These recipes assume you have [set up a Client](/docs) with [`publicActions`](/docs/actions/public).
 
 ### Read Balance, Code, and Nonce
 
@@ -30,9 +30,9 @@ import { client } from './viem.config'
 const address = '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
 
 const [balance, code, transactionCount] = await Promise.all([
-  client.address.getBalance({ address }),
-  client.address.getCode({ address }),
-  client.address.getTransactionCount({ address }),
+  client.address.getBalance({ address }), // [!code focus]
+  client.address.getCode({ address }), // [!code focus]
+  client.address.getTransactionCount({ address }), // [!code focus]
 ])
 ```
 
@@ -52,10 +52,10 @@ at a contract slot.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const value = await client.address.getStorageAt({
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  slot: '0x0',
-})
+const value = await client.address.getStorageAt({ // [!code focus]
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+  slot: '0x0', // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -75,8 +75,8 @@ import { client } from './viem.config'
 
 const balance = await client.address.getBalance({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
-  requireCanonical: true,
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d', // [!code focus]
+  requireCanonical: true, // [!code focus]
 })
 ```
 
@@ -90,7 +90,7 @@ const balance = await client.address.getBalance({
 
 ### Derive Storage Slots Correctly
 
-Solidity mappings and dynamic values do not occupy a simple sequential slot. Derive their location
+Solidity mappings and dynamic values do not occupy sequential slots. Derive their location
 from the compiler layout and Solidity storage rules before reading.
 
 ### Share a Block Context

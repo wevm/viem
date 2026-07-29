@@ -1,19 +1,23 @@
 # getEip712Domain
 
+## Overview
+
 Reads the EIP-712 domain from a contract, based on the [ERC-5267](https://eips.ethereum.org/EIPS/eip-5267) specification.
 
-## Usage
+## Recipes
 
-This example reads the EIP-712 domain from a contract, based on the [ERC-5267](https://eips.ethereum.org/EIPS/eip-5267) specification.
+### Read an EIP-712 Domain
+
+Reads the EIP-712 domain from a contract, based on the [ERC-5267](https://eips.ethereum.org/EIPS/eip-5267) specification.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { domain, extensions, fields } = await client.contract.getEip712Domain({
-  address: '0x57ba3ec8df619d4d243ce439551cce713bb17411',
-})
+const { domain, extensions, fields } = await client.contract.getEip712Domain({ // [!code focus]
+  address: '0x57ba3ec8df619d4d243ce439551cce713bb17411', // [!code focus]
+}) // [!code focus]
 // @log: {
 // @log:   domain: {
 // @log:     chainId: 1,
@@ -39,9 +43,55 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Read a Counterfactual Domain
 
-Call `Actions.contract.getEip712Domain` directly by passing the Client as the first argument.
+Pass the deployment factory and calldata when the contract has not been deployed.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const { domain } = await client.contract.getEip712Domain({
+  address: '0x57ba3ec8df619d4d243ce439551cce713bb17411',
+  factory: '0xE8Df82fA4E10e6A12a9Dab552bceA2acd26De9bb', // [!code focus]
+  factoryData: '0xdeadbeef', // [!code focus]
+})
+```
+
+### Inspect Optional Domain Metadata
+
+Inspect `fields`, `salt`, and `extensions` when a contract advertises optional ERC-5267 metadata.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const {
+  domain: { salt }, // [!code focus]
+  extensions, // [!code focus]
+  fields, // [!code focus]
+} = await client.contract.getEip712Domain({
+  address: '0x57ba3ec8df619d4d243ce439551cce713bb17411',
+})
+```
+
+## `Actions.contract.getEip712Domain`
+
+Reads the EIP-712 domain from a contract, based on the [ERC-5267](https://eips.ethereum.org/EIPS/eip-5267) specification.
+
+### Usage
+
+Call [`Actions.contract.getEip712Domain`](#actionscontractgeteip712domain) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -77,15 +127,26 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`{ domain, extensions, fields }`
+#### options
 
-The EIP-712 domain (with `chainId` as `number`), the ERC-5267 `extensions` (as `bigint[]`), and the `fields` bitmap (as `Hex`).
+- **Type:** `Actions.contract.getEip712Domain.Options`
 
-## Parameters
+Configure the request with the following options.
 
-### address
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const domain = await Actions.contract.getEip712Domain(client, { // [!code focus]
+  address: '0x57ba3ec8df619d4d243ce439551cce713bb17411', // [!code focus]
+}) // [!code focus]
+```
+
+##### address
 
 - **Type:** `Address`
 
@@ -102,7 +163,7 @@ const domain = await Actions.contract.getEip712Domain(client, {
 })
 ```
 
-### factory
+##### factory
 
 - **Type:** `Address`
 
@@ -121,7 +182,7 @@ const domain = await Actions.contract.getEip712Domain(client, {
 })
 ```
 
-### factoryData
+##### factoryData
 
 - **Type:** `Hex`
 
@@ -140,7 +201,13 @@ const domain = await Actions.contract.getEip712Domain(client, {
 })
 ```
 
-## Errors
+### Return Value
+
+`{ domain, extensions, fields }`
+
+The EIP-712 domain (with `chainId` as `number`), the ERC-5267 `extensions` (as `bigint[]`), and the `fields` bitmap (as `Hex`).
+
+### Errors
 
 | Error | Description |
 | --- | --- |

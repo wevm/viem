@@ -1,20 +1,24 @@
 # mine
 
+## Overview
+
 Mines a specified number of blocks.
 
-## Usage
+## Recipes
 
-This example mines a specified number of blocks.
+### Mine Blocks
+
+Mines blocks immediately or at a configured interval.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.block.mine({
-  blocks: 1,
-  interval: 1,
-})
+await client.block.mine({ // [!code focus]
+  blocks: 1, // [!code focus]
+  interval: 1, // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -29,9 +33,32 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Mine Multiple Spaced Blocks
 
-Call `Actions.block.mine` directly by passing the Client as the first argument.
+Set `blocks` and `interval` to mine several blocks with a fixed timestamp interval in seconds.
+
+```ts twoslash
+import { Client, http, testActions } from 'viem'
+import { anvil } from 'viem/chains'
+
+const client = Client.create({
+  chain: anvil,
+  transport: http(),
+}).extend(testActions())
+
+await client.block.mine({
+  blocks: 5, // [!code focus]
+  interval: 12, // [!code focus]
+})
+```
+
+## `Actions.block.mine`
+
+Mines a specified number of blocks.
+
+### Usage
+
+Call [`Actions.block.mine`](#actionsblockmine) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -57,9 +84,15 @@ export const client = Client.create({
 
 :::
 
-## Parameters
+### Parameters
 
-### blocks
+#### options
+
+- **Type:** `Actions.block.mine.Options`
+
+The action options.
+
+##### blocks
 
 - **Type:** `number`
 
@@ -81,7 +114,7 @@ await Actions.block.mine(client, {
 })
 ```
 
-### interval
+##### interval
 
 - **Type:** `number`
 - **Default:** `0`
@@ -104,7 +137,7 @@ await Actions.block.mine(client, {
 })
 ```
 
-### mode
+##### mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`
@@ -126,3 +159,9 @@ await Actions.block.mine(client, {
   mode: 'hardhat', // [!code focus]
 })
 ```
+
+### Return Value
+
+`void`
+
+No value is returned.

@@ -1,19 +1,22 @@
 # load
 
+## Overview
+
 Adds state previously dumped with `dump` to the current chain.
 
-## Usage
+## Recipes
 
-This example adds state previously dumped with `dump` to the current chain.
+### Load Node State
+
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.state.load({
-  state: '0x...',
-})
+await client.state.load({ // [!code focus]
+  state: '0x...', // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -28,9 +31,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.state.load`
 
-Call `Actions.state.load` directly by passing the Client as the first argument.
+Adds state previously dumped with `dump` to the current chain.
+
+### Usage
+
+Call [`Actions.state.load`](#actionsstateload) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -55,9 +62,15 @@ export const client = Client.create({
 
 :::
 
-## Parameters
+### Parameters
 
-### mode
+#### options
+
+- **Type:** `Actions.state.load.Options`
+
+The action options.
+
+##### mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`
@@ -79,7 +92,7 @@ await Actions.state.load(client, {
 })
 ```
 
-### state
+##### state
 
 - **Type:** `Hex`
 
@@ -99,3 +112,9 @@ await Actions.state.load(client, {
   mode: 'hardhat',
 })
 ```
+
+### Return Value
+
+`void`
+
+No value is returned.

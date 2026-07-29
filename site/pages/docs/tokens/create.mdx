@@ -2,7 +2,11 @@
 
 ## Overview
 
-Use [`Token.from`](/docs/tokens) to define a [Token](/docs/tokens) from shared metadata and a map of per-chain contract addresses. The returned value is callable with a chain id to produce a chain-specific token config, while also exposing the metadata and the full `addresses` map.
+Use [`Token.from`](/docs/tokens/create) to define a [Token](/docs/tokens) from shared metadata and
+per-Chain contract addresses.
+
+Call the returned value with a Chain ID to resolve its configuration. The value also exposes the
+shared metadata and complete `addresses` map.
 
 ```ts twoslash
 import { Token } from 'viem'
@@ -29,7 +33,11 @@ usdc.addresses[8453]
 
 ### Declaring Tokens on a Client
 
-Declare tokens on a [Client](/docs/clients/create)'s `tokens` array. A declared token's symbol becomes usable by [Token Actions](/docs/actions/public/token/getBalance) in place of a contract address (when its `addresses` cover the client's chain), and its `decimals` are used to parse human-readable amounts.
+Add Tokens to a [Client](/docs/clients/create) `tokens` array. When the Token supports the Client's
+Chain, [Token Actions](/docs/actions/public/token/getBalance) can use its symbol instead of an
+address.
+
+Token Actions use its `decimals` value to parse human-readable amounts.
 
 ```ts twoslash
 import { Client, http, publicActions, Token } from 'viem'
@@ -61,12 +69,12 @@ const balance = await client.token.getBalance({
 Viem ships definitions for popular stablecoins and wrapped assets via `viem/tokens`, ready to declare on a client or resolve directly.
 
 ```ts twoslash
-import { eurc, usdc } from 'viem/tokens' // [!code focus]
+import { eurc, usdc } from 'viem/tokens'
 
-usdc.addresses[1]
+usdc.addresses[1] // [!code focus]
 // @log: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
 
-eurc(1).address
+eurc(1).address // [!code focus]
 // @log: '0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c'
 ```
 
@@ -92,7 +100,8 @@ const config = usdc(8453) // [!code focus]
 
 ### Filtering Chains by Token
 
-Pass a token to `Chain.filter` to narrow a chain registry to the chains the token is deployed on.
+Pass a token to [`Chain.filter`](/docs/chains) to narrow a chain registry to the chains the token is
+deployed on.
 
 ```ts twoslash
 import { Chain } from 'viem'
@@ -240,7 +249,10 @@ const usdc = Token.from({
 
 `Token`
 
-The token: callable with a chain id to resolve `{ address, currency, decimals, name, popular, symbol }` for that chain, and exposing the metadata and the full `addresses` map as properties. Literal types of the input are preserved.
+The Token. Call it with a Chain ID to resolve its configuration for that Chain.
+
+The value exposes its metadata and complete `addresses` map as properties. The input's literal types
+are preserved.
 
 ### Errors
 

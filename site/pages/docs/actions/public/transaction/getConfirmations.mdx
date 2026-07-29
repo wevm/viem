@@ -1,19 +1,23 @@
 # getConfirmations
 
+## Overview
+
 Returns the number of blocks passed (confirmations) since the transaction was processed on a block.
 
-## Usage
+## Recipes
 
-This example returns the number of blocks passed (confirmations) since the transaction was processed on a block.
+### Count Transaction Confirmations
+
+Returns the number of blocks passed (confirmations) since the transaction was processed on a block.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const confirmations = await client.transaction.getConfirmations({
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
-})
+const confirmations = await client.transaction.getConfirmations({ // [!code focus]
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus]
+}) // [!code focus]
 // @log: 15n
 ```
 
@@ -29,9 +33,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.transaction.getConfirmations`
 
-Call `Actions.transaction.getConfirmations` directly by passing the Client as the first argument.
+Returns the number of blocks passed (confirmations) since the transaction was processed on a block.
+
+### Usage
+
+Call [`Actions.transaction.getConfirmations`](#actionstransactiongetconfirmations) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -57,15 +65,26 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`bigint`
+#### options
 
-The number of blocks passed since the transaction was processed. If confirmations is `0`, the transaction has not been confirmed and processed yet.
+- **Type:** `Actions.transaction.getConfirmations.Options`
 
-## Parameters
+Configure the request with the following options.
 
-### hash
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const confirmations = await Actions.transaction.getConfirmations(client, { // [!code focus]
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus]
+}) // [!code focus]
+```
+
+##### hash
 
 - **Type:** `Hex`
 
@@ -82,7 +101,7 @@ const confirmations = await Actions.transaction.getConfirmations(client, {
 })
 ```
 
-### transactionReceipt
+##### transactionReceipt
 
 - **Type:** `TransactionReceipt`
 
@@ -102,3 +121,15 @@ const confirmations = await Actions.transaction.getConfirmations(client, {
   transactionReceipt: receipt, // [!code focus]
 })
 ```
+
+### Return Value
+
+`bigint`
+
+The number of blocks passed since the transaction was processed. If confirmations is `0`, the transaction has not been confirmed and processed yet.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Actions.transaction.Errors.TransactionNotFoundError` | The transaction could not be found. |

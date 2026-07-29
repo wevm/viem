@@ -1,17 +1,21 @@
 # estimateFeesPerGas
 
+## Overview
+
 Returns an estimate for the fees per gas (in wei) for a transaction to be likely included in the next block.
 
-## Usage
+## Recipes
 
-This example returns an estimate for the fees per gas (in wei) for a transaction to be likely included in the next block.
+### Estimate Transaction Fees
+
+Returns an estimate for the fees per gas (in wei) for a transaction to be likely included in the next block.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const fees = await client.fee.estimateFeesPerGas()
+const fees = await client.fee.estimateFeesPerGas() // [!code focus]
 // @log: {
 // @log:   maxFeePerGas: 15040000000n,
 // @log:   maxPriorityFeePerGas: 1000000000n,
@@ -30,9 +34,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.fee.estimateFeesPerGas`
 
-Call `Actions.fee.estimateFeesPerGas` directly by passing the Client as the first argument.
+Returns an estimate for the fees per gas (in wei) for a transaction to be likely included in the next block.
+
+### Usage
+
+Call [`Actions.fee.estimateFeesPerGas`](#actionsfeeestimatefeespergas) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -59,15 +67,26 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`{ gasPrice } | { maxFeePerGas, maxPriorityFeePerGas }`
+#### options
 
-An estimate (in wei) for the fees per gas. Returns `maxFeePerGas` and `maxPriorityFeePerGas` for the default `eip1559` type, or `gasPrice` for the `legacy` type.
+- **Type:** `Actions.fee.estimateFeesPerGas.Options`
 
-## Parameters
+Configure the request with the following options.
 
-### chain
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const fees = await Actions.fee.estimateFeesPerGas(client, { // [!code focus]
+  chain: optimism, // [!code focus]
+}) // [!code focus]
+```
+
+##### chain
 
 - **Type:** `Chain`
 - **Default:** `client.chain`
@@ -85,7 +104,7 @@ const fees = await Actions.fee.estimateFeesPerGas(client, {
 })
 ```
 
-### type
+##### type
 
 - **Type:** `'legacy' | 'eip1559'`
 - **Default:** `'eip1559'`
@@ -103,7 +122,13 @@ const { gasPrice } = await Actions.fee.estimateFeesPerGas(client, {
 })
 ```
 
-## Errors
+### Return Value
+
+`{ gasPrice } | { maxFeePerGas, maxPriorityFeePerGas }`
+
+An estimate (in wei) for the fees per gas. Returns `maxFeePerGas` and `maxPriorityFeePerGas` for the default `eip1559` type, or `gasPrice` for the `legacy` type.
+
+### Errors
 
 | Error | Description |
 | --- | --- |

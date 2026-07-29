@@ -1,33 +1,37 @@
 # verifyTypedData
 
+## Overview
+
 Verifies that [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data was signed by the provided address, supporting Smart Contract Accounts (ERC-1271/6492/8010) and Externally Owned Accounts.
 
 Computes the typed-data sign payload and delegates to [`verifyHash`](/docs/actions/public/verifyHash), which also accepts all of its options ([`mode`](/docs/actions/public/verifyHash#mode), [`factory`](/docs/actions/public/verifyHash#factory), block selectors, and verifier overrides).
 
-## Usage
+## Recipes
 
-This example verifies that typed data was signed by an address.
+### Verify Typed Data
+
+Verifies that [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data was signed by the provided address, supporting Smart Contract Accounts (ERC-1271/6492/8010) and Externally Owned Accounts.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const valid = await client.verifyTypedData({
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  domain: {
-    chainId: 1,
-    name: 'Ether Mail',
-    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
-    version: '1',
-  },
-  types: {
-    Mail: [{ name: 'contents', type: 'string' }],
-  },
-  primaryType: 'Mail',
-  message: { contents: 'Hello, Bob!' },
-  signature: '0x…',
-})
+const valid = await client.verifyTypedData({ // [!code focus]
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  domain: { // [!code focus]
+    chainId: 1, // [!code focus]
+    name: 'Ether Mail', // [!code focus]
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC', // [!code focus]
+    version: '1', // [!code focus]
+  }, // [!code focus]
+  types: { // [!code focus]
+    Mail: [{ name: 'contents', type: 'string' }], // [!code focus]
+  }, // [!code focus]
+  primaryType: 'Mail', // [!code focus]
+  message: { contents: 'Hello, Bob!' }, // [!code focus]
+  signature: '0x…', // [!code focus]
+}) // [!code focus]
 // @log: true
 ```
 
@@ -43,9 +47,53 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Verify Against Canonical State
 
-Call `Actions.verifyTypedData` directly by passing the Client as the first argument.
+Select a canonical block when smart-account verification must use the contract code and state from that block.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const valid = await client.verifyTypedData({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  blockHash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus]
+  requireCanonical: true, // [!code focus]
+  domain: {
+    chainId: 1,
+    name: 'Ether Mail',
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+    version: '1',
+  },
+  types: {
+    Mail: [{ name: 'contents', type: 'string' }],
+  },
+  primaryType: 'Mail',
+  message: { contents: 'Hello, Bob!' },
+  signature: '0x…',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## `Actions.verifyTypedData`
+
+Verifies that [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data was signed by the provided address, supporting Smart Contract Accounts (ERC-1271/6492/8010) and Externally Owned Accounts.
+
+### Usage
+
+Call [`Actions.verifyTypedData`](#actionsverifytypeddata) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -83,23 +131,56 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`boolean`
+#### options
 
-Whether the signature is valid for the given typed data and address.
+- **Type:** `Actions.verifyTypedData.Options`
 
-## Parameters
+Configure the request with the following options.
 
 Accepts every [`verifyHash` parameter](/docs/actions/public/verifyHash#parameters) except `hash`, plus the typed-data fields:
 
-### domain
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const valid = await Actions.verifyTypedData(client, { // [!code focus]
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  domain: { name: 'Ether Mail', version: '1', chainId: 1 }, // [!code focus]
+  types: { Mail: [{ name: 'contents', type: 'string' }] }, // [!code focus]
+  primaryType: 'Mail', // [!code focus]
+  message: { contents: 'Hello, Bob!' }, // [!code focus]
+  signature: '0x…', // [!code focus]
+}) // [!code focus]
+```
+
+##### domain
 
 - **Type:** `TypedDataDomain`
 
 The EIP-712 domain separator fields.
 
-### message
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const valid = await Actions.verifyTypedData(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  domain: { name: 'Ether Mail', version: '1', chainId: 1 }, // [!code focus]
+  types: { Mail: [{ name: 'contents', type: 'string' }] },
+  primaryType: 'Mail',
+  message: { contents: 'Hello, Bob!' },
+  signature: '0x…',
+})
+```
+
+##### message
 
 - **Type:** `Record<string, unknown>`
 
@@ -121,19 +202,59 @@ const valid = await Actions.verifyTypedData(client, {
 })
 ```
 
-### primaryType
+##### primaryType
 
 - **Type:** `string`
 
 The primary type to extract from `types`.
 
-### types
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const valid = await Actions.verifyTypedData(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  domain: { name: 'Ether Mail', version: '1', chainId: 1 },
+  types: { Mail: [{ name: 'contents', type: 'string' }] },
+  primaryType: 'Mail', // [!code focus]
+  message: { contents: 'Hello, Bob!' },
+  signature: '0x…',
+})
+```
+
+##### types
 
 - **Type:** `TypedData`
 
 The type definitions for the typed data.
 
-## Errors
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const valid = await Actions.verifyTypedData(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  domain: { name: 'Ether Mail', version: '1', chainId: 1 },
+  types: { // [!code focus]
+    Mail: [{ name: 'contents', type: 'string' }], // [!code focus]
+  }, // [!code focus]
+  primaryType: 'Mail',
+  message: { contents: 'Hello, Bob!' },
+  signature: '0x…',
+})
+```
+
+### Return Value
+
+`boolean`
+
+Whether the signature is valid for the given typed data and address.
+
+### Errors
 
 | Error | Description |
 | --- | --- |

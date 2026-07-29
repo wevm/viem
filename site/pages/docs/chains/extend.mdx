@@ -2,7 +2,12 @@
 
 ## Overview
 
-Every chain returned by [`Chain.from`](/docs/chains) carries a chainable `.extend()` method for deriving a new chain from an existing base. The overrides are merged over the base, and the result keeps its own `.extend()` (so you can derive further).
+Every Chain returned by [`Chain.from`](/docs/chains/create#chainfrom) includes `.extend()` for
+deriving a new Chain
+from an existing base.
+
+The method merges overrides into the base. The returned Chain also includes `.extend()` for further
+derivations.
 
 ```ts twoslash
 import { Chain } from 'viem'
@@ -21,9 +26,30 @@ const custom = mainnet.extend({
 
 ## Recipes
 
-:::warning[TODO]
-A holistic, end-to-end walkthrough of extending a chain and wiring it into a client will be added once clients and actions are available.
-:::
+### Create a Client for the Derived Chain
+
+Pass the derived Chain to [`Client.create`](/docs/clients/create). The Client uses the overridden
+fields and inherits the remaining fields from the base.
+
+```ts twoslash
+import { Chain, Client, http } from 'viem'
+
+const mainnet = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+})
+
+const chain = mainnet.extend({
+  rpcUrls: { http: 'https://my-rpc.example' },
+})
+
+const client = Client.create({
+  chain, // [!code focus]
+  transport: http(),
+})
+```
 
 ## `chain.extend`
 
@@ -53,6 +79,21 @@ const custom = mainnet.extend({
 - **Type:** `Partial<Chain.Chain>`
 
 The fields to merge over the base chain.
+
+```ts twoslash
+import { Chain } from 'viem'
+
+const mainnet = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+})
+// ---cut---
+const custom = mainnet.extend({
+  rpcUrls: { http: 'https://my-rpc.example' }, // [!code focus]
+})
+```
 
 ### Return Value
 

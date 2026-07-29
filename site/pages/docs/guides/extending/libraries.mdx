@@ -14,7 +14,8 @@ policy.
 
 ## Recipes
 
-These recipes define a small extension package with standalone and method-style entrypoints.
+These recipes define a small package that
+[extends Viem](/docs/guides/extending) with standalone and method-style entrypoints.
 
 ### Accept a Client
 
@@ -26,10 +27,10 @@ import { Actions, type Client } from 'viem'
 import { Address } from 'viem/utils'
 
 export async function getAccountLabel(
-  client: Client.Client,
+  client: Client.Client, // [!code focus]
   options: getAccountLabel.Options,
 ): Promise<getAccountLabel.ReturnType> {
-  const code = await Actions.address.getCode(client, options)
+  const code = await Actions.address.getCode(client, options) // [!code focus]
   return code ? 'Contract' : 'Account'
 }
 
@@ -68,19 +69,20 @@ async function getAccountLabel(
   return code ? ('Contract' as const) : ('Account' as const)
 }
 
-function accountLabelActions() {
-  return (client: ClientType.Client) => ({
-    accountLabels: {
-      get: (options: { address: Address.Address }) =>
-        getAccountLabel(client, options),
-    },
-  })
-}
+function accountLabelActions() { // [!code focus]
+  return (client: ClientType.Client) => ({ // [!code focus]
+    accountLabels: { // [!code focus]
+      get: (options: { address: Address.Address }) => // [!code focus]
+        getAccountLabel(client, options), // [!code focus]
+    }, // [!code focus]
+  }) // [!code focus]
+} // [!code focus]
 
 export const client = Client.create({
   chain: mainnet,
   transport: http(),
-}).extend(accountLabelActions())
+})
+  .extend(accountLabelActions()) // [!code focus]
 ```
 
 :::

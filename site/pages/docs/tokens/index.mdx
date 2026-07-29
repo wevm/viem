@@ -4,9 +4,14 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-The **Token** module describes an ERC-20 token: shared metadata (`currency`, `decimals`, `name`, `popular`, `symbol`) plus a map of per-chain contract `addresses`.
+The **Token** module describes an ERC-20 token. It combines shared metadata with a map of per-Chain
+contract addresses.
 
-A token created with [`Token.from`](/docs/tokens/create) is callable with a chain id to produce a chain-specific config, and can be declared on a [Client](/docs/clients)'s `tokens` array so [Token Actions](/docs/actions/public/token/getBalance) accept its symbol in place of a contract address. Viem also ships predefined tokens (USDC, EURC, etc.) via `viem/tokens`.
+Call a Token from [`Token.from`](/docs/tokens/create) with a Chain ID to resolve its configuration.
+You can also declare it in a [Client](/docs/clients) `tokens` array.
+
+[Token Actions](/docs/actions/public/token/getBalance) can use a declared Token's symbol instead of
+its contract address. Viem exports predefined Tokens, including USDC and EURC, from `viem/tokens`.
 
 ```ts twoslash
 import { Client, http, publicActions } from 'viem'

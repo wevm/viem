@@ -1,35 +1,84 @@
 # waitForCallsStatus
 
-Waits for the status & receipts of a call batch that was sent via [`sendCalls`](/docs/actions/wallet/sendCalls) ([EIP-5792](https://eips.ethereum.org/EIPS/eip-5792)).
+## Overview
 
-## Usage
+Waits for the status and receipts of a call batch that was sent via [`Actions.wallet.sendCalls`](/docs/actions/wallet/sendCalls) ([EIP-5792](https://eips.ethereum.org/EIPS/eip-5792)).
 
-This example waits for a call batch's status and receipts.
+## Recipes
+
+### Require a Successful Batch
+
+Use a success predicate with `throwOnFailure` when a failed batch must reject instead of returning
+a failure result.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { receipts, status } = await client.wallet.waitForCallsStatus({
-  id: '0xdeadbeef',
-})
+export function waitForSuccess(id: string) {
+  return client.wallet.waitForCallsStatus({
+    id,
+    status: ({ status }) => status === 'success', // [!code focus]
+    throwOnFailure: true, // [!code focus]
+  })
+}
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 import { Client, custom, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
 import 'viem/window'
 
 export const client = Client.create({
+  chain: mainnet,
   transport: custom(window.ethereum!),
 }).extend(walletActions())
 ```
 
 :::
 
-### Standalone Action
+### Bound Polling and Retries
 
-Call `Actions.wallet.waitForCallsStatus` directly by passing the Client as the first argument.
+Set a polling interval and timeout to bound the overall wait. Configure retry behavior separately
+for failed status requests.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+export function waitWithDeadline(id: string) {
+  return client.wallet.waitForCallsStatus({
+    id,
+    pollingInterval: 1_000, // [!code focus]
+    retryCount: 2, // [!code focus]
+    retryDelay: ({ count }) => (count + 1) * 250, // [!code focus]
+    timeout: 30_000, // [!code focus]
+  })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import 'viem/window'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+```
+
+:::
+
+## `Actions.wallet.waitForCallsStatus`
+
+Waits for the status and receipts of a call batch that was sent via [`Actions.wallet.sendCalls`](/docs/actions/wallet/sendCalls) ([EIP-5792](https://eips.ethereum.org/EIPS/eip-5792)).
+
+### Usage
+
+Call [`Actions.wallet.waitForCallsStatus`](#actionswalletwaitforcallsstatus) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -53,13 +102,15 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-The status & receipts of the call bundle. See [`getCallsStatus`](/docs/actions/wallet/getCallsStatus#return-value).
+#### options
 
-## Parameters
+- **Type:** `Actions.wallet.waitForCallsStatus.Options`
 
-### id
+The action options.
+
+##### id
 
 - **Type:** `string`
 
@@ -67,14 +118,14 @@ The identifier of the call batch to wait for.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
   id: '0xdeadbeef', // [!code focus]
 })
 ```
 
-### pollingInterval
+##### pollingInterval
 
 - **Type:** `number`
 - **Default:** `client.pollingInterval`
@@ -83,7 +134,7 @@ Polling frequency (in ms).
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
   id: '0xdeadbeef',
@@ -91,7 +142,7 @@ const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
 })
 ```
 
-### retryCount
+##### retryCount
 
 - **Type:** `number`
 - **Default:** `4`
@@ -100,7 +151,7 @@ Number of times to retry if the call bundle failed.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
   id: '0xdeadbeef',
@@ -108,7 +159,7 @@ const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
 })
 ```
 
-### retryDelay
+##### retryDelay
 
 - **Type:** `number | (({ count }) => number)`
 - **Default:** exponential backoff
@@ -117,7 +168,7 @@ Time to wait (in ms) between retries.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
   id: '0xdeadbeef',
@@ -125,24 +176,24 @@ const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
 })
 ```
 
-### status
+##### status
 
-- **Type:** `(status) => boolean`
-- **Default:** `(status) => status >= 200`
+- **Type:** `(result: Actions.wallet.getCallsStatus.ReturnType) => boolean`
+- **Default:** `({ statusCode }) => statusCode === 200 || statusCode >= 300`
 
-Predicate that determines which status to stop waiting on.
+The predicate that determines when to stop waiting.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
   id: '0xdeadbeef',
-  status: ({ statusCode }) => statusCode >= 200, // [!code focus]
+  status: ({ status }) => status === 'success', // [!code focus]
 })
 ```
 
-### throwOnFailure
+##### throwOnFailure
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -151,7 +202,7 @@ Whether to throw an error if the call bundle fails.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
   id: '0xdeadbeef',
@@ -159,7 +210,7 @@ const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
 })
 ```
 
-### timeout
+##### timeout
 
 - **Type:** `number`
 - **Default:** `60_000`
@@ -168,10 +219,23 @@ Timeout (in ms) to wait before stopping polling.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
   id: '0xdeadbeef',
   timeout: 30_000, // [!code focus]
 })
 ```
+
+### Return Value
+
+`{ atomic: boolean; capabilities?: Capabilities.Extract<'getCallsStatus', 'ReturnType'>; chainId: number | undefined; id: string; receipts: readonly Receipt[]; status: 'pending' | 'success' | 'failure' | undefined; statusCode: number; version: string }`
+
+The status and receipts of the call bundle. See [`Actions.wallet.getCallsStatus`](/docs/actions/wallet/getCallsStatus#return-value).
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Actions.wallet.Errors.BundleFailedError` | The call bundle failed and `throwOnFailure` was enabled. |
+| `Actions.wallet.Errors.WaitForCallsStatusTimeoutError` | The action timed out while waiting for the call bundle. |

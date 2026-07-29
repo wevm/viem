@@ -1,19 +1,22 @@
 # supportsExecutionMode
 
+## Overview
+
 Checks if a contract supports an [ERC-7821](https://eips.ethereum.org/EIPS/eip-7821) execution mode. Results are cached per client, address, and mode.
 
-## Usage
+## Recipes
 
-This example checks if a contract supports an [ERC-7821](https://eips.ethereum.org/EIPS/eip-7821) execution mode.
+### Check an Execution Mode
+
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const supported = await client.erc7821.supportsExecutionMode({
-  address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-})
+const supported = await client.erc7821.supportsExecutionMode({ // [!code focus]
+  address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+}) // [!code focus]
 // @log: true
 ```
 
@@ -29,9 +32,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.erc7821.supportsExecutionMode`
 
-Call `Actions.erc7821.supportsExecutionMode` directly by passing the Client as the first argument.
+Checks if a contract supports an [ERC-7821](https://eips.ethereum.org/EIPS/eip-7821) execution mode. Results are cached per client, address, and mode.
+
+### Usage
+
+Call [`Actions.erc7821.supportsExecutionMode`](#actionserc7821supportsexecutionmode) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -57,15 +64,15 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`boolean`
+#### options
 
-Whether the contract supports the execution mode. Returns `false` when the contract does not implement `supportsExecutionMode` (or the call fails).
+- **Type:** `Actions.erc7821.supportsExecutionMode.Options`
 
-## Parameters
+The action options.
 
-### address
+##### address
 
 - **Type:** `Address`
 
@@ -73,26 +80,33 @@ The address of the contract to check.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const supported = await Actions.erc7821.supportsExecutionMode(client, {
   address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
 })
 ```
 
-### mode
+##### mode
 
 - **Type:** `'default' | 'opData' | 'batchOfBatches' | Hex`
 - **Default:** `'default'`
 
-The execution mode to check support for: plain calls (`'default'`), calls with additional data (`'opData'`), batch of batches (`'batchOfBatches'`), or a raw `bytes32` mode value.
+The execution mode to check.
+Use `'default'`, `'opData'`, `'batchOfBatches'`, or a raw `bytes32` mode value.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const supported = await Actions.erc7821.supportsExecutionMode(client, {
   address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   mode: 'opData', // [!code focus]
 })
 ```
+
+### Return Value
+
+`boolean`
+
+Whether the contract supports the execution mode. Returns `false` when the contract does not implement `supportsExecutionMode` (or the call fails).

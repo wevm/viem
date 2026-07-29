@@ -57,8 +57,9 @@ implementation. Modern browsers, Node.js `>=24.5`, Bun, and Deno provide one.
 ### WebAuthn and Web Crypto
 
 Browser passkey creation and signing require `navigator.credentials`, `PublicKeyCredential`, and a
-[secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts). Support
-varies by browser and authenticator. See the
+[secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts).
+
+Support varies by browser and authenticator. See the
 [Web Authentication API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API)
 compatibility data before choosing passkey features.
 
@@ -66,8 +67,8 @@ Features that use Web Crypto P256 or encryption also require `globalThis.crypto.
 
 ### WASM & Engines
 
-The [`viem/wasm` Engine](/docs/guides/engine#wasm-web-assembly-engine) requires WebAssembly. The
-[`viem/node` Engine](/docs/guides/engine#node-engine) uses `node:crypto` and must not be imported
+The [`viem/wasm` Engine](/docs/guides/engine#install-the-wasm-engine) requires WebAssembly. The
+[`viem/node` Engine](/docs/guides/engine#install-the-node-engine) uses `node:crypto` and must not be imported
 into browser bundles.
 
 ## Runtime Entrypoints

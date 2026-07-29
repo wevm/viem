@@ -1,17 +1,21 @@
 # estimateMaxPriorityFeePerGas
 
+## Overview
+
 Returns an estimate for the max priority fee per gas (in wei) for a transaction to be likely included in the next block.
 
-## Usage
+## Recipes
 
-This example returns an estimate for the max priority fee per gas (in wei) for a transaction to be likely included in the next block.
+### Estimate the Priority Fee
+
+Returns an estimate for the max priority fee per gas (in wei) for a transaction to be likely included in the next block.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const maxPriorityFeePerGas = await client.fee.estimateMaxPriorityFeePerGas()
+const maxPriorityFeePerGas = await client.fee.estimateMaxPriorityFeePerGas() // [!code focus]
 // @log: 1500000000n
 ```
 
@@ -27,9 +31,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.fee.estimateMaxPriorityFeePerGas`
 
-Call `Actions.fee.estimateMaxPriorityFeePerGas` directly by passing the Client as the first argument.
+Returns an estimate for the max priority fee per gas (in wei) for a transaction to be likely included in the next block.
+
+### Usage
+
+Call [`Actions.fee.estimateMaxPriorityFeePerGas`](#actionsfeeestimatemaxpriorityfeepergas) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -59,15 +67,26 @@ The estimate is derived in the following order:
 2. The `eth_maxPriorityFeePerGas` RPC method, if the provider supports it.
 3. A fallback of `gasPrice - baseFeePerGas` (returning `0n` if negative).
 
-## Return Value
+### Parameters
 
-`bigint`
+#### options
 
-An estimate (in wei) for the max priority fee per gas.
+- **Type:** `Actions.fee.estimateMaxPriorityFeePerGas.Options`
 
-## Parameters
+Configure the request with the following options.
 
-### chain
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ transport: http() })
+// ---cut---
+const maxPriorityFeePerGas = await Actions.fee.estimateMaxPriorityFeePerGas(client, { // [!code focus]
+  chain: mainnet, // [!code focus]
+}) // [!code focus]
+```
+
+##### chain
 
 - **Type:** `Chain`
 - **Default:** the Client's `chain`
@@ -85,7 +104,13 @@ const maxPriorityFeePerGas = await Actions.fee.estimateMaxPriorityFeePerGas(clie
 })
 ```
 
-## Errors
+### Return Value
+
+`bigint`
+
+An estimate (in wei) for the max priority fee per gas.
+
+### Errors
 
 | Error | Description |
 | --- | --- |

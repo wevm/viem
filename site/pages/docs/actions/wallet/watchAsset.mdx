@@ -1,24 +1,27 @@
 # watchAsset
 
+## Overview
+
 Adds an EVM token to the wallet's watchlist so its balance is tracked.
 
-## Usage
+## Recipes
 
-This example adds an EVM token to the wallet's watchlist so its balance is tracked.
+### Add an Asset to a Wallet
+
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const success = await client.wallet.watchAsset({
-  type: 'ERC20',
-  options: {
-    address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-    decimals: 18,
-    symbol: 'WETH',
-  },
-})
+const success = await client.wallet.watchAsset({ // [!code focus]
+  type: 'ERC20', // [!code focus]
+  options: { // [!code focus]
+    address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // [!code focus]
+    decimals: 18, // [!code focus]
+    symbol: 'WETH', // [!code focus]
+  }, // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -32,9 +35,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.wallet.watchAsset`
 
-Call `Actions.wallet.watchAsset` directly by passing the Client as the first argument.
+Adds an EVM token to the wallet's watchlist so its balance is tracked.
+
+### Usage
+
+Call [`Actions.wallet.watchAsset`](#actionswalletwatchasset) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -63,15 +70,15 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`boolean`
+#### options
 
-Whether the token was successfully added.
+- **Type:** `Actions.wallet.watchAsset.Options`
 
-## Parameters
+The action options.
 
-### options
+##### options
 
 - **Type:** `{ address: Address; decimals: number; symbol: string; image?: string }`
 
@@ -79,7 +86,7 @@ Token metadata. For `ERC20` assets, the contract `address`, `decimals`, and `sym
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const success = await Actions.wallet.watchAsset(client, {
   type: 'ERC20',
@@ -91,15 +98,15 @@ const success = await Actions.wallet.watchAsset(client, {
 })
 ```
 
-### type
+##### type
 
 - **Type:** `string`
 
-The asset's interface type (e.g. `'ERC20'`).
+The asset's interface type, such as `'ERC20'`.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const success = await Actions.wallet.watchAsset(client, {
   type: 'ERC20', // [!code focus]
@@ -110,3 +117,9 @@ const success = await Actions.wallet.watchAsset(client, {
   },
 })
 ```
+
+### Return Value
+
+`boolean`
+
+Whether the token was successfully added.

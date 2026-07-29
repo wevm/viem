@@ -1,10 +1,15 @@
 # transfer
 
+## Overview
+
 Transfers an amount of an ERC-20 token, and returns the transaction hash. When `from` is provided, it transfers on behalf of another account via `transferFrom` (using an allowance).
 
-## Usage
+## Recipes
 
-This example transfers an amount of an ERC-20 token, and returns the transaction hash.
+### Transfer a Formatted Amount
+
+Declare the token on the Client to select it by symbol. Viem uses the declared decimals to convert
+the formatted amount to base units.
 
 :::code-group
 
@@ -12,9 +17,9 @@ This example transfers an amount of an ERC-20 token, and returns the transaction
 import { client } from './viem.config'
 
 const hash = await client.token.transfer({
-  amount: 500000000n,
+  amount: { formatted: '500' }, // [!code focus]
   to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
-  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  token: 'usdc', // [!code focus]
 })
 // @log: "0x4ca7ee652d57678f26e887c19671f76c1aff..."
 ```
@@ -34,9 +39,47 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Transfer from Another Account
 
-Call `Actions.token.transfer` directly by passing the Client as the first argument.
+Pass `from` when the caller has an allowance to transfer tokens for another account. Viem calls
+the token's `transferFrom` function.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const hash = await client.token.transfer({
+  amount: { formatted: '500' },
+  from: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: 'usdc',
+})
+// @log: "0x4ca7ee652d57678f26e887c19671f76c1aff..."
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+## `Actions.token.transfer`
+
+Transfers an amount of an ERC-20 token, and returns the transaction hash. When `from` is provided, it transfers on behalf of another account via `transferFrom` (using an allowance).
+
+### Usage
+
+Call [`Actions.token.transfer`](#actionstokentransfer) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -68,18 +111,18 @@ export const client = Client.create({
 :::
 
 :::tip
-Use [`transferSync`](/docs/actions/wallet/token/transferSync) to wait for the transaction receipt and decoded `Transfer` event in a single call.
+Use [`Actions.token.transferSync`](/docs/actions/wallet/token/transferSync) to wait for the transaction receipt and decoded `Transfer` event in a single call.
 :::
 
-## Return Value
+### Parameters
 
-`Hash`
+#### options
 
-The transaction hash.
+- **Type:** `Actions.token.transfer.Options`
 
-## Parameters
+The action options.
 
-### account
+##### account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -100,7 +143,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-### amount
+##### amount
 
 - **Type:** `bigint | { decimals?: number; formatted: string }`
 
@@ -125,7 +168,7 @@ const hash = await client.token.transfer({
 })
 ```
 
-### amount.decimals
+##### amount.decimals
 
 - **Type:** `number`
 
@@ -144,7 +187,28 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-### from
+##### chain
+
+- **Type:** `Chain | null`
+- **Default:** `client.chain`
+
+The target chain. Pass `null` to skip the current-chain assertion.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.token.transfer(client, {
+  amount: 500000000n,
+  chain: mainnet, // [!code focus]
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+##### from
 
 - **Type:** `Address`
 
@@ -164,7 +228,87 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-### to
+##### gas
+
+- **Type:** `bigint | Hex`
+
+The gas limit for the transaction.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.token.transfer(client, {
+  amount: 500000000n,
+  gas: 50_000n, // [!code focus]
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+##### maxFeePerGas
+
+- **Type:** `bigint | number | Hex`
+
+The maximum total fee per gas.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.token.transfer(client, {
+  amount: 500000000n,
+  maxFeePerGas: 30_000_000_000n, // [!code focus]
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+##### maxPriorityFeePerGas
+
+- **Type:** `bigint | number | Hex`
+
+The maximum priority fee per gas.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.token.transfer(client, {
+  amount: 500000000n,
+  maxPriorityFeePerGas: 1_000_000_000n, // [!code focus]
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+##### nonce
+
+- **Type:** `bigint | Hex`
+
+The transaction nonce.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.token.transfer(client, {
+  amount: 500000000n,
+  nonce: 12n, // [!code focus]
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+##### to
 
 - **Type:** `Address`
 
@@ -183,7 +327,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-### token
+##### token
 
 - **Type:** `Address | string`
 
@@ -208,7 +352,13 @@ const hash = await client.token.transfer({
 })
 ```
 
-## Errors
+### Return Value
+
+`Hex`
+
+The transaction hash.
+
+### Errors
 
 | Error | Description |
 | --- | --- |

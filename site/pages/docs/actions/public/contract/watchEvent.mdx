@@ -1,12 +1,20 @@
 # watchEvent
 
+## Overview
+
 Watches incoming contract event logs, returning a watcher handle.
 
-The watcher uses a WebSocket / IPC subscription (`eth_subscribe` over `logs`) when the Client's transport supports it. Otherwise it installs an event filter and polls `eth_getFilterChanges`, falling back to `eth_getLogs` across the block delta when the provider does not support filters. The underlying source starts lazily once the first listener (or iterator) attaches.
+The watcher subscribes to `logs` with `eth_subscribe` when the Client uses a WebSocket or IPC transport.
 
-## Usage
+Otherwise, the watcher polls an event filter. If the provider does not support filters, the watcher calls `eth_getLogs` for each block range.
 
-This example watches incoming contract event logs, returning a watcher handle.
+The source starts when the first listener or iterator attaches.
+
+## Recipes
+
+### Watch Contract Events
+
+Watches incoming contract event logs, returning a watcher handle.
 
 :::code-group
 
@@ -14,10 +22,10 @@ This example watches incoming contract event logs, returning a watcher handle.
 import { Abis } from 'viem/utils'
 import { client } from './viem.config'
 
-const watch = client.contract.watchEvent({
-  abi: Abis.erc20,
-  eventName: 'Transfer',
-})
+const watch = client.contract.watchEvent({ // [!code focus]
+  abi: Abis.erc20, // [!code focus]
+  eventName: 'Transfer', // [!code focus]
+}) // [!code focus]
 
 watch.onLogs((logs) => console.log(logs))
 // @log: [{ args: { from: '0x…', to: '0x…', value: 1n }, eventName: 'Transfer', ... }]
@@ -38,9 +46,60 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Backfill Contract Logs Individually
 
-Call `Actions.contract.watchEvent` directly by passing the Client as the first argument.
+Set `fromBlock` to start at a known block and `batch: false` to emit each matching log separately.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const watch = client.contract.watchEvent({
+  abi: Abis.erc20,
+  batch: false, // [!code focus]
+  eventName: 'Transfer',
+  fromBlock: 19_868_020n, // [!code focus]
+})
+
+watch.onLogs((logs) => console.log(logs))
+```
+
+### Use a Contract Event Subscription
+
+Set `poll: false` with a WebSocket or IPC transport to use an `eth_subscribe` log subscription.
+
+```ts twoslash
+import { Client, publicActions, webSocket } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: webSocket(),
+}).extend(publicActions())
+
+const watch = client.contract.watchEvent({
+  abi: Abis.erc20,
+  eventName: 'Transfer',
+  poll: false, // [!code focus]
+})
+
+watch.onLogs((logs) => console.log(logs))
+```
+
+## `Actions.contract.watchEvent`
+
+Watches incoming contract event logs, returning a watcher handle.
+
+### Usage
+
+Call [`Actions.contract.watchEvent`](#actionscontractwatchevent) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -73,17 +132,13 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`Watcher`
+#### options
 
-A watcher handle with the following members:
+- **Type:** `Actions.contract.watchEvent.Options`
 
-### onLogs
-
-- **Type:** `(fn: (logs: Log[]) => void) => () => void`
-
-Registers a listener invoked with each batch of new contract event logs. Starts the watcher on first registration. Returns a function that unregisters the listener.
+Configure the request with the following options.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -91,81 +146,14 @@ import { mainnet } from 'viem/chains'
 import { Abis } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abis.erc20
 // ---cut---
-const watch = Actions.contract.watchEvent(client, { abi, eventName: 'Transfer' })
-
-const off = watch.onLogs((logs) => { // [!code focus]
-  console.log(logs) // [!code focus]
+const watch = Actions.contract.watchEvent(client, { // [!code focus]
+  abi: Abis.erc20, // [!code focus]
 }) // [!code focus]
-
-// later: unregister just this listener
-off()
-```
-
-### onError
-
-- **Type:** `(fn: (error: Error) => void) => () => void`
-
-Registers a listener invoked when polling for logs fails. Returns a function that unregisters the listener.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Abis } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abis.erc20
-// ---cut---
-const watch = Actions.contract.watchEvent(client, { abi, eventName: 'Transfer' })
-watch.onLogs(() => {})
-
-watch.onError((error) => console.error(error)) // [!code focus]
-```
-
-### off
-
-- **Type:** `() => void`
-
-Tears down the watcher: removes all listeners, ends all iterators, stops the underlying poll / subscription, and uninstalls the filter. Idempotent and terminal.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Abis } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abis.erc20
-// ---cut---
-const watch = Actions.contract.watchEvent(client, { abi, eventName: 'Transfer' })
 watch.onLogs((logs) => console.log(logs))
-
-watch.off() // [!code focus]
 ```
 
-### `[Symbol.asyncIterator]`
-
-- **Type:** `() => AsyncIterableIterator<{ logs: Log[] }>`
-
-Async-iterates emitted contract event logs. The iterator is a latest-only state stream (it may skip intermediate values under slow consumption) and throws if the source errors.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Abis } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abis.erc20
-// ---cut---
-const watch = Actions.contract.watchEvent(client, { abi, eventName: 'Transfer' })
-
-for await (const { logs } of watch) // [!code focus]
-  console.log(logs) // [!code focus]
-```
-
-## Parameters
-
-### abi
+##### abi
 
 - **Type:** `Abi`
 
@@ -184,7 +172,7 @@ const watch = Actions.contract.watchEvent(client, {
 watch.onLogs((logs) => console.log(logs))
 ```
 
-### address
+##### address
 
 - **Type:** `Address | Address[]`
 
@@ -205,7 +193,7 @@ const watch = Actions.contract.watchEvent(client, {
 watch.onLogs((logs) => console.log(logs))
 ```
 
-### args
+##### args
 
 - **Type:** Inferred from `abi` and `eventName`.
 
@@ -229,7 +217,7 @@ const watch = Actions.contract.watchEvent(client, {
 watch.onLogs((logs) => console.log(logs))
 ```
 
-### batch
+##### batch
 
 - **Type:** `boolean`
 - **Default:** `true`
@@ -252,7 +240,7 @@ const watch = Actions.contract.watchEvent(client, {
 watch.onLogs((logs) => console.log(logs))
 ```
 
-### eventName
+##### eventName
 
 - **Type:** Inferred from `abi`.
 
@@ -273,7 +261,7 @@ const watch = Actions.contract.watchEvent(client, {
 watch.onLogs((logs) => console.log(logs))
 ```
 
-### fromBlock
+##### fromBlock
 
 - **Type:** `bigint`
 
@@ -295,10 +283,10 @@ const watch = Actions.contract.watchEvent(client, {
 watch.onLogs((logs) => console.log(logs))
 ```
 
-### poll
+##### poll
 
 - **Type:** `boolean`
-- **Default:** `false` for WebSocket / IPC transports, `true` otherwise
+- **Default:** `false` for WebSocket or IPC transports, `true` otherwise
 
 Whether to poll for new logs instead of using a subscription. Defaults to `true` when the transport cannot subscribe or `fromBlock` is provided.
 
@@ -318,7 +306,7 @@ const watch = Actions.contract.watchEvent(client, {
 watch.onLogs((logs) => console.log(logs))
 ```
 
-### pollingInterval
+##### pollingInterval
 
 - **Type:** `number`
 - **Default:** `client.pollingInterval`
@@ -341,12 +329,14 @@ const watch = Actions.contract.watchEvent(client, {
 watch.onLogs((logs) => console.log(logs))
 ```
 
-### strict
+##### strict
 
 - **Type:** `boolean`
 - **Default:** `false`
 
-Whether the logs must strictly match the indexed/non-indexed arguments on the event. When `false`, logs that do not conform to the event's full ABI are still emitted (with partially decoded `args`).
+Whether logs must match every indexed and non-indexed event argument.
+
+When `false`, the watcher also emits logs that do not match the full event ABI. These logs can contain partially decoded `args`.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -363,3 +353,107 @@ const watch = Actions.contract.watchEvent(client, {
 })
 watch.onLogs((logs) => console.log(logs))
 ```
+
+### Return Value
+
+`Watcher`
+
+A watcher handle with the following members:
+
+#### onLogs
+
+- **Type:** `(fn: (logs: Log[]) => void) => () => void`
+
+Registers a listener invoked with each batch of new contract event logs. Starts the watcher on first registration. Returns a function that unregisters the listener.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const watch = Actions.contract.watchEvent(client, { abi, eventName: 'Transfer' })
+
+const off = watch.onLogs((logs) => { // [!code focus]
+  console.log(logs) // [!code focus]
+}) // [!code focus]
+
+// later: unregister just this listener
+off()
+```
+
+#### onError
+
+- **Type:** `(fn: (error: Error) => void) => () => void`
+
+Registers a listener invoked when polling for logs fails. Returns a function that unregisters the listener.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const watch = Actions.contract.watchEvent(client, { abi, eventName: 'Transfer' })
+watch.onLogs(() => {})
+
+watch.onError((error) => console.error(error)) // [!code focus]
+```
+
+#### off
+
+- **Type:** `() => void`
+
+Tears down the watcher: removes all listeners, ends all iterators, stops the underlying polling or subscription, and uninstalls the filter. Idempotent and terminal.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const watch = Actions.contract.watchEvent(client, { abi, eventName: 'Transfer' })
+watch.onLogs((logs) => console.log(logs))
+
+watch.off() // [!code focus]
+```
+
+#### `[Symbol.asyncIterator]`
+
+- **Type:** `() => AsyncIterableIterator<{ logs: Log[] }>`
+
+Async-iterates emitted contract event logs. The iterator is a latest-only state stream (it may skip intermediate values under slow consumption) and throws if the source errors.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const watch = Actions.contract.watchEvent(client, { abi, eventName: 'Transfer' })
+
+for await (const { logs } of watch) // [!code focus]
+  console.log(logs) // [!code focus]
+```
+
+### Errors
+
+The watcher forwards RPC and Transport failures to `onError` and asynchronous iterators. Event
+setup can report these concrete errors:
+
+| Error | Description |
+| --- | --- |
+| `AbiItem.NotFoundError` | The selected event is missing from the runtime ABI. |
+| `AbiEvent.FilterTypeNotSupportedError` | `args` includes an indexed tuple or array, which event topic filters do not support. |
+| `AbiParameters.InvalidTypeError` | `args` includes an indexed ABI type that the topic encoder does not support. |
+| `Address.InvalidAddressError` | `args` includes an invalid indexed address. |
+| `Hex.IntegerOutOfRangeError` | `args` includes an indexed integer outside the supported 256-bit range. |
+| `Hex.SizeExceedsPaddingSizeError` | An indexed fixed-bytes value exceeds the 32-byte topic size. |

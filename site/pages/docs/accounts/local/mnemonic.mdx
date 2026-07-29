@@ -4,9 +4,12 @@
 
 A **Mnemonic Account** is a [local account](/docs/accounts) (`Account.Hd`) derived from a [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) mnemonic phrase.
 
-The mnemonic is converted to an HD key and the account is derived at the configured path (defaulting to `m/44'/60'/0'/0/0`). The underlying HD key is available via `account.getHdKey()`.
+Viem converts the mnemonic to an HD key and derives the account at the configured path. The default
+path is `m/44'/60'/0'/0/0`.
 
-Create one with [`Account.fromMnemonic`](/docs/accounts).
+Access the underlying HD key through `account.getHdKey()`.
+
+Create one with [`Account.fromMnemonic`](#accountfrommnemonic).
 
 ```ts twoslash
 import { Account } from 'viem'
@@ -93,9 +96,9 @@ The mnemonic phrase to derive the account from.
 ```ts twoslash
 import { Account } from 'viem'
 // ---cut---
-const account = Account.fromMnemonic( // [!code focus]
+const account = Account.fromMnemonic(
   'test test test test test test test test test test test junk', // [!code focus]
-) // [!code focus]
+)
 ```
 
 #### options
@@ -153,6 +156,23 @@ const account = Account.fromMnemonic(
 )
 ```
 
+##### nonceManager
+
+- **Type:** `NonceManager.NonceManager`
+
+The [nonce manager](/docs/accounts/nonce-manager) attached to the account.
+
+```ts twoslash
+import { Account, NonceManager } from 'viem'
+// ---cut---
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  {
+    nonceManager: NonceManager.jsonRpc(), // [!code focus]
+  },
+)
+```
+
 ##### passphrase
 
 - **Type:** `string`
@@ -192,3 +212,9 @@ const account = Account.fromMnemonic(
 `Account.Hd`
 
 A mnemonic/HD-derived local account (`keyType: 'secp256k1'`) exposing `address`, `publicKey`, the signing methods, and `getHdKey()`.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `PublicKey.InvalidError` | The derived private key produces an invalid public key. |

@@ -1,10 +1,13 @@
 # switch
 
+## Overview
+
 Switches the target chain in a wallet.
 
-## Usage
+## Recipes
 
-This example switches the target chain in a wallet.
+### Switch Chains
+
 
 :::code-group
 
@@ -12,7 +15,7 @@ This example switches the target chain in a wallet.
 import { optimism } from 'viem/chains'
 import { client } from './viem.config'
 
-await client.chains.switch({ id: optimism.id })
+await client.chains.switch({ id: optimism.id }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -28,9 +31,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.chains.switch`
 
-Call `Actions.chains.switch` directly by passing the Client as the first argument.
+Switches the target chain in a wallet.
+
+### Usage
+
+Call [`Actions.chains.switch`](#actionschainsswitch) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -55,9 +62,15 @@ export const client = Client.create({
 
 :::
 
-## Parameters
+### Parameters
 
-### id
+#### options
+
+- **Type:** `Actions.chains.switch.Options`
+
+The action options.
+
+##### id
 
 - **Type:** `number`
 
@@ -66,14 +79,20 @@ The ID of the chain to switch to.
 ```ts twoslash
 import { Actions } from 'viem'
 import { optimism } from 'viem/chains'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 await Actions.chains.switch(client, {
   id: optimism.id, // [!code focus]
 })
 ```
 
-## Errors
+### Return Value
+
+`void`
+
+No value is returned.
+
+### Errors
 
 | Error | Description |
 | --- | --- |

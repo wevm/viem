@@ -9,8 +9,10 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 [`contract.simulate`](/docs/actions/public/contract/simulate) executes a write function against the
-current state without broadcasting it. The returned request can be passed directly to
-[`contract.write`](/docs/actions/wallet/contract/write), preserving the call that was validated.
+current state without broadcasting it.
+
+Pass the returned request directly to [`contract.write`](/docs/actions/wallet/contract/write) to
+preserve the validated call.
 
 ## Recipes
 
@@ -26,21 +28,21 @@ Simulation exposes the decoded return value and contract revert before the trans
 import { Abis, Value } from 'viem/utils'
 import { client } from './viem.config'
 
-const { request, result } = await client.contract.simulate({
-  abi: Abis.erc20,
-  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-  args: [
-    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-    Value.from('1', 6),
-  ],
-  functionName: 'transfer',
-})
+const { request, result } = await client.contract.simulate({ // [!code focus]
+  abi: Abis.erc20, // [!code focus]
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
+  args: [ // [!code focus]
+    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+    Value.from('1', 6), // [!code focus]
+  ], // [!code focus]
+  functionName: 'transfer', // [!code focus]
+}) // [!code focus]
 
 console.log(result)
 //          ^?
 // @log: true
 
-const hash = await client.contract.write(request)
+const hash = await client.contract.write(request) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -65,15 +67,15 @@ receipt before it continues.
 import { Abis, Value } from 'viem/utils'
 import { client } from './viem.config'
 
-const receipt = await client.contract.writeSync({
-  abi: Abis.erc20,
-  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-  args: [
-    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-    Value.from('1', 6),
-  ],
-  functionName: 'transfer',
-})
+const receipt = await client.contract.writeSync({ // [!code focus]
+  abi: Abis.erc20, // [!code focus]
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
+  args: [ // [!code focus]
+    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+    Value.from('1', 6), // [!code focus]
+  ], // [!code focus]
+  functionName: 'transfer', // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -99,15 +101,15 @@ preparing a transaction manually.
 import { Abis, Value } from 'viem/utils'
 import { client } from './viem.config'
 
-const gas = await client.contract.estimateGas({
-  abi: Abis.erc20,
-  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-  args: [
-    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-    Value.from('1', 6),
-  ],
-  functionName: 'transfer',
-})
+const gas = await client.contract.estimateGas({ // [!code focus]
+  abi: Abis.erc20, // [!code focus]
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
+  args: [ // [!code focus]
+    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+    Value.from('1', 6), // [!code focus]
+  ], // [!code focus]
+  functionName: 'transfer', // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

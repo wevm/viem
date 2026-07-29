@@ -4,14 +4,18 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-The **Engine** module configures the cryptographic implementations used by Viem's
+The **Engine** module configures the implementations used by Viem's
 [cryptography utilities](/docs/utilities/hash). Viem uses portable JavaScript implementations by
-default. An Engine can replace individual primitives with WebAssembly, Node.js, or custom
-implementations without changing the utility APIs that call them.
+default.
 
-Engine slots are partial. An omitted slot or primitive keeps its current override, or uses Viem's
-default when no override is installed. The registry belongs to the loaded Ox module instance behind
-Viem and is resolved when a cryptographic function is called.
+An Engine can replace individual primitives with WebAssembly, Node.js, or custom implementations.
+The utility APIs remain unchanged.
+
+Engine slots are partial. An omitted slot or primitive keeps its current override. When no override
+exists, Viem uses its default implementation.
+
+The loaded Ox module instance owns the registry. Each cryptographic function resolves its
+implementation when called.
 
 | Entrypoint | Behavior |
 | --- | --- |
@@ -31,7 +35,7 @@ const digest = Hash.sha256('0xdeadbeef')
 
 <Cards>
   <Card
-    title="WASM & Engines"
+    title="WASM and Engines"
     description="Use WebAssembly, Node.js, and custom cryptography Engines with Viem."
     icon="lucide:cpu"
     to="/docs/guides/engine"

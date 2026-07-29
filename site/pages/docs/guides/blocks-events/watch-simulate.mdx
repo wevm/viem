@@ -14,7 +14,7 @@ future blocks with optional block and state overrides.
 
 ## Recipes
 
-These recipes assume you have [set up a Client](/docs) with `publicActions`.
+These recipes assume you have [set up a Client](/docs) with [`publicActions`](/docs/actions/public).
 
 ### Watch New Blocks
 
@@ -25,14 +25,14 @@ Attach listeners to the watcher and tear it down when the owning component stops
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const watch = client.block.watch()
+const watch = client.block.watch() // [!code focus]
 
-watch.onBlock((block, previousBlock) => {
-  console.log(block.number, previousBlock?.number)
-})
+watch.onBlock((block, previousBlock) => { // [!code focus]
+  console.log(block.number, previousBlock?.number) // [!code focus]
+}) // [!code focus]
 
 // Later
-watch.off()
+watch.off() // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -51,9 +51,9 @@ import { client } from './viem.config'
 
 const watch = client.block.watch()
 
-for await (const { block, prevBlock } of watch) {
-  console.log(block.number, prevBlock?.number)
-}
+for await (const { block, prevBlock } of watch) { // [!code focus]
+  console.log(block.number, prevBlock?.number) // [!code focus]
+} // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -71,8 +71,8 @@ Use [`block.watchNumber`](/docs/actions/public/block/watchNumber) when headers a
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const watch = client.block.watchNumber()
-watch.onBlockNumber((blockNumber) => console.log(blockNumber))
+const watch = client.block.watchNumber() // [!code focus]
+watch.onBlockNumber((blockNumber) => console.log(blockNumber)) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -91,19 +91,19 @@ Calls in later simulated blocks observe the state produced by earlier ones.
 import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
-const [block] = await client.block.simulate({
-  blocks: [
-    {
-      calls: [
-        {
-          account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-          to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-          value: Value.fromEther('1'),
-        },
-      ],
-    },
-  ],
-})
+const [block] = await client.block.simulate({ // [!code focus]
+  blocks: [ // [!code focus]
+    { // [!code focus]
+      calls: [ // [!code focus]
+        { // [!code focus]
+          account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+          to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+          value: Value.fromEther('1'), // [!code focus]
+        }, // [!code focus]
+      ], // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

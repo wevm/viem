@@ -2,7 +2,11 @@
 
 ## Overview
 
-The [`webSocket`](/docs/transports) transport carries JSON-RPC requests over a reconnecting WebSocket connection. When no `url` is provided, it falls back to the [Chain](/docs/chains)'s default WebSocket RPC URL. Unlike [HTTP](/docs/transports/http), it supports JSON-RPC subscriptions and keeps the connection alive across requests, reconnecting and resubscribing automatically on closure.
+The [`webSocket`](/docs/transports/websocket) transport carries JSON-RPC requests over WebSocket.
+Without a `url`, it uses the [Chain](/docs/chains) default WebSocket RPC URL.
+
+Unlike [HTTP](/docs/transports/http), WebSocket supports JSON-RPC subscriptions. The Transport keeps
+the connection open across requests, then reconnects and restores subscriptions after closure.
 
 ```ts twoslash
 import { webSocket } from 'viem'

@@ -9,10 +9,11 @@ The **Contract** module creates type-safe contract instances: an object bound to
 An instance groups its methods by intent, each derived from the ABI:
 
 - [**`read`**](/docs/contract/instances/read): read-only functions (`pure` and `view`).
-- [**`write`**](/docs/contract/instances/write), [**`simulate`**](/docs/contract/instances/simulate), [**`estimateGas`**](/docs/contract/instances/estimateGas): state-mutating functions.
+- [**`write`**](/docs/contract/instances/write), [**`simulate`**](/docs/contract/instances/simulate), [**`estimateGas`**](/docs/contract/instances/estimateGas): write functions.
 - [**`getLogs`**](/docs/contract/instances/getLogs), [**`createEventFilter`**](/docs/contract/instances/createEventFilter), [**`watchEvent`**](/docs/contract/instances/watchEvent): events.
 
-Under the hood, each method delegates to the matching [Contract Action](/docs/actions/public/contract/read) with the `abi`, `address`, and `functionName` (or `eventName`) already bound.
+Each method calls the matching [Contract Action](/docs/actions/public/contract/read) with the `abi`,
+`address`, and `functionName` or `eventName` already bound.
 
 ```ts twoslash
 import { Client, Contract, http } from 'viem'

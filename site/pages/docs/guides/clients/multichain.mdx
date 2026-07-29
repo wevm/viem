@@ -9,11 +9,14 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 [`Client.createResolver`](/docs/clients/resolve) configures a set of [Chains](/docs/chains) and
-their [Transports](/docs/transports) once, then resolves a Client for one chain at a time. Each
-Client is constructed lazily on first use, memoized per chain ID, and typed with the exact Chain
-it was resolved for.
+their [Transports](/docs/transports) once. It then resolves a Client for one chain at a time.
+
+The resolver constructs each Client on first use and memoizes it per chain ID. The Client retains
+the exact Chain type that it was resolved for.
 
 ## Recipes
+
+These recipes assume you have [installed Viem](/docs/installation).
 
 ### Configure a Resolver
 
@@ -24,14 +27,14 @@ a request targets.
 import { Client, http, publicActions } from 'viem'
 import { base, mainnet, optimism } from 'viem/chains'
 
-const resolver = Client.createResolver({ // [!code focus:8]
-  chains: [base, mainnet, optimism],
-  transport: {
-    [base.id]: http(),
-    [mainnet.id]: http(),
-    [optimism.id]: http(),
-  },
-})
+const resolver = Client.createResolver({ // [!code focus]
+  chains: [base, mainnet, optimism], // [!code focus]
+  transport: { // [!code focus]
+    [base.id]: http(), // [!code focus]
+    [mainnet.id]: http(), // [!code focus]
+    [optimism.id]: http(), // [!code focus]
+  }, // [!code focus]
+}) // [!code focus]
 
 const client = resolver
   .getClient({ chainId: base.id })
@@ -80,24 +83,25 @@ import { base, mainnet, optimism } from 'viem/chains'
 
 const resolver = Client.createResolver({
   chains: [base, mainnet, optimism],
-  transport: ({ chainId }) => // [!code focus:2]
-    http(`https://rpc.example.com/${chainId}`),
+  transport: ({ chainId }) => // [!code focus]
+    http(`https://rpc.example.com/${chainId}`), // [!code focus]
 })
 ```
 
 ### Share Configuration Across Chains
 
 Every option besides `chains` and `transport` is forwarded to each resolved Client, so accounts,
-batching, and polling behave identically on every chain. See the [`Client.create`
-options](/docs/clients/create#parameters) for what can be shared.
+batching, and polling behave identically on every chain.
+
+See the [`Client.create` options](/docs/clients/create#parameters) for what can be shared.
 
 ```ts twoslash [example.ts]
 import { Client, http, publicActions } from 'viem'
 import { mainnet, optimism } from 'viem/chains'
 
 const resolver = Client.createResolver({
-  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus:2]
-  batch: { multicall: true },
+  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+  batch: { multicall: true }, // [!code focus]
   chains: [mainnet, optimism],
   transport: {
     [mainnet.id]: http(),
@@ -108,9 +112,12 @@ const resolver = Client.createResolver({
 
 ### Handle Dynamic Chain IDs
 
-With literal chains, `getClient` only accepts configured IDs at compile time. When the ID arrives
-at runtime, such as a wallet chain switch or a route parameter, widen the chains type and handle
-`Client.ChainNotConfiguredError`.
+With literal chains, `getClient` only accepts configured IDs at compile time.
+
+When the ID arrives at runtime, widen the `chains` type and handle
+[`Client.ChainNotConfiguredError`](/docs/clients/resolve#errors).
+
+Runtime IDs can come from a wallet chain switch or route parameter.
 
 ```ts twoslash [example.ts]
 import { Chain, Client, http } from 'viem'
@@ -125,11 +132,11 @@ const resolver = Client.createResolver({
 
 function clientFor(chainId: number) {
   try {
-    return resolver.getClient({ chainId }) // [!code focus:5]
-  } catch (err) {
-    if (err instanceof Client.ChainNotConfiguredError) return undefined
-    throw err
-  }
+    return resolver.getClient({ chainId }) // [!code focus]
+  } catch (err) { // [!code focus]
+    if (err instanceof Client.ChainNotConfiguredError) return undefined // [!code focus]
+    throw err // [!code focus]
+  } // [!code focus]
 }
 ```
 
@@ -137,9 +144,10 @@ function clientFor(chainId: number) {
 
 ### Define the Resolver at Module Scope
 
-Configure one resolver per application and resolve Clients wherever a chain ID is known. Spreading
-per-chain `Client.create` calls across the codebase duplicates configuration and forfeits
-memoization.
+Configure one resolver per application and resolve Clients wherever a chain ID is known.
+
+Spreading per-chain [`Client.create`](/docs/clients/create) calls across the codebase duplicates
+configuration and forfeits memoization.
 
 ### Let the Resolver Memoize
 

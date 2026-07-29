@@ -1,19 +1,22 @@
 # sendRaw
 
+## Overview
+
 Sends a **signed** serialized transaction to the network (`eth_sendRawTransaction`).
 
-## Usage
+## Recipes
 
-This example sends a **signed** serialized transaction to the network (`eth_sendRawTransaction`).
+### Send a Raw Transaction
+
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const hash = await client.transaction.sendRaw({
-  transaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33',
-})
+const hash = await client.transaction.sendRaw({ // [!code focus]
+  transaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33', // [!code focus]
+}) // [!code focus]
 // @log: '0x...'
 ```
 
@@ -29,9 +32,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.transaction.sendRaw`
 
-Call `Actions.transaction.sendRaw` directly by passing the Client as the first argument.
+Sends a **signed** serialized transaction to the network (`eth_sendRawTransaction`).
+
+### Usage
+
+Call [`Actions.transaction.sendRaw`](#actionstransactionsendraw) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -57,15 +64,15 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`Hex`
+#### options
 
-The transaction hash.
+- **Type:** `Actions.transaction.sendRaw.Options`
 
-## Parameters
+The action options.
 
-### requestOptions
+##### requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -84,7 +91,7 @@ const hash = await Actions.transaction.sendRaw(client, {
 })
 ```
 
-### transaction
+##### transaction
 
 - **Type:** `Hex`
 
@@ -101,8 +108,8 @@ const hash = await Actions.transaction.sendRaw(client, {
 })
 ```
 
-## Errors
+### Return Value
 
-| Error | Description |
-| --- | --- |
-| `RpcResponse.BaseError` | The node rejected the transaction. |
+`Hex`
+
+The transaction hash.

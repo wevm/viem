@@ -10,9 +10,13 @@ import { Card, Cards } from 'vocs'
 
 A signed authorization becomes active when it is included in an EIP-7702 transaction. Pass it in
 `authorizationList` to [`transaction.send`](/docs/actions/wallet/transaction/send) or a Contract
-write. After the transaction confirms, the delegated code remains active on the Account until it is
+write.
+
+After the transaction confirms, the delegated code remains active on the Account until it is
 replaced or cleared. Later transactions can call its functions without passing `authorizationList`
-again. The execution target and calldata determine what happens after delegation is installed.
+again.
+
+The execution target and calldata determine what happens after delegation is installed.
 
 ## Recipes
 
@@ -28,17 +32,17 @@ When the EOA is the executor, sign with `executor: 'self'` and include the resul
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const authorization = await client.wallet.signAuthorization({
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  executor: 'self',
-})
+const authorization = await client.wallet.signAuthorization({ // [!code focus]
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+  executor: 'self', // [!code focus]
+}) // [!code focus]
 
-const hash = await client.transaction.send({
-  authorizationList: [authorization],
-  data: '0xdeadbeef',
-  to: client.account.address,
-  type: 'eip7702',
-})
+const hash = await client.transaction.send({ // [!code focus]
+  authorizationList: [authorization], // [!code focus]
+  data: '0xdeadbeef', // [!code focus]
+  to: client.account.address, // [!code focus]
+  type: 'eip7702', // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -60,35 +64,35 @@ import { client } from './viem.config'
 
 const abi = Abi.from(['function execute(address target, bytes data)'])
 
-const authorization = await client.wallet.signAuthorization({
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  executor: 'self',
-})
+const authorization = await client.wallet.signAuthorization({ // [!code focus]
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+  executor: 'self', // [!code focus]
+}) // [!code focus]
 
-const hash = await client.contract.write({
-  abi,
-  address: client.account.address,
-  args: [
-    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-    '0xdeadbeef',
-  ],
-  authorizationList: [authorization],
-  functionName: 'execute',
-})
+const hash = await client.contract.write({ // [!code focus]
+  abi, // [!code focus]
+  address: client.account.address, // [!code focus]
+  args: [ // [!code focus]
+    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+    '0xdeadbeef', // [!code focus]
+  ], // [!code focus]
+  authorizationList: [authorization], // [!code focus]
+  functionName: 'execute', // [!code focus]
+}) // [!code focus]
 
-const { receipt } = client.transaction.waitForReceipt({ hash })
+const { receipt } = client.transaction.waitForReceipt({ hash }) // [!code focus]
 await receipt
 
 // No authorizationList is required.
-const nextHash = await client.contract.write({
-  abi,
-  address: client.account.address,
-  args: [
-    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-    '0xcafebabe',
-  ],
-  functionName: 'execute',
-})
+const nextHash = await client.contract.write({ // [!code focus]
+  abi, // [!code focus]
+  address: client.account.address, // [!code focus]
+  args: [ // [!code focus]
+    '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+    '0xcafebabe', // [!code focus]
+  ], // [!code focus]
+  functionName: 'execute', // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

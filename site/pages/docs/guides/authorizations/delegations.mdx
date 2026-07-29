@@ -9,12 +9,14 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 [`address.getDelegation`](/docs/actions/public/address/getDelegation) returns the implementation
-address currently delegated by an EOA. Authorization utilities recover the signer or verify that a
-signed authorization belongs to an expected address before it is submitted.
+address currently delegated by an EOA.
+
+Authorization utilities recover the signer or verify that a signed authorization belongs to an
+expected address before submission.
 
 ## Recipes
 
-These recipes assume you have [set up a Client](/docs) with `publicActions`.
+These recipes assume you have [set up a Client](/docs) with [`publicActions`](/docs/actions/public).
 
 ### Read the Active Delegation
 
@@ -25,9 +27,9 @@ An undefined result means the address has no EIP-7702 delegation at the selected
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const implementation = await client.address.getDelegation({
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-})
+const implementation = await client.address.getDelegation({ // [!code focus]
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -46,10 +48,10 @@ import { Authorization } from 'viem/utils'
 
 declare const authorization: Authorization.Authorization<true>
 
-const valid = Authorization.verify({
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  authorization,
-})
+const valid = Authorization.verify({ // [!code focus]
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  authorization, // [!code focus]
+}) // [!code focus]
 ```
 
 ### Inspect Historical Delegation
@@ -63,7 +65,7 @@ import { client } from './viem.config'
 
 const implementation = await client.address.getDelegation({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  blockNumber: 22_000_000n,
+  blockNumber: 22_000_000n, // [!code focus]
 })
 ```
 

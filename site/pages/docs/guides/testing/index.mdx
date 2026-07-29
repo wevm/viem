@@ -9,10 +9,23 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 [`testActions`](/docs/actions/test) extends a Client with methods for Anvil, Hardhat, or Ganache.
-Tests can fork live networks, impersonate Accounts, manipulate balances and storage, control mining
-and time, snapshot state, and inspect the transaction pool.
+Tests can fork live networks, impersonate Accounts, and manipulate balances or storage.
 
-## See More
+Test Actions can also control mining and time, snapshot state, and inspect the transaction pool.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+await client.block.mine({ blocks: 1 })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/test.config.ts:setup]
+```
+
+:::
 
 <Cards>
   <Card icon="lucide:flask-conical" title="Set Up Anvil & Fork" description="Connect a test Client to Anvil and optionally fork a live network." to="/docs/guides/testing/anvil" />

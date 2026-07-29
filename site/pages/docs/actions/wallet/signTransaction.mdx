@@ -1,20 +1,23 @@
 # signTransaction
 
-Signs a transaction. Alias of [`transaction.sign`](/docs/actions/wallet/transaction/sign).
+## Overview
 
-## Usage
+Signs a transaction. Alias of [`Actions.transaction.sign`](/docs/actions/wallet/transaction/sign).
 
-This example signs a transaction.
+## Recipes
+
+### Sign a Transaction
+
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const signed = await client.signTransaction({
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1n,
-})
+const signed = await client.signTransaction({ // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  value: 1n, // [!code focus]
+}) // [!code focus]
 // @log: '0x02f86b0180843b9aca008502540be400825208...'
 ```
 
@@ -31,9 +34,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.signTransaction`
 
-Call `Actions.signTransaction` directly by passing the Client as the first argument.
+Signs a transaction. Alias of [`Actions.transaction.sign`](/docs/actions/wallet/transaction/sign).
+
+### Usage
+
+Call [`Actions.signTransaction`](#actionssigntransaction) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -61,12 +68,30 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
+
+#### options
+
+- **Type:** `Actions.signTransaction.Options`
+
+The action options.
+
+See [`Actions.transaction.sign`](/docs/actions/wallet/transaction/sign#parameters).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const signed = await Actions.signTransaction(client, { // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  value: 1n, // [!code focus]
+}) // [!code focus]
+```
+
+### Return Value
 
 `Hex`
 
 The signed serialized transaction.
-
-## Parameters
-
-See [`transaction.sign`](/docs/actions/wallet/transaction/sign#parameters).

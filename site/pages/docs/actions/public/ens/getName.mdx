@@ -1,19 +1,23 @@
 # getName
 
+## Overview
+
 Gets the primary ENS name for an address (via the ENS Universal Resolver's `reverseWithGateways`).
 
-## Usage
+## Recipes
 
-This example gets the primary ENS name for an address (via the ENS Universal Resolver's `reverseWithGateways`).
+### Resolve a Primary ENS Name
+
+Gets the primary ENS name for an address (via the ENS Universal Resolver's `reverseWithGateways`).
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const name = await client.ens.getName({
-  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
-})
+const name = await client.ens.getName({ // [!code focus]
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
+}) // [!code focus]
 // @log: 'wevm.eth'
 ```
 
@@ -29,9 +33,41 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Resolve a Historical Name Strictly
 
-Call `Actions.ens.getName` directly by passing the Client as the first argument.
+Set a block number to resolve from historical state. Enable strict mode to surface Universal Resolver failures instead of returning `null`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const name = await client.ens.getName({
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+  blockNumber: 23_085_558n, // [!code focus]
+  strict: true, // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## `Actions.ens.getName`
+
+Gets the primary ENS name for an address (via the ENS Universal Resolver's `reverseWithGateways`).
+
+### Usage
+
+Call [`Actions.ens.getName`](#actionsensgetname) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -57,34 +93,83 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`string | null`
+#### options
 
-The primary ENS name, or `null` when the address has no reverse record.
+- **Type:** `Actions.ens.getName.Options`
 
-## Parameters
+Configure the request with the following options.
 
-### address
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const name = await Actions.ens.getName(client, { // [!code focus]
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
+}) // [!code focus]
+```
+
+##### address
 
 - **Type:** `Address`
 
 The address to reverse-resolve.
 
-### blockNumber
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const name = await Actions.ens.getName(client, {
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
+})
+```
+
+##### blockNumber
 
 - **Type:** `bigint`
 
 Resolves against the state at a given block number.
 
-### blockTag
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const name = await Actions.ens.getName(client, {
+  blockNumber: 23_085_558n, // [!code focus]
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+```
+
+##### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
 
 Resolves against the state at a given block tag.
 
-### coinType
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const name = await Actions.ens.getName(client, {
+  blockTag: 'finalized', // [!code focus]
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+```
+
+##### coinType
 
 - **Type:** `bigint`
 - **Default:** `60n` (ETH)
@@ -104,28 +189,73 @@ const name = await Actions.ens.getName(client, {
 })
 ```
 
-### gatewayUrls
+##### gatewayUrls
 
 - **Type:** `readonly string[]`
 
 Universal Resolver gateway URLs for CCIP-read requests. Defaults to the client-side batch gateway.
 
-### strict
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const name = await Actions.ens.getName(client, {
+  gatewayUrls: ['https://ccip.ens.xyz'], // [!code focus]
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+```
+
+##### strict
 
 - **Type:** `boolean`
 - **Default:** `false`
 
 Whether to throw errors propagated from the Universal Resolver instead of returning `null`.
 
-### universalResolverAddress
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const name = await Actions.ens.getName(client, {
+  strict: true, // [!code focus]
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+```
+
+##### universalResolverAddress
 
 - **Type:** `Address`
 - **Default:** `client.chain.contracts.ensUniversalResolver.address`
 
 Address of the ENS Universal Resolver contract.
 
-## Errors
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const name = await Actions.ens.getName(client, {
+  universalResolverAddress: '0xeeeeeeee14d718c2b47d9923deab1335e144eeee', // [!code focus]
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+```
+
+### Return Value
+
+`string | null`
+
+The primary ENS name, or `null` when the address has no reverse record.
+
+### Errors
 
 | Error | Description |
 | --- | --- |
-| `ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#strict); resolver errors otherwise map to `null`). |
+| `ContractError.ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#strict); resolver errors otherwise map to `null`). |

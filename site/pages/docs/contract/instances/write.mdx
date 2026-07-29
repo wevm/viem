@@ -1,14 +1,28 @@
 ---
-description: Send state-mutating contract transactions through a typed contract instance.
+description: Send contract write transactions through a typed contract instance.
 ---
 
 # contract.write
 
-State-mutating (`nonpayable`/`payable`) contract methods, one per ABI function. Each maps to [`Actions.contract.write`](/docs/actions/wallet/contract/write) with `abi`, `address`, and `functionName` bound, and returns the transaction hash.
+## Overview
 
-The `write` group requires an [Account](/docs/accounts): either on the Client, or passed per call via the `account` option (required on account-less Client types). Calls reject with `Account.NotFoundError` when neither is provided. [`simulate`](/docs/contract/instances/simulate) and [`estimateGas`](/docs/contract/instances/estimateGas) do not require one.
+Use [`contract.write.<name>`](#contractwrite) to send a state-changing contract transaction.
 
-## Usage
+The group contains one method for each write function in the bound ABI.
+
+Each method calls [`Actions.contract.write`](/docs/actions/wallet/contract/write) with the ABI, address, and function name supplied by the contract instance.
+
+Writing requires an [Account](/docs/accounts) on the [Client](/docs/clients) or in the call options. A missing Account throws `Account.NotFoundError`.
+
+The method returns a transaction hash, not a receipt.
+
+Use [`contract.simulate`](/docs/contract/instances/simulate) before sending to detect a likely failure. State can still change before the transaction executes.
+
+## Recipes
+
+### Write with a Bound Account
+
+Set the Client's `account` when every write should use the same sender.
 
 ```ts twoslash
 import { Account, Client, Contract, http } from 'viem'
@@ -23,25 +37,746 @@ const client = Client.create({
 
 const contract = Contract.from({
   abi: Abis.erc20,
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
   client,
 })
 
-const hash = await contract.write.transfer([ // [!code focus]
+const hash = await contract.write.approve([ // [!code focus]
   '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
   1n, // [!code focus]
 ]) // [!code focus]
 // @log: '0x...'
 ```
 
-## Options
+### Provide an Account per Call
 
-Function arguments are passed as the first parameter. The second parameter accepts the options of [`Actions.contract.write`](/docs/actions/wallet/contract/write#parameters) minus the bound `abi`, `address`, `args`, and `functionName`, such as `value` (payable functions only) and transaction-request fields like `nonce` and fees.
+Pass `account` in the call options when the Client has no default Account.
 
-When a function has no inputs, omit the arguments array and pass options as the first parameter.
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
 
-## Return Value
+const account = Account.fromPrivateKey('0x...')
+const client = Client.create({ chain: mainnet, transport: http() })
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
 
-`Promise<Hex>`
+const hash = await contract.write.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  { account }, // [!code focus]
+)
+// @log: '0x...'
+```
+
+### Send Value to a Payable Function
+
+For a payable function without inputs, pass `value` as the only parameter.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi, Value } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+const contract = Contract.from({
+  abi: Abi.from(['function deposit() payable']),
+  address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  client,
+})
+
+const hash = await contract.write.deposit({ // [!code focus]
+  value: Value.fromEther('0.01'), // [!code focus]
+}) // [!code focus]
+// @log: '0x...'
+```
+
+## `contract.write`
+
+Calls a contract write function and returns the transaction hash.
+
+### Usage
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+
+const hash = await contract.write.approve([
+  '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  1n,
+])
+// @log: '0x...'
+```
+
+### Parameters
+
+#### args
+
+- **Type:** Inferred from the ABI function.
+
+The function inputs as a positional tuple. Omit this parameter when the function has no inputs.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const hash = await contract.write.approve([ // [!code focus]
+  '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  1n, // [!code focus]
+]) // [!code focus]
+```
+
+#### options
+
+- **Type:** Inferred from the function and bound Client.
+- **Optional:** when the Client has an Account
+
+Use supported [write options](/docs/actions/wallet/contract/write#parameters) for the sender, chain,
+payable value, and transaction fields. Pass `account` when the Client has no Account.
+
+Pass options second when the function has inputs, or first when it has none.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi, Value } from 'viem/utils'
+
+const account = Account.fromPrivateKey('0x...')
+const client = Client.create({ chain: mainnet, transport: http() })
+const contract = Contract.from({
+  abi: Abi.from(['function deposit() payable']),
+  address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  client,
+})
+// ---cut---
+const hash = await contract.write.deposit({ // [!code focus]
+  account, // [!code focus]
+  value: Value.fromEther('0.01'), // [!code focus]
+}) // [!code focus]
+```
+
+##### accessList
+
+- **Type:** `AccessList`
+- **Optional**
+
+Attaches an EIP-2930 access list to the transaction.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const hash = await contract.write.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    accessList: [ // [!code focus]
+      { // [!code focus]
+        address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
+        storageKeys: [ // [!code focus]
+          '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
+        ], // [!code focus]
+      }, // [!code focus]
+    ], // [!code focus]
+  },
+)
+```
+
+##### account
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Sets the Account or address that sends the transaction. This option is required when the Client has
+no Account.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const account = Account.fromPrivateKey('0x...')
+const client = Client.create({ chain: mainnet, transport: http() })
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const hash = await contract.write.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    account, // [!code focus]
+  },
+)
+```
+
+##### assertChainId
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Checks that the Client's chain matches the connected network before a JSON-RPC Account sends the
+transaction.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  account: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+  chain: mainnet,
+  transport: http(),
+})
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const hash = await contract.write.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    assertChainId: false, // [!code focus]
+  },
+)
+```
+
+##### authorizationList
+
+- **Type:** `AuthorizationList`
+- **Optional**
+
+Attaches a signed EIP-7702 authorization list to the transaction.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const hash = await contract.write.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    authorizationList: [ // [!code focus]
+      { // [!code focus]
+        address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+        chainId: 1, // [!code focus]
+        nonce: 0n, // [!code focus]
+        r: '0x...', // [!code focus]
+        s: '0x...', // [!code focus]
+        yParity: 0, // [!code focus]
+      }, // [!code focus]
+    ], // [!code focus]
+  },
+)
+```
+
+##### blobs
+
+- **Type:** `readonly Hex[]`
+- **Optional**
+
+Attaches EIP-4844 blobs to the transaction. For a Local Account, pass `kzg` to derive the remaining
+blob fields.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis, Kzg } from 'viem/utils'
+
+const kzg = {} as Kzg.Kzg
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const hash = await contract.write.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    blobs: ['0x1234'], // [!code focus]
+    kzg,
+  },
+)
+```
+
+##### blobVersionedHashes
+
+- **Type:** `readonly Hex[]`
+- **Optional**
+
+Attaches EIP-4844 versioned hashes to the transaction.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const hash = await contract.write.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    blobVersionedHashes: [ // [!code focus]
+      '0x0100000000000000000000000000000000000000000000000000000000000000', // [!code focus]
+    ], // [!code focus]
+  },
+)
+```
+
+##### chain
+
+- **Type:** `Chain | null`
+- **Default:** `client.chain`
+
+Sets the target chain. Pass `null` to skip the current-chain assertion.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const hash = await contract.write.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    chain: null, // [!code focus]
+  },
+)
+```
+
+##### dataSuffix
+
+- **Type:** `Hex`
+- **Default:** `client.dataSuffix`
+
+Appends data to the encoded function calldata. This value takes precedence over the Client's
+`dataSuffix`.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const hash = await contract.write.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    dataSuffix: '0xdeadbeef', // [!code focus]
+  },
+)
+```
+
+##### gas
+
+- **Type:** `bigint | number | Hex`
+- **Optional**
+
+Sets the transaction's gas limit. A Local Account estimates the gas limit when this option is
+omitted.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const hash = await contract.write.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    gas: 60_000n, // [!code focus]
+  },
+)
+```
+
+##### gasPrice
+
+- **Type:** `bigint | number | Hex`
+- **Optional**
+
+Sets the legacy gas price in wei. Do not combine this option with EIP-1559 fee options.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const hash = await contract.write.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    gasPrice: 20_000_000_000n, // [!code focus]
+  },
+)
+```
+
+##### kzg
+
+- **Type:** `Kzg`
+- **Optional**
+
+For a Local Account, provides the KZG implementation used to derive EIP-4844 blob fields from
+`blobs`.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis, Kzg } from 'viem/utils'
+
+const kzg = {} as Kzg.Kzg
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const hash = await contract.write.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    blobs: ['0x1234'],
+    kzg, // [!code focus]
+  },
+)
+```
+
+##### maxFeePerBlobGas
+
+- **Type:** `bigint | number | Hex`
+- **Optional**
+
+Sets the maximum blob-gas fee in wei for an EIP-4844 transaction.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const hash = await contract.write.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    maxFeePerBlobGas: 1_000_000_000n, // [!code focus]
+  },
+)
+```
+
+##### maxFeePerGas
+
+- **Type:** `bigint | number | Hex`
+- **Optional**
+
+Sets the maximum total fee per gas in wei for an EIP-1559 transaction.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const hash = await contract.write.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    maxFeePerGas: 20_000_000_000n, // [!code focus]
+  },
+)
+```
+
+##### maxPriorityFeePerGas
+
+- **Type:** `bigint | number | Hex`
+- **Optional**
+
+Sets the maximum priority fee per gas in wei for an EIP-1559 transaction.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const hash = await contract.write.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    maxPriorityFeePerGas: 1_000_000_000n, // [!code focus]
+  },
+)
+```
+
+##### nonce
+
+- **Type:** `bigint | number | Hex`
+- **Optional**
+
+Sets the transaction nonce. A Local Account derives the nonce when this option is omitted.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const hash = await contract.write.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    nonce: 69, // [!code focus]
+  },
+)
+```
+
+##### requestOptions
+
+- **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
+- **Optional**
+
+Passes transport options to the underlying JSON-RPC request.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const controller = new AbortController()
+const hash = await contract.write.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    requestOptions: { signal: controller.signal }, // [!code focus]
+  },
+)
+```
+
+##### type
+
+- **Type:** `string`
+- **Optional**
+
+Forces a transaction type such as `'eip1559'`, `'eip2930'`, or `'legacy'`.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+// ---cut---
+const hash = await contract.write.approve(
+  ['0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 1n],
+  {
+    type: 'eip1559', // [!code focus]
+  },
+)
+```
+
+##### value
+
+- **Type:** `bigint | number | Hex`
+- **Optional:** for payable functions
+
+Sets the native currency value in wei. This option is unavailable for nonpayable functions.
+
+```ts twoslash
+import { Account, Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi, Value } from 'viem/utils'
+
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+const contract = Contract.from({
+  abi: Abi.from(['function deposit() payable']),
+  address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+  client,
+})
+// ---cut---
+const hash = await contract.write.deposit({
+  value: Value.fromEther('0.01'), // [!code focus]
+})
+```
+
+### Return Value
+
+`Promise<Hex.Hex>`
 
 The transaction hash.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Account.NotFoundError` | No Account was configured on the Client or call. |
+| `ContractError.ContractFunctionExecutionError` | The contract function failed. Its cause contains decoded revert details when available. |

@@ -12,6 +12,25 @@ The concrete errors are exported on each `Engine` namespace.
 | [`Engine.UnknownPrimitiveError`](#engineunknownprimitiveerror) | A slot contains an unrecognized primitive name. |
 | [`Engine.UnknownSlotError`](#engineunknownsloterror) | An Engine contains an unrecognized slot name. |
 
+## Recipes
+
+### Handle an Asynchronous Scope
+
+Catch `Engine.AsyncScopeError` when a callback passed to
+[`Engine.with`](/docs/engine/with) returns a Promise.
+
+```ts twoslash
+import { Engine } from 'viem'
+
+try {
+  Engine.with({}, async () => {})
+} catch (error) {
+  if (error instanceof Engine.AsyncScopeError) { // [!code focus]
+    console.error('The Engine scope must be synchronous.') // [!code focus]
+  } // [!code focus]
+}
+```
+
 ## `Engine.AsyncScopeError`
 
 Thrown when [`Engine.with`](/docs/engine/with) receives an asynchronous function. Initialize an

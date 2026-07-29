@@ -2,7 +2,11 @@
 
 ## Overview
 
-Use [`Client.create`](/docs/clients) to compose a [Transport](/docs/transports) with an optional [Chain](/docs/chains) and [Account](/docs/accounts) into a [Client](/docs/clients). The transport is the only required option. The returned client preserves the literal types of its chain, account, and transport, and carries a chainable [`.extend()`](#extending-a-client) for attaching Actions.
+Use [`Client.create`](/docs/clients/create) to combine a [Transport](/docs/transports) with an optional
+[Chain](/docs/chains) and [Account](/docs/accounts). The Transport is the only required option.
+
+The returned [Client](/docs/clients) preserves the literal types of its Chain, Account, and
+Transport. Use [`.extend()`](#extending-a-client) to attach Actions.
 
 ```ts twoslash
 import { Client, http } from 'viem'
@@ -34,7 +38,7 @@ const client = Client.create({
 const fees = await Actions.fee.estimateFeesPerGas(client)
 ```
 
-### Extend Client with Actions
+### Extend a Client with Actions
 
 Attach a group of Actions to the client as methods with [`.extend()`](#extending-a-client). Pass a decorator such as [`publicActions`](/docs/actions/public) to add every action in that group.
 
@@ -94,7 +98,8 @@ const balance = await client.token.getBalance({
 
 ### Aggregating Calls with Multicall
 
-Enable `batch.multicall` when multiple compatible contract reads should be aggregated into a single multicall request. This reduces RPC round trips when actions support batching.
+Enable `batch.multicall` when compatible contract reads should be aggregated into multicall
+requests. Use an options object to control the batch.
 
 ```ts twoslash
 import { Client, http } from 'viem'
@@ -103,11 +108,21 @@ import { mainnet } from 'viem/chains'
 const client = Client.create({
   chain: mainnet,
   transport: http(),
-  batch: { multicall: true }, // [!code focus]
+  batch: { // [!code focus]
+    multicall: { // [!code focus]
+      batchSize: 1_024, // [!code focus]
+      deployless: true, // [!code focus]
+      wait: 10, // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
 })
 ```
 
-Concurrent `call` actions (e.g. fired together with `Promise.all`) within the same event loop tick are automatically coalesced into a single `multicall` request:
+`batchSize` limits calldata bytes per chunk. `deployless` uses Multicall3 bytecode without a
+deployment. `wait` delays the request in milliseconds to collect calls.
+
+Concurrent [`call` Actions](/docs/actions/public/call) in the same event loop tick are combined into
+one Multicall3 request. For example, you can start them together with `Promise.all`:
 
 ```ts twoslash
 import { Client, http, publicActions } from 'viem'
@@ -138,7 +153,9 @@ const [name, symbol] = await Promise.all([ // [!code focus]
 
 ### Setting a Default Block Tag
 
-Set `blockTag` to choose the default block context for reads that do not pass their own block selector. Use this to consistently target `latest`, `safe`, `finalized`, or another supported tag.
+Set `blockTag` to choose the default block context for reads without their own block selector.
+
+Use this option to consistently target `latest`, `safe`, `finalized`, or another supported tag.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -206,6 +223,22 @@ const client = Client.create({
 const { data } = await Actions.call(client, {
   data: '0x06fdde03',
   to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+Pass a `request` function to replace the default CCIP gateway policy.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { CcipRead } from 'viem/utils'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+  ccipRead: { // [!code focus]
+    request: CcipRead.request, // [!code focus]
+  }, // [!code focus]
 })
 ```
 
@@ -280,7 +313,10 @@ const result = await client.request({ method: 'abe_foo', params: [42] })
 
 ### Extending a Client
 
-`.extend()` returns a new client with the bag returned by the function merged in. Extensions may add keys, but not redefine the base client keys. It is chainable, so you can layer extensions.
+`.extend()` merges the function's returned properties into a new Client. Extensions can add
+properties but cannot redefine base Client properties.
+
+Call `.extend()` again to add another extension.
 
 ```ts twoslash
 import { Client, http } from 'viem'
@@ -325,7 +361,8 @@ const client = Client.create({
 - **Type:** `Account | Address`
 - **Optional**
 
-The Account (or address) that Actions requiring an Account default to. An address string is coerced to a [JSON-RPC Account](/docs/accounts/json-rpc).
+The default Account for Actions that require one. Viem converts an address string to a
+[JSON-RPC Account](/docs/accounts/json-rpc).
 
 ```ts twoslash
 import { Client, http } from 'viem'
@@ -340,10 +377,14 @@ const client = Client.create({
 
 ##### batch
 
-- **Type:** `{ multicall?: boolean | MulticallOptions }`
+- **Type:** `{ multicall?: boolean | { batchSize?: number; deployless?: boolean; wait?: number } }`
 - **Optional**
 
-`eth_call` multicall aggregation flags.
+Configures `eth_call` multicall aggregation. `batchSize` limits calldata bytes per chunk and defaults
+to `1_024`.
+
+`deployless` forces a bytecode call and defaults to `false`. `wait` delays a batch in milliseconds
+and defaults to `0`.
 
 ```ts twoslash
 import { Client, http } from 'viem'
@@ -352,7 +393,13 @@ import { mainnet } from 'viem/chains'
 const client = Client.create({
   chain: mainnet,
   transport: http('https://eth.merkle.io'),
-  batch: { multicall: true }, // [!code focus]
+  batch: { // [!code focus]
+    multicall: { // [!code focus]
+      batchSize: 1_024, // [!code focus]
+      deployless: true, // [!code focus]
+      wait: 10, // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
 })
 ```
 
@@ -402,11 +449,14 @@ const client = Client.create({
 ```ts twoslash
 import { Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { CcipRead } from 'viem/utils'
 // ---cut---
 const client = Client.create({
   chain: mainnet,
   transport: http('https://eth.merkle.io'),
-  ccipRead: false, // [!code focus]
+  ccipRead: { // [!code focus]
+    request: CcipRead.request, // [!code focus]
+  }, // [!code focus]
 })
 ```
 
@@ -623,11 +673,11 @@ const client = Client.create({
 
 `Client`
 
-The client, with the literal types of its chain, account, transport, and schema preserved, plus a chainable [`.extend()`](#extending-a-client).
+The Client with its Chain, Account, Transport, and schema literal types preserved. The Client also
+includes [`.extend()`](#extending-a-client).
 
 ### Errors
 
 | Error | Description |
 | --- | --- |
-| `Account.InvalidAddressError` | The `account` was an address string that failed validation. |
-| `Errors.GlobalErrorType` | An unexpected error occurred. |
+| `Address.InvalidAddressError` | The `account` was an address string that failed validation. |

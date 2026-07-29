@@ -1,17 +1,20 @@
 # getAutomine
 
+## Overview
+
 Returns the automatic mining status of the node.
 
-## Usage
+## Recipes
 
-This example returns the automatic mining status of the node.
+### Get Automine Status
+
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const result = await client.block.getAutomine()
+const result = await client.block.getAutomine() // [!code focus]
 // @log: false
 ```
 
@@ -27,9 +30,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.block.getAutomine`
 
-Call `Actions.block.getAutomine` directly by passing the Client as the first argument.
+Returns the automatic mining status of the node.
+
+### Usage
+
+Call [`Actions.block.getAutomine`](#actionsblockgetautomine) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -53,15 +60,15 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`boolean`
+#### options
 
-Whether automatic mining is enabled.
+- **Type:** `Actions.block.getAutomine.Options`
 
-## Parameters
+The action options.
 
-### mode
+##### mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`
@@ -81,3 +88,9 @@ const result = await Actions.block.getAutomine(client, {
   mode: 'hardhat', // [!code focus]
 })
 ```
+
+### Return Value
+
+`boolean`
+
+Whether automatic mining is enabled.

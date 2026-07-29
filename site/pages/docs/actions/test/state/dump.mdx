@@ -1,17 +1,20 @@
 # dump
 
-Serializes the current state (contract code, contract storage, account properties, etc.) into a savable data blob.
+## Overview
 
-## Usage
+Serializes contract code, storage, and account properties into a state data blob.
 
-This example serializes the current state (contract code, contract storage, account properties, etc.) into a savable data blob.
+## Recipes
+
+### Dump Node State
+
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const result = await client.state.dump()
+const result = await client.state.dump() // [!code focus]
 // @log: '0x1f8b08000000000000ff...'
 ```
 
@@ -27,9 +30,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.state.dump`
 
-Call `Actions.state.dump` directly by passing the Client as the first argument.
+Serializes contract code, storage, and account properties into a state data blob.
+
+### Usage
+
+Call [`Actions.state.dump`](#actionsstatedump) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -53,15 +60,15 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`Hex`
+#### options
 
-The serialized state, ready to be passed to `load`.
+- **Type:** `Actions.state.dump.Options`
 
-## Parameters
+The action options.
 
-### mode
+##### mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`
@@ -81,3 +88,9 @@ const result = await Actions.state.dump(client, {
   mode: 'hardhat', // [!code focus]
 })
 ```
+
+### Return Value
+
+`Hex`
+
+The serialized state, ready to be passed to `load`.

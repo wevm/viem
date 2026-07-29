@@ -26,7 +26,7 @@ operation, and assert its result.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const blockNumber = await client.block.getNumber()
+const blockNumber = await client.block.getNumber() // [!code focus]
 // @log: 0n
 ```
 
@@ -61,10 +61,10 @@ RPC URL and block without restarting Anvil.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.state.reset({
-  blockNumber: 20_000_000n,
-  jsonRpcUrl: 'https://eth.merkle.io',
-})
+await client.state.reset({ // [!code focus]
+  blockNumber: 20_000_000n, // [!code focus]
+  jsonRpcUrl: 'https://eth.merkle.io', // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

@@ -14,7 +14,8 @@ ABI.
 
 ## Recipes
 
-These recipes focus on type flow. Runtime behavior still comes from the referenced Action.
+These recipes focus on type flow. Runtime behavior still comes from the referenced
+[Action](/docs/actions).
 
 ### Reuse Action Types
 
@@ -29,8 +30,8 @@ import { client } from './viem.config'
 
 function getBalance(
   client: Client.Client,
-  options: Actions.address.getBalance.Options,
-): Promise<Actions.address.getBalance.ReturnType> {
+  options: Actions.address.getBalance.Options, // [!code focus]
+): Promise<Actions.address.getBalance.ReturnType> { // [!code focus]
   return Actions.address.getBalance(client, options)
 }
 
@@ -64,10 +65,10 @@ import { Actions, Chain, type Client } from 'viem'
 import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
-function sendAndWait<chain extends Chain.Chain | undefined>(
-  client: Client.Client<chain>,
-  options: Actions.transaction.sendSync.Options<chain>,
-): Promise<Actions.transaction.sendSync.ReturnType<chain>> {
+function sendAndWait<chain extends Chain.Chain | undefined>( // [!code focus]
+  client: Client.Client<chain>, // [!code focus]
+  options: Actions.transaction.sendSync.Options<chain>, // [!code focus]
+): Promise<Actions.transaction.sendSync.ReturnType<chain>> { // [!code focus]
   return Actions.transaction.sendSync(client, options)
 }
 
@@ -95,13 +96,13 @@ import { Contract, type Client } from 'viem'
 import { Abis, Address } from 'viem/utils'
 import { client } from './viem.config'
 
-function bindContract<
-  const abi extends readonly unknown[],
-  const address extends Address.Address,
-  const client extends Client.Client,
->(options: { abi: abi; address: address; client: client }) {
-  return Contract.from(options)
-}
+function bindContract< // [!code focus]
+  const abi extends readonly unknown[], // [!code focus]
+  const address extends Address.Address, // [!code focus]
+  const client extends Client.Client, // [!code focus]
+>(options: { abi: abi; address: address; client: client }) { // [!code focus]
+  return Contract.from(options) // [!code focus]
+} // [!code focus]
 
 const token = bindContract({
   abi: Abis.erc20,

@@ -1,23 +1,27 @@
 # sendRawSync
 
+## Overview
+
 Sends a **signed** serialized transaction to the network synchronously (`eth_sendRawTransactionSync`), and returns the transaction receipt.
 
-## Usage
+## Recipes
 
-This example sends a **signed** serialized transaction to the network synchronously (`eth_sendRawTransactionSync`), and returns the transaction receipt.
+### Reject a Reverted Receipt
+
+Set `throwOnReceiptRevert` when a reverted receipt must reject instead of returning normally.
 
 :::code-group
 
 ```ts twoslash [example.ts]
+import { Hex } from 'viem/utils'
 import { client } from './viem.config'
 
-const receipt = await client.transaction.sendRawSync({
-  transaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33',
-})
-// @log: {
-// @log:   status: 'success',
-// @log:   transactionHash: '0x...',
-// @log: }
+export function sendChecked(transaction: Hex.Hex) {
+  return client.transaction.sendRawSync({
+    throwOnReceiptRevert: true, // [!code focus]
+    transaction,
+  })
+}
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -32,9 +36,48 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Cancel or Time Out the Request
 
-Call `Actions.transaction.sendRawSync` directly by passing the Client as the first argument.
+Pass an abort signal to cancel the transport request. The `timeout` value limits how long the node
+waits before returning from `eth_sendRawTransactionSync`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Hex } from 'viem/utils'
+import { client } from './viem.config'
+
+export function sendWithinDeadline(
+  transaction: Hex.Hex,
+  signal: AbortSignal,
+) {
+  return client.transaction.sendRawSync({
+    requestOptions: { signal }, // [!code focus]
+    timeout: 30_000, // [!code focus]
+    transaction,
+  })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+## `Actions.transaction.sendRawSync`
+
+Sends a **signed** serialized transaction to the network synchronously (`eth_sendRawTransactionSync`), and returns the transaction receipt.
+
+### Usage
+
+Call [`Actions.transaction.sendRawSync`](#actionstransactionsendrawsync) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -63,41 +106,85 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`TransactionReceipt`
+#### options
 
-The transaction receipt.
+- **Type:** `Actions.transaction.sendRawSync.Options`
 
-## Parameters
+The action options.
 
-### requestOptions
+##### requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
 Per-request transport options forwarded to the `eth_sendRawTransactionSync` request.
 
-### throwOnReceiptRevert
+```ts twoslash
+import { Actions } from 'viem'
+// [!include ~/snippets/docs/reference-client.ts:setup]
+// ---cut---
+const receipt = await Actions.transaction.sendRawSync(client, {
+  requestOptions: { signal: AbortSignal.timeout(5_000) }, // [!code focus]
+  transaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33',
+})
+```
+
+##### throwOnReceiptRevert
 
 - **Type:** `boolean`
 
 Whether to throw if the returned receipt status is `reverted`.
 
-### timeout
+```ts twoslash
+import { Actions } from 'viem'
+// [!include ~/snippets/docs/reference-client.ts:setup]
+// ---cut---
+const receipt = await Actions.transaction.sendRawSync(client, {
+  throwOnReceiptRevert: true, // [!code focus]
+  transaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33',
+})
+```
+
+##### timeout
 
 - **Type:** `number`
 
 Timeout, in milliseconds, for the sync RPC response.
 
-### transaction
+```ts twoslash
+import { Actions } from 'viem'
+// [!include ~/snippets/docs/reference-client.ts:setup]
+// ---cut---
+const receipt = await Actions.transaction.sendRawSync(client, {
+  timeout: 60_000, // [!code focus]
+  transaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33',
+})
+```
+
+##### transaction
 
 - **Type:** `Hex`
 
 The signed serialized transaction.
 
-## Errors
+```ts twoslash
+import { Actions } from 'viem'
+// [!include ~/snippets/docs/reference-client.ts:setup]
+// ---cut---
+const receipt = await Actions.transaction.sendRawSync(client, {
+  transaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33', // [!code focus]
+})
+```
+
+### Return Value
+
+`TransactionReceipt`
+
+The transaction receipt.
+
+### Errors
 
 | Error | Description |
 | --- | --- |
-| `RpcResponse.BaseError` | The node rejected the transaction. |
-| `TransactionReceipt.RevertedError` | The transaction receipt status was `reverted` and `throwOnReceiptRevert` was enabled. |
+| `Actions.transaction.Errors.TransactionReceiptRevertedError` | The transaction receipt status was `reverted` and `throwOnReceiptRevert` was enabled. |

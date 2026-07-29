@@ -9,8 +9,10 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 [`wallet.sendCalls`](/docs/actions/wallet/sendCalls) asks a connected wallet to submit several calls
-through EIP-5792. The wallet decides how the calls are represented onchain. Use capability discovery
-before depending on atomicity, sponsorship, or other wallet-specific behavior.
+through EIP-5792. The wallet decides how the calls are represented onchain.
+
+Use capability discovery before depending on atomicity, sponsorship, or other wallet-specific
+behavior.
 
 ## Recipes
 
@@ -26,19 +28,19 @@ Calls can contain native value, raw calldata, or ABI-backed contract parameters.
 import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
-const { id } = await client.wallet.sendCalls({
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  calls: [
-    {
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-      value: Value.fromEther('1'),
-    },
-    {
-      data: '0xdeadbeef',
-      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-    },
-  ],
-})
+const { id } = await client.wallet.sendCalls({ // [!code focus]
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  calls: [ // [!code focus]
+    { // [!code focus]
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+      value: Value.fromEther('1'), // [!code focus]
+    }, // [!code focus]
+    { // [!code focus]
+      data: '0xdeadbeef', // [!code focus]
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -58,16 +60,16 @@ wallet reports a terminal status.
 import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
-const status = await client.wallet.sendCallsSync({
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  calls: [
-    {
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-      value: Value.fromEther('1'),
-    },
-  ],
-  throwOnFailure: true,
-})
+const status = await client.wallet.sendCallsSync({ // [!code focus]
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  calls: [ // [!code focus]
+    { // [!code focus]
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+      value: Value.fromEther('1'), // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+  throwOnFailure: true, // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -87,7 +89,7 @@ submission and tracking happen in different components.
 import { client } from './viem.config'
 
 const status = await client.wallet.waitForCallsStatus({
-  id: '0xdeadbeef',
+  id: '0xdeadbeef', // [!code focus]
 })
 ```
 

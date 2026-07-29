@@ -1,12 +1,18 @@
 # prepareAuthorization
 
-Prepares an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) Authorization object for signing. Fills the required fields of the Authorization object if they are not provided (e.g. `nonce` and `chainId`).
+## Overview
 
-With the prepared Authorization object, you can use [`signAuthorization`](/docs/actions/wallet/signAuthorization) to sign over it.
+Prepares an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) Authorization object for signing.
+Fills required fields such as `nonce` and `chainId` when you omit them.
 
-## Usage
+With the prepared Authorization object, you can use [`Actions.wallet.signAuthorization`](/docs/actions/wallet/signAuthorization) to sign over it.
 
-This example prepares an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) Authorization object for signing.
+## Recipes
+
+### Prepare for Self-Execution
+
+Pass `executor: 'self'` when the signing account will also submit the EIP-7702 transaction. Viem
+increments the pending account nonce for the execution transaction.
 
 :::code-group
 
@@ -15,8 +21,8 @@ import { client } from './viem.config'
 
 const authorization = await client.wallet.prepareAuthorization({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  executor: 'self', // [!code focus]
 })
-// @log: { address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', chainId: 1, nonce: 664n }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -32,9 +38,48 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Prepare for a Known Nonce
 
-Call `Actions.wallet.prepareAuthorization` directly by passing the Client as the first argument.
+Pass the signing account and nonce when another workflow has already reserved the Authorization
+nonce. Viem then skips the nonce lookup.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Address } from 'viem/utils'
+import { client } from './viem.config'
+
+export function prepareAtNonce(
+  account: Address.Address,
+  nonce: bigint,
+) {
+  return client.wallet.prepareAuthorization({
+    account, // [!code focus]
+    address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    nonce, // [!code focus]
+  })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+## `Actions.wallet.prepareAuthorization`
+
+Prepares an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) Authorization object for signing.
+
+### Usage
+
+Call [`Actions.wallet.prepareAuthorization`](#actionswalletprepareauthorization) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -61,15 +106,15 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`Authorization`
+#### options
 
-The prepared (unsigned) Authorization object.
+- **Type:** `Actions.wallet.prepareAuthorization.Options`
 
-## Parameters
+The action options.
 
-### account
+##### account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -78,7 +123,7 @@ Account (or address) signing the Authorization.
 
 ```ts twoslash
 import { Account, Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const authorization = await Actions.wallet.prepareAuthorization(client, {
   account: Account.fromPrivateKey('0x…'), // [!code focus]
@@ -86,7 +131,7 @@ const authorization = await Actions.wallet.prepareAuthorization(client, {
 })
 ```
 
-### address
+##### address
 
 - **Type:** `Address`
 
@@ -94,14 +139,14 @@ Address of the contract to delegate to.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const authorization = await Actions.wallet.prepareAuthorization(client, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
 })
 ```
 
-### chainId
+##### chainId
 
 - **Type:** `number`
 - **Default:** `client.chain.id`
@@ -110,7 +155,7 @@ Chain ID to scope the Authorization to.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const authorization = await Actions.wallet.prepareAuthorization(client, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
@@ -118,15 +163,18 @@ const authorization = await Actions.wallet.prepareAuthorization(client, {
 })
 ```
 
-### executor
+##### executor
 
 - **Type:** `'self' | Account | Address`
 
-Whether the EIP-7702 Transaction will be executed by the EOA (signing this Authorization) or another Account. Pass `'self'` when the signing EOA also submits the Transaction so the nonce is incremented accordingly.
+Whether the signing EOA or another Account will execute the EIP-7702 transaction.
+
+Pass `'self'` when the signing EOA also submits the transaction.
+Viem then increments the nonce for the execution transaction.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const authorization = await Actions.wallet.prepareAuthorization(client, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
@@ -134,7 +182,7 @@ const authorization = await Actions.wallet.prepareAuthorization(client, {
 })
 ```
 
-### nonce
+##### nonce
 
 - **Type:** `bigint`
 - **Default:** account nonce
@@ -143,7 +191,7 @@ Nonce of the Authorization.
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const authorization = await Actions.wallet.prepareAuthorization(client, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
@@ -151,7 +199,13 @@ const authorization = await Actions.wallet.prepareAuthorization(client, {
 })
 ```
 
-## Errors
+### Return Value
+
+`Authorization`
+
+The prepared (unsigned) Authorization object.
+
+### Errors
 
 | Error | Description |
 | --- | --- |

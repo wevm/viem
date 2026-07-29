@@ -12,7 +12,19 @@ Block Actions expose canonical chain history and new block notifications. Event 
 query logs, subscribe to matching events, and consume node-managed filters for applications that
 need incremental updates.
 
-## See More
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const block = await client.block.get({ blockTag: 'finalized' })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
 
 <Cards>
   <Card icon="lucide:box" title="Read & Inspect Blocks" description="Read blocks, receipts, and transaction counts at a selected height." to="/docs/guides/blocks-events/read" />

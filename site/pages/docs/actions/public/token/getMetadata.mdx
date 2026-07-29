@@ -1,19 +1,25 @@
 # getMetadata
 
-Gets the metadata (`decimals`, `name`, `symbol`, `totalSupply`) of an ERC-20 token. Declared fields are used as-is; the total supply and missing fields are fetched from the contract.
+## Overview
 
-## Usage
+Gets an ERC-20 token's declared metadata and fetches `totalSupply` plus any missing fields from the
+contract.
 
-This example gets the metadata (`decimals`, `name`, `symbol`, `totalSupply`) of an ERC-20 token.
+## Recipes
+
+### Read Token Metadata
+
+Gets an ERC-20 token's declared metadata and fetches `totalSupply` plus any missing fields from the
+contract.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const metadata = await client.token.getMetadata({
-  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-})
+const metadata = await client.token.getMetadata({ // [!code focus]
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
+}) // [!code focus]
 // @log: {
 //   decimals: 6,
 //   name: 'USD Coin',
@@ -36,9 +42,41 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Read Historical Token Metadata
 
-Call `Actions.token.getMetadata` directly by passing the Client as the first argument.
+Use an undeclared token address with `blockNumber` to fetch every metadata field from historical contract state.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const metadata = await client.token.getMetadata({
+  blockNumber: 20_000_000n, // [!code focus]
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## `Actions.token.getMetadata`
+
+Gets an ERC-20 token's declared metadata and fetches `totalSupply` plus any missing fields from the
+contract.
+
+### Usage
+
+Call [`Actions.token.getMetadata`](#actionstokengetmetadata) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -71,15 +109,27 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`{ decimals: number; name: string; symbol: string; totalSupply: bigint }`
+#### options
 
-The token metadata.
+- **Type:** `Actions.token.getMetadata.Options`
 
-## Parameters
+Configure the request with the following options.
 
-### blockNumber
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const metadata = await Actions.token.getMetadata(client, { // [!code focus]
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
+  blockNumber: 42069n, // [!code focus]
+}) // [!code focus]
+```
+
+##### blockNumber
 
 - **Type:** `bigint`
 
@@ -97,7 +147,25 @@ const metadata = await Actions.token.getMetadata(client, {
 })
 ```
 
-### blockTag
+##### blockOverrides
+
+- **Type:** `BlockOverrides`
+
+Overrides block fields for the contract reads without changing chain state.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const metadata = await Actions.token.getMetadata(client, {
+  blockOverrides: { number: 42069n }, // [!code focus]
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+##### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -116,11 +184,33 @@ const metadata = await Actions.token.getMetadata(client, {
 })
 ```
 
-### token
+##### stateOverride
+
+- **Type:** `StateOverrides`
+
+Overrides account state for the contract reads without changing chain state.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const metadata = await Actions.token.getMetadata(client, {
+  stateOverride: { // [!code focus]
+    '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48': { balance: 1n }, // [!code focus]
+  }, // [!code focus]
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+##### token
 
 - **Type:** `Address | string`
 
-The token to read: a contract `address`, or a symbol declared on the client's [`tokens`](/docs/clients/create) array. Declared name, symbol, and decimals are reused; total supply is read from the contract.
+The token to read: a contract `address`, or a symbol declared on the client's [`tokens`](/docs/clients/create) array.
+
+Declared name, symbol, and decimals are reused. Total supply is read from the contract.
 
 ```ts twoslash
 // @noErrors
@@ -139,7 +229,13 @@ const metadata = await client.token.getMetadata({
 })
 ```
 
-## Errors
+### Return Value
+
+`{ decimals: number; name: string; symbol: string; totalSupply: bigint }`
+
+The token metadata.
+
+### Errors
 
 | Error | Description |
 | --- | --- |

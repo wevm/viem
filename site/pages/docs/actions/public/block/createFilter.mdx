@@ -1,19 +1,23 @@
 # createFilter
 
+## Overview
+
 Creates a filter to listen for new block hashes.
 
 Poll the filter with [`Actions.filter.getChanges`](/docs/actions/public/filter/getChanges) and tear it down with [`Actions.filter.uninstall`](/docs/actions/public/filter/uninstall).
 
-## Usage
+## Recipes
 
-This example creates a filter to listen for new block hashes.
+### Create a Block Filter
+
+Creates a filter to listen for new block hashes.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const filter = await client.block.createFilter()
+const filter = await client.block.createFilter() // [!code focus]
 // @log: { id: '0x345a6572337856574a76364e457a4366', request: ƒ, type: 'block' }
 ```
 
@@ -29,9 +33,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.block.createFilter`
 
-Call `Actions.block.createFilter` directly by passing the Client as the first argument.
+Creates a filter to listen for new block hashes.
+
+### Usage
+
+Call [`Actions.block.createFilter`](#actionsblockcreatefilter) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -55,8 +63,8 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Return Value
 
 `Actions.filter.Filter<'block'>`
 
-A block filter. Its `request` function is scoped to the transport that created the filter id.
+A block filter. Its `request` function uses the transport that created the filter ID.

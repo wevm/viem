@@ -1,19 +1,23 @@
 # getRaw
 
+## Overview
+
 Returns the raw, serialized transaction for a given transaction hash.
 
-## Usage
+## Recipes
 
-This example returns the raw, serialized transaction for a given transaction hash.
+### Get a Raw Transaction
+
+Returns the raw, serialized transaction for a given transaction hash.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const rawTransaction = await client.transaction.getRaw({
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
-})
+const rawTransaction = await client.transaction.getRaw({ // [!code focus]
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus]
+}) // [!code focus]
 // @log: '0x02f8d4018307d45c843b9aca0085070e98ce8383…'
 ```
 
@@ -29,9 +33,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.transaction.getRaw`
 
-Call `Actions.transaction.getRaw` directly by passing the Client as the first argument.
+Returns the raw, serialized transaction for a given transaction hash.
+
+### Usage
+
+Call [`Actions.transaction.getRaw`](#actionstransactiongetraw) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -57,15 +65,26 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`Hex`
+#### options
 
-The raw, serialized transaction.
+- **Type:** `Actions.transaction.getRaw.Options`
 
-## Parameters
+Configure the request with the following options.
 
-### hash
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const rawTransaction = await Actions.transaction.getRaw(client, { // [!code focus]
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus]
+}) // [!code focus]
+```
+
+##### hash
 
 - **Type:** `Hex`
 
@@ -82,8 +101,14 @@ const rawTransaction = await Actions.transaction.getRaw(client, {
 })
 ```
 
-## Errors
+### Return Value
+
+`Hex`
+
+The raw, serialized transaction.
+
+### Errors
 
 | Error | Description |
 | --- | --- |
-| `Transaction.NotFoundError` | The transaction could not be found. |
+| `Actions.transaction.Errors.TransactionNotFoundError` | The transaction could not be found. |

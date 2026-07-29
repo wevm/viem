@@ -24,19 +24,19 @@ Use [`Chain.from`](/docs/chains/create) with a literal ID, native currency, and 
 ```ts twoslash
 import { Chain } from 'viem'
 
-export const appChain = Chain.from({
-  id: 4_242,
-  name: 'App Chain',
-  nativeCurrency: {
-    decimals: 18,
-    name: 'App Ether',
-    symbol: 'AETH',
-  },
-  rpcUrls: {
-    http: 'https://rpc.app-chain.example',
-    ws: 'wss://rpc.app-chain.example',
-  },
-})
+export const appChain = Chain.from({ // [!code focus]
+  id: 4_242, // [!code focus]
+  name: 'App Chain', // [!code focus]
+  nativeCurrency: { // [!code focus]
+    decimals: 18, // [!code focus]
+    name: 'App Ether', // [!code focus]
+    symbol: 'AETH', // [!code focus]
+  }, // [!code focus]
+  rpcUrls: { // [!code focus]
+    http: 'https://rpc.app-chain.example', // [!code focus]
+    ws: 'wss://rpc.app-chain.example', // [!code focus]
+  }, // [!code focus]
+}) // [!code focus]
 ```
 
 ### Derive an Environment
@@ -47,10 +47,10 @@ the base Chain definition.
 ```ts twoslash
 import { mainnet } from 'viem/chains'
 
-export const staging = mainnet.extend({
-  name: 'Mainnet Staging Fork',
-  rpcUrls: { http: 'https://staging-rpc.example' },
-})
+export const staging = mainnet.extend({ // [!code focus]
+  name: 'Mainnet Staging Fork', // [!code focus]
+  rpcUrls: { http: 'https://staging-rpc.example' }, // [!code focus]
+}) // [!code focus]
 ```
 
 ### Build a Transport
@@ -67,28 +67,28 @@ function instrumented(
   transport: Transport.Transport,
   onResponse: (options: { duration: number; method: string }) => void,
 ) {
-  return Transport.from({
-    key: 'instrumented',
-    name: 'Instrumented',
-    type: 'instrumented',
-    setup(options) {
-      const inner = transport.setup({ ...options, retryCount: 0 })
-      return {
-        retryCount: options.retryCount,
-        async request(args, requestOptions) {
-          const start = performance.now()
-          try {
-            return await inner.request(args, requestOptions)
-          } finally {
-            onResponse({
-              duration: performance.now() - start,
-              method: args.method,
-            })
-          }
-        },
-      }
-    },
-  })
+  return Transport.from({ // [!code focus]
+    key: 'instrumented', // [!code focus]
+    name: 'Instrumented', // [!code focus]
+    type: 'instrumented', // [!code focus]
+    setup(options) { // [!code focus]
+      const inner = transport.setup({ ...options, retryCount: 0 }) // [!code focus]
+      return { // [!code focus]
+        retryCount: options.retryCount, // [!code focus]
+        async request(args, requestOptions) { // [!code focus]
+          const start = performance.now() // [!code focus]
+          try { // [!code focus]
+            return await inner.request(args, requestOptions) // [!code focus]
+          } finally { // [!code focus]
+            onResponse({ // [!code focus]
+              duration: performance.now() - start, // [!code focus]
+              method: args.method, // [!code focus]
+            }) // [!code focus]
+          } // [!code focus]
+        }, // [!code focus]
+      } // [!code focus]
+    }, // [!code focus]
+  }) // [!code focus]
 }
 
 const client = Client.create({

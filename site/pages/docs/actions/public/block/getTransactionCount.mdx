@@ -1,17 +1,21 @@
 # getTransactionCount
 
+## Overview
+
 Returns the number of transactions at a block number, hash, or tag.
 
-## Usage
+## Recipes
 
-This example returns the number of transactions at a block number, hash, or tag.
+### Count Block Transactions
+
+Returns the number of transactions at a block number, hash, or tag.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const count = await client.block.getTransactionCount()
+const count = await client.block.getTransactionCount() // [!code focus]
 // @log: 123
 ```
 
@@ -27,9 +31,49 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Count Transactions by Block Hash
 
-Call `Actions.block.getTransactionCount` directly by passing the Client as the first argument.
+Pass `blockHash` when the exact block hash is already known.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const count = await client.block.getTransactionCount({
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d', // [!code focus]
+})
+```
+
+### Count Transactions at a Block Number
+
+Pass `blockNumber` to count transactions in a historical block.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const count = await client.block.getTransactionCount({
+  blockNumber: 19_868_020n, // [!code focus]
+})
+```
+
+## `Actions.block.getTransactionCount`
+
+Returns the number of transactions at a block number, hash, or tag.
+
+### Usage
+
+Call [`Actions.block.getTransactionCount`](#actionsblockgettransactioncount) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -53,15 +97,26 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`number`
+#### options
 
-The number of transactions in the block.
+- **Type:** `Actions.block.getTransactionCount.Options`
 
-## Parameters
+Configure the request with the following options.
 
-### blockHash
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const count = await Actions.block.getTransactionCount(client, { // [!code focus]
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d', // [!code focus]
+}) // [!code focus]
+```
+
+##### blockHash
 
 - **Type:** `Hex`
 
@@ -78,7 +133,7 @@ const count = await Actions.block.getTransactionCount(client, {
 })
 ```
 
-### blockNumber
+##### blockNumber
 
 - **Type:** `bigint`
 
@@ -95,7 +150,7 @@ const count = await Actions.block.getTransactionCount(client, {
 })
 ```
 
-### blockTag
+##### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -112,3 +167,9 @@ const count = await Actions.block.getTransactionCount(client, {
   blockTag: 'safe', // [!code focus]
 })
 ```
+
+### Return Value
+
+`number`
+
+The number of transactions in the block.

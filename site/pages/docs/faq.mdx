@@ -7,9 +7,10 @@ description: Answers to common questions about Viem's v3 API design and migratio
 ## Why Does Viem Use Module Namespaces?
 
 Module namespaces keep runtime functions, types, and errors beside the concept that owns them. For
-example, [`Actions.transaction`](/docs/actions) groups Actions for estimating, preparing, signing,
-sending, retrieving, and watching transactions, with related errors under
-`Actions.transaction.Errors`.
+example, [`Actions.transaction`](/docs/actions) groups transaction Actions and their related errors.
+
+The namespace includes Actions for estimating, preparing, signing, sending, retrieving, and
+watching transactions.
 
 ```ts twoslash
 // @noErrors
@@ -20,8 +21,10 @@ Actions.transaction.
 ```
 
 The same pattern applies to [Accounts](/docs/accounts), [Clients](/docs/clients), and the Ox-backed
-utilities exported from `viem/utils`. This structure avoids collisions between similarly named APIs
-and makes the package easier to explore through editor autocomplete.
+utilities exported from `viem/utils`.
+
+This structure avoids collisions between similarly named APIs and supports discovery through editor
+autocomplete.
 
 ## Should I Use Standalone Actions or Decorators?
 
@@ -60,9 +63,10 @@ implementations and preserve the Client's chain, Account, and transport types.
 ## What Are Wallets, Accounts, and Signers?
 
 A **wallet** is software or hardware that manages Accounts and often exposes a JSON-RPC provider.
-An [Account](/docs/accounts) is Viem's value for the Ethereum identity used by signing Actions. A
-Local Account signs in your process, while a JSON-RPC Account delegates signing to a provider such
-as a browser wallet.
+An [Account](/docs/accounts) represents the Ethereum identity used by signing Actions.
+
+A Local Account signs in your process. A JSON-RPC Account delegates signing to a provider, such as
+a browser wallet.
 
 **Signer** is a common ecosystem term, not a separate Viem abstraction. Represent signing authority
 as an Account, then pass it to a Client or directly to an Action.
@@ -110,7 +114,7 @@ Single return values are returned directly rather than wrapped in a one-element 
 
 ## How Do I Migrate from v2?
 
-Follow the [v2 Migration Guide](/docs/v2-migration) for package entrypoints and before-and-after
-examples. Start with Client construction, standalone Actions and decorators, the Account model, and
-Ox-backed utility namespaces, then use TypeScript errors to find application-specific call-shape
-changes.
+Follow the [v2 Migration Guide](/docs/v2-migration) for package entrypoints and migration examples.
+
+Start with Client construction, Actions, decorators, Accounts, and Ox-backed utility namespaces.
+Then use TypeScript errors to find application-specific call-shape changes.

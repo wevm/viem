@@ -1,17 +1,20 @@
 # snapshot
 
+## Overview
+
 Snapshots the state of the blockchain at the current block.
 
-## Usage
+## Recipes
 
-This example snapshots the state of the blockchain at the current block.
+### Snapshot Node State
+
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const result = await client.state.snapshot()
+const result = await client.state.snapshot() // [!code focus]
 // @log: '0x1'
 ```
 
@@ -27,9 +30,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.state.snapshot`
 
-Call `Actions.state.snapshot` directly by passing the Client as the first argument.
+Snapshots the state of the blockchain at the current block.
+
+### Usage
+
+Call [`Actions.state.snapshot`](#actionsstatesnapshot) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -53,7 +60,7 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Return Value
 
 `Hex`
 

@@ -1,20 +1,24 @@
 # getHistory
 
+## Overview
+
 Returns a collection of historical gas information.
 
-## Usage
+## Recipes
 
-This example returns a collection of historical gas information.
+### Read Fee History
+
+Returns a collection of historical gas information.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const feeHistory = await client.fee.getHistory({
-  blockCount: 4,
-  rewardPercentiles: [25, 75],
-})
+const feeHistory = await client.fee.getHistory({ // [!code focus]
+  blockCount: 4, // [!code focus]
+  rewardPercentiles: [25, 75], // [!code focus]
+}) // [!code focus]
 // @log: {
 // @log:   baseFeePerGas: [12952210265n, 13007005941n, 12914819642n, 12832378110n, 12832378110n],
 // @log:   gasUsedRatio: [0.5232, 0.4283, 0.4291, 0.4869],
@@ -35,9 +39,52 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Compare Priority Fee Percentiles
 
-Call `Actions.fee.getHistory` directly by passing the Client as the first argument.
+Pass ascending reward percentiles to compare low, median, and high effective priority fees in each block.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const feeHistory = await client.fee.getHistory({
+  blockCount: 20,
+  rewardPercentiles: [10, 50, 90], // [!code focus]
+})
+```
+
+### Select a Historical Range
+
+Use `blockNumber` as the highest block and `blockCount` as the requested range length.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const feeHistory = await client.fee.getHistory({
+  blockCount: 10, // [!code focus]
+  blockNumber: 19_868_020n, // [!code focus]
+  rewardPercentiles: [50],
+})
+```
+
+## `Actions.fee.getHistory`
+
+Returns a collection of historical gas information.
+
+### Usage
+
+Call [`Actions.fee.getHistory`](#actionsfeegethistory) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -69,20 +116,27 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`Fee.FeeHistory`
+#### options
 
-A collection of historical gas information:
+- **Type:** `Actions.fee.getHistory.Options`
 
-- `baseFeePerGas`: Block base fees per gas. Includes the next block after the newest of the returned range.
-- `gasUsedRatio`: Block gas used ratios (`gasUsed / gasLimit`).
-- `oldestBlock`: Lowest number block of the returned range.
-- `reward`: Effective priority fees per gas for each requested percentile (only present when `rewardPercentiles` is supplied).
+Configure the request with the following options.
 
-## Parameters
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
-### blockCount
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const feeHistory = await Actions.fee.getHistory(client, { // [!code focus]
+  blockCount: 4, // [!code focus]
+  rewardPercentiles: [25, 75], // [!code focus]
+}) // [!code focus]
+```
+
+##### blockCount
 
 - **Type:** `number`
 
@@ -100,7 +154,7 @@ const feeHistory = await Actions.fee.getHistory(client, {
 })
 ```
 
-### blockNumber
+##### blockNumber
 
 - **Type:** `bigint`
 
@@ -119,7 +173,7 @@ const feeHistory = await Actions.fee.getHistory(client, {
 })
 ```
 
-### blockTag
+##### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -139,7 +193,7 @@ const feeHistory = await Actions.fee.getHistory(client, {
 })
 ```
 
-### rewardPercentiles
+##### rewardPercentiles
 
 - **Type:** `number[]`
 
@@ -156,3 +210,14 @@ const feeHistory = await Actions.fee.getHistory(client, {
   rewardPercentiles: [25, 50, 75], // [!code focus]
 })
 ```
+
+### Return Value
+
+`Fee.FeeHistory`
+
+A collection of historical gas information:
+
+- `baseFeePerGas`: Block base fees per gas. Includes the next block after the newest of the returned range.
+- `gasUsedRatio`: Block gas used ratios (`gasUsed / gasLimit`).
+- `oldestBlock`: Lowest number block of the returned range.
+- `reward`: Effective priority fees per gas for each requested percentile (only present when `rewardPercentiles` is supplied).

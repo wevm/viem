@@ -1,17 +1,20 @@
 # getPermissions
 
+## Overview
+
 Gets the wallet's current permissions.
 
-## Usage
+## Recipes
 
-This example gets the wallet's current permissions.
+### Get Wallet Permissions
+
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const permissions = await client.wallet.getPermissions()
+const permissions = await client.wallet.getPermissions() // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -25,9 +28,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.wallet.getPermissions`
 
-Call `Actions.wallet.getPermissions` directly by passing the Client as the first argument.
+Gets the wallet's current permissions.
+
+### Usage
+
+Call [`Actions.wallet.getPermissions`](#actionswalletgetpermissions) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -49,7 +56,7 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Return Value
 
 `readonly WalletPermission[]`
 

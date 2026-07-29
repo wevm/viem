@@ -1,19 +1,22 @@
 # connect
 
-Requests to connect account(s) with optional capabilities via [ERC-7846 `wallet_connect`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7846.md).
+## Overview
 
-Falls back to [`requestAddresses`](/docs/actions/wallet/requestAddresses) (`eth_requestAccounts`) when the wallet does not support `wallet_connect` and no capabilities were requested.
+Requests to connect accounts with optional capabilities via [ERC-7846 `wallet_connect`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7846.md).
 
-## Usage
+Falls back to [`Actions.wallet.requestAddresses`](/docs/actions/wallet/requestAddresses) (`eth_requestAccounts`) when the wallet does not support `wallet_connect` and no capabilities were requested.
 
-This example connects to wallet accounts with optional capabilities.
+## Recipes
+
+### Connect to a Wallet
+
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { accounts } = await client.wallet.connect()
+const { accounts } = await client.wallet.connect() // [!code focus]
 // @log: [{ address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', capabilities: {} }]
 ```
 
@@ -28,9 +31,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.wallet.connect`
 
-Call `Actions.wallet.connect` directly by passing the Client as the first argument.
+Requests to connect accounts with optional capabilities via [ERC-7846 `wallet_connect`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7846.md).
+
+### Usage
+
+Call [`Actions.wallet.connect`](#actionswalletconnect) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -53,15 +60,15 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`{ accounts: readonly { address: Address; capabilities?: Capabilities }[] }`
+#### options
 
-The connected accounts, each with its checksummed `address` and any [capabilities](/docs/actions/capabilities) granted or returned by the wallet.
+- **Type:** `Actions.wallet.connect.Options`
 
-## Parameters
+The action options.
 
-### capabilities
+##### capabilities
 
 - **Type:** `Capabilities`
 
@@ -69,7 +76,7 @@ The connected accounts, each with its checksummed `address` and any [capabilitie
 
 ```ts twoslash
 import { Actions } from 'viem'
-import { client } from './viem.config'
+// [!include ~/snippets/docs/reference-client.ts:setup]
 // ---cut---
 const { accounts } = await Actions.wallet.connect(client, {
   capabilities: { // [!code focus]
@@ -80,3 +87,9 @@ const { accounts } = await Actions.wallet.connect(client, {
   }, // [!code focus]
 })
 ```
+
+### Return Value
+
+`{ accounts: readonly { address: Address; capabilities?: Capabilities }[] }`
+
+The connected accounts, each with its checksummed `address` and any [capabilities](/docs/actions/capabilities) granted or returned by the wallet.

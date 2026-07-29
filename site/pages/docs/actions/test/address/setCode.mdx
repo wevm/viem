@@ -1,20 +1,24 @@
 # setCode
 
+## Overview
+
 Modifies the bytecode stored at an account's address.
 
-## Usage
+## Recipes
 
-This example modifies the bytecode stored at an account's address.
+### Set Account Bytecode
+
+Replaces the bytecode stored at an account address.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.address.setCode({
-  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  bytecode: '0x60806040',
-})
+await client.address.setCode({ // [!code focus]
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+  bytecode: '0x60806040', // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -29,9 +33,32 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Clear Account Bytecode
 
-Call `Actions.address.setCode` directly by passing the Client as the first argument.
+Set `bytecode` to `0x` to remove the code stored at an address.
+
+```ts twoslash
+import { Client, http, testActions } from 'viem'
+import { anvil } from 'viem/chains'
+
+const client = Client.create({
+  chain: anvil,
+  transport: http(),
+}).extend(testActions())
+
+await client.address.setCode({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  bytecode: '0x', // [!code focus]
+})
+```
+
+## `Actions.address.setCode`
+
+Modifies the bytecode stored at an account's address.
+
+### Usage
+
+Call [`Actions.address.setCode`](#actionsaddresssetcode) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -57,9 +84,15 @@ export const client = Client.create({
 
 :::
 
-## Parameters
+### Parameters
 
-### address
+#### options
+
+- **Type:** `Actions.address.setCode.Options`
+
+The action options.
+
+##### address
 
 - **Type:** `Address`
 
@@ -81,7 +114,7 @@ await Actions.address.setCode(client, {
 })
 ```
 
-### bytecode
+##### bytecode
 
 - **Type:** `Hex`
 
@@ -103,7 +136,7 @@ await Actions.address.setCode(client, {
 })
 ```
 
-### mode
+##### mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`
@@ -125,3 +158,9 @@ await Actions.address.setCode(client, {
   mode: 'hardhat', // [!code focus]
 })
 ```
+
+### Return Value
+
+`void`
+
+No value is returned.

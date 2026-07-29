@@ -2,7 +2,11 @@
 
 ## Overview
 
-The [`rateLimit`](/docs/transports) transport throttles the throughput of an inner [Transport](/docs/transports) to at most `requestsPerSecond` requests per second. Requests beyond the budget are queued (FIFO) and dispatched as the budget refreshes, which is useful for staying under an RPC provider's rate limit.
+The [`rateLimit`](/docs/transports/rate-limit) transport limits an inner
+[Transport](/docs/transports) to `requestsPerSecond` requests each second.
+
+Requests beyond the budget enter a first-in, first-out queue. The Transport sends queued requests as
+the budget refreshes.
 
 ```ts twoslash
 import { http, rateLimit } from 'viem'

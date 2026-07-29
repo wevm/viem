@@ -14,7 +14,7 @@ decoded return type.
 
 ## Recipes
 
-These recipes assume you have [set up a Client](/docs) with `publicActions`.
+These recipes assume you have [set up a Client](/docs) with [`publicActions`](/docs/actions/public).
 
 ### Read a Contract Function
 
@@ -26,12 +26,12 @@ Pass a literal ABI to preserve function and return-value inference.
 import { Abis } from 'viem/utils'
 import { client } from './viem.config'
 
-const balance = await client.contract.read({
-  abi: Abis.erc20,
-  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-  args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
-  functionName: 'balanceOf',
-})
+const balance = await client.contract.read({ // [!code focus]
+  abi: Abis.erc20, // [!code focus]
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
+  args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'], // [!code focus]
+  functionName: 'balanceOf', // [!code focus]
+}) // [!code focus]
 
 console.log(balance)
 //          ^?
@@ -57,7 +57,7 @@ import { client } from './viem.config'
 const supply = await client.contract.read({
   abi: Abis.erc20,
   address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-  blockNumber: 20_000_000n,
+  blockNumber: 20_000_000n, // [!code focus]
   functionName: 'totalSupply',
 })
 ```
@@ -79,9 +79,9 @@ contract exposes through ERC-5267 before an application constructs typed data fo
 import { client } from './viem.config'
 
 const { domain, extensions, fields } =
-  await client.contract.getEip712Domain({
-    address: '0x57ba3ec8df619d4d243ce439551cce713bb17411',
-  })
+  await client.contract.getEip712Domain({ // [!code focus]
+    address: '0x57ba3ec8df619d4d243ce439551cce713bb17411', // [!code focus]
+  }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

@@ -1,10 +1,14 @@
 # uninstall
 
+## Overview
+
 Destroys a filter and returns whether it was uninstalled.
 
-## Usage
+## Recipes
 
-This example destroys a filter and returns whether it was uninstalled.
+### Uninstall a Filter
+
+Destroys a filter and returns whether it was uninstalled.
 
 :::code-group
 
@@ -14,7 +18,7 @@ import { client } from './viem.config'
 
 const filter = await client.block.createFilter()
 
-const uninstalled = await client.filter.uninstall({ filter })
+const uninstalled = await client.filter.uninstall({ filter }) // [!code focus]
 // @log: true
 ```
 
@@ -30,9 +34,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.filter.uninstall`
 
-Call `Actions.block.createFilter` directly by passing the Client as the first argument.
+Destroys a filter and returns whether it was uninstalled.
+
+### Usage
+
+Call [`Actions.filter.uninstall`](#actionsfilteruninstall) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -58,19 +66,30 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`boolean`
+#### options
 
-Whether the filter was uninstalled.
+- **Type:** `Actions.filter.uninstall.Options`
 
-## Parameters
+Configure the request with the following options.
 
-### filter
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const filter = await Actions.block.createFilter(client)
+
+const uninstalled = await Actions.filter.uninstall(client, { filter }) // [!code focus]
+```
+
+##### filter
 
 - **Type:** `Actions.filter.Filter`
 
-The filter to destroy. Its `request` function should point at the transport that created the filter id.
+The filter to destroy. Its `request` function must use the transport that created the filter ID.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -82,3 +101,9 @@ const filter = await Actions.block.createFilter(client) // [!code focus]
 
 const uninstalled = await Actions.filter.uninstall(client, { filter })
 ```
+
+### Return Value
+
+`boolean`
+
+Whether the filter was uninstalled.

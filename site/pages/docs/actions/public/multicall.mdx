@@ -1,12 +1,20 @@
 # multicall
 
+## Overview
+
 Simulates execution of a batch of calls, returning typed per-call results.
 
-Calls execute via `eth_simulateV1` by default. On nodes without support (and with no simulate-only option requested), execution transparently falls back to a [multicall3](https://github.com/mds1/multicall) `aggregate3` batch, and the outcome is cached per client. Pin a specific mode with the [`mode`](#mode) option.
+Calls use `eth_simulateV1` by default.
 
-## Usage
+When a node lacks support and no simulation-only option is set, Viem uses a [multicall3](https://github.com/mds1/multicall) `aggregate3` batch instead.
 
-This example simulates execution of a batch of calls, returning typed per-call results.
+Viem caches the selected mode for each Client. Set [`mode`](#mode) to choose a specific mode.
+
+## Recipes
+
+### Simulate Multiple Calls
+
+Simulates execution of a batch of calls, returning typed per-call results.
 
 :::code-group
 
@@ -15,16 +23,16 @@ import { client } from './viem.config'
 
 const { results } = await client.multicall({
   account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
-  calls: [
-    {
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-      value: 1n,
-    },
-    {
-      data: '0xdeadbeef',
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-    },
-  ],
+  calls: [ // [!code focus]
+    { // [!code focus]
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+      value: 1n, // [!code focus]
+    }, // [!code focus]
+    { // [!code focus]
+      data: '0xdeadbeef', // [!code focus]
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
 })
 // @log: {
 // @log:   block: { number: 23139774n, ... },
@@ -47,9 +55,75 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Batched Reads
 
-Call `Actions.multicall` directly by passing the Client as the first argument.
+Typed contract calls decode into typed `result` values, making `multicall` the batched counterpart of [`contract.read`](/docs/actions/public/contract/read):
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const abi = Abis.erc20
+
+const { results } = await Actions.multicall(client, {
+  calls: [ // [!code focus]
+    { // [!code focus]
+      abi, // [!code focus]
+      args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'], // [!code focus]
+      functionName: 'balanceOf', // [!code focus]
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+    }, // [!code focus]
+    { // [!code focus]
+      abi, // [!code focus]
+      functionName: 'totalSupply', // [!code focus]
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+})
+// @log: [
+// @log:   { result: 424122n, status: 'success', ... },
+// @log:   { result: 1000000n, status: 'success', ... },
+// @log: ]
+```
+
+### Asset Changes
+
+Trace the account's native and token balance changes across the batch with [`traceAssetChanges`](#traceassetchanges):
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const { assetChanges } = await Actions.multicall(client, {
+  account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 1n,
+    },
+  ],
+  traceAssetChanges: true, // [!code focus]
+})
+// @log: [
+// @log:   {
+// @log:     token: { address: '0xeeee…eeee', decimals: 18, symbol: 'ETH' },
+// @log:     value: { pre: 10000000000000000000n, post: 9999999999999999999n, diff: -1n },
+// @log:   },
+// @log: ]
+```
+
+## `Actions.multicall`
+
+Simulates execution of a batch of calls, returning typed per-call results.
+
+### Usage
+
+Call [`Actions.multicall`](#actionsmulticall) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -91,79 +165,32 @@ export const client = Client.create({
 
 :::
 
-### Batched Reads
+### Parameters
 
-Typed contract calls decode into typed `result` values, making `multicall` the batched counterpart of [`contract.read`](/docs/actions/public/contract/read):
+#### options
 
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Abis } from 'viem/utils'
+- **Type:** `Actions.multicall.Options`
 
-const client = Client.create({ chain: mainnet, transport: http() })
-
-const abi = Abis.erc20
-
-const { results } = await Actions.multicall(client, {
-  calls: [
-    {
-      abi,
-      args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
-      functionName: 'balanceOf',
-      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-    },
-    {
-      abi,
-      functionName: 'totalSupply',
-      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-    },
-  ],
-})
-// @log: [
-// @log:   { result: 424122n, status: 'success', ... },
-// @log:   { result: 1000000n, status: 'success', ... },
-// @log: ]
-```
-
-### Asset Changes
-
-Trace the account's native and token balance changes across the batch with [`traceAssetChanges`](#traceassetchanges):
+Configure the request with the following options.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-
-const { assetChanges } = await Actions.multicall(client, {
-  account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
-  calls: [
-    {
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-      value: 1n,
-    },
-  ],
-  traceAssetChanges: true,
-})
-// @log: [
-// @log:   {
-// @log:     token: { address: '0xeeee…eeee', decimals: 18, symbol: 'ETH' },
-// @log:     value: { pre: 10000000000000000000n, post: 9999999999999999999n, diff: -1n },
-// @log:   },
-// @log: ]
+// ---cut---
+const { results } = await Actions.multicall(client, { // [!code focus]
+  account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929', // [!code focus]
+  calls: [ // [!code focus]
+    { // [!code focus]
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+      value: 1n, // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+}) // [!code focus]
 ```
 
-## Return Value
-
-`{ assetChanges?, block?, results }`
-
-Per-call `results` (in call order): `{ data, gasUsed, logs, result, status: 'success' } | { data, gasUsed, logs, error, status: 'failure' }`. With [`allowFailure: false`](#allowfailure), `results` holds bare decoded values instead.
-
-`block` is the simulated block (`undefined` when execution fell back to `aggregate3`, which also omits the `data`/`gasUsed`/`logs` extras). `assetChanges` is populated when [`traceAssetChanges`](#traceassetchanges) is set.
-
-## Parameters
-
-### account
+##### account
 
 - **Type:** `Account | Address`
 
@@ -190,7 +217,7 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-### allowFailure
+##### allowFailure
 
 - **Type:** `boolean`
 - **Default:** `true`
@@ -218,7 +245,7 @@ const { results } = await Actions.multicall(client, {
 // @log: results: [1000000n]
 ```
 
-### batchSize
+##### batchSize
 
 - **Type:** `number`
 - **Default:** `client.batch.multicall.batchSize ?? 1024`
@@ -246,7 +273,7 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-### blockNumber
+##### blockNumber
 
 - **Type:** `bigint`
 
@@ -269,7 +296,7 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-### blockTag
+##### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -293,11 +320,15 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-### calls
+##### calls
 
 - **Type:** `Calls`
 
-The calls to simulate. Each call is either a raw call (`to`, `data`, `value`) or a typed contract call (`to`, `abi`, `functionName`, `args`), plus an optional `dataSuffix` appended to the calldata. Call `value` forces the `eth_simulateV1` mode.
+The calls to simulate.
+
+Each entry can be a raw call with `to`, `data`, and `value`, or a typed contract call with `to`, `abi`, `functionName`, and `args`.
+
+Viem appends an optional `dataSuffix` to the calldata. Setting a call's `value` selects the `eth_simulateV1` mode.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -321,7 +352,7 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-### deployless
+##### deployless
 
 - **Type:** `boolean`
 
@@ -348,7 +379,7 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-### mode
+##### mode
 
 - **Type:** `'auto' | 'simulate' | 'multicall'`
 - **Default:** `'auto'`
@@ -379,7 +410,7 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-### multicallAddress
+##### multicallAddress
 
 - **Type:** `Address`
 - **Default:** `client.chain.contracts.multicall3.address`
@@ -407,11 +438,11 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-### requestOptions
+##### requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
-Per-request transport options (e.g. an `AbortSignal` to cancel the request).
+Per-request transport options (for example, an `AbortSignal` to cancel the request).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -431,7 +462,7 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-### stateOverride
+##### stateOverride
 
 - **Type:** `StateOverrides`
 
@@ -459,7 +490,7 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-### traceAssetChanges
+##### traceAssetChanges
 
 - **Type:** `boolean`
 
@@ -483,7 +514,7 @@ const { assetChanges } = await Actions.multicall(client, {
 })
 ```
 
-### traceTransfers
+##### traceTransfers
 
 - **Type:** `boolean`
 
@@ -507,7 +538,7 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-### validation
+##### validation
 
 - **Type:** `boolean`
 
@@ -531,9 +562,20 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-## Errors
+### Return Value
+
+`{ assetChanges?, block?, results }`
+
+Per-call `results` (in call order): `{ data, gasUsed, logs, result, status: 'success' } | { data, gasUsed, logs, error, status: 'failure' }`. With [`allowFailure: false`](#allowfailure), `results` holds bare decoded values instead.
+
+`block` is the simulated block. It is `undefined` after an `aggregate3` fallback, which also omits
+the `data`, `gasUsed`, and `logs` fields.
+
+`assetChanges` is populated when [`traceAssetChanges`](#traceassetchanges) is set.
+
+### Errors
 
 | Error | Description |
 | --- | --- |
-| `RpcError.ExecutionError` | The simulation request failed (e.g. fee invariants violated, insufficient balance, or the node rejected the payload). |
-| `ContractFunctionExecutionError` | A call's encode/decode failed with `allowFailure: false` (per-call failures otherwise surface on the result's `error`). |
+| `RpcError.ExecutionError` | The simulation request failed (for example, fee invariants violated, insufficient balance, or the node rejected the payload). |
+| `ContractError.ContractFunctionExecutionError` | A call's encode/decode failed with `allowFailure: false` (per-call failures otherwise surface on the result's `error`). |

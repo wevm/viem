@@ -1,21 +1,25 @@
 # estimateGas
 
+## Overview
+
 Estimates the gas necessary to complete a transaction without submitting it to the network (`eth_estimateGas`).
 
-## Usage
+## Recipes
 
-This example estimates the gas necessary to complete a transaction without submitting it to the network (`eth_estimateGas`).
+### Estimate Transaction Gas
+
+Estimates the gas necessary to complete a transaction without submitting it to the network (`eth_estimateGas`).
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const gas = await client.transaction.estimateGas({
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1n,
-})
+const gas = await client.transaction.estimateGas({ // [!code focus]
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  value: 1n, // [!code focus]
+}) // [!code focus]
 // @log: 21000n
 ```
 
@@ -31,9 +35,64 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Estimate with State Overrides
 
-Call `Actions.transaction.estimateGas` directly by passing the Client as the first argument.
+Pass `stateOverride` to estimate a transaction against temporary account state.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const account = '0xd2135CfB216b74109775236E36d4b433F1DF507B'
+const gas = await client.transaction.estimateGas({
+  account,
+  stateOverride: { // [!code focus]
+    [account]: { // [!code focus]
+      balance: 1000000000000000000n, // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+### Estimate a Blob Transaction
+
+Provide blobs and a [KZG context](/docs/utilities/kzg/from) to derive the versioned hashes before estimating gas.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Kzg } from 'viem/utils'
+
+declare const kzg: Kzg.Kzg
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const gas = await client.transaction.estimateGas({
+  blobs: ['0x1234'], // [!code focus]
+  kzg, // [!code focus]
+  maxFeePerBlobGas: 1_000_000_000n, // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  type: 'eip4844', // [!code focus]
+})
+```
+
+## `Actions.transaction.estimateGas`
+
+Estimates the gas necessary to complete a transaction without submitting it to the network (`eth_estimateGas`).
+
+### Usage
+
+Call [`Actions.transaction.estimateGas`](#actionstransactionestimategas) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -61,15 +120,34 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`bigint`
+#### options
 
-The estimated gas (in units) required to execute the transaction.
+- **Type:** `Actions.transaction.estimateGas.Options`
 
-## Parameters
+Configure the request with the following options.
 
-### accessList
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const gas = await Actions.transaction.estimateGas(client, { // [!code focus]
+  accessList: [ // [!code focus]
+    { // [!code focus]
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+      storageKeys: [ // [!code focus]
+        '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
+      ], // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+}) // [!code focus]
+```
+
+##### accessList
 
 - **Type:** `AccessList`
 
@@ -94,11 +172,12 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-### account
+##### account
 
 - **Type:** `Account | Address`
+- **Default:** `client.account`
 
-The Account (or address) the transaction is sent from (`msg.sender`).
+The Account object or address that supplies the transaction's `msg.sender`. This option takes precedence over [`from`](#from).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -113,7 +192,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-### authorizationList
+##### authorizationList
 
 - **Type:** `AuthorizationList`
 
@@ -140,25 +219,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-### blobVersionedHashes
-
-- **Type:** `readonly Hex[]`
-
-The blob versioned hashes (EIP-4844). When omitted, they are derived from [`blobs`](#blobs) and [`kzg`](#kzg).
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const gas = await Actions.transaction.estimateGas(client, {
-  blobVersionedHashes: ['0x...'], // [!code focus]
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-})
-```
-
-### blobs
+##### blobs
 
 - **Type:** `readonly Hex[]`
 
@@ -181,7 +242,25 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-### blockHash
+##### blobVersionedHashes
+
+- **Type:** `readonly Hex[]`
+
+The blob versioned hashes (EIP-4844). When omitted, they are derived from [`blobs`](#blobs) and [`kzg`](#kzg).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const gas = await Actions.transaction.estimateGas(client, {
+  blobVersionedHashes: ['0x...'], // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+##### blockHash
 
 - **Type:** `Hex`
 
@@ -199,7 +278,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-### blockNumber
+##### blockNumber
 
 - **Type:** `bigint`
 
@@ -217,10 +296,10 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-### blockTag
+##### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
-- **Default:** `'latest'`
+- **Default:** `client.blockTag ?? 'latest'`
 
 Estimates gas against the state at a given block tag.
 
@@ -236,7 +315,25 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-### data
+##### chainId
+
+- **Type:** `number | Hex`
+
+The chain ID to include in the transaction request.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const gas = await Actions.transaction.estimateGas(client, {
+  chainId: 1, // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+##### data
 
 - **Type:** `Hex`
 
@@ -254,9 +351,45 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-### gasPrice
+##### from
 
-- **Type:** `bigint`
+- **Type:** `Address`
+
+The raw sender address. Viem uses this field only when neither [`account`](#account) nor a Client Account is available.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const gas = await Actions.transaction.estimateGas(client, {
+  from: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+##### gas
+
+- **Type:** `number | bigint | Hex`
+
+The gas limit to use for the transaction.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const gas = await Actions.transaction.estimateGas(client, {
+  gas: 1_000_000n, // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+##### gasPrice
+
+- **Type:** `number | bigint | Hex`
 
 The legacy gas price (in wei) to use. Mutually exclusive with `maxFeePerGas`/`maxPriorityFeePerGas`.
 
@@ -272,7 +405,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-### kzg
+##### kzg
 
 - **Type:** `Kzg`
 
@@ -295,9 +428,9 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-### maxFeePerBlobGas
+##### maxFeePerBlobGas
 
-- **Type:** `bigint`
+- **Type:** `number | bigint | Hex`
 
 The max fee per blob gas (in wei) the sender is willing to pay (EIP-4844).
 
@@ -313,9 +446,9 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-### maxFeePerGas
+##### maxFeePerGas
 
-- **Type:** `bigint`
+- **Type:** `number | bigint | Hex`
 
 The total fee per gas (in wei) the sender is willing to pay (EIP-1559).
 
@@ -331,9 +464,9 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-### maxPriorityFeePerGas
+##### maxPriorityFeePerGas
 
-- **Type:** `bigint`
+- **Type:** `number | bigint | Hex`
 
 The max priority fee per gas (in wei) to pay to the block producer (EIP-1559).
 
@@ -349,9 +482,9 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-### nonce
+##### nonce
 
-- **Type:** `number`
+- **Type:** `number | bigint | Hex`
 
 The nonce to use for the transaction's sender.
 
@@ -367,11 +500,11 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-### requestOptions
+##### requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
-Per-request transport options (e.g. an `AbortSignal` to cancel the request).
+Per-request transport options (for example, an `AbortSignal` to cancel the request).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -386,9 +519,10 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-### requireCanonical
+##### requireCanonical
 
 - **Type:** `boolean`
+- **Default:** `false`
 
 Whether to error if the [`blockHash`](#blockhash) is not in the canonical chain (EIP-1898).
 
@@ -405,7 +539,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-### stateOverride
+##### stateOverride
 
 - **Type:** `StateOverrides`
 
@@ -429,11 +563,11 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-### to
+##### to
 
-- **Type:** `Address`
+- **Type:** `Address | null`
 
-The contract address or recipient of the transaction.
+The transaction recipient. Pass `null` for a contract creation request.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -447,11 +581,11 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-### type
+##### type
 
 - **Type:** `string`
 
-Forces the transaction request to a specific type (e.g. `'eip1559'`, `'eip2930'`, `'legacy'`).
+Forces the transaction request to a specific type (for example, `'eip1559'`, `'eip2930'`, `'legacy'`).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -465,9 +599,9 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-### value
+##### value
 
-- **Type:** `bigint`
+- **Type:** `number | bigint | Hex`
 
 The value (in wei) sent with the transaction.
 
@@ -483,9 +617,15 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-## Errors
+### Return Value
+
+`bigint`
+
+The estimated gas (in units) required to execute the transaction.
+
+### Errors
 
 | Error | Description |
 | --- | --- |
-| `EstimateGasExecutionError` | The gas estimation failed (e.g. the transaction reverted or fee invariants were violated). |
+| `RpcError.ExecutionError` | The gas estimation failed (for example, the transaction reverted or fee invariants were violated). |
 | `BlockParameter.RequireCanonicalError` | `requireCanonical` was provided without a `blockHash`. |

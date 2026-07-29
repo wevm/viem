@@ -12,7 +12,8 @@ Fallible Viem functions expose an `ErrorType` from the same namespace as their o
 type. Concrete error classes let applications narrow those declared failures at runtime without
 parsing messages.
 
-Every Viem error inherits from `Errors.BaseError` and preserves its underlying failure as `cause`.
+Every Viem error inherits from [`Errors.BaseError`](/docs/errors/base-error) and preserves its
+underlying failure as `cause`.
 
 ```ts twoslash
 import { Actions, ContractError } from 'viem'

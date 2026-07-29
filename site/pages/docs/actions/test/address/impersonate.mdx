@@ -1,19 +1,22 @@
 # impersonate
 
+## Overview
+
 Impersonates an account or contract address. This lets you send transactions from that account even if you don't have access to its private key.
 
-## Usage
+## Recipes
 
-This example impersonates an account or contract address.
+### Impersonate an Account
+
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.address.impersonate({
-  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-})
+await client.address.impersonate({ // [!code focus]
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -28,9 +31,13 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+## `Actions.address.impersonate`
 
-Call `Actions.address.impersonate` directly by passing the Client as the first argument.
+Impersonates an account or contract address. This lets you send transactions from that account even if you don't have access to its private key.
+
+### Usage
+
+Call [`Actions.address.impersonate`](#actionsaddressimpersonate) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -55,9 +62,15 @@ export const client = Client.create({
 
 :::
 
-## Parameters
+### Parameters
 
-### address
+#### options
+
+- **Type:** `Actions.address.impersonate.Options`
+
+The action options.
+
+##### address
 
 - **Type:** `Address`
 
@@ -78,7 +91,7 @@ await Actions.address.impersonate(client, {
 })
 ```
 
-### mode
+##### mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`
@@ -99,3 +112,9 @@ await Actions.address.impersonate(client, {
   mode: 'hardhat', // [!code focus]
 })
 ```
+
+### Return Value
+
+`void`
+
+No value is returned.

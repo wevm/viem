@@ -15,7 +15,7 @@ parameters.
 
 ## Recipes
 
-These recipes assume you have [set up a Client](/docs) with `publicActions`.
+These recipes assume you have [set up a Client](/docs) with [`publicActions`](/docs/actions/public).
 
 ### Estimate Transaction Gas
 
@@ -27,11 +27,11 @@ Include the sender when execution depends on `msg.sender` or the sender's balanc
 import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
-const gas = await client.transaction.estimateGas({
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: Value.fromEther('1'),
-})
+const gas = await client.transaction.estimateGas({ // [!code focus]
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  value: Value.fromEther('1'), // [!code focus]
+}) // [!code focus]
 // @log: 21000n
 ```
 
@@ -50,7 +50,7 @@ The result contains the maximum total fee and priority fee per gas.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const fees = await client.fee.estimateFeesPerGas()
+const fees = await client.fee.estimateFeesPerGas() // [!code focus]
 // @log: { maxFeePerGas: 15040000000n, maxPriorityFeePerGas: 1000000000n }
 ```
 
@@ -70,10 +70,10 @@ recent base fees, gas usage, and priority fee rewards.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const history = await client.fee.getHistory({
-  blockCount: 4,
-  rewardPercentiles: [25, 50, 75],
-})
+const history = await client.fee.getHistory({ // [!code focus]
+  blockCount: 4, // [!code focus]
+  rewardPercentiles: [25, 50, 75], // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -95,8 +95,8 @@ current blob-gas base fee.
 import { client } from './viem.config'
 
 const [maxPriorityFeePerGas, blobBaseFee] = await Promise.all([
-  client.fee.estimateMaxPriorityFeePerGas(),
-  client.fee.getBlobBaseFee(),
+  client.fee.estimateMaxPriorityFeePerGas(), // [!code focus]
+  client.fee.getBlobBaseFee(), // [!code focus]
 ])
 ```
 

@@ -1,15 +1,19 @@
+import { Card, Cards } from 'vocs'
+
 # Wallet Actions
 
 ## Overview
 
-**Wallet Actions** interact with an Ethereum [Account](/docs/accounts): they connect accounts, sign messages and transactions, and broadcast transactions and call batches. They map to the "wallet" and "signing" JSON-RPC methods (`eth_requestAccounts`, `eth_sendTransaction`, `wallet_sendCalls`, etc.).
+Wallet Actions connect accounts, sign data, and broadcast transactions or call batches.
+They support [JSON-RPC Accounts](/docs/accounts/json-rpc) and [Local Accounts](/docs/accounts).
 
-Wallet Actions work with both kinds of Accounts:
+A JSON-RPC Account delegates signing to a wallet, such as a browser extension, through a
+[`custom` transport](/docs/transports/custom).
 
-- A [JSON-RPC Account](/docs/accounts/json-rpc) defers to the wallet (for example, a browser extension) over a [`custom` transport](/docs/transports/custom).
-- A [Local Account](/docs/accounts) signs locally (for example, with a private key) and broadcasts over any transport.
+A Local Account signs locally and broadcasts through the Client transport.
 
-Attach [`walletActions`](#walletactions) to a Client to call them as methods:
+Pass `walletActions()` to [`.extend()`](/docs/clients/create#extending-a-client) to add Wallet
+Actions to a Client.
 
 :::code-group
 
@@ -36,61 +40,241 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Accounts and Permissions
 
-Call `Actions.transaction.send` directly by passing the Client as the first argument.
+<Cards>
+  <Card
+    title="Connect"
+    description="Connect to a wallet and request capabilities."
+    icon="lucide:plug"
+    to="/docs/actions/wallet/connect"
+  />
+  <Card
+    title="Disconnect"
+    description="Disconnect from a wallet."
+    icon="lucide:unplug"
+    to="/docs/actions/wallet/disconnect"
+  />
+  <Card
+    title="Get Addresses"
+    description="Read addresses that a wallet already exposes."
+    icon="lucide:list"
+    to="/docs/actions/wallet/getAddresses"
+  />
+  <Card
+    title="Request Addresses"
+    description="Prompt a wallet to expose account addresses."
+    icon="lucide:user-round-plus"
+    to="/docs/actions/wallet/requestAddresses"
+  />
+  <Card
+    title="Get Permissions"
+    description="Read the wallet's current permissions."
+    icon="lucide:shield-check"
+    to="/docs/actions/wallet/getPermissions"
+  />
+  <Card
+    title="Request Permissions"
+    description="Request permissions from a wallet."
+    icon="lucide:shield-plus"
+    to="/docs/actions/wallet/requestPermissions"
+  />
+  <Card
+    title="Get Assets"
+    description="Read wallet assets across supported chains."
+    icon="lucide:coins"
+    to="/docs/actions/wallet/getAssets"
+  />
+  <Card
+    title="Watch Asset"
+    description="Ask a wallet to track an asset."
+    icon="lucide:eye"
+    to="/docs/actions/wallet/watchAsset"
+  />
+</Cards>
 
-:::code-group
+### Calls and Capabilities
 
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
+<Cards>
+  <Card
+    title="Send Calls"
+    description="Submit one or more calls to a wallet."
+    icon="lucide:send"
+    to="/docs/actions/wallet/sendCalls"
+  />
+  <Card
+    title="Send Calls and Wait"
+    description="Submit calls and wait for completion."
+    icon="lucide:clock-arrow-up"
+    to="/docs/actions/wallet/sendCallsSync"
+  />
+  <Card
+    title="Get Call Status"
+    description="Read the status of a call batch."
+    icon="lucide:list-checks"
+    to="/docs/actions/wallet/getCallsStatus"
+  />
+  <Card
+    title="Show Call Status"
+    description="Ask a wallet to display a call batch."
+    icon="lucide:panel-top-open"
+    to="/docs/actions/wallet/showCallsStatus"
+  />
+  <Card
+    title="Wait for Call Status"
+    description="Wait for a call batch to reach a target status."
+    icon="lucide:hourglass"
+    to="/docs/actions/wallet/waitForCallsStatus"
+  />
+  <Card
+    title="Get Capabilities"
+    description="Read the capabilities that a wallet supports."
+    icon="lucide:badge-check"
+    to="/docs/actions/wallet/getCapabilities"
+  />
+</Cards>
 
-const hash = await Actions.transaction.send(client, {
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1n,
-})
-// @log: '0x9d2478f5cb1d21ac4153dbe5da9700e106a06d1cf1b957554fcd51de26eec4ae'
-```
+### Authorizations and Signatures
 
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Account, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
+<Cards>
+  <Card
+    title="Prepare Authorization"
+    description="Prepare an EIP-7702 authorization for signing."
+    icon="lucide:file-key"
+    to="/docs/actions/wallet/prepareAuthorization"
+  />
+  <Card
+    title="Sign Authorization"
+    description="Sign an EIP-7702 authorization."
+    icon="lucide:signature"
+    to="/docs/actions/wallet/signAuthorization"
+  />
+  <Card
+    title="Sign Message"
+    description="Sign an EIP-191 message."
+    icon="lucide:message-square-lock"
+    to="/docs/actions/wallet/signMessage"
+  />
+  <Card
+    title="Sign Transaction"
+    description="Ask a wallet to sign a transaction."
+    icon="lucide:file-pen-line"
+    to="/docs/actions/wallet/signTransaction"
+  />
+  <Card
+    title="Sign Typed Data"
+    description="Sign EIP-712 typed data."
+    icon="lucide:braces"
+    to="/docs/actions/wallet/signTypedData"
+  />
+</Cards>
 
-export const client = Client.create({
-  account: Account.fromPrivateKey('0x...'),
-  chain: mainnet,
-  transport: http(),
-})
-```
+### Chains
 
-:::
+<Cards>
+  <Card
+    title="Add Chain"
+    description="Add an EVM chain to a wallet."
+    icon="lucide:circle-plus"
+    to="/docs/actions/wallet/chains/add"
+  />
+  <Card
+    title="Switch Chain"
+    description="Switch the wallet's active chain."
+    icon="lucide:repeat-2"
+    to="/docs/actions/wallet/chains/switch"
+  />
+</Cards>
 
-## walletActions
+### Contracts
 
-Returns a bag of wallet actions bound to a Client. Pass it to [`.extend()`](/docs/clients/create#extending-a-client).
+<Cards>
+  <Card
+    title="Deploy Contract"
+    description="Deploy a contract and return its transaction hash."
+    icon="lucide:rocket"
+    to="/docs/actions/wallet/contract/deploy"
+  />
+  <Card
+    title="Deploy and Wait"
+    description="Deploy a contract and wait for its receipt."
+    icon="lucide:clock-arrow-up"
+    to="/docs/actions/wallet/contract/deploySync"
+  />
+  <Card
+    title="Write Contract"
+    description="Execute a write function on a contract."
+    icon="lucide:file-pen"
+    to="/docs/actions/wallet/contract/write"
+  />
+  <Card
+    title="Write and Wait"
+    description="Execute a write function and wait for its receipt."
+    icon="lucide:clock-arrow-up"
+    to="/docs/actions/wallet/contract/writeSync"
+  />
+</Cards>
 
-### Usage
+### Tokens
 
-```ts twoslash
-import { Account, Client, http, walletActions } from 'viem'
-import { mainnet } from 'viem/chains'
+<Cards>
+  <Card
+    title="Approve Token"
+    description="Approve ERC-20 token spending."
+    icon="lucide:badge-check"
+    to="/docs/actions/wallet/token/approve"
+  />
+  <Card
+    title="Approve and Wait"
+    description="Approve token spending and wait for its receipt."
+    icon="lucide:clock-arrow-up"
+    to="/docs/actions/wallet/token/approveSync"
+  />
+  <Card
+    title="Transfer Token"
+    description="Transfer an ERC-20, ERC-721, or ERC-1155 token."
+    icon="lucide:arrow-right-left"
+    to="/docs/actions/wallet/token/transfer"
+  />
+  <Card
+    title="Transfer and Wait"
+    description="Transfer a token and wait for its receipt."
+    icon="lucide:clock-arrow-up"
+    to="/docs/actions/wallet/token/transferSync"
+  />
+</Cards>
 
-const client = Client.create({
-  account: Account.fromPrivateKey('0x...'),
-  chain: mainnet,
-  transport: http(),
-}).extend(walletActions())
+### Transactions
 
-const hash = await client.transaction.send({
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1n,
-})
-// @log: '0x9d2478f5cb1d21ac4153dbe5da9700e106a06d1cf1b957554fcd51de26eec4ae'
-```
-
-### Return Value
-
-`(client: Client) => Decorator`
-
-A function that decorates a Client with every wallet action as a method.
+<Cards>
+  <Card
+    title="Send Transaction"
+    description="Prepare, sign, and send a transaction."
+    icon="lucide:send"
+    to="/docs/actions/wallet/transaction/send"
+  />
+  <Card
+    title="Send and Wait"
+    description="Send a transaction and wait for its receipt."
+    icon="lucide:clock-arrow-up"
+    to="/docs/actions/wallet/transaction/sendSync"
+  />
+  <Card
+    title="Send Raw Transaction"
+    description="Broadcast a serialized transaction."
+    icon="lucide:radio"
+    to="/docs/actions/wallet/transaction/sendRaw"
+  />
+  <Card
+    title="Send Raw and Wait"
+    description="Broadcast a serialized transaction and wait for its receipt."
+    icon="lucide:clock-arrow-up"
+    to="/docs/actions/wallet/transaction/sendRawSync"
+  />
+  <Card
+    title="Sign Transaction"
+    description="Sign and serialize a transaction locally."
+    icon="lucide:signature"
+    to="/docs/actions/wallet/transaction/sign"
+  />
+</Cards>

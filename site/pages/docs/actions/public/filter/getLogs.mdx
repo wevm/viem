@@ -1,12 +1,18 @@
 # getLogs
 
+## Overview
+
 Returns the logs matching an event filter.
 
 Unlike `getChanges`, this action is not drained by polling. It returns all logs held by the filter.
 
-## Usage
+## Recipes
 
-This example returns the logs matching an event filter.
+Use a Client method or pass the Client to the standalone action.
+
+### Read Filter Logs
+
+Returns the logs matching an event filter.
 
 :::code-group
 
@@ -22,7 +28,7 @@ const filter = await client.event.createFilter({
   ),
 })
 
-const logs = await client.filter.getLogs({ filter })
+const logs = await client.filter.getLogs({ filter }) // [!code focus]
 // @log: [
 // @log:   {
 // @log:     address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
@@ -49,9 +55,55 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Decoding Logs
 
-Call `Actions.event.createFilter` directly by passing the Client as the first argument.
+Pass `abiEvent` on the filter to decode the returned logs.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const filter = await Actions.event.createFilter(client, {
+  event: AbiEvent.from( // [!code focus]
+    'event Transfer(address indexed from, address indexed to, uint256 value)', // [!code focus]
+  ), // [!code focus]
+})
+
+const logs = await Actions.filter.getLogs(client, { filter })
+//    ^?
+```
+
+### Filtering by Indexed Arguments
+
+Pass `args` on the filter to filter decoded logs by indexed arguments.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const filter = await Actions.event.createFilter(client, {
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
+  args: { // [!code focus]
+    from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', // [!code focus]
+  }, // [!code focus]
+})
+
+const logs = await Actions.filter.getLogs(client, { filter })
+```
+
+## `Actions.filter.getLogs`
+
+Returns the logs matching an event filter.
+
+### Usage
+
+Call [`Actions.filter.getLogs`](#actionsfiltergetlogs) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -94,13 +146,13 @@ export const client = Client.create({
 
 :::
 
-## Recipes
+### Parameters
 
-These recipes call the action standalone with a Client as the first argument. Each is equivalent to the decorator form (`client.filter.getLogs(...)`).
+#### options
 
-### Decoding Logs
+- **Type:** `Actions.filter.getLogs.Options`
 
-Pass `abiEvent` on the filter to decode the returned logs.
+Configure the request with the following options.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -115,46 +167,14 @@ const filter = await Actions.event.createFilter(client, {
   ), // [!code focus]
 })
 
-const logs = await Actions.filter.getLogs(client, { filter })
-//    ^?
+const logs = await Actions.filter.getLogs(client, { filter }) // [!code focus]
 ```
 
-### Filtering by Indexed Arguments
-
-Pass `args` on the filter to filter decoded logs by indexed arguments.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { AbiEvent } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const filter = await Actions.event.createFilter(client, {
-  event: AbiEvent.from(
-    'event Transfer(address indexed from, address indexed to, uint256 value)',
-  ),
-  args: { // [!code focus]
-    from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', // [!code focus]
-  }, // [!code focus]
-})
-
-const logs = await Actions.filter.getLogs(client, { filter })
-```
-
-## Return Value
-
-`readonly Log[]`
-
-The logs held by the event filter, decoded by `filter.abiEvent` when provided.
-
-## Parameters
-
-### filter
+##### filter
 
 - **Type:** `Actions.filter.Filter<'event'>`
 
-The event filter to fetch logs for. Its `request` function should point at the transport that created the filter id.
+The event filter to query. Its `request` function must use the transport that created the filter ID.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -171,3 +191,9 @@ const filter = await Actions.event.createFilter(client, { // [!code focus]
 
 const logs = await Actions.filter.getLogs(client, { filter })
 ```
+
+### Return Value
+
+`readonly Log[]`
+
+The logs held by the event filter, decoded by `filter.abiEvent` when provided.

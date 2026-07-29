@@ -1,19 +1,23 @@
 # get
 
+## Overview
+
 Returns information about a transaction given a hash or block identifier.
 
-## Usage
+## Recipes
 
-This example returns information about a transaction given a hash or block identifier.
+### Get a Transaction
+
+Returns information about a transaction given a hash or block identifier.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const transaction = await client.transaction.get({
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
-})
+const transaction = await client.transaction.get({ // [!code focus]
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus]
+}) // [!code focus]
 // @log: {
 // @log:   blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
 // @log:   blockNumber: 19868020n,
@@ -40,9 +44,51 @@ export const client = Client.create({
 
 :::
 
-### Standalone Action
+### Get a Transaction from a Historical Block
 
-Call `Actions.transaction.get` directly by passing the Client as the first argument.
+Pass `blockNumber` and `index` to select a transaction by its position in a historical block.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const transaction = await client.transaction.get({
+  blockNumber: 19_868_020n, // [!code focus]
+  index: 0, // [!code focus]
+})
+```
+
+### Get a Pending Transaction
+
+Pass the `pending` block tag and an index to read a transaction from the node's pending block.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const transaction = await client.transaction.get({
+  blockTag: 'pending', // [!code focus]
+  index: 0, // [!code focus]
+})
+```
+
+## `Actions.transaction.get`
+
+Returns information about a transaction given a hash or block identifier.
+
+### Usage
+
+Call [`Actions.transaction.get`](#actionstransactionget) directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -79,15 +125,27 @@ export const client = Client.create({
 
 :::
 
-## Return Value
+### Parameters
 
-`Transaction`
+#### options
 
-Information about the transaction. When the connected Client's [`chain`](/docs/chains) defines a `schema.transaction` codec, the return type reflects that chain's custom transaction shape.
+- **Type:** `Actions.transaction.get.Options`
 
-## Parameters
+Configure the request with the following options.
 
-### blockHash
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const transaction = await Actions.transaction.get(client, { // [!code focus]
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d', // [!code focus]
+  index: 0, // [!code focus]
+}) // [!code focus]
+```
+
+##### blockHash
 
 - **Type:** `Hex`
 
@@ -105,7 +163,7 @@ const transaction = await Actions.transaction.get(client, {
 })
 ```
 
-### blockNumber
+##### blockNumber
 
 - **Type:** `bigint`
 
@@ -123,7 +181,7 @@ const transaction = await Actions.transaction.get(client, {
 })
 ```
 
-### blockTag
+##### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -142,7 +200,7 @@ const transaction = await Actions.transaction.get(client, {
 })
 ```
 
-### hash
+##### hash
 
 - **Type:** `Hex`
 
@@ -159,7 +217,7 @@ const transaction = await Actions.transaction.get(client, {
 })
 ```
 
-### index
+##### index
 
 - **Type:** `number`
 
@@ -177,7 +235,7 @@ const transaction = await Actions.transaction.get(client, {
 })
 ```
 
-### nonce
+##### nonce
 
 - **Type:** `number`
 
@@ -195,7 +253,7 @@ const transaction = await Actions.transaction.get(client, {
 })
 ```
 
-### sender
+##### sender
 
 - **Type:** `Address`
 
@@ -213,8 +271,14 @@ const transaction = await Actions.transaction.get(client, {
 })
 ```
 
-## Errors
+### Return Value
+
+`Transaction`
+
+Information about the transaction. When the connected Client's [`chain`](/docs/chains) defines a `codecs.transaction` codec, the return type reflects that chain's custom transaction shape.
+
+### Errors
 
 | Error | Description |
 | --- | --- |
-| `Transaction.NotFoundError` | The transaction could not be found. |
+| `Actions.transaction.Errors.TransactionNotFoundError` | The transaction could not be found. |

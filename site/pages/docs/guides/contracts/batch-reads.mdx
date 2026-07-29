@@ -14,7 +14,7 @@ for compatible read batches.
 
 ## Recipes
 
-These recipes assume you have [set up a Client](/docs) with `publicActions`.
+These recipes assume you have [set up a Client](/docs) with [`publicActions`](/docs/actions/public).
 
 ### Read Multiple Functions
 
@@ -29,19 +29,19 @@ import { client } from './viem.config'
 
 const token = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
 
-const results = await Promise.allSettled([
-  client.contract.read({
-    abi: Abis.erc20,
-    address: token,
-    args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
-    functionName: 'balanceOf',
-  }),
-  client.contract.read({
-    abi: Abis.erc20,
-    address: token,
-    functionName: 'totalSupply',
-  }),
-])
+const results = await Promise.allSettled([ // [!code focus]
+  client.contract.read({ // [!code focus]
+    abi: Abis.erc20, // [!code focus]
+    address: token, // [!code focus]
+    args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'], // [!code focus]
+    functionName: 'balanceOf', // [!code focus]
+  }), // [!code focus]
+  client.contract.read({ // [!code focus]
+    abi: Abis.erc20, // [!code focus]
+    address: token, // [!code focus]
+    functionName: 'totalSupply', // [!code focus]
+  }), // [!code focus]
+]) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -58,8 +58,9 @@ export const client = Client.create({
 :::
 
 :::tip
-With [`batch.multicall`](/docs/clients/create#batch) enabled, Viem uses Multicall under the hood to
-batch concurrent `contract.read` calls from the same event-loop tick into one RPC request.
+With [`batch.multicall`](/docs/clients/create#batch) enabled, Viem uses Multicall internally to
+batch concurrent [`contract.read`](/docs/actions/public/contract/read) calls from the same
+event-loop tick into one RPC request.
 :::
 
 Use [`multicall`](/docs/actions/public/multicall) when you want to construct the batch explicitly.
@@ -72,21 +73,21 @@ import { client } from './viem.config'
 
 const token = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
 
-const { results } = await client.multicall({
-  calls: [
-    {
-      abi: Abis.erc20,
-      args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
-      functionName: 'balanceOf',
-      to: token,
-    },
-    {
-      abi: Abis.erc20,
-      functionName: 'totalSupply',
-      to: token,
-    },
-  ],
-})
+const { results } = await client.multicall({ // [!code focus]
+  calls: [ // [!code focus]
+    { // [!code focus]
+      abi: Abis.erc20, // [!code focus]
+      args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'], // [!code focus]
+      functionName: 'balanceOf', // [!code focus]
+      to: token, // [!code focus]
+    }, // [!code focus]
+    { // [!code focus]
+      abi: Abis.erc20, // [!code focus]
+      functionName: 'totalSupply', // [!code focus]
+      to: token, // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+}) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -107,19 +108,19 @@ import { client } from './viem.config'
 
 const token = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
 
-const [balance, totalSupply] = await Promise.all([
-  client.contract.read({
-    abi: Abis.erc20,
-    address: token,
-    args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
-    functionName: 'balanceOf',
-  }),
-  client.contract.read({
-    abi: Abis.erc20,
-    address: token,
-    functionName: 'totalSupply',
-  }),
-])
+const [balance, totalSupply] = await Promise.all([ // [!code focus]
+  client.contract.read({ // [!code focus]
+    abi: Abis.erc20, // [!code focus]
+    address: token, // [!code focus]
+    args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'], // [!code focus]
+    functionName: 'balanceOf', // [!code focus]
+  }), // [!code focus]
+  client.contract.read({ // [!code focus]
+    abi: Abis.erc20, // [!code focus]
+    address: token, // [!code focus]
+    functionName: 'totalSupply', // [!code focus]
+  }), // [!code focus]
+]) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
