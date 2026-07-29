@@ -60,7 +60,7 @@ test('behavior: chainless client requires universalResolverAddress', async () =>
     .rejects.toThrowErrorMatchingInlineSnapshot(`
     [BaseError: Client chain not configured. \`universalResolverAddress\` is required.
 
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -105,7 +105,7 @@ test('behavior: invalid chain TLD', async () => {
     .rejects.toThrowErrorMatchingInlineSnapshot(`
     [BaseError: vitalik.eth is not a valid ENS TLD (.linea.eth) for chain "Linea Mainnet" (id: 59144).
 
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 

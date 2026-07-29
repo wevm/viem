@@ -1,19 +1,18 @@
 import { afterAll, beforeAll, expect, test } from 'vitest'
 
-import { version } from '../version.js'
 import { BaseError, setConfig } from './Errors.js'
 
 // Pin the rendered version so snapshots stay stable across releases.
-beforeAll(() => setConfig({ version: 'viem@x.y.z' }))
+beforeAll(() => setConfig({ version: 'viem@x.x.x' }))
 afterAll(() =>
-  setConfig({ docsOrigin: 'https://viem.sh', version: `viem@${version}` }),
+  setConfig({ docsOrigin: 'https://viem.sh', version: 'viem@x.x.x' }),
 )
 
 test('BaseError', () => {
   expect(new BaseError('An error occurred.')).toMatchInlineSnapshot(`
     [BaseError: An error occurred.
 
-    Version: viem@x.y.z]
+    Version: viem@x.x.x]
   `)
 
   expect(new BaseError('An error occurred.', { details: 'details' }))
@@ -21,14 +20,14 @@ test('BaseError', () => {
     [BaseError: An error occurred.
 
     Details: details
-    Version: viem@x.y.z]
+    Version: viem@x.x.x]
   `)
 
   expect(new BaseError('', { details: 'details' })).toMatchInlineSnapshot(`
     [BaseError: An error occurred.
 
     Details: details
-    Version: viem@x.y.z]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -43,7 +42,7 @@ test('BaseError (w/ docsPath)', () => {
 
     Details: details
     See: https://viem.sh/lol
-    Version: viem@x.y.z]
+    Version: viem@x.x.x]
   `)
   expect(
     new BaseError('An error occurred.', {
@@ -54,7 +53,7 @@ test('BaseError (w/ docsPath)', () => {
 
     Details: error
     See: https://viem.sh/docs
-    Version: viem@x.y.z]
+    Version: viem@x.x.x]
   `)
   expect(
     new BaseError('An error occurred.', {
@@ -66,7 +65,7 @@ test('BaseError (w/ docsPath)', () => {
 
     Details: error
     See: https://viem.sh/lol
-    Version: viem@x.y.z]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -82,7 +81,7 @@ test('BaseError (w/ docsOrigin)', () => {
 
     Details: details
     See: https://test/lol
-    Version: viem@x.y.z]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -98,7 +97,7 @@ test('BaseError (w/ metaMessages)', () => {
     Cause: lol
 
     Details: details
-    Version: viem@x.y.z]
+    Version: viem@x.x.x]
   `)
   expect(error.metaMessages).toEqual(['Reason: idk', 'Cause: lol'])
 })
@@ -117,7 +116,7 @@ test('inherited BaseError', () => {
 
     Details: details
     See: https://viem.sh/lol
-    Version: viem@x.y.z]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -133,7 +132,7 @@ test('inherited Error', () => {
 
     Details: details
     See: https://viem.sh/lol
-    Version: viem@x.y.z]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -151,7 +150,7 @@ test('ox error as cause', async () => {
     [BaseError: An error occurred.
 
     Details: Number \`-1\` is not in safe unsigned integer range (\`0\` to \`9007199254740991\`)
-    Version: viem@x.y.z]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -165,7 +164,7 @@ test('walk: no predicate fn (walks to leaf)', () => {
   expect(err.walk()).toMatchInlineSnapshot(`
     [BaseError: test3
 
-    Version: viem@x.y.z]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -180,7 +179,7 @@ test('walk: predicate fn', () => {
     [BaseError: test2
 
     Details: test3
-    Version: viem@x.y.z]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -236,5 +235,5 @@ test('setConfig', () => {
     See: https://sweetlib.com/xyz]
   `)
 
-  setConfig({ docsOrigin: 'https://viem.sh', version: 'viem@x.y.z' })
+  setConfig({ docsOrigin: 'https://viem.sh', version: 'viem@x.x.x' })
 })

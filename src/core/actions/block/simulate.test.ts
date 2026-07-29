@@ -125,7 +125,7 @@ test('behavior: fee cap too high', async () => {
 
 
     Details: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -153,7 +153,7 @@ test('behavior: tip higher than fee cap', async () => {
 
 
     Details: The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -183,7 +183,7 @@ test('behavior: gas too low', async () => {
 
 
     Details: intrinsic gas too high -- CallGasCostMoreThanGasLimit
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -218,7 +218,7 @@ test('behavior: insufficient funds', async () => {
 
 
     Details: Insufficient funds for gas * price + value
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -255,7 +255,7 @@ test('behavior: contract function does not exist (abi call)', async () => {
       function:  function mint()
 
     Details: Cannot decode zero data ("0x") with ABI parameters.
-    Version: viem@2.52.1],
+    Version: viem@x.x.x],
         "gasUsed": 28585n,
         "logs": [],
         "status": "failure",
@@ -295,7 +295,7 @@ test('behavior: contract function does not exist (raw call)', async () => {
       address:  0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
 
     Details: Cannot decode zero data ("0x") with ABI parameters.
-    Version: viem@2.52.1],
+    Version: viem@x.x.x],
         "gasUsed": 21277n,
         "logs": [],
         "status": "failure",
@@ -336,8 +336,8 @@ test('behavior: contract revert', async () => {
 
     Details: An error occurred.
 
-    Version: viem@2.52.1
-    Version: viem@2.52.1],
+    Version: viem@x.x.x
+    Version: viem@x.x.x],
         "gasUsed": 23813n,
         "logs": [],
         "status": "failure",

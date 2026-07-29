@@ -12,7 +12,7 @@ test('InvalidFeeTokenError', () => {
     Use \`client.fee.validateToken({ token })\` before sending transactions or setting fee preferences.
 
     See: https://viem.sh/tempo/transactions#pay-fees-with-stablecoins
-    Version: viem@2.52.1"
+    Version: viem@x.x.x"
   `)
 })
 
@@ -32,7 +32,7 @@ test('FeeTokenNotTip20Error', () => {
     TIP-20 token addresses use the \`0x20c0...\` address prefix.
 
     See: https://viem.sh/tempo/transactions#pay-fees-with-stablecoins
-    Version: viem@2.52.1"
+    Version: viem@x.x.x"
   `)
 })
 
@@ -48,7 +48,7 @@ test('FeeTokenNotUsdError', () => {
     Only USD-denominated TIP-20 tokens can be used as fee tokens.
 
     See: https://viem.sh/tempo/transactions#pay-fees-with-stablecoins
-    Version: viem@2.52.1"
+    Version: viem@x.x.x"
   `)
 })
 
@@ -61,6 +61,6 @@ test('FeeTokenPausedError', () => {
     Paused TIP-20 tokens cannot be used as fee tokens.
 
     See: https://viem.sh/tempo/transactions#pay-fees-with-stablecoins
-    Version: viem@2.52.1"
+    Version: viem@x.x.x"
   `)
 })

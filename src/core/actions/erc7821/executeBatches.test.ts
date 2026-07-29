@@ -160,7 +160,7 @@ test('behavior: execution not supported', async () => {
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [Actions.erc7821.ExecuteUnsupportedError: ERC-7821 execution is not supported.
 
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -189,7 +189,7 @@ test('behavior: insufficient funds', async () => {
       to:    0x70997970C51812dc3A010C7d01b50e0d17dc79C8
 
     Details: execution reverted
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -225,7 +225,7 @@ test('behavior: unknown selector', async () => {
       - The contract does not have the function,
       - The address is not a contract.
 
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -279,6 +279,6 @@ test('behavior: revert', async () => {
       to:    0x70997970C51812dc3A010C7d01b50e0d17dc79C8
 
     Details: execution reverted: custom error 0xdb731cf4: 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000004500000000000000000000000000000000000000000000000000000000000000066275676765720000000000000000000000000000000000000000000000000000
-    Version: viem@2.52.1"
+    Version: viem@x.x.x"
   `)
 })

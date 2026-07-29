@@ -98,7 +98,7 @@ describe('parseAvatarRecord', () => {
       .toThrowErrorMatchingInlineSnapshot(`
       [EnsAvatarUriResolutionError: Unable to resolve ENS avatar URI "not-a-uri". The URI may be malformed, invalid, or does not respond with a valid image.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -192,7 +192,7 @@ describe('parseAvatarRecord', () => {
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
         [EnsAvatarInvalidNftUriError: ENS NFT avatar URI is invalid. Token ID not found
 
-        Version: viem@2.52.1]
+        Version: viem@x.x.x]
       `)
     })
 
@@ -204,7 +204,7 @@ describe('parseAvatarRecord', () => {
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
         [EnsAvatarUnsupportedNamespaceError: ENS NFT avatar namespace "erc20" is not supported. Must be "erc721" or "erc1155".
 
-        Version: viem@2.52.1]
+        Version: viem@x.x.x]
       `)
     })
   })

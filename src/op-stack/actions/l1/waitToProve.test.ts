@@ -123,6 +123,6 @@ test('rejects a receipt without withdrawals', async () => {
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [Withdrawal.ReceiptContainsNoWithdrawalsError: The provided transaction receipt with hash "0xecb1c13ee638e5cf6a0977d9ee6910fb7c5188d3dff807fd3e658d1533137023" contains no withdrawals.
 
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })

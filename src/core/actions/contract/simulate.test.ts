@@ -256,7 +256,7 @@ describe('reverts', () => {
         to:    0x<address>
 
       Details: execution reverted: This is a revert message
-      Version: viem@2.52.1"
+      Version: viem@x.x.x"
     `)
   })
 
@@ -288,7 +288,7 @@ describe('reverts', () => {
         to:    0x<address>
 
       Details: execution reverted: panic: assertion failed (0x01)
-      Version: viem@2.52.1"
+      Version: viem@x.x.x"
     `)
   })
 

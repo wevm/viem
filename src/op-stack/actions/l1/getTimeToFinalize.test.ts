@@ -58,7 +58,7 @@ test('rejects an unproven withdrawal', async () => {
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [Actions.l1.getTimeToFinalize.WithdrawalNotProvenError: Withdrawal has not been proven on L1.
 
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 }, 60_000)
 

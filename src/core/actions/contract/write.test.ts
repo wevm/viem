@@ -154,7 +154,7 @@ test('behavior: node error is wrapped as a contract error', async () => {
       to:    0x<address>
 
     Details: intrinsic gas too low
-    Version: viem@2.52.1"
+    Version: viem@x.x.x"
   `)
 })
 
@@ -317,7 +317,7 @@ describe('reverts', () => {
         to:    0x<address>
 
       Details: execution reverted: This is a revert message
-      Version: viem@2.52.1"
+      Version: viem@x.x.x"
     `)
   })
 
@@ -350,7 +350,7 @@ describe('reverts', () => {
         to:    0x<address>
 
       Details: execution reverted: panic: assertion failed (0x01)
-      Version: viem@2.52.1"
+      Version: viem@x.x.x"
     `)
   })
 
@@ -383,7 +383,7 @@ describe('reverts', () => {
         to:    0x<address>
 
       Details: execution reverted: panic: arithmetic underflow or overflow (0x11)
-      Version: viem@2.52.1"
+      Version: viem@x.x.x"
     `)
   })
 
@@ -416,7 +416,7 @@ describe('reverts', () => {
         to:    0x<address>
 
       Details: execution reverted: panic: division or modulo by zero (0x12)
-      Version: viem@2.52.1"
+      Version: viem@x.x.x"
     `)
   })
 
@@ -449,7 +449,7 @@ describe('reverts', () => {
         to:    0x<address>
 
       Details: execution reverted
-      Version: viem@2.52.1"
+      Version: viem@x.x.x"
     `)
   })
 

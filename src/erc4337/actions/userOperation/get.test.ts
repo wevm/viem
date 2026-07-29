@@ -35,7 +35,7 @@ test('error: User Operation not found', { timeout: 15_000 }, async () => {
     .toThrowErrorMatchingInlineSnapshot(`
     [UserOperationNotFoundError: User Operation with hash "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff" could not be found.
 
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 

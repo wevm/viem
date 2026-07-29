@@ -102,7 +102,7 @@ test('error: retry count, timeout, and observer cleanup', async () => {
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
         [WaitForUserOperationReceiptTimeoutError: Timed out while waiting for User Operation with hash "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff" to be confirmed.
 
-        Version: viem@2.52.1]
+        Version: viem@x.x.x]
       `)
   } finally {
     await server.close()

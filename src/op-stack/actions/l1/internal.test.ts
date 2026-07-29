@@ -52,7 +52,7 @@ test('rejects a contract from another source chain', () => {
     This could be due to any of the following:
     - The chain does not have the contract "portal" configured.
 
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -65,7 +65,7 @@ test('rejects a contract without a source chain', () => {
     This could be due to any of the following:
     - The chain does not have the contract "portal" configured.
 
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 

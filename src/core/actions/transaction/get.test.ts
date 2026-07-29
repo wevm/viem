@@ -160,7 +160,7 @@ test('error: transaction not found (by hash)', async () => {
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Transaction.NotFoundError: Transaction with hash "0x0000000000000000000000000000000000000000000000000000000000000000" could not be found.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
 })
 
@@ -173,7 +173,7 @@ test('error: transaction not found (by block number + index)', async () => {
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [Transaction.NotFoundError: Transaction at block number "24000000" at index "9999999" could not be found.
 
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -183,7 +183,7 @@ test('error: transaction not found (by block tag + index)', async () => {
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Transaction.NotFoundError: Transaction at block time "latest" at index "9999999" could not be found.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
 })
 
@@ -196,7 +196,7 @@ test('error: transaction not found (by block hash + index)', async () => {
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [Transaction.NotFoundError: Transaction at block hash "0x738cc1716ea1f08adac2d4e2230aedcee2d5cd3f65d66d5d3597e05d710a3d50" at index "9999999" could not be found.
 
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -209,6 +209,6 @@ test('error: transaction not found (by sender + nonce)', async () => {
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Transaction.NotFoundError: Transaction could not be found.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
 })

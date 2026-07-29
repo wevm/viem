@@ -249,7 +249,7 @@ describe('createResolver', () => {
       .toThrowErrorMatchingInlineSnapshot(`
       [Client.ChainNotConfiguredError: Chain with id 8453 is not configured.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -268,7 +268,7 @@ describe('createResolver', () => {
       .toThrowErrorMatchingInlineSnapshot(`
       [Client.TransportNotConfiguredError: Transport for chain with id 10 is not configured.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 })
@@ -342,7 +342,7 @@ describe('fromV2', () => {
           "id": 1,
         },
         "transport": {
-          "retryCount": 0,
+          "retryCount": undefined,
         },
       }
     `)

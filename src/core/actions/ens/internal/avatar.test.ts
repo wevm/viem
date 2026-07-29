@@ -204,7 +204,7 @@ describe('resolveAvatarUri', () => {
       .toThrowErrorMatchingInlineSnapshot(`
       [EnsAvatarUriResolutionError: Unable to resolve ENS avatar URI "invalid". The URI may be malformed, invalid, or does not respond with a valid image.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -213,7 +213,7 @@ describe('resolveAvatarUri', () => {
       .toThrowErrorMatchingInlineSnapshot(`
       [EnsAvatarUriResolutionError: Unable to resolve ENS avatar URI "". The URI may be malformed, invalid, or does not respond with a valid image.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 })
@@ -240,7 +240,7 @@ describe('getJsonImage', () => {
 
       Provided data: {"other":"test"}
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -252,7 +252,7 @@ describe('getJsonImage', () => {
 
       Provided data: "test"
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 })
@@ -588,7 +588,7 @@ describe('parseNftUri', () => {
     ).toThrowErrorMatchingInlineSnapshot(`
       [EnsAvatarInvalidNftUriError: ENS NFT avatar URI is invalid. Token ID not found
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -597,7 +597,7 @@ describe('parseNftUri', () => {
       .toThrowErrorMatchingInlineSnapshot(`
       [EnsAvatarInvalidNftUriError: ENS NFT avatar URI is invalid. Only EIP-155 supported
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -606,7 +606,7 @@ describe('parseNftUri', () => {
       .toThrowErrorMatchingInlineSnapshot(`
       [EnsAvatarInvalidNftUriError: ENS NFT avatar URI is invalid. Chain ID not found
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -615,7 +615,7 @@ describe('parseNftUri', () => {
       .toThrowErrorMatchingInlineSnapshot(`
       [EnsAvatarInvalidNftUriError: ENS NFT avatar URI is invalid. Contract address not found
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -624,7 +624,7 @@ describe('parseNftUri', () => {
       .toThrowErrorMatchingInlineSnapshot(`
       [EnsAvatarInvalidNftUriError: ENS NFT avatar URI is invalid. Token ID not found
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -633,7 +633,7 @@ describe('parseNftUri', () => {
       .toThrowErrorMatchingInlineSnapshot(`
       [EnsAvatarInvalidNftUriError: ENS NFT avatar URI is invalid. ERC namespace not found
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 })
@@ -698,7 +698,7 @@ describe('getNftTokenUri', () => {
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [EnsAvatarUnsupportedNamespaceError: ENS NFT avatar namespace "erc20" is not supported. Must be "erc721" or "erc1155".
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 })

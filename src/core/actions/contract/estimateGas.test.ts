@@ -199,6 +199,6 @@ test('error: wraps reverts in a ContractFunctionExecutionError', async () => {
       to:    0x<address>
 
     Details: execution reverted: This is a revert message
-    Version: viem@2.52.1"
+    Version: viem@x.x.x"
   `)
 })

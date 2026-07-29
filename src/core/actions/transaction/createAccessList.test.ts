@@ -94,7 +94,7 @@ test('behavior: reverted call', async () => {
       to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
 
     Details: execution reverted: ERC721: operator query for nonexistent token
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -122,6 +122,6 @@ test('behavior: response error', async () => {
       to:  0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
 
     Details: execution reverted: nope
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })

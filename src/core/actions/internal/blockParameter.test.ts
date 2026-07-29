@@ -33,7 +33,7 @@ test('error: requireCanonical without blockHash', () => {
     `
       [BlockParameter.RequireCanonicalError: \`requireCanonical\` can only be provided when \`blockHash\` is set.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `,
   )
 })

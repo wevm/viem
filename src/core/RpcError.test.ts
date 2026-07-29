@@ -13,7 +13,7 @@ describe('ExecutionRevertedError', () => {
     ).toMatchInlineSnapshot(`
       "Execution reverted with reason: bad.
 
-      Version: viem@2.52.1"
+      Version: viem@x.x.x"
     `)
   })
 
@@ -22,7 +22,7 @@ describe('ExecutionRevertedError', () => {
       .toMatchInlineSnapshot(`
       "Execution reverted for an unknown reason.
 
-      Version: viem@2.52.1"
+      Version: viem@x.x.x"
     `)
   })
 })
@@ -34,7 +34,7 @@ describe('FeeCapTooHighError', () => {
     ).toMatchInlineSnapshot(`
       "The fee cap (\`maxFeePerGas\` = 70 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
-      Version: viem@2.52.1"
+      Version: viem@x.x.x"
     `)
   })
 
@@ -128,7 +128,7 @@ describe('TipAboveFeeCapError', () => {
     ).toMatchInlineSnapshot(`
       "The provided tip (\`maxPriorityFeePerGas\` = 3 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 2 gwei).
 
-      Version: viem@2.52.1"
+      Version: viem@x.x.x"
     `)
   })
 
@@ -189,7 +189,7 @@ describe('ExecutionError', () => {
         value:                 1 ETH
 
       Details: insufficient funds for gas
-      Version: viem@2.52.1"
+      Version: viem@x.x.x"
     `)
   })
 
@@ -245,7 +245,7 @@ describe('fromRpcError', () => {
       "Execution reverted with reason: ERC721: nonexistent token.
 
       Details: rpc failed
-      Version: viem@2.52.1"
+      Version: viem@x.x.x"
     `)
   })
 

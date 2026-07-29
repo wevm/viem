@@ -153,7 +153,7 @@ test('args: args', async () => {
       to:    0x<address>
 
     Details: execution reverted
-    Version: viem@2.52.1"
+    Version: viem@x.x.x"
   `)
 })
 
@@ -184,7 +184,7 @@ test('error: reverts', async () => {
       to:    0x<address>
 
     Details: execution reverted
-    Version: viem@2.52.1"
+    Version: viem@x.x.x"
   `)
 })
 
@@ -218,7 +218,7 @@ test('error: zero data (not a contract)', async () => {
         function:  function name() view returns (string)
 
       Details: Cannot decode zero data ("0x") with ABI parameters.
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
 })
 
@@ -262,7 +262,7 @@ describe('reverts', () => {
         to:    0x<address>
 
       Details: execution reverted: This is a revert message
-      Version: viem@2.52.1"
+      Version: viem@x.x.x"
     `)
   })
 
@@ -291,7 +291,7 @@ describe('reverts', () => {
         to:    0x<address>
 
       Details: execution reverted: panic: assertion failed (0x01)
-      Version: viem@2.52.1"
+      Version: viem@x.x.x"
     `)
   })
 
@@ -320,7 +320,7 @@ describe('reverts', () => {
         to:    0x<address>
 
       Details: execution reverted: panic: arithmetic underflow or overflow (0x11)
-      Version: viem@2.52.1"
+      Version: viem@x.x.x"
     `)
   })
 
@@ -349,7 +349,7 @@ describe('reverts', () => {
         to:    0x<address>
 
       Details: execution reverted: panic: division or modulo by zero (0x12)
-      Version: viem@2.52.1"
+      Version: viem@x.x.x"
     `)
   })
 
@@ -378,7 +378,7 @@ describe('reverts', () => {
         to:    0x<address>
 
       Details: execution reverted
-      Version: viem@2.52.1"
+      Version: viem@x.x.x"
     `)
   })
 

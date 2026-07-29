@@ -80,6 +80,6 @@ test('error: receipt not found', async () => {
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [TransactionReceipt.NotFoundError: Transaction receipt with hash "0x0000000000000000000000000000000000000000000000000000000000000000" could not be found. The Transaction may not be processed on a block yet.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
 })

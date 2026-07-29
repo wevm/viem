@@ -45,6 +45,6 @@ test('behavior: throws when no address for chain id', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [Token.AddressNotFoundError: Token has no address for chain id "999".
 
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })

@@ -334,7 +334,7 @@ describe('behavior: eth_sendTransaction fallback', () => {
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Actions.wallet.sendCalls.UnsupportedNonOptionalCapabilityError: non-optional \`capabilities\` are not supported on fallback to \`eth_sendTransaction\`.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -350,7 +350,7 @@ describe('behavior: eth_sendTransaction fallback', () => {
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Actions.wallet.sendCalls.AtomicityNotSupportedError: \`forceAtomic\` is not supported on fallback to \`eth_sendTransaction\`.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -396,7 +396,7 @@ describe('behavior: eth_sendTransaction fallback', () => {
         value:  99999 ETH
 
       Details: Insufficient funds for gas * price + value
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -459,7 +459,7 @@ test('error: insufficient funds', async () => {
       from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
     Details: Insufficient funds for gas * price + value
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 

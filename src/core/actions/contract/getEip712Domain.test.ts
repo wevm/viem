@@ -46,7 +46,7 @@ test('error: contract does not implement eip712Domain', async () => {
       - \`eip712Domain()\` function exists on the contract.
       - \`eip712Domain()\` function matches signature to ERC-5267 specification.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
 })
 

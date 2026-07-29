@@ -25,7 +25,7 @@ describe('ContractFunctionExecutionError', () => {
         function:  function totalSupply() view returns (uint256)
 
       Details: Internal error.
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -47,7 +47,7 @@ describe('ContractFunctionExecutionError', () => {
         function:  function totalSupply() view returns (uint256)
 
       Details: Internal error.
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -71,7 +71,7 @@ describe('ContractFunctionExecutionError', () => {
         args:          (1)
 
       Details: Internal error.
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -95,7 +95,7 @@ describe('ContractFunctionExecutionError', () => {
 
       Details: Internal error.
       See: https://viem.sh/docs
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -119,7 +119,7 @@ describe('ContractFunctionExecutionError', () => {
         sender:    0x0000000000000000000000000000000000000000
 
       Details: Internal error.
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -134,7 +134,7 @@ describe('ContractFunctionExecutionError', () => {
 
 
       Details: Internal error.
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -156,7 +156,7 @@ describe('ContractFunctionExecutionError', () => {
         function:  function totalSupply() view returns (uint256)
 
       Details: Internal error.
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -181,7 +181,7 @@ describe('ContractFunctionRevertedError', () => {
       [ContractFunctionRevertedError: The contract function "totalSupply" reverted with the following reason:
       oh no
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
     expect(err.raw).toBeUndefined()
   })
@@ -198,7 +198,7 @@ describe('ContractFunctionRevertedError', () => {
       [ContractFunctionRevertedError: The contract function "totalSupply" reverted with the following reason:
       EnumerableSet: index out of bounds
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
     expect(err.raw).toEqual(data)
     expect(err.reason).toBe('EnumerableSet: index out of bounds')
@@ -216,7 +216,7 @@ describe('ContractFunctionRevertedError', () => {
       [ContractFunctionRevertedError: The contract function "totalSupply" reverted with the following reason:
       An \`assert\` condition failed.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
     expect(err.raw).toEqual(data)
   })
@@ -235,7 +235,7 @@ describe('ContractFunctionRevertedError', () => {
       Error: error ComplexError((address sender, uint256 bar) config, string message, uint256 number)
                          ({"sender":"0x0000000000000000000000000000000000000000","bar":"69"}, bugger, 69)
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
     expect(err.data?.name).toBe('ComplexError')
   })
@@ -249,7 +249,7 @@ describe('ContractFunctionRevertedError', () => {
     expect(err).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "totalSupply" reverted.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
     expect(err.raw).toEqual('0x')
   })
@@ -269,7 +269,7 @@ describe('ContractFunctionRevertedError', () => {
       Unable to decode signature "0xdb731cfa" as it was not found on the provided ABI.
       Make sure you are using the correct ABI and that the error exists on it.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
     expect(err.signature).toBe('0xdb731cfa')
   })
@@ -327,7 +327,7 @@ describe('ContractFunctionZeroDataError', () => {
         - The parameters passed to the contract function may be invalid, or
         - The address is not a contract.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 })

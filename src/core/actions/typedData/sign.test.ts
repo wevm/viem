@@ -220,6 +220,6 @@ test('error: no account', async () => {
 
     Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
 
-    Version: viem@3.0.0-next.1]
+    Version: viem@x.x.x]
   `)
 })

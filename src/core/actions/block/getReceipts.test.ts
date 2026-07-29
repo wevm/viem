@@ -91,6 +91,6 @@ test('error: block not found', async () => {
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Block.NotFoundError: Block at number "99999999999" could not be found.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
 })

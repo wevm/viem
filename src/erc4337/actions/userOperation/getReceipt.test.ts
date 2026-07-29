@@ -94,7 +94,7 @@ test(
       .toThrowErrorMatchingInlineSnapshot(`
     [UserOperationReceiptNotFoundError: User Operation receipt with hash "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff" could not be found. The User Operation may not have been processed yet.
 
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
   },
 )

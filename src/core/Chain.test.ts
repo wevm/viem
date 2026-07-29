@@ -141,7 +141,7 @@ describe('getContractAddress', () => {
       This could be due to any of the following:
       - The chain does not have the contract "portal" configured.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 

@@ -322,7 +322,7 @@ test('behavior: chainless client requires universalResolverAddress', async () =>
     .rejects.toThrowErrorMatchingInlineSnapshot(`
     [BaseError: Client chain not configured. \`universalResolverAddress\` is required.
 
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 
   await expect(

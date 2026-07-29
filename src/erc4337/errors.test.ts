@@ -17,7 +17,7 @@ describe('bundler errors', () => {
       - An incorrect \`sender\` address is provided.
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -30,7 +30,7 @@ describe('bundler errors', () => {
       [FailedToSendToBeneficiaryError: Failed to send funds to beneficiary.
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -46,7 +46,7 @@ describe('bundler errors', () => {
       - one of the gas values exceeded 2**120 (uint120)
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -59,7 +59,7 @@ describe('bundler errors', () => {
       [HandleOpsOutOfGasError: The \`handleOps\` function was called by the Bundler with a gas limit too low.
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -80,7 +80,7 @@ describe('bundler errors', () => {
       factory: 0x0000000000000000000000000000000000000000
       factoryData: 0xdeadbeef
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
 
     expect(
@@ -97,7 +97,7 @@ describe('bundler errors', () => {
 
       initCode: 0x0000000000000000000000000000000000000000deadbeef
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -117,7 +117,7 @@ describe('bundler errors', () => {
       factory: 0x0000000000000000000000000000000000000000
       factoryData: 0xdeadbeef
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
 
     expect(
@@ -133,7 +133,7 @@ describe('bundler errors', () => {
 
       initCode: 0x0000000000000000000000000000000000000000deadbeef
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -154,7 +154,7 @@ describe('bundler errors', () => {
       factoryData: 0xdeadbeef
       sender: 0x0000000000000000000000000000000000000000
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
 
     expect(
@@ -171,7 +171,7 @@ describe('bundler errors', () => {
       initCode: 0x0000000000000000000000000000000000000000deadbeef
       sender: 0x0000000000000000000000000000000000000000
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -188,7 +188,7 @@ describe('bundler errors', () => {
       - a Paymaster was not provided
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -201,7 +201,7 @@ describe('bundler errors', () => {
       [InternalCallOnlyError: Bundler attempted to call an invalid function on the EntryPoint.
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -217,7 +217,7 @@ describe('bundler errors', () => {
       nonce: 69
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
 
     expect(
@@ -236,7 +236,7 @@ describe('bundler errors', () => {
       [InvalidAggregatorError: Bundler used an invalid aggregator for handling aggregated User Operations.
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -249,7 +249,7 @@ describe('bundler errors', () => {
       [InvalidBeneficiaryError: Bundler has not set a beneficiary address.
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -266,7 +266,7 @@ describe('bundler errors', () => {
 
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
 
     expect(
@@ -283,7 +283,7 @@ describe('bundler errors', () => {
       paymasterAndData: 0x0000000000000000000000000000000000000000deadbeef
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -299,7 +299,7 @@ describe('bundler errors', () => {
       - the Paymaster has deposited less than the expected amount via the \`deposit\` function
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -312,7 +312,7 @@ describe('bundler errors', () => {
       [PaymasterFunctionRevertedError: The \`validatePaymasterUserOp\` function on the Paymaster reverted.
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -325,7 +325,7 @@ describe('bundler errors', () => {
       [PaymasterNotDeployedError: The Paymaster contract has not been deployed.
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -338,7 +338,7 @@ describe('bundler errors', () => {
       [PaymasterPostOpFunctionRevertedError: Paymaster \`postOp\` function reverted.
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -355,7 +355,7 @@ describe('bundler errors', () => {
       \`factory\`
       \`factoryData\`
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
 
     expect(
@@ -368,7 +368,7 @@ describe('bundler errors', () => {
       Remove the following properties and try again:
       \`initCode\`
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -381,7 +381,7 @@ describe('bundler errors', () => {
       [SmartAccountFunctionRevertedError: The \`validateUserOp\` function on the Smart Account reverted.
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -397,7 +397,7 @@ describe('bundler errors', () => {
       - the \`validAfter\` or \`validUntil\` values returned from \`validateUserOp\` on the Smart Account are not satisfied
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -413,7 +413,7 @@ describe('bundler errors', () => {
       - the \`validAfter\` or \`validUntil\` values returned from \`validatePaymasterUserOp\` on the Paymaster are not satisfied
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -426,7 +426,7 @@ describe('bundler errors', () => {
       [UserOperationRejectedByEntryPointError: User Operation rejected by EntryPoint's \`simulateValidation\` during account creation or validation.
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -442,7 +442,7 @@ describe('bundler errors', () => {
       - the \`signature\` for the User Operation is incorrectly computed, and unable to be verified by the Smart Account
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -458,7 +458,7 @@ describe('bundler errors', () => {
       - the \`signature\` for the User Operation is incorrectly computed, and unable to be verified by the Paymaster
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -471,7 +471,7 @@ describe('bundler errors', () => {
       [UnknownBundlerError: An error occurred while executing user operation: test
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -487,7 +487,7 @@ describe('bundler errors', () => {
       - the gas used for verification exceeded the \`verificationGasLimit\`
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -503,7 +503,7 @@ describe('bundler errors', () => {
       - the \`verificationGasLimit\` is too low to verify the User Operation
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 })
@@ -546,7 +546,7 @@ describe('user operation errors', () => {
         verificationGasLimit:  1
 
       Details: test
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -558,7 +558,7 @@ describe('user operation errors', () => {
     ).toMatchInlineSnapshot(`
       [UserOperationReceiptNotFoundError: User Operation receipt with hash "0x0000000000000000000000000000000000000000" could not be found. The User Operation may not have been processed yet.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -570,7 +570,7 @@ describe('user operation errors', () => {
     ).toMatchInlineSnapshot(`
       [WaitForUserOperationReceiptTimeoutError: Timed out while waiting for User Operation with hash "0x0000000000000000000000000000000000000000" to be confirmed.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 })

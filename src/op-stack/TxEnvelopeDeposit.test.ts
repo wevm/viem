@@ -93,7 +93,7 @@ describe('errors', () => {
 
       Source Hash: "0xdeadbeef"
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -105,7 +105,7 @@ describe('errors', () => {
 
         Serialized Transaction: "0x02c0"
 
-        Version: viem@2.52.1]
+        Version: viem@x.x.x]
       `)
   })
 
@@ -116,7 +116,7 @@ describe('errors', () => {
 
         Serialized Transaction: "0x7ec0"
 
-        Version: viem@2.52.1]
+        Version: viem@x.x.x]
       `)
   })
 
@@ -133,7 +133,7 @@ describe('errors', () => {
 
         Serialized Transaction: "0x7edcc094977f82a600a1414e583f7f13623f1ac5d58b1c0b808080808080"
 
-        Version: viem@2.52.1]
+        Version: viem@x.x.x]
       `)
   })
 

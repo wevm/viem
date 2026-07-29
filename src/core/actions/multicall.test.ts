@@ -197,7 +197,7 @@ test('behavior: contract function does not exist (abi call)', async () => {
       function:  function mint()
 
     Details: Cannot decode zero data ("0x") with ABI parameters.
-    Version: viem@2.52.1],
+    Version: viem@x.x.x],
         "gasUsed": 28585n,
         "logs": [],
         "status": "failure",
@@ -230,7 +230,7 @@ test('behavior: contract function does not exist (raw call)', async () => {
       address:  0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
 
     Details: Cannot decode zero data ("0x") with ABI parameters.
-    Version: viem@2.52.1],
+    Version: viem@x.x.x],
         "gasUsed": 21277n,
         "logs": [],
         "status": "failure",
@@ -264,8 +264,8 @@ test('behavior: contract revert', async () => {
 
     Details: An error occurred.
 
-    Version: viem@2.52.1
-    Version: viem@2.52.1],
+    Version: viem@x.x.x
+    Version: viem@x.x.x],
         "gasUsed": 23813n,
         "logs": [],
         "status": "failure",
@@ -306,7 +306,7 @@ test('behavior: account not provided with traceAssetChanges', async () => {
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [BaseError: \`account\` is required when \`traceAssetChanges\` is true.
 
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -658,8 +658,8 @@ test('args: mode (multicall decodes failures)', async () => {
 
     Details: An error occurred.
 
-    Version: viem@2.52.1
-    Version: viem@2.52.1],
+    Version: viem@x.x.x
+    Version: viem@x.x.x],
         "result": undefined,
         "status": "failure",
       },
@@ -686,7 +686,7 @@ test('args: mode (multicall rejects value calls)', async () => {
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [BaseError: \`traceAssetChanges\`, \`traceTransfers\`, \`validation\`, and call \`value\` are not supported with \`mode: 'multicall'\`.
 
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -1058,7 +1058,7 @@ test('behavior: encode failure keeps result ordering (multicall mode)', async ()
     Details: ABI encoding parameters/values length mismatch.
     Expected length (parameters): 0
     Given length (values): 2
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
   expect(results[1]).toMatchInlineSnapshot(`
     {
@@ -1107,7 +1107,7 @@ test('args: allowFailure (false throws on first failure, multicall mode)', async
       function:  function name() view returns (string)
 
     Details: Cannot decode zero data ("0x") with ABI parameters.
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -1160,8 +1160,8 @@ test('behavior: contract revert with error not on abi (multicall mode)', async (
 
     Details: An error occurred.
 
-    Version: viem@2.52.1
-    Version: viem@2.52.1"
+    Version: viem@x.x.x
+    Version: viem@x.x.x"
   `)
 })
 

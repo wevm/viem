@@ -51,6 +51,6 @@ test('error: transaction not found', async () => {
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [Transaction.NotFoundError: Transaction with hash "0x0000000000000000000000000000000000000000000000000000000000000001" could not be found.
 
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })

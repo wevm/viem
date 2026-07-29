@@ -119,7 +119,7 @@ test('error: unsupported account type', async () => {
 
     The \`signAuthorization\` Action does not support JSON-RPC Accounts.
 
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })
 
@@ -135,6 +135,6 @@ test('error: no account', async () => {
 
     Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
 
-    Version: viem@2.52.1]
+    Version: viem@x.x.x]
   `)
 })

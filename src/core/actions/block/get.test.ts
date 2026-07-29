@@ -250,7 +250,7 @@ test('error: block not found', async () => {
     .rejects.toThrowErrorMatchingInlineSnapshot(`
       [Block.NotFoundError: Block at number "9999999999" could not be found.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
 })
 
@@ -263,6 +263,6 @@ test('error: block not found (by hash)', async () => {
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Block.NotFoundError: Block at hash "0x0000000000000000000000000000000000000000000000000000000000000000" could not be found.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
 })

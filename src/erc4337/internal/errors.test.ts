@@ -78,7 +78,7 @@ describe('getBundlerError', () => {
       - An incorrect \`sender\` address is provided.
 
       Details: useroperation reverted during simulation with reason: aa20
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -104,7 +104,7 @@ describe('getBundlerError', () => {
       [ExecutionRevertedError: Execution reverted with reason: get good.
 
       Details: execution reverted: get good
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -167,7 +167,7 @@ describe('getBundlerError', () => {
       [FailedToSendToBeneficiaryError: Failed to send funds to beneficiary.
 
       Details: useroperation reverted during simulation with reason: aa91
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -184,7 +184,7 @@ describe('getBundlerError', () => {
       - one of the gas values exceeded 2**120 (uint120)
 
       Details: useroperation reverted during simulation with reason: aa94
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -198,7 +198,7 @@ describe('getBundlerError', () => {
       [HandleOpsOutOfGasError: The \`handleOps\` function was called by the Bundler with a gas limit too low.
 
       Details: useroperation reverted during simulation with reason: aa95
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -224,7 +224,7 @@ describe('getBundlerError', () => {
       factoryData: 0xdeadbeef
 
       Details: useroperation reverted during simulation with reason: aa13 initcode failed or oog
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -249,7 +249,7 @@ describe('getBundlerError', () => {
       sender: 0x0000000000000000000000000000000000000000
 
       Details: useroperation reverted during simulation with reason: aa14
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -274,7 +274,7 @@ describe('getBundlerError', () => {
       factoryData: 0xdeadbeef
 
       Details: useroperation reverted during simulation with reason: aa15
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -292,7 +292,7 @@ describe('getBundlerError', () => {
       - a Paymaster was not provided
 
       Details: useroperation reverted during simulation with reason: aa21
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -306,7 +306,7 @@ describe('getBundlerError', () => {
       [InternalCallOnlyError: Bundler attempted to call an invalid function on the EntryPoint.
 
       Details: useroperation reverted during simulation with reason: aa92
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -324,7 +324,7 @@ describe('getBundlerError', () => {
       nonce: 69
 
       Details: useroperation reverted during simulation with reason: aa25
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
 
     const result_2 = getBundlerError(error, {})
@@ -333,7 +333,7 @@ describe('getBundlerError', () => {
 
 
       Details: useroperation reverted during simulation with reason: aa25
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -347,7 +347,7 @@ describe('getBundlerError', () => {
       [InvalidAggregatorError: Bundler used an invalid aggregator for handling aggregated User Operations.
 
       Details: useroperation reverted during simulation with reason: aa96
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -361,7 +361,7 @@ describe('getBundlerError', () => {
       [InvalidBeneficiaryError: Bundler has not set a beneficiary address.
 
       Details: useroperation reverted during simulation with reason: aa90
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -375,7 +375,7 @@ describe('getBundlerError', () => {
       [InvalidFieldsError: Invalid fields set on User Operation.
 
       Details: invalid fields set on User Operation
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -395,7 +395,7 @@ describe('getBundlerError', () => {
 
 
       Details: useroperation reverted during simulation with reason: aa93
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -412,7 +412,7 @@ describe('getBundlerError', () => {
       - the Paymaster has deposited less than the expected amount via the \`deposit\` function
 
       Details: useroperation reverted during simulation with reason: aa31
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -429,7 +429,7 @@ describe('getBundlerError', () => {
       - the Paymaster has deposited less than the expected amount via the \`deposit\` function
 
       Details: useroperation reverted during simulation with reason: aa26
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -443,7 +443,7 @@ describe('getBundlerError', () => {
       [PaymasterFunctionRevertedError: The \`validatePaymasterUserOp\` function on the Paymaster reverted.
 
       Details: useroperation reverted during simulation with reason: aa33
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -457,7 +457,7 @@ describe('getBundlerError', () => {
       [PaymasterNotDeployedError: The Paymaster contract has not been deployed.
 
       Details: useroperation reverted during simulation with reason: aa30
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -471,7 +471,7 @@ describe('getBundlerError', () => {
       [PaymasterPostOpFunctionRevertedError: Paymaster \`postOp\` function reverted.
 
       Details: useroperation reverted during simulation with reason: aa50
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -485,7 +485,7 @@ describe('getBundlerError', () => {
       [PaymasterRateLimitError: UserOperation rejected because paymaster (or signature aggregator) is throttled/banned.
 
       Details: rate limited
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -499,7 +499,7 @@ describe('getBundlerError', () => {
       [PaymasterStakeTooLowError: UserOperation rejected because paymaster (or signature aggregator) stake or unstake-delay is too low.
 
       Details: stake too low
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -520,7 +520,7 @@ describe('getBundlerError', () => {
       \`factoryData\`
 
       Details: useroperation reverted during simulation with reason: aa10
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -534,7 +534,7 @@ describe('getBundlerError', () => {
       [SignatureCheckFailedError: UserOperation rejected because account signature check failed (or paymaster signature, if the paymaster uses its data as signature).
 
       Details: signature check failed
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -551,7 +551,7 @@ describe('getBundlerError', () => {
       [SmartAccountFunctionRevertedError: The \`validateUserOp\` function on the Smart Account reverted.
 
       Details: useroperation reverted during simulation with reason: aa23
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -571,7 +571,7 @@ describe('getBundlerError', () => {
       - the \`validAfter\` or \`validUntil\` values returned from \`validateUserOp\` on the Smart Account are not satisfied
 
       Details: useroperation reverted during simulation with reason: aa22
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -591,7 +591,7 @@ describe('getBundlerError', () => {
       - the \`validAfter\` or \`validUntil\` values returned from \`validatePaymasterUserOp\` on the Paymaster are not satisfied
 
       Details: useroperation reverted during simulation with reason: aa32
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -611,7 +611,7 @@ describe('getBundlerError', () => {
       - the \`signature\` for the User Operation is incorrectly computed, and unable to be verified by the Smart Account
 
       Details: useroperation reverted during simulation with reason: aa24
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -631,7 +631,7 @@ describe('getBundlerError', () => {
       - the \`signature\` for the User Operation is incorrectly computed, and unable to be verified by the Paymaster
 
       Details: useroperation reverted during simulation with reason: aa34
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -645,7 +645,7 @@ describe('getBundlerError', () => {
       [UnsupportedSignatureAggregatorError: UserOperation rejected because account specified unsupported signature aggregator.
 
       Details: unsupported sig
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -662,7 +662,7 @@ describe('getBundlerError', () => {
       [UnknownBundlerError: An error occurred while executing user operation: wat man
 
       Details: wat man
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -677,7 +677,7 @@ describe('getBundlerError', () => {
 
 
       Details: useroperation reverted during simulation with reason: aa25
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -691,7 +691,7 @@ describe('getBundlerError', () => {
       [UserOperationRejectedByPaymasterError: User Operation rejected by Paymaster's \`validatePaymasterUserOp\`.
 
       Details: paymaster doesnt like it
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -705,7 +705,7 @@ describe('getBundlerError', () => {
       [UserOperationRejectedByOpCodeError: User Operation rejected with op code validation error.
 
       Details: opcode sucks
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -719,7 +719,7 @@ describe('getBundlerError', () => {
       [UserOperationOutOfTimeRangeError: UserOperation out of time-range: either wallet or paymaster returned a time-range, and it is already expired (or will expire soon).
 
       Details: opcode sucks
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -739,7 +739,7 @@ describe('getBundlerError', () => {
       - the gas used for verification exceeded the \`verificationGasLimit\`
 
       Details: useroperation reverted during simulation with reason: aa40
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -759,7 +759,7 @@ describe('getBundlerError', () => {
       - the \`verificationGasLimit\` is too low to verify the User Operation
 
       Details: useroperation reverted during simulation with reason: aa41
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 })
@@ -797,7 +797,7 @@ describe('getUserOperationError', () => {
         verificationGasLimit:  1
 
       Details: Unknown error
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -855,8 +855,8 @@ describe('getUserOperationError', () => {
 
       Details: An error occurred.
 
-      Version: viem@2.52.1
-      Version: viem@2.52.1]
+      Version: viem@x.x.x
+      Version: viem@x.x.x]
     `)
   })
 
@@ -913,8 +913,8 @@ describe('getUserOperationError', () => {
 
       Details: An error occurred.
 
-      Version: viem@2.52.1
-      Version: viem@2.52.1]
+      Version: viem@x.x.x
+      Version: viem@x.x.x]
     `)
   })
 
@@ -974,8 +974,8 @@ describe('getUserOperationError', () => {
 
       Details: An error occurred.
 
-      Version: viem@2.52.1
-      Version: viem@2.52.1]
+      Version: viem@x.x.x
+      Version: viem@x.x.x]
     `)
   })
 
@@ -1035,7 +1035,7 @@ describe('getUserOperationError', () => {
         verificationGasLimit:  1
 
       Details: Cannot decode zero data ("0x") with ABI parameters.
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -1094,8 +1094,8 @@ describe('getUserOperationError', () => {
 
       Details: An error occurred.
 
-      Version: viem@2.52.1
-      Version: viem@2.52.1]
+      Version: viem@x.x.x
+      Version: viem@x.x.x]
     `)
   })
 
@@ -1159,8 +1159,8 @@ describe('getUserOperationError', () => {
 
       Details: An error occurred.
 
-      Version: viem@2.52.1
-      Version: viem@2.52.1]
+      Version: viem@x.x.x
+      Version: viem@x.x.x]
     `)
   })
 
@@ -1222,8 +1222,8 @@ describe('getUserOperationError', () => {
 
       Details: An error occurred.
 
-      Version: viem@2.52.1
-      Version: viem@2.52.1]
+      Version: viem@x.x.x
+      Version: viem@x.x.x]
     `)
   })
 
@@ -1272,7 +1272,7 @@ describe('getUserOperationError', () => {
         verificationGasLimit:  1
 
       Details: execution reverted: 0xdeadbeef000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011546f6b656e2049442069732074616b656e000000000000000000000000000000
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -1320,7 +1320,7 @@ describe('getUserOperationError', () => {
         verificationGasLimit:  1
 
       Details: useroperation reverted during simulation with reason: aa13 initcode failed or oog
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 
@@ -1363,7 +1363,7 @@ describe('getUserOperationError', () => {
         verificationGasLimit:  1
 
       Details: UserOperation reverted during simulation with reason: 0x
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   })
 })

@@ -701,7 +701,7 @@ describe('RpcError.ExecutionError', () => {
         value:                 1 ETH
 
       Details: reverted
-      Version: viem@2.52.1"
+      Version: viem@x.x.x"
     `)
   })
 })

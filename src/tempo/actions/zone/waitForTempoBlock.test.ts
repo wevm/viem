@@ -99,7 +99,7 @@ test('throws when the timeout elapses', async () => {
     await expect(pending).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Actions.zone.waitForTempoBlock.TimeoutError: Timed out while waiting for Tempo block "42" to be imported by the zone.
 
-      Version: viem@2.52.1]
+      Version: viem@x.x.x]
     `)
   } finally {
     await server.close()

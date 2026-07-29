@@ -1,6 +1,10 @@
 import { Server } from 'prool/vitest'
 import { inject } from 'vitest'
 
+import { setConfig } from '../src/core/Errors.js'
+
+setConfig({ version: 'viem@x.x.x' })
+
 if (!process.env.OFFLINE) {
   const { anvils, bundlers } = inject('coreServers')
   const errors: unknown[] = []
