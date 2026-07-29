@@ -158,11 +158,6 @@ const hash = await contract.write.approve([ // [!code focus]
 ]) // [!code focus]
 ```
 
-#### options
-
-- **Type:** Inferred from the function and bound Client.
-- **Optional:** when the Client has an Account
-
 Use supported [write options](/docs/actions/wallet/contract/write#parameters) for the sender, chain,
 payable value, and transaction fields. Pass `account` when the Client has no Account.
 
@@ -187,7 +182,7 @@ const hash = await contract.write.deposit({ // [!code focus]
 }) // [!code focus]
 ```
 
-##### accessList
+#### options.accessList
 
 - **Type:** `AccessList`
 - **Optional**
@@ -225,7 +220,7 @@ const hash = await contract.write.approve(
 )
 ```
 
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -254,7 +249,7 @@ const hash = await contract.write.approve(
 )
 ```
 
-##### assertChainId
+#### options.assertChainId
 
 - **Type:** `boolean`
 - **Default:** `true`
@@ -286,7 +281,7 @@ const hash = await contract.write.approve(
 )
 ```
 
-##### authorizationList
+#### options.authorizationList
 
 - **Type:** `AuthorizationList`
 - **Optional**
@@ -326,7 +321,7 @@ const hash = await contract.write.approve(
 )
 ```
 
-##### blobs
+#### options.blobs
 
 - **Type:** `readonly Hex[]`
 - **Optional**
@@ -360,7 +355,7 @@ const hash = await contract.write.approve(
 )
 ```
 
-##### blobVersionedHashes
+#### options.blobVersionedHashes
 
 - **Type:** `readonly Hex[]`
 - **Optional**
@@ -393,7 +388,7 @@ const hash = await contract.write.approve(
 )
 ```
 
-##### chain
+#### options.chain
 
 - **Type:** `Chain | null`
 - **Default:** `client.chain`
@@ -424,7 +419,7 @@ const hash = await contract.write.approve(
 )
 ```
 
-##### dataSuffix
+#### options.dataSuffix
 
 - **Type:** `Hex`
 - **Default:** `client.dataSuffix`
@@ -456,7 +451,7 @@ const hash = await contract.write.approve(
 )
 ```
 
-##### gas
+#### options.gas
 
 - **Type:** `bigint | number | Hex`
 - **Optional**
@@ -488,7 +483,7 @@ const hash = await contract.write.approve(
 )
 ```
 
-##### gasPrice
+#### options.gasPrice
 
 - **Type:** `bigint | number | Hex`
 - **Optional**
@@ -519,7 +514,7 @@ const hash = await contract.write.approve(
 )
 ```
 
-##### kzg
+#### options.kzg
 
 - **Type:** `Kzg`
 - **Optional**
@@ -553,7 +548,7 @@ const hash = await contract.write.approve(
 )
 ```
 
-##### maxFeePerBlobGas
+#### options.maxFeePerBlobGas
 
 - **Type:** `bigint | number | Hex`
 - **Optional**
@@ -584,7 +579,7 @@ const hash = await contract.write.approve(
 )
 ```
 
-##### maxFeePerGas
+#### options.maxFeePerGas
 
 - **Type:** `bigint | number | Hex`
 - **Optional**
@@ -615,7 +610,7 @@ const hash = await contract.write.approve(
 )
 ```
 
-##### maxPriorityFeePerGas
+#### options.maxPriorityFeePerGas
 
 - **Type:** `bigint | number | Hex`
 - **Optional**
@@ -646,7 +641,7 @@ const hash = await contract.write.approve(
 )
 ```
 
-##### nonce
+#### options.nonce
 
 - **Type:** `bigint | number | Hex`
 - **Optional**
@@ -677,7 +672,7 @@ const hash = await contract.write.approve(
 )
 ```
 
-##### requestOptions
+#### options.requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 - **Optional**
@@ -709,7 +704,7 @@ const hash = await contract.write.approve(
 )
 ```
 
-##### type
+#### options.type
 
 - **Type:** `string`
 - **Optional**
@@ -740,7 +735,7 @@ const hash = await contract.write.approve(
 )
 ```
 
-##### value
+#### options.value
 
 - **Type:** `bigint | number | Hex`
 - **Optional:** for payable functions

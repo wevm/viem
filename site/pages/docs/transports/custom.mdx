@@ -92,11 +92,7 @@ import 'viem/window'
 const transport = custom(window.ethereum!) // [!code focus]
 ```
 
-#### options
-
-- **Type:** `custom.Options`
-
-##### key
+#### options.key
 
 - **Type:** `string`
 - **Default:** `'custom'`
@@ -112,7 +108,7 @@ const transport = custom(window.ethereum!, {
 })
 ```
 
-##### methods
+#### options.methods
 
 - **Type:** `{ include?: string[] } | { exclude?: string[] }`
 
@@ -127,7 +123,7 @@ const transport = custom(window.ethereum!, {
 })
 ```
 
-##### name
+#### options.name
 
 - **Type:** `string`
 - **Default:** `'Custom Provider'`
@@ -143,7 +139,7 @@ const transport = custom(window.ethereum!, {
 })
 ```
 
-##### retryCount
+#### options.retryCount
 
 - **Type:** `number`
 - **Default:** `3`
@@ -159,7 +155,7 @@ const transport = custom(window.ethereum!, {
 })
 ```
 
-##### retryDelay
+#### options.retryDelay
 
 - **Type:** `number`
 - **Default:** `150`

@@ -128,11 +128,6 @@ const balance = await contract.read.balanceOf([ // [!code focus]
 ]) // [!code focus]
 ```
 
-#### options
-
-- **Type:** Inferred from the ABI function.
-- **Optional**
-
 Use supported [read options](/docs/actions/public/contract/read#parameters) for block selection and
 call context. Pass options second when the function has inputs, or first when it has none.
 
@@ -157,7 +152,7 @@ const name = await contract.read.name({ // [!code focus]
 }) // [!code focus]
 ```
 
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -184,7 +179,7 @@ const balance = await contract.read.balanceOf(
 )
 ```
 
-##### as
+#### options.as
 
 - **Type:** `'Object' | 'Array'`
 - **Default:** `'Object'`
@@ -211,7 +206,7 @@ const [name, symbol] = await contract.read.metadata({
 })
 ```
 
-##### authorizationList
+#### options.authorizationList
 
 - **Type:** `AuthorizationList`
 - **Optional**
@@ -244,7 +239,7 @@ const name = await contract.read.name({
 })
 ```
 
-##### blockHash
+#### options.blockHash
 
 - **Type:** `Hex`
 - **Optional**
@@ -269,7 +264,7 @@ const name = await contract.read.name({
 })
 ```
 
-##### blockNumber
+#### options.blockNumber
 
 - **Type:** `bigint`
 - **Optional**
@@ -293,7 +288,7 @@ const name = await contract.read.name({
 })
 ```
 
-##### blockOverrides
+#### options.blockOverrides
 
 - **Type:** `BlockOverrides`
 - **Optional**
@@ -319,7 +314,7 @@ const name = await contract.read.name({
 })
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `client.blockTag ?? 'latest'`
@@ -343,7 +338,7 @@ const name = await contract.read.name({
 })
 ```
 
-##### factory
+#### options.factory
 
 - **Type:** `Address`
 - **Optional**
@@ -368,7 +363,7 @@ const name = await contract.read.name({
 })
 ```
 
-##### factoryData
+#### options.factoryData
 
 - **Type:** `Hex`
 - **Optional**
@@ -393,7 +388,7 @@ const name = await contract.read.name({
 })
 ```
 
-##### requestOptions
+#### options.requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 - **Optional**
@@ -418,7 +413,7 @@ const name = await contract.read.name({
 })
 ```
 
-##### requireCanonical
+#### options.requireCanonical
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -443,7 +438,7 @@ const name = await contract.read.name({
 })
 ```
 
-##### stateOverride
+#### options.stateOverride
 
 - **Type:** `StateOverrides`
 - **Optional**

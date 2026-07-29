@@ -139,11 +139,7 @@ import { http } from 'viem'
 const transport = http('https://eth.merkle.io') // [!code focus]
 ```
 
-#### options
-
-- **Type:** `http.Options`
-
-##### batch
+#### options.batch
 
 - **Type:** `boolean | { batchSize?: number; wait?: number }`
 - **Default:** `false`
@@ -158,7 +154,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### fetchFn
+#### options.fetchFn
 
 - **Type:** `typeof fetch`
 
@@ -172,7 +168,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### fetchOptions
+#### options.fetchOptions
 
 - **Type:** `RequestInit`
 
@@ -186,7 +182,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### key
+#### options.key
 
 - **Type:** `string`
 - **Default:** `'http'`
@@ -201,7 +197,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### maxResponseBodySize
+#### options.maxResponseBodySize
 
 - **Type:** `number | false`
 - **Default:** `10_485_760`
@@ -216,7 +212,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### methods
+#### options.methods
 
 - **Type:** `{ include?: string[] } | { exclude?: string[] }`
 
@@ -230,7 +226,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### name
+#### options.name
 
 - **Type:** `string`
 - **Default:** `'HTTP JSON-RPC'`
@@ -245,7 +241,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### onFetchRequest
+#### options.onFetchRequest
 
 - **Type:** `(request: Request) => void`
 
@@ -261,7 +257,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### onFetchResponse
+#### options.onFetchResponse
 
 - **Type:** `(response: Response) => void`
 
@@ -277,7 +273,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### raw
+#### options.raw
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -292,7 +288,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### retryCount
+#### options.retryCount
 
 - **Type:** `number`
 - **Default:** `3`
@@ -307,7 +303,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### retryDelay
+#### options.retryDelay
 
 - **Type:** `number`
 - **Default:** `150`
@@ -322,7 +318,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### timeout
+#### options.timeout
 
 - **Type:** `number`
 - **Default:** `10_000`

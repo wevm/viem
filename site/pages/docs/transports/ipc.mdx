@@ -114,11 +114,7 @@ import { ipc } from 'viem/node'
 const transport = ipc('/tmp/reth.ipc') // [!code focus]
 ```
 
-#### options
-
-- **Type:** `ipc.Options`
-
-##### keepAlive
+#### options.keepAlive
 
 - **Type:** `boolean | { interval?: number }`
 - **Default:** `true`
@@ -133,7 +129,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### key
+#### options.key
 
 - **Type:** `string`
 - **Default:** `'ipc'`
@@ -148,7 +144,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### methods
+#### options.methods
 
 - **Type:** `{ include?: string[] } | { exclude?: string[] }`
 
@@ -162,7 +158,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### name
+#### options.name
 
 - **Type:** `string`
 - **Default:** `'IPC JSON-RPC'`
@@ -177,7 +173,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### reconnect
+#### options.reconnect
 
 - **Type:** `boolean | { maxRetries?: number; minReconnectionDelay?: number; maxReconnectionDelay?: number; reconnectionDelayGrowFactor?: number; minUptime?: number; connectionTimeout?: number; maxEnqueuedMessages?: number }`
 - **Default:** `true`
@@ -192,7 +188,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### retryCount
+#### options.retryCount
 
 - **Type:** `number`
 - **Default:** `3`
@@ -207,7 +203,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### retryDelay
+#### options.retryDelay
 
 - **Type:** `number`
 - **Default:** `150`
@@ -222,7 +218,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### timeout
+#### options.timeout
 
 - **Type:** `number`
 - **Default:** `10_000`

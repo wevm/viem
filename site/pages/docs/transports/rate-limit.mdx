@@ -83,11 +83,7 @@ import { http, rateLimit } from 'viem'
 const transport = rateLimit(http(), { requestsPerSecond: 50 }) // [!code focus]
 ```
 
-#### options
-
-- **Type:** `rateLimit.Options`
-
-##### key
+#### options.key
 
 - **Type:** `string`
 - **Default:** `'rateLimit'`
@@ -103,7 +99,7 @@ const transport = rateLimit(http(), {
 })
 ```
 
-##### methods
+#### options.methods
 
 - **Type:** `{ include?: string[] } | { exclude?: string[] }`
 
@@ -118,7 +114,7 @@ const transport = rateLimit(http(), {
 })
 ```
 
-##### name
+#### options.name
 
 - **Type:** `string`
 - **Default:** `'Rate Limit'`
@@ -134,7 +130,7 @@ const transport = rateLimit(http(), {
 })
 ```
 
-##### requestsPerSecond
+#### options.requestsPerSecond
 
 - **Type:** `number`
 
@@ -148,7 +144,7 @@ const transport = rateLimit(http(), {
 })
 ```
 
-##### retryCount
+#### options.retryCount
 
 - **Type:** `number`
 - **Default:** `3`
@@ -164,7 +160,7 @@ const transport = rateLimit(http(), {
 })
 ```
 
-##### retryDelay
+#### options.retryDelay
 
 - **Type:** `number`
 - **Default:** `150`

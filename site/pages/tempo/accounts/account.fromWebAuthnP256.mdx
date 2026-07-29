@@ -107,15 +107,13 @@ The WebAuthn credential object containing:
 - `id` - The credential ID
 - `publicKey` - The public key as a hex string
 
-### options
-
-#### options.getFn
+### options.getFn
 
 - **Type:** `(options: CredentialRequestOptions) => Promise<Credential | null>`
 
 Custom function to get the WebAuthn credential. Use this to override the default `navigator.credentials.get` behavior.
 
-#### options.rpId
+### options.rpId
 
 - **Type:** `string`
 

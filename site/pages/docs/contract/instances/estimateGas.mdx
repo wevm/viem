@@ -183,11 +183,6 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-#### options
-
-- **Type:** `Omit<Actions.contract.estimateGas.Options, 'abi' | 'address' | 'args' | 'functionName'>`
-- **Optional**
-
 The remaining [gas estimation options](/docs/actions/public/contract/estimateGas#parameters). Pass
 this object first when the function has no inputs.
 
@@ -214,7 +209,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### accessList
+#### options.accessList
 
 - **Type:** `AccessList`
 - **Optional**
@@ -248,7 +243,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -275,7 +270,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### authorizationList
+#### options.authorizationList
 
 - **Type:** `AuthorizationList`
 - **Optional**
@@ -311,7 +306,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### blobs
+#### options.blobs
 
 - **Type:** `readonly Hex[]`
 - **Optional**
@@ -341,7 +336,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### blobVersionedHashes
+#### options.blobVersionedHashes
 
 - **Type:** `readonly Hex[]`
 - **Optional**
@@ -369,7 +364,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### blockHash
+#### options.blockHash
 
 - **Type:** `Hex`
 - **Optional**
@@ -396,7 +391,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### blockNumber
+#### options.blockNumber
 
 - **Type:** `bigint`
 - **Optional**
@@ -423,7 +418,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `client.blockTag ?? 'latest'`
@@ -450,7 +445,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### chainId
+#### options.chainId
 
 - **Type:** `number | Hex`
 - **Optional**
@@ -477,7 +472,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### dataSuffix
+#### options.dataSuffix
 
 - **Type:** `Hex`
 - **Default:** `client.dataSuffix`
@@ -505,7 +500,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### from
+#### options.from
 
 - **Type:** `Address`
 - **Optional**
@@ -532,7 +527,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### gas
+#### options.gas
 
 - **Type:** `bigint | number | Hex`
 - **Optional**
@@ -559,7 +554,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### gasPrice
+#### options.gasPrice
 
 - **Type:** `bigint | number | Hex`
 - **Optional**
@@ -586,7 +581,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### kzg
+#### options.kzg
 
 - **Type:** `Kzg`
 - **Optional**
@@ -616,7 +611,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### maxFeePerBlobGas
+#### options.maxFeePerBlobGas
 
 - **Type:** `bigint | number | Hex`
 - **Optional**
@@ -643,7 +638,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### maxFeePerGas
+#### options.maxFeePerGas
 
 - **Type:** `bigint | number | Hex`
 - **Optional**
@@ -670,7 +665,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### maxPriorityFeePerGas
+#### options.maxPriorityFeePerGas
 
 - **Type:** `bigint | number | Hex`
 - **Optional**
@@ -697,7 +692,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### nonce
+#### options.nonce
 
 - **Type:** `bigint | number | Hex`
 - **Optional**
@@ -724,7 +719,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### requestOptions
+#### options.requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 - **Optional**
@@ -752,12 +747,12 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### requireCanonical
+#### options.requireCanonical
 
 - **Type:** `boolean`
 - **Default:** `false`
 
-Whether to reject a [`blockHash`](#blockhash) that is not in the canonical chain.
+Whether to reject a [`blockHash`](#optionsblockhash) that is not in the canonical chain.
 
 ```ts twoslash
 import { Client, Contract, http } from 'viem'
@@ -780,7 +775,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### stateOverride
+#### options.stateOverride
 
 - **Type:** `StateOverrides`
 - **Optional**
@@ -811,7 +806,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### type
+#### options.type
 
 - **Type:** `string`
 - **Optional**
@@ -838,7 +833,7 @@ const gas = await contract.estimateGas.approve(
 )
 ```
 
-##### value
+#### options.value
 
 - **Type:** `bigint | number | Hex`
 - **Optional**

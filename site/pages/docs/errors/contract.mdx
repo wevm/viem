@@ -150,13 +150,9 @@ const contractError = ContractError.fromError(
 )
 ```
 
-#### options
-
-- **Type:** `ContractError.fromError.Options`
-
 The contract call context.
 
-##### abi
+#### options.abi
 
 - **Type:** `Abi | readonly unknown[]`
 
@@ -174,7 +170,7 @@ const contractError = ContractError.fromError(error, {
 })
 ```
 
-##### address
+#### options.address
 
 - **Type:** `Address.Address`
 - **Optional**
@@ -194,7 +190,7 @@ const contractError = ContractError.fromError(error, {
 })
 ```
 
-##### args
+#### options.args
 
 - **Type:** `unknown`
 - **Optional**
@@ -214,7 +210,7 @@ const contractError = ContractError.fromError(error, {
 })
 ```
 
-##### docsPath
+#### options.docsPath
 
 - **Type:** `string`
 - **Optional**
@@ -234,7 +230,7 @@ const contractError = ContractError.fromError(error, {
 })
 ```
 
-##### functionName
+#### options.functionName
 
 - **Type:** `string`
 
@@ -252,7 +248,7 @@ const contractError = ContractError.fromError(error, {
 })
 ```
 
-##### sender
+#### options.sender
 
 - **Type:** `Address.Address`
 - **Optional**

@@ -179,11 +179,6 @@ const simulation = await contract.simulate.approve(
 )
 ```
 
-#### options
-
-- **Type:** `Omit<Actions.contract.simulate.Options, 'abi' | 'address' | 'args' | 'functionName'>`
-- **Optional**
-
 The remaining [simulation options](/docs/actions/public/contract/simulate#parameters). Pass this
 object first when the function has no inputs.
 
@@ -210,7 +205,7 @@ const simulation = await contract.simulate.approve(
 )
 ```
 
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -237,7 +232,7 @@ const simulation = await contract.simulate.approve(
 )
 ```
 
-##### as
+#### options.as
 
 - **Type:** `'Object' | 'Array'`
 - **Default:** `'Object'`
@@ -263,7 +258,7 @@ const simulation = await contract.simulate.mint({
 })
 ```
 
-##### authorizationList
+#### options.authorizationList
 
 - **Type:** `AuthorizationList`
 - **Optional**
@@ -299,7 +294,7 @@ const simulation = await contract.simulate.approve(
 )
 ```
 
-##### blockHash
+#### options.blockHash
 
 - **Type:** `Hex`
 - **Optional**
@@ -326,7 +321,7 @@ const simulation = await contract.simulate.approve(
 )
 ```
 
-##### blockNumber
+#### options.blockNumber
 
 - **Type:** `bigint`
 - **Optional**
@@ -353,7 +348,7 @@ const simulation = await contract.simulate.approve(
 )
 ```
 
-##### blockOverrides
+#### options.blockOverrides
 
 - **Type:** `BlockOverrides`
 - **Optional**
@@ -382,7 +377,7 @@ const simulation = await contract.simulate.approve(
 )
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `client.blockTag ?? 'latest'`
@@ -409,7 +404,7 @@ const simulation = await contract.simulate.approve(
 )
 ```
 
-##### dataSuffix
+#### options.dataSuffix
 
 - **Type:** `Hex`
 - **Default:** `client.dataSuffix`
@@ -437,7 +432,7 @@ const simulation = await contract.simulate.approve(
 )
 ```
 
-##### factory
+#### options.factory
 
 - **Type:** `Address`
 - **Optional**
@@ -465,7 +460,7 @@ const simulation = await contract.simulate.approve(
 )
 ```
 
-##### factoryData
+#### options.factoryData
 
 - **Type:** `Hex`
 - **Optional**
@@ -493,7 +488,7 @@ const simulation = await contract.simulate.approve(
 )
 ```
 
-##### requestOptions
+#### options.requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 - **Optional**
@@ -521,12 +516,12 @@ const simulation = await contract.simulate.approve(
 )
 ```
 
-##### requireCanonical
+#### options.requireCanonical
 
 - **Type:** `boolean`
 - **Default:** `false`
 
-Whether to reject a [`blockHash`](#blockhash) that is not in the canonical chain.
+Whether to reject a [`blockHash`](#optionsblockhash) that is not in the canonical chain.
 
 ```ts twoslash
 import { Client, Contract, http } from 'viem'
@@ -549,7 +544,7 @@ const simulation = await contract.simulate.approve(
 )
 ```
 
-##### stateOverride
+#### options.stateOverride
 
 - **Type:** `StateOverrides`
 - **Optional**
@@ -580,7 +575,7 @@ const simulation = await contract.simulate.approve(
 )
 ```
 
-##### value
+#### options.value
 
 - **Type:** `bigint | number | Hex`
 - **Optional:** for payable functions

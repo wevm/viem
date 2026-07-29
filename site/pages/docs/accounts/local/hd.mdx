@@ -72,11 +72,7 @@ import { HdKey } from 'viem/utils'
 const account = Account.fromHdKey(HdKey.fromSeed('0x...')) // [!code focus]
 ```
 
-#### options
-
-- **Type:** `Account.fromHdKey.Options`
-
-##### accountIndex
+#### options.accountIndex
 
 - **Type:** `number`
 
@@ -91,7 +87,7 @@ const account = Account.fromHdKey(HdKey.fromSeed('0x...'), {
 })
 ```
 
-##### addressIndex
+#### options.addressIndex
 
 - **Type:** `number`
 
@@ -106,7 +102,7 @@ const account = Account.fromHdKey(HdKey.fromSeed('0x...'), {
 })
 ```
 
-##### changeIndex
+#### options.changeIndex
 
 - **Type:** `number`
 
@@ -121,7 +117,7 @@ const account = Account.fromHdKey(HdKey.fromSeed('0x...'), {
 })
 ```
 
-##### nonceManager
+#### options.nonceManager
 
 - **Type:** `NonceManager.NonceManager`
 
@@ -136,7 +132,7 @@ const account = Account.fromHdKey(HdKey.fromSeed('0x...'), {
 })
 ```
 
-##### path
+#### options.path
 
 - **Type:** `` `m/44'/60'/${string}` ``
 
