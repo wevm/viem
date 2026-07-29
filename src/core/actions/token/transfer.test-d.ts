@@ -1,9 +1,11 @@
-import { describe, test } from 'vitest'
+import type { Address, Hex, Log } from 'ox'
+import { describe, expectTypeOf, test } from 'vitest'
 
 import { Account, Client, http } from 'viem'
 import { mainnet, zora } from 'viem/chains'
 import { usdc } from 'viem/tokens'
 
+import type { getCallsStatus } from '../wallet/getCallsStatus.js'
 import { transfer } from './transfer.js'
 import { transferSync } from './transferSync.js'
 
@@ -72,6 +74,43 @@ describe('transfer: token selector', () => {
     })
     // @ts-expect-error - the client declares no `tokens`, so symbols are unavailable
     transfer(client, { amount: { formatted: '1' }, to: '0x', token: 'usdc' })
+  })
+})
+
+describe('transfer.extractEvent: log shape', () => {
+  test('accepts EIP-5792 call receipt logs', () => {
+    const logs: getCallsStatus.ReturnType['receipts'][number]['logs'] = []
+    const log = transfer.extractEvent(logs)
+
+    expectTypeOf(log.eventName).toEqualTypeOf<'Transfer'>()
+    expectTypeOf(log.args).toEqualTypeOf<{
+      from: Address.Address
+      to: Address.Address
+      value: bigint
+    }>()
+  })
+
+  test('does not invent metadata the input never carried', () => {
+    const logs: getCallsStatus.ReturnType['receipts'][number]['logs'] = []
+    const log = transfer.extractEvent(logs)
+
+    expectTypeOf(log).not.toHaveProperty('blockNumber')
+    expectTypeOf(log).not.toHaveProperty('transactionHash')
+    expectTypeOf(log.address).toEqualTypeOf<Address.Address>()
+    expectTypeOf(log.data).toEqualTypeOf<Hex.Hex>()
+  })
+
+  test('preserves metadata for full logs', () => {
+    const logs: readonly Log.Log[] = []
+    const log = transfer.extractEvent(logs)
+
+    expectTypeOf(log.blockNumber).toEqualTypeOf<bigint>()
+    expectTypeOf(log.transactionHash).toEqualTypeOf<Hex.Hex>()
+  })
+
+  test('rejects logs without topics', () => {
+    // @ts-expect-error - `topics` is the one field decoding cannot do without
+    transfer.extractEvent([{ address: '0x', data: '0x' }])
   })
 })
 

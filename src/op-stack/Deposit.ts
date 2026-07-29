@@ -32,19 +32,23 @@ export type Request = {
 )
 
 /** A decoded `TransactionDeposited` log. */
-export type TransactionDepositedLog = AbiEvent.extractLogs.ReturnType<
+export type TransactionDepositedLog<
+  log extends AbiEvent.extractLogs.Log = Log.Log,
+> = AbiEvent.extractLogs.ReturnType<
   AbiEvent.extractLogs.ExtractEvent<
     typeof Abis.portalAbi,
     'TransactionDeposited'
   >,
-  Log.Log,
+  log,
   true
 >
 
 /** Extracts `TransactionDeposited` events from L1 logs. */
-export function extractTransactionDepositedLogs(
-  options: extractTransactionDepositedLogs.Options,
-): extractTransactionDepositedLogs.ReturnType {
+export function extractTransactionDepositedLogs<
+  const log extends AbiEvent.extractLogs.Log,
+>(
+  options: extractTransactionDepositedLogs.Options<log>,
+): extractTransactionDepositedLogs.ReturnType<log> {
   return AbiEvent.extractLogs(Abis.portalAbi, options.logs, {
     eventName: 'TransactionDeposited',
     strict: true,
@@ -53,13 +57,14 @@ export function extractTransactionDepositedLogs(
 
 export declare namespace extractTransactionDepositedLogs {
   /** Options for {@link extractTransactionDepositedLogs}. */
-  type Options = {
+  type Options<log extends AbiEvent.extractLogs.Log = Log.Log> = {
     /** L1 logs to inspect. */
-    logs: readonly Log.Log[]
+    logs: readonly log[]
   }
 
   /** Return type of {@link extractTransactionDepositedLogs}. */
-  type ReturnType = readonly TransactionDepositedLog[]
+  type ReturnType<log extends AbiEvent.extractLogs.Log = Log.Log> =
+    readonly TransactionDepositedLog<log>[]
 
   /** Errors thrown by {@link extractTransactionDepositedLogs}. */
   type ErrorType = AbiEvent.extractLogs.ErrorType | Errors.GlobalErrorType
@@ -124,7 +129,7 @@ export function getL2TransactionHashes(
 
 export declare namespace getL2TransactionHashes {
   /** Options for {@link getL2TransactionHashes}. */
-  type Options = extractTransactionDepositedLogs.Options
+  type Options = extractTransactionDepositedLogs.Options<Log.Log>
 
   /** Return type of {@link getL2TransactionHashes}. */
   type ReturnType = readonly Hex.Hex[]

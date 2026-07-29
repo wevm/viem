@@ -35,19 +35,22 @@ export type Withdrawal = {
 }
 
 /** A decoded `MessagePassed` log. */
-export type MessagePassedLog = AbiEvent.extractLogs.ReturnType<
-  AbiEvent.extractLogs.ExtractEvent<
-    typeof Abis.l2ToL1MessagePasserAbi,
-    'MessagePassed'
-  >,
-  Log.Log,
-  true
->
+export type MessagePassedLog<log extends AbiEvent.extractLogs.Log = Log.Log> =
+  AbiEvent.extractLogs.ReturnType<
+    AbiEvent.extractLogs.ExtractEvent<
+      typeof Abis.l2ToL1MessagePasserAbi,
+      'MessagePassed'
+    >,
+    log,
+    true
+  >
 
 /** Extracts `MessagePassed` events from L2 logs. */
-export function extractWithdrawalMessageLogs(
-  options: extractWithdrawalMessageLogs.Options,
-): extractWithdrawalMessageLogs.ReturnType {
+export function extractWithdrawalMessageLogs<
+  const log extends AbiEvent.extractLogs.Log,
+>(
+  options: extractWithdrawalMessageLogs.Options<log>,
+): extractWithdrawalMessageLogs.ReturnType<log> {
   return AbiEvent.extractLogs(Abis.l2ToL1MessagePasserAbi, options.logs, {
     eventName: 'MessagePassed',
     strict: true,
@@ -56,13 +59,14 @@ export function extractWithdrawalMessageLogs(
 
 export declare namespace extractWithdrawalMessageLogs {
   /** Options for {@link extractWithdrawalMessageLogs}. */
-  type Options = {
+  type Options<log extends AbiEvent.extractLogs.Log = Log.Log> = {
     /** L2 logs to inspect. */
-    logs: readonly Log.Log[]
+    logs: readonly log[]
   }
 
   /** Return type of {@link extractWithdrawalMessageLogs}. */
-  type ReturnType = readonly MessagePassedLog[]
+  type ReturnType<log extends AbiEvent.extractLogs.Log = Log.Log> =
+    readonly MessagePassedLog<log>[]
 
   /** Errors thrown by {@link extractWithdrawalMessageLogs}. */
   type ErrorType = AbiEvent.extractLogs.ErrorType | Errors.GlobalErrorType
@@ -97,15 +101,16 @@ export declare namespace getWithdrawalHashStorageSlot {
 }
 
 /** Extracts withdrawals from L2 receipt logs. */
-export function getWithdrawals(
-  options: getWithdrawals.Options,
+export function getWithdrawals<const log extends AbiEvent.extractLogs.Log>(
+  options: getWithdrawals.Options<log>,
 ): getWithdrawals.ReturnType {
   return extractWithdrawalMessageLogs(options).map((log) => log.args)
 }
 
 export declare namespace getWithdrawals {
   /** Options for {@link getWithdrawals}. */
-  type Options = extractWithdrawalMessageLogs.Options
+  type Options<log extends AbiEvent.extractLogs.Log = Log.Log> =
+    extractWithdrawalMessageLogs.Options<log>
 
   /** Return type of {@link getWithdrawals}. */
   type ReturnType = readonly Withdrawal[]
