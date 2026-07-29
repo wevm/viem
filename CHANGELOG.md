@@ -1,5 +1,11 @@
 # viem
 
+## 3.0.0-next.2
+
+### Patch Changes
+
+- [#4921](https://github.com/wevm/viem/pull/4921) [`3e017f3`](https://github.com/wevm/viem/commit/3e017f3f2375b922be81bb660fe5f473c27ce6a9) Thanks [@jxom](https://github.com/jxom)! - Moved the typed-data signing and verification actions to `Actions.typedData` and the SIWE verification action to `Actions.siwe`.
+
 ## 3.0.0-next.1
 
 ### Patch Changes
