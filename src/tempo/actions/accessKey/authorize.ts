@@ -1,5 +1,5 @@
 import { AbiEvent } from 'ox'
-import type { Errors, Log } from 'ox'
+import type { Errors } from 'ox'
 
 import * as CoreAccount from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -101,7 +101,9 @@ export namespace authorize {
   }
 
   /** Extracts the `KeyAuthorized` event from logs. */
-  export function extractEvent(logs: readonly Log.Log[]) {
+  export function extractEvent<
+    const logs extends readonly AbiEvent.extractLogs.Log[],
+  >(logs: logs) {
     const [log] = AbiEvent.extractLogs(Abis.accountKeychain, logs, {
       eventName: 'KeyAuthorized',
       strict: true,

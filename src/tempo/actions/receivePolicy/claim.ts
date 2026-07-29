@@ -1,5 +1,5 @@
 import { AbiEvent } from 'ox'
-import type { Address, Errors, Hex, Log } from 'ox'
+import type { Address, Errors, Hex } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -101,7 +101,9 @@ export namespace claim {
   }
 
   /** Extracts the `ReceiptClaimed` event from logs. */
-  export function extractEvent(logs: readonly Log.Log[]) {
+  export function extractEvent<
+    const logs extends readonly AbiEvent.extractLogs.Log[],
+  >(logs: logs) {
     const [log] = AbiEvent.extractLogs(Abis.receivePolicyGuard, logs, {
       eventName: 'ReceiptClaimed',
       strict: true,

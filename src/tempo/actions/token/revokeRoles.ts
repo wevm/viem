@@ -1,5 +1,5 @@
 import { AbiEvent, AbiFunction } from 'ox'
-import type { Address, Errors, Hex, Log } from 'ox'
+import type { Address, Errors, Hex } from 'ox'
 import { TokenRole } from 'ox/tempo'
 
 import type * as Account from '../../../core/Account.js'
@@ -121,7 +121,9 @@ export namespace revokeRoles {
    * @param logs - The logs.
    * @returns The `RoleMembershipUpdated` events.
    */
-  export function extractEvents(logs: readonly Log.Log[]) {
+  export function extractEvents<
+    const logs extends readonly AbiEvent.extractLogs.Log[],
+  >(logs: logs) {
     const events = AbiEvent.extractLogs(Abis.tip20, logs, {
       eventName: 'RoleMembershipUpdated',
       strict: true,

@@ -1,5 +1,5 @@
 import { AbiEvent } from 'ox'
-import type { Errors, Hex, Log } from 'ox'
+import type { Errors, Hex } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -102,7 +102,9 @@ export namespace burn {
   }
 
   /** Extracts the `ReceiptBurned` event from logs. */
-  export function extractEvent(logs: readonly Log.Log[]) {
+  export function extractEvent<
+    const logs extends readonly AbiEvent.extractLogs.Log[],
+  >(logs: logs) {
     const [log] = AbiEvent.extractLogs(Abis.receivePolicyGuard, logs, {
       eventName: 'ReceiptBurned',
       strict: true,
