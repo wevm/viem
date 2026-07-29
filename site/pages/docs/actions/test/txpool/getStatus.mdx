@@ -1,20 +1,17 @@
 # getStatus
 
-## Overview
-
 Returns the number of transactions currently pending for inclusion in the next blocks, as well as the ones being scheduled for future execution.
 
-## Recipes
+## Usage
 
-### Get Transaction Pool Status
-
+This example returns the number of transactions currently pending for inclusion in the next block(s), as well as the ones being scheduled for future execution.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const result = await client.txpool.getStatus() // [!code focus]
+const result = await client.txpool.getStatus()
 // @log: { pending: 12, queued: 3 }
 ```
 
@@ -30,13 +27,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.txpool.getStatus`
+### Standalone Action
 
-Returns the number of transactions currently pending for inclusion in the next blocks, as well as the ones being scheduled for future execution.
-
-### Usage
-
-Call [`Actions.txpool.getStatus`](#actionstxpoolgetstatus) directly by passing the Client as the first argument.
+Call `Actions.txpool.getStatus` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -60,7 +53,7 @@ export const client = Client.create({
 
 :::
 
-### Return Value
+## Return Value
 
 `{ pending: number; queued: number }`
 

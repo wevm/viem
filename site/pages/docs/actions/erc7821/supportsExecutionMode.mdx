@@ -1,22 +1,19 @@
 # supportsExecutionMode
 
-## Overview
-
 Checks if a contract supports an [ERC-7821](https://eips.ethereum.org/EIPS/eip-7821) execution mode. Results are cached per client, address, and mode.
 
-## Recipes
+## Usage
 
-### Check an Execution Mode
-
+This example checks if a contract supports an [ERC-7821](https://eips.ethereum.org/EIPS/eip-7821) execution mode.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const supported = await client.erc7821.supportsExecutionMode({ // [!code focus]
-  address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
-}) // [!code focus]
+const supported = await client.erc7821.supportsExecutionMode({
+  address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+})
 // @log: true
 ```
 
@@ -32,13 +29,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.erc7821.supportsExecutionMode`
+### Standalone Action
 
-Checks if a contract supports an [ERC-7821](https://eips.ethereum.org/EIPS/eip-7821) execution mode. Results are cached per client, address, and mode.
-
-### Usage
-
-Call [`Actions.erc7821.supportsExecutionMode`](#actionserc7821supportsexecutionmode) directly by passing the Client as the first argument.
+Call `Actions.erc7821.supportsExecutionMode` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -64,9 +57,15 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
 
-#### options.address
+`boolean`
+
+Whether the contract supports the execution mode. Returns `false` when the contract does not implement `supportsExecutionMode` (or the call fails).
+
+## Parameters
+
+### address
 
 - **Type:** `Address`
 
@@ -81,7 +80,7 @@ const supported = await Actions.erc7821.supportsExecutionMode(client, {
 })
 ```
 
-#### options.mode
+### mode
 
 - **Type:** `'default' | 'opData' | 'batchOfBatches' | Hex`
 - **Default:** `'default'`
@@ -98,9 +97,3 @@ const supported = await Actions.erc7821.supportsExecutionMode(client, {
   mode: 'opData', // [!code focus]
 })
 ```
-
-### Return Value
-
-`boolean`
-
-Whether the contract supports the execution mode. Returns `false` when the contract does not implement `supportsExecutionMode` (or the call fails).

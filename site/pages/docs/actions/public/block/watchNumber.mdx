@@ -1,25 +1,21 @@
 # watchNumber
 
-## Overview
-
 Watches incoming block numbers, returning a watcher handle.
 
 The watcher subscribes to `newHeads` with `eth_subscribe` when the Client uses a WebSocket or IPC transport. Otherwise, the watcher polls `eth_blockNumber`.
 
 The source starts when the first listener or iterator attaches.
 
-## Recipes
+## Usage
 
-### Watch Block Numbers
-
-Watches incoming block numbers, returning a watcher handle.
+This example watches incoming block numbers, returning a watcher handle.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const watch = client.block.watchNumber() // [!code focus]
+const watch = client.block.watchNumber()
 
 watch.onBlockNumber((blockNumber) => console.log(blockNumber))
 // @log: 19868020n
@@ -39,6 +35,39 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.block.watchNumber` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const watch = Actions.block.watchNumber(client)
+
+watch.onBlockNumber((blockNumber) => console.log(blockNumber))
+// @log: 19868020n
+
+// later: stop watching
+watch.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
 
 ### Emit the Current Block Number
 
@@ -82,120 +111,7 @@ const watch = client.block.watchNumber({
 watch.onBlockNumber((blockNumber) => console.log(blockNumber))
 ```
 
-## `Actions.block.watchNumber`
-
-Watches incoming block numbers, returning a watcher handle.
-
-### Usage
-
-Call [`Actions.block.watchNumber`](#actionsblockwatchnumber) directly by passing the Client as the first argument.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const watch = Actions.block.watchNumber(client)
-
-watch.onBlockNumber((blockNumber) => console.log(blockNumber))
-// @log: 19868020n
-
-// later: stop watching
-watch.off()
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.emitMissed
-
-- **Type:** `boolean`
-- **Default:** `false`
-
-Whether to emit the block numbers missed between polls (for example, when the block number jumps by more than one between intervals).
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const watch = Actions.block.watchNumber(client, {
-  emitMissed: true, // [!code focus]
-})
-watch.onBlockNumber((blockNumber) => console.log(blockNumber))
-```
-
-#### options.emitOnBegin
-
-- **Type:** `boolean`
-- **Default:** `false`
-
-Whether to emit the latest block number when the watcher opens.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const watch = Actions.block.watchNumber(client, {
-  emitOnBegin: true, // [!code focus]
-})
-watch.onBlockNumber((blockNumber) => console.log(blockNumber))
-```
-
-#### options.poll
-
-- **Type:** `boolean`
-- **Default:** `false` for WebSocket or IPC transports, `true` otherwise
-
-Whether to poll for new block numbers instead of using a subscription. Defaults to `true` when the transport cannot subscribe.
-
-```ts twoslash
-import { Actions, Client, webSocket } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: webSocket() })
-// ---cut---
-const watch = Actions.block.watchNumber(client, {
-  poll: true, // [!code focus]
-})
-watch.onBlockNumber((blockNumber) => console.log(blockNumber))
-```
-
-#### options.pollingInterval
-
-- **Type:** `number`
-- **Default:** `client.pollingInterval`
-
-Polling frequency (in milliseconds).
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const watch = Actions.block.watchNumber(client, {
-  pollingInterval: 1_000, // [!code focus]
-})
-watch.onBlockNumber((blockNumber) => console.log(blockNumber))
-```
-
-### Return Value
+## Return Value
 
 `Watcher`
 
@@ -275,4 +191,82 @@ const watch = Actions.block.watchNumber(client)
 
 for await (const { blockNumber } of watch) // [!code focus]
   console.log(blockNumber) // [!code focus]
+```
+
+## Parameters
+
+### emitMissed
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether to emit the block numbers missed between polls (for example, when the block number jumps by more than one between intervals).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const watch = Actions.block.watchNumber(client, {
+  emitMissed: true, // [!code focus]
+})
+watch.onBlockNumber((blockNumber) => console.log(blockNumber))
+```
+
+### emitOnBegin
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether to emit the latest block number when the watcher opens.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const watch = Actions.block.watchNumber(client, {
+  emitOnBegin: true, // [!code focus]
+})
+watch.onBlockNumber((blockNumber) => console.log(blockNumber))
+```
+
+### poll
+
+- **Type:** `boolean`
+- **Default:** `false` for WebSocket or IPC transports, `true` otherwise
+
+Whether to poll for new block numbers instead of using a subscription. Defaults to `true` when the transport cannot subscribe.
+
+```ts twoslash
+import { Actions, Client, webSocket } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: webSocket() })
+// ---cut---
+const watch = Actions.block.watchNumber(client, {
+  poll: true, // [!code focus]
+})
+watch.onBlockNumber((blockNumber) => console.log(blockNumber))
+```
+
+### pollingInterval
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Polling frequency (in milliseconds).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const watch = Actions.block.watchNumber(client, {
+  pollingInterval: 1_000, // [!code focus]
+})
+watch.onBlockNumber((blockNumber) => console.log(blockNumber))
 ```

@@ -1,21 +1,17 @@
 # getId
 
-## Overview
-
 Returns the chain ID associated with the current network.
 
-## Recipes
+## Usage
 
-### Read the Chain ID
-
-Returns the chain ID associated with the current network.
+This example returns the chain ID associated with the current network.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const chainId = await client.chains.getId() // [!code focus]
+const chainId = await client.chains.getId()
 // @log: 1
 ```
 
@@ -31,13 +27,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.chains.getId`
+### Standalone Action
 
-Returns the chain ID associated with the current network.
-
-### Usage
-
-Call [`Actions.chains.getId`](#actionschainsgetid) directly by passing the Client as the first argument.
+Call `Actions.chains.getId` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -61,7 +53,7 @@ export const client = Client.create({
 
 :::
 
-### Return Value
+## Return Value
 
 `number`
 

@@ -1,21 +1,17 @@
 # estimateFeesPerGas
 
-## Overview
-
 Returns an estimate for the fees per gas (in wei) for a transaction to be likely included in the next block.
 
-## Recipes
+## Usage
 
-### Estimate Transaction Fees
-
-Returns an estimate for the fees per gas (in wei) for a transaction to be likely included in the next block.
+This example returns an estimate for the fees per gas (in wei) for a transaction to be likely included in the next block.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const fees = await client.fee.estimateFeesPerGas() // [!code focus]
+const fees = await client.fee.estimateFeesPerGas()
 // @log: {
 // @log:   maxFeePerGas: 15040000000n,
 // @log:   maxPriorityFeePerGas: 1000000000n,
@@ -34,13 +30,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.fee.estimateFeesPerGas`
+### Standalone Action
 
-Returns an estimate for the fees per gas (in wei) for a transaction to be likely included in the next block.
-
-### Usage
-
-Call [`Actions.fee.estimateFeesPerGas`](#actionsfeeestimatefeespergas) directly by passing the Client as the first argument.
+Call `Actions.fee.estimateFeesPerGas` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -67,9 +59,15 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
 
-#### options.chain
+`{ gasPrice } | { maxFeePerGas, maxPriorityFeePerGas }`
+
+An estimate (in wei) for the fees per gas. Returns `maxFeePerGas` and `maxPriorityFeePerGas` for the default `eip1559` type, or `gasPrice` for the `legacy` type.
+
+## Parameters
+
+### chain
 
 - **Type:** `Chain`
 - **Default:** `client.chain`
@@ -87,7 +85,7 @@ const fees = await Actions.fee.estimateFeesPerGas(client, {
 })
 ```
 
-#### options.type
+### type
 
 - **Type:** `'legacy' | 'eip1559'`
 - **Default:** `'eip1559'`
@@ -105,13 +103,7 @@ const { gasPrice } = await Actions.fee.estimateFeesPerGas(client, {
 })
 ```
 
-### Return Value
-
-`{ gasPrice } | { maxFeePerGas, maxPriorityFeePerGas }`
-
-An estimate (in wei) for the fees per gas. Returns `maxFeePerGas` and `maxPriorityFeePerGas` for the default `eip1559` type, or `gasPrice` for the `legacy` type.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

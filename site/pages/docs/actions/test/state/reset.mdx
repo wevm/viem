@@ -1,24 +1,20 @@
 # reset
 
-## Overview
-
 Resets the fork back to its original state.
 
-## Recipes
+## Usage
 
-### Reset Node State
-
-Resets a test node to a configured fork block.
+This example resets the fork back to its original state.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.state.reset({ // [!code focus]
-  blockNumber: 19_868_020n, // [!code focus]
-  jsonRpcUrl: 'https://eth.merkle.io', // [!code focus]
-}) // [!code focus]
+await client.state.reset({
+  blockNumber: 19_868_020n,
+  jsonRpcUrl: 'https://eth.merkle.io',
+})
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -33,29 +29,9 @@ export const client = Client.create({
 
 :::
 
-### Reset to the Original Fork
+### Standalone Action
 
-Omit fork options to reset the node to its original fork configuration.
-
-```ts twoslash
-import { Client, http, testActions } from 'viem'
-import { anvil } from 'viem/chains'
-
-const client = Client.create({
-  chain: anvil,
-  transport: http(),
-}).extend(testActions())
-
-await client.state.reset() // [!code focus]
-```
-
-## `Actions.state.reset`
-
-Resets the fork back to its original state.
-
-### Usage
-
-Call [`Actions.state.reset`](#actionsstatereset) directly by passing the Client as the first argument.
+Call `Actions.state.reset` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -81,9 +57,33 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Recipes
 
-#### options.blockNumber
+### Reset to the Original Fork
+
+Omit fork options to reset the node to its original fork configuration.
+
+```ts twoslash
+import { Client, http, testActions } from 'viem'
+import { anvil } from 'viem/chains'
+
+const client = Client.create({
+  chain: anvil,
+  transport: http(),
+}).extend(testActions())
+
+await client.state.reset() // [!code focus]
+```
+
+## Return Value
+
+`void`
+
+No value is returned.
+
+## Parameters
+
+### blockNumber
 
 - **Type:** `bigint`
 - **Optional**
@@ -106,7 +106,7 @@ await Actions.state.reset(client, {
 })
 ```
 
-#### options.jsonRpcUrl
+### jsonRpcUrl
 
 - **Type:** `string`
 - **Optional**
@@ -129,7 +129,7 @@ await Actions.state.reset(client, {
 })
 ```
 
-#### options.mode
+### mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`
@@ -151,9 +151,3 @@ await Actions.state.reset(client, {
   mode: 'hardhat', // [!code focus]
 })
 ```
-
-### Return Value
-
-`void`
-
-No value is returned.

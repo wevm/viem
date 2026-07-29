@@ -1,14 +1,10 @@
 # uninstall
 
-## Overview
-
 Destroys a filter and returns whether it was uninstalled.
 
-## Recipes
+## Usage
 
-### Uninstall a Filter
-
-Destroys a filter and returns whether it was uninstalled.
+This example destroys a filter and returns whether it was uninstalled.
 
 :::code-group
 
@@ -18,7 +14,7 @@ import { client } from './viem.config'
 
 const filter = await client.block.createFilter()
 
-const uninstalled = await client.filter.uninstall({ filter }) // [!code focus]
+const uninstalled = await client.filter.uninstall({ filter })
 // @log: true
 ```
 
@@ -34,13 +30,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.filter.uninstall`
+### Standalone Action
 
-Destroys a filter and returns whether it was uninstalled.
-
-### Usage
-
-Call [`Actions.filter.uninstall`](#actionsfilteruninstall) directly by passing the Client as the first argument.
+Call `Actions.filter.uninstall` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -66,9 +58,15 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
 
-#### options.filter
+`boolean`
+
+Whether the filter was uninstalled.
+
+## Parameters
+
+### filter
 
 - **Type:** `Actions.filter.Filter`
 
@@ -84,9 +82,3 @@ const filter = await Actions.block.createFilter(client) // [!code focus]
 
 const uninstalled = await Actions.filter.uninstall(client, { filter })
 ```
-
-### Return Value
-
-`boolean`
-
-Whether the filter was uninstalled.

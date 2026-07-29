@@ -1,22 +1,19 @@
 # connect
 
-## Overview
-
 Requests to connect accounts with optional capabilities via [ERC-7846 `wallet_connect`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7846.md).
 
 Falls back to [`Actions.wallet.requestAddresses`](/docs/actions/wallet/requestAddresses) (`eth_requestAccounts`) when the wallet does not support `wallet_connect` and no capabilities were requested.
 
-## Recipes
+## Usage
 
-### Connect to a Wallet
-
+This example connects to wallet accounts with optional capabilities.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { accounts } = await client.wallet.connect() // [!code focus]
+const { accounts } = await client.wallet.connect()
 // @log: [{ address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', capabilities: {} }]
 ```
 
@@ -31,13 +28,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.wallet.connect`
+### Standalone Action
 
-Requests to connect accounts with optional capabilities via [ERC-7846 `wallet_connect`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7846.md).
-
-### Usage
-
-Call [`Actions.wallet.connect`](#actionswalletconnect) directly by passing the Client as the first argument.
+Call `Actions.wallet.connect` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -60,9 +53,15 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
 
-#### options.capabilities
+`{ accounts: readonly { address: Address; capabilities?: Capabilities }[] }`
+
+The connected accounts, each with its checksummed `address` and any [capabilities](/docs/actions/capabilities) granted or returned by the wallet.
+
+## Parameters
+
+### capabilities
 
 - **Type:** `Capabilities`
 
@@ -81,9 +80,3 @@ const { accounts } = await Actions.wallet.connect(client, {
   }, // [!code focus]
 })
 ```
-
-### Return Value
-
-`{ accounts: readonly { address: Address; capabilities?: Capabilities }[] }`
-
-The connected accounts, each with its checksummed `address` and any [capabilities](/docs/actions/capabilities) granted or returned by the wallet.

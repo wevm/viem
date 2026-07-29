@@ -1,21 +1,18 @@
 # getCapabilities
 
-## Overview
-
 Retrieves capabilities such as paymasters and session keys from a connected wallet, as defined by
 [EIP-5792](https://eips.ethereum.org/EIPS/eip-5792).
 
-## Recipes
+## Usage
 
-### Get Wallet Capabilities
-
+This example gets the capabilities supported by a connected wallet.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const capabilities = await client.wallet.getCapabilities() // [!code focus]
+const capabilities = await client.wallet.getCapabilities()
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -29,14 +26,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.wallet.getCapabilities`
+### Standalone Action
 
-Retrieves capabilities such as paymasters and session keys from a connected wallet, as defined by
-[EIP-5792](https://eips.ethereum.org/EIPS/eip-5792).
-
-### Usage
-
-Call [`Actions.wallet.getCapabilities`](#actionswalletgetcapabilities) directly by passing the Client as the first argument.
+Call `Actions.wallet.getCapabilities` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -58,9 +50,15 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
 
-#### options.account
+`{ [chainId: number]: Capabilities }`
+
+The wallet's capabilities, keyed by chain ID. When a `chainId` is provided, the capabilities for that chain are returned directly.
+
+## Parameters
+
+### account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -76,7 +74,7 @@ const capabilities = await Actions.wallet.getCapabilities(client, {
 })
 ```
 
-#### options.chainId
+### chainId
 
 - **Type:** `number`
 
@@ -90,9 +88,3 @@ const capabilities = await Actions.wallet.getCapabilities(client, {
   chainId: 1, // [!code focus]
 })
 ```
-
-### Return Value
-
-`{ [chainId: number]: Capabilities }`
-
-The wallet's capabilities, keyed by chain ID. When a `chainId` is provided, the capabilities for that chain are returned directly.

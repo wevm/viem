@@ -1,24 +1,20 @@
 # mine
 
-## Overview
-
 Mines a specified number of blocks.
 
-## Recipes
+## Usage
 
-### Mine Blocks
-
-Mines blocks immediately or at a configured interval.
+This example mines a specified number of blocks.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.block.mine({ // [!code focus]
-  blocks: 1, // [!code focus]
-  interval: 1, // [!code focus]
-}) // [!code focus]
+await client.block.mine({
+  blocks: 1,
+  interval: 1,
+})
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -33,32 +29,9 @@ export const client = Client.create({
 
 :::
 
-### Mine Multiple Spaced Blocks
+### Standalone Action
 
-Set `blocks` and `interval` to mine several blocks with a fixed timestamp interval in seconds.
-
-```ts twoslash
-import { Client, http, testActions } from 'viem'
-import { anvil } from 'viem/chains'
-
-const client = Client.create({
-  chain: anvil,
-  transport: http(),
-}).extend(testActions())
-
-await client.block.mine({
-  blocks: 5, // [!code focus]
-  interval: 12, // [!code focus]
-})
-```
-
-## `Actions.block.mine`
-
-Mines a specified number of blocks.
-
-### Usage
-
-Call [`Actions.block.mine`](#actionsblockmine) directly by passing the Client as the first argument.
+Call `Actions.block.mine` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -84,9 +57,36 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Recipes
 
-#### options.blocks
+### Mine Multiple Spaced Blocks
+
+Set `blocks` and `interval` to mine several blocks with a fixed timestamp interval in seconds.
+
+```ts twoslash
+import { Client, http, testActions } from 'viem'
+import { anvil } from 'viem/chains'
+
+const client = Client.create({
+  chain: anvil,
+  transport: http(),
+}).extend(testActions())
+
+await client.block.mine({
+  blocks: 5, // [!code focus]
+  interval: 12, // [!code focus]
+})
+```
+
+## Return Value
+
+`void`
+
+No value is returned.
+
+## Parameters
+
+### blocks
 
 - **Type:** `number`
 
@@ -108,7 +108,7 @@ await Actions.block.mine(client, {
 })
 ```
 
-#### options.interval
+### interval
 
 - **Type:** `number`
 - **Default:** `0`
@@ -131,7 +131,7 @@ await Actions.block.mine(client, {
 })
 ```
 
-#### options.mode
+### mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`
@@ -153,9 +153,3 @@ await Actions.block.mine(client, {
   mode: 'hardhat', // [!code focus]
 })
 ```
-
-### Return Value
-
-`void`
-
-No value is returned.

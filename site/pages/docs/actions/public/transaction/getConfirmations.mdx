@@ -1,23 +1,19 @@
 # getConfirmations
 
-## Overview
-
 Returns the number of blocks passed (confirmations) since the transaction was processed on a block.
 
-## Recipes
+## Usage
 
-### Count Transaction Confirmations
-
-Returns the number of blocks passed (confirmations) since the transaction was processed on a block.
+This example returns the number of blocks passed (confirmations) since the transaction was processed on a block.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const confirmations = await client.transaction.getConfirmations({ // [!code focus]
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus]
-}) // [!code focus]
+const confirmations = await client.transaction.getConfirmations({
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+})
 // @log: 15n
 ```
 
@@ -33,13 +29,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.transaction.getConfirmations`
+### Standalone Action
 
-Returns the number of blocks passed (confirmations) since the transaction was processed on a block.
-
-### Usage
-
-Call [`Actions.transaction.getConfirmations`](#actionstransactiongetconfirmations) directly by passing the Client as the first argument.
+Call `Actions.transaction.getConfirmations` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -65,9 +57,15 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
 
-#### options.hash
+`bigint`
+
+The number of blocks passed since the transaction was processed. If confirmations is `0`, the transaction has not been confirmed and processed yet.
+
+## Parameters
+
+### hash
 
 - **Type:** `Hex`
 
@@ -84,11 +82,11 @@ const confirmations = await Actions.transaction.getConfirmations(client, {
 })
 ```
 
-#### options.transactionReceipt
+### transactionReceipt
 
 - **Type:** `TransactionReceipt`
 
-Compute confirmations from an already-fetched [transaction receipt](/docs/actions/public/transaction/getReceipt), saving an extra `eth_getTransactionByHash` request. Mutually exclusive with [`hash`](#optionshash).
+Compute confirmations from an already-fetched [transaction receipt](/docs/actions/public/transaction/getReceipt), saving an extra `eth_getTransactionByHash` request. Mutually exclusive with [`hash`](#hash).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -105,13 +103,7 @@ const confirmations = await Actions.transaction.getConfirmations(client, {
 })
 ```
 
-### Return Value
-
-`bigint`
-
-The number of blocks passed since the transaction was processed. If confirmations is `0`, the transaction has not been confirmed and processed yet.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

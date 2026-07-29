@@ -1,22 +1,19 @@
 # sendRaw
 
-## Overview
-
 Sends a **signed** serialized transaction to the network (`eth_sendRawTransaction`).
 
-## Recipes
+## Usage
 
-### Send a Raw Transaction
-
+This example sends a **signed** serialized transaction to the network (`eth_sendRawTransaction`).
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const hash = await client.transaction.sendRaw({ // [!code focus]
-  transaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33', // [!code focus]
-}) // [!code focus]
+const hash = await client.transaction.sendRaw({
+  transaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33',
+})
 // @log: '0x...'
 ```
 
@@ -32,13 +29,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.transaction.sendRaw`
+### Standalone Action
 
-Sends a **signed** serialized transaction to the network (`eth_sendRawTransaction`).
-
-### Usage
-
-Call [`Actions.transaction.sendRaw`](#actionstransactionsendraw) directly by passing the Client as the first argument.
+Call `Actions.transaction.sendRaw` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -64,9 +57,15 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
 
-#### options.requestOptions
+`Hex`
+
+The transaction hash.
+
+## Parameters
+
+### requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -85,7 +84,7 @@ const hash = await Actions.transaction.sendRaw(client, {
 })
 ```
 
-#### options.transaction
+### transaction
 
 - **Type:** `Hex`
 
@@ -101,9 +100,3 @@ const hash = await Actions.transaction.sendRaw(client, {
   transaction: '0x02f850018203118080825208808080c080a0…', // [!code focus]
 })
 ```
-
-### Return Value
-
-`Hex`
-
-The transaction hash.

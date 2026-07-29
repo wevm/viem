@@ -1,20 +1,14 @@
 # createEventFilter
 
-## Overview
-
 Creates a filter to listen for new event logs emitted by a contract.
 
 Poll the filter with [`Actions.filter.getChanges`](/docs/actions/public/filter/getChanges). Use [`Actions.filter.getLogs`](/docs/actions/public/filter/getLogs) to read the full set.
 
 Call [`Actions.filter.uninstall`](/docs/actions/public/filter/uninstall) when you finish. Viem decodes matching logs with the contract ABI stored by the filter.
 
-## Recipes
+## Usage
 
-Use a Client method or pass the Client to the standalone action.
-
-### Create a Contract Event Filter
-
-Creates a filter to listen for new event logs emitted by a contract.
+This example creates a filter to listen for new event logs emitted by a contract.
 
 :::code-group
 
@@ -22,10 +16,10 @@ Creates a filter to listen for new event logs emitted by a contract.
 import { Abis } from 'viem/utils'
 import { client } from './viem.config'
 
-const filter = await client.contract.createEventFilter({ // [!code focus]
-  abi: Abis.erc20, // [!code focus]
-  eventName: 'Transfer', // [!code focus]
-}) // [!code focus]
+const filter = await client.contract.createEventFilter({
+  abi: Abis.erc20,
+  eventName: 'Transfer',
+})
 
 const logs = await client.filter.getChanges({ filter })
 ```
@@ -41,6 +35,41 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.contract.createEventFilter` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { Abis } from 'viem/utils'
+import { client } from './viem.config'
+
+const filter = await Actions.contract.createEventFilter(client, {
+  abi: Abis.erc20,
+  eventName: 'Transfer',
+})
+
+const logs = await Actions.filter.getChanges(client, { filter })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
+
+Use a Client method or pass the Client to the standalone action.
 
 ### Filtering by Indexed Arguments
 
@@ -76,44 +105,15 @@ const filter = await Actions.contract.createEventFilter(client, {
 })
 ```
 
-## `Actions.contract.createEventFilter`
+## Return Value
 
-Creates a filter to listen for new event logs emitted by a contract.
+`Actions.filter.Filter<'event'>`
 
-### Usage
+An event filter typed from the contract ABI. Its `request` function uses the transport that created the filter ID.
 
-Call [`Actions.contract.createEventFilter`](#actionscontractcreateeventfilter) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { Abis } from 'viem/utils'
-import { client } from './viem.config'
-
-const filter = await Actions.contract.createEventFilter(client, {
-  abi: Abis.erc20,
-  eventName: 'Transfer',
-})
-
-const logs = await Actions.filter.getChanges(client, { filter })
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.abi
+### abi
 
 - **Type:** `Abi`
 
@@ -131,7 +131,7 @@ const filter = await Actions.contract.createEventFilter(client, {
 })
 ```
 
-#### options.address
+### address
 
 - **Type:** `Address | Address[]`
 
@@ -151,7 +151,7 @@ const filter = await Actions.contract.createEventFilter(client, {
 })
 ```
 
-#### options.args
+### args
 
 - **Type:** Inferred from `abi` and `eventName`.
 
@@ -172,7 +172,7 @@ const filter = await Actions.contract.createEventFilter(client, {
 })
 ```
 
-#### options.eventName
+### eventName
 
 - **Type:** Inferred from `abi`.
 
@@ -192,7 +192,7 @@ const filter = await Actions.contract.createEventFilter(client, {
 })
 ```
 
-#### options.fromBlock
+### fromBlock
 
 - **Type:** `bigint | BlockTag`
 
@@ -212,7 +212,7 @@ const filter = await Actions.contract.createEventFilter(client, {
 })
 ```
 
-#### options.strict
+### strict
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -234,7 +234,7 @@ const filter = await Actions.contract.createEventFilter(client, {
 })
 ```
 
-#### options.toBlock
+### toBlock
 
 - **Type:** `bigint | BlockTag`
 
@@ -254,13 +254,7 @@ const filter = await Actions.contract.createEventFilter(client, {
 })
 ```
 
-### Return Value
-
-`Actions.filter.Filter<'event'>`
-
-An event filter typed from the contract ABI. Its `request` function uses the transport that created the filter ID.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

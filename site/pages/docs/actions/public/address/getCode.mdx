@@ -1,23 +1,19 @@
 # getCode
 
-## Overview
-
 Retrieves the bytecode at an address.
 
-## Recipes
+## Usage
 
-### Read Contract Bytecode
-
-Retrieves the bytecode at an address.
+This example retrieves the bytecode at an address.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const code = await client.address.getCode({ // [!code focus]
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-}) // [!code focus]
+const code = await client.address.getCode({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
 // @log: '0x60806040...'
 ```
 
@@ -32,6 +28,36 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.address.getCode` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const code = await Actions.address.getCode(client, {
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+// @log: '0x60806040...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
 
 ### Inspect Historical Deployment Code
 
@@ -60,41 +86,15 @@ export const client = Client.create({
 
 :::
 
-## `Actions.address.getCode`
+## Return Value
 
-Retrieves the bytecode at an address.
+`Hex | undefined`
 
-### Usage
+The bytecode at the address, or `undefined` when the address has no code (`0x`).
 
-Call [`Actions.address.getCode`](#actionsaddressgetcode) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const code = await Actions.address.getCode(client, {
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-})
-// @log: '0x60806040...'
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.address
+### address
 
 - **Type:** `Address`
 
@@ -111,7 +111,7 @@ const code = await Actions.address.getCode(client, {
 })
 ```
 
-#### options.blockHash
+### blockHash
 
 - **Type:** `Hex`
 
@@ -129,7 +129,7 @@ const code = await Actions.address.getCode(client, {
 })
 ```
 
-#### options.blockNumber
+### blockNumber
 
 - **Type:** `bigint`
 
@@ -147,7 +147,7 @@ const code = await Actions.address.getCode(client, {
 })
 ```
 
-#### options.blockTag
+### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -166,7 +166,7 @@ const code = await Actions.address.getCode(client, {
 })
 ```
 
-#### options.requireCanonical
+### requireCanonical
 
 - **Type:** `boolean`
 
@@ -185,13 +185,7 @@ const code = await Actions.address.getCode(client, {
 })
 ```
 
-### Return Value
-
-`Hex | undefined`
-
-The bytecode at the address, or `undefined` when the address has no code (`0x`).
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

@@ -1,23 +1,19 @@
 # get
 
-## Overview
-
 Returns information about a transaction given a hash or block identifier.
 
-## Recipes
+## Usage
 
-### Get a Transaction
-
-Returns information about a transaction given a hash or block identifier.
+This example returns information about a transaction given a hash or block identifier.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const transaction = await client.transaction.get({ // [!code focus]
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus]
-}) // [!code focus]
+const transaction = await client.transaction.get({
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+})
 // @log: {
 // @log:   blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
 // @log:   blockNumber: 19868020n,
@@ -43,6 +39,47 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.transaction.get` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const transaction = await Actions.transaction.get(client, {
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+})
+// @log: {
+// @log:   blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+// @log:   blockNumber: 19868020n,
+// @log:   from: '0xa152f8bb749c55e9943a3a0a3111d18ee2b3f94e',
+// @log:   gas: 100000n,
+// @log:   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+// @log:   nonce: 16n,
+// @log:   to: '0x15d4c048f83bd7e37d49ea4c83a07267ec4203da',
+// @log:   type: 'eip1559',
+// @log:   value: 0n,
+// @log:   ...
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
 
 ### Get a Transaction from a Historical Block
 
@@ -82,56 +119,19 @@ const transaction = await client.transaction.get({
 })
 ```
 
-## `Actions.transaction.get`
+## Return Value
 
-Returns information about a transaction given a hash or block identifier.
+`Transaction`
 
-### Usage
+Information about the transaction. When the connected Client's [`chain`](/docs/chains) defines a `codecs.transaction` codec, the return type reflects that chain's custom transaction shape.
 
-Call [`Actions.transaction.get`](#actionstransactionget) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const transaction = await Actions.transaction.get(client, {
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
-})
-// @log: {
-// @log:   blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
-// @log:   blockNumber: 19868020n,
-// @log:   from: '0xa152f8bb749c55e9943a3a0a3111d18ee2b3f94e',
-// @log:   gas: 100000n,
-// @log:   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
-// @log:   nonce: 16n,
-// @log:   to: '0x15d4c048f83bd7e37d49ea4c83a07267ec4203da',
-// @log:   type: 'eip1559',
-// @log:   value: 0n,
-// @log:   ...
-// @log: }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.blockHash
+### blockHash
 
 - **Type:** `Hex`
 
-Get a transaction by its index within the block of the given hash. Requires [`index`](#optionsindex).
+Get a transaction by its index within the block of the given hash. Requires [`index`](#index).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -145,11 +145,11 @@ const transaction = await Actions.transaction.get(client, {
 })
 ```
 
-#### options.blockNumber
+### blockNumber
 
 - **Type:** `bigint`
 
-Get a transaction by its index within the block of the given number. Requires [`index`](#optionsindex).
+Get a transaction by its index within the block of the given number. Requires [`index`](#index).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -163,12 +163,12 @@ const transaction = await Actions.transaction.get(client, {
 })
 ```
 
-#### options.blockTag
+### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
 
-Get a transaction by its index within the block of the given tag. Requires [`index`](#optionsindex).
+Get a transaction by its index within the block of the given tag. Requires [`index`](#index).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -182,7 +182,7 @@ const transaction = await Actions.transaction.get(client, {
 })
 ```
 
-#### options.hash
+### hash
 
 - **Type:** `Hex`
 
@@ -199,11 +199,11 @@ const transaction = await Actions.transaction.get(client, {
 })
 ```
 
-#### options.index
+### index
 
 - **Type:** `number`
 
-The index of the transaction within a block. Used together with [`blockHash`](#optionsblockhash), [`blockNumber`](#optionsblocknumber), or [`blockTag`](#optionsblocktag).
+The index of the transaction within a block. Used together with [`blockHash`](#blockhash), [`blockNumber`](#blocknumber), or [`blockTag`](#blocktag).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -217,11 +217,11 @@ const transaction = await Actions.transaction.get(client, {
 })
 ```
 
-#### options.nonce
+### nonce
 
 - **Type:** `number`
 
-Get a transaction by the [`sender`](#optionssender)'s nonce. Requires [`sender`](#optionssender).
+Get a transaction by the [`sender`](#sender)'s nonce. Requires [`sender`](#sender).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -235,11 +235,11 @@ const transaction = await Actions.transaction.get(client, {
 })
 ```
 
-#### options.sender
+### sender
 
 - **Type:** `Address`
 
-Get a transaction by the sending account's address and [`nonce`](#optionsnonce). Requires [`nonce`](#optionsnonce).
+Get a transaction by the sending account's address and [`nonce`](#nonce). Requires [`nonce`](#nonce).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -253,13 +253,7 @@ const transaction = await Actions.transaction.get(client, {
 })
 ```
 
-### Return Value
-
-`Transaction`
-
-Information about the transaction. When the connected Client's [`chain`](/docs/chains) defines a `codecs.transaction` codec, the return type reflects that chain's custom transaction shape.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

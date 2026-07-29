@@ -1,23 +1,19 @@
 # getTotalSupply
 
-## Overview
-
 Gets the total supply of an ERC-20 token, returned in base units and human-readable form.
 
-## Recipes
+## Usage
 
-### Read Token Total Supply
-
-Gets the total supply of an ERC-20 token, returned in base units and human-readable form.
+This example gets the total supply of an ERC-20 token, returned in base units and human-readable form.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const supply = await client.token.getTotalSupply({ // [!code focus]
-  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
-}) // [!code focus]
+const supply = await client.token.getTotalSupply({
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
 // @log: { amount: 43428122000000000n, decimals: 6, formatted: '43428122000' }
 ```
 
@@ -34,6 +30,38 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.token.getTotalSupply` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const supply = await Actions.token.getTotalSupply(client, {
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+// @log: { amount: 43428122000000000n, decimals: 6, formatted: '43428122000' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+export const client = Client.create({
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
 
 ### Format Historical Token Supply
 
@@ -63,43 +91,15 @@ export const client = Client.create({
 
 :::
 
-## `Actions.token.getTotalSupply`
+## Return Value
 
-Gets the total supply of an ERC-20 token, returned in base units and human-readable form.
+`Amount`
 
-### Usage
+The total supply as `{ amount, decimals, formatted }`, where `amount` is in base units and `formatted` is the human-readable decimal string.
 
-Call [`Actions.token.getTotalSupply`](#actionstokengettotalsupply) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const supply = await Actions.token.getTotalSupply(client, {
-  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-})
-// @log: { amount: 43428122000000000n, decimals: 6, formatted: '43428122000' }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { usdc } from 'viem/tokens'
-
-export const client = Client.create({
-  chain: mainnet,
-  tokens: [usdc],
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.blockNumber
+### blockNumber
 
 - **Type:** `bigint`
 
@@ -117,7 +117,7 @@ const supply = await Actions.token.getTotalSupply(client, {
 })
 ```
 
-#### options.blockOverrides
+### blockOverrides
 
 - **Type:** `BlockOverrides`
 
@@ -135,7 +135,7 @@ const supply = await Actions.token.getTotalSupply(client, {
 })
 ```
 
-#### options.blockTag
+### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -154,7 +154,7 @@ const supply = await Actions.token.getTotalSupply(client, {
 })
 ```
 
-#### options.decimals
+### decimals
 
 - **Type:** `number`
 
@@ -172,7 +172,7 @@ const supply = await Actions.token.getTotalSupply(client, {
 })
 ```
 
-#### options.stateOverride
+### stateOverride
 
 - **Type:** `StateOverrides`
 
@@ -192,7 +192,7 @@ const supply = await Actions.token.getTotalSupply(client, {
 })
 ```
 
-#### options.token
+### token
 
 - **Type:** `Address | string`
 
@@ -215,13 +215,7 @@ const supply = await client.token.getTotalSupply({
 })
 ```
 
-### Return Value
-
-`Amount`
-
-The total supply as `{ amount, decimals, formatted }`, where `amount` is in base units and `formatted` is the human-readable decimal string.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

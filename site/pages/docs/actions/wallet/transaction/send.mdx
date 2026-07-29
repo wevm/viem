@@ -1,8 +1,65 @@
 # send
 
-## Overview
-
 Creates, signs, and sends a new transaction to the network. Local Accounts sign locally and broadcast via `eth_sendRawTransaction`; JSON-RPC Accounts broadcast via `eth_sendTransaction`.
+
+## Usage
+
+This example creates, signs, and sends a new transaction to the network.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const hash = await client.transaction.send({
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: '0x...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.transaction.send` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const hash = await Actions.transaction.send(client, {
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: '0x...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
 
 ## Recipes
 
@@ -105,43 +162,15 @@ export const client = Client.create({
 
 :::
 
-## `Actions.transaction.send`
+## Return Value
 
-Creates, signs, and sends a new transaction to the network. Local Accounts sign locally and broadcast via `eth_sendRawTransaction`; JSON-RPC Accounts broadcast via `eth_sendTransaction`.
+`Hex`
 
-### Usage
+The transaction hash.
 
-Call [`Actions.transaction.send`](#actionstransactionsend) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const hash = await Actions.transaction.send(client, {
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1n,
-})
-// @log: '0x...'
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Account, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  account: Account.fromPrivateKey('0x…'),
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.accessList
+### accessList
 
 - **Type:** `AccessList`
 
@@ -167,7 +196,7 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-#### options.account
+### account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -187,7 +216,7 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-#### options.account.nonceManager
+#### nonceManager
 
 - **Type:** `NonceManager`
 
@@ -211,7 +240,7 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-#### options.assertChainId
+### assertChainId
 
 - **Type:** `boolean`
 - **Default:** `true`
@@ -232,7 +261,7 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-#### options.authorizationList
+### authorizationList
 
 - **Type:** `AuthorizationList`
 
@@ -260,11 +289,11 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-#### options.blobs
+### blobs
 
 - **Type:** `readonly Hex[]`
 
-The blobs to attach to the transaction (EIP-4844). Use with [`kzg`](#optionskzg) to derive the blob fields.
+The blobs to attach to the transaction (EIP-4844). Use with [`kzg`](#kzg) to derive the blob fields.
 
 ```ts twoslash
 import { Account, Actions, Client, http } from 'viem'
@@ -284,12 +313,12 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-#### options.chain
+### chain
 
 - **Type:** `Chain | null`
 - **Default:** `client.chain`
 
-The chain the transaction targets. Pass `null` to skip the current-chain assertion (see [`assertChainId`](#optionsassertchainid)).
+The chain the transaction targets. Pass `null` to skip the current-chain assertion (see [`assertChainId`](#assertchainid)).
 
 ```ts twoslash
 import { Account, Actions, Client, http } from 'viem'
@@ -305,7 +334,7 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-#### options.data
+### data
 
 - **Type:** `Hex`
 
@@ -324,7 +353,7 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-#### options.dataSuffix
+### dataSuffix
 
 - **Type:** `Hex`
 - **Default:** `client.dataSuffix`
@@ -345,7 +374,7 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-#### options.gas
+### gas
 
 - **Type:** `bigint | number | Hex`
 
@@ -364,7 +393,7 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-#### options.gasPrice
+### gasPrice
 
 - **Type:** `bigint | number | Hex`
 
@@ -383,11 +412,11 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-#### options.kzg
+### kzg
 
 - **Type:** `Kzg`
 
-The KZG context used to derive EIP-4844 blob fields from [`blobs`](#optionsblobs).
+The KZG context used to derive EIP-4844 blob fields from [`blobs`](#blobs).
 
 ```ts twoslash
 import { Account, Actions, Client, http } from 'viem'
@@ -407,7 +436,7 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-#### options.maxFeePerBlobGas
+### maxFeePerBlobGas
 
 - **Type:** `bigint | number | Hex`
 
@@ -426,7 +455,7 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-#### options.maxFeePerGas
+### maxFeePerGas
 
 - **Type:** `bigint | number | Hex`
 
@@ -445,7 +474,7 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-#### options.maxPriorityFeePerGas
+### maxPriorityFeePerGas
 
 - **Type:** `bigint | number | Hex`
 
@@ -464,7 +493,7 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-#### options.nonce
+### nonce
 
 - **Type:** `bigint | number | Hex`
 
@@ -483,7 +512,7 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-#### options.requestOptions
+### requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -504,7 +533,7 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-#### options.to
+### to
 
 - **Type:** `Address | null`
 
@@ -523,7 +552,7 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-#### options.type
+### type
 
 - **Type:** `string`
 
@@ -542,7 +571,7 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-#### options.value
+### value
 
 - **Type:** `bigint | number | Hex`
 
@@ -561,13 +590,7 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-### Return Value
-
-`Hex`
-
-The transaction hash.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

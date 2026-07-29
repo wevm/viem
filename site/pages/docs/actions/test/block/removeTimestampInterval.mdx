@@ -1,20 +1,17 @@
 # removeTimestampInterval
 
-## Overview
-
 Removes the block timestamp interval set by `setTimestampInterval`, if it exists.
 
-## Recipes
+## Usage
 
-### Remove the Timestamp Interval
-
+This example removes the block timestamp interval set by `setTimestampInterval`, if it exists.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.block.removeTimestampInterval() // [!code focus]
+await client.block.removeTimestampInterval()
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -29,13 +26,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.block.removeTimestampInterval`
+### Standalone Action
 
-Removes the block timestamp interval set by `setTimestampInterval`, if it exists.
-
-### Usage
-
-Call [`Actions.block.removeTimestampInterval`](#actionsblockremovetimestampinterval) directly by passing the Client as the first argument.
+Call `Actions.block.removeTimestampInterval` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -58,9 +51,15 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
 
-#### options.mode
+`void`
+
+No value is returned.
+
+## Parameters
+
+### mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`
@@ -80,9 +79,3 @@ await Actions.block.removeTimestampInterval(client, {
   mode: 'hardhat', // [!code focus]
 })
 ```
-
-### Return Value
-
-`void`
-
-No value is returned.

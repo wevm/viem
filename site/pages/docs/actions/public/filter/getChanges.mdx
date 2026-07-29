@@ -1,18 +1,12 @@
 # getChanges
 
-## Overview
-
 Returns the changes for a filter since it was created or last polled.
 
 Block and transaction filters return hashes. Event filters return logs.
 
-## Recipes
+## Usage
 
-Use a Client method or pass the Client to the standalone action.
-
-### Poll Filter Changes
-
-Returns the changes for a filter since it was created or last polled.
+This example returns the changes for a filter since it was created or last polled.
 
 :::code-group
 
@@ -22,7 +16,7 @@ import { client } from './viem.config'
 
 const filter = await client.block.createFilter()
 
-const changes = await client.filter.getChanges({ filter }) // [!code focus]
+const changes = await client.filter.getChanges({ filter })
 // @log: [
 // @log:   '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
 // @log: ]
@@ -39,6 +33,40 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.filter.getChanges` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const filter = await Actions.block.createFilter(client)
+
+const changes = await Actions.filter.getChanges(client, { filter })
+// @log: [
+// @log:   '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+// @log: ]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
+
+Use a Client method or pass the Client to the standalone action.
 
 ### Polling Block Filters
 
@@ -91,43 +119,15 @@ const logs = await Actions.filter.getChanges(client, { filter }) // [!code focus
 //    ^?
 ```
 
-## `Actions.filter.getChanges`
+## Return Value
 
-Returns the changes for a filter since it was created or last polled.
+`readonly Hex[] | readonly Log[]`
 
-### Usage
+The changes for the filter. `block` and `transaction` filters return hashes. `event` filters return logs, decoded by `filter.abiEvent` when provided.
 
-Call [`Actions.filter.getChanges`](#actionsfiltergetchanges) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const filter = await Actions.block.createFilter(client)
-
-const changes = await Actions.filter.getChanges(client, { filter })
-// @log: [
-// @log:   '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
-// @log: ]
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.filter
+### filter
 
 - **Type:** `Actions.filter.Filter`
 
@@ -143,9 +143,3 @@ const filter = await Actions.block.createFilter(client) // [!code focus]
 
 const changes = await Actions.filter.getChanges(client, { filter })
 ```
-
-### Return Value
-
-`readonly Hex[] | readonly Log[]`
-
-The changes for the filter. `block` and `transaction` filters return hashes. `event` filters return logs, decoded by `filter.abiEvent` when provided.

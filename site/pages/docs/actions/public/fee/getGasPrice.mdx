@@ -1,21 +1,17 @@
 # getGasPrice
 
-## Overview
-
 Returns the current price of gas (in wei).
 
-## Recipes
+## Usage
 
-### Read the Gas Price
-
-Returns the current price of gas (in wei).
+This example returns the current price of gas (in wei).
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const gasPrice = await client.fee.getGasPrice() // [!code focus]
+const gasPrice = await client.fee.getGasPrice()
 // @log: 2000000000n
 ```
 
@@ -31,13 +27,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.fee.getGasPrice`
+### Standalone Action
 
-Returns the current price of gas (in wei).
-
-### Usage
-
-Call [`Actions.fee.getGasPrice`](#actionsfeegetgasprice) directly by passing the Client as the first argument.
+Call `Actions.fee.getGasPrice` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -61,7 +53,7 @@ export const client = Client.create({
 
 :::
 
-### Return Value
+## Return Value
 
 `bigint`
 

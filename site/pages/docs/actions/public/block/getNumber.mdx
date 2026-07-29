@@ -1,21 +1,17 @@
 # getNumber
 
-## Overview
-
 Returns the number of the most recent block seen.
 
-## Recipes
+## Usage
 
-### Read the Latest Block Number
-
-Returns the number of the most recent block seen.
+This example returns the number of the most recent block seen.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const blockNumber = await client.block.getNumber() // [!code focus]
+const blockNumber = await client.block.getNumber()
 // @log: 19868020n
 ```
 
@@ -31,13 +27,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.block.getNumber`
+### Standalone Action
 
-Returns the number of the most recent block seen.
-
-### Usage
-
-Call [`Actions.block.getNumber`](#actionsblockgetnumber) directly by passing the Client as the first argument.
+Call `Actions.block.getNumber` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -61,9 +53,15 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
 
-#### options.cacheTime
+`bigint`
+
+The number of the most recent block.
+
+## Parameters
+
+### cacheTime
 
 - **Type:** `number`
 - **Default:** `client.cacheTime`
@@ -80,9 +78,3 @@ const blockNumber = await Actions.block.getNumber(client, {
   cacheTime: 4_000, // [!code focus]
 })
 ```
-
-### Return Value
-
-`bigint`
-
-The number of the most recent block.

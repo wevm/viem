@@ -1,16 +1,12 @@
 # getAddress
 
-## Overview
-
 Gets the address for an ENS name (via the ENS Universal Resolver's `resolveWithGateways`).
 
 Names should be [UTS-46 normalized](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) before lookup with `Ens.normalize`.
 
-## Recipes
+## Usage
 
-### Resolve an ENS Address
-
-Gets the address for an ENS name (via the ENS Universal Resolver's `resolveWithGateways`).
+This example gets the address for an ENS name (via the ENS Universal Resolver's `resolveWithGateways`).
 
 :::code-group
 
@@ -18,9 +14,9 @@ Gets the address for an ENS name (via the ENS Universal Resolver's `resolveWithG
 import { Ens } from 'viem/utils'
 import { client } from './viem.config'
 
-const address = await client.ens.getAddress({ // [!code focus]
-  name: Ens.normalize('wevm.eth'), // [!code focus]
-}) // [!code focus]
+const address = await client.ens.getAddress({
+  name: Ens.normalize('wevm.eth'),
+})
 // @log: '0xd2135CfB216b74109775236E36d4b433F1DF507B'
 ```
 
@@ -35,6 +31,37 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.ens.getAddress` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { Ens } from 'viem/utils'
+import { client } from './viem.config'
+
+const address = await Actions.ens.getAddress(client, {
+  name: Ens.normalize('wevm.eth'),
+})
+// @log: '0xd2135CfB216b74109775236E36d4b433F1DF507B'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
 
 ### Resolve an Address for Another Chain
 
@@ -65,42 +92,17 @@ export const client = Client.create({
 
 :::
 
-## `Actions.ens.getAddress`
+## Return Value
 
-Gets the address for an ENS name (via the ENS Universal Resolver's `resolveWithGateways`).
+`Address | null`
 
-### Usage
+The resolved address, or `null` when the name has no address record.
 
-Call [`Actions.ens.getAddress`](#actionsensgetaddress) directly by passing the Client as the first argument.
+An explicit [`coinType`](#cointype) uses the `bytes` resolver profile, which returns an address without checksum casing.
 
-:::code-group
+## Parameters
 
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { Ens } from 'viem/utils'
-import { client } from './viem.config'
-
-const address = await Actions.ens.getAddress(client, {
-  name: Ens.normalize('wevm.eth'),
-})
-// @log: '0xd2135CfB216b74109775236E36d4b433F1DF507B'
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.blockNumber
+### blockNumber
 
 - **Type:** `bigint`
 
@@ -119,7 +121,7 @@ const address = await Actions.ens.getAddress(client, {
 })
 ```
 
-#### options.blockTag
+### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -139,7 +141,7 @@ const address = await Actions.ens.getAddress(client, {
 })
 ```
 
-#### options.coinType
+### coinType
 
 - **Type:** `bigint`
 - **Default:** `60n` (ETH)
@@ -159,7 +161,7 @@ const address = await Actions.ens.getAddress(client, {
 })
 ```
 
-#### options.gatewayUrls
+### gatewayUrls
 
 - **Type:** `readonly string[]`
 
@@ -178,7 +180,7 @@ const address = await Actions.ens.getAddress(client, {
 })
 ```
 
-#### options.name
+### name
 
 - **Type:** `string`
 
@@ -197,7 +199,7 @@ const address = await Actions.ens.getAddress(client, {
 })
 ```
 
-#### options.strict
+### strict
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -217,7 +219,7 @@ const address = await Actions.ens.getAddress(client, {
 })
 ```
 
-#### options.universalResolverAddress
+### universalResolverAddress
 
 - **Type:** `Address`
 - **Default:** `client.chain.contracts.ensUniversalResolver.address`
@@ -237,16 +239,8 @@ const address = await Actions.ens.getAddress(client, {
 })
 ```
 
-### Return Value
-
-`Address | null`
-
-The resolved address, or `null` when the name has no address record.
-
-An explicit [`coinType`](#optionscointype) uses the `bytes` resolver profile, which returns an address without checksum casing.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |
-| `ContractError.ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#optionsstrict); resolver errors otherwise map to `null`). |
+| `ContractError.ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#strict); resolver errors otherwise map to `null`). |

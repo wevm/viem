@@ -1,22 +1,19 @@
 # setNextBaseFeePerGas
 
-## Overview
-
 Sets the next block's base fee per gas.
 
-## Recipes
+## Usage
 
-### Set the Next Base Fee
-
+This example sets the next block's base fee per gas.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.block.setNextBaseFeePerGas({ // [!code focus]
-  baseFeePerGas: 1_000_000_000n, // [!code focus]
-}) // [!code focus]
+await client.block.setNextBaseFeePerGas({
+  baseFeePerGas: 1_000_000_000n,
+})
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -31,13 +28,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.block.setNextBaseFeePerGas`
+### Standalone Action
 
-Sets the next block's base fee per gas.
-
-### Usage
-
-Call [`Actions.block.setNextBaseFeePerGas`](#actionsblocksetnextbasefeepergas) directly by passing the Client as the first argument.
+Call `Actions.block.setNextBaseFeePerGas` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -62,9 +55,15 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
 
-#### options.baseFeePerGas
+`void`
+
+No value is returned.
+
+## Parameters
+
+### baseFeePerGas
 
 - **Type:** `bigint`
 
@@ -85,7 +84,7 @@ await Actions.block.setNextBaseFeePerGas(client, {
 })
 ```
 
-#### options.mode
+### mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`
@@ -106,9 +105,3 @@ await Actions.block.setNextBaseFeePerGas(client, {
   mode: 'hardhat', // [!code focus]
 })
 ```
-
-### Return Value
-
-`void`
-
-No value is returned.

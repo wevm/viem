@@ -1,18 +1,12 @@
 # getLogs
 
-## Overview
-
 Returns the logs matching an event filter.
 
 Unlike `getChanges`, this action is not drained by polling. It returns all logs held by the filter.
 
-## Recipes
+## Usage
 
-Use a Client method or pass the Client to the standalone action.
-
-### Read Filter Logs
-
-Returns the logs matching an event filter.
+This example returns the logs matching an event filter.
 
 :::code-group
 
@@ -28,7 +22,7 @@ const filter = await client.event.createFilter({
   ),
 })
 
-const logs = await client.filter.getLogs({ filter }) // [!code focus]
+const logs = await client.filter.getLogs({ filter })
 // @log: [
 // @log:   {
 // @log:     address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
@@ -54,6 +48,55 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.filter.getLogs` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { AbiEvent } from 'viem/utils'
+import { client } from './viem.config'
+
+const filter = await Actions.event.createFilter(client, {
+  address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
+})
+
+const logs = await Actions.filter.getLogs(client, { filter })
+// @log: [
+// @log:   {
+// @log:     address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
+// @log:     args: { from: '0xd8da...', to: '0xa5cc...', value: 420n },
+// @log:     blockHash: '0xabe6...01a4',
+// @log:     blockNumber: 19760236n,
+// @log:     eventName: 'Transfer',
+// @log:     logIndex: 271,
+// @log:     transactionHash: '0xcfa5...6e93',
+// @log:     transactionIndex: 145,
+// @log:   },
+// @log: ]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
+
+Use a Client method or pass the Client to the standalone action.
 
 ### Decoding Logs
 
@@ -97,58 +140,15 @@ const filter = await Actions.event.createFilter(client, {
 const logs = await Actions.filter.getLogs(client, { filter })
 ```
 
-## `Actions.filter.getLogs`
+## Return Value
 
-Returns the logs matching an event filter.
+`readonly Log[]`
 
-### Usage
+The logs held by the event filter, decoded by `filter.abiEvent` when provided.
 
-Call [`Actions.filter.getLogs`](#actionsfiltergetlogs) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { AbiEvent } from 'viem/utils'
-import { client } from './viem.config'
-
-const filter = await Actions.event.createFilter(client, {
-  address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
-  event: AbiEvent.from(
-    'event Transfer(address indexed from, address indexed to, uint256 value)',
-  ),
-})
-
-const logs = await Actions.filter.getLogs(client, { filter })
-// @log: [
-// @log:   {
-// @log:     address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
-// @log:     args: { from: '0xd8da...', to: '0xa5cc...', value: 420n },
-// @log:     blockHash: '0xabe6...01a4',
-// @log:     blockNumber: 19760236n,
-// @log:     eventName: 'Transfer',
-// @log:     logIndex: 271,
-// @log:     transactionHash: '0xcfa5...6e93',
-// @log:     transactionIndex: 145,
-// @log:   },
-// @log: ]
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.filter
+### filter
 
 - **Type:** `Actions.filter.Filter<'event'>`
 
@@ -169,9 +169,3 @@ const filter = await Actions.event.createFilter(client, { // [!code focus]
 
 const logs = await Actions.filter.getLogs(client, { filter })
 ```
-
-### Return Value
-
-`readonly Log[]`
-
-The logs held by the event filter, decoded by `filter.abiEvent` when provided.

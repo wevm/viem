@@ -1,20 +1,17 @@
 # showCallsStatus
 
-## Overview
-
 Requests for the wallet to show information about a call batch that was sent via [`Actions.wallet.sendCalls`](/docs/actions/wallet/sendCalls) ([EIP-5792](https://eips.ethereum.org/EIPS/eip-5792)).
 
-## Recipes
+## Usage
 
-### Show Call Status
-
+This example asks the wallet to display the status of a call batch.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.wallet.showCallsStatus({ id: '0xdeadbeef' }) // [!code focus]
+await client.wallet.showCallsStatus({ id: '0xdeadbeef' })
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -28,13 +25,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.wallet.showCallsStatus`
+### Standalone Action
 
-Requests for the wallet to show information about a call batch that was sent via [`Actions.wallet.sendCalls`](/docs/actions/wallet/sendCalls) ([EIP-5792](https://eips.ethereum.org/EIPS/eip-5792)).
-
-### Usage
-
-Call [`Actions.wallet.showCallsStatus`](#actionswalletshowcallsstatus) directly by passing the Client as the first argument.
+Call `Actions.wallet.showCallsStatus` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -56,9 +49,15 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
 
-#### options.id
+`void`
+
+No value is returned.
+
+## Parameters
+
+### id
 
 - **Type:** `string`
 
@@ -72,9 +71,3 @@ await Actions.wallet.showCallsStatus(client, {
   id: '0xdeadbeef', // [!code focus]
 })
 ```
-
-### Return Value
-
-`void`
-
-No value is returned.

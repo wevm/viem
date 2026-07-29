@@ -1,20 +1,17 @@
 # inspect
 
-## Overview
-
 Returns a textual summary of all transactions currently pending for inclusion in the next blocks, as well as the ones being scheduled for future execution.
 
-## Recipes
+## Usage
 
-### Inspect the Transaction Pool
-
+This example gets a textual summary of pending and queued transactions.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const result = await client.txpool.inspect() // [!code focus]
+const result = await client.txpool.inspect()
 // @log: {
 // @log:   pending: {
 // @log:     '0xa0cf798816d4b9b9866b5330eea46a18382f251e': {
@@ -37,13 +34,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.txpool.inspect`
+### Standalone Action
 
-Returns a textual summary of all transactions currently pending for inclusion in the next blocks, as well as the ones being scheduled for future execution.
-
-### Usage
-
-Call [`Actions.txpool.inspect`](#actionstxpoolinspect) directly by passing the Client as the first argument.
+Call `Actions.txpool.inspect` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -74,7 +67,7 @@ export const client = Client.create({
 
 :::
 
-### Return Value
+## Return Value
 
 `{ pending: Record<Address, Record<string, string>>; queued: Record<Address, Record<string, string>> }`
 

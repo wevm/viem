@@ -1,25 +1,21 @@
 # setStorageAt
 
-## Overview
-
 Writes to a slot of an account's storage.
 
-## Recipes
+## Usage
 
-### Set a Storage Slot
-
-Writes a 32-byte value to an account's storage slot.
+This example writes to a slot of an account's storage.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.address.setStorageAt({ // [!code focus]
-  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
-  index: 2, // [!code focus]
-  value: '0x0000000000000000000000000000000000000000000000000000000000000045', // [!code focus]
-}) // [!code focus]
+await client.address.setStorageAt({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  index: 2,
+  value: '0x0000000000000000000000000000000000000000000000000000000000000045',
+})
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -33,6 +29,37 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.address.setStorageAt` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+await Actions.address.setStorageAt(client, {
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  index: 2,
+  value: '0x0000000000000000000000000000000000000000000000000000000000000045',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
 
 ### Set a Mapping Entry
 
@@ -63,42 +90,15 @@ await client.address.setStorageAt({
 })
 ```
 
-## `Actions.address.setStorageAt`
+## Return Value
 
-Writes to a slot of an account's storage.
+`void`
 
-### Usage
+No value is returned.
 
-Call [`Actions.address.setStorageAt`](#actionsaddresssetstorageat) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-await Actions.address.setStorageAt(client, {
-  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  index: 2,
-  value: '0x0000000000000000000000000000000000000000000000000000000000000045',
-})
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { anvil } from 'viem/chains'
-
-export const client = Client.create({
-  chain: anvil,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.address
+### address
 
 - **Type:** `Address`
 
@@ -121,7 +121,7 @@ await Actions.address.setStorageAt(client, {
 })
 ```
 
-#### options.index
+### index
 
 - **Type:** `number | Hex`
 
@@ -144,7 +144,7 @@ await Actions.address.setStorageAt(client, {
 })
 ```
 
-#### options.mode
+### mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`
@@ -168,7 +168,7 @@ await Actions.address.setStorageAt(client, {
 })
 ```
 
-#### options.value
+### value
 
 - **Type:** `Hex`
 
@@ -190,9 +190,3 @@ await Actions.address.setStorageAt(client, {
   mode: 'hardhat',
 })
 ```
-
-### Return Value
-
-`void`
-
-No value is returned.

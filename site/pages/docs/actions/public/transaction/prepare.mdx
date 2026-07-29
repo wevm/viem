@@ -1,25 +1,21 @@
 # prepare
 
-## Overview
-
 Prepares a transaction request for signing, by populating the fields required to be signed over (for example, `nonce`, `chainId`, `type`, fees, `gas`).
 
-## Recipes
+## Usage
 
-### Prepare a Transaction
-
-Prepares a transaction request for signing, by populating the fields required to be signed over (for example, `nonce`, `chainId`, `type`, fees, `gas`).
+This example prepares a transaction request for signing, by populating the fields required to be signed over (e.g.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { request } = await client.transaction.prepare({ // [!code focus]
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
-  value: 1n, // [!code focus]
-}) // [!code focus]
+const { request } = await client.transaction.prepare({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
 // @log: {
 // @log:   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 // @log:   chainId: 1,
@@ -45,6 +41,49 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.transaction.prepare` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const { request } = await Actions.transaction.prepare(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: {
+// @log:   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+// @log:   chainId: 1,
+// @log:   from: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+// @log:   gas: 21000n,
+// @log:   maxFeePerGas: 16026200000n,
+// @log:   maxPriorityFeePerGas: 1000000000n,
+// @log:   nonce: 0,
+// @log:   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+// @log:   type: 'eip1559',
+// @log:   value: 1n,
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
 
 ### Prepare Selected Parameters
 
@@ -91,54 +130,15 @@ const { request } = await client.transaction.prepare({
 })
 ```
 
-## `Actions.transaction.prepare`
+## Return Value
 
-Prepares a transaction request for signing, by populating the fields required to be signed over (for example, `nonce`, `chainId`, `type`, fees, `gas`).
+`{ capabilities?: object; request: TransactionRequest }`
 
-### Usage
+The prepared transaction `request` (with the populated fields), and any node `capabilities` returned alongside it.
 
-Call [`Actions.transaction.prepare`](#actionstransactionprepare) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const { request } = await Actions.transaction.prepare(client, {
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1n,
-})
-// @log: {
-// @log:   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-// @log:   chainId: 1,
-// @log:   from: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-// @log:   gas: 21000n,
-// @log:   maxFeePerGas: 16026200000n,
-// @log:   maxPriorityFeePerGas: 1000000000n,
-// @log:   nonce: 0,
-// @log:   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-// @log:   type: 'eip1559',
-// @log:   value: 1n,
-// @log: }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.accessList
+### accessList
 
 - **Type:** `AccessList`
 
@@ -163,7 +163,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.account
+### account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -184,7 +184,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.authorizationList
+### authorizationList
 
 - **Type:** `AuthorizationList`
 
@@ -211,11 +211,11 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.blobs
+### blobs
 
 - **Type:** `readonly Hex[]`
 
-The blobs to attach to the transaction (EIP-4844). When supplied together with [`kzg`](#optionskzg), `blobVersionedHashes` (and optionally `sidecars`) are derived.
+The blobs to attach to the transaction (EIP-4844). When supplied together with [`kzg`](#kzg), `blobVersionedHashes` (and optionally `sidecars`) are derived.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -233,7 +233,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.blobVersionedHashes
+### blobVersionedHashes
 
 - **Type:** `readonly Hex[]`
 
@@ -251,7 +251,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.chain
+### chain
 
 - **Type:** `Chain`
 - **Default:** `client.chain`
@@ -272,7 +272,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.chainId
+### chainId
 
 - **Type:** `number`
 
@@ -290,7 +290,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.data
+### data
 
 - **Type:** `Hex`
 
@@ -308,11 +308,11 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.from
+### from
 
 - **Type:** `Address`
 
-The raw sender address. Viem uses this field only when neither [`account`](#optionsaccount) nor a Client Account is available.
+The raw sender address. Viem uses this field only when neither [`account`](#account) nor a Client Account is available.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -326,7 +326,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.gas
+### gas
 
 - **Type:** `number | bigint | Hex`
 
@@ -344,7 +344,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.gasPrice
+### gasPrice
 
 - **Type:** `number | bigint | Hex`
 
@@ -362,11 +362,11 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.kzg
+### kzg
 
 - **Type:** `Kzg`
 
-The KZG context, used to derive blob fields (`blobVersionedHashes`, `sidecars`) from [`blobs`](#optionsblobs).
+The KZG context, used to derive blob fields (`blobVersionedHashes`, `sidecars`) from [`blobs`](#blobs).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -384,7 +384,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.maxFeePerBlobGas
+### maxFeePerBlobGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -402,7 +402,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.maxFeePerGas
+### maxFeePerGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -420,7 +420,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.maxPriorityFeePerGas
+### maxPriorityFeePerGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -438,11 +438,11 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.nonce
+### nonce
 
 - **Type:** `number | bigint | Hex`
 
-The nonce to use for the transaction. When provided, it takes precedence over the [`nonceManager`](#optionsnoncemanager).
+The nonce to use for the transaction. When provided, it takes precedence over the [`nonceManager`](#noncemanager).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -456,11 +456,11 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.nonceManager
+### nonceManager
 
 - **Type:** `NonceManager`
 
-A nonce manager used to derive the transaction nonce when [`nonce`](#optionsnonce) is not provided.
+A nonce manager used to derive the transaction nonce when [`nonce`](#nonce) is not provided.
 
 ```ts twoslash
 import { Actions, Client, http, NonceManager } from 'viem'
@@ -476,7 +476,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.parameters
+### parameters
 
 - **Type:** `readonly ('blobVersionedHashes' | 'chainId' | 'fees' | 'gas' | 'nonce' | 'sidecars' | 'type')[]`
 - **Default:** `['blobVersionedHashes', 'chainId', 'fees', 'gas', 'nonce', 'type']`
@@ -497,7 +497,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.to
+### to
 
 - **Type:** `Address | null`
 
@@ -515,7 +515,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.type
+### type
 
 - **Type:** `string`
 
@@ -533,7 +533,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-#### options.value
+### value
 
 - **Type:** `number | bigint | Hex`
 
@@ -551,13 +551,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-### Return Value
-
-`{ capabilities?: object; request: TransactionRequest }`
-
-The prepared transaction `request` (with the populated fields), and any node `capabilities` returned alongside it.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

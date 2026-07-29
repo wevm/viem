@@ -1,7 +1,5 @@
 # waitForReceipt
 
-## Overview
-
 Waits for a transaction to be included on a block (one confirmation by default), returning a watcher handle whose `receipt` promise resolves with the transaction receipt.
 
 Additionally supports replacement detection (for example, sped-up or cancelled transactions). A transaction is replaced when another transaction is sent from the same `from` and `nonce`:
@@ -10,20 +8,18 @@ Additionally supports replacement detection (for example, sped-up or cancelled t
 - `cancelled`: the transaction was cancelled (for example, self-send with `value` of `0`).
 - `replaced`: the transaction payload was changed (for example, different `value` or `data`).
 
-## Recipes
+## Usage
 
-### Wait for a Transaction Receipt
-
-Waits for a transaction to be included on a block (one confirmation by default), returning a watcher handle whose `receipt` promise resolves with the transaction receipt.
+This example waits for a transaction to be included in a block.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { receipt } = client.transaction.waitForReceipt({ // [!code focus]
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus]
-}) // [!code focus]
+const { receipt } = client.transaction.waitForReceipt({
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+})
 
 const result = await receipt
 // @log: {
@@ -45,6 +41,43 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.transaction.waitForReceipt` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const { receipt } = Actions.transaction.waitForReceipt(client, {
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+})
+
+const result = await receipt
+// @log: {
+// @log:   blockHash: '0xaf1dadb8a98f1282e8f7b42cc3da8847bfa2cf4e227b8220403ae642e1173088',
+// @log:   blockNumber: 19868020n,
+// @log:   ...
+// @log:   status: 'success',
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
 
 ### Wait for Confirmations
 
@@ -92,179 +125,7 @@ watch.onReplaced(({ reason, replacedTransaction, transaction }) => { // [!code f
 }) // [!code focus]
 ```
 
-## `Actions.transaction.waitForReceipt`
-
-Waits for a transaction to be included on a block (one confirmation by default), returning a watcher handle whose `receipt` promise resolves with the transaction receipt.
-
-### Usage
-
-Call [`Actions.transaction.waitForReceipt`](#actionstransactionwaitforreceipt) directly by passing the Client as the first argument.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const { receipt } = Actions.transaction.waitForReceipt(client, {
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
-})
-
-const result = await receipt
-// @log: {
-// @log:   blockHash: '0xaf1dadb8a98f1282e8f7b42cc3da8847bfa2cf4e227b8220403ae642e1173088',
-// @log:   blockNumber: 19868020n,
-// @log:   ...
-// @log:   status: 'success',
-// @log: }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.checkReplacement
-
-- **Type:** `boolean`
-- **Default:** `client.chain?.supportsTransactionReplacementDetection ?? true`
-
-Whether to check for transaction replacements (repriced, cancelled, or replaced transactions).
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { receipt } = Actions.transaction.waitForReceipt(client, {
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
-  checkReplacement: false, // [!code focus]
-})
-```
-
-#### options.confirmations
-
-- **Type:** `number`
-- **Default:** `1`
-
-The number of confirmations (blocks passed) to wait for before resolving.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { receipt } = Actions.transaction.waitForReceipt(client, {
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
-  confirmations: 5, // [!code focus]
-})
-```
-
-#### options.hash
-
-- **Type:** `Hex`
-
-Hash of the transaction to wait for.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { receipt } = Actions.transaction.waitForReceipt(client, {
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus]
-})
-```
-
-#### options.pollingInterval
-
-- **Type:** `number`
-- **Default:** `client.chain?.preconfirmationTime ?? client.pollingInterval`
-
-Polling frequency (in milliseconds).
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { receipt } = Actions.transaction.waitForReceipt(client, {
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
-  pollingInterval: 1_000, // [!code focus]
-})
-```
-
-#### options.retryCount
-
-- **Type:** `number`
-- **Default:** `6`
-
-The number of times to retry if the transaction or block is not found.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { receipt } = Actions.transaction.waitForReceipt(client, {
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
-  retryCount: 3, // [!code focus]
-})
-```
-
-#### options.retryDelay
-
-- **Type:** `number | (({ count, error }: { count: number; error: Error }) => number)`
-- **Default:** exponential backoff
-
-The time (in milliseconds) to wait between retries.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { receipt } = Actions.transaction.waitForReceipt(client, {
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
-  retryDelay: 1_000, // [!code focus]
-})
-```
-
-#### options.timeout
-
-- **Type:** `number`
-- **Default:** `180_000`
-
-Optional timeout (in milliseconds) to wait before giving up.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { receipt } = Actions.transaction.waitForReceipt(client, {
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
-  timeout: 60_000, // [!code focus]
-})
-```
-
-### Return Value
+## Return Value
 
 `Watcher`
 
@@ -371,7 +232,140 @@ watch.onReceipt((receipt) => console.log(receipt.status))
 watch.off() // [!code focus]
 ```
 
-### Errors
+## Parameters
+
+### checkReplacement
+
+- **Type:** `boolean`
+- **Default:** `client.chain?.supportsTransactionReplacementDetection ?? true`
+
+Whether to check for transaction replacements (repriced, cancelled, or replaced transactions).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { receipt } = Actions.transaction.waitForReceipt(client, {
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+  checkReplacement: false, // [!code focus]
+})
+```
+
+### confirmations
+
+- **Type:** `number`
+- **Default:** `1`
+
+The number of confirmations (blocks passed) to wait for before resolving.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { receipt } = Actions.transaction.waitForReceipt(client, {
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+  confirmations: 5, // [!code focus]
+})
+```
+
+### hash
+
+- **Type:** `Hex`
+
+Hash of the transaction to wait for.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { receipt } = Actions.transaction.waitForReceipt(client, {
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus]
+})
+```
+
+### pollingInterval
+
+- **Type:** `number`
+- **Default:** `client.chain?.preconfirmationTime ?? client.pollingInterval`
+
+Polling frequency (in milliseconds).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { receipt } = Actions.transaction.waitForReceipt(client, {
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+  pollingInterval: 1_000, // [!code focus]
+})
+```
+
+### retryCount
+
+- **Type:** `number`
+- **Default:** `6`
+
+The number of times to retry if the transaction or block is not found.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { receipt } = Actions.transaction.waitForReceipt(client, {
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+  retryCount: 3, // [!code focus]
+})
+```
+
+### retryDelay
+
+- **Type:** `number | (({ count, error }: { count: number; error: Error }) => number)`
+- **Default:** exponential backoff
+
+The time (in milliseconds) to wait between retries.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { receipt } = Actions.transaction.waitForReceipt(client, {
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+  retryDelay: 1_000, // [!code focus]
+})
+```
+
+### timeout
+
+- **Type:** `number`
+- **Default:** `180_000`
+
+Optional timeout (in milliseconds) to wait before giving up.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { receipt } = Actions.transaction.waitForReceipt(client, {
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+  timeout: 60_000, // [!code focus]
+})
+```
+
+## Errors
 
 | Error | Description |
 | --- | --- |

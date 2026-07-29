@@ -1,22 +1,19 @@
 # setNextTimestamp
 
-## Overview
-
 Sets the next block's timestamp.
 
-## Recipes
+## Usage
 
-### Set the Next Block Timestamp
-
+This example sets the next block's timestamp.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.block.setNextTimestamp({ // [!code focus]
-  timestamp: 1_700_000_000n, // [!code focus]
-}) // [!code focus]
+await client.block.setNextTimestamp({
+  timestamp: 1_700_000_000n,
+})
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -31,13 +28,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.block.setNextTimestamp`
+### Standalone Action
 
-Sets the next block's timestamp.
-
-### Usage
-
-Call [`Actions.block.setNextTimestamp`](#actionsblocksetnexttimestamp) directly by passing the Client as the first argument.
+Call `Actions.block.setNextTimestamp` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -62,9 +55,15 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
 
-#### options.timestamp
+`void`
+
+No value is returned.
+
+## Parameters
+
+### timestamp
 
 - **Type:** `bigint`
 
@@ -83,9 +82,3 @@ await Actions.block.setNextTimestamp(client, {
   timestamp: 1_700_000_000n, // [!code focus]
 })
 ```
-
-### Return Value
-
-`void`
-
-No value is returned.

@@ -1,11 +1,66 @@
 # prepareAuthorization
 
-## Overview
-
 Prepares an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) Authorization object for signing.
 Fills required fields such as `nonce` and `chainId` when you omit them.
 
 With the prepared Authorization object, you can use [`Actions.wallet.signAuthorization`](/docs/actions/wallet/signAuthorization) to sign over it.
+
+## Usage
+
+This example prepares an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) Authorization object for signing.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const authorization = await client.wallet.prepareAuthorization({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+// @log: { address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', chainId: 1, nonce: 664n }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.wallet.prepareAuthorization` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const authorization = await Actions.wallet.prepareAuthorization(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+// @log: { address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', chainId: 1, nonce: 664n }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
 
 ## Recipes
 
@@ -73,42 +128,15 @@ export const client = Client.create({
 
 :::
 
-## `Actions.wallet.prepareAuthorization`
+## Return Value
 
-Prepares an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) Authorization object for signing.
+`Authorization`
 
-### Usage
+The prepared (unsigned) Authorization object.
 
-Call [`Actions.wallet.prepareAuthorization`](#actionswalletprepareauthorization) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const authorization = await Actions.wallet.prepareAuthorization(client, {
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-})
-// @log: { address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', chainId: 1, nonce: 664n }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Account, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  account: Account.fromPrivateKey('0x…'),
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.account
+### account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -125,7 +153,7 @@ const authorization = await Actions.wallet.prepareAuthorization(client, {
 })
 ```
 
-#### options.address
+### address
 
 - **Type:** `Address`
 
@@ -140,7 +168,7 @@ const authorization = await Actions.wallet.prepareAuthorization(client, {
 })
 ```
 
-#### options.chainId
+### chainId
 
 - **Type:** `number`
 - **Default:** `client.chain.id`
@@ -157,7 +185,7 @@ const authorization = await Actions.wallet.prepareAuthorization(client, {
 })
 ```
 
-#### options.executor
+### executor
 
 - **Type:** `'self' | Account | Address`
 
@@ -176,7 +204,7 @@ const authorization = await Actions.wallet.prepareAuthorization(client, {
 })
 ```
 
-#### options.nonce
+### nonce
 
 - **Type:** `bigint`
 - **Default:** account nonce
@@ -193,13 +221,7 @@ const authorization = await Actions.wallet.prepareAuthorization(client, {
 })
 ```
 
-### Return Value
-
-`Authorization`
-
-The prepared (unsigned) Authorization object.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

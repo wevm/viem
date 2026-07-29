@@ -1,23 +1,19 @@
 # getRaw
 
-## Overview
-
 Returns the raw, serialized transaction for a given transaction hash.
 
-## Recipes
+## Usage
 
-### Get a Raw Transaction
-
-Returns the raw, serialized transaction for a given transaction hash.
+This example returns the raw, serialized transaction for a given transaction hash.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const rawTransaction = await client.transaction.getRaw({ // [!code focus]
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus]
-}) // [!code focus]
+const rawTransaction = await client.transaction.getRaw({
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+})
 // @log: '0x02f8d4018307d45c843b9aca0085070e98ce8383…'
 ```
 
@@ -33,13 +29,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.transaction.getRaw`
+### Standalone Action
 
-Returns the raw, serialized transaction for a given transaction hash.
-
-### Usage
-
-Call [`Actions.transaction.getRaw`](#actionstransactiongetraw) directly by passing the Client as the first argument.
+Call `Actions.transaction.getRaw` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -65,9 +57,15 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
 
-#### options.hash
+`Hex`
+
+The raw, serialized transaction.
+
+## Parameters
+
+### hash
 
 - **Type:** `Hex`
 
@@ -84,13 +82,7 @@ const rawTransaction = await Actions.transaction.getRaw(client, {
 })
 ```
 
-### Return Value
-
-`Hex`
-
-The raw, serialized transaction.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

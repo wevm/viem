@@ -1,22 +1,19 @@
 # revert
 
-## Overview
-
 Reverts the state of the blockchain to a previously taken snapshot.
 
-## Recipes
+## Usage
 
-### Revert Node State
-
+This example reverts the state of the blockchain to a previously taken snapshot.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.state.revert({ // [!code focus]
-  id: '0x1', // [!code focus]
-}) // [!code focus]
+await client.state.revert({
+  id: '0x1',
+})
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -31,13 +28,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.state.revert`
+### Standalone Action
 
-Reverts the state of the blockchain to a previously taken snapshot.
-
-### Usage
-
-Call [`Actions.state.revert`](#actionsstaterevert) directly by passing the Client as the first argument.
+Call `Actions.state.revert` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -62,9 +55,15 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
 
-#### options.id
+`void`
+
+No value is returned.
+
+## Parameters
+
+### id
 
 - **Type:** `Hex`
 
@@ -83,9 +82,3 @@ await Actions.state.revert(client, {
   id: '0x1', // [!code focus]
 })
 ```
-
-### Return Value
-
-`void`
-
-No value is returned.

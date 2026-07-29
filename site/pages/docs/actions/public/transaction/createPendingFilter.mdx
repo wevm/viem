@@ -1,23 +1,19 @@
 # createPendingFilter
 
-## Overview
-
 Creates a filter to listen for new pending transaction hashes.
 
 Poll the filter with [`Actions.filter.getChanges`](/docs/actions/public/filter/getChanges) and tear it down with [`Actions.filter.uninstall`](/docs/actions/public/filter/uninstall).
 
-## Recipes
+## Usage
 
-### Create a Pending Transaction Filter
-
-Creates a filter to listen for new pending transaction hashes.
+This example creates a filter to listen for new pending transaction hashes.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const filter = await client.transaction.createPendingFilter() // [!code focus]
+const filter = await client.transaction.createPendingFilter()
 // @log: { id: '0x345a6572337856574a76364e457a4366', request: ƒ, type: 'transaction' }
 ```
 
@@ -33,13 +29,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.transaction.createPendingFilter`
+### Standalone Action
 
-Creates a filter to listen for new pending transaction hashes.
-
-### Usage
-
-Call [`Actions.transaction.createPendingFilter`](#actionstransactioncreatependingfilter) directly by passing the Client as the first argument.
+Call `Actions.transaction.createPendingFilter` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -63,7 +55,7 @@ export const client = Client.create({
 
 :::
 
-### Return Value
+## Return Value
 
 `Actions.filter.Filter<'transaction'>`
 

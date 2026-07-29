@@ -1,14 +1,10 @@
 # getText
 
-## Overview
-
 Gets a text record for an ENS name (via the ENS Universal Resolver's `resolveWithGateways`).
 
-## Recipes
+## Usage
 
-### Read an ENS Text Record
-
-Gets a text record for an ENS name (via the ENS Universal Resolver's `resolveWithGateways`).
+This example gets a text record for an ENS name (via the ENS Universal Resolver's `resolveWithGateways`).
 
 :::code-group
 
@@ -16,10 +12,10 @@ Gets a text record for an ENS name (via the ENS Universal Resolver's `resolveWit
 import { Ens } from 'viem/utils'
 import { client } from './viem.config'
 
-const twitter = await client.ens.getText({ // [!code focus]
-  key: 'com.twitter', // [!code focus]
-  name: Ens.normalize('wevm.eth'), // [!code focus]
-}) // [!code focus]
+const twitter = await client.ens.getText({
+  key: 'com.twitter',
+  name: Ens.normalize('wevm.eth'),
+})
 // @log: 'wevm_dev'
 ```
 
@@ -34,6 +30,38 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.ens.getText` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { Ens } from 'viem/utils'
+import { client } from './viem.config'
+
+const twitter = await Actions.ens.getText(client, {
+  key: 'com.twitter',
+  name: Ens.normalize('wevm.eth'),
+})
+// @log: 'wevm_dev'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
 
 ### Require Resolution Through a Custom Gateway
 
@@ -65,43 +93,15 @@ export const client = Client.create({
 
 :::
 
-## `Actions.ens.getText`
+## Return Value
 
-Gets a text record for an ENS name (via the ENS Universal Resolver's `resolveWithGateways`).
+`string | null`
 
-### Usage
+The text record value, or `null` when the record is unset.
 
-Call [`Actions.ens.getText`](#actionsensgettext) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { Ens } from 'viem/utils'
-import { client } from './viem.config'
-
-const twitter = await Actions.ens.getText(client, {
-  key: 'com.twitter',
-  name: Ens.normalize('wevm.eth'),
-})
-// @log: 'wevm_dev'
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.blockNumber
+### blockNumber
 
 - **Type:** `bigint`
 
@@ -122,7 +122,7 @@ const text = await Actions.ens.getText(client, {
 })
 ```
 
-#### options.blockTag
+### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -144,7 +144,7 @@ const text = await Actions.ens.getText(client, {
 })
 ```
 
-#### options.gatewayUrls
+### gatewayUrls
 
 - **Type:** `readonly string[]`
 
@@ -165,7 +165,7 @@ const text = await Actions.ens.getText(client, {
 })
 ```
 
-#### options.key
+### key
 
 - **Type:** `string`
 
@@ -185,7 +185,7 @@ const text = await Actions.ens.getText(client, {
 })
 ```
 
-#### options.name
+### name
 
 - **Type:** `string`
 
@@ -205,7 +205,7 @@ const text = await Actions.ens.getText(client, {
 })
 ```
 
-#### options.strict
+### strict
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -227,7 +227,7 @@ const text = await Actions.ens.getText(client, {
 })
 ```
 
-#### options.universalResolverAddress
+### universalResolverAddress
 
 - **Type:** `Address`
 - **Default:** `client.chain.contracts.ensUniversalResolver.address`
@@ -249,14 +249,8 @@ const text = await Actions.ens.getText(client, {
 })
 ```
 
-### Return Value
-
-`string | null`
-
-The text record value, or `null` when the record is unset.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |
-| `ContractError.ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#optionsstrict); resolver errors otherwise map to `null`). |
+| `ContractError.ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#strict); resolver errors otherwise map to `null`). |

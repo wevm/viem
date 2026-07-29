@@ -1,23 +1,20 @@
 # signTransaction
 
-## Overview
-
 Signs a transaction. Alias of [`Actions.transaction.sign`](/docs/actions/wallet/transaction/sign).
 
-## Recipes
+## Usage
 
-### Sign a Transaction
-
+This example signs a transaction.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const signed = await client.signTransaction({ // [!code focus]
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
-  value: 1n, // [!code focus]
-}) // [!code focus]
+const signed = await client.signTransaction({
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
 // @log: '0x02f86b0180843b9aca008502540be400825208...'
 ```
 
@@ -34,13 +31,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.signTransaction`
+### Standalone Action
 
-Signs a transaction. Alias of [`Actions.transaction.sign`](/docs/actions/wallet/transaction/sign).
-
-### Usage
-
-Call [`Actions.signTransaction`](#actionssigntransaction) directly by passing the Client as the first argument.
+Call `Actions.signTransaction` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -68,7 +61,13 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
+
+`Hex`
+
+The signed serialized transaction.
+
+## Parameters
 
 See [`Actions.transaction.sign`](/docs/actions/wallet/transaction/sign#parameters).
 
@@ -83,9 +82,3 @@ const signed = await Actions.signTransaction(client, { // [!code focus]
   value: 1n, // [!code focus]
 }) // [!code focus]
 ```
-
-### Return Value
-
-`Hex`
-
-The signed serialized transaction.

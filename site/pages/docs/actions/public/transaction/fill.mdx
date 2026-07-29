@@ -1,25 +1,21 @@
 # fill
 
-## Overview
-
 Fills a transaction request with the fields required to be signed over, via `eth_fillTransaction`.
 
-## Recipes
+## Usage
 
-### Fill a Transaction
-
-Fills a transaction request with the fields required to be signed over, via `eth_fillTransaction`.
+This example fills a transaction request with the fields required to be signed over, via `eth_fillTransaction`.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { raw, transaction } = await client.transaction.fill({ // [!code focus]
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
-  value: 1n, // [!code focus]
-}) // [!code focus]
+const { raw, transaction } = await client.transaction.fill({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
 // @log: {
 // @log:   raw: '0x02f8...',
 // @log:   transaction: {
@@ -47,6 +43,51 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.transaction.fill` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const { raw, transaction } = await Actions.transaction.fill(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: {
+// @log:   raw: '0x02f8...',
+// @log:   transaction: {
+// @log:     from: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+// @log:     gas: 21000n,
+// @log:     maxFeePerGas: 16026200000n,
+// @log:     maxPriorityFeePerGas: 1000000000n,
+// @log:     nonce: 0n,
+// @log:     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+// @log:     type: 'eip1559',
+// @log:     value: 1n,
+// @log:     ...
+// @log:   },
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
 
 ### Fill an Authorized Transaction
 
@@ -101,56 +142,15 @@ const { transaction } = await client.transaction.fill({
 })
 ```
 
-## `Actions.transaction.fill`
+## Return Value
 
-Fills a transaction request with the fields required to be signed over, via `eth_fillTransaction`.
+`{ capabilities?: object; raw: Hex; transaction: Transaction & { from: Address } }`
 
-### Usage
+The raw signed-over transaction (`raw`), the filled `transaction`, and any node `capabilities` returned alongside it.
 
-Call [`Actions.transaction.fill`](#actionstransactionfill) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const { raw, transaction } = await Actions.transaction.fill(client, {
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value: 1n,
-})
-// @log: {
-// @log:   raw: '0x02f8...',
-// @log:   transaction: {
-// @log:     from: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-// @log:     gas: 21000n,
-// @log:     maxFeePerGas: 16026200000n,
-// @log:     maxPriorityFeePerGas: 1000000000n,
-// @log:     nonce: 0n,
-// @log:     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-// @log:     type: 'eip1559',
-// @log:     value: 1n,
-// @log:     ...
-// @log:   },
-// @log: }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.accessList
+### accessList
 
 - **Type:** `AccessList`
 
@@ -175,12 +175,12 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-#### options.account
+### account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
 
-The Account object or address that sends the transaction. This option takes precedence over [`from`](#optionsfrom).
+The Account object or address that sends the transaction. This option takes precedence over [`from`](#from).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -195,7 +195,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-#### options.authorizationList
+### authorizationList
 
 - **Type:** `AuthorizationList`
 
@@ -222,7 +222,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-#### options.blobs
+### blobs
 
 - **Type:** `readonly Hex[]`
 
@@ -241,7 +241,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-#### options.blobVersionedHashes
+### blobVersionedHashes
 
 - **Type:** `readonly Hex[]`
 
@@ -259,7 +259,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-#### options.chain
+### chain
 
 - **Type:** `Chain`
 - **Default:** `client.chain`
@@ -280,7 +280,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-#### options.chainId
+### chainId
 
 - **Type:** `number | Hex`
 
@@ -298,7 +298,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-#### options.data
+### data
 
 - **Type:** `Hex`
 
@@ -316,11 +316,11 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-#### options.from
+### from
 
 - **Type:** `Address`
 
-The raw sender address. Viem uses this field only when neither [`account`](#optionsaccount) nor a Client Account is available.
+The raw sender address. Viem uses this field only when neither [`account`](#account) nor a Client Account is available.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -334,7 +334,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-#### options.gas
+### gas
 
 - **Type:** `number | bigint | Hex`
 
@@ -352,7 +352,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-#### options.gasPrice
+### gasPrice
 
 - **Type:** `number | bigint | Hex`
 
@@ -370,7 +370,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-#### options.maxFeePerBlobGas
+### maxFeePerBlobGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -388,7 +388,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-#### options.maxFeePerGas
+### maxFeePerGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -406,7 +406,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-#### options.maxPriorityFeePerGas
+### maxPriorityFeePerGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -424,11 +424,11 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-#### options.nonce
+### nonce
 
 - **Type:** `number | bigint | Hex`
 
-The nonce to use for the transaction. When provided, it takes precedence over the [`nonceManager`](#optionsnoncemanager).
+The nonce to use for the transaction. When provided, it takes precedence over the [`nonceManager`](#noncemanager).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -442,11 +442,11 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-#### options.nonceManager
+### nonceManager
 
 - **Type:** `NonceManager`
 
-A nonce manager used to derive the transaction nonce when [`nonce`](#optionsnonce) is not provided.
+A nonce manager used to derive the transaction nonce when [`nonce`](#nonce) is not provided.
 
 ```ts twoslash
 import { Actions, Client, http, NonceManager } from 'viem'
@@ -462,7 +462,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-#### options.requestOptions
+### requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -481,7 +481,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-#### options.to
+### to
 
 - **Type:** `Address | null`
 
@@ -499,7 +499,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-#### options.type
+### type
 
 - **Type:** `string`
 
@@ -517,7 +517,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-#### options.value
+### value
 
 - **Type:** `number | bigint | Hex`
 
@@ -535,13 +535,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-### Return Value
-
-`{ capabilities?: object; raw: Hex; transaction: Transaction & { from: Address } }`
-
-The raw signed-over transaction (`raw`), the filled `transaction`, and any node `capabilities` returned alongside it.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

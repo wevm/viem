@@ -1,11 +1,66 @@
 # signMessage
 
-## Overview
-
 Calculates an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) signature over a personal message.
 
 - **Local Accounts**: signs locally (no JSON-RPC request).
 - **JSON-RPC Accounts**: signs via `personal_sign`.
+
+## Usage
+
+This example calculates an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) signature over a personal message.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const signature = await client.signMessage({
+  message: 'hello world',
+})
+// @log: '0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b8031...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.signMessage` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const signature = await Actions.signMessage(client, {
+  message: 'hello world',
+})
+// @log: '0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b8031...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
 
 ## Recipes
 
@@ -69,42 +124,15 @@ export const client = Client.create({
 
 :::
 
-## `Actions.signMessage`
+## Return Value
 
-Calculates an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) signature over a personal message.
+`Hex`
 
-### Usage
+The signed message.
 
-Call [`Actions.signMessage`](#actionssignmessage) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const signature = await Actions.signMessage(client, {
-  message: 'hello world',
-})
-// @log: '0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b8031...'
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Account, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  account: Account.fromPrivateKey('0x…'),
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.account
+### account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -121,7 +149,7 @@ const signature = await Actions.signMessage(client, {
 })
 ```
 
-#### options.message
+### message
 
 - **Type:** `string | { raw: Hex | Bytes }`
 
@@ -136,7 +164,7 @@ const signature = await Actions.signMessage(client, {
 })
 ```
 
-#### options.requestOptions
+### requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -155,13 +183,7 @@ const signature = await Actions.signMessage(client, {
 })
 ```
 
-### Return Value
-
-`Hex`
-
-The signed message.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

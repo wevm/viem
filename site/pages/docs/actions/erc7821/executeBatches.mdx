@@ -1,7 +1,5 @@
 # executeBatches
 
-## Overview
-
 Executes batches of calls using "batch of batches" mode on an [ERC-7821-compatible contract](https://eips.ethereum.org/EIPS/eip-7821).
 
 Each batch carries its own calls and optional `opData`.
@@ -9,6 +7,97 @@ The contract executes every batch atomically in one transaction.
 
 Before sending, Viem checks the `batchOfBatches` execution mode with
 [`Actions.erc7821.supportsExecutionMode`](/docs/actions/erc7821/supportsExecutionMode).
+
+## Usage
+
+This example executes batches of call(s) using "batch of batches" mode on an [ERC-7821-compatible contract](https://eips.ethereum.org/EIPS/eip-7821).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const hash = await client.erc7821.executeBatches({
+  address: client.account.address,
+  batches: [
+    {
+      calls: [
+        {
+          to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+          value: Value.fromEther('1'),
+        },
+      ],
+    },
+    {
+      calls: [
+        { data: '0xdeadbeef', to: '0xcb98643b8786950F0461f3B0edf99D88F274574D' },
+      ],
+      opData: '0xcafebabe',
+    },
+  ],
+})
+// @log: '0x9d2478f5cb1d21ac4153dbe5da9700e106a06d1cf1b957554fcd51de26eec4ae'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, erc7821Actions, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+}).extend(erc7821Actions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.erc7821.executeBatches` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const hash = await Actions.erc7821.executeBatches(client, {
+  address: client.account.address,
+  batches: [
+    {
+      calls: [
+        {
+          to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+          value: Value.fromEther('1'),
+        },
+      ],
+    },
+    {
+      calls: [
+        { data: '0xdeadbeef', to: '0xcb98643b8786950F0461f3B0edf99D88F274574D' },
+      ],
+      opData: '0xcafebabe',
+    },
+  ],
+})
+// @log: '0x9d2478f5cb1d21ac4153dbe5da9700e106a06d1cf1b957554fcd51de26eec4ae'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
 
 ## Recipes
 
@@ -111,63 +200,19 @@ export const client = Client.create({
 
 :::
 
-## `Actions.erc7821.executeBatches`
+## Return Value
 
-Executes batches of calls using "batch of batches" mode on an [ERC-7821-compatible contract](https://eips.ethereum.org/EIPS/eip-7821).
+`Hex`
 
-### Usage
+The transaction hash. Wait for inclusion with [`Actions.transaction.waitForReceipt`](/docs/actions/public/transaction/waitForReceipt).
 
-Call [`Actions.erc7821.executeBatches`](#actionserc7821executebatches) directly by passing the Client as the first argument.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { Value } from 'viem/utils'
-import { client } from './viem.config'
-
-const hash = await Actions.erc7821.executeBatches(client, {
-  address: client.account.address,
-  batches: [
-    {
-      calls: [
-        {
-          to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-          value: Value.fromEther('1'),
-        },
-      ],
-    },
-    {
-      calls: [
-        { data: '0xdeadbeef', to: '0xcb98643b8786950F0461f3B0edf99D88F274574D' },
-      ],
-      opData: '0xcafebabe',
-    },
-  ],
-})
-// @log: '0x9d2478f5cb1d21ac4153dbe5da9700e106a06d1cf1b957554fcd51de26eec4ae'
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Account, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  account: Account.fromPrivateKey('0x...'),
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
+## Parameters
 
 Also accepts the remaining
 [`Actions.transaction.send` options](/docs/actions/wallet/transaction/send#parameters), including
 `authorizationList`, `nonce`, and fee options.
 
-#### options.account
+### account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -189,7 +234,7 @@ const hash = await Actions.erc7821.executeBatches(client, {
 })
 ```
 
-#### options.address
+### address
 
 - **Type:** `Address`
 
@@ -207,7 +252,7 @@ const hash = await Actions.erc7821.executeBatches(client, {
 })
 ```
 
-#### options.batches
+### batches
 
 - **Type:** `{ calls: Call[]; opData?: Hex }[]`
 
@@ -233,13 +278,7 @@ const hash = await Actions.erc7821.executeBatches(client, {
 })
 ```
 
-### Return Value
-
-`Hex`
-
-The transaction hash. Wait for inclusion with [`Actions.transaction.waitForReceipt`](/docs/actions/public/transaction/waitForReceipt).
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

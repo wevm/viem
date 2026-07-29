@@ -1,23 +1,19 @@
 # getEip712Domain
 
-## Overview
-
 Reads the EIP-712 domain from a contract, based on the [ERC-5267](https://eips.ethereum.org/EIPS/eip-5267) specification.
 
-## Recipes
+## Usage
 
-### Read an EIP-712 Domain
-
-Reads the EIP-712 domain from a contract, based on the [ERC-5267](https://eips.ethereum.org/EIPS/eip-5267) specification.
+This example reads the EIP-712 domain from a contract, based on the [ERC-5267](https://eips.ethereum.org/EIPS/eip-5267) specification.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { domain, extensions, fields } = await client.contract.getEip712Domain({ // [!code focus]
-  address: '0x57ba3ec8df619d4d243ce439551cce713bb17411', // [!code focus]
-}) // [!code focus]
+const { domain, extensions, fields } = await client.contract.getEip712Domain({
+  address: '0x57ba3ec8df619d4d243ce439551cce713bb17411',
+})
 // @log: {
 // @log:   domain: {
 // @log:     chainId: 1,
@@ -42,6 +38,46 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.contract.getEip712Domain` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const { domain, extensions, fields } = await Actions.contract.getEip712Domain(client, {
+  address: '0x57ba3ec8df619d4d243ce439551cce713bb17411',
+})
+// @log: {
+// @log:   domain: {
+// @log:     chainId: 1,
+// @log:     name: 'ExampleContract',
+// @log:     salt: '0x0000...0000',
+// @log:     verifyingContract: '0x57bA3ec8DF619d4d243Ce439551cCE713bB17411',
+// @log:     version: '1',
+// @log:   },
+// @log:   extensions: [],
+// @log:   fields: '0x0f',
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
 
 ### Read a Counterfactual Domain
 
@@ -85,51 +121,15 @@ const {
 })
 ```
 
-## `Actions.contract.getEip712Domain`
+## Return Value
 
-Reads the EIP-712 domain from a contract, based on the [ERC-5267](https://eips.ethereum.org/EIPS/eip-5267) specification.
+`{ domain, extensions, fields }`
 
-### Usage
+The EIP-712 domain (with `chainId` as `number`), the ERC-5267 `extensions` (as `bigint[]`), and the `fields` bitmap (as `Hex`).
 
-Call [`Actions.contract.getEip712Domain`](#actionscontractgeteip712domain) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const { domain, extensions, fields } = await Actions.contract.getEip712Domain(client, {
-  address: '0x57ba3ec8df619d4d243ce439551cce713bb17411',
-})
-// @log: {
-// @log:   domain: {
-// @log:     chainId: 1,
-// @log:     name: 'ExampleContract',
-// @log:     salt: '0x0000...0000',
-// @log:     verifyingContract: '0x57bA3ec8DF619d4d243Ce439551cCE713bB17411',
-// @log:     version: '1',
-// @log:   },
-// @log:   extensions: [],
-// @log:   fields: '0x0f',
-// @log: }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.address
+### address
 
 - **Type:** `Address`
 
@@ -146,7 +146,7 @@ const domain = await Actions.contract.getEip712Domain(client, {
 })
 ```
 
-#### options.factory
+### factory
 
 - **Type:** `Address`
 
@@ -165,7 +165,7 @@ const domain = await Actions.contract.getEip712Domain(client, {
 })
 ```
 
-#### options.factoryData
+### factoryData
 
 - **Type:** `Hex`
 
@@ -184,13 +184,7 @@ const domain = await Actions.contract.getEip712Domain(client, {
 })
 ```
 
-### Return Value
-
-`{ domain, extensions, fields }`
-
-The EIP-712 domain (with `chainId` as `number`), the ERC-5267 `extensions` (as `bigint[]`), and the `fields` bitmap (as `Hex`).
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

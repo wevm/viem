@@ -1,24 +1,20 @@
 # getStorageAt
 
-## Overview
-
 Returns the value from a storage slot at a given address.
 
-## Recipes
+## Usage
 
-### Read a Storage Slot
-
-Returns the value from a storage slot at a given address.
+This example returns the value from a storage slot at a given address.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const value = await client.address.getStorageAt({ // [!code focus]
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-  slot: '0x0', // [!code focus]
-}) // [!code focus]
+const value = await client.address.getStorageAt({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  slot: '0x0',
+})
 // @log: '0x0000000000000000000000000000000000000000000000000000000000000001'
 ```
 
@@ -33,6 +29,37 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.address.getStorageAt` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const value = await Actions.address.getStorageAt(client, {
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  slot: '0x0',
+})
+// @log: '0x0000000000000000000000000000000000000000000000000000000000000001'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
 
 ### Read Historical Contract Storage
 
@@ -62,42 +89,15 @@ export const client = Client.create({
 
 :::
 
-## `Actions.address.getStorageAt`
+## Return Value
 
-Returns the value from a storage slot at a given address.
+`Hex | undefined`
 
-### Usage
+The value stored at the slot.
 
-Call [`Actions.address.getStorageAt`](#actionsaddressgetstorageat) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const value = await Actions.address.getStorageAt(client, {
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  slot: '0x0',
-})
-// @log: '0x0000000000000000000000000000000000000000000000000000000000000001'
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.address
+### address
 
 - **Type:** `Address`
 
@@ -115,7 +115,7 @@ const value = await Actions.address.getStorageAt(client, {
 })
 ```
 
-#### options.blockHash
+### blockHash
 
 - **Type:** `Hex`
 
@@ -134,7 +134,7 @@ const value = await Actions.address.getStorageAt(client, {
 })
 ```
 
-#### options.blockNumber
+### blockNumber
 
 - **Type:** `bigint`
 
@@ -153,7 +153,7 @@ const value = await Actions.address.getStorageAt(client, {
 })
 ```
 
-#### options.blockTag
+### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -173,7 +173,7 @@ const value = await Actions.address.getStorageAt(client, {
 })
 ```
 
-#### options.requireCanonical
+### requireCanonical
 
 - **Type:** `boolean`
 
@@ -193,7 +193,7 @@ const value = await Actions.address.getStorageAt(client, {
 })
 ```
 
-#### options.slot
+### slot
 
 - **Type:** `Hex`
 
@@ -211,13 +211,7 @@ const value = await Actions.address.getStorageAt(client, {
 })
 ```
 
-### Return Value
-
-`Hex | undefined`
-
-The value stored at the slot.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

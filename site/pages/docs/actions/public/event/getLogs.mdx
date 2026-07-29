@@ -1,16 +1,10 @@
 # getLogs
 
-## Overview
-
 Returns a list of event logs matching the provided parameters.
 
-## Recipes
+## Usage
 
-Use a Client method or pass the Client to the standalone action.
-
-### Get Event Logs
-
-Returns a list of event logs matching the provided parameters.
+This example returns a list of event logs matching the provided parameters.
 
 :::code-group
 
@@ -18,11 +12,11 @@ Returns a list of event logs matching the provided parameters.
 import { AbiEvent } from 'viem/utils'
 import { client } from './viem.config'
 
-const logs = await client.event.getLogs({ // [!code focus]
-  event: AbiEvent.from( // [!code focus]
-    'event Transfer(address indexed from, address indexed to, uint256 value)', // [!code focus]
-  ), // [!code focus]
-}) // [!code focus]
+const logs = await client.event.getLogs({
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
+})
 // @log: [
 // @log:   {
 // @log:     address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
@@ -51,6 +45,55 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.event.getLogs` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { AbiEvent } from 'viem/utils'
+import { client } from './viem.config'
+
+const logs = await Actions.event.getLogs(client, {
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
+})
+// @log: [
+// @log:   {
+// @log:     address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
+// @log:     args: { from: '0xd8da...', to: '0xa5cc...', value: 420n },
+// @log:     blockHash: '0xabe6...01a4',
+// @log:     blockNumber: 19760236n,
+// @log:     data: '0x0000...01a4',
+// @log:     eventName: 'Transfer',
+// @log:     logIndex: 271,
+// @log:     removed: false,
+// @log:     topics: ['0xddf2...b3ef', '0x0000...d8da', '0x0000...a5cc'],
+// @log:     transactionHash: '0xcfa5...6e93',
+// @log:     transactionIndex: 145,
+// @log:   },
+// @log: ]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
+
+Use a Client method or pass the Client to the standalone action.
 
 ### Fetching Logs for a Contract
 
@@ -186,58 +229,15 @@ const logs = await Actions.event.getLogs(client, {
 })
 ```
 
-## `Actions.event.getLogs`
+## Return Value
 
-Returns a list of event logs matching the provided parameters.
+`readonly Log[]`
 
-### Usage
+A list of event logs. When you provide `event` or `events`, each log includes decoded `args` and `eventName` values.
 
-Call [`Actions.event.getLogs`](#actionseventgetlogs) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { AbiEvent } from 'viem/utils'
-import { client } from './viem.config'
-
-const logs = await Actions.event.getLogs(client, {
-  event: AbiEvent.from(
-    'event Transfer(address indexed from, address indexed to, uint256 value)',
-  ),
-})
-// @log: [
-// @log:   {
-// @log:     address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
-// @log:     args: { from: '0xd8da...', to: '0xa5cc...', value: 420n },
-// @log:     blockHash: '0xabe6...01a4',
-// @log:     blockNumber: 19760236n,
-// @log:     data: '0x0000...01a4',
-// @log:     eventName: 'Transfer',
-// @log:     logIndex: 271,
-// @log:     removed: false,
-// @log:     topics: ['0xddf2...b3ef', '0x0000...d8da', '0x0000...a5cc'],
-// @log:     transactionHash: '0xcfa5...6e93',
-// @log:     transactionIndex: 145,
-// @log:   },
-// @log: ]
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.address
+### address
 
 - **Type:** `Address | readonly Address[]`
 
@@ -254,7 +254,7 @@ const logs = await Actions.event.getLogs(client, {
 })
 ```
 
-#### options.args
+### args
 
 - **Type:** Inferred from `event`.
 
@@ -278,7 +278,7 @@ const logs = await Actions.event.getLogs(client, {
 })
 ```
 
-#### options.blockHash
+### blockHash
 
 - **Type:** `Hex`
 
@@ -295,7 +295,7 @@ const logs = await Actions.event.getLogs(client, {
 })
 ```
 
-#### options.event
+### event
 
 - **Type:** `AbiEvent`
 
@@ -315,7 +315,7 @@ const logs = await Actions.event.getLogs(client, {
 })
 ```
 
-#### options.events
+### events
 
 - **Type:** `readonly AbiEvent[]`
 
@@ -336,7 +336,7 @@ const logs = await Actions.event.getLogs(client, {
 })
 ```
 
-#### options.fromBlock
+### fromBlock
 
 - **Type:** `bigint | 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 
@@ -354,7 +354,7 @@ const logs = await Actions.event.getLogs(client, {
 })
 ```
 
-#### options.strict
+### strict
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -376,7 +376,7 @@ const logs = await Actions.event.getLogs(client, {
 })
 ```
 
-#### options.toBlock
+### toBlock
 
 - **Type:** `bigint | 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 
@@ -394,13 +394,7 @@ const logs = await Actions.event.getLogs(client, {
 })
 ```
 
-### Return Value
-
-`readonly Log[]`
-
-A list of event logs. When you provide `event` or `events`, each log includes decoded `args` and `eventName` values.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

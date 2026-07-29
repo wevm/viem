@@ -1,27 +1,23 @@
 # verifyMessage
 
-## Overview
-
 Verifies that a message was signed by the provided address, supporting Smart Contract Accounts (ERC-1271/6492/8010) and Externally Owned Accounts.
 
-Computes the [EIP-191](https://eips.ethereum.org/EIPS/eip-191) personal-message hash and delegates to [`verifyHash`](/docs/actions/public/verifyHash), which also accepts all of its options ([`mode`](/docs/actions/public/verifyHash#optionsmode), [`factory`](/docs/actions/public/verifyHash#optionsfactory), block selectors, and verifier overrides).
+Computes the [EIP-191](https://eips.ethereum.org/EIPS/eip-191) personal-message hash and delegates to [`verifyHash`](/docs/actions/public/verifyHash), which also accepts all of its options ([`mode`](/docs/actions/public/verifyHash#mode), [`factory`](/docs/actions/public/verifyHash#factory), block selectors, and verifier overrides).
 
-## Recipes
+## Usage
 
-### Verify a Message
-
-Verifies that a message was signed by the provided address, supporting Smart Contract Accounts (ERC-1271/6492/8010) and Externally Owned Accounts.
+This example verifies that a message was signed by the provided address, supporting Smart Contract Accounts (ERC-1271/6492/8010) and Externally Owned Accounts.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const valid = await client.verifyMessage({ // [!code focus]
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
-  message: 'hello world', // [!code focus]
-  signature: '0x…', // [!code focus]
-}) // [!code focus]
+const valid = await client.verifyMessage({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  message: 'hello world',
+  signature: '0x…',
+})
 // @log: true
 ```
 
@@ -37,13 +33,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.verifyMessage`
+### Standalone Action
 
-Verifies that a message was signed by the provided address, supporting Smart Contract Accounts (ERC-1271/6492/8010) and Externally Owned Accounts.
-
-### Usage
-
-Call [`Actions.verifyMessage`](#actionsverifymessage) directly by passing the Client as the first argument.
+Call `Actions.verifyMessage` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -71,12 +63,18 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
+
+`boolean`
+
+Whether the signature is valid for the given message and address.
+
+## Parameters
 
 Accepts every [`verifyHash` parameter](/docs/actions/public/verifyHash#parameters) except `hash`,
 plus:
 
-#### options.message
+### message
 
 - **Type:** `string | { raw: Hex | Bytes }`
 
@@ -95,13 +93,7 @@ const valid = await Actions.verifyMessage(client, {
 })
 ```
 
-### Return Value
-
-`boolean`
-
-Whether the signature is valid for the given message and address.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

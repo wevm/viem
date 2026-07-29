@@ -1,11 +1,80 @@
 # signAuthorization
 
-## Overview
-
 Signs an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) Authorization object.
 Fills required fields such as `nonce` and `chainId` when you omit them.
 
 Only Local Accounts can sign Authorizations; JSON-RPC Accounts are rejected.
+
+## Usage
+
+This example signs an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) Authorization object.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const authorization = await client.wallet.signAuthorization({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+// @log: {
+// @log:   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+// @log:   chainId: 1,
+// @log:   nonce: 664n,
+// @log:   r: 49782753348462494199823712700004552394425719014458918871452329774910450607807n,
+// @log:   s: 33726695977844476214676913201140481102225469284307016937915595756355928419768n,
+// @log:   yParity: 0,
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.wallet.signAuthorization` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const authorization = await Actions.wallet.signAuthorization(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+// @log: {
+// @log:   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+// @log:   chainId: 1,
+// @log:   nonce: 664n,
+// @log:   r: 49782753348462494199823712700004552394425719014458918871452329774910450607807n,
+// @log:   s: 33726695977844476214676913201140481102225469284307016937915595756355928419768n,
+// @log:   yParity: 0,
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
 
 ## Recipes
 
@@ -100,49 +169,15 @@ export const client = Client.create({
 
 :::
 
-## `Actions.wallet.signAuthorization`
+## Return Value
 
-Signs an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) Authorization object.
+`Authorization<true>`
 
-### Usage
+The signed Authorization object.
 
-Call [`Actions.wallet.signAuthorization`](#actionswalletsignauthorization) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const authorization = await Actions.wallet.signAuthorization(client, {
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-})
-// @log: {
-// @log:   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-// @log:   chainId: 1,
-// @log:   nonce: 664n,
-// @log:   r: 49782753348462494199823712700004552394425719014458918871452329774910450607807n,
-// @log:   s: 33726695977844476214676913201140481102225469284307016937915595756355928419768n,
-// @log:   yParity: 0,
-// @log: }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Account, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  account: Account.fromPrivateKey('0x…'),
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.account
+### account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -159,7 +194,7 @@ const authorization = await Actions.wallet.signAuthorization(client, {
 })
 ```
 
-#### options.address
+### address
 
 - **Type:** `Address`
 
@@ -174,7 +209,7 @@ const authorization = await Actions.wallet.signAuthorization(client, {
 })
 ```
 
-#### options.chainId
+### chainId
 
 - **Type:** `number`
 - **Default:** `client.chain.id`
@@ -191,7 +226,7 @@ const authorization = await Actions.wallet.signAuthorization(client, {
 })
 ```
 
-#### options.executor
+### executor
 
 - **Type:** `'self' | Account | Address`
 
@@ -210,7 +245,7 @@ const authorization = await Actions.wallet.signAuthorization(client, {
 })
 ```
 
-#### options.nonce
+### nonce
 
 - **Type:** `bigint`
 - **Default:** account nonce
@@ -227,13 +262,7 @@ const authorization = await Actions.wallet.signAuthorization(client, {
 })
 ```
 
-### Return Value
-
-`Authorization<true>`
-
-The signed Authorization object.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

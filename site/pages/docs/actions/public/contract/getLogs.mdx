@@ -1,16 +1,10 @@
 # getLogs
 
-## Overview
-
 Returns a list of event logs emitted by a contract.
 
-## Recipes
+## Usage
 
-Use a Client method or pass the Client to the standalone action.
-
-### Get Contract Event Logs
-
-Returns a list of event logs emitted by a contract.
+This example returns a list of event logs emitted by a contract.
 
 :::code-group
 
@@ -18,10 +12,10 @@ Returns a list of event logs emitted by a contract.
 import { Abis } from 'viem/utils'
 import { client } from './viem.config'
 
-const logs = await client.contract.getLogs({ // [!code focus]
-  abi: Abis.erc20, // [!code focus]
-  eventName: 'Transfer', // [!code focus]
-}) // [!code focus]
+const logs = await client.contract.getLogs({
+  abi: Abis.erc20,
+  eventName: 'Transfer',
+})
 // @log: [
 // @log:   {
 // @log:     address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
@@ -50,6 +44,54 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.contract.getLogs` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { Abis } from 'viem/utils'
+import { client } from './viem.config'
+
+const logs = await Actions.contract.getLogs(client, {
+  abi: Abis.erc20,
+  eventName: 'Transfer',
+})
+// @log: [
+// @log:   {
+// @log:     address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
+// @log:     args: { from: '0xd8da...', to: '0xa5cc...', value: 420n },
+// @log:     blockHash: '0xabe6...01a4',
+// @log:     blockNumber: 19760236n,
+// @log:     data: '0x0000...01a4',
+// @log:     eventName: 'Transfer',
+// @log:     logIndex: 271,
+// @log:     removed: false,
+// @log:     topics: ['0xddf2...b3ef', '0x0000...d8da', '0x0000...a5cc'],
+// @log:     transactionHash: '0xcfa5...6e93',
+// @log:     transactionIndex: 145,
+// @log:   },
+// @log: ]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
+
+Use a Client method or pass the Client to the standalone action.
 
 ### Fetching All Events for an ABI
 
@@ -173,57 +215,15 @@ const logs = await Actions.contract.getLogs(client, {
 })
 ```
 
-## `Actions.contract.getLogs`
+## Return Value
 
-Returns a list of event logs emitted by a contract.
+`readonly Log[]`
 
-### Usage
+A list of event logs decoded against the `abi`. Each log includes its `args` and `eventName`.
 
-Call [`Actions.contract.getLogs`](#actionscontractgetlogs) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { Abis } from 'viem/utils'
-import { client } from './viem.config'
-
-const logs = await Actions.contract.getLogs(client, {
-  abi: Abis.erc20,
-  eventName: 'Transfer',
-})
-// @log: [
-// @log:   {
-// @log:     address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
-// @log:     args: { from: '0xd8da...', to: '0xa5cc...', value: 420n },
-// @log:     blockHash: '0xabe6...01a4',
-// @log:     blockNumber: 19760236n,
-// @log:     data: '0x0000...01a4',
-// @log:     eventName: 'Transfer',
-// @log:     logIndex: 271,
-// @log:     removed: false,
-// @log:     topics: ['0xddf2...b3ef', '0x0000...d8da', '0x0000...a5cc'],
-// @log:     transactionHash: '0xcfa5...6e93',
-// @log:     transactionIndex: 145,
-// @log:   },
-// @log: ]
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.abi
+### abi
 
 - **Type:** `Abi`
 
@@ -241,7 +241,7 @@ const logs = await Actions.contract.getLogs(client, {
 })
 ```
 
-#### options.address
+### address
 
 - **Type:** `Address | readonly Address[]`
 
@@ -261,7 +261,7 @@ const logs = await Actions.contract.getLogs(client, {
 })
 ```
 
-#### options.args
+### args
 
 - **Type:** Inferred from `abi` and `eventName`.
 
@@ -284,7 +284,7 @@ const logs = await Actions.contract.getLogs(client, {
 })
 ```
 
-#### options.blockHash
+### blockHash
 
 - **Type:** `Hex`
 
@@ -304,7 +304,7 @@ const logs = await Actions.contract.getLogs(client, {
 })
 ```
 
-#### options.eventName
+### eventName
 
 - **Type:** `string`
 
@@ -324,7 +324,7 @@ const logs = await Actions.contract.getLogs(client, {
 })
 ```
 
-#### options.fromBlock
+### fromBlock
 
 - **Type:** `bigint | 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 
@@ -345,7 +345,7 @@ const logs = await Actions.contract.getLogs(client, {
 })
 ```
 
-#### options.strict
+### strict
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -367,7 +367,7 @@ const logs = await Actions.contract.getLogs(client, {
 })
 ```
 
-#### options.toBlock
+### toBlock
 
 - **Type:** `bigint | 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 
@@ -388,13 +388,7 @@ const logs = await Actions.contract.getLogs(client, {
 })
 ```
 
-### Return Value
-
-`readonly Log[]`
-
-A list of event logs decoded against the `abi`. Each log includes its `args` and `eventName`.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

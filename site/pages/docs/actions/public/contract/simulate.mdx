@@ -1,18 +1,14 @@
 # simulate
 
-## Overview
-
 Simulates a write function on a contract without broadcasting a transaction. Returns the decoded `result` and a `request` that can be passed to [write](/docs/actions/wallet/contract/write).
 
 Unlike [write](/docs/actions/wallet/contract/write), this action validates the call against current state via `eth_call`. The response surfaces return data and revert reasons.
 
 The call does not require gas or change chain state.
 
-## Recipes
+## Usage
 
-### Simulate a Contract Write
-
-Simulates a write function on a contract without broadcasting a transaction. Returns the decoded `result` and a `request` that can be passed to [write](/docs/actions/wallet/contract/write).
+This example simulates a write function on a contract without broadcasting a transaction.
 
 :::code-group
 
@@ -20,12 +16,12 @@ Simulates a write function on a contract without broadcasting a transaction. Ret
 import { Abi } from 'viem/utils'
 import { client } from './viem.config'
 
-const { request, result } = await client.contract.simulate({ // [!code focus]
-  abi: Abi.from(['function mint(uint32 tokenId) returns (uint32)']), // [!code focus]
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-  args: [69420], // [!code focus]
-  functionName: 'mint', // [!code focus]
-}) // [!code focus]
+const { request, result } = await client.contract.simulate({
+  abi: Abi.from(['function mint(uint32 tokenId) returns (uint32)']),
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  args: [69420],
+  functionName: 'mint',
+})
 // @log: result: 69420
 
 const hash = await client.contract.write(request)
@@ -45,6 +41,43 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.contract.simulate` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { Abi } from 'viem/utils'
+import { client } from './viem.config'
+
+const { request, result } = await Actions.contract.simulate(client, {
+  abi: Abi.from(['function mint(uint32 tokenId) returns (uint32)']),
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  args: [69420],
+  functionName: 'mint',
+})
+// @log: result: 69420
+
+const hash = await Actions.contract.write(client, request)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
 
 ### Simulate a Payable Call
 
@@ -98,48 +131,16 @@ const { result } = await client.contract.simulate({
 })
 ```
 
-## `Actions.contract.simulate`
+## Return Value
 
-Simulates a write function on a contract without broadcasting a transaction. Returns the decoded `result` and a `request` that can be passed to [write](/docs/actions/wallet/contract/write).
+`{ request, result }`
 
-### Usage
+- `result`: the decoded return value of the simulated function. The type is inferred from the `abi` and `functionName`.
+- `request`: a write request (with the ABI minimized to the called function) that can be passed to [write](/docs/actions/wallet/contract/write).
 
-Call [`Actions.contract.simulate`](#actionscontractsimulate) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { Abi } from 'viem/utils'
-import { client } from './viem.config'
-
-const { request, result } = await Actions.contract.simulate(client, {
-  abi: Abi.from(['function mint(uint32 tokenId) returns (uint32)']),
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  args: [69420],
-  functionName: 'mint',
-})
-// @log: result: 69420
-
-const hash = await Actions.contract.write(client, request)
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Account, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  account: Account.fromPrivateKey('0x…'),
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.abi
+### abi
 
 - **Type:** `Abi`
 
@@ -160,7 +161,7 @@ const { result } = await Actions.contract.simulate(client, {
 })
 ```
 
-#### options.account
+### account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -184,7 +185,7 @@ const { result } = await Actions.contract.simulate(client, {
 })
 ```
 
-#### options.address
+### address
 
 - **Type:** `Address`
 
@@ -206,7 +207,7 @@ const { result } = await Actions.contract.simulate(client, {
 })
 ```
 
-#### options.args
+### args
 
 - **Type:** Inferred from `abi` and `functionName`.
 
@@ -227,7 +228,7 @@ const { result } = await Actions.contract.simulate(client, {
 })
 ```
 
-#### options.as
+### as
 
 - **Type:** `'Object' | 'Array'`
 - **Default:** `'Object'`
@@ -251,7 +252,7 @@ const { result } = await Actions.contract.simulate(client, {
 })
 ```
 
-#### options.authorizationList
+### authorizationList
 
 - **Type:** `AuthorizationList`
 
@@ -282,7 +283,7 @@ const { result } = await Actions.contract.simulate(client, {
 })
 ```
 
-#### options.blockHash
+### blockHash
 
 - **Type:** `Hex`
 
@@ -304,7 +305,7 @@ const { result } = await Actions.contract.simulate(client, {
 })
 ```
 
-#### options.blockNumber
+### blockNumber
 
 - **Type:** `bigint`
 
@@ -326,7 +327,7 @@ const { result } = await Actions.contract.simulate(client, {
 })
 ```
 
-#### options.blockOverrides
+### blockOverrides
 
 - **Type:** `BlockOverrides`
 
@@ -350,7 +351,7 @@ const { result } = await Actions.contract.simulate(client, {
 })
 ```
 
-#### options.blockTag
+### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `client.blockTag ?? 'latest'`
@@ -373,7 +374,7 @@ const { result } = await Actions.contract.simulate(client, {
 })
 ```
 
-#### options.code
+### code
 
 - **Type:** `Hex`
 
@@ -393,7 +394,7 @@ const { result } = await Actions.contract.simulate(client, {
 })
 ```
 
-#### options.dataSuffix
+### dataSuffix
 
 - **Type:** `Hex`
 - **Default:** `client.dataSuffix`
@@ -416,11 +417,11 @@ const { result } = await Actions.contract.simulate(client, {
 })
 ```
 
-#### options.factory
+### factory
 
 - **Type:** `Address`
 
-The factory address for a deployless simulation. Pass [`factoryData`](#optionsfactorydata) and the counterfactual contract `address`.
+The factory address for a deployless simulation. Pass [`factoryData`](#factorydata) and the counterfactual contract `address`.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -439,7 +440,7 @@ const { result } = await Actions.contract.simulate(client, {
 })
 ```
 
-#### options.factoryData
+### factoryData
 
 - **Type:** `Hex`
 
@@ -462,7 +463,7 @@ const { result } = await Actions.contract.simulate(client, {
 })
 ```
 
-#### options.functionName
+### functionName
 
 - **Type:** Inferred from `abi`.
 
@@ -484,7 +485,7 @@ const { result } = await Actions.contract.simulate(client, {
 })
 ```
 
-#### options.requestOptions
+### requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -507,12 +508,12 @@ const { result } = await Actions.contract.simulate(client, {
 })
 ```
 
-#### options.requireCanonical
+### requireCanonical
 
 - **Type:** `boolean`
 - **Default:** `false`
 
-Whether the block selected by [`blockHash`](#optionsblockhash) must be in the canonical chain.
+Whether the block selected by [`blockHash`](#blockhash) must be in the canonical chain.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -531,11 +532,11 @@ const { result } = await Actions.contract.simulate(client, {
 })
 ```
 
-#### options.stateOverride
+### stateOverride
 
 - **Type:** `StateOverrides`
 
-The [state overrides](/docs/actions/public/call#optionsstateoverride) to apply for the simulation.
+The [state overrides](/docs/actions/public/call#stateoverride) to apply for the simulation.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -556,7 +557,7 @@ const { result } = await Actions.contract.simulate(client, {
 })
 ```
 
-#### options.value
+### value
 
 - **Type:** `bigint | number | Hex`
 
@@ -578,14 +579,7 @@ const { result } = await Actions.contract.simulate(client, {
 })
 ```
 
-### Return Value
-
-`{ request, result }`
-
-- `result`: the decoded return value of the simulated function. The type is inferred from the `abi` and `functionName`.
-- `request`: a write request (with the ABI minimized to the called function) that can be passed to [write](/docs/actions/wallet/contract/write).
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

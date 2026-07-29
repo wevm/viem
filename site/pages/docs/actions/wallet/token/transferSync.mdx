@@ -1,27 +1,24 @@
 # transferSync
 
-## Overview
-
 Transfers an ERC-20 token and waits for the transaction receipt.
 Returns the receipt with the decoded `Transfer` event data.
 
 When you provide `from`, the action calls `transferFrom` on behalf of another account.
 
-## Recipes
+## Usage
 
-### Transfer Tokens and Wait
-
+This example transfers an ERC-20 token, waits for the transaction receipt, and returns the decoded `Transfer` event data alongside it.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { from, to, value, receipt } = await client.token.transferSync({ // [!code focus]
-  amount: 500000000n, // [!code focus]
-  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // [!code focus]
-  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
-}) // [!code focus]
+const { from, to, value, receipt } = await client.token.transferSync({
+  amount: 500000000n,
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
 // @log: { from: '0x…', to: '0x7099…', value: 500000000n, decimals: 6, formatted: '500', receipt: { … } }
 ```
 
@@ -40,13 +37,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.token.transferSync`
+### Standalone Action
 
-Transfers an ERC-20 token and waits for the transaction receipt.
-
-### Usage
-
-Call [`Actions.token.transferSync`](#actionstokentransfersync) directly by passing the Client as the first argument.
+Call `Actions.token.transferSync` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -77,12 +70,18 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
+
+`{ from, to, value, decimals?, formatted?, receipt }`
+
+The decoded `Transfer` event args (`from`, `to`, `value`), the transaction `receipt`, and `decimals`/`formatted` when the token's decimals are known.
+
+## Parameters
 
 Accepts the same parameters as [`Actions.token.transfer`](/docs/actions/wallet/token/transfer)
 (`amount`, `to`, `token`, `from`, `account`), plus the receipt options below.
 
-#### options.throwOnReceiptRevert
+### throwOnReceiptRevert
 
 - **Type:** `boolean`
 - **Default:** `true`
@@ -103,13 +102,7 @@ const result = await Actions.token.transferSync(client, {
 })
 ```
 
-### Return Value
-
-`{ from, to, value, decimals?, formatted?, receipt }`
-
-The decoded `Transfer` event args (`from`, `to`, `value`), the transaction `receipt`, and `decimals`/`formatted` when the token's decimals are known.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

@@ -1,23 +1,19 @@
 # getName
 
-## Overview
-
 Gets the primary ENS name for an address (via the ENS Universal Resolver's `reverseWithGateways`).
 
-## Recipes
+## Usage
 
-### Resolve a Primary ENS Name
-
-Gets the primary ENS name for an address (via the ENS Universal Resolver's `reverseWithGateways`).
+This example gets the primary ENS name for an address (via the ENS Universal Resolver's `reverseWithGateways`).
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const name = await client.ens.getName({ // [!code focus]
-  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
-}) // [!code focus]
+const name = await client.ens.getName({
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
 // @log: 'wevm.eth'
 ```
 
@@ -32,6 +28,36 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.ens.getName` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const name = await Actions.ens.getName(client, {
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+// @log: 'wevm.eth'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
 
 ### Resolve a Historical Name Strictly
 
@@ -61,41 +87,15 @@ export const client = Client.create({
 
 :::
 
-## `Actions.ens.getName`
+## Return Value
 
-Gets the primary ENS name for an address (via the ENS Universal Resolver's `reverseWithGateways`).
+`string | null`
 
-### Usage
+The primary ENS name, or `null` when the address has no reverse record.
 
-Call [`Actions.ens.getName`](#actionsensgetname) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const name = await Actions.ens.getName(client, {
-  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
-})
-// @log: 'wevm.eth'
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.address
+### address
 
 - **Type:** `Address`
 
@@ -113,7 +113,7 @@ const name = await Actions.ens.getName(client, {
 })
 ```
 
-#### options.blockNumber
+### blockNumber
 
 - **Type:** `bigint`
 
@@ -132,7 +132,7 @@ const name = await Actions.ens.getName(client, {
 })
 ```
 
-#### options.blockTag
+### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -152,7 +152,7 @@ const name = await Actions.ens.getName(client, {
 })
 ```
 
-#### options.coinType
+### coinType
 
 - **Type:** `bigint`
 - **Default:** `60n` (ETH)
@@ -172,7 +172,7 @@ const name = await Actions.ens.getName(client, {
 })
 ```
 
-#### options.gatewayUrls
+### gatewayUrls
 
 - **Type:** `readonly string[]`
 
@@ -191,7 +191,7 @@ const name = await Actions.ens.getName(client, {
 })
 ```
 
-#### options.strict
+### strict
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -211,7 +211,7 @@ const name = await Actions.ens.getName(client, {
 })
 ```
 
-#### options.universalResolverAddress
+### universalResolverAddress
 
 - **Type:** `Address`
 - **Default:** `client.chain.contracts.ensUniversalResolver.address`
@@ -231,14 +231,8 @@ const name = await Actions.ens.getName(client, {
 })
 ```
 
-### Return Value
-
-`string | null`
-
-The primary ENS name, or `null` when the address has no reverse record.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |
-| `ContractError.ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#optionsstrict); resolver errors otherwise map to `null`). |
+| `ContractError.ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#strict); resolver errors otherwise map to `null`). |

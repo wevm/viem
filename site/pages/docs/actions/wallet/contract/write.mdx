@@ -1,7 +1,5 @@
 # write
 
-## Overview
-
 Executes a write (`nonpayable`/`payable`) function on a contract, and returns the transaction hash.
 
 A write function modifies blockchain state, requires gas, and broadcasts a transaction.
@@ -9,11 +7,9 @@ A write function modifies blockchain state, requires gas, and broadcasts a trans
 Use [`Actions.contract.simulate`](/docs/actions/public/contract/simulate) first when you need to
 validate the call.
 
-## Recipes
+## Usage
 
-### Write to a Contract
-
-Calls a write function and broadcasts the resulting transaction.
+This example executes a write (`nonpayable`/`payable`) function on a contract, and returns the transaction hash.
 
 :::code-group
 
@@ -21,12 +17,12 @@ Calls a write function and broadcasts the resulting transaction.
 import { Abi } from 'viem/utils'
 import { client } from './viem.config'
 
-const hash = await client.contract.write({ // [!code focus]
-  abi: Abi.from(['function mint(uint32 tokenId)']), // [!code focus]
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-  args: [69420], // [!code focus]
-  functionName: 'mint', // [!code focus]
-}) // [!code focus]
+const hash = await client.contract.write({
+  abi: Abi.from(['function mint(uint32 tokenId)']),
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  args: [69420],
+  functionName: 'mint',
+})
 // @log: "0x4ca7ee652d57678f26e887c19671f76c1aff..."
 ```
 
@@ -42,6 +38,64 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.contract.write` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { Abi } from 'viem/utils'
+import { client } from './viem.config'
+
+const hash = await Actions.contract.write(client, {
+  abi: Abi.from(['function mint(uint32 tokenId)']),
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  args: [69420],
+  functionName: 'mint',
+})
+// @log: "0x4ca7ee652d57678f26e887c19671f76c1aff..."
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+:::tip
+Use [`Actions.contract.simulate`](/docs/actions/public/contract/simulate) to validate the call
+before broadcasting.
+Pass the returned `request` to [`Actions.contract.write`](#standalone-action).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from(['function mint(uint32 tokenId)'])
+// ---cut---
+const { request } = await Actions.contract.simulate(client, {
+  abi,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  args: [69420],
+  functionName: 'mint',
+})
+const hash = await Actions.contract.write(client, request)
+```
+:::
+
+## Recipes
 
 ### Call a Payable Function
 
@@ -128,69 +182,15 @@ const hash = await client.contract.write({
 })
 ```
 
-## `Actions.contract.write`
+## Return Value
 
-Executes a write (`nonpayable`/`payable`) function on a contract, and returns the transaction hash.
+`Hex`
 
-### Usage
+The transaction hash.
 
-Call [`Actions.contract.write`](#actionscontractwrite) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { Abi } from 'viem/utils'
-import { client } from './viem.config'
-
-const hash = await Actions.contract.write(client, {
-  abi: Abi.from(['function mint(uint32 tokenId)']),
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  args: [69420],
-  functionName: 'mint',
-})
-// @log: "0x4ca7ee652d57678f26e887c19671f76c1aff..."
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Account, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  account: Account.fromPrivateKey('0x…'),
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-:::tip
-Use [`Actions.contract.simulate`](/docs/actions/public/contract/simulate) to validate the call
-before broadcasting.
-Pass the returned `request` to [`Actions.contract.write`](#actionscontractwrite).
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Abi } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-const abi = Abi.from(['function mint(uint32 tokenId)'])
-// ---cut---
-const { request } = await Actions.contract.simulate(client, {
-  abi,
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  args: [69420],
-  functionName: 'mint',
-})
-const hash = await Actions.contract.write(client, request)
-```
-:::
-
-### Parameters
-
-#### options.abi
+### abi
 
 - **Type:** `Abi`
 
@@ -211,7 +211,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.accessList
+### accessList
 
 - **Type:** `AccessList`
 
@@ -240,7 +240,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.account
+### account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -264,7 +264,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.address
+### address
 
 - **Type:** `Address`
 
@@ -286,7 +286,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.args
+### args
 
 - **Type:** Inferred from `abi` and `functionName`.
 
@@ -307,7 +307,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.assertChainId
+### assertChainId
 
 - **Type:** `boolean`
 - **Default:** `true`
@@ -331,7 +331,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.authorizationList
+### authorizationList
 
 - **Type:** `AuthorizationList`
 
@@ -362,7 +362,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.blobs
+### blobs
 
 - **Type:** `readonly Hex[]`
 
@@ -384,7 +384,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.blobVersionedHashes
+### blobVersionedHashes
 
 - **Type:** `readonly Hex[]`
 
@@ -406,7 +406,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.chain
+### chain
 
 - **Type:** `Chain | null`
 - **Default:** `client.chain`
@@ -430,7 +430,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.dataSuffix
+### dataSuffix
 
 - **Type:** `Hex`
 - **Default:** `client.dataSuffix`
@@ -453,7 +453,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.functionName
+### functionName
 
 - **Type:** Inferred from `abi`.
 
@@ -475,7 +475,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.gas
+### gas
 
 - **Type:** `bigint | number | Hex`
 
@@ -497,7 +497,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.gasPrice
+### gasPrice
 
 - **Type:** `bigint | number | Hex`
 
@@ -519,7 +519,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.kzg
+### kzg
 
 - **Type:** `Kzg`
 
@@ -543,7 +543,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.maxFeePerBlobGas
+### maxFeePerBlobGas
 
 - **Type:** `bigint | number | Hex`
 
@@ -565,7 +565,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.maxFeePerGas
+### maxFeePerGas
 
 - **Type:** `bigint | number | Hex`
 
@@ -587,7 +587,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.maxPriorityFeePerGas
+### maxPriorityFeePerGas
 
 - **Type:** `bigint | number | Hex`
 
@@ -609,7 +609,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.nonce
+### nonce
 
 - **Type:** `bigint | number | Hex`
 
@@ -631,7 +631,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.requestOptions
+### requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -654,7 +654,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.type
+### type
 
 - **Type:** `string`
 
@@ -676,7 +676,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-#### options.value
+### value
 
 - **Type:** `bigint | number | Hex`
 
@@ -698,13 +698,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-### Return Value
-
-`Hex`
-
-The transaction hash.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

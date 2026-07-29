@@ -1,8 +1,57 @@
 # waitForCallsStatus
 
-## Overview
-
 Waits for the status and receipts of a call batch that was sent via [`Actions.wallet.sendCalls`](/docs/actions/wallet/sendCalls) ([EIP-5792](https://eips.ethereum.org/EIPS/eip-5792)).
+
+## Usage
+
+This example waits for a call batch's status and receipts.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipts, status } = await client.wallet.waitForCallsStatus({
+  id: '0xdeadbeef',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+import 'viem/window'
+
+export const client = Client.create({
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.wallet.waitForCallsStatus` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
+  id: '0xdeadbeef',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom } from 'viem'
+import 'viem/window'
+
+export const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+```
+
+:::
 
 ## Recipes
 
@@ -72,39 +121,15 @@ export const client = Client.create({
 
 :::
 
-## `Actions.wallet.waitForCallsStatus`
+## Return Value
 
-Waits for the status and receipts of a call batch that was sent via [`Actions.wallet.sendCalls`](/docs/actions/wallet/sendCalls) ([EIP-5792](https://eips.ethereum.org/EIPS/eip-5792)).
+`{ atomic: boolean; capabilities?: Capabilities.Extract<'getCallsStatus', 'ReturnType'>; chainId: number | undefined; id: string; receipts: readonly Receipt[]; status: 'pending' | 'success' | 'failure' | undefined; statusCode: number; version: string }`
 
-### Usage
+The status and receipts of the call bundle. See [`Actions.wallet.getCallsStatus`](/docs/actions/wallet/getCallsStatus#return-value).
 
-Call [`Actions.wallet.waitForCallsStatus`](#actionswalletwaitforcallsstatus) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
-  id: '0xdeadbeef',
-})
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, custom } from 'viem'
-import 'viem/window'
-
-export const client = Client.create({
-  transport: custom(window.ethereum!),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.id
+### id
 
 - **Type:** `string`
 
@@ -119,7 +144,7 @@ const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
 })
 ```
 
-#### options.pollingInterval
+### pollingInterval
 
 - **Type:** `number`
 - **Default:** `client.pollingInterval`
@@ -136,7 +161,7 @@ const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
 })
 ```
 
-#### options.retryCount
+### retryCount
 
 - **Type:** `number`
 - **Default:** `4`
@@ -153,7 +178,7 @@ const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
 })
 ```
 
-#### options.retryDelay
+### retryDelay
 
 - **Type:** `number | (({ count }) => number)`
 - **Default:** exponential backoff
@@ -170,7 +195,7 @@ const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
 })
 ```
 
-#### options.status
+### status
 
 - **Type:** `(result: Actions.wallet.getCallsStatus.ReturnType) => boolean`
 - **Default:** `({ statusCode }) => statusCode === 200 || statusCode >= 300`
@@ -187,7 +212,7 @@ const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
 })
 ```
 
-#### options.throwOnFailure
+### throwOnFailure
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -204,7 +229,7 @@ const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
 })
 ```
 
-#### options.timeout
+### timeout
 
 - **Type:** `number`
 - **Default:** `60_000`
@@ -221,13 +246,7 @@ const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
 })
 ```
 
-### Return Value
-
-`{ atomic: boolean; capabilities?: Capabilities.Extract<'getCallsStatus', 'ReturnType'>; chainId: number | undefined; id: string; receipts: readonly Receipt[]; status: 'pending' | 'success' | 'failure' | undefined; statusCode: number; version: string }`
-
-The status and receipts of the call bundle. See [`Actions.wallet.getCallsStatus`](/docs/actions/wallet/getCallsStatus#return-value).
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

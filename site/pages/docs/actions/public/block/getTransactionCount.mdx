@@ -1,21 +1,17 @@
 # getTransactionCount
 
-## Overview
-
 Returns the number of transactions at a block number, hash, or tag.
 
-## Recipes
+## Usage
 
-### Count Block Transactions
-
-Returns the number of transactions at a block number, hash, or tag.
+This example returns the number of transactions at a block number, hash, or tag.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const count = await client.block.getTransactionCount() // [!code focus]
+const count = await client.block.getTransactionCount()
 // @log: 123
 ```
 
@@ -30,6 +26,34 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.block.getTransactionCount` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const count = await Actions.block.getTransactionCount(client)
+// @log: 123
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
 
 ### Count Transactions by Block Hash
 
@@ -67,39 +91,15 @@ const count = await client.block.getTransactionCount({
 })
 ```
 
-## `Actions.block.getTransactionCount`
+## Return Value
 
-Returns the number of transactions at a block number, hash, or tag.
+`number`
 
-### Usage
+The number of transactions in the block.
 
-Call [`Actions.block.getTransactionCount`](#actionsblockgettransactioncount) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const count = await Actions.block.getTransactionCount(client)
-// @log: 123
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.blockHash
+### blockHash
 
 - **Type:** `Hex`
 
@@ -116,7 +116,7 @@ const count = await Actions.block.getTransactionCount(client, {
 })
 ```
 
-#### options.blockNumber
+### blockNumber
 
 - **Type:** `bigint`
 
@@ -133,7 +133,7 @@ const count = await Actions.block.getTransactionCount(client, {
 })
 ```
 
-#### options.blockTag
+### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -150,9 +150,3 @@ const count = await Actions.block.getTransactionCount(client, {
   blockTag: 'safe', // [!code focus]
 })
 ```
-
-### Return Value
-
-`number`
-
-The number of transactions in the block.

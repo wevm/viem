@@ -1,7 +1,5 @@
 # writeSync
 
-## Overview
-
 Executes a write (`nonpayable`/`payable`) function on a contract synchronously, and returns the transaction receipt.
 
 A write function modifies blockchain state, requires gas, and broadcasts a transaction.
@@ -9,10 +7,9 @@ A write function modifies blockchain state, requires gas, and broadcasts a trans
 Use [`Actions.contract.simulate`](/docs/actions/public/contract/simulate) first when you need to
 validate the call.
 
-## Recipes
+## Usage
 
-### Write to a Contract and Wait
-
+This example executes a write (`nonpayable`/`payable`) function on a contract synchronously, and returns the transaction receipt.
 
 :::code-group
 
@@ -20,12 +17,12 @@ validate the call.
 import { Abi } from 'viem/utils'
 import { client } from './viem.config'
 
-const receipt = await client.contract.writeSync({ // [!code focus]
-  abi: Abi.from(['function mint(uint32 tokenId)']), // [!code focus]
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-  args: [69420], // [!code focus]
-  functionName: 'mint', // [!code focus]
-}) // [!code focus]
+const receipt = await client.contract.writeSync({
+  abi: Abi.from(['function mint(uint32 tokenId)']),
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  args: [69420],
+  functionName: 'mint',
+})
 // @log: {
 // @log:   status: 'success',
 // @log:   transactionHash: '0x...',
@@ -45,13 +42,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.contract.writeSync`
+### Standalone Action
 
-Executes a write (`nonpayable`/`payable`) function on a contract synchronously, and returns the transaction receipt.
-
-### Usage
-
-Call [`Actions.contract.writeSync`](#actionscontractwritesync) directly by passing the Client as the first argument.
+Call `Actions.contract.writeSync` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -85,7 +78,13 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
+
+`TransactionReceipt`
+
+The transaction receipt.
+
+## Parameters
 
 Supports the contract and transaction parameters from
 [`Actions.contract.write`](/docs/actions/wallet/contract/write).
@@ -106,13 +105,7 @@ const receipt = await Actions.contract.writeSync(client, { // [!code focus]
 }) // [!code focus]
 ```
 
-### Return Value
-
-`TransactionReceipt`
-
-The transaction receipt.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

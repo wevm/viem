@@ -1,7 +1,5 @@
 # watchPending
 
-## Overview
-
 Watches incoming pending transaction hashes, returning a watcher handle.
 
 The watcher subscribes to `newPendingTransactions` with `eth_subscribe` when the Client uses a WebSocket or IPC transport.
@@ -10,18 +8,16 @@ Otherwise, the watcher installs a pending transaction filter and polls `eth_getF
 
 The source starts when the first listener or iterator attaches.
 
-## Recipes
+## Usage
 
-### Watch Pending Transactions
-
-Watches incoming pending transaction hashes, returning a watcher handle.
+This example watches incoming pending transaction hashes, returning a watcher handle.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const watch = client.transaction.watchPending() // [!code focus]
+const watch = client.transaction.watchPending()
 
 watch.onTransactions((hashes) => console.log(hashes))
 // @log: ['0xcfa5...6e93', '0x4ca7...b74d']
@@ -41,6 +37,39 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.transaction.watchPending` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const watch = Actions.transaction.watchPending(client)
+
+watch.onTransactions((hashes) => console.log(hashes))
+// @log: ['0xcfa5...6e93', '0x4ca7...b74d']
+
+// later: stop watching
+watch.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
 
 ### Poll and Emit One Hash at a Time
 
@@ -84,101 +113,7 @@ const watch = client.transaction.watchPending({
 watch.onTransactions((hashes) => console.log(hashes))
 ```
 
-## `Actions.transaction.watchPending`
-
-Watches incoming pending transaction hashes, returning a watcher handle.
-
-### Usage
-
-Call [`Actions.transaction.watchPending`](#actionstransactionwatchpending) directly by passing the Client as the first argument.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const watch = Actions.transaction.watchPending(client)
-
-watch.onTransactions((hashes) => console.log(hashes))
-// @log: ['0xcfa5...6e93', '0x4ca7...b74d']
-
-// later: stop watching
-watch.off()
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.batch
-
-- **Type:** `boolean`
-- **Default:** `true`
-
-Whether to batch the hashes found within a poll interval into a single emission. When `false`, each hash is emitted on its own.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const watch = Actions.transaction.watchPending(client, {
-  batch: false, // [!code focus]
-})
-watch.onTransactions((hashes) => console.log(hashes))
-```
-
-#### options.poll
-
-- **Type:** `boolean`
-- **Default:** `false` for WebSocket or IPC transports, `true` otherwise
-
-Whether to poll for new pending transactions instead of using a subscription. Defaults to `true` when the transport cannot subscribe.
-
-```ts twoslash
-import { Actions, Client, webSocket } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: webSocket() })
-// ---cut---
-const watch = Actions.transaction.watchPending(client, {
-  poll: true, // [!code focus]
-})
-watch.onTransactions((hashes) => console.log(hashes))
-```
-
-#### options.pollingInterval
-
-- **Type:** `number`
-- **Default:** `client.pollingInterval`
-
-Polling frequency (in milliseconds).
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const watch = Actions.transaction.watchPending(client, {
-  pollingInterval: 1_000, // [!code focus]
-})
-watch.onTransactions((hashes) => console.log(hashes))
-```
-
-### Return Value
+## Return Value
 
 `Watcher`
 
@@ -258,4 +193,63 @@ const watch = Actions.transaction.watchPending(client)
 
 for await (const { hashes } of watch) // [!code focus]
   console.log(hashes) // [!code focus]
+```
+
+## Parameters
+
+### batch
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to batch the hashes found within a poll interval into a single emission. When `false`, each hash is emitted on its own.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const watch = Actions.transaction.watchPending(client, {
+  batch: false, // [!code focus]
+})
+watch.onTransactions((hashes) => console.log(hashes))
+```
+
+### poll
+
+- **Type:** `boolean`
+- **Default:** `false` for WebSocket or IPC transports, `true` otherwise
+
+Whether to poll for new pending transactions instead of using a subscription. Defaults to `true` when the transport cannot subscribe.
+
+```ts twoslash
+import { Actions, Client, webSocket } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: webSocket() })
+// ---cut---
+const watch = Actions.transaction.watchPending(client, {
+  poll: true, // [!code focus]
+})
+watch.onTransactions((hashes) => console.log(hashes))
+```
+
+### pollingInterval
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Polling frequency (in milliseconds).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const watch = Actions.transaction.watchPending(client, {
+  pollingInterval: 1_000, // [!code focus]
+})
+watch.onTransactions((hashes) => console.log(hashes))
 ```

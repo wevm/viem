@@ -1,23 +1,19 @@
 # getBalance
 
-## Overview
-
 Returns the balance of an address in wei.
 
-## Recipes
+## Usage
 
-### Get an Address Balance
-
-Returns the balance of an address in wei.
+This example returns the balance of an address in wei.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const balance = await client.address.getBalance({ // [!code focus]
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
-}) // [!code focus]
+const balance = await client.address.getBalance({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
 // @log: 10000000000000000000n
 ```
 
@@ -32,6 +28,36 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.address.getBalance` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const balance = await Actions.address.getBalance(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+// @log: 10000000000000000000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
 
 ### Read a Canonical Historical Balance
 
@@ -61,41 +87,15 @@ export const client = Client.create({
 
 :::
 
-## `Actions.address.getBalance`
+## Return Value
 
-Returns the balance of an address in wei.
+`bigint`
 
-### Usage
+The balance of the address, in wei.
 
-Call [`Actions.address.getBalance`](#actionsaddressgetbalance) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const balance = await Actions.address.getBalance(client, {
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-})
-// @log: 10000000000000000000n
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.address
+### address
 
 - **Type:** `Address`
 
@@ -112,7 +112,7 @@ const balance = await Actions.address.getBalance(client, {
 })
 ```
 
-#### options.blockHash
+### blockHash
 
 - **Type:** `Hex`
 
@@ -130,7 +130,7 @@ const balance = await Actions.address.getBalance(client, {
 })
 ```
 
-#### options.blockNumber
+### blockNumber
 
 - **Type:** `bigint`
 
@@ -148,7 +148,7 @@ const balance = await Actions.address.getBalance(client, {
 })
 ```
 
-#### options.blockTag
+### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `client.blockTag ?? 'latest'`
@@ -167,12 +167,12 @@ const balance = await Actions.address.getBalance(client, {
 })
 ```
 
-#### options.requireCanonical
+### requireCanonical
 
 - **Type:** `boolean`
 - **Default:** `false`
 
-Requires [`blockHash`](#optionsblockhash) to identify a block in the canonical chain.
+Requires [`blockHash`](#blockhash) to identify a block in the canonical chain.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -187,13 +187,7 @@ const balance = await Actions.address.getBalance(client, {
 })
 ```
 
-### Return Value
-
-`bigint`
-
-The balance of the address, in wei.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

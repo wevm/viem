@@ -1,24 +1,20 @@
 # createAccessList
 
-## Overview
-
 Creates an EIP-2930 access list covering the storage a transaction touches (`eth_createAccessList`).
 
-## Recipes
+## Usage
 
-### Create an Access List
-
-Creates an EIP-2930 access list covering the storage a transaction touches (`eth_createAccessList`).
+This example creates an EIP-2930 access list covering the storage a transaction touches (`eth_createAccessList`).
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { accessList, gasUsed } = await client.transaction.createAccessList({ // [!code focus]
-  data: '0x06fdde03', // [!code focus]
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-}) // [!code focus]
+const { accessList, gasUsed } = await client.transaction.createAccessList({
+  data: '0x06fdde03',
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
 // @log: {
 // @log:   accessList: [
 // @log:     {
@@ -43,6 +39,50 @@ export const client = Client.create({
 ```
 
 :::
+
+### Standalone Action
+
+Call `Actions.transaction.createAccessList` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const { accessList, gasUsed } = await Actions.transaction.createAccessList(
+  client,
+  {
+    data: '0x06fdde03',
+    to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  },
+)
+// @log: {
+// @log:   accessList: [
+// @log:     {
+// @log:       address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
+// @log:       storageKeys: [
+// @log:         '0x0000000000000000000000000000000000000000000000000000000000000000',
+// @log:       ],
+// @log:     },
+// @log:   ],
+// @log:   gasUsed: 26671n,
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
 
 ### Create an Access List for an Authorization
 
@@ -94,60 +134,20 @@ const { accessList } = await client.transaction.createAccessList({
 })
 ```
 
-## `Actions.transaction.createAccessList`
+## Return Value
 
-Creates an EIP-2930 access list covering the storage a transaction touches (`eth_createAccessList`).
+`{ accessList: AccessList, gasUsed: bigint }`
 
-### Usage
+The EIP-2930 access list covering the storage the call touches, and the gas consumed by the call with the access list applied.
 
-Call [`Actions.transaction.createAccessList`](#actionstransactioncreateaccesslist) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const { accessList, gasUsed } = await Actions.transaction.createAccessList(
-  client,
-  {
-    data: '0x06fdde03',
-    to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  },
-)
-// @log: {
-// @log:   accessList: [
-// @log:     {
-// @log:       address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
-// @log:       storageKeys: [
-// @log:         '0x0000000000000000000000000000000000000000000000000000000000000000',
-// @log:       ],
-// @log:     },
-// @log:   ],
-// @log:   gasUsed: 26671n,
-// @log: }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.account
+### account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
 
-The Account object or address to use as the call's `msg.sender`. This option takes precedence over [`from`](#optionsfrom).
+The Account object or address to use as the call's `msg.sender`. This option takes precedence over [`from`](#from).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -162,7 +162,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-#### options.authorizationList
+### authorizationList
 
 - **Type:** `AuthorizationList`
 
@@ -189,7 +189,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-#### options.blobs
+### blobs
 
 - **Type:** `readonly Hex[]`
 
@@ -207,7 +207,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-#### options.blobVersionedHashes
+### blobVersionedHashes
 
 - **Type:** `readonly Hex[]`
 
@@ -225,7 +225,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-#### options.blockNumber
+### blockNumber
 
 - **Type:** `bigint`
 
@@ -244,7 +244,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-#### options.blockTag
+### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `client.blockTag ?? 'latest'`
@@ -264,7 +264,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-#### options.chainId
+### chainId
 
 - **Type:** `number | Hex`
 
@@ -283,7 +283,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-#### options.data
+### data
 
 - **Type:** `Hex`
 
@@ -301,11 +301,11 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-#### options.from
+### from
 
 - **Type:** `Address`
 
-The raw sender address. Viem uses this field only when neither [`account`](#optionsaccount) nor a Client Account is available.
+The raw sender address. Viem uses this field only when neither [`account`](#account) nor a Client Account is available.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -320,7 +320,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-#### options.gas
+### gas
 
 - **Type:** `number | bigint | Hex`
 
@@ -339,7 +339,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-#### options.gasPrice
+### gasPrice
 
 - **Type:** `number | bigint | Hex`
 
@@ -358,7 +358,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-#### options.maxFeePerBlobGas
+### maxFeePerBlobGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -376,7 +376,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-#### options.maxFeePerGas
+### maxFeePerGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -395,7 +395,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-#### options.maxPriorityFeePerGas
+### maxPriorityFeePerGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -414,7 +414,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-#### options.nonce
+### nonce
 
 - **Type:** `number | bigint | Hex`
 
@@ -433,7 +433,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-#### options.requestOptions
+### requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -453,7 +453,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-#### options.to
+### to
 
 - **Type:** `Address | null`
 
@@ -471,7 +471,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-#### options.type
+### type
 
 - **Type:** `string`
 
@@ -489,7 +489,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-#### options.value
+### value
 
 - **Type:** `number | bigint | Hex`
 
@@ -508,13 +508,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-### Return Value
-
-`{ accessList: AccessList, gasUsed: bigint }`
-
-The EIP-2930 access list covering the storage the call touches, and the gas consumed by the call with the access list applied.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

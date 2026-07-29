@@ -1,23 +1,19 @@
 # getReceipt
 
-## Overview
-
 Returns the transaction receipt for a given transaction hash.
 
-## Recipes
+## Usage
 
-### Get a Transaction Receipt
-
-Returns the transaction receipt for a given transaction hash.
+This example returns the transaction receipt for a given transaction hash.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const receipt = await client.transaction.getReceipt({ // [!code focus]
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus]
-}) // [!code focus]
+const receipt = await client.transaction.getReceipt({
+  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+})
 // @log: {
 // @log:   blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
 // @log:   blockNumber: 19868020n,
@@ -48,13 +44,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.transaction.getReceipt`
+### Standalone Action
 
-Returns the transaction receipt for a given transaction hash.
-
-### Usage
-
-Call [`Actions.transaction.getReceipt`](#actionstransactiongetreceipt) directly by passing the Client as the first argument.
+Call `Actions.transaction.getReceipt` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -95,9 +87,15 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
 
-#### options.hash
+`TransactionReceipt`
+
+The transaction receipt. When the connected Client's [`chain`](/docs/chains) defines a `codecs.transactionReceipt` codec, the return type reflects that chain's custom receipt shape.
+
+## Parameters
+
+### hash
 
 - **Type:** `Hex`
 
@@ -114,13 +112,7 @@ const receipt = await Actions.transaction.getReceipt(client, {
 })
 ```
 
-### Return Value
-
-`TransactionReceipt`
-
-The transaction receipt. When the connected Client's [`chain`](/docs/chains) defines a `codecs.transactionReceipt` codec, the return type reflects that chain's custom receipt shape.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

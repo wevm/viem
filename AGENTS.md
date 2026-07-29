@@ -358,6 +358,22 @@ Guidelines for authoring docs and guides under `site/pages/`.
       - Name each section after the identifier.
       - Example: ``## `Account.from` ``.
       - Include `### Usage`, `### Parameters`, `### Return Value`, and `### Errors` as applicable.
+
+### Action Pages
+
+- **Keep the established Action page layout.**
+  - Lead with purpose prose directly under the page title. Do not add `## Overview` or a separate
+    `## Actions.*` reference section.
+  - Add `## Usage`, with `### Standalone Action` inside it.
+  - Add `## Recipes` immediately after Usage only when the page has additional tasks to show.
+  - Follow with `## Return Value`, `## Parameters`, and `## Errors` as applicable.
+- **List single-options-object fields directly.**
+  - Use `### foo` for each field. Do not add an `options` heading or prefix field names with
+    `options.`.
+  - Use `#### foo` for fields nested under another field.
+- These Action page rules override the Module Pages structure above. Apply the remaining reference
+  content requirements at the heading levels defined here.
+
 - **Reference sections open with a one-line description**; place it under each function heading.
   - Describe what the function does.
   - Then add `### Usage`.

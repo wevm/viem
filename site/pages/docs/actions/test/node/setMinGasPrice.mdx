@@ -1,26 +1,23 @@
 # setMinGasPrice
 
-## Overview
-
 Changes the minimum gas price (in wei) accepted by the network.
 
 :::warning
 `setMinGasPrice` can only be used on networks that do not have EIP-1559 enabled.
 :::
 
-## Recipes
+## Usage
 
-### Set the Minimum Gas Price
-
+This example changes the minimum gas price (in wei) accepted by the network.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-await client.node.setMinGasPrice({ // [!code focus]
-  gasPrice: 1_000_000_000n, // [!code focus]
-}) // [!code focus]
+await client.node.setMinGasPrice({
+  gasPrice: 1_000_000_000n,
+})
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -35,13 +32,9 @@ export const client = Client.create({
 
 :::
 
-## `Actions.node.setMinGasPrice`
+### Standalone Action
 
-Changes the minimum gas price (in wei) accepted by the network.
-
-### Usage
-
-Call [`Actions.node.setMinGasPrice`](#actionsnodesetmingasprice) directly by passing the Client as the first argument.
+Call `Actions.node.setMinGasPrice` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -66,9 +59,15 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Return Value
 
-#### options.gasPrice
+`void`
+
+No value is returned.
+
+## Parameters
+
+### gasPrice
 
 - **Type:** `bigint`
 
@@ -89,7 +88,7 @@ await Actions.node.setMinGasPrice(client, {
 })
 ```
 
-#### options.mode
+### mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`
@@ -110,9 +109,3 @@ await Actions.node.setMinGasPrice(client, {
   mode: 'hardhat', // [!code focus]
 })
 ```
-
-### Return Value
-
-`void`
-
-No value is returned.

@@ -1,8 +1,75 @@
 # transfer
 
-## Overview
-
 Transfers an amount of an ERC-20 token, and returns the transaction hash. When `from` is provided, it transfers on behalf of another account via `transferFrom` (using an allowance).
+
+## Usage
+
+This example transfers an amount of an ERC-20 token, and returns the transaction hash.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const hash = await client.token.transfer({
+  amount: 500000000n,
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+// @log: "0x4ca7ee652d57678f26e887c19671f76c1aff..."
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.token.transfer` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const hash = await Actions.token.transfer(client, {
+  amount: 500000000n,
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+// @log: "0x4ca7ee652d57678f26e887c19671f76c1aff..."
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+})
+```
+
+:::
+
+:::tip
+Use [`Actions.token.transferSync`](/docs/actions/wallet/token/transferSync) to wait for the transaction receipt and decoded `Transfer` event in a single call.
+:::
 
 ## Recipes
 
@@ -73,50 +140,15 @@ export const client = Client.create({
 
 :::
 
-## `Actions.token.transfer`
+## Return Value
 
-Transfers an amount of an ERC-20 token, and returns the transaction hash. When `from` is provided, it transfers on behalf of another account via `transferFrom` (using an allowance).
+`Hex`
 
-### Usage
+The transaction hash.
 
-Call [`Actions.token.transfer`](#actionstokentransfer) directly by passing the Client as the first argument.
+## Parameters
 
-:::code-group
-
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
-
-const hash = await Actions.token.transfer(client, {
-  amount: 500000000n,
-  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
-  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-})
-// @log: "0x4ca7ee652d57678f26e887c19671f76c1aff..."
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Account, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { usdc } from 'viem/tokens'
-
-export const client = Client.create({
-  account: Account.fromPrivateKey('0x…'),
-  chain: mainnet,
-  tokens: [usdc],
-  transport: http(),
-})
-```
-
-:::
-
-:::tip
-Use [`Actions.token.transferSync`](/docs/actions/wallet/token/transferSync) to wait for the transaction receipt and decoded `Transfer` event in a single call.
-:::
-
-### Parameters
-
-#### options.account
+### account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -137,7 +169,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-#### options.amount
+### amount
 
 - **Type:** `bigint | { decimals?: number; formatted: string }`
 
@@ -162,7 +194,7 @@ const hash = await client.token.transfer({
 })
 ```
 
-#### options.amount.decimals
+#### decimals
 
 - **Type:** `number`
 
@@ -181,7 +213,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-#### options.chain
+### chain
 
 - **Type:** `Chain | null`
 - **Default:** `client.chain`
@@ -202,7 +234,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-#### options.from
+### from
 
 - **Type:** `Address`
 
@@ -222,7 +254,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-#### options.gas
+### gas
 
 - **Type:** `bigint | Hex`
 
@@ -242,7 +274,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-#### options.maxFeePerGas
+### maxFeePerGas
 
 - **Type:** `bigint | number | Hex`
 
@@ -262,7 +294,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-#### options.maxPriorityFeePerGas
+### maxPriorityFeePerGas
 
 - **Type:** `bigint | number | Hex`
 
@@ -282,7 +314,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-#### options.nonce
+### nonce
 
 - **Type:** `bigint | Hex`
 
@@ -302,7 +334,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-#### options.to
+### to
 
 - **Type:** `Address`
 
@@ -321,7 +353,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-#### options.token
+### token
 
 - **Type:** `Address | string`
 
@@ -346,13 +378,7 @@ const hash = await client.token.transfer({
 })
 ```
 
-### Return Value
-
-`Hex`
-
-The transaction hash.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

@@ -1,11 +1,68 @@
 # getAssets
 
-## Overview
-
 Retrieves an account's native currency, ERC-20 tokens, and ERC-721 tokens from the connected wallet
 through [ERC-7811 `wallet_getAssets`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7811.md).
 
 Assets are keyed by chain ID. By default, assets are also aggregated across chains under the `0` key.
+
+## Usage
+
+This example retrieves the assets held by an account.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const assets = await client.wallet.getAssets()
+// @log: {
+// @log:   0: [{ balance: 32000000000n, chainIds: [1, 8453], metadata: { ... }, type: 'erc20', ... }],
+// @log:   1: [{ balance: 12000000000n, metadata: { ... }, type: 'erc20', ... }],
+// @log:   8453: [{ balance: 20000000000n, metadata: { ... }, type: 'erc20', ... }],
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+import 'viem/window'
+
+export const client = Client.create({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.wallet.getAssets` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const assets = await Actions.wallet.getAssets(client)
+// @log: {
+// @log:   0: [{ balance: 32000000000n, chainIds: [1, 8453], metadata: { ... }, type: 'erc20', ... }],
+// @log:   1: [{ balance: 12000000000n, metadata: { ... }, type: 'erc20', ... }],
+// @log:   8453: [{ balance: 20000000000n, metadata: { ... }, type: 'erc20', ... }],
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom } from 'viem'
+import 'viem/window'
+
+export const client = Client.create({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  transport: custom(window.ethereum!),
+})
+```
+
+:::
 
 ## Recipes
 
@@ -68,44 +125,22 @@ export const client = Client.create({
 
 :::
 
-## `Actions.wallet.getAssets`
+## Return Value
 
-Retrieves an account's native currency, ERC-20 tokens, and ERC-721 tokens from the connected wallet
-through [ERC-7811 `wallet_getAssets`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7811.md).
+`{ [chainId: number]: readonly Asset[] }`
 
-### Usage
+The account's assets, keyed by chain ID.
+Each asset includes its `balance`, `type`, type-specific `metadata`, and an `address` for non-native
+assets.
 
-Call [`Actions.wallet.getAssets`](#actionswalletgetassets) directly by passing the Client as the first argument.
+The `type` is `'native'`, `'erc20'`, `'erc721'`, or `{ custom: string }`.
 
-:::code-group
+Unless [`aggregate`](#aggregate) is disabled, the `0` key contains assets aggregated across chains.
+Each aggregated asset includes its source `chainIds`.
 
-```ts twoslash [example.ts]
-import { Actions } from 'viem'
-import { client } from './viem.config'
+## Parameters
 
-const assets = await Actions.wallet.getAssets(client)
-// @log: {
-// @log:   0: [{ balance: 32000000000n, chainIds: [1, 8453], metadata: { ... }, type: 'erc20', ... }],
-// @log:   1: [{ balance: 12000000000n, metadata: { ... }, type: 'erc20', ... }],
-// @log:   8453: [{ balance: 20000000000n, metadata: { ... }, type: 'erc20', ... }],
-// @log: }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, custom } from 'viem'
-import 'viem/window'
-
-export const client = Client.create({
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  transport: custom(window.ethereum!),
-})
-```
-
-:::
-
-### Parameters
-
-#### options.account
+### account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -121,7 +156,7 @@ const assets = await Actions.wallet.getAssets(client, {
 })
 ```
 
-#### options.aggregate
+### aggregate
 
 - **Type:** `boolean | ((asset: Asset) => string)`
 - **Default:** `true`
@@ -141,7 +176,7 @@ const assets = await Actions.wallet.getAssets(client, {
 })
 ```
 
-#### options.assets
+### assets
 
 - **Type:** `{ [chainId: number]: readonly { address: Address | 'native'; type: string }[] }`
 
@@ -163,7 +198,7 @@ const assets = await Actions.wallet.getAssets(client, {
 })
 ```
 
-#### options.assetTypes
+### assetTypes
 
 - **Type:** `readonly ('native' | 'erc20' | 'erc721' | string)[]`
 
@@ -178,7 +213,7 @@ const assets = await Actions.wallet.getAssets(client, {
 })
 ```
 
-#### options.chainIds
+### chainIds
 
 - **Type:** `readonly number[]`
 
@@ -193,20 +228,7 @@ const assets = await Actions.wallet.getAssets(client, {
 })
 ```
 
-### Return Value
-
-`{ [chainId: number]: readonly Asset[] }`
-
-The account's assets, keyed by chain ID.
-Each asset includes its `balance`, `type`, type-specific `metadata`, and an `address` for non-native
-assets.
-
-The `type` is `'native'`, `'erc20'`, `'erc721'`, or `{ custom: string }`.
-
-Unless [`aggregate`](#optionsaggregate) is disabled, the `0` key contains assets aggregated across chains.
-Each aggregated asset includes its source `chainIds`.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |

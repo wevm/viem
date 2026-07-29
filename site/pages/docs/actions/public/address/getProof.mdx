@@ -1,26 +1,22 @@
 # getProof
 
-## Overview
-
 Returns the account and storage values of the specified account, including the Merkle proof.
 
-## Recipes
+## Usage
 
-### Get an Account Proof
-
-Returns the account and storage values of the specified account, including the Merkle proof.
+This example returns the account and storage values of the specified account, including the Merkle proof.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const proof = await client.address.getProof({ // [!code focus]
-  address: '0x4200000000000000000000000000000000000016', // [!code focus]
-  storageKeys: [ // [!code focus]
-    '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99', // [!code focus]
-  ], // [!code focus]
-}) // [!code focus]
+const proof = await client.address.getProof({
+  address: '0x4200000000000000000000000000000000000016',
+  storageKeys: [
+    '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
+  ],
+})
 // @log: {
 // @log:   address: '0x4200000000000000000000000000000000000016',
 // @log:   accountProof: ['0xf90211a0...', ...],
@@ -44,46 +40,9 @@ export const client = Client.create({
 
 :::
 
-### Prove Storage at a Canonical Block
+### Standalone Action
 
-Each storage key produces one `storageProof` entry. Use a canonical block hash to bind the account and storage proofs to canonical chain state.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { Hex } from 'viem/utils'
-import { client } from './viem.config'
-
-const proof = await client.address.getProof({
-  address: '0x4200000000000000000000000000000000000016',
-  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d', // [!code focus]
-  requireCanonical: true, // [!code focus]
-  storageKeys: [ // [!code focus]
-    Hex.fromNumber(0n, { size: 32 }), // [!code focus]
-    Hex.fromNumber(1n, { size: 32 }), // [!code focus]
-  ], // [!code focus]
-})
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, http, publicActions } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = Client.create({
-  chain: mainnet,
-  transport: http(),
-}).extend(publicActions())
-```
-
-:::
-
-## `Actions.address.getProof`
-
-Returns the account and storage values of the specified account, including the Merkle proof.
-
-### Usage
-
-Call [`Actions.address.getProof`](#actionsaddressgetproof) directly by passing the Client as the first argument.
+Call `Actions.address.getProof` directly by passing the Client as the first argument.
 
 :::code-group
 
@@ -120,9 +79,50 @@ export const client = Client.create({
 
 :::
 
-### Parameters
+## Recipes
 
-#### options.address
+### Prove Storage at a Canonical Block
+
+Each storage key produces one `storageProof` entry. Use a canonical block hash to bind the account and storage proofs to canonical chain state.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Hex } from 'viem/utils'
+import { client } from './viem.config'
+
+const proof = await client.address.getProof({
+  address: '0x4200000000000000000000000000000000000016',
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d', // [!code focus]
+  requireCanonical: true, // [!code focus]
+  storageKeys: [ // [!code focus]
+    Hex.fromNumber(0n, { size: 32 }), // [!code focus]
+    Hex.fromNumber(1n, { size: 32 }), // [!code focus]
+  ], // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Return Value
+
+`AccountProof`
+
+The account and storage proof. `balance` and each `storageProof[].value` are returned as `bigint`, and `nonce` as `number`.
+
+## Parameters
+
+### address
 
 - **Type:** `Address`
 
@@ -142,7 +142,7 @@ const proof = await Actions.address.getProof(client, {
 })
 ```
 
-#### options.blockHash
+### blockHash
 
 - **Type:** `Hex`
 
@@ -163,7 +163,7 @@ const proof = await Actions.address.getProof(client, {
 })
 ```
 
-#### options.blockNumber
+### blockNumber
 
 - **Type:** `bigint`
 
@@ -184,7 +184,7 @@ const proof = await Actions.address.getProof(client, {
 })
 ```
 
-#### options.blockTag
+### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -206,7 +206,7 @@ const proof = await Actions.address.getProof(client, {
 })
 ```
 
-#### options.requireCanonical
+### requireCanonical
 
 - **Type:** `boolean`
 
@@ -228,7 +228,7 @@ const proof = await Actions.address.getProof(client, {
 })
 ```
 
-#### options.storageKeys
+### storageKeys
 
 - **Type:** `Hex[]`
 
@@ -248,13 +248,7 @@ const proof = await Actions.address.getProof(client, {
 })
 ```
 
-### Return Value
-
-`AccountProof`
-
-The account and storage proof. `balance` and each `storageProof[].value` are returned as `bigint`, and `nonce` as `number`.
-
-### Errors
+## Errors
 
 | Error | Description |
 | --- | --- |
