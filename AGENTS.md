@@ -4,9 +4,9 @@ This document contains guidelines for AI agents working on the Viem codebase.
 
 ## Friction Logging
 
-- Log papercuts and friction (tooling, docs, APIs, tests, conventions) as you hit them with `frog log`.
+- Log papercuts and friction (tooling, docs, APIs, tests, conventions) as you hit them with `pnpx frog log`.
 - Do not add global, system, or internal friction.
-- Run `frog list` first to see what is already known.
+- Run `pnpx frog list` first to see what is already known.
 
 ## Documentation (Site)
 
