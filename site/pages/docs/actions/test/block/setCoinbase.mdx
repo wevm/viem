@@ -64,13 +64,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.block.setCoinbase.Options`
-
-The action options.
-
-##### address
+#### options.address
 
 - **Type:** `Address`
 
@@ -91,7 +85,7 @@ await Actions.block.setCoinbase(client, {
 })
 ```
 
-##### mode
+#### options.mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`

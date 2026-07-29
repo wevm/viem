@@ -121,25 +121,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.transaction.watchPending.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const watch = Actions.transaction.watchPending(client, { // [!code focus]
-  batch: false, // [!code focus]
-}) // [!code focus]
-watch.onTransactions((hashes) => console.log(hashes))
-```
-
-##### batch
+#### options.batch
 
 - **Type:** `boolean`
 - **Default:** `true`
@@ -158,7 +140,7 @@ const watch = Actions.transaction.watchPending(client, {
 watch.onTransactions((hashes) => console.log(hashes))
 ```
 
-##### poll
+#### options.poll
 
 - **Type:** `boolean`
 - **Default:** `false` for WebSocket or IPC transports, `true` otherwise
@@ -177,7 +159,7 @@ const watch = Actions.transaction.watchPending(client, {
 watch.onTransactions((hashes) => console.log(hashes))
 ```
 
-##### pollingInterval
+#### options.pollingInterval
 
 - **Type:** `number`
 - **Default:** `client.pollingInterval`

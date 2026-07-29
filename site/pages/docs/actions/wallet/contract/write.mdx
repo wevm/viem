@@ -190,13 +190,7 @@ const hash = await Actions.contract.write(client, request)
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.contract.write.Options`
-
-The action options.
-
-##### abi
+#### options.abi
 
 - **Type:** `Abi`
 
@@ -217,7 +211,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### accessList
+#### options.accessList
 
 - **Type:** `AccessList`
 
@@ -246,7 +240,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -270,7 +264,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### address
+#### options.address
 
 - **Type:** `Address`
 
@@ -292,7 +286,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### args
+#### options.args
 
 - **Type:** Inferred from `abi` and `functionName`.
 
@@ -313,7 +307,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### assertChainId
+#### options.assertChainId
 
 - **Type:** `boolean`
 - **Default:** `true`
@@ -337,7 +331,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### authorizationList
+#### options.authorizationList
 
 - **Type:** `AuthorizationList`
 
@@ -368,7 +362,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### blobs
+#### options.blobs
 
 - **Type:** `readonly Hex[]`
 
@@ -390,7 +384,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### blobVersionedHashes
+#### options.blobVersionedHashes
 
 - **Type:** `readonly Hex[]`
 
@@ -412,7 +406,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### chain
+#### options.chain
 
 - **Type:** `Chain | null`
 - **Default:** `client.chain`
@@ -436,7 +430,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### dataSuffix
+#### options.dataSuffix
 
 - **Type:** `Hex`
 - **Default:** `client.dataSuffix`
@@ -459,7 +453,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### functionName
+#### options.functionName
 
 - **Type:** Inferred from `abi`.
 
@@ -481,7 +475,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### gas
+#### options.gas
 
 - **Type:** `bigint | number | Hex`
 
@@ -503,7 +497,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### gasPrice
+#### options.gasPrice
 
 - **Type:** `bigint | number | Hex`
 
@@ -525,7 +519,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### kzg
+#### options.kzg
 
 - **Type:** `Kzg`
 
@@ -549,7 +543,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### maxFeePerBlobGas
+#### options.maxFeePerBlobGas
 
 - **Type:** `bigint | number | Hex`
 
@@ -571,7 +565,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### maxFeePerGas
+#### options.maxFeePerGas
 
 - **Type:** `bigint | number | Hex`
 
@@ -593,7 +587,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### maxPriorityFeePerGas
+#### options.maxPriorityFeePerGas
 
 - **Type:** `bigint | number | Hex`
 
@@ -615,7 +609,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### nonce
+#### options.nonce
 
 - **Type:** `bigint | number | Hex`
 
@@ -637,7 +631,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### requestOptions
+#### options.requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -660,7 +654,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### type
+#### options.type
 
 - **Type:** `string`
 
@@ -682,7 +676,7 @@ const hash = await Actions.contract.write(client, {
 })
 ```
 
-##### value
+#### options.value
 
 - **Type:** `bigint | number | Hex`
 

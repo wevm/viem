@@ -64,13 +64,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.state.load.Options`
-
-The action options.
-
-##### mode
+#### options.mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`
@@ -92,7 +86,7 @@ await Actions.state.load(client, {
 })
 ```
 
-##### state
+#### options.state
 
 - **Type:** `Hex`
 

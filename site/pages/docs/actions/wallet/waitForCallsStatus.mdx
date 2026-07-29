@@ -104,13 +104,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.wallet.waitForCallsStatus.Options`
-
-The action options.
-
-##### id
+#### options.id
 
 - **Type:** `string`
 
@@ -125,7 +119,7 @@ const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
 })
 ```
 
-##### pollingInterval
+#### options.pollingInterval
 
 - **Type:** `number`
 - **Default:** `client.pollingInterval`
@@ -142,7 +136,7 @@ const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
 })
 ```
 
-##### retryCount
+#### options.retryCount
 
 - **Type:** `number`
 - **Default:** `4`
@@ -159,7 +153,7 @@ const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
 })
 ```
 
-##### retryDelay
+#### options.retryDelay
 
 - **Type:** `number | (({ count }) => number)`
 - **Default:** exponential backoff
@@ -176,7 +170,7 @@ const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
 })
 ```
 
-##### status
+#### options.status
 
 - **Type:** `(result: Actions.wallet.getCallsStatus.ReturnType) => boolean`
 - **Default:** `({ statusCode }) => statusCode === 200 || statusCode >= 300`
@@ -193,7 +187,7 @@ const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
 })
 ```
 
-##### throwOnFailure
+#### options.throwOnFailure
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -210,7 +204,7 @@ const { receipts, status } = await Actions.wallet.waitForCallsStatus(client, {
 })
 ```
 
-##### timeout
+#### options.timeout
 
 - **Type:** `number`
 - **Default:** `60_000`

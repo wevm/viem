@@ -120,25 +120,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.block.watch.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const watch = Actions.block.watch(client, { // [!code focus]
-  blockTag: 'safe', // [!code focus]
-}) // [!code focus]
-watch.onBlock((block) => console.log(block.number))
-```
-
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -157,7 +139,7 @@ const watch = Actions.block.watch(client, {
 watch.onBlock((block) => console.log(block.number))
 ```
 
-##### emitMissed
+#### options.emitMissed
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -176,7 +158,7 @@ const watch = Actions.block.watch(client, {
 watch.onBlock((block) => console.log(block.number))
 ```
 
-##### emitOnBegin
+#### options.emitOnBegin
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -195,7 +177,7 @@ const watch = Actions.block.watch(client, {
 watch.onBlock((block) => console.log(block.number))
 ```
 
-##### includeTransactions
+#### options.includeTransactions
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -214,7 +196,7 @@ const watch = Actions.block.watch(client, {
 watch.onBlock((block) => console.log(block.transactions))
 ```
 
-##### poll
+#### options.poll
 
 - **Type:** `boolean`
 - **Default:** `false` for WebSocket or IPC transports, `true` otherwise
@@ -233,7 +215,7 @@ const watch = Actions.block.watch(client, {
 watch.onBlock((block) => console.log(block.number))
 ```
 
-##### pollingInterval
+#### options.pollingInterval
 
 - **Type:** `number`
 - **Default:** `client.pollingInterval`

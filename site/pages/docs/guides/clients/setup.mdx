@@ -70,7 +70,7 @@ through a [`custom`](/docs/transports/custom) Transport.
 
 ### Batch Requests with Multicall
 
-Enable [`batch.multicall`](/docs/clients/create#batch) to aggregate concurrent `eth_call` requests
+Enable [`batch.multicall`](/docs/clients/create#optionsbatch) to aggregate concurrent `eth_call` requests
 from the same event-loop tick into one Multicall request.
 
 ```ts twoslash [example.ts]
@@ -133,7 +133,7 @@ watch.onBlockNumber((blockNumber) => console.log(blockNumber))
 
 Read Actions default to the `latest` block, or `pending` on chains with preconfirmations.
 
-Set [`blockTag`](/docs/clients/create#blocktag) when every read should target another tag, such as
+Set [`blockTag`](/docs/clients/create#optionsblocktag) when every read should target another tag, such as
 `finalized` for reorg-safe reads.
 
 ```ts twoslash [example.ts]

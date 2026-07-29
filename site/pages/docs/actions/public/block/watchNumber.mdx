@@ -119,25 +119,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.block.watchNumber.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const watch = Actions.block.watchNumber(client, { // [!code focus]
-  emitMissed: true, // [!code focus]
-}) // [!code focus]
-watch.onBlockNumber((blockNumber) => console.log(blockNumber))
-```
-
-##### emitMissed
+#### options.emitMissed
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -156,7 +138,7 @@ const watch = Actions.block.watchNumber(client, {
 watch.onBlockNumber((blockNumber) => console.log(blockNumber))
 ```
 
-##### emitOnBegin
+#### options.emitOnBegin
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -175,7 +157,7 @@ const watch = Actions.block.watchNumber(client, {
 watch.onBlockNumber((blockNumber) => console.log(blockNumber))
 ```
 
-##### poll
+#### options.poll
 
 - **Type:** `boolean`
 - **Default:** `false` for WebSocket or IPC transports, `true` otherwise
@@ -194,7 +176,7 @@ const watch = Actions.block.watchNumber(client, {
 watch.onBlockNumber((blockNumber) => console.log(blockNumber))
 ```
 
-##### pollingInterval
+#### options.pollingInterval
 
 - **Type:** `number`
 - **Default:** `client.pollingInterval`

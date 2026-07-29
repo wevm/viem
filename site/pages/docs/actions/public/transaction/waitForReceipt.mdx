@@ -133,25 +133,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.transaction.waitForReceipt.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { receipt } = Actions.transaction.waitForReceipt(client, { // [!code focus]
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus]
-  checkReplacement: false, // [!code focus]
-}) // [!code focus]
-```
-
-##### checkReplacement
+#### options.checkReplacement
 
 - **Type:** `boolean`
 - **Default:** `client.chain?.supportsTransactionReplacementDetection ?? true`
@@ -170,7 +152,7 @@ const { receipt } = Actions.transaction.waitForReceipt(client, {
 })
 ```
 
-##### confirmations
+#### options.confirmations
 
 - **Type:** `number`
 - **Default:** `1`
@@ -189,7 +171,7 @@ const { receipt } = Actions.transaction.waitForReceipt(client, {
 })
 ```
 
-##### hash
+#### options.hash
 
 - **Type:** `Hex`
 
@@ -206,7 +188,7 @@ const { receipt } = Actions.transaction.waitForReceipt(client, {
 })
 ```
 
-##### pollingInterval
+#### options.pollingInterval
 
 - **Type:** `number`
 - **Default:** `client.chain?.preconfirmationTime ?? client.pollingInterval`
@@ -225,7 +207,7 @@ const { receipt } = Actions.transaction.waitForReceipt(client, {
 })
 ```
 
-##### retryCount
+#### options.retryCount
 
 - **Type:** `number`
 - **Default:** `6`
@@ -244,7 +226,7 @@ const { receipt } = Actions.transaction.waitForReceipt(client, {
 })
 ```
 
-##### retryDelay
+#### options.retryDelay
 
 - **Type:** `number | (({ count, error }: { count: number; error: Error }) => number)`
 - **Default:** exponential backoff
@@ -263,7 +245,7 @@ const { receipt } = Actions.transaction.waitForReceipt(client, {
 })
 ```
 
-##### timeout
+#### options.timeout
 
 - **Type:** `number`
 - **Default:** `180_000`

@@ -22,7 +22,7 @@ const publicClientV2 = Client.toV2(client)
 ```
 
 The adapters preserve request connectivity, [JSON-RPC Accounts](/docs/accounts/json-rpc), and
-[`ccipRead: false`](/docs/clients/create#ccipread). `Client.fromV2` preserves the source chain ID,
+[`ccipRead: false`](/docs/clients/create#optionsccipread). `Client.fromV2` preserves the source chain ID,
 while `Client.toV2` creates a chainless Client by default.
 
 [Local Accounts](/docs/accounts) are not carried automatically. Custom

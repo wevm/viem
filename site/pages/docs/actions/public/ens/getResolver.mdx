@@ -98,26 +98,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.ens.getResolver.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Ens } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const resolver = await Actions.ens.getResolver(client, { // [!code focus]
-  blockNumber: 23_085_558n, // [!code focus]
-  name: Ens.normalize('wevm.eth'), // [!code focus]
-}) // [!code focus]
-```
-
-##### blockNumber
+#### options.blockNumber
 
 - **Type:** `bigint`
 
@@ -137,7 +118,7 @@ const resolver = await Actions.ens.getResolver(client, {
 })
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -158,7 +139,7 @@ const resolver = await Actions.ens.getResolver(client, {
 })
 ```
 
-##### name
+#### options.name
 
 - **Type:** `string`
 
@@ -177,7 +158,7 @@ const resolver = await Actions.ens.getResolver(client, {
 })
 ```
 
-##### universalResolverAddress
+#### options.universalResolverAddress
 
 - **Type:** `Address`
 - **Default:** `client.chain.contracts.ensUniversalResolver.address`

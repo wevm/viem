@@ -352,11 +352,7 @@ const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Client.create.Options`
-
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Optional**
@@ -375,7 +371,7 @@ const client = Client.create({
 })
 ```
 
-##### batch
+#### options.batch
 
 - **Type:** `{ multicall?: boolean | { batchSize?: number; deployless?: boolean; wait?: number } }`
 - **Optional**
@@ -403,7 +399,7 @@ const client = Client.create({
 })
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'pending'` when the chain preconfirms, otherwise `'latest'`
@@ -421,7 +417,7 @@ const client = Client.create({
 })
 ```
 
-##### cacheTime
+#### options.cacheTime
 
 - **Type:** `number`
 - **Default:** `pollingInterval`
@@ -439,7 +435,7 @@ const client = Client.create({
 })
 ```
 
-##### ccipRead
+#### options.ccipRead
 
 - **Type:** `CcipReadOptions | false`
 - **Default:** ENS Labs batch gateway
@@ -460,7 +456,7 @@ const client = Client.create({
 })
 ```
 
-##### chain
+#### options.chain
 
 - **Type:** `Chain | number`
 - **Optional**
@@ -487,7 +483,7 @@ const client = Client.create({
 })
 ```
 
-##### dataSuffix
+#### options.dataSuffix
 
 - **Type:** `Hex`
 - **Optional**
@@ -505,7 +501,7 @@ const client = Client.create({
 })
 ```
 
-##### key
+#### options.key
 
 - **Type:** `string`
 - **Default:** `'base'`
@@ -523,7 +519,7 @@ const client = Client.create({
 })
 ```
 
-##### name
+#### options.name
 
 - **Type:** `string`
 - **Default:** `'Base Client'`
@@ -541,7 +537,7 @@ const client = Client.create({
 })
 ```
 
-##### pollingInterval
+#### options.pollingInterval
 
 - **Type:** `number`
 - **Default:** derived from the chain block time
@@ -559,7 +555,7 @@ const client = Client.create({
 })
 ```
 
-##### retryCount
+#### options.retryCount
 
 - **Type:** `number`
 - **Optional**
@@ -577,7 +573,7 @@ const client = Client.create({
 })
 ```
 
-##### schema
+#### options.schema
 
 - **Type:** `RpcSchema.Generic | z.RpcSchema`
 - **Optional**
@@ -598,7 +594,7 @@ const client = Client.create({
 })
 ```
 
-##### timeout
+#### options.timeout
 
 - **Type:** `number`
 - **Optional**
@@ -616,7 +612,7 @@ const client = Client.create({
 })
 ```
 
-##### tokens
+#### options.tokens
 
 - **Type:** `readonly Token[]`
 - **Optional**
@@ -635,7 +631,7 @@ const client = Client.create({
 })
 ```
 
-##### transport
+#### options.transport
 
 - **Type:** `Transport`
 
@@ -651,7 +647,7 @@ const client = Client.create({
 })
 ```
 
-##### type
+#### options.type
 
 - **Type:** `string`
 - **Default:** `'base'`

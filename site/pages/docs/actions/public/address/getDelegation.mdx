@@ -95,24 +95,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.address.getDelegation.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const delegation = await Actions.address.getDelegation(client, { // [!code focus]
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
-}) // [!code focus]
-```
-
-##### address
+#### options.address
 
 - **Type:** `Address`
 
@@ -129,7 +112,7 @@ const delegation = await Actions.address.getDelegation(client, {
 })
 ```
 
-##### blockHash
+#### options.blockHash
 
 - **Type:** `Hex`
 
@@ -147,7 +130,7 @@ const delegation = await Actions.address.getDelegation(client, {
 })
 ```
 
-##### blockNumber
+#### options.blockNumber
 
 - **Type:** `bigint`
 
@@ -165,7 +148,7 @@ const delegation = await Actions.address.getDelegation(client, {
 })
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -184,7 +167,7 @@ const delegation = await Actions.address.getDelegation(client, {
 })
 ```
 
-##### requireCanonical
+#### options.requireCanonical
 
 - **Type:** `boolean`
 

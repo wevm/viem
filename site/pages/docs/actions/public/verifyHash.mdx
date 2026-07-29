@@ -4,7 +4,7 @@
 
 Verifies a signature over a hash onchain, supporting Smart Contract Accounts (ERC-1271), counterfactual accounts (ERC-6492), delegated accounts (ERC-8010), and Externally Owned Accounts.
 
-Without a chain-specific hook, ERC-1271 and ERC-6492 checks use the ERC-6492 universal validator. Viem uses a deployless call unless you set [`erc6492VerifierAddress`](#erc6492verifieraddress).
+Without a chain-specific hook, ERC-1271 and ERC-6492 checks use the ERC-6492 universal validator. Viem uses a deployless call unless you set [`erc6492VerifierAddress`](#optionserc6492verifieraddress).
 
 ERC-8010 signatures verify their delegation authorization and call `isValidSignature` on the delegated account. ECDSA recovery verifies signatures from externally owned accounts.
 
@@ -140,26 +140,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.verifyHash.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const valid = await Actions.verifyHash(client, { // [!code focus]
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
-  hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68', // [!code focus]
-  signature: '0x…', // [!code focus]
-}) // [!code focus]
-```
-
-##### address
+#### options.address
 
 - **Type:** `Address`
 
@@ -178,7 +159,7 @@ const valid = await Actions.verifyHash(client, {
 })
 ```
 
-##### blockHash
+#### options.blockHash
 
 - **Type:** `Hex`
 
@@ -198,7 +179,7 @@ const valid = await Actions.verifyHash(client, {
 })
 ```
 
-##### blockNumber
+#### options.blockNumber
 
 - **Type:** `bigint`
 
@@ -218,7 +199,7 @@ const valid = await Actions.verifyHash(client, {
 })
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `client.blockTag ?? 'latest'`
@@ -239,7 +220,7 @@ const valid = await Actions.verifyHash(client, {
 })
 ```
 
-##### erc6492VerifierAddress
+#### options.erc6492VerifierAddress
 
 - **Type:** `Address`
 - **Default:** `client.chain.contracts.erc6492Verifier.address`
@@ -260,11 +241,11 @@ const valid = await Actions.verifyHash(client, {
 })
 ```
 
-##### factory
+#### options.factory
 
 - **Type:** `Address`
 
-Deployment factory of a counterfactual (undeployed) smart account. Pass together with [`factoryData`](#factorydata); the signature is wrapped per ERC-6492 for counterfactual validation.
+Deployment factory of a counterfactual (undeployed) smart account. Pass together with [`factoryData`](#optionsfactorydata); the signature is wrapped per ERC-6492 for counterfactual validation.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -281,11 +262,11 @@ const valid = await Actions.verifyHash(client, {
 })
 ```
 
-##### factoryData
+#### options.factoryData
 
 - **Type:** `Hex`
 
-Deployment calldata for the counterfactual smart account. See [`factory`](#factory).
+Deployment calldata for the counterfactual smart account. See [`factory`](#optionsfactory).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -302,7 +283,7 @@ const valid = await Actions.verifyHash(client, {
 })
 ```
 
-##### hash
+#### options.hash
 
 - **Type:** `Hex`
 - **Required:** Yes
@@ -322,7 +303,7 @@ const valid = await Actions.verifyHash(client, {
 })
 ```
 
-##### mode
+#### options.mode
 
 - **Type:** `'auto' | 'eoa' | string`
 - **Default:** `'auto'`
@@ -347,7 +328,7 @@ const valid = await Actions.verifyHash(client, {
 })
 ```
 
-##### multicallAddress
+#### options.multicallAddress
 
 - **Type:** `Address`
 - **Default:** `client.chain.contracts.multicall3.address`
@@ -368,7 +349,7 @@ const valid = await Actions.verifyHash(client, {
 })
 ```
 
-##### requestOptions
+#### options.requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -389,12 +370,12 @@ const valid = await Actions.verifyHash(client, {
 })
 ```
 
-##### requireCanonical
+#### options.requireCanonical
 
 - **Type:** `boolean`
 - **Default:** `false`
 
-Requires [`blockHash`](#blockhash) to identify a block in the canonical chain.
+Requires [`blockHash`](#optionsblockhash) to identify a block in the canonical chain.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -411,7 +392,7 @@ const valid = await Actions.verifyHash(client, {
 })
 ```
 
-##### signature
+#### options.signature
 
 - **Type:** `Hex | Bytes | Signature`
 

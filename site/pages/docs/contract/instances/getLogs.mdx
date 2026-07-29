@@ -165,14 +165,10 @@ const logs = await contract.getLogs.Transfer({
 
 ### Parameters
 
-#### options
+The instance supplies `abi`, `address`, and `eventName`. Choose `blockHash` or a `fromBlock` and
+`toBlock` range. `strict` defaults to `false`.
 
-- **Type:** `Omit<Actions.contract.getLogs.Options, 'abi' | 'address' | 'eventName'>`
-- **Optional**
-
-The instance supplies `abi`, `address`, and `eventName`. Choose `blockHash` or a `fromBlock` and `toBlock` range. `strict` defaults to `false`.
-
-##### args
+#### options.args
 
 - **Type:** Inferred from the selected ABI event
 - **Optional**
@@ -198,7 +194,7 @@ const logs = await contract.getLogs.Transfer({
 })
 ```
 
-##### blockHash
+#### options.blockHash
 
 - **Type:** `Hex`
 - **Optional**
@@ -222,7 +218,7 @@ const logs = await contract.getLogs.Transfer({
 })
 ```
 
-##### fromBlock
+#### options.fromBlock
 
 - **Type:** `bigint | 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Optional**
@@ -246,7 +242,7 @@ const logs = await contract.getLogs.Transfer({
 })
 ```
 
-##### strict
+#### options.strict
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -270,7 +266,7 @@ const logs = await contract.getLogs.Transfer({
 })
 ```
 
-##### toBlock
+#### options.toBlock
 
 - **Type:** `bigint | 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Optional**

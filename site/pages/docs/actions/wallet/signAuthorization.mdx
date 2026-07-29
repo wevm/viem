@@ -142,13 +142,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.wallet.signAuthorization.Options`
-
-The action options.
-
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -165,7 +159,7 @@ const authorization = await Actions.wallet.signAuthorization(client, {
 })
 ```
 
-##### address
+#### options.address
 
 - **Type:** `Address`
 
@@ -180,7 +174,7 @@ const authorization = await Actions.wallet.signAuthorization(client, {
 })
 ```
 
-##### chainId
+#### options.chainId
 
 - **Type:** `number`
 - **Default:** `client.chain.id`
@@ -197,7 +191,7 @@ const authorization = await Actions.wallet.signAuthorization(client, {
 })
 ```
 
-##### executor
+#### options.executor
 
 - **Type:** `'self' | Account | Address`
 
@@ -216,7 +210,7 @@ const authorization = await Actions.wallet.signAuthorization(client, {
 })
 ```
 
-##### nonce
+#### options.nonce
 
 - **Type:** `bigint`
 - **Default:** account nonce

@@ -98,13 +98,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.address.setStorageAt.Options`
-
-The action options.
-
-##### address
+#### options.address
 
 - **Type:** `Address`
 
@@ -127,7 +121,7 @@ await Actions.address.setStorageAt(client, {
 })
 ```
 
-##### index
+#### options.index
 
 - **Type:** `number | Hex`
 
@@ -150,7 +144,7 @@ await Actions.address.setStorageAt(client, {
 })
 ```
 
-##### mode
+#### options.mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`
@@ -174,7 +168,7 @@ await Actions.address.setStorageAt(client, {
 })
 ```
 
-##### value
+#### options.value
 
 - **Type:** `Hex`
 

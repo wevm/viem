@@ -129,15 +129,10 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
+Accepts the same parameters as
+[`Actions.wallet.sendCalls`](/docs/actions/wallet/sendCalls#parameters), plus:
 
-- **Type:** `Actions.wallet.sendCallsSync.Options`
-
-The action options.
-
-Accepts the same parameters as [`Actions.wallet.sendCalls`](/docs/actions/wallet/sendCalls#parameters), plus:
-
-##### pollingInterval
+#### options.pollingInterval
 
 - **Type:** `number`
 - **Default:** `client.pollingInterval`
@@ -154,7 +149,7 @@ const status = await Actions.wallet.sendCallsSync(client, {
 })
 ```
 
-##### status
+#### options.status
 
 - **Type:** `(result: Actions.wallet.getCallsStatus.ReturnType) => boolean`
 - **Default:** `({ statusCode }) => statusCode === 200 || statusCode >= 300`
@@ -171,7 +166,7 @@ const status = await Actions.wallet.sendCallsSync(client, {
 })
 ```
 
-##### throwOnFailure
+#### options.throwOnFailure
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -188,7 +183,7 @@ const status = await Actions.wallet.sendCallsSync(client, {
 })
 ```
 
-##### timeout
+#### options.timeout
 
 - **Type:** `number`
 - **Default:** `Math.max((chain.blockTime ?? 0) * 3, 5_000)`

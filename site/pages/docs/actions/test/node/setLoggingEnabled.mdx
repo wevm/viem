@@ -64,13 +64,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.node.setLoggingEnabled.Options`
-
-The action options.
-
-##### enabled
+#### options.enabled
 
 - **Type:** `boolean`
 
@@ -91,7 +85,7 @@ await Actions.node.setLoggingEnabled(client, {
 })
 ```
 
-##### mode
+#### options.mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`

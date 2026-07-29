@@ -143,16 +143,13 @@ watch.off()
 
 ### Parameters
 
-#### options
+Options include `args`, `batch`, `fromBlock`, `poll`, `pollingInterval`, and `strict`. Logs are
+batched by default, and `strict` defaults to `false`.
 
-- **Type:** `Omit<Actions.contract.watchEvent.Options, 'abi' | 'address' | 'eventName'>`
-- **Optional**
+When `poll` is omitted, `fromBlock` selects polling. Without `fromBlock`, the method subscribes
+when the [Transport](/docs/transports) supports subscriptions and polls otherwise.
 
-Options include `args`, `batch`, `fromBlock`, `poll`, `pollingInterval`, and `strict`. Logs are batched by default, and `strict` defaults to `false`.
-
-When `poll` is omitted, `fromBlock` selects polling. Without `fromBlock`, the method subscribes when the [Transport](/docs/transports) supports subscriptions and polls otherwise.
-
-##### args
+#### options.args
 
 - **Type:** Inferred from the selected ABI event
 - **Optional**
@@ -183,7 +180,7 @@ watch.onLogs((logs) => console.log(logs))
 watch.off()
 ```
 
-##### batch
+#### options.batch
 
 - **Type:** `boolean`
 - **Default:** `true`
@@ -210,7 +207,7 @@ watch.onLogs((logs) => console.log(logs))
 watch.off()
 ```
 
-##### fromBlock
+#### options.fromBlock
 
 - **Type:** `bigint`
 - **Optional**
@@ -237,7 +234,7 @@ watch.onLogs((logs) => console.log(logs))
 watch.off()
 ```
 
-##### poll
+#### options.poll
 
 - **Type:** `boolean`
 - **Default:** `true` with `fromBlock` or a Transport that cannot subscribe; `false` otherwise
@@ -264,7 +261,7 @@ watch.onLogs((logs) => console.log(logs))
 watch.off()
 ```
 
-##### pollingInterval
+#### options.pollingInterval
 
 - **Type:** `number`
 - **Default:** `client.pollingInterval`
@@ -291,7 +288,7 @@ watch.onLogs((logs) => console.log(logs))
 watch.off()
 ```
 
-##### strict
+#### options.strict
 
 - **Type:** `boolean`
 - **Default:** `false`

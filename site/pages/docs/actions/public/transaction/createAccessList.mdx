@@ -142,31 +142,12 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.transaction.createAccessList.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const result = await Actions.transaction.createAccessList(client, { // [!code focus]
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
-  data: '0x06fdde03', // [!code focus]
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-}) // [!code focus]
-```
-
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
 
-The Account object or address to use as the call's `msg.sender`. This option takes precedence over [`from`](#from).
+The Account object or address to use as the call's `msg.sender`. This option takes precedence over [`from`](#optionsfrom).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -181,7 +162,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-##### authorizationList
+#### options.authorizationList
 
 - **Type:** `AuthorizationList`
 
@@ -208,7 +189,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-##### blobs
+#### options.blobs
 
 - **Type:** `readonly Hex[]`
 
@@ -226,7 +207,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-##### blobVersionedHashes
+#### options.blobVersionedHashes
 
 - **Type:** `readonly Hex[]`
 
@@ -244,7 +225,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-##### blockNumber
+#### options.blockNumber
 
 - **Type:** `bigint`
 
@@ -263,7 +244,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `client.blockTag ?? 'latest'`
@@ -283,7 +264,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-##### chainId
+#### options.chainId
 
 - **Type:** `number | Hex`
 
@@ -302,7 +283,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-##### data
+#### options.data
 
 - **Type:** `Hex`
 
@@ -320,11 +301,11 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-##### from
+#### options.from
 
 - **Type:** `Address`
 
-The raw sender address. Viem uses this field only when neither [`account`](#account) nor a Client Account is available.
+The raw sender address. Viem uses this field only when neither [`account`](#optionsaccount) nor a Client Account is available.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -339,7 +320,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-##### gas
+#### options.gas
 
 - **Type:** `number | bigint | Hex`
 
@@ -358,7 +339,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-##### gasPrice
+#### options.gasPrice
 
 - **Type:** `number | bigint | Hex`
 
@@ -377,7 +358,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-##### maxFeePerBlobGas
+#### options.maxFeePerBlobGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -395,7 +376,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-##### maxFeePerGas
+#### options.maxFeePerGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -414,7 +395,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-##### maxPriorityFeePerGas
+#### options.maxPriorityFeePerGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -433,7 +414,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-##### nonce
+#### options.nonce
 
 - **Type:** `number | bigint | Hex`
 
@@ -452,7 +433,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-##### requestOptions
+#### options.requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -472,7 +453,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-##### to
+#### options.to
 
 - **Type:** `Address | null`
 
@@ -490,7 +471,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-##### type
+#### options.type
 
 - **Type:** `string`
 
@@ -508,7 +489,7 @@ const result = await Actions.transaction.createAccessList(client, {
 })
 ```
 
-##### value
+#### options.value
 
 - **Type:** `number | bigint | Hex`
 

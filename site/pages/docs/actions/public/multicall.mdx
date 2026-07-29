@@ -8,7 +8,7 @@ Calls use `eth_simulateV1` by default.
 
 When a node lacks support and no simulation-only option is set, Viem uses a [multicall3](https://github.com/mds1/multicall) `aggregate3` batch instead.
 
-Viem caches the selected mode for each Client. Set [`mode`](#mode) to choose a specific mode.
+Viem caches the selected mode for each Client. Set [`mode`](#optionsmode) to choose a specific mode.
 
 ## Recipes
 
@@ -91,7 +91,7 @@ const { results } = await Actions.multicall(client, {
 
 ### Asset Changes
 
-Trace the account's native and token balance changes across the batch with [`traceAssetChanges`](#traceassetchanges):
+Trace the account's native and token balance changes across the batch with [`traceAssetChanges`](#optionstraceassetchanges):
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -167,34 +167,11 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.multicall.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { results } = await Actions.multicall(client, { // [!code focus]
-  account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929', // [!code focus]
-  calls: [ // [!code focus]
-    { // [!code focus]
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
-      value: 1n, // [!code focus]
-    }, // [!code focus]
-  ], // [!code focus]
-}) // [!code focus]
-```
-
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 
-Account attached to the calls (`msg.sender` on the `eth_simulateV1` path). Required for [`traceAssetChanges`](#traceassetchanges).
+Account attached to the calls (`msg.sender` on the `eth_simulateV1` path). Required for [`traceAssetChanges`](#optionstraceassetchanges).
 
 :::warning
 On the `aggregate3` fallback path, sub-call `msg.sender` is the multicall3 contract; `account` only sets the outer `eth_call` sender. Pin `mode: 'simulate'` when calls are sender-sensitive.
@@ -217,7 +194,7 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-##### allowFailure
+#### options.allowFailure
 
 - **Type:** `boolean`
 - **Default:** `true`
@@ -245,7 +222,7 @@ const { results } = await Actions.multicall(client, {
 // @log: results: [1000000n]
 ```
 
-##### batchSize
+#### options.batchSize
 
 - **Type:** `number`
 - **Default:** `client.batch.multicall.batchSize ?? 1024`
@@ -273,7 +250,7 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-##### blockNumber
+#### options.blockNumber
 
 - **Type:** `bigint`
 
@@ -296,7 +273,7 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -320,7 +297,7 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-##### calls
+#### options.calls
 
 - **Type:** `Calls`
 
@@ -352,7 +329,7 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-##### deployless
+#### options.deployless
 
 - **Type:** `boolean`
 
@@ -379,7 +356,7 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-##### mode
+#### options.mode
 
 - **Type:** `'auto' | 'simulate' | 'multicall'`
 - **Default:** `'auto'`
@@ -410,7 +387,7 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-##### multicallAddress
+#### options.multicallAddress
 
 - **Type:** `Address`
 - **Default:** `client.chain.contracts.multicall3.address`
@@ -438,7 +415,7 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-##### requestOptions
+#### options.requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -462,7 +439,7 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-##### stateOverride
+#### options.stateOverride
 
 - **Type:** `StateOverrides`
 
@@ -490,11 +467,11 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-##### traceAssetChanges
+#### options.traceAssetChanges
 
 - **Type:** `boolean`
 
-Whether to trace native/ERC20/ERC721 balance changes of [`account`](#account) across the batch. Requires `account`; forces the `eth_simulateV1` mode.
+Whether to trace native/ERC20/ERC721 balance changes of [`account`](#optionsaccount) across the batch. Requires `account`; forces the `eth_simulateV1` mode.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -514,7 +491,7 @@ const { assetChanges } = await Actions.multicall(client, {
 })
 ```
 
-##### traceTransfers
+#### options.traceTransfers
 
 - **Type:** `boolean`
 
@@ -538,7 +515,7 @@ const { results } = await Actions.multicall(client, {
 })
 ```
 
-##### validation
+#### options.validation
 
 - **Type:** `boolean`
 
@@ -566,12 +543,12 @@ const { results } = await Actions.multicall(client, {
 
 `{ assetChanges?, block?, results }`
 
-Per-call `results` (in call order): `{ data, gasUsed, logs, result, status: 'success' } | { data, gasUsed, logs, error, status: 'failure' }`. With [`allowFailure: false`](#allowfailure), `results` holds bare decoded values instead.
+Per-call `results` (in call order): `{ data, gasUsed, logs, result, status: 'success' } | { data, gasUsed, logs, error, status: 'failure' }`. With [`allowFailure: false`](#optionsallowfailure), `results` holds bare decoded values instead.
 
 `block` is the simulated block. It is `undefined` after an `aggregate3` fallback, which also omits
 the `data`, `gasUsed`, and `logs` fields.
 
-`assetChanges` is populated when [`traceAssetChanges`](#traceassetchanges) is set.
+`assetChanges` is populated when [`traceAssetChanges`](#optionstraceassetchanges) is set.
 
 ### Errors
 

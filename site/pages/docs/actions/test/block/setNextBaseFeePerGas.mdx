@@ -64,13 +64,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.block.setNextBaseFeePerGas.Options`
-
-The action options.
-
-##### baseFeePerGas
+#### options.baseFeePerGas
 
 - **Type:** `bigint`
 
@@ -91,7 +85,7 @@ await Actions.block.setNextBaseFeePerGas(client, {
 })
 ```
 
-##### mode
+#### options.mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`

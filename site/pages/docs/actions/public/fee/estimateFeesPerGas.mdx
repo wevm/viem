@@ -69,24 +69,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.fee.estimateFeesPerGas.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet, optimism } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const fees = await Actions.fee.estimateFeesPerGas(client, { // [!code focus]
-  chain: optimism, // [!code focus]
-}) // [!code focus]
-```
-
-##### chain
+#### options.chain
 
 - **Type:** `Chain`
 - **Default:** `client.chain`
@@ -104,7 +87,7 @@ const fees = await Actions.fee.estimateFeesPerGas(client, {
 })
 ```
 
-##### type
+#### options.type
 
 - **Type:** `'legacy' | 'eip1559'`
 - **Default:** `'eip1559'`

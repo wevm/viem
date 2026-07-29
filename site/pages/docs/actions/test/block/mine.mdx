@@ -86,13 +86,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.block.mine.Options`
-
-The action options.
-
-##### blocks
+#### options.blocks
 
 - **Type:** `number`
 
@@ -114,7 +108,7 @@ await Actions.block.mine(client, {
 })
 ```
 
-##### interval
+#### options.interval
 
 - **Type:** `number`
 - **Default:** `0`
@@ -137,7 +131,7 @@ await Actions.block.mine(client, {
 })
 ```
 
-##### mode
+#### options.mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`

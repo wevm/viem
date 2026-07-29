@@ -102,26 +102,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.ens.getAvatar.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Ens } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const avatar = await Actions.ens.getAvatar(client, { // [!code focus]
-  assetGatewayUrls: { ipfs: 'https://cloudflare-ipfs.com' }, // [!code focus]
-  name: Ens.normalize('wevm.eth'), // [!code focus]
-}) // [!code focus]
-```
-
-##### assetGatewayUrls
+#### options.assetGatewayUrls
 
 - **Type:** `{ ipfs?: string; arweave?: string }`
 
@@ -140,7 +121,7 @@ const avatar = await Actions.ens.getAvatar(client, {
 })
 ```
 
-##### blockNumber
+#### options.blockNumber
 
 - **Type:** `bigint`
 
@@ -160,7 +141,7 @@ const avatar = await Actions.ens.getAvatar(client, {
 })
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -181,7 +162,7 @@ const avatar = await Actions.ens.getAvatar(client, {
 })
 ```
 
-##### gatewayUrls
+#### options.gatewayUrls
 
 - **Type:** `readonly string[]`
 
@@ -201,7 +182,7 @@ const avatar = await Actions.ens.getAvatar(client, {
 })
 ```
 
-##### name
+#### options.name
 
 - **Type:** `string`
 
@@ -220,7 +201,7 @@ const avatar = await Actions.ens.getAvatar(client, {
 })
 ```
 
-##### strict
+#### options.strict
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -241,7 +222,7 @@ const avatar = await Actions.ens.getAvatar(client, {
 })
 ```
 
-##### universalResolverAddress
+#### options.universalResolverAddress
 
 - **Type:** `Address`
 - **Default:** `client.chain.contracts.ensUniversalResolver.address`
@@ -272,4 +253,4 @@ The avatar image URI, or `null` when the name has no `avatar` record or the reco
 
 | Error | Description |
 | --- | --- |
-| `ContractError.ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#strict); resolver and avatar-parse errors otherwise map to `null`). |
+| `ContractError.ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#optionsstrict); resolver and avatar-parse errors otherwise map to `null`). |

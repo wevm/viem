@@ -104,13 +104,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.signMessage.Options`
-
-The action options.
-
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -127,7 +121,7 @@ const signature = await Actions.signMessage(client, {
 })
 ```
 
-##### message
+#### options.message
 
 - **Type:** `string | { raw: Hex | Bytes }`
 
@@ -142,7 +136,7 @@ const signature = await Actions.signMessage(client, {
 })
 ```
 
-##### requestOptions
+#### options.requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 

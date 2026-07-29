@@ -88,7 +88,7 @@ const publicClient = Client.fromV2(clientV2) // [!code focus]
 
 The adapters reuse request connectivity and preserve
 [JSON-RPC Accounts](/docs/accounts/json-rpc) and
-[`ccipRead: false`](/docs/clients/create#ccipread). They do not translate local Accounts, custom
+[`ccipRead: false`](/docs/clients/create#optionsccipread). They do not translate local Accounts, custom
 extensions, subscriptions, Chain codecs or formatters, or custom CCIP Read handlers.
 `Client.fromV2` normalizes forwarded v2 request errors with
 [`Provider.parseError`](/docs/utilities/provider/parseError), while `Client.toV2` preserves the

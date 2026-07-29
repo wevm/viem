@@ -4,7 +4,7 @@
 
 Verifies that a message was signed by the provided address, supporting Smart Contract Accounts (ERC-1271/6492/8010) and Externally Owned Accounts.
 
-Computes the [EIP-191](https://eips.ethereum.org/EIPS/eip-191) personal-message hash and delegates to [`verifyHash`](/docs/actions/public/verifyHash), which also accepts all of its options ([`mode`](/docs/actions/public/verifyHash#mode), [`factory`](/docs/actions/public/verifyHash#factory), block selectors, and verifier overrides).
+Computes the [EIP-191](https://eips.ethereum.org/EIPS/eip-191) personal-message hash and delegates to [`verifyHash`](/docs/actions/public/verifyHash), which also accepts all of its options ([`mode`](/docs/actions/public/verifyHash#optionsmode), [`factory`](/docs/actions/public/verifyHash#optionsfactory), block selectors, and verifier overrides).
 
 ## Recipes
 
@@ -73,29 +73,10 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
+Accepts every [`verifyHash` parameter](/docs/actions/public/verifyHash#parameters) except `hash`,
+plus:
 
-- **Type:** `Actions.verifyMessage.Options`
-
-Configure the request with the following options.
-
-Accepts every [`verifyHash` parameter](/docs/actions/public/verifyHash#parameters) except `hash`, plus:
-
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const valid = await Actions.verifyMessage(client, { // [!code focus]
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
-  message: { raw: '0x68656c6c6f20776f726c64' }, // [!code focus]
-  signature: '0x…', // [!code focus]
-}) // [!code focus]
-```
-
-##### message
+#### options.message
 
 - **Type:** `string | { raw: Hex | Bytes }`
 

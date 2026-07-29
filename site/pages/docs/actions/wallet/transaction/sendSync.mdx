@@ -110,17 +110,11 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.transaction.sendSync.Options`
-
-The action options.
-
 Supports the transaction parameters from
 [`Actions.transaction.send`](/docs/actions/wallet/transaction/send), plus the sync parameters
 below.
 
-##### confirmations
+#### options.confirmations
 
 - **Type:** `number`
 - **Default:** `1`
@@ -138,7 +132,7 @@ const receipt = await Actions.transaction.sendSync(client, {
 })
 ```
 
-##### pollingInterval
+#### options.pollingInterval
 
 - **Type:** `number`
 - **Default:** `client.pollingInterval`
@@ -156,7 +150,7 @@ const receipt = await Actions.transaction.sendSync(client, {
 })
 ```
 
-##### throwOnReceiptRevert
+#### options.throwOnReceiptRevert
 
 - **Type:** `boolean`
 
@@ -173,7 +167,7 @@ const receipt = await Actions.transaction.sendSync(client, {
 })
 ```
 
-##### timeout
+#### options.timeout
 
 - **Type:** `number`
 - **Default:** `Math.max((chain.blockTime ?? 0) * 3, 5_000)`

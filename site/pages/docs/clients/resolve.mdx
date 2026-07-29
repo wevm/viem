@@ -158,13 +158,10 @@ const resolver = Client.createResolver({
 
 ### Parameters
 
-#### options
+The resolver accepts the shared [`Client.create` options](/docs/clients/create#parameters). Shared
+options apply to every resolved Client.
 
-- **Type:** `Client.createResolver.Options`
-
-The resolver accepts the shared [`Client.create` options](/docs/clients/create#parameters). Shared options apply to every resolved Client.
-
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Optional**
@@ -185,7 +182,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### batch
+#### options.batch
 
 - **Type:** `{ multicall?: boolean | { batchSize?: number; deployless?: boolean; wait?: number } }`
 - **Optional**
@@ -216,7 +213,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'pending'` when the chain preconfirms, otherwise `'latest'`
@@ -237,7 +234,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### cacheTime
+#### options.cacheTime
 
 - **Type:** `number`
 - **Default:** `pollingInterval`
@@ -258,7 +255,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### ccipRead
+#### options.ccipRead
 
 - **Type:** `CcipReadOptions | false`
 - **Default:** ENS Labs batch gateway
@@ -282,7 +279,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### chains
+#### options.chains
 
 - **Type:** `readonly [Chain, ...Chain[]]`
 
@@ -301,7 +298,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### dataSuffix
+#### options.dataSuffix
 
 - **Type:** `Hex`
 - **Optional**
@@ -322,7 +319,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### key
+#### options.key
 
 - **Type:** `string`
 - **Default:** `'base'`
@@ -343,7 +340,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### name
+#### options.name
 
 - **Type:** `string`
 - **Default:** `'Base Client'`
@@ -364,7 +361,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### pollingInterval
+#### options.pollingInterval
 
 - **Type:** `number`
 - **Default:** derived from each chain's block time
@@ -385,7 +382,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### retryCount
+#### options.retryCount
 
 - **Type:** `number`
 - **Optional**
@@ -406,7 +403,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### schema
+#### options.schema
 
 - **Type:** `RpcSchema.Generic | z.RpcSchema`
 - **Optional**
@@ -430,7 +427,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### timeout
+#### options.timeout
 
 - **Type:** `number`
 - **Optional**
@@ -451,7 +448,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### tokens
+#### options.tokens
 
 - **Type:** `readonly Token[]`
 - **Optional**
@@ -473,7 +470,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### transport
+#### options.transport
 
 - **Type:** `Record<chains[number]['id'], Transport> | ((options: { chainId: chains[number]['id'] }) => Transport)`
 
@@ -492,7 +489,7 @@ const resolver = Client.createResolver({
 })
 ```
 
-##### type
+#### options.type
 
 - **Type:** `string`
 - **Default:** `'base'`
@@ -542,11 +539,7 @@ const client = resolver.getClient({ chainId: optimism.id })
 
 ### Parameters
 
-#### options
-
-- **Type:** `{ chainId: chains[number]['id'] }`
-
-##### chainId
+#### options.chainId
 
 - **Type:** `chains[number]['id']`
 

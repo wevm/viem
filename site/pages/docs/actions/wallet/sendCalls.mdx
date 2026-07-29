@@ -212,13 +212,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.wallet.sendCalls.Options`
-
-The action options.
-
-##### account
+#### options.account
 
 - **Type:** `Account | Address | null`
 - **Default:** `client.account`
@@ -235,7 +229,7 @@ const { id } = await Actions.wallet.sendCalls(client, {
 })
 ```
 
-##### calls
+#### options.calls
 
 - **Type:** `Call[]`
 
@@ -259,7 +253,7 @@ const { id } = await Actions.wallet.sendCalls(client, {
 })
 ```
 
-##### capabilities
+#### options.capabilities
 
 - **Type:** `Capabilities`
 
@@ -279,7 +273,7 @@ const { id } = await Actions.wallet.sendCalls(client, {
 })
 ```
 
-##### chain
+#### options.chain
 
 - **Type:** `Chain`
 - **Default:** `client.chain`
@@ -297,7 +291,7 @@ const { id } = await Actions.wallet.sendCalls(client, {
 })
 ```
 
-##### experimental_fallback
+#### options.experimental_fallback
 
 - **Type:** `boolean`
 
@@ -313,7 +307,7 @@ const { id } = await Actions.wallet.sendCalls(client, {
 })
 ```
 
-##### experimental_fallbackDelay
+#### options.experimental_fallbackDelay
 
 - **Type:** `number`
 - **Default:** `32`
@@ -331,7 +325,7 @@ const { id } = await Actions.wallet.sendCalls(client, {
 })
 ```
 
-##### forceAtomic
+#### options.forceAtomic
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -348,7 +342,7 @@ const { id } = await Actions.wallet.sendCalls(client, {
 })
 ```
 
-##### id
+#### options.id
 
 - **Type:** `string`
 
@@ -364,7 +358,7 @@ const { id } = await Actions.wallet.sendCalls(client, {
 })
 ```
 
-##### version
+#### options.version
 
 - **Type:** `string`
 - **Default:** `'2.0.0'`

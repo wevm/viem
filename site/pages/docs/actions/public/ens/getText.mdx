@@ -101,27 +101,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.ens.getText.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Ens } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const text = await Actions.ens.getText(client, { // [!code focus]
-  blockNumber: 23_085_558n, // [!code focus]
-  key: 'com.twitter', // [!code focus]
-  name: Ens.normalize('wevm.eth'), // [!code focus]
-}) // [!code focus]
-```
-
-##### blockNumber
+#### options.blockNumber
 
 - **Type:** `bigint`
 
@@ -142,7 +122,7 @@ const text = await Actions.ens.getText(client, {
 })
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -164,7 +144,7 @@ const text = await Actions.ens.getText(client, {
 })
 ```
 
-##### gatewayUrls
+#### options.gatewayUrls
 
 - **Type:** `readonly string[]`
 
@@ -185,7 +165,7 @@ const text = await Actions.ens.getText(client, {
 })
 ```
 
-##### key
+#### options.key
 
 - **Type:** `string`
 
@@ -205,7 +185,7 @@ const text = await Actions.ens.getText(client, {
 })
 ```
 
-##### name
+#### options.name
 
 - **Type:** `string`
 
@@ -225,7 +205,7 @@ const text = await Actions.ens.getText(client, {
 })
 ```
 
-##### strict
+#### options.strict
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -247,7 +227,7 @@ const text = await Actions.ens.getText(client, {
 })
 ```
 
-##### universalResolverAddress
+#### options.universalResolverAddress
 
 - **Type:** `Address`
 - **Default:** `client.chain.contracts.ensUniversalResolver.address`
@@ -279,4 +259,4 @@ The text record value, or `null` when the record is unset.
 
 | Error | Description |
 | --- | --- |
-| `ContractError.ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#strict); resolver errors otherwise map to `null`). |
+| `ContractError.ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#optionsstrict); resolver errors otherwise map to `null`). |

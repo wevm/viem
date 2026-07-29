@@ -126,13 +126,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.signTypedData.Options`
-
-The action options.
-
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -151,7 +145,7 @@ const signature = await Actions.signTypedData(client, {
 })
 ```
 
-##### domain
+#### options.domain
 
 - **Type:** `TypedDataDomain`
 
@@ -169,7 +163,7 @@ const signature = await Actions.signTypedData(client, {
 })
 ```
 
-##### message
+#### options.message
 
 - **Type:** Inferred from `types` and `primaryType`
 
@@ -186,7 +180,7 @@ const signature = await Actions.signTypedData(client, {
 })
 ```
 
-##### primaryType
+#### options.primaryType
 
 - **Type:** Inferred from `types`
 
@@ -203,7 +197,7 @@ const signature = await Actions.signTypedData(client, {
 })
 ```
 
-##### requestOptions
+#### options.requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -224,7 +218,7 @@ const signature = await Actions.signTypedData(client, {
 })
 ```
 
-##### types
+#### options.types
 
 - **Type:** `TypedData`
 

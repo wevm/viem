@@ -86,13 +86,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.address.setCode.Options`
-
-The action options.
-
-##### address
+#### options.address
 
 - **Type:** `Address`
 
@@ -114,7 +108,7 @@ await Actions.address.setCode(client, {
 })
 ```
 
-##### bytecode
+#### options.bytecode
 
 - **Type:** `Hex`
 
@@ -136,7 +130,7 @@ await Actions.address.setCode(client, {
 })
 ```
 
-##### mode
+#### options.mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`

@@ -120,24 +120,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.event.createFilter.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const filter = await Actions.event.createFilter(client, { // [!code focus]
-  address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2', // [!code focus]
-}) // [!code focus]
-```
-
-##### address
+#### options.address
 
 - **Type:** `Address | Address[]`
 
@@ -154,7 +137,7 @@ const filter = await Actions.event.createFilter(client, {
 })
 ```
 
-##### args
+#### options.args
 
 - **Type:** Inferred from `event`.
 
@@ -175,7 +158,7 @@ const filter = await Actions.event.createFilter(client, {
 })
 ```
 
-##### event
+#### options.event
 
 - **Type:** `AbiEvent`
 
@@ -195,7 +178,7 @@ const filter = await Actions.event.createFilter(client, {
 })
 ```
 
-##### events
+#### options.events
 
 - **Type:** `readonly AbiEvent[]`
 
@@ -215,7 +198,7 @@ const filter = await Actions.event.createFilter(client, {
 })
 ```
 
-##### fromBlock
+#### options.fromBlock
 
 - **Type:** `bigint | BlockTag`
 
@@ -236,7 +219,7 @@ const filter = await Actions.event.createFilter(client, {
 })
 ```
 
-##### strict
+#### options.strict
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -258,7 +241,7 @@ const filter = await Actions.event.createFilter(client, {
 })
 ```
 
-##### toBlock
+#### options.toBlock
 
 - **Type:** `bigint | BlockTag`
 

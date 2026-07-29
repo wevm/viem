@@ -118,25 +118,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.fee.getHistory.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const feeHistory = await Actions.fee.getHistory(client, { // [!code focus]
-  blockCount: 4, // [!code focus]
-  rewardPercentiles: [25, 75], // [!code focus]
-}) // [!code focus]
-```
-
-##### blockCount
+#### options.blockCount
 
 - **Type:** `number`
 
@@ -154,11 +136,11 @@ const feeHistory = await Actions.fee.getHistory(client, {
 })
 ```
 
-##### blockNumber
+#### options.blockNumber
 
 - **Type:** `bigint`
 
-Highest number block of the requested range. Mutually exclusive with [`blockTag`](#blocktag).
+Highest number block of the requested range. Mutually exclusive with [`blockTag`](#optionsblocktag).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -173,12 +155,12 @@ const feeHistory = await Actions.fee.getHistory(client, {
 })
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
 
-Highest number block of the requested range. Mutually exclusive with [`blockNumber`](#blocknumber).
+Highest number block of the requested range. Mutually exclusive with [`blockNumber`](#optionsblocknumber).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -193,7 +175,7 @@ const feeHistory = await Actions.fee.getHistory(client, {
 })
 ```
 
-##### rewardPercentiles
+#### options.rewardPercentiles
 
 - **Type:** `number[]`
 

@@ -76,15 +76,10 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
+Accepts the same parameters as [`Actions.token.approve`](/docs/actions/wallet/token/approve)
+(`amount`, `spender`, `token`, `account`), plus the receipt options below.
 
-- **Type:** `Actions.token.approveSync.Options`
-
-The action options.
-
-Accepts the same parameters as [`Actions.token.approve`](/docs/actions/wallet/token/approve) (`amount`, `spender`, `token`, `account`), plus the receipt options below.
-
-##### throwOnReceiptRevert
+#### options.throwOnReceiptRevert
 
 - **Type:** `boolean`
 - **Default:** `true`

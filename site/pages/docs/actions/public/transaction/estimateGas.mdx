@@ -122,32 +122,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.transaction.estimateGas.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const gas = await Actions.transaction.estimateGas(client, { // [!code focus]
-  accessList: [ // [!code focus]
-    { // [!code focus]
-      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-      storageKeys: [ // [!code focus]
-        '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
-      ], // [!code focus]
-    }, // [!code focus]
-  ], // [!code focus]
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-}) // [!code focus]
-```
-
-##### accessList
+#### options.accessList
 
 - **Type:** `AccessList`
 
@@ -172,12 +147,12 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
 
-The Account object or address that supplies the transaction's `msg.sender`. This option takes precedence over [`from`](#from).
+The Account object or address that supplies the transaction's `msg.sender`. This option takes precedence over [`from`](#optionsfrom).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -192,7 +167,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### authorizationList
+#### options.authorizationList
 
 - **Type:** `AuthorizationList`
 
@@ -219,11 +194,11 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### blobs
+#### options.blobs
 
 - **Type:** `readonly Hex[]`
 
-The blobs to attach to the transaction (EIP-4844). Provide [`kzg`](#kzg) to derive blob versioned hashes locally.
+The blobs to attach to the transaction (EIP-4844). Provide [`kzg`](#optionskzg) to derive blob versioned hashes locally.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -242,11 +217,11 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### blobVersionedHashes
+#### options.blobVersionedHashes
 
 - **Type:** `readonly Hex[]`
 
-The blob versioned hashes (EIP-4844). When omitted, they are derived from [`blobs`](#blobs) and [`kzg`](#kzg).
+The blob versioned hashes (EIP-4844). When omitted, they are derived from [`blobs`](#optionsblobs) and [`kzg`](#optionskzg).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -260,7 +235,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### blockHash
+#### options.blockHash
 
 - **Type:** `Hex`
 
@@ -278,7 +253,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### blockNumber
+#### options.blockNumber
 
 - **Type:** `bigint`
 
@@ -296,7 +271,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `client.blockTag ?? 'latest'`
@@ -315,7 +290,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### chainId
+#### options.chainId
 
 - **Type:** `number | Hex`
 
@@ -333,7 +308,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### data
+#### options.data
 
 - **Type:** `Hex`
 
@@ -351,11 +326,11 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### from
+#### options.from
 
 - **Type:** `Address`
 
-The raw sender address. Viem uses this field only when neither [`account`](#account) nor a Client Account is available.
+The raw sender address. Viem uses this field only when neither [`account`](#optionsaccount) nor a Client Account is available.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -369,7 +344,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### gas
+#### options.gas
 
 - **Type:** `number | bigint | Hex`
 
@@ -387,7 +362,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### gasPrice
+#### options.gasPrice
 
 - **Type:** `number | bigint | Hex`
 
@@ -405,11 +380,11 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### kzg
+#### options.kzg
 
 - **Type:** `Kzg`
 
-KZG context used to derive [`blobVersionedHashes`](#blobversionedhashes) from [`blobs`](#blobs).
+KZG context used to derive [`blobVersionedHashes`](#optionsblobversionedhashes) from [`blobs`](#optionsblobs).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -428,7 +403,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### maxFeePerBlobGas
+#### options.maxFeePerBlobGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -446,7 +421,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### maxFeePerGas
+#### options.maxFeePerGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -464,7 +439,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### maxPriorityFeePerGas
+#### options.maxPriorityFeePerGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -482,7 +457,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### nonce
+#### options.nonce
 
 - **Type:** `number | bigint | Hex`
 
@@ -500,7 +475,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### requestOptions
+#### options.requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -519,12 +494,12 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### requireCanonical
+#### options.requireCanonical
 
 - **Type:** `boolean`
 - **Default:** `false`
 
-Whether to error if the [`blockHash`](#blockhash) is not in the canonical chain (EIP-1898).
+Whether to error if the [`blockHash`](#optionsblockhash) is not in the canonical chain (EIP-1898).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -539,7 +514,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### stateOverride
+#### options.stateOverride
 
 - **Type:** `StateOverrides`
 
@@ -563,7 +538,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### to
+#### options.to
 
 - **Type:** `Address | null`
 
@@ -581,7 +556,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### type
+#### options.type
 
 - **Type:** `string`
 
@@ -599,7 +574,7 @@ const gas = await Actions.transaction.estimateGas(client, {
 })
 ```
 
-##### value
+#### options.value
 
 - **Type:** `number | bigint | Hex`
 

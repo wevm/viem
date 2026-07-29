@@ -99,25 +99,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.token.getTotalSupply.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const supply = await Actions.token.getTotalSupply(client, { // [!code focus]
-  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
-  blockNumber: 42069n, // [!code focus]
-}) // [!code focus]
-```
-
-##### blockNumber
+#### options.blockNumber
 
 - **Type:** `bigint`
 
@@ -135,7 +117,7 @@ const supply = await Actions.token.getTotalSupply(client, {
 })
 ```
 
-##### blockOverrides
+#### options.blockOverrides
 
 - **Type:** `BlockOverrides`
 
@@ -153,7 +135,7 @@ const supply = await Actions.token.getTotalSupply(client, {
 })
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -172,7 +154,7 @@ const supply = await Actions.token.getTotalSupply(client, {
 })
 ```
 
-##### decimals
+#### options.decimals
 
 - **Type:** `number`
 
@@ -190,7 +172,7 @@ const supply = await Actions.token.getTotalSupply(client, {
 })
 ```
 
-##### stateOverride
+#### options.stateOverride
 
 - **Type:** `StateOverrides`
 
@@ -210,7 +192,7 @@ const supply = await Actions.token.getTotalSupply(client, {
 })
 ```
 
-##### token
+#### options.token
 
 - **Type:** `Address | string`
 

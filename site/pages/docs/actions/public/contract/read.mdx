@@ -124,27 +124,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.contract.read.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Abis } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const supply = await Actions.contract.read(client, { // [!code focus]
-  abi: Abis.erc20, // [!code focus]
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-  functionName: 'totalSupply', // [!code focus]
-}) // [!code focus]
-```
-
-##### abi
+#### options.abi
 
 - **Type:** `Abi`
 
@@ -164,7 +144,7 @@ const supply = await Actions.contract.read(client, {
 })
 ```
 
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -188,7 +168,7 @@ const balance = await Actions.contract.read(client, {
 })
 ```
 
-##### address
+#### options.address
 
 - **Type:** `Address`
 
@@ -209,7 +189,7 @@ const supply = await Actions.contract.read(client, {
 })
 ```
 
-##### args
+#### options.args
 
 - **Type:** Inferred from `abi` and `functionName`.
 
@@ -230,7 +210,7 @@ const balance = await Actions.contract.read(client, {
 })
 ```
 
-##### as
+#### options.as
 
 - **Type:** `'Object' | 'Array'`
 - **Default:** `'Object'`
@@ -254,7 +234,7 @@ const user = await Actions.contract.read(client, {
 })
 ```
 
-##### authorizationList
+#### options.authorizationList
 
 - **Type:** `AuthorizationList`
 
@@ -285,11 +265,11 @@ const supply = await Actions.contract.read(client, {
 })
 ```
 
-##### blockHash
+#### options.blockHash
 
 - **Type:** `Hex`
 
-Reads the contract at the block with the given hash ([EIP-1898](https://eips.ethereum.org/EIPS/eip-1898)). Pair with [`requireCanonical`](#requirecanonical) to reject blocks outside the canonical chain.
+Reads the contract at the block with the given hash ([EIP-1898](https://eips.ethereum.org/EIPS/eip-1898)). Pair with [`requireCanonical`](#optionsrequirecanonical) to reject blocks outside the canonical chain.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -307,7 +287,7 @@ const supply = await Actions.contract.read(client, {
 })
 ```
 
-##### blockNumber
+#### options.blockNumber
 
 - **Type:** `bigint`
 
@@ -329,7 +309,7 @@ const supply = await Actions.contract.read(client, {
 })
 ```
 
-##### blockOverrides
+#### options.blockOverrides
 
 - **Type:** `BlockOverrides`
 
@@ -353,7 +333,7 @@ const supply = await Actions.contract.read(client, {
 })
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `client.blockTag ?? 'latest'`
@@ -376,7 +356,7 @@ const supply = await Actions.contract.read(client, {
 })
 ```
 
-##### code
+#### options.code
 
 - **Type:** `Hex`
 
@@ -397,11 +377,11 @@ const supply = await Actions.contract.read(client, {
 })
 ```
 
-##### factory
+#### options.factory
 
 - **Type:** `Address`
 
-The factory address for a deployless read. Pass [`factoryData`](#factorydata) and the counterfactual contract `address`.
+The factory address for a deployless read. Pass [`factoryData`](#optionsfactorydata) and the counterfactual contract `address`.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -420,7 +400,7 @@ const supply = await Actions.contract.read(client, {
 })
 ```
 
-##### factoryData
+#### options.factoryData
 
 - **Type:** `Hex`
 
@@ -443,7 +423,7 @@ const supply = await Actions.contract.read(client, {
 })
 ```
 
-##### functionName
+#### options.functionName
 
 - **Type:** Inferred from `abi`.
 
@@ -464,7 +444,7 @@ const supply = await Actions.contract.read(client, {
 })
 ```
 
-##### requestOptions
+#### options.requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -487,12 +467,12 @@ const supply = await Actions.contract.read(client, {
 })
 ```
 
-##### requireCanonical
+#### options.requireCanonical
 
 - **Type:** `boolean`
 - **Default:** `false`
 
-Whether the block given via [`blockHash`](#blockhash) must be in the canonical chain ([EIP-1898](https://eips.ethereum.org/EIPS/eip-1898)).
+Whether the block given via [`blockHash`](#optionsblockhash) must be in the canonical chain ([EIP-1898](https://eips.ethereum.org/EIPS/eip-1898)).
 
 When `true`, the read fails for blocks that are known but not canonical, such as uncle blocks.
 
@@ -513,11 +493,11 @@ const supply = await Actions.contract.read(client, {
 })
 ```
 
-##### stateOverride
+#### options.stateOverride
 
 - **Type:** `StateOverrides`
 
-The [state overrides](/docs/actions/public/call#stateoverride) to apply for the read.
+The [state overrides](/docs/actions/public/call#optionsstateoverride) to apply for the read.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'

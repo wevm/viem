@@ -126,14 +126,10 @@ await Actions.filter.uninstall(client, { filter })
 
 ### Parameters
 
-#### options
+The instance supplies `abi`, `address`, and `eventName`. Use options to match indexed arguments,
+choose block bounds, or require strict decoding.
 
-- **Type:** `Omit<Actions.contract.createEventFilter.Options, 'abi' | 'address' | 'eventName'>`
-- **Optional**
-
-The instance supplies `abi`, `address`, and `eventName`. Use options to match indexed arguments, choose block bounds, or require strict decoding.
-
-##### args
+#### options.args
 
 - **Type:** Inferred from the selected ABI event
 - **Optional**
@@ -161,7 +157,7 @@ const filter = await contract.createEventFilter.Transfer({
 await Actions.filter.uninstall(client, { filter })
 ```
 
-##### fromBlock
+#### options.fromBlock
 
 - **Type:** `bigint | BlockTag`
 - **Optional**
@@ -187,7 +183,7 @@ const filter = await contract.createEventFilter.Transfer({
 await Actions.filter.uninstall(client, { filter })
 ```
 
-##### strict
+#### options.strict
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -213,7 +209,7 @@ const filter = await contract.createEventFilter.Transfer({
 await Actions.filter.uninstall(client, { filter })
 ```
 
-##### toBlock
+#### options.toBlock
 
 - **Type:** `bigint | BlockTag`
 - **Optional**

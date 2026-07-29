@@ -237,24 +237,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.event.getLogs.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const logs = await Actions.event.getLogs(client, { // [!code focus]
-  address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2', // [!code focus]
-}) // [!code focus]
-```
-
-##### address
+#### options.address
 
 - **Type:** `Address | readonly Address[]`
 
@@ -271,7 +254,7 @@ const logs = await Actions.event.getLogs(client, {
 })
 ```
 
-##### args
+#### options.args
 
 - **Type:** Inferred from `event`.
 
@@ -295,7 +278,7 @@ const logs = await Actions.event.getLogs(client, {
 })
 ```
 
-##### blockHash
+#### options.blockHash
 
 - **Type:** `Hex`
 
@@ -312,7 +295,7 @@ const logs = await Actions.event.getLogs(client, {
 })
 ```
 
-##### event
+#### options.event
 
 - **Type:** `AbiEvent`
 
@@ -332,7 +315,7 @@ const logs = await Actions.event.getLogs(client, {
 })
 ```
 
-##### events
+#### options.events
 
 - **Type:** `readonly AbiEvent[]`
 
@@ -353,7 +336,7 @@ const logs = await Actions.event.getLogs(client, {
 })
 ```
 
-##### fromBlock
+#### options.fromBlock
 
 - **Type:** `bigint | 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 
@@ -371,7 +354,7 @@ const logs = await Actions.event.getLogs(client, {
 })
 ```
 
-##### strict
+#### options.strict
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -393,7 +376,7 @@ const logs = await Actions.event.getLogs(client, {
 })
 ```
 
-##### toBlock
+#### options.toBlock
 
 - **Type:** `bigint | 'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 

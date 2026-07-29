@@ -135,32 +135,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.call.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { data } = await Actions.call(client, { // [!code focus]
-  accessList: [ // [!code focus]
-    { // [!code focus]
-      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-      storageKeys: [ // [!code focus]
-        '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
-      ], // [!code focus]
-    }, // [!code focus]
-  ], // [!code focus]
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-}) // [!code focus]
-```
-
-##### accessList
+#### options.accessList
 
 - **Type:** `AccessList`
 
@@ -185,12 +160,12 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
 
-The Account object or address to use as the call's `msg.sender`. This option takes precedence over [`from`](#from).
+The Account object or address to use as the call's `msg.sender`. This option takes precedence over [`from`](#optionsfrom).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -205,7 +180,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### authorizationList
+#### options.authorizationList
 
 - **Type:** `AuthorizationList`
 
@@ -232,7 +207,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### batch
+#### options.batch
 
 - **Type:** `boolean`
 - **Default:** `client.batch.multicall`
@@ -252,7 +227,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### blobs
+#### options.blobs
 
 - **Type:** `readonly Hex[]`
 
@@ -271,7 +246,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### blobVersionedHashes
+#### options.blobVersionedHashes
 
 - **Type:** `readonly Hex[]`
 
@@ -289,7 +264,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### blockHash
+#### options.blockHash
 
 - **Type:** `Hex`
 
@@ -308,7 +283,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### blockNumber
+#### options.blockNumber
 
 - **Type:** `bigint`
 
@@ -327,7 +302,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### blockOverrides
+#### options.blockOverrides
 
 - **Type:** `BlockOverrides`
 
@@ -348,7 +323,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `client.blockTag ?? 'latest'`
@@ -368,7 +343,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### chainId
+#### options.chainId
 
 - **Type:** `number | Hex`
 
@@ -387,7 +362,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### code
+#### options.code
 
 - **Type:** `Hex`
 
@@ -407,7 +382,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### data
+#### options.data
 
 - **Type:** `Hex`
 
@@ -425,11 +400,11 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### factory
+#### options.factory
 
 - **Type:** `Address`
 
-The factory that deploys the contract before the call. Pass this option with [`factoryData`](#factorydata). It cannot be combined with [`code`](#code).
+The factory that deploys the contract before the call. Pass this option with [`factoryData`](#optionsfactorydata). It cannot be combined with [`code`](#optionscode).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -446,11 +421,11 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### factoryData
+#### options.factoryData
 
 - **Type:** `Hex`
 
-The calldata that deploys the contract through [`factory`](#factory). Pass both options together.
+The calldata that deploys the contract through [`factory`](#optionsfactory). Pass both options together.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -467,11 +442,11 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### from
+#### options.from
 
 - **Type:** `Address`
 
-The raw sender address. Viem uses this field only when neither [`account`](#account) nor a Client Account is available.
+The raw sender address. Viem uses this field only when neither [`account`](#optionsaccount) nor a Client Account is available.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -486,7 +461,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### gas
+#### options.gas
 
 - **Type:** `number | bigint | Hex`
 
@@ -504,7 +479,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### gasPrice
+#### options.gasPrice
 
 - **Type:** `number | bigint | Hex`
 
@@ -522,7 +497,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### maxFeePerBlobGas
+#### options.maxFeePerBlobGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -540,7 +515,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### maxFeePerGas
+#### options.maxFeePerGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -558,7 +533,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### maxPriorityFeePerGas
+#### options.maxPriorityFeePerGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -576,7 +551,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### nonce
+#### options.nonce
 
 - **Type:** `number | bigint | Hex`
 
@@ -594,7 +569,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### requestOptions
+#### options.requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -614,12 +589,12 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### requireCanonical
+#### options.requireCanonical
 
 - **Type:** `boolean`
 - **Default:** `false`
 
-Requires [`blockHash`](#blockhash) to identify a block in the canonical chain.
+Requires [`blockHash`](#optionsblockhash) to identify a block in the canonical chain.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -635,7 +610,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### stateOverride
+#### options.stateOverride
 
 - **Type:** `StateOverrides`
 
@@ -658,7 +633,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### to
+#### options.to
 
 - **Type:** `Address | null`
 
@@ -676,7 +651,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### type
+#### options.type
 
 - **Type:** `string`
 
@@ -694,7 +669,7 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-##### value
+#### options.value
 
 - **Type:** `number | bigint | Hex`
 

@@ -97,25 +97,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.address.getStorageAt.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const value = await Actions.address.getStorageAt(client, { // [!code focus]
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-  slot: '0x0', // [!code focus]
-}) // [!code focus]
-```
-
-##### address
+#### options.address
 
 - **Type:** `Address`
 
@@ -133,7 +115,7 @@ const value = await Actions.address.getStorageAt(client, {
 })
 ```
 
-##### blockHash
+#### options.blockHash
 
 - **Type:** `Hex`
 
@@ -152,7 +134,7 @@ const value = await Actions.address.getStorageAt(client, {
 })
 ```
 
-##### blockNumber
+#### options.blockNumber
 
 - **Type:** `bigint`
 
@@ -171,7 +153,7 @@ const value = await Actions.address.getStorageAt(client, {
 })
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -191,7 +173,7 @@ const value = await Actions.address.getStorageAt(client, {
 })
 ```
 
-##### requireCanonical
+#### options.requireCanonical
 
 - **Type:** `boolean`
 
@@ -211,7 +193,7 @@ const value = await Actions.address.getStorageAt(client, {
 })
 ```
 
-##### slot
+#### options.slot
 
 - **Type:** `Hex`
 

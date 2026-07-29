@@ -105,13 +105,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.wallet.getAssets.Options`
-
-The action options.
-
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -127,7 +121,7 @@ const assets = await Actions.wallet.getAssets(client, {
 })
 ```
 
-##### aggregate
+#### options.aggregate
 
 - **Type:** `boolean | ((asset: Asset) => string)`
 - **Default:** `true`
@@ -147,7 +141,7 @@ const assets = await Actions.wallet.getAssets(client, {
 })
 ```
 
-##### assets
+#### options.assets
 
 - **Type:** `{ [chainId: number]: readonly { address: Address | 'native'; type: string }[] }`
 
@@ -169,7 +163,7 @@ const assets = await Actions.wallet.getAssets(client, {
 })
 ```
 
-##### assetTypes
+#### options.assetTypes
 
 - **Type:** `readonly ('native' | 'erc20' | 'erc721' | string)[]`
 
@@ -184,7 +178,7 @@ const assets = await Actions.wallet.getAssets(client, {
 })
 ```
 
-##### chainIds
+#### options.chainIds
 
 - **Type:** `readonly number[]`
 
@@ -209,7 +203,7 @@ assets.
 
 The `type` is `'native'`, `'erc20'`, `'erc721'`, or `{ custom: string }`.
 
-Unless [`aggregate`](#aggregate) is disabled, the `0` key contains assets aggregated across chains.
+Unless [`aggregate`](#optionsaggregate) is disabled, the `0` key contains assets aggregated across chains.
 Each aggregated asset includes its source `chainIds`.
 
 ### Errors

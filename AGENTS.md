@@ -161,8 +161,8 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Alphabetize doc parameters**; option-bag properties are listed alphabetically.
   - Required and optional properties share the same ordering.
   - This matches source `Options` types.
-  - Covers `##### ` sub-properties under `#### options`.
-  - Covers `### ` entries for action options.
+  - Covers `#### options.foo` fields for a sole options object.
+  - Covers `##### foo` fields under `#### options`.
   - Positional function arguments stay in signature order.
   - Applies to hand-written docs only.
   - Generated `utilities/` pages are synced from Ox.
@@ -363,16 +363,18 @@ Guidelines for authoring docs and guides under `site/pages/`.
   - Then add `### Usage`.
   - Keep it terse and sourced from TSDoc.
 - **`### Parameters` never uses tables**; list each parameter as its own heading.
-  - Use `#### options` for option bags.
-  - Use `##### foo` for nested option-bag fields.
+  - When a function accepts only one options object, list its fields directly as
+    `#### options.foo`. Do not add a redundant `#### options` heading.
+  - When an options bag follows another positional parameter, use `#### options` and `##### foo`
+    for its fields.
   - Add `- **Type:**` and `- **Default:**` bullets when applicable.
   - Follow type bullets with prose.
-  - Do not prefix parameter headings with `options.`.
+  - Under a `#### options` heading, do not prefix field headings with `options.`.
   - Write `##### batch`, not `##### options.batch`.
   - Reserve tables for `### Errors`.
 - **Each parameter heading includes a focused example**; add a `ts twoslash` snippet.
   - Place it after the type bullets and prose.
-  - Cover each `##### foo` and scalar `#### param`.
+  - Cover every documented parameter and option field.
   - Show the parameter in realistic use.
   - Mark relevant lines with `// [!code focus]`.
   - Keep snippets minimal.

@@ -79,15 +79,10 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
+Accepts the same parameters as [`Actions.token.transfer`](/docs/actions/wallet/token/transfer)
+(`amount`, `to`, `token`, `from`, `account`), plus the receipt options below.
 
-- **Type:** `Actions.token.transferSync.Options`
-
-The action options.
-
-Accepts the same parameters as [`Actions.token.transfer`](/docs/actions/wallet/token/transfer) (`amount`, `to`, `token`, `from`, `account`), plus the receipt options below.
-
-##### throwOnReceiptRevert
+#### options.throwOnReceiptRevert
 
 - **Type:** `boolean`
 - **Default:** `true`

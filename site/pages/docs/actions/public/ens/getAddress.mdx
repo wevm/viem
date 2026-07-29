@@ -100,26 +100,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.ens.getAddress.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { Ens } from 'viem/utils'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const address = await Actions.ens.getAddress(client, { // [!code focus]
-  blockNumber: 23_085_558n, // [!code focus]
-  name: Ens.normalize('wevm.eth'), // [!code focus]
-}) // [!code focus]
-```
-
-##### blockNumber
+#### options.blockNumber
 
 - **Type:** `bigint`
 
@@ -138,7 +119,7 @@ const address = await Actions.ens.getAddress(client, {
 })
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -158,7 +139,7 @@ const address = await Actions.ens.getAddress(client, {
 })
 ```
 
-##### coinType
+#### options.coinType
 
 - **Type:** `bigint`
 - **Default:** `60n` (ETH)
@@ -178,7 +159,7 @@ const address = await Actions.ens.getAddress(client, {
 })
 ```
 
-##### gatewayUrls
+#### options.gatewayUrls
 
 - **Type:** `readonly string[]`
 
@@ -197,7 +178,7 @@ const address = await Actions.ens.getAddress(client, {
 })
 ```
 
-##### name
+#### options.name
 
 - **Type:** `string`
 
@@ -216,7 +197,7 @@ const address = await Actions.ens.getAddress(client, {
 })
 ```
 
-##### strict
+#### options.strict
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -236,7 +217,7 @@ const address = await Actions.ens.getAddress(client, {
 })
 ```
 
-##### universalResolverAddress
+#### options.universalResolverAddress
 
 - **Type:** `Address`
 - **Default:** `client.chain.contracts.ensUniversalResolver.address`
@@ -262,10 +243,10 @@ const address = await Actions.ens.getAddress(client, {
 
 The resolved address, or `null` when the name has no address record.
 
-An explicit [`coinType`](#cointype) uses the `bytes` resolver profile, which returns an address without checksum casing.
+An explicit [`coinType`](#optionscointype) uses the `bytes` resolver profile, which returns an address without checksum casing.
 
 ### Errors
 
 | Error | Description |
 | --- | --- |
-| `ContractError.ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#strict); resolver errors otherwise map to `null`). |
+| `ContractError.ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#optionsstrict); resolver errors otherwise map to `null`). |

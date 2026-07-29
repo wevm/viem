@@ -139,13 +139,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.transaction.sign.Options`
-
-The action options.
-
-##### accessList
+#### options.accessList
 
 - **Type:** `AccessList`
 
@@ -171,7 +165,7 @@ const signed = await Actions.transaction.sign(client, {
 })
 ```
 
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -191,7 +185,7 @@ const signed = await Actions.transaction.sign(client, {
 })
 ```
 
-##### authorizationList
+#### options.authorizationList
 
 - **Type:** `AuthorizationList`
 
@@ -218,11 +212,11 @@ const signed = await Actions.transaction.sign(client, {
 })
 ```
 
-##### blobs
+#### options.blobs
 
 - **Type:** `readonly Hex[]`
 
-The blobs to attach to the transaction (EIP-4844). Use with [`kzg`](#kzg) to derive the blob fields.
+The blobs to attach to the transaction (EIP-4844). Use with [`kzg`](#optionskzg) to derive the blob fields.
 
 ```ts twoslash
 import { Account, Actions, Client, http } from 'viem'
@@ -242,7 +236,7 @@ const signed = await Actions.transaction.sign(client, {
 })
 ```
 
-##### chain
+#### options.chain
 
 - **Type:** `Chain | null`
 - **Default:** `client.chain`
@@ -263,7 +257,7 @@ const signed = await Actions.transaction.sign(client, {
 })
 ```
 
-##### data
+#### options.data
 
 - **Type:** `Hex`
 
@@ -282,7 +276,7 @@ const signed = await Actions.transaction.sign(client, {
 })
 ```
 
-##### gas
+#### options.gas
 
 - **Type:** `bigint | number | Hex`
 
@@ -301,7 +295,7 @@ const signed = await Actions.transaction.sign(client, {
 })
 ```
 
-##### gasPrice
+#### options.gasPrice
 
 - **Type:** `bigint | number | Hex`
 
@@ -320,11 +314,11 @@ const signed = await Actions.transaction.sign(client, {
 })
 ```
 
-##### kzg
+#### options.kzg
 
 - **Type:** `Kzg`
 
-The KZG context used to derive EIP-4844 blob fields from [`blobs`](#blobs).
+The KZG context used to derive EIP-4844 blob fields from [`blobs`](#optionsblobs).
 
 ```ts twoslash
 import { Account, Actions, Client, http } from 'viem'
@@ -344,7 +338,7 @@ const signed = await Actions.transaction.sign(client, {
 })
 ```
 
-##### maxFeePerBlobGas
+#### options.maxFeePerBlobGas
 
 - **Type:** `bigint | number | Hex`
 
@@ -363,7 +357,7 @@ const signed = await Actions.transaction.sign(client, {
 })
 ```
 
-##### maxFeePerGas
+#### options.maxFeePerGas
 
 - **Type:** `bigint | number | Hex`
 
@@ -382,7 +376,7 @@ const signed = await Actions.transaction.sign(client, {
 })
 ```
 
-##### maxPriorityFeePerGas
+#### options.maxPriorityFeePerGas
 
 - **Type:** `bigint | number | Hex`
 
@@ -401,7 +395,7 @@ const signed = await Actions.transaction.sign(client, {
 })
 ```
 
-##### nonce
+#### options.nonce
 
 - **Type:** `bigint | number | Hex`
 
@@ -420,7 +414,7 @@ const signed = await Actions.transaction.sign(client, {
 })
 ```
 
-##### prepare
+#### options.prepare
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -445,7 +439,7 @@ const signed = await Actions.transaction.sign(client, {
 })
 ```
 
-##### requestOptions
+#### options.requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -466,7 +460,7 @@ const signed = await Actions.transaction.sign(client, {
 })
 ```
 
-##### to
+#### options.to
 
 - **Type:** `Address`
 
@@ -485,7 +479,7 @@ const signed = await Actions.transaction.sign(client, {
 })
 ```
 
-##### type
+#### options.type
 
 - **Type:** `string`
 
@@ -505,7 +499,7 @@ const signed = await Actions.transaction.sign(client, {
 })
 ```
 
-##### value
+#### options.value
 
 - **Type:** `bigint | number | Hex`
 

@@ -60,13 +60,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.wallet.getCapabilities.Options`
-
-The action options.
-
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -82,7 +76,7 @@ const capabilities = await Actions.wallet.getCapabilities(client, {
 })
 ```
 
-##### chainId
+#### options.chainId
 
 - **Type:** `number`
 

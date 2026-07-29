@@ -72,13 +72,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.wallet.watchAsset.Options`
-
-The action options.
-
-##### options
+#### options.options
 
 - **Type:** `{ address: Address; decimals: number; symbol: string; image?: string }`
 
@@ -98,7 +92,7 @@ const success = await Actions.wallet.watchAsset(client, {
 })
 ```
 
-##### type
+#### options.type
 
 - **Type:** `string`
 

@@ -64,13 +64,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.txpool.dropTransaction.Options`
-
-The action options.
-
-##### hash
+#### options.hash
 
 - **Type:** `Hex`
 
@@ -91,7 +85,7 @@ await Actions.txpool.dropTransaction(client, {
 })
 ```
 
-##### mode
+#### options.mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`

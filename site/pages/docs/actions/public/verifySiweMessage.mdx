@@ -109,30 +109,10 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
+Accepts every [`verifyHash` parameter](/docs/actions/public/verifyHash#parameters) except `hash` and
+`address` (the address defaults to the one in the message), plus:
 
-- **Type:** `Actions.verifySiweMessage.Options`
-
-Configure the request with the following options.
-
-Accepts every [`verifyHash` parameter](/docs/actions/public/verifyHash#parameters) except `hash` and `address` (the address defaults to the one in the message), plus:
-
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-declare const message: string
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const valid = await Actions.verifySiweMessage(client, { // [!code focus]
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
-  message, // [!code focus]
-  signature: '0x…', // [!code focus]
-}) // [!code focus]
-```
-
-##### address
+#### options.address
 
 - **Type:** `Address`
 
@@ -152,7 +132,7 @@ const valid = await Actions.verifySiweMessage(client, {
 })
 ```
 
-##### domain
+#### options.domain
 
 - **Type:** `string`
 
@@ -172,7 +152,7 @@ const valid = await Actions.verifySiweMessage(client, {
 })
 ```
 
-##### message
+#### options.message
 
 - **Type:** `string`
 
@@ -191,7 +171,7 @@ const valid = await Actions.verifySiweMessage(client, {
 })
 ```
 
-##### nonce
+#### options.nonce
 
 - **Type:** `string`
 
@@ -211,7 +191,7 @@ const valid = await Actions.verifySiweMessage(client, {
 })
 ```
 
-##### scheme
+#### options.scheme
 
 - **Type:** `string`
 
@@ -231,7 +211,7 @@ const valid = await Actions.verifySiweMessage(client, {
 })
 ```
 
-##### time
+#### options.time
 
 - **Type:** `Date`
 - **Default:** `new Date()`

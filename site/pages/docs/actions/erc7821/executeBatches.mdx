@@ -163,17 +163,11 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.erc7821.executeBatches.Options`
-
-The action options.
-
 Also accepts the remaining
 [`Actions.transaction.send` options](/docs/actions/wallet/transaction/send#parameters), including
 `authorizationList`, `nonce`, and fee options.
 
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -195,7 +189,7 @@ const hash = await Actions.erc7821.executeBatches(client, {
 })
 ```
 
-##### address
+#### options.address
 
 - **Type:** `Address`
 
@@ -213,7 +207,7 @@ const hash = await Actions.erc7821.executeBatches(client, {
 })
 ```
 
-##### batches
+#### options.batches
 
 - **Type:** `{ calls: Call[]; opData?: Hex }[]`
 

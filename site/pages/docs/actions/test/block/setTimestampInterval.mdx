@@ -64,13 +64,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.block.setTimestampInterval.Options`
-
-The action options.
-
-##### interval
+#### options.interval
 
 - **Type:** `number`
 
@@ -91,7 +85,7 @@ await Actions.block.setTimestampInterval(client, {
 })
 ```
 
-##### mode
+#### options.mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`

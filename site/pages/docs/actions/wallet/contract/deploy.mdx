@@ -161,13 +161,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.contract.deploy.Options`
-
-The action options.
-
-##### abi
+#### options.abi
 
 - **Type:** `Abi`
 
@@ -187,7 +181,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -209,7 +203,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### args
+#### options.args
 
 - **Type:** Inferred from `abi`.
 
@@ -229,7 +223,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### assertChainId
+#### options.assertChainId
 
 - **Type:** `boolean`
 - **Default:** `true`
@@ -251,7 +245,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### authorizationList
+#### options.authorizationList
 
 - **Type:** `AuthorizationList`
 
@@ -280,7 +274,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### blobs
+#### options.blobs
 
 - **Type:** `readonly Hex[]`
 
@@ -300,7 +294,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### blobVersionedHashes
+#### options.blobVersionedHashes
 
 - **Type:** `readonly Hex[]`
 
@@ -320,7 +314,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### bytecode
+#### options.bytecode
 
 - **Type:** `Hex`
 
@@ -340,7 +334,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### chain
+#### options.chain
 
 - **Type:** `Chain | null`
 - **Default:** `client.chain`
@@ -362,7 +356,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### create2Address
+#### options.create2Address
 
 - **Type:** `Address`
 - **Default:** `chain.contracts.create2.address`
@@ -384,7 +378,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### dataSuffix
+#### options.dataSuffix
 
 - **Type:** `Hex`
 - **Default:** `client.dataSuffix`
@@ -405,7 +399,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### gas
+#### options.gas
 
 - **Type:** `bigint | number | Hex`
 
@@ -425,7 +419,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### gasPrice
+#### options.gasPrice
 
 - **Type:** `bigint | number | Hex`
 
@@ -445,7 +439,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### kzg
+#### options.kzg
 
 - **Type:** `Kzg`
 
@@ -467,7 +461,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### maxFeePerBlobGas
+#### options.maxFeePerBlobGas
 
 - **Type:** `bigint | number | Hex`
 
@@ -487,7 +481,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### maxFeePerGas
+#### options.maxFeePerGas
 
 - **Type:** `bigint | number | Hex`
 
@@ -507,7 +501,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### maxPriorityFeePerGas
+#### options.maxPriorityFeePerGas
 
 - **Type:** `bigint | number | Hex`
 
@@ -527,7 +521,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### nonce
+#### options.nonce
 
 - **Type:** `bigint | number | Hex`
 
@@ -547,7 +541,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### requestOptions
+#### options.requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -568,7 +562,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### salt
+#### options.salt
 
 - **Type:** `Hex`
 
@@ -589,7 +583,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### type
+#### options.type
 
 - **Type:** `string`
 
@@ -609,7 +603,7 @@ const hash = await Actions.contract.deploy(client, {
 })
 ```
 
-##### value
+#### options.value
 
 - **Type:** `bigint | number | Hex`
 

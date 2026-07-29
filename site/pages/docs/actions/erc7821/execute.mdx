@@ -188,17 +188,11 @@ const hash = await Actions.erc7821.execute(client, {
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.erc7821.execute.Options`
-
-The action options.
-
 Also accepts the remaining
 [`Actions.transaction.send` options](/docs/actions/wallet/transaction/send#parameters), including
 `authorizationList`, `nonce`, and fee options.
 
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -218,7 +212,7 @@ const hash = await Actions.erc7821.execute(client, {
 })
 ```
 
-##### address
+#### options.address
 
 - **Type:** `Address`
 
@@ -234,7 +228,7 @@ const hash = await Actions.erc7821.execute(client, {
 })
 ```
 
-##### calls
+#### options.calls
 
 - **Type:** `Call[]`
 
@@ -253,7 +247,7 @@ const hash = await Actions.erc7821.execute(client, {
 })
 ```
 
-##### opData
+#### options.opData
 
 - **Type:** `Hex`
 

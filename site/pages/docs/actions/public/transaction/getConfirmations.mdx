@@ -67,24 +67,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.transaction.getConfirmations.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const confirmations = await Actions.transaction.getConfirmations(client, { // [!code focus]
-  hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d', // [!code focus]
-}) // [!code focus]
-```
-
-##### hash
+#### options.hash
 
 - **Type:** `Hex`
 
@@ -101,11 +84,11 @@ const confirmations = await Actions.transaction.getConfirmations(client, {
 })
 ```
 
-##### transactionReceipt
+#### options.transactionReceipt
 
 - **Type:** `TransactionReceipt`
 
-Compute confirmations from an already-fetched [transaction receipt](/docs/actions/public/transaction/getReceipt), saving an extra `eth_getTransactionByHash` request. Mutually exclusive with [`hash`](#hash).
+Compute confirmations from an already-fetched [transaction receipt](/docs/actions/public/transaction/getReceipt), saving an extra `eth_getTransactionByHash` request. Mutually exclusive with [`hash`](#optionshash).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'

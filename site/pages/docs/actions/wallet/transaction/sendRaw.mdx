@@ -66,13 +66,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.transaction.sendRaw.Options`
-
-The action options.
-
-##### requestOptions
+#### options.requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -91,7 +85,7 @@ const hash = await Actions.transaction.sendRaw(client, {
 })
 ```
 
-##### transaction
+#### options.transaction
 
 - **Type:** `Hex`
 

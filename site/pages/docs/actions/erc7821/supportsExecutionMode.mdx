@@ -66,13 +66,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.erc7821.supportsExecutionMode.Options`
-
-The action options.
-
-##### address
+#### options.address
 
 - **Type:** `Address`
 
@@ -87,7 +81,7 @@ const supported = await Actions.erc7821.supportsExecutionMode(client, {
 })
 ```
 
-##### mode
+#### options.mode
 
 - **Type:** `'default' | 'opData' | 'batchOfBatches' | Hex`
 - **Default:** `'default'`

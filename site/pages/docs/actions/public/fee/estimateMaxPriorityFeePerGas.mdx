@@ -69,24 +69,7 @@ The estimate is derived in the following order:
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.fee.estimateMaxPriorityFeePerGas.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ transport: http() })
-// ---cut---
-const maxPriorityFeePerGas = await Actions.fee.estimateMaxPriorityFeePerGas(client, { // [!code focus]
-  chain: mainnet, // [!code focus]
-}) // [!code focus]
-```
-
-##### chain
+#### options.chain
 
 - **Type:** `Chain`
 - **Default:** the Client's `chain`

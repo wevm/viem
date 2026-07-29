@@ -108,13 +108,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.transaction.sendRawSync.Options`
-
-The action options.
-
-##### requestOptions
+#### options.requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -130,7 +124,7 @@ const receipt = await Actions.transaction.sendRawSync(client, {
 })
 ```
 
-##### throwOnReceiptRevert
+#### options.throwOnReceiptRevert
 
 - **Type:** `boolean`
 
@@ -146,7 +140,7 @@ const receipt = await Actions.transaction.sendRawSync(client, {
 })
 ```
 
-##### timeout
+#### options.timeout
 
 - **Type:** `number`
 
@@ -162,7 +156,7 @@ const receipt = await Actions.transaction.sendRawSync(client, {
 })
 ```
 
-##### transaction
+#### options.transaction
 
 - **Type:** `Hex`
 

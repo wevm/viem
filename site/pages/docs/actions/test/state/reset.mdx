@@ -83,13 +83,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.state.reset.Options`
-
-The action options.
-
-##### blockNumber
+#### options.blockNumber
 
 - **Type:** `bigint`
 - **Optional**
@@ -112,7 +106,7 @@ await Actions.state.reset(client, {
 })
 ```
 
-##### jsonRpcUrl
+#### options.jsonRpcUrl
 
 - **Type:** `string`
 - **Optional**
@@ -135,7 +129,7 @@ await Actions.state.reset(client, {
 })
 ```
 
-##### mode
+#### options.mode
 
 - **Type:** `'anvil' | 'hardhat' | 'ganache'`
 - **Default:** `'anvil'`

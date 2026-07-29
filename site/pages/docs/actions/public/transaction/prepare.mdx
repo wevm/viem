@@ -138,32 +138,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.transaction.prepare.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { request } = await Actions.transaction.prepare(client, { // [!code focus]
-  accessList: [ // [!code focus]
-    { // [!code focus]
-      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-      storageKeys: [ // [!code focus]
-        '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
-      ], // [!code focus]
-    }, // [!code focus]
-  ], // [!code focus]
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-}) // [!code focus]
-```
-
-##### accessList
+#### options.accessList
 
 - **Type:** `AccessList`
 
@@ -188,12 +163,13 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
 
-The Account or address that sends the transaction (`from`). Defaults to the Client's [`account`](/docs/clients/create#account).
+The Account or address that sends the transaction (`from`). Defaults to the Client's
+[`account`](/docs/clients/create#optionsaccount).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -208,7 +184,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### authorizationList
+#### options.authorizationList
 
 - **Type:** `AuthorizationList`
 
@@ -235,11 +211,11 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### blobs
+#### options.blobs
 
 - **Type:** `readonly Hex[]`
 
-The blobs to attach to the transaction (EIP-4844). When supplied together with [`kzg`](#kzg), `blobVersionedHashes` (and optionally `sidecars`) are derived.
+The blobs to attach to the transaction (EIP-4844). When supplied together with [`kzg`](#optionskzg), `blobVersionedHashes` (and optionally `sidecars`) are derived.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -257,7 +233,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### blobVersionedHashes
+#### options.blobVersionedHashes
 
 - **Type:** `readonly Hex[]`
 
@@ -275,7 +251,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### chain
+#### options.chain
 
 - **Type:** `Chain`
 - **Default:** `client.chain`
@@ -296,7 +272,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### chainId
+#### options.chainId
 
 - **Type:** `number`
 
@@ -314,7 +290,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### data
+#### options.data
 
 - **Type:** `Hex`
 
@@ -332,11 +308,11 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### from
+#### options.from
 
 - **Type:** `Address`
 
-The raw sender address. Viem uses this field only when neither [`account`](#account) nor a Client Account is available.
+The raw sender address. Viem uses this field only when neither [`account`](#optionsaccount) nor a Client Account is available.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -350,7 +326,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### gas
+#### options.gas
 
 - **Type:** `number | bigint | Hex`
 
@@ -368,7 +344,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### gasPrice
+#### options.gasPrice
 
 - **Type:** `number | bigint | Hex`
 
@@ -386,11 +362,11 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### kzg
+#### options.kzg
 
 - **Type:** `Kzg`
 
-The KZG context, used to derive blob fields (`blobVersionedHashes`, `sidecars`) from [`blobs`](#blobs).
+The KZG context, used to derive blob fields (`blobVersionedHashes`, `sidecars`) from [`blobs`](#optionsblobs).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -408,7 +384,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### maxFeePerBlobGas
+#### options.maxFeePerBlobGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -426,7 +402,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### maxFeePerGas
+#### options.maxFeePerGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -444,7 +420,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### maxPriorityFeePerGas
+#### options.maxPriorityFeePerGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -462,11 +438,11 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### nonce
+#### options.nonce
 
 - **Type:** `number | bigint | Hex`
 
-The nonce to use for the transaction. When provided, it takes precedence over the [`nonceManager`](#noncemanager).
+The nonce to use for the transaction. When provided, it takes precedence over the [`nonceManager`](#optionsnoncemanager).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -480,11 +456,11 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### nonceManager
+#### options.nonceManager
 
 - **Type:** `NonceManager`
 
-A nonce manager used to derive the transaction nonce when [`nonce`](#nonce) is not provided.
+A nonce manager used to derive the transaction nonce when [`nonce`](#optionsnonce) is not provided.
 
 ```ts twoslash
 import { Actions, Client, http, NonceManager } from 'viem'
@@ -500,7 +476,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### parameters
+#### options.parameters
 
 - **Type:** `readonly ('blobVersionedHashes' | 'chainId' | 'fees' | 'gas' | 'nonce' | 'sidecars' | 'type')[]`
 - **Default:** `['blobVersionedHashes', 'chainId', 'fees', 'gas', 'nonce', 'type']`
@@ -521,7 +497,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### to
+#### options.to
 
 - **Type:** `Address | null`
 
@@ -539,7 +515,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### type
+#### options.type
 
 - **Type:** `string`
 
@@ -557,7 +533,7 @@ const { request } = await Actions.transaction.prepare(client, {
 })
 ```
 
-##### value
+#### options.value
 
 - **Type:** `number | bigint | Hex`
 

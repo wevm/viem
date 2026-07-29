@@ -138,25 +138,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.event.watch.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const watch = Actions.event.watch(client, { // [!code focus]
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-}) // [!code focus]
-watch.onLogs((logs) => console.log(logs))
-```
-
-##### address
+#### options.address
 
 - **Type:** `Address | Address[]`
 
@@ -174,7 +156,7 @@ const watch = Actions.event.watch(client, {
 watch.onLogs((logs) => console.log(logs))
 ```
 
-##### args
+#### options.args
 
 - **Type:** Inferred from `event`.
 
@@ -196,7 +178,7 @@ const watch = Actions.event.watch(client, {
 watch.onLogs((logs) => console.log(logs))
 ```
 
-##### batch
+#### options.batch
 
 - **Type:** `boolean`
 - **Default:** `true`
@@ -218,7 +200,7 @@ const watch = Actions.event.watch(client, {
 watch.onLogs((logs) => console.log(logs))
 ```
 
-##### event
+#### options.event
 
 - **Type:** `AbiEvent`
 
@@ -237,7 +219,7 @@ const watch = Actions.event.watch(client, {
 watch.onLogs((logs) => console.log(logs))
 ```
 
-##### events
+#### options.events
 
 - **Type:** `AbiEvent[]`
 
@@ -259,7 +241,7 @@ const watch = Actions.event.watch(client, {
 watch.onLogs((logs) => console.log(logs))
 ```
 
-##### fromBlock
+#### options.fromBlock
 
 - **Type:** `bigint`
 
@@ -280,7 +262,7 @@ const watch = Actions.event.watch(client, {
 watch.onLogs((logs) => console.log(logs))
 ```
 
-##### poll
+#### options.poll
 
 - **Type:** `boolean`
 - **Default:** `false` for WebSocket or IPC transports, `true` otherwise
@@ -302,7 +284,7 @@ const watch = Actions.event.watch(client, {
 watch.onLogs((logs) => console.log(logs))
 ```
 
-##### pollingInterval
+#### options.pollingInterval
 
 - **Type:** `number`
 - **Default:** `client.pollingInterval`
@@ -324,7 +306,7 @@ const watch = Actions.event.watch(client, {
 watch.onLogs((logs) => console.log(logs))
 ```
 
-##### strict
+#### options.strict
 
 - **Type:** `boolean`
 - **Default:** `false`

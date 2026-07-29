@@ -95,24 +95,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.ens.getName.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const name = await Actions.ens.getName(client, { // [!code focus]
-  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
-}) // [!code focus]
-```
-
-##### address
+#### options.address
 
 - **Type:** `Address`
 
@@ -130,7 +113,7 @@ const name = await Actions.ens.getName(client, {
 })
 ```
 
-##### blockNumber
+#### options.blockNumber
 
 - **Type:** `bigint`
 
@@ -149,7 +132,7 @@ const name = await Actions.ens.getName(client, {
 })
 ```
 
-##### blockTag
+#### options.blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'latest'`
@@ -169,7 +152,7 @@ const name = await Actions.ens.getName(client, {
 })
 ```
 
-##### coinType
+#### options.coinType
 
 - **Type:** `bigint`
 - **Default:** `60n` (ETH)
@@ -189,7 +172,7 @@ const name = await Actions.ens.getName(client, {
 })
 ```
 
-##### gatewayUrls
+#### options.gatewayUrls
 
 - **Type:** `readonly string[]`
 
@@ -208,7 +191,7 @@ const name = await Actions.ens.getName(client, {
 })
 ```
 
-##### strict
+#### options.strict
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -228,7 +211,7 @@ const name = await Actions.ens.getName(client, {
 })
 ```
 
-##### universalResolverAddress
+#### options.universalResolverAddress
 
 - **Type:** `Address`
 - **Default:** `client.chain.contracts.ensUniversalResolver.address`
@@ -258,4 +241,4 @@ The primary ENS name, or `null` when the address has no reverse record.
 
 | Error | Description |
 | --- | --- |
-| `ContractError.ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#strict); resolver errors otherwise map to `null`). |
+| `ContractError.ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#optionsstrict); resolver errors otherwise map to `null`). |

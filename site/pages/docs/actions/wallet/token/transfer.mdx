@@ -116,13 +116,7 @@ Use [`Actions.token.transferSync`](/docs/actions/wallet/token/transferSync) to w
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.token.transfer.Options`
-
-The action options.
-
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
@@ -143,7 +137,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-##### amount
+#### options.amount
 
 - **Type:** `bigint | { decimals?: number; formatted: string }`
 
@@ -168,7 +162,7 @@ const hash = await client.token.transfer({
 })
 ```
 
-##### amount.decimals
+#### options.amount.decimals
 
 - **Type:** `number`
 
@@ -187,7 +181,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-##### chain
+#### options.chain
 
 - **Type:** `Chain | null`
 - **Default:** `client.chain`
@@ -208,7 +202,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-##### from
+#### options.from
 
 - **Type:** `Address`
 
@@ -228,7 +222,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-##### gas
+#### options.gas
 
 - **Type:** `bigint | Hex`
 
@@ -248,7 +242,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-##### maxFeePerGas
+#### options.maxFeePerGas
 
 - **Type:** `bigint | number | Hex`
 
@@ -268,7 +262,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-##### maxPriorityFeePerGas
+#### options.maxPriorityFeePerGas
 
 - **Type:** `bigint | number | Hex`
 
@@ -288,7 +282,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-##### nonce
+#### options.nonce
 
 - **Type:** `bigint | Hex`
 
@@ -308,7 +302,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-##### to
+#### options.to
 
 - **Type:** `Address`
 
@@ -327,7 +321,7 @@ const hash = await Actions.token.transfer(client, {
 })
 ```
 
-##### token
+#### options.token
 
 - **Type:** `Address | string`
 

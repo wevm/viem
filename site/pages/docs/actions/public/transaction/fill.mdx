@@ -150,32 +150,7 @@ export const client = Client.create({
 
 ### Parameters
 
-#### options
-
-- **Type:** `Actions.transaction.fill.Options`
-
-Configure the request with the following options.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { transaction } = await Actions.transaction.fill(client, { // [!code focus]
-  accessList: [ // [!code focus]
-    { // [!code focus]
-      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-      storageKeys: [ // [!code focus]
-        '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
-      ], // [!code focus]
-    }, // [!code focus]
-  ], // [!code focus]
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-}) // [!code focus]
-```
-
-##### accessList
+#### options.accessList
 
 - **Type:** `AccessList`
 
@@ -200,12 +175,12 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-##### account
+#### options.account
 
 - **Type:** `Account | Address`
 - **Default:** `client.account`
 
-The Account object or address that sends the transaction. This option takes precedence over [`from`](#from).
+The Account object or address that sends the transaction. This option takes precedence over [`from`](#optionsfrom).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -220,7 +195,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-##### authorizationList
+#### options.authorizationList
 
 - **Type:** `AuthorizationList`
 
@@ -247,7 +222,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-##### blobs
+#### options.blobs
 
 - **Type:** `readonly Hex[]`
 
@@ -266,7 +241,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-##### blobVersionedHashes
+#### options.blobVersionedHashes
 
 - **Type:** `readonly Hex[]`
 
@@ -284,7 +259,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-##### chain
+#### options.chain
 
 - **Type:** `Chain`
 - **Default:** `client.chain`
@@ -305,7 +280,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-##### chainId
+#### options.chainId
 
 - **Type:** `number | Hex`
 
@@ -323,7 +298,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-##### data
+#### options.data
 
 - **Type:** `Hex`
 
@@ -341,11 +316,11 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-##### from
+#### options.from
 
 - **Type:** `Address`
 
-The raw sender address. Viem uses this field only when neither [`account`](#account) nor a Client Account is available.
+The raw sender address. Viem uses this field only when neither [`account`](#optionsaccount) nor a Client Account is available.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -359,7 +334,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-##### gas
+#### options.gas
 
 - **Type:** `number | bigint | Hex`
 
@@ -377,7 +352,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-##### gasPrice
+#### options.gasPrice
 
 - **Type:** `number | bigint | Hex`
 
@@ -395,7 +370,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-##### maxFeePerBlobGas
+#### options.maxFeePerBlobGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -413,7 +388,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-##### maxFeePerGas
+#### options.maxFeePerGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -431,7 +406,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-##### maxPriorityFeePerGas
+#### options.maxPriorityFeePerGas
 
 - **Type:** `number | bigint | Hex`
 
@@ -449,11 +424,11 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-##### nonce
+#### options.nonce
 
 - **Type:** `number | bigint | Hex`
 
-The nonce to use for the transaction. When provided, it takes precedence over the [`nonceManager`](#noncemanager).
+The nonce to use for the transaction. When provided, it takes precedence over the [`nonceManager`](#optionsnoncemanager).
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -467,11 +442,11 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-##### nonceManager
+#### options.nonceManager
 
 - **Type:** `NonceManager`
 
-A nonce manager used to derive the transaction nonce when [`nonce`](#nonce) is not provided.
+A nonce manager used to derive the transaction nonce when [`nonce`](#optionsnonce) is not provided.
 
 ```ts twoslash
 import { Actions, Client, http, NonceManager } from 'viem'
@@ -487,7 +462,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-##### requestOptions
+#### options.requestOptions
 
 - **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
 
@@ -506,7 +481,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-##### to
+#### options.to
 
 - **Type:** `Address | null`
 
@@ -524,7 +499,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-##### type
+#### options.type
 
 - **Type:** `string`
 
@@ -542,7 +517,7 @@ const { transaction } = await Actions.transaction.fill(client, {
 })
 ```
 
-##### value
+#### options.value
 
 - **Type:** `number | bigint | Hex`
 
