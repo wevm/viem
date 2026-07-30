@@ -12,8 +12,12 @@ import IconNpm from '~icons/vscode-icons/file-type-npm'
 import IconPnpm from '~icons/vscode-icons/file-type-pnpm'
 import {
   type ComponentType,
+  type CSSProperties,
   type ReactNode,
   type SVGProps,
+  useCallback,
+  useEffect,
+  useRef,
   useState,
 } from 'react'
 import { Link, Prompt } from 'vocs'
@@ -26,6 +30,7 @@ export type LandingProps = {
   snippets?: {
     actions?: ReactNode
     chains?: ReactNode
+    engine?: ReactNode
     modules?: ReactNode
     tokens?: ReactNode
     transports?: ReactNode
@@ -480,7 +485,7 @@ export function Landing({
           <FeatureRow
             accent="Actions"
             title="that read like business logic."
-            desc="Namespaced methods for tokens, transactions, ENS, and wallets that say what they do. High-level where it helps, without hiding how Ethereum works."
+            desc="AI agents shouldn't need to waste tokens crawling docs to figure out how to perform actions. Namespaced methods for tokens, transactions, ENS, and wallets say what they do: high-level where it helps, without hiding how Ethereum works."
             docHref="/docs/actions"
             divider
             flip
@@ -490,38 +495,47 @@ export function Landing({
           <FeatureRow
             accent="Tokens"
             title="without the ABI ceremony."
-            desc="Declare tokens once on the Client, then reference them by symbol everywhere. Balances, transfers, and approvals come back with decimals and formatted amounts."
+            desc="Every app rebuilds the same ERC-20 plumbing: ABI imports, decimals lookups, unit math. Declare tokens once on the Client, reference them by symbol, and balances, transfers, and approvals come back already formatted."
             docHref="/docs/tokens"
             divider
           >
             <FeatureSnippet>{snippets?.tokens}</FeatureSnippet>
           </FeatureRow>
           <FeatureRow
-            accent="500+ chains,"
-            title="one interface."
-            desc="Typed definitions for every major network, with fees, contracts, and RPC endpoints included. Define your own chain in a few lines."
-            docHref="/docs/chains"
+            accent="Native speed"
+            title="for the hot path."
+            desc="Cloud platforms bill compute by the millisecond, and busy backends burn through them at scale. WASM modules run on average ~6-10× faster than pure JavaScript, with no native addons to compile, bundle, or deploy."
+            docHref="/docs/guides/engine"
             divider
             flip
+          >
+            <EngineBenchmark snippet={snippets?.engine} />
+          </FeatureRow>
+          <FeatureRow
+            accent="500+ chains,"
+            title="one interface."
+            desc="Adding a network shouldn't start with a hunt for RPC URLs, fee formulas, and custom field codecs. Every major chain ships typed, with fees, contracts, and endpoints included, and a custom chain takes a few lines."
+            docHref="/docs/chains"
+            divider
           >
             <FeatureSnippet>{snippets?.chains}</FeatureSnippet>
           </FeatureRow>
           <FeatureRow
             accent="Types"
             title="that follow your inputs."
-            desc="Declare tokens on a Client and every token option narrows to those symbols. The same inference flows through ABIs, chains, and accounts: invalid calls fail in your editor, before a request is ever sent."
+            desc="A mistyped token symbol should fail in your editor, not on mainnet. Inference narrows every option across tokens, ABIs, chains, and accounts, and gives coding agents a compiler feedback loop that catches bad calls before anything runs."
             docHref="/docs/why-viem#types-that-follow-your-inputs"
             divider
+            flip
           >
             <FeatureSnippet>{snippets?.types}</FeatureSnippet>
           </FeatureRow>
           <FeatureRow
-            accent="Failover"
-            title="built in."
-            desc="Compose HTTP, WebSocket, and IPC transports with automatic ranking, retries, and rate limits. Bring any RPC provider, or run your own nodes."
-            docHref="/docs/transports/fallback"
+            accent="Rate limits &amp; outages,"
+            title="handled in the transport."
+            desc="Launch-day traffic finds every limit your providers have. Spread requests across endpoints, keep each within its plan, and reroute around failures: resilience in the transport, not your application code."
+            docHref="/docs/guides/clients/rate-limit-load-balance"
             divider
-            flip
           >
             <FeatureSnippet>{snippets?.transports}</FeatureSnippet>
           </FeatureRow>
@@ -686,6 +700,304 @@ function AgentTranscript() {
           aria-hidden
           className="landing-caret mt-1 inline-block h-[1.15em] w-[7px] bg-accent align-text-bottom"
         />
+      </div>
+    </div>
+  )
+}
+
+type EngineLaneTone = 'legacy' | 'mid' | 'wasm' | 'native'
+
+type EngineLane = {
+  label: string
+  value: string
+  /** Bar length as a percentage of the row's slowest lane. */
+  width: number
+  /** Fill duration, proportional to width so lanes race in real ratio. */
+  duration: number
+  tone: EngineLaneTone
+}
+
+type EngineOp = {
+  name: string
+  /** Speedup of the WASM lane over the legacy lane. */
+  mult: number
+  lanes: EngineLane[]
+}
+
+// Single-call durations from /docs/benchmarks (Apple M4 Max, Node.js 25).
+// Native (C) is the Ox engine harness's raw-primitive C reference: a floor
+// to compare against, not a product lane.
+const engineOps: EngineOp[] = [
+  {
+    name: 'Verify Signature',
+    mult: 58.3,
+    lanes: [
+      {
+        label: 'Viem (Legacy)',
+        value: '1.83 ms',
+        width: 100,
+        duration: 950,
+        tone: 'legacy',
+      },
+      {
+        label: 'Viem',
+        value: '963.1 µs',
+        width: 52.6,
+        duration: 500,
+        tone: 'mid',
+      },
+      {
+        label: 'Viem WASM',
+        value: '31.3 µs',
+        width: 1.7,
+        duration: 60,
+        tone: 'wasm',
+      },
+      {
+        label: 'Native (C)',
+        value: '27.3 µs',
+        width: 1.5,
+        duration: 60,
+        tone: 'native',
+      },
+    ],
+  },
+  {
+    name: 'Hash 32-byte Payload',
+    mult: 10.4,
+    lanes: [
+      {
+        label: 'Viem (Legacy)',
+        value: '3.55 µs',
+        width: 100,
+        duration: 950,
+        tone: 'legacy',
+      },
+      {
+        label: 'Viem',
+        value: '2.59 µs',
+        width: 72.9,
+        duration: 690,
+        tone: 'mid',
+      },
+      {
+        label: 'Viem WASM',
+        value: '343 ns',
+        width: 9.7,
+        duration: 92,
+        tone: 'wasm',
+      },
+      {
+        label: 'Native (C)',
+        value: '187 ns',
+        width: 5.3,
+        duration: 62,
+        tone: 'native',
+      },
+    ],
+  },
+  {
+    name: 'Sign Message',
+    mult: 7.4,
+    lanes: [
+      {
+        label: 'Viem (Legacy)',
+        value: '178.6 µs',
+        width: 100,
+        duration: 950,
+        tone: 'legacy',
+      },
+      {
+        label: 'Viem',
+        value: '172.6 µs',
+        width: 96.6,
+        duration: 920,
+        tone: 'mid',
+      },
+      {
+        label: 'Viem WASM',
+        value: '24.2 µs',
+        width: 13.5,
+        duration: 128,
+        tone: 'wasm',
+      },
+      {
+        label: 'Native (C)',
+        value: '19.9 µs',
+        width: 11.1,
+        duration: 105,
+        tone: 'native',
+      },
+    ],
+  },
+]
+
+const engineLaneFill: Record<EngineLaneTone, CSSProperties> = {
+  legacy: { background: 'light-dark(#b3a88d, #423c2f)' },
+  mid: { background: 'light-dark(#96a06d, #5f6b40)' },
+  wasm: { background: 'var(--background-color-accent)' },
+  // Dashed outline only, so the reference reads as a marker, not a product.
+  native: {
+    border:
+      '1px dashed light-dark(rgba(29, 26, 20, 0.4), rgba(241, 235, 222, 0.3))',
+  },
+}
+
+// 'initial' renders the settled state for SSR and no-JS; 'armed' holds bars
+// at zero until the row scrolls into view; 'play' races them.
+type EnginePlayPhase = 'initial' | 'armed' | 'play'
+
+function engineFillStyle(
+  lane: EngineLane,
+  phase: EnginePlayPhase,
+): CSSProperties {
+  return {
+    ...engineLaneFill[lane.tone],
+    width: phase === 'armed' ? '0%' : `${lane.width}%`,
+    transition:
+      phase === 'play'
+        ? `width ${lane.duration}ms cubic-bezier(0.2, 0.7, 0.3, 1)`
+        : 'none',
+  }
+}
+
+function formatMult(value: number) {
+  return value >= 10 ? Math.round(value).toString() : value.toFixed(1)
+}
+
+function EngineMult({
+  runToken,
+  value,
+}: {
+  /** Increments per run; -1 while idle. */
+  runToken: number
+  value: number
+}) {
+  const [display, setDisplay] = useState(() => formatMult(value))
+  useEffect(() => {
+    if (runToken < 0) return
+    let raf = 0
+    const start = performance.now()
+    const duration = 900
+    function tick(now: number) {
+      const progress = Math.min(1, (now - start) / duration)
+      const eased = 1 - (1 - progress) ** 3
+      setDisplay(formatMult(value * eased))
+      if (progress < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    // rAF pauses in background tabs; guarantee the settled value.
+    const settle = setTimeout(() => setDisplay(formatMult(value)), duration + 80)
+    return () => {
+      cancelAnimationFrame(raf)
+      clearTimeout(settle)
+    }
+  }, [runToken, value])
+  return (
+    <span className="whitespace-nowrap text-[12px] font-semibold text-accent">
+      {display}× faster
+    </span>
+  )
+}
+
+function EngineBenchmark({ snippet }: { snippet: ReactNode }) {
+  const [phase, setPhase] = useState<EnginePlayPhase>('initial')
+  const [playKey, setPlayKey] = useState(0)
+  const [running, setRunning] = useState(false)
+  const benchRef = useRef<HTMLDivElement>(null)
+
+  const play = useCallback(() => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    setRunning(true)
+    setPhase('armed')
+    setPlayKey((key) => key + 1)
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => setPhase('play')),
+    )
+    setTimeout(() => setRunning(false), 1100)
+  }, [])
+
+  // Hold bars at zero from mount (before the row is visible), then race on
+  // first scroll into view. Reduced motion keeps the settled SSR state.
+  useEffect(() => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const el = benchRef.current
+    if (!el) return
+    setPhase('armed')
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return
+        observer.disconnect()
+        play()
+      },
+      { threshold: 0.4 },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [play])
+
+  return (
+    <div className="border border-dashed border-hover bg-code font-mono text-[13px] leading-[1.65]">
+      <div className="flex items-center justify-between gap-3 border-b border-dashed border-hover px-4 py-2 text-[11px] text-muted">
+        <span>viem/wasm</span>
+        <span className="max-sm:hidden">Apple M4 Max · Node.js 25</span>
+      </div>
+      <div className="landing-snippet border-b border-dashed border-hover [&_pre]:m-0 [&_pre]:overflow-x-auto [&_pre]:whitespace-pre [&_pre]:bg-code [&_pre]:px-0 [&_pre]:py-[14px] [&_pre]:font-mono [&_pre]:text-[13px] [&_pre]:leading-[1.65]">
+        {snippet}
+      </div>
+      <div ref={benchRef} className="px-4 pt-4 pb-2">
+        {engineOps.map((op) => (
+          <div key={op.name} className="mb-5 last:mb-2">
+            <div className="flex items-baseline justify-between gap-3">
+              <span className="text-[12px] text-primary">{op.name}</span>
+              <EngineMult
+                runToken={phase === 'play' ? playKey : -1}
+                value={op.mult}
+              />
+            </div>
+            <div className="mt-[7px] grid gap-[5px]">
+              {op.lanes.map((lane) => (
+                <div
+                  key={lane.label}
+                  className="grid grid-cols-[88px_1fr_64px] items-center gap-2"
+                >
+                  <span className="text-[10px] text-muted">{lane.label}</span>
+                  <span
+                    aria-hidden
+                    className="relative block h-[7px] bg-accent-soft"
+                  >
+                    <span
+                      className="absolute inset-y-0 left-0 block"
+                      style={engineFillStyle(lane, phase)}
+                    />
+                  </span>
+                  <span className="whitespace-nowrap text-right text-[10.5px] text-secondary">
+                    {lane.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="flex items-center justify-between gap-3 border-t border-dashed border-hover px-4 py-2">
+        <button
+          type="button"
+          onClick={play}
+          disabled={running}
+          className="inline-flex cursor-pointer items-center gap-1.5 border border-dashed border-hover bg-transparent px-2 py-[3px] font-sans text-[11px] font-medium text-secondary transition-colors hover:border-primary hover:text-primary disabled:cursor-default disabled:opacity-50"
+        >
+          <span aria-hidden className="text-accent">
+            ▸
+          </span>
+          Run benchmarks
+        </button>
+        <a
+          href="/docs/benchmarks"
+          className="font-sans text-[11px] font-medium text-secondary no-underline transition-colors hover:text-primary"
+        >
+          All benchmarks →
+        </a>
       </div>
     </div>
   )
