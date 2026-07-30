@@ -54,6 +54,7 @@ export async function createServer() {
     return `sha-${sha}`
   })()
 
+  const hardfork = import.meta.env.VITE_TEMPO_HARDFORK
   const zones = import.meta.env.VITE_TEMPO_ZONES === 'true'
   const args = {
     // Match Tempo's production cadence when Zone consumes every L1 block.
@@ -65,20 +66,22 @@ export async function createServer() {
     ? `ghcr.io/tempoxyz/tempo@${tag}`
     : `ghcr.io/tempoxyz/tempo:${tag ?? 'latest'}`
   const artifactsTag = import.meta.env.VITE_TEMPO_ZONE_XTASK_TAG
-  const instance = zones
-    ? createTempo({
-        ...args,
-        ...(artifactsTag
-          ? {
-              artifactsImage: artifactsTag.startsWith('sha256:')
-                ? `ghcr.io/tempoxyz/tempo-zone-xtask@${artifactsTag}`
-                : `ghcr.io/tempoxyz/tempo-zone-xtask:${artifactsTag}`,
-            }
-          : {}),
-        image,
-        ownerKey: zoneAdminKey,
-      })
-    : TestContainers.Instance.tempo({ ...args, image })
+  const instance =
+    zones || hardfork === 'T9'
+      ? createTempo({
+          ...args,
+          ...(zones && artifactsTag
+            ? {
+                artifactsImage: artifactsTag.startsWith('sha256:')
+                  ? `ghcr.io/tempoxyz/tempo-zone-xtask@${artifactsTag}`
+                  : `ghcr.io/tempoxyz/tempo-zone-xtask:${artifactsTag}`,
+              }
+            : {}),
+          hardfork,
+          image,
+          ownerKey: zoneAdminKey,
+        })
+      : TestContainers.Instance.tempo({ ...args, image })
 
   return Server.create({
     instance,

@@ -61,7 +61,8 @@ const portalAdminClient = createClient({
 })
 const zoneClient = getZoneClient({ account })
 const hardfork = import.meta.env.VITE_TEMPO_HARDFORK
-const legacyZoneCallback = hardfork === 'T7' || hardfork === 'T8'
+const legacyZoneCallback =
+  hardfork === 'T7' || hardfork === 'T8' || hardfork === 'T9'
 const parentToken = '0x20c0000000000000000000000000000000000000'
 const depositParameters = {
   amount: parseUnits('1', 6),

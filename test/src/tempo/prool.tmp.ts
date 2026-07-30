@@ -1,5 +1,5 @@
-// TODO: Remove when T9 launches after https://github.com/tempoxyz/tempo/pull/6916 and
-// https://github.com/tempoxyz/zones/pull/767 land.
+// TODO: Use T10's native dev genesis after
+// https://github.com/tempoxyz/tempo/pull/7011 lands.
 import { execFileSync } from 'node:child_process'
 import { AbiParameters, Address, Hash, Hex, Secp256k1 } from 'ox'
 import { Instance } from 'prool'
@@ -50,6 +50,9 @@ const tip403Registry = {
 } as const
 
 type Genesis = {
+  config: {
+    t10Time?: number | string | undefined
+  }
   alloc: Record<
     string,
     {
@@ -70,6 +73,7 @@ type ZoneArtifacts = {
 type Parameters = {
   artifactsImage?: string | undefined
   blockTime: string
+  hardfork?: string | undefined
   image: string
   log?: Instance.tempo.Parameters['log'] | undefined
   ownerKey: `0x${string}`
@@ -85,6 +89,7 @@ export function createTempo(parameters: Parameters) {
 
 function buildZoneGenesis(options: {
   artifactsImage?: string | undefined
+  hardfork?: string | undefined
   image: string
   ownerKey: `0x${string}`
 }) {
@@ -106,6 +111,13 @@ function buildZoneGenesis(options: {
     { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 },
   )
   const genesis = JSON.parse(dumped) as Genesis
+  if (options.hardfork === 'T9') {
+    delete genesis.config.t10Time
+    delete genesis.alloc[zoneFactory.address]
+    delete genesis.alloc[zoneMessenger.address]
+    delete genesis.alloc[zonePortal.address]
+    delete genesis.alloc[zoneVerifier.address]
+  }
   const artifactsImage = options.artifactsImage
   if (!artifactsImage) {
     genesis.alloc[historyStorage.address] = {
