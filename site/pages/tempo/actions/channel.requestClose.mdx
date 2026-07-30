@@ -64,6 +64,89 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.channel.requestClose.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Reclaim Deposit from an Unresponsive Payee
+
+Combine `channel.requestCloseSync` with [`channel.withdraw`](/tempo/actions/channel.withdraw) to recover funds unilaterally; the returned `closeGraceEnd` tells you when withdrawal unlocks.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Channel } from 'viem/tempo'
+import { client } from './viem.config'
+
+const channel = Channel.from({
+  expiringNonceHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  payee: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  payer: client.account.address,
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000101',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+const { closeGraceEnd } = await client.channel.requestCloseSync({ channel }) // [!code focus]
+
+const delay = closeGraceEnd * 1000n - BigInt(Date.now()) // [!code focus]
+setTimeout(async () => { // [!code focus]
+  await client.channel.withdrawSync({ channel }) // [!code focus]
+}, Number(delay)) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Give the Payee Notice to Settle
+
+The close request doubles as on-chain notice: the payee detects it with [`channel.getStates`](/tempo/actions/channel.getStates) and settles the final voucher via [`channel.settle`](/tempo/actions/channel.settle) before withdrawal unlocks.
+
+:::code-group
+
+```ts twoslash [payer.ts]
+import { Channel } from 'viem/tempo'
+import { client } from './viem.config'
+
+const channel = Channel.from({
+  expiringNonceHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  payee: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  payer: '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000101',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+await client.channel.requestCloseSync({ channel }) // [!code focus]
+```
+
+```ts twoslash [payee.ts]
+import { Channel } from 'viem/tempo'
+import { client } from './viem.config'
+
+const channel = Channel.from({
+  expiringNonceHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  payee: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  payer: '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000101',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+const state = await client.channel.getStates({ channel }) // [!code focus]
+
+if (state.closeRequestedAt > 0) // [!code focus]
+  await client.channel.settleSync({ // [!code focus]
+    cumulativeAmount: 40_000000n, // [!code focus]
+    channel, // [!code focus]
+    signature: '0x...', // [!code focus]
+  }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

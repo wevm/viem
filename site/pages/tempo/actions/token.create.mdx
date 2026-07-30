@@ -51,6 +51,91 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args: { token } } = Actions.token.create.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Assign the Admin Role to a Treasury Multisig
+
+Pass `admin` to hand role administration to a treasury multisig at deployment, keeping the deployer key out of day-to-day control of the token.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { admin, token } = await client.token.createSync({
+  admin: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  currency: 'USD',
+  name: 'My Company USD',
+  symbol: 'CUSD',
+})
+
+console.log('Admin:', admin)
+// @log: Admin: 0x8ba1f109551bD432803012645Ac136ddd64DBA72
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Set Up Issuance for a Payments Backend
+
+Combine `token.createSync` with [`token.grantRolesSync`](/tempo/actions/token.grantRoles) to authorize your backend's minting key immediately after deployment, so it can issue supply on customer deposits.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { token } = await client.token.createSync({
+  currency: 'USD',
+  name: 'My Company USD',
+  symbol: 'CUSD',
+})
+
+const { value } = await client.token.grantRolesSync({ // [!code focus]
+  roles: ['issuer'], // [!code focus]
+  to: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  token, // [!code focus]
+}) // [!code focus]
+
+console.log('Issuer granted:', value[0].hasRole)
+// @log: Issuer granted: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Pin the Token Address Across Environments
+
+Pass a fixed `salt` so redeploys with identical parameters land at a predictable address, letting downstream systems allowlist the token ahead of deployment.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { token } = await client.token.createSync({
+  currency: 'USD',
+  name: 'My Company USD',
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
+  symbol: 'CUSD',
+})
+
+console.log('Address:', token)
+// @log: Address: 0x20c0000000000000000000000000000000000004
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

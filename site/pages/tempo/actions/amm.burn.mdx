@@ -50,6 +50,80 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.amm.burn.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Exit a Pool Completely
+
+Combine [`amm.getLiquidityBalance`](/tempo/actions/amm.getLiquidityBalance) with `burnSync` to withdraw a full position, for example when winding down a treasury's allocation to a pool.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const userToken = '0x20c0000000000000000000000000000000000001'
+const validatorToken = '0x20c0000000000000000000000000000000000002'
+
+const liquidity = await client.amm.getLiquidityBalance({ // [!code focus]
+  address: client.account.address, // [!code focus]
+  userToken, // [!code focus]
+  validatorToken, // [!code focus]
+}) // [!code focus]
+
+const { amountUserToken, amountValidatorToken } = await client.amm.burnSync({
+  liquidity, // [!code focus]
+  to: client.account.address,
+  userToken,
+  validatorToken,
+})
+
+console.log('Withdrawn:', amountUserToken, amountValidatorToken)
+// @log: Withdrawn: 500000n 500000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Preview the Tokens a Burn Returns
+
+Use [`amm.getPool`](/tempo/actions/amm.getPool) to compute the pro-rata share a burn will return, so a withdrawal report shows expected amounts before execution.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const userToken = '0x20c0000000000000000000000000000000000001'
+const validatorToken = '0x20c0000000000000000000000000000000000002'
+const liquidity = 500_000n
+
+const pool = await client.amm.getPool({ userToken, validatorToken }) // [!code focus]
+
+const expectedUserToken = // [!code focus]
+  (liquidity * pool.reserveUserToken) / pool.totalSupply // [!code focus]
+const expectedValidatorToken = // [!code focus]
+  (liquidity * pool.reserveValidatorToken) / pool.totalSupply // [!code focus]
+
+console.log('Expected:', expectedUserToken, expectedValidatorToken)
+// @log: Expected: 500000n 500000n
+
+await client.amm.burnSync({
+  liquidity,
+  to: client.account.address,
+  userToken,
+  validatorToken,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

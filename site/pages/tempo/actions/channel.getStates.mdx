@@ -24,6 +24,61 @@ console.log('Channel state:', state)
 
 :::
 
+## Recipes
+
+### Audit Capacity Across Many Channels
+
+Pass a list of channel IDs to read every state in one call, then compare deposits against settled amounts to find channels that need a top-up.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const states = await client.channel.getStates({
+  channel: [ // [!code focus]
+    '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', // [!code focus]
+    '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890', // [!code focus]
+  ], // [!code focus]
+})
+
+const remaining = states.map((state) => state.deposit - state.settled) // [!code focus]
+
+console.log('Remaining capacity:', remaining)
+// @log: Remaining capacity: [60000000n, 25000000n]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Alert the Payee When a Close Is Requested
+
+Poll `closeRequestedAt` to detect a payer's close request; a non-zero value starts the window to settle the final voucher with [`channel.settle`](/tempo/actions/channel.settle).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Channel } from 'viem/tempo'
+import { client } from './viem.config'
+
+const state = await client.channel.getStates({
+  channel: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+})
+
+if (state.closeRequestedAt > 0) { // [!code focus]
+  const deadline = BigInt(state.closeRequestedAt) + Channel.closeGracePeriod // [!code focus]
+  console.log('Settle vouchers before:', new Date(Number(deadline) * 1000))
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

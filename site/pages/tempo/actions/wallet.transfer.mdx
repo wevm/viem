@@ -43,6 +43,68 @@ const { receipt } = await client.wallet.transfer({
 })
 ```
 
+## Recipes
+
+### Tag a Checkout Payment with an Order Memo
+
+Attach the order reference as a `memo` (UTF-8, max 32 bytes) so your backend can match the onchain transfer to the order.
+
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+const { receipt } = await client.wallet.transfer({
+  amount: '249.99',
+  memo: 'order_1024', // [!code focus]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'pathusd',
+})
+```
+
+### Charge a Subscription from an Allowance
+
+Set `from` to collect a recurring charge from a subscriber who granted your account an allowance with [`token.approve`](/tempo/actions/token.approve); the wallet submits a `transferFrom`.
+
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+const { receipt } = await client.wallet.transfer({
+  amount: '15',
+  from: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'pathusd',
+})
+```
+
+### Sponsor Fees Through Your Own Service
+
+Point `feePayer` at your own fee payer service to sponsor customer transfers such as micropayments, or pass `false` to disable the wallet's default fee payer.
+
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+const { receipt } = await client.wallet.transfer({
+  amount: '0.05',
+  feePayer: 'https://sponsor.example.com', // [!code focus]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'pathusd',
+})
+```
+
 ## Return Value
 
 ```ts

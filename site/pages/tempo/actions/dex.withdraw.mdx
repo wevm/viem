@@ -26,6 +26,64 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 :::
 
+## Recipes
+
+### Withdraw Your Full DEX Balance
+
+Read your internal balance with [`dex.getBalance`](/tempo/actions/dex.getBalance) first so the withdrawal amount matches what the exchange actually holds.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const pathUsd = '0x20c0000000000000000000000000000000000000'
+
+const balance = await client.dex.getBalance({ token: pathUsd }) // [!code focus]
+
+const { receipt } = await client.dex.withdrawSync({
+  amount: balance, // [!code focus]
+  token: pathUsd,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Sweep Proceeds to a Treasury Wallet
+
+Withdrawals always land in the caller's wallet, so batch the withdrawal with [`token.transfer`](/tempo/actions/token.transfer) to forward funds to a treasury address atomically.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const pathUsd = '0x20c0000000000000000000000000000000000000'
+const treasury = '0x8ba1f109551bD432803012645Ac136ddd64DBA72'
+
+const receipt = await client.transaction.sendSync({
+  calls: [
+    Actions.dex.withdraw.call({ amount: 250_000000n, token: pathUsd }), // [!code focus]
+    Actions.token.transfer.call({ // [!code focus]
+      amount: 250_000000n, // [!code focus]
+      to: treasury, // [!code focus]
+      token: pathUsd, // [!code focus]
+    }), // [!code focus]
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

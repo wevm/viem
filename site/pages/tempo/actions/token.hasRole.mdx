@@ -27,6 +27,68 @@ console.log('Has issuer role:', hasRole)
 
 :::
 
+## Recipes
+
+### Skip Redundant Role Grants When Provisioning
+
+Combine `hasRole` with [`token.grantRolesSync`](/tempo/actions/token.grantRoles) to keep operator provisioning idempotent: grant the issuer role only when the operator does not already hold it.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const operator = '0x8ba1f109551bD432803012645Ac136ddd64DBA72'
+const token = '0x20c0000000000000000000000000000000000001'
+
+const hasRole = await client.token.hasRole({
+  account: operator,
+  role: 'issuer',
+  token,
+})
+
+if (!hasRole) // [!code focus]
+  await client.token.grantRolesSync({ // [!code focus]
+    roles: ['issuer'],
+    to: operator,
+    token,
+  })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Verify Pause Authority Before an Incident Response
+
+Omit `account` to check the Client's own account, for example verifying an incident-response key holds the `pause` role before it halts transfers with [`token.pauseSync`](/tempo/actions/token.pause).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000001'
+
+const canPause = await client.token.hasRole({ // [!code focus]
+  role: 'pause', // [!code focus]
+  token, // [!code focus]
+}) // [!code focus]
+
+if (!canPause)
+  throw new Error('incident key is missing the pause role')
+
+await client.token.pauseSync({ token })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

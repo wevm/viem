@@ -43,6 +43,68 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.virtualAddress.registerMaster.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Onboard a Deposit Master for an Exchange
+
+Mine a proof-of-work salt for your wallet, register it once, then derive per-customer deposit addresses offchain with `VirtualAddress.from` (see the [register guide](/tempo/guides/virtual-addresses/register) for operational practices).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { VirtualAddress, VirtualMaster } from 'viem/tempo'
+import { client } from './viem.config'
+
+const mined = await VirtualMaster.mineSaltAsync({ // [!code focus]
+  address: client.account.address, // [!code focus]
+}) // [!code focus]
+
+const { masterId } = await client.virtualAddress.registerMasterSync({
+  salt: mined!.salt, // [!code focus]
+})
+
+const depositAddress = VirtualAddress.from({ masterId, userTag: 1n })
+
+console.log('Deposit address for customer 1:', depositAddress)
+// @log: Deposit address for customer 1: 0x58e21090fdfdfdfdfdfdfdfdfdfd000000000001
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Make Deploy-Time Registration Idempotent
+
+Derive the master ID from your stored salt with `VirtualMaster.getMasterId` and check [`virtualAddress.getMasterAddress`](/tempo/actions/virtualAddress.getMasterAddress) first, so a re-run deploy script skips the one-time registration.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { VirtualMaster } from 'viem/tempo'
+import { client } from './viem.config'
+
+// Mined ahead of time, from your deploy config.
+const salt =
+  '0x00000000000000000000000000000000000000000000000000000000abf52baf'
+
+const masterId = VirtualMaster.getMasterId({
+  address: client.account.address,
+  salt,
+})
+
+const registered = await client.virtualAddress.getMasterAddress({ masterId }) // [!code focus]
+if (!registered) // [!code focus]
+  await client.virtualAddress.registerMasterSync({ salt }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

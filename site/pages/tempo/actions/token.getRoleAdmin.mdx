@@ -26,6 +26,39 @@ console.log('Admin role:', adminRole)
 
 :::
 
+## Recipes
+
+### Verify Your Admin Key Can Grant a Role
+
+Compare the returned hash against `TokenRole.serialize` to confirm the `defaultAdmin` role still governs issuer grants before calling [`token.grantRolesSync`](/tempo/actions/token.grantRoles) from your admin key.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { TokenRole } from 'viem/tempo'
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000001'
+
+const adminRole = await client.token.getRoleAdmin({
+  role: 'issuer',
+  token,
+})
+
+if (adminRole === TokenRole.serialize('defaultAdmin')) // [!code focus]
+  await client.token.grantRolesSync({
+    roles: ['issuer'],
+    to: '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+    token,
+  })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

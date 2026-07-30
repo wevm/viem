@@ -49,6 +49,75 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.policy.modifyBlacklist.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Apply a Sanctions List Update in Bulk
+
+Use the non-sync action to dispatch one designation per address, then wait for the receipts together, when a sanctions update contains many entries.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const designations = [
+  '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+] as const
+
+const hashes: `0x${string}`[] = []
+for (const address of designations) // [!code focus]
+  hashes.push( // [!code focus]
+    await client.policy.modifyBlacklist({ // [!code focus]
+      address, // [!code focus]
+      policyId: 1n, // [!code focus]
+      restricted: true, // [!code focus]
+    }), // [!code focus]
+  ) // [!code focus]
+
+await Promise.all(
+  hashes.map((hash) => client.transaction.waitForReceipt({ hash }).receipt), // [!code focus]
+)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Reinstate an Account After a Compliance Review
+
+Pass `restricted: false` once a review clears the account, and confirm reinstatement with [`policy.isAuthorized`](/tempo/actions/policy.isAuthorized).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const account = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'
+
+await client.policy.modifyBlacklistSync({
+  address: account,
+  policyId: 1n,
+  restricted: false, // [!code focus]
+})
+
+const authorized = await client.policy.isAuthorized({ // [!code focus]
+  policyId: 1n,
+  user: account,
+})
+
+console.log('Authorized:', authorized)
+// @log: Authorized: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

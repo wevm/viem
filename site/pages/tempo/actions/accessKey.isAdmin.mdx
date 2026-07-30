@@ -26,6 +26,71 @@ console.log('Is admin:', isAdmin)
 
 :::
 
+## Recipes
+
+### Verify an Admin Key Before Delegated Management
+
+Confirm the operator's key still has admin rights before signing key management like [`accessKey.revoke`](/tempo/actions/accessKey.revoke) with it.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { P256 } from 'viem/utils'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+
+// Admin key held by your ops service, authorized with `admin: true`.
+const adminKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const isAdmin = await client.accessKey.isAdmin({ accessKey: adminKey }) // [!code focus]
+if (!isAdmin) throw new Error('admin key was revoked') // [!code focus]
+
+const { receipt } = await client.accessKey.revokeSync({
+  account: adminKey,
+  accessKey: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Audit the Account's Admin Keys
+
+Check each known key so you can keep the number of active admin keys small.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const keys = [
+  '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+] as const
+
+const admins = []
+for (const accessKey of keys) {
+  if (await client.accessKey.isAdmin({ accessKey })) // [!code focus]
+    admins.push(accessKey) // [!code focus]
+}
+
+console.log('Admin keys:', admins)
+// @log: Admin keys: ['0x8ba1f109551bD432803012645Ac136ddd64DBA72']
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

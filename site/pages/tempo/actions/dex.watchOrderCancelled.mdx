@@ -30,6 +30,35 @@ watcher.off()
 
 Also callable standalone: `Actions.dex.watchOrderCancelled(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Detect Cancellations You Did Not Initiate
+
+Filter by your tracked order IDs to keep an open-orders store accurate: anyone can clear stale orders with [`dex.cancelStale`](/tempo/actions/dex.cancelStale), so cancellations can happen without your involvement.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const openOrderIds = [123n, 456n]
+
+const watcher = client.dex.watchOrderCancelled({
+  args: { orderId: openOrderIds }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log('Remove from store:', log.args.orderId) // [!code focus]
+  // @log: Remove from store: 123n
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

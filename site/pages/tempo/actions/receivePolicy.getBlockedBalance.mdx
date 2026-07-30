@@ -25,6 +25,60 @@ console.log('Blocked balance:', balance)
 
 :::
 
+## Recipes
+
+### Skip Receipts That Were Already Resolved
+
+A receipt's balance drops to zero once claimed or burned, so check it before [`receivePolicy.claimSync`](/tempo/actions/receivePolicy.claim) when replaying stored receipts.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+// Claim receipts indexed from `TransferBlocked` events.
+const receipts = ['0x1234', '0x5678'] as const
+
+for (const receipt of receipts) {
+  const balance = await client.receivePolicy.getBlockedBalance({ receipt }) // [!code focus]
+  if (balance === 0n) continue // [!code focus]
+  await client.receivePolicy.claimSync({
+    receipt,
+    to: client.account.address,
+  })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Inspect a Blocked Payment for Support
+
+Pair the held balance with `ReceivePolicyReceipt.decode` to show support staff who sent a blocked payment, in which token, and when.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { ReceivePolicyReceipt } from 'viem/tempo'
+import { client } from './viem.config'
+
+const receipt = '0x1234'
+
+const balance = await client.receivePolicy.getBlockedBalance({ receipt }) // [!code focus]
+const { originator, token, blockedAt } = ReceivePolicyReceipt.decode(receipt) // [!code focus]
+
+console.log(`${balance} base units of ${token} from ${originator}, held since ${blockedAt}`)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

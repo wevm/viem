@@ -43,6 +43,65 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.token.unpause.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Resume Transfers After a Policy Fix
+
+Combine [`token.changeTransferPolicySync`](/tempo/actions/token.changeTransferPolicy) with `token.unpauseSync` to reopen transfers only after replacing the misconfigured policy that triggered the freeze.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000001'
+
+const { receipt } = await client.token.changeTransferPolicySync({ // [!code focus]
+  policyId: 2n, // [!code focus]
+  token, // [!code focus]
+}) // [!code focus]
+
+const { isPaused } = await client.token.unpauseSync({ token })
+
+console.log('Is paused:', isPaused)
+// @log: Is paused: false
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Restore Issuer Roles Before Reopening Transfers
+
+Grant the rotated issuer key its roles with [`token.grantRolesSync`](/tempo/actions/token.grantRoles) while the token is still paused, then unpause to resume issuance and transfers together.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000001'
+
+const { value } = await client.token.grantRolesSync({ // [!code focus]
+  roles: ['issuer'], // [!code focus]
+  to: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  token, // [!code focus]
+}) // [!code focus]
+
+const { isPaused } = await client.token.unpauseSync({ token })
+
+console.log('Issuer restored:', value[0].hasRole, '| paused:', isPaused)
+// @log: Issuer restored: true | paused: false
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

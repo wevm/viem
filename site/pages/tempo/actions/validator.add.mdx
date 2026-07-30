@@ -51,6 +51,62 @@ const hash = await client.validator.add({
 const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 ```
 
+## Recipes
+
+### Stage a Validator Before Activation
+
+Pass `active: false` to register a validator without adding it to consensus, then bring it in with [`validator.changeStatus`](/tempo/actions/validator.changeStatus) once the node passes health checks.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const validator = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'
+
+const { receipt } = await client.validator.addSync({
+  active: false, // [!code focus]
+  inboundAddress: 'validator.example.com:9000',
+  newValidatorAddress: validator,
+  outboundAddress: '203.0.113.10:9000',
+  publicKey: '0x1111111111111111111111111111111111111111111111111111111111111111',
+})
+
+await client.validator.changeStatusSync({ active: true, validator }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Schedule a Key Ceremony After Onboarding
+
+Combine `add` with [`validator.setNextFullDkgCeremony`](/tempo/actions/validator.setNextFullDkgCeremony) so the expanded set generates key shares that cover the new validator.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.validator.addSync({ // [!code focus]
+  active: true,
+  inboundAddress: 'validator.example.com:9000',
+  newValidatorAddress: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  outboundAddress: '203.0.113.10:9000',
+  publicKey: '0x1111111111111111111111111111111111111111111111111111111111111111',
+})
+
+await client.validator.setNextFullDkgCeremonySync({ epoch: 42n }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

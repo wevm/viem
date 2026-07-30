@@ -46,6 +46,62 @@ const hash = await client.validator.update({
 const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 ```
 
+## Recipes
+
+### Migrate a Node to New Infrastructure
+
+Combine [`validator.get`](/tempo/actions/validator.get) with `update` to point the record at new endpoints while keeping the validator's address and key.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const current = await client.validator.get({ // [!code focus]
+  validator: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+
+const { receipt } = await client.validator.updateSync({
+  inboundAddress: 'validator-2.example.com:9000', // [!code focus]
+  newValidatorAddress: current.validatorAddress,
+  outboundAddress: '198.51.100.7:9000', // [!code focus]
+  publicKey: current.publicKey,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Rotate a Validator's Address
+
+Reuse the existing record from [`validator.get`](/tempo/actions/validator.get) and pass a fresh `newValidatorAddress` to rotate the address that identifies the validator on chain.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const current = await client.validator.get({
+  validator: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+
+const { receipt } = await client.validator.updateSync({
+  inboundAddress: current.inboundAddress,
+  newValidatorAddress: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  outboundAddress: current.outboundAddress,
+  publicKey: current.publicKey,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

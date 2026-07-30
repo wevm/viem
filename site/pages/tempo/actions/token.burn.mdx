@@ -87,6 +87,58 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.token.burn.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Record a Redemption with a Burn Memo
+
+Pass `memo` to stamp each burn with the redemption reference it settles (for example, `redeem_5150` hex-encoded), keeping supply reductions auditable against fiat payouts.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.burnSync({
+  amount: { formatted: '1000' },
+  memo: '0x72656465656d5f35313530', // [!code focus]
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Retire an Account's Remaining Balance
+
+Combine [`token.getBalance`](/tempo/actions/token.getBalance) with `token.burnSync` to burn the account's exact base-unit balance, for example when decommissioning a settlement wallet.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000000'
+
+const { amount } = await client.token.getBalance({ token }) // [!code focus]
+
+const { formatted } = await client.token.burnSync({
+  amount, // [!code focus]
+  token,
+})
+
+console.log('Burned:', formatted)
+// @log: Burned: 10.5
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

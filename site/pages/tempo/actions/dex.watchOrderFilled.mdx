@@ -34,6 +34,64 @@ watcher.off()
 
 Also callable standalone: `Actions.dex.watchOrderFilled(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Update Order Status as Fills Land
+
+Pass a `maker` filter to receive only fills of your own orders, and branch on `partialFill` to mark them partially or fully filled in a status store.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.dex.watchOrderFilled({
+  args: { maker: client.account.address }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    const { amountFilled, orderId, partialFill } = log.args
+    if (partialFill) console.log(`Order ${orderId}: filled ${amountFilled}`) // [!code focus]
+    else console.log(`Order ${orderId}: fully filled`) // [!code focus]
+  }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Reconcile Fills After Downtime
+
+Pass `fromBlock` with the order IDs you track to replay fills that landed while your service was offline, then continue streaming live fills.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const openOrderIds = [123n, 456n, 789n]
+const lastProcessedBlock = 1_234_567n
+
+const watcher = client.dex.watchOrderFilled({
+  args: { orderId: openOrderIds }, // [!code focus]
+  fromBlock: lastProcessedBlock + 1n, // [!code focus]
+})
+
+for await (const { logs } of watcher) {
+  for (const log of logs) console.log(log.args.orderId, log.args.amountFilled)
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

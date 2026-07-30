@@ -28,6 +28,61 @@ watcher.off()
 
 Also callable standalone: `Actions.receivePolicy.watchClaimed(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Reconcile Recovered Funds in Your Ledger
+
+Watch claims on your account and mark the matching blocked receipt resolved by `blockedNonce`, recording where the funds went.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.receivePolicy.watchClaimed({
+  args: { receiver: client.account.address }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    const { amount, blockedNonce, to } = log.args // [!code focus]
+    console.log(`Receipt ${blockedNonce}: released ${amount} to ${to}`) // [!code focus]
+  }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Close a Support Ticket When a Claim Lands
+
+Filter `args.blockedNonce` to a single receipt under recovery, then tear the watcher down once the claim is observed.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+// Nonce decoded from the receipt under recovery.
+const watcher = client.receivePolicy.watchClaimed({
+  args: { blockedNonce: 42n }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log('Recovered to:', log.args.to)
+  watcher.off() // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

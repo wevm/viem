@@ -27,6 +27,43 @@ console.log('Allowance:', allowance)
 
 :::
 
+## Recipes
+
+### Verify an Allowance Covers the Next Charge
+
+Compare the base-unit `amount` with the upcoming charge before pulling funds with [`token.transferSync`](/tempo/actions/token.transfer), so a shortfall becomes a renewal prompt instead of a reverted transaction.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const customer = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'
+const token = '0x20c0000000000000000000000000000000000000'
+const charge = Value.from('19.99', 6)
+
+const allowance = await client.token.getAllowance({
+  account: customer,
+  spender: client.account.address, // [!code focus]
+  token,
+})
+
+if (allowance.amount >= charge) // [!code focus]
+  await client.token.transferSync({
+    amount: charge,
+    from: customer,
+    to: client.account.address,
+    token,
+  })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

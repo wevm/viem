@@ -27,6 +27,63 @@ console.log('Tick level:', level)
 
 :::
 
+## Recipes
+
+### Check Liquidity at a Target Price
+
+Use `Tick.fromPrice` to address a level by its human-readable price and read `totalLiquidity` before resting an order there: orders already at the tick fill ahead of yours.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Tick } from 'viem/tempo'
+import { client } from './viem.config'
+
+const level = await client.dex.getTickLevel({
+  base: '0x20c0000000000000000000000000000000000001',
+  isBid: true,
+  tick: Tick.fromPrice('0.999'), // [!code focus]
+})
+
+console.log('Liquidity ahead:', level.totalLiquidity) // [!code focus]
+// @log: Liquidity ahead: 250000000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Walk the Order Queue at a Tick
+
+Combine `dex.getTickLevel` with [`dex.getOrder`](/tempo/actions/dex.getOrder) to enumerate resting orders front to back, for example to find your queue position at a price level.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const level = await client.dex.getTickLevel({
+  base: '0x20c0000000000000000000000000000000000001',
+  isBid: true,
+  tick: -100,
+})
+
+let orderId = level.head // [!code focus]
+while (orderId !== 0n) { // [!code focus]
+  const order = await client.dex.getOrder({ orderId }) // [!code focus]
+  console.log(orderId, order.maker, order.remaining)
+  orderId = order.next // [!code focus]
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

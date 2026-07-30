@@ -30,6 +30,70 @@ watcher.off()
 
 Also callable standalone: `Actions.token.watchMint(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Alert on Mints Your Issuance Service Did Not Submit
+
+Watch every mint and compare it against the transactions your issuance service submitted; a mint you did not initiate is an early signal of a compromised issuer key.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+// Transaction hashes of mints your issuance service submitted.
+const pending = new Set<string>()
+
+const watcher = client.token.watchMint({
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    if (log.transactionHash && pending.has(log.transactionHash)) continue // [!code focus]
+    console.log('Unexpected mint:', log.args.to, log.args.amount) // [!code focus]
+    // @log: Unexpected mint: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 100000000n
+  }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Credit Accounts When On-Ramp Mints Settle
+
+Filter `args.to` to the customer wallets in an on-ramp batch, so each account is marked funded when its mint settles onchain.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.token.watchMint({
+  args: { // [!code focus]
+    to: [ // [!code focus]
+      '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+      '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+    ], // [!code focus]
+  }, // [!code focus]
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log('Funded:', log.args.to, log.args.amount)
+  // @log: Funded: 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb 100000000n
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

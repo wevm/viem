@@ -24,6 +24,49 @@ console.log('Transaction hash:', receipt.transactionHash)
 // @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
 ```
 
+## Recipes
+
+### Buy an Exact Invoice Amount
+
+Set `type: 'buy'` when an invoice is priced in a token the customer does not hold: `amount` is the exact amount of `token` to receive, funded by selling `pairToken`.
+
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+const { receipt } = await client.wallet.swap({
+  amount: '250',
+  pairToken: '0x20c0000000000000000000000000000000000000', // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001', // [!code focus]
+  type: 'buy', // [!code focus]
+})
+```
+
+### Cap Slippage on a Treasury Rebalance
+
+Pass `slippage` to bound how far from quote a large conversion may fill, here 0.5%.
+
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+const { receipt } = await client.wallet.swap({
+  amount: '100000',
+  pairToken: '0x20c0000000000000000000000000000000000000',
+  slippage: 0.005, // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+  type: 'sell',
+})
+```
+
 ## Return Value
 
 ```ts

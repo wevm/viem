@@ -25,6 +25,64 @@ console.log('Order:', order)
 
 :::
 
+## Recipes
+
+### Show Fill Progress in an Order Status UI
+
+Use `amount` and `remaining` to derive how much of a resting order has filled, and `Tick.toPrice` to render its price for display.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Tick } from 'viem/tempo'
+import { client } from './viem.config'
+
+const order = await client.dex.getOrder({ orderId: 123n })
+
+const filled = order.amount - order.remaining // [!code focus]
+const progress = Number((filled * 100n) / order.amount) // [!code focus]
+
+console.log(
+  `${order.isBid ? 'Buy' : 'Sell'} @ ${Tick.toPrice(order.tick)}: ${progress}% filled`,
+)
+// @log: Buy @ 1.001: 40% filled
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Reprice an Order by Re-Posting the Remainder
+
+Combine `dex.getOrder` with [`dex.cancelSync`](/tempo/actions/dex.cancel) and [`dex.placeSync`](/tempo/actions/dex.place) to pull a stale order and re-post its unfilled remainder at a new price.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Tick } from 'viem/tempo'
+import { client } from './viem.config'
+
+const order = await client.dex.getOrder({ orderId: 123n })
+
+if (order.remaining > 0n) { // [!code focus]
+  await client.dex.cancelSync({ orderId: order.orderId })
+  await client.dex.placeSync({
+    amount: order.remaining, // [!code focus]
+    tick: Tick.fromPrice('0.999'), // [!code focus]
+    token: '0x20c0000000000000000000000000000000000001',
+    type: order.isBid ? 'buy' : 'sell', // [!code focus]
+  })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

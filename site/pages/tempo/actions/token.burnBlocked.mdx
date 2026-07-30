@@ -91,6 +91,66 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.token.burnBlocked.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Confirm an Address Is Blocked Before Burning
+
+Check the address against your transfer policy with [`policy.isAuthorized`](/tempo/actions/policy.isAuthorized) first: the burn is irreversible, so only proceed when the policy still blocks the holder.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const from = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'
+const token = '0x20c0000000000000000000000000000000000000'
+
+const isAuthorized = await client.policy.isAuthorized({ // [!code focus]
+  policyId: 1n, // [!code focus]
+  user: from, // [!code focus]
+}) // [!code focus]
+if (isAuthorized) throw new Error('address is not blocked by the policy') // [!code focus]
+
+const { receipt } = await client.token.burnBlockedSync({
+  amount: { formatted: '10.5' },
+  from,
+  token,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Burn a Blocked Account's Entire Balance
+
+Combine [`token.getBalance`](/tempo/actions/token.getBalance) with `token.burnBlockedSync` to clear a sanctioned account completely, for example when executing a documented seizure order.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const from = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'
+const token = '0x20c0000000000000000000000000000000000000'
+
+const { amount } = await client.token.getBalance({ account: from, token }) // [!code focus]
+
+const { receipt } = await client.token.burnBlockedSync({
+  amount, // [!code focus]
+  from,
+  token,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

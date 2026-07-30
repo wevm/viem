@@ -27,6 +27,79 @@ console.log('Authorized:', result.authorized)
 
 :::
 
+## Recipes
+
+### Screen a Payout Before Sending It
+
+Combine `receivePolicy.validate` with [`token.transferSync`](/tempo/actions/token.transfer) to hold a payroll payout that would block onchain, and surface the reason to your operators.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const payee = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'
+const pathUsd = '0x20c0000000000000000000000000000000000000'
+
+const { authorized, blockedReason } = await client.receivePolicy.validate({ // [!code focus]
+  receiver: payee, // [!code focus]
+  sender: client.account.address, // [!code focus]
+  token: pathUsd, // [!code focus]
+}) // [!code focus]
+if (!authorized) throw new Error(`Payout blocked: ${blockedReason}`) // [!code focus]
+
+const { receipt } = await client.token.transferSync({
+  amount: { formatted: '1250' },
+  to: payee,
+  token: pathUsd,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Fall Back to a Token the Recipient Accepts
+
+Probe your settlement currencies in preference order and settle in the first one the recipient's policy authorizes.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const customer = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'
+
+// Settlement currencies in preference order.
+const tokens = [
+  '0x20c0000000000000000000000000000000000000',
+  '0x20c0000000000000000000000000000000000001',
+] as const
+
+let token
+for (const candidate of tokens) {
+  const { authorized } = await client.receivePolicy.validate({ // [!code focus]
+    receiver: customer, // [!code focus]
+    sender: client.account.address, // [!code focus]
+    token: candidate, // [!code focus]
+  }) // [!code focus]
+  if (!authorized) continue // [!code focus]
+  token = candidate
+  break
+}
+
+console.log('Settling in:', token)
+// @log: Settling in: 0x20c0000000000000000000000000000000000000
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

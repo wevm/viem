@@ -50,6 +50,84 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.channel.open.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Open a Channel and Sign the First Voucher
+
+Combine `channel.openSync` with [`channel.signVoucher`](/tempo/actions/channel.signVoucher) to start paying for a metered service the moment the channel exists.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { channelId } = await client.channel.openSync({ // [!code focus]
+  deposit: 100_000000n,
+  payee: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+const signature = await client.channel.signVoucher({ // [!code focus]
+  channel: channelId, // [!code focus]
+  cumulativeAmount: 1_000000n, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Delegate Voucher Signing to a Hot Key
+
+Pass `authorizedSigner` when a dedicated service key signs vouchers through [`channel.signVoucher`](/tempo/actions/channel.signVoucher)'s `account` option, keeping the treasury key that funded the channel offline.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+await client.channel.openSync({
+  authorizedSigner: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  deposit: 500_000000n,
+  payee: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Run a Channel per Project with Deterministic Salts
+
+Derive `salt` from an internal identifier to keep several channels open to the same payee and token, one per project, with reproducible channel identities.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Hex } from 'viem/utils'
+import { client } from './viem.config'
+
+const projectId = 'project-atlas'
+
+const { channelId } = await client.channel.openSync({
+  deposit: 100_000000n,
+  payee: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  salt: Hex.fromString(projectId, { size: 32 }), // [!code focus]
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

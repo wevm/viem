@@ -42,6 +42,59 @@ const hash = await client.validator.changeStatus({
 const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 ```
 
+## Recipes
+
+### Reactivate a Validator After Maintenance
+
+Combine [`validator.get`](/tempo/actions/validator.get) with `changeStatus` to skip the transaction when the validator is already back in the set.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const validator = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'
+
+const { active } = await client.validator.get({ validator }) // [!code focus]
+
+if (!active) // [!code focus]
+  await client.validator.changeStatusSync({ active: true, validator }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Deactivate Validators on a Compromised Host
+
+Combine [`validator.list`](/tempo/actions/validator.list) with `changeStatus` to pull every validator on a compromised host out of consensus.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const validators = await client.validator.list() // [!code focus]
+const affected = validators.filter(
+  (validator) =>
+    validator.active && validator.outboundAddress.startsWith('203.0.113.10:'), // [!code focus]
+)
+
+for (const { validatorAddress } of affected)
+  await client.validator.changeStatusSync({
+    active: false, // [!code focus]
+    validator: validatorAddress,
+  })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

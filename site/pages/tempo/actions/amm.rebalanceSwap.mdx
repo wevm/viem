@@ -52,6 +52,69 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.amm.rebalanceSwap.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Size a Rebalance from Pool Reserves
+
+Combine [`amm.getPool`](/tempo/actions/amm.getPool) with `rebalanceSwapSync` to withdraw the user tokens that fee flows accumulated and restore the pool's validator reserve.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const userToken = '0x20c0000000000000000000000000000000000001'
+const validatorToken = '0x20c0000000000000000000000000000000000002'
+
+const pool = await client.amm.getPool({ userToken, validatorToken }) // [!code focus]
+
+// Half the reserve gap restores parity: the swap adds validator
+// tokens and removes user tokens in roughly equal measure.
+const amountOut = // [!code focus]
+  (pool.reserveUserToken - pool.reserveValidatorToken) / 2n // [!code focus]
+
+if (amountOut > 0n) {
+  await client.amm.rebalanceSwapSync({
+    amountOut, // [!code focus]
+    to: client.account.address,
+    userToken,
+    validatorToken,
+  })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Record the Cost of a Rebalance
+
+Read `amountIn` from the result to book the validator tokens the swap pulled against the user tokens received.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { amountIn, amountOut } = await client.amm.rebalanceSwapSync({ // [!code focus]
+  amountOut: 1_000_000000n,
+  to: '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+})
+
+console.log('Spent:', amountIn, 'Received:', amountOut) // [!code focus]
+// @log: Spent: 1001000000n Received: 1000000000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

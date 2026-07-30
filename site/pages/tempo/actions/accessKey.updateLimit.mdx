@@ -49,6 +49,63 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.accessKey.updateLimit.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Freeze a Key Without Revoking It
+
+Set `limit` to `0n` to stop a key from spending during an investigation, keeping the option to restore it later, unlike [`accessKey.revoke`](/tempo/actions/accessKey.revoke).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.accessKey.updateLimitSync({
+  accessKey: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  limit: 0n, // [!code focus]
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Top Up a Budget When It Runs Low
+
+Combine [`accessKey.getRemainingLimit`](/tempo/actions/accessKey.getRemainingLimit) with `updateLimit` to raise an agent's cap only when its remaining budget drops below a threshold.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const accessKey = '0x8ba1f109551bD432803012645Ac136ddd64DBA72'
+const token = '0x20c0000000000000000000000000000000000000'
+
+const { remaining } = await client.accessKey.getRemainingLimit({ // [!code focus]
+  accessKey, // [!code focus]
+  token, // [!code focus]
+}) // [!code focus]
+
+if (remaining < Value.from('100', 6)) {
+  await client.accessKey.updateLimitSync({
+    accessKey,
+    limit: Value.from('1000', 6), // [!code focus]
+    token,
+  })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

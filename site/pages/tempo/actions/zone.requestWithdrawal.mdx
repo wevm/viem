@@ -83,6 +83,57 @@ type PreparedWithdrawal = {
 }
 ```
 
+## Recipes
+
+### Pay a Vendor Directly on Tempo
+
+Pass `to` to settle an invoice straight from the zone to a vendor's Mainnet address, with a `memo` carrying the invoice reference for reconciliation.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Hex } from 'viem/utils'
+import { client } from './zones.config'
+
+const { receipt } = await client.zone.requestWithdrawalSync({
+  amount: 4_500_000_000n,
+  memo: Hex.fromString('inv_2049', { size: 32 }), // [!code focus]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+### Withdraw into a Contract with a Callback
+
+Reserve `callbackGas` and pass `data` when the Mainnet recipient is a contract, and set `fallbackRecipient` so funds recover to your treasury if the callback fails.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './zones.config'
+
+const { receipt } = await client.zone.requestWithdrawalSync({
+  amount: 100_000_000n,
+  callbackGas: 100_000n, // [!code focus]
+  data: '0xd0e30db0', // [!code focus]
+  fallbackRecipient: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

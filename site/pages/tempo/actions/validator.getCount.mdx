@@ -23,6 +23,32 @@ console.log('Result:', result)
 
 :::
 
+## Recipes
+
+### Derive Quorum Figures for a Health Dashboard
+
+Use the validator count to derive standard BFT fault-tolerance figures for a network health dashboard.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const count = await client.validator.getCount() // [!code focus]
+
+const faults = (count - 1n) / 3n // [!code focus]
+const quorum = count - faults // [!code focus]
+
+console.log(`Quorum: ${quorum} of ${count} validators`)
+// @log: Quorum: 3 of 4 validators
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

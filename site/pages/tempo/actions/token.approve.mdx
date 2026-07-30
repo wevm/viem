@@ -91,6 +91,75 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.token.approve.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Fund Subscription Billing with an Allowance
+
+Use an allowance to let your billing service charge on schedule: the customer approves a period's budget once, then the server pulls each charge with [`token.transferSync`](/tempo/actions/token.transfer).
+
+:::code-group
+
+```ts twoslash [customer.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.approveSync({
+  amount: { formatted: '120' }, // [!code focus]
+  spender: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [server.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.transferSync({
+  amount: { formatted: '10' },
+  from: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+  to: '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Revoke a Compromised Spender
+
+Set `amount` to `0n` to cut off a spender immediately, then confirm with [`token.getAllowance`](/tempo/actions/token.getAllowance), for example after a billing integration is compromised.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const spender = '0x8ba1f109551bD432803012645Ac136ddd64DBA72'
+const token = '0x20c0000000000000000000000000000000000000'
+
+const { receipt } = await client.token.approveSync({
+  amount: 0n, // [!code focus]
+  spender,
+  token,
+})
+
+const allowance = await client.token.getAllowance({
+  account: client.account.address,
+  spender,
+  token,
+})
+
+console.log('Remaining allowance:', allowance.formatted)
+// @log: Remaining allowance: 0
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

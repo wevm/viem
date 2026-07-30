@@ -28,6 +28,67 @@ watcher.off()
 
 Also callable standalone: `Actions.policy.watchWhitelistUpdated(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Rebuild Whitelist Membership from Event History
+
+Pass `fromBlock` and replay the `allowed` flag to derive current membership, since the registry only answers point queries via [`policy.isAuthorized`](/tempo/actions/policy.isAuthorized).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const members = new Set<string>()
+
+const watcher = client.policy.watchWhitelistUpdated({
+  args: { policyId: 1n },
+  fromBlock: 1n, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) { // [!code focus]
+    if (log.args.allowed) members.add(log.args.account) // [!code focus]
+    else members.delete(log.args.account) // [!code focus]
+  } // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Pause Payouts When a Recipient Loses Access
+
+Pass `args.account` to track a payee's status under your token's policy, and pause scheduled payouts when they are removed.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.policy.watchWhitelistUpdated({
+  args: { // [!code focus]
+    account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+    policyId: 1n, // [!code focus]
+  }, // [!code focus]
+})
+
+for await (const { logs } of watcher) {
+  for (const log of logs)
+    if (!log.args.allowed) console.log('Pause payouts to:', log.args.account) // [!code focus]
+  // @log: Pause payouts to: 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

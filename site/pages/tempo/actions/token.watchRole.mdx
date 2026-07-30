@@ -35,6 +35,75 @@ watcher.off()
 
 Also callable standalone: `Actions.token.watchRole(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Alert on Unexpected issuer Grants
+
+Filter `args.role` with `TokenRole.serialize` and page an operator when the issuer role is granted to an account outside your allowlist.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { TokenRole } from 'viem/tempo'
+import { client } from './viem.config'
+
+// Accounts authorized to hold the issuer role.
+const knownIssuers = new Set<string>([
+  '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+])
+
+const watcher = client.token.watchRole({
+  args: { role: TokenRole.serialize('issuer') }, // [!code focus]
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    if (!log.args.hasRole || knownIssuers.has(log.args.account)) continue // [!code focus]
+    console.log('Unexpected grant:', log.args.account, 'by', log.args.sender) // [!code focus]
+    // @log: Unexpected grant: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 by 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+  }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Pause Issuance When Your Service Loses the issuer Role
+
+Filter `args.account` and `args.role` together to react when your own service account's issuer access is revoked, halting mint jobs before they fail onchain.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { TokenRole } from 'viem/tempo'
+import { client } from './viem.config'
+
+const watcher = client.token.watchRole({
+  args: { // [!code focus]
+    account: client.account.address, // [!code focus]
+    role: TokenRole.serialize('issuer'), // [!code focus]
+  }, // [!code focus]
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    // Halt issuance jobs until access is restored.
+    if (!log.args.hasRole) console.log('Issuer role revoked by', log.args.sender) // [!code focus]
+  }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

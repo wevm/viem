@@ -26,6 +26,66 @@ console.log('Imported Tempo block:', info.tempoBlockNumber)
 The action polls [`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo) and resolves when the zone's
 `tempoBlockNumber` reaches the requested block.
 
+## Recipes
+
+### Show Settlement Progress at Checkout
+
+Tighten `pollingInterval` and shorten `timeout` while a customer waits, treating a timeout as still settling rather than a failure.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './zones.config'
+
+try {
+  await client.zone.waitForTempoBlock({
+    pollingInterval: 500, // [!code focus]
+    tempoBlockNumber: 123456n,
+    timeout: 15_000, // [!code focus]
+  })
+  console.log('Deposit settled')
+} catch {
+  // Timed out: the zone has not imported the block yet.
+  console.log('Still settling, check back shortly')
+}
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+### Gate a Balance Read on Deposit Import
+
+Wait for the deposit's Mainnet block number before reading the balance with [`token.getBalance`](/tempo/actions/token.getBalance): the funds are spendable once the block imports.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './zones.config'
+
+// Block number from the Mainnet deposit receipt.
+const depositBlockNumber = 123456n
+
+await client.zone.waitForTempoBlock({
+  tempoBlockNumber: depositBlockNumber, // [!code focus]
+})
+
+const balance = await client.token.getBalance({ // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001', // [!code focus]
+}) // [!code focus]
+
+console.log('Zone balance:', balance.formatted)
+// @log: Zone balance: 100
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 `Actions.zone.getZoneInfo.ReturnType`

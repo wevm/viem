@@ -23,6 +23,34 @@ console.log('Result:', result)
 
 :::
 
+## Recipes
+
+### Gate Admin Tooling to the Config Owner
+
+Check the owner before running restricted operations like [`validator.changeStatus`](/tempo/actions/validator.changeStatus): mutations from any other account revert.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const owner = await client.validator.getOwner() // [!code focus]
+
+if (owner !== client.account.address) // [!code focus]
+  throw new Error('connected account cannot manage the validator set')
+
+const { receipt } = await client.validator.changeStatusSync({
+  active: false,
+  validator: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

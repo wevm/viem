@@ -27,6 +27,44 @@ console.log('Valid:', valid)
 
 :::
 
+## Recipes
+
+### Tier Endpoint Access by Signer Privilege
+
+Use the default admin check for sensitive operations and `admin: false` for routine access key traffic, so one signature check enforces two permission tiers.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const account = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'
+const hash =
+  '0x9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658'
+const signature = '0x...'
+
+// Any active access key may read order history.
+const isAccessKey = await client.accessKey.verifyHash({
+  account,
+  admin: false, // [!code focus]
+  hash,
+  signature,
+})
+
+// Only the root key or an admin key may change payout settings.
+const isOwner = await client.accessKey.verifyHash({
+  account,
+  hash,
+  signature,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

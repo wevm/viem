@@ -28,6 +28,83 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 :::
 
+## Recipes
+
+### Derive the Slippage Bound from a Fresh Quote
+
+Combine [`dex.getBuyQuote`](/tempo/actions/dex.getBuyQuote) with `dex.buySync` to derive `maxAmountIn` from the live price instead of guessing a limit.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const alphaUsd = '0x20c0000000000000000000000000000000000001'
+const pathUsd = '0x20c0000000000000000000000000000000000000'
+
+const invoice = 250_000000n
+
+const quote = await client.dex.getBuyQuote({ // [!code focus]
+  amountOut: invoice, // [!code focus]
+  tokenIn: pathUsd, // [!code focus]
+  tokenOut: alphaUsd, // [!code focus]
+}) // [!code focus]
+
+const { receipt } = await client.dex.buySync({
+  amountOut: invoice,
+  maxAmountIn: (quote * 1_005n) / 1_000n, // [!code focus]
+  tokenIn: pathUsd,
+  tokenOut: alphaUsd,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The bound above tolerates 0.5% of price movement between the quote and the swap. The buy reverts instead of overpaying if the price moves further.
+
+### Pay an Invoice in a Stablecoin You Don't Hold
+
+Batch the buy with [`dex.withdraw`](/tempo/actions/dex.withdraw) and [`token.transfer`](/tempo/actions/token.transfer) to convert, withdraw, and pay an exact invoice in one atomic transaction.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const alphaUsd = '0x20c0000000000000000000000000000000000001'
+const pathUsd = '0x20c0000000000000000000000000000000000000'
+
+const invoice = 250_000000n
+
+const receipt = await client.transaction.sendSync({
+  calls: [
+    Actions.dex.buy.call({ // [!code focus]
+      amountOut: invoice, // [!code focus]
+      maxAmountIn: 251_000000n, // [!code focus]
+      tokenIn: pathUsd, // [!code focus]
+      tokenOut: alphaUsd, // [!code focus]
+    }), // [!code focus]
+    Actions.dex.withdraw.call({ amount: invoice, token: alphaUsd }), // [!code focus]
+    Actions.token.transfer.call({ // [!code focus]
+      amount: invoice, // [!code focus]
+      to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+      token: alphaUsd, // [!code focus]
+    }), // [!code focus]
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

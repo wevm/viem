@@ -25,6 +25,58 @@ console.log('Fee token:', token)
 
 :::
 
+## Recipes
+
+### Show the Gas Token in Wallet Settings
+
+Use the `null` return to fall back to pathUSD when rendering fee settings for an account that has not chosen a token.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const pathUsd = '0x20c0000000000000000000000000000000000000'
+
+const token = await client.fee.getUserToken()
+const feeToken = token ?? pathUsd // [!code focus]
+
+console.log('Gas is paid in:', feeToken)
+// @log: Gas is paid in: 0x20c0000000000000000000000000000000000000
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Audit Preferences Across Payout Accounts
+
+Pass `account` to read the preference of any account, such as payout or treasury accounts a backend operates alongside the Client's own.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const payoutAccounts = [
+  '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+] as const
+
+for (const account of payoutAccounts) {
+  const token = await client.fee.getUserToken({ account }) // [!code focus]
+  console.log(account, token)
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

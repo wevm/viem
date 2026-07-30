@@ -47,6 +47,67 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.receivePolicy.claim.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Recover a Payment Your Transfer Blocked
+
+A transfer blocked by the recipient's policy still succeeds, with the funds held instead of credited. When the policy's claimer is `'sender'`, extract the claim receipt from your [`token.transferSync`](/tempo/actions/token.transfer) receipt and reclaim the funds.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { ReceivePolicyReceipt } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { receipt } = await client.token.transferSync({
+  amount: { decimals: 6, formatted: '500' },
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+const [blocked] = ReceivePolicyReceipt.fromTransactionReceipt(receipt) // [!code focus]
+if (blocked) // [!code focus]
+  await client.receivePolicy.claimSync({ // [!code focus]
+    receipt: blocked, // [!code focus]
+    to: client.account.address, // [!code focus]
+  }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Return a Blocked Payment to Its Sender
+
+As the policy's claimer, decode the receipt with `ReceivePolicyReceipt.decode` and release the funds straight back to the originator: `to` accepts any destination, not just your own account.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { ReceivePolicyReceipt } from 'viem/tempo'
+import { client } from './viem.config'
+
+// Receipt captured from a `TransferBlocked` event.
+const blockedReceipt = '0x1234'
+
+const { originator } = ReceivePolicyReceipt.decode(blockedReceipt) // [!code focus]
+
+const { amount, token } = await client.receivePolicy.claimSync({
+  receipt: blockedReceipt,
+  to: originator, // [!code focus]
+})
+
+console.log(`Returned ${amount} of ${token} to ${originator}`)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

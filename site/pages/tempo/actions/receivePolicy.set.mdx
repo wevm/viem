@@ -52,6 +52,83 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.receivePolicy.set.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Accept Only Your Settlement Currencies
+
+Combine [`policy.createSync`](/tempo/actions/policy.create) with `tokenPolicyId` to limit a merchant account to the stablecoins it settles in. Transfers of any other token are blocked instead of credited.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const pathUsd = '0x20c0000000000000000000000000000000000000'
+const alphaUsd = '0x20c0000000000000000000000000000000000001'
+
+// Whitelist of stablecoins the merchant settles in.
+const { policyId } = await client.policy.createSync({ // [!code focus]
+  addresses: [pathUsd, alphaUsd], // [!code focus]
+  admin: client.account.address, // [!code focus]
+  type: 'whitelist', // [!code focus]
+}) // [!code focus]
+
+const { receipt } = await client.receivePolicy.setSync({
+  claimer: 'self',
+  tokenPolicyId: policyId, // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Route Blocked Payments to an Operations Claimer
+
+Pass an explicit address as `claimer` so a dedicated operations account, rather than each sender, recovers blocked payments with [`receivePolicy.claim`](/tempo/actions/receivePolicy.claim).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { claimer } = await client.receivePolicy.setSync({
+  claimer: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  senderPolicyId: 2n,
+})
+
+console.log('Claimer:', claimer)
+// @log: Claimer: 0x8ba1f109551bD432803012645Ac136ddd64DBA72
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Decommission a Deposit Address
+
+Pass `senderPolicyId: 'reject-all'` to stop accepting transfers on a retired exchange deposit address. Unspecified fields reset to defaults, so `claimer` becomes `'sender'` and late depositors can reclaim their own funds.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.receivePolicy.setSync({
+  senderPolicyId: 'reject-all', // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

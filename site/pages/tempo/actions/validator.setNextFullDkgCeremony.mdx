@@ -40,6 +40,54 @@ const hash = await client.validator.setNextFullDkgCeremony({
 const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 ```
 
+## Recipes
+
+### Refresh Key Shares After Removing a Validator
+
+Combine [`validator.changeStatus`](/tempo/actions/validator.changeStatus) with a full ceremony so the remaining set regenerates its key shares at the chosen epoch.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.validator.changeStatusSync({ // [!code focus]
+  active: false, // [!code focus]
+  validator: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+
+await client.validator.setNextFullDkgCeremonySync({ epoch: 42n }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Verify the Scheduled Epoch Before Announcing It
+
+Read the schedule back with [`validator.getNextFullDkgCeremony`](/tempo/actions/validator.getNextFullDkgCeremony) before notifying operators of the maintenance window.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+await client.validator.setNextFullDkgCeremonySync({ epoch: 42n })
+
+const scheduled = await client.validator.getNextFullDkgCeremony() // [!code focus]
+
+console.log('Ceremony scheduled for epoch:', scheduled)
+// @log: Ceremony scheduled for epoch: 42n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

@@ -28,6 +28,62 @@ watcher.off()
 
 Also callable standalone: `Actions.amm.watchBurn(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Alert on Large Exits from Your Token's Pool
+
+Filter `args.userToken` to the stablecoin you issue and flag large withdrawals early: fee payments in that token stall once its pool drains.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const alphaUsd = '0x20c0000000000000000000000000000000000001'
+
+const watcher = client.amm.watchBurn({
+  args: { userToken: alphaUsd }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    if (log.args.amountUserToken > 10_000_000000n) // [!code focus]
+      console.log('Large exit:', log.args.sender, log.args.amountUserToken) // [!code focus]
+  }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Record Your Own Withdrawals in Order
+
+Consume the watcher as an async iterator to record your own burns sequentially, so each ledger write completes before the next batch is handled.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.amm.watchBurn({
+  args: { sender: client.account.address }, // [!code focus]
+})
+
+for await (const { logs } of watcher) { // [!code focus]
+  for (const log of logs)
+    console.log('Recorded:', log.args.liquidity, log.args.amountUserToken)
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

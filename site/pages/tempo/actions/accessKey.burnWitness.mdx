@@ -45,6 +45,68 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.accessKey.burnWitness.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Cancel an Issued Authorization Before First Use
+
+Combine a `witness` signed via [`accessKey.signAuthorization`](/tempo/actions/accessKey.signAuthorization) with `burnWitness` to cancel an authorization you handed out before it is submitted onchain.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { P256 } from 'viem/utils'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+// Issue a revocable authorization bound to a witness.
+const witness =
+  '0x9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658'
+const keyAuthorization = await client.accessKey.signAuthorization({
+  accessKey,
+  witness, // [!code focus]
+})
+
+// The user abandons checkout: burn the witness so the
+// authorization can never activate.
+const { receipt } = await client.accessKey.burnWitnessSync({
+  witness, // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Make a Cancel Endpoint Idempotent
+
+Check [`accessKey.isWitnessBurned`](/tempo/actions/accessKey.isWitnessBurned) first so repeated cancel requests skip the transaction once the witness is burned.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const witness =
+  '0x9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658'
+
+const burned = await client.accessKey.isWitnessBurned({ witness }) // [!code focus]
+if (!burned) // [!code focus]
+  await client.accessKey.burnWitnessSync({ witness }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

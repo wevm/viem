@@ -27,6 +27,41 @@ console.log('Amount in:', amountIn)
 
 :::
 
+## Recipes
+
+### Fund an Exact Invoice Payment
+
+Combine `dex.getBuyQuote` with [`dex.buySync`](/tempo/actions/dex.buy) to pay an invoice denominated in a token you do not hold, deriving `maxAmountIn` from a fresh quote plus a tolerance.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const pathUsd = '0x20c0000000000000000000000000000000000000'
+const alphaUsd = '0x20c0000000000000000000000000000000000001'
+const invoiceAmount = 2_500_000000n
+
+const amountIn = await client.dex.getBuyQuote({ // [!code focus]
+  amountOut: invoiceAmount, // [!code focus]
+  tokenIn: pathUsd, // [!code focus]
+  tokenOut: alphaUsd, // [!code focus]
+}) // [!code focus]
+
+const { receipt } = await client.dex.buySync({
+  amountOut: invoiceAmount,
+  maxAmountIn: (amountIn * 1_005n) / 1_000n, // quote + 0.5% tolerance // [!code focus]
+  tokenIn: pathUsd,
+  tokenOut: alphaUsd,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

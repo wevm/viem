@@ -49,6 +49,68 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.dex.place.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Quote at a Human-Readable Price
+
+Use `Tick.fromPrice` to express the order price as a decimal string instead of computing raw ticks by hand.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Tick } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { orderId } = await client.dex.placeSync({
+  amount: 100_000000n,
+  tick: Tick.fromPrice('0.999'), // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+  type: 'buy',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Rest Both Sides of the Spread in One Transaction
+
+Combine two `place` calls with [`transaction.sendSync`](/docs/actions/wallet/transaction/send) to quote a bid and an ask atomically when market making.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions, Tick } from 'viem/tempo'
+import { client } from './viem.config'
+
+const alphaUsd = '0x20c0000000000000000000000000000000000001'
+
+const receipt = await client.transaction.sendSync({
+  calls: [
+    Actions.dex.place.call({ // [!code focus]
+      amount: 5_000_000000n, // [!code focus]
+      tick: Tick.fromPrice('0.999'), // [!code focus]
+      token: alphaUsd, // [!code focus]
+      type: 'buy', // [!code focus]
+    }), // [!code focus]
+    Actions.dex.place.call({ // [!code focus]
+      amount: 5_000_000000n, // [!code focus]
+      tick: Tick.fromPrice('1.001'), // [!code focus]
+      token: alphaUsd, // [!code focus]
+      type: 'sell', // [!code focus]
+    }), // [!code focus]
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

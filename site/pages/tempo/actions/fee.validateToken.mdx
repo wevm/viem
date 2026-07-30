@@ -37,6 +37,69 @@ console.log('Fee token:', token)
 
 :::
 
+## Recipes
+
+### Screen a User-Entered Token Before Saving It
+
+Catch the specific validation errors to give users actionable feedback before persisting a preference with [`fee.setUserToken`](/tempo/actions/fee.setUserToken).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { FeeTokenNotUsdError, FeeTokenPausedError } from 'viem/tempo'
+import { client } from './viem.config'
+
+try {
+  const { address } = await client.fee.validateToken({
+    token: '0x20c0000000000000000000000000000000000001',
+  })
+  await client.fee.setUserTokenSync({ token: address })
+} catch (error) {
+  if (error instanceof FeeTokenPausedError) // [!code focus]
+    console.log('This token is paused. Choose another stablecoin.') // [!code focus]
+  else if (error instanceof FeeTokenNotUsdError) // [!code focus]
+    console.log('Fee tokens must be USD-denominated.') // [!code focus]
+  else throw error
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Build a Fee Token Picker
+
+Validate a list of candidate tokens and build picker options from the returned metadata, skipping candidates that cannot pay fees.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const candidates = [
+  '0x20c0000000000000000000000000000000000000',
+  '0x20c0000000000000000000000000000000000001',
+] as const
+
+const options: { address: string; symbol: string }[] = []
+for (const token of candidates) {
+  try {
+    const { address, metadata } = await client.fee.validateToken({ token }) // [!code focus]
+    options.push({ address, symbol: metadata.symbol }) // [!code focus]
+  } catch {
+    continue
+  }
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

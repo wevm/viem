@@ -26,6 +26,76 @@ console.log('Balance:', balance)
 
 :::
 
+## Recipes
+
+### Confirm the Payout Wallet Covers a Payroll Run
+
+Omit `account` to read the Client's connected account, and compare the base-unit `amount` against the batch total before dispatching [`token.transferSync`](/tempo/actions/token.transfer) payouts.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const payouts = [
+  { amount: Value.from('1250.00', 6), to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb' },
+  { amount: Value.from('980.50', 6), to: '0x8ba1f109551bD432803012645Ac136ddd64DBA72' },
+]
+const total = payouts.reduce((sum, { amount }) => sum + amount, 0n)
+
+const balance = await client.token.getBalance({ // [!code focus]
+  token: '0x20c0000000000000000000000000000000000000', // [!code focus]
+}) // [!code focus]
+
+if (balance.amount < total) // [!code focus]
+  throw new Error(
+    `top up payout wallet by ${Value.format(total - balance.amount, balance.decimals)}`,
+  )
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Read Balances Across Tokens in One Round Trip
+
+Use `getBalance.call` with [`multicall`](/docs/actions/public/multicall) to fetch one account's balances across several tokens in a single request, for example to render a wallet dashboard.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'
+
+const { results } = await client.multicall({
+  allowFailure: false,
+  calls: [
+    Actions.token.getBalance.call({ // [!code focus]
+      account, // [!code focus]
+      token: '0x20c0000000000000000000000000000000000000', // [!code focus]
+    }), // [!code focus]
+    Actions.token.getBalance.call({
+      account,
+      token: '0x20c0000000000000000000000000000000000001',
+    }),
+  ],
+})
+
+console.log(results)
+// @log: [10_500_000n, 2_750_000n]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

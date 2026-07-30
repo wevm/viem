@@ -47,6 +47,65 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.token.setSupplyCap.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Freeze Issuance at the Current Supply
+
+Cap the token at its exact outstanding supply, read with [`token.getTotalSupply`](/tempo/actions/token.getTotalSupply), to stop further minting while payments keep flowing.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000001'
+
+const { amount } = await client.token.getTotalSupply({ token }) // [!code focus]
+
+const { newSupplyCap } = await client.token.setSupplyCapSync({
+  supplyCap: amount, // [!code focus]
+  token,
+})
+
+console.log('Issuance frozen at:', newSupplyCap)
+// @log: Issuance frozen at: 25000000000000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Raise the Cap Ahead of a Scheduled Mint
+
+Read the current cap with [`token.getMetadata`](/tempo/actions/token.getMetadata) and raise it by exactly the next payroll run, so the cap always tracks planned issuance.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000001'
+
+const { supplyCap = 0n } = await client.token.getMetadata({ token }) // [!code focus]
+
+const { newSupplyCap } = await client.token.setSupplyCapSync({
+  supplyCap: supplyCap + Value.from('250000', 6), // [!code focus]
+  token,
+})
+
+console.log('New supply cap:', newSupplyCap)
+// @log: New supply cap: 25250000000000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

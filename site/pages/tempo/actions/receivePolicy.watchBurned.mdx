@@ -28,6 +28,35 @@ watcher.off()
 
 Also callable standalone: `Actions.receivePolicy.watchBurned(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Notify Senders When Blocked Funds Are Destroyed
+
+Watch burns on your account and use the `originator` from the event to tell the sender their payment was destroyed rather than credited.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.receivePolicy.watchBurned({
+  args: { receiver: client.account.address }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    const { amount, originator, token } = log.args // [!code focus]
+    console.log(`Burned ${amount} of ${token} sent by ${originator}`) // [!code focus]
+  }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

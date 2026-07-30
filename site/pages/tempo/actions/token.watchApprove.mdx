@@ -34,6 +34,75 @@ watcher.off()
 
 Also callable standalone: `Actions.token.watchApprove(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Collect Funds When a Payer Approves Your Processor
+
+Filter `args.spender` to your processor account, then pull the approved amount with [`token.transferSync`](/tempo/actions/token.transfer) and its `from` parameter.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.token.watchApprove({
+  args: { spender: client.account.address }, // [!code focus]
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+watcher.onLogs(async (logs) => {
+  for (const log of logs) {
+    // Collect the approved amount from the payer.
+    const { receipt } = await client.token.transferSync({ // [!code focus]
+      amount: log.args.amount, // [!code focus]
+      from: log.args.owner, // [!code focus]
+      to: client.account.address, // [!code focus]
+      token: '0x20c0000000000000000000000000000000000000', // [!code focus]
+    }) // [!code focus]
+  }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Alert on Approvals From Treasury Accounts
+
+Filter `args.owner` to accounts you control and flag any approval that names a spender outside your allowlist, an early signal of a compromised key.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+// Spenders authorized by your treasury policy.
+const allowedSpenders = new Set<string>([
+  '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+])
+
+const watcher = client.token.watchApprove({
+  args: { owner: '0x8ba1f109551bD432803012645Ac136ddd64DBA72' }, // [!code focus]
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    if (allowedSpenders.has(log.args.spender)) continue // [!code focus]
+    console.log('Unexpected approval:', log.args.spender, log.args.amount) // [!code focus]
+    // @log: Unexpected approval: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 100000000n
+  }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

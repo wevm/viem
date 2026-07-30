@@ -28,6 +28,38 @@ watcher.off()
 
 Also callable standalone: `Actions.policy.watchAdminUpdated(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Alert on Unexpected Admin Handoffs
+
+Pass `args.policyId` to watch the policies your token relies on, and alert when control moves to an account outside your approved set.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const approved = ['0x8ba1f109551bD432803012645Ac136ddd64DBA72']
+
+const watcher = client.policy.watchAdminUpdated({
+  args: { policyId: [1n, 2n] }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    if (!approved.includes(log.args.admin)) // [!code focus]
+      console.log('Unexpected admin change:', log.args)
+  }
+  // @log: Unexpected admin change: { policyId: 1n, updater: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', admin: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb' }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

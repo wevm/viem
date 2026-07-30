@@ -27,6 +27,68 @@ console.log('Remaining limit:', limit)
 
 :::
 
+## Recipes
+
+### Gate a Subscription Charge on Remaining Budget
+
+Compare `remaining` with the charge amount before submitting a [`token.transfer`](/tempo/actions/token.transfer), and use `periodEnd` to schedule the retry when the cap resets.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const charge = Value.from('49.99', 6)
+
+const { remaining, periodEnd } = await client.accessKey.getRemainingLimit({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // subscriber
+  accessKey: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // billing key
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+if (remaining < charge) // [!code focus]
+  console.log('Budget exhausted, retry at:', periodEnd) // [!code focus]
+// @log: Budget exhausted, retry at: 1735689600n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Monitor an Agent's Budgets Across Tokens
+
+Query each token an agent key can spend to build a treasury dashboard of remaining budgets.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const tokens = [
+  '0x20c0000000000000000000000000000000000000', // pathUSD
+  '0x20c0000000000000000000000000000000000001', // alphaUsd
+] as const
+
+const budgets = await Promise.all(
+  tokens.map(async (token) => ({
+    token,
+    ...(await client.accessKey.getRemainingLimit({ // [!code focus]
+      accessKey: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+      token, // [!code focus]
+    })), // [!code focus]
+  })),
+)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

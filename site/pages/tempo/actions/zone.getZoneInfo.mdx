@@ -27,6 +27,60 @@ console.log('Tempo block number:', info.tempoBlockNumber)
 
 :::
 
+## Recipes
+
+### Confirm a Token Is Enabled in the Zone
+
+Check `zoneTokens` before bridging funds with [`zone.deposit`](/tempo/actions/zone.deposit), so you only submit deposits the zone can credit.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './zones.config'
+
+const token = '0x20c0000000000000000000000000000000000001'
+
+const info = await client.zone.getZoneInfo()
+
+if (!info.zoneTokens.includes(token)) // [!code focus]
+  throw new Error(`Token ${token} is not enabled in zone ${info.zoneId}.`) // [!code focus]
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+### Alert When the Zone Falls Behind Tempo
+
+Compare `tempoBlockNumber` with the Mainnet block number from [`block.getNumber`](/docs/actions/public/block/getNumber) to monitor import lag before it delays deposit settlement.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client as mainnet } from './viem.config'
+import { client } from './zones.config'
+
+const [tempoBlock, info] = await Promise.all([
+  mainnet.block.getNumber(),
+  client.zone.getZoneInfo(),
+])
+
+const lag = tempoBlock - info.tempoBlockNumber // [!code focus]
+if (lag > 10n) console.warn(`Zone import lag: ${lag} blocks`)
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

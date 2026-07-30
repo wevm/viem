@@ -60,6 +60,125 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.accessKey.authorize.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Issue a Checkout Access Key with Least Privilege
+
+Combine `expiry`, `limits`, and `scopes` so a browser access key can only pay the merchant, up to a cap, until checkout expires.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { P256, Value } from 'viem/utils'
+import { Account, Expiry } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const merchant = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'
+
+const { receipt } = await client.accessKey.authorizeSync({
+  accessKey,
+  expiry: Expiry.hours(1), // [!code focus]
+  limits: [ // [!code focus]
+    { // [!code focus]
+      limit: Value.from('50', 6), // [!code focus]
+      token: '0x20c0000000000000000000000000000000000000', // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+  scopes: [ // [!code focus]
+    { // [!code focus]
+      address: '0x20c0000000000000000000000000000000000000', // [!code focus]
+      recipients: [merchant], // [!code focus]
+      selector: 'transfer(address,uint256)', // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Grant a Server Agent a Recurring Budget
+
+Pass a `period` on a limit to give a server-side agent a budget that resets monthly, and an `expiry` to bound the key's lifetime.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { P256, Value } from 'viem/utils'
+import { Account, Expiry } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const agentKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const { receipt } = await client.accessKey.authorizeSync({
+  accessKey: agentKey,
+  expiry: Expiry.days(90), // [!code focus]
+  limits: [
+    {
+      limit: Value.from('5000', 6),
+      period: 30 * 24 * 60 * 60, // resets every 30 days // [!code focus]
+      token: '0x20c0000000000000000000000000000000000000',
+    },
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Delegate Key Management to an Admin Key
+
+Pass `admin: true` to authorize an unrestricted admin key, then use it as the sending `account` to manage other keys while the root key stays offline.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { P256 } from 'viem/utils'
+import { Account, Expiry } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+
+// 1. Authorize an unrestricted admin key for the ops service.
+const adminKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+await client.accessKey.authorizeSync({
+  accessKey: adminKey,
+  admin: true, // [!code focus]
+})
+
+// 2. The admin key authorizes scoped keys without the root key.
+const workerKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+const { receipt } = await client.accessKey.authorizeSync({
+  account: adminKey, // [!code focus]
+  accessKey: workerKey,
+  expiry: Expiry.days(1),
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

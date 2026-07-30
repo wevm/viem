@@ -26,6 +26,61 @@ console.log('Pool:', pool)
 :::
 
 
+## Recipes
+
+### Check Pool Depth Before Adopting a Fee Token
+
+Check the validator token reserve before saving a default with [`fee.setUserToken`](/tempo/actions/fee.setUserToken): fee payments in a token only settle while its pool holds validator tokens.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const alphaUsd = '0x20c0000000000000000000000000000000000001'
+
+const pool = await client.amm.getPool({
+  userToken: alphaUsd,
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+})
+
+if (pool.reserveValidatorToken >= 10_000_000000n) // [!code focus]
+  await client.fee.setUserTokenSync({ token: alphaUsd }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Detect a Pool Worth Rebalancing
+
+Compare the reserves to spot user token buildup, then act with [`amm.rebalanceSwap`](/tempo/actions/amm.rebalanceSwap) when the surplus is worth the swap.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const pool = await client.amm.getPool({
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+})
+
+const surplus = pool.reserveUserToken - pool.reserveValidatorToken // [!code focus]
+
+if (surplus > 1_000_000000n) // [!code focus]
+  console.log('Rebalance opportunity:', surplus)
+// @log: Rebalance opportunity: 2500000000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

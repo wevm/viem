@@ -23,6 +23,61 @@ console.log('Signature:', signature)
 
 :::
 
+## Recipes
+
+### Meter Usage with a Running Cumulative Total
+
+Sign a voucher for the new running total after each unit of usage; each voucher supersedes the last, so the payee only keeps the latest one.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const pricePerRequest = 10_000n
+let cumulativeAmount = 0n
+
+async function payForRequest() {
+  cumulativeAmount += pricePerRequest // [!code focus]
+  const signature = await client.channel.signVoucher({
+    channel: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+    cumulativeAmount, // [!code focus]
+  })
+  // Hand the voucher to the payee off-chain.
+  return { cumulativeAmount, signature } // [!code focus]
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Sign with a Delegated Hot Key
+
+Pass `account` to sign with the channel's authorized signer instead of the client account, as configured through [`channel.open`](/tempo/actions/channel.open)'s `authorizedSigner` option.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hotKey = Account.fromSecp256k1('0x...') // [!code focus]
+
+const signature = await client.channel.signVoucher({
+  account: hotKey, // [!code focus]
+  channel: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+  cumulativeAmount: 40_000000n,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

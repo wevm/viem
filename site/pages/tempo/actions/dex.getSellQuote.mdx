@@ -27,6 +27,71 @@ console.log('Amount out:', amountOut)
 
 :::
 
+## Recipes
+
+### Convert an Entire Balance with a Slippage Bound
+
+Combine `dex.getSellQuote` with [`token.getBalance`](/tempo/actions/token.getBalance) and [`dex.sellSync`](/tempo/actions/dex.sell) to sweep a full balance into your settlement token, bounding the output with a fresh quote.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const pathUsd = '0x20c0000000000000000000000000000000000000'
+const alphaUsd = '0x20c0000000000000000000000000000000000001'
+
+const balance = await client.token.getBalance({ token: alphaUsd }) // [!code focus]
+
+const quote = await client.dex.getSellQuote({ // [!code focus]
+  amountIn: balance.amount, // [!code focus]
+  tokenIn: alphaUsd, // [!code focus]
+  tokenOut: pathUsd, // [!code focus]
+}) // [!code focus]
+
+const { receipt } = await client.dex.sellSync({
+  amountIn: balance.amount,
+  minAmountOut: (quote * 995n) / 1_000n, // quote - 0.5% tolerance // [!code focus]
+  tokenIn: alphaUsd,
+  tokenOut: pathUsd,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Halt Automated Conversions When the Rate Drifts
+
+Use a fixed probe quote to derive the pair's effective conversion rate, and pause scheduled conversions when it moves past your tolerance.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const probeAmount = 10_000_000000n
+
+const amountOut = await client.dex.getSellQuote({
+  amountIn: probeAmount,
+  tokenIn: '0x20c0000000000000000000000000000000000001',
+  tokenOut: '0x20c0000000000000000000000000000000000000',
+})
+
+const rateBps = (amountOut * 10_000n) / probeAmount // [!code focus]
+
+if (rateBps < 9_980n) // [!code focus]
+  throw new Error(`alphaUSD rate ${rateBps} bps: pausing conversions`) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

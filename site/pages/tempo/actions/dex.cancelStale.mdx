@@ -43,6 +43,65 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.dex.cancelStale.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Skip Cancels That Would Revert
+
+Simulate the cancel first: `cancelStaleOrder` reverts for healthy orders, so a keeper can filter candidates before paying for a transaction.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const orderId = 123n
+
+// Throws if the order is still backed by balance and allowance.
+await Actions.dex.cancelStale.simulate(client, { orderId }) // [!code focus]
+
+const { orderId: cancelled } = await client.dex.cancelStaleSync({ orderId })
+
+console.log('Cleared stale order:', cancelled)
+// @log: Cleared stale order: 123n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Sweep a Price Level for Stale Orders
+
+Combine [`dex.getTickLevel`](/tempo/actions/dex.getTickLevel) with [`dex.getOrder`](/tempo/actions/dex.getOrder) to walk every order resting at a tick and clear the ones no longer backed.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const level = await client.dex.getTickLevel({
+  base: '0x20c0000000000000000000000000000000000001',
+  isBid: true,
+  tick: -100,
+})
+
+let orderId = level.head // [!code focus]
+while (orderId !== 0n) { // [!code focus]
+  const order = await client.dex.getOrder({ orderId }) // [!code focus]
+  // Healthy orders revert; skip them. // [!code focus]
+  await client.dex.cancelStaleSync({ orderId }).catch(() => {}) // [!code focus]
+  orderId = order.next // [!code focus]
+} // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

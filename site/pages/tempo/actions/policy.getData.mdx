@@ -25,6 +25,59 @@ console.log('Policy data:', data)
 
 :::
 
+## Recipes
+
+### Verify a Policy Before Attaching It to a Token
+
+Use `policy.getData` to confirm a policy's type and admin before [`token.changeTransferPolicySync`](/tempo/actions/token.changeTransferPolicy) puts it in front of live transfers.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { admin, type } = await client.policy.getData({ policyId: 1n }) // [!code focus]
+
+if (type !== 'whitelist' || admin !== client.account.address) // [!code focus]
+  throw new Error('Unexpected policy configuration.') // [!code focus]
+
+await client.token.changeTransferPolicySync({
+  policyId: 1n,
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Route Membership Updates by Policy Type
+
+Use the returned `type` to choose between [`policy.modifyWhitelistSync`](/tempo/actions/policy.modifyWhitelist) and [`policy.modifyBlacklistSync`](/tempo/actions/policy.modifyBlacklist) when your tooling manages policies of both kinds.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const address = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'
+
+const { type } = await client.policy.getData({ policyId: 1n }) // [!code focus]
+
+if (type === 'whitelist') // [!code focus]
+  await client.policy.modifyWhitelistSync({ address, allowed: true, policyId: 1n })
+else // [!code focus]
+  await client.policy.modifyBlacklistSync({ address, policyId: 1n, restricted: false })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

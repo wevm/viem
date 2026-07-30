@@ -26,6 +26,38 @@ console.log('Is burned:', isBurned)
 
 :::
 
+## Recipes
+
+### Validate a Stored Authorization Before Submitting
+
+Check the witness before attaching a stored authorization from [`accessKey.signAuthorization`](/tempo/actions/accessKey.signAuthorization) to a transaction, since a burned witness makes it revert.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+// Witness bound into a signed authorization held in your database.
+const witness =
+  '0x9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658'
+
+const burned = await client.accessKey.isWitnessBurned({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // authorizing account
+  witness,
+})
+
+if (burned) // [!code focus]
+  throw new Error('authorization cancelled: request a new one') // [!code focus]
+
+// Safe to attach the stored authorization via `keyAuthorization`.
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

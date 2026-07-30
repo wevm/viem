@@ -28,6 +28,65 @@ watcher.off()
 
 Also callable standalone: `Actions.amm.watchRebalanceSwap(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Monitor Arbitrage Flow Through a Pool
+
+Filter `args.userToken` and `args.validatorToken` to a pool you provide liquidity for, so you can track each rebalance and who performed it.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.amm.watchRebalanceSwap({
+  args: { // [!code focus]
+    userToken: '0x20c0000000000000000000000000000000000001', // [!code focus]
+    validatorToken: '0x20c0000000000000000000000000000000000002', // [!code focus]
+  }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs)
+    console.log('Rebalance:', log.args.swapper, log.args.amountIn)
+  // @log: Rebalance: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 1001000n
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Refresh Reserve Metrics on Each Rebalance
+
+Combine the watcher with [`amm.getPool`](/tempo/actions/amm.getPool) to re-read reserves whenever a swap lands, keeping reserve metrics current without polling.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const userToken = '0x20c0000000000000000000000000000000000001'
+const validatorToken = '0x20c0000000000000000000000000000000000002'
+
+const watcher = client.amm.watchRebalanceSwap({
+  args: { userToken, validatorToken },
+})
+
+watcher.onLogs(async () => { // [!code focus]
+  const pool = await client.amm.getPool({ userToken, validatorToken }) // [!code focus]
+  console.log('Reserves:', pool.reserveUserToken, pool.reserveValidatorToken) // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

@@ -45,6 +45,61 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.token.updateQuoteToken.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Complete a Migration Staged by Another Operator
+
+Assert the applied quote token matches your change ticket after completing, since this action applies whatever [`token.prepareUpdateQuoteToken`](/tempo/actions/token.prepareUpdateQuoteToken) staged last.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const expected = '0x20c0000000000000000000000000000000000002'
+
+const { newQuoteToken } = await client.token.updateQuoteTokenSync({
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+if (newQuoteToken.toLowerCase() !== expected.toLowerCase()) // [!code focus]
+  throw new Error(`Unexpected quote token: ${newQuoteToken}`) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Trigger Downstream Updates When the Switch Lands
+
+Combine the update with [`token.watchUpdateQuoteToken`](/tempo/actions/token.watchUpdateQuoteToken) so pricing and settlement services react the moment the new quote token applies.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000001'
+
+const watcher = client.token.watchUpdateQuoteToken({ token }) // [!code focus]
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    if (log.eventName !== 'QuoteTokenUpdate') continue // [!code focus]
+    console.log('New quote token live:', log.args.newQuoteToken) // [!code focus]
+  }
+})
+
+await client.token.updateQuoteTokenSync({ token })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

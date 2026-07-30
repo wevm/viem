@@ -35,6 +35,77 @@ console.log('Key authorization:', keyAuthorization)
 
 :::
 
+## Recipes
+
+### Provision the Key with the User's First Payment
+
+Attach the signed authorization to a [`token.transfer`](/tempo/actions/token.transfer) via `keyAuthorization`, so provisioning lands with the first payment instead of a standalone transaction.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { P256 } from 'viem/utils'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+// Sign the authorization offchain: no transaction is sent yet.
+const keyAuthorization = await client.accessKey.signAuthorization({
+  accessKey,
+})
+
+// The authorization is provisioned with the first payment the key signs.
+const { receipt } = await client.token.transferSync({
+  account: accessKey, // [!code focus]
+  amount: { formatted: '49.99' },
+  keyAuthorization, // [!code focus]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Bind the Authorization to a Server Challenge
+
+Pass a server-issued challenge as `witness` to tie the authorization to a single session, and cancel it with [`accessKey.burnWitness`](/tempo/actions/accessKey.burnWitness) before it lands.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { P256 } from 'viem/utils'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+// Single-use challenge issued by your server for this session.
+const challenge =
+  '0x9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658'
+
+const keyAuthorization = await client.accessKey.signAuthorization({
+  accessKey,
+  witness: challenge, // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

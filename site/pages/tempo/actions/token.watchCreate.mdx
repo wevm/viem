@@ -36,6 +36,67 @@ watcher.off()
 
 Also callable standalone: `Actions.token.watchCreate(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Screen New Tokens Quoted in Your Stablecoin
+
+Watch factory creations and keep only tokens whose `quoteToken` matches your stablecoin, comparing addresses with [`Address.isEqual`](/docs/utilities/address), for example to seed a listing pipeline.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Address } from 'viem/utils'
+import { client } from './viem.config'
+
+const pathUsd = '0x20c0000000000000000000000000000000000000'
+
+const watcher = client.token.watchCreate({})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    if (!Address.isEqual(log.args.quoteToken, pathUsd)) continue // [!code focus]
+    console.log('Listing candidate:', log.args.token, log.args.symbol) // [!code focus]
+    // @log: Listing candidate: 0x20c0000000000000000000000000000000000042 MYT
+  }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Keep a Token Registry Current After Restarts
+
+Pass `fromBlock` when your indexer restarts, so tokens created while it was offline are replayed into the registry before live events.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+// Last block the registry indexed, loaded from its store.
+const checkpoint = 1_204_320n
+
+const watcher = client.token.watchCreate({
+  fromBlock: checkpoint + 1n, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    // Upsert into the registry keyed by token address.
+    console.log(log.args.token, log.args.name, log.args.symbol, log.args.admin)
+  }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

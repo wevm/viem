@@ -40,6 +40,59 @@ const hash = await client.validator.changeOwner({
 const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 ```
 
+## Recipes
+
+### Hand Over Control to a Governance Multisig
+
+Combine `changeOwner` with [`validator.getOwner`](/tempo/actions/validator.getOwner) to confirm the handover before retiring the old key.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const multisig = '0x8ba1f109551bD432803012645Ac136ddd64DBA72'
+
+const { receipt } = await client.validator.changeOwnerSync({
+  newOwner: multisig, // [!code focus]
+})
+
+const owner = await client.validator.getOwner() // [!code focus]
+
+console.log('Owner is now:', owner)
+// @log: Owner is now: 0x8ba1f109551bD432803012645Ac136ddd64DBA72
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Sign with a Dedicated Owner Key
+
+Pass `account` to sign with the owner key your team keeps separate from the application's default account.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const ownerKey = Account.fromSecp256k1('0x...')
+
+const { receipt } = await client.validator.changeOwnerSync({
+  account: ownerKey, // [!code focus]
+  newOwner: '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

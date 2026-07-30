@@ -31,6 +31,62 @@ watcher.off()
 
 Also callable standalone: `Actions.fee.watchSetUserToken(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Invalidate Cached Preferences for Your Users
+
+Filter with `args.user` to react only when one of your users changes their preference, such as invalidating a fee token cached by a wallet backend.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.fee.watchSetUserToken({
+  args: { // [!code focus]
+    user: [ // [!code focus]
+      '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+      '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+    ], // [!code focus]
+  }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs)
+    console.log('Preference changed:', log.args.user, log.args.token)
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Backfill Changes After Downtime
+
+Pass `fromBlock` to replay events from the last block your indexer processed before continuing live.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.fee.watchSetUserToken({
+  fromBlock: 1_234_567n, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log(log.args.user, log.args.token)
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.
