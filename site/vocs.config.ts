@@ -665,185 +665,6 @@ export default defineConfig({
         items: [
           { text: 'Overview', link: '/docs/guides' },
           {
-            text: 'Clients & Transports',
-            collapsed: true,
-            items: [
-              { text: 'Overview', link: '/docs/guides/clients' },
-              {
-                text: 'Set Up a Client',
-                link: '/docs/guides/clients/setup',
-              },
-              {
-                text: 'Multichain Clients',
-                link: '/docs/guides/clients/multichain',
-              },
-              {
-                text: 'Resilient Transports',
-                link: '/docs/guides/clients/resilient-transports',
-              },
-              {
-                text: 'Rate Limit & Load Balance',
-                link: '/docs/guides/clients/rate-limit-load-balance',
-              },
-              {
-                text: 'WebSocket Subscriptions',
-                link: '/docs/guides/clients/websockets',
-              },
-              {
-                text: 'Custom RPC & Errors',
-                link: '/docs/guides/clients/custom-rpc-errors',
-              },
-            ],
-          },
-          {
-            text: 'Transactions',
-            collapsed: true,
-            items: [
-              { text: 'Overview', link: '/docs/guides/transactions' },
-              {
-                text: 'Send Transactions',
-                link: '/docs/guides/transactions/send',
-              },
-              {
-                text: 'Prepare & Sign Transactions',
-                link: '/docs/guides/transactions/prepare-sign',
-              },
-              {
-                text: 'Estimate Gas & Fees',
-                link: '/docs/guides/transactions/gas-fees',
-              },
-              {
-                text: 'Track Transactions & Nonces',
-                link: '/docs/guides/transactions/track',
-              },
-              {
-                text: 'Blob Transactions',
-                link: '/docs/guides/transactions/blobs',
-              },
-            ],
-          },
-          {
-            text: 'Contract Interactions',
-            collapsed: true,
-            items: [
-              { text: 'Overview', link: '/docs/guides/contracts' },
-              {
-                text: 'Read Contracts',
-                link: '/docs/guides/contracts/read',
-              },
-              {
-                text: 'Write & Simulate Contracts',
-                link: '/docs/guides/contracts/write-simulate',
-              },
-              {
-                text: 'Deploy Contracts',
-                link: '/docs/guides/contracts/deploy',
-              },
-              {
-                text: 'Batch Contract Reads',
-                link: '/docs/guides/contracts/batch-reads',
-              },
-              {
-                text: 'Contract Instances',
-                link: '/docs/guides/contracts/instances',
-              },
-              {
-                text: 'Contract Events',
-                link: '/docs/guides/contracts/events',
-              },
-              {
-                text: 'Low-Level Calls',
-                link: '/docs/guides/contracts/calls',
-              },
-            ],
-          },
-          {
-            text: 'Tokens',
-            collapsed: true,
-            items: [
-              { text: 'Overview', link: '/tokens/guides' },
-              {
-                text: 'Importing Tokens',
-                link: '/tokens/guides/importing-tokens',
-              },
-              {
-                text: 'Defining Tokens',
-                link: '/tokens/guides/defining-tokens',
-              },
-              { text: 'Get Balances', link: '/tokens/guides/get-balances' },
-              {
-                text: 'Transfer Tokens',
-                link: '/tokens/guides/transfer-tokens',
-              },
-              {
-                text: 'Approve Spending',
-                link: '/tokens/guides/approve-spending',
-              },
-            ],
-          },
-          {
-            text: 'Wallets & Accounts',
-            collapsed: true,
-            items: [
-              { text: 'Overview', link: '/docs/guides/wallets' },
-              {
-                text: 'Connect a Wallet',
-                link: '/docs/guides/wallets/connect',
-              },
-              {
-                text: 'JSON-RPC Accounts',
-                link: '/docs/guides/wallets/json-rpc-accounts',
-              },
-              {
-                text: 'Local Accounts',
-                link: '/docs/guides/wallets/local-accounts',
-              },
-              {
-                text: 'Manage Chains',
-                link: '/docs/guides/wallets/permissions-chains',
-              },
-              {
-                text: 'Signatures & SIWE',
-                link: '/docs/guides/wallets/signatures',
-              },
-              {
-                text: 'Capabilities & Calls',
-                link: '/docs/guides/wallets/capabilities',
-              },
-              {
-                text: 'Batch Calls',
-                link: '/docs/guides/wallets/batch-calls',
-              },
-              {
-                text: 'Wallet Assets',
-                link: '/docs/guides/wallets/assets',
-              },
-            ],
-          },
-          {
-            text: 'Authorizations',
-            collapsed: true,
-            items: [
-              { text: 'Overview', link: '/docs/guides/authorizations' },
-              {
-                text: 'Prepare & Sign',
-                link: '/docs/guides/authorizations/prepare-sign',
-              },
-              {
-                text: 'Send & Write',
-                link: '/docs/guides/authorizations/send-write',
-              },
-              {
-                text: 'Inspect Delegations',
-                link: '/docs/guides/authorizations/delegations',
-              },
-              {
-                text: 'ERC-7821 Execution',
-                link: '/docs/guides/authorizations/erc7821',
-              },
-            ],
-          },
-          {
             text: 'Blocks & Events',
             collapsed: true,
             items: [
@@ -883,6 +704,95 @@ export default defineConfig({
             ],
           },
           {
+            text: 'Clients & Transports',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/guides/clients' },
+              {
+                text: 'Set Up a Client',
+                link: '/docs/guides/clients/setup',
+              },
+              {
+                text: 'Multichain Clients',
+                link: '/docs/guides/clients/multichain',
+              },
+              {
+                text: 'Resilient Transports',
+                link: '/docs/guides/clients/resilient-transports',
+              },
+              {
+                text: 'Rate Limit & Load Balance',
+                link: '/docs/guides/clients/rate-limit-load-balance',
+              },
+              {
+                text: 'WebSocket Subscriptions',
+                link: '/docs/guides/clients/websockets',
+              },
+              {
+                text: 'Custom RPC & Errors',
+                link: '/docs/guides/clients/custom-rpc-errors',
+              },
+            ],
+          },
+          {
+            text: 'Contract Interactions',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/guides/contracts' },
+              {
+                text: 'Read Contracts',
+                link: '/docs/guides/contracts/read',
+              },
+              {
+                text: 'Write & Simulate Contracts',
+                link: '/docs/guides/contracts/write-simulate',
+              },
+              {
+                text: 'Deploy Contracts',
+                link: '/docs/guides/contracts/deploy',
+              },
+              {
+                text: 'Batch Contract Reads',
+                link: '/docs/guides/contracts/batch-reads',
+              },
+              {
+                text: 'Contract Instances',
+                link: '/docs/guides/contracts/instances',
+              },
+              {
+                text: 'Contract Events',
+                link: '/docs/guides/contracts/events',
+              },
+              {
+                text: 'Low-Level Calls',
+                link: '/docs/guides/contracts/calls',
+              },
+            ],
+          },
+          {
+            text: 'EIP-7702 Authorizations',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/guides/authorizations' },
+              {
+                text: 'Prepare & Sign',
+                link: '/docs/guides/authorizations/prepare-sign',
+              },
+              {
+                text: 'Send & Write',
+                link: '/docs/guides/authorizations/send-write',
+              },
+              {
+                text: 'Inspect Delegations',
+                link: '/docs/guides/authorizations/delegations',
+              },
+              {
+                text: 'ERC-7821 Execution',
+                link: '/docs/guides/authorizations/erc7821',
+              },
+            ],
+          },
+          {
             text: 'Error Handling',
             collapsed: true,
             items: [
@@ -892,6 +802,37 @@ export default defineConfig({
               { text: 'RPC Errors', link: '/docs/errors/rpc' },
               { text: 'Base Error', link: '/docs/errors/base-error' },
               { text: 'Configuration', link: '/docs/errors/configuration' },
+            ],
+          },
+          {
+            text: 'Extending Viem',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/guides/extending' },
+              {
+                text: 'Tree-Shakable Actions',
+                link: '/docs/guides/extending/tree-shakable-actions',
+              },
+              {
+                text: 'Type Composition',
+                link: '/docs/guides/extending/type-composition',
+              },
+              {
+                text: 'Extend a Client',
+                link: '/docs/guides/extending/client',
+              },
+              {
+                text: 'Build Actions & Decorators',
+                link: '/docs/guides/extending/actions-decorators',
+              },
+              {
+                text: 'Custom Chains & Transports',
+                link: '/docs/guides/extending/chains-transports',
+              },
+              {
+                text: 'Distribute a Viem Library',
+                link: '/docs/guides/extending/libraries',
+              },
             ],
           },
           {
@@ -926,33 +867,92 @@ export default defineConfig({
             ],
           },
           {
-            text: 'Extending Viem',
+            text: 'Tokens',
             collapsed: true,
             items: [
-              { text: 'Overview', link: '/docs/guides/extending' },
+              { text: 'Overview', link: '/tokens/guides' },
               {
-                text: 'Tree-Shakable Actions',
-                link: '/docs/guides/extending/tree-shakable-actions',
+                text: 'Importing Tokens',
+                link: '/tokens/guides/importing-tokens',
               },
               {
-                text: 'Type Composition',
-                link: '/docs/guides/extending/type-composition',
+                text: 'Defining Tokens',
+                link: '/tokens/guides/defining-tokens',
+              },
+              { text: 'Get Balances', link: '/tokens/guides/get-balances' },
+              {
+                text: 'Transfer Tokens',
+                link: '/tokens/guides/transfer-tokens',
               },
               {
-                text: 'Extend a Client',
-                link: '/docs/guides/extending/client',
+                text: 'Approve Spending',
+                link: '/tokens/guides/approve-spending',
+              },
+            ],
+          },
+          {
+            text: 'Transactions',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/guides/transactions' },
+              {
+                text: 'Send Transactions',
+                link: '/docs/guides/transactions/send',
               },
               {
-                text: 'Build Actions & Decorators',
-                link: '/docs/guides/extending/actions-decorators',
+                text: 'Prepare & Sign Transactions',
+                link: '/docs/guides/transactions/prepare-sign',
               },
               {
-                text: 'Custom Chains & Transports',
-                link: '/docs/guides/extending/chains-transports',
+                text: 'Estimate Gas & Fees',
+                link: '/docs/guides/transactions/gas-fees',
               },
               {
-                text: 'Distribute a Viem Library',
-                link: '/docs/guides/extending/libraries',
+                text: 'Track Transactions & Nonces',
+                link: '/docs/guides/transactions/track',
+              },
+              {
+                text: 'Blob Transactions',
+                link: '/docs/guides/transactions/blobs',
+              },
+            ],
+          },
+          {
+            text: 'Wallets & Accounts',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/guides/wallets' },
+              {
+                text: 'Connect a Wallet',
+                link: '/docs/guides/wallets/connect',
+              },
+              {
+                text: 'JSON-RPC Accounts',
+                link: '/docs/guides/wallets/json-rpc-accounts',
+              },
+              {
+                text: 'Local Accounts',
+                link: '/docs/guides/wallets/local-accounts',
+              },
+              {
+                text: 'Manage Chains',
+                link: '/docs/guides/wallets/permissions-chains',
+              },
+              {
+                text: 'Signatures & SIWE',
+                link: '/docs/guides/wallets/signatures',
+              },
+              {
+                text: 'Capabilities & Calls',
+                link: '/docs/guides/wallets/capabilities',
+              },
+              {
+                text: 'Batch Calls',
+                link: '/docs/guides/wallets/batch-calls',
+              },
+              {
+                text: 'Wallet Assets',
+                link: '/docs/guides/wallets/assets',
               },
             ],
           },
