@@ -9,14 +9,16 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 EIP-4844 transactions carry temporary blob data outside normal EVM calldata. Viem accepts encoded
-blobs and a KZG implementation.
+blobs and a KZG implementation. Ox provides an opt-in WASM implementation backed by
+[`c-kzg-4844`](https://github.com/ethereum/c-kzg-4844).
 
 Viem derives commitments and versioned hashes, signs the transaction, and broadcasts it through
 [`transaction.send`](/docs/actions/wallet/transaction/send).
 
 ## Recipes
 
-These recipes assume you have [set up a Client](/docs) with a Local Account.
+These recipes assume you have [set up a Client](/docs) with a Local Account and installed
+[`ox`](https://oxlib.sh) as a direct dependency.
 
 ### Encode Blob Data
 
@@ -30,17 +32,18 @@ const blobs = Blobs.from(Hex.fromString('Hello from a blob')) // [!code focus]
 
 ### Configure KZG
 
-Create a [`Kzg`](/docs/utilities/kzg/from) adapter from a compatible implementation and load the
-trusted setup required by that implementation.
+Create Ox's WASM KZG implementation with its bundled Ethereum mainnet trusted setup.
 
 ```ts twoslash
 // @noErrors
-import * as cKzg from 'c-kzg'
-import { Kzg } from 'viem/utils'
+import { Setups } from 'ox/trusted-setups'
+import { Kzg } from 'ox/wasm'
 
-cKzg.loadTrustedSetup('/path/to/trusted-setup.txt') // [!code focus]
-const kzg = Kzg.from(cKzg) // [!code focus]
+const kzg = await Kzg.create({ trustedSetup: Setups.mainnet }) // [!code focus]
 ```
+
+The instance implements Viem's [`Kzg`](/docs/utilities/kzg/from) interface. Call `dispose` when the
+application no longer needs the instance.
 
 ### Send a Blob Transaction
 
@@ -50,17 +53,22 @@ Pass the blobs and KZG adapter. Viem derives the remaining blob fields during pr
 
 ```ts twoslash [example.ts]
 // @noErrors
-import * as cKzg from 'c-kzg'
-import { Blobs, Hex, Kzg } from 'viem/utils'
+import { Setups } from 'ox/trusted-setups'
+import { Kzg } from 'ox/wasm'
+import { Blobs, Hex } from 'viem/utils'
 import { client } from './viem.config'
 
-cKzg.loadTrustedSetup('/path/to/trusted-setup.txt')
+const kzg = await Kzg.create({ trustedSetup: Setups.mainnet })
 
-const hash = await client.transaction.send({
-  blobs: Blobs.from(Hex.fromString('Hello from a blob')), // [!code focus]
-  kzg: Kzg.from(cKzg), // [!code focus]
-  to: '0x0000000000000000000000000000000000000000',
-})
+try {
+  const hash = await client.transaction.send({
+    blobs: Blobs.from(Hex.fromString('Hello from a blob')), // [!code focus]
+    kzg, // [!code focus]
+    to: '0x0000000000000000000000000000000000000000',
+  })
+} finally {
+  kzg.dispose()
+}
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -71,10 +79,12 @@ const hash = await client.transaction.send({
 
 ## Best Practices
 
-### Keep KZG Setup Out of Request Paths
+### Reuse and Dispose KZG
 
-Load the trusted setup once during process initialization. Reusing the adapter avoids repeated file
-I/O and setup work for each transaction.
+Create the WASM instance during process initialization and reuse it across transactions. Call
+`dispose` during shutdown to release its c-kzg allocations.
+
+Create one instance inside each JavaScript worker that performs KZG operations.
 
 ### Use Blobs for Data Availability
 

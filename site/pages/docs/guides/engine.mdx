@@ -313,80 +313,82 @@ Install explicitly instead of relying on a side-effect import. Viem declares
 ### Run Engine Benchmarks
 
 Viem's Engine entrypoints re-export providers implemented by Ox. Run the
-upstream comparison from the Ox repository with:
+[upstream comparison](https://oxlib.sh/guides/engine#benchmarks) from the Ox repository with:
 
 ```sh
 pnpm bench:engines
 ```
 
 The harness covers every Engine slot and all 38 primitives in Ox's default
-Engine. The provider columns count the primitives that each implementation
-supplies.
+Engine. The columns count the primitives that each provider or reference supplies.
 
-The corresponding Viem entrypoints use these same providers:
+The corresponding Viem entrypoints expose these same providers:
 
-| Slot          | Primitives | `ox`   | `ox/node` | `ox/wasm` | `alloy (Rust)` |
-| ------------- | ---------- | ------ | --------- | --------- | -------------- |
-| `Bls`         | 5          | 5      | n/a       | n/a       | n/a            |
-| `Ed25519`     | 6          | 6      | 3         | 4         | n/a            |
-| `Hash`        | 5          | 5      | 3         | 5         | 1              |
-| `Keystore`    | 6          | 6      | 4         | 1         | n/a            |
-| `Mnemonic`    | 1          | 1      | 1         | 1         | n/a            |
-| `P256`        | 6          | 6      | 1         | n/a       | n/a            |
-| `Secp256k1`   | 6          | 6      | n/a       | n/a       | n/a            |
-| `X25519`      | 3          | 3      | 2         | 2         | n/a            |
-| **Total**     | **38**     | **38** | **14**    | **13**    | **1**          |
+| Slot          | Primitives | `ox`   | `ox/node` | `ox/wasm` | C      |
+| ------------- | ---------- | ------ | --------- | --------- | ------ |
+| `Bls`         | 5          | 5      | n/a       | n/a       | n/a    |
+| `Ed25519`     | 6          | 6      | 3         | 4         | 4      |
+| `Hash`        | 5          | 5      | 3         | 5         | 5      |
+| `Keystore`    | 6          | 6      | 4         | 2         | 2      |
+| `Mnemonic`    | 1          | 1      | 1         | 1         | 1      |
+| `P256`        | 6          | 6      | 1         | n/a       | n/a    |
+| `Secp256k1`   | 6          | 6      | n/a       | 5         | 5      |
+| `X25519`      | 3          | 3      | 2         | 2         | 2      |
+| **Total**     | **38**     | **38** | **14**    | **19**    | **19** |
 
 `n/a` means the provider does not implement a primitive in that slot. The
 harness never times Ox's fallback under another engine's name.
 
-`alloy-primitives` provides Keccak256 only. It is a native reference, not an Ox
-engine.
+The C reference compiles the same primitive wrappers, vendored sources, and
+target configuration as `ox/wasm` for the host. C covers every primitive
+supplied by WASM, but is not an Ox Engine.
 
-Local runs used an Apple M4 Max with Node.js 25.9.0 and Rust 1.93.1.
+The `ox/wasm` count includes the opt-in Keystore and Secp256k1 providers.
 
-Each run used 50 ms warmups, 200 ms measurement budgets, and three repeats.
+Local runs on an Apple M4 Max with Node.js 25.9.0 and Apple Clang 21.0.0 used
+50 ms warmups, 200 ms measurement budgets, and three repeats.
 
-The table shows the best observed timings.
-
-Lower values are better.
-
-Speedup compares the fastest Ox engine in each row with `ox`. Alloy remains a
-reference only.
+The table shows the best-observed timings. Lower values are better. Speedup compares the fastest
+Ox Engine in each row with `ox`; C remains a reference only.
 
 The full command prints every primitive and input size:
 
-| Primitive and case                    | `ox`      | `ox/node` | `ox/wasm` | `alloy (Rust)` | Fastest Ox engine vs `ox` |
-| ------------------------------------- | --------- | --------- | --------- | -------------- | ------------------------- |
-| `Bls.sign`, 32 B message              | 15.52 ms  | n/a       | n/a       | n/a            | n/a                       |
-| `Ed25519.getPublicKey`, 32 B key      | 95.37 µs  | 40.68 µs  | 21.75 µs  | n/a            | 4.38× (wasm)              |
-| `Ed25519.sign`, 32 B message          | 195.58 µs | 40.30 µs  | 43.92 µs  | n/a            | 4.85× (node)              |
-| `Ed25519.verify`, 32 B message        | 952.85 µs | n/a       | 58.06 µs  | n/a            | 16.41× (wasm)             |
-| `Hash.blake3`, 32 B                   | 1.21 µs   | n/a       | 421 ns    | n/a            | 2.87× (wasm)              |
-| `Hash.blake3`, 1024 KiB               | 11.06 ms  | n/a       | 1.03 ms   | n/a            | 10.75× (wasm)             |
-| `Hash.keccak256`, 32 B                | 2.57 µs   | n/a       | 274 ns    | 129 ns         | 9.40× (wasm)              |
-| `Hash.keccak256`, 1024 KiB            | 18.00 ms  | n/a       | 1.24 ms   | 1.04 ms        | 14.52× (wasm)             |
-| `Hash.sha256`, 1024 KiB               | 3.81 ms   | 348.39 µs | 2.96 ms   | n/a            | 10.93× (node)             |
-| `Keystore.aesCtrEncrypt`, 4 KiB       | 28.85 µs  | 2.71 µs   | n/a       | n/a            | 10.66× (node)             |
-| `Keystore.pbkdf2Sha256`, 262,144 runs | 234.08 ms | 21.55 ms  | 98.52 ms  | n/a            | 10.86× (node)             |
-| `Mnemonic.toSeed`, 12 words           | 5.60 ms   | 441.33 µs | 1.87 ms   | n/a            | 12.69× (node)             |
-| `P256.getPublicKey`, 32 B key         | 135.07 µs | 10.48 µs  | n/a       | n/a            | 12.89× (node)             |
-| `X25519.getSharedSecret`, 32 B key    | 597.48 µs | 47.00 µs  | 40.70 µs  | n/a            | 14.68× (wasm)             |
+| Primitive and case                    | `ox`      | `ox/node` | `ox/wasm` | C         | Fastest Ox engine vs `ox` |
+| ------------------------------------- | --------- | --------- | --------- | --------- | ------------------------- |
+| `Bls.sign`, 32 B message              | 15.70 ms  | n/a       | n/a       | n/a       | n/a                       |
+| `Ed25519.getPublicKey`, 32 B key      | 95.51 µs  | 41.87 µs  | 21.82 µs  | 18.80 µs  | 4.38× (wasm)              |
+| `Ed25519.sign`, 32 B message          | 202.12 µs | 43.13 µs  | 45.18 µs  | 38.61 µs  | 4.69× (node)              |
+| `Ed25519.verify`, 32 B message        | 960.96 µs | n/a       | 59.31 µs  | 49.81 µs  | 16.20× (wasm)             |
+| `Hash.blake3`, 32 B                   | 1.23 µs   | n/a       | 428 ns    | 563 ns    | 2.88× (wasm)              |
+| `Hash.blake3`, 1024 KiB               | 11.30 ms  | n/a       | 1.08 ms   | 875.06 µs | 10.50× (wasm)             |
+| `Hash.keccak256`, 32 B                | 2.62 µs   | n/a       | 278 ns    | 187 ns    | 9.44× (wasm)              |
+| `Hash.keccak256`, 1024 KiB            | 20.10 ms  | n/a       | 2.32 ms   | 1.39 ms   | 8.67× (wasm)              |
+| `Hash.sha256`, 1024 KiB               | 3.95 ms   | 368.29 µs | 3.25 ms   | 2.48 ms   | 10.72× (node)             |
+| `Keystore.aesCtrEncrypt`, 4 KiB       | 32.02 µs  | 2.92 µs   | n/a       | n/a       | 10.95× (node)             |
+| `Keystore.pbkdf2Sha256`, 262,144 runs | 241.53 ms | 22.94 ms  | 105.01 ms | 86.59 ms  | 10.53× (node)             |
+| `Keystore.scrypt`, N=1,024, r=1, p=1  | 207.76 µs | n/a       | 161.16 µs | 141.87 µs | 1.29× (wasm)              |
+| `Keystore.scrypt`, N=16,384, r=8, p=1 | 24.14 ms  | n/a       | 21.06 ms  | 18.38 ms  | 1.15× (wasm)              |
+| `Keystore.scrypt`, N=262,144, r=1, p=8 | 513.45 ms | n/a       | 443.69 ms | 445.30 ms | 1.16× (wasm)              |
+| `Mnemonic.toSeed`, 12 words           | 6.52 ms   | 470.29 µs | 1.93 ms   | 1.83 ms   | 13.86× (node)             |
+| `P256.getPublicKey`, 32 B key         | 142.41 µs | 11.03 µs  | n/a       | n/a       | 12.91× (node)             |
+| `Secp256k1.getPublicKey`, 32 B key    | 147.40 µs | n/a       | 19.14 µs  | 15.42 µs  | 7.70× (wasm)              |
+| `Secp256k1.getSharedSecret`, 65 B key | 1.77 ms   | n/a       | 34.20 µs  | 27.51 µs  | 51.64× (wasm)             |
+| `Secp256k1.recoverPublicKey`, 32 B    | 1.15 ms   | n/a       | 36.62 µs  | 32.46 µs  | 31.40× (wasm)             |
+| `Secp256k1.sign`, 32 B message        | 183.76 µs | n/a       | 25.03 µs  | 19.86 µs  | 7.34× (wasm)              |
+| `Secp256k1.verify`, 32 B message      | 1.03 ms   | n/a       | 31.50 µs  | 27.31 µs  | 32.80× (wasm)             |
+| `X25519.getSharedSecret`, 32 B key    | 627.61 µs | 48.74 µs  | 41.32 µs  | 33.69 µs  | 15.19× (wasm)             |
 
 The benchmark initializes engines outside the timed loops and sends each Ox
-call through the same engine resolver.
-
-It uses identical inputs, warmups, budgets, and repeats. The best-observed
-repeat represents a peak-throughput microbenchmark, not a latency distribution.
-
-The benchmark measures raw single-call byte-array implementations, not Ox
-formatting or whole applications.
+call through the same Engine resolver. It uses identical inputs, warmups,
+budgets, and repeats. The best-observed repeat represents a peak-throughput
+microbenchmark, not a latency distribution. It measures raw single-call
+byte-array implementations, not Ox formatting or whole applications.
 
 Viem re-exports the same implementations, so these results describe its Engine
 choices. They are not a separate Viem benchmark.
 
 Treat the results as runtime-specific. Node/OpenSSL, CPU acceleration, the WASM
-runtime, Rust compiler, JIT state, and input size can change the ranking.
+runtime, C compiler, JIT state, and input size can change the ranking.
 
 ### Test Engine Implementations
 

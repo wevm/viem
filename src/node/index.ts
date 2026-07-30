@@ -10,8 +10,8 @@
  */
 export { Engine } from 'ox/node'
 
-/** KZG trusted setups for EIP-4844 blobs. Re-exports `ox/trusted-setups`. */
-export * from 'ox/trusted-setups'
+/** File-system paths for KZG trusted setups. */
+export { Paths } from 'ox/trusted-setups'
 
 /** Creates an IPC JSON-RPC transport (Node only). */
 export { ipc } from './transports/ipc.js'
