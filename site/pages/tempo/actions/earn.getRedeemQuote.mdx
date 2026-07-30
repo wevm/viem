@@ -24,30 +24,6 @@ const assetAmount = await client.earn.getRedeemQuote({
 
 :::
 
-## Recipes
-
-### Preview a Share Redemption
-
-Use this pattern to preview a share redemption.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const assetAmount = await client.earn.getRedeemQuote({
-  shareAmount: 100_000_000n,
-  vault: '0x0000000000000000000000000000000000000001',
-})
-// @log: 99_500_000n
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 `bigint`

@@ -35,31 +35,6 @@ const hashes = await client.faucet.fund({
 })
 ```
 
-## Recipes
-
-### Fund a Local or Testnet Account
-
-Use this pattern to fund a local or testnet account.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const receipts = await client.faucet.fundSync({
-  account: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
-})
-
-console.log('Receipts:', receipts)
-// @log: Receipts: [{ status: 'success', transactionHash: '0x1234...' }]
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

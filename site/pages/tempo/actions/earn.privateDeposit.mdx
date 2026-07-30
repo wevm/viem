@@ -93,43 +93,6 @@ const prepared = await parentClient.earn.privateDeposit.prepare({
 When `assetToken` is the vault asset, the action always requires the exact withdrawn `assetAmount`.
 For swap-routed deposits, omitting `vaultAssetAmountMin` preserves the zero minimum.
 
-## Recipes
-
-### Move Private Zone Assets into Earn
-
-Use this pattern to move private Zone assets into Earn.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client as parentClient } from './viem.config'
-import { client as zoneClient } from './zones.config'
-
-const prepared = await parentClient.earn.privateDeposit.prepare({
-  assetAmount: 100_000_000n,
-  gateway: '0x0000000000000000000000000000000000000001',
-  recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
-  shareAmountMin: 99_500_000n,
-  vault: '0x0000000000000000000000000000000000000002',
-  zoneId: 7,
-})
-
-const { receipt, senderTag } = await zoneClient.earn.privateDepositSync(prepared)
-// @log: { transactionHash: '0x1234...abcd', ... }
-console.log('Sender tag:', senderTag)
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-```ts twoslash [zones.config.ts] filename="zones.config.ts"
-// [!include ~/snippets/tempo/zones.config.ts:setup]
-```
-
-:::
-
 ## Return Type
 
 ```ts

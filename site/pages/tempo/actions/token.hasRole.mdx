@@ -27,33 +27,6 @@ console.log('Has issuer role:', hasRole)
 
 :::
 
-## Recipes
-
-### Guard a Token Admin Operation
-
-Use this pattern to guard a token admin operation.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const hasRole = await client.token.hasRole({
-  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  role: 'issuer',
-  token: '0x20c0000000000000000000000000000000000001',
-})
-
-console.log('Has issuer role:', hasRole)
-// @log: Has issuer role: true
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

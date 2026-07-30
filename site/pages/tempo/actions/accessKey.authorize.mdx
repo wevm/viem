@@ -60,41 +60,6 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.accessKey.authorize.extractEvent(receipt.logs)
 ```
 
-## Recipes
-
-### Authorize a Limited Session Key
-
-Use this pattern to authorize a limited session key.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { P256 } from 'viem/utils'
-import { Account } from 'viem/tempo'
-import { client } from './viem.config'
-
-const account = Account.fromSecp256k1('0x...')
-const accessKey = Account.fromP256(P256.randomPrivateKey(), {
-  access: account,
-})
-
-const { publicKey, receipt } = await client.accessKey.authorizeSync({
-  accessKey,
-  expiry: Math.floor((Date.now() + 30_000) / 1000),
-})
-
-console.log('Access key:', publicKey)
-console.log('Transaction hash:', receipt.transactionHash)
-// @log: Access key: 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb
-// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

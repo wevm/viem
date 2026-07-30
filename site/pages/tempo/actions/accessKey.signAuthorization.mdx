@@ -35,39 +35,6 @@ console.log('Key authorization:', keyAuthorization)
 
 :::
 
-## Recipes
-
-### Prepare an Offline Key Authorization
-
-Use this pattern to prepare an offline key authorization.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { P256 } from 'viem/utils'
-import { Account } from 'viem/tempo'
-import { client } from './viem.config'
-
-const account = Account.fromSecp256k1('0x...')
-const accessKey = Account.fromP256(P256.randomPrivateKey(), {
-  access: account,
-})
-
-const keyAuthorization = await client.accessKey.signAuthorization({
-  accessKey,
-  expiry: Math.floor((Date.now() + 30_000) / 1000),
-})
-
-console.log('Key authorization:', keyAuthorization)
-// @log: Key authorization: { address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', chainId: 1337n, type: 'p256', ... }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

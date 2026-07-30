@@ -36,42 +36,6 @@ console.log(metadata)
 
 :::
 
-## Recipes
-
-### Render Token Details
-
-Use this pattern to render token details.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const metadata = await client.token.getMetadata({
-  token: '0x20c0000000000000000000000000000000000001',
-})
-
-console.log(metadata)
-// @log: {
-// @log:   currency: 'USD',
-// @log:   decimals: 6,
-// @log:   logoURI: '',
-// @log:   name: 'AlphaUSD',
-// @log:   paused: false,
-// @log:   quoteToken: '0x20C0000000000000000000000000000000000000',
-// @log:   supplyCap: 340282366920938463463374607431768211455n,
-// @log:   symbol: 'AlphaUSD',
-// @log:   totalSupply: 202914184810805067765n,
-// @log:   transferPolicyId: 1n,
-// @log: }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

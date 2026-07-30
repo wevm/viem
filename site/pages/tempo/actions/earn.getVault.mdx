@@ -48,54 +48,6 @@ const vault = await client.earn.getVault({
 
 :::
 
-## Recipes
-
-### Inspect Vault Capabilities Before Depositing
-
-Use this pattern to inspect vault capabilities before depositing.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const vault = await client.earn.getVault({
-  vault: '0x0000000000000000000000000000000000000001',
-})
-// @log: {
-//   assetToken: '0x20c0...0001',
-//   asyncJanitor: '0x0000...0000',
-//   capabilities: {
-//     asyncRedeem: false,
-//     exactWithdraw: true,
-//     inKindDeposit: true,
-//     syncRedeem: true,
-//   },
-//   depositsPaused: false,
-//   emergencyGuardian: '0x0000...0000',
-//   engine: {
-//     address: '0x0000...0002',
-//     name: 'Example Vault',
-//     symbol: 'evUSD',
-//     totalAssets: 1_000_000_000n,
-//   },
-//   engineMigrationMode: 'userOnly',
-//   engineShares: 1_000_000_000n,
-//   feesActive: true,
-//   isSynced: true,
-//   operator: '0x0000...0003',
-//   pendingRedeemCount: 0n,
-//   shareSupply: 995_000_000n,
-//   shareToken: '0x20c0...0002',
-// }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

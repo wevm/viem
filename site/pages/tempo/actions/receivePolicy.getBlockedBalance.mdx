@@ -25,31 +25,6 @@ console.log('Blocked balance:', balance)
 
 :::
 
-## Recipes
-
-### Show Funds Held by a Receipt
-
-Use this pattern to show funds held by a receipt.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const balance = await client.receivePolicy.getBlockedBalance({
-  receipt: '0x1234',
-})
-
-console.log('Blocked balance:', balance)
-// @log: Blocked balance: 1000000n
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

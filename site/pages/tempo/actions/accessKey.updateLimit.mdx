@@ -49,35 +49,6 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.accessKey.updateLimit.extractEvent(receipt.logs)
 ```
 
-## Recipes
-
-### Refresh an Access Key's Spending Limit
-
-Use this pattern to refresh an access key's spending limit.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const { limit, receipt } = await client.accessKey.updateLimitSync({
-  accessKey: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  limit: 1000000000000000000n,
-  token: '0x20c0000000000000000000000000000000000001',
-})
-
-console.log('New limit:', limit)
-console.log('Transaction hash:', receipt.transactionHash)
-// @log: New limit: 1000000000000000000n
-// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

@@ -28,34 +28,6 @@ watcher.off()
 
 Also callable standalone: `Actions.receivePolicy.watchBurned(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
-## Recipes
-
-### Reconcile Burned Receipts
-
-Use this pattern to reconcile burned receipts.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const watcher = client.receivePolicy.watchBurned()
-
-watcher.onLogs((logs) => {
-  for (const log of logs) console.log(log.args)
-  // @log: { token: '0x20c0000000000000000000000000000000000001', receiver: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', blockedNonce: 1n, amount: 1000000n }
-})
-
-// Later, tear down the watcher.
-watcher.off()
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

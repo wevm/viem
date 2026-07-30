@@ -68,43 +68,6 @@ const hash = await zoneClient.earn.privateRedeem(prepared)
 // @log: 0x1234...abcd
 ```
 
-## Recipes
-
-### Return Earn Assets to a Private Zone
-
-Use this pattern to return Earn assets to a private Zone.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client as parentClient } from './viem.config'
-import { client as zoneClient } from './zones.config'
-
-const prepared = await parentClient.earn.privateRedeem.prepare({
-  gateway: '0x0000000000000000000000000000000000000001',
-  recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
-  shareAmount: 100_000_000n,
-  slippageBps: 50,
-  vault: '0x0000000000000000000000000000000000000002',
-  zoneId: 7,
-})
-
-const { receipt, senderTag } = await zoneClient.earn.privateRedeemSync(prepared)
-// @log: { transactionHash: '0x1234...abcd', ... }
-console.log('Sender tag:', senderTag)
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-```ts twoslash [zones.config.ts] filename="zones.config.ts"
-// [!include ~/snippets/tempo/zones.config.ts:setup]
-```
-
-:::
-
 ## Return Type
 
 ```ts

@@ -25,31 +25,6 @@ console.log('Validator:', validator)
 
 :::
 
-## Recipes
-
-### Look Up a Validator Address by Index
-
-Use this pattern to look up a validator address by index.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const validator = await client.validator.getByIndex({
-  index: 0n,
-})
-
-console.log('Validator:', validator)
-// @log: Validator: 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

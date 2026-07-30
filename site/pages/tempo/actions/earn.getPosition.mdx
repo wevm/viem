@@ -61,37 +61,6 @@ const position = await client.earn.getPosition({
 
 :::
 
-## Recipes
-
-### Display an Account's Earn Position
-
-Use this pattern to display an account's Earn position.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const position = await client.earn.getPosition({
-  vault: '0x0000000000000000000000000000000000000001',
-})
-// @log: {
-//   assetAllowance: 0n,
-//   assetBalance: 250_000_000n,
-//   assetToken: '0x20c0...0001',
-//   shareAllowance: 0n,
-//   shareBalance: 99_500_000n,
-//   shareToken: '0x20c0...0002',
-//   value: 100_000_000n,
-// }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

@@ -54,40 +54,6 @@ const hash = await client.earn.depositShares({
 // @log: 0x1234...abcd
 ```
 
-## Recipes
-
-### Move Existing Venue Shares into Earn
-
-Use this pattern to move existing venue shares into Earn.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const result = await client.earn.depositSharesSync({
-  earnShareAmount: 499_000_000n,
-  slippageBps: 30,
-  vault: '0x0000000000000000000000000000000000000002',
-  venueShareAmount: 500_000_000n,
-  venueShareToken: '0x20c0000000000000000000000000000000000001',
-})
-// @log: {
-//   caller: '0x...',
-//   earnShareAmount: 498_750_000n,
-//   receipt: { ... },
-//   receivedVenueShareAmount: 500_000_000n,
-//   recipient: '0x...',
-//   venueShareAmount: 500_000_000n,
-// }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

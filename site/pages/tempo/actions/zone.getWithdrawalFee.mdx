@@ -33,29 +33,6 @@ const fee = await client.zone.getWithdrawalFee({
 })
 ```
 
-## Recipes
-
-### Quote a Zone Withdrawal
-
-Use this pattern to quote a Zone withdrawal.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './zones.config'
-
-const fee = await client.zone.getWithdrawalFee()
-
-console.log('Fee:', fee)
-// @log: Fee: 0n
-```
-
-```ts twoslash [zones.config.ts] filename="zones.config.ts"
-// [!include ~/snippets/tempo/zones.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

@@ -75,37 +75,6 @@ const hash = await client.earn.redeem({
 // @log: 0x1234...abcd
 ```
 
-## Recipes
-
-### Exit an Earn Position by Shares
-
-Use this pattern to exit an Earn position by shares.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const result = await client.earn.redeemSync({
-  shareAmount: 100_000_000n,
-  slippageBps: 50,
-  vault: '0x0000000000000000000000000000000000000001',
-})
-// @log: {
-//   assetAmount: 99_500_000n,
-//   caller: '0x...',
-//   receipt: { ... },
-//   recipient: '0x...',
-//   shareAmount: 100_000_000n,
-// }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

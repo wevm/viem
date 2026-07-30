@@ -45,31 +45,6 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.token.updateQuoteToken.extractEvent(receipt.logs)
 ```
 
-## Recipes
-
-### Complete a Quote Token Migration
-
-Use this pattern to complete a quote token migration.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const { newQuoteToken, receipt } = await client.token.updateQuoteTokenSync({
-  token: '0x20c0000000000000000000000000000000000001',
-})
-
-console.log('New quote token:', newQuoteToken)
-// @log: New quote token: 0x20C0000000000000000000000000000000000002
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

@@ -56,39 +56,6 @@ const hash = await client.zone.requestVerifiableWithdrawal({
 const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 ```
 
-## Recipes
-
-### Withdraw with Selective Identity Disclosure
-
-Use this pattern to withdraw with selective identity disclosure.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { PublicKey, Secp256k1 } from 'viem/utils'
-import { client } from './zones.config'
-
-// Generate a keypair for decrypting the sender identity later.
-// Store the private key securely: the holder can reveal the sender.
-const { publicKey } = Secp256k1.createKeyPair()
-const revealTo = PublicKey.toHex(PublicKey.compress(publicKey))
-
-const { receipt } = await client.zone.requestVerifiableWithdrawalSync({
-  amount: 100_000_000n,
-  revealTo,
-  token: '0x20c0000000000000000000000000000000000001',
-})
-
-console.log('Transaction hash:', receipt.transactionHash)
-// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
-```
-
-```ts twoslash [zones.config.ts] filename="zones.config.ts"
-// [!include ~/snippets/tempo/zones.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

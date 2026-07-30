@@ -34,40 +34,6 @@ watcher.off()
 
 Also callable standalone: `Actions.token.watchAdminRole(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
-## Recipes
-
-### Track Token Role Governance Changes
-
-Use this pattern to track token role governance changes.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const watcher = client.token.watchAdminRole({
-  token: '0x20c0000000000000000000000000000000000000',
-})
-
-watcher.onLogs((logs) => {
-  for (const log of logs) console.log(log.args)
-  // @log: {
-  // @log:   role: '0x114e74f6ea3bd819998f78687bfcb11b140da08e9b7d222fa9c1f1ba1f2aa122',
-  // @log:   newAdminRole: '0x139c2898040ef16910dc9f44dc697df79363da767d8bc92f2e310312b816e46d',
-  // @log:   sender: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
-  // @log: }
-})
-
-// Later, tear down the watcher.
-watcher.off()
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

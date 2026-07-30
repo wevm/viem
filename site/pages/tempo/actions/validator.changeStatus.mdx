@@ -42,32 +42,6 @@ const hash = await client.validator.changeStatus({
 const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 ```
 
-## Recipes
-
-### Temporarily Deactivate a Validator
-
-Use this pattern to temporarily deactivate a validator.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const { receipt } = await client.validator.changeStatusSync({
-  active: false,
-  validator: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-})
-
-console.log('Transaction hash:', receipt.transactionHash)
-// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

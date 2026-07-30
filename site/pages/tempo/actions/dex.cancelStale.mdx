@@ -43,31 +43,6 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.dex.cancelStale.extractEvent(receipt.logs)
 ```
 
-## Recipes
-
-### Clear an Expired Order
-
-Use this pattern to clear an expired order.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const { orderId } = await client.dex.cancelStaleSync({
-  orderId: 123n,
-})
-
-console.log('Cancelled order:', orderId)
-// @log: Cancelled order: 123n
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

@@ -27,31 +27,6 @@ console.log('Nonce:', nonce)
 
 :::
 
-## Recipes
-
-### Build a Transaction with a Parallel Nonce Key
-
-Use this pattern to build a transaction with a parallel nonce key.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const nonce = await client.nonce.get({
-  nonceKey: 1n,
-})
-
-console.log('Nonce:', nonce)
-// @log: Nonce: 42n
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

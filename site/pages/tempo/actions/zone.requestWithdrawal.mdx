@@ -83,34 +83,6 @@ type PreparedWithdrawal = {
 }
 ```
 
-## Recipes
-
-### Bridge Tokens Back to Tempo
-
-Use this pattern to bridge tokens back to Tempo.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './zones.config'
-
-const { receipt, senderTag } = await client.zone.requestWithdrawalSync({
-  amount: 100_000_000n,
-  token: '0x20c0000000000000000000000000000000000001',
-})
-
-console.log('Transaction hash:', receipt.transactionHash)
-// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
-console.log('Withdrawal sender tag:', senderTag)
-// @log: Withdrawal sender tag: 0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
-```
-
-```ts twoslash [zones.config.ts] filename="zones.config.ts"
-// [!include ~/snippets/tempo/zones.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

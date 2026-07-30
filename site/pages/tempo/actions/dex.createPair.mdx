@@ -43,31 +43,6 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.dex.createPair.extractEvent(receipt.logs)
 ```
 
-## Recipes
-
-### List a Token Pair
-
-Use this pattern to list a token pair.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const { base, key, quote } = await client.dex.createPairSync({
-  base: '0x20c0000000000000000000000000000000000001',
-})
-
-console.log('Pair:', { base, quote, key })
-// @log: Pair: { base: '0x20c0000000000000000000000000000000000001', quote: '0x20c0000000000000000000000000000000000000', key: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef' }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

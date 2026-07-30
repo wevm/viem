@@ -47,33 +47,6 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.token.setSupplyCap.extractEvent(receipt.logs)
 ```
 
-## Recipes
-
-### Limit Future Token Issuance
-
-Use this pattern to limit future token issuance.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { Value } from 'viem/utils'
-import { client } from './viem.config'
-
-const { newSupplyCap, receipt } = await client.token.setSupplyCapSync({
-  supplyCap: Value.from('1000000', 6),
-  token: '0x20c0000000000000000000000000000000000000',
-})
-
-console.log('New supply cap:', newSupplyCap)
-// @log: New supply cap: 1000000000000n
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

@@ -26,32 +26,6 @@ console.log('Balance:', balance)
 
 :::
 
-## Recipes
-
-### Show a Wallet's Token Balance
-
-Use this pattern to show a wallet's token balance.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const balance = await client.token.getBalance({
-  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: '0x20c0000000000000000000000000000000000000',
-})
-
-console.log('Balance:', balance)
-// @log: Balance: { amount: 10500000n, decimals: 6, formatted: '10.5' }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

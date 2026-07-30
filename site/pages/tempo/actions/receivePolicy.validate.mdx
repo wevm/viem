@@ -27,33 +27,6 @@ console.log('Authorized:', result.authorized)
 
 :::
 
-## Recipes
-
-### Preflight a Transfer Against Recipient Rules
-
-Use this pattern to preflight a transfer against recipient rules.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const result = await client.receivePolicy.validate({
-  receiver: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  sender: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  token: '0x20c0000000000000000000000000000000000001',
-})
-
-console.log('Authorized:', result.authorized)
-// @log: Authorized: true
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

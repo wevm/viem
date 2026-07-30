@@ -25,31 +25,6 @@ console.log('Policy data:', data)
 
 :::
 
-## Recipes
-
-### Render Transfer Policy Rules
-
-Use this pattern to render transfer policy rules.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const data = await client.policy.getData({
-  policyId: 1n,
-})
-
-console.log('Policy data:', data)
-// @log: Policy data: { admin: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', type: 'whitelist' }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

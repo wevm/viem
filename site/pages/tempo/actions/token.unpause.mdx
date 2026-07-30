@@ -43,31 +43,6 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.token.unpause.extractEvent(receipt.logs)
 ```
 
-## Recipes
-
-### Resume Token Transfers
-
-Use this pattern to resume token transfers.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const { isPaused, receipt } = await client.token.unpauseSync({
-  token: '0x20c0000000000000000000000000000000000000',
-})
-
-console.log('Is paused:', isPaused)
-// @log: Is paused: false
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

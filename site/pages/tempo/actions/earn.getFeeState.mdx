@@ -52,36 +52,6 @@ const fees = await client.earn.getFeeState({
 
 :::
 
-## Recipes
-
-### Show Accrued Vault Fees
-
-Use this pattern to show accrued vault fees.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const fees = await client.earn.getFeeState({
-  vault: '0x0000000000000000000000000000000000000001',
-})
-// @log: {
-//   config: { excess: { ... }, fixedFees: [...] },
-//   configId: 1n,
-//   feesActive: true,
-//   highWaterMark: 1_000_000_000_000_000_000n,
-//   preview: { totalFeeAssets: 10_000n, totalFeeShares: 9_950n, ... },
-//   targetBase: 1_000_000_000_000_000_000n,
-// }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts
