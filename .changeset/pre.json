@@ -8,6 +8,7 @@
     "site": "0.0.0"
   },
   "changesets": [
+    "clean-dingos-breathe",
     "friendly-client-bridges",
     "released-v3",
     "tidy-actions-gather"

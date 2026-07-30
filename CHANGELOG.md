@@ -1,5 +1,11 @@
 # viem
 
+## 3.0.0-next.3
+
+### Patch Changes
+
+- [#4923](https://github.com/wevm/viem/pull/4923) [`ef683e6`](https://github.com/wevm/viem/commit/ef683e62728d7cc00a0ee0cff5aab46ac3c41561) Thanks [@jxom](https://github.com/jxom)! - Updated `ox` to `1.2.0`.
+
 ## 3.0.0-next.2
 
 ### Patch Changes
