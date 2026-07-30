@@ -7,6 +7,7 @@ import { tokens } from 'viem/tokens'
 
 export const client = Client.create({
   account: Account.fromPrivateKey('0x…'),
+  batch: { multicall: true },
   chain: mainnet,
   tokens: tokens.all,
   transport: http(),
@@ -17,19 +18,20 @@ export const client = Client.create({
 // ---cut---
 import { client } from './viem.config'
 
-// Resolve recipient's ENS, then send them 250 USDC.
-const to = await client.ens.getAddress({
-  name: 'wevm.eth',
-})
+// Viem batches the concurrent reads into a single multicall.
+const [balance, to] = await Promise.all([
+  client.token.getBalance({ token: 'usdc' }),
+  client.ens.getAddress({ name: 'treasury.wevm.eth' }),
+])
 
 const transfer = await client.token.transferSync({
-  amount: { formatted: '250' },
+  amount: balance.amount,
   to,
   token: 'usdc',
 })
 // @log: {
-// @log:   value: 250000000n,
-// @log:   formatted: '250',
+// @log:   value: 1250000000n,
+// @log:   formatted: '1250',
 // @log:   receipt: { status: 'success', ... },
 // @log: }
 ```
