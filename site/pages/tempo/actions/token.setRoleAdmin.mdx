@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `token.setRoleAdmin`
+# Set Token Role Admin [token.setRoleAdmin]
 
 Sets the admin role for a specific role in a TIP-20 token. Requires the current admin role for the target role. [Learn more about token roles](https://docs.tempo.xyz/protocol/tip403/spec)
 
@@ -46,6 +46,33 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
 const { args } = Actions.token.setRoleAdmin.extractEvent(receipt.logs)
 ```
+
+## Recipes
+
+### Delegate Token Role Management
+
+Use this pattern to delegate token role management.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.setRoleAdminSync({
+  adminRole: 'pause',
+  role: 'issuer',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

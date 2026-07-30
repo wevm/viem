@@ -1,4 +1,4 @@
-# `accessKey.watchWitness`
+# Watch Access Key Witnesses [accessKey.watchWitness]
 
 Watches `KeyAuthorizationWitness` events on the account keychain.
 
@@ -27,6 +27,34 @@ watcher.off()
 :::
 
 Also callable standalone: `Actions.accessKey.watchWitness(client, options)`, with `Actions` imported from `'viem/tempo'`.
+
+## Recipes
+
+### Track Submitted Key Authorizations
+
+Use this pattern to track submitted key authorizations.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.accessKey.watchWitness()
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log(log.args)
+  // @log: { account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', witness: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef' }
+})
+
+// Later, tear down the watcher.
+watcher.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `dex.placeFlip`
+# Place DEX Flip Order [dex.placeFlip]
 
 Places a flip order that automatically flips when filled.
 
@@ -50,6 +50,35 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
 const { args } = Actions.dex.placeFlip.extractEvent(receipt.logs)
 ```
+
+## Recipes
+
+### Maintain a Two-Sided Position
+
+Use this pattern to maintain a two-sided position.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { flipTick, isFlipOrder, orderId } = await client.dex.placeFlipSync({
+  amount: 100000000n,
+  flipTick: 200,
+  tick: 100,
+  token: '0x20c0000000000000000000000000000000000001',
+  type: 'buy',
+})
+
+console.log('Flip order:', { flipTick, isFlipOrder, orderId })
+// @log: Flip order: { flipTick: 200, isFlipOrder: true, orderId: 123n }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

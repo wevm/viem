@@ -1,10 +1,35 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `receivePolicy.get`
+# Get Receive Policy [receivePolicy.get]
 
 Gets the receive policy configured for an account.
 
 ## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const policy = await client.receivePolicy.get({
+  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+})
+
+console.log('Receive policy:', policy.hasReceivePolicy)
+// @log: Receive policy: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Display an Account's Receive Policy
+
+Use this pattern to display an account's receive policy.
 
 :::code-group
 

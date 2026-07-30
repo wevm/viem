@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `token.approve`
+# Approve Token Spending [token.approve]
 
 Approves a spender to transfer TIP-20 tokens on behalf of the caller.
 
@@ -90,6 +90,33 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
 const { args } = Actions.token.approve.extractEvent(receipt.logs)
 ```
+
+## Recipes
+
+### Allow an App to Spend Tokens
+
+Use this pattern to allow an app to spend tokens.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.approveSync({
+  amount: { formatted: '10.5' },
+  spender: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

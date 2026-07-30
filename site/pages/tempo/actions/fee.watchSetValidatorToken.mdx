@@ -1,4 +1,4 @@
-# `fee.watchSetValidatorToken`
+# Watch Validator Fee Token [fee.watchSetValidatorToken]
 
 Watches `ValidatorTokenSet` events on the fee manager.
 
@@ -30,6 +30,37 @@ watcher.off()
 :::
 
 Also callable standalone: `Actions.fee.watchSetValidatorToken(client, options)`, with `Actions` imported from `'viem/tempo'`.
+
+## Recipes
+
+### Track Validator Fee Token Changes
+
+Use this pattern to track validator fee token changes.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.fee.watchSetValidatorToken()
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log(log.args)
+  // @log: {
+  // @log:   validator: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  // @log:   token: '0x20c0000000000000000000000000000000000001'
+  // @log: }
+})
+
+// Later, tear down the watcher.
+watcher.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

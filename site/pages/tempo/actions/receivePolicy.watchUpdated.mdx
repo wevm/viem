@@ -1,4 +1,4 @@
-# `receivePolicy.watchUpdated`
+# Watch Receive Policy Updates [receivePolicy.watchUpdated]
 
 Watches for receive policy update events.
 
@@ -27,6 +27,34 @@ watcher.off()
 :::
 
 Also callable standalone: `Actions.receivePolicy.watchUpdated(client, options)`, with `Actions` imported from `'viem/tempo'`.
+
+## Recipes
+
+### Refresh Receive Policy Settings
+
+Use this pattern to refresh receive policy settings.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.receivePolicy.watchUpdated()
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log(log.args)
+  // @log: { account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', senderPolicyId: 1n, tokenFilterId: 1n, recoveryAuthority: '0x0000000000000000000000000000000000000000' }
+})
+
+// Later, tear down the watcher.
+watcher.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

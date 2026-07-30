@@ -1,6 +1,6 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `zone.getWithdrawalFee`
+# Get Zone Withdrawal Fee [zone.getWithdrawalFee]
 
 Returns the fee required for a withdrawal from a zone, given a callback gas limit.
 
@@ -32,6 +32,29 @@ const fee = await client.zone.getWithdrawalFee({
   callbackGas: 100_000n,
 })
 ```
+
+## Recipes
+
+### Quote a Zone Withdrawal
+
+Use this pattern to quote a Zone withdrawal.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './zones.config'
+
+const fee = await client.zone.getWithdrawalFee()
+
+console.log('Fee:', fee)
+// @log: Fee: 0n
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

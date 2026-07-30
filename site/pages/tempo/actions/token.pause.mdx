@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `token.pause`
+# Pause Token [token.pause]
 
 Pauses a TIP-20 token, preventing all transfers. Requires the `PAUSE` role. [Learn more about token roles](https://docs.tempo.xyz/protocol/tip403/spec)
 
@@ -42,6 +42,31 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
 const { args } = Actions.token.pause.extractEvent(receipt.logs)
 ```
+
+## Recipes
+
+### Stop Transfers During an Incident
+
+Use this pattern to stop transfers during an incident.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { isPaused, receipt } = await client.token.pauseSync({
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+console.log('Is paused:', isPaused)
+// @log: Is paused: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

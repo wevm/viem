@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `policy.modifyWhitelist`
+# Modify Transfer Policy Whitelist [policy.modifyWhitelist]
 
 Modifies a TIP-403 transfer policy whitelist.
 
@@ -48,6 +48,35 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
 const { args } = Actions.policy.modifyWhitelist.extractEvent(receipt.logs)
 ```
+
+## Recipes
+
+### Grant or Remove Transfer Access
+
+Use this pattern to grant or remove transfer access.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { allowed, receipt } = await client.policy.modifyWhitelistSync({
+  address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  policyId: 1n,
+  allowed: true,
+})
+
+console.log('Allowed:', allowed)
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Allowed: true
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

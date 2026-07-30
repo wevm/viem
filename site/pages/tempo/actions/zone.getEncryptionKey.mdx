@@ -1,8 +1,35 @@
-# `zone.getEncryptionKey`
+# Get Zone Encryption Key [zone.getEncryptionKey]
 
 Returns the active sequencer encryption key for a zone.
 
 ## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { keyIndex, publicKey } = await client.zone.getEncryptionKey({
+  zoneId: 7,
+})
+
+console.log('Key index:', keyIndex)
+console.log('Public key:', publicKey)
+// @log: Key index: 0n
+// @log: Public key: { prefix: 3, x: '0x57e8a1e347b0c8e8c14290499e1281f84eae5d1cdd10cc5eb4d92aca17c5c1d4' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Encrypt Data for the Active Sequencer
+
+Use this pattern to encrypt data for the active sequencer.
 
 :::code-group
 

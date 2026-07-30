@@ -1,4 +1,4 @@
-# `channel.signVoucher`
+# Sign Channel Voucher [channel.signVoucher]
 
 Signs a TIP-20 channel reserve voucher.
 
@@ -23,6 +23,31 @@ console.log('Signature:', signature)
 
 :::
 
+
+## Recipes
+
+### Create an Offchain Payment Voucher
+
+Use this pattern to create an offchain payment voucher.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const signature = await client.channel.signVoucher({
+  channel: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+  cumulativeAmount: 40000000n,
+})
+
+console.log('Signature:', signature)
+// @log: Signature: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b
+```
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

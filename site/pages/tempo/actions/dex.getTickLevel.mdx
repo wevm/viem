@@ -1,10 +1,37 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `dex.getTickLevel`
+# Get DEX Tick Level [dex.getTickLevel]
 
 Gets the order queue and liquidity at a tick level.
 
 ## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const level = await client.dex.getTickLevel({
+  base: '0x20c0000000000000000000000000000000000001',
+  isBid: true,
+  tick: 100,
+})
+
+console.log('Tick level:', level)
+// @log: Tick level: { head: 123n, tail: 124n, totalLiquidity: 200000000n }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Inspect Liquidity at a Price
+
+Use this pattern to inspect liquidity at a price.
 
 :::code-group
 

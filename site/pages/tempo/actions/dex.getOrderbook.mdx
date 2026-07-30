@@ -1,10 +1,36 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `dex.getOrderbook`
+# Get Orderbook [dex.getOrderbook]
 
 Gets an orderbook pair summary.
 
 ## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const orderbook = await client.dex.getOrderbook({
+  base: '0x20c0000000000000000000000000000000000001',
+  quote: '0x20c0000000000000000000000000000000000000',
+})
+
+console.log('Orderbook:', orderbook)
+// @log: Orderbook: { base: '0x20c0000000000000000000000000000000000001', quote: '0x20c0000000000000000000000000000000000000', bestBidTick: -100, bestAskTick: 100 }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Display the Best Bid and Ask
+
+Use this pattern to display the best bid and ask.
 
 :::code-group
 

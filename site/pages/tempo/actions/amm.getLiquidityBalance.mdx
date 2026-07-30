@@ -1,6 +1,6 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `amm.getLiquidityBalance`
+# Get AMM Liquidity Balance [amm.getLiquidityBalance]
 
 Gets the LP token balance for an account in a specific pool.
 
@@ -26,6 +26,32 @@ console.log('Liquidity balance:', balance)
 
 :::
 
+
+## Recipes
+
+### Show an Account's Liquidity Position
+
+Use this pattern to show an account's liquidity position.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const balance = await client.amm.getLiquidityBalance({
+  address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+})
+
+console.log('Liquidity balance:', balance)
+// @log: Liquidity balance: 500000000n
+```
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

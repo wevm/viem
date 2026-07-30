@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `zone.encryptedDeposit`
+# Make Encrypted Zone Deposit [zone.encryptedDeposit]
 
 Deposits tokens into a zone from the parent Tempo chain, encrypting the recipient and memo for the zone sequencer.
 
@@ -81,6 +81,33 @@ const { encrypted, keyIndex } =
 ```
 
 The helper returns the encrypted payload and its key index together with the parent chain ID, portal address, and zone ID.
+
+## Recipes
+
+### Send a Private Zone Deposit
+
+Use this pattern to send a private Zone deposit.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.zone.encryptedDepositSync({
+  amount: 100_000_000n,
+  token: '0x20c0000000000000000000000000000000000001',
+  zoneId: 7,
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

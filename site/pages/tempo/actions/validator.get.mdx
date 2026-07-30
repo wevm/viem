@@ -1,10 +1,35 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `validator.get`
+# Get Validator [validator.get]
 
 Gets validator information by address.
 
 ## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const validator = await client.validator.get({
+  validator: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+
+console.log('Validator:', validator.validatorAddress)
+// @log: Validator: 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Display Validator Details
+
+Use this pattern to display validator details.
 
 :::code-group
 

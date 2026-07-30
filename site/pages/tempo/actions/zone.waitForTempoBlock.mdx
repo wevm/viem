@@ -1,4 +1,4 @@
-# `zone.waitForTempoBlock`
+# Wait for Tempo Block in Zone [zone.waitForTempoBlock]
 
 Waits until a zone has imported a Tempo block.
 
@@ -25,6 +25,31 @@ console.log('Imported Tempo block:', info.tempoBlockNumber)
 
 The action polls [`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo) and resolves when the zone's
 `tempoBlockNumber` reaches the requested block.
+
+## Recipes
+
+### Wait for Zone State to Catch Up
+
+Use this pattern to wait for Zone state to catch up.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './zones.config'
+
+const info = await client.zone.waitForTempoBlock({
+  tempoBlockNumber: 123456n,
+})
+
+console.log('Imported Tempo block:', info.tempoBlockNumber)
+// @log: Imported Tempo block: 123456n
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

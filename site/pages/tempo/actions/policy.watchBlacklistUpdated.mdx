@@ -1,4 +1,4 @@
-# `policy.watchBlacklistUpdated`
+# Watch Transfer Policy Blacklist [policy.watchBlacklistUpdated]
 
 Watches `BlacklistUpdated` events on the TIP-403 registry.
 
@@ -27,6 +27,34 @@ watcher.off()
 :::
 
 Also callable standalone: `Actions.policy.watchBlacklistUpdated(client, options)`, with `Actions` imported from `'viem/tempo'`.
+
+## Recipes
+
+### Track Blacklist Changes
+
+Use this pattern to track blacklist changes.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.policy.watchBlacklistUpdated()
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log(log.args)
+  // @log: { policyId: 1n, updater: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', restricted: true }
+})
+
+// Later, tear down the watcher.
+watcher.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

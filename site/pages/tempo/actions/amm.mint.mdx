@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `amm.mint`
+# Mint AMM Liquidity [amm.mint]
 
 Adds liquidity to a pool.
 
@@ -56,6 +56,40 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
 const { args } = Actions.amm.mint.extractEvent(receipt.logs)
 ```
+
+## Recipes
+
+### Add Liquidity to a Fee Pool
+
+Use this pattern to add liquidity to a fee pool.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt, ...event } = await client.amm.mintSync({
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  userTokenAddress: '0x20c0000000000000000000000000000000000001',
+  validatorTokenAddress: '0x20c0000000000000000000000000000000000002',
+  validatorTokenAmount: 1000000n,
+})
+
+console.log('Mint:', event)
+// @log: Mint: {
+// @log:   sender: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+// @log:   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+// @log:   userToken: '0x20c0000000000000000000000000000000000001',
+// @log:   validatorToken: '0x20c0000000000000000000000000000000000002',
+// @log:   amountValidatorToken: 1000000n,
+// @log:   liquidity: 1000000n,
+// @log: }
+```
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

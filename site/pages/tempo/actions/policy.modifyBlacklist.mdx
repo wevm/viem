@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `policy.modifyBlacklist`
+# Modify Transfer Policy Blacklist [policy.modifyBlacklist]
 
 Modifies a TIP-403 transfer policy blacklist.
 
@@ -48,6 +48,35 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
 const { args } = Actions.policy.modifyBlacklist.extractEvent(receipt.logs)
 ```
+
+## Recipes
+
+### Block or Unblock an Address
+
+Use this pattern to block or unblock an address.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { restricted, receipt } = await client.policy.modifyBlacklistSync({
+  address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  policyId: 1n,
+  restricted: true,
+})
+
+console.log('Restricted:', restricted)
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Restricted: true
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

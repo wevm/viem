@@ -1,4 +1,4 @@
-# `token.watchApprove`
+# Watch Token Approvals [token.watchApprove]
 
 Watches TIP-20 `Approval` events for a token.
 
@@ -33,6 +33,40 @@ watcher.off()
 :::
 
 Also callable standalone: `Actions.token.watchApprove(client, options)`, with `Actions` imported from `'viem/tempo'`.
+
+## Recipes
+
+### Track Delegated Token Spending
+
+Use this pattern to track delegated token spending.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.token.watchApprove({
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log(log.args)
+  // @log: {
+  // @log:   owner: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  // @log:   spender: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  // @log:   amount: 100000000n
+  // @log: }
+})
+
+// Later, tear down the watcher.
+watcher.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

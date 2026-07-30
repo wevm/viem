@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `token.revokeRoles`
+# Revoke Token Roles [token.revokeRoles]
 
 Revokes roles for a TIP-20 token. Requires the admin role for each role being revoked. [Learn more about token roles](https://docs.tempo.xyz/protocol/tip403/spec)
 
@@ -46,6 +46,33 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
 const events = Actions.token.revokeRoles.extractEvents(receipt.logs)
 ```
+
+## Recipes
+
+### Remove a Token Operator
+
+Use this pattern to remove a token operator.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt, value } = await client.token.revokeRolesSync({
+  from: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  roles: ['issuer'],
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log('Roles revoked:', value.length)
+// @log: Roles revoked: 1
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

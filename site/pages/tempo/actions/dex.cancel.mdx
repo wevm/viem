@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `dex.cancel`
+# Cancel DEX Order [dex.cancel]
 
 Cancels an open DEX order.
 
@@ -42,6 +42,31 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
 const { args } = Actions.dex.cancel.extractEvent(receipt.logs)
 ```
+
+## Recipes
+
+### Remove an Open Limit Order
+
+Use this pattern to remove an open limit order.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { orderId } = await client.dex.cancelSync({
+  orderId: 123n,
+})
+
+console.log('Cancelled order:', orderId)
+// @log: Cancelled order: 123n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 
