@@ -353,6 +353,8 @@ Ox Engine in each row with `ox`; C remains a reference only.
 
 The full command prints every primitive and input size:
 
+:::benchmarks{.benchmark-table}
+
 | Primitive and case                    | `ox`      | `ox/node` | `ox/wasm` | C         | Fastest Ox engine vs `ox` |
 | ------------------------------------- | --------- | --------- | --------- | --------- | ------------------------- |
 | `Bls.sign`, 32 B message              | 15.70 ms  | n/a       | n/a       | n/a       | n/a                       |
@@ -377,6 +379,8 @@ The full command prints every primitive and input size:
 | `Secp256k1.sign`, 32 B message        | 183.76 µs | n/a       | 25.03 µs  | 19.86 µs  | 7.34× (wasm)              |
 | `Secp256k1.verify`, 32 B message      | 1.03 ms   | n/a       | 31.50 µs  | 27.31 µs  | 32.80× (wasm)             |
 | `X25519.getSharedSecret`, 32 B key    | 627.61 µs | 48.74 µs  | 41.32 µs  | 33.69 µs  | 15.19× (wasm)             |
+
+:::
 
 The benchmark initializes engines outside the timed loops and sends each Ox
 call through the same Engine resolver. It uses identical inputs, warmups,
