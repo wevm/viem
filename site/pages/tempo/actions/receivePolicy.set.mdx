@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `receivePolicy.set`
+# Set Receive Policy [receivePolicy.set]
 
 Sets the receive policy for the calling account.
 
@@ -51,6 +51,35 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
 const { args } = Actions.receivePolicy.set.extractEvent(receipt.logs)
 ```
+
+## Recipes
+
+### Require Transfers to Be Accepted
+
+Use this pattern to require transfers to be accepted.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { account, receipt } = await client.receivePolicy.setSync({
+  claimer: 'self',
+  senderPolicyId: 1n,
+  tokenPolicyId: 'allow-all',
+})
+
+console.log('Account:', account)
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Account: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

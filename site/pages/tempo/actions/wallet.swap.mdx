@@ -1,10 +1,34 @@
-# `wallet.swap`
+# Swap with Wallet [wallet.swap]
 
 Opens the connected Tempo wallet's swap flow, with optional pre-filled fields.
 
 This action invokes the `wallet_swap` JSON-RPC method on the connected wallet, prompting the user to review and submit a swap. Any fields you omit are left for the user to fill in.
 
 ## Usage
+
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+const { receipt } = await client.wallet.swap({
+  amount: '1.5',
+  token: '0x20c0000000000000000000000000000000000001',
+  type: 'sell',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+## Recipes
+
+### Open a Preconfigured Wallet Swap
+
+Use this pattern to open a preconfigured wallet swap.
 
 ```ts twoslash [example.ts]
 import { Client, custom } from 'viem/tempo'

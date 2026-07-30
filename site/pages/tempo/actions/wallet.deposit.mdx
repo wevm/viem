@@ -1,10 +1,33 @@
-# `wallet.deposit`
+# Deposit with Wallet [wallet.deposit]
 
 Opens the connected Tempo wallet's deposit flow, with optional pre-filled fields.
 
 This action invokes the `wallet_deposit` JSON-RPC method on the connected wallet, prompting the user to review and submit a deposit. Any fields you omit are left for the user to fill in.
 
 ## Usage
+
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+const result = await client.wallet.deposit({
+  amount: '1.5',
+  token: 'pathusd',
+})
+
+console.log('Receipts:', result?.receipts)
+// @log: Receipts: [{ status: 'success', transactionHash: '0x1234...' }]
+```
+
+## Recipes
+
+### Prefill a Wallet Deposit
+
+Use this pattern to prefill a wallet deposit.
 
 ```ts twoslash [example.ts]
 import { Client, custom } from 'viem/tempo'

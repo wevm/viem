@@ -1,4 +1,4 @@
-# `wallet.transfer`
+# Transfer with Wallet [wallet.transfer]
 
 Transfers a TIP-20 token via the connected Tempo wallet.
 
@@ -41,6 +41,30 @@ const { receipt } = await client.wallet.transfer({
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   token: 'pathusd',
 })
+```
+
+## Recipes
+
+### Send Tokens Through a Connected Wallet
+
+Use this pattern to send tokens through a connected wallet.
+
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+const { receipt } = await client.wallet.transfer({
+  amount: '1.5',
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'pathusd',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
 ```
 
 ## Return Value

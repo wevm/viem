@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `receivePolicy.claim`
+# Claim Blocked Funds [receivePolicy.claim]
 
 Claims blocked funds for a receipt.
 
@@ -46,6 +46,34 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
 const { args } = Actions.receivePolicy.claim.extractEvent(receipt.logs)
 ```
+
+## Recipes
+
+### Recover a Blocked Transfer
+
+Use this pattern to recover a blocked transfer.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { amount, receipt } = await client.receivePolicy.claimSync({
+  receipt: '0x1234',
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+
+console.log('Amount:', amount)
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Amount: 1000000n
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

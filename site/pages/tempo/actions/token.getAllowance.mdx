@@ -1,10 +1,37 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `token.getAllowance`
+# Get Token Allowance [token.getAllowance]
 
 Gets the TIP-20 allowance a spender has over an account's tokens.
 
 ## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const allowance = await client.token.getAllowance({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  spender: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+console.log('Allowance:', allowance)
+// @log: Allowance: { amount: 10500000n, decimals: 6, formatted: '10.5' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Check Delegated Spending Capacity
+
+Use this pattern to check delegated spending capacity.
 
 :::code-group
 

@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `policy.create`
+# Create Transfer Policy [policy.create]
 
 Creates a TIP-403 transfer policy.
 
@@ -47,6 +47,33 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
 const { args } = Actions.policy.create.extractEvent(receipt.logs)
 ```
+
+## Recipes
+
+### Create a Whitelist Transfer Policy
+
+Use this pattern to create a whitelist transfer policy.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { policyId, receipt } = await client.policy.createSync({
+  type: 'whitelist',
+})
+
+console.log('Policy ID:', policyId)
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Policy ID: 1n
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

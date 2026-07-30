@@ -1,12 +1,37 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `nonce.get`
+# Get Nonce [nonce.get]
 
 Gets the nonce for an account and nonce key.
 
 Nonce key `0` is reserved for protocol nonces. Use keys greater than `0` for 2D nonces.
 
 ## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const nonce = await client.nonce.get({
+  nonceKey: 1n,
+})
+
+console.log('Nonce:', nonce)
+// @log: Nonce: 42n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Build a Transaction with a Parallel Nonce Key
+
+Use this pattern to build a transaction with a parallel nonce key.
 
 :::code-group
 

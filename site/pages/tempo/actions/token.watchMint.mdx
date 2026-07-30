@@ -1,4 +1,4 @@
-# `token.watchMint`
+# Watch Token Mints [token.watchMint]
 
 Watches TIP-20 `Mint` events for a token.
 
@@ -29,6 +29,36 @@ watcher.off()
 :::
 
 Also callable standalone: `Actions.token.watchMint(client, options)`, with `Actions` imported from `'viem/tempo'`.
+
+## Recipes
+
+### Track New Token Issuance
+
+Use this pattern to track new token issuance.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.token.watchMint({
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log(log.args)
+  // @log: { to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', amount: 100000000n }
+})
+
+// Later, tear down the watcher.
+watcher.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

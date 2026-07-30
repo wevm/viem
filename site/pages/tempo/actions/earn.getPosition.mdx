@@ -1,6 +1,6 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `earn.getPosition`
+# Get Earn Position [earn.getPosition]
 
 Gets an account's asset and Earn share balances, allowances, and current share value.
 
@@ -42,6 +42,37 @@ import { client } from './viem.config'
 
 const position = await client.earn.getPosition({
   account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: {
+//   assetAllowance: 0n,
+//   assetBalance: 250_000_000n,
+//   assetToken: '0x20c0...0001',
+//   shareAllowance: 0n,
+//   shareBalance: 99_500_000n,
+//   shareToken: '0x20c0...0002',
+//   value: 100_000_000n,
+// }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Display an Account's Earn Position
+
+Use this pattern to display an account's Earn position.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const position = await client.earn.getPosition({
   vault: '0x0000000000000000000000000000000000000001',
 })
 // @log: {

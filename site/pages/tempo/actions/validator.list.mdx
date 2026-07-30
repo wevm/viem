@@ -1,10 +1,33 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `validator.list`
+# List Validators [validator.list]
 
 Gets the complete set of validators.
 
 ## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.validator.list()
+
+console.log('Result:', result.length)
+// @log: Result: 4
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Build a Validator Directory
+
+Use this pattern to build a validator directory.
 
 :::code-group
 

@@ -1,4 +1,4 @@
-# `earn.configureExitSafePolicy`
+# Configure Earn Exit-Safe Policy [earn.configureExitSafePolicy]
 
 Creates and attaches an admission-only TIP-403 policy to an Earn share token. Existing
 holders can continue sending shares, while recipients and mint recipients must belong to the same
@@ -9,6 +9,33 @@ The action submits three or four sequential transactions and is not atomic. Use
 onchain state before publishing a protected deployment.
 
 ## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { policy, receipts } = await client.earn.configureExitSafePolicy({
+  accessAdministrator: '0x0000000000000000000000000000000000000002',
+  initialMembers: [
+    '0x0000000000000000000000000000000000000003',
+    '0x0000000000000000000000000000000000000004',
+  ],
+  shareToken: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Restrict New Share Holders Without Blocking Exits
+
+Use this pattern to restrict new share holders without blocking exits.
 
 :::code-group
 

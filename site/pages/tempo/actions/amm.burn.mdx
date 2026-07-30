@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `amm.burn`
+# Burn AMM Liquidity [amm.burn]
 
 Removes liquidity from a pool.
 
@@ -49,6 +49,33 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
 const { args } = Actions.amm.burn.extractEvent(receipt.logs)
 ```
+
+## Recipes
+
+### Remove Liquidity from a Fee Pool
+
+Use this pattern to remove liquidity from a fee pool.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt, ...event } = await client.amm.burnSync({
+  liquidity: 500000n,
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+})
+
+console.log('Burn:', event)
+// @log: Burn: { amountUserToken: 500000n, amountValidatorToken: 500000n, liquidity: 500000n, to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', userToken: '0x20c0000000000000000000000000000000000001', validatorToken: '0x20c0000000000000000000000000000000000002', sender: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266' }
+```
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

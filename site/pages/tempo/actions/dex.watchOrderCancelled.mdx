@@ -1,4 +1,4 @@
-# `dex.watchOrderCancelled`
+# Watch DEX Order Cancellations [dex.watchOrderCancelled]
 
 Watches `OrderCancelled` events on the DEX.
 
@@ -29,6 +29,36 @@ watcher.off()
 :::
 
 Also callable standalone: `Actions.dex.watchOrderCancelled(client, options)`, with `Actions` imported from `'viem/tempo'`.
+
+## Recipes
+
+### Keep an Order Interface in Sync
+
+Use this pattern to keep an order interface in sync.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.dex.watchOrderCancelled()
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log(log.args)
+  // @log: {
+  // @log:   orderId: 123n,
+  // @log: }
+})
+
+// Later, tear down the watcher.
+watcher.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

@@ -1,6 +1,6 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `channel.getStates`
+# Get Channel States [channel.getStates]
 
 Gets TIP-20 channel reserve state for a channel ID or channel.
 
@@ -24,6 +24,30 @@ console.log('Channel state:', state)
 
 :::
 
+
+## Recipes
+
+### Reconcile Channel Balances
+
+Use this pattern to reconcile channel balances.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const state = await client.channel.getStates({
+  channel: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+})
+
+console.log('Channel state:', state)
+// @log: Channel state: { closeRequestedAt: 0, deposit: 100000000n, settled: 40000000n }
+```
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

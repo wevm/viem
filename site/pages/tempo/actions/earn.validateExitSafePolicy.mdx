@@ -1,6 +1,6 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `earn.validateExitSafePolicy`
+# Validate Earn Exit-Safe Policy [earn.validateExitSafePolicy]
 
 Verifies that an Earn share token uses an expected exit-safe TIP-403 policy and that every
 required member can receive transfers and mints.
@@ -9,6 +9,39 @@ The action throws when the token policy, compound components, whitelist administ
 authorization does not match the expected configuration.
 
 ## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+await client.earn.validateExitSafePolicy({
+  accessAdministrator: '0x0000000000000000000000000000000000000002',
+  policy: {
+    transferPolicyId: 3n,
+    senderPolicyId: 1n,
+    recipientPolicyId: 2n,
+    mintRecipientPolicyId: 2n,
+  },
+  requiredMembers: [
+    '0x0000000000000000000000000000000000000003',
+    '0x0000000000000000000000000000000000000004',
+  ],
+  shareToken: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Verify That Earn Exits Remain Available
+
+Use this pattern to verify that Earn exits remain available.
 
 :::code-group
 

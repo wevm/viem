@@ -1,8 +1,31 @@
-# `zone.signAuthorizationToken`
+# Sign Zone Authorization Token [zone.signAuthorizationToken]
 
 Signs a zone authorization token and stores it for the zone HTTP transport. The token authenticates subsequent zone RPC requests via the `X-Authorization-Token` header.
 
 ## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { token } = await client.zone.signAuthorizationToken()
+
+console.log('Token:', token)
+// @log: Token: 0x...
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Authenticate Zone RPC Requests
+
+Use this pattern to authenticate Zone RPC requests.
 
 :::code-group
 

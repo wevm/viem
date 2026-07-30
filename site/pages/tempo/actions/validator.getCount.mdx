@@ -1,10 +1,33 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `validator.getCount`
+# Get Validator Count [validator.getCount]
 
 Gets the total number of validators.
 
 ## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.validator.getCount()
+
+console.log('Result:', result)
+// @log: Result: 4n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Size a Validator List
+
+Use this pattern to size a validator list.
 
 :::code-group
 

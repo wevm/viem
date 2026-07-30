@@ -1,10 +1,35 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `virtualAddress.resolve`
+# Resolve Virtual Address [virtualAddress.resolve]
 
 Resolves a virtual address to its master address.
 
 ## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const recipient = await client.virtualAddress.resolve({
+  address: '0x0000000000000000000000000000000000000001',
+})
+
+console.log('Recipient:', recipient)
+// @log: Recipient: 0x0000000000000000000000000000000000000001
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Route Funds to a Virtual Address Owner
+
+Use this pattern to route funds to a virtual address owner.
 
 :::code-group
 

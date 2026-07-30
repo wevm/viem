@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `token.renounceRoles`
+# Renounce Token Roles [token.renounceRoles]
 
 Renounces roles for a TIP-20 token, removing them from the caller's account. [Learn more about token roles](https://docs.tempo.xyz/protocol/tip403/spec)
 
@@ -44,6 +44,32 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
 const events = Actions.token.renounceRoles.extractEvents(receipt.logs)
 ```
+
+## Recipes
+
+### Remove Your Own Token Privileges
+
+Use this pattern to remove your own token privileges.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt, value } = await client.token.renounceRolesSync({
+  roles: ['issuer'],
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log('Roles renounced:', value.length)
+// @log: Roles renounced: 1
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

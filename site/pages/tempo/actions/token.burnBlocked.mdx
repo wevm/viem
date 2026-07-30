@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `token.burnBlocked`
+# Burn Blocked Tokens [token.burnBlocked]
 
 Burns TIP-20 tokens from a blocked address. Requires the `BURN_BLOCKED` role. [Learn more about token roles](https://docs.tempo.xyz/protocol/tip403/spec)
 
@@ -90,6 +90,33 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
 const { args } = Actions.token.burnBlocked.extractEvent(receipt.logs)
 ```
+
+## Recipes
+
+### Enforce a Compliance Burn
+
+Use this pattern to enforce a compliance burn.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.burnBlockedSync({
+  amount: { formatted: '10.5' },
+  from: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 
