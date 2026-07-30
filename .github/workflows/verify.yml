@@ -210,14 +210,10 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        hardfork: [T7, T8, T9, T10]
+        hardfork: [T8, T9, T10]
         shard: [1, 2, 3]
         total-shards: [3]
         include:
-          - hardfork: T7
-            tempo-tag: sha-f56f173
-            zone-tag: sha-aae82c4
-            zone-xtask-tag: ''
           - hardfork: T8
             tempo-tag: sha-e828ab7
             zone-tag: sha-aae82c4
