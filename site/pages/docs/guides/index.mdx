@@ -13,55 +13,7 @@ combines related APIs into a complete workflow and links to the API reference fo
 
 New to Viem? Start with [Getting Started](/docs), then choose a guide below.
 
-```ts twoslash
-import { Hash } from 'viem/utils'
-
-const digest = Hash.keccak256('0xdeadbeef')
-```
-
 <Cards>
-  <Card
-    icon="lucide:cpu"
-    title="WASM & Engines"
-    description="Use WebAssembly, Node.js, and custom cryptography Engines with Viem."
-    to="/docs/guides/engine"
-  />
-  <Card
-    icon="lucide:network"
-    title="Clients & Transports"
-    description="Set up Clients, resolve them across chains, compose transports, and handle RPC failures."
-    to="/docs/guides/clients"
-  />
-  <Card
-    icon="lucide:send"
-    title="Transactions"
-    description="Send, prepare, sign, estimate, and track Ethereum transactions."
-    to="/docs/guides/transactions"
-  />
-  <Card
-    icon="lucide:file-code-2"
-    title="Contract Interactions"
-    description="Read, simulate, write, deploy, batch, and observe smart contracts."
-    to="/docs/guides/contracts"
-  />
-  <Card
-    icon="lucide:coins"
-    title="Tokens"
-    description="Define tokens, read balances, transfer funds, and manage allowances."
-    to="/tokens/guides"
-  />
-  <Card
-    icon="lucide:wallet"
-    title="Wallets & Accounts"
-    description="Connect wallets, work with Accounts, batch calls, request permissions, and sign data."
-    to="/docs/guides/wallets"
-  />
-  <Card
-    icon="lucide:badge-check"
-    title="Authorizations"
-    description="Delegate an EOA with EIP-7702 and execute calls through ERC-7821."
-    to="/docs/guides/authorizations"
-  />
   <Card
     icon="lucide:box"
     title="Blocks & Events"
@@ -75,10 +27,34 @@ const digest = Hash.keccak256('0xdeadbeef')
     to="/docs/guides/chain-data"
   />
   <Card
+    icon="lucide:network"
+    title="Clients & Transports"
+    description="Set up Clients, resolve them across chains, compose transports, and handle RPC failures."
+    to="/docs/guides/clients"
+  />
+  <Card
+    icon="lucide:file-code-2"
+    title="Contract Interactions"
+    description="Read, simulate, write, deploy, batch, and observe smart contracts."
+    to="/docs/guides/contracts"
+  />
+  <Card
+    icon="lucide:badge-check"
+    title="EIP-7702 Authorizations"
+    description="Delegate an EOA with EIP-7702 and execute calls through ERC-7821."
+    to="/docs/guides/authorizations"
+  />
+  <Card
     icon="lucide:circle-alert"
     title="Error Handling"
     description="Type function errors, narrow failures, and inspect nested causes."
     to="/docs/errors"
+  />
+  <Card
+    icon="lucide:blocks"
+    title="Extending Viem"
+    description="Build tree-shakable Actions, preserve types, extend Clients, and publish libraries."
+    to="/docs/guides/extending"
   />
   <Card
     icon="lucide:flask-conical"
@@ -87,9 +63,27 @@ const digest = Hash.keccak256('0xdeadbeef')
     to="/docs/guides/testing"
   />
   <Card
-    icon="lucide:blocks"
-    title="Extending Viem"
-    description="Build tree-shakable Actions, preserve types, extend Clients, and publish libraries."
-    to="/docs/guides/extending"
+    icon="lucide:coins"
+    title="Tokens"
+    description="Define tokens, read balances, transfer funds, and manage allowances."
+    to="/tokens/guides"
+  />
+  <Card
+    icon="lucide:send"
+    title="Transactions"
+    description="Send, prepare, sign, estimate, and track Ethereum transactions."
+    to="/docs/guides/transactions"
+  />
+  <Card
+    icon="lucide:wallet"
+    title="Wallets & Accounts"
+    description="Connect wallets, work with Accounts, batch calls, request permissions, and sign data."
+    to="/docs/guides/wallets"
+  />
+  <Card
+    icon="lucide:cpu"
+    title="WASM & Engines"
+    description="Use WebAssembly, Node.js, and custom cryptography Engines with Viem."
+    to="/docs/guides/engine"
   />
 </Cards>
