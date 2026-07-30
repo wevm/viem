@@ -24,6 +24,45 @@ const shareAmount = await client.earn.getWithdrawQuote({
 
 :::
 
+## Recipes
+
+### Check Shares Cover an Invoice Payment
+
+Quote the shares an exact invoice amount requires, verify the position covers them with
+[`earn.getPosition`](/tempo/actions/earn.getPosition), then execute with
+[`earn.withdrawExactSync`](/tempo/actions/earn.withdrawExact) bound to the quote.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const vault = '0x0000000000000000000000000000000000000001'
+const invoiceAmount = 250_000_000n
+
+const [shareAmount, position] = await Promise.all([
+  client.earn.getWithdrawQuote({ assetAmount: invoiceAmount, vault }), // [!code focus]
+  client.earn.getPosition({ vault }),
+])
+
+if (shareAmount > position.shareBalance) // [!code focus]
+  throw new Error('Position does not cover the invoice.') // [!code focus]
+
+const result = await client.earn.withdrawExactSync({
+  assetAmount: invoiceAmount,
+  recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  shareAmount, // [!code focus]
+  slippageBps: 25, // [!code focus]
+  vault,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 `bigint`

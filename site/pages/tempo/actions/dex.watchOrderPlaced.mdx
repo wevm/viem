@@ -37,6 +37,61 @@ watcher.off()
 
 Also callable standalone: `Actions.dex.watchOrderPlaced(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Record Order IDs as They Are Placed
+
+Pass a `maker` filter to capture the order IDs your trading service places, then persist them for later inspection or cancellation with [`dex.cancel`](/tempo/actions/dex.cancel).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.dex.watchOrderPlaced({
+  args: { maker: client.account.address }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs)
+    console.log('Placed:', log.args.orderId, 'at tick', log.args.tick) // [!code focus]
+  // @log: Placed: 123n at tick 100
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Rebuild a Market Feed After a Restart
+
+Pass `fromBlock` with a `token` filter to replay placements missed while your indexer was offline, then continue streaming new ones.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const lastIndexedBlock = 1_234_567n
+
+const watcher = client.dex.watchOrderPlaced({
+  args: { token: '0x20c0000000000000000000000000000000000001' }, // [!code focus]
+  fromBlock: lastIndexedBlock + 1n, // [!code focus]
+})
+
+for await (const { logs } of watcher) {
+  for (const log of logs) console.log(log.blockNumber, log.args.orderId)
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

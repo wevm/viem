@@ -57,6 +57,69 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.amm.mint.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Seed a Pool for a New Fee Token
+
+Combine [`amm.getPool`](/tempo/actions/amm.getPool) with `mintSync` to confirm a pool is empty before seeding it, so fees paid in a newly issued stablecoin can settle.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const alphaUsd = '0x20c0000000000000000000000000000000000001'
+const validatorToken = '0x20c0000000000000000000000000000000000002'
+
+const pool = await client.amm.getPool({ // [!code focus]
+  userToken: alphaUsd, // [!code focus]
+  validatorToken, // [!code focus]
+}) // [!code focus]
+
+if (pool.totalSupply === 0n) { // [!code focus]
+  await client.amm.mintSync({
+    to: client.account.address,
+    userTokenAddress: alphaUsd,
+    validatorTokenAddress: validatorToken,
+    validatorTokenAmount: 10_000_000000n,
+  })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Custody LP Shares in a Treasury Account
+
+Pass a treasury address as `to` when an operator wallet funds the pool: LP shares belong to `to`, and only that address can [`burn`](/tempo/actions/amm.burn) them.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const treasury = '0x8ba1f109551bD432803012645Ac136ddd64DBA72'
+
+const { liquidity } = await client.amm.mintSync({
+  to: treasury, // [!code focus]
+  userTokenAddress: '0x20c0000000000000000000000000000000000001',
+  validatorTokenAddress: '0x20c0000000000000000000000000000000000002',
+  validatorTokenAmount: 1_000_000000n,
+})
+
+console.log('LP shares minted to treasury:', liquidity)
+// @log: LP shares minted to treasury: 1000000000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

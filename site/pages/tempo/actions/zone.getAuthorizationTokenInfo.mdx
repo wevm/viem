@@ -23,6 +23,32 @@ console.log('Expires At:', info.expiresAt)
 
 :::
 
+## Recipes
+
+### Re-Sign Before the Token Expires
+
+Combine the token expiry with [`zone.signAuthorizationToken`](/tempo/actions/zone.signAuthorizationToken) to refresh authentication in a long-running service before zone requests start failing.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { expiresAt } = await client.zone.getAuthorizationTokenInfo()
+
+const oneHour = 60n * 60n
+const now = BigInt(Math.floor(Date.now() / 1000))
+
+if (expiresAt - now < oneHour) // [!code focus]
+  await client.zone.signAuthorizationToken() // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

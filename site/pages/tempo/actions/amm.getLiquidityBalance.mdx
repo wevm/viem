@@ -27,6 +27,63 @@ console.log('Liquidity balance:', balance)
 :::
 
 
+## Recipes
+
+### Monitor Your Share of a Pool
+
+Combine the LP balance with [`amm.getPool`](/tempo/actions/amm.getPool) to compute your ownership share, for example to enforce a treasury concentration limit per pool.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const userToken = '0x20c0000000000000000000000000000000000001'
+const validatorToken = '0x20c0000000000000000000000000000000000002'
+
+const balance = await client.amm.getLiquidityBalance({
+  address: client.account.address,
+  userToken,
+  validatorToken,
+})
+const pool = await client.amm.getPool({ userToken, validatorToken }) // [!code focus]
+
+const shareBps = (balance * 10_000n) / pool.totalSupply // [!code focus]
+
+console.log('Pool share:', `${Number(shareBps) / 100}%`)
+// @log: Pool share: 25%
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Look Up a Position by Pool ID
+
+Pass `poolId` when your tooling already tracks pools by id, for example rows ingested from an indexer, instead of re-deriving token pairs.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const balance = await client.amm.getLiquidityBalance({
+  address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  poolId: '0xcfa2fc65dd0637cd912c7d689aa434a91d3456c723019921fe1f4a9018beab08', // [!code focus]
+})
+
+console.log('LP balance:', balance)
+// @log: LP balance: 500000000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

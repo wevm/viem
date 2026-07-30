@@ -28,6 +28,81 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 :::
 
+## Recipes
+
+### Convert an Entire Merchant Balance
+
+Combine [`token.getBalance`](/tempo/actions/token.getBalance) with [`dex.getSellQuote`](/tempo/actions/dex.getSellQuote) to sweep a full stablecoin balance into your treasury token at a bounded price.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const alphaUsd = '0x20c0000000000000000000000000000000000001'
+const pathUsd = '0x20c0000000000000000000000000000000000000'
+
+const { amount: amountIn } = await client.token.getBalance({ // [!code focus]
+  token: alphaUsd, // [!code focus]
+}) // [!code focus]
+
+const quote = await client.dex.getSellQuote({ // [!code focus]
+  amountIn, // [!code focus]
+  tokenIn: alphaUsd, // [!code focus]
+  tokenOut: pathUsd, // [!code focus]
+}) // [!code focus]
+
+const { receipt } = await client.dex.sellSync({
+  amountIn,
+  minAmountOut: (quote * 995n) / 1_000n, // [!code focus]
+  tokenIn: alphaUsd,
+  tokenOut: pathUsd,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Settle Proceeds Straight to Your Wallet
+
+Sell proceeds settle to your internal DEX balance, so batch the sell with [`dex.withdraw`](/tempo/actions/dex.withdraw) when you need funds in your wallet immediately.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const alphaUsd = '0x20c0000000000000000000000000000000000001'
+const pathUsd = '0x20c0000000000000000000000000000000000000'
+
+const receipt = await client.transaction.sendSync({
+  calls: [
+    Actions.dex.sell.call({ // [!code focus]
+      amountIn: 1_000_000000n, // [!code focus]
+      minAmountOut: 995_000000n, // [!code focus]
+      tokenIn: alphaUsd, // [!code focus]
+      tokenOut: pathUsd, // [!code focus]
+    }), // [!code focus]
+    Actions.dex.withdraw.call({ // [!code focus]
+      amount: 995_000000n, // [!code focus]
+      token: pathUsd, // [!code focus]
+    }), // [!code focus]
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Withdraw the `minAmountOut` you are guaranteed to receive. Any excess output stays on your DEX balance.
+
 ## Return Value
 
 ```ts

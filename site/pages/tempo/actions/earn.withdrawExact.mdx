@@ -74,6 +74,69 @@ const hash = await client.earn.withdrawExact({
 // @log: 0x1234...abcd
 ```
 
+## Recipes
+
+### Skim Yield Above a Target Float
+
+Combine [`earn.getPosition`](/tempo/actions/earn.getPosition) with an exact withdrawal to pull only
+the value above a working balance target.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const target = 100_000_000_000n
+const vault = '0x0000000000000000000000000000000000000001'
+
+const { value } = await client.earn.getPosition({ vault }) // [!code focus]
+
+if (value > target) {
+  const result = await client.earn.withdrawExactSync({
+    assetAmount: value - target, // [!code focus]
+    slippageBps: 50,
+    vault,
+  })
+  // @log: { assetAmount: 1_250_000_000n, shareAmount: 1_243_800_000n, ... }
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+`value` already includes accrued yield and pending fees, so the skim keeps the deployed position at
+the target.
+
+### Pay an Exact Invoice from the Vault
+
+Pass `recipient` with a formatted `assetAmount` to settle an invoice for its exact amount directly
+from vault holdings.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.earn.withdrawExactSync({
+  assetAmount: { decimals: 6, formatted: '1249.99' }, // [!code focus]
+  recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+  slippageBps: 50,
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: { assetAmount: 1_249_990_000n, recipient: '0x742d...bEbb', shareAmount: 1_244_000_000n, ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The counterparty receives the exact `assetAmount`; slippage only affects the shares burned.
+
 ## Return Value
 
 ```ts

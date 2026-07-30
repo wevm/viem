@@ -64,6 +64,81 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.channel.withdraw.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Withdraw as Soon as the Grace Period Elapses
+
+Check [`channel.getStates`](/tempo/actions/channel.getStates) against `Channel.closeGracePeriod` to withdraw the moment a requested close matures, without persisting the grace end timestamp yourself.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Channel } from 'viem/tempo'
+import { client } from './viem.config'
+
+const channel = Channel.from({
+  expiringNonceHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  payee: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  payer: client.account.address,
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000101',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+const state = await client.channel.getStates({ channel }) // [!code focus]
+const graceEnd = BigInt(state.closeRequestedAt) + Channel.closeGracePeriod // [!code focus]
+const now = BigInt(Math.floor(Date.now() / 1000))
+
+if (state.closeRequestedAt > 0 && now >= graceEnd) // [!code focus]
+  await client.channel.withdrawSync({ channel }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Sweep Matured Channels Across Vendors
+
+Combine a batched [`channel.getStates`](/tempo/actions/channel.getStates) read with a withdrawal loop to reclaim deposits from every channel whose close timer has elapsed.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Channel } from 'viem/tempo'
+import { client } from './viem.config'
+
+// One channel per vendor, all previously close-requested.
+const vendors = [
+  '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+] as const
+const channels = vendors.map((payee) =>
+  Channel.from({
+    expiringNonceHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+    payee,
+    payer: client.account.address,
+    salt: '0x0000000000000000000000000000000000000000000000000000000000000101',
+    token: '0x20c0000000000000000000000000000000000000',
+  }),
+)
+
+const states = await client.channel.getStates({ channel: channels }) // [!code focus]
+
+const now = BigInt(Math.floor(Date.now() / 1000))
+for (const [i, state] of states.entries()) { // [!code focus]
+  if (state.closeRequestedAt === 0) continue
+  if (now < BigInt(state.closeRequestedAt) + Channel.closeGracePeriod) continue
+  await client.channel.withdrawSync({ channel: channels[i] }) // [!code focus]
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

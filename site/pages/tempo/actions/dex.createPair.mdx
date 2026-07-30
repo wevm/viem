@@ -43,6 +43,61 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.dex.createPair.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### List a Newly Issued Stablecoin
+
+Combine [`token.create`](/tempo/actions/token.create) with `createPairSync` to issue a stablecoin and open its market against the default quote token in one flow.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { token } = await client.token.createSync({ // [!code focus]
+  currency: 'USD',
+  name: 'Alpha USD',
+  symbol: 'AUSD',
+})
+
+const { key, quote } = await client.dex.createPairSync({ base: token }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Seed a New Pair with Resting Liquidity
+
+A new pair opens with an empty book, so seed it with a [`dex.placeFlip`](/tempo/actions/dex.placeFlip) order that keeps quoting both sides as it fills.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Tick } from 'viem/tempo'
+import { client } from './viem.config'
+
+const alphaUsd = '0x20c0000000000000000000000000000000000001'
+
+const { base } = await client.dex.createPairSync({ base: alphaUsd })
+
+const { orderId } = await client.dex.placeFlipSync({ // [!code focus]
+  amount: 25_000_000000n, // [!code focus]
+  flipTick: Tick.fromPrice('1.001'), // [!code focus]
+  tick: Tick.fromPrice('0.999'), // [!code focus]
+  token: base, // [!code focus]
+  type: 'buy', // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

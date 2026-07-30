@@ -26,6 +26,67 @@ console.log('Orderbook:', orderbook)
 
 :::
 
+## Recipes
+
+### Display Top-of-Book Prices and the Spread
+
+Use `Tick.toPrice` to convert the best ticks into quoted prices and derive the spread (one tick is 0.1 basis points) for a market dashboard.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Tick } from 'viem/tempo'
+import { client } from './viem.config'
+
+const book = await client.dex.getOrderbook({
+  base: '0x20c0000000000000000000000000000000000001',
+  quote: '0x20c0000000000000000000000000000000000000',
+})
+
+const bid = Tick.toPrice(book.bestBidTick) // [!code focus]
+const ask = Tick.toPrice(book.bestAskTick) // [!code focus]
+const spreadBps = (book.bestAskTick - book.bestBidTick) / 10 // [!code focus]
+
+console.log(`Bid ${bid} / Ask ${ask} / Spread ${spreadBps} bps`)
+// @log: Bid 0.999 / Ask 1.001 / Spread 20 bps
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Sample Bid Depth for a Depth Chart
+
+Combine `dex.getOrderbook` with [`dex.getTickLevel`](/tempo/actions/dex.getTickLevel) to read resting liquidity below the best bid, stepping by the 10-tick (1 basis point) grid orders rest on.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const base = '0x20c0000000000000000000000000000000000001'
+
+const book = await client.dex.getOrderbook({
+  base,
+  quote: '0x20c0000000000000000000000000000000000000',
+})
+
+const depth = []
+for (let i = 0; i < 5; i++) {
+  const tick = book.bestBidTick - i * 10 // [!code focus]
+  const level = await client.dex.getTickLevel({ base, isBid: true, tick }) // [!code focus]
+  depth.push({ tick, liquidity: level.totalLiquidity }) // [!code focus]
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

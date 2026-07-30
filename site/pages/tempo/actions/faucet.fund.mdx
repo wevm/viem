@@ -35,6 +35,60 @@ const hashes = await client.faucet.fund({
 })
 ```
 
+## Recipes
+
+### Fund a Fresh Account for Each Test Run
+
+Create a throwaway account with [`Account.fromSecp256k1`](/tempo/accounts/account.fromSecp256k1) and fund it, giving each CI run an isolated, prefunded identity.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { Secp256k1 } from 'viem/utils'
+import { client } from './viem.config'
+
+const testAccount = Account.fromSecp256k1(Secp256k1.randomPrivateKey()) // [!code focus]
+
+await client.faucet.fundSync({ account: testAccount }) // [!code focus]
+
+const { receipt } = await client.token.transferSync({
+  account: testAccount,
+  amount: { formatted: '10' },
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Top Up a Test Runner When It Runs Low
+
+Check the balance with [`token.getBalance`](/tempo/actions/token.getBalance) and only hit the faucet when a long-lived runner drops below a threshold.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const balance = await client.token.getBalance({ // [!code focus]
+  token: '0x20c0000000000000000000000000000000000000', // [!code focus]
+}) // [!code focus]
+
+if (Number(balance.formatted) < 100) // [!code focus]
+  await client.faucet.fundSync({ account: client.account }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

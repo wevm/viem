@@ -25,6 +25,64 @@ console.log('Access key metadata:', metadata)
 
 :::
 
+## Recipes
+
+### Confirm a Billing Key Before Charging
+
+Check `isRevoked` and `expiry` on a stored key before a server-side charge, and re-authorize instead of submitting a transaction that will revert.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const metadata = await client.accessKey.getMetadata({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // subscriber
+  accessKey: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // billing key
+})
+
+const now = BigInt(Math.floor(Date.now() / 1000))
+if (metadata.isRevoked || metadata.expiry <= now) // [!code focus]
+  throw new Error('billing key inactive: re-authorize before charging') // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Flag Keys Without Spending Limits
+
+Use `spendPolicy` to surface active keys that have no spending cap during a periodic security review.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const keys = [
+  '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+] as const
+
+const flagged = []
+for (const accessKey of keys) {
+  const metadata = await client.accessKey.getMetadata({ accessKey })
+  if (metadata.spendPolicy === 'unlimited' && !metadata.isRevoked) // [!code focus]
+    flagged.push(metadata.address) // [!code focus]
+}
+
+console.log('Keys without limits:', flagged)
+// @log: Keys without limits: ['0x8ba1f109551bD432803012645Ac136ddd64DBA72']
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

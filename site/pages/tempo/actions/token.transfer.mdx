@@ -93,6 +93,90 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.token.transfer.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Reconcile Payments with an Order Memo
+
+Pass `memo` to stamp each payment with an order identifier (for example, `order_1024` hex-encoded), so reconciliation jobs can match onchain transfers to orders without external lookups.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.transferSync({
+  amount: { formatted: '249.99' },
+  memo: '0x6f726465725f31303234', // [!code focus]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Charge a Customer from an Allowance
+
+Pass `from` to pull a charge from a customer's wallet through an allowance granted with [`token.approveSync`](/tempo/actions/token.approve), the standard server-side flow for subscription billing.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.transferSync({
+  amount: { formatted: '19.99' },
+  from: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+  to: '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Run Concurrent Payouts with Expiring Nonces
+
+Pass `nonceKey: 'expiring'` to submit a payroll batch concurrently from one account, without serializing the transfers on nonce order.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000000'
+
+const payouts = [
+  { amount: { formatted: '1250.00' }, to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb' },
+  { amount: { formatted: '980.50' }, to: '0x8ba1f109551bD432803012645Ac136ddd64DBA72' },
+] as const
+
+const results = await Promise.all(
+  payouts.map((payout) =>
+    client.token.transferSync({
+      ...payout,
+      nonceKey: 'expiring', // [!code focus]
+      token,
+    }),
+  ),
+)
+
+console.log(results.map(({ receipt }) => receipt.status))
+// @log: ['success', 'success']
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

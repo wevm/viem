@@ -45,6 +45,71 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const events = Actions.token.renounceRoles.extractEvents(receipt.logs)
 ```
 
+## Recipes
+
+### Decommission a Retired Minting Service
+
+Renounce the service's roles when you retire it, then confirm with [`token.hasRole`](/tempo/actions/token.hasRole) so credentials left on the old deployment stay harmless.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000001'
+
+await client.token.renounceRolesSync({
+  roles: ['issuer'],
+  token,
+})
+
+const stillIssuer = await client.token.hasRole({ // [!code focus]
+  role: 'issuer', // [!code focus]
+  token, // [!code focus]
+}) // [!code focus]
+
+console.log('Still issuer:', stillIssuer)
+// @log: Still issuer: false
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Hand Over Administration and Step Down
+
+Combine `renounceRolesSync` with [`token.grantRolesSync`](/tempo/actions/token.grantRoles) to transfer `defaultAdmin` to a new operations account before giving up your own, so the token is never left without an admin.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000001'
+
+await client.token.grantRolesSync({ // [!code focus]
+  roles: ['defaultAdmin'], // [!code focus]
+  to: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  token, // [!code focus]
+}) // [!code focus]
+
+const { value } = await client.token.renounceRolesSync({
+  roles: ['defaultAdmin'], // [!code focus]
+  token,
+})
+
+console.log('Caller holds defaultAdmin:', value[0].hasRole)
+// @log: Caller holds defaultAdmin: false
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

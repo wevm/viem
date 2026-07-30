@@ -45,6 +45,72 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.accessKey.revoke.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Rotate an Access Key
+
+Combine [`accessKey.authorize`](/tempo/actions/accessKey.authorize) with `revoke` to bring a replacement key live before retiring the old one, avoiding a signing gap.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { P256 } from 'viem/utils'
+import { Account, Expiry } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+
+// 1. Authorize the replacement key.
+const nextKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+await client.accessKey.authorizeSync({ // [!code focus]
+  accessKey: nextKey, // [!code focus]
+  expiry: Expiry.days(30), // [!code focus]
+}) // [!code focus]
+
+// 2. Retire the outgoing key.
+const { receipt } = await client.accessKey.revokeSync({ // [!code focus]
+  accessKey: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Revoke a Compromised Key with an Admin Key
+
+Pass an admin key as `account` so your incident response service can revoke keys while the root key stays offline.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { P256 } from 'viem/utils'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+
+// Admin key previously authorized with `admin: true`.
+const adminKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const { receipt } = await client.accessKey.revokeSync({
+  account: adminKey, // [!code focus]
+  accessKey: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

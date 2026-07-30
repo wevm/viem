@@ -43,6 +43,67 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.token.pause.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Freeze Transfers While Rotating a Compromised Issuer Key
+
+Combine `token.pauseSync` with [`token.revokeRolesSync`](/tempo/actions/token.revokeRoles) to stop transfers while you remove a compromised issuer key, then [`token.unpauseSync`](/tempo/actions/token.unpause) once rotation completes.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000001'
+
+const { isPaused } = await client.token.pauseSync({ token })
+
+const { value } = await client.token.revokeRolesSync({ // [!code focus]
+  from: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  roles: ['issuer'], // [!code focus]
+  token, // [!code focus]
+}) // [!code focus]
+
+console.log('Roles revoked:', value.length)
+// @log: Roles revoked: 1
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Pause a Token Family in One Batch
+
+Pass `nonceKey: 'expiring'` to pause every token you operate concurrently during an incident, without serializing the transactions on the operator account's nonce.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const tokens = [
+  '0x20c0000000000000000000000000000000000001',
+  '0x20c0000000000000000000000000000000000004',
+] as const
+
+const results = await Promise.all(
+  tokens.map((token) =>
+    client.token.pauseSync({ nonceKey: 'expiring', token }), // [!code focus]
+  ),
+)
+
+console.log(results.map(({ isPaused }) => isPaused))
+// @log: [true, true]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

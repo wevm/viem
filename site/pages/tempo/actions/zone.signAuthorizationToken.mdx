@@ -21,6 +21,64 @@ console.log('Token:', token)
 
 :::
 
+## Recipes
+
+### Issue a Short-Lived Token for a Backend Job
+
+Pass `expiresAt` to bound the token's validity to the job's runtime, limiting exposure if the token leaks from a worker environment.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const now = Math.floor(Date.now() / 1000)
+
+const { token } = await client.zone.signAuthorizationToken({
+  expiresAt: now + 15 * 60, // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Share One Token Across Processes
+
+Pass a custom `storage` backed by a shared store, so a fleet of workers reuses a single signed token instead of each process re-signing.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Storage } from 'viem/tempo'
+import { client } from './viem.config'
+
+// Swap the Map for a shared store such as Redis.
+const store = new Map<string, string>()
+
+const storage = Storage.from({
+  getItem: (key) => store.get(key) ?? null,
+  setItem: (key, value) => {
+    store.set(key, value)
+  },
+  removeItem: (key) => {
+    store.delete(key)
+  },
+})
+
+const { token } = await client.zone.signAuthorizationToken({
+  storage, // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

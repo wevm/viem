@@ -43,6 +43,81 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.fee.setValidatorToken.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Validate a Token Before Rotating
+
+Combine [`fee.validateToken`](/tempo/actions/fee.validateToken) with `setValidatorToken` so fee revenue never switches to a paused or non-USD token.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const alphaUsd = '0x20c0000000000000000000000000000000000001'
+
+const { address } = await client.fee.validateToken({ token: alphaUsd }) // [!code focus]
+
+const { receipt } = await client.fee.setValidatorTokenSync({ token: address }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Sign with the Validator Key from an Ops Client
+
+Pass `account` to sign with the validator key when the Client defaults to another account: the preference applies to the sending account.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const validatorKey = Account.fromSecp256k1('0x...')
+
+const { receipt } = await client.fee.setValidatorTokenSync({
+  account: validatorKey, // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Confirm the Rotation On-Chain
+
+Read the preference back with [`fee.getValidatorToken`](/tempo/actions/fee.getValidatorToken) after rotating, as a convergence check in a validator runbook.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const alphaUsd = '0x20c0000000000000000000000000000000000001'
+
+await client.fee.setValidatorTokenSync({ token: alphaUsd })
+
+const token = await client.fee.getValidatorToken({ // [!code focus]
+  validator: client.account.address, // [!code focus]
+}) // [!code focus]
+
+console.log('Receiving fees in:', token)
+// @log: Receiving fees in: 0x20c0000000000000000000000000000000000001
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

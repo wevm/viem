@@ -66,6 +66,86 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.channel.topUp.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Keep a Metered Channel Funded
+
+Combine [`channel.getStates`](/tempo/actions/channel.getStates) with a headroom check to refill before signed vouchers exhaust the deposit, so payments never stall mid-stream.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Channel } from 'viem/tempo'
+import { client } from './viem.config'
+
+const channel = Channel.from({
+  expiringNonceHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  payee: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  payer: client.account.address,
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000101',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+// Highest cumulative amount you have signed so far.
+const lastSignedCumulative = 88_000000n
+
+const state = await client.channel.getStates({ channel }) // [!code focus]
+
+if (state.deposit - lastSignedCumulative < 20_000000n) // [!code focus]
+  await client.channel.topUpSync({ // [!code focus]
+    additionalDeposit: 100_000000n, // [!code focus]
+    channel, // [!code focus]
+  }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Cover an Invoice That Exceeds the Deposit
+
+Size `additionalDeposit` to the exact shortfall before signing a voucher above the current deposit with [`channel.signVoucher`](/tempo/actions/channel.signVoucher).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Channel } from 'viem/tempo'
+import { client } from './viem.config'
+
+const channel = Channel.from({
+  expiringNonceHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  payee: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  payer: client.account.address,
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000101',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+// Next voucher total, including the new invoice.
+const cumulativeAmount = 150_000000n
+
+const state = await client.channel.getStates({ channel })
+const shortfall = cumulativeAmount - state.deposit // [!code focus]
+
+if (shortfall > 0n)
+  await client.channel.topUpSync({
+    additionalDeposit: shortfall, // [!code focus]
+    channel,
+  })
+
+const signature = await client.channel.signVoucher({ // [!code focus]
+  channel,
+  cumulativeAmount,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

@@ -43,6 +43,60 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.dex.cancel.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Reprice an Order Atomically
+
+Combine `cancel` with [`dex.place`](/tempo/actions/dex.place) in one transaction so the old quote leaves the book at the same moment the new one lands.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions, Tick } from 'viem/tempo'
+import { client } from './viem.config'
+
+const receipt = await client.transaction.sendSync({
+  calls: [
+    Actions.dex.cancel.call({ orderId: 123n }), // [!code focus]
+    Actions.dex.place.call({ // [!code focus]
+      amount: 100_000000n, // [!code focus]
+      tick: Tick.fromPrice('0.998'), // [!code focus]
+      token: '0x20c0000000000000000000000000000000000001', // [!code focus]
+      type: 'buy', // [!code focus]
+    }), // [!code focus]
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Pull Every Open Quote at Once
+
+Map your tracked order ids into a single batch to pull every quote in one transaction, for example when a pair moves off peg.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const openOrderIds = [123n, 124n, 125n]
+
+const receipt = await client.transaction.sendSync({
+  calls: openOrderIds.map((orderId) => Actions.dex.cancel.call({ orderId })), // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

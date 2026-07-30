@@ -23,6 +23,45 @@ console.log('Receipts:', result?.receipts)
 // @log: Receipts: [{ status: 'success', transactionHash: '0x1234...' }]
 ```
 
+## Recipes
+
+### Onboard Funds from a Known Chain
+
+Pre-fill `chainId` when your onboarding flow already knows where the user's funds sit, such as bridging in from Ethereum.
+
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+await client.wallet.deposit({
+  amount: '250',
+  chainId: 1, // [!code focus]
+})
+```
+
+### Deposit to a Labeled Exchange Address
+
+Pass `address` and `displayName` when funds should land somewhere other than the connected account, such as a customer's [virtual deposit address](/tempo/guides/virtual-addresses) at an exchange.
+
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+await client.wallet.deposit({
+  address: '0x58e21090fdfdfdfdfdfdfdfdfdfd010203040506', // [!code focus]
+  displayName: 'Acme Exchange Deposit', // [!code focus]
+  token: 'pathusd',
+})
+```
+
 ## Return Value
 
 ```ts

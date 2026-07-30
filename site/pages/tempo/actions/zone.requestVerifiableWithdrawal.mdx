@@ -56,6 +56,59 @@ const hash = await client.zone.requestVerifiableWithdrawal({
 const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 ```
 
+## Recipes
+
+### Let an Auditor Verify Treasury Withdrawals
+
+Pass an auditor's compressed public key as `revealTo`: withdrawals stay private onchain while only the auditor can decrypt and attest which zone account sent them.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './zones.config'
+
+// Compressed public key received from the auditor.
+// The matching private key never leaves them.
+const revealTo = '0x0357e8a1e347b0c8e8c14290499e1281f84eae5d1cdd10cc5eb4d92aca17c5c1d4'
+
+const { receipt } = await client.zone.requestVerifiableWithdrawalSync({
+  amount: 100_000_000n,
+  revealTo, // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+### Settle with a Counterparty Who Can Verify the Sender
+
+Pass the counterparty's Mainnet address as `to` and their public key as `revealTo`, so they receive the funds and can decrypt proof of who paid.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Hex } from 'viem/utils'
+import { client } from './zones.config'
+
+const { receipt } = await client.zone.requestVerifiableWithdrawalSync({
+  amount: 250_000_000n,
+  memo: Hex.fromString('otc_trade_88', { size: 32 }),
+  revealTo: '0x02a1633cafcc01ebfb6d78e39f687a1f0995c62fc95f51ead10a02ee0be551b5dc', // [!code focus]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

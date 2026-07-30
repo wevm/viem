@@ -25,6 +25,33 @@ console.log('Validator:', validator)
 
 :::
 
+## Recipes
+
+### Sample a Random Validator for a Health Probe
+
+Combine [`validator.getCount`](/tempo/actions/validator.getCount) with `getByIndex` to pick a random validator, then load its record with [`validator.get`](/tempo/actions/validator.get) to probe its endpoint.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const count = await client.validator.getCount() // [!code focus]
+const index = BigInt(Math.floor(Math.random() * Number(count))) // [!code focus]
+
+const address = await client.validator.getByIndex({ index }) // [!code focus]
+const { inboundAddress } = await client.validator.get({ validator: address })
+
+console.log('Probing:', inboundAddress)
+// @log: Probing: validator.example.com:9000
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

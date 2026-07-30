@@ -39,6 +39,39 @@ watcher.off()
 
 Also callable standalone: `Actions.dex.watchFlipOrderPlaced(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Monitor Two-Sided Liquidity Entering a Market
+
+Pass a `token` filter to see new flip orders in a pair you quote: each one is a maker committing liquidity to both sides of the spread.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Tick } from 'viem/tempo'
+import { client } from './viem.config'
+
+const watcher = client.dex.watchFlipOrderPlaced({
+  args: { token: '0x20c0000000000000000000000000000000000001' }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    const { amount, flipTick, maker, tick } = log.args
+    console.log(
+      `${maker}: ${amount} at ${Tick.toPrice(tick)}, flips to ${Tick.toPrice(flipTick)}`, // [!code focus]
+    )
+    // @log: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266: 100000000 at 0.999, flips to 1.001
+  }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

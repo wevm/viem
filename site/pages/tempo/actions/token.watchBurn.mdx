@@ -30,6 +30,65 @@ watcher.off()
 
 Also callable standalone: `Actions.token.watchBurn(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Reconcile Redemption Burns With Fiat Payouts
+
+Filter `args.from` to your redemption wallet to confirm the burn behind each fiat payout, keeping issuance records aligned with the offchain ledger.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.token.watchBurn({
+  args: { from: '0x8ba1f109551bD432803012645Ac136ddd64DBA72' }, // [!code focus]
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    // Match the burn to a pending payout by transaction hash.
+    console.log('Redeemed:', log.args.amount, log.transactionHash) // [!code focus]
+    // @log: Redeemed: 250000000n 0x59a1c...
+  }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Track Circulating Supply as Burns Land
+
+Combine the watcher with [`token.getTotalSupply`](/tempo/actions/token.getTotalSupply) to keep a treasury dashboard's supply figure current after every burn.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.token.watchBurn({
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+watcher.onLogs(async () => {
+  const { formatted } = await client.token.getTotalSupply({ // [!code focus]
+    token: '0x20c0000000000000000000000000000000000000', // [!code focus]
+  }) // [!code focus]
+  console.log('Circulating supply:', formatted)
+  // @log: Circulating supply: 12500000
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

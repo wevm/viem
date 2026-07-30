@@ -28,6 +28,63 @@ watcher.off()
 
 Also callable standalone: `Actions.receivePolicy.watchBlocked(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Auto-Claim Blocked Deposits
+
+Filter `args.receiver` to your account and release each blocked payment with [`receivePolicy.claimSync`](/tempo/actions/receivePolicy.claim) as it lands. The account must be the policy's configured claimer.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.receivePolicy.watchBlocked({
+  args: { receiver: client.account.address }, // [!code focus]
+})
+
+watcher.onLogs(async (logs) => {
+  for (const log of logs)
+    await client.receivePolicy.claimSync({ // [!code focus]
+      receipt: log.args.receipt, // [!code focus]
+      to: client.account.address, // [!code focus]
+    }) // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Backfill Missed Events After Downtime
+
+Pass `fromBlock` to replay `TransferBlocked` events your indexer missed. Persist each claim receipt: it is the only way to claim or burn the funds later.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const receipts = new Map<bigint, `0x${string}`>()
+
+// Resume from the last block the indexer processed.
+const watcher = client.receivePolicy.watchBlocked({
+  fromBlock: 1_284_000n, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) receipts.set(log.args.blockedNonce, log.args.receipt) // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

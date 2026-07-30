@@ -47,6 +47,59 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.policy.setAdmin.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Hand Off Policy Control to a Compliance Multisig
+
+Use `policy.setAdminSync` when a policy moves to production and a secured account should own membership changes; confirm the handoff with [`policy.getData`](/tempo/actions/policy.getData). The previous admin loses control as soon as the transaction is included.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+await client.policy.setAdminSync({
+  admin: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  policyId: 1n,
+})
+
+const { admin } = await client.policy.getData({ policyId: 1n }) // [!code focus]
+
+console.log('Admin:', admin)
+// @log: Admin: 0x8ba1f109551bD432803012645Ac136ddd64DBA72
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Sign the Handoff with the Outgoing Admin Key
+
+Pass `account` to sign with the policy's current admin when it differs from your client's default account; only the current admin can set a new one.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const outgoingAdmin = Account.fromSecp256k1('0x...')
+
+await client.policy.setAdminSync({
+  account: outgoingAdmin, // [!code focus]
+  admin: '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+  policyId: 1n,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

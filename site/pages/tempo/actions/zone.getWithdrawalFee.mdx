@@ -33,6 +33,33 @@ const fee = await client.zone.getWithdrawalFee({
 })
 ```
 
+## Recipes
+
+### Check the Balance Covers Amount plus Fee
+
+Combine the fee with [`token.getBalance`](/tempo/actions/token.getBalance) before calling [`zone.requestWithdrawal`](/tempo/actions/zone.requestWithdrawal), so a withdrawal that cannot cover its fee never reaches the sequencer.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './zones.config'
+
+const amount = 250_000_000n
+const token = '0x20c0000000000000000000000000000000000001'
+
+const fee = await client.zone.getWithdrawalFee() // [!code focus]
+const balance = await client.token.getBalance({ token })
+
+if (balance.amount >= amount + fee) // [!code focus]
+  await client.zone.requestWithdrawalSync({ amount, token })
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

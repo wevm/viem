@@ -31,6 +31,73 @@ Use `tempoBlockNumber` from the result with
 [`zone.waitForTempoBlock`](/tempo/actions/zone.waitForTempoBlock) to confirm that the returned assets
 were imported by the Zone.
 
+## Recipes
+
+### Release a Payout After Zone Import
+
+Combine the wait with [`zone.waitForTempoBlock`](/tempo/actions/zone.waitForTempoBlock) before
+notifying a payee that the redeemed funds are spendable in the Zone.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client as parentClient } from './viem.config'
+import { client as zoneClient } from './zones.config'
+
+const redemption = await parentClient.earn.waitForPrivateRedeem({
+  actionId: '0x0000000000000000000000000000000000000000000000000000000000000001',
+  fromBlock: 123456n,
+  gateway: '0x0000000000000000000000000000000000000001',
+  vault: '0x0000000000000000000000000000000000000002',
+})
+// @log: { outputAmount: 99_000_000n, tempoBlockNumber: 123457n, ... }
+
+await zoneClient.zone.waitForTempoBlock({ // [!code focus]
+  tempoBlockNumber: redemption.tempoBlockNumber, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+### Reconcile Swap-Routed Redemptions
+
+Compare `vaultAssets` with `outputAmount` when the redemption swaps into another token, so your
+ledger records both the vault redemption and the swap output.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const redemption = await client.earn.waitForPrivateRedeem({
+  actionId: '0x0000000000000000000000000000000000000000000000000000000000000001',
+  fromBlock: 123456n,
+  gateway: '0x0000000000000000000000000000000000000001',
+  vault: '0x0000000000000000000000000000000000000002',
+})
+
+console.log({
+  outputToken: redemption.outputToken, // [!code focus]
+  swapOutput: redemption.outputAmount, // [!code focus]
+  vaultAssetsRedeemed: redemption.vaultAssets, // [!code focus]
+})
+// @log: { outputToken: '0x20c0...0001', swapOutput: 98_920_000n, vaultAssetsRedeemed: 99_400_000n }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Type
 
 ```ts

@@ -26,6 +26,71 @@ console.log('Authorized:', authorized)
 
 :::
 
+## Recipes
+
+### Screen a Recipient Before Sending a Payout
+
+Combine `policy.isAuthorized` with [`token.transferSync`](/tempo/actions/token.transfer) to hold payouts that the token's transfer policy would revert.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const recipient = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'
+
+const authorized = await client.policy.isAuthorized({ // [!code focus]
+  policyId: 1n,
+  user: recipient,
+})
+
+if (authorized) // [!code focus]
+  await client.token.transferSync({
+    amount: { formatted: '1250' },
+    to: recipient,
+    token: '0x20c0000000000000000000000000000000000000',
+  })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Audit a Payout List for Blocked Recipients
+
+Use one pass over your recipient list to surface accounts that fail compliance screening before a payroll run starts.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const recipients = [
+  '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+] as const
+
+const checks = await Promise.all( // [!code focus]
+  recipients.map(async (user) => ({ // [!code focus]
+    authorized: await client.policy.isAuthorized({ policyId: 1n, user }), // [!code focus]
+    user, // [!code focus]
+  })), // [!code focus]
+)
+
+const blocked = checks.filter((check) => !check.authorized)
+
+console.log('Blocked:', blocked.map((check) => check.user))
+// @log: Blocked: ['0x8ba1f109551bD432803012645Ac136ddd64DBA72']
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

@@ -23,6 +23,33 @@ console.log('Result:', result)
 
 :::
 
+## Recipes
+
+### Alert Operators Ahead of a Ceremony
+
+Combine the scheduled epoch with [`validator.get`](/tempo/actions/validator.get) so operators of active validators keep their nodes online for the ceremony.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const epoch = await client.validator.getNextFullDkgCeremony() // [!code focus]
+
+const { active } = await client.validator.get({
+  validator: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // your validator
+})
+
+if (active) console.log(`Keep the node online for epoch ${epoch}`) // [!code focus]
+// @log: Keep the node online for epoch 42
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

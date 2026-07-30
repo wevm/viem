@@ -28,6 +28,61 @@ watcher.off()
 
 Also callable standalone: `Actions.amm.watchMint(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Confirm Treasury LP Deposits
+
+Filter `args.to` to the treasury when several operator wallets fund pools, so a dashboard only processes deposits that credit the treasury.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.amm.watchMint({
+  args: { to: '0x8ba1f109551bD432803012645Ac136ddd64DBA72' }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs)
+    console.log('Deposit:', log.args.sender, log.args.liquidity)
+  // @log: Deposit: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 1000000n
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Resume Watching from the Last Processed Block
+
+Pass `fromBlock` when an indexer restarts, so mints emitted while it was offline are replayed before live events.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+// Last block the indexer processed, loaded from its store.
+const lastProcessedBlock = 1_204_320n
+
+const watcher = client.amm.watchMint({
+  fromBlock: lastProcessedBlock + 1n, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log(log.blockNumber, log.args.liquidity)
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

@@ -36,6 +36,67 @@ console.log(metadata)
 
 :::
 
+## Recipes
+
+### Check Supply Headroom Before Minting
+
+Read `supplyCap` and `totalSupply` together to confirm an issuance fits under the cap before submitting [`token.mintSync`](/tempo/actions/token.mint), since mints that would exceed the cap revert.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000001'
+const issuance = Value.from('250000', 6)
+
+const { supplyCap, totalSupply } = await client.token.getMetadata({ token }) // [!code focus]
+
+if (supplyCap !== undefined && supplyCap - totalSupply < issuance) // [!code focus]
+  throw new Error('issuance exceeds the supply cap')
+
+await client.token.mintSync({
+  amount: issuance,
+  to: '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+  token,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Screen a Token Before Accepting It at Checkout
+
+Check `paused`, `transferPolicyId`, and `currency` before quoting a customer-selected token at checkout: a paused token or an always-reject transfer policy cannot settle the payment.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const metadata = await client.token.getMetadata({
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+const accepted =
+  metadata.currency === 'USD' && // [!code focus]
+  !metadata.paused && // [!code focus]
+  metadata.transferPolicyId !== 0n // [!code focus]
+
+console.log(accepted ? `Accepting ${metadata.symbol}` : 'Payment method unavailable')
+// @log: Accepting AlphaUSD
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

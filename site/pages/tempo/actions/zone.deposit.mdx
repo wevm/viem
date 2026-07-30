@@ -46,6 +46,90 @@ const hash = await client.zone.deposit({
 const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 ```
 
+## Recipes
+
+### Credit a Customer's Zone Balance
+
+Pass `recipient` to credit the deposit to a customer's address in the zone, and `memo` to carry the internal ledger reference your reconciliation jobs match on.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Hex } from 'viem/utils'
+import { client } from './viem.config'
+
+const { receipt } = await client.zone.depositSync({
+  amount: 100_000_000n,
+  memo: Hex.fromString('acct_9243', { size: 32 }), // [!code focus]
+  recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+  zoneId: 7,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Route Bounced Deposits to a Treasury Wallet
+
+Pass `bouncebackRecipient` when depositing from an operational hot wallet, so a deposit the zone cannot credit refunds to your treasury instead of the sender.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.zone.depositSync({
+  amount: 100_000_000n,
+  bouncebackRecipient: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+  zoneId: 7,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Wait Until the Funds Are Spendable in the Zone
+
+Combine the deposit receipt's block number with [`zone.waitForTempoBlock`](/tempo/actions/zone.waitForTempoBlock) on the zone client to block until the zone has imported the deposit.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+import { client as zoneClient } from './zones.config'
+
+const { receipt } = await client.zone.depositSync({
+  amount: 100_000_000n,
+  token: '0x20c0000000000000000000000000000000000001',
+  zoneId: 7,
+})
+
+const info = await zoneClient.zone.waitForTempoBlock({ // [!code focus]
+  tempoBlockNumber: receipt.blockNumber, // [!code focus]
+}) // [!code focus]
+
+console.log('Imported Tempo block:', info.tempoBlockNumber)
+// @log: Imported Tempo block: 123456n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

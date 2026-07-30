@@ -25,6 +25,72 @@ console.log('Recipient:', recipient)
 
 :::
 
+## Recipes
+
+### Screen a Withdrawal Destination
+
+Resolve a customer-supplied withdrawal address, then screen the beneficial owner against your denylist before sending with [`token.transferSync`](/tempo/actions/token.transfer).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const denylist = new Set(['0x8ba1f109551bd432803012645ac136ddd64dba72'])
+
+const destination = '0x58e21090fdfdfdfdfdfdfdfdfdfd010203040506'
+
+const master = await client.virtualAddress.resolve({ address: destination }) // [!code focus]
+if (!master) throw new Error('destination forwards to an unregistered master') // [!code focus]
+if (denylist.has(master.toLowerCase())) // [!code focus]
+  throw new Error(`beneficial owner ${master} is denied`) // [!code focus]
+
+const { receipt } = await client.token.transferSync({
+  amount: { formatted: '2500' },
+  to: destination,
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Group Ledger Entries by Beneficial Owner
+
+Normalize every counterparty through `resolve` when reconciling: virtual aliases collapse to their master, and regular addresses pass through unchanged.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const counterparties = [
+  '0x58e21090fdfdfdfdfdfdfdfdfdfd010203040506',
+  '0x58e21090fdfdfdfdfdfdfdfdfdfd010203040507',
+  '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+] as const
+
+const owners = await Promise.all(
+  counterparties.map((address) => client.virtualAddress.resolve({ address })), // [!code focus]
+)
+
+console.log(owners)
+// @log: [
+// @log:   '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+// @log:   '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+// @log:   '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'
+// @log: ]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

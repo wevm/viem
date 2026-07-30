@@ -68,6 +68,79 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.channel.settle.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Settle Before the Deposit Cap Is Reached
+
+Combine [`channel.getStates`](/tempo/actions/channel.getStates) with a capacity check to capture what you are owed before signed vouchers approach the channel's deposit cap.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Channel } from 'viem/tempo'
+import { client } from './viem.config'
+
+const channel = Channel.from({
+  expiringNonceHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  payee: client.account.address,
+  payer: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000101',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+// Latest voucher received from the payer.
+const voucher = { cumulativeAmount: 90_000000n, signature: '0x...' } as const
+
+const state = await client.channel.getStates({ channel }) // [!code focus]
+
+if (voucher.cumulativeAmount >= (state.deposit * 8n) / 10n) // [!code focus]
+  await client.channel.settleSync({ // [!code focus]
+    cumulativeAmount: voucher.cumulativeAmount, // [!code focus]
+    channel, // [!code focus]
+    signature: voucher.signature, // [!code focus]
+  }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Settle for a Merchant as the Channel Operator
+
+Use an operator account, set through [`channel.open`](/tempo/actions/channel.open)'s `operator` option, to submit settlements for payees that do not transact themselves.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Channel } from 'viem/tempo'
+import { client } from './viem.config'
+
+// This client is the platform backend acting as the channel's operator.
+const channel = Channel.from({
+  expiringNonceHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  operator: client.account.address, // [!code focus]
+  payee: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  payer: '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000101',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+// Voucher forwarded by the merchant (the payee).
+const { newSettled } = await client.channel.settleSync({
+  cumulativeAmount: 40_000000n,
+  channel,
+  signature: '0x...',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

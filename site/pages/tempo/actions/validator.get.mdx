@@ -25,6 +25,55 @@ console.log('Validator:', validator.validatorAddress)
 
 :::
 
+## Recipes
+
+### Alert When a Validator Leaves the Active Set
+
+Poll `active` from a monitoring job and page the operator when the validator drops out of consensus.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { active } = await client.validator.get({ // [!code focus]
+  validator: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+
+if (!active) console.log('Validator dropped out of the active set') // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Audit a Node's Registered Endpoints
+
+Compare the on-chain record against your ops inventory after an infrastructure migration, then repair drift with [`validator.update`](/tempo/actions/validator.update).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const expected = 'validator-2.example.com:9000' // from your ops inventory
+
+const { inboundAddress } = await client.validator.get({ // [!code focus]
+  validator: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+
+if (inboundAddress !== expected) // [!code focus]
+  console.log(`Stale endpoint: ${inboundAddress}, expected ${expected}`)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

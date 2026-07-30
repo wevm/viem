@@ -25,6 +25,34 @@ console.log('Total Supply:', totalSupply)
 
 :::
 
+## Recipes
+
+### Snapshot Supply for a Reserve Attestation
+
+Resolve the snapshot block with [`block.getNumber`](/docs/actions/public/block/getNumber), then pass `blockNumber` so the reported circulating supply matches custodian reserve balances captured at the same moment.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const blockNumber = await client.block.getNumber()
+
+const totalSupply = await client.token.getTotalSupply({
+  blockNumber, // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log(`Supply at block ${blockNumber}:`, totalSupply.formatted)
+// @log: Supply at block 19868020: 48250000.5
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

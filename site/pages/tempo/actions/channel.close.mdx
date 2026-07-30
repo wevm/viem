@@ -70,6 +70,81 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.channel.close.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Capture Only the Unsettled Remainder
+
+Combine [`channel.getStates`](/tempo/actions/channel.getStates) with `captureAmount` to take what earlier settlements have not yet paid out when closing on the final voucher.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Channel } from 'viem/tempo'
+import { client } from './viem.config'
+
+const channel = Channel.from({
+  expiringNonceHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  payee: client.account.address,
+  payer: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000101',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+// Final voucher received from the payer.
+const cumulativeAmount = 75_000000n
+
+const state = await client.channel.getStates({ channel }) // [!code focus]
+
+await client.channel.closeSync({
+  captureAmount: cumulativeAmount - state.settled, // [!code focus]
+  cumulativeAmount,
+  channel,
+  signature: '0x...',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Refund Part of a Tab at Close
+
+Pass a `captureAmount` below the voucher's `cumulativeAmount` to return the difference to the payer, resolving a dispute or refund without a separate transfer.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Channel } from 'viem/tempo'
+import { client } from './viem.config'
+
+// Channel opened with a 100 pathUSD deposit.
+const channel = Channel.from({
+  expiringNonceHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  payee: client.account.address,
+  payer: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000101',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+const { settledToPayee, refundedToPayer } = await client.channel.closeSync({
+  captureAmount: 65_000000n, // [!code focus]
+  cumulativeAmount: 80_000000n, // [!code focus]
+  channel,
+  signature: '0x...',
+})
+
+console.log({ settledToPayee, refundedToPayer })
+// @log: { settledToPayee: 65000000n, refundedToPayer: 35000000n }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

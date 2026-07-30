@@ -27,6 +27,63 @@ console.log('Fee token:', token)
 
 :::
 
+## Recipes
+
+### Resolve the Effective Fee Token
+
+Treat `null` as pathUSD when you need the token a validator actually gets paid in: unset preferences resolve to pathUSD at the node level.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const pathUsd = '0x20c0000000000000000000000000000000000000'
+
+const token = await client.fee.getValidatorToken({
+  validator: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+const effectiveToken = token ?? pathUsd // [!code focus]
+
+console.log('Validator is paid in:', effectiveToken)
+// @log: Validator is paid in: 0x20c0000000000000000000000000000000000000
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Survey Preferences Across a Validator Set
+
+Read several validators in parallel to decide which stablecoins to stock before [providing Fee AMM liquidity](/tempo/guides/stablecoin-exchange/fee-amm-liquidity).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const validators = [
+  '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+] as const
+
+const tokens = await Promise.all( // [!code focus]
+  validators.map((validator) => // [!code focus]
+    client.fee.getValidatorToken({ validator }), // [!code focus]
+  ), // [!code focus]
+)
+
+console.log(tokens)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

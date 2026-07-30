@@ -47,6 +47,72 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const events = Actions.token.grantRoles.extractEvents(receipt.logs)
 ```
 
+## Recipes
+
+### Separate Issuer and Pauser Duties Across Ops Teams
+
+Grant each operations account only the roles its job requires: the minting service holds `issuer`, while the incident-response desk holds `pause` and `unpause`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000001'
+
+await client.token.grantRolesSync({
+  roles: ['issuer'], // [!code focus]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+  token,
+})
+
+const { value } = await client.token.grantRolesSync({
+  roles: ['pause', 'unpause'], // [!code focus]
+  to: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  token,
+})
+
+console.log('Roles granted:', value.length)
+// @log: Roles granted: 2
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Bootstrap Roles on a Newly Created Token
+
+Combine `grantRolesSync` with [`token.createSync`](/tempo/actions/token.create) to deploy a stablecoin and hand its issuer role to your minting service in one flow.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { token } = await client.token.createSync({ // [!code focus]
+  currency: 'USD',
+  name: 'Alpha USD',
+  symbol: 'alphaUSD',
+})
+
+const { value } = await client.token.grantRolesSync({
+  roles: ['issuer'],
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token, // [!code focus]
+})
+
+console.log('Issuer granted:', value[0].hasRole)
+// @log: Issuer granted: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

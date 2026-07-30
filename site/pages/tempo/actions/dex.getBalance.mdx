@@ -26,6 +26,62 @@ console.log('DEX balance:', balance)
 
 :::
 
+## Recipes
+
+### Reconcile Wallet and Exchange Holdings
+
+Combine `dex.getBalance` with [`token.getBalance`](/tempo/actions/token.getBalance) to report where a token's funds sit before closing the books.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const pathUsd = '0x20c0000000000000000000000000000000000000'
+
+const onDex = await client.dex.getBalance({ token: pathUsd }) // [!code focus]
+const inWallet = await client.token.getBalance({ token: pathUsd }) // [!code focus]
+
+console.log('Total holdings:', onDex + inWallet.amount) // [!code focus]
+// @log: Total holdings: 350000000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Spot Funds Left on the Exchange
+
+Map every token you trade through `dex.getBalance` to find balances worth [withdrawing](/tempo/actions/dex.withdraw) after a trading session.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const tokens = [
+  '0x20c0000000000000000000000000000000000000',
+  '0x20c0000000000000000000000000000000000001',
+] as const
+
+const balances = await Promise.all( // [!code focus]
+  tokens.map(async (token) => ({ // [!code focus]
+    balance: await client.dex.getBalance({ token }), // [!code focus]
+    token, // [!code focus]
+  })), // [!code focus]
+) // [!code focus]
+
+const idle = balances.filter(({ balance }) => balance > 0n)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

@@ -28,6 +28,70 @@ watcher.off()
 
 Also callable standalone: `Actions.policy.watchBlacklistUpdated(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Maintain an Audit Trail of Sanctions Actions
+
+Pass `args.policyId` to record every designation and removal on your policy, keyed by transaction hash, for compliance reporting.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.policy.watchBlacklistUpdated({
+  args: { policyId: 1n }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    console.log({
+      account: log.args.account, // [!code focus]
+      action: log.args.restricted ? 'designated' : 'removed', // [!code focus]
+      reference: log.transactionHash, // [!code focus]
+    })
+  }
+  // @log: { account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', action: 'designated', reference: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef' }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Suspend Deposits When One of Your Addresses Is Blocked
+
+Pass `args.account` to monitor your own deposit addresses across every policy, and stop routing customer funds through an address that gets blocked.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.policy.watchBlacklistUpdated({
+  args: { // [!code focus]
+    account: [ // [!code focus]
+      '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+      '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+    ], // [!code focus]
+  }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs)
+    if (log.args.restricted) console.log('Suspend deposits to:', log.args.account) // [!code focus]
+  // @log: Suspend deposits to: 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

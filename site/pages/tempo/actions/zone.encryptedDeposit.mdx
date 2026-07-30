@@ -82,6 +82,68 @@ const { encrypted, keyIndex } =
 
 The helper returns the encrypted payload and its key index together with the parent chain ID, portal address, and zone ID.
 
+## Recipes
+
+### Pay an Employee Without Revealing the Recipient
+
+Pass `recipient` and `memo` to run payroll into the zone: both fields are encrypted for the sequencer, so the public chain sees only the sender, token, and amount.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Hex } from 'viem/utils'
+import { client } from './viem.config'
+
+const { receipt } = await client.zone.encryptedDepositSync({
+  amount: 4_250_000_000n,
+  memo: Hex.fromString('payroll-2026-07', { size: 32 }), // [!code focus]
+  recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+  zoneId: 7,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Run a Payroll Batch Concurrently
+
+Pass `nonceKey: 'expiring'` to submit one encrypted deposit per employee from a single funding account, without serializing the batch on nonce order.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const payouts = [
+  { amount: 4_250_000_000n, recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb' },
+  { amount: 3_890_000_000n, recipient: '0x8ba1f109551bD432803012645Ac136ddd64DBA72' },
+] as const
+
+const results = await Promise.all(
+  payouts.map((payout) =>
+    client.zone.encryptedDepositSync({
+      ...payout,
+      nonceKey: 'expiring', // [!code focus]
+      token: '0x20c0000000000000000000000000000000000001',
+      zoneId: 7,
+    }),
+  ),
+)
+
+console.log(results.map(({ receipt }) => receipt.status))
+// @log: ['success', 'success']
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

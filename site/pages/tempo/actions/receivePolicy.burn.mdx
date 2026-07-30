@@ -45,6 +45,66 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.receivePolicy.burn.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Destroy Payments from Sanctioned Senders
+
+Decode the receipt with `ReceivePolicyReceipt.decode` to screen the originator, then burn funds that must not be released and claim the rest with [`receivePolicy.claimSync`](/tempo/actions/receivePolicy.claim).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { ReceivePolicyReceipt } from 'viem/tempo'
+import { client } from './viem.config'
+
+const sanctioned = new Set(['0x000000000000000000000000000000000000dead'])
+
+// Receipt captured from a `TransferBlocked` event.
+const blockedReceipt = '0x1234'
+
+const { originator } = ReceivePolicyReceipt.decode(blockedReceipt) // [!code focus]
+if (sanctioned.has(originator.toLowerCase())) // [!code focus]
+  await client.receivePolicy.burnSync({ receipt: blockedReceipt }) // [!code focus]
+else
+  await client.receivePolicy.claimSync({
+    receipt: blockedReceipt,
+    to: client.account.address,
+  })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Burn Airdrop Dust Automatically
+
+Combine [`receivePolicy.watchBlocked`](/tempo/actions/receivePolicy.watchBlocked) with a dust threshold to destroy unwanted airdrops your token policy blocks, instead of accumulating unclaimed receipts.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.receivePolicy.watchBlocked({
+  args: { receiver: client.account.address },
+})
+
+watcher.onLogs(async (logs) => {
+  for (const log of logs) {
+    if (log.args.amount >= 1_000_000n) continue // [!code focus]
+    await client.receivePolicy.burnSync({ receipt: log.args.receipt }) // [!code focus]
+  }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

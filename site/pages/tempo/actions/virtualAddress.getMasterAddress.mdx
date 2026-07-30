@@ -25,6 +25,35 @@ console.log('Address:', address)
 
 :::
 
+## Recipes
+
+### Guard Deposit Address Issuance
+
+Confirm a master ID still resolves to a registered master before deriving per-customer deposit addresses from it with `VirtualAddress.from`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { VirtualAddress } from 'viem/tempo'
+import { client } from './viem.config'
+
+const masterId = '0x58e21090' // from your deployment records
+
+const master = await client.virtualAddress.getMasterAddress({ masterId }) // [!code focus]
+if (!master) throw new Error(`master ID ${masterId} is not registered`) // [!code focus]
+
+const depositAddress = VirtualAddress.from({ masterId, userTag: 4821n })
+
+console.log('Deposit address for customer 4821:', depositAddress)
+// @log: Deposit address for customer 4821: 0x58e21090fdfdfdfdfdfdfdfdfdfd0000000012d5
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

@@ -28,6 +28,41 @@ watcher.off()
 
 Also callable standalone: `Actions.accessKey.watchAdminAuthorized(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Auto-Revoke Unexpected Admin Grants
+
+Filter `args` to your account and revoke any admin key you did not provision with [`accessKey.revoke`](/tempo/actions/accessKey.revoke).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+// Admin keys provisioned through your ops workflow.
+const expected = new Set<string>([
+  '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+])
+
+const watcher = client.accessKey.watchAdminAuthorized({
+  args: { account: client.account.address }, // [!code focus]
+})
+
+watcher.onLogs(async (logs) => {
+  for (const log of logs) {
+    if (expected.has(log.args.publicKey)) continue
+    // Unexpected admin grant: revoke immediately.
+    await client.accessKey.revokeSync({ accessKey: log.args.publicKey }) // [!code focus]
+  }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

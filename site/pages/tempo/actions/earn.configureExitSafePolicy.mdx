@@ -31,6 +31,79 @@ const { policy, receipts } = await client.earn.configureExitSafePolicy({
 
 :::
 
+## Recipes
+
+### Protect a Vault Before Launch
+
+Resolve the share token with [`earn.getVault`](/tempo/actions/earn.getVault), then confirm the
+non-atomic setup with [`earn.validateExitSafePolicy`](/tempo/actions/earn.validateExitSafePolicy)
+before announcing the vault.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const vault = '0x0000000000000000000000000000000000000001'
+const feeRecipient = '0x8ba1f109551bD432803012645Ac136ddd64DBA72'
+const requiredMembers = [vault, feeRecipient] as const
+
+const { shareToken } = await client.earn.getVault({ vault }) // [!code focus]
+const { policy } = await client.earn.configureExitSafePolicy({
+  accessAdministrator: client.account.address,
+  initialMembers: requiredMembers, // [!code focus]
+  shareToken, // [!code focus]
+})
+
+await client.earn.validateExitSafePolicy({ // [!code focus]
+  accessAdministrator: client.account.address,
+  policy, // [!code focus]
+  requiredMembers,
+  shareToken,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Include every protocol address that must keep receiving Earn shares, such as the vault and active
+fee recipients. See [Protected Vaults](/tempo/guides/earn/protected-vaults) for the complete member
+checklist, and store the returned `policy` IDs with the deployment record.
+
+### Delegate Eligibility to a Compliance Team
+
+Pass an `accessAdministrator` other than the caller to hand whitelist control to the team that
+approves recipients. The action submits a fourth transaction transferring administration.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const complianceTeam = '0x8ba1f109551bD432803012645Ac136ddd64DBA72'
+
+const { receipts } = await client.earn.configureExitSafePolicy({
+  accessAdministrator: complianceTeam, // [!code focus]
+  initialMembers: ['0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'],
+  shareToken: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log(receipts.policyAdmin?.status) // [!code focus]
+// @log: success
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+After the transfer, only the administrator can update membership with
+[`policy.modifyWhitelist`](/tempo/actions/policy.modifyWhitelist).
+
 ## Return Value
 
 ```ts

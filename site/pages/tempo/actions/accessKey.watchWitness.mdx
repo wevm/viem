@@ -28,6 +28,75 @@ watcher.off()
 
 Also callable standalone: `Actions.accessKey.watchWitness(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Activate Checkout Sessions When Their Witness Lands Onchain
+
+Filter `args.witness` to the witnesses you issued via [`accessKey.signAuthorization`](/tempo/actions/accessKey.signAuthorization) to mark each checkout session active once its authorization lands.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+// Witnesses issued with pending checkout sessions.
+const pending = new Map<`0x${string}`, string>([
+  [
+    '0x9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658',
+    'order_1024',
+  ],
+])
+
+const watcher = client.accessKey.watchWitness({
+  args: { witness: [...pending.keys()] }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    const order = pending.get(log.args.witness) // [!code focus]
+    if (!order) continue
+    pending.delete(log.args.witness)
+    console.log('Checkout active for:', order)
+    // @log: Checkout active for: order_1024
+  }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Backfill Missed Authorizations After a Restart
+
+Pass `fromBlock` so a restarted service replays witness events emitted while it was offline.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+// Last block the service processed before restarting.
+const lastProcessed = 1_204_320n
+
+const watcher = client.accessKey.watchWitness({
+  fromBlock: lastProcessed + 1n, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    console.log(log.blockNumber, log.args.witness)
+  }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

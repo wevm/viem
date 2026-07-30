@@ -32,6 +32,61 @@ watcher.off()
 
 Also callable standalone: `Actions.nonce.watchIncremented(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Follow Payout Lane Confirmations
+
+Filter `args` to your own account to turn nonce increments into per-lane confirmation events, for example to drive a payout dashboard.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.nonce.watchIncremented({
+  args: { account: client.account.address }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs)
+    console.log(`Lane ${log.args.nonceKey}: ${log.args.newNonce} confirmed`)
+  // @log: Lane 7: 46 confirmed
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Backfill Missed Increments After a Restart
+
+Pass `fromBlock` from a persisted checkpoint so increments emitted while your service was down are still delivered before live events.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const checkpoint = 1_204_560n // last processed block, from your store
+
+const watcher = client.nonce.watchIncremented({
+  args: { account: '0x8ba1f109551bD432803012645Ac136ddd64DBA72' },
+  fromBlock: checkpoint + 1n, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log(log.blockNumber, log.args.newNonce)
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

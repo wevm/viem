@@ -23,6 +23,57 @@ console.log('Result:', result.length)
 
 :::
 
+## Recipes
+
+### Flag Inactive Validators on a Monitoring Dashboard
+
+Filter the set by `active` to surface validators that are registered but out of consensus.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const validators = await client.validator.list()
+
+const inactive = validators.filter((validator) => !validator.active) // [!code focus]
+
+for (const { validatorAddress } of inactive)
+  console.log('Out of consensus:', validatorAddress)
+// @log: Out of consensus: 0x8ba1f109551bD432803012645Ac136ddd64DBA72
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Build a Peer List for a New Node
+
+Map active validators to their inbound endpoints to seed a new node's peer configuration.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const validators = await client.validator.list()
+
+const peers = validators
+  .filter((validator) => validator.active) // [!code focus]
+  .map((validator) => validator.inboundAddress) // [!code focus]
+
+console.log('Peers:', peers)
+// @log: Peers: ['validator.example.com:9000', '203.0.113.20:9000']
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

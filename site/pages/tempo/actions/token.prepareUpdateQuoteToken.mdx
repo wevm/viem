@@ -47,6 +47,68 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.token.prepareUpdateQuoteToken.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Migrate a Token's Quote Token in Two Steps
+
+Stage the new quote token, then complete the switch with [`token.updateQuoteTokenSync`](/tempo/actions/token.updateQuoteToken) once your change window opens.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000001'
+
+await client.token.prepareUpdateQuoteTokenSync({
+  quoteToken: '0x20c0000000000000000000000000000000000002', // [!code focus]
+  token,
+})
+
+const { newQuoteToken } = await client.token.updateQuoteTokenSync({ // [!code focus]
+  token, // [!code focus]
+}) // [!code focus]
+
+console.log('New quote token:', newQuoteToken)
+// @log: New quote token: 0x20C0000000000000000000000000000000000002
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Skip Staging When the Quote Token Already Matches
+
+Read the live value with [`token.getMetadata`](/tempo/actions/token.getMetadata) and stage only when it differs from your target, so migration scripts stay safe to re-run.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const target = '0x20c0000000000000000000000000000000000002'
+const token = '0x20c0000000000000000000000000000000000001'
+
+const { quoteToken } = await client.token.getMetadata({ token }) // [!code focus]
+
+if (quoteToken?.toLowerCase() !== target.toLowerCase()) { // [!code focus]
+  const { nextQuoteToken } = await client.token.prepareUpdateQuoteTokenSync({
+    quoteToken: target,
+    token,
+  })
+  console.log('Staged:', nextQuoteToken)
+  // @log: Staged: 0x20C0000000000000000000000000000000000002
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

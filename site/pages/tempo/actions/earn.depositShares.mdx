@@ -54,6 +54,80 @@ const hash = await client.earn.depositShares({
 // @log: 0x1234...abcd
 ```
 
+## Recipes
+
+### Confirm In-Kind Support Before Migrating
+
+Combine [`earn.getVault`](/tempo/actions/earn.getVault) with the deposit to verify the vault's
+venue integration accepts venue shares before moving a position.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const vault = '0x0000000000000000000000000000000000000002'
+
+const { capabilities } = await client.earn.getVault({ vault }) // [!code focus]
+if (!capabilities.inKindDeposit) // [!code focus]
+  throw new Error('Vault does not accept venue share deposits.') // [!code focus]
+
+const result = await client.earn.depositSharesSync({
+  earnShareAmountMin: 497_000_000n,
+  vault,
+  venueShareAmount: 500_000_000n,
+  venueShareToken: '0x20c0000000000000000000000000000000000001',
+})
+// @log: { earnShareAmount: 498_750_000n, ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Quote the Migration Onchain
+
+Use [`contract.read`](/docs/actions/public/contract/read) with the vault's
+`convertEngineSharesToEarnShares` function to derive the Earn share quote from live vault
+accounting.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abis } from 'viem/tempo'
+import { client } from './viem.config'
+
+const vault = '0x0000000000000000000000000000000000000002'
+const venueShareAmount = 500_000_000n
+
+const earnShareAmount = await client.contract.read({ // [!code focus]
+  abi: Abis.earnVault, // [!code focus]
+  address: vault, // [!code focus]
+  args: [venueShareAmount], // [!code focus]
+  functionName: 'convertEngineSharesToEarnShares', // [!code focus]
+}) // [!code focus]
+
+const result = await client.earn.depositSharesSync({
+  earnShareAmount,
+  slippageBps: 30,
+  vault,
+  venueShareAmount,
+  venueShareToken: '0x20c0000000000000000000000000000000000001',
+})
+// @log: { earnShareAmount: 498_750_000n, ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Quote immediately before submission; `slippageBps` absorbs small value changes between the read and
+the deposit.
+
 ## Return Value
 
 ```ts

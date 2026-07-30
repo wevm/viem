@@ -28,6 +28,36 @@ watcher.off()
 
 Also callable standalone: `Actions.accessKey.watchWitnessBurned(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Purge Cancelled Authorizations from Storage
+
+Filter `args` to your account and delete stored authorizations when their witness is burned via [`accessKey.burnWitness`](/tempo/actions/accessKey.burnWitness).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.accessKey.watchWitnessBurned({
+  args: { account: client.account.address }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    // Delete the stored authorization bound to this witness
+    // so it is never attached to a transaction.
+    console.log('Cancelled witness:', log.args.witness) // [!code focus]
+  }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

@@ -31,6 +31,56 @@ watcher.off()
 
 Also callable standalone: `Actions.fee.watchSetValidatorToken(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Rebalance Inventory When a Validator Rotates
+
+Filter with `args.validator` to track the validators you [provide Fee AMM liquidity for](/tempo/guides/stablecoin-exchange/fee-amm-liquidity) and rebalance when their preferred token changes.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.fee.watchSetValidatorToken({
+  args: { validator: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb' }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs)
+    console.log('Validator now prefers:', log.args.token)
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Process Rotations as a Stream
+
+Iterate the watcher with `for await` when a long-running job handles each batch sequentially instead of in callbacks.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.fee.watchSetValidatorToken()
+
+for await (const { logs } of watcher) { // [!code focus]
+  for (const log of logs)
+    console.log(log.args.validator, log.args.token)
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

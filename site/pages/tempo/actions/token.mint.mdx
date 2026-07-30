@@ -91,6 +91,60 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.token.mint.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Reconcile Fiat Deposits with a Mint Memo
+
+Pass `memo` to tag each mint with the fiat deposit reference it backs (for example, `deposit_8421` hex-encoded), so onchain issuance reconciles against your banking records.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.mintSync({
+  amount: { formatted: '1000' },
+  memo: '0x6465706f7369745f38343231', // [!code focus]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Guard Large Mints Against the Supply Cap
+
+Combine [`token.getMetadata`](/tempo/actions/token.getMetadata) with `token.mintSync` to reject a mint that would exceed the token's supply cap before submitting a transaction that reverts.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const amount = 250_000_000_000n
+const token = '0x20c0000000000000000000000000000000000000'
+
+const { supplyCap, totalSupply } = await client.token.getMetadata({ token }) // [!code focus]
+if (supplyCap && totalSupply + amount > supplyCap) // [!code focus]
+  throw new Error('mint would exceed the supply cap') // [!code focus]
+
+const { receipt } = await client.token.mintSync({
+  amount,
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

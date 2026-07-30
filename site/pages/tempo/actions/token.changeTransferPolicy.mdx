@@ -45,6 +45,64 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.token.changeTransferPolicy.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Launch a Token with a KYC Allowlist
+
+Combine [`policy.createSync`](/tempo/actions/policy.create) with `token.changeTransferPolicySync` to gate a new token to KYC-verified accounts from the first transfer.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { policyId } = await client.policy.createSync({ // [!code focus]
+  addresses: ['0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'], // [!code focus]
+  type: 'whitelist', // [!code focus]
+}) // [!code focus]
+
+const { receipt } = await client.token.changeTransferPolicySync({
+  policyId, // [!code focus]
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Verify Membership Before Migrating Policies
+
+Check critical accounts against the new policy with [`policy.isAuthorized`](/tempo/actions/policy.isAuthorized) before switching, so a compliance migration never strands your treasury or settlement partners.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const newPolicyId = 2n
+const treasury = '0x8ba1f109551bD432803012645Ac136ddd64DBA72'
+
+const isAuthorized = await client.policy.isAuthorized({ // [!code focus]
+  policyId: newPolicyId, // [!code focus]
+  user: treasury, // [!code focus]
+}) // [!code focus]
+if (!isAuthorized) throw new Error('treasury is not on the new policy') // [!code focus]
+
+const { receipt } = await client.token.changeTransferPolicySync({
+  policyId: newPolicyId,
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

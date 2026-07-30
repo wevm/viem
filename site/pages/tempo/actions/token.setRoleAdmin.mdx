@@ -47,6 +47,71 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.token.setRoleAdmin.extractEvent(receipt.logs)
 ```
 
+## Recipes
+
+### Let the Issuer Team Manage Its Own Roster
+
+Set `issuer` as its own admin so senior minting keys onboard new keys directly with [`token.grantRolesSync`](/tempo/actions/token.grantRoles), without routing every change through `defaultAdmin`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000001'
+
+await client.token.setRoleAdminSync({
+  adminRole: 'issuer', // [!code focus]
+  role: 'issuer', // [!code focus]
+  token,
+})
+
+const { value } = await client.token.grantRolesSync({ // [!code focus]
+  roles: ['issuer'], // [!code focus]
+  to: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  token, // [!code focus]
+}) // [!code focus]
+
+console.log('New issuer key active:', value[0].hasRole)
+// @log: New issuer key active: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Move Pause Control Under Incident Response
+
+Assign `pause` as the admin of both pause roles so the incident-response lead manages the on-call roster that can halt and resume transfers.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000001'
+
+await client.token.setRoleAdminSync({
+  adminRole: 'pause', // [!code focus]
+  role: 'pause', // [!code focus]
+  token,
+})
+
+await client.token.setRoleAdminSync({
+  adminRole: 'pause', // [!code focus]
+  role: 'unpause', // [!code focus]
+  token,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

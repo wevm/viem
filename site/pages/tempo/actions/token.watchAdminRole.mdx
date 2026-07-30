@@ -34,6 +34,39 @@ watcher.off()
 
 Also callable standalone: `Actions.token.watchAdminRole(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Audit Admin Changes to Sensitive Roles
+
+Filter `args.role` with `TokenRole.serialize` to record who moves administration of the issuer and burnBlocked roles, feeding a compliance audit trail.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { TokenRole } from 'viem/tempo'
+import { client } from './viem.config'
+
+const watcher = client.token.watchAdminRole({
+  args: { // [!code focus]
+    role: [TokenRole.serialize('issuer'), TokenRole.serialize('burnBlocked')], // [!code focus]
+  }, // [!code focus]
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    // Append to the audit trail and notify compliance.
+    console.log(log.args.sender, 'moved role admin to', log.args.newAdminRole)
+  }
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

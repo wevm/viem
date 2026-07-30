@@ -28,6 +28,66 @@ watcher.off()
 
 Also callable standalone: `Actions.policy.watchCreate(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
+## Recipes
+
+### Track Policies Created by Your Organization
+
+Pass `args.updater` to only receive policies created by your deployment accounts, ignoring the rest of the registry.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.policy.watchCreate({
+  args: { // [!code focus]
+    updater: [ // [!code focus]
+      '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+      '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+    ], // [!code focus]
+  }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log('New policy:', log.args.policyId)
+  // @log: New policy: 42n
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Backfill the Policy Registry into a Local Index
+
+Pass `fromBlock` to replay historical `PolicyCreated` events when bootstrapping a compliance dashboard, then keep receiving new ones.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.policy.watchCreate({
+  fromBlock: 1n, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) {
+    const type = log.args.policyType === 0 ? 'whitelist' : 'blacklist' // [!code focus]
+    console.log(`Policy ${log.args.policyId}: ${type}`)
+  }
+  // @log: Policy 1: whitelist
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

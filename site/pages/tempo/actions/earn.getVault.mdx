@@ -48,6 +48,70 @@ const vault = await client.earn.getVault({
 
 :::
 
+## Recipes
+
+### Gate Deposits on Vault Health
+
+Check `depositsPaused` and `isSynced` before routing customer funds into a vault with
+[`earn.depositSync`](/tempo/actions/earn.deposit).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const vaultAddress = '0x0000000000000000000000000000000000000001'
+
+const vault = await client.earn.getVault({ vault: vaultAddress })
+if (vault.depositsPaused || !vault.isSynced) // [!code focus]
+  throw new Error('Vault is not accepting deposits.') // [!code focus]
+
+const result = await client.earn.depositSync({
+  assetAmount: 100_000_000n,
+  shareAmountMin: 99_500_000n,
+  vault: vaultAddress,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Check the matching field under `capabilities` before specialized entries and exits, such as venue
+share deposits or exact withdrawals.
+
+### Format Amounts with Token Metadata
+
+Combine `assetToken` and `shareToken` with
+[`token.getMetadata`](/tempo/actions/token.getMetadata) to resolve the symbols and decimals a
+dashboard needs to render vault balances.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const vault = await client.earn.getVault({
+  vault: '0x0000000000000000000000000000000000000001',
+})
+
+const [asset, share] = await Promise.all([
+  client.token.getMetadata({ token: vault.assetToken }), // [!code focus]
+  client.token.getMetadata({ token: vault.shareToken }), // [!code focus]
+])
+
+console.log(`${share.symbol} is backed by ${asset.symbol}`)
+// @log: evUSD is backed by pathUSD
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts

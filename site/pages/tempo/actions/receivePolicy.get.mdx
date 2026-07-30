@@ -25,6 +25,60 @@ console.log('Receive policy:', policy.hasReceivePolicy)
 
 :::
 
+## Recipes
+
+### Apply a Default Policy Only Once
+
+Gate onboarding on `hasReceivePolicy` so you only apply your default policy with [`receivePolicy.setSync`](/tempo/actions/receivePolicy.set) to accounts that have none configured.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { hasReceivePolicy } = await client.receivePolicy.get({ // [!code focus]
+  account: client.account.address,
+}) // [!code focus]
+
+if (!hasReceivePolicy) // [!code focus]
+  await client.receivePolicy.setSync({
+    claimer: 'self',
+    senderPolicyId: 'allow-all',
+    tokenPolicyId: 'allow-all',
+  })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Audit Who Can Recover Blocked Funds
+
+Use the returned `claimer` to confirm blocked funds route to an account you control before tightening a policy across treasury accounts.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const operator = '0x8ba1f109551bD432803012645Ac136ddd64DBA72'
+
+const { claimer, hasReceivePolicy } = await client.receivePolicy.get({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+})
+
+if (hasReceivePolicy && claimer !== 'self' && claimer !== operator) // [!code focus]
+  throw new Error(`Blocked funds are not recoverable by treasury: ${claimer}`) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Return Value
 
 ```ts
