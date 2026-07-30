@@ -31,37 +31,6 @@ watcher.off()
 
 Also callable standalone: `Actions.fee.watchSetUserToken(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
-## Recipes
-
-### Track Account Fee Token Changes
-
-Use this pattern to track account fee token changes.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const watcher = client.fee.watchSetUserToken()
-
-watcher.onLogs((logs) => {
-  for (const log of logs) console.log(log.args)
-  // @log: {
-  // @log:   user: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  // @log:   token: '0x20c0000000000000000000000000000000000001'
-  // @log: }
-})
-
-// Later, tear down the watcher.
-watcher.off()
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

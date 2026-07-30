@@ -26,32 +26,6 @@ console.log('Admin role:', adminRole)
 
 :::
 
-## Recipes
-
-### Inspect Token Role Governance
-
-Use this pattern to inspect token role governance.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const adminRole = await client.token.getRoleAdmin({
-  role: 'issuer',
-  token: '0x20c0000000000000000000000000000000000001',
-})
-
-console.log('Admin role:', adminRole)
-// @log: Admin role: 0x0000000000000000000000000000000000000000000000000000000000000000
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

@@ -37,41 +37,6 @@ console.log('Fee token:', token)
 
 :::
 
-## Recipes
-
-### Check a Fee Token Before Sending
-
-Use this pattern to check a fee token before sending.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const token = await client.fee.validateToken({
-  token: '0x20c0000000000000000000000000000000000001',
-})
-
-console.log('Fee token:', token)
-// @log: Fee token: {
-// @log:   address: '0x20c0000000000000000000000000000000000001',
-// @log:   id: 1n,
-// @log:   metadata: {
-// @log:     decimals: 6,
-// @log:     name: 'USD Token',
-// @log:     symbol: 'USD',
-// @log:     currency: 'USD',
-// @log:     paused: false,
-// @log:   },
-// @log: }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

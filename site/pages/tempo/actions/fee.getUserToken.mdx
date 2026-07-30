@@ -25,29 +25,6 @@ console.log('Fee token:', token)
 
 :::
 
-## Recipes
-
-### Display an Account's Fee Currency
-
-Use this pattern to display an account's fee currency.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const token = await client.fee.getUserToken()
-
-console.log('Fee token:', token)
-// @log: Fee token: { address: '0x20c0000000000000000000000000000000000001', id: 1n }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

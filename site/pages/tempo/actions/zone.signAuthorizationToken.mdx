@@ -21,29 +21,6 @@ console.log('Token:', token)
 
 :::
 
-## Recipes
-
-### Authenticate Zone RPC Requests
-
-Use this pattern to authenticate Zone RPC requests.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const { token } = await client.zone.signAuthorizationToken()
-
-console.log('Token:', token)
-// @log: Token: 0x...
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

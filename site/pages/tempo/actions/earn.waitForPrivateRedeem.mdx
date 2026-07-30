@@ -31,32 +31,6 @@ Use `tempoBlockNumber` from the result with
 [`zone.waitForTempoBlock`](/tempo/actions/zone.waitForTempoBlock) to confirm that the returned assets
 were imported by the Zone.
 
-## Recipes
-
-### Confirm a Cross-Zone Earn Redemption
-
-Use this pattern to confirm a cross-Zone Earn redemption.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const result = await client.earn.waitForPrivateRedeem({
-  actionId: '0x0000000000000000000000000000000000000000000000000000000000000001',
-  fromBlock: 123456n,
-  gateway: '0x0000000000000000000000000000000000000001',
-  vault: '0x0000000000000000000000000000000000000002',
-})
-// @log: { outputAmount: 99_000_000n, tempoBlockNumber: 123457n, ... }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Type
 
 ```ts

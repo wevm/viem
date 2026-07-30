@@ -31,33 +31,6 @@ const { policy, receipts } = await client.earn.configureExitSafePolicy({
 
 :::
 
-## Recipes
-
-### Restrict New Share Holders Without Blocking Exits
-
-Use this pattern to restrict new share holders without blocking exits.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const { policy, receipts } = await client.earn.configureExitSafePolicy({
-  accessAdministrator: '0x0000000000000000000000000000000000000002',
-  initialMembers: [
-    '0x0000000000000000000000000000000000000003',
-    '0x0000000000000000000000000000000000000004',
-  ],
-  shareToken: '0x20c0000000000000000000000000000000000001',
-})
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

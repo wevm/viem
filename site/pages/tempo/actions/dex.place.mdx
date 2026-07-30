@@ -49,34 +49,6 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.dex.place.extractEvent(receipt.logs)
 ```
 
-## Recipes
-
-### Post a Limit Order
-
-Use this pattern to post a limit order.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const { amount, orderId, tick } = await client.dex.placeSync({
-  amount: 100000000n,
-  tick: 100,
-  token: '0x20c0000000000000000000000000000000000001',
-  type: 'buy',
-})
-
-console.log('Order:', { amount, orderId, tick })
-// @log: Order: { amount: 100000000n, orderId: 123n, tick: 100 }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

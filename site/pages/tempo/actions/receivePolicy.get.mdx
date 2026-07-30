@@ -25,31 +25,6 @@ console.log('Receive policy:', policy.hasReceivePolicy)
 
 :::
 
-## Recipes
-
-### Display an Account's Receive Policy
-
-Use this pattern to display an account's receive policy.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const policy = await client.receivePolicy.get({
-  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-})
-
-console.log('Receive policy:', policy.hasReceivePolicy)
-// @log: Receive policy: true
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

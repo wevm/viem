@@ -64,40 +64,6 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.channel.requestClose.extractEvent(receipt.logs)
 ```
 
-## Recipes
-
-### Start a Payer-Initiated Close
-
-Use this pattern to start a payer-initiated close.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const channel = {
-  authorizedSigner: '0x0000000000000000000000000000000000000000',
-  expiringNonceHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
-  operator: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC',
-  payee: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
-  payer: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  salt: '0x0000000000000000000000000000000000000000000000000000000000000101',
-  token: '0x20c0000000000000000000000000000000000001',
-} as const
-
-const { receipt, ...requested } = await client.channel.requestCloseSync({
-  channel,
-})
-
-console.log('Close requested:', requested)
-// @log: Close requested: { channelId: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef', payer: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', payee: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', closeGraceEnd: 1780000000n }
-```
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

@@ -24,30 +24,6 @@ const shareAmount = await client.earn.getWithdrawQuote({
 
 :::
 
-## Recipes
-
-### Calculate Shares for an Exact Withdrawal
-
-Use this pattern to calculate shares for an exact withdrawal.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const shareAmount = await client.earn.getWithdrawQuote({
-  assetAmount: 100_000_000n,
-  vault: '0x0000000000000000000000000000000000000001',
-})
-// @log: 100_500_000n
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 `bigint`

@@ -52,33 +52,6 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.amm.rebalanceSwap.extractEvent(receipt.logs)
 ```
 
-## Recipes
-
-### Rebalance Validator Fees into a User Token
-
-Use this pattern to rebalance validator fees into a user token.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const { receipt, ...event } = await client.amm.rebalanceSwapSync({
-  amountOut: 1000000n,
-  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  userToken: '0x20c0000000000000000000000000000000000001',
-  validatorToken: '0x20c0000000000000000000000000000000000002',
-})
-
-console.log('Rebalance swap:', event)
-// @log: Rebalance swap: { userToken: '0x20c0000000000000000000000000000000000001', validatorToken: '0x20c0000000000000000000000000000000000002', swapper: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', amountIn: 1001000n, amountOut: 1000000n }
-```
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

@@ -24,30 +24,6 @@ console.log('Transaction hash:', receipt.transactionHash)
 // @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
 ```
 
-## Recipes
-
-### Open a Preconfigured Wallet Swap
-
-Use this pattern to open a preconfigured wallet swap.
-
-```ts twoslash [example.ts]
-import { Client, custom } from 'viem/tempo'
-import 'viem/window'
-
-const client = Client.create({
-  transport: custom(window.ethereum!),
-})
-
-const { receipt } = await client.wallet.swap({
-  amount: '1.5',
-  token: '0x20c0000000000000000000000000000000000001',
-  type: 'sell',
-})
-
-console.log('Transaction hash:', receipt.transactionHash)
-// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
-```
-
 ## Return Value
 
 ```ts

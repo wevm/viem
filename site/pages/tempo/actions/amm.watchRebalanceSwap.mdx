@@ -28,33 +28,6 @@ watcher.off()
 
 Also callable standalone: `Actions.amm.watchRebalanceSwap(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
-## Recipes
-
-### Track Rebalance Activity
-
-Use this pattern to track rebalance activity.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const watcher = client.amm.watchRebalanceSwap()
-
-watcher.onLogs((logs) => {
-  for (const log of logs) console.log(log.args)
-  // @log: { userToken: '0x20c0000000000000000000000000000000000001', validatorToken: '0x20c0000000000000000000000000000000000002', swapper: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb' }
-})
-
-// Later, tear down the watcher.
-watcher.off()
-```
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

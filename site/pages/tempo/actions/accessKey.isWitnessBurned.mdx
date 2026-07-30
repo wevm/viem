@@ -26,32 +26,6 @@ console.log('Is burned:', isBurned)
 
 :::
 
-## Recipes
-
-### Reject a Reused Authorization
-
-Use this pattern to reject a reused authorization.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const isBurned = await client.accessKey.isWitnessBurned({
-  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  witness: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
-})
-
-console.log('Is burned:', isBurned)
-// @log: Is burned: false
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

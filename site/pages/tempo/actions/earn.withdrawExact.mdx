@@ -74,37 +74,6 @@ const hash = await client.earn.withdrawExact({
 // @log: 0x1234...abcd
 ```
 
-## Recipes
-
-### Withdraw an Exact Asset Amount
-
-Use this pattern to withdraw an exact asset amount.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const result = await client.earn.withdrawExactSync({
-  assetAmount: 40_000_000n,
-  slippageBps: 50,
-  vault: '0x0000000000000000000000000000000000000001',
-})
-// @log: {
-//   assetAmount: 40_000_000n,
-//   caller: '0x...',
-//   receipt: { ... },
-//   recipient: '0x...',
-//   shareAmount: 40_100_000n,
-// }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

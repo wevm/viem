@@ -27,33 +27,6 @@ console.log('Amount out:', amountOut)
 
 :::
 
-## Recipes
-
-### Preview an Exact-Input Trade
-
-Use this pattern to preview an exact-input trade.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const amountOut = await client.dex.getSellQuote({
-  amountIn: 100000000n,
-  tokenIn: '0x20c0000000000000000000000000000000000001',
-  tokenOut: '0x20c0000000000000000000000000000000000000',
-})
-
-console.log('Amount out:', amountOut)
-// @log: Amount out: 99900000n
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

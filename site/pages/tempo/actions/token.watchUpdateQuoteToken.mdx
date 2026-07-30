@@ -33,39 +33,6 @@ watcher.off()
 
 Also callable standalone: `Actions.token.watchUpdateQuoteToken(client, options)`, with `Actions` imported from `'viem/tempo'`.
 
-## Recipes
-
-### Track Quote Token Migrations
-
-Use this pattern to track quote token migrations.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const watcher = client.token.watchUpdateQuoteToken({
-  token: '0x20c0000000000000000000000000000000000000',
-})
-
-watcher.onLogs((logs) => {
-  for (const log of logs) console.log(log.eventName, log.args)
-  // @log: NextQuoteTokenSet {
-  // @log:   updater: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  // @log:   nextQuoteToken: '0x20C0000000000000000000000000000000000001'
-  // @log: }
-})
-
-// Later, tear down the watcher.
-watcher.off()
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.

@@ -87,32 +87,6 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.token.burn.extractEvent(receipt.logs)
 ```
 
-## Recipes
-
-### Reduce Token Supply from an Account Balance
-
-Use this pattern to reduce token supply from an account balance.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const { receipt } = await client.token.burnSync({
-  amount: { formatted: '10.5' },
-  token: '0x20c0000000000000000000000000000000000000',
-})
-
-console.log('Transaction hash:', receipt.transactionHash)
-// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

@@ -31,32 +31,6 @@ Use `tempoBlockNumber` from the result with
 [`zone.waitForTempoBlock`](/tempo/actions/zone.waitForTempoBlock) to confirm that the returned shares
 were imported by the Zone.
 
-## Recipes
-
-### Confirm a Cross-Zone Earn Deposit
-
-Use this pattern to confirm a cross-Zone Earn deposit.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const result = await client.earn.waitForPrivateDeposit({
-  actionId: '0x0000000000000000000000000000000000000000000000000000000000000001',
-  fromBlock: 123456n,
-  gateway: '0x0000000000000000000000000000000000000001',
-  vault: '0x0000000000000000000000000000000000000002',
-})
-// @log: { shares: 99_750_000n, tempoBlockNumber: 123457n, ... }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Type
 
 ```ts

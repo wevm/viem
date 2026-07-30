@@ -45,33 +45,6 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.accessKey.revoke.extractEvent(receipt.logs)
 ```
 
-## Recipes
-
-### Remove a Compromised Access Key
-
-Use this pattern to remove a compromised access key.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const { publicKey, receipt } = await client.accessKey.revokeSync({
-  accessKey: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-})
-
-console.log('Revoked access key:', publicKey)
-console.log('Transaction hash:', receipt.transactionHash)
-// @log: Revoked access key: 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb
-// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

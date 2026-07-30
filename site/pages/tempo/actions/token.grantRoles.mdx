@@ -47,33 +47,6 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const events = Actions.token.grantRoles.extractEvents(receipt.logs)
 ```
 
-## Recipes
-
-### Authorize a New Token Issuer
-
-Use this pattern to authorize a new token issuer.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const { receipt, value } = await client.token.grantRolesSync({
-  roles: ['issuer'],
-  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: '0x20c0000000000000000000000000000000000001',
-})
-
-console.log('Role granted:', value[0].hasRole)
-// @log: Role granted: true
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

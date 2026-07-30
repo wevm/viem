@@ -23,29 +23,6 @@ console.log('Result:', result)
 
 :::
 
-## Recipes
-
-### Size a Validator List
-
-Use this pattern to size a validator list.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const result = await client.validator.getCount()
-
-console.log('Result:', result)
-// @log: Result: 4n
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

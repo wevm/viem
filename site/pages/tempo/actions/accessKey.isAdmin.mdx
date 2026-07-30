@@ -26,32 +26,6 @@ console.log('Is admin:', isAdmin)
 
 :::
 
-## Recipes
-
-### Check for Unrestricted Access
-
-Use this pattern to check for unrestricted access.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const isAdmin = await client.accessKey.isAdmin({
-  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  accessKey: '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
-})
-
-console.log('Is admin:', isAdmin)
-// @log: Is admin: true
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

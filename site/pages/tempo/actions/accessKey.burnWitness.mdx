@@ -45,33 +45,6 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.accessKey.burnWitness.extractEvent(receipt.logs)
 ```
 
-## Recipes
-
-### Cancel a Pending Key Authorization
-
-Use this pattern to cancel a pending key authorization.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const { witness, receipt } = await client.accessKey.burnWitnessSync({
-  witness: '0x0000000000000000000000000000000000000000000000000000000000000001',
-})
-
-console.log('Burned witness:', witness)
-console.log('Transaction hash:', receipt.transactionHash)
-// @log: Burned witness: 0x0000000000000000000000000000000000000000000000000000000000000001
-// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

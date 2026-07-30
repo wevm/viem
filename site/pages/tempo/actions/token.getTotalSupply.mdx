@@ -25,31 +25,6 @@ console.log('Total Supply:', totalSupply)
 
 :::
 
-## Recipes
-
-### Report Token Supply
-
-Use this pattern to report token supply.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const totalSupply = await client.token.getTotalSupply({
-  token: '0x20c0000000000000000000000000000000000000',
-})
-
-console.log('Total Supply:', totalSupply)
-// @log: Total Supply: { amount: 1000000000000000n, decimals: 6, formatted: '1000000000' }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

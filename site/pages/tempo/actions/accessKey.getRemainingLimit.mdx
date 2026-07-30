@@ -27,33 +27,6 @@ console.log('Remaining limit:', limit)
 
 :::
 
-## Recipes
-
-### Check an Access Key's Spending Budget
-
-Use this pattern to check an access key's spending budget.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const limit = await client.accessKey.getRemainingLimit({
-  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  accessKey: '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
-  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-})
-
-console.log('Remaining limit:', limit)
-// @log: Remaining limit: { periodEnd: 1735689600n, remaining: 1000000n }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 ```ts

@@ -37,39 +37,6 @@ await client.earn.validateExitSafePolicy({
 
 :::
 
-## Recipes
-
-### Verify That Earn Exits Remain Available
-
-Use this pattern to verify that Earn exits remain available.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-await client.earn.validateExitSafePolicy({
-  accessAdministrator: '0x0000000000000000000000000000000000000002',
-  policy: {
-    transferPolicyId: 3n,
-    senderPolicyId: 1n,
-    recipientPolicyId: 2n,
-    mintRecipientPolicyId: 2n,
-  },
-  requiredMembers: [
-    '0x0000000000000000000000000000000000000003',
-    '0x0000000000000000000000000000000000000004',
-  ],
-  shareToken: '0x20c0000000000000000000000000000000000001',
-})
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
 ## Return Value
 
 `void`
