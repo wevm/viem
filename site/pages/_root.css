@@ -395,6 +395,10 @@ body > div:has(> div > .twoslash-completion-list) {
   text-decoration: none;
 }
 
+.benchmark-table :is(th, td) {
+  white-space: nowrap;
+}
+
 /* Keep light-dark() aligned with Vocs's inline color-scheme toggle. */
 html[style*='color-scheme: light'] {
   --lightningcss-light: initial;

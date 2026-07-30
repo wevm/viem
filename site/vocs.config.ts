@@ -656,6 +656,7 @@ export default defineConfig({
           { text: 'Platform Compatibility', link: '/docs/compatibility' },
           { text: 'AI Agents', link: '/docs/agents' },
           { text: 'FAQ', link: '/docs/faq' },
+          { text: 'Benchmarks', link: '/docs/benchmarks' },
           { text: 'Migrating from v2', link: '/docs/v2-migration' },
         ],
       },
