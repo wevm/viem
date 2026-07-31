@@ -62,11 +62,6 @@ const expectedFailures: Record<
   string,
   Partial<Omit<Result, 'emitted' | 'forbidden'>>
 > = {
-  // `ox/erc4337`'s `UserOperation` types are `OneOf<...>` instantiations, re-exported
-  // through `src/erc4337/internal/inference.ts` via `ox/_types/*`. Blocked on an `ox`
-  // patch release: 1.3.0 published without the `_types` subpath (its `postinstall`
-  // regenerates `exports` without it).
-  'erc4337-bundler': { nonportable: 2 },
   // `Contract.from` over a ~40-entry ABI exceeds the declaration serializer limit
   // (TS7056), extended client or not; the Contract type needs nominal boundaries so
   // emit references it instead of expanding per-function members.
