@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "bench:types": "TYPES=true vp test --run --project type-bench",
-    "build": "pnpm exports:update && zile",
+    "build": "pnpm exports:update && zile && pnpm exports:internal-types",
     "changeset:prepublish": "pnpm version:update && pnpm build && zile publish:prepare",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish && zile publish:post",
     "changeset:version": "pnpm install --lockfile-only && changeset version && pnpm version:update && pnpm check",
@@ -15,6 +15,7 @@
     "docs:build": "pnpm docs:sync-utils && pnpm --filter site build",
     "docs:dev": "pnpm docs:sync-utils --if-needed && pnpm --filter site dev",
     "docs:sync-utils": "bun scripts/docs:sync-utils.ts",
+    "exports:internal-types": "bun scripts/exports:internal-types.ts",
     "exports:update": "bun scripts/exports:update.ts",
     "gen:tempo-abis": "bun scripts/gen:tempo-abis.ts",
     "gen:tempo-earn-abis": "bun scripts/generateTempoEarnAbis.ts && vp fmt src/tempo/Abis.ts test/src/tempo/earnContracts.ts",
@@ -291,6 +292,10 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./_types/*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    },
     "./chains": {
       "src": "./src/chains/index.ts",
       "types": "./dist/chains/index.d.ts",
@@ -389,6 +394,9 @@
       ],
       "zod": [
         "./dist/zod/index.d.ts"
+      ],
+      "_types/*": [
+        "./dist/*.d.ts"
       ]
     }
   }
