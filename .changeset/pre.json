@@ -10,6 +10,7 @@
   "changesets": [
     "clean-dingos-breathe",
     "friendly-client-bridges",
+    "quiet-donuts-attack",
     "released-v3",
     "tidy-actions-gather"
   ]
