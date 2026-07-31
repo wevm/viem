@@ -67,17 +67,6 @@ export type TransactionRequest = Omit<
 /** RPC representation of a {@link TransactionRequest}. */
 export type TransactionRequestRpc = TransactionRequestTempo.Rpc
 
-// Exported so consumer declaration emit can name them. See `core/internal/inference.ts`.
-export type Transaction = TransactionTempo.Transaction
-export type TransactionRpc = TransactionTempo.Rpc
-export type TransactionReceipt = TransactionReceiptTempo.TransactionReceipt
-export type TransactionReceiptRpc = TransactionReceiptTempo.Rpc
-export type TxEnvelope = ox_TxEnvelope.TxEnvelope
-export type SerializeOptions = TxEnvelopeTempo.serialize.Options
-
-// Re-exports, not aliases: these leak structurally, so the original symbols must be nameable.
-export type { RpcType, Type } from 'ox/tempo/TransactionReceipt'
-
 /**
  * A Tempo transaction envelope. Client-side request metadata (`feePayer`,
  * `multisig`, `signatures`) rides the envelope structurally: the chain's
@@ -106,10 +95,10 @@ export type ChainConfig = {
   }
   codecs: {
     transaction: {
-      fromRpc: (rpc: TransactionRpc) => Transaction
+      fromRpc: (rpc: z_TransactionRpc) => z_Transaction
     }
     transactionReceipt: {
-      fromRpc: (rpc: TransactionReceiptRpc) => TransactionReceipt
+      fromRpc: (rpc: z_TransactionReceiptRpc) => z_TransactionReceipt
     }
     transactionRequest: {
       fromRpc: (rpc: Record<string, unknown>) => TransactionRequest
@@ -122,14 +111,14 @@ export type ChainConfig = {
     create2: Chain.Chain.Contract
   }
   transaction: {
-    getSignPayload: (envelope: Envelope | TxEnvelope) => Hex.Hex | undefined
+    getSignPayload: (envelope: Envelope | z_TxEnvelope) => Hex.Hex | undefined
     prepare: [
       fn: Chain.Chain.Transaction.PrepareFn,
       options: { runAt: readonly Chain.Chain.Transaction.PreparePhase[] },
     ]
     serialize: (
-      envelope: Envelope | TxEnvelope,
-      options?: SerializeOptions | undefined,
+      envelope: Envelope | z_TxEnvelope,
+      options?: z_SerializeOptions | undefined,
     ) => Hex.Hex | undefined
     toEnvelope: (
       request: ox_TransactionRequest.TransactionRequest,
@@ -192,7 +181,7 @@ export const chainConfig = {
     },
   },
   transaction: {
-    getSignPayload(envelope: Envelope | TxEnvelope): Hex.Hex | undefined {
+    getSignPayload(envelope: Envelope | z_TxEnvelope): Hex.Hex | undefined {
       // Non-tempo envelopes delegate to the generic default.
       if (!isTempoEnvelope(envelope)) return undefined
       return TxEnvelopeTempo.getSignPayload(envelope)
@@ -371,8 +360,8 @@ export const chainConfig = {
       { runAt: ['beforeFillTransaction', 'afterFillParameters'] },
     ],
     serialize(
-      envelope: Envelope | TxEnvelope,
-      options: SerializeOptions = {},
+      envelope: Envelope | z_TxEnvelope,
+      options: z_SerializeOptions = {},
     ): Hex.Hex | undefined {
       // Non-tempo envelopes delegate to the generic default.
       if (!isTempoEnvelope(envelope)) return undefined
@@ -560,7 +549,7 @@ export const chainConfig = {
 
 /** Untyped envelopes are assumed tempo (they flow from `toEnvelope`). @internal */
 function isTempoEnvelope(
-  envelope: Envelope | TxEnvelope,
+  envelope: Envelope | z_TxEnvelope,
 ): envelope is Envelope {
   return !envelope.type || envelope.type === 'tempo'
 }
@@ -651,3 +640,16 @@ function inferMultisigSignatureCount(config: MultisigConfig.Config): number {
   }
   return weights.length
 }
+
+// Exported so consumer declaration emit can name them; `z_` marks compiler support,
+// not module API. See `core/internal/inference.ts`.
+export type z_Transaction = TransactionTempo.Transaction
+export type z_TransactionRpc = TransactionTempo.Rpc
+export type z_TransactionReceipt = TransactionReceiptTempo.TransactionReceipt
+export type z_TransactionReceiptRpc = TransactionReceiptTempo.Rpc
+export type z_TxEnvelope = ox_TxEnvelope.TxEnvelope
+export type z_SerializeOptions = TxEnvelopeTempo.serialize.Options
+
+// Re-exports, not aliases, and un-renamed on purpose: these leak structurally, and the
+// emitter prints a re-export's original name, so only the original names resolve.
+export type { RpcType, Type } from 'ox/tempo/TransactionReceipt'

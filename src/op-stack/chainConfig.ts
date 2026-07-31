@@ -6,10 +6,6 @@ import * as TransactionReceipt from './TransactionReceipt.js'
 import * as TxEnvelopeDeposit from './TxEnvelopeDeposit.js'
 import { contracts } from './contracts.js'
 
-// Exported so consumer declaration emit can name them. See `core/internal/inference.ts`.
-export type TxEnvelope = ox_TxEnvelope.TxEnvelope
-export type SerializeOptions = ox_TxEnvelope.serialize.Options
-
 /** OP Stack chain configuration. */
 export type ChainConfig = {
   /** Default OP Stack block time in milliseconds. */
@@ -32,8 +28,8 @@ export type ChainConfig = {
   /** OP Stack transaction hooks. */
   transaction: {
     serialize: (
-      envelope: TxEnvelopeDeposit.TxEnvelopeDeposit | TxEnvelope,
-      options?: SerializeOptions | undefined,
+      envelope: TxEnvelopeDeposit.TxEnvelopeDeposit | z_TxEnvelope,
+      options?: z_SerializeOptions | undefined,
     ) => Hex.Hex | undefined
   }
 }
@@ -54,11 +50,16 @@ export const chainConfig = {
   contracts,
   transaction: {
     serialize(
-      envelope: TxEnvelopeDeposit.TxEnvelopeDeposit | TxEnvelope,
-      _options?: SerializeOptions,
+      envelope: TxEnvelopeDeposit.TxEnvelopeDeposit | z_TxEnvelope,
+      _options?: z_SerializeOptions,
     ): Hex.Hex | undefined {
       if (!TxEnvelopeDeposit.is(envelope)) return undefined
       return TxEnvelopeDeposit.serialize(envelope)
     },
   },
 } as const satisfies ChainConfig
+
+// Exported so consumer declaration emit can name them; `z_` marks compiler support,
+// not module API. See `core/internal/inference.ts`.
+export type z_TxEnvelope = ox_TxEnvelope.TxEnvelope
+export type z_SerializeOptions = ox_TxEnvelope.serialize.Options
