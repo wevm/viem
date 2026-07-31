@@ -268,6 +268,38 @@ export declare namespace fromPrivateKey {
 }
 
 /**
+ * Creates a {@link PrivateKey} from a 32-byte WebAuthn PRF output.
+ *
+ * @example
+ * ```ts
+ * import { Account } from 'viem'
+ * import { WebAuthn } from 'viem/utils'
+ *
+ * const credential = await WebAuthn.createCredential({
+ *   name: 'Example',
+ *   prf: true,
+ * })
+ * const account = Account.fromPrf(credential.prf)
+ * ```
+ */
+export function fromPrf(
+  prf: Hex.Hex | Bytes.Bytes,
+  options: fromPrf.Options = {},
+): PrivateKey {
+  return fromPrivateKey(Secp256k1.fromPrf(prf), options)
+}
+
+export declare namespace fromPrf {
+  /** Options for {@link fromPrf}. */
+  type Options = fromPrivateKey.Options
+
+  type ErrorType =
+    | Secp256k1.fromPrf.ErrorType
+    | fromPrivateKey.ErrorType
+    | Errors.GlobalErrorType
+}
+
+/**
  * Creates an {@link Hd} from an HD key.
  *
  * @example

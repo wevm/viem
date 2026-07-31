@@ -675,478 +675,108 @@ export const utilities = {
       ],
     },
     {
-      text: 'Crypto',
+      text: 'Bytes',
       collapsed: true,
       items: [
         {
-          text: 'Hash',
-          collapsed: true,
-          items: [
-            {
-              text: 'Overview',
-              link: '/docs/utilities/hash',
-            },
-            {
-              text: 'hmac256',
-              link: '/docs/utilities/hash/hmac256',
-            },
-            {
-              text: 'keccak256',
-              link: '/docs/utilities/hash/keccak256',
-            },
-            {
-              text: 'ripemd160',
-              link: '/docs/utilities/hash/ripemd160',
-            },
-            {
-              text: 'sha256',
-              link: '/docs/utilities/hash/sha256',
-            },
-            {
-              text: 'validate',
-              link: '/docs/utilities/hash/validate',
-            },
-          ],
+          text: 'Overview',
+          link: '/docs/utilities/bytes',
         },
         {
-          text: 'HdKey',
-          collapsed: true,
-          items: [
-            {
-              text: 'Overview',
-              link: '/docs/utilities/hdkey',
-            },
-            {
-              text: 'fromExtendedKey',
-              link: '/docs/utilities/hdkey/fromExtendedKey',
-            },
-            {
-              text: 'fromJson',
-              link: '/docs/utilities/hdkey/fromJson',
-            },
-            {
-              text: 'fromSeed',
-              link: '/docs/utilities/hdkey/fromSeed',
-            },
-            {
-              text: 'path',
-              link: '/docs/utilities/hdkey/path',
-            },
-            {
-              text: 'Types',
-              link: '/docs/utilities/hdkey/types',
-            },
-          ],
+          text: 'fromArray',
+          link: '/docs/utilities/bytes/fromArray',
         },
         {
-          text: 'Mnemonic',
-          collapsed: true,
-          items: [
-            {
-              text: 'Overview',
-              link: '/docs/utilities/mnemonic',
-            },
-            {
-              text: 'random',
-              link: '/docs/utilities/mnemonic/random',
-            },
-            {
-              text: 'toPrivateKey',
-              link: '/docs/utilities/mnemonic/toPrivateKey',
-            },
-            {
-              text: 'toHdKey',
-              link: '/docs/utilities/mnemonic/toHdKey',
-            },
-            {
-              text: 'toSeed',
-              link: '/docs/utilities/mnemonic/toSeed',
-            },
-            {
-              text: 'path',
-              link: '/docs/utilities/mnemonic/path',
-            },
-            {
-              text: 'validate',
-              link: '/docs/utilities/mnemonic/validate',
-            },
-          ],
+          text: 'fromBoolean',
+          link: '/docs/utilities/bytes/fromBoolean',
         },
         {
-          text: 'P256',
-          collapsed: true,
-          items: [
-            {
-              text: 'Overview',
-              link: '/docs/utilities/p256',
-            },
-            {
-              text: 'randomPrivateKey',
-              link: '/docs/utilities/p256/randomPrivateKey',
-            },
-            {
-              text: 'getPublicKey',
-              link: '/docs/utilities/p256/getPublicKey',
-            },
-            {
-              text: 'sign',
-              link: '/docs/utilities/p256/sign',
-            },
-            {
-              text: 'verify',
-              link: '/docs/utilities/p256/verify',
-            },
-            {
-              text: 'createKeyPair',
-              link: '/docs/utilities/p256/createKeyPair',
-            },
-            {
-              text: 'getSharedSecret',
-              link: '/docs/utilities/p256/getSharedSecret',
-            },
-            {
-              text: 'recoverPublicKey',
-              link: '/docs/utilities/p256/recoverPublicKey',
-            },
-          ],
+          text: 'fromHex',
+          link: '/docs/utilities/bytes/fromHex',
         },
         {
-          text: 'WebAuthnP256',
-          collapsed: true,
-          items: [
-            {
-              text: 'Overview',
-              link: '/docs/utilities/webauthnp256',
-            },
-            {
-              text: 'createCredential',
-              link: '/docs/utilities/webauthnp256/createCredential',
-            },
-            {
-              text: 'sign',
-              link: '/docs/utilities/webauthnp256/sign',
-            },
-            {
-              text: 'verify',
-              link: '/docs/utilities/webauthnp256/verify',
-            },
-            {
-              text: 'Types',
-              link: '/docs/utilities/webauthnp256/types',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      text: 'Encoding',
-      collapsed: true,
-      items: [
-        {
-          text: 'Bytes',
-          collapsed: true,
-          items: [
-            {
-              text: 'Overview',
-              link: '/docs/utilities/bytes',
-            },
-            {
-              text: 'fromArray',
-              link: '/docs/utilities/bytes/fromArray',
-            },
-            {
-              text: 'fromBoolean',
-              link: '/docs/utilities/bytes/fromBoolean',
-            },
-            {
-              text: 'fromHex',
-              link: '/docs/utilities/bytes/fromHex',
-            },
-            {
-              text: 'fromNumber',
-              link: '/docs/utilities/bytes/fromNumber',
-            },
-            {
-              text: 'fromString',
-              link: '/docs/utilities/bytes/fromString',
-            },
-            {
-              text: 'toBigInt',
-              link: '/docs/utilities/bytes/toBigInt',
-            },
-            {
-              text: 'toBoolean',
-              link: '/docs/utilities/bytes/toBoolean',
-            },
-            {
-              text: 'toHex',
-              link: '/docs/utilities/bytes/toHex',
-            },
-            {
-              text: 'toNumber',
-              link: '/docs/utilities/bytes/toNumber',
-            },
-            {
-              text: 'toString',
-              link: '/docs/utilities/bytes/toString',
-            },
-            {
-              text: 'concat',
-              link: '/docs/utilities/bytes/concat',
-            },
-            {
-              text: 'slice',
-              link: '/docs/utilities/bytes/slice',
-            },
-            {
-              text: 'padLeft',
-              link: '/docs/utilities/bytes/padLeft',
-            },
-            {
-              text: 'padRight',
-              link: '/docs/utilities/bytes/padRight',
-            },
-            {
-              text: 'trimLeft',
-              link: '/docs/utilities/bytes/trimLeft',
-            },
-            {
-              text: 'trimRight',
-              link: '/docs/utilities/bytes/trimRight',
-            },
-            {
-              text: 'assert',
-              link: '/docs/utilities/bytes/assert',
-            },
-            {
-              text: 'from',
-              link: '/docs/utilities/bytes/from',
-            },
-            {
-              text: 'isEqual',
-              link: '/docs/utilities/bytes/isEqual',
-            },
-            {
-              text: 'random',
-              link: '/docs/utilities/bytes/random',
-            },
-            {
-              text: 'size',
-              link: '/docs/utilities/bytes/size',
-            },
-            {
-              text: 'validate',
-              link: '/docs/utilities/bytes/validate',
-            },
-            {
-              text: 'Errors',
-              link: '/docs/utilities/bytes/errors',
-            },
-            {
-              text: 'Types',
-              link: '/docs/utilities/bytes/types',
-            },
-          ],
+          text: 'fromNumber',
+          link: '/docs/utilities/bytes/fromNumber',
         },
         {
-          text: 'Hex',
-          collapsed: true,
-          items: [
-            {
-              text: 'Overview',
-              link: '/docs/utilities/hex',
-            },
-            {
-              text: 'fromBoolean',
-              link: '/docs/utilities/hex/fromBoolean',
-            },
-            {
-              text: 'fromBytes',
-              link: '/docs/utilities/hex/fromBytes',
-            },
-            {
-              text: 'fromNumber',
-              link: '/docs/utilities/hex/fromNumber',
-            },
-            {
-              text: 'fromString',
-              link: '/docs/utilities/hex/fromString',
-            },
-            {
-              text: 'toBoolean',
-              link: '/docs/utilities/hex/toBoolean',
-            },
-            {
-              text: 'toBytes',
-              link: '/docs/utilities/hex/toBytes',
-            },
-            {
-              text: 'toNumber',
-              link: '/docs/utilities/hex/toNumber',
-            },
-            {
-              text: 'toString',
-              link: '/docs/utilities/hex/toString',
-            },
-            {
-              text: 'concat',
-              link: '/docs/utilities/hex/concat',
-            },
-            {
-              text: 'slice',
-              link: '/docs/utilities/hex/slice',
-            },
-            {
-              text: 'padLeft',
-              link: '/docs/utilities/hex/padLeft',
-            },
-            {
-              text: 'padRight',
-              link: '/docs/utilities/hex/padRight',
-            },
-            {
-              text: 'trimLeft',
-              link: '/docs/utilities/hex/trimLeft',
-            },
-            {
-              text: 'trimRight',
-              link: '/docs/utilities/hex/trimRight',
-            },
-            {
-              text: 'assert',
-              link: '/docs/utilities/hex/assert',
-            },
-            {
-              text: 'from',
-              link: '/docs/utilities/hex/from',
-            },
-            {
-              text: 'isEqual',
-              link: '/docs/utilities/hex/isEqual',
-            },
-            {
-              text: 'random',
-              link: '/docs/utilities/hex/random',
-            },
-            {
-              text: 'size',
-              link: '/docs/utilities/hex/size',
-            },
-            {
-              text: 'toBigInt',
-              link: '/docs/utilities/hex/toBigInt',
-            },
-            {
-              text: 'validate',
-              link: '/docs/utilities/hex/validate',
-            },
-            {
-              text: 'Errors',
-              link: '/docs/utilities/hex/errors',
-            },
-            {
-              text: 'Types',
-              link: '/docs/utilities/hex/types',
-            },
-          ],
+          text: 'fromString',
+          link: '/docs/utilities/bytes/fromString',
         },
         {
-          text: 'Json',
-          collapsed: true,
-          items: [
-            {
-              text: 'Overview',
-              link: '/docs/utilities/json',
-            },
-            {
-              text: 'stringify',
-              link: '/docs/utilities/json/stringify',
-            },
-            {
-              text: 'parse',
-              link: '/docs/utilities/json/parse',
-            },
-            {
-              text: 'canonicalize',
-              link: '/docs/utilities/json/canonicalize',
-            },
-            {
-              text: 'prettyPrint',
-              link: '/docs/utilities/json/prettyPrint',
-            },
-          ],
+          text: 'toBigInt',
+          link: '/docs/utilities/bytes/toBigInt',
         },
         {
-          text: 'Rlp',
-          collapsed: true,
-          items: [
-            {
-              text: 'Overview',
-              link: '/docs/utilities/rlp',
-            },
-            {
-              text: 'from',
-              link: '/docs/utilities/rlp/from',
-            },
-            {
-              text: 'fromBytes',
-              link: '/docs/utilities/rlp/fromBytes',
-            },
-            {
-              text: 'fromHex',
-              link: '/docs/utilities/rlp/fromHex',
-            },
-            {
-              text: 'toBytes',
-              link: '/docs/utilities/rlp/toBytes',
-            },
-            {
-              text: 'toHex',
-              link: '/docs/utilities/rlp/toHex',
-            },
-            {
-              text: 'Errors',
-              link: '/docs/utilities/rlp/errors',
-            },
-          ],
+          text: 'toBoolean',
+          link: '/docs/utilities/bytes/toBoolean',
         },
         {
-          text: 'Value',
-          collapsed: true,
-          items: [
-            {
-              text: 'Overview',
-              link: '/docs/utilities/value',
-            },
-            {
-              text: 'format',
-              link: '/docs/utilities/value/format',
-            },
-            {
-              text: 'formatEther',
-              link: '/docs/utilities/value/formatEther',
-            },
-            {
-              text: 'formatGwei',
-              link: '/docs/utilities/value/formatGwei',
-            },
-            {
-              text: 'from',
-              link: '/docs/utilities/value/from',
-            },
-            {
-              text: 'fromEther',
-              link: '/docs/utilities/value/fromEther',
-            },
-            {
-              text: 'fromGwei',
-              link: '/docs/utilities/value/fromGwei',
-            },
-            {
-              text: 'Errors',
-              link: '/docs/utilities/value/errors',
-            },
-          ],
+          text: 'toHex',
+          link: '/docs/utilities/bytes/toHex',
+        },
+        {
+          text: 'toNumber',
+          link: '/docs/utilities/bytes/toNumber',
+        },
+        {
+          text: 'toString',
+          link: '/docs/utilities/bytes/toString',
+        },
+        {
+          text: 'concat',
+          link: '/docs/utilities/bytes/concat',
+        },
+        {
+          text: 'slice',
+          link: '/docs/utilities/bytes/slice',
+        },
+        {
+          text: 'padLeft',
+          link: '/docs/utilities/bytes/padLeft',
+        },
+        {
+          text: 'padRight',
+          link: '/docs/utilities/bytes/padRight',
+        },
+        {
+          text: 'trimLeft',
+          link: '/docs/utilities/bytes/trimLeft',
+        },
+        {
+          text: 'trimRight',
+          link: '/docs/utilities/bytes/trimRight',
+        },
+        {
+          text: 'assert',
+          link: '/docs/utilities/bytes/assert',
+        },
+        {
+          text: 'from',
+          link: '/docs/utilities/bytes/from',
+        },
+        {
+          text: 'isEqual',
+          link: '/docs/utilities/bytes/isEqual',
+        },
+        {
+          text: 'random',
+          link: '/docs/utilities/bytes/random',
+        },
+        {
+          text: 'size',
+          link: '/docs/utilities/bytes/size',
+        },
+        {
+          text: 'validate',
+          link: '/docs/utilities/bytes/validate',
+        },
+        {
+          text: 'Errors',
+          link: '/docs/utilities/bytes/errors',
+        },
+        {
+          text: 'Types',
+          link: '/docs/utilities/bytes/types',
         },
       ],
     },
@@ -1239,6 +869,226 @@ export const utilities = {
       ],
     },
     {
+      text: 'Hash',
+      collapsed: true,
+      items: [
+        {
+          text: 'Overview',
+          link: '/docs/utilities/hash',
+        },
+        {
+          text: 'blake3',
+          link: '/docs/utilities/hash/blake3',
+        },
+        {
+          text: 'createBlake3',
+          link: '/docs/utilities/hash/createBlake3',
+        },
+        {
+          text: 'createHmac256',
+          link: '/docs/utilities/hash/createHmac256',
+        },
+        {
+          text: 'createKeccak256',
+          link: '/docs/utilities/hash/createKeccak256',
+        },
+        {
+          text: 'createRipemd160',
+          link: '/docs/utilities/hash/createRipemd160',
+        },
+        {
+          text: 'createSha256',
+          link: '/docs/utilities/hash/createSha256',
+        },
+        {
+          text: 'hmac256',
+          link: '/docs/utilities/hash/hmac256',
+        },
+        {
+          text: 'keccak256',
+          link: '/docs/utilities/hash/keccak256',
+        },
+        {
+          text: 'ripemd160',
+          link: '/docs/utilities/hash/ripemd160',
+        },
+        {
+          text: 'sha256',
+          link: '/docs/utilities/hash/sha256',
+        },
+        {
+          text: 'validate',
+          link: '/docs/utilities/hash/validate',
+        },
+        {
+          text: 'Errors',
+          link: '/docs/utilities/hash/errors',
+        },
+        {
+          text: 'Types',
+          link: '/docs/utilities/hash/types',
+        },
+      ],
+    },
+    {
+      text: 'HdKey',
+      collapsed: true,
+      items: [
+        {
+          text: 'Overview',
+          link: '/docs/utilities/hdkey',
+        },
+        {
+          text: 'fromExtendedKey',
+          link: '/docs/utilities/hdkey/fromExtendedKey',
+        },
+        {
+          text: 'fromJson',
+          link: '/docs/utilities/hdkey/fromJson',
+        },
+        {
+          text: 'fromSeed',
+          link: '/docs/utilities/hdkey/fromSeed',
+        },
+        {
+          text: 'path',
+          link: '/docs/utilities/hdkey/path',
+        },
+        {
+          text: 'Types',
+          link: '/docs/utilities/hdkey/types',
+        },
+      ],
+    },
+    {
+      text: 'Hex',
+      collapsed: true,
+      items: [
+        {
+          text: 'Overview',
+          link: '/docs/utilities/hex',
+        },
+        {
+          text: 'fromBoolean',
+          link: '/docs/utilities/hex/fromBoolean',
+        },
+        {
+          text: 'fromBytes',
+          link: '/docs/utilities/hex/fromBytes',
+        },
+        {
+          text: 'fromNumber',
+          link: '/docs/utilities/hex/fromNumber',
+        },
+        {
+          text: 'fromString',
+          link: '/docs/utilities/hex/fromString',
+        },
+        {
+          text: 'toBoolean',
+          link: '/docs/utilities/hex/toBoolean',
+        },
+        {
+          text: 'toBytes',
+          link: '/docs/utilities/hex/toBytes',
+        },
+        {
+          text: 'toNumber',
+          link: '/docs/utilities/hex/toNumber',
+        },
+        {
+          text: 'toString',
+          link: '/docs/utilities/hex/toString',
+        },
+        {
+          text: 'concat',
+          link: '/docs/utilities/hex/concat',
+        },
+        {
+          text: 'slice',
+          link: '/docs/utilities/hex/slice',
+        },
+        {
+          text: 'padLeft',
+          link: '/docs/utilities/hex/padLeft',
+        },
+        {
+          text: 'padRight',
+          link: '/docs/utilities/hex/padRight',
+        },
+        {
+          text: 'trimLeft',
+          link: '/docs/utilities/hex/trimLeft',
+        },
+        {
+          text: 'trimRight',
+          link: '/docs/utilities/hex/trimRight',
+        },
+        {
+          text: 'assert',
+          link: '/docs/utilities/hex/assert',
+        },
+        {
+          text: 'from',
+          link: '/docs/utilities/hex/from',
+        },
+        {
+          text: 'isEqual',
+          link: '/docs/utilities/hex/isEqual',
+        },
+        {
+          text: 'random',
+          link: '/docs/utilities/hex/random',
+        },
+        {
+          text: 'size',
+          link: '/docs/utilities/hex/size',
+        },
+        {
+          text: 'toBigInt',
+          link: '/docs/utilities/hex/toBigInt',
+        },
+        {
+          text: 'validate',
+          link: '/docs/utilities/hex/validate',
+        },
+        {
+          text: 'Errors',
+          link: '/docs/utilities/hex/errors',
+        },
+        {
+          text: 'Types',
+          link: '/docs/utilities/hex/types',
+        },
+      ],
+    },
+    {
+      text: 'Json',
+      collapsed: true,
+      items: [
+        {
+          text: 'Overview',
+          link: '/docs/utilities/json',
+        },
+        {
+          text: 'stringify',
+          link: '/docs/utilities/json/stringify',
+        },
+        {
+          text: 'parse',
+          link: '/docs/utilities/json/parse',
+        },
+        {
+          text: 'canonicalize',
+          link: '/docs/utilities/json/canonicalize',
+        },
+        {
+          text: 'prettyPrint',
+          link: '/docs/utilities/json/prettyPrint',
+        },
+      ],
+    },
+    {
       text: 'JSON-RPC',
       collapsed: true,
       items: [
@@ -1296,6 +1146,44 @@ export const utilities = {
       text: 'Keys & Signatures',
       collapsed: true,
       items: [
+        {
+          text: 'P256',
+          collapsed: true,
+          items: [
+            {
+              text: 'Overview',
+              link: '/docs/utilities/p256',
+            },
+            {
+              text: 'randomPrivateKey',
+              link: '/docs/utilities/p256/randomPrivateKey',
+            },
+            {
+              text: 'getPublicKey',
+              link: '/docs/utilities/p256/getPublicKey',
+            },
+            {
+              text: 'sign',
+              link: '/docs/utilities/p256/sign',
+            },
+            {
+              text: 'verify',
+              link: '/docs/utilities/p256/verify',
+            },
+            {
+              text: 'createKeyPair',
+              link: '/docs/utilities/p256/createKeyPair',
+            },
+            {
+              text: 'getSharedSecret',
+              link: '/docs/utilities/p256/getSharedSecret',
+            },
+            {
+              text: 'recoverPublicKey',
+              link: '/docs/utilities/p256/recoverPublicKey',
+            },
+          ],
+        },
         {
           text: 'PublicKey',
           collapsed: true,
@@ -1375,6 +1263,10 @@ export const utilities = {
               link: '/docs/utilities/secp256k1/createKeyPair',
             },
             {
+              text: 'fromPrf',
+              link: '/docs/utilities/secp256k1/fromPrf',
+            },
+            {
               text: 'getSharedSecret',
               link: '/docs/utilities/secp256k1/getSharedSecret',
             },
@@ -1385,6 +1277,10 @@ export const utilities = {
             {
               text: 'recoverPublicKey',
               link: '/docs/utilities/secp256k1/recoverPublicKey',
+            },
+            {
+              text: 'Errors',
+              link: '/docs/utilities/secp256k1/errors',
             },
           ],
         },
@@ -1578,6 +1474,40 @@ export const utilities = {
             },
           ],
         },
+        {
+          text: 'WebAuthn',
+          collapsed: true,
+          items: [
+            {
+              text: 'Overview',
+              link: '/docs/utilities/webauthn',
+            },
+            {
+              text: 'createCredential',
+              link: '/docs/utilities/webauthn/createCredential',
+            },
+            {
+              text: 'getCredential',
+              link: '/docs/utilities/webauthn/getCredential',
+            },
+            {
+              text: 'sign',
+              link: '/docs/utilities/webauthn/sign',
+            },
+            {
+              text: 'verify',
+              link: '/docs/utilities/webauthn/verify',
+            },
+            {
+              text: 'Errors',
+              link: '/docs/utilities/webauthn/errors',
+            },
+            {
+              text: 'Types',
+              link: '/docs/utilities/webauthn/types',
+            },
+          ],
+        },
       ],
     },
     {
@@ -1599,6 +1529,40 @@ export const utilities = {
         {
           text: 'Types',
           link: '/docs/utilities/log/types',
+        },
+      ],
+    },
+    {
+      text: 'Mnemonic',
+      collapsed: true,
+      items: [
+        {
+          text: 'Overview',
+          link: '/docs/utilities/mnemonic',
+        },
+        {
+          text: 'random',
+          link: '/docs/utilities/mnemonic/random',
+        },
+        {
+          text: 'toPrivateKey',
+          link: '/docs/utilities/mnemonic/toPrivateKey',
+        },
+        {
+          text: 'toHdKey',
+          link: '/docs/utilities/mnemonic/toHdKey',
+        },
+        {
+          text: 'toSeed',
+          link: '/docs/utilities/mnemonic/toSeed',
+        },
+        {
+          text: 'path',
+          link: '/docs/utilities/mnemonic/path',
+        },
+        {
+          text: 'validate',
+          link: '/docs/utilities/mnemonic/validate',
         },
       ],
     },
@@ -1635,6 +1599,44 @@ export const utilities = {
               link: '/docs/utilities/provider/types',
             },
           ],
+        },
+      ],
+    },
+    {
+      text: 'Rlp',
+      collapsed: true,
+      items: [
+        {
+          text: 'Overview',
+          link: '/docs/utilities/rlp',
+        },
+        {
+          text: 'encodeTo',
+          link: '/docs/utilities/rlp/encodeTo',
+        },
+        {
+          text: 'from',
+          link: '/docs/utilities/rlp/from',
+        },
+        {
+          text: 'fromBytes',
+          link: '/docs/utilities/rlp/fromBytes',
+        },
+        {
+          text: 'fromHex',
+          link: '/docs/utilities/rlp/fromHex',
+        },
+        {
+          text: 'toBytes',
+          link: '/docs/utilities/rlp/toBytes',
+        },
+        {
+          text: 'toHex',
+          link: '/docs/utilities/rlp/toHex',
+        },
+        {
+          text: 'Errors',
+          link: '/docs/utilities/rlp/errors',
         },
       ],
     },
@@ -2173,6 +2175,44 @@ export const utilities = {
         {
           text: 'Types',
           link: '/docs/utilities/transactionrequest/types',
+        },
+      ],
+    },
+    {
+      text: 'Value',
+      collapsed: true,
+      items: [
+        {
+          text: 'Overview',
+          link: '/docs/utilities/value',
+        },
+        {
+          text: 'format',
+          link: '/docs/utilities/value/format',
+        },
+        {
+          text: 'formatEther',
+          link: '/docs/utilities/value/formatEther',
+        },
+        {
+          text: 'formatGwei',
+          link: '/docs/utilities/value/formatGwei',
+        },
+        {
+          text: 'from',
+          link: '/docs/utilities/value/from',
+        },
+        {
+          text: 'fromEther',
+          link: '/docs/utilities/value/fromEther',
+        },
+        {
+          text: 'fromGwei',
+          link: '/docs/utilities/value/fromGwei',
+        },
+        {
+          text: 'Errors',
+          link: '/docs/utilities/value/errors',
         },
       ],
     },

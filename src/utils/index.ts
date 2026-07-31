@@ -94,6 +94,9 @@ export * as P256 from './P256.js'
 /** Utilities for [EIP-191](https://eips.ethereum.org/EIPS/eip-191) personal messages. Re-exports `ox/PersonalMessage`, plus recovery & verification helpers. */
 export * as PersonalMessage from './PersonalMessage.js'
 
+/** Utilities for credential-bound PRF configurations. Re-exports `ox/Prf`. */
+export * as Prf from './Prf.js'
+
 /** Utilities & types for EIP-1193 providers. Re-exports `ox/Provider`. */
 export * as Provider from './Provider.js'
 
@@ -169,8 +172,8 @@ export * as TypedData from './TypedData.js'
 /** Utilities for parsing & formatting ether values. Re-exports `ox/Value`. */
 export * as Value from './Value.js'
 
-/** Utilities for WebAuthn P-256 signing. Re-exports `ox/WebAuthnP256`. */
-export * as WebAuthnP256 from './WebAuthnP256.js'
+/** Utilities for WebAuthn credentials. Re-exports `ox/WebAuthn`. */
+export * as WebAuthn from './WebAuthn.js'
 
 /** Utilities & types for beacon chain withdrawals. Re-exports `ox/Withdrawal`. */
 export * as Withdrawal from './Withdrawal.js'
