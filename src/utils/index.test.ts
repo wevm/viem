@@ -37,6 +37,7 @@ test('exports', () => {
       "Mnemonic",
       "P256",
       "PersonalMessage",
+      "Prf",
       "Provider",
       "PublicKey",
       "Rlp",
@@ -62,7 +63,7 @@ test('exports', () => {
       "TxEnvelopeLegacy",
       "TypedData",
       "Value",
-      "WebAuthnP256",
+      "WebAuthn",
       "Withdrawal",
     ]
   `)

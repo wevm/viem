@@ -299,6 +299,43 @@ describe('fromPrivateKey', () => {
   })
 })
 
+describe('fromPrf', () => {
+  const prf =
+    '0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f'
+
+  test('default', () => {
+    expect(Account.fromPrf(prf)).toMatchInlineSnapshot(`
+      {
+        "address": "0xA059C450ef5aC1BF72be9267d3939401e124466a",
+        "keyType": "secp256k1",
+        "publicKey": "0x0414b0779aa01eb12b0a75c1bbd32b2bc91f709597400104a5e922c941dc2a6b02db71558de3625a8e3787f79c555b837fd57a69fce0442720106369e0f9909cf6",
+        "sign": [Function],
+        "signAuthorization": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "type": "local",
+      }
+    `)
+  })
+
+  test('bytes', () => {
+    expect(Account.fromPrf(Hex.toBytes(prf)).address).toBe(
+      '0xA059C450ef5aC1BF72be9267d3939401e124466a',
+    )
+  })
+
+  test('args: nonceManager', () => {
+    const nonceManager = NonceManager.jsonRpc()
+    const account = Account.fromPrf(prf, { nonceManager })
+    expect(account.nonceManager).toBe(nonceManager)
+  })
+
+  test('error: invalid PRF size', () => {
+    expect(() => Account.fromPrf('0x00')).toThrow(Secp256k1.InvalidPrfSizeError)
+  })
+})
+
 describe('fromHdKey', () => {
   test('default', () => {
     expect(Account.fromHdKey(hdKey)).toMatchInlineSnapshot(`

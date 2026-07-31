@@ -27,7 +27,7 @@ import { join } from 'node:path'
 // They are preserved across the regenerate-from-scratch wipe and committed; the
 // generated pages are ignored via a generated `docs/utilities/.gitignore`.
 
-const origin = 'https://v1.oxlib.sh'
+const origin = 'https://oxlib.sh'
 const srcUtilsDir = join(import.meta.dirname, '../src/utils')
 const outDir = join(import.meta.dirname, '../site/pages/docs/utilities')
 const sidebarPath = join(import.meta.dirname, '../site/sidebar.generated.ts')
@@ -96,21 +96,14 @@ const categories: Record<string, string> = {
   Blobs: 'Blobs (EIP-4844)',
   BlobCells: 'Blobs (EIP-4844)',
   Kzg: 'Blobs (EIP-4844)',
-  Hash: 'Crypto',
-  HdKey: 'Crypto',
-  Mnemonic: 'Crypto',
-  P256: 'Crypto',
-  WebAuthnP256: 'Crypto',
-  Bytes: 'Encoding',
-  Hex: 'Encoding',
-  Json: 'Encoding',
-  Rlp: 'Encoding',
-  Value: 'Encoding',
+  P256: 'Keys & Signatures',
+  Prf: 'Keys & Signatures',
   PublicKey: 'Keys & Signatures',
   Secp256k1: 'Keys & Signatures',
   Signature: 'Keys & Signatures',
   SignatureErc6492: 'Keys & Signatures',
   SignatureErc8010: 'Keys & Signatures',
+  WebAuthn: 'Keys & Signatures',
   Provider: 'Providers (EIP-1193)',
   RpcResponse: 'JSON-RPC',
   RpcSchema: 'JSON-RPC',
@@ -134,21 +127,32 @@ const rootModules = new Set([
   'AccountProof',
   'Block',
   'BlockOverrides',
+  'Bytes',
   'Fee',
   'Filter',
+  'Hash',
+  'HdKey',
+  'Hex',
+  'Json',
   'Log',
+  'Mnemonic',
+  'Rlp',
   'StateOverrides',
   'Transaction',
   'TransactionReceipt',
   'TransactionRequest',
+  'Value',
   'Withdrawal',
   'Siwe',
 ])
 
 /** Sidebar label overrides (module name → displayed text). */
 const labels: Record<string, string> = {
+  HdKey: 'HdKey',
   Siwe: 'Siwe (Sign-in with Ethereum)',
 }
+
+const alphabeticalFunctions = new Set(['WebAuthn'])
 
 type Module = {
   name: string
@@ -382,6 +386,8 @@ async function syncModule(
     if (isExtra) extras.push(s)
     else functions.push(s)
   })
+  if (alphabeticalFunctions.has(name))
+    functions.sort((a, b) => a.localeCompare(b))
 
   // Restore the hand-authored viem-helper pages (preserved across the wipe).
   const addedHelpers: string[] = []
@@ -495,7 +501,7 @@ function writeSidebar(synced: Synced[]) {
     if (!(m.name in categories))
       console.warn(`  ! uncategorized module: ${m.name}`)
     const list = groups.get(category) ?? groups.set(category, []).get(category)!
-    list.push(moduleItem(m))
+    list.push(moduleItem(m, labels[m.name] ?? m.name))
   }
 
   // Category groups and root modules share one alphabetical ordering, keyed by

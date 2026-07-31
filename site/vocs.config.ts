@@ -26,7 +26,7 @@ try {
 // directories).
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const oxDist = resolve(root, 'node_modules/ox/dist')
-const oxDocsOrigin = 'https://v1.oxlib.sh'
+const oxDocsOrigin = 'https://oxlib.sh'
 const vercelEnvironment = process.env.VERCEL_ENV
 const vercelRef = process.env.VERCEL_GIT_COMMIT_REF
 // TODO(v3): Remove the v3 deployment and source overrides when Viem v3 is stable.
@@ -1714,6 +1714,10 @@ export default defineConfig({
               {
                 text: 'Private Key Accounts',
                 link: '/docs/accounts/local/private-key',
+              },
+              {
+                text: 'Passkey Accounts',
+                link: '/docs/accounts/local/passkey',
               },
               {
                 text: 'Mnemonic Accounts',

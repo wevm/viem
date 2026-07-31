@@ -230,8 +230,8 @@ importers:
         specifier: 1.3.0
         version: 1.3.0(typescript@7.0.2)(zod@4.4.3)
       ox:
-        specifier: 1.3.1
-        version: 1.3.1(typescript@7.0.2)
+        specifier: 1.4.0
+        version: 1.4.0(typescript@7.0.2)
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 'catalog:'
@@ -289,7 +289,7 @@ importers:
         version: 0.18.1
       permissionless:
         specifier: 'catalog:'
-        version: 0.2.57(ox@1.3.1(typescript@7.0.2))
+        version: 0.2.57(ox@1.4.0(typescript@7.0.2))
       prool:
         specifier: 'catalog:'
         version: 0.2.13(@pimlico/alto@0.0.18(supports-color@8.1.1)(typescript@7.0.2))(debug@4.4.3(supports-color@8.1.1))(testcontainers@11.10.0(supports-color@8.1.1))
@@ -6042,6 +6042,14 @@ packages:
 
   ox@1.3.1:
     resolution: {integrity: sha512-DFeeFN7Ff9IM69ErVifrx7JGCnPirFc+nZcEnma215K/lr8/7eklsrMAyr7ZxnFMIo0OCy3QRmdLoBODzT3weA==}
+    peerDependencies:
+      typescript: '>=5.4.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  ox@1.4.0:
+    resolution: {integrity: sha512-18qIhYhvZvvbgtAffdavrYyj3/RtTvEdq4lJ7HeIRGJlQ3a0Hz3fchh6HQn7wfBrsqrjnRXh2up3+eBCQRNhWQ==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
@@ -13998,6 +14006,20 @@ snapshots:
     optionalDependencies:
       typescript: 7.0.2
 
+  ox@1.4.0(typescript@7.0.2):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.1
+      '@noble/ciphers': 2.2.0
+      '@noble/curves': 2.2.0
+      '@noble/hashes': 2.2.0
+      '@scure/bip32': 2.2.0
+      '@scure/bip39': 2.2.0
+      abitype: 1.3.0(typescript@7.0.2)(zod@4.4.3)
+      eventemitter3: 5.0.1
+      zod: 4.4.3
+    optionalDependencies:
+      typescript: 7.0.2
+
   oxc-parser@0.133.0:
     dependencies:
       '@oxc-project/types': 0.133.0
@@ -14235,11 +14257,11 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.57(ox@1.3.1(typescript@7.0.2)):
+  permissionless@0.2.57(ox@1.4.0(typescript@7.0.2)):
     dependencies:
       viem: 'link:'
     optionalDependencies:
-      ox: 1.3.1(typescript@7.0.2)
+      ox: 1.4.0(typescript@7.0.2)
 
   pg-int8@1.0.1: {}
 
