@@ -62,10 +62,10 @@ const expectedFailures: Record<
   string,
   Partial<Omit<Result, 'emitted' | 'forbidden'>>
 > = {
-  // `ox/erc4337`'s `UserOperation` types are `OneOf<...>` instantiations, and `ox`'s
-  // internal `OneOf`/`KeyofUnion` are not addressable. Blocked on
-  // https://github.com/wevm/ox/pull/342; the fix is staged in
-  // https://github.com/wevm/viem/pull/4937.
+  // `ox/erc4337`'s `UserOperation` types are `OneOf<...>` instantiations, re-exported
+  // through `src/erc4337/internal/inference.ts` via `ox/_types/*`. Blocked on an `ox`
+  // patch release: 1.3.0's publish pipeline stripped the `_types` subpath from the
+  // published manifest (`zile publish:prepare` rebuilds `exports`).
   'erc4337-bundler': { nonportable: 2 },
 }
 // `realpathSync` matters: on macOS `tmpdir()` is a symlink, and passing the unresolved
@@ -122,6 +122,17 @@ for (const probe of readdirSync(probesDir)
 report(results)
 
 function setup(): void {
+  // Every probe depends on `viem/_types/*` existing; without it the failures point
+  // everywhere except the real cause. `ox` 1.3.0 shipped without its equivalent this
+  // way (`zile publish:prepare` rebuilds `exports` and dropped the entry).
+  const manifest = JSON.parse(
+    readFileSync(join(repo, 'package.json'), 'utf8'),
+  ) as { exports?: Record<string, unknown> }
+  if (!manifest.exports?.['./_types/*'])
+    throw new Error(
+      "package.json is missing the './_types/*' export. Run `pnpm build`; the `exports:internal-types` step writes it.",
+    )
+
   // Packing and installing costs ~15s. REUSE_CONSUMER skips it while iterating on
   // probes; never set it in CI, where the tarball is the thing under test.
   if (
