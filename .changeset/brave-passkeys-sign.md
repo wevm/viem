@@ -1,5 +1,5 @@
 ---
-'viem': minor
+'viem': patch
 ---
 
 Added `Account.fromPrf` to derive local secp256k1 accounts from WebAuthn PRF output.
