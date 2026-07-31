@@ -64,8 +64,8 @@ const expectedFailures: Record<
 > = {
   // `ox/erc4337`'s `UserOperation` types are `OneOf<...>` instantiations, re-exported
   // through `src/erc4337/internal/inference.ts` via `ox/_types/*`. Blocked on an `ox`
-  // patch release: 1.3.0's publish pipeline stripped the `_types` subpath from the
-  // published manifest (`zile publish:prepare` rebuilds `exports`).
+  // patch release: 1.3.0 published without the `_types` subpath (its `postinstall`
+  // regenerates `exports` without it).
   'erc4337-bundler': { nonportable: 2 },
 }
 // `realpathSync` matters: on macOS `tmpdir()` is a symlink, and passing the unresolved
@@ -124,7 +124,7 @@ report(results)
 function setup(): void {
   // Every probe depends on `viem/_types/*` existing; without it the failures point
   // everywhere except the real cause. `ox` 1.3.0 shipped without its equivalent this
-  // way (`zile publish:prepare` rebuilds `exports` and dropped the entry).
+  // way (`postinstall` regenerates `exports` without it).
   const manifest = JSON.parse(
     readFileSync(join(repo, 'package.json'), 'utf8'),
   ) as { exports?: Record<string, unknown> }
