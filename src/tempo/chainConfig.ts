@@ -1,5 +1,5 @@
 import { Hash, Hex, TransactionRequest as ox_TransactionRequest } from 'ox'
-import type { Address } from 'ox'
+import type { Address, TransactionEnvelope as ox_TxEnvelope } from 'ox'
 import {
   MultisigConfig,
   SignatureEnvelope,
@@ -10,12 +10,6 @@ import {
 } from 'ox/tempo'
 
 import type * as viem_Account from '../core/Account.js'
-// Shim types rather than the `ox` namespace members: nested namespace members and
-// `ox`-only symbols have no portable name for a consumer's declaration emit.
-import type * as oxTxEnvelope from '../core/internal/oxTxEnvelope.js'
-import type * as oxTransaction from './internal/oxTransaction.js'
-import type * as oxTransactionReceipt from './internal/oxTransactionReceipt.js'
-import type * as oxTxEnvelopeTempo from './internal/oxTxEnvelopeTempo.js'
 import * as Chain from '../core/Chain.js'
 import { getCode } from '../core/actions/address/getCode.js'
 import { read } from '../core/actions/contract/read.js'
@@ -73,6 +67,17 @@ export type TransactionRequest = Omit<
 /** RPC representation of a {@link TransactionRequest}. */
 export type TransactionRequestRpc = TransactionRequestTempo.Rpc
 
+// Exported so consumer declaration emit can name them. See `core/internal/inference.ts`.
+export type Transaction = TransactionTempo.Transaction
+export type TransactionRpc = TransactionTempo.Rpc
+export type TransactionReceipt = TransactionReceiptTempo.TransactionReceipt
+export type TransactionReceiptRpc = TransactionReceiptTempo.Rpc
+export type TxEnvelope = ox_TxEnvelope.TxEnvelope
+export type SerializeOptions = TxEnvelopeTempo.serialize.Options
+
+// Re-exports, not aliases: these leak structurally, so the original symbols must be nameable.
+export type { RpcType, Type } from 'ox/tempo/TransactionReceipt'
+
 /**
  * A Tempo transaction envelope. Client-side request metadata (`feePayer`,
  * `multisig`, `signatures`) rides the envelope structurally: the chain's
@@ -99,16 +104,12 @@ export type ChainConfig = {
     feeToken?: Address.Address | undefined
     hardfork?: Hardfork | undefined
   }
-  // Shim types rather than the `ox` namespace members: this shape is reachable from an
-  // inferred Chain, so a consumer's declaration emit has to name every type in it.
   codecs: {
     transaction: {
-      fromRpc: (rpc: oxTransaction.Rpc) => oxTransaction.Transaction
+      fromRpc: (rpc: TransactionRpc) => Transaction
     }
     transactionReceipt: {
-      fromRpc: (
-        rpc: oxTransactionReceipt.Rpc,
-      ) => oxTransactionReceipt.TransactionReceipt
+      fromRpc: (rpc: TransactionReceiptRpc) => TransactionReceipt
     }
     transactionRequest: {
       fromRpc: (rpc: Record<string, unknown>) => TransactionRequest
@@ -121,16 +122,14 @@ export type ChainConfig = {
     create2: Chain.Chain.Contract
   }
   transaction: {
-    getSignPayload: (
-      envelope: Envelope | oxTxEnvelope.TxEnvelope,
-    ) => Hex.Hex | undefined
+    getSignPayload: (envelope: Envelope | TxEnvelope) => Hex.Hex | undefined
     prepare: [
       fn: Chain.Chain.Transaction.PrepareFn,
       options: { runAt: readonly Chain.Chain.Transaction.PreparePhase[] },
     ]
     serialize: (
-      envelope: Envelope | oxTxEnvelope.TxEnvelope,
-      options?: oxTxEnvelopeTempo.SerializeOptions | undefined,
+      envelope: Envelope | TxEnvelope,
+      options?: SerializeOptions | undefined,
     ) => Hex.Hex | undefined
     toEnvelope: (
       request: ox_TransactionRequest.TransactionRequest,
@@ -193,9 +192,7 @@ export const chainConfig = {
     },
   },
   transaction: {
-    getSignPayload(
-      envelope: Envelope | oxTxEnvelope.TxEnvelope,
-    ): Hex.Hex | undefined {
+    getSignPayload(envelope: Envelope | TxEnvelope): Hex.Hex | undefined {
       // Non-tempo envelopes delegate to the generic default.
       if (!isTempoEnvelope(envelope)) return undefined
       return TxEnvelopeTempo.getSignPayload(envelope)
@@ -374,8 +371,8 @@ export const chainConfig = {
       { runAt: ['beforeFillTransaction', 'afterFillParameters'] },
     ],
     serialize(
-      envelope: Envelope | oxTxEnvelope.TxEnvelope,
-      options: oxTxEnvelopeTempo.SerializeOptions = {},
+      envelope: Envelope | TxEnvelope,
+      options: SerializeOptions = {},
     ): Hex.Hex | undefined {
       // Non-tempo envelopes delegate to the generic default.
       if (!isTempoEnvelope(envelope)) return undefined
@@ -563,7 +560,7 @@ export const chainConfig = {
 
 /** Untyped envelopes are assumed tempo (they flow from `toEnvelope`). @internal */
 function isTempoEnvelope(
-  envelope: Envelope | oxTxEnvelope.TxEnvelope,
+  envelope: Envelope | TxEnvelope,
 ): envelope is Envelope {
   return !envelope.type || envelope.type === 'tempo'
 }

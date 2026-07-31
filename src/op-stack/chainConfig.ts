@@ -1,13 +1,14 @@
-import type { Hex } from 'ox'
+import type { Hex, TransactionEnvelope as ox_TxEnvelope } from 'ox'
 
-// Not `ox_TransactionEnvelope.serialize.Options` directly: a nested namespace member
-// has no portable name for a consumer's declaration emit. See the shim.
-import type * as oxTxEnvelope from '../core/internal/oxTxEnvelope.js'
 import * as Block from './Block.js'
 import * as Transaction from './Transaction.js'
 import * as TransactionReceipt from './TransactionReceipt.js'
 import * as TxEnvelopeDeposit from './TxEnvelopeDeposit.js'
 import { contracts } from './contracts.js'
+
+// Exported so consumer declaration emit can name them. See `core/internal/inference.ts`.
+export type TxEnvelope = ox_TxEnvelope.TxEnvelope
+export type SerializeOptions = ox_TxEnvelope.serialize.Options
 
 /** OP Stack chain configuration. */
 export type ChainConfig = {
@@ -31,8 +32,8 @@ export type ChainConfig = {
   /** OP Stack transaction hooks. */
   transaction: {
     serialize: (
-      envelope: TxEnvelopeDeposit.TxEnvelopeDeposit | oxTxEnvelope.TxEnvelope,
-      options?: oxTxEnvelope.SerializeOptions | undefined,
+      envelope: TxEnvelopeDeposit.TxEnvelopeDeposit | TxEnvelope,
+      options?: SerializeOptions | undefined,
     ) => Hex.Hex | undefined
   }
 }
@@ -53,8 +54,8 @@ export const chainConfig = {
   contracts,
   transaction: {
     serialize(
-      envelope: TxEnvelopeDeposit.TxEnvelopeDeposit | oxTxEnvelope.TxEnvelope,
-      _options?: oxTxEnvelope.SerializeOptions,
+      envelope: TxEnvelopeDeposit.TxEnvelopeDeposit | TxEnvelope,
+      _options?: SerializeOptions,
     ): Hex.Hex | undefined {
       if (!TxEnvelopeDeposit.is(envelope)) return undefined
       return TxEnvelopeDeposit.serialize(envelope)

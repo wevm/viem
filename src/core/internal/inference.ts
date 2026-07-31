@@ -15,11 +15,11 @@
  * ```
  *
  * These must be re-exports (an alias is a distinct symbol and cannot serve) and must
- * live in an entrypoint's export table: the emitter only searches modules the consumer
- * imports, so an internal module reachable through re-export edges is never considered.
- * Types that Viem's own signatures reference directly do not need entries here; they
- * live in internal `ox*` shim modules (e.g. `core/internal/oxTxEnvelope.ts`) that the
- * emitter names through `viem/_types/*`.
+ * land in an entrypoint's export table (via the barrels' `export type *`): the emitter
+ * only searches modules the consumer imports, so an internal module reachable through
+ * re-export edges alone is never considered. Types that Viem's own signatures reference
+ * directly do not need entries here; the chain-config modules export those themselves,
+ * and the emitter names them through `viem/_types/*`.
  *
  * Add an entry only when `environments/tsc/declaration` reports a new third-party leak,
  * and prefer removing the leak from the signature.

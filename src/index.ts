@@ -216,4 +216,4 @@ export {
 
 // Compiler support so consumers can emit declarations for inferred values; every name
 // is `z_`-prefixed and `@deprecated` to stay out of the way. See that module.
-export type * from './core/Inference.js'
+export type * from './core/internal/inference.js'
