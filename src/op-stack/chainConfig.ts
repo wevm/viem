@@ -28,8 +28,8 @@ export type ChainConfig = {
   /** OP Stack transaction hooks. */
   transaction: {
     serialize: (
-      envelope: TxEnvelopeDeposit.TxEnvelopeDeposit | z_TxEnvelope,
-      options?: z_SerializeOptions | undefined,
+      envelope: TxEnvelopeDeposit.TxEnvelopeDeposit | TxEnvelope,
+      options?: SerializeOptions | undefined,
     ) => Hex.Hex | undefined
   }
 }
@@ -50,8 +50,8 @@ export const chainConfig = {
   contracts,
   transaction: {
     serialize(
-      envelope: TxEnvelopeDeposit.TxEnvelopeDeposit | z_TxEnvelope,
-      _options?: z_SerializeOptions,
+      envelope: TxEnvelopeDeposit.TxEnvelopeDeposit | TxEnvelope,
+      _options?: SerializeOptions,
     ): Hex.Hex | undefined {
       if (!TxEnvelopeDeposit.is(envelope)) return undefined
       return TxEnvelopeDeposit.serialize(envelope)
@@ -59,7 +59,6 @@ export const chainConfig = {
   },
 } as const satisfies ChainConfig
 
-// Exported so consumer declaration emit can name them; `z_` marks compiler support,
-// not module API. See `core/internal/inference.ts`.
-export type z_TxEnvelope = ox_TxEnvelope.TxEnvelope
-export type z_SerializeOptions = ox_TxEnvelope.serialize.Options
+// Exported so consumer declaration emit can name them. See `core/internal/inference.ts`.
+export type TxEnvelope = ox_TxEnvelope.TxEnvelope
+export type SerializeOptions = ox_TxEnvelope.serialize.Options

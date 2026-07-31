@@ -95,10 +95,10 @@ export type ChainConfig = {
   }
   codecs: {
     transaction: {
-      fromRpc: (rpc: z_TransactionRpc) => z_Transaction
+      fromRpc: (rpc: TransactionRpc) => Transaction
     }
     transactionReceipt: {
-      fromRpc: (rpc: z_TransactionReceiptRpc) => z_TransactionReceipt
+      fromRpc: (rpc: TransactionReceiptRpc) => TransactionReceipt
     }
     transactionRequest: {
       fromRpc: (rpc: Record<string, unknown>) => TransactionRequest
@@ -111,14 +111,14 @@ export type ChainConfig = {
     create2: Chain.Chain.Contract
   }
   transaction: {
-    getSignPayload: (envelope: Envelope | z_TxEnvelope) => Hex.Hex | undefined
+    getSignPayload: (envelope: Envelope | TxEnvelope) => Hex.Hex | undefined
     prepare: [
       fn: Chain.Chain.Transaction.PrepareFn,
       options: { runAt: readonly Chain.Chain.Transaction.PreparePhase[] },
     ]
     serialize: (
-      envelope: Envelope | z_TxEnvelope,
-      options?: z_SerializeOptions | undefined,
+      envelope: Envelope | TxEnvelope,
+      options?: SerializeOptions | undefined,
     ) => Hex.Hex | undefined
     toEnvelope: (
       request: ox_TransactionRequest.TransactionRequest,
@@ -181,7 +181,7 @@ export const chainConfig = {
     },
   },
   transaction: {
-    getSignPayload(envelope: Envelope | z_TxEnvelope): Hex.Hex | undefined {
+    getSignPayload(envelope: Envelope | TxEnvelope): Hex.Hex | undefined {
       // Non-tempo envelopes delegate to the generic default.
       if (!isTempoEnvelope(envelope)) return undefined
       return TxEnvelopeTempo.getSignPayload(envelope)
@@ -360,8 +360,8 @@ export const chainConfig = {
       { runAt: ['beforeFillTransaction', 'afterFillParameters'] },
     ],
     serialize(
-      envelope: Envelope | z_TxEnvelope,
-      options: z_SerializeOptions = {},
+      envelope: Envelope | TxEnvelope,
+      options: SerializeOptions = {},
     ): Hex.Hex | undefined {
       // Non-tempo envelopes delegate to the generic default.
       if (!isTempoEnvelope(envelope)) return undefined
@@ -549,7 +549,7 @@ export const chainConfig = {
 
 /** Untyped envelopes are assumed tempo (they flow from `toEnvelope`). @internal */
 function isTempoEnvelope(
-  envelope: Envelope | z_TxEnvelope,
+  envelope: Envelope | TxEnvelope,
 ): envelope is Envelope {
   return !envelope.type || envelope.type === 'tempo'
 }
@@ -641,14 +641,13 @@ function inferMultisigSignatureCount(config: MultisigConfig.Config): number {
   return weights.length
 }
 
-// Exported so consumer declaration emit can name them; `z_` marks compiler support,
-// not module API. See `core/internal/inference.ts`.
-export type z_Transaction = TransactionTempo.Transaction
-export type z_TransactionRpc = TransactionTempo.Rpc
-export type z_TransactionReceipt = TransactionReceiptTempo.TransactionReceipt
-export type z_TransactionReceiptRpc = TransactionReceiptTempo.Rpc
-export type z_TxEnvelope = ox_TxEnvelope.TxEnvelope
-export type z_SerializeOptions = TxEnvelopeTempo.serialize.Options
+// Exported so consumer declaration emit can name them. See `core/internal/inference.ts`.
+export type Transaction = TransactionTempo.Transaction
+export type TransactionRpc = TransactionTempo.Rpc
+export type TransactionReceipt = TransactionReceiptTempo.TransactionReceipt
+export type TransactionReceiptRpc = TransactionReceiptTempo.Rpc
+export type TxEnvelope = ox_TxEnvelope.TxEnvelope
+export type SerializeOptions = TxEnvelopeTempo.serialize.Options
 
 // Re-exports, not aliases, and un-renamed on purpose: these leak structurally, and the
 // emitter prints a re-export's original name, so only the original names resolve.
