@@ -3,7 +3,7 @@
   "scripts": {
     "bench:types": "TYPES=true vp test --run --project type-bench",
     "build": "pnpm exports:update && zile && pnpm exports:internal-types",
-    "changeset:prepublish": "pnpm version:update && pnpm build && zile publish:prepare",
+    "changeset:prepublish": "pnpm version:update && pnpm build && zile publish:prepare && pnpm exports:internal-types",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish && zile publish:post",
     "changeset:version": "pnpm install --lockfile-only && changeset version && pnpm version:update && pnpm check",
     "check": "vp check --fix",
@@ -284,7 +284,7 @@
   },
   "dependencies": {
     "abitype": "1.3.0",
-    "ox": "1.2.0"
+    "ox": "1.3.0"
   },
   "exports": {
     ".": {
