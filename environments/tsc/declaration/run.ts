@@ -52,16 +52,6 @@ const repo = join(dir, '..', '..', '..')
 const probesDir = join(dir, 'probes')
 const resultsPath = join(dir, 'results.json')
 
-/**
- * Failures the gate currently tolerates, as diagnostic counts per probe. Shrink-only:
- * when a fix lands and a probe improves, delete or shrink its entry. Everything absent
- * from this map must produce zero diagnostics, emit a declaration, and contain no
- * forbidden paths.
- */
-const expectedFailures: Record<
-  string,
-  Partial<Omit<Result, 'emitted' | 'forbidden'>>
-> = {}
 // `realpathSync` matters: on macOS `tmpdir()` is a symlink, and passing the unresolved
 // path as `cwd` makes tsc report every diagnostic through a long `../../..` prefix.
 const consumer = join(realpathSync(tmpdir()), 'viem-declaration-consumer')
@@ -276,7 +266,8 @@ function report(results: Record<string, Result>): void {
   console.log(summary(results))
 
   // Debugging artifact only (gitignored): the expectation is zero diagnostics
-  // everywhere, minus `expectedFailures`.
+  // everywhere. If a failure must be temporarily tolerated (e.g. blocked on an
+  // upstream release), reintroduce a per-probe allowlist here — shrink-only.
   write(resultsPath, results)
 
   const failures: string[] = []
@@ -290,20 +281,10 @@ function report(results: Record<string, Result>): void {
   ] as const
 
   for (const [name, result] of Object.entries(results)) {
-    const expected = expectedFailures[name]
     for (const key of counts) {
       const actual = result[key] ?? 0
-      const allowed = expected?.[key] ?? 0
-      if (actual > allowed)
-        failures.push(`${name}: ${key} regressed, ${allowed} -> ${actual}`)
-      if (actual < allowed)
-        failures.push(
-          `${name}: ${key} improved, ${allowed} -> ${actual}. Shrink its expectedFailures entry.`,
-        )
+      if (actual > 0) failures.push(`${name}: ${actual} ${key} diagnostic(s)`)
     }
-    // A probe expected to fail cannot emit, so the output checks only apply to
-    // clean probes.
-    if (expected) continue
     if (!result.emitted)
       failures.push(`${name}: declaration emit produced no output`)
     if (result.forbidden.length)
@@ -311,10 +292,6 @@ function report(results: Record<string, Result>): void {
         `${name}: forbidden path(s) in output: ${result.forbidden.join(', ')}`,
       )
   }
-
-  for (const name of Object.keys(expectedFailures))
-    if (!results[name])
-      failures.push(`${name}: expectedFailures entry has no probe`)
 
   if (failures.length) {
     console.error(`\n${failures.length} portability check failure(s):`)
