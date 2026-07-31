@@ -1,0 +1,67 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `earn.migrateCampaign`
+
+Converts Boost Earn shares directly into their backing Base Earn shares.
+
+## Usage
+
+```ts twoslash
+import { client } from './viem.config'
+
+const result = await client.earn.migrateCampaignSync({
+  baseShareAmount: 99_500_000n,
+  boostShareAmount: 100_000_000n,
+  boostVault: '0x0000000000000000000000000000000000000002',
+  slippageBps: 50,
+})
+```
+
+No underlying asset or venue position moves. The action approves the Boost shares, burns them, and
+delivers the corresponding Base shares.
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  baseShareAmount: bigint
+  boostShareAmount: bigint
+  receipt: TransactionReceipt
+  recipient: Address
+}
+```
+
+The asynchronous `earn.migrateCampaign` variant returns the transaction hash.
+
+## Parameters
+
+### baseShareAmount (optional)
+
+- **Type:** `bigint`
+
+Quoted Base share output. Provide with `slippageBps`, or use `baseShareAmountMin`.
+
+### baseShareAmountMin (optional)
+
+- **Type:** `bigint`
+
+Exact minimum Base share output.
+
+### boostShareAmount
+
+- **Type:** `bigint`
+
+### boostVault
+
+- **Type:** `Address`
+
+### recipient (optional)
+
+- **Type:** `Address`
+- **Default:** `account.address`
+
+### slippageBps (optional)
+
+- **Type:** `number`
+
+<WriteParameters />

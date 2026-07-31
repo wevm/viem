@@ -2362,6 +2362,11 @@ export default defineConfig({
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Capped Campaigns',
+                  link: '/tempo/guides/earn/campaigns',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'Earn with Private Zones',
                   link: '/tempo/guides/earn/zones',
                 },
@@ -2640,6 +2645,11 @@ export default defineConfig({
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },
+                  text: 'depositCampaign',
+                  link: '/tempo/actions/earn.depositCampaign',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'depositShares',
                   link: '/tempo/actions/earn.depositShares',
                 },
@@ -2647,6 +2657,31 @@ export default defineConfig({
                   badge: { text: 'EXP', variant: 'warning' },
                   text: 'getFeeState',
                   link: '/tempo/actions/earn.getFeeState',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getCampaignAllocation',
+                  link: '/tempo/actions/earn.getCampaignAllocation',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getCampaignBoostQuote',
+                  link: '/tempo/actions/earn.getCampaignBoostQuote',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getCampaignMigrationQuote',
+                  link: '/tempo/actions/earn.getCampaignMigrationQuote',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getCampaignPosition',
+                  link: '/tempo/actions/earn.getCampaignPosition',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getCampaignRedeemQuote',
+                  link: '/tempo/actions/earn.getCampaignRedeemQuote',
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },
@@ -2680,8 +2715,18 @@ export default defineConfig({
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },
+                  text: 'migrateCampaign',
+                  link: '/tempo/actions/earn.migrateCampaign',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'redeem',
                   link: '/tempo/actions/earn.redeem',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'redeemCampaign',
+                  link: '/tempo/actions/earn.redeemCampaign',
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },

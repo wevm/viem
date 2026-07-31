@@ -1,0 +1,37 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `earn.getCampaignBoostQuote`
+
+Converts a provider-supplied Base Earn share quote for the Boost asset leg into a Boost Earn share
+quote.
+
+## Usage
+
+```ts twoslash
+import { client } from './viem.config'
+
+const boostShareAmount = await client.earn.getCampaignBoostQuote({
+  baseShareAmount: 59_800_000n,
+  boostVault: '0x0000000000000000000000000000000000000002',
+})
+```
+
+## Return Value
+
+- **Type:** `bigint`
+
+Fee-aware Boost Earn shares expected for the quoted Base shares.
+
+## Parameters
+
+### baseShareAmount
+
+- **Type:** `bigint`
+
+Base shares quoted for depositing the Boost asset leg into the Base vault.
+
+### boostVault
+
+- **Type:** `Address`
+
+<ReadParameters />

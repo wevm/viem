@@ -125,6 +125,53 @@ test('getPosition requires an account only without a client account', async () =
   expectTypeOf(position.value).toEqualTypeOf<bigint>()
 })
 
+test('campaign actions preserve unified position and write result types', async () => {
+  const campaign = { baseVault: address, boostVault: address } as const
+  const position = await earnActions.getCampaignPosition(clientWithAccount, {
+    ...campaign,
+  })
+  expectTypeOf(
+    position,
+  ).toEqualTypeOf<earnActions.getCampaignPosition.ReturnValue>()
+  expectTypeOf(position.totalValue).toEqualTypeOf<bigint>()
+  expectTypeOf(
+    position.base,
+  ).toEqualTypeOf<earnActions.getPosition.ReturnValue>()
+
+  const allocation = await earnActions.getCampaignAllocation(client, {
+    assetAmount: 100n,
+    boostVault: address,
+    recipient: address,
+  })
+  expectTypeOf(allocation).toEqualTypeOf<earnActions.CampaignAllocation>()
+
+  const hash = await earnActions.depositCampaign(clientWithAccount, {
+    allocation,
+    baseShareAmountMin: 1n,
+    boostShareAmountMin: 1n,
+    ...campaign,
+  })
+  expectTypeOf(hash).toEqualTypeOf<earnActions.depositCampaign.ReturnValue>()
+
+  const redemption = await decoratedClient.earn.redeemCampaignSync({
+    baseAssetAmountMin: 1n,
+    baseShareAmount: 1n,
+    boostAssetAmountMin: 1n,
+    boostShareAmount: 1n,
+    ...campaign,
+  })
+  expectTypeOf(
+    redemption,
+  ).toEqualTypeOf<earnActions.redeemCampaignSync.ReturnValue>()
+
+  const migration = await decoratedClient.earn.migrateCampaignSync({
+    baseShareAmountMin: 1n,
+    boostShareAmount: 1n,
+    boostVault: address,
+  })
+  expectTypeOf(migration.baseShareAmount).toEqualTypeOf<bigint>()
+})
+
 test('getFeeState claimable shares stay optional', async () => {
   const feeState = await earnActions.getFeeState(client, { vault: address })
 

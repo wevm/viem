@@ -1764,6 +1764,14 @@ type DecoratorBase<
     configureExitSafePolicy: (
       parameters: earnActions.configureExitSafePolicy.Parameters<account>,
     ) => Promise<earnActions.configureExitSafePolicy.ReturnValue>
+    /** Deposits one asset amount across a capped Boost campaign and Base vault. */
+    depositCampaign: (
+      parameters: earnActions.depositCampaign.Parameters<chain, account>,
+    ) => Promise<earnActions.depositCampaign.ReturnValue>
+    /** Deposits across a campaign and returns the confirmed per-tier results. */
+    depositCampaignSync: (
+      parameters: earnActions.depositCampaignSync.Parameters<chain, account>,
+    ) => Promise<earnActions.depositCampaignSync.ReturnValue>
     /**
      * Deposits assets into a vault and mints Earn shares to `recipient`. The
      * transaction includes the required asset approval.
@@ -1979,6 +1987,26 @@ type DecoratorBase<
     getPosition: (
       parameters: earnActions.getPosition.Parameters<account>,
     ) => Promise<earnActions.getPosition.ReturnValue>
+    /** Gets the currently available Base and Boost allocation for a deposit. */
+    getCampaignAllocation: (
+      parameters: earnActions.getCampaignAllocation.Parameters,
+    ) => Promise<earnActions.getCampaignAllocation.ReturnValue>
+    /** Converts a Base share quote into the corresponding Boost share quote. */
+    getCampaignBoostQuote: (
+      parameters: earnActions.getCampaignBoostQuote.Parameters,
+    ) => Promise<earnActions.getCampaignBoostQuote.ReturnValue>
+    /** Gets the Base shares returned by an in-kind Boost migration. */
+    getCampaignMigrationQuote: (
+      parameters: earnActions.getCampaignMigrationQuote.Parameters,
+    ) => Promise<earnActions.getCampaignMigrationQuote.ReturnValue>
+    /** Gets a unified Base and Boost campaign position. */
+    getCampaignPosition: (
+      parameters: earnActions.getCampaignPosition.Parameters<account>,
+    ) => Promise<earnActions.getCampaignPosition.ReturnValue>
+    /** Gets independent and aggregate campaign redemption quotes. */
+    getCampaignRedeemQuote: (
+      parameters: earnActions.getCampaignRedeemQuote.Parameters,
+    ) => Promise<earnActions.getCampaignRedeemQuote.ReturnValue>
     /**
      * Gets the vault's addresses, configuration, accounting state, and
      * supported actions. Throws `GetVaultEngineChangedError` if its engine
@@ -2118,6 +2146,22 @@ type DecoratorBase<
     redeemSync: (
       parameters: earnActions.redeemSync.Parameters<chain, account>,
     ) => Promise<earnActions.redeemSync.ReturnValue>
+    /** Converts Boost Earn shares directly into Base Earn shares. */
+    migrateCampaign: (
+      parameters: earnActions.migrateCampaign.Parameters<chain, account>,
+    ) => Promise<earnActions.migrateCampaign.ReturnValue>
+    /** Converts Boost shares and returns the confirmed migration result. */
+    migrateCampaignSync: (
+      parameters: earnActions.migrateCampaignSync.Parameters<chain, account>,
+    ) => Promise<earnActions.migrateCampaignSync.ReturnValue>
+    /** Redeems Base and Boost campaign shares in one atomic transaction. */
+    redeemCampaign: (
+      parameters: earnActions.redeemCampaign.Parameters<chain, account>,
+    ) => Promise<earnActions.redeemCampaign.ReturnValue>
+    /** Redeems campaign shares and returns confirmed per-tier results. */
+    redeemCampaignSync: (
+      parameters: earnActions.redeemCampaignSync.Parameters<chain, account>,
+    ) => Promise<earnActions.redeemCampaignSync.ReturnValue>
     /**
      * Withdraws Earn shares from a Zone and redeems them on the parent chain.
      *
@@ -5890,17 +5934,28 @@ export function decorator() {
       earn: bindActions(client, earnActions, [
         'configureExitSafePolicy',
         'deposit',
+        'depositCampaign',
+        'depositCampaignSync',
         'depositSync',
         'depositShares',
         'depositSharesSync',
         'privateDeposit',
         'privateDepositSync',
         'getFeeState',
+        'getCampaignAllocation',
+        'getCampaignBoostQuote',
+        'getCampaignMigrationQuote',
+        'getCampaignPosition',
+        'getCampaignRedeemQuote',
         'getPosition',
         'getRedeemQuote',
         'getVault',
         'getWithdrawQuote',
+        'migrateCampaign',
+        'migrateCampaignSync',
         'redeem',
+        'redeemCampaign',
+        'redeemCampaignSync',
         'redeemSync',
         'privateRedeem',
         'privateRedeemSync',

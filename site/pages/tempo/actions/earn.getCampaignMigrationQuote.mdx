@@ -1,0 +1,34 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `earn.getCampaignMigrationQuote`
+
+Gets the Base Earn shares returned by an in-kind Boost migration.
+
+## Usage
+
+```ts twoslash
+import { client } from './viem.config'
+
+const baseShareAmount = await client.earn.getCampaignMigrationQuote({
+  boostShareAmount: 100_000_000n,
+  boostVault: '0x0000000000000000000000000000000000000002',
+})
+```
+
+## Return Value
+
+- **Type:** `bigint`
+
+Fee-aware Base Earn share output.
+
+## Parameters
+
+### boostShareAmount
+
+- **Type:** `bigint`
+
+### boostVault
+
+- **Type:** `Address`
+
+<ReadParameters />

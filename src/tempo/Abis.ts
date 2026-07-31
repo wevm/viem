@@ -2990,7 +2990,7 @@ export const abis = [
   ...validatorConfigV2,
 ] as const
 
-// Earn source: tempoxyz/earn at 4794b0ce4f611af7afe87587522e0087e690422f. Do not modify manually.
+// Earn source: tempoxyz/earn at d8a625a06bbac3c9f2678d586aaf8138c310f882. Do not modify manually.
 
 export const earnFactory = [
   {
@@ -3010,6 +3010,10 @@ export const earnFactory = [
             components: [
               { name: 'emergencyGuardian', type: 'address' },
               { name: 'asyncJanitor', type: 'address' },
+              { name: 'globalAssetCap', type: 'uint256' },
+              { name: 'receiverAssetCap', type: 'uint256' },
+              { name: 'admissionEndAt', type: 'uint64' },
+              { name: 'contributionsEndAt', type: 'uint64' },
               { name: 'migrationMode', type: 'uint8' },
             ],
           },
@@ -3017,37 +3021,28 @@ export const earnFactory = [
             name: 'fees',
             type: 'tuple',
             components: [
-              { name: 'administrator', type: 'address' },
-              { name: 'guardian', type: 'address' },
-              { name: 'fixedFeeCap', type: 'uint96' },
-              { name: 'excessFeeCap', type: 'uint96' },
+              { name: 'fixedFeeCount', type: 'uint8' },
               {
-                name: 'initialConfig',
+                name: 'fixedFees',
+                type: 'tuple[4]',
+                components: [
+                  { name: 'account', type: 'address' },
+                  { name: 'rateBps', type: 'uint16' },
+                ],
+              },
+              {
+                name: 'excess',
                 type: 'tuple',
                 components: [
-                  { name: 'fixedFeeCount', type: 'uint8' },
-                  {
-                    name: 'fixedFees',
-                    type: 'tuple[4]',
-                    components: [
-                      { name: 'account', type: 'address' },
-                      { name: 'rate', type: 'uint96' },
-                    ],
-                  },
-                  {
-                    name: 'excess',
-                    type: 'tuple',
-                    components: [
-                      { name: 'enabled', type: 'bool' },
-                      { name: 'account', type: 'address' },
-                      { name: 'annualTargetRate', type: 'uint96' },
-                      { name: 'excessFeeRate', type: 'uint96' },
-                    ],
-                  },
+                  { name: 'enabled', type: 'bool' },
+                  { name: 'account', type: 'address' },
+                  { name: 'annualTargetRateBps', type: 'uint16' },
+                  { name: 'excessFeeRateBps', type: 'uint16' },
                 ],
               },
             ],
           },
+          { name: 'transferPolicyId', type: 'uint64' },
         ],
       },
     ],
@@ -3071,6 +3066,10 @@ export const earnFactory = [
             components: [
               { name: 'emergencyGuardian', type: 'address' },
               { name: 'asyncJanitor', type: 'address' },
+              { name: 'globalAssetCap', type: 'uint256' },
+              { name: 'receiverAssetCap', type: 'uint256' },
+              { name: 'admissionEndAt', type: 'uint64' },
+              { name: 'contributionsEndAt', type: 'uint64' },
               { name: 'migrationMode', type: 'uint8' },
             ],
           },
@@ -3078,37 +3077,28 @@ export const earnFactory = [
             name: 'fees',
             type: 'tuple',
             components: [
-              { name: 'administrator', type: 'address' },
-              { name: 'guardian', type: 'address' },
-              { name: 'fixedFeeCap', type: 'uint96' },
-              { name: 'excessFeeCap', type: 'uint96' },
+              { name: 'fixedFeeCount', type: 'uint8' },
               {
-                name: 'initialConfig',
+                name: 'fixedFees',
+                type: 'tuple[4]',
+                components: [
+                  { name: 'account', type: 'address' },
+                  { name: 'rateBps', type: 'uint16' },
+                ],
+              },
+              {
+                name: 'excess',
                 type: 'tuple',
                 components: [
-                  { name: 'fixedFeeCount', type: 'uint8' },
-                  {
-                    name: 'fixedFees',
-                    type: 'tuple[4]',
-                    components: [
-                      { name: 'account', type: 'address' },
-                      { name: 'rate', type: 'uint96' },
-                    ],
-                  },
-                  {
-                    name: 'excess',
-                    type: 'tuple',
-                    components: [
-                      { name: 'enabled', type: 'bool' },
-                      { name: 'account', type: 'address' },
-                      { name: 'annualTargetRate', type: 'uint96' },
-                      { name: 'excessFeeRate', type: 'uint96' },
-                    ],
-                  },
+                  { name: 'enabled', type: 'bool' },
+                  { name: 'account', type: 'address' },
+                  { name: 'annualTargetRateBps', type: 'uint16' },
+                  { name: 'excessFeeRateBps', type: 'uint16' },
                 ],
               },
             ],
           },
+          { name: 'transferPolicyId', type: 'uint64' },
         ],
       },
     ],
@@ -3136,6 +3126,10 @@ export const earnFactory = [
             components: [
               { name: 'emergencyGuardian', type: 'address' },
               { name: 'asyncJanitor', type: 'address' },
+              { name: 'globalAssetCap', type: 'uint256' },
+              { name: 'receiverAssetCap', type: 'uint256' },
+              { name: 'admissionEndAt', type: 'uint64' },
+              { name: 'contributionsEndAt', type: 'uint64' },
               { name: 'migrationMode', type: 'uint8' },
             ],
           },
@@ -3143,37 +3137,28 @@ export const earnFactory = [
             name: 'fees',
             type: 'tuple',
             components: [
-              { name: 'administrator', type: 'address' },
-              { name: 'guardian', type: 'address' },
-              { name: 'fixedFeeCap', type: 'uint96' },
-              { name: 'excessFeeCap', type: 'uint96' },
+              { name: 'fixedFeeCount', type: 'uint8' },
               {
-                name: 'initialConfig',
+                name: 'fixedFees',
+                type: 'tuple[4]',
+                components: [
+                  { name: 'account', type: 'address' },
+                  { name: 'rateBps', type: 'uint16' },
+                ],
+              },
+              {
+                name: 'excess',
                 type: 'tuple',
                 components: [
-                  { name: 'fixedFeeCount', type: 'uint8' },
-                  {
-                    name: 'fixedFees',
-                    type: 'tuple[4]',
-                    components: [
-                      { name: 'account', type: 'address' },
-                      { name: 'rate', type: 'uint96' },
-                    ],
-                  },
-                  {
-                    name: 'excess',
-                    type: 'tuple',
-                    components: [
-                      { name: 'enabled', type: 'bool' },
-                      { name: 'account', type: 'address' },
-                      { name: 'annualTargetRate', type: 'uint96' },
-                      { name: 'excessFeeRate', type: 'uint96' },
-                    ],
-                  },
+                  { name: 'enabled', type: 'bool' },
+                  { name: 'account', type: 'address' },
+                  { name: 'annualTargetRateBps', type: 'uint16' },
+                  { name: 'excessFeeRateBps', type: 'uint16' },
                 ],
               },
             ],
           },
+          { name: 'transferPolicyId', type: 'uint64' },
         ],
       },
     ],
@@ -3197,6 +3182,10 @@ export const earnFactory = [
             components: [
               { name: 'emergencyGuardian', type: 'address' },
               { name: 'asyncJanitor', type: 'address' },
+              { name: 'globalAssetCap', type: 'uint256' },
+              { name: 'receiverAssetCap', type: 'uint256' },
+              { name: 'admissionEndAt', type: 'uint64' },
+              { name: 'contributionsEndAt', type: 'uint64' },
               { name: 'migrationMode', type: 'uint8' },
             ],
           },
@@ -3204,37 +3193,28 @@ export const earnFactory = [
             name: 'fees',
             type: 'tuple',
             components: [
-              { name: 'administrator', type: 'address' },
-              { name: 'guardian', type: 'address' },
-              { name: 'fixedFeeCap', type: 'uint96' },
-              { name: 'excessFeeCap', type: 'uint96' },
+              { name: 'fixedFeeCount', type: 'uint8' },
               {
-                name: 'initialConfig',
+                name: 'fixedFees',
+                type: 'tuple[4]',
+                components: [
+                  { name: 'account', type: 'address' },
+                  { name: 'rateBps', type: 'uint16' },
+                ],
+              },
+              {
+                name: 'excess',
                 type: 'tuple',
                 components: [
-                  { name: 'fixedFeeCount', type: 'uint8' },
-                  {
-                    name: 'fixedFees',
-                    type: 'tuple[4]',
-                    components: [
-                      { name: 'account', type: 'address' },
-                      { name: 'rate', type: 'uint96' },
-                    ],
-                  },
-                  {
-                    name: 'excess',
-                    type: 'tuple',
-                    components: [
-                      { name: 'enabled', type: 'bool' },
-                      { name: 'account', type: 'address' },
-                      { name: 'annualTargetRate', type: 'uint96' },
-                      { name: 'excessFeeRate', type: 'uint96' },
-                    ],
-                  },
+                  { name: 'enabled', type: 'bool' },
+                  { name: 'account', type: 'address' },
+                  { name: 'annualTargetRateBps', type: 'uint16' },
+                  { name: 'excessFeeRateBps', type: 'uint16' },
                 ],
               },
             ],
           },
+          { name: 'transferPolicyId', type: 'uint64' },
         ],
       },
     ],
@@ -3254,7 +3234,12 @@ export const earnFactory = [
       { name: 'deploymentId', type: 'bytes32', indexed: false },
       { name: 'emergencyGuardian', type: 'address', indexed: false },
       { name: 'asyncJanitor', type: 'address', indexed: false },
+      { name: 'globalAssetCap', type: 'uint256', indexed: false },
+      { name: 'receiverAssetCap', type: 'uint256', indexed: false },
+      { name: 'admissionEndAt', type: 'uint64', indexed: false },
+      { name: 'contributionsEndAt', type: 'uint64', indexed: false },
       { name: 'migrationMode', type: 'uint8', indexed: false },
+      { name: 'transferPolicyId', type: 'uint64', indexed: false },
       { name: 'earnShareSalt', type: 'bytes32', indexed: false },
       { name: 'controlConfigHash', type: 'bytes32', indexed: false },
       { name: 'feeConfigHash', type: 'bytes32', indexed: false },
@@ -3271,6 +3256,11 @@ export const earnFactory = [
   { type: 'error', name: 'EarnShareSupplyNotZero', inputs: [] },
   { type: 'error', name: 'EmptyDeploymentId', inputs: [] },
   { type: 'error', name: 'EmptyEarnShareMetadata', inputs: [] },
+  {
+    type: 'error',
+    name: 'EngineAlreadyBound',
+    inputs: [{ name: 'earnVault', type: 'address' }],
+  },
   { type: 'error', name: 'FactoryCannotBeFinalOwner', inputs: [] },
   { type: 'error', name: 'FailedDeployment', inputs: [] },
   {
@@ -3283,7 +3273,29 @@ export const earnFactory = [
   },
   { type: 'error', name: 'InvalidEarnFeesImplementation', inputs: [] },
   { type: 'error', name: 'InvalidEarnVaultImplementation', inputs: [] },
+  { type: 'error', name: 'InvalidEngine', inputs: [] },
+  {
+    type: 'error',
+    name: 'InvalidTransferPolicy',
+    inputs: [{ name: 'policyId', type: 'uint64' }],
+  },
   { type: 'error', name: 'IssuerGrantFailed', inputs: [] },
+  {
+    type: 'error',
+    name: 'TransferPolicyMismatch',
+    inputs: [
+      { name: 'expected', type: 'uint64' },
+      { name: 'actual', type: 'uint64' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'UnsupportedTransferPolicy',
+    inputs: [
+      { name: 'policyId', type: 'uint64' },
+      { name: 'policyType', type: 'uint8' },
+    ],
+  },
   { type: 'error', name: 'ZeroAddress', inputs: [] },
 ] as const
 
@@ -3427,6 +3439,190 @@ export const erc4626Engine = [
   { type: 'error', name: 'ZeroAddress', inputs: [] },
 ] as const
 
+export const earnVaultEngine = [
+  {
+    type: 'function',
+    name: 'acceptOwnership',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'baseAsset',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'baseEarnShare',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'baseVault',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'earnVault',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'initializeEarnVault',
+    inputs: [{ name: 'earnVault_', type: 'address' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'owner',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'pendingOwner',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'renounceOwnership',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'supportsInterface',
+    inputs: [{ name: 'interfaceId', type: 'bytes4' }],
+    outputs: [{ name: '', type: 'bool' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    name: 'transferOwnership',
+    inputs: [{ name: 'newOwner', type: 'address' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    name: 'BaseEarnSharesRedeemed',
+    inputs: [
+      { name: 'receiver', type: 'address', indexed: true },
+      { name: 'shares', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'Deposited',
+    inputs: [
+      { name: 'assets', type: 'uint256', indexed: false },
+      { name: 'baseEarnShares', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'EarnVaultInitialized',
+    inputs: [{ name: 'earnVault', type: 'address', indexed: true }],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OwnershipTransferStarted',
+    inputs: [
+      { name: 'previousOwner', type: 'address', indexed: true },
+      { name: 'newOwner', type: 'address', indexed: true },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OwnershipTransferred',
+    inputs: [
+      { name: 'previousOwner', type: 'address', indexed: true },
+      { name: 'newOwner', type: 'address', indexed: true },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'Redeemed',
+    inputs: [
+      { name: 'receiver', type: 'address', indexed: true },
+      { name: 'baseEarnShares', type: 'uint256', indexed: false },
+      { name: 'assets', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'WithdrewExact',
+    inputs: [
+      { name: 'receiver', type: 'address', indexed: true },
+      { name: 'assets', type: 'uint256', indexed: false },
+      { name: 'baseEarnShares', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  { type: 'error', name: 'AlreadyInitialized', inputs: [] },
+  { type: 'error', name: 'BaseVaultMismatch', inputs: [] },
+  { type: 'error', name: 'EarnVaultNotSet', inputs: [] },
+  { type: 'error', name: 'EmptyMetadata', inputs: [] },
+  {
+    type: 'error',
+    name: 'InsufficientAssetsReceived',
+    inputs: [
+      { name: 'minimumAssets', type: 'uint256' },
+      { name: 'actualAssets', type: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'InsufficientSharesReceived',
+    inputs: [
+      { name: 'minimumShares', type: 'uint256' },
+      { name: 'actualShares', type: 'uint256' },
+    ],
+  },
+  { type: 'error', name: 'InvalidShareDecimals', inputs: [] },
+  { type: 'error', name: 'NoSharesReceived', inputs: [] },
+  {
+    type: 'error',
+    name: 'NotEarnVault',
+    inputs: [{ name: 'caller', type: 'address' }],
+  },
+  {
+    type: 'error',
+    name: 'OwnableInvalidOwner',
+    inputs: [{ name: 'owner', type: 'address' }],
+  },
+  {
+    type: 'error',
+    name: 'OwnableUnauthorizedAccount',
+    inputs: [{ name: 'account', type: 'address' }],
+  },
+  { type: 'error', name: 'ReentrantCall', inputs: [] },
+  { type: 'error', name: 'TokenCallFailed', inputs: [] },
+  { type: 'error', name: 'TokenCallFalse', inputs: [] },
+  { type: 'error', name: 'UnsupportedBaseVault', inputs: [] },
+  { type: 'error', name: 'ZeroAddress', inputs: [] },
+] as const
+
 export const earnVault = [
   { type: 'constructor', inputs: [], stateMutability: 'nonpayable' },
   {
@@ -3438,6 +3634,20 @@ export const earnVault = [
       { name: 'feeEarnShares', type: 'uint256' },
     ],
     stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'admissionEndAt',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint64' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'allocatedAssets',
+    inputs: [{ name: 'receiver', type: 'address' }],
+    outputs: [{ name: 'assets', type: 'uint256' }],
+    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -3481,8 +3691,15 @@ export const earnVault = [
     type: 'function',
     name: 'contribute',
     inputs: [{ name: 'assets', type: 'uint256' }],
-    outputs: [{ name: 'venueShares', type: 'uint256' }],
+    outputs: [{ name: 'receivedEngineShares', type: 'uint256' }],
     stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'contributionsEndAt',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint64' }],
+    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -3508,13 +3725,6 @@ export const earnVault = [
     ],
     outputs: [{ name: 'earnShares', type: 'uint256' }],
     stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'depositSwapOverride',
-    inputs: [{ name: 'inputToken', type: 'address' }],
-    outputs: [{ name: 'swapAdapter', type: 'address' }],
-    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -3585,20 +3795,6 @@ export const earnVault = [
   },
   {
     type: 'function',
-    name: 'feeAdministrator',
-    inputs: [],
-    outputs: [{ name: '', type: 'address' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'feeGuardian',
-    inputs: [],
-    outputs: [{ name: '', type: 'address' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
     name: 'finalizeRedeem',
     inputs: [
       { name: 'requestId', type: 'bytes32' },
@@ -3607,6 +3803,13 @@ export const earnVault = [
     ],
     outputs: [],
     stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'globalAssetCap',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -3622,42 +3825,11 @@ export const earnVault = [
         components: [
           { name: 'emergencyGuardian', type: 'address' },
           { name: 'asyncJanitor', type: 'address' },
+          { name: 'globalAssetCap', type: 'uint256' },
+          { name: 'receiverAssetCap', type: 'uint256' },
+          { name: 'admissionEndAt', type: 'uint64' },
+          { name: 'contributionsEndAt', type: 'uint64' },
           { name: 'migrationMode', type: 'uint8' },
-        ],
-      },
-      {
-        name: 'feeInit_',
-        type: 'tuple',
-        components: [
-          { name: 'administrator', type: 'address' },
-          { name: 'guardian', type: 'address' },
-          { name: 'fixedFeeCap', type: 'uint96' },
-          { name: 'excessFeeCap', type: 'uint96' },
-          {
-            name: 'initialConfig',
-            type: 'tuple',
-            components: [
-              { name: 'fixedFeeCount', type: 'uint8' },
-              {
-                name: 'fixedFees',
-                type: 'tuple[4]',
-                components: [
-                  { name: 'account', type: 'address' },
-                  { name: 'rate', type: 'uint96' },
-                ],
-              },
-              {
-                name: 'excess',
-                type: 'tuple',
-                components: [
-                  { name: 'enabled', type: 'bool' },
-                  { name: 'account', type: 'address' },
-                  { name: 'annualTargetRate', type: 'uint96' },
-                  { name: 'excessFeeRate', type: 'uint96' },
-                ],
-              },
-            ],
-          },
         ],
       },
     ],
@@ -3708,11 +3880,28 @@ export const earnVault = [
           { name: 'receiver', type: 'address' },
           { name: 'requester', type: 'address' },
           { name: 'burnedEarnShares', type: 'uint256' },
-          { name: 'venueShares', type: 'uint256' },
+          { name: 'engineShares', type: 'uint256' },
           { name: 'open', type: 'bool' },
         ],
       },
     ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'previewAllocation',
+    inputs: [
+      { name: 'receiver', type: 'address' },
+      { name: 'requestedAssets', type: 'uint256' },
+    ],
+    outputs: [{ name: 'assets', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'previewDepositEngineShares',
+    inputs: [{ name: 'engineShares_', type: 'uint256' }],
+    outputs: [{ name: 'earnShares', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
@@ -3724,9 +3913,23 @@ export const earnVault = [
   },
   {
     type: 'function',
+    name: 'previewRedeemVenueShares',
+    inputs: [{ name: 'earnShares', type: 'uint256' }],
+    outputs: [{ name: 'venueShares', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     name: 'previewWithdraw',
     inputs: [{ name: 'assets', type: 'uint256' }],
     outputs: [{ name: 'earnShares', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'receiverAssetCap',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
@@ -3742,10 +3945,14 @@ export const earnVault = [
   },
   {
     type: 'function',
-    name: 'redeemSwapOverride',
-    inputs: [{ name: 'outputToken', type: 'address' }],
-    outputs: [{ name: 'swapAdapter', type: 'address' }],
-    stateMutability: 'view',
+    name: 'redeemVenueShares',
+    inputs: [
+      { name: 'earnShares', type: 'uint256' },
+      { name: 'receiver', type: 'address' },
+      { name: 'minVenueShares', type: 'uint256' },
+    ],
+    outputs: [{ name: 'venueShares', type: 'uint256' }],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -3756,16 +3963,6 @@ export const earnVault = [
       { name: 'receiver', type: 'address' },
     ],
     outputs: [{ name: 'requestId', type: 'bytes32' }],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'setDepositSwapOverride',
-    inputs: [
-      { name: 'inputToken', type: 'address' },
-      { name: 'swapAdapter', type: 'address' },
-    ],
-    outputs: [],
     stateMutability: 'nonpayable',
   },
   {
@@ -3799,7 +3996,7 @@ export const earnVault = [
             type: 'tuple[4]',
             components: [
               { name: 'account', type: 'address' },
-              { name: 'rate', type: 'uint96' },
+              { name: 'rateBps', type: 'uint16' },
             ],
           },
           {
@@ -3808,8 +4005,8 @@ export const earnVault = [
             components: [
               { name: 'enabled', type: 'bool' },
               { name: 'account', type: 'address' },
-              { name: 'annualTargetRate', type: 'uint96' },
-              { name: 'excessFeeRate', type: 'uint96' },
+              { name: 'annualTargetRateBps', type: 'uint16' },
+              { name: 'excessFeeRateBps', type: 'uint16' },
             ],
           },
         ],
@@ -3820,13 +4017,10 @@ export const earnVault = [
   },
   {
     type: 'function',
-    name: 'setRedeemSwapOverride',
-    inputs: [
-      { name: 'outputToken', type: 'address' },
-      { name: 'swapAdapter', type: 'address' },
-    ],
-    outputs: [],
-    stateMutability: 'nonpayable',
+    name: 'totalAllocatedAssets',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -3852,9 +4046,21 @@ export const earnVault = [
     inputs: [
       { name: 'caller', type: 'address', indexed: true },
       { name: 'assets', type: 'uint256', indexed: false },
-      { name: 'venueShares', type: 'uint256', indexed: false },
+      { name: 'engineShares', type: 'uint256', indexed: false },
       { name: 'anchorEngineShares', type: 'uint256', indexed: false },
       { name: 'anchorEarnShares', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'DepositAllocationConsumed',
+    inputs: [
+      { name: 'caller', type: 'address', indexed: true },
+      { name: 'receiver', type: 'address', indexed: true },
+      { name: 'assets', type: 'uint256', indexed: false },
+      { name: 'receiverAllocatedAssets', type: 'uint256', indexed: false },
+      { name: 'totalAllocatedAssets', type: 'uint256', indexed: false },
     ],
     anonymous: false,
   },
@@ -3864,15 +4070,6 @@ export const earnVault = [
     inputs: [
       { name: 'caller', type: 'address', indexed: true },
       { name: 'paused', type: 'bool', indexed: false },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'DepositSwapOverrideSet',
-    inputs: [
-      { name: 'inputToken', type: 'address', indexed: true },
-      { name: 'swapAdapter', type: 'address', indexed: true },
     ],
     anonymous: false,
   },
@@ -3946,15 +4143,6 @@ export const earnVault = [
   },
   {
     type: 'event',
-    name: 'RedeemSwapOverrideSet',
-    inputs: [
-      { name: 'outputToken', type: 'address', indexed: true },
-      { name: 'swapAdapter', type: 'address', indexed: true },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
     name: 'Redeemed',
     inputs: [
       { name: 'caller', type: 'address', indexed: true },
@@ -3971,8 +4159,20 @@ export const earnVault = [
       { name: 'caller', type: 'address', indexed: true },
       { name: 'receiver', type: 'address', indexed: true },
       { name: 'requestedVenueShares', type: 'uint256', indexed: false },
-      { name: 'receivedVenueShares', type: 'uint256', indexed: false },
+      { name: 'receivedEngineShares', type: 'uint256', indexed: false },
       { name: 'earnShares', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'VenueSharesRedeemed',
+    inputs: [
+      { name: 'caller', type: 'address', indexed: true },
+      { name: 'receiver', type: 'address', indexed: true },
+      { name: 'earnShares', type: 'uint256', indexed: false },
+      { name: 'engineShares', type: 'uint256', indexed: false },
+      { name: 'venueShares', type: 'uint256', indexed: false },
     ],
     anonymous: false,
   },
@@ -3987,7 +4187,10 @@ export const earnVault = [
     ],
     anonymous: false,
   },
+  { type: 'error', name: 'ActiveSupplyWithoutBacking', inputs: [] },
+  { type: 'error', name: 'AdmissionEnded', inputs: [] },
   { type: 'error', name: 'AlreadyInitialized', inputs: [] },
+  { type: 'error', name: 'ContributionsEnded', inputs: [] },
   { type: 'error', name: 'DepositsPaused', inputs: [] },
   {
     type: 'error',
@@ -4009,11 +4212,25 @@ export const earnVault = [
       { name: 'representedEngineShares', type: 'uint256' },
     ],
   },
+  {
+    type: 'error',
+    name: 'FinalizedAssetMismatch',
+    inputs: [{ name: 'finalizedAsset', type: 'address' }],
+  },
+  {
+    type: 'error',
+    name: 'GlobalAssetCapExceeded',
+    inputs: [
+      { name: 'cap', type: 'uint256' },
+      { name: 'attemptedAllocation', type: 'uint256' },
+    ],
+  },
   { type: 'error', name: 'InitialEarnShareSupplyNotZero', inputs: [] },
   { type: 'error', name: 'InsufficientOutput', inputs: [] },
+  { type: 'error', name: 'InvalidAdmissionEnd', inputs: [] },
+  { type: 'error', name: 'InvalidContributionsEnd', inputs: [] },
   { type: 'error', name: 'InvalidEarnDecimals', inputs: [] },
   { type: 'error', name: 'InvalidEngineShareScale', inputs: [] },
-  { type: 'error', name: 'InvalidSwapOverride', inputs: [] },
   {
     type: 'error',
     name: 'MinimumAssetsNotMet',
@@ -4038,15 +4255,30 @@ export const earnVault = [
       { name: 'actualEngineShares', type: 'uint256' },
     ],
   },
+  {
+    type: 'error',
+    name: 'MinimumVenueSharesNotMet',
+    inputs: [
+      { name: 'minimumVenueShares', type: 'uint256' },
+      { name: 'actualVenueShares', type: 'uint256' },
+    ],
+  },
   { type: 'error', name: 'NoEarnShares', inputs: [] },
   { type: 'error', name: 'NotEmergencyGuardianOrOperator', inputs: [] },
   { type: 'error', name: 'NotEngine', inputs: [] },
-  { type: 'error', name: 'NotFeeAdministrator', inputs: [] },
-  { type: 'error', name: 'NotFeeGuardian', inputs: [] },
   { type: 'error', name: 'NotOperator', inputs: [] },
   { type: 'error', name: 'NotRequesterOrJanitor', inputs: [] },
   { type: 'error', name: 'OperatorMigrationDisabled', inputs: [] },
   { type: 'error', name: 'PendingRedeemsOpen', inputs: [] },
+  {
+    type: 'error',
+    name: 'ReceiverAssetCapExceeded',
+    inputs: [
+      { name: 'receiver', type: 'address' },
+      { name: 'cap', type: 'uint256' },
+      { name: 'attemptedAllocation', type: 'uint256' },
+    ],
+  },
   { type: 'error', name: 'ReentrantCall', inputs: [] },
   {
     type: 'error',
@@ -4062,6 +4294,7 @@ export const earnVault = [
   { type: 'error', name: 'ZeroMinimumAssets', inputs: [] },
   { type: 'error', name: 'ZeroMinimumEarnShares', inputs: [] },
   { type: 'error', name: 'ZeroMinimumEngineShares', inputs: [] },
+  { type: 'error', name: 'ZeroMinimumVenueShares', inputs: [] },
 ] as const
 
 export const earnFees = [
@@ -4133,7 +4366,7 @@ export const earnFees = [
   {
     type: 'function',
     name: 'disableFees',
-    inputs: [{ name: 'guardian', type: 'address' }],
+    inputs: [{ name: 'operator', type: 'address' }],
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -4160,13 +4393,6 @@ export const earnFees = [
   },
   {
     type: 'function',
-    name: 'excessFeeCap',
-    inputs: [],
-    outputs: [{ name: '', type: 'uint96' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
     name: 'feeConfig',
     inputs: [{ name: 'configId', type: 'uint64' }],
     outputs: [
@@ -4180,7 +4406,7 @@ export const earnFees = [
             type: 'tuple[4]',
             components: [
               { name: 'account', type: 'address' },
-              { name: 'rate', type: 'uint96' },
+              { name: 'rateBps', type: 'uint16' },
             ],
           },
           {
@@ -4189,8 +4415,8 @@ export const earnFees = [
             components: [
               { name: 'enabled', type: 'bool' },
               { name: 'account', type: 'address' },
-              { name: 'annualTargetRate', type: 'uint96' },
-              { name: 'excessFeeRate', type: 'uint96' },
+              { name: 'annualTargetRateBps', type: 'uint16' },
+              { name: 'excessFeeRateBps', type: 'uint16' },
             ],
           },
         ],
@@ -4224,13 +4450,6 @@ export const earnFees = [
   },
   {
     type: 'function',
-    name: 'fixedFeeCap',
-    inputs: [],
-    outputs: [{ name: '', type: 'uint96' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
     name: 'highWaterMark',
     inputs: [],
     outputs: [{ name: '', type: 'uint256' }],
@@ -4243,36 +4462,26 @@ export const earnFees = [
       { name: 'earnVault_', type: 'address' },
       { name: 'earnShare_', type: 'address' },
       {
-        name: 'init',
+        name: 'initialConfig',
         type: 'tuple',
         components: [
-          { name: 'administrator', type: 'address' },
-          { name: 'guardian', type: 'address' },
-          { name: 'fixedFeeCap', type: 'uint96' },
-          { name: 'excessFeeCap', type: 'uint96' },
+          { name: 'fixedFeeCount', type: 'uint8' },
           {
-            name: 'initialConfig',
+            name: 'fixedFees',
+            type: 'tuple[4]',
+            components: [
+              { name: 'account', type: 'address' },
+              { name: 'rateBps', type: 'uint16' },
+            ],
+          },
+          {
+            name: 'excess',
             type: 'tuple',
             components: [
-              { name: 'fixedFeeCount', type: 'uint8' },
-              {
-                name: 'fixedFees',
-                type: 'tuple[4]',
-                components: [
-                  { name: 'account', type: 'address' },
-                  { name: 'rate', type: 'uint96' },
-                ],
-              },
-              {
-                name: 'excess',
-                type: 'tuple',
-                components: [
-                  { name: 'enabled', type: 'bool' },
-                  { name: 'account', type: 'address' },
-                  { name: 'annualTargetRate', type: 'uint96' },
-                  { name: 'excessFeeRate', type: 'uint96' },
-                ],
-              },
+              { name: 'enabled', type: 'bool' },
+              { name: 'account', type: 'address' },
+              { name: 'annualTargetRateBps', type: 'uint16' },
+              { name: 'excessFeeRateBps', type: 'uint16' },
             ],
           },
         ],
@@ -4367,7 +4576,7 @@ export const earnFees = [
             type: 'tuple[4]',
             components: [
               { name: 'account', type: 'address' },
-              { name: 'rate', type: 'uint96' },
+              { name: 'rateBps', type: 'uint16' },
             ],
           },
           {
@@ -4376,8 +4585,8 @@ export const earnFees = [
             components: [
               { name: 'enabled', type: 'bool' },
               { name: 'account', type: 'address' },
-              { name: 'annualTargetRate', type: 'uint96' },
-              { name: 'excessFeeRate', type: 'uint96' },
+              { name: 'annualTargetRateBps', type: 'uint16' },
+              { name: 'excessFeeRateBps', type: 'uint16' },
             ],
           },
         ],
@@ -4495,12 +4704,10 @@ export const earnFees = [
   {
     type: 'event',
     name: 'FeesDisabled',
-    inputs: [{ name: 'guardian', type: 'address', indexed: true }],
+    inputs: [{ name: 'operator', type: 'address', indexed: true }],
     anonymous: false,
   },
   { type: 'error', name: 'AlreadyInitialized', inputs: [] },
-  { type: 'error', name: 'FeeCapTooHigh', inputs: [] },
-  { type: 'error', name: 'FeesPermanentlyDisabled', inputs: [] },
   { type: 'error', name: 'InsufficientClaimableEarnShares', inputs: [] },
   { type: 'error', name: 'InvalidFeeClaimReceiver', inputs: [] },
   { type: 'error', name: 'InvalidFeeConfiguration', inputs: [] },
@@ -4524,6 +4731,13 @@ export const earnEngine = [
     inputs: [{ name: 'assets', type: 'uint256' }],
     outputs: [{ name: 'engineShares', type: 'uint256' }],
     stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'earnVault',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -4719,10 +4933,7 @@ export const vedaEngine = [
     name: 'getClaim',
     inputs: [{ name: 'requestId', type: 'bytes32' }],
     outputs: [
-      { name: 'open', type: 'bool' },
-      { name: 'paid', type: 'bool' },
-      { name: 'claimable', type: 'bool' },
-      { name: 'recorded', type: 'bool' },
+      { name: 'status', type: 'uint8' },
       {
         name: 'request',
         type: 'tuple',
@@ -4841,7 +5052,7 @@ export const vedaEngine = [
     name: 'RedeemCancelledOnQueue',
     inputs: [
       { name: 'requestId', type: 'bytes32', indexed: true },
-      { name: 'venueShares', type: 'uint128', indexed: false },
+      { name: 'engineShares', type: 'uint128', indexed: false },
     ],
     anonymous: false,
   },
@@ -4861,7 +5072,7 @@ export const vedaEngine = [
     inputs: [
       { name: 'requestId', type: 'bytes32', indexed: true },
       { name: 'assetOut', type: 'address', indexed: true },
-      { name: 'venueShares', type: 'uint128', indexed: false },
+      { name: 'engineShares', type: 'uint128', indexed: false },
     ],
     anonymous: false,
   },
@@ -4935,7 +5146,7 @@ export const vedaEngine = [
     name: 'AssetsNotArrived',
     inputs: [{ name: 'requestId', type: 'bytes32' }],
   },
-  { type: 'error', name: 'CannotSweepVenueShares', inputs: [] },
+  { type: 'error', name: 'CannotSweepEngineBacking', inputs: [] },
   {
     type: 'error',
     name: 'ClaimNotClaimable',
@@ -4962,6 +5173,20 @@ export const vedaEngine = [
     inputs: [{ name: 'requestId', type: 'bytes32' }],
   },
   { type: 'error', name: 'EarnVaultNotSet', inputs: [] },
+  { type: 'error', name: 'EmptyMetadata', inputs: [] },
+  {
+    type: 'error',
+    name: 'EngineSharesTooLarge',
+    inputs: [{ name: 'engineShares', type: 'uint256' }],
+  },
+  {
+    type: 'error',
+    name: 'InsufficientAssetsReceived',
+    inputs: [
+      { name: 'minimumAssets', type: 'uint256' },
+      { name: 'actualAssets', type: 'uint256' },
+    ],
+  },
   {
     type: 'error',
     name: 'InvalidAsset',
@@ -5025,6 +5250,7 @@ export const vedaEngine = [
     name: 'OwnableUnauthorizedAccount',
     inputs: [{ name: 'account', type: 'address' }],
   },
+  { type: 'error', name: 'QueueUnavailable', inputs: [] },
   {
     type: 'error',
     name: 'RateChangedWithinTransaction',
@@ -5034,6 +5260,14 @@ export const vedaEngine = [
     ],
   },
   { type: 'error', name: 'ReentrantCall', inputs: [] },
+  {
+    type: 'error',
+    name: 'RegistryEngineMismatch',
+    inputs: [
+      { name: 'expected', type: 'address' },
+      { name: 'actual', type: 'address' },
+    ],
+  },
   {
     type: 'error',
     name: 'RequestDetailsNotRecorded',
@@ -5057,7 +5291,32 @@ export const vedaEngine = [
       { name: 'maxAge', type: 'uint256' },
     ],
   },
+  {
+    type: 'error',
+    name: 'SweepExceedsAvailableBalance',
+    inputs: [
+      { name: 'token', type: 'address' },
+      { name: 'available', type: 'uint256' },
+      { name: 'requested', type: 'uint256' },
+    ],
+  },
   { type: 'error', name: 'TransferFailed', inputs: [] },
+  {
+    type: 'error',
+    name: 'UnexpectedAssetsReceived',
+    inputs: [
+      { name: 'expectedAssets', type: 'uint256' },
+      { name: 'actualAssets', type: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'UnexpectedVenueSharesBurned',
+    inputs: [
+      { name: 'expectedShares', type: 'uint256' },
+      { name: 'actualShares', type: 'uint256' },
+    ],
+  },
   {
     type: 'error',
     name: 'VedaRateOutOfBounds',
@@ -5067,18 +5326,27 @@ export const vedaEngine = [
       { name: 'maxRate', type: 'uint256' },
     ],
   },
-  {
-    type: 'error',
-    name: 'VenueSharesTooLarge',
-    inputs: [{ name: 'venueShares', type: 'uint256' }],
-  },
   { type: 'error', name: 'ZeroAddress', inputs: [] },
 ] as const
 
 export const earnRouter = [
   {
     type: 'function',
-    name: 'STABLECOIN_DEX',
+    name: 'allowedZoneId',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'earnShare',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'earnVault',
     inputs: [],
     outputs: [{ name: '', type: 'address' }],
     stateMutability: 'view',
@@ -5099,10 +5367,45 @@ export const earnRouter = [
   },
   {
     type: 'function',
+    name: 'privateAsset',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'reserveToken',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     name: 'supportsFlow',
     inputs: [{ name: 'flow', type: 'uint8' }],
     outputs: [{ name: '', type: 'bool' }],
     stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    name: 'tokenAuthority',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'transactionLimit',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'vaultAsset',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
   },
   {
     type: 'event',
@@ -5132,32 +5435,33 @@ export const earnRouter = [
     ],
     anonymous: false,
   },
+  { type: 'error', name: 'AmountExceedsLimit', inputs: [] },
   { type: 'error', name: 'AmountOverflow', inputs: [] },
   { type: 'error', name: 'BadFlow', inputs: [] },
   { type: 'error', name: 'InsufficientOutput', inputs: [] },
+  { type: 'error', name: 'InvalidAuthority', inputs: [] },
   { type: 'error', name: 'InvalidEarnVault', inputs: [] },
+  { type: 'error', name: 'InvalidPrivateAsset', inputs: [] },
+  { type: 'error', name: 'InvalidReturnToken', inputs: [] },
+  { type: 'error', name: 'InvalidRoutePair', inputs: [] },
   { type: 'error', name: 'InvalidSourcePortal', inputs: [] },
-  { type: 'error', name: 'InvalidTargetPortal', inputs: [] },
-  { type: 'error', name: 'InvalidToken', inputs: [] },
+  { type: 'error', name: 'MismatchedTransactionLimit', inputs: [] },
   { type: 'error', name: 'NotZoneMessenger', inputs: [] },
   { type: 'error', name: 'ReentrantCall', inputs: [] },
   { type: 'error', name: 'ResidualBalance', inputs: [] },
   { type: 'error', name: 'TokenCallFailed', inputs: [] },
   { type: 'error', name: 'TokenCallFalse', inputs: [] },
-  { type: 'error', name: 'WrongEarnShare', inputs: [] },
-  { type: 'error', name: 'WrongOutputToken', inputs: [] },
-  { type: 'error', name: 'WrongSourceAsset', inputs: [] },
+  { type: 'error', name: 'WrongInputToken', inputs: [] },
+  { type: 'error', name: 'WrongSourceZone', inputs: [] },
   { type: 'error', name: 'ZeroAddress', inputs: [] },
   { type: 'error', name: 'ZeroAmount', inputs: [] },
 ] as const
 
-// `ZoneOnlyEarnRouter.CallbackData` parameter for `encodeAbiParameters`.
+// `SingleZoneEarnRouter.CallbackData` parameter for `encodeAbiParameters`.
 export const earnRouterCallbackData = [
   {
     components: [
       { name: 'flow', type: 'uint8' },
-      { name: 'earnVault', type: 'address' },
-      { name: 'outputToken', type: 'address' },
       { name: 'minVaultAssets', type: 'uint128' },
       { name: 'minEarnShares', type: 'uint128' },
       { name: 'minOutputAmount', type: 'uint128' },

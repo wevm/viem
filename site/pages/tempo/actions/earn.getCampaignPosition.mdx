@@ -1,0 +1,48 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `earn.getCampaignPosition`
+
+Gets one account's Base and Boost campaign positions and aggregate asset value.
+
+## Usage
+
+```ts twoslash
+import { client } from './viem.config'
+
+const position = await client.earn.getCampaignPosition({
+  baseVault: '0x0000000000000000000000000000000000000001',
+  boostVault: '0x0000000000000000000000000000000000000002',
+})
+// @log: { base: { ... }, boost: { ... }, totalValue: 105_000_000n, ... }
+```
+
+Do not add raw Base and Boost share balances. Their exchange rates can differ.
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  assetBalance: bigint
+  assetToken: Address
+  base: getPosition.ReturnValue
+  boost: getPosition.ReturnValue
+  totalValue: bigint
+}
+```
+
+## Parameters
+
+### account (optional)
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+### baseVault
+
+- **Type:** `Address`
+
+### boostVault
+
+- **Type:** `Address`
+
+<ReadParameters />

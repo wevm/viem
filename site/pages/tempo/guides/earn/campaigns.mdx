@@ -1,0 +1,266 @@
+---
+description: Integrate capped Earn campaigns as one logical Base and Boost position.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Capped Earn Campaigns
+
+## Overview
+
+A capped campaign adds a Boost Earn vault over an existing Base Earn vault. Users can hold both
+Base and Boost Earn shares, but Viem presents them as one product with one aggregate asset value.
+The Boost vault inherits Base yield and receives its own campaign contributions.
+
+Campaign caps are cumulative principal limits. Exits do not reopen allocation. Admission and
+contribution funding can have independent onchain deadlines.
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo) and obtained the Base and Boost vault
+addresses from the campaign provider. Campaign actions verify that the Boost vault's nested engine
+wraps the supplied Base vault and that both tiers use the same asset.
+
+### Inspect the Unified Position
+
+Use [`earn.getCampaignPosition`](/tempo/actions/earn.getCampaignPosition) instead of adding raw Base
+and Boost share balances. Each token has its own exchange rate.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const campaign = {
+  baseVault: '0x0000000000000000000000000000000000000001',
+  boostVault: '0x0000000000000000000000000000000000000002',
+} as const
+
+const position = await client.earn.getCampaignPosition(campaign)
+// @log: {
+// @log:   base: { shareBalance: 40_000_000n, value: 41_000_000n, ... },
+// @log:   boost: { shareBalance: 60_000_000n, value: 64_000_000n, ... },
+// @log:   totalValue: 105_000_000n,
+// @log:   ...
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Prepare a Split Deposit
+
+Read [`earn.getCampaignAllocation`](/tempo/actions/earn.getCampaignAllocation) close to submission.
+Quote each nonempty asset leg through the Base vault's normal provider-specific deposit quote. Then
+convert the Base share quote for the Boost leg with
+[`earn.getCampaignBoostQuote`](/tempo/actions/earn.getCampaignBoostQuote).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const campaign = {
+  baseVault: '0x0000000000000000000000000000000000000001',
+  boostVault: '0x0000000000000000000000000000000000000002',
+} as const
+const recipient = client.account.address
+
+const allocation = await client.earn.getCampaignAllocation({
+  assetAmount: 100_000_000n,
+  boostVault: campaign.boostVault,
+  recipient,
+})
+
+// Obtain these two provider-specific Base deposit quotes close to submission.
+const baseShareQuote = 39_900_000n
+const boostLegBaseShareQuote = 59_800_000n
+const boostShareQuote = await client.earn.getCampaignBoostQuote({
+  baseShareAmount: boostLegBaseShareQuote,
+  boostVault: campaign.boostVault,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Deposit Atomically
+
+Use [`earn.depositCampaignSync`](/tempo/actions/earn.depositCampaign) to approve and execute both
+nonempty legs in one Tempo transaction. Apply a bound to each leg independently.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { EarnShares } from 'viem/tempo'
+import { client } from './viem.config'
+
+const campaign = {
+  baseVault: '0x0000000000000000000000000000000000000001',
+  boostVault: '0x0000000000000000000000000000000000000002',
+} as const
+const allocation = {
+  assetAmount: 100_000_000n,
+  baseAssetAmount: 40_000_000n,
+  boostAssetAmount: 60_000_000n,
+}
+const baseShareQuote = 39_900_000n
+const boostShareQuote = 59_800_000n
+
+const result = await client.earn.depositCampaignSync({
+  allocation,
+  baseShareAmountMin: EarnShares.minimumOutput(baseShareQuote, 50),
+  boostShareAmountMin: EarnShares.minimumOutput(boostShareQuote, 50),
+  ...campaign,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The allocation is signed exactly. If another deposit consumes Boost capacity first, the complete
+batch reverts. Read a new allocation, refresh both quotes, and resubmit.
+
+### Redeem the Unified Position
+
+Read [`earn.getCampaignRedeemQuote`](/tempo/actions/earn.getCampaignRedeemQuote), then redeem both
+share tokens atomically with [`earn.redeemCampaignSync`](/tempo/actions/earn.redeemCampaign).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const campaign = {
+  baseVault: '0x0000000000000000000000000000000000000001',
+  boostVault: '0x0000000000000000000000000000000000000002',
+} as const
+const position = {
+  base: { shareBalance: 40_000_000n },
+  boost: { shareBalance: 60_000_000n },
+}
+
+const quote = await client.earn.getCampaignRedeemQuote({
+  baseShareAmount: position.base.shareBalance,
+  boostShareAmount: position.boost.shareBalance,
+  ...campaign,
+})
+
+const result = await client.earn.redeemCampaignSync({
+  baseAssetAmount: quote.baseAssetAmount,
+  baseShareAmount: position.base.shareBalance,
+  boostAssetAmount: quote.boostAssetAmount,
+  boostShareAmount: position.boost.shareBalance,
+  slippageBps: 50,
+  ...campaign,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Consolidate After the Campaign
+
+Use [`earn.getCampaignMigrationQuote`](/tempo/actions/earn.getCampaignMigrationQuote) and
+[`earn.migrateCampaignSync`](/tempo/actions/earn.migrateCampaign) to convert Boost shares directly
+into Base shares. No underlying asset or venue position moves.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const campaign = {
+  boostVault: '0x0000000000000000000000000000000000000002',
+} as const
+const position = { boost: { shareBalance: 60_000_000n } }
+
+const baseShareAmount = await client.earn.getCampaignMigrationQuote({
+  boostShareAmount: position.boost.shareBalance,
+  boostVault: campaign.boostVault,
+})
+
+const migration = await client.earn.migrateCampaignSync({
+  baseShareAmount,
+  boostShareAmount: position.boost.shareBalance,
+  boostVault: campaign.boostVault,
+  slippageBps: 50,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Applications should offer this migration after the campaign ends and can include it during the
+holder's next public interaction. Migration remains holder-authorized.
+
+### Exit When Immediate Liquidity Is Unavailable
+
+If direct Boost redemption cannot use the Base vault's immediate exit:
+
+1. Migrate the Boost shares into Base shares.
+2. Use the Base vault's async redemption action.
+
+This keeps the nested campaign engine simple while preserving access to the Base vault's queued
+exit path.
+
+## Best Practices
+
+### Treat the Campaign as One Product
+
+Store both vault addresses, but display `totalValue` as the product balance. Do not add raw share
+balances.
+
+### Quote Every Nonempty Leg
+
+Base and Boost deposits and redemptions have independent output bounds. A zero input leg must have a
+zero bound.
+
+### Migrate Opportunistically
+
+After the admission deadline, include migration in the next suitable holder interaction. Inactive
+holders can remain in the backed Boost token without affecting the Base venue position.
+
+### Keep Zone Constraints Explicit
+
+Base and Boost Earn shares are separate tokens and each must be enabled in a Zone. The current
+private callback returns one token, so the public split-deposit action does not apply to private
+Zone callbacks.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:wallet-cards"
+    title="Inspect a Campaign Position"
+    description="Read Base and Boost shares as one asset-valued position."
+    to="/tempo/actions/earn.getCampaignPosition"
+  />
+  <Card
+    icon="lucide:arrow-down-to-line"
+    title="Deposit into a Campaign"
+    description="Execute the bounded Base and Boost legs atomically."
+    to="/tempo/actions/earn.depositCampaign"
+  />
+  <Card
+    icon="lucide:arrow-right-left"
+    title="Migrate Boost Shares"
+    description="Convert Boost Earn shares directly into Base Earn shares."
+    to="/tempo/actions/earn.migrateCampaign"
+  />
+</Cards>

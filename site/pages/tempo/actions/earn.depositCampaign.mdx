@@ -1,0 +1,74 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `earn.depositCampaign`
+
+Deposits one asset amount across the Boost and Base campaign tiers atomically.
+
+## Usage
+
+```ts twoslash
+import { client } from './viem.config'
+
+const result = await client.earn.depositCampaignSync({
+  allocation: {
+    assetAmount: 100_000_000n,
+    baseAssetAmount: 40_000_000n,
+    boostAssetAmount: 60_000_000n,
+  },
+  baseShareAmountMin: 39_500_000n,
+  baseVault: '0x0000000000000000000000000000000000000001',
+  boostShareAmountMin: 59_000_000n,
+  boostVault: '0x0000000000000000000000000000000000000002',
+})
+```
+
+The action approves and executes each nonempty leg in one Tempo transaction. A stale allocation
+reverts the complete batch.
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  base?: { assetAmount: bigint; shareAmount: bigint }
+  boost?: { assetAmount: bigint; shareAmount: bigint }
+  receipt: TransactionReceipt
+}
+```
+
+The asynchronous `earn.depositCampaign` variant returns the transaction hash.
+
+## Parameters
+
+### allocation
+
+- **Type:** `CampaignAllocation`
+
+Exact split returned by
+[`earn.getCampaignAllocation`](/tempo/actions/earn.getCampaignAllocation).
+
+### baseShareAmountMin
+
+- **Type:** `bigint`
+
+Must be zero exactly when the Base leg is empty.
+
+### baseVault
+
+- **Type:** `Address`
+
+### boostShareAmountMin
+
+- **Type:** `bigint`
+
+Must be zero exactly when the Boost leg is empty.
+
+### boostVault
+
+- **Type:** `Address`
+
+### recipient (optional)
+
+- **Type:** `Address`
+- **Default:** `account.address`
+
+<WriteParameters />

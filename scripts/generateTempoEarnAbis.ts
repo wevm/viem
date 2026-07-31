@@ -65,6 +65,25 @@ const abiSlices: readonly {
       'transferOwnership',
     ],
   },
+  {
+    contracts: ['EarnVaultEngine'],
+    errors: true,
+    events: true,
+    exportName: 'earnVaultEngine',
+    functions: [
+      'acceptOwnership',
+      'baseAsset',
+      'baseEarnShare',
+      'baseVault',
+      'earnVault',
+      'initializeEarnVault',
+      'owner',
+      'pendingOwner',
+      'renounceOwnership',
+      'supportsInterface',
+      'transferOwnership',
+    ],
+  },
   { contracts: ['EarnVault'], exportName: 'earnVault' },
   { contracts: ['EarnFees'], exportName: 'earnFees' },
   {
@@ -97,7 +116,7 @@ const abiSlices: readonly {
     functions: ['claimRedeem', 'getClaim', 'rate', 'settled'],
   },
   {
-    contracts: ['ZoneOnlyEarnRouter'],
+    contracts: ['SingleZoneEarnRouter'],
     errors: true,
     events: true,
     exportName: 'earnRouter',
@@ -111,7 +130,8 @@ const deployables: readonly { contract: string; exportName: string }[] = [
   { contract: 'EarnVault', exportName: 'earnVault' },
   { contract: 'EarnFees', exportName: 'earnFees' },
   { contract: 'EarnFactory', exportName: 'earnFactory' },
-  { contract: 'ZoneOnlyEarnRouter', exportName: 'earnRouter' },
+  { contract: 'SingleZoneEarnRouter', exportName: 'earnRouter' },
+  { contract: 'EarnVaultEngine', exportName: 'earnVaultEngine' },
   {
     contract: 'EarnContributionController',
     exportName: 'earnContributionController',
@@ -192,13 +212,12 @@ function structComponents(
 
 function routerCallbackDataParameter() {
   const zone = Path.join(checkout, 'src/interfaces/external/tempo/IZone.sol')
-  const base = Path.join(checkout, 'src/periphery/EarnRouterBase.sol')
-  const zoneOnly = Path.join(checkout, 'src/periphery/ZoneOnlyEarnRouter.sol')
+  const router = Path.join(checkout, 'src/router/SingleZoneEarnRouter.sol')
   const encrypted = structComponents(zone, 'EncryptedDepositPayload')
-  const zoneReturn = structComponents(base, 'ZoneReturn', {
+  const zoneReturn = structComponents(router, 'ZoneReturn', {
     EncryptedDepositPayload: encrypted,
   })
-  const components = structComponents(zoneOnly, 'CallbackData', {
+  const components = structComponents(router, 'CallbackData', {
     ZoneReturn: zoneReturn,
   })
   return [{ components, name: 'callbackData', type: 'tuple' }] as const
@@ -220,7 +239,7 @@ function generateAbiSlice(commit: string) {
       })
     return `export const ${slice.exportName} = ${JSON.stringify(sliceAbi(abi, slice))} as const`
   })
-  return `${earnMarker}${commit}. Do not modify manually.\n\n${slices.join('\n\n')}\n\n// \`ZoneOnlyEarnRouter.CallbackData\` parameter for \`encodeAbiParameters\`.\nexport const earnRouterCallbackData = ${JSON.stringify(routerCallbackDataParameter())} as const\n`
+  return `${earnMarker}${commit}. Do not modify manually.\n\n${slices.join('\n\n')}\n\n// \`SingleZoneEarnRouter.CallbackData\` parameter for \`encodeAbiParameters\`.\nexport const earnRouterCallbackData = ${JSON.stringify(routerCallbackDataParameter())} as const\n`
 }
 
 function generateContracts(commit: string) {

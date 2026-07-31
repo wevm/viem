@@ -1,0 +1,48 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `earn.getCampaignRedeemQuote`
+
+Gets independent Base and Boost asset outputs and their aggregate value.
+
+## Usage
+
+```ts twoslash
+import { client } from './viem.config'
+
+const quote = await client.earn.getCampaignRedeemQuote({
+  baseShareAmount: 40_000_000n,
+  baseVault: '0x0000000000000000000000000000000000000001',
+  boostShareAmount: 60_000_000n,
+  boostVault: '0x0000000000000000000000000000000000000002',
+})
+```
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  baseAssetAmount: bigint
+  boostAssetAmount: bigint
+  totalAssetAmount: bigint
+}
+```
+
+## Parameters
+
+### baseShareAmount
+
+- **Type:** `bigint`
+
+### baseVault
+
+- **Type:** `Address`
+
+### boostShareAmount
+
+- **Type:** `bigint`
+
+### boostVault
+
+- **Type:** `Address`
+
+<ReadParameters />

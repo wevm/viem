@@ -522,15 +522,23 @@ export namespace deposit {
    * @param parameters - Parameters.
    * @returns The `Deposited` event.
    */
-  export function extractEvent(logs: Log[], parameters: { vault: Address }) {
-    const { vault } = parameters
+  export function extractEvent(
+    logs: Log[],
+    parameters: {
+      /** Selects the first or last matching event. @default `'first'` */
+      occurrence?: 'first' | 'last' | undefined
+      vault: Address
+    },
+  ) {
+    const { occurrence = 'first', vault } = parameters
     // Earn contracts are user-deployed: several adapters can emit the same
     // signature in one receipt, so filter by emitting address before decode.
-    const [log] = parseEventLogs({
+    const parsed = parseEventLogs({
       abi: Abis.earnVault,
       eventName: 'Deposited',
       logs: logs.filter((log) => isAddressEqual(log.address, vault)),
     })
+    const log = occurrence === 'last' ? parsed.at(-1) : parsed[0]
     if (!log) throw new Error('`Deposited` event not found.')
     return log
   }
@@ -643,6 +651,229 @@ export namespace depositSync {
     /** Earn shares minted. */
     shareAmount: bigint
   }>
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+}
+
+/**
+ * Deposits one asset amount across a capped Boost campaign and its Base vault
+ * in one atomic Tempo transaction.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * const hash = await Actions.earn.depositCampaign(client, {
+ *   allocation: {
+ *     assetAmount: 100_000_000n,
+ *     baseAssetAmount: 40_000_000n,
+ *     boostAssetAmount: 60_000_000n,
+ *   },
+ *   baseShareAmountMin: 39_500_000n,
+ *   baseVault: '0x...',
+ *   boostShareAmountMin: 59_000_000n,
+ *   boostVault: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Campaign, allocation, recipient, and per-leg output bounds.
+ * @returns The transaction hash.
+ */
+export async function depositCampaign<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: depositCampaign.Parameters<chain, account>,
+): Promise<depositCampaign.ReturnValue> {
+  return depositCampaign.inner(sendTransaction, client, parameters)
+}
+
+export namespace depositCampaign {
+  export type Args = Campaign & {
+    /** Asset split returned by {@link getCampaignAllocation}. */
+    allocation: CampaignAllocation
+    /** Minimum Base Earn shares for the direct Base leg; zero only for an empty leg. */
+    baseShareAmountMin: bigint
+    /** Minimum Boost Earn shares for the Boost leg; zero only for an empty leg. */
+    boostShareAmountMin: bigint
+    /** Earn share recipient. @default `account.address` */
+    recipient?: Address | undefined
+  }
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+  export type ReturnValue = SendTransactionReturnType
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** @internal Shared dispatch for Base and Boost deposit calls. */
+  export async function inner<
+    action extends typeof sendTransaction | typeof sendTransactionSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const assetToken = await getCampaignAsset(client, parameters)
+    return (await action(client, {
+      ...parameters,
+      calls: calls({
+        ...parameters,
+        assetToken,
+        recipient: resolveRecipient(client, parameters),
+      }),
+    } as never)) as never
+  }
+
+  /**
+   * Defines the approvals and bounded Base and Boost deposit calls. The
+   * allocation is signed exactly; stale Boost capacity reverts the batch.
+   */
+  export function calls(
+    args: Args & {
+      /** Shared asset token approved to both nonempty legs. */
+      assetToken: Address
+      /** Earn share recipient. */
+      recipient: Address
+    },
+  ) {
+    const {
+      allocation,
+      assetToken,
+      baseShareAmountMin,
+      baseVault,
+      boostShareAmountMin,
+      boostVault,
+      recipient,
+    } = args
+    validateCampaignVaults({ baseVault, boostVault })
+    validateCampaignAllocation(allocation)
+    validateCampaignLeg(allocation.baseAssetAmount, baseShareAmountMin, 'Base')
+    validateCampaignLeg(
+      allocation.boostAssetAmount,
+      boostShareAmountMin,
+      'Boost',
+    )
+    return [
+      ...(allocation.boostAssetAmount === 0n
+        ? []
+        : deposit.calls({
+            assetAmount: allocation.boostAssetAmount,
+            assetToken,
+            recipient,
+            shareAmountMin: boostShareAmountMin,
+            vault: boostVault,
+          })),
+      ...(allocation.baseAssetAmount === 0n
+        ? []
+        : deposit.calls({
+            assetAmount: allocation.baseAssetAmount,
+            assetToken,
+            recipient,
+            shareAmountMin: baseShareAmountMin,
+            vault: baseVault,
+          })),
+    ]
+  }
+}
+
+/**
+ * Deposits across a campaign and returns the confirmed receipt and per-tier
+ * event data.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * const result = await Actions.earn.depositCampaignSync(client, {
+ *   allocation: {
+ *     assetAmount: 100_000_000n,
+ *     baseAssetAmount: 40_000_000n,
+ *     boostAssetAmount: 60_000_000n,
+ *   },
+ *   baseShareAmountMin: 39_500_000n,
+ *   baseVault: '0x...',
+ *   boostShareAmountMin: 59_000_000n,
+ *   boostVault: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Campaign deposit parameters.
+ * @returns The confirmed receipt and each nonempty campaign leg.
+ */
+export async function depositCampaignSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: depositCampaignSync.Parameters<chain, account>,
+): Promise<depositCampaignSync.ReturnValue> {
+  const {
+    allocation,
+    baseVault,
+    boostVault,
+    throwOnReceiptRevert = true,
+  } = parameters
+  const receipt = await depositCampaign.inner(sendTransactionSync, client, {
+    ...parameters,
+    throwOnReceiptRevert,
+  } as never)
+  const toLeg = (vault: Address, occurrence: 'first' | 'last' = 'first') => {
+    const { args } = deposit.extractEvent(receipt.logs, { occurrence, vault })
+    return {
+      assetAmount: args.assets,
+      shareAmount: args.earnShares,
+    }
+  }
+  return {
+    // The Boost leg recursively emits from Base first. Since the direct Base
+    // leg is dispatched last, its event is the final Base-vault match.
+    base:
+      allocation.baseAssetAmount === 0n ? undefined : toLeg(baseVault, 'last'),
+    boost: allocation.boostAssetAmount === 0n ? undefined : toLeg(boostVault),
+    receipt,
+  }
+}
+
+export namespace depositCampaignSync {
+  export type Args = depositCampaign.Args
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = depositCampaign.Parameters<chain, account> &
+    WriteSyncParameters<chain, account>
+  export type ReturnValue = {
+    /** Confirmed direct Base deposit, when the Base leg was nonempty. */
+    base?: { assetAmount: bigint; shareAmount: bigint } | undefined
+    /** Confirmed Boost deposit, when the Boost leg was nonempty. */
+    boost?: { assetAmount: bigint; shareAmount: bigint } | undefined
+    /** Confirmed atomic transaction receipt. */
+    receipt: TransactionReceipt
+  }
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
 }
@@ -923,7 +1154,7 @@ export async function depositSharesSync<
     caller: args.caller,
     earnShareAmount: args.earnShares,
     receipt,
-    receivedVenueShareAmount: args.receivedVenueShares,
+    receivedVenueShareAmount: args.receivedEngineShares,
     recipient: args.receiver,
     venueShareAmount: args.requestedVenueShares,
   }
@@ -1039,7 +1270,9 @@ export namespace privateDeposit {
         zonePortal: portalAddress,
       }),
     ])
-    const assetToken = parameters.assetToken ?? config.vaultAsset
+    const assetToken = parameters.assetToken ?? config.privateAsset
+    if (!isAddressEqual(assetToken, config.privateAsset))
+      throw new Error('`assetToken` must match the gateway private asset.')
     const { encrypted, keyIndex } =
       await zoneActions.encryptedDeposit.prepareRecipient(client, {
         ...readParameters,
@@ -1049,18 +1282,13 @@ export namespace privateDeposit {
         zoneId: config.zoneId,
       })
     const shareAmountMin = resolveMinimumShareAmount(parameters)
-    const direct = isAddressEqual(assetToken, config.vaultAsset)
     const data = encodeAbiParameters(Abis.earnRouterCallbackData, [
       {
         actionId,
-        earnVault: config.vault,
         flow: 0,
         minEarnShares: shareAmountMin,
         minOutputAmount: 0n,
-        minVaultAssets: direct
-          ? assetAmount
-          : (parameters.vaultAssetAmountMin ?? 0n),
-        outputToken: config.shareToken,
+        minVaultAssets: parameters.vaultAssetAmountMin ?? assetAmount,
         zoneReturn: { encrypted, keyIndex, refundRecipient: recoveryRecipient },
       },
     ])
@@ -1429,15 +1657,15 @@ export type FeeConfig = {
   excess: {
     /** Excess fee recipient. */
     account: Address
-    /** Annual target growth rate, scaled to 18 decimals. */
-    annualTargetRate: bigint
+    /** Annual target growth rate in basis points. */
+    annualTargetRateBps: number
     /** Whether the excess fee is active. */
     enabled: boolean
-    /** Rate applied above the target, scaled to 18 decimals. */
-    excessFeeRate: bigint
+    /** Rate applied above the target in basis points. */
+    excessFeeRateBps: number
   }
-  /** Fixed fee recipients and their 18-decimal rates. */
-  fixedFees: readonly { account: Address; rate: bigint }[]
+  /** Fixed fee recipients and their basis-point rates. */
+  fixedFees: readonly { account: Address; rateBps: number }[]
 }
 
 /** Pending vault fee amounts. */
@@ -1597,6 +1825,386 @@ export namespace getPosition {
   }
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
+}
+
+/** Addresses that define one capped Earn campaign over a Base Earn vault. */
+export type Campaign = {
+  /** Persistent Base Earn vault. */
+  baseVault: Address
+  /** Capped Boost Earn vault backed by the Base vault. */
+  boostVault: Address
+}
+
+/** Asset allocation across the Base and Boost campaign tiers. */
+export type CampaignAllocation = {
+  /** Total assets requested. */
+  assetAmount: bigint
+  /** Assets routed directly to the Base vault. */
+  baseAssetAmount: bigint
+  /** Assets admitted to the Boost vault. */
+  boostAssetAmount: bigint
+}
+
+/**
+ * Gets an account's unified Base and Boost Earn campaign position.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * const position = await Actions.earn.getCampaignPosition(client, {
+ *   account: '0x...',
+ *   baseVault: '0x...',
+ *   boostVault: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Account and campaign vaults.
+ * @returns Both share positions and their aggregate asset value.
+ */
+export async function getCampaignPosition<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: getCampaignPosition.Parameters<account>,
+): Promise<getCampaignPosition.ReturnValue> {
+  const { account, baseVault, boostVault, ...rest } = parameters
+  validateCampaignVaults({ baseVault, boostVault })
+  const [base, boost] = await Promise.all([
+    getPosition(client, { ...rest, account, vault: baseVault } as never),
+    getPosition(client, { ...rest, account, vault: boostVault } as never),
+    validateCampaignBinding(client, { baseVault, boostVault }),
+  ])
+  if (!isAddressEqual(base.assetToken, boost.assetToken))
+    throw new Error('Base and Boost vault assets do not match.')
+  return {
+    assetBalance: base.assetBalance,
+    assetToken: base.assetToken,
+    base,
+    boost,
+    totalValue: base.value + boost.value,
+  }
+}
+
+export namespace getCampaignPosition {
+  export type Args<account extends Account | undefined = Account | undefined> =
+    GetAccountParameter<account> & Campaign
+  export type Parameters<
+    account extends Account | undefined = Account | undefined,
+  > = Omit<ReadParameters, 'account'> & Args<account>
+  export type ReturnValue = {
+    /** Asset balance shared by both campaign tiers. */
+    assetBalance: bigint
+    /** Token accepted by both campaign vaults. */
+    assetToken: Address
+    /** Direct Base Earn position. */
+    base: getPosition.ReturnValue
+    /** Capped Boost Earn position. */
+    boost: getPosition.ReturnValue
+    /** Aggregate redeemable asset value across both share tokens. */
+    totalValue: bigint
+  }
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+}
+
+/**
+ * Gets the currently available Base and Boost allocation for a deposit.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * const allocation = await Actions.earn.getCampaignAllocation(client, {
+ *   assetAmount: 100_000_000n,
+ *   boostVault: '0x...',
+ *   recipient: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Requested assets, recipient, and Boost vault.
+ * @returns The live Base and Boost asset split.
+ */
+export async function getCampaignAllocation<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getCampaignAllocation.Parameters,
+): Promise<getCampaignAllocation.ReturnValue> {
+  const { assetAmount, boostVault, recipient, ...rest } = parameters
+  if (assetAmount <= 0n)
+    throw new Error('Campaign asset amount must be greater than zero.')
+  const boostAssetAmount = await readContract(client, {
+    ...rest,
+    ...getCampaignAllocation.call({ assetAmount, boostVault, recipient }),
+  })
+  if (boostAssetAmount > assetAmount)
+    throw new Error('Boost allocation exceeds the requested assets.')
+  return {
+    assetAmount,
+    baseAssetAmount: assetAmount - boostAssetAmount,
+    boostAssetAmount,
+  }
+}
+
+export namespace getCampaignAllocation {
+  export type Args = {
+    /** Assets to allocate, base units. */
+    assetAmount: bigint
+    /** Capped Boost Earn vault. */
+    boostVault: Address
+    /** Earn share recipient whose public receiver cap applies. */
+    recipient: Address
+  }
+  export type Parameters = Omit<ReadParameters, 'account'> & Args
+  export type ReturnValue = CampaignAllocation
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** Defines the Boost vault allocation preview call. */
+  export function call(args: Args) {
+    const { assetAmount, boostVault, recipient } = args
+    return defineCall({
+      address: boostVault,
+      abi: Abis.earnVault,
+      args: [recipient, assetAmount],
+      functionName: 'previewAllocation',
+    })
+  }
+}
+
+/**
+ * Converts a quoted Base Earn share output into the corresponding Boost Earn
+ * share output.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * const boostShareAmount = await Actions.earn.getCampaignBoostQuote(client, {
+ *   baseShareAmount: 99_500_000n,
+ *   boostVault: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Base share quote and Boost vault.
+ * @returns The fee-aware Boost Earn share output.
+ */
+export async function getCampaignBoostQuote<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getCampaignBoostQuote.Parameters,
+): Promise<getCampaignBoostQuote.ReturnValue> {
+  const { baseShareAmount, boostVault, ...rest } = parameters
+  if (baseShareAmount <= 0n)
+    throw new Error('Base share amount must be greater than zero.')
+  return readContract(client, {
+    ...rest,
+    ...getCampaignBoostQuote.call({ baseShareAmount, boostVault }),
+  })
+}
+
+export namespace getCampaignBoostQuote {
+  export type Args = {
+    /** Base Earn shares expected from the Boost asset leg. */
+    baseShareAmount: bigint
+    /** Capped Boost Earn vault. */
+    boostVault: Address
+  }
+  export type Parameters = Omit<ReadParameters, 'account'> & Args
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.earnVault,
+    'previewDepositEngineShares',
+    never
+  >
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** Defines the Boost share quote call. */
+  export function call(args: Args) {
+    const { baseShareAmount, boostVault } = args
+    return defineCall({
+      address: boostVault,
+      abi: Abis.earnVault,
+      args: [baseShareAmount],
+      functionName: 'previewDepositEngineShares',
+    })
+  }
+}
+
+/**
+ * Gets fee-aware Base and Boost redemption quotes for one campaign position.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * const quote = await Actions.earn.getCampaignRedeemQuote(client, {
+ *   baseShareAmount: 40_000_000n,
+ *   baseVault: '0x...',
+ *   boostShareAmount: 60_000_000n,
+ *   boostVault: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Campaign vaults and exact share inputs.
+ * @returns Independent Base and Boost asset outputs and their sum.
+ */
+export async function getCampaignRedeemQuote<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getCampaignRedeemQuote.Parameters,
+): Promise<getCampaignRedeemQuote.ReturnValue> {
+  const { baseShareAmount, baseVault, boostShareAmount, boostVault, ...rest } =
+    parameters
+  validateCampaignVaults({ baseVault, boostVault })
+  if (baseShareAmount < 0n || boostShareAmount < 0n)
+    throw new Error('Campaign share amounts cannot be negative.')
+  if (baseShareAmount === 0n && boostShareAmount === 0n)
+    throw new Error(
+      'At least one campaign share amount must be greater than zero.',
+    )
+  const [baseAssetAmount, boostAssetAmount] = await Promise.all([
+    baseShareAmount === 0n
+      ? 0n
+      : getRedeemQuote(client, {
+          ...rest,
+          shareAmount: baseShareAmount,
+          vault: baseVault,
+        }),
+    boostShareAmount === 0n
+      ? 0n
+      : getRedeemQuote(client, {
+          ...rest,
+          shareAmount: boostShareAmount,
+          vault: boostVault,
+        }),
+    getCampaignAsset(client, { baseVault, boostVault }),
+  ])
+  return {
+    baseAssetAmount,
+    boostAssetAmount,
+    totalAssetAmount: baseAssetAmount + boostAssetAmount,
+  }
+}
+
+export namespace getCampaignRedeemQuote {
+  export type Args = Campaign & {
+    /** Exact Base Earn share input. */
+    baseShareAmount: bigint
+    /** Exact Boost Earn share input. */
+    boostShareAmount: bigint
+  }
+  export type Parameters = Omit<ReadParameters, 'account'> & Args
+  export type ReturnValue = {
+    /** Assets quoted from the Base share leg. */
+    baseAssetAmount: bigint
+    /** Assets quoted from the Boost share leg. */
+    boostAssetAmount: bigint
+    /** Aggregate quoted asset output. */
+    totalAssetAmount: bigint
+  }
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+}
+
+/**
+ * Gets the Base Earn shares returned by an in-kind Boost migration.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * const baseShareAmount = await Actions.earn.getCampaignMigrationQuote(
+ *   client,
+ *   {
+ *     boostShareAmount: 100_000_000n,
+ *     boostVault: '0x...',
+ *   },
+ * )
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Exact Boost shares and Boost vault.
+ * @returns The fee-aware Base Earn share output.
+ */
+export async function getCampaignMigrationQuote<
+  chain extends Chain | undefined,
+>(
+  client: Client<Transport, chain>,
+  parameters: getCampaignMigrationQuote.Parameters,
+): Promise<getCampaignMigrationQuote.ReturnValue> {
+  const { boostShareAmount, boostVault, ...rest } = parameters
+  if (boostShareAmount <= 0n)
+    throw new Error('Boost share amount must be greater than zero.')
+  return readContract(client, {
+    ...rest,
+    ...getCampaignMigrationQuote.call({ boostShareAmount, boostVault }),
+  })
+}
+
+export namespace getCampaignMigrationQuote {
+  export type Args = {
+    /** Exact Boost Earn share input. */
+    boostShareAmount: bigint
+    /** Capped Boost Earn vault. */
+    boostVault: Address
+  }
+  export type Parameters = Omit<ReadParameters, 'account'> & Args
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.earnVault,
+    'previewRedeemVenueShares',
+    never
+  >
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** Defines the in-kind Boost migration quote call. */
+  export function call(args: Args) {
+    const { boostShareAmount, boostVault } = args
+    return defineCall({
+      address: boostVault,
+      abi: Abis.earnVault,
+      args: [boostShareAmount],
+      functionName: 'previewRedeemVenueShares',
+    })
+  }
 }
 
 /**
@@ -2211,15 +2819,23 @@ export namespace redeem {
    * @param parameters - Parameters.
    * @returns The `Redeemed` event.
    */
-  export function extractEvent(logs: Log[], parameters: { vault: Address }) {
-    const { vault } = parameters
+  export function extractEvent(
+    logs: Log[],
+    parameters: {
+      /** Selects the first or last matching event. @default `'first'` */
+      occurrence?: 'first' | 'last' | undefined
+      vault: Address
+    },
+  ) {
+    const { occurrence = 'first', vault } = parameters
     // Earn contracts are user-deployed: several adapters can emit the same
     // signature in one receipt, so filter by emitting address before decode.
-    const [log] = parseEventLogs({
+    const parsed = parseEventLogs({
       abi: Abis.earnVault,
       eventName: 'Redeemed',
       logs: logs.filter((log) => isAddressEqual(log.address, vault)),
     })
+    const log = occurrence === 'last' ? parsed.at(-1) : parsed[0]
     if (!log) throw new Error('`Redeemed` event not found.')
     return log
   }
@@ -2337,6 +2953,461 @@ export namespace redeemSync {
 }
 
 /**
+ * Redeems Base and Boost Earn shares in one atomic Tempo transaction.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * const hash = await Actions.earn.redeemCampaign(client, {
+ *   baseAssetAmount: 40_000_000n,
+ *   baseShareAmount: 40_000_000n,
+ *   baseVault: '0x...',
+ *   boostAssetAmount: 60_000_000n,
+ *   boostShareAmount: 60_000_000n,
+ *   boostVault: '0x...',
+ *   slippageBps: 50,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Campaign shares, recipient, and per-leg output bounds.
+ * @returns The transaction hash.
+ */
+export async function redeemCampaign<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: redeemCampaign.Parameters<chain, account>,
+): Promise<redeemCampaign.ReturnValue> {
+  return redeemCampaign.inner(sendTransaction, client, parameters)
+}
+
+export namespace redeemCampaign {
+  export type Args = Campaign & {
+    /** Exact Base Earn shares to redeem. */
+    baseShareAmount: bigint
+    /** Exact Boost Earn shares to redeem. */
+    boostShareAmount: bigint
+    /** Asset recipient. @default `account.address` */
+    recipient?: Address | undefined
+  } & OneOf<
+      | {
+          /** Minimum Base asset output; zero only for an empty Base leg. */
+          baseAssetAmountMin: bigint
+          /** Minimum Boost asset output; zero only for an empty Boost leg. */
+          boostAssetAmountMin: bigint
+        }
+      | {
+          /** Quoted Base asset output; zero only for an empty Base leg. */
+          baseAssetAmount: bigint
+          /** Quoted Boost asset output; zero only for an empty Boost leg. */
+          boostAssetAmount: bigint
+          /** Slippage tolerance applied independently to both nonempty legs. */
+          slippageBps: number
+        }
+    >
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+  export type ReturnValue = SendTransactionReturnType
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** @internal Shared dispatch for Base and Boost redemption calls. */
+  export async function inner<
+    action extends typeof sendTransaction | typeof sendTransactionSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const [baseShareToken, boostShareToken] = await Promise.all([
+      readContract(client, {
+        abi: Abis.earnVault,
+        address: parameters.baseVault,
+        functionName: 'earnShare',
+      }),
+      readContract(client, {
+        abi: Abis.earnVault,
+        address: parameters.boostVault,
+        functionName: 'earnShare',
+      }),
+      getCampaignAsset(client, parameters),
+    ])
+    return (await action(client, {
+      ...parameters,
+      calls: calls({
+        ...parameters,
+        baseShareToken,
+        boostShareToken,
+        recipient: resolveRecipient(client, parameters),
+      }),
+    } as never)) as never
+  }
+
+  /** Defines the approvals and bounded Base and Boost redemption calls. */
+  export function calls(
+    args: Args & {
+      /** Base Earn share token. */
+      baseShareToken: Address
+      /** Boost Earn share token. */
+      boostShareToken: Address
+      /** Asset recipient. */
+      recipient: Address
+    },
+  ) {
+    const {
+      baseShareAmount,
+      baseShareToken,
+      baseVault,
+      boostShareAmount,
+      boostShareToken,
+      boostVault,
+      recipient,
+    } = args
+    validateCampaignVaults({ baseVault, boostVault })
+    const { baseAssetAmountMin, boostAssetAmountMin } =
+      campaignRedeemMinimums(args)
+    validateCampaignLeg(baseShareAmount, baseAssetAmountMin, 'Base')
+    validateCampaignLeg(boostShareAmount, boostAssetAmountMin, 'Boost')
+    if (baseShareAmount === 0n && boostShareAmount === 0n)
+      throw new Error(
+        'At least one campaign share amount must be greater than zero.',
+      )
+    return [
+      ...(boostShareAmount === 0n
+        ? []
+        : redeem.calls({
+            assetAmountMin: boostAssetAmountMin,
+            recipient,
+            shareAmount: boostShareAmount,
+            shareToken: boostShareToken,
+            vault: boostVault,
+          })),
+      ...(baseShareAmount === 0n
+        ? []
+        : redeem.calls({
+            assetAmountMin: baseAssetAmountMin,
+            recipient,
+            shareAmount: baseShareAmount,
+            shareToken: baseShareToken,
+            vault: baseVault,
+          })),
+    ]
+  }
+}
+
+/**
+ * Redeems a campaign position and returns the confirmed receipt and per-tier
+ * event data.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * const result = await Actions.earn.redeemCampaignSync(client, {
+ *   baseAssetAmountMin: 39_500_000n,
+ *   baseShareAmount: 40_000_000n,
+ *   baseVault: '0x...',
+ *   boostAssetAmountMin: 59_000_000n,
+ *   boostShareAmount: 60_000_000n,
+ *   boostVault: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Campaign redemption parameters.
+ * @returns The confirmed receipt and each nonempty redemption leg.
+ */
+export async function redeemCampaignSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: redeemCampaignSync.Parameters<chain, account>,
+): Promise<redeemCampaignSync.ReturnValue> {
+  const {
+    baseShareAmount,
+    baseVault,
+    boostShareAmount,
+    boostVault,
+    throwOnReceiptRevert = true,
+  } = parameters
+  const receipt = await redeemCampaign.inner(sendTransactionSync, client, {
+    ...parameters,
+    throwOnReceiptRevert,
+  } as never)
+  const toLeg = (vault: Address, occurrence: 'first' | 'last' = 'first') => {
+    const { args } = redeem.extractEvent(receipt.logs, { occurrence, vault })
+    return {
+      assetAmount: args.assets,
+      shareAmount: args.earnShares,
+    }
+  }
+  return {
+    // The Boost leg recursively emits from Base first. The user's direct Base
+    // redemption is the final Base-vault match.
+    base: baseShareAmount === 0n ? undefined : toLeg(baseVault, 'last'),
+    boost: boostShareAmount === 0n ? undefined : toLeg(boostVault),
+    receipt,
+  }
+}
+
+export namespace redeemCampaignSync {
+  export type Args = redeemCampaign.Args
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = redeemCampaign.Parameters<chain, account> &
+    WriteSyncParameters<chain, account>
+  export type ReturnValue = {
+    /** Confirmed Base redemption, when the Base leg was nonempty. */
+    base?: { assetAmount: bigint; shareAmount: bigint } | undefined
+    /** Confirmed Boost redemption, when the Boost leg was nonempty. */
+    boost?: { assetAmount: bigint; shareAmount: bigint } | undefined
+    /** Confirmed atomic transaction receipt. */
+    receipt: TransactionReceipt
+  }
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+}
+
+/**
+ * Converts Boost Earn shares directly into their backing Base Earn shares
+ * without redeeming the underlying asset.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * const hash = await Actions.earn.migrateCampaign(client, {
+ *   baseShareAmount: 99_500_000n,
+ *   boostShareAmount: 100_000_000n,
+ *   boostVault: '0x...',
+ *   slippageBps: 50,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Boost shares, recipient, and Base share output bound.
+ * @returns The transaction hash.
+ */
+export async function migrateCampaign<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: migrateCampaign.Parameters<chain, account>,
+): Promise<migrateCampaign.ReturnValue> {
+  return migrateCampaign.inner(sendTransaction, client, parameters)
+}
+
+export namespace migrateCampaign {
+  export type Args = {
+    /** Exact Boost Earn shares to convert. */
+    boostShareAmount: bigint
+    /** Capped Boost Earn vault. */
+    boostVault: Address
+    /** Base Earn share recipient. @default `account.address` */
+    recipient?: Address | undefined
+  } & OneOf<
+    | {
+        /** Minimum Base Earn share output. */
+        baseShareAmountMin: bigint
+      }
+    | {
+        /** Quoted Base Earn share output. */
+        baseShareAmount: bigint
+        /** Slippage tolerance under `baseShareAmount`. */
+        slippageBps: number
+      }
+  >
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+  export type ReturnValue = SendTransactionReturnType
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** @internal Shared dispatch for the holder-authorized migration. */
+  export async function inner<
+    action extends typeof sendTransaction | typeof sendTransactionSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const boostShareToken = await readContract(client, {
+      abi: Abis.earnVault,
+      address: parameters.boostVault,
+      functionName: 'earnShare',
+    })
+    return (await action(client, {
+      ...parameters,
+      calls: calls({
+        ...parameters,
+        boostShareToken,
+        recipient: resolveRecipient(client, parameters),
+      }),
+    } as never)) as never
+  }
+
+  /** Defines the Boost share approval and in-kind migration calls. */
+  export function calls(
+    args: Args & {
+      /** Boost Earn share token approved to the Boost vault. */
+      boostShareToken: Address
+      /** Base Earn share recipient. */
+      recipient: Address
+    },
+  ) {
+    const { boostShareAmount, boostShareToken, boostVault, recipient } = args
+    if (boostShareAmount <= 0n)
+      throw new Error('Boost share amount must be greater than zero.')
+    const baseShareAmountMin =
+      args.baseShareAmountMin ??
+      EarnShares.minimumOutput(args.baseShareAmount, args.slippageBps)
+    if (baseShareAmountMin <= 0n)
+      throw new Error('Minimum Base share output must be greater than zero.')
+    return [
+      defineCall({
+        address: boostShareToken,
+        abi: Abis.tip20,
+        args: [boostVault, boostShareAmount],
+        functionName: 'approve',
+      }),
+      defineCall({
+        address: boostVault,
+        abi: Abis.earnVault,
+        args: [boostShareAmount, recipient, baseShareAmountMin],
+        functionName: 'redeemVenueShares',
+      }),
+    ]
+  }
+
+  /** Extracts the in-kind migration event from the Boost vault logs. */
+  export function extractEvent(
+    logs: Log[],
+    parameters: { boostVault: Address },
+  ) {
+    const [log] = parseEventLogs({
+      abi: Abis.earnVault,
+      eventName: 'VenueSharesRedeemed',
+      logs: logs.filter((log) =>
+        isAddressEqual(log.address, parameters.boostVault),
+      ),
+    })
+    if (!log) throw new Error('`VenueSharesRedeemed` event not found.')
+    return log
+  }
+}
+
+/**
+ * Converts Boost shares into Base shares and returns the confirmed receipt
+ * and migration event data.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * const result = await Actions.earn.migrateCampaignSync(client, {
+ *   baseShareAmountMin: 99_000_000n,
+ *   boostShareAmount: 100_000_000n,
+ *   boostVault: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Campaign migration parameters.
+ * @returns The confirmed receipt and Base share output.
+ */
+export async function migrateCampaignSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: migrateCampaignSync.Parameters<chain, account>,
+): Promise<migrateCampaignSync.ReturnValue> {
+  const { boostVault, throwOnReceiptRevert = true } = parameters
+  const receipt = await migrateCampaign.inner(sendTransactionSync, client, {
+    ...parameters,
+    throwOnReceiptRevert,
+  } as never)
+  const { args } = migrateCampaign.extractEvent(receipt.logs, { boostVault })
+  return {
+    baseShareAmount: args.venueShares,
+    boostShareAmount: args.earnShares,
+    receipt,
+    recipient: args.receiver,
+  }
+}
+
+export namespace migrateCampaignSync {
+  export type Args = migrateCampaign.Args
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = migrateCampaign.Parameters<chain, account> &
+    WriteSyncParameters<chain, account>
+  export type ReturnValue = {
+    /** Base Earn shares delivered. */
+    baseShareAmount: bigint
+    /** Boost Earn shares burned. */
+    boostShareAmount: bigint
+    /** Confirmed migration receipt. */
+    receipt: TransactionReceipt
+    /** Base Earn share recipient. */
+    recipient: Address
+  }
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+}
+
+/**
  * Withdraws Earn shares from a Zone and redeems them on the parent chain. Use
  * {@link privateRedeem.prepare} to build the encrypted callback.
  *
@@ -2419,9 +3490,11 @@ export namespace privateRedeem {
         zonePortal: portalAddress,
       }),
     ])
-    const assetToken = parameters.assetToken ?? config.vaultAsset
+    const assetToken = parameters.assetToken ?? config.privateAsset
     if (isAddressEqual(assetToken, config.shareToken))
       throw new Error('`assetToken` cannot be the Earn share token.')
+    if (!isAddressEqual(assetToken, config.privateAsset))
+      throw new Error('`assetToken` must match the gateway private asset.')
 
     const [{ encrypted, keyIndex }, assetAmountMin] = await Promise.all([
       zoneActions.encryptedDeposit.prepareRecipient(client, {
@@ -2447,16 +3520,13 @@ export namespace privateRedeem {
         return EarnShares.minimumOutput(assetAmount, parameters.slippageBps)
       })(),
     ])
-    const direct = isAddressEqual(assetToken, config.vaultAsset)
     const data = encodeAbiParameters(Abis.earnRouterCallbackData, [
       {
         actionId,
-        earnVault: config.vault,
         flow: 1,
         minEarnShares: 0n,
-        minOutputAmount: direct ? 0n : assetAmountMin,
-        minVaultAssets: direct ? assetAmountMin : 1n,
-        outputToken: assetToken,
+        minOutputAmount: assetAmountMin,
+        minVaultAssets: 1n,
         zoneReturn: { encrypted, keyIndex, refundRecipient: recoveryRecipient },
       },
     ])
@@ -3132,7 +4202,16 @@ async function getZoneGatewayConfig<chain extends Chain | undefined>(
   },
 ) {
   const { flow, gateway, vault, zoneId, zonePortal, ...rest } = parameters
-  const [vaultAsset, shareToken, supportsFlow] = await multicall(client, {
+  const [
+    vaultAsset,
+    shareToken,
+    gatewayVault,
+    gatewayPrivateAsset,
+    gatewayVaultAsset,
+    gatewayShareToken,
+    gatewayZoneId,
+    supportsFlow,
+  ] = await multicall(client, {
     ...rest,
     allowFailure: false,
     contracts: [
@@ -3149,6 +4228,31 @@ async function getZoneGatewayConfig<chain extends Chain | undefined>(
       {
         abi: Abis.earnRouter,
         address: gateway,
+        functionName: 'earnVault',
+      },
+      {
+        abi: Abis.earnRouter,
+        address: gateway,
+        functionName: 'privateAsset',
+      },
+      {
+        abi: Abis.earnRouter,
+        address: gateway,
+        functionName: 'vaultAsset',
+      },
+      {
+        abi: Abis.earnRouter,
+        address: gateway,
+        functionName: 'earnShare',
+      },
+      {
+        abi: Abis.earnRouter,
+        address: gateway,
+        functionName: 'allowedZoneId',
+      },
+      {
+        abi: Abis.earnRouter,
+        address: gateway,
         args: [flow],
         functionName: 'supportsFlow',
       },
@@ -3156,7 +4260,15 @@ async function getZoneGatewayConfig<chain extends Chain | undefined>(
     deployless: true,
   })
   if (!supportsFlow) throw new Error('Zone gateway flow is not supported.')
+  if (
+    !isAddressEqual(gatewayVault, vault) ||
+    !isAddressEqual(gatewayVaultAsset, vaultAsset) ||
+    !isAddressEqual(gatewayShareToken, shareToken) ||
+    gatewayZoneId !== zoneId
+  )
+    throw new Error('Zone gateway immutable configuration does not match.')
   return {
+    privateAsset: gatewayPrivateAsset,
     shareToken,
     vault,
     vaultAsset,
@@ -3316,6 +4428,101 @@ async function toWithdrawExactArgs(
     ...args,
     shareAmount,
     slippageBps: parameters.slippageBps,
+  }
+}
+
+/** Validates that a prepared allocation is internally consistent. @internal */
+function validateCampaignAllocation(allocation: CampaignAllocation) {
+  if (allocation.assetAmount <= 0n)
+    throw new Error('Campaign asset amount must be greater than zero.')
+  if (
+    allocation.baseAssetAmount < 0n ||
+    allocation.boostAssetAmount < 0n ||
+    allocation.baseAssetAmount + allocation.boostAssetAmount !==
+      allocation.assetAmount
+  )
+    throw new Error('Campaign allocation does not sum to the requested assets.')
+}
+
+/** Rejects an ambiguous campaign whose tiers resolve to one vault. @internal */
+function validateCampaignVaults(campaign: Campaign) {
+  if (isAddressEqual(campaign.baseVault, campaign.boostVault))
+    throw new Error('Base and Boost campaign vaults must be different.')
+}
+
+/** Verifies that the Boost vault's nested engine wraps the supplied Base vault. @internal */
+async function validateCampaignBinding(
+  client: Client<Transport, Chain | undefined, Account | undefined>,
+  campaign: Campaign,
+) {
+  validateCampaignVaults(campaign)
+  const engine = await readContract(client, {
+    abi: Abis.earnVault,
+    address: campaign.boostVault,
+    functionName: 'engine',
+  })
+  const wrappedBaseVault = await readContract(client, {
+    abi: Abis.earnVaultEngine,
+    address: engine,
+    functionName: 'baseVault',
+  })
+  if (!isAddressEqual(campaign.baseVault, wrappedBaseVault))
+    throw new Error('Boost vault does not wrap the supplied Base vault.')
+}
+
+/** Resolves and validates the common asset for one nested campaign. @internal */
+async function getCampaignAsset(
+  client: Client<Transport, Chain | undefined, Account | undefined>,
+  campaign: Campaign,
+) {
+  const [baseAsset, boostAsset] = await Promise.all([
+    readContract(client, {
+      abi: Abis.earnVault,
+      address: campaign.baseVault,
+      functionName: 'asset',
+    }),
+    readContract(client, {
+      abi: Abis.earnVault,
+      address: campaign.boostVault,
+      functionName: 'asset',
+    }),
+    validateCampaignBinding(client, campaign),
+  ])
+  if (!isAddressEqual(baseAsset, boostAsset))
+    throw new Error('Base and Boost vault assets do not match.')
+  return baseAsset
+}
+
+/** Requires a positive bound exactly when a campaign leg is nonempty. @internal */
+function validateCampaignLeg(
+  inputAmount: bigint,
+  outputMinimum: bigint,
+  label: string,
+) {
+  if (inputAmount < 0n || outputMinimum < 0n)
+    throw new Error(`${label} campaign amounts cannot be negative.`)
+  if ((inputAmount === 0n) !== (outputMinimum === 0n))
+    throw new Error(
+      `${label} output minimum must be zero exactly when its input is zero.`,
+    )
+}
+
+/** Resolves independent Base and Boost redemption floors. @internal */
+function campaignRedeemMinimums(args: redeemCampaign.Args) {
+  if (args.baseAssetAmountMin !== undefined)
+    return {
+      baseAssetAmountMin: args.baseAssetAmountMin,
+      boostAssetAmountMin: args.boostAssetAmountMin,
+    }
+  return {
+    baseAssetAmountMin:
+      args.baseAssetAmount === 0n
+        ? 0n
+        : EarnShares.minimumOutput(args.baseAssetAmount, args.slippageBps),
+    boostAssetAmountMin:
+      args.boostAssetAmount === 0n
+        ? 0n
+        : EarnShares.minimumOutput(args.boostAssetAmount, args.slippageBps),
   }
 }
 

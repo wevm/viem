@@ -1,0 +1,43 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `earn.redeemCampaign`
+
+Redeems Base and Boost campaign shares atomically.
+
+## Usage
+
+```ts twoslash
+import { client } from './viem.config'
+
+const result = await client.earn.redeemCampaignSync({
+  baseAssetAmount: 40_000_000n,
+  baseShareAmount: 40_000_000n,
+  baseVault: '0x0000000000000000000000000000000000000001',
+  boostAssetAmount: 60_000_000n,
+  boostShareAmount: 60_000_000n,
+  boostVault: '0x0000000000000000000000000000000000000002',
+  slippageBps: 50,
+})
+```
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  base?: { assetAmount: bigint; shareAmount: bigint }
+  boost?: { assetAmount: bigint; shareAmount: bigint }
+  receipt: TransactionReceipt
+}
+```
+
+The asynchronous `earn.redeemCampaign` variant returns the transaction hash.
+
+## Parameters
+
+Pass `baseShareAmount`, `boostShareAmount`, `baseVault`, and `boostVault`. Bound each nonempty leg
+with either `baseAssetAmountMin` and `boostAssetAmountMin`, or with quoted `baseAssetAmount`,
+`boostAssetAmount`, and `slippageBps`.
+
+An empty share leg must have a zero output bound.
+
+<WriteParameters />

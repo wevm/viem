@@ -75,11 +75,11 @@ type ReturnValue = {
 type FeeConfig = {
   excess: {
     account: Address
-    annualTargetRate: bigint
+    annualTargetRateBps: number
     enabled: boolean
-    excessFeeRate: bigint
+    excessFeeRateBps: number
   }
-  fixedFees: readonly { account: Address; rate: bigint }[]
+  fixedFees: readonly { account: Address; rateBps: number }[]
 }
 
 type FeePreview = {

@@ -30,7 +30,13 @@
 | **Earn Actions** | |
 | [`earn.configureExitSafePolicy`](/tempo/actions/earn.configureExitSafePolicy) | Configures an admission-only policy for an Earn share token |
 | [`earn.deposit`](/tempo/actions/earn.deposit) | Deposits assets into an Earn vault |
+| [`earn.depositCampaign`](/tempo/actions/earn.depositCampaign) | Deposits across capped Base and Boost campaign tiers |
 | [`earn.depositShares`](/tempo/actions/earn.depositShares) | Deposits existing venue shares into an Earn vault |
+| [`earn.getCampaignAllocation`](/tempo/actions/earn.getCampaignAllocation) | Gets the live Base and Boost campaign deposit split |
+| [`earn.getCampaignBoostQuote`](/tempo/actions/earn.getCampaignBoostQuote) | Converts a Base share quote into a Boost share quote |
+| [`earn.getCampaignMigrationQuote`](/tempo/actions/earn.getCampaignMigrationQuote) | Gets the Base shares returned by Boost migration |
+| [`earn.getCampaignPosition`](/tempo/actions/earn.getCampaignPosition) | Gets one unified Base and Boost campaign position |
+| [`earn.getCampaignRedeemQuote`](/tempo/actions/earn.getCampaignRedeemQuote) | Gets per-tier and aggregate campaign exit quotes |
 | [`earn.getFeeState`](/tempo/actions/earn.getFeeState) | Gets active fees, fee baselines, and pending fee amounts |
 | [`earn.getPosition`](/tempo/actions/earn.getPosition) | Gets an account's Earn balances, allowances, and current value |
 | [`earn.getRedeemQuote`](/tempo/actions/earn.getRedeemQuote) | Gets the asset output for an exact Earn share input |
@@ -38,7 +44,9 @@
 | [`earn.getWithdrawQuote`](/tempo/actions/earn.getWithdrawQuote) | Gets the shares required for an exact asset output |
 | [`earn.privateDeposit`](/tempo/actions/earn.privateDeposit) | Deposits Zone assets into an Earn vault and returns private shares |
 | [`earn.privateRedeem`](/tempo/actions/earn.privateRedeem) | Redeems private Earn shares and returns assets to a Zone |
+| [`earn.migrateCampaign`](/tempo/actions/earn.migrateCampaign) | Converts Boost shares directly into Base shares |
 | [`earn.redeem`](/tempo/actions/earn.redeem) | Redeems an exact number of Earn shares |
+| [`earn.redeemCampaign`](/tempo/actions/earn.redeemCampaign) | Redeems Base and Boost campaign shares atomically |
 | [`earn.validateExitSafePolicy`](/tempo/actions/earn.validateExitSafePolicy) | Validates an Earn share token's exit-safe policy |
 | [`earn.waitForPrivateDeposit`](/tempo/actions/earn.waitForPrivateDeposit) | Waits for a private Earn deposit to complete on Tempo |
 | [`earn.waitForPrivateRedeem`](/tempo/actions/earn.waitForPrivateRedeem) | Waits for a private Earn redemption to complete on Tempo |

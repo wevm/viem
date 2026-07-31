@@ -31,7 +31,7 @@ import {
   http,
   setupToken,
 } from '~test/tempo/config.js'
-import { deployEarnStack } from '~test/tempo/earn.js'
+import { deployEarnCampaign, deployEarnStack } from '~test/tempo/earn.js'
 import * as EarnContracts from '~test/tempo/earnContracts.js'
 
 const account = accounts[0]
@@ -456,6 +456,218 @@ describe('depositSync', { timeout: 30_000 }, () => {
   })
 })
 
+describe('campaign call builders', () => {
+  const assetToken = `0x${'11'.repeat(20)}` as const
+  const baseShareToken = `0x${'22'.repeat(20)}` as const
+  const baseVault = `0x${'33'.repeat(20)}` as const
+  const boostShareToken = `0x${'44'.repeat(20)}` as const
+  const boostVault = `0x${'55'.repeat(20)}` as const
+  const recipient = `0x${'66'.repeat(20)}` as const
+
+  test('builds one atomic Boost-first deposit batch', () => {
+    const calls = Actions.earn.depositCampaign.calls({
+      allocation: {
+        assetAmount: 100n,
+        baseAssetAmount: 40n,
+        boostAssetAmount: 60n,
+      },
+      assetToken,
+      baseShareAmountMin: 39n,
+      baseVault,
+      boostShareAmountMin: 59n,
+      boostVault,
+      recipient,
+    })
+
+    expect(calls).toHaveLength(4)
+    expect(calls.map((call) => call.functionName)).toEqual([
+      'approve',
+      'deposit',
+      'approve',
+      'deposit',
+    ])
+    expect(calls[0].args).toEqual([boostVault, 60n])
+    expect(calls[1].args).toEqual([60n, recipient, 59n])
+    expect(calls[2].args).toEqual([baseVault, 40n])
+    expect(calls[3].args).toEqual([40n, recipient, 39n])
+  })
+
+  test('omits empty campaign legs and rejects mismatched bounds', () => {
+    expect(
+      Actions.earn.depositCampaign.calls({
+        allocation: {
+          assetAmount: 100n,
+          baseAssetAmount: 100n,
+          boostAssetAmount: 0n,
+        },
+        assetToken,
+        baseShareAmountMin: 99n,
+        baseVault,
+        boostShareAmountMin: 0n,
+        boostVault,
+        recipient,
+      }),
+    ).toHaveLength(2)
+    expect(() =>
+      Actions.earn.depositCampaign.calls({
+        allocation: {
+          assetAmount: 100n,
+          baseAssetAmount: 100n,
+          boostAssetAmount: 0n,
+        },
+        assetToken,
+        baseShareAmountMin: 99n,
+        baseVault,
+        boostShareAmountMin: 1n,
+        boostVault,
+        recipient,
+      }),
+    ).toThrow('Boost output minimum')
+  })
+
+  test('builds bounded combined redemption and in-kind migration calls', () => {
+    const redemption = Actions.earn.redeemCampaign.calls({
+      baseAssetAmount: 40n,
+      baseShareAmount: 42n,
+      baseShareToken,
+      baseVault,
+      boostAssetAmount: 60n,
+      boostShareAmount: 63n,
+      boostShareToken,
+      boostVault,
+      recipient,
+      slippageBps: 100,
+    })
+    expect(redemption).toHaveLength(4)
+    expect(redemption[1].args).toEqual([63n, recipient, 59n])
+    expect(redemption[3].args).toEqual([42n, recipient, 39n])
+
+    const migration = Actions.earn.migrateCampaign.calls({
+      baseShareAmountMin: 61n,
+      boostShareAmount: 63n,
+      boostShareToken,
+      boostVault,
+      recipient,
+    })
+    expect(migration).toHaveLength(2)
+    expect(migration[0].args).toEqual([boostVault, 63n])
+    expect(migration[1].args).toEqual([63n, recipient, 61n])
+  })
+})
+
+describe('campaign actions', { timeout: 30_000 }, () => {
+  test('deposits, values, redeems, and migrates one nested campaign', async () => {
+    const base = await setupStack()
+    const campaign = await deployEarnCampaign(client, {
+      base,
+      globalAssetCap: parseUnits('60', 6),
+    })
+    const vaults = {
+      baseVault: campaign.baseVault,
+      boostVault: campaign.boostVault,
+    }
+    const allocation = await Actions.earn.getCampaignAllocation(client, {
+      assetAmount: parseUnits('100', 6),
+      boostVault: campaign.boostVault,
+      recipient: account.address,
+    })
+
+    expect(allocation).toEqual({
+      assetAmount: parseUnits('100', 6),
+      baseAssetAmount: parseUnits('40', 6),
+      boostAssetAmount: parseUnits('60', 6),
+    })
+
+    const deposited = await Actions.earn.depositCampaignSync(client, {
+      allocation,
+      baseShareAmountMin: 1n,
+      boostShareAmountMin: 1n,
+      ...vaults,
+    })
+    expect(deposited.base).toEqual({
+      assetAmount: parseUnits('40', 6),
+      shareAmount: parseUnits('40', 6),
+    })
+    expect(deposited.boost).toEqual({
+      assetAmount: parseUnits('60', 6),
+      shareAmount: parseUnits('60', 6),
+    })
+
+    const depositedPosition = await Actions.earn.getCampaignPosition(client, {
+      ...vaults,
+    })
+    expect(depositedPosition.base.shareBalance).toBe(parseUnits('40', 6))
+    expect(depositedPosition.boost.shareBalance).toBe(parseUnits('60', 6))
+    expect(depositedPosition.totalValue).toBe(parseUnits('100', 6))
+
+    const baseShareAmount = parseUnits('10', 6)
+    const boostShareAmount = parseUnits('20', 6)
+    const quote = await Actions.earn.getCampaignRedeemQuote(client, {
+      baseShareAmount,
+      boostShareAmount,
+      ...vaults,
+    })
+    const redeemed = await Actions.earn.redeemCampaignSync(client, {
+      baseAssetAmount: quote.baseAssetAmount,
+      baseShareAmount,
+      boostAssetAmount: quote.boostAssetAmount,
+      boostShareAmount,
+      slippageBps: 0,
+      ...vaults,
+    })
+    expect(redeemed.base).toEqual({
+      assetAmount: parseUnits('10', 6),
+      shareAmount: parseUnits('10', 6),
+    })
+    expect(redeemed.boost).toEqual({
+      assetAmount: parseUnits('20', 6),
+      shareAmount: parseUnits('20', 6),
+    })
+
+    const remainingBoostShares = parseUnits('40', 6)
+    const migrationQuote = await Actions.earn.getCampaignMigrationQuote(
+      client,
+      {
+        boostShareAmount: remainingBoostShares,
+        boostVault: campaign.boostVault,
+      },
+    )
+    const migrated = await Actions.earn.migrateCampaignSync(client, {
+      baseShareAmountMin: migrationQuote,
+      boostShareAmount: remainingBoostShares,
+      boostVault: campaign.boostVault,
+    })
+    expect(migrated.baseShareAmount).toBe(parseUnits('40', 6))
+    expect(migrated.boostShareAmount).toBe(remainingBoostShares)
+
+    const finalPosition = await Actions.earn.getCampaignPosition(client, {
+      ...vaults,
+    })
+    expect(finalPosition.base.shareBalance).toBe(parseUnits('70', 6))
+    expect(finalPosition.boost.shareBalance).toBe(0n)
+    expect(finalPosition.totalValue).toBe(parseUnits('70', 6))
+  })
+
+  test('rejects one vault used as both campaign tiers', () => {
+    const vault = `0x${'77'.repeat(20)}` as const
+    expect(() =>
+      Actions.earn.depositCampaign.calls({
+        allocation: {
+          assetAmount: 1n,
+          baseAssetAmount: 1n,
+          boostAssetAmount: 0n,
+        },
+        assetToken: `0x${'88'.repeat(20)}`,
+        baseShareAmountMin: 1n,
+        baseVault: vault,
+        boostShareAmountMin: 0n,
+        boostVault: vault,
+        recipient: account.address,
+      }),
+    ).toThrow('must be different')
+  })
+})
+
 describe('depositShares', { timeout: 30_000 }, () => {
   test('default', async () => {
     // In-kind entry: a venue shareholder enters Earn without exiting the venue.
@@ -479,7 +691,7 @@ describe('depositShares', { timeout: 30_000 }, () => {
     expect(eventArgs).toMatchInlineSnapshot(`
       {
         "earnShares": 500000000n,
-        "receivedVenueShares": 500000000n,
+        "receivedEngineShares": 500000000n,
         "requestedVenueShares": 500000000n,
       }
     `)

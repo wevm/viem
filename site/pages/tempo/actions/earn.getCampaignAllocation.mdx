@@ -1,0 +1,48 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `earn.getCampaignAllocation`
+
+Gets the live Base and Boost asset split for a capped campaign deposit.
+
+## Usage
+
+```ts twoslash
+import { client } from './viem.config'
+
+const allocation = await client.earn.getCampaignAllocation({
+  assetAmount: 100_000_000n,
+  boostVault: '0x0000000000000000000000000000000000000002',
+  recipient: client.account.address,
+})
+// @log: { assetAmount: 100_000_000n, baseAssetAmount: 40_000_000n, boostAssetAmount: 60_000_000n }
+```
+
+The result is not a reservation. A concurrent deposit can consume capacity before submission.
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  assetAmount: bigint
+  baseAssetAmount: bigint
+  boostAssetAmount: bigint
+}
+```
+
+## Parameters
+
+### assetAmount
+
+- **Type:** `bigint`
+
+### boostVault
+
+- **Type:** `Address`
+
+### recipient
+
+- **Type:** `Address`
+
+Public receiver whose optional receiver cap applies.
+
+<ReadParameters />
