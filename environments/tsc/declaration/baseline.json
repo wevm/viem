@@ -1,0 +1,101 @@
+{
+  "account": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "chain-custom": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "chain-tempo": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "client-base": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "client-public": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "client-resolver": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "client-wallet": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "contract": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "erc4337-bundler": {
+    "nonportable": 2,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 2,
+    "emitted": false,
+    "forbidden": []
+  },
+  "erc4337-paymaster": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  }
+}
