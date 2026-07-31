@@ -8,6 +8,7 @@
     "site": "0.0.0"
   },
   "changesets": [
+    "brave-passkeys-sign",
     "clean-dingos-breathe",
     "friendly-client-bridges",
     "quiet-donuts-attack",
