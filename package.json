@@ -9,7 +9,7 @@
     "check": "vp check --fix",
     "check:repo": "sherif -r root-package-dependencies",
     "check:types": "tsc -b",
-    "contracts:build": "forge build --config-path ./contracts/foundry.toml && bun scripts/contracts:build.ts",
+    "contracts:build": "forge build --no-lint --config-path ./contracts/foundry.toml && bun scripts/contracts:build.ts",
     "deps": "pnpx taze -r",
     "dev": "pnpm exports:update && zile dev",
     "docs:build": "pnpm docs:sync-utils && pnpm --filter site build",

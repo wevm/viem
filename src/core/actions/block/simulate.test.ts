@@ -182,7 +182,7 @@ test('behavior: gas too low', async () => {
     Request Arguments:
 
 
-    Details: intrinsic gas too high -- CallGasCostMoreThanGasLimit
+    Details: err: intrinsic gas too high -- CallGasCostMoreThanGasLimit
     Version: viem@x.x.x]
   `)
 })
@@ -217,7 +217,7 @@ test('behavior: insufficient funds', async () => {
     Request Arguments:
 
 
-    Details: Insufficient funds for gas * price + value
+    Details: err: Insufficient funds for gas * price + value
     Version: viem@x.x.x]
   `)
 })

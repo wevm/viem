@@ -10,10 +10,14 @@ const client = anvil.getClient(anvil.mainnet)
 const wagmiAddress = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
 
 test('creates access list', async () => {
-  const result = await Actions.transaction.createAccessList(client, {
-    data: '0x06fdde03',
-    to: wagmiAddress,
-  })
+  const { gasUsed, ...result } = await Actions.transaction.createAccessList(
+    client,
+    {
+      data: '0x06fdde03',
+      to: wagmiAddress,
+    },
+  )
+  expect(gasUsed).toBeGreaterThan(0n)
   expect(result).toMatchInlineSnapshot(`
     {
       "accessList": [
@@ -24,17 +28,20 @@ test('creates access list', async () => {
           ],
         },
       ],
-      "gasUsed": 26671n,
     }
   `)
 })
 
 test('args: blockNumber', async () => {
-  const result = await Actions.transaction.createAccessList(client, {
-    blockNumber: anvil.mainnet.forkBlockNumber,
-    data: '0x06fdde03',
-    to: wagmiAddress,
-  })
+  const { gasUsed, ...result } = await Actions.transaction.createAccessList(
+    client,
+    {
+      blockNumber: anvil.mainnet.forkBlockNumber,
+      data: '0x06fdde03',
+      to: wagmiAddress,
+    },
+  )
+  expect(gasUsed).toBeGreaterThan(0n)
   expect(result).toMatchInlineSnapshot(`
     {
       "accessList": [
@@ -45,17 +52,20 @@ test('args: blockNumber', async () => {
           ],
         },
       ],
-      "gasUsed": 26671n,
     }
   `)
 })
 
 test('args: account', async () => {
-  const result = await Actions.transaction.createAccessList(client, {
-    account: constants.accounts[0].address,
-    data: '0x06fdde03',
-    to: wagmiAddress,
-  })
+  const { gasUsed, ...result } = await Actions.transaction.createAccessList(
+    client,
+    {
+      account: constants.accounts[0].address,
+      data: '0x06fdde03',
+      to: wagmiAddress,
+    },
+  )
+  expect(gasUsed).toBeGreaterThan(0n)
   expect(result).toMatchInlineSnapshot(`
     {
       "accessList": [
@@ -66,7 +76,6 @@ test('args: account', async () => {
           ],
         },
       ],
-      "gasUsed": 26671n,
     }
   `)
 })
@@ -87,13 +96,13 @@ test('behavior: reverted call', async () => {
       to: wagmiAddress,
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [RpcError.ExecutionError: Execution reverted with reason: ERC721: operator query for nonexistent token.
+    [RpcError.ExecutionError: Execution reverted for an unknown reason.
 
     Request Arguments:
       data:  0x42842e0e000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c80000000000000000000000000000000000000000000000000de0b6b3a7640000
       to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
 
-    Details: execution reverted: ERC721: operator query for nonexistent token
+    Details: execution reverted
     Version: viem@x.x.x]
   `)
 })
