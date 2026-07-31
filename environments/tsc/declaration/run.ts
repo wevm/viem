@@ -40,7 +40,7 @@ type Category = 'nonportable' | 'tooLarge' | 'other' | 'library'
 /** Diagnostic counts for one `tsc` invocation. */
 type Tally = Record<Category, number> & { total: number }
 
-/** Gate outcome for one probe, as recorded in `baseline.json`. */
+/** Gate outcome for one probe, as recorded in `results.json`. */
 type Result = Tally & {
   emitted: boolean
   forbidden: string[]
@@ -50,7 +50,24 @@ type Result = Tally & {
 const dir = import.meta.dirname
 const repo = join(dir, '..', '..', '..')
 const probesDir = join(dir, 'probes')
-const baselinePath = join(dir, 'baseline.json')
+const resultsPath = join(dir, 'results.json')
+
+/**
+ * Failures the gate currently tolerates, as diagnostic counts per probe. Shrink-only:
+ * when a fix lands and a probe improves, delete or shrink its entry. Everything absent
+ * from this map must produce zero diagnostics, emit a declaration, and contain no
+ * forbidden paths.
+ */
+const expectedFailures: Record<
+  string,
+  Partial<Omit<Result, 'emitted' | 'forbidden'>>
+> = {
+  // `ox/erc4337`'s `UserOperation` types are `OneOf<...>` instantiations, and `ox`'s
+  // internal `OneOf`/`KeyofUnion` are not addressable. Blocked on
+  // https://github.com/wevm/ox/pull/342; the fix is staged in
+  // https://github.com/wevm/viem/pull/4937.
+  'erc4337-bundler': { nonportable: 2 },
+}
 // `realpathSync` matters: on macOS `tmpdir()` is a symlink, and passing the unresolved
 // path as `cwd` makes tsc report every diagnostic through a long `../../..` prefix.
 const consumer = join(realpathSync(tmpdir()), 'viem-declaration-consumer')
@@ -157,7 +174,7 @@ function check(name: string): Result {
   const tally_ = tally(compile(join(workDir, 'tsconfig.json')))
 
   // TypeScript skips emit entirely when declaration emit fails, so the checks below
-  // only apply once a probe compiles. `emitted` keeps that distinction in the baseline
+  // only apply once a probe compiles. `emitted` keeps that distinction in the results
   // rather than recording an empty `forbidden` list for a probe that produced nothing.
   const declaration = read(join(workDir, `${name}.d.ts`))
   const result: Result = {
@@ -248,16 +265,10 @@ function write(path: string, value: unknown): void {
 function report(results: Record<string, Result>): void {
   console.log(summary(results))
 
-  if (process.env.UPDATE_BASELINE) {
-    write(baselinePath, results)
-    console.log(`\nWrote baseline for ${Object.keys(results).length} probes.`)
-    return
-  }
+  // Debugging artifact only (gitignored): the expectation is zero diagnostics
+  // everywhere, minus `expectedFailures`.
+  write(resultsPath, results)
 
-  const baseline = JSON.parse(readFileSync(baselinePath, 'utf8')) as Record<
-    string,
-    Result
-  >
   const failures: string[] = []
   const counts = [
     'nonportable',
@@ -268,50 +279,41 @@ function report(results: Record<string, Result>): void {
   ] as const
 
   for (const [name, result] of Object.entries(results)) {
-    const expected = baseline[name]
-    if (!expected) {
-      failures.push(`${name}: probe is not in the baseline`)
-      continue
-    }
+    const expected = expectedFailures[name]
     for (const key of counts) {
       const actual = result[key] ?? 0
-      const before = expected[key] ?? 0
-      if (actual > before)
-        failures.push(`${name}: ${key} regressed, ${before} -> ${actual}`)
-      if (actual < before)
-        failures.push(`${name}: ${key} improved, ${before} -> ${actual}`)
+      const allowed = expected?.[key] ?? 0
+      if (actual > allowed)
+        failures.push(`${name}: ${key} regressed, ${allowed} -> ${actual}`)
+      if (actual < allowed)
+        failures.push(
+          `${name}: ${key} improved, ${allowed} -> ${actual}. Shrink its expectedFailures entry.`,
+        )
     }
-    if (result.emitted !== expected.emitted)
+    // A probe expected to fail cannot emit, so the output checks only apply to
+    // clean probes.
+    if (expected) continue
+    if (!result.emitted)
+      failures.push(`${name}: declaration emit produced no output`)
+    if (result.forbidden.length)
       failures.push(
-        `${name}: declaration emit ${result.emitted ? 'started' : 'stopped'} producing output`,
+        `${name}: forbidden path(s) in output: ${result.forbidden.join(', ')}`,
       )
-    const added = result.forbidden.filter(
-      (pattern) => !expected.forbidden.includes(pattern),
-    )
-    const removed = expected.forbidden.filter(
-      (pattern) => !result.forbidden.includes(pattern),
-    )
-    if (added.length)
-      failures.push(
-        `${name}: new forbidden path(s) in output: ${added.join(', ')}`,
-      )
-    if (removed.length)
-      failures.push(`${name}: forbidden path(s) gone: ${removed.join(', ')}`)
   }
 
-  for (const name of Object.keys(baseline))
+  for (const name of Object.keys(expectedFailures))
     if (!results[name])
-      failures.push(`${name}: baselined probe no longer exists`)
+      failures.push(`${name}: expectedFailures entry has no probe`)
 
   if (failures.length) {
     console.error(`\n${failures.length} portability check failure(s):`)
     for (const failure of failures) console.error(`  ${failure}`)
     console.error(
-      '\nIf these are improvements, re-run with UPDATE_BASELINE=1 to lock them in.',
+      '\nFull results: environments/tsc/declaration/results.json (gitignored).',
     )
     process.exit(1)
   }
-  console.log('\nDeclaration portability matches the baseline.')
+  console.log('\nDeclaration portability matches expectations.')
 }
 
 function summary(results: Record<string, Result>): string {
