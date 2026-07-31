@@ -7,6 +7,10 @@ import type * as Transport from '../core/Transport.js'
 import type { estimateFeesPerGas } from '../core/actions/fee/estimateFeesPerGas.js'
 import type { Prettify } from '../core/internal/types.js'
 import { type Decorator, accountAbstractionActions } from './Decorator.js'
+// Keeps `./internal/oxTypes.js` in the emitted declaration graph so its re-exports are
+// visible to a consumer's declaration emit; see that module for why it exists.
+// (`export type {}`, not `import type {}`: imports are elided from `.d.ts` emit.)
+export type {} from './internal/oxTypes.js'
 import type * as EntryPoint from './EntryPoint.js'
 import type * as PaymasterClient from './PaymasterClient.js'
 import type * as SmartAccount from './SmartAccount.js'

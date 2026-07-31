@@ -80,13 +80,14 @@
     "downstream": 0
   },
   "erc4337-bundler": {
-    "nonportable": 2,
+    "nonportable": 0,
     "tooLarge": 0,
     "other": 0,
     "library": 0,
-    "total": 2,
-    "emitted": false,
-    "forbidden": []
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
   },
   "erc4337-paymaster": {
     "nonportable": 0,
