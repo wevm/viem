@@ -32,10 +32,22 @@ import {
   writeFileSync,
 } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { join } from 'node:path'
 
-const dir = dirname(fileURLToPath(import.meta.url))
+/** Buckets a probe's diagnostics are classified into. */
+type Category = 'nonportable' | 'tooLarge' | 'other' | 'library'
+
+/** Diagnostic counts for one `tsc` invocation. */
+type Tally = Record<Category, number> & { total: number }
+
+/** Gate outcome for one probe, as recorded in `baseline.json`. */
+type Result = Tally & {
+  emitted: boolean
+  forbidden: string[]
+  downstream?: number
+}
+
+const dir = import.meta.dirname
 const repo = join(dir, '..', '..', '..')
 const probesDir = join(dir, 'probes')
 const baselinePath = join(dir, 'baseline.json')
@@ -59,7 +71,7 @@ const compilerOptions = {
 }
 
 /** Diagnostics we expect while the type surface is still being fixed. */
-const categories = {
+const categories: Record<string, Category> = {
   TS2742: 'nonportable', // inferred type cannot be named (TypeScript 5.x/6.x)
   TS2883: 'nonportable', // same diagnostic, renumbered on TypeScript 7
   TS7056: 'tooLarge', // inferred type too large to serialize
@@ -84,15 +96,15 @@ const diagnostic = /^(?<file>.+)\((?<line>\d+),\d+\): error (?<code>TS\d+):/
 
 setup()
 
-const results = {}
+const results: Record<string, Result> = {}
 for (const probe of readdirSync(probesDir)
-  .filter((f) => f.endsWith('.ts'))
+  .filter((file) => file.endsWith('.ts'))
   .sort())
   results[probe.replace(/\.ts$/, '')] = check(probe.replace(/\.ts$/, ''))
 
 report(results)
 
-function setup() {
+function setup(): void {
   // Packing and installing costs ~15s. REUSE_CONSUMER skips it while iterating on
   // probes; never set it in CI, where the tarball is the thing under test.
   if (
@@ -130,7 +142,7 @@ function setup() {
   cpSync(probesDir, join(consumer, 'probes'), { recursive: true })
 }
 
-function check(name) {
+function check(name: string): Result {
   const workDir = join(consumer, 'out', name)
   mkdirSync(workDir, { recursive: true })
   write(join(workDir, 'tsconfig.json'), {
@@ -142,16 +154,19 @@ function check(name) {
     },
   })
 
-  const result = tally(compile(join(workDir, 'tsconfig.json')))
+  const tally_ = tally(compile(join(workDir, 'tsconfig.json')))
 
   // TypeScript skips emit entirely when declaration emit fails, so the checks below
   // only apply once a probe compiles. `emitted` keeps that distinction in the baseline
   // rather than recording an empty `forbidden` list for a probe that produced nothing.
   const declaration = read(join(workDir, `${name}.d.ts`))
-  result.emitted = declaration !== undefined
-  result.forbidden = declaration
-    ? forbidden.filter((pattern) => declaration.includes(pattern))
-    : []
+  const result: Result = {
+    ...tally_,
+    emitted: declaration !== undefined,
+    forbidden: declaration
+      ? forbidden.filter((pattern) => declaration.includes(pattern))
+      : [],
+  }
 
   // Second hop: a declaration can emit and still be unusable downstream. Compile it
   // from a consumer that depends on Viem but not on `ox` or `abitype`.
@@ -178,7 +193,7 @@ function check(name) {
   return result
 }
 
-function compile(project) {
+function compile(project: string): string[] {
   try {
     // `cwd` fixes the base that tsc reports diagnostic paths against.
     execFileSync(tsc, ['-p', project, '--pretty', 'false'], {
@@ -189,29 +204,36 @@ function compile(project) {
   } catch (error) {
     // A non-zero exit is the expected path while failures exist; the diagnostics we
     // want are on stdout. Anything else means tsc itself could not run.
-    if (error.stdout === undefined) throw error
-    return error.stdout.split('\n').filter(Boolean)
+    const { stdout } = error as { stdout?: string }
+    if (stdout === undefined) throw error
+    return stdout.split('\n').filter(Boolean)
   }
 }
 
-function tally(lines) {
-  const result = { nonportable: 0, tooLarge: 0, other: 0, library: 0, total: 0 }
+function tally(lines: string[]): Tally {
+  const result: Tally = {
+    nonportable: 0,
+    tooLarge: 0,
+    other: 0,
+    library: 0,
+    total: 0,
+  }
   for (const line of lines) {
-    const match = diagnostic.exec(line)
-    if (!match) continue
+    const groups = diagnostic.exec(line)?.groups
+    if (!groups) continue
     result.total += 1
     // A diagnostic raised inside a dependency's declarations is a different failure
     // from one raised on the probe's exported value; keep them apart.
-    if (!/(^|\/)probes\/[^/]+\.ts$/.test(match.groups.file)) {
+    if (!/(^|\/)probes\/[^/]+\.ts$/.test(groups.file)) {
       result.library += 1
       continue
     }
-    result[categories[match.groups.code] ?? 'other'] += 1
+    result[categories[groups.code] ?? 'other'] += 1
   }
   return result
 }
 
-function read(path) {
+function read(path: string): string | undefined {
   try {
     return readFileSync(path, 'utf8')
   } catch {
@@ -219,11 +241,11 @@ function read(path) {
   }
 }
 
-function write(path, value) {
+function write(path: string, value: unknown): void {
   writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`)
 }
 
-function report(results) {
+function report(results: Record<string, Result>): void {
   console.log(summary(results))
 
   if (process.env.UPDATE_BASELINE) {
@@ -232,9 +254,18 @@ function report(results) {
     return
   }
 
-  const baseline = JSON.parse(readFileSync(baselinePath, 'utf8'))
-  const failures = []
-  const counts = ['nonportable', 'tooLarge', 'other', 'library', 'downstream']
+  const baseline = JSON.parse(readFileSync(baselinePath, 'utf8')) as Record<
+    string,
+    Result
+  >
+  const failures: string[] = []
+  const counts = [
+    'nonportable',
+    'tooLarge',
+    'other',
+    'library',
+    'downstream',
+  ] as const
 
   for (const [name, result] of Object.entries(results)) {
     const expected = baseline[name]
@@ -255,10 +286,10 @@ function report(results) {
         `${name}: declaration emit ${result.emitted ? 'started' : 'stopped'} producing output`,
       )
     const added = result.forbidden.filter(
-      (p) => !expected.forbidden.includes(p),
+      (pattern) => !expected.forbidden.includes(pattern),
     )
     const removed = expected.forbidden.filter(
-      (p) => !result.forbidden.includes(p),
+      (pattern) => !result.forbidden.includes(pattern),
     )
     if (added.length)
       failures.push(
@@ -283,7 +314,7 @@ function report(results) {
   console.log('\nDeclaration portability matches the baseline.')
 }
 
-function summary(results) {
+function summary(results: Record<string, Result>): string {
   const version = execFileSync(tsc, ['--version'], { encoding: 'utf8' }).trim()
   const rows = Object.entries(results).map(([name, result]) => {
     const status = result.total === 0 ? 'pass' : 'fail'

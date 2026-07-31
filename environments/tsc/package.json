@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "tsc --module es2015 && tsc --module es2020 && tsc --module esnext && tsc --module node16 --moduleResolution nodenext && tsc --module nodenext --moduleResolution nodenext && pnpm test:declaration",
-    "test:declaration": "node declaration/run.js"
+    "test:declaration": "tsc -p declaration && node declaration/run.ts"
   },
   "dependencies": {
     "typescript": "latest",
