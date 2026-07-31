@@ -59,3 +59,8 @@ export * as UserOperationReceipt from './UserOperationReceipt.js'
 
 /** An owner account backed by a WebAuthn P256 credential. */
 export * as WebAuthnAccount from './WebAuthnAccount.js'
+
+// Repeated from the root entrypoint on purpose: the declaration emitter only searches
+// export tables of modules the consumer imports, and a consumer importing only
+// `viem/erc4337` never imports `viem`. See `internal/inference.ts`.
+export type * from '../internal/inference.js'

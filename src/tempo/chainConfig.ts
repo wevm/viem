@@ -1,5 +1,5 @@
 import { Hash, Hex, TransactionRequest as ox_TransactionRequest } from 'ox'
-import type { Address, TransactionEnvelope as TxEnvelope } from 'ox'
+import type { Address, TransactionEnvelope as ox_TxEnvelope } from 'ox'
 import {
   MultisigConfig,
   SignatureEnvelope,
@@ -95,12 +95,10 @@ export type ChainConfig = {
   }
   codecs: {
     transaction: {
-      fromRpc: (rpc: TransactionTempo.Rpc) => TransactionTempo.Transaction
+      fromRpc: (rpc: TransactionRpc) => Transaction
     }
     transactionReceipt: {
-      fromRpc: (
-        rpc: TransactionReceiptTempo.Rpc,
-      ) => TransactionReceiptTempo.TransactionReceipt
+      fromRpc: (rpc: TransactionReceiptRpc) => TransactionReceipt
     }
     transactionRequest: {
       fromRpc: (rpc: Record<string, unknown>) => TransactionRequest
@@ -113,16 +111,14 @@ export type ChainConfig = {
     create2: Chain.Chain.Contract
   }
   transaction: {
-    getSignPayload: (
-      envelope: Envelope | TxEnvelope.TxEnvelope,
-    ) => Hex.Hex | undefined
+    getSignPayload: (envelope: Envelope | TxEnvelope) => Hex.Hex | undefined
     prepare: [
       fn: Chain.Chain.Transaction.PrepareFn,
       options: { runAt: readonly Chain.Chain.Transaction.PreparePhase[] },
     ]
     serialize: (
-      envelope: Envelope | TxEnvelope.TxEnvelope,
-      options?: TxEnvelopeTempo.serialize.Options | undefined,
+      envelope: Envelope | TxEnvelope,
+      options?: SerializeOptions | undefined,
     ) => Hex.Hex | undefined
     toEnvelope: (
       request: ox_TransactionRequest.TransactionRequest,
@@ -185,9 +181,7 @@ export const chainConfig = {
     },
   },
   transaction: {
-    getSignPayload(
-      envelope: Envelope | TxEnvelope.TxEnvelope,
-    ): Hex.Hex | undefined {
+    getSignPayload(envelope: Envelope | TxEnvelope): Hex.Hex | undefined {
       // Non-tempo envelopes delegate to the generic default.
       if (!isTempoEnvelope(envelope)) return undefined
       return TxEnvelopeTempo.getSignPayload(envelope)
@@ -366,8 +360,8 @@ export const chainConfig = {
       { runAt: ['beforeFillTransaction', 'afterFillParameters'] },
     ],
     serialize(
-      envelope: Envelope | TxEnvelope.TxEnvelope,
-      options: TxEnvelopeTempo.serialize.Options = {},
+      envelope: Envelope | TxEnvelope,
+      options: SerializeOptions = {},
     ): Hex.Hex | undefined {
       // Non-tempo envelopes delegate to the generic default.
       if (!isTempoEnvelope(envelope)) return undefined
@@ -555,7 +549,7 @@ export const chainConfig = {
 
 /** Untyped envelopes are assumed tempo (they flow from `toEnvelope`). @internal */
 function isTempoEnvelope(
-  envelope: Envelope | TxEnvelope.TxEnvelope,
+  envelope: Envelope | TxEnvelope,
 ): envelope is Envelope {
   return !envelope.type || envelope.type === 'tempo'
 }
@@ -646,3 +640,15 @@ function inferMultisigSignatureCount(config: MultisigConfig.Config): number {
   }
   return weights.length
 }
+
+// Exported so consumer declaration emit can name them. See `internal/inference.ts`.
+export type Transaction = TransactionTempo.Transaction
+export type TransactionRpc = TransactionTempo.Rpc
+export type TransactionReceipt = TransactionReceiptTempo.TransactionReceipt
+export type TransactionReceiptRpc = TransactionReceiptTempo.Rpc
+export type TxEnvelope = ox_TxEnvelope.TxEnvelope
+export type SerializeOptions = TxEnvelopeTempo.serialize.Options
+
+// Re-exports, not aliases, and un-renamed on purpose: these leak structurally, and the
+// emitter prints a re-export's original name, so only the original names resolve.
+export type { RpcType, Type } from 'ox/tempo/TransactionReceipt'

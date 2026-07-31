@@ -213,3 +213,7 @@ export {
   rateLimit,
   webSocket,
 } from './core/Transport.js'
+
+// Compiler support so consumers can emit declarations for inferred values; every name
+// is `z_`-prefixed and `@deprecated` to stay out of the way. See that module.
+export type * from './internal/inference.js'

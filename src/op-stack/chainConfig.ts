@@ -1,4 +1,4 @@
-import type { Hex, TransactionEnvelope as ox_TransactionEnvelope } from 'ox'
+import type { Hex, TransactionEnvelope as ox_TxEnvelope } from 'ox'
 
 import * as Block from './Block.js'
 import * as Transaction from './Transaction.js'
@@ -28,10 +28,8 @@ export type ChainConfig = {
   /** OP Stack transaction hooks. */
   transaction: {
     serialize: (
-      envelope:
-        | TxEnvelopeDeposit.TxEnvelopeDeposit
-        | ox_TransactionEnvelope.TxEnvelope,
-      options?: ox_TransactionEnvelope.serialize.Options | undefined,
+      envelope: TxEnvelopeDeposit.TxEnvelopeDeposit | TxEnvelope,
+      options?: SerializeOptions | undefined,
     ) => Hex.Hex | undefined
   }
 }
@@ -52,13 +50,15 @@ export const chainConfig = {
   contracts,
   transaction: {
     serialize(
-      envelope:
-        | TxEnvelopeDeposit.TxEnvelopeDeposit
-        | ox_TransactionEnvelope.TxEnvelope,
-      _options?: ox_TransactionEnvelope.serialize.Options,
+      envelope: TxEnvelopeDeposit.TxEnvelopeDeposit | TxEnvelope,
+      _options?: SerializeOptions,
     ): Hex.Hex | undefined {
       if (!TxEnvelopeDeposit.is(envelope)) return undefined
       return TxEnvelopeDeposit.serialize(envelope)
     },
   },
 } as const satisfies ChainConfig
+
+// Exported so consumer declaration emit can name them. See `internal/inference.ts`.
+export type TxEnvelope = ox_TxEnvelope.TxEnvelope
+export type SerializeOptions = ox_TxEnvelope.serialize.Options
