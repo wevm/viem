@@ -213,3 +213,9 @@ export {
   rateLimit,
   webSocket,
 } from './core/Transport.js'
+
+/**
+ * Viem-owned names for third-party types reachable from Viem's public signatures, so a
+ * consumer can emit declarations for inferred values. See {@link ./core/External.ts}.
+ */
+export type * from './core/External.js'

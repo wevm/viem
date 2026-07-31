@@ -1,5 +1,9 @@
 import type { Hex, TransactionEnvelope as ox_TransactionEnvelope } from 'ox'
 
+// Viem-owned alias, not `ox_TransactionEnvelope.serialize.Options` directly: a nested
+// namespace member has no portable name for a consumer's declaration emit. See
+// core/External.ts.
+import type { TxEnvelopeSerializeOptions } from '../core/External.js'
 import * as Block from './Block.js'
 import * as Transaction from './Transaction.js'
 import * as TransactionReceipt from './TransactionReceipt.js'
@@ -31,7 +35,7 @@ export type ChainConfig = {
       envelope:
         | TxEnvelopeDeposit.TxEnvelopeDeposit
         | ox_TransactionEnvelope.TxEnvelope,
-      options?: ox_TransactionEnvelope.serialize.Options | undefined,
+      options?: TxEnvelopeSerializeOptions | undefined,
     ) => Hex.Hex | undefined
   }
 }
@@ -55,7 +59,7 @@ export const chainConfig = {
       envelope:
         | TxEnvelopeDeposit.TxEnvelopeDeposit
         | ox_TransactionEnvelope.TxEnvelope,
-      _options?: ox_TransactionEnvelope.serialize.Options,
+      _options?: TxEnvelopeSerializeOptions,
     ): Hex.Hex | undefined {
       if (!TxEnvelopeDeposit.is(envelope)) return undefined
       return TxEnvelopeDeposit.serialize(envelope)

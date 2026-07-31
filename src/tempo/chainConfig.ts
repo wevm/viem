@@ -10,6 +10,15 @@ import {
 } from 'ox/tempo'
 
 import type * as viem_Account from '../core/Account.js'
+// Viem-owned alias, not `TxEnvelopeTempo.serialize.Options` directly: a nested namespace
+// member has no portable name for a consumer's declaration emit. See core/External.ts.
+import type {
+  TempoTransaction,
+  TempoTransactionRpc,
+  TempoTxEnvelopeSerializeOptions,
+} from '../core/External.js'
+// Same symbols as `ox/tempo/TransactionReceipt`, addressable through `viem/_types/*`.
+import type * as oxTransactionReceipt from './internal/oxTransactionReceipt.js'
 import * as Chain from '../core/Chain.js'
 import { getCode } from '../core/actions/address/getCode.js'
 import { read } from '../core/actions/contract/read.js'
@@ -93,14 +102,17 @@ export type ChainConfig = {
     feeToken?: Address.Address | undefined
     hardfork?: Hardfork | undefined
   }
+  // Viem-owned aliases rather than the `ox` namespace members: this shape is reachable
+  // from an inferred Chain, so a consumer's declaration emit has to name every type in
+  // it. See core/External.ts.
   codecs: {
     transaction: {
-      fromRpc: (rpc: TransactionTempo.Rpc) => TransactionTempo.Transaction
+      fromRpc: (rpc: TempoTransactionRpc) => TempoTransaction
     }
     transactionReceipt: {
       fromRpc: (
-        rpc: TransactionReceiptTempo.Rpc,
-      ) => TransactionReceiptTempo.TransactionReceipt
+        rpc: oxTransactionReceipt.Rpc,
+      ) => oxTransactionReceipt.TransactionReceipt
     }
     transactionRequest: {
       fromRpc: (rpc: Record<string, unknown>) => TransactionRequest
@@ -122,7 +134,7 @@ export type ChainConfig = {
     ]
     serialize: (
       envelope: Envelope | TxEnvelope.TxEnvelope,
-      options?: TxEnvelopeTempo.serialize.Options | undefined,
+      options?: TempoTxEnvelopeSerializeOptions | undefined,
     ) => Hex.Hex | undefined
     toEnvelope: (
       request: ox_TransactionRequest.TransactionRequest,
@@ -367,7 +379,7 @@ export const chainConfig = {
     ],
     serialize(
       envelope: Envelope | TxEnvelope.TxEnvelope,
-      options: TxEnvelopeTempo.serialize.Options = {},
+      options: TempoTxEnvelopeSerializeOptions = {},
     ): Hex.Hex | undefined {
       // Non-tempo envelopes delegate to the generic default.
       if (!isTempoEnvelope(envelope)) return undefined

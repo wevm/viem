@@ -1,4 +1,7 @@
-import type { Abi, TypedData } from 'abitype'
+import type { Abi } from 'abitype'
+// `ox` re-aliases rather than re-exports `TypedData`, so `ox`'s and `abitype`'s are
+// distinct symbols. Match `typedData.sign`, which this decorator wraps.
+import type { TypedData } from 'ox'
 
 import type * as Account from '../../Account.js'
 import type * as Chain from '../../Chain.js'
@@ -957,7 +960,7 @@ export declare namespace walletActions {
        * ```
        */
       sign: <
-        const definition extends TypedData | Record<string, unknown>,
+        const definition extends TypedData.TypedData | Record<string, unknown>,
         primaryType extends keyof definition | 'EIP712Domain' =
           keyof definition,
       >(
