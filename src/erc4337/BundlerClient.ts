@@ -10,7 +10,9 @@ import { type Decorator, accountAbstractionActions } from './Decorator.js'
 // Keeps `./internal/inference.js` in the emitted declaration graph so its re-exports are
 // visible to a consumer's declaration emit; see that module for why it exists.
 // (`export type {}`, not `import type {}`: imports are elided from `.d.ts` emit.)
+// oxlint-disable-next-line typescript/no-useless-empty-export -- the reference is the point
 export type {} from './internal/inference.js'
+
 import type * as EntryPoint from './EntryPoint.js'
 import type * as PaymasterClient from './PaymasterClient.js'
 import type * as SmartAccount from './SmartAccount.js'
