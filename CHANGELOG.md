@@ -1,5 +1,22 @@
 # viem
 
+## 3.0.0-next.5
+
+### Patch Changes
+
+- [#4941](https://github.com/wevm/viem/pull/4941) [`859db08`](https://github.com/wevm/viem/commit/859db08f3dc538d4a90c1dc40aca7be9e79c0343) Thanks [@jxom](https://github.com/jxom)! - Added `Account.fromPrf` to derive local secp256k1 accounts from WebAuthn PRF output.
+
+  ```ts
+  import { Account } from "viem";
+  import { WebAuthn } from "viem/utils";
+
+  const credential = await WebAuthn.createCredential({
+    name: "Example",
+    prf: true,
+  });
+  const account = Account.fromPrf(credential.prf);
+  ```
+
 ## 3.0.0-next.4
 
 ### Patch Changes
