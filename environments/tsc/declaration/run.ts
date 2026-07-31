@@ -35,7 +35,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 /** Buckets a probe's diagnostics are classified into. */
-type Category = 'nonportable' | 'tooLarge' | 'other' | 'library'
+type Category = 'nonportable' | 'tooLarge' | 'depth' | 'other' | 'library'
 
 /** Diagnostic counts for one `tsc` invocation. */
 type Tally = Record<Category, number> & { total: number }
@@ -67,6 +67,10 @@ const expectedFailures: Record<
   // patch release: 1.3.0 published without the `_types` subpath (its `postinstall`
   // regenerates `exports` without it).
   'erc4337-bundler': { nonportable: 2 },
+  // `Contract.from` over a ~40-entry ABI exceeds the declaration serializer limit
+  // (TS7056), extended client or not; the Contract type needs nominal boundaries so
+  // emit references it instead of expanding per-function members.
+  'stress-contract-abi': { tooLarge: 1 },
 }
 // `realpathSync` matters: on macOS `tmpdir()` is a symlink, and passing the unresolved
 // path as `cwd` makes tsc report every diagnostic through a long `../../..` prefix.
@@ -92,6 +96,9 @@ const categories: Record<string, Category> = {
   TS2742: 'nonportable', // inferred type cannot be named (TypeScript 5.x/6.x)
   TS2883: 'nonportable', // same diagnostic, renumbered on TypeScript 7
   TS7056: 'tooLarge', // inferred type too large to serialize
+  TS2321: 'depth', // excessive stack depth comparing types
+  TS2589: 'depth', // type instantiation is excessively deep
+  TS2590: 'depth', // union type too complex to represent
 }
 
 /**
@@ -231,9 +238,10 @@ function compile(project: string): string[] {
     return []
   } catch (error) {
     // A non-zero exit is the expected path while failures exist; the diagnostics we
-    // want are on stdout. Anything else means tsc itself could not run.
+    // want are on stdout. Anything else — including a checker stack-overflow crash,
+    // which exits non-zero with empty stdout — means tsc itself could not run.
     const { stdout } = error as { stdout?: string }
-    if (stdout === undefined) throw error
+    if (!stdout) throw error
     return stdout.split('\n').filter(Boolean)
   }
 }
@@ -242,6 +250,7 @@ function tally(lines: string[]): Tally {
   const result: Tally = {
     nonportable: 0,
     tooLarge: 0,
+    depth: 0,
     other: 0,
     library: 0,
     total: 0,
@@ -284,6 +293,7 @@ function report(results: Record<string, Result>): void {
   const counts = [
     'nonportable',
     'tooLarge',
+    'depth',
     'other',
     'library',
     'downstream',
@@ -331,7 +341,7 @@ function summary(results: Record<string, Result>): string {
   const version = execFileSync(tsc, ['--version'], { encoding: 'utf8' }).trim()
   const rows = Object.entries(results).map(([name, result]) => {
     const status = result.total === 0 ? 'pass' : 'fail'
-    return `  ${status}  ${name.padEnd(20)} nonportable=${result.nonportable} tooLarge=${result.tooLarge} other=${result.other} library=${result.library} downstream=${result.downstream ?? 0}`
+    return `  ${status}  ${name.padEnd(20)} nonportable=${result.nonportable} tooLarge=${result.tooLarge} depth=${result.depth} other=${result.other} library=${result.library} downstream=${result.downstream ?? 0}`
   })
   const total = Object.values(results).reduce((sum, r) => sum + r.total, 0)
   return [version, ...rows, `  total diagnostics: ${total}`].join('\n')
