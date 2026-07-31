@@ -85,3 +85,8 @@ export * as WebAuthnP256 from './WebAuthnP256.js'
 
 /** WebCrypto-backed P256 key pairs. Re-exports `ox/WebCryptoP256`. */
 export * as WebCryptoP256 from './WebCryptoP256.js'
+
+// Repeated from the root entrypoint on purpose: the declaration emitter only searches
+// export tables of modules the consumer imports, and a consumer importing only
+// `viem/tempo` never imports `viem`. See `core/internal/inference.ts`.
+export type * from '../core/internal/inference.js'

@@ -19,6 +19,16 @@
     "forbidden": [],
     "downstream": 0
   },
+  "chain-op-stack": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
   "chain-tempo": {
     "nonportable": 0,
     "tooLarge": 0,
@@ -29,7 +39,77 @@
     "forbidden": [],
     "downstream": 0
   },
+  "chains-only": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
   "client-base": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "client-chainless": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "client-custom-transport": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "client-erc7821": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "client-factory-triple": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "client-op-stack": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "client-public-wallet": {
     "nonportable": 0,
     "tooLarge": 0,
     "other": 0,
@@ -59,7 +139,67 @@
     "forbidden": [],
     "downstream": 0
   },
+  "client-tempo": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "client-test": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "client-tokens": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "client-wallet-mnemonic": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
   "client-wallet": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "client-websocket": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "contract-factory": {
     "nonportable": 0,
     "tooLarge": 0,
     "other": 0,
@@ -89,6 +229,36 @@
     "forbidden": []
   },
   "erc4337-paymaster": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "op-stack-only": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "tokens-only": {
+    "nonportable": 0,
+    "tooLarge": 0,
+    "other": 0,
+    "library": 0,
+    "total": 0,
+    "emitted": true,
+    "forbidden": [],
+    "downstream": 0
+  },
+  "utils-only": {
     "nonportable": 0,
     "tooLarge": 0,
     "other": 0,
