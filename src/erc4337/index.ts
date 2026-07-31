@@ -60,9 +60,7 @@ export * as UserOperationReceipt from './UserOperationReceipt.js'
 /** An owner account backed by a WebAuthn P256 credential. */
 export * as WebAuthnAccount from './WebAuthnAccount.js'
 
-/**
- * Repeated from the root entrypoint on purpose. A consumer importing only
- * `viem/erc4337` never loads `viem`'s declarations, so the aliases there are not in its
- * program and cannot name these types. See {@link ../core/External.ts}.
- */
-export type * from '../core/External.js'
+// Repeated from the root entrypoint on purpose: the declaration emitter only searches
+// export tables of modules the consumer imports, and a consumer importing only
+// `viem/erc4337` never imports `viem`. See `core/Inference.ts`.
+export type * from '../core/Inference.js'

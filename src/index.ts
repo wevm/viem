@@ -214,8 +214,6 @@ export {
   webSocket,
 } from './core/Transport.js'
 
-/**
- * Viem-owned names for third-party types reachable from Viem's public signatures, so a
- * consumer can emit declarations for inferred values. See {@link ./core/External.ts}.
- */
-export type * from './core/External.js'
+// Compiler support so consumers can emit declarations for inferred values; every name
+// is `z_`-prefixed and `@deprecated` to stay out of the way. See that module.
+export type * from './core/Inference.js'
