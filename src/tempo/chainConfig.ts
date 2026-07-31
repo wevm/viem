@@ -641,7 +641,7 @@ function inferMultisigSignatureCount(config: MultisigConfig.Config): number {
   return weights.length
 }
 
-// Exported so consumer declaration emit can name them. See `core/internal/inference.ts`.
+// Exported so consumer declaration emit can name them. See `internal/inference.ts`.
 export type Transaction = TransactionTempo.Transaction
 export type TransactionRpc = TransactionTempo.Rpc
 export type TransactionReceipt = TransactionReceiptTempo.TransactionReceipt

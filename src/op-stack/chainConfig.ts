@@ -59,6 +59,6 @@ export const chainConfig = {
   },
 } as const satisfies ChainConfig
 
-// Exported so consumer declaration emit can name them. See `core/internal/inference.ts`.
+// Exported so consumer declaration emit can name them. See `internal/inference.ts`.
 export type TxEnvelope = ox_TxEnvelope.TxEnvelope
 export type SerializeOptions = ox_TxEnvelope.serialize.Options

@@ -62,5 +62,5 @@ export * as WebAuthnAccount from './WebAuthnAccount.js'
 
 // Repeated from the root entrypoint on purpose: the declaration emitter only searches
 // export tables of modules the consumer imports, and a consumer importing only
-// `viem/erc4337` never imports `viem`. See `core/internal/inference.ts`.
-export type * from '../core/internal/inference.js'
+// `viem/erc4337` never imports `viem`. See `internal/inference.ts`.
+export type * from '../internal/inference.js'
