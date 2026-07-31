@@ -1,11 +1,11 @@
 import type { Errors, Hex } from 'ox'
+import { WithdrawalSenderTag } from 'ox/tempo'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { sendSync } from '../../../core/actions/transaction/sendSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
-import * as WithdrawalSenderTag from '../../internal/WithdrawalSenderTag.js'
 import { getAccount, getAddress, type ReceiptReturn } from './internal.js'
 import { requestWithdrawal } from './requestWithdrawal.js'
 

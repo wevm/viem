@@ -284,7 +284,7 @@
   },
   "dependencies": {
     "abitype": "1.3.0",
-    "ox": "1.4.0"
+    "ox": "https://pkg.pr.new/ox@f126804"
   },
   "exports": {
     ".": {

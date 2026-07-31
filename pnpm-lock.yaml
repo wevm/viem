@@ -230,8 +230,8 @@ importers:
         specifier: 1.3.0
         version: 1.3.0(typescript@7.0.2)(zod@4.4.3)
       ox:
-        specifier: 1.4.0
-        version: 1.4.0(typescript@7.0.2)
+        specifier: https://pkg.pr.new/ox@f126804
+        version: https://pkg.pr.new/ox@f126804(typescript@7.0.2)
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 'catalog:'
@@ -289,7 +289,7 @@ importers:
         version: 0.18.1
       permissionless:
         specifier: 'catalog:'
-        version: 0.2.57(ox@1.4.0(typescript@7.0.2))
+        version: 0.2.57(ox@https://pkg.pr.new/ox@f126804(typescript@7.0.2))
       prool:
         specifier: 'catalog:'
         version: 0.2.13(@pimlico/alto@0.0.18(supports-color@8.1.1)(typescript@7.0.2))(debug@4.4.3(supports-color@8.1.1))(testcontainers@11.10.0(supports-color@8.1.1))
@@ -6048,6 +6048,15 @@ packages:
       typescript:
         optional: true
 
+  ox@https://pkg.pr.new/ox@f126804:
+    resolution: {integrity: sha512-efsePFT8oEryOTGVJS8WZuxeYy0BbZczB5MEO1jcrrUryHKK3RF1BR7PugsDwBPW/p5npCVbw94QYR4SMKtwjg==, tarball: https://pkg.pr.new/ox@f126804}
+    version: 1.4.0
+    peerDependencies:
+      typescript: '>=5.4.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   oxc-parser@0.133.0:
     resolution: {integrity: sha512-661RSx+ZcjBmjBYid+Fpp/2F5EbtildpeoZh5HdgnGs+jZ03nqQEQW8yGkt4BGyOC3OMPDQQRl8M5kqD2/g6jw==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -6209,6 +6218,7 @@ packages:
 
   permissionless@0.2.57:
     resolution: {integrity: sha512-QrzAoQGYPV/NJ2x5Sj18h7qed6f+kCyQAojrncN091UPiGqHjFNjgdsgreiv8pxlQgF4UcpuJUvsHLpOEBd6cQ==}
+    version: 0.2.57
     peerDependencies:
       ox: ^0.8.0
     peerDependenciesMeta:
@@ -13998,6 +14008,20 @@ snapshots:
     optionalDependencies:
       typescript: 7.0.2
 
+  ox@https://pkg.pr.new/ox@f126804(typescript@7.0.2):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.1
+      '@noble/ciphers': 2.2.0
+      '@noble/curves': 2.2.0
+      '@noble/hashes': 2.2.0
+      '@scure/bip32': 2.2.0
+      '@scure/bip39': 2.2.0
+      abitype: 1.3.0(typescript@7.0.2)(zod@4.4.3)
+      eventemitter3: 5.0.1
+      zod: 4.4.3
+    optionalDependencies:
+      typescript: 7.0.2
+
   oxc-parser@0.133.0:
     dependencies:
       '@oxc-project/types': 0.133.0
@@ -14235,11 +14259,11 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.57(ox@1.4.0(typescript@7.0.2)):
+  permissionless@0.2.57(ox@https://pkg.pr.new/ox@f126804(typescript@7.0.2)):
     dependencies:
       viem: 'link:'
     optionalDependencies:
-      ox: 1.4.0(typescript@7.0.2)
+      ox: https://pkg.pr.new/ox@f126804(typescript@7.0.2)
 
   pg-int8@1.0.1: {}
 
