@@ -139,6 +139,7 @@ describe.each([
     expect(
       await Actions.transaction.estimateGas(client, {
         account,
+        maxFeePerGas: Value.fromGwei('33'),
         maxPriorityFeePerGas: Value.fromGwei('2'),
         to: targetAccount.address,
         value: Value.fromEther('1'),

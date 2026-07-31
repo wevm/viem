@@ -312,6 +312,8 @@ describe.each(accountCases)('account: %s', (name, account) => {
       const error = await Actions.transaction
         .sendSync(client, {
           account,
+          // Reach transaction submission instead of failing during estimation.
+          gas: 21_000n,
           gasPrice: Value.fromGwei('10') + Value.fromEther('10000'),
           pollingInterval: 50,
           to,

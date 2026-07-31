@@ -13,7 +13,7 @@ runs:
     - name: Set up foundry
       uses: foundry-rs/foundry-toolchain@v1
       with:
-        version: v1.7.1
+        version: nightly
 
     - name: Set up pnpm
       uses: pnpm/action-setup@v6
