@@ -61,12 +61,7 @@ const resultsPath = join(dir, 'results.json')
 const expectedFailures: Record<
   string,
   Partial<Omit<Result, 'emitted' | 'forbidden'>>
-> = {
-  // `Contract.from` over a ~40-entry ABI exceeds the declaration serializer limit
-  // (TS7056), extended client or not; the Contract type needs nominal boundaries so
-  // emit references it instead of expanding per-function members.
-  'stress-contract-abi': { tooLarge: 1 },
-}
+> = {}
 // `realpathSync` matters: on macOS `tmpdir()` is a symlink, and passing the unresolved
 // path as `cwd` makes tsc report every diagnostic through a long `../../..` prefix.
 const consumer = join(realpathSync(tmpdir()), 'viem-declaration-consumer')

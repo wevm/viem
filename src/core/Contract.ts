@@ -170,20 +170,22 @@ export declare namespace from {
     client: client
   }
 
+  // Not wrapped in `Prettify`: flattening destroys the alias, so a consumer's
+  // declaration emit expands every method instead of printing
+  // `Contract.from.ReturnType<...>`, exceeding the serializer limit for wide
+  // ABIs (TS7056).
   type ReturnType<
     abi extends Abi | readonly unknown[] = Abi,
     address extends Address.Address = Address.Address,
     client extends Client.Client = Client.Client,
-  > = Prettify<
-    {
-      /** Contract ABI. */
-      abi: abi
-      /** Contract address. */
-      address: address
-    } & ReadGroup<abi> &
-      WriteGroups<abi, client> &
-      EventGroups<abi>
-  >
+  > = {
+    /** Contract ABI. */
+    abi: abi
+    /** Contract address. */
+    address: address
+  } & ReadGroup<abi> &
+    WriteGroups<abi, client> &
+    EventGroups<abi>
 }
 
 type FunctionNames<
