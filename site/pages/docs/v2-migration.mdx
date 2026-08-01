@@ -494,9 +494,9 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `createTestClient` | `Client.create` + `.extend(testActions({ mode }))` | [Client](#client) |
 | `createTransport` | `Transport.from` | [Transports](#transports) |
 | `createWalletClient` | `Client.create` (pass `account` directly) | [Client](#client) |
-| `createWebAuthnCredential` | `WebAuthnP256.createCredential` (from `viem/utils`) | [Smart Accounts](#smart-accounts) |
-| `CreateWebAuthnCredentialParameters` | `WebAuthnP256.createCredential.Options` | [Smart Accounts](#smart-accounts) |
-| `CreateWebAuthnCredentialReturnType` | `WebAuthnP256.P256Credential` | [Smart Accounts](#smart-accounts) |
+| `createWebAuthnCredential` | `WebAuthn.createCredential` (from `viem/utils`) | [Smart Accounts](#smart-accounts) |
+| `CreateWebAuthnCredentialParameters` | `WebAuthn.createCredential.Options` | [Smart Accounts](#smart-accounts) |
+| `CreateWebAuthnCredentialReturnType` | `WebAuthn.P256Credential` | [Smart Accounts](#smart-accounts) |
 | `custom` (chain field) | Typed top-level fields via `Chain.extendSchema` | [Chains](#chains) |
 | `CustomSource` | `Account.from.Account` | [Accounts](#accounts) |
 | `CustomTransport` | `Transport.Transport<'custom'>` | [Transports](#transports) |
@@ -837,7 +837,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `OnBlockNumberParameter` | `Parameters<Actions.block.watchNumber.OnBlockNumberFn>[0]` | [Events & Filters](#events--filters) |
 | `OnBlockParameter` | `Parameters<Actions.block.watch.OnBlockFn>[0]` | [Events & Filters](#events--filters) |
 | `OnTransactionsParameter` | `Parameters<Actions.transaction.watchPending.OnTransactionsFn>[0]` | [Events & Filters](#events--filters) |
-| `P256Credential` | `WebAuthnP256.P256Credential` | [Smart Accounts](#smart-accounts) |
+| `P256Credential` | `WebAuthn.P256Credential` | [Smart Accounts](#smart-accounts) |
 | `PackedUserOperation` | `UserOperation.Packed` | [User Operations](#user-operations) |
 | `packetToBytes` | Internalized | [Messages & ENS](#messages--ens) |
 | `pad` | `Hex.padLeft`/`Bytes.padLeft` (positional size; `padRight` for right) | [Encoding & Units](#encoding--units) |
@@ -2502,11 +2502,11 @@ const bundler = BundlerClient.create({
 
 ### Smart Accounts
 
-Smart-account constructors moved into namespaces, and WebAuthn credential creation moved to the `WebAuthnP256` utilities:
+Smart-account constructors moved into namespaces, and WebAuthn credential creation moved to the `WebAuthn` utilities:
 
 | v2 | v3 |
 | --- | --- |
-| `createWebAuthnCredential(options)` | `WebAuthnP256.createCredential(options)` (from `viem/utils`) |
+| `createWebAuthnCredential(options)` | `WebAuthn.createCredential(options)` (from `viem/utils`) |
 | `toCoinbaseSmartAccount(options)` | `CoinbaseSmartAccount.from(options)` |
 | `toSimple7702SmartAccount(options)` | `Simple7702SmartAccount.from(options)` |
 | `toSmartAccount(implementation)` | `SmartAccount.from(implementation)` |
@@ -2518,9 +2518,9 @@ The account and credential types moved with them:
 | v2 | v3 |
 | --- | --- |
 | `CoinbaseSmartAccountImplementation` | `CoinbaseSmartAccount.Implementation` |
-| `CreateWebAuthnCredentialParameters` | `WebAuthnP256.createCredential.Options` |
-| `CreateWebAuthnCredentialReturnType` | `WebAuthnP256.P256Credential` |
-| `P256Credential` | `WebAuthnP256.P256Credential` |
+| `CreateWebAuthnCredentialParameters` | `WebAuthn.createCredential.Options` |
+| `CreateWebAuthnCredentialReturnType` | `WebAuthn.P256Credential` |
+| `P256Credential` | `WebAuthn.P256Credential` |
 | `Simple7702SmartAccountImplementation` | `Simple7702SmartAccount.Implementation` |
 | `SmartAccount` | `SmartAccount.SmartAccount` |
 | `SmartAccountImplementation` | `SmartAccount.Implementation` |
