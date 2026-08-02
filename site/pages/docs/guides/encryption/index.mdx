@@ -1,0 +1,77 @@
+---
+description: Encrypt and decrypt data with AES-GCM using Viem utilities.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Encryption
+
+## Overview
+
+[`AesGcm`](/docs/utilities/aesgcm) provides authenticated AES-256-GCM encryption through the Web
+Crypto API. Encryption generates a fresh initialization vector and prefixes it to the returned
+ciphertext so [`AesGcm.decrypt`](/docs/utilities/aesgcm/decrypt) can recover it.
+
+## Recipes
+
+These recipes assume you have [installed and set up Viem](/docs).
+
+### Encrypt Data with a Password
+
+Create a random salt with [`AesGcm.randomSalt`](/docs/utilities/aesgcm/randomSalt), derive a key with
+[`AesGcm.getKey`](/docs/utilities/aesgcm/getKey), and encrypt the data. Store the salt, iteration
+count, and ciphertext. The salt is not secret.
+
+```ts twoslash
+import { AesGcm, Hex } from 'viem/utils'
+
+const password = 'correct horse battery staple'
+const iterations = 900_000
+const salt = AesGcm.randomSalt()
+const key = await AesGcm.getKey({ iterations, password, salt })
+
+const plaintext = Hex.fromString('Sensitive application data')
+const ciphertext = await AesGcm.encrypt(plaintext, key)
+```
+
+### Decrypt Password-Protected Data
+
+Derive the same key from the stored parameters, then decrypt the ciphertext.
+
+```ts twoslash
+import { AesGcm, Hex } from 'viem/utils'
+
+declare const password: string
+declare const salt: Uint8Array
+declare const ciphertext: Hex.Hex
+
+const iterations = 900_000
+
+const key = await AesGcm.getKey({ iterations, password, salt })
+const plaintext = await AesGcm.decrypt(ciphertext, key)
+const message = Hex.toString(plaintext)
+```
+
+## Best Practices
+
+### Store Key-Derivation Parameters
+
+Persist the salt and iteration count with the ciphertext. Changing either parameter derives a
+different key. Use a new random salt when deriving a key for a different password or data set.
+
+### Treat Authentication Failures as Errors
+
+AES-GCM authenticates the ciphertext. Decryption rejects when the key is wrong or the encrypted
+value was modified. Do not return partial plaintext or suppress that failure.
+
+### Protect Passwords and Keys
+
+Collect passwords over a trusted interface, avoid logging them, and limit the lifetime of the
+derived `CryptoKey`. A password-derived key is only as strong as the password and derivation policy.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:fingerprint" title="Encryption with Passkeys" description="Derive an AES-GCM key from a WebAuthn PRF." to="/docs/guides/encryption/passkeys" />
+  <Card icon="lucide:braces" title="AesGcm Reference" description="Browse the complete AES-GCM utility API." to="/docs/utilities/aesgcm" />
+</Cards>

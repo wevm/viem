@@ -96,6 +96,7 @@ const categories: Record<string, string> = {
   Blobs: 'Blobs (EIP-4844)',
   BlobCells: 'Blobs (EIP-4844)',
   Kzg: 'Blobs (EIP-4844)',
+  MlDsa44: 'Post Quantum',
   P256: 'Keys & Signatures',
   Prf: 'Keys & Signatures',
   PublicKey: 'Keys & Signatures',
@@ -125,6 +126,7 @@ const categories: Record<string, string> = {
 const rootModules = new Set([
   'AccessList',
   'AccountProof',
+  'AesGcm',
   'Block',
   'BlockOverrides',
   'Bytes',
@@ -148,6 +150,7 @@ const rootModules = new Set([
 
 /** Sidebar label overrides (module name → displayed text). */
 const labels: Record<string, string> = {
+  AesGcm: 'AesGcm',
   HdKey: 'HdKey',
   Siwe: 'Siwe (Sign-in with Ethereum)',
 }

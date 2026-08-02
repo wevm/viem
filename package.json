@@ -11,7 +11,7 @@
     "check:types": "tsc -b",
     "contracts:build": "forge build --no-lint --config-path ./contracts/foundry.toml && bun scripts/contracts:build.ts",
     "deps": "pnpx taze -r",
-    "dev": "pnpm exports:update && zile dev",
+    "dev": "pnpm exports:update && zile dev && pnpm exports:internal-types",
     "docs:build": "pnpm docs:sync-utils && pnpm --filter site build",
     "docs:dev": "pnpm docs:sync-utils --if-needed && pnpm --filter site dev",
     "docs:sync-utils": "bun scripts/docs:sync-utils.ts",
@@ -284,7 +284,7 @@
   },
   "dependencies": {
     "abitype": "1.3.0",
-    "ox": "1.4.0"
+    "ox": "1.6.0"
   },
   "exports": {
     ".": {
