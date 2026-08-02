@@ -447,6 +447,40 @@ export const utilities = {
       ],
     },
     {
+      text: 'AesGcm',
+      collapsed: true,
+      items: [
+        {
+          text: 'Overview',
+          link: '/docs/utilities/aesgcm',
+        },
+        {
+          text: 'encrypt',
+          link: '/docs/utilities/aesgcm/encrypt',
+        },
+        {
+          text: 'decrypt',
+          link: '/docs/utilities/aesgcm/decrypt',
+        },
+        {
+          text: 'fromPrf',
+          link: '/docs/utilities/aesgcm/fromPrf',
+        },
+        {
+          text: 'getKey',
+          link: '/docs/utilities/aesgcm/getKey',
+        },
+        {
+          text: 'randomSalt',
+          link: '/docs/utilities/aesgcm/randomSalt',
+        },
+        {
+          text: 'Errors',
+          link: '/docs/utilities/aesgcm/errors',
+        },
+      ],
+    },
+    {
       text: 'Authorization (EIP-7702)',
       collapsed: true,
       items: [
@@ -1185,6 +1219,20 @@ export const utilities = {
           ],
         },
         {
+          text: 'Prf',
+          collapsed: true,
+          items: [
+            {
+              text: 'Overview',
+              link: '/docs/utilities/prf',
+            },
+            {
+              text: 'tag',
+              link: '/docs/utilities/prf/tag',
+            },
+          ],
+        },
+        {
           text: 'PublicKey',
           collapsed: true,
           items: [
@@ -1563,6 +1611,50 @@ export const utilities = {
         {
           text: 'validate',
           link: '/docs/utilities/mnemonic/validate',
+        },
+      ],
+    },
+    {
+      text: 'Post Quantum',
+      collapsed: true,
+      items: [
+        {
+          text: 'MlDsa44',
+          collapsed: true,
+          items: [
+            {
+              text: 'Overview',
+              link: '/docs/utilities/mldsa44',
+            },
+            {
+              text: 'createKeyPair',
+              link: '/docs/utilities/mldsa44/createKeyPair',
+            },
+            {
+              text: 'fromPrf',
+              link: '/docs/utilities/mldsa44/fromPrf',
+            },
+            {
+              text: 'getPublicKey',
+              link: '/docs/utilities/mldsa44/getPublicKey',
+            },
+            {
+              text: 'randomPrivateKey',
+              link: '/docs/utilities/mldsa44/randomPrivateKey',
+            },
+            {
+              text: 'sign',
+              link: '/docs/utilities/mldsa44/sign',
+            },
+            {
+              text: 'verify',
+              link: '/docs/utilities/mldsa44/verify',
+            },
+            {
+              text: 'Errors',
+              link: '/docs/utilities/mldsa44/errors',
+            },
+          ],
         },
       ],
     },

@@ -793,6 +793,17 @@ export default defineConfig({
             ],
           },
           {
+            text: 'Encryption',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/guides/encryption' },
+              {
+                text: 'Encryption with Passkeys',
+                link: '/docs/guides/encryption/passkeys',
+              },
+            ],
+          },
+          {
             text: 'Error Handling',
             collapsed: true,
             items: [
@@ -832,6 +843,17 @@ export default defineConfig({
               {
                 text: 'Distribute a Viem Library',
                 link: '/docs/guides/extending/libraries',
+              },
+            ],
+          },
+          {
+            text: 'Post-Quantum',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/guides/post-quantum' },
+              {
+                text: 'Post-Quantum Passkeys',
+                link: '/docs/guides/post-quantum/passkeys',
               },
             ],
           },
@@ -933,6 +955,10 @@ export default defineConfig({
               {
                 text: 'Local Accounts',
                 link: '/docs/guides/wallets/local-accounts',
+              },
+              {
+                text: 'Passkey Accounts',
+                link: '/docs/guides/wallets/passkey-accounts',
               },
               {
                 text: 'Manage Chains',
