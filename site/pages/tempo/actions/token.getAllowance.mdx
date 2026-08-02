@@ -1,8 +1,8 @@
-import ReadAccountParameters from '../../../snippets/tempo/read-parameters.mdx'
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `token.getAllowance`
+# Get Token Allowance [token.getAllowance]
 
-Gets the amount of tokens that a spender is approved to transfer on behalf of an account.
+Gets the TIP-20 allowance a spender has over an account's tokens.
 
 ## Usage
 
@@ -27,7 +27,44 @@ console.log('Allowance:', allowance)
 
 :::
 
-## Return Type
+## Recipes
+
+### Verify an Allowance Covers the Next Charge
+
+Compare the base-unit `amount` with the upcoming charge before pulling funds with [`token.transferSync`](/tempo/actions/token.transfer), so a shortfall becomes a renewal prompt instead of a reverted transaction.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const customer = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'
+const token = '0x20c0000000000000000000000000000000000000'
+const charge = Value.from('19.99', 6)
+
+const allowance = await client.token.getAllowance({
+  account: customer,
+  spender: client.account.address, // [!code focus]
+  token,
+})
+
+if (allowance.amount >= charge) // [!code focus]
+  await client.token.transferSync({
+    amount: charge,
+    from: customer,
+    to: client.account.address,
+    token,
+  })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
 
 ```ts
 type ReturnType = {
@@ -35,7 +72,7 @@ type ReturnType = {
   amount: bigint
   /** Token decimals used to derive `formatted`. */
   decimals: number
-  /** Allowance formatted with the token's `decimals`. */
+  /** Allowance formatted as a human-readable decimal string. */
   formatted: string
 }
 ```
@@ -51,24 +88,24 @@ decimal string (`formatted`, derived from the token's `decimals`).
 
 Account that owns the tokens.
 
+### decimals
+
+- **Type:** `number`
+
+Decimals used to convert between base units and the human-readable amount.
+Inferred from the Client's `tokens` set when `token` matches a declared token;
+otherwise fetched from the token contract when needed.
+
 ### spender
 
 - **Type:** `Address`
 
-Account allowed to spend the account's tokens.
+Spender of the tokens.
 
 ### token
 
-- **Type:** `string`
+- **Type:** `Address | bigint`
 
-Token to operate on: a [chain-declared](/tokens/tokens#token-lookup) token name (resolving
-its `address` and `decimals`), a TIP20 token id, or a token address.
+Token to operate on: a TIP-20 token id or a contract address.
 
-### decimals (optional)
-
-- **Type:** `number`
-
-Token decimals for converting base units to human-readable amounts. Inferred from
-the chain's `tokens` config, or fetched from the token contract when omitted.
-
-<ReadAccountParameters />
+<ReadParameters />

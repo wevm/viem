@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const xphereTestnet = /*#__PURE__*/ defineChain({
+export const xphereTestnet = /*#__PURE__*/ Chain.from({
   id: 1998991,
   name: 'Xphere Testnet',
   nativeCurrency: {
@@ -9,15 +9,11 @@ export const xphereTestnet = /*#__PURE__*/ defineChain({
     symbol: 'XPT',
   },
   rpcUrls: {
-    default: {
-      http: ['http://testnet.x-phere.com'],
-    },
+    http: 'http://testnet.x-phere.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Xphere Tamsa Explorer',
-      url: 'https://xpt.tamsa.io',
-    },
+    name: 'Xphere Tamsa Explorer',
+    url: 'https://xpt.tamsa.io',
   },
   testnet: true,
 })

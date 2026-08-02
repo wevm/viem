@@ -1,165 +1,151 @@
 import { Secp256k1 } from 'ox'
-import { createClient, createWalletClient, defineChain } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { getBlockNumber } from 'viem/actions'
-import { describe, expect, test } from 'vitest'
-import { createHttpServer } from '~test/utils.js'
-import { decorator } from '../Decorator.js'
-import * as Storage from '../Storage.js'
-import { http } from './transport.js'
-import { zoneModerato } from './zone.js'
+import { Account, Client, Storage } from 'viem/tempo'
+import { http, zoneModerato } from 'viem/tempo/zones'
+import { expect, test } from 'vitest'
+import { createServer } from '~test/http.js'
+
+import { signAuthorizationToken } from '../actions/zone/signAuthorizationToken.js'
 
 const zone = zoneModerato(6)
 
-describe('http transport', () => {
-  test('injects X-Authorization-Token header from storage', async () => {
-    const storage = Storage.memory()
-    await storage.setItem(`auth:token:${zone.id}`, 'deadbeef1234')
+test('behavior: custom metadata', () => {
+  const transport = http(undefined, {
+    key: 'zone-http',
+    name: 'Zone HTTP',
+  })
 
-    const headers: Record<string, string>[] = []
-    const server = await createHttpServer(async (req, res) => {
-      let body = ''
-      req.setEncoding('utf8')
-      for await (const chunk of req) body += chunk
+  expect({
+    key: transport.key,
+    name: transport.name,
+    type: transport.type,
+  }).toMatchInlineSnapshot(`
+    {
+      "key": "zone-http",
+      "name": "Zone HTTP",
+      "type": "http",
+    }
+  `)
+})
 
+/** Boots a JSON-RPC server that records request headers. */
+async function createRpcServer() {
+  const headers: Record<string, string | undefined>[] = []
+  const server = await createServer((req, res) => {
+    let body = ''
+    req.setEncoding('utf8')
+    req.on('data', (chunk) => {
+      body += chunk
+    })
+    req.on('end', () => {
       headers.push({
-        'x-authorization-token': req.headers['x-authorization-token'] as string,
+        custom: req.headers['x-custom'] as string | undefined,
+        token: req.headers['x-authorization-token'] as string | undefined,
       })
-
       const request = JSON.parse(body)
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.end(JSON.stringify({ id: request.id, jsonrpc: '2.0', result: '0x1' }))
     })
-
-    try {
-      const chain = defineChain({
-        ...zone,
-        rpcUrls: { default: { http: [server.url] } },
-      })
-
-      const client = createClient({
-        chain,
-        transport: http(undefined, { storage }),
-      })
-
-      await getBlockNumber(client)
-
-      expect(headers).toHaveLength(1)
-      expect(headers[0]!['x-authorization-token']).toBe('deadbeef1234')
-    } finally {
-      await server.close()
-    }
   })
+  return { ...server, headers }
+}
 
-  test('proceeds without header when no token in storage', async () => {
-    const storage = Storage.memory()
+test('injects X-Authorization-Token header from storage', async () => {
+  const storage = Storage.memory()
+  await storage.setItem(`auth:token:${zone.id}`, 'deadbeef1234')
 
-    const headers: Record<string, string | undefined>[] = []
-    const server = await createHttpServer(async (req, res) => {
-      let body = ''
-      req.setEncoding('utf8')
-      for await (const chunk of req) body += chunk
-
-      headers.push({
-        'x-authorization-token': req.headers['x-authorization-token'] as
-          | string
-          | undefined,
-      })
-
-      const request = JSON.parse(body)
-      res.writeHead(200, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ id: request.id, jsonrpc: '2.0', result: '0x1' }))
+  const server = await createRpcServer()
+  try {
+    const client = Client.create({
+      chain: zone,
+      transport: http(server.url, { storage }),
     })
 
-    try {
-      const chain = defineChain({
-        ...zone,
-        rpcUrls: { default: { http: [server.url] } },
-      })
+    await client.request({ method: 'eth_blockNumber' })
 
-      const client = createClient({
-        chain,
-        transport: http(undefined, { storage }),
-      })
+    expect(server.headers).toEqual([
+      { custom: undefined, token: 'deadbeef1234' },
+    ])
+  } finally {
+    await server.close()
+  }
+})
 
-      await getBlockNumber(client)
-
-      expect(headers).toHaveLength(1)
-      expect(headers[0]!['x-authorization-token']).toBeUndefined()
-    } finally {
-      await server.close()
-    }
-  })
-
-  test('proceeds without header when no chain is configured', async () => {
-    const storage = Storage.memory()
-
-    const headers: (string | undefined)[] = []
-    const server = await createHttpServer(async (req, res) => {
-      let body = ''
-      req.setEncoding('utf8')
-      for await (const chunk of req) body += chunk
-
-      headers.push(req.headers['x-authorization-token'] as string | undefined)
-
-      const request = JSON.parse(body)
-      res.writeHead(200, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ id: request.id, jsonrpc: '2.0', result: '0x1' }))
+test('proceeds without header when no token in storage', async () => {
+  const server = await createRpcServer()
+  try {
+    const client = Client.create({
+      chain: zone,
+      transport: http(server.url, { storage: Storage.memory() }),
     })
 
-    try {
-      const client = createClient({
-        transport: http(server.url, { storage }),
-      })
+    await client.request({ method: 'eth_blockNumber' })
 
-      await getBlockNumber(client)
+    expect(server.headers).toEqual([{ custom: undefined, token: undefined }])
+  } finally {
+    await server.close()
+  }
+})
 
-      expect(headers).toEqual([undefined])
-    } finally {
-      await server.close()
-    }
-  })
-
-  test('signed token is injected into subsequent requests', async () => {
-    const storage = Storage.memory()
-    const account = privateKeyToAccount(Secp256k1.randomPrivateKey())
-
-    const receivedHeaders: (string | undefined)[] = []
-    const server = await createHttpServer(async (req, res) => {
-      let body = ''
-      req.setEncoding('utf8')
-      for await (const chunk of req) body += chunk
-
-      receivedHeaders.push(
-        req.headers['x-authorization-token'] as string | undefined,
-      )
-
-      const request = JSON.parse(body)
-      res.writeHead(200, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ id: request.id, jsonrpc: '2.0', result: '0x1' }))
+test('proceeds without header when no chain is configured', async () => {
+  const server = await createRpcServer()
+  try {
+    const client = Client.create({
+      chain: undefined,
+      transport: http(server.url, { storage: Storage.memory() }),
     })
 
-    try {
-      const chain = defineChain({
-        ...zone,
-        rpcUrls: { default: { http: [server.url] } },
-      })
+    await client.request({ method: 'eth_blockNumber' })
 
-      const client = createWalletClient({
-        account,
-        chain,
-        transport: http(undefined, { storage }),
-      }).extend(decorator())
+    expect(server.headers).toEqual([{ custom: undefined, token: undefined }])
+  } finally {
+    await server.close()
+  }
+})
 
-      await client.zone.signAuthorizationToken({ storage })
-      await getBlockNumber(client)
+test('behavior: signed token is injected into subsequent requests', async () => {
+  const storage = Storage.memory()
+  const account = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
 
-      expect(receivedHeaders).toHaveLength(1)
-      expect(receivedHeaders[0]).toBeDefined()
-      expect(typeof receivedHeaders[0]).toBe('string')
-      expect(receivedHeaders[0]!.length).toBeGreaterThan(0)
-    } finally {
-      await server.close()
-    }
-  })
+  const server = await createRpcServer()
+  try {
+    const client = Client.create({
+      account,
+      chain: zone,
+      transport: http(server.url, { storage }),
+    })
+
+    const { token } = await signAuthorizationToken(client, { storage })
+    await client.request({ method: 'eth_blockNumber' })
+
+    expect(server.headers).toEqual([{ custom: undefined, token }])
+  } finally {
+    await server.close()
+  }
+})
+
+test('behavior: user `onFetchRequest` is preserved', async () => {
+  const storage = Storage.memory()
+  await storage.setItem(`auth:token:${zone.id}`, 'deadbeef1234')
+
+  const server = await createRpcServer()
+  try {
+    const client = Client.create({
+      chain: zone,
+      transport: http(server.url, {
+        async onFetchRequest(_request, init) {
+          const headers = new Headers(init.headers)
+          headers.set('X-Custom', 'hello')
+          return { ...init, headers }
+        },
+        storage,
+      }),
+    })
+
+    await client.request({ method: 'eth_blockNumber' })
+
+    // The zone token is layered on top of the user's modified init.
+    expect(server.headers).toEqual([{ custom: 'hello', token: 'deadbeef1234' }])
+  } finally {
+    await server.close()
+  }
 })

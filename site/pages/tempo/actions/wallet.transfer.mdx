@@ -1,56 +1,111 @@
-# `wallet.transfer`
+# Transfer with Wallet [wallet.transfer]
 
-Transfers a TIP-20 token.
+Transfers a TIP-20 token via the connected Tempo wallet.
 
-This action invokes the `wallet_transfer` JSON-RPC method on the connected wallet.
+This action invokes the `wallet_transfer` JSON-RPC method on the connected wallet. By default it is read-only: the wallet uses a matching access key when one is available, otherwise it shows a confirm dialog. Pass `editable: true` to open the wallet send UI with the supplied fields pre-filled.
 
 ## Usage
 
-:::code-group
-
 ```ts twoslash [example.ts]
-import { Actions } from 'viem/tempo'
-import { client } from './viem.config'
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
 
-const { chainId, receipt } = await Actions.wallet.transfer(client, {
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+const { receipt } = await client.wallet.transfer({
   amount: '1.5',
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: 'pathUSD',
+  token: 'pathusd',
 })
 
 console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
 ```
 
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Provider } from 'accounts'
-import { createClient, custom } from 'viem/tempo'
+### Editable Usage
 
-const provider = Provider.create()
-
-export const client = createClient({
-  transport: custom(provider),
-})
-```
-
-:::
-
-## Editable mode
-
-By default, `wallet.transfer` is read-only — the wallet signs and submits the transfer programmatically (using an access key when one matches, otherwise prompting the user with a confirm dialog).
-
-Pass `editable: true` to open the wallet's send UI instead, with any supplied fields pre-filled for the user to confirm or edit before signing. In this mode all fields are optional.
+Pass `editable: true` to open the wallet send UI for the user to confirm or edit before signing. All other fields become optional pre-fills:
 
 ```ts twoslash
-import { Actions } from 'viem/tempo'
-import { client } from './viem.config'
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
 
-await Actions.wallet.transfer(client, {
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+const { receipt } = await client.wallet.transfer({
   editable: true,
-  token: 'pathUSD',
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'pathusd',
 })
 ```
 
-## Return Type
+## Recipes
+
+### Tag a Checkout Payment with an Order Memo
+
+Attach the order reference as a `memo` (UTF-8, max 32 bytes) so your backend can match the onchain transfer to the order.
+
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+const { receipt } = await client.wallet.transfer({
+  amount: '249.99',
+  memo: 'order_1024', // [!code focus]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'pathusd',
+})
+```
+
+### Charge a Subscription from an Allowance
+
+Set `from` to collect a recurring charge from a subscriber who granted your account an allowance with [`token.approve`](/tempo/actions/token.approve); the wallet submits a `transferFrom`.
+
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+const { receipt } = await client.wallet.transfer({
+  amount: '15',
+  from: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'pathusd',
+})
+```
+
+### Sponsor Fees Through Your Own Service
+
+Point `feePayer` at your own fee payer service to sponsor customer transfers such as micropayments, or pass `false` to disable the wallet's default fee payer.
+
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+const { receipt } = await client.wallet.transfer({
+  amount: '0.05',
+  feePayer: 'https://sponsor.example.com', // [!code focus]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'pathusd',
+})
+```
+
+## Return Value
 
 ```ts
 type ReturnType = {
@@ -61,57 +116,57 @@ type ReturnType = {
 }
 ```
 
+The submitted transfer receipt and chain ID.
+
 ## Parameters
-
-### editable (optional)
-
-- **Type:** `boolean`
-- **Default:** `false`
-
-When omitted or `false`, the call is read-only. When `true`, the wallet UI is shown with the supplied fields pre-filled.
 
 ### amount
 
 - **Type:** `string`
-- **Required when** `editable` is omitted or `false`.
 
-Human-readable amount to transfer (for example, `"1.5"`).
+Human-readable amount to transfer (for example, `"1.5"`). Optional when `editable` is `true`.
+
+### chainId
+
+- **Type:** `number`
+- **Default:** the active chain
+
+Chain ID to transfer on.
+
+### editable
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether to open the editable wallet send UI. When `false`, the wallet uses a matching access key when one is available, otherwise it shows a confirm dialog.
+
+### feePayer
+
+- **Type:** `boolean | string`
+
+Fee payer override. `false` disables the wallet's default fee payer. A URL string uses a custom fee payer service.
+
+### from
+
+- **Type:** `Address`
+- **Default:** the active account
+
+Address to transfer tokens from. When set to a different address, the call uses `transferFrom` and requires the active account to have an allowance from `from`. Read-only variant only.
+
+### memo
+
+- **Type:** `string`
+
+UTF-8 memo (max 32 bytes) to attach to the transfer.
 
 ### to
 
 - **Type:** `Address`
-- **Required when** `editable` is omitted or `false`.
 
-Recipient address.
+Recipient address. Optional when `editable` is `true`.
 
 ### token
 
 - **Type:** `Address | string`
-- **Required when** `editable` is omitted or `false`.
 
-Token to transfer, accepted as either a token address or a curated tokenlist symbol (case-insensitive, for example `"pathusd"`). Symbols are resolved against the curated tokenlist on the active chain. Omit (in editable mode) to let the user choose.
-
-### from (optional)
-
-- **Type:** `Address`
-- **Read-only mode only.**
-
-Address to transfer tokens from. Defaults to the active account. When set to a different address, the call uses `transferFrom` and requires the active account to have an allowance from `from`.
-
-### memo (optional)
-
-- **Type:** `string`
-
-UTF-8 memo to attach to the transfer (max 32 bytes when encoded as UTF-8). Sent via `transferWithMemo` / `transferFromWithMemo`. The wallet rejects the request if the selected token does not support memos (non-TIP-20).
-
-### chainId (optional)
-
-- **Type:** `number`
-
-Chain id. Defaults to the active chain.
-
-### feePayer (optional)
-
-- **Type:** `boolean | string`
-
-Fee payer override. Pass `false` to disable the wallet's default fee payer, or a URL string to use a custom fee payer service.
+Token to transfer, accepted as either a contract address or a curated tokenlist symbol (case-insensitive, for example `"pathusd"`). Optional when `editable` is `true`.

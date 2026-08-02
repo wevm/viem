@@ -2,6 +2,10 @@ name: Prepublish
 
 on: [push, pull_request]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -10,15 +14,17 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with:
-          submodules: 'recursive'
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
-      - name: Prepublish
+      - name: Prepare prerelease
         run: |
-          cd src && pnpm version prerelease --preid "$(git rev-parse --short=7 HEAD)" --no-git-tag-version && cd ..
+          pnpm version prerelease --preid $(git rev-parse --short=7 HEAD) --no-git-tag-version
           pnpm changeset:prepublish
-          pnpx pkg-pr-new publish --pnpm --compact './src'
+
+      - name: Publish prerelease
+        if: github.repository == 'wevm/viem'
+        run: pnpx pkg-pr-new publish --pnpm --compact '.'

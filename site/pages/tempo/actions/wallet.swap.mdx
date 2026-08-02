@@ -1,40 +1,73 @@
-# `wallet.swap`
+# Swap with Wallet [wallet.swap]
 
-Opens the wallet's swap flow, with optional pre-filled fields.
+Opens the connected Tempo wallet's swap flow, with optional pre-filled fields.
 
 This action invokes the `wallet_swap` JSON-RPC method on the connected wallet, prompting the user to review and submit a swap. Any fields you omit are left for the user to fill in.
 
 ## Usage
 
-:::code-group
-
 ```ts twoslash [example.ts]
-import { Actions } from 'viem/tempo'
-import { client } from './viem.config'
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
 
-const { receipt } = await Actions.wallet.swap(client, {
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+const { receipt } = await client.wallet.swap({
   amount: '1.5',
   token: '0x20c0000000000000000000000000000000000001',
   type: 'sell',
 })
 
 console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
 ```
 
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Provider } from 'accounts'
-import { createClient, custom } from 'viem/tempo'
+## Recipes
 
-const provider = Provider.create()
+### Buy an Exact Invoice Amount
 
-export const client = createClient({
-  transport: custom(provider),
+Set `type: 'buy'` when an invoice is priced in a token the customer does not hold: `amount` is the exact amount of `token` to receive, funded by selling `pairToken`.
+
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+const { receipt } = await client.wallet.swap({
+  amount: '250',
+  pairToken: '0x20c0000000000000000000000000000000000000', // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001', // [!code focus]
+  type: 'buy', // [!code focus]
 })
 ```
 
-:::
+### Cap Slippage on a Treasury Rebalance
 
-## Return Type
+Pass `slippage` to bound how far from quote a large conversion may fill, here 0.5%.
+
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+const { receipt } = await client.wallet.swap({
+  amount: '100000',
+  pairToken: '0x20c0000000000000000000000000000000000000',
+  slippage: 0.005, // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+  type: 'sell',
+})
+```
+
+## Return Value
 
 ```ts
 type ReturnType = {
@@ -43,34 +76,36 @@ type ReturnType = {
 }
 ```
 
+The submitted swap receipt.
+
 ## Parameters
 
-### token (optional)
-
-- **Type:** `Address`
-
-Token to buy or sell. Omit to let the user choose.
-
-### type (optional)
-
-- **Type:** `'buy' | 'sell'`
-
-Whether the amount is an exact buy or sell amount.
-
-### amount (optional)
+### amount
 
 - **Type:** `string`
 
 Human-readable amount to pre-fill (for example, `"1.5"`).
 
-### pairToken (optional)
+### pairToken
 
 - **Type:** `Address`
 
 Other side of the swap pair. For buys, this is the token to sell. For sells, this is the token to buy.
 
-### slippage (optional)
+### slippage
 
 - **Type:** `number`
 
-Maximum allowed slippage as a decimal fraction (for example, `0.05` for 5%).
+Maximum allowed slippage as a decimal fraction (for example, `0.05`).
+
+### token
+
+- **Type:** `Address`
+
+Token to buy or sell. Omit to let the user choose.
+
+### type
+
+- **Type:** `'buy' | 'sell'`
+
+Whether the amount is an exact buy or sell amount.

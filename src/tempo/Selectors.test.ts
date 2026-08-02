@@ -1,10 +1,9 @@
-import type { KeyAuthorization } from 'ox/tempo'
-import { describe, expect, expectTypeOf, test } from 'vitest'
-import type { Hex } from '../types/misc.js'
-import { toFunctionSelector } from '../utils/hash/toFunctionSelector.js'
-import { toSignature } from '../utils/hash/toSignature.js'
+import { AbiItem } from 'ox'
+import { describe, expect, test } from 'vitest'
+
+import { Selectors as tempo_Selectors } from 'viem/tempo'
+
 import * as Abis from './Abis.js'
-import { Selectors as TempoSelectors } from './index.js'
 import * as Selectors from './Selectors.js'
 
 type AbiFunction = Extract<(typeof Abis.abis)[number], { type: 'function' }>
@@ -28,8 +27,7 @@ const selectorMaps = {
   validatorConfigV2: Selectors.validatorConfigV2,
 } satisfies Record<string, SelectorMap>
 
-// Earn slices are ABIs of user-deployed contracts, not precompiles;
-// `Selectors` covers the precompile set only.
+// Earn slices are user-deployed contract ABIs. Selectors cover precompiles only.
 const earnAbis = new Set<string>([
   'earnContributionController',
   'earnEngine',
@@ -67,63 +65,43 @@ function getSelectorValues(selectors: Record<string, unknown>) {
   )
 }
 
-describe('Selectors', () => {
-  test('exports through tempo entrypoint', () => {
-    expect(TempoSelectors.tip20.transfer).toBe(Selectors.tip20.transfer)
-  })
+test('exports through tempo entrypoint', () => {
+  expect(tempo_Selectors).toBe(Selectors)
+})
 
-  test('exports one selector map per ABI', () => {
-    expect(Object.keys(Selectors).sort()).toEqual(Object.keys(selectorMaps))
-    expect(Object.keys(Selectors).sort()).toEqual(
-      selectorFixtures.map((fixture) => fixture.name).sort(),
-    )
-  })
+test('exports one selector map per ABI', () => {
+  expect(Object.keys(Selectors).sort()).toEqual(Object.keys(selectorMaps))
+  expect(Object.keys(Selectors).sort()).toEqual(
+    selectorFixtures.map((fixture) => fixture.name).sort(),
+  )
+})
 
-  test('all selectors are bytes4 hex values', () => {
-    for (const { selectors } of selectorFixtures) {
-      for (const selector of getSelectorValues(selectors)) {
-        expect(selector).toMatch(/^0x[0-9a-f]{8}$/)
-      }
+test('all selectors are bytes4 hex values', () => {
+  for (const { selectors } of selectorFixtures) {
+    for (const selector of getSelectorValues(selectors)) {
+      expect(selector).toMatch(/^0x[0-9a-f]{8}$/)
     }
-  })
+  }
+})
 
-  test('selector count matches function count', () => {
-    const functionCount = selectorFixtures.reduce(
-      (count, { abi }) => count + getFunctions(abi).length,
-      0,
-    )
-    const selectorCount = selectorFixtures.reduce(
-      (count, { selectors }) => count + getSelectorValues(selectors).length,
-      0,
-    )
+test('selector count matches function count', () => {
+  const functionCount = selectorFixtures.reduce(
+    (count, { abi }) => count + getFunctions(abi).length,
+    0,
+  )
+  const selectorCount = selectorFixtures.reduce(
+    (count, { selectors }) => count + getSelectorValues(selectors).length,
+    0,
+  )
 
-    expect(selectorCount).toBe(functionCount)
-  })
+  expect(selectorCount).toBe(functionCount)
+})
 
-  test('tip20.transfer', () => {
-    expect(Selectors.tip20.transfer).toBe('0xa9059cbb')
-  })
+test('tip20.transfer', () => {
+  expect(Selectors.tip20.transfer).toBe('0xa9059cbb')
+})
 
-  test('type: tip20 selector literals', () => {
-    expectTypeOf(Selectors.tip20.transfer).toEqualTypeOf<'0xa9059cbb'>()
-    expectTypeOf(Selectors.tip20.transfer).toMatchTypeOf<Hex>()
-
-    const scope = {
-      address: '0x20c0000000000000000000000000000000000001',
-      selector: Selectors.tip20.transfer,
-    } satisfies KeyAuthorization.Scope
-    expectTypeOf(scope.selector).toEqualTypeOf<'0xa9059cbb'>()
-
-    expectTypeOf(
-      Selectors.accountKeychain.authorizeKey[
-        'authorizeKey(address,uint8,(uint64,bool,(address,uint256,uint64)[],bool,(address,(bytes4,address[])[])[]))'
-      ],
-    ).toMatchTypeOf<Hex>()
-    expectTypeOf(
-      Selectors.accountKeychain.authorizeKey,
-    ).not.toMatchTypeOf<Hex>()
-  })
-
+describe('consistency', () => {
   for (const { name, abi, selectors } of selectorFixtures) {
     test(name, () => {
       const functions = getFunctions(abi)
@@ -137,11 +115,11 @@ describe('Selectors', () => {
 
       for (const item of functions) {
         const selector = selectors[item.name as keyof typeof selectors]
-        const expected = toFunctionSelector(item)
+        const expected = AbiItem.getSelector(item)
 
         if (overloadedNames.has(item.name)) {
           expect(typeof selector).toBe('object')
-          expect(selector).toHaveProperty(toSignature(item), expected)
+          expect(selector).toHaveProperty(AbiItem.getSignature(item), expected)
           continue
         }
 
@@ -155,7 +133,7 @@ describe('Selectors', () => {
         )
         const selector = selectors[overloadedName as keyof typeof selectors]
         expect(Object.keys(selector as Record<string, string>).sort()).toEqual(
-          overloadedFunctions.map((item) => toSignature(item)).sort(),
+          overloadedFunctions.map((item) => AbiItem.getSignature(item)).sort(),
         )
       }
 

@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const whitechainSepolia = /*#__PURE__*/ defineChain({
+export const whitechainSepolia = /*#__PURE__*/ Chain.from({
   testnet: true,
   id: 1874,
   name: 'Whitechain Sepolia',
@@ -10,17 +11,14 @@ export const whitechainSepolia = /*#__PURE__*/ defineChain({
     symbol: 'WBT',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.whitechain.io'],
-    },
+    http: 'https://rpc.testnet.whitechain.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Whitechain Testnet Explorer',
-      url: 'https://explorer.testnet.whitechain.io',
-    },
+    name: 'Whitechain Testnet Explorer',
+    url: 'https://explorer.testnet.whitechain.io',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
     },

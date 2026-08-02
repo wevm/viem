@@ -1,111 +1,92 @@
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
-export { Bytes, PublicKey, Secp256k1 } from 'ox'
-// Export types required for inference.
-export type {
-  /** @deprecated */
-  KeyAuthorization as z_KeyAuthorization,
-  /** @deprecated */
-  SignatureEnvelope as z_SignatureEnvelope,
-  /** @deprecated */
-  TokenId as z_TokenId,
-  /** @deprecated */
-  TxEnvelopeTempo as z_TxEnvelopeTempo,
-} from 'ox/tempo'
+
+/** Tempo domain primitives, re-exported from `ox/tempo`. */
 export {
   Channel,
   EarnShares,
+  KeyAuthorization,
   MultisigConfig,
   Period,
   ReceivePolicyReceipt,
-  TempoAddress,
+  SignatureEnvelope,
   Tick,
-  TokenId,
+  TokenRole,
   VirtualAddress,
   VirtualMaster,
+  ZoneId,
+  ZoneRpcAuthentication,
 } from 'ox/tempo'
-export {
-  type CustomTransport,
-  type CustomTransportConfig,
-  type CustomTransportErrorType,
-  custom,
-} from '../clients/transports/custom.js'
-export {
-  type FallbackTransport,
-  type FallbackTransportConfig,
-  type FallbackTransportErrorType,
-  fallback,
-} from '../clients/transports/fallback.js'
-export {
-  type HttpTransport,
-  type HttpTransportConfig,
-  type HttpTransportErrorType,
-  http,
-} from '../clients/transports/http.js'
-export {
-  type WebSocketTransport,
-  type WebSocketTransportConfig,
-  type WebSocketTransportErrorType,
-  webSocket,
-} from '../clients/transports/webSocket.js'
+
+/** Creates a {@link Transport} from an EIP-1193-compatible provider. */
+export { custom } from '../core/transports/custom.js'
+
+/** Creates a {@link Transport} that falls through a list of transports. */
+export { fallback } from '../core/transports/fallback.js'
+
+/** Creates an HTTP JSON-RPC transport. */
+export { http } from '../core/transports/http.js'
+
+/** Creates a WebSocket JSON-RPC transport. */
+export { webSocket } from '../core/transports/webSocket.js'
+
+/** ABIs of the Tempo precompiles and Earn contracts. */
 export * as Abis from './Abis.js'
+
+/** Utilities & types for Tempo accounts: root signers & access keys. */
 export * as Account from './Account.js'
-export * as Addresses from './Addresses.js'
+
+/** Standalone Tempo actions grouped by namespace (`token`, `amm`, `dex`, …). */
 export * as Actions from './actions/index.js'
+
+/** Addresses of the Tempo precompiles. */
+export * as Addresses from './Addresses.js'
+
+/** Tempo wallet capability schema types. */
 export * as Capabilities from './Capabilities.js'
+
+/** Tempo chain definitions (mainnet, moderato, devnet, localnet). */
 export * as Chain from './Chain.js'
-export {
-  type Client,
-  type ClientConfig,
-  type CreateClientErrorType,
-  createClient,
-} from './Client.js'
-export {
-  type Decorator as TempoActions,
-  decorator as tempoActions,
-} from './Decorator.js'
-export * as Expiry from './Expiry.js'
+
+/** A Tempo Client: the base Client decorated with public, wallet, and Tempo actions. */
+export * as Client from './Client.js'
+
+/** Tempo action decorator for a Client's `.extend`. */
+export { type Decorator as TempoActions, tempoActions } from './Decorator.js'
+
+/** Tempo errors. */
 export * from './errors.js'
-export * as Formatters from './Formatters.js'
+
+/** Helpers producing unix timestamps for key expiries. */
+export * as Expiry from './Expiry.js'
+
+/** Tempo hardforks & activation helpers. */
 export * as Hardfork from './Hardfork.js'
+
+/** Store for signed key authorizations. */
 export * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
+
+/** P256 (secp256r1) key utilities. Re-exports `ox/P256`. */
 export * as P256 from './P256.js'
-/** @experimental */
+
+/** Call scopes restricting access keys to targets & selectors. */
 export * as Scopes from './Scopes.js'
-/** @experimental */
+
+/** Function selectors of the Tempo precompile ABIs. */
 export * as Selectors from './Selectors.js'
+
+/** Minimal async key-value storages (memory, session). */
 export * as Storage from './Storage.js'
-export * as TokenIds from './TokenIds.js'
-// Export types required for inference.
-export type {
-  /** @deprecated */
-  Transaction as z_Transaction,
-  /** @deprecated */
-  TransactionReceipt as z_TransactionReceipt,
-  /** @deprecated */
-  TransactionReceiptRpc as z_TransactionReceiptRpc,
-  /** @deprecated */
-  TransactionRequest as z_TransactionRequest,
-  /** @deprecated */
-  TransactionRequestRpc as z_TransactionRequestRpc,
-  /** @deprecated */
-  TransactionRequestTempo as z_TransactionRequestTempo,
-  /** @deprecated */
-  TransactionRpc as z_TransactionRpc,
-  /** @deprecated */
-  TransactionSerializable as z_TransactionSerializable,
-  /** @deprecated */
-  TransactionSerializableTempo as z_TransactionSerializableTempo,
-  /** @deprecated */
-  TransactionSerialized as z_TransactionSerialized,
-  /** @deprecated */
-  TransactionSerializedTempo as z_TransactionSerializedTempo,
-  /** @deprecated */
-  TransactionTempo as z_TransactionTempo,
-  /** @deprecated */
-  TransactionType as z_TransactionType,
-} from './Transaction.js'
-export * as Transaction from './Transaction.js'
-export * as Transport from './Transport.js'
-export { walletNamespaceCompat, withFeePayer, withRelay } from './Transport.js'
+
+/** Relay transport: routes fee sponsorship traffic to a fee payer service. */
+export { type Relay, withRelay } from './Transport.js'
+
+/** WebAuthn P256 credential creation & signing. */
 export * as WebAuthnP256 from './WebAuthnP256.js'
+
+/** WebCrypto-backed P256 key pairs. Re-exports `ox/WebCryptoP256`. */
 export * as WebCryptoP256 from './WebCryptoP256.js'
+
+// Repeated from the root entrypoint on purpose: the declaration emitter only searches
+// export tables of modules the consumer imports, and a consumer importing only
+// `viem/tempo` never imports `viem`. See `internal/inference.ts`.
+export type * from '../internal/inference.js'

@@ -1,9 +1,10 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
 
-export const metalL2 = /*#__PURE__*/ defineChain({
+export const metalL2 = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 1750,
   name: 'Metal L2',
@@ -13,20 +14,17 @@ export const metalL2 = /*#__PURE__*/ defineChain({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.metall2.com'],
-      webSocket: ['wss://rpc.metall2.com'],
-    },
+    http: 'https://rpc.metall2.com',
+    ws: 'wss://rpc.metall2.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Explorer',
-      url: 'https://explorer.metall2.com',
-      apiUrl: 'https://explorer.metall2.com/api',
-    },
+    name: 'Explorer',
+    url: 'https://explorer.metall2.com',
+    apiUrl: 'https://explorer.metall2.com/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     l2OutputOracle: {
       [sourceId]: {
         address: '0x3B1F7aDa0Fcc26B13515af752Dd07fB1CAc11426',

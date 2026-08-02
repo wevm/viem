@@ -1,15 +1,16 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const storyAeneid = /*#__PURE__*/ defineChain({
+export const storyAeneid = /*#__PURE__*/ Chain.from({
   id: 1315,
   name: 'Story Aeneid',
-  network: 'story-aeneid',
   nativeCurrency: {
     decimals: 18,
     name: 'IP',
     symbol: 'IP',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 1792,
@@ -23,15 +24,11 @@ export const storyAeneid = /*#__PURE__*/ defineChain({
       blockCreated: 1322097,
     },
   },
-  rpcUrls: {
-    default: { http: ['https://aeneid.storyrpc.io'] },
-  },
+  rpcUrls: { http: 'https://aeneid.storyrpc.io' },
   blockExplorers: {
-    default: {
-      name: 'Story Aeneid Explorer',
-      url: 'https://aeneid.storyscan.io',
-      apiUrl: 'https://aeneid.storyscan.io/api/v2',
-    },
+    name: 'Story Aeneid Explorer',
+    url: 'https://aeneid.storyscan.io',
+    apiUrl: 'https://aeneid.storyscan.io/api/v2',
   },
   ensTlds: ['.ip'],
   testnet: true,

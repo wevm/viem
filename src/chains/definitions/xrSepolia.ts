@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const xrSepolia = /*#__PURE__*/ defineChain({
+export const xrSepolia = /*#__PURE__*/ Chain.from({
   id: 2730,
   name: 'XR Sepolia',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const xrSepolia = /*#__PURE__*/ defineChain({
     name: 'tXR',
     symbol: 'tXR',
   },
-  rpcUrls: {
-    default: { http: ['https://xr-sepolia-testnet.rpc.caldera.xyz/http'] },
-  },
+  rpcUrls: { http: 'https://xr-sepolia-testnet.rpc.caldera.xyz/http' },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://xr-sepolia-testnet.explorer.caldera.xyz',
-    },
+    name: 'Blockscout',
+    url: 'https://xr-sepolia-testnet.explorer.caldera.xyz',
   },
   testnet: true,
 })

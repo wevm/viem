@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const bscGreenfield = /*#__PURE__*/ defineChain({
+export const bscGreenfield = /*#__PURE__*/ Chain.from({
   id: 1017,
   name: 'BNB Greenfield Chain',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const bscGreenfield = /*#__PURE__*/ defineChain({
     name: 'BNB',
     symbol: 'BNB',
   },
-  rpcUrls: {
-    default: { http: ['https://greenfield-chain.bnbchain.org'] },
-  },
+  rpcUrls: { http: 'https://greenfield-chain.bnbchain.org' },
   blockExplorers: {
-    default: {
-      name: 'BNB Greenfield Mainnet Scan',
-      url: 'https://greenfieldscan.com',
-    },
+    name: 'BNB Greenfield Mainnet Scan',
+    url: 'https://greenfieldscan.com',
   },
   testnet: false,
 })

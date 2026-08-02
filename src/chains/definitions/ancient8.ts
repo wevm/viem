@@ -1,24 +1,20 @@
+import * as Chain from '../../core/Chain.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
 
-export const ancient8 = /*#__PURE__*/ defineChain({
+export const ancient8 = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 888888888,
   name: 'Ancient8',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.ancient8.gg'],
-    },
+    http: 'https://rpc.ancient8.gg',
   },
   blockExplorers: {
-    default: {
-      name: 'Ancient8 explorer',
-      url: 'https://scan.ancient8.gg',
-      apiUrl: 'https://scan.ancient8.gg/api',
-    },
+    name: 'Ancient8 explorer',
+    url: 'https://scan.ancient8.gg',
+    apiUrl: 'https://scan.ancient8.gg/api',
   },
   contracts: {
     ...chainConfig.contracts,

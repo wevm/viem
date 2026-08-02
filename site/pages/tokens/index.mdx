@@ -27,54 +27,55 @@ Setup token Actions for Viem by following the steps below.
 
 To use token Actions, ensure that you have Viem installed.
 
+{/* TODO(v3): Remove `@next` when Viem v3 is stable. */}
+
 :::code-group
 
 ```bash [npm]
-npm i viem
+npm i viem@next
 ```
 
 ```bash [pnpm]
-pnpm i viem
+pnpm i viem@next
 ```
 
 ```bash [bun]
-bun i viem
+bun i viem@next
 ```
 
 :::
 
 ### Configure
 
-Next, we will configure a Viem Client. Token **read** Actions (like `getBalance`) are available on a
-[Public Client](/docs/clients/public) via `createPublicClient`, and token **write** Actions (like
-`transfer`) on a [Wallet Client](/docs/clients/wallet) via `createWalletClient`.
+Next, we will configure a Viem [Client](/docs/clients). Token **read** Actions (like `getBalance`)
+are attached by the [`publicActions`](/docs/actions/public) decorator, and token **write** Actions
+(like `transfer`) by the [`walletActions`](/docs/actions/wallet) decorator.
 
 :::code-group
 
-```ts twoslash [Public Client]
-import { createPublicClient, http } from 'viem'
+```ts twoslash [Public Actions]
+import { Client, http, publicActions } from 'viem'
 import { mainnet } from 'viem/chains'
 import { usdc } from 'viem/tokens'
 
-export const client = createPublicClient({
+export const client = Client.create({
   chain: mainnet,
   tokens: [usdc],
   transport: http(),
-})
+}).extend(publicActions())
 ```
 
-```ts twoslash [Wallet Client]
-import { createWalletClient, http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
+```ts twoslash [Wallet Actions]
+import { Account, Client, http, walletActions } from 'viem'
 import { mainnet } from 'viem/chains'
 import { usdc } from 'viem/tokens'
 
-export const client = createWalletClient({
-  account: privateKeyToAccount('0x...'),
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
   chain: mainnet,
   tokens: [usdc],
   transport: http(),
-})
+}).extend(walletActions())
 ```
 
 :::
@@ -84,39 +85,38 @@ Instead of listing tokens one by one, pass a curated **token set** from the `tok
 `tokens.tempo` (every token on Tempo chains). See [Token Sets](/tokens/tokens#token-sets) for more.
 
 ```ts twoslash
-import { createWalletClient, http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
+// @exactOptionalPropertyTypes: true
+import { Account, Client, http, walletActions } from 'viem'
 import { mainnet } from 'viem/chains'
 import { tokens } from 'viem/tokens' // [!code focus]
 
-export const client = createWalletClient({
-  account: privateKeyToAccount('0x...'),
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
   chain: mainnet,
   tokens: tokens.all, // [!code focus]
   transport: http(),
-})
+}).extend(walletActions())
 ```
 :::
 
 :::tip
 To use both read and write Token Actions on a single Client, extend a Client with both
-[Public Actions](/docs/actions/public/introduction) and
-[Wallet Actions](/docs/actions/wallet/introduction):
+[Public Actions](/docs/actions/public) and
+[Wallet Actions](/docs/actions/wallet):
 
 ```ts twoslash
-import { createClient, http, publicActions, walletActions } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
+import { Account, Client, http, publicActions, walletActions } from 'viem'
 import { mainnet } from 'viem/chains'
 import { usdc } from 'viem/tokens'
 // ---cut---
-const client = createClient({
-  account: privateKeyToAccount('0x...'),
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
   chain: mainnet,
   tokens: [usdc],
   transport: http(),
 })
-  .extend(publicActions)
-  .extend(walletActions)
+  .extend(publicActions())
+  .extend(walletActions())
 ```
 :::
 
@@ -125,15 +125,15 @@ const client = createClient({
 Now that you have a Client set up, you can interact with tokens.
 
 ```ts twoslash
-import { createPublicClient, http } from 'viem'
+import { Client, http, publicActions } from 'viem'
 import { mainnet } from 'viem/chains'
 import { usdc } from 'viem/tokens'
 
-const client = createPublicClient({
+const client = Client.create({
   chain: mainnet,
   tokens: [usdc],
   transport: http(),
-})
+}).extend(publicActions())
 // ---cut---
 const balance = await client.token.getBalance({
   account: '0x55FE002aefF02F77364de339a1292923A15844B8',
@@ -153,6 +153,14 @@ how to define reusable tokens and attach them to a Client. If the symbol is not
 declared, pass the token address instead:
 
 ```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+// ---cut---
 const balance = await client.token.getBalance({
   account: '0x55FE002aefF02F77364de339a1292923A15844B8',
   token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',

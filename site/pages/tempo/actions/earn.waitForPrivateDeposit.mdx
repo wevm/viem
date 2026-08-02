@@ -1,4 +1,4 @@
-# `earn.waitForPrivateDeposit`
+# Wait for Earn Private Deposit [earn.waitForPrivateDeposit]
 
 Waits for a Zone gateway to deposit assets into an Earn vault on the parent Tempo chain.
 
@@ -30,6 +30,73 @@ const result = await client.earn.waitForPrivateDeposit({
 Use `tempoBlockNumber` from the result with
 [`zone.waitForTempoBlock`](/tempo/actions/zone.waitForTempoBlock) to confirm that the returned shares
 were imported by the Zone.
+
+## Recipes
+
+### Credit a Balance After Zone Import
+
+Combine the wait with [`zone.waitForTempoBlock`](/tempo/actions/zone.waitForTempoBlock) before
+treating the returned shares as spendable inside the Zone.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client as parentClient } from './viem.config'
+import { client as zoneClient } from './zones.config'
+
+const deposit = await parentClient.earn.waitForPrivateDeposit({
+  actionId: '0x0000000000000000000000000000000000000000000000000000000000000001',
+  fromBlock: 123456n,
+  gateway: '0x0000000000000000000000000000000000000001',
+  vault: '0x0000000000000000000000000000000000000002',
+})
+// @log: { shares: 99_750_000n, tempoBlockNumber: 123456n, ... }
+
+await zoneClient.zone.waitForTempoBlock({ // [!code focus]
+  tempoBlockNumber: deposit.tempoBlockNumber, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+### Handle Settlement Timeouts in a Worker
+
+Catch `WaitForPrivateDepositTimeoutError` to keep a settlement worker alive; the wait only scans
+logs, so retrying with the same fields is safe.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { WaitForPrivateDepositTimeoutError } from 'viem/tempo'
+import { client } from './viem.config'
+
+try {
+  await client.earn.waitForPrivateDeposit({
+    actionId: '0x0000000000000000000000000000000000000000000000000000000000000001',
+    fromBlock: 123456n,
+    gateway: '0x0000000000000000000000000000000000000001',
+    timeout: 300_000, // [!code focus]
+    vault: '0x0000000000000000000000000000000000000002',
+  })
+} catch (error) {
+  if (!(error instanceof WaitForPrivateDepositTimeoutError)) throw error // [!code focus]
+  // Settlement can still complete later; retry with the same fields.
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Type
 

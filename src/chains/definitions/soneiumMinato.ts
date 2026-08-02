@@ -1,27 +1,25 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
 
-export const soneiumMinato = /*#__PURE__*/ defineChain({
+export const soneiumMinato = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 1946,
   name: 'Soneium Minato Testnet',
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.minato.soneium.org'],
-    },
+    http: 'https://rpc.minato.soneium.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://soneium-minato.blockscout.com',
-      apiUrl: 'https://soneium-minato.blockscout.com/api',
-    },
+    name: 'Blockscout',
+    url: 'https://soneium-minato.blockscout.com',
+    apiUrl: 'https://soneium-minato.blockscout.com/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     disputeGameFactory: {
       [sourceId]: {
         address: '0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01',

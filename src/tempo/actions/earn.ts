@@ -1,55 +1,32 @@
-import type { Address } from 'abitype'
-import { Hex } from 'ox'
-import { EarnShares, TokenId } from 'ox/tempo'
-import type { Account } from '../../accounts/types.js'
-import { parseAccount } from '../../accounts/utils/parseAccount.js'
-import { estimateContractGas } from '../../actions/public/estimateContractGas.js'
-import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
-import { type GetLogsErrorType, getLogs } from '../../actions/public/getLogs.js'
-import { multicall } from '../../actions/public/multicall.js'
-import {
-  type ReadContractReturnType,
-  readContract,
-} from '../../actions/public/readContract.js'
-import {
-  type SimulateContractReturnType,
-  simulateContract,
-} from '../../actions/public/simulateContract.js'
-import * as internal_Token from '../../actions/token/internal.js'
-import {
-  type SendTransactionReturnType,
-  sendTransaction,
-} from '../../actions/wallet/sendTransaction.js'
-import { sendTransactionSync } from '../../actions/wallet/sendTransactionSync.js'
-import { writeContractSync } from '../../actions/wallet/writeContractSync.js'
-import type { Client } from '../../clients/createClient.js'
-import type { Transport } from '../../clients/transports/createTransport.js'
-import { AccountNotFoundError } from '../../errors/account.js'
-import type { BaseErrorType } from '../../errors/base.js'
-import type { Chain } from '../../types/chain.js'
-import type { Log } from '../../types/log.js'
-import type { Compute, OneOf } from '../../types/utils.js'
-import { encodeAbiParameters } from '../../utils/abi/encodeAbiParameters.js'
-import { getAbiItem } from '../../utils/abi/getAbiItem.js'
-import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
-import { getAddress } from '../../utils/address/getAddress.js'
-import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
-import { type ObserveErrorType, observe } from '../../utils/observe.js'
-import { type PollErrorType, poll } from '../../utils/poll.js'
-import { withResolvers } from '../../utils/promise/withResolvers.js'
-import { stringify } from '../../utils/stringify.js'
+import { AbiEvent, AbiParameters, Address, Hex } from 'ox'
+import type { Errors, Log } from 'ox'
+import { EarnShares } from 'ox/tempo'
+
+import * as Account from '../../core/Account.js'
+import type * as Chain from '../../core/Chain.js'
+import type * as Client from '../../core/Client.js'
+import { getNumber } from '../../core/actions/block/getNumber.js'
+import { read } from '../../core/actions/contract/read.js'
+import type { simulate as simulateContract } from '../../core/actions/contract/simulate.js'
+import { writeSync } from '../../core/actions/contract/writeSync.js'
+import { getLogs } from '../../core/actions/event/getLogs.js'
+import { multicall } from '../../core/actions/multicall.js'
+import * as internal_Token from '../../core/actions/token/internal.js'
+import { send } from '../../core/actions/transaction/send.js'
+import { sendSync } from '../../core/actions/transaction/sendSync.js'
+import { type ObserveErrorType, observe } from '../../core/internal/observe.js'
+import { type PollErrorType, poll } from '../../core/internal/poll.js'
+import { withResolvers } from '../../core/internal/promise.js'
+import type { Compute, OneOf } from '../../core/internal/types.js'
+import { stringify } from '../../core/internal/stringify.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
 import {
   GetVaultEngineChangedError,
-  type GetVaultEngineChangedErrorType,
   WaitForPrivateDepositTimeoutError,
-  type WaitForPrivateDepositTimeoutErrorType,
   WaitForPrivateRedeemTimeoutError,
-  type WaitForPrivateRedeemTimeoutErrorType,
 } from '../errors.js'
 import type {
-  GetAccountParameter,
   ReadParameters,
   WriteParameters,
   WriteSyncParameters,
@@ -57,15 +34,19 @@ import type {
 import {
   type CallParameters,
   defineCall,
+  dispatchSend,
+  dispatchWrite,
+  estimateWrite,
   pickWriteParameters,
+  pickWriteSyncParameters,
   resolveCallParameters,
   resolveTokenWithDecimals,
+  simulateWrite,
 } from '../internal/utils.js'
-import type { TransactionReceipt } from '../Transaction.js'
 import { getPortalAddress } from '../zones/zone.js'
-import * as policyActions from './policy.js'
-import * as tokenActions from './token.js'
-import * as zoneActions from './zone.js'
+import * as policyActions from './policy/index.js'
+import * as tokenActions from './token/index.js'
+import * as zoneActions from './zone/index.js'
 
 /** TIP-403 policy ID that allows every sender, recipient, and mint recipient. */
 export const alwaysAllowPolicyId = 1n
@@ -85,13 +66,13 @@ export type ExitSafePolicy = {
 /** Receipts produced while configuring an exit-safe Earn policy. */
 export type ExitSafePolicyReceipts = {
   /** Whitelist policy creation receipt. */
-  eligibilityPolicy: TransactionReceipt
+  eligibilityPolicy: writeSync.ReturnType
   /** Compound policy creation receipt. */
-  compoundPolicy: TransactionReceipt
+  compoundPolicy: writeSync.ReturnType
   /** Earn share token policy update receipt. */
-  tokenPolicy: TransactionReceipt
+  tokenPolicy: writeSync.ReturnType
   /** Eligibility policy admin transfer receipt, when an administrator is provided. */
-  policyAdmin?: TransactionReceipt | undefined
+  policyAdmin?: writeSync.ReturnType | undefined
 }
 
 /**
@@ -104,42 +85,40 @@ export type ExitSafePolicyReceipts = {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
- * import { tempoModerato } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
+ * import { Account, Actions, Client, http } from 'viem/tempo'
  *
- * const account = privateKeyToAccount('0x...')
- * const client = createClient({
+ * const account = Account.fromSecp256k1('0x…')
+ * const client = Client.create({
  *   account,
- *   chain: tempoModerato,
  *   transport: http(),
  * })
  *
  * const { policy, receipts } =
  *   await Actions.earn.configureExitSafePolicy(client, {
- *     accessAdministrator: '0x...',
- *     initialMembers: ['0x...', '0x...'],
- *     shareToken: '0x...',
+ *     accessAdministrator: '0x…',
+ *     initialMembers: ['0x…', '0x…'],
+ *     shareToken: '0x…',
  *   })
  * ```
  *
  * @param client - Client authorized to change the Earn share token policy.
- * @param parameters - Share token, administrator, and initial members.
+ * @param options - Share token, administrator, and initial members.
  * @returns The configured policy IDs and transaction receipts.
  */
 export async function configureExitSafePolicy<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: configureExitSafePolicy.Parameters<account>,
-): Promise<configureExitSafePolicy.ReturnValue> {
-  const account_ = parameters.account ?? client.account
-  if (!account_) throw new AccountNotFoundError()
-  const account = parseAccount(account_)
+  client: Client.Client<chain, account>,
+  options: configureExitSafePolicy.Options<account>,
+): Promise<configureExitSafePolicy.ReturnType> {
+  const account_ = options.account ?? client.account
+  if (!account_) throw new Account.NotFoundError()
+  const account = Account.from(account_)
   const initialMembers = [
-    ...new Set(parameters.initialMembers.map((member) => getAddress(member))),
+    ...new Set(
+      options.initialMembers.map((member) => Address.checksum(member)),
+    ),
   ]
   if (initialMembers.length === 0)
     throw new Error('At least one initial policy member is required.')
@@ -147,10 +126,11 @@ export async function configureExitSafePolicy<
   const eligibility = await policyActions.createSync(client, {
     account,
     addresses: initialMembers,
+    admin: account,
     chain: client.chain,
     type: 'whitelist',
-  } as never)
-  const compoundPolicy = await writeContractSync(client, {
+  })
+  const compoundPolicy = await dispatchWrite(writeSync, client, {
     account,
     abi: Abis.tip403Registry,
     address: Addresses.tip403Registry,
@@ -158,13 +138,15 @@ export async function configureExitSafePolicy<
     chain: client.chain,
     functionName: 'createCompoundPolicy',
     throwOnReceiptRevert: true,
-  } as never)
-  const [compoundEvent] = parseEventLogs({
-    abi: Abis.tip403Registry,
-    eventName: 'CompoundPolicyCreated',
-    logs: compoundPolicy.logs,
-    strict: true,
   })
+  const [compoundEvent] = AbiEvent.extractLogs(
+    Abis.tip403Registry,
+    compoundPolicy.logs,
+    {
+      eventName: 'CompoundPolicyCreated',
+      strict: true,
+    },
+  )
   if (!compoundEvent)
     throw new Error('`CompoundPolicyCreated` event not found.')
 
@@ -172,19 +154,19 @@ export async function configureExitSafePolicy<
     account,
     chain: client.chain,
     policyId: compoundEvent.args.policyId,
-    token: parameters.shareToken,
-  } as never)
-  const policyAdmin = isAddressEqual(
-    parameters.accessAdministrator,
+    token: options.shareToken,
+  })
+  const policyAdmin = Address.isEqual(
+    options.accessAdministrator,
     account.address,
   )
     ? undefined
     : await policyActions.setAdminSync(client, {
         account,
-        admin: parameters.accessAdministrator,
+        admin: options.accessAdministrator,
         chain: client.chain,
         policyId: eligibility.policyId,
-      } as never)
+      })
 
   return {
     policy: {
@@ -205,23 +187,23 @@ export async function configureExitSafePolicy<
 export namespace configureExitSafePolicy {
   export type Args = {
     /** Address that will administer recipient eligibility. */
-    accessAdministrator: Address
+    accessAdministrator: Address.Address
     /** Addresses initially eligible to receive or be minted Earn shares. */
-    initialMembers: readonly Address[]
+    initialMembers: readonly Address.Address[]
     /** Earn share token. */
-    shareToken: Address
+    shareToken: Address.Address
   }
-  export type Parameters<
-    account extends Account | undefined = Account | undefined,
-  > = GetAccountParameter<account> & Args
-  export type ReturnValue = Compute<{
+  export type Options<
+    account extends Account.Account | undefined = Account.Account | undefined,
+  > = AccountParameter<account> & Args
+  export type ReturnType = Compute<{
     /** Configured onchain policy IDs. */
     policy: ExitSafePolicy
     /** Receipts for each configuration transaction. */
     receipts: ExitSafePolicyReceipts
   }>
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 }
 
 /**
@@ -230,54 +212,53 @@ export namespace configureExitSafePolicy {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { tempoModerato } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, Client, http } from 'viem/tempo'
  *
- * const client = createClient({
- *   chain: tempoModerato,
+ * const client = Client.create({
  *   transport: http(),
  * })
  *
  * await Actions.earn.validateExitSafePolicy(client, {
- *   accessAdministrator: '0x...',
+ *   accessAdministrator: '0x…',
  *   policy: {
  *     transferPolicyId: 3n,
  *     senderPolicyId: 1n,
  *     recipientPolicyId: 2n,
  *     mintRecipientPolicyId: 2n,
  *   },
- *   requiredMembers: ['0x...', '0x...'],
- *   shareToken: '0x...',
+ *   requiredMembers: ['0x…', '0x…'],
+ *   shareToken: '0x…',
  * })
  * ```
  *
  * @param client - Client.
- * @param parameters - Expected policy, administrator, and required members.
+ * @param options - Expected policy, administrator, and required members.
  * @returns Nothing when the policy is valid.
  */
-export async function validateExitSafePolicy<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: validateExitSafePolicy.Parameters,
-): Promise<validateExitSafePolicy.ReturnValue> {
+export async function validateExitSafePolicy<
+  chain extends Chain.Chain | undefined,
+>(
+  client: Client.Client<chain>,
+  options: validateExitSafePolicy.Options,
+): Promise<validateExitSafePolicy.ReturnType> {
   const { accessAdministrator, policy, requiredMembers, shareToken, ...rest } =
-    parameters
+    options
   const [tokenPolicyId, compound, simplePolicy, memberResults] =
     await Promise.all([
-      readContract(client, {
+      read(client, {
         ...rest,
         abi: Abis.tip20,
         address: shareToken,
         functionName: 'transferPolicyId',
       }),
-      readContract(client, {
+      read(client, {
         ...rest,
         abi: Abis.tip403Registry,
         address: Addresses.tip403Registry,
         args: [policy.transferPolicyId],
         functionName: 'compoundPolicyData',
       }),
-      readContract(client, {
+      read(client, {
         ...rest,
         abi: Abis.tip403Registry,
         address: Addresses.tip403Registry,
@@ -287,14 +268,14 @@ export async function validateExitSafePolicy<chain extends Chain | undefined>(
       Promise.all(
         requiredMembers.map(async (member) => {
           const [recipient, mintRecipient] = await Promise.all([
-            readContract(client, {
+            read(client, {
               ...rest,
               abi: Abis.tip403Registry,
               address: Addresses.tip403Registry,
               args: [policy.transferPolicyId, member],
               functionName: 'isAuthorizedRecipient',
             }),
-            readContract(client, {
+            read(client, {
               ...rest,
               abi: Abis.tip403Registry,
               address: Addresses.tip403Registry,
@@ -310,18 +291,18 @@ export async function validateExitSafePolicy<chain extends Chain | undefined>(
   if (tokenPolicyId !== policy.transferPolicyId)
     throw new Error('Earn share token transfer policy mismatch.')
   if (
-    compound[0] !== policy.senderPolicyId ||
-    compound[1] !== policy.recipientPolicyId ||
-    compound[2] !== policy.mintRecipientPolicyId
+    compound.senderPolicyId !== policy.senderPolicyId ||
+    compound.recipientPolicyId !== policy.recipientPolicyId ||
+    compound.mintRecipientPolicyId !== policy.mintRecipientPolicyId
   )
     throw new Error('TIP-403 compound policy components mismatch.')
   if (policy.senderPolicyId !== alwaysAllowPolicyId)
     throw new Error('TIP-403 sender policy is not always allow.')
   if (policy.recipientPolicyId !== policy.mintRecipientPolicyId)
     throw new Error('TIP-403 recipient and mint-recipient policies must match.')
-  if (simplePolicy[0] !== 0)
+  if (simplePolicy.policyType !== 0)
     throw new Error('TIP-403 eligibility policy is not a whitelist.')
-  if (!isAddressEqual(simplePolicy[1], accessAdministrator))
+  if (!Address.isEqual(simplePolicy.admin, accessAdministrator))
     throw new Error('TIP-403 access administrator mismatch.')
   const unauthorized = memberResults.find(
     (result) => !result.recipient || !result.mintRecipient,
@@ -335,18 +316,18 @@ export async function validateExitSafePolicy<chain extends Chain | undefined>(
 export namespace validateExitSafePolicy {
   export type Args = {
     /** Expected eligibility policy administrator. */
-    accessAdministrator: Address
+    accessAdministrator: Address.Address
     /** Expected exit-safe policy IDs. */
     policy: ExitSafePolicy
     /** Addresses that must be eligible to receive or be minted Earn shares. */
-    requiredMembers: readonly Address[]
+    requiredMembers: readonly Address.Address[]
     /** Earn share token. */
-    shareToken: Address
+    shareToken: Address.Address
   }
-  export type Parameters = Omit<ReadParameters, 'account'> & Args
-  export type ReturnValue = void
+  export type Options = Omit<ReadParameters, 'account'> & Args
+  export type ReturnType = void
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 }
 
 /**
@@ -355,14 +336,10 @@ export namespace validateExitSafePolicy {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
- * import { tempoModerato } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
+ * import { Account, Actions, Client, http } from 'viem/tempo'
  *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempoModerato,
+ * const client = Client.create({
+ *   account: Account.fromSecp256k1('0x…'),
  *   transport: http(),
  * })
  *
@@ -370,22 +347,22 @@ export namespace validateExitSafePolicy {
  *   assetAmount: 100_000_000n,
  *   shareAmount: 99_900_000n,
  *   slippageBps: 50,
- *   vault: '0x...',
+ *   vault: '0x…',
  * })
  * ```
  *
  * @param client - Client.
- * @param parameters - Parameters.
+ * @param options - Options.
  * @returns The transaction hash.
  */
 export async function deposit<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: deposit.Parameters<chain, account>,
-): Promise<deposit.ReturnValue> {
-  return deposit.inner(sendTransaction, client, parameters)
+  client: Client.Client<chain, account>,
+  options: deposit.Options,
+): Promise<deposit.ReturnType> {
+  return deposit.inner(send, client, options)
 }
 
 export namespace deposit {
@@ -393,9 +370,9 @@ export namespace deposit {
     /** Assets to deposit; base units or `{ formatted, decimals? }` (asset decimals). */
     assetAmount: internal_Token.AmountInput
     /** Earn share recipient. @default `account.address` */
-    recipient?: Address | undefined
+    recipient?: Address.Address | undefined
     /** Vault address. */
-    vault: Address
+    vault: Address.Address
   } & OneOf<
     | {
         /** Minimum Earn share output to accept; must be greater than zero. */
@@ -408,36 +385,34 @@ export namespace deposit {
         slippageBps: number
       }
   >
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
-  export type ReturnValue = SendTransactionReturnType
+  export type Options = WriteParameters & Args
+  export type ReturnType = send.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 
   /** @internal Shared dispatch; reads the asset for the approval. */
   export async function inner<
-    action extends typeof sendTransaction | typeof sendTransactionSync,
-    chain extends Chain | undefined,
-    account extends Account | undefined,
+    action extends typeof send | typeof sendSync,
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
   >(
     action: action,
-    client: Client<Transport, chain, account>,
-    parameters: deposit.Parameters<chain, account>,
-  ): Promise<ReturnType<action>> {
+    client: Client.Client<chain, account>,
+    options: deposit.Options,
+  ): Promise<dispatchSend.ReturnType<action>> {
     const [args, assetToken] = await Promise.all([
-      toDepositArgs(client, parameters as never),
-      readContract(client, {
+      toDepositArgs(client, options),
+      read(client, {
         abi: Abis.earnVault,
-        address: parameters.vault,
+        address: options.vault,
         functionName: 'asset',
       }),
     ])
-    return (await action(client, {
-      ...parameters,
+    return dispatchSend(action, client, {
+      ...pickWriteParameters(options),
+      ...(action === sendSync ? pickWriteSyncParameters(options) : {}),
       calls: deposit.calls({ ...args, assetToken }),
-    } as never)) as never
+    })
   }
 
   /**
@@ -447,8 +422,8 @@ export namespace deposit {
    * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call<chain extends Chain | undefined>(
-    ...parameters: CallParameters<call.Args, Client<Transport, chain>>
+  export function call<chain extends Chain.Chain | undefined>(
+    ...parameters: CallParameters<call.Args, Client.Client<chain>>
   ) {
     const [, args] = resolveCallParameters(parameters)
     const { recipient, vault } = args
@@ -472,9 +447,9 @@ export namespace deposit {
       /** Assets to deposit; base units or `{ formatted, decimals? }` (asset decimals). */
       assetAmount: internal_Token.AmountInput
       /** Earn share recipient. */
-      recipient: Address
+      recipient: Address.Address
       /** Vault address. */
-      vault: Address
+      vault: Address.Address
     } & OneOf<
       | {
           /** Minimum Earn share output to accept. */
@@ -499,38 +474,41 @@ export namespace deposit {
   export function calls(
     args: call.Args & {
       /** Asset token approved for the deposit. */
-      assetToken: TokenId.TokenIdOrAddress
+      assetToken: Address.Address
     },
   ) {
     const { assetToken, vault } = args
     const assetAmount = internal_Token.toBaseUnits(args.assetAmount, undefined)
     return [
       defineCall({
-        address: TokenId.toAddress(assetToken),
+        address: assetToken,
         abi: Abis.tip20,
         functionName: 'approve',
         args: [vault, assetAmount],
       }),
       deposit.call({ ...args, assetAmount }),
-    ]
+    ] as const
   }
 
   /**
    * Extracts a `Deposited` event from the vault's logs.
    *
    * @param logs - Logs.
-   * @param parameters - Parameters.
+   * @param options - Options.
    * @returns The `Deposited` event.
    */
-  export function extractEvent(logs: Log[], parameters: { vault: Address }) {
-    const { vault } = parameters
+  export function extractEvent(
+    logs: readonly Log.Log[],
+    options: { vault: Address.Address },
+  ) {
+    const { vault } = options
     // Earn contracts are user-deployed: several adapters can emit the same
     // signature in one receipt, so filter by emitting address before decode.
-    const [log] = parseEventLogs({
-      abi: Abis.earnVault,
-      eventName: 'Deposited',
-      logs: logs.filter((log) => isAddressEqual(log.address, vault)),
-    })
+    const [log] = AbiEvent.extractLogs(
+      Abis.earnVault,
+      logs.filter((log) => Address.isEqual(log.address, vault)),
+      { eventName: 'Deposited', strict: true },
+    )
     if (!log) throw new Error('`Deposited` event not found.')
     return log
   }
@@ -539,40 +517,40 @@ export namespace deposit {
    * Estimates gas for a deposit, assuming the vault has enough asset allowance.
    *
    * @param client - Client.
-   * @param parameters - Parameters.
+   * @param options - Options.
    * @returns The gas estimate.
    */
   export async function estimateGas<
-    chain extends Chain | undefined,
-    account extends Account | undefined,
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
   >(
-    client: Client<Transport, chain, account>,
-    parameters: deposit.Parameters<chain, account>,
+    client: Client.Client<chain, account>,
+    options: deposit.Options,
   ): Promise<bigint> {
-    return estimateContractGas(client, {
-      ...pickWriteParameters(parameters as never),
-      ...deposit.call(await toDepositArgs(client, parameters as never)),
-    } as never)
+    return estimateWrite(client, {
+      ...pickWriteParameters(options),
+      ...deposit.call(await toDepositArgs(client, options)),
+    })
   }
 
   /**
    * Simulates a deposit, assuming the vault has enough asset allowance.
    *
    * @param client - Client.
-   * @param parameters - Parameters.
+   * @param options - Options.
    * @returns The simulation result and write request.
    */
   export async function simulate<
-    chain extends Chain | undefined,
-    account extends Account | undefined,
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
   >(
-    client: Client<Transport, chain, account>,
-    parameters: deposit.Parameters<chain, account>,
-  ): Promise<SimulateContractReturnType<typeof Abis.earnVault, 'deposit'>> {
-    return simulateContract(client, {
-      ...pickWriteParameters(parameters as never),
-      ...deposit.call(await toDepositArgs(client, parameters as never)),
-    } as never) as never
+    client: Client.Client<chain, account>,
+    options: deposit.Options,
+  ): Promise<simulateContract.ReturnType<typeof Abis.earnVault, 'deposit'>> {
+    return simulateWrite(client, {
+      ...pickWriteParameters(options),
+      ...deposit.call(await toDepositArgs(client, options)),
+    })
   }
 }
 
@@ -581,40 +559,36 @@ export namespace deposit {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
- * import { tempoModerato } from 'viem/chains'
- * import { Actions, EarnShares } from 'viem/tempo'
+ * import { Account, Actions, Client, EarnShares, http } from 'viem/tempo'
  *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempoModerato,
+ * const client = Client.create({
+ *   account: Account.fromSecp256k1('0x…'),
  *   transport: http(),
  * })
  *
  * const { shareAmount } = await Actions.earn.depositSync(client, {
  *   assetAmount: 100_000_000n,
  *   shareAmountMin: EarnShares.minimumOutput(99_900_000n, 50),
- *   vault: '0x...',
+ *   vault: '0x…',
  * })
  * ```
  *
  * @param client - Client.
- * @param parameters - Parameters.
+ * @param options - Options.
  * @returns The transaction receipt and event data.
  */
 export async function depositSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: depositSync.Parameters<chain, account>,
-): Promise<depositSync.ReturnValue> {
-  const { throwOnReceiptRevert = true, vault } = parameters
-  const receipt = await deposit.inner(sendTransactionSync, client, {
-    ...parameters,
+  client: Client.Client<chain, account>,
+  options: depositSync.Options,
+): Promise<depositSync.ReturnType> {
+  const { throwOnReceiptRevert = true, vault } = options
+  const receipt = await deposit.inner(sendSync, client, {
+    ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = deposit.extractEvent(receipt.logs, { vault })
   return {
     assetAmount: args.assets,
@@ -627,24 +601,21 @@ export async function depositSync<
 
 export namespace depositSync {
   export type Args = deposit.Args
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = deposit.Parameters<chain, account> & WriteSyncParameters<chain, account>
-  export type ReturnValue = Compute<{
+  export type Options = deposit.Options & WriteSyncParameters
+  export type ReturnType = Compute<{
     /** Assets deposited. */
     assetAmount: bigint
     /** Depositing caller. */
-    caller: Address
+    caller: Address.Address
     /** Transaction receipt. */
-    receipt: TransactionReceipt
+    receipt: writeSync.ReturnType
     /** Earn share recipient. */
-    recipient: Address
+    recipient: Address.Address
     /** Earn shares minted. */
     shareAmount: bigint
   }>
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 }
 
 /**
@@ -653,38 +624,34 @@ export namespace depositSync {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
- * import { tempoModerato } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
+ * import { Account, Actions, Client, http } from 'viem/tempo'
  *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempoModerato,
+ * const client = Client.create({
+ *   account: Account.fromSecp256k1('0x…'),
  *   transport: http(),
  * })
  *
  * const hash = await Actions.earn.depositShares(client, {
  *   earnShareAmount: 499_000_000n,
  *   slippageBps: 30,
- *   vault: '0x...',
+ *   vault: '0x…',
  *   venueShareAmount: 500_000_000n,
- *   venueShareToken: '0x...',
+ *   venueShareToken: '0x…',
  * })
  * ```
  *
  * @param client - Client.
- * @param parameters - Parameters.
+ * @param options - Options.
  * @returns The transaction hash.
  */
 export async function depositShares<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: depositShares.Parameters<chain, account>,
-): Promise<depositShares.ReturnValue> {
-  return depositShares.inner(sendTransaction, client, parameters)
+  client: Client.Client<chain, account>,
+  options: depositShares.Options,
+): Promise<depositShares.ReturnType> {
+  return depositShares.inner(send, client, options)
 }
 
 export namespace depositShares {
@@ -692,11 +659,11 @@ export namespace depositShares {
     /** Venue shares to deposit, base units. */
     venueShareAmount: bigint
     /** Earn share recipient. @default `account.address` */
-    recipient?: Address | undefined
+    recipient?: Address.Address | undefined
     /** Vault address. */
-    vault: Address
+    vault: Address.Address
     /** Venue share token approved for the deposit. */
-    venueShareToken: Address
+    venueShareToken: Address.Address
   } & OneOf<
     | {
         /** Minimum Earn share output to accept; must be greater than zero. */
@@ -709,37 +676,35 @@ export namespace depositShares {
         slippageBps: number
       }
   >
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
-  export type ReturnValue = SendTransactionReturnType
+  export type Options = WriteParameters & Args
+  export type ReturnType = send.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 
   /** @internal Shared dispatch; reads the engine for the approval. */
   export async function inner<
-    action extends typeof sendTransaction | typeof sendTransactionSync,
-    chain extends Chain | undefined,
-    account extends Account | undefined,
+    action extends typeof send | typeof sendSync,
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
   >(
     action: action,
-    client: Client<Transport, chain, account>,
-    parameters: depositShares.Parameters<chain, account>,
-  ): Promise<ReturnType<action>> {
-    const engine = await readContract(client, {
+    client: Client.Client<chain, account>,
+    options: depositShares.Options,
+  ): Promise<dispatchSend.ReturnType<action>> {
+    const engine = await read(client, {
       abi: Abis.earnVault,
-      address: parameters.vault,
+      address: options.vault,
       functionName: 'engine',
     })
-    return (await action(client, {
-      ...parameters,
+    return dispatchSend(action, client, {
+      ...pickWriteParameters(options),
+      ...(action === sendSync ? pickWriteSyncParameters(options) : {}),
       calls: depositShares.calls({
-        ...toDepositSharesArgs(client, parameters as never),
+        ...toDepositSharesArgs(client, options),
         engine,
-        venueShareToken: parameters.venueShareToken,
+        venueShareToken: options.venueShareToken,
       }),
-    } as never)) as never
+    })
   }
 
   /**
@@ -749,8 +714,8 @@ export namespace depositShares {
    * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call<chain extends Chain | undefined>(
-    ...parameters: CallParameters<call.Args, Client<Transport, chain>>
+  export function call<chain extends Chain.Chain | undefined>(
+    ...parameters: CallParameters<call.Args, Client.Client<chain>>
   ) {
     const [, args] = resolveCallParameters(parameters)
     const { recipient, vault, venueShareAmount } = args
@@ -770,9 +735,9 @@ export namespace depositShares {
       /** Venue shares to deposit, base units. */
       venueShareAmount: bigint
       /** Earn share recipient. */
-      recipient: Address
+      recipient: Address.Address
       /** Vault address. */
-      vault: Address
+      vault: Address.Address
     } & OneOf<
       | {
           /** Minimum Earn share output to accept. */
@@ -797,9 +762,9 @@ export namespace depositShares {
   export function calls(
     args: call.Args & {
       /** Current vault engine that pulls the venue shares. */
-      engine: Address
+      engine: Address.Address
       /** Venue share token pulled by the engine. */
-      venueShareToken: Address
+      venueShareToken: Address.Address
     },
   ) {
     const { engine, venueShareAmount, venueShareToken } = args
@@ -811,25 +776,28 @@ export namespace depositShares {
         args: [engine, venueShareAmount],
       }),
       depositShares.call(args),
-    ]
+    ] as const
   }
 
   /**
    * Extracts a `VenueSharesDeposited` event from the vault's logs.
    *
    * @param logs - Logs.
-   * @param parameters - Parameters.
+   * @param options - Options.
    * @returns The `VenueSharesDeposited` event.
    */
-  export function extractEvent(logs: Log[], parameters: { vault: Address }) {
-    const { vault } = parameters
+  export function extractEvent(
+    logs: readonly Log.Log[],
+    options: { vault: Address.Address },
+  ) {
+    const { vault } = options
     // Earn contracts are user-deployed: several adapters can emit the same
     // signature in one receipt, so filter by emitting address before decode.
-    const [log] = parseEventLogs({
-      abi: Abis.earnVault,
-      eventName: 'VenueSharesDeposited',
-      logs: logs.filter((log) => isAddressEqual(log.address, vault)),
-    })
+    const [log] = AbiEvent.extractLogs(
+      Abis.earnVault,
+      logs.filter((log) => Address.isEqual(log.address, vault)),
+      { eventName: 'VenueSharesDeposited', strict: true },
+    )
     if (!log) throw new Error('`VenueSharesDeposited` event not found.')
     return log
   }
@@ -838,42 +806,42 @@ export namespace depositShares {
    * Estimates gas for a venue share deposit, assuming enough allowance.
    *
    * @param client - Client.
-   * @param parameters - Parameters.
+   * @param options - Options.
    * @returns The gas estimate.
    */
   export async function estimateGas<
-    chain extends Chain | undefined,
-    account extends Account | undefined,
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
   >(
-    client: Client<Transport, chain, account>,
-    parameters: depositShares.Parameters<chain, account>,
+    client: Client.Client<chain, account>,
+    options: depositShares.Options,
   ): Promise<bigint> {
-    return estimateContractGas(client, {
-      ...pickWriteParameters(parameters as never),
-      ...depositShares.call(toDepositSharesArgs(client, parameters as never)),
-    } as never)
+    return estimateWrite(client, {
+      ...pickWriteParameters(options),
+      ...depositShares.call(toDepositSharesArgs(client, options)),
+    })
   }
 
   /**
    * Simulates a venue share deposit, assuming enough allowance.
    *
    * @param client - Client.
-   * @param parameters - Parameters.
+   * @param options - Options.
    * @returns The simulation result and write request.
    */
   export async function simulate<
-    chain extends Chain | undefined,
-    account extends Account | undefined,
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
   >(
-    client: Client<Transport, chain, account>,
-    parameters: depositShares.Parameters<chain, account>,
+    client: Client.Client<chain, account>,
+    options: depositShares.Options,
   ): Promise<
-    SimulateContractReturnType<typeof Abis.earnVault, 'depositVenueShares'>
+    simulateContract.ReturnType<typeof Abis.earnVault, 'depositVenueShares'>
   > {
-    return simulateContract(client, {
-      ...pickWriteParameters(parameters as never),
-      ...depositShares.call(toDepositSharesArgs(client, parameters as never)),
-    } as never) as never
+    return simulateWrite(client, {
+      ...pickWriteParameters(options),
+      ...depositShares.call(toDepositSharesArgs(client, options)),
+    })
   }
 }
 
@@ -882,42 +850,38 @@ export namespace depositShares {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
- * import { tempoModerato } from 'viem/chains'
- * import { Actions, EarnShares } from 'viem/tempo'
+ * import { Account, Actions, Client, EarnShares, http } from 'viem/tempo'
  *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempoModerato,
+ * const client = Client.create({
+ *   account: Account.fromSecp256k1('0x…'),
  *   transport: http(),
  * })
  *
  * const { earnShareAmount } = await Actions.earn.depositSharesSync(client, {
  *   earnShareAmount: 499_000_000n,
  *   slippageBps: 30,
- *   vault: '0x...',
+ *   vault: '0x…',
  *   venueShareAmount: 500_000_000n,
- *   venueShareToken: '0x...',
+ *   venueShareToken: '0x…',
  * })
  * ```
  *
  * @param client - Client.
- * @param parameters - Parameters.
+ * @param options - Options.
  * @returns The transaction receipt and event data.
  */
 export async function depositSharesSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: depositSharesSync.Parameters<chain, account>,
-): Promise<depositSharesSync.ReturnValue> {
-  const { throwOnReceiptRevert = true, vault } = parameters
-  const receipt = await depositShares.inner(sendTransactionSync, client, {
-    ...parameters,
+  client: Client.Client<chain, account>,
+  options: depositSharesSync.Options,
+): Promise<depositSharesSync.ReturnType> {
+  const { throwOnReceiptRevert = true, vault } = options
+  const receipt = await depositShares.inner(sendSync, client, {
+    ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = depositShares.extractEvent(receipt.logs, { vault })
   return {
     caller: args.caller,
@@ -931,27 +895,23 @@ export async function depositSharesSync<
 
 export namespace depositSharesSync {
   export type Args = depositShares.Args
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = depositShares.Parameters<chain, account> &
-    WriteSyncParameters<chain, account>
-  export type ReturnValue = Compute<{
+  export type Options = depositShares.Options & WriteSyncParameters
+  export type ReturnType = Compute<{
     /** Depositing caller. */
-    caller: Address
+    caller: Address.Address
     /** Earn shares minted. */
     earnShareAmount: bigint
     /** Transaction receipt. */
-    receipt: TransactionReceipt
+    receipt: writeSync.ReturnType
     /** Venue shares measured as received by the engine. */
     receivedVenueShareAmount: bigint
     /** Earn share recipient. */
-    recipient: Address
+    recipient: Address.Address
     /** Venue shares requested for pull. */
     venueShareAmount: bigint
   }>
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 }
 
 /**
@@ -962,10 +922,10 @@ export namespace depositSharesSync {
  * ```ts
  * const prepared = await Actions.earn.privateDeposit.prepare(parentClient, {
  *   assetAmount: 100_000_000n,
- *   assetToken: '0x...',
- *   gateway: '0x...',
- *   recipient: '0x...',
- *   recoveryRecipient: '0x...',
+ *   assetToken: '0x…',
+ *   gateway: '0x…',
+ *   recipient: '0x…',
+ *   recoveryRecipient: '0x…',
  *   shareAmountMin: 99_500_000n,
  *   vault: '0x...',
  *   vaultAssetAmountMin: 99_000_000n,
@@ -975,27 +935,26 @@ export namespace depositSharesSync {
  * ```
  *
  * @param client - Zone client.
- * @param parameters - Prepared deposit and transaction parameters.
+ * @param options - Prepared deposit and transaction options.
  * @returns The transaction hash.
  */
 export async function privateDeposit<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: privateDeposit.Parameters<chain, account>,
-): Promise<privateDeposit.ReturnValue> {
-  await assertPreparedZoneRequestChain(client, parameters)
-  return zoneActions.requestWithdrawal(client, parameters)
+  client: Client.Client<chain, account>,
+  options: privateDeposit.Options<account>,
+): Promise<privateDeposit.ReturnType> {
+  await assertPreparedZoneRequestChain(client, options)
+  return zoneActions.requestWithdrawal(client, options)
 }
 
 export namespace privateDeposit {
-  export type Args = prepare.ReturnValue
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
-  export type ReturnValue = SendTransactionReturnType
+  export type Args = prepare.ReturnType
+  export type Options<
+    account extends Account.Account | undefined = Account.Account | undefined,
+  > = zoneActions.requestWithdrawal.Options<account> & Args
+  export type ReturnType = send.ReturnType
   export type ErrorType = zoneActions.requestWithdrawal.ErrorType
 
   /**
@@ -1003,20 +962,20 @@ export namespace privateDeposit {
    * and returns the resulting shares to the Zone.
    *
    * @param client - Parent-chain client.
-   * @param parameters - Deposit intent and recovery parameters.
+   * @param options - Deposit intent and recovery options.
    * @returns The prepared withdrawal and correlation data.
    */
-  export async function prepare<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    parameters: prepare.Parameters,
-  ): Promise<prepare.ReturnValue> {
+  export async function prepare<chain extends Chain.Chain | undefined>(
+    client: Client.Client<chain>,
+    options: prepare.Options,
+  ): Promise<prepare.ReturnType> {
     const chainId = client.chain?.id
     if (!chainId) throw new Error('`chain` is required.')
     const {
       actionId = Hex.random(32),
       assetAmount,
       callbackGas = zoneGatewayCallbackGas,
-      fallbackRecipient = parameters.recoveryRecipient,
+      fallbackRecipient = options.recoveryRecipient,
       gateway,
       portalAddress: portalAddress_,
       recipient,
@@ -1025,11 +984,11 @@ export namespace privateDeposit {
       vault,
       withdrawalMemo,
       zoneId,
-    } = parameters
+    } = options
     const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
-    const readParameters = pickReadParameters(parameters)
+    const readParameters = pickReadParameters(options)
     const [fromBlock, config] = await Promise.all([
-      getBlockNumber(client, { cacheTime: 0 }),
+      getNumber(client, { cacheTime: 0 }),
       getZoneGatewayConfig(client, {
         ...readParameters,
         flow: 0,
@@ -1039,7 +998,7 @@ export namespace privateDeposit {
         zonePortal: portalAddress,
       }),
     ])
-    const assetToken = parameters.assetToken ?? config.vaultAsset
+    const assetToken = options.assetToken ?? config.vaultAsset
     const { encrypted, keyIndex } =
       await zoneActions.encryptedDeposit.prepareRecipient(client, {
         ...readParameters,
@@ -1048,9 +1007,9 @@ export namespace privateDeposit {
         recipient,
         zoneId: config.zoneId,
       })
-    const shareAmountMin = resolveMinimumShareAmount(parameters)
-    const direct = isAddressEqual(assetToken, config.vaultAsset)
-    const data = encodeAbiParameters(Abis.earnRouterCallbackData, [
+    const shareAmountMin = resolveMinimumShareAmount(options)
+    const direct = Address.isEqual(assetToken, config.vaultAsset)
+    const data = AbiParameters.encode(Abis.earnRouterCallbackData, [
       {
         actionId,
         earnVault: config.vault,
@@ -1059,7 +1018,7 @@ export namespace privateDeposit {
         minOutputAmount: 0n,
         minVaultAssets: direct
           ? assetAmount
-          : (parameters.vaultAssetAmountMin ?? 0n),
+          : (options.vaultAssetAmountMin ?? 0n),
         outputToken: config.shareToken,
         zoneReturn: { encrypted, keyIndex, refundRecipient: recoveryRecipient },
       },
@@ -1080,17 +1039,17 @@ export namespace privateDeposit {
   }
 
   export namespace prepare {
-    export type Parameters = Omit<ReadParameters, 'account'> & Args
+    export type Options = MulticallReadParameters & Args
     export type Args = PrivatePreparationParameters & {
       /** Assets withdrawn from the Zone, base units. */
       assetAmount: bigint
       /** Asset token withdrawn from the Zone. @default vault asset */
-      assetToken?: Address | undefined
+      assetToken?: Address.Address | undefined
       /** Minimum vault assets accepted after swapping `assetToken`. @default `0n` */
       vaultAssetAmountMin?: bigint | undefined
     } & MinimumShareAmountParameters
-    export type ReturnValue = PreparedZoneRequest
-    export type ErrorType = BaseErrorType
+    export type ReturnType = PreparedZoneRequest
+    export type ErrorType = Errors.GlobalErrorType
   }
 
   /**
@@ -1109,28 +1068,26 @@ export namespace privateDeposit {
  * The receipt confirms withdrawal acceptance, not the parent-chain deposit.
  *
  * @param client - Zone client.
- * @param parameters - Prepared deposit and transaction parameters.
+ * @param options - Prepared deposit and transaction options.
  * @returns The Zone transaction receipt and parent-chain withdrawal sender tag.
  */
 export async function privateDepositSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: privateDepositSync.Parameters<chain, account>,
-): Promise<privateDepositSync.ReturnValue> {
-  await assertPreparedZoneRequestChain(client, parameters)
-  return zoneActions.requestWithdrawalSync(client, parameters)
+  client: Client.Client<chain, account>,
+  options: privateDepositSync.Options<account>,
+): Promise<privateDepositSync.ReturnType> {
+  await assertPreparedZoneRequestChain(client, options)
+  return zoneActions.requestWithdrawalSync(client, options)
 }
 
 export namespace privateDepositSync {
   export type Args = privateDeposit.Args
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = privateDeposit.Parameters<chain, account> &
-    WriteSyncParameters<chain, account>
-  export type ReturnValue = zoneActions.requestWithdrawalSync.ReturnValue
+  export type Options<
+    account extends Account.Account | undefined = Account.Account | undefined,
+  > = privateDeposit.Options<account> & WriteSyncParameters
+  export type ReturnType = zoneActions.requestWithdrawalSync.ReturnType
   export type ErrorType = zoneActions.requestWithdrawalSync.ErrorType
 }
 
@@ -1142,18 +1099,20 @@ export namespace privateDepositSync {
  * const result = await Actions.earn.waitForPrivateDeposit(parentClient, {
  *   actionId: prepared.actionId,
  *   fromBlock: prepared.fromBlock,
- *   gateway: '0x...',
- *   vault: '0x...',
+ *   gateway: '0x…',
+ *   vault: '0x…',
  * })
  * ```
  *
  * @param client - Parent-chain client.
- * @param parameters - Prepared action correlation and polling parameters.
+ * @param options - Prepared action correlation and polling options.
  * @returns The completed gateway deposit.
  */
-export async function waitForPrivateDeposit<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: waitForPrivateDeposit.Parameters,
+export async function waitForPrivateDeposit<
+  chain extends Chain.Chain | undefined,
+>(
+  client: Client.Client<chain>,
+  options: waitForPrivateDeposit.Options,
 ): Promise<waitForPrivateDeposit.ReturnType> {
   const {
     actionId,
@@ -1162,11 +1121,8 @@ export async function waitForPrivateDeposit<chain extends Chain | undefined>(
     pollingInterval = client.pollingInterval,
     timeout = 60_000,
     vault,
-  } = parameters
-  const event = getAbiItem({
-    abi: Abis.earnRouter,
-    name: 'EarnDeposit',
-  })
+  } = options
+  const event = AbiEvent.fromAbi(Abis.earnRouter, 'EarnDeposit')
   const observerId = stringify([
     'waitForPrivateDeposit',
     client.uid,
@@ -1241,19 +1197,19 @@ export async function waitForPrivateDeposit<chain extends Chain | undefined>(
 }
 
 export namespace waitForPrivateDeposit {
-  export type Parameters = {
+  export type Options = {
     /** Correlation id from {@link privateDeposit.prepare}. */
     actionId: Hex.Hex
     /** Lower bound for the parent-chain log scan. */
     fromBlock: bigint
     /** Zone gateway address. */
-    gateway: Address
+    gateway: Address.Address
     /** Polling frequency in milliseconds. @default `client.pollingInterval` */
     pollingInterval?: number | undefined
     /** Timeout in milliseconds; `0` disables it. @default `60_000` */
     timeout?: number | undefined
     /** Vault address. */
-    vault: Address
+    vault: Address.Address
   }
   export type ReturnType = {
     /** Correlation id for the completed deposit. */
@@ -1261,7 +1217,7 @@ export namespace waitForPrivateDeposit {
     /** Tokens delivered to the gateway, base units. */
     inputAmount: bigint
     /** Token delivered to the gateway. */
-    inputToken: Address
+    inputToken: Address.Address
     /** Earn shares returned to the Zone. */
     shares: bigint
     /** Parent-chain block containing the gateway event. */
@@ -1272,11 +1228,11 @@ export namespace waitForPrivateDeposit {
     zoneDepositHash: Hex.Hex
   }
   export type ErrorType =
-    | GetLogsErrorType
+    | getLogs.ErrorType
     | ObserveErrorType
     | PollErrorType
-    | WaitForPrivateDepositTimeoutErrorType
-    | BaseErrorType
+    | WaitForPrivateDepositTimeoutError
+    | Errors.GlobalErrorType
 }
 
 /**
@@ -1284,30 +1240,27 @@ export namespace waitForPrivateDeposit {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { tempoModerato } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, Client, http } from 'viem/tempo'
  *
- * const client = createClient({
- *   chain: tempoModerato,
+ * const client = Client.create({
  *   transport: http(),
  * })
  *
  * const feeState = await Actions.earn.getFeeState(client, {
- *   vault: '0x...',
+ *   vault: '0x…',
  * })
  * ```
  *
  * @param client - Client.
- * @param parameters - Parameters.
+ * @param options - Options.
  * @returns The active fee configuration, pending fees, and baselines.
  */
-export async function getFeeState<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: getFeeState.Parameters,
-): Promise<getFeeState.ReturnValue> {
-  const { recipient, vault, ...rest } = parameters
-  const fees = await readContract(client, {
+export async function getFeeState<chain extends Chain.Chain | undefined>(
+  client: Client.Client<chain>,
+  options: getFeeState.Options,
+): Promise<getFeeState.ReturnType> {
+  const { recipient, vault, ...rest } = options
+  const fees = await read(client, {
     ...rest,
     abi: Abis.earnVault,
     address: vault,
@@ -1344,7 +1297,7 @@ export async function getFeeState<chain extends Chain | undefined>(
   // consistent with the batched id.
   const feeConfig = async (configId: bigint) =>
     toFeeConfig(
-      await readContract(client, {
+      await read(client, {
         ...rest,
         abi: Abis.earnFees,
         address: fees,
@@ -1353,21 +1306,22 @@ export async function getFeeState<chain extends Chain | undefined>(
       }),
     )
   if (recipient !== undefined) {
+    const { results } = await multicall(client, {
+      ...pickMulticallParameters(rest),
+      allowFailure: false,
+      calls: [
+        ...contracts,
+        defineCall({
+          address: fees,
+          abi: Abis.earnFees,
+          functionName: 'claimableEarnShares',
+          args: [recipient],
+        }),
+      ],
+      deployless: true,
+    })
     const [configId, feesActive, highWaterMark, preview, targetBase, shares] =
-      await multicall(client, {
-        ...rest,
-        allowFailure: false,
-        contracts: [
-          ...contracts,
-          defineCall({
-            address: fees,
-            abi: Abis.earnFees,
-            functionName: 'claimableEarnShares',
-            args: [recipient],
-          }),
-        ],
-        deployless: true,
-      })
+      results
     return {
       claimableShares: shares,
       config: await feeConfig(configId),
@@ -1378,13 +1332,13 @@ export async function getFeeState<chain extends Chain | undefined>(
       targetBase,
     }
   }
-  const [configId, feesActive, highWaterMark, preview, targetBase] =
-    await multicall(client, {
-      ...rest,
-      allowFailure: false,
-      contracts,
-      deployless: true,
-    })
+  const { results } = await multicall(client, {
+    ...pickMulticallParameters(rest),
+    allowFailure: false,
+    calls: contracts,
+    deployless: true,
+  })
+  const [configId, feesActive, highWaterMark, preview, targetBase] = results
   return {
     config: await feeConfig(configId),
     configId,
@@ -1398,12 +1352,12 @@ export async function getFeeState<chain extends Chain | undefined>(
 export namespace getFeeState {
   export type Args = {
     /** Optional fee recipient whose claimable Earn shares are included. */
-    recipient?: Address | undefined
+    recipient?: Address.Address | undefined
     /** Vault address. */
-    vault: Address
+    vault: Address.Address
   }
-  export type Parameters = Omit<ReadParameters, 'account'> & Args
-  export type ReturnValue = {
+  export type Options = MulticallReadParameters & Args
+  export type ReturnType = {
     /** Claimable fee shares for `recipient`; present when provided. */
     claimableShares?: bigint | undefined
     /** Active fee configuration. */
@@ -1420,7 +1374,7 @@ export namespace getFeeState {
     targetBase: bigint
   }
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 }
 
 /** Vault fee configuration. */
@@ -1428,7 +1382,7 @@ export type FeeConfig = {
   /** Optional excess-return fee over a growing target line. */
   excess: {
     /** Excess fee recipient. */
-    account: Address
+    account: Address.Address
     /** Annual target growth rate, scaled to 18 decimals. */
     annualTargetRate: bigint
     /** Whether the excess fee is active. */
@@ -1437,7 +1391,7 @@ export type FeeConfig = {
     excessFeeRate: bigint
   }
   /** Fixed fee recipients and their 18-decimal rates. */
-  fixedFees: readonly { account: Address; rate: bigint }[]
+  fixedFees: readonly { account: Address.Address; rate: bigint }[]
 }
 
 /** Pending vault fee amounts. */
@@ -1446,7 +1400,7 @@ export type FeePreview = {
   activeAssets: bigint
   /** Fee allocations in assets and Earn shares. */
   allocations: readonly {
-    account: Address
+    account: Address.Address
     feeAssets: bigint
     feeShares: bigint
   }[]
@@ -1474,39 +1428,36 @@ export type FeePreview = {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { tempoModerato } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, Client, http } from 'viem/tempo'
  *
- * const client = createClient({
- *   chain: tempoModerato,
+ * const client = Client.create({
  *   transport: http(),
  * })
  *
  * const position = await Actions.earn.getPosition(client, {
- *   account: '0x...',
- *   vault: '0x...',
+ *   account: '0x…',
+ *   vault: '0x…',
  * })
  * ```
  *
  * @param client - Client.
- * @param parameters - Parameters.
+ * @param options - Options.
  * @returns The asset and Earn share balances, allowances, and value.
  */
 export async function getPosition<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: getPosition.Parameters<account>,
-): Promise<getPosition.ReturnValue> {
-  const { account: account_ = client.account, vault, ...rest } = parameters
-  if (!account_) throw new AccountNotFoundError()
-  const account = parseAccount(account_).address
-  const [assetToken, shareToken] = await multicall(client, {
-    ...rest,
+  client: Client.Client<chain, account>,
+  options: getPosition.Options<account>,
+): Promise<getPosition.ReturnType> {
+  const { account: account_ = client.account, vault, ...rest } = options
+  if (!account_) throw new Account.NotFoundError()
+  const account = Account.from(account_).address
+  const { results: tokens } = await multicall(client, {
+    ...pickMulticallParameters(rest),
     allowFailure: false,
-    contracts: [
+    calls: [
       defineCall({
         address: vault,
         abi: Abis.earnVault,
@@ -1520,39 +1471,40 @@ export async function getPosition<
     ],
     deployless: true,
   })
-  const [assetAllowance, assetBalance, shareAllowance, shareBalance] =
-    await multicall(client, {
-      ...rest,
-      allowFailure: false,
-      contracts: [
-        defineCall({
-          address: assetToken,
-          abi: Abis.tip20,
-          functionName: 'allowance',
-          args: [account, vault],
-        }),
-        defineCall({
-          address: assetToken,
-          abi: Abis.tip20,
-          functionName: 'balanceOf',
-          args: [account],
-        }),
-        defineCall({
-          address: shareToken,
-          abi: Abis.tip20,
-          functionName: 'allowance',
-          args: [account, vault],
-        }),
-        defineCall({
-          address: shareToken,
-          abi: Abis.tip20,
-          functionName: 'balanceOf',
-          args: [account],
-        }),
-      ],
-      deployless: true,
-    })
-  const value = await readContract(client, {
+  const [assetToken, shareToken] = tokens
+  const { results: balances } = await multicall(client, {
+    ...pickMulticallParameters(rest),
+    allowFailure: false,
+    calls: [
+      defineCall({
+        address: assetToken,
+        abi: Abis.tip20,
+        functionName: 'allowance',
+        args: [account, vault],
+      }),
+      defineCall({
+        address: assetToken,
+        abi: Abis.tip20,
+        functionName: 'balanceOf',
+        args: [account],
+      }),
+      defineCall({
+        address: shareToken,
+        abi: Abis.tip20,
+        functionName: 'allowance',
+        args: [account, vault],
+      }),
+      defineCall({
+        address: shareToken,
+        abi: Abis.tip20,
+        functionName: 'balanceOf',
+        args: [account],
+      }),
+    ],
+    deployless: true,
+  })
+  const [assetAllowance, assetBalance, shareAllowance, shareBalance] = balances
+  const value = await read(client, {
     ...rest,
     abi: Abis.earnVault,
     address: vault,
@@ -1571,32 +1523,33 @@ export async function getPosition<
 }
 
 export namespace getPosition {
-  export type Args<account extends Account | undefined = Account | undefined> =
-    GetAccountParameter<account> & {
-      /** Vault address. */
-      vault: Address
-    }
-  export type Parameters<
-    account extends Account | undefined = Account | undefined,
-  > = Omit<ReadParameters, 'account'> & Args<account>
-  export type ReturnValue = {
+  export type Args<
+    account extends Account.Account | undefined = Account.Account | undefined,
+  > = AccountParameter<account> & {
+    /** Vault address. */
+    vault: Address.Address
+  }
+  export type Options<
+    account extends Account.Account | undefined = Account.Account | undefined,
+  > = MulticallReadParameters & Args<account>
+  export type ReturnType = {
     /** Assets the vault may spend from the account. */
     assetAllowance: bigint
     /** Asset balance held by the account. */
     assetBalance: bigint
     /** Token accepted by the vault. */
-    assetToken: Address
+    assetToken: Address.Address
     /** Earn shares the vault may spend from the account. */
     shareAllowance: bigint
     /** Earn share balance held by the account. */
     shareBalance: bigint
     /** Token representing Earn shares. */
-    shareToken: Address
+    shareToken: Address.Address
     /** Current asset value of the Earn share balance, including fees. */
     value: bigint
   }
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 }
 
 /**
@@ -1604,31 +1557,28 @@ export namespace getPosition {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { tempoModerato } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, Client, http } from 'viem/tempo'
  *
- * const client = createClient({
- *   chain: tempoModerato,
+ * const client = Client.create({
  *   transport: http(),
  * })
  *
  * const assetAmount = await Actions.earn.getRedeemQuote(client, {
  *   shareAmount: 100_000_000n,
- *   vault: '0x...',
+ *   vault: '0x…',
  * })
  * ```
  *
  * @param client - Client.
- * @param parameters - Parameters.
+ * @param options - Options.
  * @returns The asset output, including fees.
  */
-export async function getRedeemQuote<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: getRedeemQuote.Parameters,
-): Promise<getRedeemQuote.ReturnValue> {
-  const { shareAmount, vault, ...rest } = parameters
-  return readContract(client, {
+export async function getRedeemQuote<chain extends Chain.Chain | undefined>(
+  client: Client.Client<chain>,
+  options: getRedeemQuote.Options,
+): Promise<getRedeemQuote.ReturnType> {
+  const { shareAmount, vault, ...rest } = options
+  return read(client, {
     ...rest,
     ...getRedeemQuote.call({ shareAmount, vault }),
   })
@@ -1639,25 +1589,25 @@ export namespace getRedeemQuote {
     /** Exact Earn share input, base units. */
     shareAmount: bigint
     /** Vault address. */
-    vault: Address
+    vault: Address.Address
   }
-  export type Parameters = Omit<ReadParameters, 'account'> & Args
+  export type Options = Omit<ReadParameters, 'account'> & Args
   /** Asset output, including fees. */
-  export type ReturnValue = ReadContractReturnType<
+  export type ReturnType = read.ReturnType<
     typeof Abis.earnVault,
     'previewRedeem',
     never
   >
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 
   /**
    * Defines a call to the vault's `previewRedeem` function.
    *
    * Can be passed as a parameter to:
-   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`Actions.contract.estimateGas`](https://viem.sh/docs/actions/public/contract/estimateGas): estimate the gas cost of the call
    * - [`multicall`](https://viem.sh/docs/contract/multicall): batch the call with other contract reads
-   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`Actions.contract.simulate`](https://viem.sh/docs/actions/public/contract/simulate): simulate the call
    *
    * @example
    * ```ts
@@ -1665,7 +1615,7 @@ export namespace getRedeemQuote {
    *
    * const call = Actions.earn.getRedeemQuote.call({
    *   shareAmount: 100_000_000n,
-   *   vault: '0x...',
+   *   vault: '0x…',
    * })
    * ```
    *
@@ -1689,43 +1639,46 @@ export namespace getRedeemQuote {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { tempoModerato } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, Client, http } from 'viem/tempo'
  *
- * const client = createClient({
- *   chain: tempoModerato,
+ * const client = Client.create({
  *   transport: http(),
  * })
  *
  * const vault = await Actions.earn.getVault(client, {
- *   vault: '0x...',
+ *   vault: '0x…',
  * })
  * ```
  *
  * @param client - Client.
- * @param parameters - Parameters.
+ * @param options - Options.
  * @returns The vault state and metadata.
  */
-export async function getVault<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: getVault.Parameters,
-): Promise<getVault.ReturnValue> {
-  const { vault, ...rest } = parameters
+export async function getVault<chain extends Chain.Chain | undefined>(
+  client: Client.Client<chain>,
+  options: getVault.Options,
+): Promise<getVault.ReturnType> {
+  const { vault, ...rest } = options
   const [engine, fees] = await Promise.all([
-    readContract(client, {
+    read(client, {
       ...rest,
       abi: Abis.earnVault,
       address: vault,
       functionName: 'engine',
     }),
-    readContract(client, {
+    read(client, {
       ...rest,
       abi: Abis.earnVault,
       address: vault,
       functionName: 'earnFees',
     }),
   ])
+  const { results } = await multicall(client, {
+    ...pickMulticallParameters(rest),
+    allowFailure: false,
+    calls: getVault.calls({ engine, fees, vault }),
+    deployless: true,
+  })
   const [
     assetToken,
     engine_,
@@ -1747,13 +1700,8 @@ export async function getVault<chain extends Chain | undefined>(
     exactWithdraw,
     inKindDeposit,
     syncRedeem,
-  ] = await multicall(client, {
-    ...rest,
-    allowFailure: false,
-    contracts: getVault.calls({ engine, fees, vault }),
-    deployless: true,
-  })
-  if (!isAddressEqual(engine, engine_))
+  ] = results
+  if (!Address.isEqual(engine, engine_))
     throw new GetVaultEngineChangedError({ vault })
   return {
     assetToken,
@@ -1778,14 +1726,14 @@ export async function getVault<chain extends Chain | undefined>(
 export namespace getVault {
   export type Args = {
     /** Vault address. */
-    vault: Address
+    vault: Address.Address
   }
-  export type Parameters = Omit<ReadParameters, 'account'> & Args
-  export type ReturnValue = {
+  export type Options = MulticallReadParameters & Args
+  export type ReturnType = {
     /** Token accepted by the vault. */
-    assetToken: Address
+    assetToken: Address.Address
     /** Address allowed to cancel queued redemptions; zero when disabled. */
-    asyncJanitor: Address
+    asyncJanitor: Address.Address
     /** Actions supported by the current venue integration. */
     capabilities: {
       /** Queued redemptions. */
@@ -1800,11 +1748,11 @@ export namespace getVault {
     /** Whether new deposits are paused. */
     depositsPaused: boolean
     /** Address allowed to pause deposits; zero when disabled. */
-    emergencyGuardian: Address
+    emergencyGuardian: Address.Address
     /** Current venue integration. */
     engine: {
       /** Integration address. */
-      address: Address
+      address: Address.Address
       /** Engine display name. */
       name: string
       /** Engine display symbol. */
@@ -1821,16 +1769,16 @@ export namespace getVault {
     /** Whether Earn share supply matches its asset backing. */
     isSynced: boolean
     /** Vault governance address. */
-    operator: Address
+    operator: Address.Address
     /** Open queued redemptions. */
     pendingRedeemCount: bigint
     /** Active Earn share supply. */
     shareSupply: bigint
     /** Token representing Earn shares. */
-    shareToken: Address
+    shareToken: Address.Address
   }
   // TODO: exhaustive error type
-  export type ErrorType = GetVaultEngineChangedErrorType | BaseErrorType
+  export type ErrorType = GetVaultEngineChangedError | Errors.GlobalErrorType
 
   /**
    * Defines the reads used by {@link getVault}. Pass the current engine and
@@ -1839,7 +1787,9 @@ export namespace getVault {
    * @param args - Arguments.
    * @returns The calls.
    */
-  export function calls(args: Args & { engine: Address; fees: Address }) {
+  export function calls(
+    args: Args & { engine: Address.Address; fees: Address.Address },
+  ) {
     const { engine, fees, vault } = args
     return [
       defineCall({
@@ -1956,31 +1906,28 @@ export namespace getVault {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { tempoModerato } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, Client, http } from 'viem/tempo'
  *
- * const client = createClient({
- *   chain: tempoModerato,
+ * const client = Client.create({
  *   transport: http(),
  * })
  *
  * const shareAmount = await Actions.earn.getWithdrawQuote(client, {
  *   assetAmount: 250_000_000n,
- *   vault: '0x...',
+ *   vault: '0x…',
  * })
  * ```
  *
  * @param client - Client.
- * @param parameters - Parameters.
+ * @param options - Options.
  * @returns The required Earn share input, ceiling-rounded.
  */
-export async function getWithdrawQuote<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: getWithdrawQuote.Parameters,
-): Promise<getWithdrawQuote.ReturnValue> {
-  const { assetAmount, vault, ...rest } = parameters
-  return readContract(client, {
+export async function getWithdrawQuote<chain extends Chain.Chain | undefined>(
+  client: Client.Client<chain>,
+  options: getWithdrawQuote.Options,
+): Promise<getWithdrawQuote.ReturnType> {
+  const { assetAmount, vault, ...rest } = options
+  return read(client, {
     ...rest,
     ...getWithdrawQuote.call({ assetAmount, vault }),
   })
@@ -1991,25 +1938,25 @@ export namespace getWithdrawQuote {
     /** Exact asset output, base units. */
     assetAmount: bigint
     /** Vault address. */
-    vault: Address
+    vault: Address.Address
   }
-  export type Parameters = Omit<ReadParameters, 'account'> & Args
+  export type Options = Omit<ReadParameters, 'account'> & Args
   /** Required Earn share input, ceiling-rounded. */
-  export type ReturnValue = ReadContractReturnType<
+  export type ReturnType = read.ReturnType<
     typeof Abis.earnVault,
     'previewWithdraw',
     never
   >
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 
   /**
    * Defines a call to the vault's `previewWithdraw` function.
    *
    * Can be passed as a parameter to:
-   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`Actions.contract.estimateGas`](https://viem.sh/docs/actions/public/contract/estimateGas): estimate the gas cost of the call
    * - [`multicall`](https://viem.sh/docs/contract/multicall): batch the call with other contract reads
-   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`Actions.contract.simulate`](https://viem.sh/docs/actions/public/contract/simulate): simulate the call
    *
    * @example
    * ```ts
@@ -2017,7 +1964,7 @@ export namespace getWithdrawQuote {
    *
    * const call = Actions.earn.getWithdrawQuote.call({
    *   assetAmount: 250_000_000n,
-   *   vault: '0x...',
+   *   vault: '0x…',
    * })
    * ```
    *
@@ -2041,36 +1988,32 @@ export namespace getWithdrawQuote {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
- * import { tempoModerato } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
+ * import { Account, Actions, Client, http } from 'viem/tempo'
  *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempoModerato,
+ * const client = Client.create({
+ *   account: Account.fromSecp256k1('0x…'),
  *   transport: http(),
  * })
  *
  * const hash = await Actions.earn.redeem(client, {
  *   shareAmount: 100_000_000n,
  *   slippageBps: 50,
- *   vault: '0x...',
+ *   vault: '0x…',
  * })
  * ```
  *
  * @param client - Client.
- * @param parameters - Parameters.
+ * @param options - Options.
  * @returns The transaction hash.
  */
 export async function redeem<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: redeem.Parameters<chain, account>,
-): Promise<redeem.ReturnValue> {
-  return redeem.inner(sendTransaction, client, parameters)
+  client: Client.Client<chain, account>,
+  options: redeem.Options,
+): Promise<redeem.ReturnType> {
+  return redeem.inner(send, client, options)
 }
 
 export namespace redeem {
@@ -2078,9 +2021,9 @@ export namespace redeem {
     /** Earn shares to redeem; base units or `{ formatted, decimals? }`. */
     shareAmount: internal_Token.AmountInput
     /** Asset recipient. @default `account.address` */
-    recipient?: Address | undefined
+    recipient?: Address.Address | undefined
     /** Vault address. */
-    vault: Address
+    vault: Address.Address
   } & OneOf<
     | {
         /** Minimum asset output to accept; must be greater than zero. */
@@ -2097,36 +2040,34 @@ export namespace redeem {
         slippageBps: number
       }
   >
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
-  export type ReturnValue = SendTransactionReturnType
+  export type Options = WriteParameters & Args
+  export type ReturnType = send.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 
   /** @internal Shared dispatch; reads the Earn share token for the approval. */
   export async function inner<
-    action extends typeof sendTransaction | typeof sendTransactionSync,
-    chain extends Chain | undefined,
-    account extends Account | undefined,
+    action extends typeof send | typeof sendSync,
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
   >(
     action: action,
-    client: Client<Transport, chain, account>,
-    parameters: redeem.Parameters<chain, account>,
-  ): Promise<ReturnType<action>> {
+    client: Client.Client<chain, account>,
+    options: redeem.Options,
+  ): Promise<dispatchSend.ReturnType<action>> {
     const [args, shareToken] = await Promise.all([
-      toRedeemArgs(client, parameters as never),
-      readContract(client, {
+      toRedeemArgs(client, options),
+      read(client, {
         abi: Abis.earnVault,
-        address: parameters.vault,
+        address: options.vault,
         functionName: 'earnShare',
       }),
     ])
-    return (await action(client, {
-      ...parameters,
+    return dispatchSend(action, client, {
+      ...pickWriteParameters(options),
+      ...(action === sendSync ? pickWriteSyncParameters(options) : {}),
       calls: redeem.calls({ ...args, shareToken }),
-    } as never)) as never
+    })
   }
 
   /**
@@ -2136,8 +2077,8 @@ export namespace redeem {
    * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call<chain extends Chain | undefined>(
-    ...parameters: CallParameters<call.Args, Client<Transport, chain>>
+  export function call<chain extends Chain.Chain | undefined>(
+    ...parameters: CallParameters<call.Args, Client.Client<chain>>
   ) {
     const [, args] = resolveCallParameters(parameters)
     const { recipient, vault } = args
@@ -2161,9 +2102,9 @@ export namespace redeem {
       /** Earn shares to redeem; base units or `{ formatted, decimals? }`. */
       shareAmount: internal_Token.AmountInput
       /** Asset recipient. */
-      recipient: Address
+      recipient: Address.Address
       /** Vault address. */
-      vault: Address
+      vault: Address.Address
     } & OneOf<
       | {
           /** Minimum asset output to accept. */
@@ -2188,7 +2129,7 @@ export namespace redeem {
   export function calls(
     args: call.Args & {
       /** Earn share token approved for the redemption. */
-      shareToken: Address
+      shareToken: Address.Address
     },
   ) {
     const { shareToken, vault } = args
@@ -2201,25 +2142,28 @@ export namespace redeem {
         args: [vault, shareAmount],
       }),
       redeem.call({ ...args, shareAmount }),
-    ]
+    ] as const
   }
 
   /**
    * Extracts a `Redeemed` event from the vault's logs.
    *
    * @param logs - Logs.
-   * @param parameters - Parameters.
+   * @param options - Options.
    * @returns The `Redeemed` event.
    */
-  export function extractEvent(logs: Log[], parameters: { vault: Address }) {
-    const { vault } = parameters
+  export function extractEvent(
+    logs: readonly Log.Log[],
+    options: { vault: Address.Address },
+  ) {
+    const { vault } = options
     // Earn contracts are user-deployed: several adapters can emit the same
     // signature in one receipt, so filter by emitting address before decode.
-    const [log] = parseEventLogs({
-      abi: Abis.earnVault,
-      eventName: 'Redeemed',
-      logs: logs.filter((log) => isAddressEqual(log.address, vault)),
-    })
+    const [log] = AbiEvent.extractLogs(
+      Abis.earnVault,
+      logs.filter((log) => Address.isEqual(log.address, vault)),
+      { eventName: 'Redeemed', strict: true },
+    )
     if (!log) throw new Error('`Redeemed` event not found.')
     return log
   }
@@ -2228,40 +2172,40 @@ export namespace redeem {
    * Estimates gas for a redemption, assuming enough Earn share allowance.
    *
    * @param client - Client.
-   * @param parameters - Parameters.
+   * @param options - Options.
    * @returns The gas estimate.
    */
   export async function estimateGas<
-    chain extends Chain | undefined,
-    account extends Account | undefined,
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
   >(
-    client: Client<Transport, chain, account>,
-    parameters: redeem.Parameters<chain, account>,
+    client: Client.Client<chain, account>,
+    options: redeem.Options,
   ): Promise<bigint> {
-    return estimateContractGas(client, {
-      ...pickWriteParameters(parameters as never),
-      ...redeem.call(await toRedeemArgs(client, parameters as never)),
-    } as never)
+    return estimateWrite(client, {
+      ...pickWriteParameters(options),
+      ...redeem.call(await toRedeemArgs(client, options)),
+    })
   }
 
   /**
    * Simulates a redemption, assuming enough Earn share allowance.
    *
    * @param client - Client.
-   * @param parameters - Parameters.
+   * @param options - Options.
    * @returns The simulation result and write request.
    */
   export async function simulate<
-    chain extends Chain | undefined,
-    account extends Account | undefined,
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
   >(
-    client: Client<Transport, chain, account>,
-    parameters: redeem.Parameters<chain, account>,
-  ): Promise<SimulateContractReturnType<typeof Abis.earnVault, 'redeem'>> {
-    return simulateContract(client, {
-      ...pickWriteParameters(parameters as never),
-      ...redeem.call(await toRedeemArgs(client, parameters as never)),
-    } as never) as never
+    client: Client.Client<chain, account>,
+    options: redeem.Options,
+  ): Promise<simulateContract.ReturnType<typeof Abis.earnVault, 'redeem'>> {
+    return simulateWrite(client, {
+      ...pickWriteParameters(options),
+      ...redeem.call(await toRedeemArgs(client, options)),
+    })
   }
 }
 
@@ -2270,40 +2214,36 @@ export namespace redeem {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
- * import { tempoModerato } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
+ * import { Account, Actions, Client, http } from 'viem/tempo'
  *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempoModerato,
+ * const client = Client.create({
+ *   account: Account.fromSecp256k1('0x…'),
  *   transport: http(),
  * })
  *
  * const { assetAmount } = await Actions.earn.redeemSync(client, {
  *   assetAmountMin: 99_500_000n,
  *   shareAmount: 100_000_000n,
- *   vault: '0x...',
+ *   vault: '0x…',
  * })
  * ```
  *
  * @param client - Client.
- * @param parameters - Parameters.
+ * @param options - Options.
  * @returns The transaction receipt and event data.
  */
 export async function redeemSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: redeemSync.Parameters<chain, account>,
-): Promise<redeemSync.ReturnValue> {
-  const { throwOnReceiptRevert = true, vault } = parameters
-  const receipt = await redeem.inner(sendTransactionSync, client, {
-    ...parameters,
+  client: Client.Client<chain, account>,
+  options: redeemSync.Options,
+): Promise<redeemSync.ReturnType> {
+  const { throwOnReceiptRevert = true, vault } = options
+  const receipt = await redeem.inner(sendSync, client, {
+    ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = redeem.extractEvent(receipt.logs, { vault })
   return {
     assetAmount: args.assets,
@@ -2316,24 +2256,21 @@ export async function redeemSync<
 
 export namespace redeemSync {
   export type Args = redeem.Args
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = redeem.Parameters<chain, account> & WriteSyncParameters<chain, account>
-  export type ReturnValue = Compute<{
+  export type Options = redeem.Options & WriteSyncParameters
+  export type ReturnType = Compute<{
     /** Assets paid out. */
     assetAmount: bigint
     /** Redeeming caller. */
-    caller: Address
+    caller: Address.Address
     /** Transaction receipt. */
-    receipt: TransactionReceipt
+    receipt: writeSync.ReturnType
     /** Asset recipient. */
-    recipient: Address
+    recipient: Address.Address
     /** Earn shares burned. */
     shareAmount: bigint
   }>
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 }
 
 /**
@@ -2343,9 +2280,9 @@ export namespace redeemSync {
  * @example
  * ```ts
  * const prepared = await Actions.earn.privateRedeem.prepare(parentClient, {
- *   gateway: '0x...',
- *   recipient: '0x...',
- *   recoveryRecipient: '0x...',
+ *   gateway: '0x…',
+ *   recipient: '0x…',
+ *   recoveryRecipient: '0x…',
  *   shareAmount: 100_000_000n,
  *   slippageBps: 50,
  *   vault: '0x...',
@@ -2355,27 +2292,26 @@ export namespace redeemSync {
  * ```
  *
  * @param client - Zone client.
- * @param parameters - Prepared redemption and transaction parameters.
+ * @param options - Prepared redemption and transaction options.
  * @returns The transaction hash.
  */
 export async function privateRedeem<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: privateRedeem.Parameters<chain, account>,
-): Promise<privateRedeem.ReturnValue> {
-  await assertPreparedZoneRequestChain(client, parameters)
-  return zoneActions.requestWithdrawal(client, parameters)
+  client: Client.Client<chain, account>,
+  options: privateRedeem.Options<account>,
+): Promise<privateRedeem.ReturnType> {
+  await assertPreparedZoneRequestChain(client, options)
+  return zoneActions.requestWithdrawal(client, options)
 }
 
 export namespace privateRedeem {
-  export type Args = prepare.ReturnValue
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
-  export type ReturnValue = SendTransactionReturnType
+  export type Args = prepare.ReturnType
+  export type Options<
+    account extends Account.Account | undefined = Account.Account | undefined,
+  > = zoneActions.requestWithdrawal.Options<account> & Args
+  export type ReturnType = send.ReturnType
   export type ErrorType = zoneActions.requestWithdrawal.ErrorType
 
   /**
@@ -2383,19 +2319,19 @@ export namespace privateRedeem {
    * the resulting assets to the Zone.
    *
    * @param client - Parent-chain client.
-   * @param parameters - Redemption intent and recovery parameters.
+   * @param options - Redemption intent and recovery options.
    * @returns The prepared withdrawal and correlation data.
    */
-  export async function prepare<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    parameters: prepare.Parameters,
-  ): Promise<prepare.ReturnValue> {
+  export async function prepare<chain extends Chain.Chain | undefined>(
+    client: Client.Client<chain>,
+    options: prepare.Options,
+  ): Promise<prepare.ReturnType> {
     const chainId = client.chain?.id
     if (!chainId) throw new Error('`chain` is required.')
     const {
       actionId = Hex.random(32),
       callbackGas = zoneGatewayCallbackGas,
-      fallbackRecipient = parameters.recoveryRecipient,
+      fallbackRecipient = options.recoveryRecipient,
       gateway,
       portalAddress: portalAddress_,
       recipient,
@@ -2405,11 +2341,11 @@ export namespace privateRedeem {
       vault,
       withdrawalMemo,
       zoneId,
-    } = parameters
+    } = options
     const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
-    const readParameters = pickReadParameters(parameters)
+    const readParameters = pickReadParameters(options)
     const [fromBlock, config] = await Promise.all([
-      getBlockNumber(client, { cacheTime: 0 }),
+      getNumber(client, { cacheTime: 0 }),
       getZoneGatewayConfig(client, {
         ...readParameters,
         flow: 1,
@@ -2419,8 +2355,8 @@ export namespace privateRedeem {
         zonePortal: portalAddress,
       }),
     ])
-    const assetToken = parameters.assetToken ?? config.vaultAsset
-    if (isAddressEqual(assetToken, config.shareToken))
+    const assetToken = options.assetToken ?? config.vaultAsset
+    if (Address.isEqual(assetToken, config.shareToken))
       throw new Error('`assetToken` cannot be the Earn share token.')
 
     const [{ encrypted, keyIndex }, assetAmountMin] = await Promise.all([
@@ -2432,23 +2368,23 @@ export namespace privateRedeem {
         zoneId: config.zoneId,
       }),
       (async () => {
-        if (parameters.assetAmountMin !== undefined)
-          return EarnShares.minimumOutput(parameters.assetAmountMin, 0)
-        if (parameters.assetAmount !== undefined)
+        if (options.assetAmountMin !== undefined)
+          return EarnShares.minimumOutput(options.assetAmountMin, 0)
+        if (options.assetAmount !== undefined)
           return EarnShares.minimumOutput(
-            parameters.assetAmount,
-            parameters.slippageBps,
+            options.assetAmount,
+            options.slippageBps,
           )
         const assetAmount = await getRedeemQuote(client, {
           ...readParameters,
           shareAmount,
           vault: config.vault,
         })
-        return EarnShares.minimumOutput(assetAmount, parameters.slippageBps)
+        return EarnShares.minimumOutput(assetAmount, options.slippageBps)
       })(),
     ])
-    const direct = isAddressEqual(assetToken, config.vaultAsset)
-    const data = encodeAbiParameters(Abis.earnRouterCallbackData, [
+    const direct = Address.isEqual(assetToken, config.vaultAsset)
+    const data = AbiParameters.encode(Abis.earnRouterCallbackData, [
       {
         actionId,
         earnVault: config.vault,
@@ -2476,7 +2412,7 @@ export namespace privateRedeem {
   }
 
   export namespace prepare {
-    export type Parameters = Omit<ReadParameters, 'account'> &
+    export type Options = MulticallReadParameters &
       PrivatePreparationParameters & {
         /** Earn shares withdrawn from the Zone, base units. */
         shareAmount: bigint
@@ -2502,11 +2438,11 @@ export namespace privateRedeem {
           >)
         | ({
             /** Asset token returned to the Zone after a swap. */
-            assetToken: Address
+            assetToken: Address.Address
           } & MinimumAssetAmountParameters)
       )
-    export type ReturnValue = PreparedZoneRequest
-    export type ErrorType = BaseErrorType
+    export type ReturnType = PreparedZoneRequest
+    export type ErrorType = Errors.GlobalErrorType
   }
 
   /**
@@ -2525,28 +2461,26 @@ export namespace privateRedeem {
  * receipt. The receipt confirms withdrawal acceptance, not redemption.
  *
  * @param client - Zone client.
- * @param parameters - Prepared redemption and transaction parameters.
+ * @param options - Prepared redemption and transaction options.
  * @returns The Zone transaction receipt and parent-chain withdrawal sender tag.
  */
 export async function privateRedeemSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: privateRedeemSync.Parameters<chain, account>,
-): Promise<privateRedeemSync.ReturnValue> {
-  await assertPreparedZoneRequestChain(client, parameters)
-  return zoneActions.requestWithdrawalSync(client, parameters)
+  client: Client.Client<chain, account>,
+  options: privateRedeemSync.Options<account>,
+): Promise<privateRedeemSync.ReturnType> {
+  await assertPreparedZoneRequestChain(client, options)
+  return zoneActions.requestWithdrawalSync(client, options)
 }
 
 export namespace privateRedeemSync {
   export type Args = privateRedeem.Args
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = privateRedeem.Parameters<chain, account> &
-    WriteSyncParameters<chain, account>
-  export type ReturnValue = zoneActions.requestWithdrawalSync.ReturnValue
+  export type Options<
+    account extends Account.Account | undefined = Account.Account | undefined,
+  > = privateRedeem.Options<account> & WriteSyncParameters
+  export type ReturnType = zoneActions.requestWithdrawalSync.ReturnType
   export type ErrorType = zoneActions.requestWithdrawalSync.ErrorType
 }
 
@@ -2558,18 +2492,20 @@ export namespace privateRedeemSync {
  * const result = await Actions.earn.waitForPrivateRedeem(parentClient, {
  *   actionId: prepared.actionId,
  *   fromBlock: prepared.fromBlock,
- *   gateway: '0x...',
- *   vault: '0x...',
+ *   gateway: '0x…',
+ *   vault: '0x…',
  * })
  * ```
  *
  * @param client - Parent-chain client.
- * @param parameters - Prepared action correlation and polling parameters.
+ * @param options - Prepared action correlation and polling options.
  * @returns The completed gateway redemption.
  */
-export async function waitForPrivateRedeem<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: waitForPrivateRedeem.Parameters,
+export async function waitForPrivateRedeem<
+  chain extends Chain.Chain | undefined,
+>(
+  client: Client.Client<chain>,
+  options: waitForPrivateRedeem.Options,
 ): Promise<waitForPrivateRedeem.ReturnType> {
   const {
     actionId,
@@ -2578,11 +2514,8 @@ export async function waitForPrivateRedeem<chain extends Chain | undefined>(
     pollingInterval = client.pollingInterval,
     timeout = 60_000,
     vault,
-  } = parameters
-  const event = getAbiItem({
-    abi: Abis.earnRouter,
-    name: 'EarnRedeem',
-  })
+  } = options
+  const event = AbiEvent.fromAbi(Abis.earnRouter, 'EarnRedeem')
   const observerId = stringify([
     'waitForPrivateRedeem',
     client.uid,
@@ -2657,19 +2590,19 @@ export async function waitForPrivateRedeem<chain extends Chain | undefined>(
 }
 
 export namespace waitForPrivateRedeem {
-  export type Parameters = {
+  export type Options = {
     /** Correlation id from {@link privateRedeem.prepare}. */
     actionId: Hex.Hex
     /** Lower bound for the parent-chain log scan. */
     fromBlock: bigint
     /** Zone gateway address. */
-    gateway: Address
+    gateway: Address.Address
     /** Polling frequency in milliseconds. @default `client.pollingInterval` */
     pollingInterval?: number | undefined
     /** Timeout in milliseconds; `0` disables it. @default `60_000` */
     timeout?: number | undefined
     /** Vault address. */
-    vault: Address
+    vault: Address.Address
   }
   export type ReturnType = {
     /** Correlation id for the completed redemption. */
@@ -2677,7 +2610,7 @@ export namespace waitForPrivateRedeem {
     /** Tokens returned to the Zone, base units. */
     outputAmount: bigint
     /** Token returned to the Zone. */
-    outputToken: Address
+    outputToken: Address.Address
     /** Earn shares redeemed. */
     shares: bigint
     /** Parent-chain block containing the gateway event. */
@@ -2688,11 +2621,11 @@ export namespace waitForPrivateRedeem {
     zoneDepositHash: Hex.Hex
   }
   export type ErrorType =
-    | GetLogsErrorType
+    | getLogs.ErrorType
     | ObserveErrorType
     | PollErrorType
-    | WaitForPrivateRedeemTimeoutErrorType
-    | BaseErrorType
+    | WaitForPrivateRedeemTimeoutError
+    | Errors.GlobalErrorType
 }
 
 /**
@@ -2702,36 +2635,32 @@ export namespace waitForPrivateRedeem {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
- * import { tempoModerato } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
+ * import { Account, Actions, Client, http } from 'viem/tempo'
  *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempoModerato,
+ * const client = Client.create({
+ *   account: Account.fromSecp256k1('0x…'),
  *   transport: http(),
  * })
  *
  * const hash = await Actions.earn.withdrawExact(client, {
  *   assetAmount: 40_000_000n,
  *   slippageBps: 50,
- *   vault: '0x...',
+ *   vault: '0x…',
  * })
  * ```
  *
  * @param client - Client.
- * @param parameters - Parameters.
+ * @param options - Options.
  * @returns The transaction hash.
  */
 export async function withdrawExact<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: withdrawExact.Parameters<chain, account>,
-): Promise<withdrawExact.ReturnValue> {
-  return withdrawExact.inner(sendTransaction, client, parameters)
+  client: Client.Client<chain, account>,
+  options: withdrawExact.Options,
+): Promise<withdrawExact.ReturnType> {
+  return withdrawExact.inner(send, client, options)
 }
 
 export namespace withdrawExact {
@@ -2739,9 +2668,9 @@ export namespace withdrawExact {
     /** Exact assets to receive; base units or `{ formatted, decimals? }`. */
     assetAmount: internal_Token.AmountInput
     /** Asset recipient. @default `account.address` */
-    recipient?: Address | undefined
+    recipient?: Address.Address | undefined
     /** Vault address. */
-    vault: Address
+    vault: Address.Address
   } & OneOf<
     | {
         /** Maximum Earn share input to burn. */
@@ -2758,36 +2687,34 @@ export namespace withdrawExact {
         slippageBps: number
       }
   >
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
-  export type ReturnValue = SendTransactionReturnType
+  export type Options = WriteParameters & Args
+  export type ReturnType = send.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 
   /** @internal Shared dispatch; reads the Earn share token for the approval. */
   export async function inner<
-    action extends typeof sendTransaction | typeof sendTransactionSync,
-    chain extends Chain | undefined,
-    account extends Account | undefined,
+    action extends typeof send | typeof sendSync,
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
   >(
     action: action,
-    client: Client<Transport, chain, account>,
-    parameters: withdrawExact.Parameters<chain, account>,
-  ): Promise<ReturnType<action>> {
+    client: Client.Client<chain, account>,
+    options: withdrawExact.Options,
+  ): Promise<dispatchSend.ReturnType<action>> {
     const [args, shareToken] = await Promise.all([
-      toWithdrawExactArgs(client, parameters as never),
-      readContract(client, {
+      toWithdrawExactArgs(client, options),
+      read(client, {
         abi: Abis.earnVault,
-        address: parameters.vault,
+        address: options.vault,
         functionName: 'earnShare',
       }),
     ])
-    return (await action(client, {
-      ...parameters,
+    return dispatchSend(action, client, {
+      ...pickWriteParameters(options),
+      ...(action === sendSync ? pickWriteSyncParameters(options) : {}),
       calls: withdrawExact.calls({ ...args, shareToken }),
-    } as never)) as never
+    })
   }
 
   /**
@@ -2797,8 +2724,8 @@ export namespace withdrawExact {
    * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call<chain extends Chain | undefined>(
-    ...parameters: CallParameters<call.Args, Client<Transport, chain>>
+  export function call<chain extends Chain.Chain | undefined>(
+    ...parameters: CallParameters<call.Args, Client.Client<chain>>
   ) {
     const [, args] = resolveCallParameters(parameters)
     const { recipient, vault } = args
@@ -2822,9 +2749,9 @@ export namespace withdrawExact {
       /** Exact assets to receive; base units or `{ formatted, decimals? }`. */
       assetAmount: internal_Token.AmountInput
       /** Asset recipient. */
-      recipient: Address
+      recipient: Address.Address
       /** Vault address. */
-      vault: Address
+      vault: Address.Address
     } & OneOf<
       | {
           /** Maximum Earn share input to burn. */
@@ -2849,7 +2776,7 @@ export namespace withdrawExact {
   export function calls(
     args: call.Args & {
       /** Earn share token approved for the withdrawal. */
-      shareToken: Address
+      shareToken: Address.Address
     },
   ) {
     const { shareToken, vault } = args
@@ -2864,25 +2791,28 @@ export namespace withdrawExact {
         args: [vault, shareAmountMax],
       }),
       call,
-    ]
+    ] as const
   }
 
   /**
    * Extracts a `WithdrewExact` event from the vault's logs.
    *
    * @param logs - Logs.
-   * @param parameters - Parameters.
+   * @param options - Options.
    * @returns The `WithdrewExact` event.
    */
-  export function extractEvent(logs: Log[], parameters: { vault: Address }) {
-    const { vault } = parameters
+  export function extractEvent(
+    logs: readonly Log.Log[],
+    options: { vault: Address.Address },
+  ) {
+    const { vault } = options
     // Earn contracts are user-deployed: several adapters can emit the same
     // signature in one receipt, so filter by emitting address before decode.
-    const [log] = parseEventLogs({
-      abi: Abis.earnVault,
-      eventName: 'WithdrewExact',
-      logs: logs.filter((log) => isAddressEqual(log.address, vault)),
-    })
+    const [log] = AbiEvent.extractLogs(
+      Abis.earnVault,
+      logs.filter((log) => Address.isEqual(log.address, vault)),
+      { eventName: 'WithdrewExact', strict: true },
+    )
     if (!log) throw new Error('`WithdrewExact` event not found.')
     return log
   }
@@ -2891,46 +2821,42 @@ export namespace withdrawExact {
    * Estimates gas for an exact withdrawal, assuming enough Earn share allowance.
    *
    * @param client - Client.
-   * @param parameters - Parameters.
+   * @param options - Options.
    * @returns The gas estimate.
    */
   export async function estimateGas<
-    chain extends Chain | undefined,
-    account extends Account | undefined,
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
   >(
-    client: Client<Transport, chain, account>,
-    parameters: withdrawExact.Parameters<chain, account>,
+    client: Client.Client<chain, account>,
+    options: withdrawExact.Options,
   ): Promise<bigint> {
-    return estimateContractGas(client, {
-      ...pickWriteParameters(parameters as never),
-      ...withdrawExact.call(
-        await toWithdrawExactArgs(client, parameters as never),
-      ),
-    } as never)
+    return estimateWrite(client, {
+      ...pickWriteParameters(options),
+      ...withdrawExact.call(await toWithdrawExactArgs(client, options)),
+    })
   }
 
   /**
    * Simulates an exact withdrawal, assuming enough Earn share allowance.
    *
    * @param client - Client.
-   * @param parameters - Parameters.
+   * @param options - Options.
    * @returns The simulation result and write request.
    */
   export async function simulate<
-    chain extends Chain | undefined,
-    account extends Account | undefined,
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
   >(
-    client: Client<Transport, chain, account>,
-    parameters: withdrawExact.Parameters<chain, account>,
+    client: Client.Client<chain, account>,
+    options: withdrawExact.Options,
   ): Promise<
-    SimulateContractReturnType<typeof Abis.earnVault, 'withdrawExact'>
+    simulateContract.ReturnType<typeof Abis.earnVault, 'withdrawExact'>
   > {
-    return simulateContract(client, {
-      ...pickWriteParameters(parameters as never),
-      ...withdrawExact.call(
-        await toWithdrawExactArgs(client, parameters as never),
-      ),
-    } as never) as never
+    return simulateWrite(client, {
+      ...pickWriteParameters(options),
+      ...withdrawExact.call(await toWithdrawExactArgs(client, options)),
+    })
   }
 }
 
@@ -2939,40 +2865,36 @@ export namespace withdrawExact {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
- * import { tempoModerato } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
+ * import { Account, Actions, Client, http } from 'viem/tempo'
  *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempoModerato,
+ * const client = Client.create({
+ *   account: Account.fromSecp256k1('0x…'),
  *   transport: http(),
  * })
  *
  * const { shareAmount } = await Actions.earn.withdrawExactSync(client, {
  *   assetAmount: 40_000_000n,
  *   shareAmountMax: 40_200_000n,
- *   vault: '0x...',
+ *   vault: '0x…',
  * })
  * ```
  *
  * @param client - Client.
- * @param parameters - Parameters.
+ * @param options - Options.
  * @returns The transaction receipt and event data.
  */
 export async function withdrawExactSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: withdrawExactSync.Parameters<chain, account>,
-): Promise<withdrawExactSync.ReturnValue> {
-  const { throwOnReceiptRevert = true, vault } = parameters
-  const receipt = await withdrawExact.inner(sendTransactionSync, client, {
-    ...parameters,
+  client: Client.Client<chain, account>,
+  options: withdrawExactSync.Options,
+): Promise<withdrawExactSync.ReturnType> {
+  const { throwOnReceiptRevert = true, vault } = options
+  const receipt = await withdrawExact.inner(sendSync, client, {
+    ...options,
     throwOnReceiptRevert,
-  } as never)
+  })
   const { args } = withdrawExact.extractEvent(receipt.logs, { vault })
   return {
     assetAmount: args.assets,
@@ -2985,25 +2907,21 @@ export async function withdrawExactSync<
 
 export namespace withdrawExactSync {
   export type Args = withdrawExact.Args
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = withdrawExact.Parameters<chain, account> &
-    WriteSyncParameters<chain, account>
-  export type ReturnValue = Compute<{
+  export type Options = withdrawExact.Options & WriteSyncParameters
+  export type ReturnType = Compute<{
     /** Exact assets received. */
     assetAmount: bigint
     /** Withdrawing caller. */
-    caller: Address
+    caller: Address.Address
     /** Transaction receipt. */
-    receipt: TransactionReceipt
+    receipt: writeSync.ReturnType
     /** Asset recipient. */
-    recipient: Address
+    recipient: Address.Address
     /** Earn shares burned. */
     shareAmount: bigint
   }>
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 }
 
 type MinimumAssetAmountParameters = OneOf<
@@ -3038,19 +2956,19 @@ type PrivatePreparationParameters = {
   /** Gas reserved for the parent-chain callback. @default `10_000_000n` */
   callbackGas?: bigint | undefined
   /** Public recipient if the parent-chain callback fails. @default `recoveryRecipient` */
-  fallbackRecipient?: Address | undefined
+  fallbackRecipient?: Address.Address | undefined
   /** Zone gateway address. */
-  gateway: Address
+  gateway: Address.Address
   /** Source Zone portal on the parent chain. @default Derived from `zoneId` */
-  portalAddress?: Address | undefined
+  portalAddress?: Address.Address | undefined
   /** Encrypted recipient for the returned tokens. */
-  recipient: Address
+  recipient: Address.Address
   /** Public recipient if the encrypted return fails. */
-  recoveryRecipient: Address
+  recoveryRecipient: Address.Address
   /** Optional memo encrypted with the returned Zone deposit. */
   returnMemo?: Hex.Hex | undefined
   /** Vault address. */
-  vault: Address
+  vault: Address.Address
   /** Optional memo attached to the Zone withdrawal. */
   withdrawalMemo?: Hex.Hex | undefined
   /** Source Zone receiving the output. */
@@ -3069,92 +2987,101 @@ type PreparedZoneRequest = {
   /** Encoded gateway callback. */
   data: Hex.Hex
   /** Public recipient if the parent-chain callback fails. */
-  fallbackRecipient: Address
+  fallbackRecipient: Address.Address
   /** Parent-chain block before the withdrawal is submitted. */
   fromBlock: bigint
   /** Optional memo attached to the Zone withdrawal. */
   memo?: Hex.Hex | undefined
   /** Zone gateway receiving the withdrawal. */
-  to: Address
+  to: Address.Address
   /** Token withdrawn from the Zone. */
-  token: Address
+  token: Address.Address
   /** Zone containing the withdrawn tokens. */
   zoneId: number
 }
 
 const zoneGatewayCallbackGas = 10_000_000n
 
-function resolveMinimumShareAmount(parameters: MinimumShareAmountParameters) {
-  if (parameters.shareAmountMin !== undefined)
-    return EarnShares.minimumOutput(parameters.shareAmountMin, 0)
-  return EarnShares.minimumOutput(
-    parameters.shareAmount,
-    parameters.slippageBps,
-  )
+function resolveMinimumShareAmount(options: MinimumShareAmountParameters) {
+  if (options.shareAmountMin !== undefined)
+    return EarnShares.minimumOutput(options.shareAmountMin, 0)
+  return EarnShares.minimumOutput(options.shareAmount, options.slippageBps)
 }
 
 async function assertPreparedZoneRequestChain(
-  client: Client<Transport, Chain | undefined>,
-  parameters: PreparedZoneRequest,
+  client: Client.Client<Chain.Chain | undefined>,
+  options: PreparedZoneRequest,
 ) {
   const chain = client.chain
   if (!chain) throw new Error('`chain` is required.')
-  if (chain.sourceId !== parameters.chainId)
+  if (chain.sourceId !== options.chainId)
     throw new Error(
       'Prepared Zone request parent chain ID does not match client chain.',
     )
   const { zoneId } = await zoneActions.getZoneInfo(client)
-  if (zoneId !== parameters.zoneId)
+  if (zoneId !== options.zoneId)
     throw new Error(
       'Prepared Zone request Zone ID does not match client chain.',
     )
 }
 
-function pickReadParameters(parameters: Omit<ReadParameters, 'account'>) {
-  const { blockOverrides, stateOverride } = parameters
-  if (parameters.blockNumber !== undefined)
+type MulticallReadParameters = Omit<
+  ReadParameters,
+  'account' | 'blockOverrides'
+>
+
+function pickReadParameters(options: MulticallReadParameters) {
+  const { stateOverride } = options
+  if (options.blockNumber !== undefined)
     return {
-      blockNumber: parameters.blockNumber,
-      blockOverrides,
+      blockNumber: options.blockNumber,
       stateOverride,
     }
-  return { blockOverrides, blockTag: parameters.blockTag, stateOverride }
+  return { blockTag: options.blockTag, stateOverride }
 }
 
-async function getZoneGatewayConfig<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: Omit<ReadParameters, 'account'> & {
+function pickMulticallParameters(options: MulticallReadParameters) {
+  const { stateOverride } = options
+  if (options.blockNumber !== undefined)
+    return { blockNumber: options.blockNumber, stateOverride }
+  return { blockTag: options.blockTag, stateOverride }
+}
+
+async function getZoneGatewayConfig<chain extends Chain.Chain | undefined>(
+  client: Client.Client<chain>,
+  options: MulticallReadParameters & {
     flow: 0 | 1
-    gateway: Address
-    vault: Address
+    gateway: Address.Address
+    vault: Address.Address
     zoneId: number
-    zonePortal: Address
+    zonePortal: Address.Address
   },
 ) {
-  const { flow, gateway, vault, zoneId, zonePortal, ...rest } = parameters
-  const [vaultAsset, shareToken, supportsFlow] = await multicall(client, {
-    ...rest,
+  const { flow, gateway, vault, zoneId, zonePortal, ...rest } = options
+  const { results } = await multicall(client, {
+    ...pickMulticallParameters(rest),
     allowFailure: false,
-    contracts: [
-      {
+    calls: [
+      defineCall({
         abi: Abis.earnVault,
         address: vault,
         functionName: 'asset',
-      },
-      {
+      }),
+      defineCall({
         abi: Abis.earnVault,
         address: vault,
         functionName: 'earnShare',
-      },
-      {
+      }),
+      defineCall({
         abi: Abis.earnRouter,
         address: gateway,
         args: [flow],
         functionName: 'supportsFlow',
-      },
+      }),
     ],
     deployless: true,
   })
+  const [vaultAsset, shareToken, supportsFlow] = results
   if (!supportsFlow) throw new Error('Zone gateway flow is not supported.')
   return {
     shareToken,
@@ -3180,7 +3107,7 @@ const interfaceIds = {
 
 /** Trims the decoded `FeeConfig` to its active fixed-fee count. */
 function toFeeConfig(
-  config: ReadContractReturnType<typeof Abis.earnFees, 'feeConfig'>,
+  config: read.ReturnType<typeof Abis.earnFees, 'feeConfig'>,
 ): FeeConfig {
   return {
     excess: config.excess,
@@ -3190,7 +3117,7 @@ function toFeeConfig(
 
 /** Maps decoded fee fields to the action result. */
 function toFeePreview(
-  preview: ReadContractReturnType<typeof Abis.earnFees, 'previewAccruedFees'>,
+  preview: read.ReturnType<typeof Abis.earnFees, 'previewAccruedFees'>,
 ): FeePreview {
   const {
     allocationCount,
@@ -3216,106 +3143,106 @@ function toFeePreview(
   }
 }
 
-/** Resolves `deposit` parameters into the adapter call args. @internal */
+/** Resolves `deposit` options into the adapter call args. @internal */
 async function toDepositArgs(
-  client: Client<Transport, Chain | undefined, Account | undefined>,
-  parameters: deposit.Parameters,
+  client: Client.Client<Chain.Chain | undefined, Account.Account | undefined>,
+  options: deposit.Options,
 ): Promise<deposit.call.Args> {
-  const { vault } = parameters
+  const { vault } = options
   const assetAmount = await toBaseUnitsLive(client, {
-    amount: parameters.assetAmount,
+    amount: options.assetAmount,
     token: 'asset',
     vault,
   })
   const args = {
     assetAmount,
-    recipient: resolveRecipient(client, parameters),
+    recipient: resolveRecipient(client, options),
     vault,
   }
-  if (parameters.shareAmountMin !== undefined)
-    return { ...args, shareAmountMin: parameters.shareAmountMin }
+  if (options.shareAmountMin !== undefined)
+    return { ...args, shareAmountMin: options.shareAmountMin }
   return {
     ...args,
-    shareAmount: parameters.shareAmount,
-    slippageBps: parameters.slippageBps,
+    shareAmount: options.shareAmount,
+    slippageBps: options.slippageBps,
   }
 }
 
-/** Resolves `depositShares` parameters into the adapter call args. @internal */
+/** Resolves `depositShares` options into the adapter call args. @internal */
 function toDepositSharesArgs(
-  client: Client<Transport, Chain | undefined, Account | undefined>,
-  parameters: depositShares.Parameters,
+  client: Client.Client<Chain.Chain | undefined, Account.Account | undefined>,
+  options: depositShares.Options,
 ): depositShares.call.Args {
-  const { vault, venueShareAmount } = parameters
+  const { vault, venueShareAmount } = options
   const args = {
-    recipient: resolveRecipient(client, parameters),
+    recipient: resolveRecipient(client, options),
     vault,
     venueShareAmount,
   }
-  if (parameters.earnShareAmountMin !== undefined)
-    return { ...args, earnShareAmountMin: parameters.earnShareAmountMin }
+  if (options.earnShareAmountMin !== undefined)
+    return { ...args, earnShareAmountMin: options.earnShareAmountMin }
   return {
     ...args,
-    earnShareAmount: parameters.earnShareAmount,
-    slippageBps: parameters.slippageBps,
+    earnShareAmount: options.earnShareAmount,
+    slippageBps: options.slippageBps,
   }
 }
 
-/** Resolves `redeem` parameters into the adapter call args. @internal */
+/** Resolves `redeem` options into the adapter call args. @internal */
 async function toRedeemArgs(
-  client: Client<Transport, Chain | undefined, Account | undefined>,
-  parameters: redeem.Parameters,
+  client: Client.Client<Chain.Chain | undefined, Account.Account | undefined>,
+  options: redeem.Options,
 ): Promise<redeem.call.Args> {
-  const { vault } = parameters
+  const { vault } = options
   const shareAmount = await toBaseUnitsLive(client, {
-    amount: parameters.shareAmount,
+    amount: options.shareAmount,
     token: 'shareToken',
     vault,
   })
   const args = {
-    recipient: resolveRecipient(client, parameters),
+    recipient: resolveRecipient(client, options),
     shareAmount,
     vault,
   }
-  if (parameters.assetAmountMin !== undefined)
-    return { ...args, assetAmountMin: parameters.assetAmountMin }
+  if (options.assetAmountMin !== undefined)
+    return { ...args, assetAmountMin: options.assetAmountMin }
   const assetAmount = await (async () => {
-    if (parameters.assetAmount !== undefined) return parameters.assetAmount
+    if (options.assetAmount !== undefined) return options.assetAmount
     return getRedeemQuote(client, { shareAmount, vault })
   })()
   return {
     ...args,
     assetAmount,
-    slippageBps: parameters.slippageBps,
+    slippageBps: options.slippageBps,
   }
 }
 
-/** Resolves `withdrawExact` parameters into the adapter call args. @internal */
+/** Resolves `withdrawExact` options into the adapter call args. @internal */
 async function toWithdrawExactArgs(
-  client: Client<Transport, Chain | undefined, Account | undefined>,
-  parameters: withdrawExact.Parameters,
+  client: Client.Client<Chain.Chain | undefined, Account.Account | undefined>,
+  options: withdrawExact.Options,
 ): Promise<withdrawExact.call.Args> {
-  const { vault } = parameters
+  const { vault } = options
   const assetAmount = await toBaseUnitsLive(client, {
-    amount: parameters.assetAmount,
+    amount: options.assetAmount,
     token: 'asset',
     vault,
   })
   const args = {
     assetAmount,
-    recipient: resolveRecipient(client, parameters),
+    recipient: resolveRecipient(client, options),
     vault,
   }
-  if (parameters.shareAmountMax !== undefined)
-    return { ...args, shareAmountMax: parameters.shareAmountMax }
+  if (options.shareAmountMax !== undefined)
+    return { ...args, shareAmountMax: options.shareAmountMax }
   const shareAmount = await (async () => {
-    if (parameters.shareAmount !== undefined) return parameters.shareAmount
+    if (options.shareAmount !== undefined) return options.shareAmount
     return getWithdrawQuote(client, { assetAmount, vault })
   })()
   return {
     ...args,
     shareAmount,
-    slippageBps: parameters.slippageBps,
+    slippageBps: options.slippageBps,
   }
 }
 
@@ -3343,18 +3270,18 @@ function maximumInput(shareAmount: bigint, slippageBps: number): bigint {
  * genesis-declared, so nothing is cached. @internal
  */
 async function toBaseUnitsLive(
-  client: Client<Transport, Chain | undefined>,
+  client: Client.Client<Chain.Chain | undefined>,
   options: {
     amount: internal_Token.AmountInput
     token: 'asset' | 'shareToken'
-    vault: Address
+    vault: Address.Address
   },
 ): Promise<bigint> {
   const { amount, token, vault } = options
   if (typeof amount === 'bigint') return amount
   if (amount.decimals !== undefined)
     return internal_Token.toBaseUnits(amount, amount.decimals)
-  const address = await readContract(client, {
+  const address = await read(client, {
     abi: Abis.earnVault,
     address: vault,
     functionName: token === 'asset' ? 'asset' : 'earnShare',
@@ -3367,14 +3294,20 @@ async function toBaseUnitsLive(
 
 /** Defaults a write's `recipient` to the sending account's address. @internal */
 function resolveRecipient(
-  client: Client<Transport, Chain | undefined, Account | undefined>,
-  parameters: {
-    account?: Account | Address | null | undefined
-    recipient?: Address | undefined
+  client: Client.Client<Chain.Chain | undefined, Account.Account | undefined>,
+  options: {
+    account?: Account.Account | Address.Address | undefined
+    recipient?: Address.Address | undefined
   },
-): Address {
-  if (parameters.recipient) return parameters.recipient
-  const account = parameters.account ?? client.account
-  if (!account) throw new AccountNotFoundError()
-  return parseAccount(account).address
+): Address.Address {
+  if (options.recipient) return options.recipient
+  const account = options.account ?? client.account
+  if (!account) throw new Account.NotFoundError()
+  return Account.from(account).address
 }
+
+type AccountParameter<
+  account extends Account.Account | undefined = Account.Account | undefined,
+> = account extends Account.Account
+  ? { account?: Account.Account | Address.Address | undefined }
+  : { account: Account.Account | Address.Address }

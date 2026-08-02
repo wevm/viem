@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest'
+
 import * as Storage from './Storage.js'
 
-describe('Storage.memory', () => {
+describe('memory', () => {
   test('getItem returns null for missing keys', async () => {
     const storage = Storage.memory()
     expect(await storage.getItem('missing')).toBeNull()
@@ -28,10 +29,11 @@ describe('Storage.memory', () => {
   })
 })
 
-describe('Storage.default', () => {
-  test('returns a working storage', async () => {
+describe('defaultStorage', () => {
+  test('returns a working singleton storage', async () => {
     const storage = Storage.defaultStorage()
     expect(storage).toBeDefined()
+    expect(Storage.defaultStorage()).toBe(storage)
 
     await storage.setItem('test-default', 'val')
     expect(await storage.getItem('test-default')).toBe('val')
@@ -40,7 +42,7 @@ describe('Storage.default', () => {
   })
 })
 
-describe('Storage.from', () => {
+describe('from', () => {
   test('prefixes keys', async () => {
     const base = Storage.memory()
     const storage = Storage.from(base, { key: 'tempo' })
@@ -72,7 +74,7 @@ describe('Storage.from', () => {
     const slow: Storage.Storage = {
       async getItem(_key) {
         calls++
-        await new Promise((r) => setTimeout(r, 50))
+        await new Promise((resolve) => setTimeout(resolve, 50))
         return 'val'
       },
       async setItem() {},
@@ -98,7 +100,7 @@ describe('Storage.from', () => {
     const slow: Storage.Storage = {
       async getItem(_key) {
         calls++
-        await new Promise((r) => setTimeout(r, 10))
+        await new Promise((resolve) => setTimeout(resolve, 10))
         return 'val'
       },
       async setItem() {},
@@ -115,7 +117,7 @@ describe('Storage.from', () => {
     const slow: Storage.Storage = {
       async getItem(_key) {
         calls++
-        await new Promise((r) => setTimeout(r, 10))
+        await new Promise((resolve) => setTimeout(resolve, 10))
         return `val-${calls}`
       },
       async setItem() {},
@@ -129,37 +131,15 @@ describe('Storage.from', () => {
 
     expect(first).toBe('val-1')
     expect(second).toBe('val-2')
-    expect(calls).toBe(2)
   })
 
-  test('setItem invalidates in-flight read', async () => {
-    let calls = 0
-    const store = new Map<string, string>()
-    const slow: Storage.Storage = {
-      async getItem(key) {
-        calls++
-        await new Promise((r) => setTimeout(r, 50))
-        return store.get(key) ?? null
-      },
-      setItem(key, value) {
-        store.set(key, value)
-      },
-      removeItem(key) {
-        store.delete(key)
-      },
-    }
+  test('setItem invalidates in-flight getItem dedup entry', async () => {
+    const base = Storage.memory()
+    const storage = Storage.from(base, { key: 'tempo' })
 
-    const storage = Storage.from(slow)
-
-    // Start a read, then write, then read again.
-    const p1 = storage.getItem('x')
-    storage.setItem('x', 'new')
-    const p2 = storage.getItem('x')
-
-    await p1
-    const result = await p2
-    // Second read should have triggered a new call.
-    expect(calls).toBe(2)
-    expect(result).toBe('new')
+    const pending = storage.getItem('foo')
+    await storage.setItem('foo', 'bar')
+    expect(await pending).toBeNull()
+    expect(await storage.getItem('foo')).toBe('bar')
   })
 })

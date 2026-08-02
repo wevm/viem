@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const degen = /*#__PURE__*/ defineChain({
+export const degen = /*#__PURE__*/ Chain.from({
   id: 666666666,
   name: 'Degen',
   nativeCurrency: {
@@ -9,16 +10,15 @@ export const degen = /*#__PURE__*/ defineChain({
     symbol: 'DEGEN',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.degen.tips'],
-      webSocket: ['wss://rpc.degen.tips'],
-    },
+    http: 'https://rpc.degen.tips',
+    ws: 'wss://rpc.degen.tips',
   },
   blockExplorers: {
-    default: {
-      name: 'Degen Chain Explorer',
-      url: 'https://explorer.degen.tips',
-      apiUrl: 'https://explorer.degen.tips/api/v2',
-    },
+    name: 'Degen Chain Explorer',
+    url: 'https://explorer.degen.tips',
+    apiUrl: 'https://explorer.degen.tips/api/v2',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

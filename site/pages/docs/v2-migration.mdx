@@ -1,0 +1,3355 @@
+---
+outline: 1
+---
+
+# Migrating from v2
+
+This guide covers Viem v3 breaking changes and migration from Viem v2.
+
+v3 consolidates flat functions, types, and constants into module namespaces backed by [Ox](https://oxlib.sh) utilities.
+
+The guide is organized in four layers:
+
+- [Migrate Incrementally](#migrate-incrementally): run v2 and v3 together while dependencies and application modules migrate.
+- [Notable Changes](#notable-changes): the structural changes that affect most applications, each with a canonical example.
+- [Quick Reference](#quick-reference): a flat, alphabetized v2 to v3 symbol table. Search it for any v2 export.
+- Per-area details: rename tables for mechanical moves and annotated samples for changed call shapes. Samples mark removed v2 usage and added v3 usage.
+
+## Migrate Incrementally
+
+If your application depends on packages that declare Viem v2 as a peer dependency, keep v2
+installed under the `viem` package name and alias v3. This works consistently across package
+managers. npm does not use a differently named alias such as `viem-legacy` to satisfy a peer
+dependency on `viem@2`.
+
+Instead, add Viem v3 to `dependencies`, not `overrides`, under a `viem-v3` alias:
+
+{/* TODO(v3): Replace `@next` with `@3` when Viem v3 is stable. */}
+
+```json
+{
+  "dependencies": {
+    "viem": "^2",
+    "viem-v3": "npm:viem@next"
+  }
+}
+```
+
+Existing dependencies and unmigrated code continue to import v2 from `viem`. Import v3 from
+`viem-v3` as you migrate each module:
+
+```ts
+import { Client, http } from 'viem-v3'
+import { mainnet } from 'viem-v3/chains'
+```
+
+Treat [Accounts](/docs/accounts), [Chains](/docs/chains), [Transports](/docs/transports), and
+[errors](/docs/errors) as version-specific. Share version-neutral boundaries such as RPC URLs,
+[EIP-1193 Providers](/docs/utilities/provider/types), serialized values, or plain data.
+
+### Adapt Clients Between Versions
+
+Use [`Client.toV2`](/docs/clients/v2-adapters#clienttov2) to create a v2-compatible base Client from
+a v3 Client. Extend it with v2's native action decorators:
+
+```ts
+import { publicActions as publicActionsV2 } from 'viem'
+import { Client, http } from 'viem-v3'
+
+const client = Client.create({ transport: http() })
+const publicClientV2 = Client.toV2(client) // [!code focus]
+  .extend(publicActionsV2)
+```
+
+The one-argument form creates a chainless v2 Client. Pass a v2 Chain when v2 actions need its
+configuration:
+
+```ts
+import { publicActions as publicActionsV2 } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Client, http } from 'viem-v3'
+
+const client = Client.create({ transport: http() })
+const publicClientV2 = Client.toV2(client, { chain: mainnet }) // [!code focus]
+  .extend(publicActionsV2)
+```
+
+Use [`Client.fromV2`](/docs/clients/v2-adapters#clientfromv2) in the other direction, then extend
+the result with v3 decorators:
+
+```ts
+import { createClient as createClientV2, http as httpV2 } from 'viem'
+import { Client, publicActions } from 'viem-v3'
+
+const clientV2 = createClientV2({ transport: httpV2() })
+const publicClient = Client.fromV2(clientV2) // [!code focus]
+  .extend(publicActions())
+```
+
+The adapters reuse request connectivity and preserve
+[JSON-RPC Accounts](/docs/accounts/json-rpc) and
+[`ccipRead: false`](/docs/clients/create#optionsccipread). They do not translate local Accounts, custom
+extensions, subscriptions, Chain codecs or formatters, or custom CCIP Read handlers.
+`Client.fromV2` normalizes forwarded v2 request errors with
+[`Provider.parseError`](/docs/utilities/provider/parseError), while `Client.toV2` preserves the
+source v3 Client's request error identities. Pass a native target-version Chain or Account when
+that behavior is needed.
+
+After all dependencies support Viem v3, install v3 as `viem`, replace `viem-v3` imports with `viem`,
+and remove the alias.
+
+## Notable Changes
+
+### Module Namespaces
+
+Several subpath entrypoints were replaced by namespaces exported from the package root and `viem/utils`. Top-level types also moved onto those namespaces.
+
+Function parameter, return, and error types now live on their owning function namespaces. See [Entrypoints & Exports](#entrypoints--exports).
+
+```ts
+import { privateKeyToAccount } from 'viem/accounts' // [!code --]
+import { getBalance } from 'viem/actions' // [!code --]
+import { Account, Actions } from 'viem' // [!code ++]
+
+const account = privateKeyToAccount('0x...') // [!code --]
+const balance = await getBalance(client, { address: account.address }) // [!code --]
+const account = Account.fromPrivateKey('0x...') // [!code ++]
+const balance = await Actions.address.getBalance(client, { address: account.address }) // [!code ++]
+```
+
+### Client Creation
+
+Client factories were consolidated into [`Client.create`](/docs/clients/create). Extend the client for public or test behavior, and pass wallet accounts during creation.
+
+Named client types collapsed into `Client.Client`. The typed RPC option was renamed from `rpcSchema` to `schema`.
+
+See [Client](#client).
+
+```ts
+import { createPublicClient, http } from 'viem' // [!code --]
+import { Client, http, publicActions } from 'viem' // [!code ++]
+import { mainnet } from 'viem/chains'
+
+const client = createPublicClient({ // [!code --]
+const client = Client.create({ // [!code ++]
+  chain: mainnet,
+  transport: http(),
+}) // [!code --]
+}).extend(publicActions()) // [!code ++]
+```
+
+### Actions Namespace
+
+Standalone actions moved under domain groups on the root `Actions` namespace. Decorator methods use matching domain objects.
+
+Contract action names were also shortened. See [Actions](#actions).
+
+```ts
+import { getBalance } from 'viem/actions' // [!code --]
+import { Actions } from 'viem' // [!code ++]
+
+const balance = await getBalance(client, { address }) // [!code --]
+const balance = await Actions.address.getBalance(client, { address }) // [!code ++]
+
+const balance = await client.getBalance({ address }) // [!code --]
+const balance = await client.address.getBalance({ address }) // [!code ++]
+```
+
+### Watchers Return Handles
+
+Watch and wait actions no longer accept callback options or return a bare unwatch function.
+
+They return handles with registration methods, cancellation, and async iteration. Waiter results are exposed on the handle.
+
+See [Events & Filters](#events--filters) and [Transactions](#transactions).
+
+```ts
+import { watchBlocks } from 'viem/actions' // [!code --]
+import { Actions } from 'viem' // [!code ++]
+
+const unwatch = watchBlocks(client, { onBlock: (block) => console.log(block) }) // [!code --]
+const watch = Actions.block.watch(client) // [!code ++]
+watch.onBlock((block) => console.log(block)) // [!code ++]
+// later: watch.off() // [!code ++]
+```
+
+### Ox-Backed Utilities
+
+Flat utilities moved onto Ox-backed primitive namespaces exported from `viem/utils`. Recovery and verification helpers became synchronous.
+
+Import `abitype` types directly from `abitype`. See [Utilities](#utilities).
+
+```ts
+import { toHex, parseEther } from 'viem/utils' // [!code --]
+import { Hex, Value } from 'viem/utils' // [!code ++]
+
+const hex = toHex(420n) // [!code --]
+const wei = parseEther('1') // [!code --]
+const hex = Hex.fromNumber(420n) // [!code ++]
+const wei = Value.fromEther('1') // [!code ++]
+```
+
+### Chain Definitions
+
+Chain definitions now use [`Chain.from`](/docs/chains/create). RPC codecs and transaction hooks replace the formatter system.
+
+Definitions are also minimal: only `id` is required. `rpcUrls` and `blockExplorers` each contain one
+flattened entry instead of `default`-keyed maps.
+
+The `http` and `ws` fields accept one URL or a list.
+
+Formatted type helpers moved under `Chain.Extract*`, and deprecated fee fields were removed. Define removed built-in chains locally.
+
+See [Chains](#chains).
+
+```ts
+import { defineChain, formatters } from 'viem' // [!code --]
+import { Chain } from 'viem' // [!code ++]
+import { Block } from 'viem/utils' // [!code ++]
+
+const chain = defineChain({ // [!code --]
+const chain = Chain.from({ // [!code ++]
+  id: 123,
+  formatters: { // [!code --]
+    block: formatters.defineBlock({ format(args) { return args } }), // [!code --]
+  }, // [!code --]
+  codecs: { // [!code ++]
+    block: { // [!code ++]
+      fromRpc: (rpc) => Block.fromRpc(rpc), // [!code ++]
+    }, // [!code ++]
+  }, // [!code ++]
+})
+```
+
+### Account Model
+
+Account constructors moved onto the `Account` namespace. Custom accounts provide one raw signing function, which derives the high-level methods.
+
+The account discriminant and key-generation APIs also changed. See [Accounts](#accounts).
+
+```ts
+const local = Account.from({
+  address,
+  source: 'custom', // [!code --]
+  signMessage, // [!code --]
+  signTransaction, // [!code --]
+  signTypedData, // [!code --]
+  keyType: 'custom', // [!code ++]
+  sign, // [!code ++]
+})
+```
+
+### Contract Instances
+
+Contract instances now bind one client through [`Contract.from`](/docs/contract/instances/create). Event reads were renamed, while function arguments remain the first positional parameter.
+
+See [Contract](#contract).
+
+```ts
+import { getContract } from 'viem' // [!code --]
+import { Contract } from 'viem' // [!code ++]
+
+const contract = getContract({ // [!code --]
+  abi, // [!code --]
+  address, // [!code --]
+  client: { public: publicClient, wallet: walletClient }, // [!code --]
+}) // [!code --]
+const logs = await contract.getEvents.Transfer() // [!code --]
+const contract = Contract.from({ abi, address, client }) // [!code ++]
+const balance = await contract.read.balanceOf([owner])
+const logs = await contract.getLogs.Transfer() // [!code ++]
+```
+
+### Contract Return Shapes
+
+Multi-output contract results with named outputs decode to objects keyed by the output names. Fully unnamed outputs keep the tuple shape, and `as: 'Array'` restores tuples per call.
+
+```solidity
+// named outputs → object
+function metadata() external view returns (string memory name, string memory symbol);
+
+// unnamed outputs → tuple
+function values() external view returns (uint256, bool);
+```
+
+```ts
+const [name, symbol] = await readContract(client, { ...options, functionName: 'metadata' }) // [!code --]
+const { name, symbol } = await Actions.contract.read(client, { ...options, functionName: 'metadata' }) // [!code ++]
+
+const [value, ok] = await Actions.contract.read(client, { ...options, functionName: 'values' })
+```
+
+### multicall Redesign
+
+[`Actions.multicall`](/docs/actions/public/multicall) renamed its input fields and now returns a
+results envelope.
+
+It uses `eth_simulateV1` by default, then falls back to multicall3 when unsupported. See [Call & Multicall](#call--multicall).
+
+```ts
+const results = await multicall(client, { // [!code --]
+  contracts: [ // [!code --]
+    { address, abi, functionName: 'balanceOf', args }, // [!code --]
+  ], // [!code --]
+}) // [!code --]
+const { results } = await Actions.multicall(client, { // [!code ++]
+  calls: [ // [!code ++]
+    { to: address, abi, functionName: 'balanceOf', args }, // [!code ++]
+  ], // [!code ++]
+}) // [!code ++]
+```
+
+### Transport Behavior
+
+Transport instances expose `setup(...)` instead of being called.
+
+HTTP responses are capped at 10 MB by default.
+
+Subscriptions register handlers on their returned object. Create custom transports with `Transport.from`.
+
+See [Transports](#transports).
+
+```ts
+import { http } from 'viem'
+
+const transport = http('https://example.com')({}) // [!code --]
+const transport = http('https://example.com').setup({}) // [!code ++]
+```
+
+### Error Taxonomy
+
+Flat error exports moved into error namespaces. Execution wrappers consolidated, while action errors moved onto their owning namespaces.
+
+Several error conditions no longer exist. See [Errors](#errors).
+
+```ts
+import { BaseError, ExecutionRevertedError, ContractFunctionRevertedError } from 'viem' // [!code --]
+import { ContractError, Errors, RpcError } from 'viem' // [!code ++]
+
+throw new BaseError('Example') // [!code --]
+throw new Errors.BaseError('Example') // [!code ++]
+
+error instanceof ExecutionRevertedError // [!code --]
+error instanceof ContractFunctionRevertedError // [!code --]
+error instanceof RpcError.ExecutionRevertedError // [!code ++]
+error instanceof ContractError.ContractFunctionRevertedError // [!code ++]
+```
+
+### bigint Scalars
+
+Several scalar fields widened from `number` to `bigint`, including nonces and chain identifiers. Audit arithmetic and strict equality involving these fields.
+
+```ts
+const message = createSiweMessage({ address, chainId: 1, domain, nonce, uri, version: '1' }) // [!code --]
+const message = Siwe.createMessage({ address, chainId: 1n, domain, nonce, uri, version: '1' }) // [!code ++]
+
+const payload = hashAuthorization({ contractAddress, chainId, nonce: 1 }) // [!code --]
+const payload = Authorization.getSignPayload({ address: contractAddress, chainId, nonce: 1n }) // [!code ++]
+```
+
+### CCIP Read Policy
+
+CCIP Read remains enabled by default, but requests use an allowlisted HTTPS batch gateway. Set `ccipRead` to `false` to disable it.
+
+Resolution now occurs inside contract calls, not only ENS lookups. See [ENS & CCIP Read](#ens--ccip-read).
+
+```ts
+import { Client, http } from 'viem'
+
+const client = Client.create({
+  ccipRead: false, // [!code ++]
+  transport: http(),
+})
+```
+
+### Removed Extensions
+
+The Celo, Linea, and ZKsync extension entrypoints were removed. Their plain chain definitions remain in `viem/chains`.
+
+Extension-specific actions, formatters, and serializers have no v3 equivalent. Stay on v2 or use packages built on the new chain hooks.
+
+See [Removed Extensions](#removed-extensions-1) and [Chains](#chains).
+
+### Removed Surface
+
+All deprecated v2 surface was removed. Use each alias's documented canonical form.
+
+Internal type helpers are no longer exported. Experimental entrypoints either graduated or were removed.
+
+See [Entrypoints & Exports](#entrypoints--exports) and [ERCs](#ercs).
+
+## Quick Reference
+
+Every mechanical rename on this page, alphabetized by v2 symbol. Semantic changes (changed options, returns, or behavior) link to the section covering them.
+
+| v2 | v3 | Section |
+| --- | --- | --- |
+| `AbiConstructorNotFoundError` | `AbiItem.NotFoundError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `AbiConstructorParamsNotFoundError` | Removed; surfaces as `AbiParameters.LengthMismatchError` | [Removed Errors](#removed-errors) |
+| `AbiDecodingDataSizeInvalidError` | Removed (already unthrown in v2.55) | [Removed Errors](#removed-errors) |
+| `AbiDecodingDataSizeTooSmallError` | `AbiParameters.DataSizeTooSmallError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `AbiDecodingZeroDataError` | `AbiParameters.ZeroDataError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `AbiEncodingArrayLengthMismatchError` | `AbiParameters.ArrayLengthMismatchError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `AbiEncodingBytesSizeMismatchError` | `AbiParameters.BytesSizeMismatchError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `AbiEncodingLengthMismatchError` | `AbiParameters.LengthMismatchError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `AbiErrorInputsNotFoundError` | Removed; surfaces as `AbiParameters.LengthMismatchError` | [Removed Errors](#removed-errors) |
+| `AbiErrorNotFoundError` | `AbiItem.NotFoundError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `AbiErrorSignatureNotFoundError` | `AbiItem.NotFoundError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `AbiEventNotFoundError` | `AbiItem.NotFoundError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `AbiEventSignatureEmptyTopicsError` | `AbiEvent.SelectorTopicNotFoundError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `AbiEventSignatureNotFoundError` | `AbiItem.NotFoundError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `AbiFunctionNotFoundError` | `AbiItem.NotFoundError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `AbiFunctionOutputsNotFoundError` | Removed; `AbiFunction.decodeResult` returns `undefined` | [Removed Errors](#removed-errors) |
+| `AbiFunctionSignatureNotFoundError` | `AbiItem.NotFoundError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `AbiItemName` | `AbiItem.Name` | [Utilities: ABI](#abi) |
+| `Account_base` (tempo) | `Account.Base` | [Tempo](#tempo) |
+| `Account` (type) | `Account.Account` | [Type Exports](#type-exports) |
+| `AccountSource` | `Address.Address` or `Account.from.Account` | [Accounts](#accounts) |
+| `AccountStateConflictError` | Removed; unrepresentable with record overrides | [Removed Errors](#removed-errors) |
+| `addChain` | `Actions.chains.add` | [Actions](#actions) |
+| `AddEthereumChainParameter` | Removed; indexed access on `Options` | [Wallet & Capabilities](#wallet--capabilities) |
+| `addSubAccount` | Removed (ERC-7895) | [Removed ERCs](#removed-ercs) |
+| `assertCurrentChain` | `Chain.assertCurrent` | [Chains](#chains) |
+| `AssertCurrentChainErrorType` | `Chain.assertCurrent.ErrorType` | [Chains](#chains) |
+| `assertRequest` | Internalized; `TxEnvelope.assert`/`TxEnvelope.validate` | [Utilities: Transactions](#transactions-1) |
+| `assertTransactionEIP1559` | `TxEnvelopeEip1559.assert` | [Utilities: Transactions](#transactions-1) |
+| `assertTransactionEIP2930` | `TxEnvelopeEip2930.assert` | [Utilities: Transactions](#transactions-1) |
+| `assertTransactionLegacy` | `TxEnvelopeLegacy.assert` | [Utilities: Transactions](#transactions-1) |
+| `AtomicityNotSupportedError` | `Actions.wallet.Errors.AtomicityNotSupportedError` | [Action & Transport Errors](#action--transport-errors) |
+| `AtomicReadyWalletRejectedUpgradeError` | `Provider.AtomicReadyWalletRejectedUpgradeError` | [RPC Errors](#rpc-errors) |
+| `BaseError` | `Errors.BaseError` | [Errors](#errors) |
+| `BaseFeeScalarError` | `Actions.fee.Errors.BaseFeeScalarError` | [Action & Transport Errors](#action--transport-errors) |
+| `BlobSidecar` / `BlobSidecars` | `TxEnvelopeEip4844.Sidecars` (struct of arrays) | [Blobs](#blobs) |
+| `blobsToCommitments` | `Blobs.toCommitments` | [Blobs](#blobs) |
+| `blobsToProofs` | `Blobs.toCellProofs` | [Blobs](#blobs) |
+| `BlockNotFoundError` | `Actions.block.Errors.BlockNotFoundError` | [Action & Transport Errors](#action--transport-errors) |
+| `BlockNumber` | `Block.Number` | [Type Exports](#type-exports) |
+| `BlockOverrides` (type) | `BlockOverrides` namespace (`toRpc` conversions) | [Block & Log](#block--log) |
+| `BlockTag` | `Block.Tag` | [Type Exports](#type-exports) |
+| `boolToBytes` | `Bytes.fromBoolean` | [Encoding & Units](#encoding--units) |
+| `boolToHex` | `Hex.fromBoolean` | [Encoding & Units](#encoding--units) |
+| `buildRequest` | Internalized; compose at the Client or Transport boundary | [Subpath Entrypoints](#subpath-entrypoints) |
+| `BundleFailedError` | `Actions.wallet.Errors.BundleFailedError` | [Action & Transport Errors](#action--transport-errors) |
+| `bundlerActions` | `accountAbstractionActions()` | [AA: Actions & Decorators](#actions--decorators) |
+| `BundlerActions` | `AccountAbstractionActions` | [AA: Actions & Decorators](#actions--decorators) |
+| `bundlerClient.getChainId` | `Actions.chains.getId(bundlerClient)` (core action) | [AA: Actions & Decorators](#actions--decorators) |
+| `BundlerClient` | `BundlerClient.Client` (from `viem/erc4337`) | [AA: Clients](#clients) |
+| `BundlerClientConfig` | `BundlerClient.create.Options` | [AA: Clients](#clients) |
+| `BundlerRpcSchema` | `RpcSchema.Bundler` (from `ox/erc4337`) | [Type Exports](#type-exports) |
+| `BundleTooLargeError` | `Provider.BundleTooLargeError` | [RPC Errors](#rpc-errors) |
+| `ByteArray` | `Bytes.Bytes` | [Encoding & Units](#encoding--units) |
+| `bytesToBigInt` | `Bytes.toBigInt` (`bytesToBigint` alias removed) | [Encoding & Units](#encoding--units) |
+| `BytesToBigIntOpts` | `Bytes.toBigInt.Options` | [Encoding & Units](#encoding--units) |
+| `bytesToBool` | `Bytes.toBoolean` | [Encoding & Units](#encoding--units) |
+| `bytesToHex` | `Bytes.toHex` | [Encoding & Units](#encoding--units) |
+| `bytesToNumber` | `Bytes.toNumber` | [Encoding & Units](#encoding--units) |
+| `bytesToRlp` | `Rlp.fromBytes` | [Encoding & Units](#encoding--units) |
+| `bytesToString` | `Bytes.toString` | [Encoding & Units](#encoding--units) |
+| `CallExecutionError` | `RpcError.ExecutionError` | [RPC Errors](#rpc-errors) |
+| `ccipFetch` | `CcipRead.request` | [ENS & CCIP Read](#ens--ccip-read) |
+| `ccipReadTunnel` | `CcipRead.tunnel` (`ccipRequest` override renamed `request`) | [ENS & CCIP Read](#ens--ccip-read) |
+| `CcipReadTunnelParameters` | `CcipRead.tunnel.Options` | [ENS & CCIP Read](#ens--ccip-read) |
+| `ccipRequest` | `CcipRead.request` | [ENS & CCIP Read](#ens--ccip-read) |
+| `CcipRequestErrorType` | `CcipRead.request.ErrorType` | [ENS & CCIP Read](#ens--ccip-read) |
+| `CcipRequestParameters` | `CcipRead.request.Options` | [ENS & CCIP Read](#ens--ccip-read) |
+| `Chain` (type) | `Chain.Chain` | [Type Exports](#type-exports) |
+| `ChainDisconnectedError` | `Provider.ChainDisconnectedError` | [RPC Errors](#rpc-errors) |
+| `ChainDoesNotSupportContract` | `Chain.DoesNotSupportContract` | [Chains](#chains) |
+| `checksumAddress` | `Address.checksum` (no `chainId` parameter) | [Utilities: Address](#address-1) |
+| `ClientChainNotConfiguredError` | `Chain.NotFoundError` | [Action & Transport Errors](#action--transport-errors) |
+| `ClientConfig` | `Client.create.Options` | [Client](#client) |
+| `CoinbaseSmartAccountImplementation` | `CoinbaseSmartAccount.Implementation` | [Smart Accounts](#smart-accounts) |
+| `commitmentsToVersionedHashes` | `Blobs.commitmentsToVersionedHashes` | [Blobs](#blobs) |
+| `CompactSignature` | `SignatureErc2098.SignatureErc2098` | [Signatures & Keys](#signatures--keys) |
+| `compactSignatureToHex` | `SignatureErc2098.toHex` | [Signatures & Keys](#signatures--keys) |
+| `compactSignatureToSignature` | `SignatureErc2098.toSignature` | [Signatures & Keys](#signatures--keys) |
+| `concat` | `Hex.concat`/`Bytes.concat` (variadic) | [Encoding & Units](#encoding--units) |
+| `concatBytes` | `Bytes.concat` (variadic) | [Encoding & Units](#encoding--units) |
+| `concatHex` | `Hex.concat` (variadic) | [Encoding & Units](#encoding--units) |
+| `connect` | `Actions.wallet.connect` | [ERC-7846 & ERC-7811](#erc-7846--erc-7811) |
+| `containsNodeError` | Check `RpcError.fromRpcError` result | [Action & Transport Errors](#action--transport-errors) |
+| `ContractErrorName` | `AbiError.Name` | [Utilities: ABI](#abi) |
+| `ContractEventArgsFromTopics` | `AbiEvent.decode.ReturnType<AbiEvent.FromAbi<abi, name>>` | [Utilities: ABI](#abi) |
+| `ContractEventName` | `AbiEvent.Name` | [Utilities: ABI](#abi) |
+| `ContractFunctionExecutionError` | `ContractError.ContractFunctionExecutionError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `ContractFunctionName` | `AbiFunction.Name` (mutability-aware: `AbiFunction.ExtractNames`) | [Utilities: ABI](#abi) |
+| `ContractFunctionRevertedError` | `ContractError.ContractFunctionRevertedError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `ContractFunctionZeroDataError` | `ContractError.ContractFunctionZeroDataError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `CounterfactualDeploymentFailedError` | Removed | [Removed Errors](#removed-errors) |
+| `createAccessList` | `Actions.transaction.createAccessList` | [Actions: Transactions](#transactions) |
+| `createBlockFilter` | `Actions.block.createFilter` | [Events & Filters](#events--filters) |
+| `createBundlerClient` | `BundlerClient.create` (from `viem/erc4337`) | [AA: Clients](#clients) |
+| `CreateBundlerClientErrorType` | `BundlerClient.create.ErrorType` | [AA: Clients](#clients) |
+| `createClient` | `Client.create` | [Client](#client) |
+| `createClient` (from `viem/tempo`) | `Client.create` (from `viem/tempo`) | [Tempo](#tempo) |
+| `createContractEventFilter` | `Actions.contract.createEventFilter` | [Events & Filters](#events--filters) |
+| `createEventFilter` | `Actions.event.createFilter` | [Events & Filters](#events--filters) |
+| `createNonceManager` | `NonceManager.from` | [Nonce Manager](#nonce-manager) |
+| `CreateNonceManagerParameters` | `NonceManager.from.Options` | [Nonce Manager](#nonce-manager) |
+| `createPaymasterClient` | `PaymasterClient.create` | [AA: Clients](#clients) |
+| `CreatePaymasterClientErrorType` | `PaymasterClient.create.ErrorType` | [AA: Clients](#clients) |
+| `createPendingTransactionFilter` | `Actions.transaction.createPendingFilter` | [Events & Filters](#events--filters) |
+| `createPublicClient` | `Client.create` + `.extend(publicActions())` | [Client](#client) |
+| `createSiweMessage` | `Siwe.createMessage` (`chainId` is `bigint`) | [Messages & ENS](#messages--ens) |
+| `createTestClient` | `Client.create` + `.extend(testActions({ mode }))` | [Client](#client) |
+| `createTransport` | `Transport.from` | [Transports](#transports) |
+| `createWalletClient` | `Client.create` (pass `account` directly) | [Client](#client) |
+| `createWebAuthnCredential` | `WebAuthn.createCredential` (from `viem/utils`) | [Smart Accounts](#smart-accounts) |
+| `CreateWebAuthnCredentialParameters` | `WebAuthn.createCredential.Options` | [Smart Accounts](#smart-accounts) |
+| `CreateWebAuthnCredentialReturnType` | `WebAuthn.P256Credential` | [Smart Accounts](#smart-accounts) |
+| `custom` (chain field) | Typed top-level fields via `Chain.extendSchema` | [Chains](#chains) |
+| `CustomSource` | `Account.from.Account` | [Accounts](#accounts) |
+| `CustomTransport` | `Transport.Transport<'custom'>` | [Transports](#transports) |
+| `CustomTransportConfig` | `custom.Options` | [Transports](#transports) |
+| `DebugBundlerRpcSchema` | `RpcSchema.BundlerDebug` (from `ox/erc4337`) | [Type Exports](#type-exports) |
+| `decodeAbiParameters` | `AbiParameters.decode` | [Utilities: ABI](#abi) |
+| `DecodeAbiParametersErrorType` | `AbiParameters.decode.ErrorType` | [Contract & ABI Errors](#contract--abi-errors) |
+| `decodeDeployData` | `AbiConstructor.decode` (returns args directly) | [Utilities: ABI](#abi) |
+| `decodeErrorResult` | `AbiError.extract` (positional) | [Utilities: ABI](#abi) |
+| `decodeEventLog` | `AbiEvent.decodeLog` (positional) | [Utilities: ABI](#abi) |
+| `decodeFunctionData` | `AbiFunction.decodeData` (positional) | [Utilities: ABI](#abi) |
+| `decodeFunctionResult` | `AbiFunction.decodeResult` (positional) | [Utilities: ABI](#abi) |
+| `DecodeLogDataMismatch` | `AbiEvent.DataMismatchError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `DecodeLogTopicsMismatch` | `AbiEvent.TopicsMismatchError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `defaultPrepareTransactionRequestParameters` | `Actions.transaction.defaultParameters` | [Actions: Transactions](#transactions) |
+| `defaultPriorityFee` (chain fees) | `maxPriorityFeePerGas` | [Chains](#chains) |
+| `defineBlock` | Removed; `Block.fromRpc` or chain `codecs` | [Chains](#chains) |
+| `defineChain` | `Chain.from` | [Chains](#chains) |
+| `defineFormatter` | Removed with the formatter system | [Chains](#chains) |
+| `defineKzg` | `Kzg.from` | [Blobs](#blobs) |
+| `defineToken` | `Token.from` | [Tokens](#tokens-1) |
+| `defineTransaction` | Removed; `Transaction.fromRpc` or chain `codecs` | [Chains](#chains) |
+| `defineTransactionReceipt` | Removed; `TransactionReceipt.fromRpc` or chain `codecs` | [Chains](#chains) |
+| `defineTransactionRequest` | Removed; `TransactionRequest.toRpc` or chain `codecs` | [Chains](#chains) |
+| `deployContract` | `Actions.contract.deploy` | [Actions: Contract](#contract) |
+| `deploylessCallViaBytecodeBytecode` | Internalized; `Actions.call` `code` option | [Utilities: ABI](#abi) |
+| `deploylessCallViaFactoryBytecode` | Internalized; `Actions.call` `factory` options | [Utilities: ABI](#abi) |
+| `DeriveAccount` | Removed; compose action namespace types | [Actions](#actions) |
+| `DeriveChain` | Removed; compose action namespace types | [Actions](#actions) |
+| `DeriveEntryPointVersion` | Removed; `EntryPoint.Version` | [AA: Errors & Types](#errors--types) |
+| `DeriveSmartAccount` | Removed; `SmartAccount.SmartAccount` | [AA: Errors & Types](#errors--types) |
+| `disconnect` | `Actions.wallet.disconnect` | [ERC-7846 & ERC-7811](#erc-7846--erc-7811) |
+| `dropTransaction` | `Actions.txpool.dropTransaction` | [Test](#test) |
+| `dumpState` | `Actions.state.dump` | [Test](#test) |
+| `DuplicateIdError` | `Provider.DuplicateIdError` | [RPC Errors](#rpc-errors) |
+| `EIP1193EventMap` | `Provider.EventMap` | [Type Exports](#type-exports) |
+| `EIP1193Events` | `Provider.Emitter` | [Type Exports](#type-exports) |
+| `EIP1193Provider` | `Provider.Provider` (from `viem/utils`) | [Type Exports](#type-exports) |
+| `EIP1193ProviderRpcError` | `Provider.ProviderRpcError` | [RPC Errors](#rpc-errors) |
+| `EIP1193RequestOptions` | Removed; second parameter of `Transport.RequestFn` | [Type Exports](#type-exports) |
+| `EIP1474Methods` | Removed | [Type Exports](#type-exports) |
+| `Eip1559FeesNotSupportedError` | `Actions.fee.Errors.Eip1559FeesNotSupportedError` | [Action & Transport Errors](#action--transport-errors) |
+| `eip5792Actions` | `walletActions()` | [Wallet & Capabilities](#wallet--capabilities) |
+| `encodeAbiParameters` | `AbiParameters.encode` | [Utilities: ABI](#abi) |
+| `encodeCalls` | `Calls.encode` (from `ox/erc7821`) | [ERC-7821](#erc-7821) |
+| `encodeDeployData` | `AbiConstructor.encode` (positional) | [Utilities: ABI](#abi) |
+| `encodeErrorResult` | `AbiError.encode` (positional) | [Utilities: ABI](#abi) |
+| `encodeEventTopics` | `AbiEvent.encode` (positional) | [Utilities: ABI](#abi) |
+| `encodeExecuteBatchesData` | `Execute.encodeBatchOfBatchesData` (from `ox/erc7821`) | [ERC-7821](#erc-7821) |
+| `encodeExecuteData` | `Execute.encodeData` (from `ox/erc7821`) | [ERC-7821](#erc-7821) |
+| `encodeFunctionData` | `AbiFunction.encodeData` (positional) | [Utilities: ABI](#abi) |
+| `encodeFunctionResult` | `AbiFunction.encodeResult` (positional) | [Utilities: ABI](#abi) |
+| `english` | `Mnemonic.english` | [Accounts](#accounts) |
+| `EnsAvatarInvalidMetadataError` | `Actions.ens.Errors.EnsAvatarInvalidMetadataError` | [Action & Transport Errors](#action--transport-errors) |
+| `EnsAvatarInvalidNftUriError` | `Actions.ens.Errors.EnsAvatarInvalidNftUriError` | [Action & Transport Errors](#action--transport-errors) |
+| `EnsAvatarUnsupportedNamespaceError` | `Actions.ens.Errors.EnsAvatarUnsupportedNamespaceError` | [Action & Transport Errors](#action--transport-errors) |
+| `EnsAvatarUriResolutionError` | `Actions.ens.Errors.EnsAvatarUriResolutionError` | [Action & Transport Errors](#action--transport-errors) |
+| `entryPoint06Abi` | `EntryPoint.abiV06` | [User Operations](#user-operations) |
+| `entryPoint06Address` | `EntryPoint.addressV06` | [User Operations](#user-operations) |
+| `entryPoint07Abi` | `EntryPoint.abiV07` | [User Operations](#user-operations) |
+| `entryPoint07Address` | `EntryPoint.addressV07` | [User Operations](#user-operations) |
+| `entryPoint08Abi` | `EntryPoint.abiV08` | [User Operations](#user-operations) |
+| `entryPoint08Address` | `EntryPoint.addressV08` | [User Operations](#user-operations) |
+| `entryPoint09Abi` | `EntryPoint.abiV09` | [User Operations](#user-operations) |
+| `entryPoint09Address` | `EntryPoint.addressV09` | [User Operations](#user-operations) |
+| `EntryPointVersion` | `EntryPoint.Version` | [User Operations](#user-operations) |
+| `erc1155Abi` | `Abis.erc1155` | [Utilities: ABI](#abi) |
+| `erc20Abi_bytes32` | `Abis.erc20_bytes32` | [Utilities: ABI](#abi) |
+| `erc20Abi` | `Abis.erc20` | [Utilities: ABI](#abi) |
+| `erc4626Abi` | `Abis.erc4626` | [Utilities: ABI](#abi) |
+| `erc6492MagicBytes` | `SignatureErc6492.magicBytes` | [Signatures & Keys](#signatures--keys) |
+| `erc6492SignatureValidatorAbi` | `SignatureErc6492.universalSignatureValidatorAbi` | [Utilities: ABI](#abi) |
+| `erc6492SignatureValidatorByteCode` | `SignatureErc6492.universalSignatureValidatorBytecode` | [Signatures & Keys](#signatures--keys) |
+| `erc721Abi` | `Abis.erc721` | [Utilities: ABI](#abi) |
+| `erc7739Actions` | Removed; Solady accounts sign ERC-7739 internally | [Removed ERCs](#removed-ercs) |
+| `erc7811Actions` | `walletActions()` | [ERC-7846 & ERC-7811](#erc-7846--erc-7811) |
+| `Erc7821Actions` | `erc7821Actions.Decorator` | [ERC-7821](#erc-7821) |
+| `erc7821Actions` (from `viem/experimental`) | `erc7821Actions` (root export) | [ERC-7821](#erc-7821) |
+| `erc7846Actions` | `walletActions()` | [ERC-7846 & ERC-7811](#erc-7846--erc-7811) |
+| `estimateContractGas` | `Actions.contract.estimateGas` | [Actions: Contract](#contract) |
+| `estimateFeesPerGas` | `Actions.fee.estimateFeesPerGas` | [Fees](#fees) |
+| `EstimateGasExecutionError` | `RpcError.ExecutionError` | [RPC Errors](#rpc-errors) |
+| `estimateMaxPriorityFeePerGas` | `Actions.fee.estimateMaxPriorityFeePerGas` | [Fees](#fees) |
+| `estimateUserOperationGas` | `Actions.userOperation.estimateGas` | [AA: Actions & Decorators](#actions--decorators) |
+| `EstimateUserOperationGasParameters` | `Actions.userOperation.estimateGas.Options` | [AA: Actions & Decorators](#actions--decorators) |
+| `ethAddress` | `Address.ether` | [Utilities: Address](#address-1) |
+| `etherUnits` / `gweiUnits` / `weiUnits` | `Value.exponents` | [Encoding & Units](#encoding--units) |
+| `execute` | `Actions.erc7821.execute` | [ERC-7821](#erc-7821) |
+| `executeBatches` | `Actions.erc7821.executeBatches` | [ERC-7821](#erc-7821) |
+| `ExecuteUnsupportedError` | `Actions.erc7821.Errors.ExecuteUnsupportedError` | [ERC-7821](#erc-7821) |
+| `ExecutionRevertedError` | `RpcError.ExecutionRevertedError` | [RPC Errors](#rpc-errors) |
+| `experimental_blockTag` (client option) | `blockTag` | [Client](#client) |
+| `experimental_preconfirmationTime` (chain field) | `preconfirmationTime` | [Chains](#chains) |
+| `extendSchema` | `Chain.extendSchema` | [Chains](#chains) |
+| `ExtractAbiItem` | `AbiItem.FromAbi` | [Utilities: ABI](#abi) |
+| `ExtractAbiItemForArgs` | `AbiItem.fromAbi.ReturnType` | [Utilities: ABI](#abi) |
+| `ExtractAbiItemNames` | `AbiItem.ExtractNames` | [Utilities: ABI](#abi) |
+| `ExtractCapabilities` | `Capabilities.Extract` | [Type Exports](#type-exports) |
+| `extractChain` | `Chain.extract` | [Chains](#chains) |
+| `ExtractChainFormatterExclude` | Removed; converters omit keys | [Chains](#chains) |
+| `ExtractFormattedTransactionRequest` | `Chain.ExtractTransactionRequest` | [Chains](#chains) |
+| `fallback.shouldThrow` | Internalized | [Transports](#transports) |
+| `FallbackTransport` | `Transport.Transport<'fallback'>` | [Transports](#transports) |
+| `FallbackTransportConfig` | `fallback.Options` | [Transports](#transports) |
+| `FeeCapTooHighError` | `RpcError.FeeCapTooHighError` | [RPC Errors](#rpc-errors) |
+| `FeeCapTooLowError` | `RpcError.FeeCapTooLowError` | [RPC Errors](#rpc-errors) |
+| `FeeConflictError` | Removed; enforced at the type level | [Removed Errors](#removed-errors) |
+| `fillTransaction` | `Actions.transaction.fill` | [Actions: Transactions](#transactions) |
+| `Filter` (type) | `Filter` namespace (`toRpc` conversions) | [Block & Log](#block--log) |
+| `filterChains` | `Chain.filter` | [Chains](#chains) |
+| `FilterType` | `Actions.filter.Type` | [Events & Filters](#events--filters) |
+| `formatAbiItem` | `AbiItem.getSignature` | [Utilities: ABI](#abi) |
+| `formatAbiItemWithArgs` | Removed | [Utilities: ABI](#abi) |
+| `formatAbiParams` | `AbiParameters.format` | [Utilities: ABI](#abi) |
+| `formatBlock` | `Block.fromRpc` | [Block & Log](#block--log) |
+| `formatEther` | `Value.formatEther` | [Encoding & Units](#encoding--units) |
+| `formatGwei` | `Value.formatGwei` | [Encoding & Units](#encoding--units) |
+| `formatLog` | `Log.fromRpc` | [Block & Log](#block--log) |
+| `FormattedBlock` | `Chain.ExtractBlock` | [Chains](#chains) |
+| `FormattedTransaction` | `Chain.ExtractTransaction` | [Chains](#chains) |
+| `FormattedTransactionReceipt` | `Chain.ExtractTransactionReceipt` | [Chains](#chains) |
+| `FormattedTransactionRequest` | `Chain.ExtractTransactionRequest` | [Chains](#chains) |
+| `formatters` (chain option) | `codecs` (`fromRpc`/`toRpc`) | [Chains](#chains) |
+| `formatTransaction` | `Transaction.fromRpc` | [Utilities: Transactions](#transactions-1) |
+| `formatTransactionReceipt` | `TransactionReceipt.fromRpc` | [Utilities: Transactions](#transactions-1) |
+| `formatTransactionRequest` | `TransactionRequest.toRpc` | [Utilities: Transactions](#transactions-1) |
+| `formatUnits` | `Value.format` | [Encoding & Units](#encoding--units) |
+| `formatUserOperation` | `UserOperation.fromRpc` | [User Operations](#user-operations) |
+| `FormatUserOperationErrorType` | `UserOperation.fromRpc.ErrorType` | [AA: Errors & Types](#errors--types) |
+| `formatUserOperationGas` | `UserOperationGas.fromRpc` | [User Operations](#user-operations) |
+| `FormatUserOperationGasErrorType` | Removed; no declared error union | [AA: Errors & Types](#errors--types) |
+| `formatUserOperationReceipt` | `UserOperationReceipt.fromRpc` | [User Operations](#user-operations) |
+| `FormatUserOperationReceiptErrorType` | Removed; no declared error union | [AA: Errors & Types](#errors--types) |
+| `formatUserOperationRequest` | `UserOperation.toRpc` | [User Operations](#user-operations) |
+| `fromBlobs` | `Blobs.to(blobs, 'Hex')` | [Blobs](#blobs) |
+| `fromBytes` | Typed `Bytes.to*` variants, such as `Bytes.toString` | [Encoding & Units](#encoding--units) |
+| `fromRlp` | `Rlp.toHex` | [Encoding & Units](#encoding--units) |
+| `FunctionSelectorNotRecognizedError` | `Actions.erc7821.Errors.FunctionSelectorNotRecognizedError` | [ERC-7821](#erc-7821) |
+| `generateMnemonic` | `Mnemonic.random` (options bag) | [Accounts](#accounts) |
+| `generatePrivateKey` | `Secp256k1.randomPrivateKey` | [Accounts](#accounts) |
+| `generateSiweNonce` | `Siwe.generateNonce` | [Messages & ENS](#messages--ens) |
+| `getAbiItem` | `AbiItem.fromAbi` (positional) | [Utilities: ABI](#abi) |
+| `getAction` | `Actions.getAction` | [Subpath Entrypoints](#subpath-entrypoints) |
+| `getAddress` | `Address.checksum` | [Utilities: Address](#address-1) |
+| `getAddresses` | `Actions.wallet.getAddresses` | [Wallet & Capabilities](#wallet--capabilities) |
+| `getAssets` | `Actions.wallet.getAssets` | [ERC-7846 & ERC-7811](#erc-7846--erc-7811) |
+| `getAutomine` | `Actions.block.getAutomine` | [Test](#test) |
+| `getBalance` | `Actions.address.getBalance` | [Actions: Address](#address) |
+| `GetBalanceErrorType` | `Actions.address.getBalance.ErrorType` | [Type Exports](#type-exports) |
+| `GetBalanceParameters` | `Actions.address.getBalance.Options` | [Type Exports](#type-exports) |
+| `GetBalanceReturnType` | `Actions.address.getBalance.ReturnType` | [Type Exports](#type-exports) |
+| `getBlobBaseFee` | `Actions.fee.getBlobBaseFee` | [Fees](#fees) |
+| `getBlock` | `Actions.block.get` | [Actions: Block](#block) |
+| `getBlockNumber` | `Actions.block.getNumber` | [Actions: Block](#block) |
+| `getBlockReceipts` | `Actions.block.getReceipts` | [Actions: Block](#block) |
+| `getBlockTransactionCount` | `Actions.block.getTransactionCount` | [Actions: Block](#block) |
+| `getBundlerError` | Internalized | [AA: Errors & Types](#errors--types) |
+| `getBytecode` | `Actions.address.getCode` | [Deprecated & Experimental](#deprecated--experimental-surface) |
+| `getCallError` | Construct `RpcError.ExecutionError` | [Action & Transport Errors](#action--transport-errors) |
+| `getCallsStatus` | `Actions.wallet.getCallsStatus` | [Wallet & Capabilities](#wallet--capabilities) |
+| `getCapabilities` | `Actions.wallet.getCapabilities` | [Wallet & Capabilities](#wallet--capabilities) |
+| `getChainContractAddress` | `Chain.getContractAddress` | [Chains](#chains) |
+| `getChainId` | `Actions.chains.getId` | [Actions](#actions) |
+| `GetChainParameter` | Removed; compose action namespace types | [Actions](#actions) |
+| `getCode` | `Actions.address.getCode` | [Actions: Address](#address) |
+| `getContract` | `Contract.from` (binds one client; preserves positional args) | [Actions: Contract](#contract) |
+| `getContractAddress` | `ContractAddress.from` (no `opcode`; dispatches on `salt`) | [Utilities: Address](#address-1) |
+| `GetContractAddressOptions` | `ContractAddress.from.Options` | [Utilities: Address](#address-1) |
+| `getContractError` | `ContractError.fromError` | [Subpath Entrypoints](#subpath-entrypoints) |
+| `GetContractErrorType` | Removed; use each method error union | [Actions: Contract](#contract) |
+| `getContractEvents` | `Actions.contract.getLogs` | [Actions: Contract](#contract) |
+| `GetContractParameters` | `Contract.from.Options` | [Actions: Contract](#contract) |
+| `GetContractReturnType` | `Contract.from.ReturnType` | [Actions: Contract](#contract) |
+| `getCreate2Address` | `ContractAddress.fromCreate2` | [Utilities: Address](#address-1) |
+| `GetCreate2AddressOptions` | `ContractAddress.fromCreate2.Options` | [Utilities: Address](#address-1) |
+| `getCreateAddress` | `ContractAddress.fromCreate` | [Utilities: Address](#address-1) |
+| `GetCreateAddressOptions` | `ContractAddress.fromCreate.Options` | [Utilities: Address](#address-1) |
+| `getDelegation` | `Actions.address.getDelegation` | [Actions: Address](#address) |
+| `getEip712Domain` | `Actions.contract.getEip712Domain` | [Actions: Contract](#contract) |
+| `getEnsAddress` | `Actions.ens.getAddress` | [ENS & CCIP Read](#ens--ccip-read) |
+| `getEnsAvatar` | `Actions.ens.getAvatar` | [ENS & CCIP Read](#ens--ccip-read) |
+| `getEnsName` | `Actions.ens.getName` | [ENS & CCIP Read](#ens--ccip-read) |
+| `getEnsResolver` | `Actions.ens.getResolver` | [ENS & CCIP Read](#ens--ccip-read) |
+| `getEnsText` | `Actions.ens.getText` | [ENS & CCIP Read](#ens--ccip-read) |
+| `GetEntryPointVersionParameter` | Removed | [AA: Errors & Types](#errors--types) |
+| `getEstimateGasError` | Construct `RpcError.ExecutionError` | [Action & Transport Errors](#action--transport-errors) |
+| `getEvents` (contract instance) | `getLogs` | [Actions: Contract](#contract) |
+| `getEventSelector` | `AbiEvent.getSelector` | [Hashing](#hashing) |
+| `getEventSignature` | `AbiItem.getSignature` | [Hashing](#hashing) |
+| `getExecuteError` | Internalized | [ERC-7821](#erc-7821) |
+| `getFeeHistory` | `Actions.fee.getHistory` | [Fees](#fees) |
+| `getFilterChanges` | `Actions.filter.getChanges` | [Events & Filters](#events--filters) |
+| `getFilterLogs` | `Actions.filter.getLogs` | [Events & Filters](#events--filters) |
+| `getFunctionSelector` | `AbiFunction.getSelector` | [Hashing](#hashing) |
+| `getFunctionSignature` | `AbiItem.getSignature` | [Hashing](#hashing) |
+| `getGasPrice` | `Actions.fee.getGasPrice` | [Fees](#fees) |
+| `getHttpRpcClient` | `RpcClient.http` | [Transports](#transports) |
+| `getInitCode` | `UserOperation.toInitCode` (no `forHash`) | [User Operations](#user-operations) |
+| `GetInitCodeOptions` | Removed; `UserOperation.toInitCode` has no options | [AA: Errors & Types](#errors--types) |
+| `getIpcRpcClient` | `ipc(path).setup({}).getRpcClient()` | [Node](#node) |
+| `getLogs` | `Actions.event.getLogs` | [Events & Filters](#events--filters) |
+| `getNodeError` | `RpcError.fromRpcError` | [Subpath Entrypoints](#subpath-entrypoints) |
+| `getPaymasterData` | `Actions.paymaster.getData` | [AA: Actions & Decorators](#actions--decorators) |
+| `GetPaymasterDataParameters` | `Actions.paymaster.getData.Options` | [AA: Actions & Decorators](#actions--decorators) |
+| `getPaymasterStubData` | `Actions.paymaster.getStubData` | [AA: Actions & Decorators](#actions--decorators) |
+| `GetPaymasterStubDataParameters` | `Actions.paymaster.getStubData.Options` | [AA: Actions & Decorators](#actions--decorators) |
+| `getPermissions` | `Actions.wallet.getPermissions` | [Wallet & Capabilities](#wallet--capabilities) |
+| `GetPollOptions` | Removed; plain `poll?: boolean` | [Client](#client) |
+| `getProof` | `Actions.address.getProof` | [Actions: Address](#address) |
+| `getRawTransaction` | `Actions.transaction.getRaw` | [Actions: Transactions](#transactions) |
+| `getSerializedTransactionType` | `TxEnvelope.getSerializedType` | [Utilities: Transactions](#transactions-1) |
+| `GetSmartAccountParameter` | Removed | [AA: Errors & Types](#errors--types) |
+| `getSocket` | `getRpcClient` | [Transports](#transports) |
+| `getSocketRpcClient` | `RpcClient.webSocket` | [Transports](#transports) |
+| `getStorageAt` | `Actions.address.getStorageAt` | [Actions: Address](#address) |
+| `getSupportedEntryPoints` | `Actions.entryPoint.getSupported` | [AA: Actions & Decorators](#actions--decorators) |
+| `GetSupportedEntryPointsReturnType` | `Actions.entryPoint.getSupported.ReturnType` | [AA: Actions & Decorators](#actions--decorators) |
+| `getTransaction` | `Actions.transaction.get` | [Actions: Transactions](#transactions) |
+| `getTransactionConfirmations` | `Actions.transaction.getConfirmations` | [Actions: Transactions](#transactions) |
+| `getTransactionCount` | `Actions.address.getTransactionCount` | [Actions: Address](#address) |
+| `getTransactionError` | Construct `RpcError.ExecutionError` | [Action & Transport Errors](#action--transport-errors) |
+| `getTransactionReceipt` | `Actions.transaction.getReceipt` | [Actions: Transactions](#transactions) |
+| `GetTransactionRequestKzgParameter` | Removed; runtime `TransactionRequest.MissingKzgError` | [Utilities: Transactions](#transactions-1) |
+| `getTransactionType` | `TxEnvelope.getType` | [Utilities: Transactions](#transactions-1) |
+| `GetTransportConfig` | `ReturnType<transport['setup']>` | [Transports](#transports) |
+| `getTxpoolContent` | Removed | [Test](#test) |
+| `getTxpoolStatus` | `Actions.txpool.getStatus` | [Test](#test) |
+| `getTypesForEIP712Domain` | `TypedData.extractEip712DomainTypes` (positional) | [Messages & ENS](#messages--ens) |
+| `getUserOperation` | `Actions.userOperation.get` | [AA: Actions & Decorators](#actions--decorators) |
+| `getUserOperationError` | Internalized | [AA: Errors & Types](#errors--types) |
+| `getUserOperationHash` | `UserOperation.hash` | [User Operations](#user-operations) |
+| `GetUserOperationHashReturnType` | `ReturnType<typeof UserOperation.hash>` | [AA: Errors & Types](#errors--types) |
+| `GetUserOperationParameters` | `Actions.userOperation.get.Options` | [AA: Actions & Decorators](#actions--decorators) |
+| `getUserOperationReceipt` | `Actions.userOperation.getReceipt` | [AA: Actions & Decorators](#actions--decorators) |
+| `GetUserOperationReceiptParameters` | `Actions.userOperation.getReceipt.Options` | [AA: Actions & Decorators](#actions--decorators) |
+| `GetUserOperationReceiptReturnType` | `Actions.userOperation.getReceipt.ReturnType` | [AA: Actions & Decorators](#actions--decorators) |
+| `GetUserOperationReturnType` | `Actions.userOperation.get.ReturnType` | [AA: Actions & Decorators](#actions--decorators) |
+| `getUserOperationTypedData` | `UserOperation.toTypedData` | [User Operations](#user-operations) |
+| `GetUserOperationTypedDataReturnType` | `ReturnType<typeof UserOperation.toTypedData>` | [AA: Errors & Types](#errors--types) |
+| `GetValue` | Removed; compose action namespace types | [Actions](#actions) |
+| `getWebSocketRpcClient` | `RpcClient.webSocket` | [Transports](#transports) |
+| `grantPermissions` | Removed (ERC-7715) | [Removed ERCs](#removed-ercs) |
+| `hashAuthorization` | `Authorization.getSignPayload` (hex payload; `bigint` nonce) | [Utilities: Transactions](#transactions-1) |
+| `hashMessage` | `PersonalMessage.getSignPayload` (hex/bytes input) | [Messages & ENS](#messages--ens) |
+| `hashTypedData` | `TypedData.getSignPayload` | [Messages & ENS](#messages--ens) |
+| `HDAccount` | `Account.Hd` | [Accounts](#accounts) |
+| `HDKey` | `HdKey` namespace (`HdKey.fromSeed`) | [Signatures & Keys](#signatures--keys) |
+| `hdKeyToAccount` | `Account.fromHdKey` | [Accounts](#accounts) |
+| `HDKeyToAccountErrorType` | `Account.fromHdKey.ErrorType` | [Accounts](#accounts) |
+| `HDKeyToAccountOptions` | `Account.fromHdKey.Options` | [Accounts](#accounts) |
+| `HDOptions` | `Account.fromHdKey.Options` | [Accounts](#accounts) |
+| `hexToBigInt` | `Hex.toBigInt` | [Encoding & Units](#encoding--units) |
+| `hexToBool` | `Hex.toBoolean` | [Encoding & Units](#encoding--units) |
+| `hexToBytes` | `Hex.toBytes` | [Encoding & Units](#encoding--units) |
+| `HexToBytesOpts` | `Hex.toBytes.Options` | [Encoding & Units](#encoding--units) |
+| `hexToCompactSignature` | `SignatureErc2098.fromHex` | [Signatures & Keys](#signatures--keys) |
+| `hexToNumber` | `Hex.toNumber` | [Encoding & Units](#encoding--units) |
+| `hexToRlp` | `Rlp.fromHex` | [Encoding & Units](#encoding--units) |
+| `hexToSignature` | `Signature.fromHex` | [Signatures & Keys](#signatures--keys) |
+| `hexToString` | `Hex.toString` | [Encoding & Units](#encoding--units) |
+| `HttpRequestError` | `RpcClient.HttpError` | [Action & Transport Errors](#action--transport-errors) |
+| `HttpTransport` | `Transport.Transport<'http'>` | [Transports](#transports) |
+| `HttpTransportConfig` | `http.Options` | [Transports](#transports) |
+| `impersonateAccount` | `Actions.address.impersonate` | [Test](#test) |
+| `increaseTime` | `Actions.block.increaseTime` | [Test](#test) |
+| `Index` | `Hex.Hex` | [Type Exports](#type-exports) |
+| `inspectTxpool` | `Actions.txpool.inspect` | [Test](#test) |
+| `InsufficientFundsError` | `RpcError.InsufficientFundsError` | [RPC Errors](#rpc-errors) |
+| `InternalRpcError` | `RpcResponse.InternalError` | [RPC Errors](#rpc-errors) |
+| `IntrinsicGasTooHighError` | `RpcError.IntrinsicGasTooHighError` | [RPC Errors](#rpc-errors) |
+| `IntrinsicGasTooLowError` | `RpcError.IntrinsicGasTooLowError` | [RPC Errors](#rpc-errors) |
+| `InvalidAbiDecodingTypeError` | `AbiParameters.InvalidTypeError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `InvalidAbiEncodingTypeError` | `AbiParameters.InvalidTypeError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `InvalidAbiParameterError` | `AbiParameter` namespace (from `viem/utils`) | [Contract & ABI Errors](#contract--abi-errors) |
+| `InvalidAddressError` | `Address.InvalidAddressError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `InvalidDefinitionTypeError` | Removed; `AbiItem.getSignature` accepts all item types | [Removed Errors](#removed-errors) |
+| `InvalidInputRpcError` | `RpcResponse.InvalidInputError` | [RPC Errors](#rpc-errors) |
+| `InvalidLegacyVError` | `Signature.InvalidVError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `InvalidParamsRpcError` | `RpcResponse.InvalidParamsError` | [RPC Errors](#rpc-errors) |
+| `InvalidRequestRpcError` | `RpcResponse.InvalidRequestError` | [RPC Errors](#rpc-errors) |
+| `InvalidSerializableTransactionError` | `TxEnvelope.InvalidTypeError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `InvalidSerializedTransactionError` | `TxEnvelope.InvalidSerializedError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `InvalidSerializedTransactionTypeError` | `TxEnvelope.InvalidSerializedTypeError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `IpcTransport` | `Ipc` | [Node](#node) |
+| `IpcTransportConfig` | `ipc.Options` | [Node](#node) |
+| `IpcTransportErrorType` | Removed; concrete `RpcClient`/`RpcError`/`Transport` errors | [Node](#node) |
+| `isAddress` | `Address.validate` | [Utilities: Address](#address-1) |
+| `isAddressEqual` | `Address.isEqual` | [Utilities: Address](#address-1) |
+| `IsAddressOptions` | `Address.validate.Options` | [Utilities: Address](#address-1) |
+| `isBytes` | `Bytes.validate` | [Encoding & Units](#encoding--units) |
+| `isErc6492Signature` | `SignatureErc6492.validate` | [Signatures & Keys](#signatures--keys) |
+| `isErc8010Signature` | `SignatureErc8010.validate` | [Signatures & Keys](#signatures--keys) |
+| `isHash` | `Hash.validate` | [Hashing](#hashing) |
+| `isHex` | `Hex.validate` (`strict` defaults to `false`) | [Encoding & Units](#encoding--units) |
+| `jsonRpc` | `NonceManager.jsonRpc` | [Nonce Manager](#nonce-manager) |
+| `JsonRpcAccount` | `Account.JsonRpc` | [Accounts](#accounts) |
+| `JsonRpcVersionUnsupportedError` | `RpcResponse.VersionNotSupportedError` | [RPC Errors](#rpc-errors) |
+| `keccak256` | `Hash.keccak256` | [Hashing](#hashing) |
+| `Keccak256Hash` | `Hash.keccak256.ReturnType<'Hex'>` | [Hashing](#hashing) |
+| `KeyAuthorizationSigned` | `KeyAuthorization.Signed` | [Tempo](#tempo) |
+| `labelhash` | `Ens.labelhash` | [Messages & ENS](#messages--ens) |
+| `LimitExceededRpcError` | `RpcResponse.LimitExceededError` | [RPC Errors](#rpc-errors) |
+| `loadState` | `Actions.state.load` | [Test](#test) |
+| `LocalAccount` | `Account.Local` | [Accounts](#accounts) |
+| `LogTopic` | `Filter.Topic` | [Utilities: ABI](#abi) |
+| `mainnetTrustedSetupPath` | `Paths.mainnet` (from `viem/node`) | [Node](#node) |
+| `MaxFeePerGasTooLowError` | `Actions.transaction.Errors.MaxFeePerGasTooLowError` | [Action & Transport Errors](#action--transport-errors) |
+| `maxInt256` | `Solidity.maxInt256` (all integer bounds on `Solidity`) | [Utilities: ABI](#abi) |
+| `maxUint256` | `Solidity.maxUint256` | [Utilities: ABI](#abi) |
+| `MethodNotFoundRpcError` | `RpcResponse.MethodNotFoundError` | [RPC Errors](#rpc-errors) |
+| `MethodNotSupportedRpcError` | `RpcResponse.MethodNotSupportedError` | [RPC Errors](#rpc-errors) |
+| `mine` | `Actions.block.mine` | [Test](#test) |
+| `minInt256` | `Solidity.minInt256` | [Utilities: ABI](#abi) |
+| `mnemonicToAccount` | `Account.fromMnemonic` | [Accounts](#accounts) |
+| `MnemonicToAccountOptions` | `Account.fromMnemonic.Options` | [Accounts](#accounts) |
+| `multicall3Abi` | `Abis.multicall3` | [Utilities: ABI](#abi) |
+| `multicall` | `Actions.multicall` (`calls`, `to`, `{ results }` envelope) | [Call & Multicall](#call--multicall) |
+| `MulticallBatchOptions` | `Client.MulticallOptions` | [Client](#client) |
+| `MulticallContracts` | `Actions.multicall.Options<calls>['calls']` | [Call & Multicall](#call--multicall) |
+| `MulticallResults` | `Actions.multicall.ReturnType<chain, calls>['results']` | [Call & Multicall](#call--multicall) |
+| `namehash` | `Ens.namehash` | [Messages & ENS](#messages--ens) |
+| `NetworkSync` | Removed | [Type Exports](#type-exports) |
+| `nonce.getNonce` (tempo) | `nonce.get` | [Tempo](#tempo) |
+| `nonce.watchNonceIncremented` (tempo) | `nonce.watchIncremented` | [Tempo](#tempo) |
+| `nonceManager` | `NonceManager.jsonRpc()` | [Nonce Manager](#nonce-manager) |
+| `NonceManagerSource` | `NonceManager.Source` | [Nonce Manager](#nonce-manager) |
+| `NonceMaxValueError` | `RpcError.NonceMaxValueError` | [RPC Errors](#rpc-errors) |
+| `NonceTooHighError` | `RpcError.NonceTooHighError` | [RPC Errors](#rpc-errors) |
+| `NonceTooLowError` | `RpcError.NonceTooLowError` | [RPC Errors](#rpc-errors) |
+| `normalize` | `Ens.normalize` | [Messages & ENS](#messages--ens) |
+| `numberToBytes` | `Bytes.fromNumber` | [Encoding & Units](#encoding--units) |
+| `numberToHex` | `Hex.fromNumber` | [Encoding & Units](#encoding--units) |
+| `NumberToHexOpts` | `Hex.fromNumber.Options` | [Encoding & Units](#encoding--units) |
+| `offchainLookup` | Internal to `Actions.call` | [ENS & CCIP Read](#ens--ccip-read) |
+| `offchainLookupAbiItem` | Construct via `AbiError.from` | [ENS & CCIP Read](#ens--ccip-read) |
+| `OffchainLookupErrorType` | `CcipRead.LookupError` | [ENS & CCIP Read](#ens--ccip-read) |
+| `offchainLookupSignature` | Construct via `AbiError.getSelector` | [ENS & CCIP Read](#ens--ccip-read) |
+| `OnBlockNumberParameter` | `Parameters<Actions.block.watchNumber.OnBlockNumberFn>[0]` | [Events & Filters](#events--filters) |
+| `OnBlockParameter` | `Parameters<Actions.block.watch.OnBlockFn>[0]` | [Events & Filters](#events--filters) |
+| `OnTransactionsParameter` | `Parameters<Actions.transaction.watchPending.OnTransactionsFn>[0]` | [Events & Filters](#events--filters) |
+| `P256Credential` | `WebAuthn.P256Credential` | [Smart Accounts](#smart-accounts) |
+| `PackedUserOperation` | `UserOperation.Packed` | [User Operations](#user-operations) |
+| `packetToBytes` | Internalized | [Messages & ENS](#messages--ens) |
+| `pad` | `Hex.padLeft`/`Bytes.padLeft` (positional size; `padRight` for right) | [Encoding & Units](#encoding--units) |
+| `padBytes` | `Bytes.padLeft` / `Bytes.padRight` | [Encoding & Units](#encoding--units) |
+| `padHex` | `Hex.padLeft` / `Hex.padRight` | [Encoding & Units](#encoding--units) |
+| `parseAbi` | `Abi.from` | [Utilities: ABI](#abi) |
+| `parseAbiItem` | `AbiItem.from` | [Utilities: ABI](#abi) |
+| `parseAbiParameter` | Import from `abitype` | [Utilities: ABI](#abi) |
+| `parseAbiParameters` | `AbiParameters.from` | [Utilities: ABI](#abi) |
+| `parseAccount` | `Account.from` | [Accounts](#accounts) |
+| `ParseAccount` | `Account.from.ReturnType` | [Accounts](#accounts) |
+| `parseAvatarRecord` | Internalized; `Actions.ens.getAvatar` | [Messages & ENS](#messages--ens) |
+| `parseCompactSignature` | `SignatureErc2098.fromHex` | [Signatures & Keys](#signatures--keys) |
+| `parseErc6492Signature` | `SignatureErc6492.unwrap` | [Signatures & Keys](#signatures--keys) |
+| `parseErc8010Signature` | `SignatureErc8010.unwrap` | [Signatures & Keys](#signatures--keys) |
+| `parseEther` | `Value.fromEther` | [Encoding & Units](#encoding--units) |
+| `parseEventLogs` | `AbiEvent.extractLogs` (positional) | [Utilities: ABI](#abi) |
+| `parseGwei` | `Value.fromGwei` | [Encoding & Units](#encoding--units) |
+| `ParseRpcError` | `RpcResponse.ParseError` | [RPC Errors](#rpc-errors) |
+| `parseSignature` | `Signature.fromHex` | [Signatures & Keys](#signatures--keys) |
+| `parseSiweMessage` | `Siwe.parseMessage` | [Messages & ENS](#messages--ens) |
+| `parseTransaction` | `TxEnvelope.from` | [Utilities: Transactions](#transactions-1) |
+| `parseUnits` | `Value.from` | [Encoding & Units](#encoding--units) |
+| `paymasterActions` | `PaymasterClient` or standalone `Actions.paymaster.*` | [AA: Actions & Decorators](#actions--decorators) |
+| `PaymasterActions` | `PaymasterClient.Decorator` | [AA: Actions & Decorators](#actions--decorators) |
+| `PaymasterClient` (type) | `PaymasterClient.Client` | [AA: Clients](#clients) |
+| `PaymasterClientConfig` | `PaymasterClient.create.Options` | [AA: Clients](#clients) |
+| `PaymasterRpcSchema` | Removed; typed by owning clients and actions | [Type Exports](#type-exports) |
+| `prepareAuthorization` | `Actions.wallet.prepareAuthorization` (`contractAddress` option renamed `address`) | [Wallet & Capabilities](#wallet--capabilities) |
+| `prepareEncodeFunctionData` | `AbiFunction.fromAbi` + `AbiFunction.encodeData` | [Utilities: ABI](#abi) |
+| `prepareTransactionRequest` | `Actions.transaction.prepare` | [Actions: Transactions](#transactions) |
+| `PrepareTransactionRequestParameterType` | `Actions.transaction.prepare.Parameter` | [Actions: Transactions](#transactions) |
+| `prepareUserOperation` | `Actions.userOperation.prepare` | [AA: Actions & Decorators](#actions--decorators) |
+| `PrepareUserOperationParameterType` | `Actions.userOperation.prepare.Parameter` | [AA: Actions & Decorators](#actions--decorators) |
+| `PrepareUserOperationRequest` | `Actions.userOperation.prepare.Options` | [AA: Actions & Decorators](#actions--decorators) |
+| `presignMessagePrefix` | Removed; `PersonalMessage.encode` owns prefixing | [Messages & ENS](#messages--ens) |
+| `PrivateKeyAccount` | `Account.PrivateKey` | [Accounts](#accounts) |
+| `privateKeyToAccount` | `Account.fromPrivateKey` | [Accounts](#accounts) |
+| `PrivateKeyToAccountOptions` | `Account.fromPrivateKey.Options` | [Accounts](#accounts) |
+| `privateKeyToAddress` | `Address.fromPublicKey` + `Secp256k1.getPublicKey` | [Accounts](#accounts) |
+| `ProviderDisconnectedError` | `Provider.DisconnectedError` | [RPC Errors](#rpc-errors) |
+| `ProviderRpcError` | `Provider.ProviderRpcError` | [RPC Errors](#rpc-errors) |
+| `ProviderRpcErrorCode` | Removed; read static `code` on error classes | [RPC Errors](#rpc-errors) |
+| `PublicActions` | `publicActions.Decorator` | [Client](#client) |
+| `PublicClient` | `Client.Client` | [Client](#client) |
+| `publicKeyToAddress` | `Address.fromPublicKey` | [Signatures & Keys](#signatures--keys) |
+| `PublicRpcSchema` | `RpcSchema.Eth` | [Type Exports](#type-exports) |
+| `Quantity` | `Hex.Hex` | [Type Exports](#type-exports) |
+| `RawContractError` | `ContractError.RawContractError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `readContract` | `Actions.contract.read` | [Actions: Contract](#contract) |
+| `recoverAddress` | `Secp256k1.recoverAddress` (`payload` option) | [Signatures & Keys](#signatures--keys) |
+| `recoverAuthorizationAddress` | `Authorization.recoverAddress` (sync) | [Utilities: Transactions](#transactions-1) |
+| `recoverMessageAddress` | `PersonalMessage.recoverAddress` (sync) | [Signatures & Keys](#signatures--keys) |
+| `recoverPublicKey` | `Secp256k1.recoverPublicKey` (`payload` option) | [Signatures & Keys](#signatures--keys) |
+| `recoverTransactionAddress` | `TxEnvelope.recoverAddress` (sync) | [Signatures & Keys](#signatures--keys) |
+| `recoverTypedDataAddress` | `TypedData.recoverAddress` (sync) | [Signatures & Keys](#signatures--keys) |
+| `Register` (capabilities) | `Capabilities.Register` | [Type Exports](#type-exports) |
+| `removeBlockTimestampInterval` | `Actions.block.removeTimestampInterval` | [Test](#test) |
+| `ReplacementReason` | `Actions.transaction.waitForReceipt.ReplacementReason` | [Events & Filters](#events--filters) |
+| `requestAddresses` | `Actions.wallet.requestAddresses` | [Wallet & Capabilities](#wallet--capabilities) |
+| `requestPermissions` | `Actions.wallet.requestPermissions` | [Wallet & Capabilities](#wallet--capabilities) |
+| `RequestPermissionsParameters` | `Actions.wallet.requestPermissions.Options` | [Type Exports](#type-exports) |
+| `reset` | `Actions.state.reset` | [Test](#test) |
+| `ResourceNotFoundRpcError` | `RpcResponse.ResourceNotFoundError` | [RPC Errors](#rpc-errors) |
+| `ResourceUnavailableRpcError` | `RpcResponse.ResourceUnavailableError` | [RPC Errors](#rpc-errors) |
+| `revert` | `Actions.state.revert` | [Test](#test) |
+| `ripemd160` | `Hash.ripemd160` | [Hashing](#hashing) |
+| `Ripemd160Hash` | `Hash.ripemd160.ReturnType<'Hex'>` | [Hashing](#hashing) |
+| `RlpDepthLimitExceededError` | `Rlp.DepthLimitExceededError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `RlpListBoundaryExceededError` | `Rlp.ListBoundaryExceededError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `RlpTrailingBytesError` | `Rlp.TrailingBytesError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `RpcAuthorization` | `Authorization.Rpc` | [Type Exports](#type-exports) |
+| `RpcAuthorizationList` | `Authorization.ListRpc` | [Type Exports](#type-exports) |
+| `RpcBlock` | `Block.Rpc` | [Type Exports](#type-exports) |
+| `RpcErrorCode` | Removed; read static `code` on error classes | [RPC Errors](#rpc-errors) |
+| `RpcEstimateUserOperationGasReturnType` | `UserOperationGas.Rpc` | [User Operations](#user-operations) |
+| `RpcFeeHistory` | `Fee.FeeHistoryRpc` | [Type Exports](#type-exports) |
+| `RpcGetUserOperationByHashReturnType` | `UserOperation.RpcTransactionInfo` | [User Operations](#user-operations) |
+| `RpcLog` | `Log.Rpc` | [Type Exports](#type-exports) |
+| `RpcProof` | `AccountProof.Rpc` | [Type Exports](#type-exports) |
+| `RpcRequestError` | Removed; matching `RpcResponse.*` error | [RPC Errors](#rpc-errors) |
+| `rpcSchema` (option and helper) | `schema` option + `RpcSchema.from` | [Client](#client) |
+| `RpcSchemaOverride` | Removed; pass a schema to `Client.create` | [Client](#client) |
+| `RpcStateMapping` | `StateOverrides.AccountStorage` | [Type Exports](#type-exports) |
+| `RpcTransactionReceipt` | `TransactionReceipt.Rpc` | [Type Exports](#type-exports) |
+| `RpcTransactionRequest` | `TransactionRequest.Rpc` | [Type Exports](#type-exports) |
+| `rpcTransactionType` | `Transaction.toRpcType` | [Utilities: Transactions](#transactions-1) |
+| `RpcUncle` | `Block.Rpc` | [Type Exports](#type-exports) |
+| `RpcUserOperation` | `UserOperation.Rpc` | [User Operations](#user-operations) |
+| `RpcUserOperationReceipt` | `UserOperationReceipt.Rpc` | [User Operations](#user-operations) |
+| `RpcUserOperationRequest` | Removed; `UserOperation.Request` for native input | [User Operations](#user-operations) |
+| `sendCalls` | `Actions.wallet.sendCalls` | [Wallet & Capabilities](#wallet--capabilities) |
+| `sendCallsSync` | `Actions.wallet.sendCallsSync` | [Wallet & Capabilities](#wallet--capabilities) |
+| `sendRawTransaction` | `Actions.transaction.sendRaw` (`serializedTransaction` option renamed `transaction`) | [Actions: Transactions](#transactions) |
+| `sendRawTransactionSync` | `Actions.transaction.sendRawSync` (`transaction` option) | [Actions: Transactions](#transactions) |
+| `sendTransaction` | `Actions.transaction.send` | [Actions: Transactions](#transactions) |
+| `SendTransactionRequest` | `Chain.ExtractTransactionRequest` | [Actions: Transactions](#transactions) |
+| `sendTransactionSync` | `Actions.transaction.sendSync` | [Actions: Transactions](#transactions) |
+| `sendUnsignedTransaction` | Removed | [Test](#test) |
+| `sendUserOperation` | `Actions.userOperation.send` | [AA: Actions & Decorators](#actions--decorators) |
+| `SendUserOperationErrorType` | `Actions.userOperation.send.ErrorType` | [AA: Errors & Types](#errors--types) |
+| `SendUserOperationParameters` | `Actions.userOperation.send.Options` | [AA: Actions & Decorators](#actions--decorators) |
+| `SendUserOperationReturnType` | `Actions.userOperation.send.ReturnType` | [AA: Actions & Decorators](#actions--decorators) |
+| `serializeAccessList` | `AccessList.toTupleList` | [Utilities: Transactions](#transactions-1) |
+| `serializeAuthorizationList` | `Authorization.toTupleList` | [Utilities: Transactions](#transactions-1) |
+| `serializeCompactSignature` | `SignatureErc2098.toHex` | [Signatures & Keys](#signatures--keys) |
+| `serializeErc6492Signature` | `SignatureErc6492.wrap` | [Signatures & Keys](#signatures--keys) |
+| `serializeErc8010Signature` | `SignatureErc8010.wrap` | [Signatures & Keys](#signatures--keys) |
+| `serializeSignature` | `Signature.toHex` | [Signatures & Keys](#signatures--keys) |
+| `serializeTransaction` | `TxEnvelope.serialize` | [Utilities: Transactions](#transactions-1) |
+| `serializeTypedData` | `TypedData.serialize` | [Messages & ENS](#messages--ens) |
+| `setAutomine` | `Actions.block.setAutomine` (`{ enabled }` bag) | [Test](#test) |
+| `setBalance` | `Actions.address.setBalance` | [Test](#test) |
+| `setBlockGasLimit` | `Actions.block.setGasLimit` | [Test](#test) |
+| `setBlockTimestampInterval` | `Actions.block.setTimestampInterval` | [Test](#test) |
+| `setCode` | `Actions.address.setCode` | [Test](#test) |
+| `setCoinbase` | `Actions.block.setCoinbase` | [Test](#test) |
+| `setErrorConfig` | `Errors.setConfig` | [Errors](#errors) |
+| `setIntervalMining` | `Actions.block.setIntervalMining` | [Test](#test) |
+| `setLoggingEnabled` | `Actions.node.setLoggingEnabled` (`{ enabled }` bag) | [Test](#test) |
+| `setMinGasPrice` | `Actions.node.setMinGasPrice` | [Test](#test) |
+| `setNextBlockBaseFeePerGas` | `Actions.block.setNextBaseFeePerGas` | [Test](#test) |
+| `setNextBlockTimestamp` | `Actions.block.setNextTimestamp` | [Test](#test) |
+| `setNonce` | `Actions.address.setNonce` | [Test](#test) |
+| `setRpcUrl` | `Actions.node.setRpcUrl` (`{ jsonRpcUrl }` bag) | [Test](#test) |
+| `setSignEntropy` | `extraEntropy` option on `Secp256k1.sign` | [Accounts](#accounts) |
+| `setStorageAt` | `Actions.address.setStorageAt` | [Test](#test) |
+| `setupKzg` | `Kzg.from` | [Blobs](#blobs) |
+| `sha256` | `Hash.sha256` | [Hashing](#hashing) |
+| `Sha256Hash` | `Hash.sha256.ReturnType<'Hex'>` | [Hashing](#hashing) |
+| `showCallsStatus` | `Actions.wallet.showCallsStatus` | [Wallet & Capabilities](#wallet--capabilities) |
+| `sidecarsToVersionedHashes` | Removed; `Blobs.commitmentsToVersionedHashes` | [Blobs](#blobs) |
+| `sign` (from `viem/accounts`) | `Secp256k1.sign` (`payload` option) | [Signatures & Keys](#signatures--keys) |
+| `signatureToCompactSignature` | `SignatureErc2098.from` | [Signatures & Keys](#signatures--keys) |
+| `signatureToHex` | `Signature.toHex` | [Signatures & Keys](#signatures--keys) |
+| `signAuthorization` | `Actions.wallet.signAuthorization` (`contractAddress` option renamed `address`) | [Wallet & Capabilities](#wallet--capabilities) |
+| `signMessage` | `Actions.signMessage` | [Signing & Verification](#signing--verification) |
+| `signTransaction` | `Actions.transaction.sign` (aliased as `Actions.signTransaction`) | [Actions: Transactions](#transactions) |
+| `SignTransactionRequest` | `Chain.ExtractTransactionRequest` | [Actions: Transactions](#transactions) |
+| `signTypedData` | `Actions.typedData.sign` | [Signing & Verification](#signing--verification) |
+| `Simple7702SmartAccountImplementation` | `Simple7702SmartAccount.Implementation` | [Smart Accounts](#smart-accounts) |
+| `simulateBlocks` | `Actions.block.simulate` (singular `stateOverride`) | [Call & Multicall](#call--multicall) |
+| `simulateCalls` | `Actions.multicall` with `mode: 'simulate'` | [Call & Multicall](#call--multicall) |
+| `simulateContract` | `Actions.contract.simulate` | [Actions: Contract](#contract) |
+| `SiweInvalidMessageFieldError` | `Siwe.InvalidMessageFieldError` | [Messages & ENS](#messages--ens) |
+| `SiweMessage` | `Siwe.Message` | [Messages & ENS](#messages--ens) |
+| `slice` | `Hex.slice` / `Bytes.slice` | [Encoding & Units](#encoding--units) |
+| `sliceBytes` | `Bytes.slice` | [Encoding & Units](#encoding--units) |
+| `sliceHex` | `Hex.slice` | [Encoding & Units](#encoding--units) |
+| `SmartAccount` (type) | `SmartAccount.SmartAccount` | [Smart Accounts](#smart-accounts) |
+| `SmartAccountImplementation` | `SmartAccount.Implementation` | [Smart Accounts](#smart-accounts) |
+| `snapshot` | `Actions.state.snapshot` | [Test](#test) |
+| `socketClientCache` | Removed; clients evict themselves on `close()` | [Transports](#transports) |
+| `SoladySmartAccountImplementation` | `SoladySmartAccount.Implementation` | [Smart Accounts](#smart-accounts) |
+| `source` (account property) | `keyType` | [Accounts](#accounts) |
+| `StateAssignmentConflictError` | Removed; unrepresentable with record overrides | [Removed Errors](#removed-errors) |
+| `StateMapping` | `StateOverrides.StateOverrides` (record shape) | [Type Exports](#type-exports) |
+| `StateOverride` | `StateOverrides.StateOverrides` (record shape) | [Block & Log](#block--log) |
+| `stopImpersonatingAccount` | `Actions.address.stopImpersonating` | [Test](#test) |
+| `stringify` | `Json.stringify` | [Encoding & Units](#encoding--units) |
+| `stringToBytes` | `Bytes.fromString` | [Encoding & Units](#encoding--units) |
+| `stringToHex` | `Hex.fromString` | [Encoding & Units](#encoding--units) |
+| `supportsExecutionMode` | `Actions.erc7821.supportsExecutionMode` | [ERC-7821](#erc-7821) |
+| `switchChain` | `Actions.chains.switch` | [Actions](#actions) |
+| `SwitchChainError` | `Provider.SwitchChainError` | [RPC Errors](#rpc-errors) |
+| `TempoAddress` | Removed; checksummed `Address.Address` | [Tempo](#tempo) |
+| `tempoMainnet` (from `viem/tempo/chains`) | `Chain.tempoMainnet` (from `viem/tempo`) | [Tempo](#tempo) |
+| `tempoTestnet` (from `viem/tempo/chains`) | `Chain.tempoTestnet` (from `viem/tempo`) | [Tempo](#tempo) |
+| `TestActions` | `testActions.Decorator` | [Client](#client) |
+| `TestClient` | `Client.Client` | [Client](#client) |
+| `TestClientMode` | `testActions.Options['mode']` | [Client](#client) |
+| `TestRpcSchema` | Removed; typed by owning clients and actions | [Type Exports](#type-exports) |
+| `TipAboveFeeCapError` | `RpcError.TipAboveFeeCapError` | [RPC Errors](#rpc-errors) |
+| `toAccount` | `Account.from` | [Accounts](#accounts) |
+| `toBlobs` | `Blobs.from` (positional) | [Blobs](#blobs) |
+| `toBlobSidecars` | Removed; sidecars attach automatically with `blobs` + `kzg` | [Blobs](#blobs) |
+| `toBytes` | Typed `Bytes.from*` variants, such as `Bytes.fromString` | [Encoding & Units](#encoding--units) |
+| `toCoinbaseSmartAccount` | `CoinbaseSmartAccount.from` (requires non-empty `owners`) | [Smart Accounts](#smart-accounts) |
+| `ToCoinTypeError` | `Ens.InvalidChainIdError` | [Messages & ENS](#messages--ens) |
+| `toEventHash` | `AbiItem.getSignatureHash` | [Hashing](#hashing) |
+| `toEventSelector` | `AbiEvent.getSelector` | [Hashing](#hashing) |
+| `toEventSignature` | `AbiItem.getSignature` | [Hashing](#hashing) |
+| `toFunctionHash` | `AbiItem.getSignatureHash` | [Hashing](#hashing) |
+| `toFunctionSelector` | `AbiFunction.getSelector` | [Hashing](#hashing) |
+| `toFunctionSignature` | `AbiItem.getSignature` | [Hashing](#hashing) |
+| `toHex` | Typed `Hex.from*` variants, such as `Hex.fromNumber` | [Encoding & Units](#encoding--units) |
+| `token.getBalance` (from `viem/actions`) | `Actions.token.getBalance` | [Actions: Tokens](#tokens) |
+| `TokenId` / `TokenIds` / `TokenIdOrAddress` | Removed; tokens selected by address | [Tempo](#tempo) |
+| `toPackedUserOperation` | `UserOperation.toPacked` (no EntryPoint 0.6) | [User Operations](#user-operations) |
+| `toPrefixedMessage` | `PersonalMessage.encode` (hex/bytes input) | [Messages & ENS](#messages--ens) |
+| `toRlp` | `Rlp.fromHex` | [Encoding & Units](#encoding--units) |
+| `toSimple7702SmartAccount` | `Simple7702SmartAccount.from` | [Smart Accounts](#smart-accounts) |
+| `toSmartAccount` | `SmartAccount.from` | [Smart Accounts](#smart-accounts) |
+| `ToSmartAccountParameters` | `SmartAccount.Implementation` (positional) | [Smart Accounts](#smart-accounts) |
+| `toSoladySmartAccount` | `SoladySmartAccount.from` (requires `factoryAddress`) | [Smart Accounts](#smart-accounts) |
+| `ToSoladySmartAccountParameters` | `SoladySmartAccount.from.Options` | [Smart Accounts](#smart-accounts) |
+| `toUserOperation` | `UserOperation.from` | [User Operations](#user-operations) |
+| `toWebAuthnAccount` | `WebAuthnAccount.fromCredential(credential, options)` | [Smart Accounts](#smart-accounts) |
+| `ToWebAuthnAccountErrorType` | `WebAuthnAccount.fromCredential.ErrorType` | [Smart Accounts](#smart-accounts) |
+| `ToWebAuthnAccountParameters` | `WebAuthnAccount.fromCredential.Options` | [Smart Accounts](#smart-accounts) |
+| `ToWebAuthnAccountReturnType` | `WebAuthnAccount.fromCredential.ReturnType` | [Smart Accounts](#smart-accounts) |
+| `TransactionExecutionError` | `RpcError.ExecutionError` | [RPC Errors](#rpc-errors) |
+| `TransactionNotFoundError` | `Actions.transaction.Errors.TransactionNotFoundError` | [Action & Transport Errors](#action--transport-errors) |
+| `TransactionReceiptNotFoundError` | `Actions.transaction.Errors.TransactionReceiptNotFoundError` | [Action & Transport Errors](#action--transport-errors) |
+| `TransactionRejectedRpcError` | `RpcResponse.TransactionRejectedError` | [RPC Errors](#rpc-errors) |
+| `transactionType` | `Transaction.fromRpcType` | [Utilities: Transactions](#transactions-1) |
+| `TransactionTypeNotSupportedError` | `RpcError.TransactionTypeNotSupportedError` | [RPC Errors](#rpc-errors) |
+| `Transport` (type) | `Transport.Transport` | [Type Exports](#type-exports) |
+| `TransportConfig` | Split between transport identity and `setup()` instance | [Transports](#transports) |
+| `TxEnvelopeTempoCall` | `TxEnvelopeTempo.Call` (from `ox/tempo`) | [Tempo](#tempo) |
+| `TypedDataDefinition` | `TypedData.Definition` | [Messages & ENS](#messages--ens) |
+| `TypedDataDomain` | `TypedData.Domain` | [Messages & ENS](#messages--ens) |
+| `TypedDataParameter` | `TypedData.Parameter` | [Messages & ENS](#messages--ens) |
+| `UnauthorizedProviderError` | `Provider.UnauthorizedError` | [RPC Errors](#rpc-errors) |
+| `Uncle` | `Block.Block` | [Type Exports](#type-exports) |
+| `uninstallFilter` | `Actions.filter.uninstall` | [Events & Filters](#events--filters) |
+| `universalSignatureValidatorByteCode` | `SignatureErc6492.universalSignatureValidatorBytecode` | [Signatures & Keys](#signatures--keys) |
+| `universalSignatureVerifierAddress` | `erc6492VerifierAddress` | [Signing & Verification](#signing--verification) |
+| `UnknownBundleIdError` | `Provider.UnknownBundleIdError` | [RPC Errors](#rpc-errors) |
+| `UnknownNodeError` | `RpcError.UnknownRpcError` | [RPC Errors](#rpc-errors) |
+| `UnsupportedChainIdError` | `Provider.UnsupportedChainIdError` | [RPC Errors](#rpc-errors) |
+| `UnsupportedNonOptionalCapabilityError` | `Actions.wallet.Errors.UnsupportedNonOptionalCapabilityError` | [Action & Transport Errors](#action--transport-errors) |
+| `UnsupportedPackedAbiType` | `AbiParameters.InvalidTypeError` | [Contract & ABI Errors](#contract--abi-errors) |
+| `UnsupportedProviderMethodError` | `Provider.UnsupportedMethodError` | [RPC Errors](#rpc-errors) |
+| `UserOperation` (type) | `UserOperation.UserOperation` (explicit signed parameter) | [User Operations](#user-operations) |
+| `UserOperationExecutionErrorType` | `UserOperationExecutionError` | [AA: Errors & Types](#errors--types) |
+| `UserOperationReceipt` (type) | `UserOperationReceipt.UserOperationReceipt` | [User Operations](#user-operations) |
+| `UserOperationRequest` | `UserOperation.Request` | [User Operations](#user-operations) |
+| `UserRejectedRequestError` | `Provider.UserRejectedRequestError` | [RPC Errors](#rpc-errors) |
+| `validateSiweMessage` | `Siwe.validateMessage` | [Messages & ENS](#messages--ens) |
+| `validateTypedData` | `TypedData.assert` (throwing; `TypedData.validate` returns boolean) | [Messages & ENS](#messages--ens) |
+| `verifyAuthorization` | `Authorization.verify` (sync) | [Utilities: Transactions](#transactions-1) |
+| `verifyHash` (action) | `Actions.verifyHash` | [Signing & Verification](#signing--verification) |
+| `verifyHash` (local, with `publicKey`) | `Secp256k1.verify` (sync) | [Signatures & Keys](#signatures--keys) |
+| `verifyMessage` | `Actions.verifyMessage` | [Signing & Verification](#signing--verification) |
+| `verifySiweMessage` | `Actions.siwe.verify` | [Signing & Verification](#signing--verification) |
+| `verifyTypedData` | `Actions.typedData.verify` | [Signing & Verification](#signing--verification) |
+| `viem/package.json` | Removed (not exported) | [Subpath Entrypoints](#subpath-entrypoints) |
+| `waitForCallsStatus` | `Actions.wallet.waitForCallsStatus` | [Wallet & Capabilities](#wallet--capabilities) |
+| `WaitForCallsStatusTimeoutError` | `Actions.wallet.Errors.WaitForCallsStatusTimeoutError` | [Action & Transport Errors](#action--transport-errors) |
+| `waitForTransactionReceipt` | `Actions.transaction.waitForReceipt` (returns handle) | [Actions: Transactions](#transactions) |
+| `WaitForTransactionReceiptTimeoutError` | `Actions.transaction.Errors.WaitForReceiptTimeoutError` | [Action & Transport Errors](#action--transport-errors) |
+| `waitForUserOperationReceipt` | `Actions.userOperation.waitForReceipt` | [AA: Actions & Decorators](#actions--decorators) |
+| `WaitForUserOperationReceiptParameters` | `Actions.userOperation.waitForReceipt.Options` | [AA: Actions & Decorators](#actions--decorators) |
+| `WalletActions` | `walletActions.Decorator` | [Client](#client) |
+| `WalletCallReceipt` | `Actions.wallet.getCallsStatus.Receipt` | [Wallet & Capabilities](#wallet--capabilities) |
+| `WalletCapabilities` | `Capabilities.Capabilities` | [Type Exports](#type-exports) |
+| `WalletClient` | `Client.Client` | [Client](#client) |
+| `walletNamespaceCompat` | Removed | [Tempo](#tempo) |
+| `WalletPermission` | Removed; `Actions.wallet.getPermissions.ReturnType[number]` | [Wallet & Capabilities](#wallet--capabilities) |
+| `WalletPermissionCaveat` | Removed; indexed access on `ReturnType` | [Wallet & Capabilities](#wallet--capabilities) |
+| `WalletRpcSchema` | `RpcSchema.Wallet` | [Type Exports](#type-exports) |
+| `watchAsset` | `Actions.wallet.watchAsset` | [Wallet & Capabilities](#wallet--capabilities) |
+| `watchBlockNumber` | `Actions.block.watchNumber` (returns handle) | [Events & Filters](#events--filters) |
+| `watchBlocks` | `Actions.block.watch` (returns handle) | [Events & Filters](#events--filters) |
+| `watchContractEvent` | `Actions.contract.watchEvent` (returns handle) | [Events & Filters](#events--filters) |
+| `watchEvent` | `Actions.event.watch` (returns handle) | [Events & Filters](#events--filters) |
+| `WatchEventOnLogsFn` | `Actions.event.watch.OnLogsFn` | [Events & Filters](#events--filters) |
+| `WatchEventOnLogsParameter` | `Parameters<Actions.event.watch.OnLogsFn>[0]` | [Events & Filters](#events--filters) |
+| `watchPendingTransactions` | `Actions.transaction.watchPending` (returns handle) | [Events & Filters](#events--filters) |
+| `weaveVMAlphanet` | `loadAlphanet` | [Chains](#chains) |
+| `WebAuthnAccount` (type) | `WebAuthnAccount.Account` | [Smart Accounts](#smart-accounts) |
+| `WebAuthnSignReturnType` | `WebAuthnAccount.SignReturnType` | [Smart Accounts](#smart-accounts) |
+| `WebSocketAsyncOptions` | Removed | [Transports](#transports) |
+| `WebSocketOptions` | Removed | [Transports](#transports) |
+| `WebSocketRequestError` | Removed; `RpcClient.SocketClosedError`/`RpcClient.TimeoutError` | [Action & Transport Errors](#action--transport-errors) |
+| `WebSocketTransportConfig` | `webSocket.Options` | [Transports](#transports) |
+| `withCache` | Internalized | [Transports](#transports) |
+| `withFeePayer` | Removed | [Tempo](#tempo) |
+| `withRelay.type` | `'relay'` literal | [Tempo](#tempo) |
+| `withRetry` | Internalized | [Transports](#transports) |
+| `withTimeout` | Internalized | [Transports](#transports) |
+| `writeContract` | `Actions.contract.write` | [Actions: Contract](#contract) |
+| `writeContracts` | `Actions.wallet.sendCalls` (calls with `abi`) | [Wallet & Capabilities](#wallet--capabilities) |
+| `writeContractSync` | `Actions.contract.writeSync` | [Actions: Contract](#contract) |
+| `x1Testnet` | `xLayerTestnet` | [Chains](#chains) |
+| `zeroAddress` | `Address.zero` | [Utilities: Address](#address-1) |
+| `zeroHash` | `Hash.zero` | [Hashing](#hashing) |
+| `zkSync` (chain alias) | `zksync` (same for `zkSyncInMemoryNode`, `zkSyncLocalNode`, `zkSyncSepoliaTestnet`) | [Chains](#chains) |
+| `ZoneHttpConfig` | `http.Options` (from `viem/tempo/zones`) | [Tempo](#tempo) |
+
+## Entrypoints & Exports
+
+### Subpath Entrypoints
+
+Most subpath entrypoints were removed in favor of namespaces exported from the package root (core modules) and `viem/utils` (utility namespaces):
+
+| v2 entrypoint | v3 |
+| --- | --- |
+| `viem/accounts` | Root `Account` namespace; `Secp256k1`, `Mnemonic`, `HdKey` from `viem/utils` ([Accounts](#accounts)) |
+| `viem/actions` | Root `Actions` namespace ([Actions](#actions)) |
+| `viem/chains/utils` | `Chain` namespace: `Chain.from`, `Chain.extract`, `Chain.getContractAddress` ([Chains](#chains)) |
+| `viem/ens` | `Ens` namespace (from `viem/utils`) and `Actions.ens` ([Messages & ENS](#messages--ens)) |
+| `viem/experimental` (and ERC subpaths) | Graduated or removed ([Deprecated & Experimental Surface](#deprecated--experimental-surface)) |
+| `viem/nonce` | `NonceManager` namespace ([Nonce Manager](#nonce-manager)) |
+| `viem/package.json` | Removed (not exported) |
+| `viem/siwe` | `Siwe` namespace (from `viem/utils`) and `Actions.siwe.verify` ([Messages & ENS](#messages--ens)) |
+| `viem/tokens` | `Token` namespace ([Tokens](#tokens-1)) |
+| `viem/utils` | Retained: the home of all Ox-backed utility namespaces, which are not re-exported from the package root ([Utilities](#utilities)) |
+
+The `viem/zod` entrypoint re-exports the Zod namespace (`z`) used to build typed JSON-RPC schemas for the Client `schema` option.
+
+```ts
+import { z } from 'viem/zod' // [!code ++]
+const schema = z.RpcSchema.from({ // [!code ++]
+  abe_foo: { params: z.tuple([z.number()]), returns: z.string() }, // [!code ++]
+}) // [!code ++]
+```
+
+Low-level request composition was internalized. Compose requests at the Client or Transport
+boundary.
+
+Action dispatch resolves through [`Actions.getAction`](/docs/clients/override), which checks Actions
+attached through `.extend()`. Existing `getAction`-style overrides continue to apply.
+
+RPC client helpers moved to the `RpcClient` namespace. See [Transports](#transports).
+
+Formatter constructors and error mappers left `viem/utils` for namespace conversions:
+
+| v2 | v3 |
+| --- | --- |
+| `defineTransaction` | Removed with the formatter system; use `Transaction.fromRpc` or chain `codecs` ([Chains](#chains)) |
+| `defineTransactionReceipt` | Removed; use `TransactionReceipt.fromRpc` ([Chains](#chains)) |
+| `getContractError` | `ContractError.fromError` ([Errors](#errors)) |
+| `getNodeError` | `RpcError.fromRpcError` ([Errors](#errors)) |
+
+### Type Exports
+
+Top-level types are now accessed through their namespace rather than as named type exports.
+
+```ts
+import type { Chain, Account, Transport } from 'viem' // [!code --]
+import { Chain, Account, Transport } from 'viem' // [!code ++]
+
+function f(chain: Chain, account: Account, transport: Transport) {} // [!code --]
+function f(chain: Chain.Chain, account: Account.Account, transport: Transport.Transport) {} // [!code ++]
+```
+
+Derived action and utility types moved onto their owning function namespaces. Error unions exist only when the v3 function declares one.
+
+```ts
+import type { GetBalanceParameters, GetBalanceReturnType, GetBalanceErrorType } from 'viem' // [!code --]
+import type { Actions } from 'viem' // [!code ++]
+
+type Options = GetBalanceParameters // [!code --]
+type Result = GetBalanceReturnType // [!code --]
+type Error = GetBalanceErrorType // [!code --]
+type Options = Actions.address.getBalance.Options // [!code ++]
+type Result = Actions.address.getBalance.ReturnType // [!code ++]
+type Error = Actions.address.getBalance.ErrorType // [!code ++]
+```
+
+Generic type-composition helpers were internalized without public replacements. The removed family is:
+
+```txt
+Assign, Branded, Evaluate, ExactPartial, ExactRequired, IsNarrowable,
+IsNever, IsUndefined, IsUnion, LooseOmit, MaybePartial, MaybePromise,
+MaybeRequired, Mutable, Narrow, NoInfer, NoUndefined, Omit, OneOf, Or,
+PartialBy, Prettify, RequiredBy, Some, UnionEvaluate, UnionLooseOmit,
+UnionOmit, UnionPartialBy, UnionPick, UnionRequiredBy, UnionToTuple,
+UnionWiden, ValueOf, Widen
+```
+
+Define the helpers your application still needs locally.
+
+EIP-1193 provider and RPC schema types moved to namespaces re-exported from `viem/utils`:
+
+| v2 | v3 |
+| --- | --- |
+| `EIP1193Provider` | `Provider.Provider` |
+| `EIP1193EventMap` | `Provider.EventMap` |
+| `EIP1193Events` | `Provider.Emitter` |
+| `PublicRpcSchema` | `RpcSchema.Eth` |
+| `WalletRpcSchema` | `RpcSchema.Wallet` |
+| `BundlerRpcSchema` | `RpcSchema.Bundler` from `ox/erc4337` |
+| `DebugBundlerRpcSchema` | `RpcSchema.BundlerDebug` from `ox/erc4337` |
+
+Wallet method shapes moved beside their owning actions. Paymaster and test methods are typed by their owning clients and actions.
+
+Request options are the second parameter of `Transport.RequestFn`. Other provider and schema helpers were removed.
+
+Wire-shape types moved onto their owning namespaces:
+
+| v2 | v3 |
+| --- | --- |
+| `RpcBlock` | `Block.Rpc` |
+| `RpcLog` | `Log.Rpc` |
+| `RpcTransactionReceipt` | `TransactionReceipt.Rpc` |
+| `RpcTransactionRequest` | `TransactionRequest.Rpc` |
+| `RpcFeeHistory` | `Fee.FeeHistoryRpc` |
+| `RpcProof` | `AccountProof.Rpc` |
+| `RpcAuthorization` | `Authorization.Rpc` |
+| `RpcAuthorizationList` | `Authorization.ListRpc` |
+| `RpcStateMapping` | `StateOverrides.AccountStorage` |
+
+State overrides now use records, including records for individual storage slots.
+
+Quantity and index aliases were removed in favor of `Hex.Hex`. Uncle types folded into the corresponding block types.
+
+Block number and tag types moved onto the `Block` namespace. Network sync types were removed.
+
+Wallet capability types moved to the `Capabilities` namespace. Schema augmentation must now target `Capabilities.Register` instead of Viem's root register.
+
+```ts
+declare module 'viem' { // [!code --]
+  interface Register { // [!code --]
+    CapabilitiesSchema: MySchema // [!code --]
+  } // [!code --]
+} // [!code --]
+declare module 'viem' { // [!code ++]
+  namespace Capabilities { // [!code ++]
+    interface Register { // [!code ++]
+      Schema: MySchema // [!code ++]
+    } // [!code ++]
+  } // [!code ++]
+} // [!code ++]
+```
+
+### Removed Extensions
+
+The Celo, Linea, and ZKsync extension entrypoints were removed. Their chain definitions remain as plain chains.
+
+Extension actions, formatters, serializers, and assertions have no v3 equivalent. Stay on v2 or use a package built on chain hooks.
+
+See [Chains](#chains).
+
+```ts
+import { celo } from 'viem/celo' // [!code --]
+import { linea } from 'viem/linea' // [!code --]
+import { zksync } from 'viem/zksync' // [!code --]
+import { celo, linea, zksync } from 'viem/chains' // [!code ++]
+```
+
+### Deprecated & Experimental Surface
+
+All deprecated v2 surface was removed without dedicated replacements. Use each alias's documented canonical form shown in the [Quick Reference](#quick-reference).
+
+The `viem/experimental` root and ERC subpaths were removed after surviving APIs graduated or moved behind smart-account implementations:
+
+- ERC-7846 connection actions and ERC-7811 asset reads graduated to the stable wallet namespace. Their decorators folded into the wallet decorator.
+- The ERC-7821 executor actions graduated to [`Actions.erc7821`](/docs/actions/erc7821) and root `erc7821Actions()` ([ERC-7821](#erc-7821)).
+- ERC-7715 `grantPermissions`, ERC-7895 `addSubAccount`, and the standalone ERC-7739 entrypoint were removed ([Removed ERCs](#removed-ercs)).
+- The experimental EIP-7702 authorization actions were folded into
+  [`Actions.wallet`](/docs/actions/wallet) ([Wallet & Capabilities](#wallet--capabilities)); the
+  authorization utilities moved to the `Authorization` namespace
+  ([Utilities: Transactions](#transactions-1)).
+
+## Client
+
+Client factory entrypoints were consolidated into `Client.create`, with public and test actions added via `.extend(...)` decorators (see [Client Creation](#client-creation) for the canonical example):
+
+| v2 | v3 |
+| --- | --- |
+| `createClient({ ... })` | `Client.create({ ... })` |
+| `createPublicClient({ ... })` | `Client.create({ ... }).extend(publicActions())` |
+| `createTestClient({ mode, ... })` | `Client.create({ ... }).extend(testActions({ mode }))` |
+| `createWalletClient({ account, ... })` | `Client.create({ account, ... })` |
+
+Test client mode was moved from `createTestClient` onto `testActions`, which now defaults to Anvil mode when omitted ([Test](#test)).
+
+The experimental block tag option was renamed. Public actions now read the default block tag from the client.
+
+The typed RPC schema option was renamed to `schema`. It accepts an `RpcSchema` value re-exported from `viem/utils`.
+
+Per-request schema overrides were removed. Pass a schema during client creation to type custom methods.
+
+```ts
+import { createClient, http, rpcSchema } from 'viem' // [!code --]
+import { Client, http } from 'viem' // [!code ++]
+import { RpcSchema } from 'viem/utils' // [!code ++]
+
+const client = createClient({ // [!code --]
+  rpcSchema: rpcSchema<[{ Method: 'eth_chainId'; ReturnType: '0x1' }]>(), // [!code --]
+const client = Client.create({ // [!code ++]
+  schema: RpcSchema.from<{ // [!code ++]
+    Request: { method: 'eth_chainId' } // [!code ++]
+    ReturnType: '0x1' // [!code ++]
+  }>(), // [!code ++]
+ transport: http('https://example.com'),
+ })
+```
+
+Named client types were replaced by `Client.Client`. Its generics default to their widest form, so the bare type accepts any client.
+
+Decorator bag types moved onto each decorator namespace. The client generic order also changed:
+
+```txt
+v2: transport, chain, account, rpcSchema, extended
+v3: chain, account, transport, tokens, schema, extended
+```
+
+Constrain the final generic only when calling decorated methods.
+
+```ts
+import type { PublicActions, PublicClient, TestClient, WalletClient } from 'viem' // [!code --]
+import type { Client, publicActions, testActions } from 'viem' // [!code ++]
+
+function takesClient(client: PublicClient) {} // [!code --]
+function takesClient(client: Client.Client) {} // [!code ++]
+
+type Actions = PublicActions // [!code --]
+type Actions = publicActions.Decorator // [!code ++]
+type Mode = TestClientMode // [!code --]
+type Mode = testActions.Options['mode'] // [!code ++]
+```
+
+Client configuration and multicall options moved onto the `Client` namespace. Multicall options also gained deployless support.
+
+The transport-aware poll helper was removed. Watch actions accept a boolean and select subscriptions when supported.
+
+## Transports
+
+Transport instances expose `setup(...)` instead of being called as functions ([Transport Behavior](#transport-behavior)).
+
+The HTTP transport now caps RPC response bodies at 10 MB by default (configurable via `maxResponseBodySize`, or `false` to disable), throwing `RpcClient.ResponseBodyTooLargeError` when exceeded.
+
+```ts
+import { http } from 'viem'
+
+const transport = http('https://example.com') // [!code --]
+const transport = http('https://example.com', { maxResponseBodySize: 20_971_520 }) // [!code ++]
+```
+
+WebSocket and IPC subscriptions now register data handlers on the returned subscription. The deprecated socket getter was replaced by an RPC client getter.
+
+```ts
+import { webSocket } from 'viem'
+
+const transport = webSocket('wss://example.com').setup()
+const subscription = await transport.subscribe({ // [!code --]
+  params: ['newHeads'], // [!code --]
+  onData: (data) => console.log(data), // [!code --]
+}) // [!code --]
+const subscription = await transport.subscribe({ params: ['newHeads'] }) // [!code ++]
+subscription.onData((data) => console.log(data)) // [!code ++]
+
+const socket = await transport.getSocket() // [!code --]
+const rpcClient = await transport.getRpcClient() // [!code ++]
+```
+
+The HTTP transport-level typed `rpcSchema` option was removed, with request typing supplied by the client `schema` option instead ([Client](#client)).
+
+Public cache, retry, timeout, and fallback helpers were internalized without replacements. Compose this behavior around your transport or client.
+
+The socket-client cache was also internalized. Cached clients evict themselves when closed.
+
+Create custom transports with `Transport.from`. Transport types moved onto the root transport namespace and individual factory namespaces.
+
+Instance types are parameterized by transport type. Factory option bags replace transport-specific configuration types.
+
+Transport identity and live setup state are now separate. Derive setup configuration from the transport's setup return type.
+
+```ts
+import { createTransport, type CustomTransport, type FallbackTransport, type HttpTransport, type HttpTransportConfig } from 'viem' // [!code --]
+import { Transport, custom, fallback, http, webSocket } from 'viem' // [!code ++]
+
+const transport: HttpTransport = createTransport({ key, name, request, type: 'http' }) // [!code --]
+const transport: Transport.Transport<'http'> = Transport.from({ key, name, type: 'http', setup }) // [!code ++]
+
+type Config = HttpTransportConfig // WebSocketTransportConfig, CustomTransportConfig, FallbackTransportConfig // [!code --]
+type Config = http.Options // webSocket.Options, custom.Options, fallback.Options // [!code ++]
+```
+
+Low-level RPC client helpers moved to the `RpcClient` namespace. The WebSocket factory exposes its live client type.
+
+Deprecated callback-based WebSocket option shapes were removed.
+
+## Accounts
+
+Account constructors and key generation moved onto namespaces ([Account Model](#account-model)):
+
+| v2 | v3 |
+| --- | --- |
+| `generatePrivateKey()` | `Secp256k1.randomPrivateKey()` |
+| `hdKeyToAccount(hdKey, options)` | `Account.fromHdKey(hdKey, options)` |
+| `mnemonicToAccount(mnemonic, options)` | `Account.fromMnemonic(mnemonic, options)` |
+| `parseAccount(source)` | `Account.from(source)` |
+| `privateKeyToAccount(privateKey)` | `Account.fromPrivateKey(privateKey)` |
+| `toAccount(address)` | `Account.from(address)` |
+
+Local account definitions began requiring raw `sign` and deriving high-level signing methods; the `source` discriminant was replaced by `keyType`.
+
+```ts
+account.source // 'privateKey' | 'hd' | 'custom' // [!code --]
+account.keyType // 'secp256k1' | 'custom' // [!code ++]
+```
+
+Mnemonic generation was moved from `generateMnemonic` to `Mnemonic.random`, with the wordlist and strength passed in the v3 shape.
+
+```ts
+import { generateMnemonic, english } from 'viem/accounts' // [!code --]
+import { Mnemonic } from 'viem/utils' // [!code ++]
+
+const mnemonic = generateMnemonic(english, 256) // [!code --]
+const mnemonic = Mnemonic.random(Mnemonic.english, { strength: 256 }) // [!code ++]
+```
+
+Private-key address derivation moved to the `Address` and `Secp256k1` namespaces.
+
+```ts
+import { privateKeyToAddress } from 'viem/accounts' // [!code --]
+import { Address, Secp256k1 } from 'viem/utils' // [!code ++]
+
+const address = privateKeyToAddress(privateKey) // [!code --]
+const address = Address.fromPublicKey(Secp256k1.getPublicKey({ privateKey }), { checksum: true }) // [!code ++]
+```
+
+The global `setSignEntropy` helper was replaced by per-signature `extraEntropy` on `Secp256k1.sign`.
+
+```ts
+setSignEntropy(true) // [!code --]
+Secp256k1.sign({ payload, privateKey, extraEntropy: true }) // [!code ++]
+```
+
+The named account types moved onto the `Account` namespace, and the flat account source and constructor option types moved to `Account.from` and the constructor namespaces:
+
+| v2 | v3 |
+| --- | --- |
+| `AccountSource` | `Address.Address` or `Account.from.Account` |
+| `CustomSource` | `Account.from.Account` |
+| `HDAccount` | `Account.Hd` |
+| `HDKeyToAccountErrorType` | `Account.fromHdKey.ErrorType` |
+| `HDKeyToAccountOptions` | `Account.fromHdKey.Options` |
+| `HDOptions` | `Account.fromHdKey.Options` |
+| `JsonRpcAccount<address>` | `Account.JsonRpc<address>` |
+| `LocalAccount<'custom', address>` | `Account.Local<'custom', address>` |
+| `MnemonicToAccountOptions` | `Account.fromMnemonic.Options` |
+| `ParseAccount<accountOrAddress>` | `Account.from.ReturnType<accountOrAddress>` |
+| `PrivateKeyAccount` | `Account.PrivateKey` |
+| `PrivateKeyToAccountOptions` | `Account.fromPrivateKey.Options` |
+
+## Chains
+
+Chain construction and helpers moved onto the `Chain` namespace ([Chain Definitions](#chain-definitions)):
+
+| v2 | v3 |
+| --- | --- |
+| `assertCurrentChain({ chain, currentChainId })` | `Chain.assertCurrent({ chain, currentChainId })` |
+| `AssertCurrentChainErrorType` | `Chain.assertCurrent.ErrorType` (throws `Chain.MismatchError`, `Chain.NotFoundError`) |
+| `ChainDoesNotSupportContract` | `Chain.DoesNotSupportContract` |
+| `defineChain(config)` | `Chain.from(config)` |
+| `extractChain({ chains, id })` | `Chain.extract({ chains, id })` |
+| `filterChains({ chains, token })` | `Chain.filter({ chains, token })` (preserving token-support and testnet narrowing) |
+| `getChainContractAddress({ chain, contract })` | `Chain.getContractAddress({ chain, contract })` |
+
+The Chain shape is smaller. Only `id` is required; `name`, `nativeCurrency`, and `rpcUrls` are
+optional.
+
+A Chain without `rpcUrls` requires an explicit Transport URL.
+
+`rpcUrls` and `blockExplorers` are single flattened entries instead of `default`-keyed maps.
+`rpcUrls.http` and the renamed `ws` accept one URL or a list.
+
+Keyed alternatives, such as a `blockscout` explorer entry, have no equivalent. Keep the primary
+entry.
+
+```ts
+const chain = defineChain({ // [!code --]
+const chain = Chain.from({ // [!code ++]
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { // [!code --]
+    default: { // [!code --]
+      http: ['https://eth.merkle.io'], // [!code --]
+      webSocket: ['wss://eth.merkle.io'], // [!code --]
+    }, // [!code --]
+  }, // [!code --]
+  blockExplorers: { // [!code --]
+    default: { name: 'Etherscan', url: 'https://etherscan.io' }, // [!code --]
+  }, // [!code --]
+  rpcUrls: { http: 'https://eth.merkle.io', ws: 'wss://eth.merkle.io' }, // [!code ++]
+  blockExplorers: { name: 'Etherscan', url: 'https://etherscan.io' }, // [!code ++]
+})
+```
+
+RPC and native codecs replaced chain formatters. See [Chain Definitions](#chain-definitions) for the canonical example.
+
+Converters decode wire values or encode native values. Namespace conversions provide the building blocks.
+
+All formatter constructors and the exclusion feature were removed. Omit unwanted keys from converter return values.
+
+Chain-aware formatted types moved from the `Formatted*` helpers to `Chain.Extract*`, which infer from the chain's codecs:
+
+| v2 | v3 |
+| --- | --- |
+| `ExtractFormattedTransactionRequest<chain>` | `Chain.ExtractTransactionRequest<chain>` |
+| `FormattedBlock<chain>` | `Chain.ExtractBlock<chain>` |
+| `FormattedTransaction<chain>` | `Chain.ExtractTransaction<chain>` |
+| `FormattedTransactionReceipt<chain>` | `Chain.ExtractTransactionReceipt<chain>` |
+| `FormattedTransactionRequest<chain>` | `Chain.ExtractTransactionRequest<chain>` |
+
+Deprecated fee fields were replaced by `maxPriorityFeePerGas`. Experimental or deprecated extension fields were renamed or removed.
+
+Schema extension moved onto the `Chain` namespace.
+
+```ts
+const chain = defineChain({ // [!code --]
+const chain = Chain.from({ // [!code ++]
+  fees: {
+    defaultPriorityFee: 1_000_000_000n, // [!code --]
+    maxPriorityFeePerGas: 1_000_000_000n, // [!code ++]
+  },
+  experimental_preconfirmationTime: 1_000, // [!code --]
+  custom: { slug: 'example' }, // [!code --]
+  extendSchema: extendSchema<{ slug: string }>(), // [!code --]
+  preconfirmationTime: 1_000, // [!code ++]
+  extendSchema: Chain.extendSchema<{ slug: string }>(), // [!code ++]
+  slug: 'example', // [!code ++]
+})
+```
+
+Chain transaction hooks accept custom envelope types without casts. The verification hook receives the caller's mode and block context.
+
+Chains can disable default transaction replacement scans. Zone chains disable them.
+
+Added Defi Oracle Meta Mainnet plus Robinhood mainnet and testnet definitions.
+
+145 obsolete or superseded chain definitions were removed without built-in replacements. Applications can define them locally with `Chain.from`.
+
+<details>
+<summary>Removed Chain Definitions</summary>
+
+```txt
+acria, alephZero, alephZeroTestnet, arbitrumGoerli, areonNetworkTestnet,
+arthera, artheraTestnet, astarZkEVM, astarZkyoto, basecampTestnet,
+bitTorrentTestnet, bronos, bronosTestnet, bxn, bxnTestnet, celoAlfajores,
+chips, coreTestnet1, crab, cyberTestnet, datahavenTestnet,
+defichainEvmTestnet, dodochainTestnet, edexaTestnet, edgeless,
+electroneumTestnet, elysiumTestnet, eon, eos, eosTestnet, ethernity, evmos,
+exsatTestnet, fantomSonicTestnet, fantomTestnet, filecoinHyperspace, flame,
+flowPreviewnet, fluence, fluenceStage, fluenceTestnet, form, formTestnet,
+foundry, funkiSepolia, fusion, fusionTestnet, garnet, geist,
+glideL1Protocol, glideL2Protocol, gobi, ham, happychainTestnet, hppSepolia,
+huddle01Mainnet, humanityTestnet, initVerseGenesis, jasmyChain,
+jasmyChainTestnet, juneoSocotraTestnet, kakarotSepolia,
+kakarotStarknetSepolia, kardiaChain, klaytn, klaytnBaobab, koi, kroma,
+kromaSepolia, lineaGoerli, lineaTestnet, lumozTestnet, mandala,
+mantaTestnet, mekong, meld, metachainIstanbul, metisGoerli, mezo,
+mintSepoliaTestnet, mitosisTestnet, morphHolesky, morphSepolia, nahmii,
+nautilus, nexi, nexilix, nitrographTestnet, optimismGoerli, otimDevnet,
+paseoPassetHub, phoenix, playfiAlbireo, plinga, plume, plumeDevnet,
+plumeTestnet, polterTestnet, polygonZkEvmTestnet, premiumBlockTestnet,
+pumpfiTestnet, pyrope, ql1, real, redstone, rivalz, rolluxTestnet,
+rss3Sepolia, sanko, satoshiVM, satoshiVMTestnet, shardeumSphinx,
+shibarium, shibariumTestnet, shiden, shimmerTestnet,
+skaleCryptoColosseum, skaleHumanProtocol, skaleRazor, sonicBlazeTestnet,
+swellchainTestnet, taikoHekla, taikoJolnir, taikoKatla,
+taikoTestnetSepolia, taraxa, taraxaTestnet, teaSepolia, thunderTestnet,
+tiktrixTestnet, treasureTopaz, ubiq, uniqueQuartz, unreal, vision,
+visionTestnet, wmcTestnet, xoneMainnet, xrOne, zeroGGalileoTestnet,
+zhejiang, zilliqaTestnet, zkLinkNovaSepoliaTestnet, zkXPLA, zkXPLATestnet
+```
+
+</details>
+
+Deprecated chain exports were also removed. The [Quick Reference](#quick-reference) lists their replacements where available.
+
+`viem/chains` no longer re-exports extension serializers, assertions, or types. Celo and ZKsync definitions remain as plain chains.
+
+Extension-specific transaction shapes were removed with their entrypoints. See [Removed Extensions](#removed-extensions-1).
+
+```ts
+import { celo, serializersCelo } from 'viem/chains' // [!code --]
+import { celo } from 'viem/chains' // [!code ++]
+
+// Extension serializers have no v3 equivalent; build on `Chain.from` // [!code ++]
+// with `codecs` and `transaction` hooks instead. // [!code ++]
+```
+
+## Actions
+
+Public actions live under domain groups on the root `Actions` namespace. Decorator methods use matching domain objects.
+
+Watch and wait actions return handles. Actions that need a default block tag read it from the client.
+
+Chain actions moved under `Actions.chains`:
+
+| v2 | v3 |
+| --- | --- |
+| `addChain(client, { chain })` | `Actions.chains.add(client, { chain })` |
+| `getChainId(client)` | `Actions.chains.getId(client)` |
+| `switchChain(client, { id })` | `Actions.chains.switch(client, { id })` |
+
+Generic type-derivation helpers behind v2 action signatures were removed. Generic wrappers should compose the owning action's options and return types.
+
+Account parsing and filter types moved onto their owning namespaces. Per-call chain and account override generics were dropped.
+
+### Address
+
+| v2 | v3 |
+| --- | --- |
+| `getBalance(client, options)` | `Actions.address.getBalance(client, options)` |
+| `getCode(client, options)` | `Actions.address.getCode(client, options)` |
+| `getDelegation(client, options)` | `Actions.address.getDelegation(client, options)` |
+| `getProof(client, options)` | `Actions.address.getProof(client, options)` |
+| `getStorageAt(client, options)` | `Actions.address.getStorageAt(client, options)` |
+| `getTransactionCount(client, options)` | `Actions.address.getTransactionCount(client, options)` |
+
+### Block
+
+| v2 | v3 |
+| --- | --- |
+| `getBlock(client, options)` | `Actions.block.get(client, options)` |
+| `getBlockNumber(client, options)` | `Actions.block.getNumber(client, options)` |
+| `getBlockReceipts(client, options)` | `Actions.block.getReceipts(client, options)` |
+| `getBlockTransactionCount(client, options)` | `Actions.block.getTransactionCount(client, options)` |
+
+Block watchers (`watchBlocks`, `watchBlockNumber`) and the block filter producer moved with the
+other [watchers and filters](#events--filters).
+
+Block-level simulation moved to [`Actions.block.simulate`](/docs/actions/public/block/simulate).
+See [Call & Multicall](#call--multicall).
+
+### Call & Multicall
+
+`multicall` keeps typed calls but renames its input fields and wraps its results. Existing failure, batching, address, and deployless options remain.
+
+It now lives directly on `Actions` and the client decorator. See [multicall Redesign](#multicall-redesign).
+
+By default, `multicall` uses `eth_simulateV1` and falls back to multicall3 when unsupported. Support detection is cached per client.
+
+Choose multicall mode for previous semantics or simulate mode for deterministic rich results.
+
+`simulateCalls` folded into [`Actions.multicall`](/docs/actions/public/multicall) under simulate
+mode. Its tracing, validation, and result fields remain.
+
+Per-call addresses and state overrides use the same renamed fields as other v3 actions.
+
+```ts
+import { simulateCalls } from 'viem/actions' // [!code --]
+import { Actions } from 'viem' // [!code ++]
+
+const { assetChanges, results } = await simulateCalls(client, { // [!code --]
+const { assetChanges, results } = await Actions.multicall(client, { // [!code ++]
+  account,
+  calls: [
+    { to: recipient, value: parseEther('1') }, // [!code --]
+    { abi, address: token, functionName: 'transfer', args }, // [!code --]
+    { to: recipient, value: Value.fromEther('1') }, // [!code ++]
+    { abi, to: token, functionName: 'transfer', args }, // [!code ++]
+  ],
+  mode: 'simulate', // [!code ++]
+  traceAssetChanges: true,
+})
+```
+
+`simulateBlocks` moved under the `block` namespace as
+[`block.simulate`](/docs/actions/public/block/simulate). The per-block and state override option is
+the singular `stateOverride` with a record shape.
+
+```ts
+const result = await simulateBlocks(client, { // [!code --]
+const result = await Actions.block.simulate(client, { // [!code ++]
+  blocks: [{
+    calls,
+    stateOverrides: [{ address: account, balance: parseEther('10000') }], // [!code --]
+    stateOverride: { [account]: { balance: Value.fromEther('10000') } }, // [!code ++]
+  }],
+})
+```
+
+Multicall types moved onto their owning namespaces:
+
+| v2 | v3 |
+| --- | --- |
+| `MulticallBatchOptions` | `Client.MulticallOptions` ([Client](#client)) |
+| `MulticallContracts<contracts>` | `Actions.multicall.Options<calls>['calls']` |
+| `MulticallResults<contracts>` | `Actions.multicall.ReturnType<chain, calls>['results']` |
+
+### Contract
+
+Contract actions were renamed to their namespaced v3 equivalents (same options shape):
+
+| v2 | v3 |
+| --- | --- |
+| `deployContract(client, options)` | `Actions.contract.deploy(client, options)` |
+| `estimateContractGas(client, options)` | `Actions.contract.estimateGas(client, options)` |
+| `getContractEvents(client, options)` | `Actions.contract.getLogs(client, options)` |
+| `getEip712Domain(client, options)` | `Actions.contract.getEip712Domain(client, options)` |
+| `readContract(client, options)` | `Actions.contract.read(client, options)` |
+| `simulateContract(client, options)` | `Actions.contract.simulate(client, options)` |
+| `writeContract(client, options)` | `Actions.contract.write(client, options)` |
+| `writeContractSync(client, options)` | `Actions.contract.writeSync(client, options)` |
+
+Multi-output results with named outputs decode to objects keyed by the output names ([Contract Return Shapes](#contract-return-shapes)); fully unnamed outputs keep the tuple shape. Pass `as: 'Array'` for positional tuples.
+
+```ts
+const [foo, bar] = await readContract(client, options) // [!code --]
+const { foo, bar } = await Actions.contract.read(client, options) // [!code ++]
+const [foo, bar] = await Actions.contract.read(client, { ...options, as: 'Array' }) // [!code ++]
+```
+
+Contract instances moved from `getContract` to `Contract.from` ([Contract Instances](#contract-instances)), and their types moved with them; note the generic order changed from `<abi, client, address>` to `<abi, address, client>`.
+
+| v2 | v3 |
+| --- | --- |
+| `GetContractErrorType` | Removed; use each method's error union |
+| `GetContractParameters<abi, client, address>` | `Contract.from.Options<abi, address, client>` |
+| `GetContractReturnType<abi, client, address>` | `Contract.from.ReturnType<abi, address, client>` (bound instances: `Contract.Contract<abi, address, client>`) |
+
+### ENS & CCIP Read
+
+The ENS actions were grouped under the `ens` namespace:
+
+| v2 | v3 |
+| --- | --- |
+| `getEnsAddress(client, { name })` | `Actions.ens.getAddress(client, { name })` |
+| `getEnsAvatar(client, { name })` | `Actions.ens.getAvatar(client, { name })` |
+| `getEnsName(client, { address })` | `Actions.ens.getName(client, { address })` |
+| `getEnsResolver(client, { name })` | `Actions.ens.getResolver(client, { name })` |
+| `getEnsText(client, { name, key })` | `Actions.ens.getText(client, { name, key })` |
+
+ENS name primitives live on the `Ens` utility namespace. Coin type conversion now accepts and returns `bigint`.
+
+See [Messages & ENS](#messages--ens).
+
+CCIP Read remains enabled by default, but resolver URLs are routed through an allowlisted batch gateway. It now resolves inside calls for any contract.
+
+Set `ccipRead` to `false` to disable it. Provide a custom policy to change the gateway or request behavior.
+
+The default [ENSIP-21 batch gateway](https://docs.ens.domains/ensip/21/) is operated by ENS Labs. It observes request metadata and affects availability.
+
+Contract callbacks validate responses, so gateways are not trusted for correctness.
+
+Direct requests provide defense in depth only. Server applications should use a proxy or gateway allowlist because portable fetch cannot pin DNS results.
+
+Callbacks now use the original block context and stop after four lookups. Previously, callbacks used the latest block without a limit.
+
+`CcipRead.request` now has a 10-second timeout and 10 MiB response cap. Set `timeout: 0` or `maxResponseBodySize: false` to disable them.
+
+Local batches allow 64 total queries, four concurrent requests, and four nesting levels per lookup.
+
+CCIP gateway requests and batch tunnels moved to `CcipRead`, tunnel overrides renamed `ccipRequest` to `request`, and transport request options began flowing through tunnels.
+
+```ts
+const data = await ccipRequest(options) // [!code --]
+const legacyData = await ccipFetch(options) // [!code --]
+const data = await CcipRead.request(options) // [!code ++]
+
+const ccipRead = ccipReadTunnel({ batchGateways, ccipRequest }) // [!code --]
+const ccipRead = CcipRead.tunnel({ // [!code ++]
+  batchGateways, // [!code ++]
+  request: CcipRead.request, // [!code ++]
+}) // [!code ++]
+
+type RequestOptions = CcipRequestParameters // [!code --]
+type RequestError = CcipRequestErrorType // [!code --]
+type TunnelOptions = CcipReadTunnelParameters // [!code --]
+type RequestOptions = CcipRead.request.Options // [!code ++]
+type RequestError = CcipRead.request.ErrorType // [!code ++]
+type TunnelOptions = CcipRead.tunnel.Options // [!code ++]
+```
+
+`CcipRead.request` rejected unsafe URL forms and redirects and redacted gateway payloads, while `CcipRead.tunnel` redacted batch failures and rejected malformed success arrays instead of resolving `undefined`.
+
+Raw `offchainLookup` resolution became internal to
+[`Actions.call`](/docs/actions/public/call), and `AbiError` construction replaced its ABI item and
+selector constants.
+
+```ts
+import { AbiError, CcipRead } from 'viem/utils' // [!code ++]
+import { Actions } from 'viem' // [!code ++]
+
+const data = await offchainLookup(client, { data: revertData, to }) // [!code --]
+const { data } = await Actions.call(client, { data: callData, to }) // [!code ++]
+
+offchainLookupAbiItem // [!code --]
+offchainLookupSignature // [!code --]
+const abiError = AbiError.from( // [!code ++]
+  'error OffchainLookup(address sender, string[] urls, bytes callData, bytes4 callbackFunction, bytes extraData)', // [!code ++]
+) // [!code ++]
+const selector = AbiError.getSelector(abiError) // [!code ++]
+
+type LookupError = OffchainLookupErrorType // [!code --]
+type LookupError = CcipRead.LookupError // [!code ++]
+```
+
+### Events & Filters
+
+Event log reads and watchers moved to their owning domain namespaces. Every watcher returns a handle instead of a bare unwatch function:
+
+| v2 | v3 |
+| --- | --- |
+| `getLogs(client, options)` | `Actions.event.getLogs(client, options)` |
+| `watchBlockNumber(client, { onBlockNumber })` | `Actions.block.watchNumber(client)` returns handle; `handle.onBlockNumber(fn)` |
+| `watchBlocks(client, { onBlock })` | `Actions.block.watch(client)` returns handle; `handle.onBlock(fn)` |
+| `watchContractEvent(client, { abi, eventName, onLogs })` | `Actions.contract.watchEvent(client, { abi, eventName })` returns handle; `handle.onLogs(fn)` |
+| `watchEvent(client, { event, onLogs })` | `Actions.event.watch(client, { event })` returns handle; `handle.onLogs(fn)` |
+| `watchPendingTransactions(client, { onTransactions })` | `Actions.transaction.watchPending(client)` returns handle; `handle.onTransactions(fn)` |
+
+Filter producers and the filter lifecycle actions were renamed to their owning domain namespaces:
+
+| v2 | v3 |
+| --- | --- |
+| `createBlockFilter(client)` | `Actions.block.createFilter(client)` |
+| `createContractEventFilter(client, { abi, eventName })` | `Actions.contract.createEventFilter(client, { abi, eventName })` |
+| `createEventFilter(client, { event })` | `Actions.event.createFilter(client, { event })` |
+| `createPendingTransactionFilter(client)` | `Actions.transaction.createPendingFilter(client)` |
+| `getFilterChanges(client, { filter })` | `Actions.filter.getChanges(client, { filter })` |
+| `getFilterLogs(client, { filter })` | `Actions.filter.getLogs(client, { filter })` |
+| `uninstallFilter(client, { filter })` | `Actions.filter.uninstall(client, { filter })` |
+
+Watcher callback types moved onto their owning action namespaces, replacing the flat callback aliases:
+
+| v2 | v3 |
+| --- | --- |
+| `OnBlockNumberParameter` | `Parameters<Actions.block.watchNumber.OnBlockNumberFn>[0]` |
+| `OnBlockParameter<chain>` | `Parameters<Actions.block.watch.OnBlockFn>[0]` |
+| `OnTransactionsParameter` | `Parameters<Actions.transaction.watchPending.OnTransactionsFn>[0]` |
+| `ReplacementReason` | `Actions.transaction.waitForReceipt.ReplacementReason` |
+| `WatchEventOnLogsFn` | `Actions.event.watch.OnLogsFn` |
+| `WatchEventOnLogsParameter<abiEvent>` | `Parameters<Actions.event.watch.OnLogsFn>[0]` |
+
+Strict event reads and filters now narrow decoded arguments to their required shape. The previous widened property type defeated generic inference.
+
+### Fees
+
+| v2 | v3 |
+| --- | --- |
+| `estimateFeesPerGas(client, options)` | `Actions.fee.estimateFeesPerGas(client, options)` |
+| `estimateMaxPriorityFeePerGas(client, options)` | `Actions.fee.estimateMaxPriorityFeePerGas(client, options)` |
+| `getBlobBaseFee(client)` | `Actions.fee.getBlobBaseFee(client)` |
+| `getFeeHistory(client, options)` | `Actions.fee.getHistory(client, options)` |
+| `getGasPrice(client)` | `Actions.fee.getGasPrice(client)` |
+
+### Transactions
+
+Transaction actions moved under `Actions.transaction` (same options shape unless noted):
+
+| v2 | v3 |
+| --- | --- |
+| `createAccessList(client, options)` | `Actions.transaction.createAccessList(client, options)` |
+| `defaultPrepareTransactionRequestParameters` | `Actions.transaction.defaultParameters` |
+| `fillTransaction(client, options)` | `Actions.transaction.fill(client, options)` |
+| `getRawTransaction(client, options)` | `Actions.transaction.getRaw(client, options)` |
+| `getTransaction(client, options)` | `Actions.transaction.get(client, options)` |
+| `getTransactionConfirmations(client, options)` | `Actions.transaction.getConfirmations(client, options)` |
+| `getTransactionReceipt(client, options)` | `Actions.transaction.getReceipt(client, options)` |
+| `prepareTransactionRequest(client, options)` | `Actions.transaction.prepare(client, options)` |
+| `sendRawTransaction(client, options)` | `Actions.transaction.sendRaw(client, { transaction })` |
+| `sendRawTransactionSync(client, options)` | `Actions.transaction.sendRawSync(client, { transaction })` |
+| `sendTransaction(client, options)` | `Actions.transaction.send(client, options)` |
+| `sendTransactionSync(client, options)` | `Actions.transaction.sendSync(client, options)` |
+| `signTransaction(client, options)` | `Actions.transaction.sign(client, options)` (also aliased flat as `Actions.signTransaction` and on the added `walletActions()` decorator) |
+
+[`Actions.transaction.sendRaw`](/docs/actions/wallet/transaction/sendRaw) renamed its
+`serializedTransaction` option to `transaction`. The same change applies to `sendRawSync`.
+
+```ts
+await sendRawTransaction(client, { serializedTransaction: '0x02f8…' }) // [!code --]
+await Actions.transaction.sendRaw(client, { transaction: '0x02f8…' }) // [!code ++]
+```
+
+The transaction receipt waiter returns a watcher handle exposing the receipt and replacement callbacks.
+
+```ts
+const receipt = await waitForTransactionReceipt(client, { hash, onReplaced }) // [!code --]
+const receiptWatcher = Actions.transaction.waitForReceipt(client, { hash }) // [!code ++]
+receiptWatcher.onReplaced(onReplaced) // [!code ++]
+const receipt = await receiptWatcher.receipt // [!code ++]
+```
+
+Sending with a JSON-RPC account no longer requires a configured client chain. It uses the transport's current chain instead.
+
+```ts
+// v2: threw ChainNotFoundError without a configured chain // [!code --]
+const client = createWalletClient({ transport: custom(window.ethereum) }) // [!code --]
+await sendTransaction(client, { account, to, value }) // [!code --]
+// v3: sends against the transport's current chain // [!code ++]
+const client = Client.create({ transport: custom(window.ethereum) }) // [!code ++]
+await Actions.transaction.send(client, { account, to, value }) // [!code ++]
+```
+
+Transaction preparation no longer feeds derived fees into internal gas estimation. This avoids balance-based estimation caps for sponsored senders.
+
+Caller-supplied fees are still forwarded.
+
+[`Actions.transaction.estimateGas`](/docs/actions/public/transaction/estimateGas) encodes the
+request through the chain's `codecs.transactionRequest` codec when declared. Chain-specific request
+fields reach the node.
+
+Request-shape types moved onto their owning namespaces:
+
+| v2 | v3 |
+| --- | --- |
+| `PrepareTransactionRequestParameterType` | `Actions.transaction.prepare.Parameter` |
+| `SendTransactionRequest<chain>` | `Chain.ExtractTransactionRequest<chain>` |
+| `SignTransactionRequest<chain>` | `Chain.ExtractTransactionRequest<chain>` |
+
+### Signing & Verification
+
+Message signing and general signature verification stay flat on `Actions`. Typed-data actions moved
+to `Actions.typedData`, while SIWE verification moved to `Actions.siwe`.
+
+| v2 | v3 |
+| --- | --- |
+| `signMessage(client, { account, message })` | `Actions.signMessage(client, { account, message })` |
+| `signTypedData(client, { account, ...typedData })` | `Actions.typedData.sign(client, { account, ...typedData })` |
+| `verifyHash(client, options)` | `Actions.verifyHash(client, options)` |
+| `verifyMessage(client, options)` | `Actions.verifyMessage(client, options)` |
+| `verifySiweMessage(client, { message, signature })` | `Actions.siwe.verify(client, { message, signature })` |
+| `verifyTypedData(client, options)` | `Actions.typedData.verify(client, options)` |
+
+Added EIP-1898 block-hash context to the onchain verification actions and chain verification hooks.
+
+```ts
+await Actions.verifyHash(client, {
+  address,
+  blockNumber, // [!code --]
+  blockHash, // [!code ++]
+  requireCanonical: true, // [!code ++]
+  hash,
+  signature,
+})
+```
+
+Hash verification removed its deprecated verifier alias and chain override. It now uses the client's chain and the current signature shape.
+
+The custom account verification hook moved onto the `Chain` type.
+
+### Wallet & Capabilities
+
+Wallet JSON-RPC actions and the EIP-5792 call-bundle actions were grouped under the `wallet` namespace:
+
+| v2 | v3 |
+| --- | --- |
+| `getAddresses(client)` | `Actions.wallet.getAddresses(client)` |
+| `getCallsStatus(client, { id })` | `Actions.wallet.getCallsStatus(client, { id })` |
+| `getCapabilities(client)` | `Actions.wallet.getCapabilities(client)` |
+| `getPermissions(client)` | `Actions.wallet.getPermissions(client)` |
+| `requestAddresses(client)` | `Actions.wallet.requestAddresses(client)` |
+| `requestPermissions(client, options)` | `Actions.wallet.requestPermissions(client, options)` |
+| `sendCalls(client, { calls })` | `Actions.wallet.sendCalls(client, { calls })` |
+| `sendCallsSync(client, { calls })` | `Actions.wallet.sendCallsSync(client, { calls })` |
+| `showCallsStatus(client, { id })` | `Actions.wallet.showCallsStatus(client, { id })` |
+| `waitForCallsStatus(client, { id })` | `Actions.wallet.waitForCallsStatus(client, { id })` |
+| `watchAsset(client, { type, options })` | `Actions.wallet.watchAsset(client, { type, options })` |
+
+EIP-7702 authorization actions graduated from the experimental entrypoint. Their contract address option was shortened.
+
+Signing and recovery utilities moved to the `Authorization` namespace. See [Utilities: Transactions](#transactions-1).
+
+```ts
+const authorization = await prepareAuthorization(client, { contractAddress }) // [!code --]
+const signed = await signAuthorization(client, { contractAddress }) // [!code --]
+const authorization = await Actions.wallet.prepareAuthorization(client, { address }) // [!code ++]
+const signed = await Actions.wallet.signAuthorization(client, { address }) // [!code ++]
+```
+
+The ERC-7846 connection actions (`connect`/`disconnect`) and ERC-7811 `getAssets` also graduated into `Actions.wallet` ([ERC-7846 & ERC-7811](#erc-7846--erc-7811)).
+
+The deprecated `writeContracts` and `eip5792Actions` exports were replaced by ABI-aware
+[`Actions.wallet.sendCalls`](/docs/actions/wallet/sendCalls) and `walletActions()`.
+
+```ts
+import { Actions, walletActions } from 'viem' // [!code ++]
+
+client.extend(eip5792Actions()) // [!code --]
+await writeContracts(client, { // [!code --]
+  contracts: [{ address, abi, functionName, args }], // [!code --]
+}) // [!code --]
+client.extend(walletActions()) // [!code ++]
+await Actions.wallet.sendCalls(client, { // [!code ++]
+  calls: [{ to: address, abi, functionName, args }], // [!code ++]
+}) // [!code ++]
+```
+
+Wallet action result types now live on their owning namespaces. Types without named equivalents are available through indexed access on action options or returns.
+
+### Tokens
+
+ERC-20 actions moved under the token domain on root actions and client decorators. Decorator call shapes remain unchanged.
+
+The token model moved to `Token.from`. See [Tokens](#tokens-1).
+
+### Test
+
+Test actions moved from flat exports into their root action categories and grouped client decorator namespaces.
+
+```ts
+import { mine, setBalance } from 'viem/actions' // [!code --]
+import { Actions, testActions } from 'viem' // [!code ++]
+
+await mine(client, { blocks: 1 }) // [!code --]
+await setBalance(client, { address, value }) // [!code --]
+await Actions.block.mine(client, { blocks: 1 }) // [!code ++]
+await Actions.address.setBalance(client, { address, value }) // [!code ++]
+
+const client = Client.create({ transport }).extend(testActions())
+await client.mine({ blocks: 1 }) // [!code --]
+await client.setBalance({ address, value }) // [!code --]
+await client.block.mine({ blocks: 1 }) // [!code ++]
+await client.address.setBalance({ address, value }) // [!code ++]
+```
+
+Test actions were renamed or regrouped within their new namespaces (decorator form shown; the standalone form is `Actions.<domain>.<action>`):
+
+| v2 | v3 |
+| --- | --- |
+| `client.dropTransaction({ hash })` | `client.txpool.dropTransaction({ hash })` |
+| `client.dumpState()` | `client.state.dump()` |
+| `client.getAutomine()` | `client.block.getAutomine()` |
+| `client.getTxpoolStatus()` | `client.txpool.getStatus()` |
+| `client.impersonateAccount({ address })` | `client.address.impersonate({ address })` |
+| `client.increaseTime({ seconds })` | `client.block.increaseTime({ seconds })` |
+| `client.inspectTxpool()` | `client.txpool.inspect()` |
+| `client.loadState({ state })` | `client.state.load({ state })` |
+| `client.removeBlockTimestampInterval()` | `client.block.removeTimestampInterval()` |
+| `client.reset({ blockNumber })` | `client.state.reset({ blockNumber })` |
+| `client.revert({ id })` | `client.state.revert({ id })` |
+| `client.setBlockGasLimit({ gasLimit })` | `client.block.setGasLimit({ gasLimit })` |
+| `client.setBlockTimestampInterval({ interval })` | `client.block.setTimestampInterval({ interval })` |
+| `client.setCode({ address, bytecode })` | `client.address.setCode({ address, bytecode })` |
+| `client.setCoinbase({ address })` | `client.block.setCoinbase({ address })` |
+| `client.setIntervalMining({ interval })` | `client.block.setIntervalMining({ interval })` |
+| `client.setMinGasPrice({ gasPrice })` | `client.node.setMinGasPrice({ gasPrice })` |
+| `client.setNextBlockBaseFeePerGas({ baseFeePerGas })` | `client.block.setNextBaseFeePerGas({ baseFeePerGas })` |
+| `client.setNextBlockTimestamp({ timestamp })` | `client.block.setNextTimestamp({ timestamp })` |
+| `client.setNonce({ address, nonce })` | `client.address.setNonce({ address, nonce })` |
+| `client.setStorageAt({ address, index, value })` | `client.address.setStorageAt({ address, index, value })` |
+| `client.snapshot()` | `client.state.snapshot()` |
+| `client.stopImpersonatingAccount({ address })` | `client.address.stopImpersonating({ address })` |
+
+Three of the moved actions also changed their argument shape from a positional scalar to an options bag.
+
+```ts
+await client.setAutomine(true) // [!code --]
+await client.setRpcUrl('http://127.0.0.1:8545') // [!code --]
+await client.setLoggingEnabled(true) // [!code --]
+await client.block.setAutomine({ enabled: true }) // [!code ++]
+await client.node.setRpcUrl({ jsonRpcUrl: 'http://127.0.0.1:8545' }) // [!code ++]
+await client.node.setLoggingEnabled({ enabled: true }) // [!code ++]
+```
+
+The `getTxpoolContent` and `sendUnsignedTransaction` test actions were removed.
+
+```ts
+import { getTxpoolContent, sendUnsignedTransaction } from 'viem/actions' // [!code --]
+// [!code --]
+const content = await getTxpoolContent(client) // [!code --]
+const hash = await sendUnsignedTransaction(client, { from, to, value }) // [!code --]
+```
+
+The test-node mode moved from the client to the decorator (and per-action `mode` options), and is now optional ([Client](#client)).
+
+```ts
+const client = createTestClient({ chain, mode: 'hardhat', transport }) // [!code --]
+const client = Client.create({ chain, transport }).extend( // [!code ++]
+  testActions({ mode: 'hardhat' }), // [!code ++]
+) // [!code ++]
+
+// Standalone actions take `mode` per call (default 'anvil').
+await Actions.block.mine(client, { blocks: 1, mode: 'hardhat' }) // [!code ++]
+```
+
+## ERCs
+
+### ERC-7821
+
+The ERC-7821 executor actions moved from their experimental subpath to `Actions.erc7821`, while the decorator became root `erc7821Actions()`.
+
+```ts
+import { erc7821Actions } from 'viem/experimental' // [!code --]
+import { execute, executeBatches, supportsExecutionMode } from 'viem/experimental/erc7821' // [!code --]
+import { Actions, erc7821Actions } from 'viem' // [!code ++]
+
+const hash = await execute(client, { address, calls }) // [!code --]
+const batchHash = await executeBatches(client, { address, batches }) // [!code --]
+const supported = await supportsExecutionMode(client, { address }) // [!code --]
+const hash = await Actions.erc7821.execute(client, { address, calls }) // [!code ++]
+const batchHash = await Actions.erc7821.executeBatches(client, { address, batches }) // [!code ++]
+const supported = await Actions.erc7821.supportsExecutionMode(client, { address }) // [!code ++]
+
+type Decorator = Erc7821Actions // [!code --]
+type Decorator = erc7821Actions.Decorator // [!code ++]
+```
+
+ERC-7821 codecs moved to Ox, while actions and errors moved to `Actions.erc7821`. The `getExecuteError` utility became internal.
+
+```ts
+import { Calls, Execute } from 'ox/erc7821' // [!code ++]
+import { Actions } from 'viem' // [!code ++]
+
+encodeCalls(calls) // [!code --]
+encodeExecuteData({ calls }) // [!code --]
+encodeExecuteBatchesData({ batches }) // [!code --]
+getExecuteError(error, options) // [!code --]
+// Encode ABI-backed call data first. // [!code ++]
+Calls.encode(calls) // [!code ++]
+Execute.encodeData(calls) // [!code ++]
+Execute.encodeBatchOfBatchesData(batches) // [!code ++]
+Actions.erc7821.Errors.ExecuteUnsupportedError // [!code ++]
+Actions.erc7821.Errors.FunctionSelectorNotRecognizedError // [!code ++]
+// Error normalization is internal. // [!code ++]
+```
+
+### ERC-7846 & ERC-7811
+
+ERC-7846 connection actions and ERC-7811 asset reads moved from experimental subpaths into the stable wallet namespace. Their decorators folded into the wallet decorator.
+
+```ts
+import { getAssets } from 'viem/experimental/erc7811' // [!code --]
+import { connect, disconnect } from 'viem/experimental/erc7846' // [!code --]
+import { Actions } from 'viem' // [!code ++]
+
+const { accounts } = await connect(client) // [!code --]
+await disconnect(client) // [!code --]
+const assets = await getAssets(client) // [!code --]
+const { accounts } = await Actions.wallet.connect(client) // [!code ++]
+await Actions.wallet.disconnect(client) // [!code ++]
+const assets = await Actions.wallet.getAssets(client) // [!code ++]
+```
+
+### ERC-6492 & ERC-8010
+
+ERC-6492 and ERC-8010 signature wrapping helpers moved onto their signature namespaces. ERC-6492 constants and validator artifacts moved with them.
+
+See [Signatures & Keys](#signatures--keys) for the mapping.
+
+### Removed ERCs
+
+ERC-7715 `grantPermissions` and ERC-7895 `addSubAccount` were removed without v3 replacements.
+
+```ts
+import { grantPermissions } from 'viem/experimental' // [!code --]
+import { addSubAccount } from 'viem/experimental/erc7895' // [!code --]
+
+await grantPermissions(client, options) // [!code --]
+await addSubAccount(client, options) // [!code --]
+// No v3 equivalents. // [!code ++]
+```
+
+The standalone `viem/experimental/erc7739` entrypoint was removed, while Solady accounts retained ERC-7739 message and typed-data signing internally ([Smart Accounts](#smart-accounts)).
+
+```ts
+import { erc7739Actions, signMessage, signTypedData } from 'viem/experimental/erc7739' // [!code --]
+import { SoladySmartAccount } from 'viem/erc4337' // [!code ++]
+
+client.extend(erc7739Actions()) // [!code --]
+const account = await SoladySmartAccount.from(options) // [!code ++]
+await account.signMessage({ message }) // [!code ++]
+await account.signTypedData(typedData) // [!code ++]
+```
+
+## Errors
+
+Error classes and configuration moved from flat exports into error namespaces. See [Error Taxonomy](#error-taxonomy).
+
+### RPC Errors
+
+Node execution errors were grouped under `RpcError` (mostly keeping their class names), and the `CallExecutionError`/`EstimateGasExecutionError`/`TransactionExecutionError` wrappers consolidated into a single class:
+
+| v2 | v3 |
+| --- | --- |
+| `CallExecutionError` | `RpcError.ExecutionError` |
+| `EstimateGasExecutionError` | `RpcError.ExecutionError` |
+| `FeeCapTooHighError` | `RpcError.FeeCapTooHighError` |
+| `FeeCapTooLowError` | `RpcError.FeeCapTooLowError` |
+| `IntrinsicGasTooHighError` | `RpcError.IntrinsicGasTooHighError` |
+| `IntrinsicGasTooLowError` | `RpcError.IntrinsicGasTooLowError` |
+| `NonceMaxValueError` | `RpcError.NonceMaxValueError` |
+| `NonceTooHighError` | `RpcError.NonceTooHighError` |
+| `NonceTooLowError` | `RpcError.NonceTooLowError` |
+| `TipAboveFeeCapError` | `RpcError.TipAboveFeeCapError` |
+| `TransactionExecutionError` | `RpcError.ExecutionError` |
+| `TransactionTypeNotSupportedError` | `RpcError.TransactionTypeNotSupportedError` |
+| `UnknownNodeError` | `RpcError.UnknownRpcError` |
+
+JSON-RPC and provider errors moved to namespaces re-exported from `viem/utils`. Request failures now surface as the matching RPC response error.
+
+Error-code unions were removed. Read the static code from each error class instead.
+
+| v2 | v3 |
+| --- | --- |
+| `ChainDisconnectedError` | `Provider.ChainDisconnectedError` |
+| `EIP1193ProviderRpcError` | `Provider.ProviderRpcError` |
+| `InternalRpcError` | `RpcResponse.InternalError` |
+| `InvalidInputRpcError` | `RpcResponse.InvalidInputError` |
+| `InvalidParamsRpcError` | `RpcResponse.InvalidParamsError` |
+| `InvalidRequestRpcError` | `RpcResponse.InvalidRequestError` |
+| `JsonRpcVersionUnsupportedError` | `RpcResponse.VersionNotSupportedError` |
+| `LimitExceededRpcError` | `RpcResponse.LimitExceededError` |
+| `MethodNotFoundRpcError` | `RpcResponse.MethodNotFoundError` |
+| `MethodNotSupportedRpcError` | `RpcResponse.MethodNotSupportedError` |
+| `ParseRpcError` | `RpcResponse.ParseError` |
+| `ProviderDisconnectedError` | `Provider.DisconnectedError` |
+| `ProviderRpcError` | `Provider.ProviderRpcError` |
+| `ResourceNotFoundRpcError` | `RpcResponse.ResourceNotFoundError` |
+| `ResourceUnavailableRpcError` | `RpcResponse.ResourceUnavailableError` |
+| `SwitchChainError` | `Provider.SwitchChainError` |
+| `TransactionRejectedRpcError` | `RpcResponse.TransactionRejectedError` |
+| `UnauthorizedProviderError` | `Provider.UnauthorizedError` |
+| `UnsupportedProviderMethodError` | `Provider.UnsupportedMethodError` |
+| `UserRejectedRequestError` | `Provider.UserRejectedRequestError` |
+
+EIP-5792 wallet-call errors moved onto the provider namespace without changing their names.
+
+### Contract & ABI Errors
+
+Contract function errors moved under `ContractError`:
+
+| v2 | v3 |
+| --- | --- |
+| `ContractFunctionExecutionError` | `ContractError.ContractFunctionExecutionError` |
+| `ContractFunctionRevertedError` | `ContractError.ContractFunctionRevertedError` |
+| `ContractFunctionZeroDataError` | `ContractError.ContractFunctionZeroDataError` |
+| `RawContractError` | `ContractError.RawContractError` |
+
+ABI lookup, encoding, and log-decoding errors consolidated into the ABI namespaces re-exported by Viem. The `*NotFoundError` family folds into `AbiItem.NotFoundError`:
+
+| v2 | v3 |
+| --- | --- |
+| `AbiConstructorNotFoundError` | `AbiItem.NotFoundError` |
+| `AbiDecodingDataSizeTooSmallError` | `AbiParameters.DataSizeTooSmallError` |
+| `AbiDecodingZeroDataError` | `AbiParameters.ZeroDataError` |
+| `AbiEncodingArrayLengthMismatchError` | `AbiParameters.ArrayLengthMismatchError` |
+| `AbiEncodingBytesSizeMismatchError` | `AbiParameters.BytesSizeMismatchError` |
+| `AbiEncodingLengthMismatchError` | `AbiParameters.LengthMismatchError` |
+| `AbiErrorNotFoundError` | `AbiItem.NotFoundError` |
+| `AbiErrorSignatureNotFoundError` | `AbiItem.NotFoundError` |
+| `AbiEventNotFoundError` | `AbiItem.NotFoundError` |
+| `AbiEventSignatureEmptyTopicsError` | `AbiEvent.SelectorTopicNotFoundError` |
+| `AbiEventSignatureNotFoundError` | `AbiItem.NotFoundError` |
+| `AbiFunctionNotFoundError` | `AbiItem.NotFoundError` |
+| `AbiFunctionSignatureNotFoundError` | `AbiItem.NotFoundError` |
+| `DecodeLogDataMismatch` | `AbiEvent.DataMismatchError` |
+| `DecodeLogTopicsMismatch` | `AbiEvent.TopicsMismatchError` |
+| `InvalidAbiDecodingTypeError` | `AbiParameters.InvalidTypeError` |
+| `InvalidAbiEncodingTypeError` | `AbiParameters.InvalidTypeError` |
+| `InvalidAddressError` | `Address.InvalidAddressError` |
+| `UnsupportedPackedAbiType` | `AbiParameters.InvalidTypeError` |
+
+The invalid ABI parameter error lives on the singular parameter namespace. Flat error-type aliases were replaced by namespace classes and function error unions.
+
+Serialization, signature, and RLP errors moved to their owning namespaces:
+
+| v2 | v3 |
+| --- | --- |
+| `InvalidLegacyVError` | `Signature.InvalidVError` |
+| `InvalidSerializableTransactionError` | `TxEnvelope.InvalidTypeError` |
+| `InvalidSerializedTransactionError` | `TxEnvelope.InvalidSerializedError` |
+| `InvalidSerializedTransactionTypeError` | `TxEnvelope.InvalidSerializedTypeError` |
+| `RlpDepthLimitExceededError` | `Rlp.DepthLimitExceededError` |
+| `RlpListBoundaryExceededError` | `Rlp.ListBoundaryExceededError` |
+| `RlpTrailingBytesError` | `Rlp.TrailingBytesError` |
+
+### Action & Transport Errors
+
+Stable action errors moved from the package root into an `Errors` namespace under their owning Action domain:
+
+| v2 | v3 |
+| --- | --- |
+| `AtomicityNotSupportedError` | `Actions.wallet.Errors.AtomicityNotSupportedError` |
+| `BaseFeeScalarError` | `Actions.fee.Errors.BaseFeeScalarError` |
+| `BlockNotFoundError` | `Actions.block.Errors.BlockNotFoundError` |
+| `BundleFailedError` | `Actions.wallet.Errors.BundleFailedError` |
+| `Eip1559FeesNotSupportedError` | `Actions.fee.Errors.Eip1559FeesNotSupportedError` |
+| `EnsAvatarInvalidMetadataError` | `Actions.ens.Errors.EnsAvatarInvalidMetadataError` |
+| `EnsAvatarInvalidNftUriError` | `Actions.ens.Errors.EnsAvatarInvalidNftUriError` |
+| `EnsAvatarUnsupportedNamespaceError` | `Actions.ens.Errors.EnsAvatarUnsupportedNamespaceError` |
+| `EnsAvatarUriResolutionError` | `Actions.ens.Errors.EnsAvatarUriResolutionError` |
+| `MaxFeePerGasTooLowError` | `Actions.transaction.Errors.MaxFeePerGasTooLowError` |
+| `TransactionNotFoundError` | `Actions.transaction.Errors.TransactionNotFoundError` |
+| `TransactionReceiptNotFoundError` | `Actions.transaction.Errors.TransactionReceiptNotFoundError` |
+| `UnsupportedNonOptionalCapabilityError` | `Actions.wallet.Errors.UnsupportedNonOptionalCapabilityError` |
+| `WaitForCallsStatusTimeoutError` | `Actions.wallet.Errors.WaitForCallsStatusTimeoutError` |
+| `WaitForTransactionReceiptTimeoutError` | `Actions.transaction.Errors.WaitForReceiptTimeoutError` |
+
+Transport request errors moved to `RpcClient`. WebSocket failures now use socket, timeout, or matching RPC response errors.
+
+The client chain configuration error folded into the chain not-found error.
+
+Action-level error mappers were removed. Construct an execution error directly or inspect the converted RPC error.
+
+```ts
+import { getCallError, getEstimateGasError, getTransactionError, containsNodeError } from 'viem/utils' // [!code --]
+import { RpcError } from 'viem' // [!code ++]
+
+throw getCallError(err, { docsPath, ...args }) // [!code --]
+throw new RpcError.ExecutionError(err, options) // [!code ++]
+const isNodeError = containsNodeError(err) // [!code --]
+const isNodeError = !(RpcError.fromRpcError(err) instanceof RpcError.UnknownRpcError) // [!code ++]
+```
+
+### Removed Errors
+
+Several error conditions became unrepresentable or now surface through broader errors. Their dedicated classes were removed without replacements:
+
+- `FeeConflictError`
+- `AccountStateConflictError`
+- `StateAssignmentConflictError`
+- `InvalidDefinitionTypeError`
+- `AbiDecodingDataSizeInvalidError`
+- `AbiConstructorParamsNotFoundError`
+- `AbiErrorInputsNotFoundError`
+- `AbiFunctionOutputsNotFoundError`
+- `CounterfactualDeploymentFailedError`
+
+## Nonce Manager
+
+The `viem/nonce` entrypoint was removed; the `NonceManager` namespace is exported from the root entrypoint.
+
+| v2 | v3 |
+| --- | --- |
+| `createNonceManager({ source })` | `NonceManager.from({ source })` |
+| `CreateNonceManagerParameters` | `NonceManager.from.Options` |
+| `jsonRpc()` | `NonceManager.jsonRpc()` |
+| `nonceManager` | `NonceManager.jsonRpc()` |
+| `NonceManagerSource` | `NonceManager.Source` |
+
+```ts
+import { createNonceManager, jsonRpc, nonceManager } from 'viem/nonce' // [!code --]
+import { NonceManager } from 'viem' // [!code ++]
+
+const manager = createNonceManager({ source: jsonRpc() }) // [!code --]
+const manager = NonceManager.jsonRpc() // [!code ++]
+```
+
+## Tokens
+
+Token construction moved to the root token namespace. ERC-20 actions live under the token action domain.
+
+See [Tokens](#tokens).
+
+```ts
+import { defineToken } from 'viem/tokens' // [!code --]
+import { Token } from 'viem' // [!code ++]
+
+const usdc = defineToken({ addresses, currency: 'USD', decimals: 6, name: 'USD Coin', symbol: 'USDC' }) // [!code --]
+const usdc = Token.from({ addresses, currency: 'USD', decimals: 6, name: 'USD Coin', symbol: 'USDC' }) // [!code ++]
+```
+
+## Account Abstraction
+
+### Clients
+
+Bundler and Paymaster clients moved to `BundlerClient.create` and `PaymasterClient.create`, with custom RPC typing renamed from `rpcSchema` to `schema`.
+
+```ts
+import { http, rpcSchema } from 'viem' // [!code --]
+import { createBundlerClient, createPaymasterClient } from 'viem/account-abstraction' // [!code --]
+import { BundlerClient, PaymasterClient, http } from 'viem/erc4337' // [!code ++]
+import { RpcSchema } from 'viem/utils' // [!code ++]
+
+const bundler = createBundlerClient({ // [!code --]
+  rpcSchema: rpcSchema<[{ // [!code --]
+    Method: 'bundler_custom' // [!code --]
+    Parameters: [id: string] // [!code --]
+    ReturnType: boolean // [!code --]
+  }]>(), // [!code --]
+const bundler = BundlerClient.create({ // [!code ++]
+  schema: RpcSchema.from<{ // [!code ++]
+    Request: { method: 'bundler_custom'; params: [id: string] } // [!code ++]
+    ReturnType: boolean // [!code ++]
+  }>(), // [!code ++]
+  transport: http(bundlerUrl),
+})
+const paymaster = createPaymasterClient({ transport: http(paymasterUrl) }) // [!code --]
+const paymaster = PaymasterClient.create({ transport: http(paymasterUrl) }) // [!code ++]
+```
+
+Bundler and Paymaster runtime client types changed to `bundler` and `paymaster`, while Paymaster defaults changed to `paymaster` and `Paymaster Client`.
+
+```ts
+bundler.type // 'bundlerClient' // [!code --]
+paymaster.type // 'PaymasterClient' // [!code --]
+paymaster.key // 'bundler' // [!code --]
+paymaster.name // 'Bundler Client' // [!code --]
+bundler.type // 'bundler' // [!code ++]
+paymaster.type // 'paymaster' // [!code ++]
+paymaster.key // 'paymaster' // [!code ++]
+paymaster.name // 'Paymaster Client' // [!code ++]
+```
+
+Flat client types moved beside their namespaced factories:
+
+| v2 | v3 |
+| --- | --- |
+| `BundlerClient` | `BundlerClient.Client` |
+| `BundlerClientConfig` | `BundlerClient.create.Options` |
+| `CreateBundlerClientErrorType` | `BundlerClient.create.ErrorType` |
+| `CreatePaymasterClientErrorType` | `PaymasterClient.create.ErrorType` |
+| `PaymasterClient` | `PaymasterClient.Client` |
+| `PaymasterClientConfig` | `PaymasterClient.create.Options` |
+
+### Actions & Decorators
+
+Standalone actions moved under `Actions`, while decorated methods moved under the `entryPoint`, `userOperation`, and `paymaster` client namespaces:
+
+| v2 | v3 |
+| --- | --- |
+| `estimateUserOperationGas(client, options)` | `Actions.userOperation.estimateGas(client, options)` |
+| `getPaymasterData(client, options)` | `Actions.paymaster.getData(client, options)` |
+| `getPaymasterStubData(client, options)` | `Actions.paymaster.getStubData(client, options)` |
+| `getSupportedEntryPoints(client)` | `Actions.entryPoint.getSupported(client)` |
+| `getUserOperation(client, options)` | `Actions.userOperation.get(client, options)` |
+| `getUserOperationReceipt(client, options)` | `Actions.userOperation.getReceipt(client, options)` |
+| `prepareUserOperation(client, options)` | `Actions.userOperation.prepare(client, options)` |
+| `sendUserOperation(client, options)` | `Actions.userOperation.send(client, options)` |
+| `waitForUserOperationReceipt(client, options)` | `Actions.userOperation.waitForReceipt(client, options)` |
+| `client.getSupportedEntryPoints()` | `client.entryPoint.getSupported()` |
+| `client.sendUserOperation(options)` | `client.userOperation.send(options)` |
+| `client.waitForUserOperationReceipt({ hash })` | `client.userOperation.waitForReceipt({ hash })` |
+| `paymasterClient.getPaymasterData(options)` | `paymasterClient.paymaster.getData(options)` |
+| `paymasterClient.getPaymasterStubData(options)` | `paymasterClient.paymaster.getStubData(options)` |
+
+Flat action parameter, return, and error aliases moved under each action's function namespace:
+
+| v2 | v3 |
+| --- | --- |
+| `EstimateUserOperationGasParameters` | `Actions.userOperation.estimateGas.Options` |
+| `GetPaymasterDataParameters` | `Actions.paymaster.getData.Options` |
+| `GetPaymasterStubDataParameters` | `Actions.paymaster.getStubData.Options` |
+| `GetSupportedEntryPointsReturnType` | `Actions.entryPoint.getSupported.ReturnType` |
+| `GetUserOperationParameters` | `Actions.userOperation.get.Options` |
+| `GetUserOperationReceiptParameters` | `Actions.userOperation.getReceipt.Options` |
+| `GetUserOperationReceiptReturnType` | `Actions.userOperation.getReceipt.ReturnType` |
+| `GetUserOperationReturnType` | `Actions.userOperation.get.ReturnType` |
+| `PrepareUserOperationParameterType` | `Actions.userOperation.prepare.Parameter` |
+| `PrepareUserOperationRequest` | `Actions.userOperation.prepare.Options` |
+| `SendUserOperationParameters` | `Actions.userOperation.send.Options` |
+| `SendUserOperationReturnType` | `Actions.userOperation.send.ReturnType` |
+| `WaitForUserOperationReceiptParameters` | `Actions.userOperation.waitForReceipt.Options` |
+
+Bundler `getChainId` was removed in favor of the root chain action: replace `bundlerClient.getChainId()` with `CoreActions.chains.getId(bundlerClient)` (via `import { Actions as CoreActions } from 'viem'`).
+
+`bundlerActions` became `accountAbstractionActions()`, while `paymasterActions` was replaced by the Paymaster client or standalone Paymaster actions.
+
+```ts
+client.extend(bundlerActions) // [!code --]
+client.extend(accountAbstractionActions()) // [!code ++]
+
+client.extend(paymasterActions) // [!code --]
+const client = PaymasterClient.create({ transport }) // [!code ++]
+// or Actions.paymaster.getData(client, options) // [!code ++]
+
+type BundlerDecorator = BundlerActions // [!code --]
+type PaymasterDecorator = PaymasterActions // [!code --]
+type BundlerDecorator = AccountAbstractionActions // [!code ++]
+type PaymasterDecorator = PaymasterClient.Decorator // [!code ++]
+```
+
+Bundler and Paymaster actions became EntryPoint-version-aware, with EntryPoint 0.9 results preserving `paymasterSignature`.
+
+```ts
+const data = await getPaymasterData(client, options) // [!code --]
+const data = await Actions.paymaster.getData<'0.9'>(client, options) // [!code ++]
+data.paymasterSignature // [!code ++]
+```
+
+Bundler Paymaster hooks were renamed to `getData` and `getStubData`, and full `PaymasterClient.Client` values became accepted.
+
+```ts
+const bundler = BundlerClient.create({
+  paymaster: { getPaymasterData, getPaymasterStubData }, // [!code --]
+  paymaster: { getData, getStubData }, // [!code ++]
+  // or: paymaster: PaymasterClient.create({ transport }), // [!code ++]
+  transport,
+})
+```
+
+### Smart Accounts
+
+Smart-account constructors moved into namespaces, and WebAuthn credential creation moved to the `WebAuthn` utilities:
+
+| v2 | v3 |
+| --- | --- |
+| `createWebAuthnCredential(options)` | `WebAuthn.createCredential(options)` (from `viem/utils`) |
+| `toCoinbaseSmartAccount(options)` | `CoinbaseSmartAccount.from(options)` |
+| `toSimple7702SmartAccount(options)` | `Simple7702SmartAccount.from(options)` |
+| `toSmartAccount(implementation)` | `SmartAccount.from(implementation)` |
+| `toSoladySmartAccount(options)` | `SoladySmartAccount.from(options)` |
+| `toWebAuthnAccount({ credential, getFn, rpId })` | `WebAuthnAccount.fromCredential(credential, { getFn, rpId })` |
+
+The account and credential types moved with them:
+
+| v2 | v3 |
+| --- | --- |
+| `CoinbaseSmartAccountImplementation` | `CoinbaseSmartAccount.Implementation` |
+| `CreateWebAuthnCredentialParameters` | `WebAuthn.createCredential.Options` |
+| `CreateWebAuthnCredentialReturnType` | `WebAuthn.P256Credential` |
+| `P256Credential` | `WebAuthn.P256Credential` |
+| `Simple7702SmartAccountImplementation` | `Simple7702SmartAccount.Implementation` |
+| `SmartAccount` | `SmartAccount.SmartAccount` |
+| `SmartAccountImplementation` | `SmartAccount.Implementation` |
+| `SoladySmartAccountImplementation` | `SoladySmartAccount.Implementation` |
+| `ToSmartAccountParameters` | `SmartAccount.Implementation` (`SmartAccount.from` takes the implementation positionally) |
+| `ToSoladySmartAccountParameters` | `SoladySmartAccount.from.Options` |
+| `ToWebAuthnAccountErrorType` | `WebAuthnAccount.fromCredential.ErrorType` |
+| `ToWebAuthnAccountParameters` | `WebAuthnAccount.fromCredential.Options` |
+| `ToWebAuthnAccountReturnType` | `WebAuthnAccount.fromCredential.ReturnType` |
+| `WebAuthnAccount` | `WebAuthnAccount.Account` |
+| `WebAuthnSignReturnType` | `WebAuthnAccount.SignReturnType` |
+
+The `WebAuthnAccount.fromCredential.Credential` type describes the credential input. WebAuthn credentials adopted structured P256 keys and immediate validation, with `Credential.serialize` (from `viem/erc4337`) replacing direct public-key persistence.
+
+```ts
+const stored = JSON.stringify(credential.publicKey) // [!code --]
+import { Credential } from 'viem/erc4337' // [!code ++]
+const stored = JSON.stringify(Credential.serialize(credential)) // [!code ++]
+```
+
+Smart-account methods began accepting synchronous results, while resolved accounts stopped exposing configuration-only `extend` and `nonceKeyManager` members.
+
+```ts
+account.encodeCalls(calls).then(useCallData) // [!code --]
+useCallData(await account.encodeCalls(calls)) // [!code ++]
+
+account.extend // [!code --]
+account.nonceKeyManager // [!code --]
+```
+
+Generic smart accounts stopped advertising `sign` unless implemented and left the core `Account.Account` union.
+
+```ts
+import type { Account } from 'viem' // [!code --]
+function submit(account: Account) {} // [!code --]
+import type { SmartAccount } from 'viem/erc4337' // [!code ++]
+function submit(account: SmartAccount.SmartAccount) {} // [!code ++]
+```
+
+Solady accounts restricted EntryPoint versions to 0.6 and 0.7, required `factoryAddress` with explicit EntryPoints, and returned version-specific ABIs; they retain ERC-7739 signing internally ([Removed ERCs](#removed-ercs)).
+
+```ts
+const account = await toSoladySmartAccount({ client, entryPoint, owner }) // [!code --]
+const account = await SoladySmartAccount.from({ // [!code ++]
+  client, // [!code ++]
+  entryPoint, // [!code ++]
+  factoryAddress, // [!code ++]
+  owner, // [!code ++]
+}) // [!code ++]
+```
+
+Coinbase accounts began rejecting empty owner lists during construction.
+
+```ts
+const account = await toCoinbaseSmartAccount({ ...options, owners: [] }) // [!code --]
+const account = await CoinbaseSmartAccount.from({ ...options, owners }) // [!code ++]
+// `owners` must contain at least one owner. // [!code ++]
+```
+
+Custom preparation hooks began receiving version-specific partial operations instead of the broad `UserOperationRequest` type.
+
+```ts
+estimateFeesPerGas({ userOperation: request as UserOperationRequest }) // [!code --]
+getStubSignature(request as UserOperationRequest) // [!code --]
+estimateFeesPerGas({ userOperation: operation as Partial<UserOperation.UserOperation> }) // [!code ++]
+getStubSignature(operation) // [!code ++]
+```
+
+### User Operations
+
+EntryPoint constants and UserOperation utilities moved into the Ox-backed `EntryPoint`, `UserOperation`, `UserOperationGas`, and `UserOperationReceipt` namespaces:
+
+| v2 | v3 |
+| --- | --- |
+| `entryPoint06Abi` / `entryPoint06Address` | `EntryPoint.abiV06` / `EntryPoint.addressV06` |
+| `entryPoint07Abi` / `entryPoint07Address` | `EntryPoint.abiV07` / `EntryPoint.addressV07` |
+| `entryPoint08Abi` / `entryPoint08Address` | `EntryPoint.abiV08` / `EntryPoint.addressV08` |
+| `entryPoint09Abi` / `entryPoint09Address` | `EntryPoint.abiV09` / `EntryPoint.addressV09` |
+| `formatUserOperation(operation)` | `UserOperation.fromRpc(operation)` |
+| `formatUserOperationGas(gas)` | `UserOperationGas.fromRpc(gas)` |
+| `formatUserOperationReceipt(receipt)` | `UserOperationReceipt.fromRpc(receipt)` |
+| `formatUserOperationRequest(operation)` | `UserOperation.toRpc(operation)` |
+| `getInitCode(operation, options)` | `UserOperation.toInitCode(operation)` |
+| `getUserOperationHash({ userOperation, ...options })` | `UserOperation.hash(operation, options)` |
+| `getUserOperationTypedData({ userOperation, ...options })` | `UserOperation.toTypedData(operation, options)` |
+| `toPackedUserOperation(operation, options)` | `UserOperation.toPacked(operation, options)` |
+| `toUserOperation(operation)` | `UserOperation.from(operation)` |
+
+User-operation and RPC types moved into their corresponding primitive namespaces:
+
+| v2 | v3 |
+| --- | --- |
+| `EntryPointVersion` | `EntryPoint.Version` |
+| `PackedUserOperation` | `UserOperation.Packed` |
+| `RpcEstimateUserOperationGasReturnType` | `UserOperationGas.Rpc` |
+| `RpcGetUserOperationByHashReturnType` | `UserOperation.RpcTransactionInfo` |
+| `RpcUserOperation` | `UserOperation.Rpc` |
+| `RpcUserOperationReceipt` | `UserOperationReceipt.Rpc` |
+| `RpcUserOperationRequest` | Removed; use `UserOperation.Request` for native input |
+| `UserOperation` | `UserOperation.UserOperation` |
+| `UserOperationReceipt` | `UserOperationReceipt.UserOperationReceipt` |
+
+`UserOperationRequest` became `UserOperation.Request`, with partially preparable fields and mutually exclusive `calls` or `callData` inputs.
+
+```ts
+type Request = UserOperationRequest // [!code --]
+type Request = UserOperation.Request // [!code ++]
+
+const request = { callData, calls } // [!code --]
+const request = { calls } // [!code ++]
+// or: const request = { callData } // [!code ++]
+```
+
+User-operation generics gained an explicit signed parameter, while receipt generics began accepting a full receipt type instead of a status type.
+
+```ts
+type Operation = UserOperation<'0.8', bigint, number> // [!code --]
+type Receipt = UserOperationReceipt<'0.8', bigint, number, 'success'> // [!code --]
+type Operation = UserOperation.UserOperation<'0.8', true, bigint, number> // [!code ++]
+type Receipt = UserOperationReceipt.UserOperationReceipt< // [!code ++]
+  '0.8', // [!code ++]
+  bigint, // [!code ++]
+  number, // [!code ++]
+  CustomReceipt // [!code ++]
+> // [!code ++]
+```
+
+EIP-7702 authorization became limited to EntryPoint 0.8 and 0.9, and unsigned native operations began permitting an omitted signature.
+
+```ts
+type Operation = UserOperation<'0.6'> & { authorization?: Authorization } // [!code --]
+type Operation = UserOperation.UserOperation<'0.8', false> // [!code ++]
+// `authorization` is available and `signature` is optional. // [!code ++]
+```
+
+`UserOperation.toPacked` dropped EntryPoint 0.6 inputs, and `UserOperation.toInitCode` removed `forHash` while always normalizing EIP-7702 delegation init code.
+
+```ts
+toPackedUserOperation(operation06) // [!code --]
+UserOperation.toPacked(operation07) // [!code ++]
+
+getInitCode(operation, { forHash: true }) // [!code --]
+UserOperation.toInitCode(operation) // [!code ++]
+```
+
+Pending User Operation lookups made `blockHash`, `blockNumber`, and `transactionHash` nullable.
+
+```ts
+result.blockHash: Hex // [!code --]
+result.blockNumber: bigint // [!code --]
+result.transactionHash: Hex // [!code --]
+result.blockHash: Hex | null // [!code ++]
+result.blockNumber: bigint | null // [!code ++]
+result.transactionHash: Hex | null // [!code ++]
+```
+
+### Errors & Types
+
+Error classes remained flat, while their `*ErrorType` aliases were removed and action or conversion errors moved under function namespaces.
+
+```ts
+type SendError = SendUserOperationErrorType // [!code --]
+type ExecutionError = UserOperationExecutionErrorType // [!code --]
+type FormatError = FormatUserOperationErrorType // [!code --]
+type SendError = Actions.userOperation.send.ErrorType // [!code ++]
+type ExecutionError = UserOperationExecutionError // [!code ++]
+type FormatError = UserOperation.fromRpc.ErrorType // [!code ++]
+```
+
+Utility option, return, and formatter error aliases without namespace equivalents were removed in favor of direct inputs and inference.
+
+```ts
+type HashResult = GetUserOperationHashReturnType // [!code --]
+type TypedDataResult = GetUserOperationTypedDataReturnType // [!code --]
+type InitCodeOptions = GetInitCodeOptions // [!code --]
+type GasFormatError = FormatUserOperationGasErrorType // [!code --]
+type ReceiptFormatError = FormatUserOperationReceiptErrorType // [!code --]
+type HashResult = ReturnType<typeof UserOperation.hash> // [!code ++]
+type TypedDataResult = ReturnType<typeof UserOperation.toTypedData> // [!code ++]
+// `UserOperation.toInitCode` has no options. // [!code ++]
+// `UserOperationGas.fromRpc`/`UserOperationReceipt.fromRpc` declare no error unions. // [!code ++]
+```
+
+Bundler error normalization helpers and generic inference helpers were removed from the public API.
+
+```ts
+getBundlerError(...) // [!code --]
+getUserOperationError(...) // [!code --]
+type Account = DeriveSmartAccount<client, account> // [!code --]
+type AccountParameter = GetSmartAccountParameter<client, account> // [!code --]
+type Version = DeriveEntryPointVersion<account> // [!code --]
+type VersionParameter = GetEntryPointVersionParameter<version> // [!code --]
+// Error normalization is internal. // [!code ++]
+type Account = SmartAccount.SmartAccount // [!code ++]
+type Version = EntryPoint.Version // [!code ++]
+```
+
+## Tempo
+
+The `viem/tempo/chains` entrypoint moved to the `Chain` namespace on `viem/tempo`, and the Zone HTTP transport config moved onto its factory:
+
+| v2 | v3 |
+| --- | --- |
+| `tempoMainnet` (from `viem/tempo/chains`) | `Chain.tempoMainnet` (from `viem/tempo`) |
+| `tempoTestnet` (from `viem/tempo/chains`) | `Chain.tempoTestnet` (still an alias of Tempo Moderato) |
+| `ZoneHttpConfig` (from `viem/tempo/zones`) | `http.Options` (from `viem/tempo/zones`) |
+
+The Tempo extension was rebuilt on v3 module and action namespaces. Chain codecs replace formatters and serializers.
+
+Its client uses the standard client factory with Tempo decorators. Zones retain a dedicated subpath.
+
+```ts
+import { Account, Actions, createClient } from 'viem/tempo' // [!code --]
+import { Account, Actions, Client } from 'viem/tempo' // [!code ++]
+
+const client = createClient({ account }) // [!code --]
+const client = Client.create({ account }) // [!code ++]
+
+await Actions.token.transferSync(client, { // [!code --]
+  amount: parseUnits('1', 6), // [!code --]
+  to, // [!code --]
+  token: 'pathusd', // [!code --]
+}) // [!code --]
+await client.token.transferSync({ // [!code ++]
+  amount: { formatted: '1' }, // [!code ++]
+  to, // [!code ++]
+  token: '0x20c0000000000000000000000000000000000000', // [!code ++]
+}) // [!code ++]
+```
+
+Breaking changes:
+
+- Tokens are selected by address; token ids, the `TokenId` helper namespace, the `TokenIds` constants namespace, and the `TokenIdOrAddress` type were removed (`fee.getUserToken` returns the token address).
+- Flat Tempo type aliases formerly re-exported through chain entrypoints moved onto their owning namespaces.
+- Watcher actions (`token.watch*`, …) return a `Watcher` handle (`watcher.onLogs(fn)` to subscribe, with decoded `log.args`) instead of accepting per-event callback options.
+- `nonce.getNonce` → `nonce.get`; `nonce.watchNonceIncremented` → `nonce.watchIncremented`.
+- `policy.create` now honors an explicit `admin` option (previously the sender was always used).
+- The `reward` actions were removed (reward distribution is hardfork-disabled on-chain).
+- The `simulate` namespace dissolved into core: use `client.block.simulate` or `client.contract.simulate`.
+- Fee-payer and wallet-compatibility transports were removed. The relay transport remains and gained policies for co-signing or forwarding submissions.
+- Account authorization accepts the shared authorization shape. Access-key helpers return checksummed addresses, while deprecated Zod re-exports and version options were removed.
+- `TempoAddress` was removed in favor of checksummed `Address.Address` values.
+
+Updated Zone deposits for current portals and added dynamic addresses, bounceback recipients, encryption-key reads, and Tempo-block waiting.
+
+```ts
+await Actions.zone.deposit(client, {
+  amount,
+  bouncebackRecipient, // [!code ++]
+  portalAddress, // [!code ++]
+  token,
+  zoneId,
+})
+
+const key = await Actions.zone.getEncryptionKey(client, { portalAddress, zoneId }) // [!code ++]
+const info = await Actions.zone.waitForTempoBlock(zoneClient, { tempoBlockNumber }) // [!code ++]
+```
+
+The `withRelay.type` constant was removed; relay transports retained the `'relay'` type discriminant.
+
+```ts
+const transport = withRelay(defaultTransport, relayTransport)
+transport.type === withRelay.type // [!code --]
+transport.type === 'relay' // [!code ++]
+```
+
+## Node
+
+The `mainnetTrustedSetupPath` export from `viem/node` was replaced by the re-exported Ox `trusted-setups` `Paths`, and the IPC transport types were renamed:
+
+| v2 | v3 |
+| --- | --- |
+| `IpcTransport` | `Ipc` |
+| `IpcTransportConfig` | `ipc.Options` |
+| `mainnetTrustedSetupPath` | `Paths.mainnet` |
+
+The `getIpcRpcClient` helper was removed from `viem/node`; obtain the RPC client from the `ipc` transport instead.
+
+```ts
+import { getIpcRpcClient } from 'viem/node' // [!code --]
+import { ipc } from 'viem/node' // [!code ++]
+
+const rpcClient = await getIpcRpcClient({ path: '/tmp/geth.ipc' }) // [!code --]
+const transport = ipc('/tmp/geth.ipc') // [!code ++]
+const rpcClient = await transport.setup({}).getRpcClient() // [!code ++]
+```
+
+The aggregate `IpcTransportErrorType` alias was removed in favor of concrete transport, RPC response, and socket errors (`RpcClient`, `RpcError`, `Transport`).
+
+## Utilities
+
+The flat utility exports moved onto module namespaces ([Ox-Backed Utilities](#ox-backed-utilities)), grouped below by area.
+
+### ABI
+
+ABI parsing and parameter coding keep their call shapes on the new namespaces:
+
+| v2 | v3 |
+| --- | --- |
+| `decodeAbiParameters(parameters, data)` | `AbiParameters.decode(parameters, data)` |
+| `encodeAbiParameters(parameters, values)` | `AbiParameters.encode(parameters, values)` |
+| `parseAbi([...])` | `Abi.from([...])` |
+| `parseAbiItem('...')` | `AbiItem.from('...')` |
+| `parseAbiParameters('...')` | `AbiParameters.from('...')` |
+
+ABI item lookup and the function, event, constructor, and error codecs take the abi and name positionally instead of an options bag.
+
+```ts
+import { AbiConstructor, AbiError, AbiEvent, AbiFunction, AbiItem } from 'viem/utils' // [!code ++]
+
+const transfer = getAbiItem({ abi, name: 'transfer' }) // [!code --]
+const transfer = AbiItem.fromAbi(abi, 'transfer') // [!code ++]
+
+const data = encodeFunctionData({ abi, functionName: 'balanceOf', args: [address] }) // [!code --]
+const call = decodeFunctionData({ abi, data }) // [!code --]
+const result = encodeFunctionResult({ abi, functionName: 'balanceOf', result: 1n }) // [!code --]
+const value = decodeFunctionResult({ abi, functionName: 'balanceOf', data: result }) // [!code --]
+const data = AbiFunction.encodeData(abi, 'balanceOf', [address]) // [!code ++]
+const call = AbiFunction.decodeData(abi, data) // [!code ++]
+const result = AbiFunction.encodeResult(abi, 'balanceOf', [1n]) // [!code ++]
+const value = AbiFunction.decodeResult(abi, 'balanceOf', result) // [!code ++]
+
+const topics = encodeEventTopics({ abi, eventName: 'Transfer', args: { from } }) // [!code --]
+const event = decodeEventLog({ abi, data, topics }) // [!code --]
+const topics = AbiEvent.encode(abi, 'Transfer', { from }) // [!code ++]
+const event = AbiEvent.decodeLog(abi, { data, topics }) // [!code ++]
+
+const deployData = encodeDeployData({ abi, bytecode, args: [owner] }) // [!code --]
+const errorData = encodeErrorResult({ abi, errorName: 'Unauthorized', args: [caller] }) // [!code --]
+const error = decodeErrorResult({ abi, data: errorData }) // [!code --]
+const deployData = AbiConstructor.encode(abi, { bytecode, args: [owner] }) // [!code ++]
+const errorData = AbiError.encode(abi, 'Unauthorized', [caller]) // [!code ++]
+const error = AbiError.extract(abi, errorData) // [!code ++]
+```
+
+Event log parsing moved to `AbiEvent.extractLogs`. Filtering and strictness semantics remain unchanged.
+
+```ts
+const parsed = parseEventLogs({ abi, logs, eventName: 'Transfer', strict: true }) // [!code --]
+const parsed = AbiEvent.extractLogs(abi, logs, { eventName: 'Transfer', strict: true }) // [!code ++]
+```
+
+Function encoding preparation now combines ABI lookup with data encoding. Deployment data decoding moved to the ABI constructor namespace.
+
+Constructor decoding returns arguments directly, returns `undefined` without arguments, and rejects bytecode mismatches.
+
+```ts
+const prepared = prepareEncodeFunctionData({ abi, functionName: 'transfer' }) // [!code --]
+const data = encodeFunctionData({ ...prepared, args: [to, amount] }) // [!code --]
+const transfer = AbiFunction.fromAbi(abi, 'transfer') // [!code ++]
+const data = AbiFunction.encodeData(transfer, [to, amount]) // [!code ++]
+
+const { args } = decodeDeployData({ abi, bytecode, data }) // [!code --]
+const args = AbiConstructor.decode(abi, { bytecode, data }) // [!code ++]
+```
+
+ABI item and parameter formatting moved to `AbiItem.getSignature` and `AbiParameters.format`; `formatAbiItemWithArgs` and the `includeName` formatting variants were removed (debug rendering is internal to error formatting).
+
+| v2 | v3 |
+| --- | --- |
+| `formatAbiItem(item)` | `AbiItem.getSignature(item)` |
+| `formatAbiItemWithArgs({ abiItem, args })` | Removed |
+| `formatAbiParams(item.inputs)` | `AbiParameters.format(item.inputs)` |
+
+Solidity integer bounds moved from flat constants to the `Solidity` namespace. Their names remain unchanged.
+
+ABI item-lookup and log-topic types moved onto their owning namespaces:
+
+| v2 | v3 |
+| --- | --- |
+| `AbiItemName<abi>` | `AbiItem.Name<abi>` |
+| `ContractErrorName<abi>` | `AbiError.Name<abi>` |
+| `ContractEventArgsFromTopics<abi, name>` | `AbiEvent.decode.ReturnType<AbiEvent.FromAbi<abi, name>>` |
+| `ContractEventName<abi>` | `AbiEvent.Name<abi>` |
+| `ContractFunctionName<abi>` | `AbiFunction.Name<abi>` |
+| `ContractFunctionName<abi, 'view'>` | `AbiFunction.ExtractNames<abi, 'view'>` |
+| `ExtractAbiItem<abi, name>` | `AbiItem.FromAbi<abi, name>` |
+| `ExtractAbiItemForArgs<abi, name, args>` | `AbiItem.fromAbi.ReturnType<abi, name, args>` |
+| `ExtractAbiItemNames<abi>` | `AbiItem.ExtractNames<abi>` |
+| `LogTopic` | `Filter.Topic` |
+
+`abitype` types are no longer re-exported. Import them directly from the package.
+
+Declaration merging against its register continues to work.
+
+```ts
+import { parseAbiParameter, type ParseAbi, type ResolvedRegister } from 'viem' // [!code --]
+import { parseAbiParameter, type ParseAbi, type ResolvedRegister } from 'abitype' // [!code ++]
+```
+
+Internal ABI type-plumbing helpers were removed without public replacements. Compose from `abitype` primitives or use the owning function's namespace types.
+
+Preset ABI constants moved into domain namespaces: ERC-20/ERC-721/ERC-1155/ERC-4626 and Multicall3 to `Abis`, and the ERC-6492 validator ABI to `SignatureErc6492`.
+
+| v2 | v3 |
+| --- | --- |
+| `erc1155Abi` | `Abis.erc1155` |
+| `erc20Abi_bytes32` | `Abis.erc20_bytes32` |
+| `erc20Abi` | `Abis.erc20` |
+| `erc4626Abi` | `Abis.erc4626` |
+| `erc6492SignatureValidatorAbi` | `SignatureErc6492.universalSignatureValidatorAbi` |
+| `erc721Abi` | `Abis.erc721` |
+| `multicall3Abi` | `Abis.multicall3` |
+
+The deployless-call bytecode constants were internalized; deployless calls are first-class `Actions.call` options.
+
+```ts
+import { deploylessCallViaBytecodeBytecode, deploylessCallViaFactoryBytecode } from 'viem' // [!code --]
+import { Actions } from 'viem' // [!code ++]
+
+await Actions.call(client, { code, data }) // [!code ++]
+await Actions.call(client, { factory, factoryData, to, data }) // [!code ++]
+```
+
+### Address
+
+Address utilities and constants moved onto address namespaces. Checksum generation no longer accepts an EIP-1191 chain identifier.
+
+Contract address derivation selects its algorithm from salt presence instead of an opcode.
+
+| v2 | v3 |
+| --- | --- |
+| `checksumAddress(address)` | `Address.checksum(address)` (no `chainId` parameter) |
+| `ethAddress` | `Address.ether` |
+| `getAddress(address)` | `Address.checksum(address)` |
+| `getContractAddress({ opcode: 'CREATE', from, nonce })` | `ContractAddress.from({ from, nonce })` (dispatches on `salt` presence) |
+| `GetContractAddressOptions` | `ContractAddress.from.Options` |
+| `getCreate2Address({ from, salt, bytecodeHash })` | `ContractAddress.fromCreate2({ from, salt, bytecodeHash })` |
+| `GetCreate2AddressOptions` | `ContractAddress.fromCreate2.Options` |
+| `getCreateAddress({ from, nonce })` | `ContractAddress.fromCreate({ from, nonce })` |
+| `GetCreateAddressOptions` | `ContractAddress.fromCreate.Options` |
+| `isAddress(address)` | `Address.validate(address)` |
+| `IsAddressOptions` | `Address.validate.Options` |
+| `isAddressEqual(a, b)` | `Address.isEqual(a, b)` |
+| `zeroAddress` | `Address.zero` |
+
+### Blobs
+
+Blob construction, commitment, proof, and versioned-hash helpers moved from flat exports to the `Blobs` and `BlobCells` namespaces, taking positional inputs.
+
+```ts
+import { BlobCells, Blobs } from 'viem/utils' // [!code ++]
+
+const blobs = toBlobs({ data }) // [!code --]
+const commitments = blobsToCommitments({ blobs, kzg }) // [!code --]
+const proofs = blobsToProofs({ blobs, commitments, kzg }) // [!code --]
+const versionedHashes = commitmentsToVersionedHashes({ commitments }) // [!code --]
+const blobs = Blobs.from(data) // [!code ++]
+const commitments = Blobs.toCommitments(blobs, { kzg }) // [!code ++]
+const proofs = Blobs.toCellProofs(blobs, { kzg }) // [!code ++]
+const versionedHashes = Blobs.commitmentsToVersionedHashes(commitments) // [!code ++]
+const cells = BlobCells.fromBlob(blobs[0], { kzg }) // [!code ++]
+```
+
+KZG setup moved from flat helpers onto the `Kzg` namespace. Its interface adopted [EIP-7594](https://eips.ethereum.org/EIPS/eip-7594) cell methods.
+
+```ts
+const kzg = setupKzg(cKzg, trustedSetup) // [!code --]
+const kzg = defineKzg(cKzg) // [!code --]
+const kzg = Kzg.from(cKzg) // [!code ++]
+```
+
+Blob decoding moved from `fromBlobs` to `Blobs.to` (with `'Hex' | 'Bytes'` type parameter casing).
+
+```ts
+const data = fromBlobs({ blobs, to: 'hex' }) // [!code --]
+const data = Blobs.to(blobs, 'Hex') // [!code ++]
+```
+
+Blob sidecars were redesigned for [EIP-7594](https://eips.ethereum.org/EIPS/eip-7594). The new envelope shape stores separate arrays and cell proofs.
+
+Sidecar conversion helpers were removed. Transaction preparation attaches sidecars automatically when given blobs and KZG configuration.
+
+```ts
+import { Blobs, type TxEnvelopeEip4844 } from 'viem/utils' // [!code ++]
+
+const sidecars = toBlobSidecars({ blobs, kzg }) // [!code --]
+const versionedHashes = sidecarsToVersionedHashes({ sidecars }) // [!code --]
+// Sidecars are built during transaction preparation: // [!code ++]
+// Actions.transaction.send(client, { blobs, kzg, ... }) // [!code ++]
+const versionedHashes = Blobs.commitmentsToVersionedHashes(sidecars.commitments) // [!code ++]
+
+type Sidecars = BlobSidecars // [!code --]
+type Sidecars = TxEnvelopeEip4844.Sidecars // [!code ++]
+```
+
+### Block & Log
+
+Block and log formatters moved from flat exports to their RPC conversion namespaces.
+
+Block overrides, state overrides, and filter conversions moved to their respective namespaces. Those namespaces also replace the former plain type exports.
+
+```ts
+import type { BlockOverrides, Filter, StateOverride } from 'viem' // [!code --]
+import { BlockOverrides, Filter, StateOverrides } from 'viem/utils' // [!code ++]
+
+const blockOverrides: BlockOverrides = { baseFeePerGas: 1n } // [!code --]
+const stateOverride: StateOverride = [{ address, balance: 1n }] // [!code --]
+const filter: Filter = { fromBlock: 1n, toBlock: 2n } // [!code --]
+const rpcBlockOverrides = BlockOverrides.toRpc({ baseFeePerGas: 1n }) // [!code ++]
+const rpcStateOverrides = StateOverrides.toRpc([{ address, balance: 1n }]) // [!code ++]
+const rpcFilter = Filter.toRpc({ fromBlock: 1n, toBlock: 2n }) // [!code ++]
+```
+
+### Signatures & Keys
+
+Signature serialization and parsing moved onto the `Signature` namespace. Deprecated aliases were removed.
+
+Low-level recovery moved to `Secp256k1`, with its hash parameter renamed to payload.
+
+| v2 | v3 |
+| --- | --- |
+| `parseSignature(hex)` | `Signature.fromHex(hex)` |
+| `recoverAddress({ hash, signature })` | `Secp256k1.recoverAddress({ payload, signature })` |
+| `recoverPublicKey({ hash, signature })` | `Secp256k1.recoverPublicKey({ payload, signature })` |
+| `serializeSignature(signature)` | `Signature.toHex(signature)` |
+
+[EIP-2098](https://eips.ethereum.org/EIPS/eip-2098) compact signature utilities moved onto their own namespace. Deprecated aliases were removed.
+
+Plain compact byte helpers do not carry parity. Use the EIP-2098 namespace for those semantics.
+
+| v2 | v3 |
+| --- | --- |
+| `CompactSignature` | `SignatureErc2098.SignatureErc2098` |
+| `compactSignatureToSignature(compact)` | `SignatureErc2098.toSignature(compact)` |
+| `parseCompactSignature(serialized)` | `SignatureErc2098.fromHex(serialized)` |
+| `serializeCompactSignature(compact)` | `SignatureErc2098.toHex(compact)` |
+| `signatureToCompactSignature(signature)` | `SignatureErc2098.from(signature)` |
+
+Message, typed-data, and transaction address recovery moved to their owning namespaces and became synchronous.
+
+```ts
+import { PersonalMessage, TxEnvelope, TypedData } from 'viem/utils' // [!code ++]
+
+const address = await recoverMessageAddress({ message, signature }) // [!code --]
+const address = await recoverTypedDataAddress({ ...typedData, signature }) // [!code --]
+const address = await recoverTransactionAddress({ serializedTransaction, signature }) // [!code --]
+const address = PersonalMessage.recoverAddress({ message, signature }) // [!code ++]
+const address = TypedData.recoverAddress({ ...typedData, signature }) // [!code ++]
+const address = TxEnvelope.recoverAddress(serializedTransaction, { signature }) // [!code ++]
+```
+
+Low-level secp256k1 signing, verification, and public-key address derivation moved from account and signature helpers to the `Secp256k1` and `Address` namespaces.
+
+```ts
+import { Address, Secp256k1 } from 'viem/utils' // [!code ++]
+
+const signature = sign({ hash, privateKey }) // [!code --]
+const valid = await verifyHash({ hash, publicKey, signature }) // [!code --]
+const address = publicKeyToAddress(publicKey) // [!code --]
+const signature = Secp256k1.sign({ payload: hash, privateKey }) // [!code ++]
+const valid = Secp256k1.verify({ payload: hash, publicKey, signature }) // [!code ++]
+const address = Address.fromPublicKey(publicKey) // [!code ++]
+```
+
+ERC-6492 and ERC-8010 wrapping helpers moved onto their signature namespaces. ERC-6492 constants and validator artifacts moved with them.
+
+See [ERC-6492 & ERC-8010](#erc-6492--erc-8010).
+
+| v2 | v3 |
+| --- | --- |
+| `erc6492MagicBytes` | `SignatureErc6492.magicBytes` |
+| `erc6492SignatureValidatorByteCode` | `SignatureErc6492.universalSignatureValidatorBytecode` |
+| `isErc6492Signature(wrapped)` | `SignatureErc6492.validate(wrapped)` |
+| `isErc8010Signature(wrapped)` | `SignatureErc8010.validate(wrapped)` |
+| `parseErc6492Signature(wrapped)` | `SignatureErc6492.unwrap(wrapped)` |
+| `parseErc8010Signature(wrapped)` | `SignatureErc8010.unwrap(wrapped)` |
+| `serializeErc6492Signature(signature)` | `SignatureErc6492.wrap(signature)` |
+| `serializeErc8010Signature(signature)` | `SignatureErc8010.wrap(signature)` |
+
+HD key, mnemonic seed, and wordlist utilities moved from account exports to the `HdKey` and `Mnemonic` namespaces.
+
+```ts
+import { HdKey, Mnemonic } from 'viem/utils' // [!code ++]
+
+const mnemonic = generateMnemonic(english) // [!code --]
+const account = hdKeyToAccount(HDKey.fromMasterSeed(seed)) // [!code --]
+const mnemonic = Mnemonic.random(Mnemonic.english) // [!code ++]
+const seed = Mnemonic.toSeed(mnemonic) // [!code ++]
+const hdKey = HdKey.fromSeed(seed) // [!code ++]
+```
+
+### Encoding & Units
+
+Hex and byte conversions keep their call shapes on their respective namespaces. Polymorphic conversions split into typed variants.
+
+Redundant aliases were removed, and the byte array type moved onto `Bytes`.
+
+| v2 | v3 |
+| --- | --- |
+| `boolToBytes(value)` | `Bytes.fromBoolean(value)` |
+| `boolToHex(value)` | `Hex.fromBoolean(value)` |
+| `bytesToBigInt(bytes)` | `Bytes.toBigInt(bytes)` |
+| `bytesToBool(bytes)` | `Bytes.toBoolean(bytes)` |
+| `bytesToHex(bytes)` | `Bytes.toHex(bytes)` |
+| `bytesToNumber(bytes)` | `Bytes.toNumber(bytes)` |
+| `bytesToString(bytes)` | `Bytes.toString(bytes)` |
+| `fromBytes(bytes, 'string')` | `Bytes.toString(bytes)` (typed `Bytes.to*` variants) |
+| `hexToBigInt(hex)` | `Hex.toBigInt(hex)` |
+| `hexToBool(hex)` | `Hex.toBoolean(hex)` |
+| `hexToBytes(hex)` | `Hex.toBytes(hex)` |
+| `hexToNumber(hex)` | `Hex.toNumber(hex)` |
+| `hexToString(hex)` | `Hex.toString(hex)` |
+| `numberToBytes(value)` | `Bytes.fromNumber(value)` |
+| `numberToHex(value)` | `Hex.fromNumber(value)` |
+| `stringToBytes(value)` | `Bytes.fromString(value)` |
+| `stringToHex(value)` | `Hex.fromString(value)` |
+| `toBytes(value)` | Typed `Bytes.from*` variants, such as `Bytes.fromString` |
+| `toHex(value)` | Typed `Hex.from*` variants, such as `Hex.fromNumber` |
+
+Conversion options moved onto their owning function namespaces. They replace flat option and direction-specific conversion exports.
+
+Data manipulation and validation utilities moved onto the hex and byte namespaces. Padding split by direction, while concatenation now accepts variadic arguments.
+
+Hex validation is non-strict by default. Enable strict validation to match v2 behavior.
+
+```ts
+import { concat, concatBytes, concatHex, isBytes, isHex, pad, padBytes, padHex, slice, sliceBytes, sliceHex } from 'viem' // [!code --]
+import { Bytes, Hex } from 'viem/utils' // [!code ++]
+
+const padded = padHex('0x1', { size: 32 }) // [!code --]
+const paddedRight = padHex('0x1', { dir: 'right', size: 32 }) // [!code --]
+const joined = concatHex(['0xdead', '0xbeef']) // [!code --]
+const sliced = sliceHex('0xdeadbeef', 0, 2) // [!code --]
+const validHex = isHex('0xdeadbeef') // [!code --]
+const padded = Hex.padLeft('0x1', 32) // [!code ++]
+const paddedRight = Hex.padRight('0x1', 32) // [!code ++]
+const joined = Hex.concat('0xdead', '0xbeef') // [!code ++]
+const sliced = Hex.slice('0xdeadbeef', 0, 2) // [!code ++]
+const validHex = Hex.validate('0xdeadbeef', { strict: true }) // [!code ++]
+
+const paddedBytes = padBytes(bytes, { size: 32 }) // [!code --]
+const joinedBytes = concatBytes([a, b]) // [!code --]
+const slicedBytes = sliceBytes(bytes, 0, 2) // [!code --]
+const validBytes = isBytes(bytes) // [!code --]
+const paddedBytes = Bytes.padLeft(bytes, 32) // [!code ++]
+const joinedBytes = Bytes.concat(a, b) // [!code ++]
+const slicedBytes = Bytes.slice(bytes, 0, 2) // [!code ++]
+const validBytes = Bytes.validate(bytes) // [!code ++]
+```
+
+RLP, unit, and JSON utilities moved to the `Rlp`, `Value`, and `Json` namespaces; the unit exponent maps were consolidated into `Value.exponents`.
+
+| v2 | v3 |
+| --- | --- |
+| `bytesToRlp(bytes)` | `Rlp.fromBytes(bytes)` |
+| `etherUnits.wei` | `Value.exponents.ether` (also replaces `gweiUnits`, `weiUnits`) |
+| `formatEther(wei)` | `Value.formatEther(wei)` |
+| `formatGwei(gwei)` | `Value.formatGwei(gwei)` |
+| `formatUnits(units, 6)` | `Value.format(units, 6)` |
+| `fromRlp(encoded)` | `Rlp.toHex(encoded)` |
+| `hexToRlp(hex)` | `Rlp.fromHex(hex)` |
+| `parseEther('1')` | `Value.fromEther('1')` |
+| `parseGwei('1')` | `Value.fromGwei('1')` |
+| `parseUnits('1', 6)` | `Value.from('1', 6)` |
+| `stringify(value)` | `Json.stringify(value)` |
+| `toRlp(['0x01', '0x02'])` | `Rlp.fromHex(['0x01', '0x02'])` |
+
+### Hashing
+
+Byte hashing utilities moved from flat utilities to the `Hash` namespace, and their return types moved onto the function namespaces (with `'Hex' | 'Bytes'` type parameter casing).
+
+| v2 | v3 |
+| --- | --- |
+| `isHash(hash)` | `Hash.validate(hash)` |
+| `keccak256(data)` | `Hash.keccak256(data)` |
+| `Keccak256Hash<'hex'>` | `Hash.keccak256.ReturnType<'Hex'>` |
+| `ripemd160(data)` | `Hash.ripemd160(data)` |
+| `Ripemd160Hash<'hex'>` | `Hash.ripemd160.ReturnType<'Hex'>` |
+| `sha256(data)` | `Hash.sha256(data)` |
+| `Sha256Hash<'hex'>` | `Hash.sha256.ReturnType<'Hex'>` |
+| `zeroHash` | `Hash.zero` |
+
+ABI selector and signature hashing moved onto ABI item namespaces. Deprecated signature and selector aliases were removed.
+
+| v2 | v3 |
+| --- | --- |
+| `toEventHash(definition)` | `AbiItem.getSignatureHash(definition)` |
+| `toEventSelector(definition)` | `AbiEvent.getSelector(definition)` |
+| `toEventSignature(definition)` | `AbiItem.getSignature(definition)` |
+| `toFunctionHash(definition)` | `AbiItem.getSignatureHash(definition)` |
+| `toFunctionSelector(definition)` | `AbiFunction.getSelector(definition)` |
+| `toFunctionSignature(definition)` | `AbiItem.getSignature(definition)` |
+
+### Messages & ENS
+
+ENS name helpers moved from flat exports onto the `Ens` namespace without changing their leaf names.
+
+SIWE message utilities moved from flat exports onto the `Siwe` namespace. The message type moved with them.
+
+Its chain identifier changed from `number` to `bigint`. See [bigint Scalars](#bigint-scalars).
+
+```ts
+import { createSiweMessage, generateSiweNonce, parseSiweMessage, validateSiweMessage, type SiweMessage } from 'viem/siwe' // [!code --]
+import { Siwe } from 'viem/utils' // [!code ++]
+
+const nonce = generateSiweNonce() // [!code --]
+const message = createSiweMessage({ address, chainId: 1, domain, nonce, uri, version: '1' }) // [!code --]
+const parsed = parseSiweMessage(message) // [!code --]
+const valid = validateSiweMessage({ address, message }) // [!code --]
+const nonce = Siwe.generateNonce() // [!code ++]
+const message = Siwe.createMessage({ address, chainId: 1n, domain, nonce, uri, version: '1' }) // [!code ++]
+const parsed = Siwe.parseMessage(message) // [!code ++]
+const valid = Siwe.validateMessage({ address, message }) // [!code ++]
+
+type Message = SiweMessage // [!code --]
+type Message = Siwe.Message // [!code ++]
+```
+
+The SIWE invalid-field error moved to the `Siwe` namespace (`SiweInvalidMessageFieldError` → `Siwe.InvalidMessageFieldError`).
+
+ENS avatar-record and packet helpers were internalized. Higher-level avatar resolution moved to
+[`Actions.ens.getAvatar`](/docs/actions/public/ens/getAvatar), and the coin-type error moved to
+`Ens.InvalidChainIdError`.
+
+```ts
+import { parseAvatarRecord, packetToBytes, ToCoinTypeError } from 'viem/ens' // [!code --]
+import { Actions } from 'viem' // [!code ++]
+import { Ens } from 'viem/utils' // [!code ++]
+
+const avatar = await parseAvatarRecord(client, { record, gatewayUrls }) // [!code --]
+const packet = packetToBytes(name) // [!code --]
+const avatar = await Actions.ens.getAvatar(client, { name, assetGatewayUrls }) // [!code ++]
+Ens.InvalidChainIdError // [!code ++]
+```
+
+Personal message hashing and typed-data hashing moved from flat signature helpers to `PersonalMessage` and `TypedData` namespaces.
+
+```ts
+import { Hex, PersonalMessage, TypedData } from 'viem/utils' // [!code ++]
+
+const messageHash = hashMessage('hello world') // [!code --]
+const typedDataHash = hashTypedData({ domain, types, primaryType, message }) // [!code --]
+const messageHash = PersonalMessage.getSignPayload(Hex.fromString('hello world')) // [!code ++]
+const typedDataHash = TypedData.getSignPayload({ domain, types, primaryType, message }) // [!code ++]
+```
+
+The `presignMessagePrefix` constant and `toPrefixedMessage` were removed; `PersonalMessage.encode` now owns prefixing. It accepts hex or bytes only; convert plain strings first.
+
+```ts
+import { presignMessagePrefix, toPrefixedMessage } from 'viem' // [!code --]
+import { Hex, PersonalMessage } from 'viem/utils' // [!code ++]
+
+const payload = `${presignMessagePrefix}${message.length}${message}` // [!code --]
+const payload = toPrefixedMessage(message) // [!code --]
+const payload = PersonalMessage.encode(Hex.fromString(message)) // [!code ++]
+```
+
+Typed-data utilities moved from flat exports to the `TypedData` namespace, along with their types. Note that `TypedData.validate` returns a boolean; the throwing equivalent of v2 `validateTypedData` is `TypedData.assert`.
+
+```ts
+import { TypedData } from 'viem/utils' // [!code ++]
+
+const types = getTypesForEIP712Domain({ domain }) // [!code --]
+const serialized = serializeTypedData(definition) // [!code --]
+validateTypedData(definition) // throws on invalid // [!code --]
+const types = TypedData.extractEip712DomainTypes(domain) // [!code ++]
+const serialized = TypedData.serialize(definition) // [!code ++]
+TypedData.assert(definition) // throws on invalid // [!code ++]
+
+type Definition = TypedDataDefinition<typedData, primaryType> // [!code --]
+type Domain = TypedDataDomain // [!code --]
+type Parameter = TypedDataParameter // [!code --]
+type Definition = TypedData.Definition<typedData, primaryType> // [!code ++]
+type Domain = TypedData.Domain // [!code ++]
+type Parameter = TypedData.Parameter // [!code ++]
+```
+
+### Transactions
+
+Transaction envelope utilities moved from flat helpers onto the general and per-type envelope namespaces.
+
+| v2 | v3 |
+| --- | --- |
+| `assertTransactionEIP1559(transaction)` | `TxEnvelopeEip1559.assert(envelope)` |
+| `assertTransactionEIP2930(transaction)` | `TxEnvelopeEip2930.assert(envelope)` |
+| `assertTransactionLegacy(transaction)` | `TxEnvelopeLegacy.assert(envelope)` |
+| `getSerializedTransactionType(serialized)` | `TxEnvelope.getSerializedType(serialized)` |
+| `getTransactionType(transaction)` | `TxEnvelope.getType(envelope)` |
+| `parseTransaction(serialized)` | `TxEnvelope.from(serialized)` |
+| `rpcTransactionType.eip1559` | `Transaction.toRpcType.eip1559` |
+| `serializeTransaction(transaction)` | `TxEnvelope.serialize(envelope)` |
+| `transactionType['0x2']` | `Transaction.fromRpcType['0x2']` |
+
+Transaction, receipt, and request formatters moved to the `Transaction`, `TransactionReceipt`, and `TransactionRequest` RPC conversion namespaces, and withdrawal, fee history, and account proof formatting gained namespaces of their own:
+
+| v2 | v3 |
+| --- | --- |
+| `formatTransaction(rpcTransaction)` | `Transaction.fromRpc(rpcTransaction)` |
+| `formatTransactionReceipt(rpcReceipt)` | `TransactionReceipt.fromRpc(rpcReceipt)` |
+| `formatTransactionRequest(request)` | `TransactionRequest.toRpc(request)` |
+| Manual withdrawal conversion | `Withdrawal.fromRpc(rpcWithdrawal)` |
+| Manual fee history conversion | `Fee.fromHistoryRpc(rpcFeeHistory)` |
+| Manual account proof conversion | `AccountProof.fromRpc(rpcAccountProof)` |
+
+Access list and authorization conversions moved from flat helpers to the `AccessList` and `Authorization` namespaces.
+
+```ts
+import { AccessList, Authorization } from 'viem/utils' // [!code ++]
+
+const tuple = serializeAccessList(accessList) // [!code --]
+const tuple = AccessList.toTupleList(accessList) // [!code ++]
+const accessList = AccessList.fromTupleList(tuple) // [!code ++]
+const authorization = Authorization.fromRpc(rpcAuthorization) // [!code ++]
+const rpcAuthorization = Authorization.toRpc(authorization) // [!code ++]
+```
+
+The experimental authorization helpers moved to `Authorization`, with bigint nonces, hex-only signing payloads, and synchronous recovery and verification ([bigint Scalars](#bigint-scalars)).
+
+```ts
+import { Authorization, Bytes } from 'viem/utils' // [!code ++]
+
+const payload = hashAuthorization({ contractAddress, chainId, nonce: 1, to: 'bytes' }) // [!code --]
+const recovered = await recoverAuthorizationAddress({ authorization }) // [!code --]
+const valid = await verifyAuthorization({ address, authorization }) // [!code --]
+const tuples = serializeAuthorizationList(authorizationList) // [!code --]
+const payload = Bytes.fromHex( // [!code ++]
+  Authorization.getSignPayload({ address: contractAddress, chainId, nonce: 1n }), // [!code ++]
+) // [!code ++]
+const recovered = Authorization.recoverAddress({ authorization }) // [!code ++]
+const valid = Authorization.verify({ address, authorization }) // [!code ++]
+const tuples = Authorization.toTupleList(authorizationList) // [!code ++]
+```
+
+Request assertion was internalized into the transaction action pipeline. Envelope validation remains public.
+
+The type-level KZG requirement was replaced by a runtime missing-KZG error.
+
+```ts
+assertRequest(args) // [!code --]
+TxEnvelope.assert(envelope) // [!code ++]
+```

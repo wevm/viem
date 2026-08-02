@@ -1,5 +1,6 @@
-import type { MaybePromise } from '../types/utils.js'
+import type { MaybePromise } from '../core/internal/types.js'
 
+/** A minimal asynchronous key-value storage. */
 export type Storage = {
   getItem(key: string): MaybePromise<string | null | undefined>
   setItem(key: string, value: string): MaybePromise<void>
@@ -13,7 +14,7 @@ export type Storage = {
  *
  * @example
  * ```ts
- * import * as Storage from 'viem/tempo/zones'
+ * import { Storage } from 'viem/tempo'
  *
  * const storage = Storage.from(Storage.memory(), { key: 'tempo' })
  * await storage.setItem('foo', 'bar')

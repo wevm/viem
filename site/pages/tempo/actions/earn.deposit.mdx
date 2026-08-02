@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `earn.deposit`
+# Deposit into Earn Vault [earn.deposit]
 
 Deposits assets into a vault and mints Earn shares to a recipient.
 
@@ -32,8 +32,8 @@ const result = await client.earn.depositSync({
 
 :::
 
-The action reads and approves `assetToken`, then deposits it in one transaction. `shareAmount` is a
-quote; `slippageBps` converts it into the minimum accepted share amount.
+The action reads the vault's asset token, approves it, then deposits it in one transaction.
+`shareAmount` is a quote; `slippageBps` converts it into the minimum accepted share amount.
 
 ### Set an Exact Minimum
 
@@ -75,10 +75,92 @@ const hash = await client.earn.deposit({
 })
 // @log: 0x1234...abcd
 
-const receipt = await client.waitForTransactionReceipt({ hash })
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.earn.deposit.extractEvent(receipt.logs, { vault })
 // @log: { assets: 100_000_000n, shares: 99_750_000n, ... }
 ```
+
+## Recipes
+
+### Sweep Idle Treasury into Yield
+
+Combine [`earn.getPosition`](/tempo/actions/earn.getPosition) with a deposit to move an account's
+full idle asset balance into the vault.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const vault = '0x0000000000000000000000000000000000000001'
+
+const { assetBalance } = await client.earn.getPosition({ vault }) // [!code focus]
+
+const result = await client.earn.depositSync({
+  assetAmount: assetBalance, // [!code focus]
+  shareAmount: 12_437_500_000n, // provider quote for `assetBalance`
+  slippageBps: 50,
+  vault,
+})
+// @log: { assetAmount: 12_500_000_000n, shareAmount: 12_400_000_000n, ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Mint Earn Shares to a Cold Treasury
+
+Pass `recipient` when an operator wallet funds the position but a treasury address should hold the
+resulting Earn shares.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.earn.depositSync({
+  assetAmount: 5_000_000_000n,
+  recipient: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  shareAmountMin: 4_975_000_000n,
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: { recipient: '0x8ba1...BA72', shareAmount: 4_987_500_000n, ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The shares mint directly to the treasury; the operator account never holds them.
+
+### Deposit a Dollar-Denominated Amount
+
+Pass a formatted `assetAmount` when your accounting system works in display units; providing
+`decimals` skips the live decimals lookup.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.earn.depositSync({
+  assetAmount: { decimals: 6, formatted: '25000' }, // [!code focus]
+  shareAmountMin: 24_875_000_000n,
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: { assetAmount: 25_000_000_000n, ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Value
 

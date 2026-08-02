@@ -1,0 +1,256 @@
+# Get Text Record [ens.getText]
+
+Gets a text record for an ENS name (via the ENS Universal Resolver's `resolveWithGateways`).
+
+## Usage
+
+This example gets a text record for an ENS name (via the ENS Universal Resolver's `resolveWithGateways`).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Ens } from 'viem/utils'
+import { client } from './viem.config'
+
+const twitter = await client.ens.getText({
+  key: 'com.twitter',
+  name: Ens.normalize('wevm.eth'),
+})
+// @log: 'wevm_dev'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.ens.getText` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { Ens } from 'viem/utils'
+import { client } from './viem.config'
+
+const twitter = await Actions.ens.getText(client, {
+  key: 'com.twitter',
+  name: Ens.normalize('wevm.eth'),
+})
+// @log: 'wevm_dev'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
+
+### Require Resolution Through a Custom Gateway
+
+Set the CCIP Read gateway and enable strict mode when resolver failures must reject the request instead of returning `null`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Ens } from 'viem/utils'
+import { client } from './viem.config'
+
+const twitter = await client.ens.getText({
+  gatewayUrls: ['https://ccip.ens.xyz'], // [!code focus]
+  key: 'com.twitter',
+  name: Ens.normalize('wevm.eth'),
+  strict: true, // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Return Value
+
+`string | null`
+
+The text record value, or `null` when the record is unset.
+
+## Parameters
+
+### blockNumber
+
+- **Type:** `bigint`
+
+Resolves against the state at a given block number.
+
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const text = await Actions.ens.getText(client, {
+  blockNumber: 23_085_558n, // [!code focus]
+  key: 'com.twitter',
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
+### blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+Resolves against the state at a given block tag.
+
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const text = await Actions.ens.getText(client, {
+  blockTag: 'finalized', // [!code focus]
+  key: 'com.twitter',
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
+### gatewayUrls
+
+- **Type:** `readonly string[]`
+
+Universal Resolver gateway URLs for CCIP-read requests. Defaults to the client-side batch gateway.
+
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const text = await Actions.ens.getText(client, {
+  gatewayUrls: ['https://ccip.ens.xyz'], // [!code focus]
+  key: 'com.twitter',
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
+### key
+
+- **Type:** `string`
+
+The text record key to resolve (for example, `'com.twitter'`, `'url'`, `'description'`).
+
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const text = await Actions.ens.getText(client, {
+  key: 'com.twitter', // [!code focus]
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
+### name
+
+- **Type:** `string`
+
+The ENS name to resolve.
+
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const text = await Actions.ens.getText(client, {
+  key: 'com.twitter',
+  name: Ens.normalize('wevm.eth'), // [!code focus]
+})
+```
+
+### strict
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether to throw errors propagated from the Universal Resolver instead of returning `null`.
+
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const text = await Actions.ens.getText(client, {
+  strict: true, // [!code focus]
+  key: 'com.twitter',
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
+### universalResolverAddress
+
+- **Type:** `Address`
+- **Default:** `client.chain.contracts.ensUniversalResolver.address`
+
+Address of the ENS Universal Resolver contract.
+
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const text = await Actions.ens.getText(client, {
+  universalResolverAddress: '0xeeeeeeee14d718c2b47d9923deab1335e144eeee', // [!code focus]
+  key: 'com.twitter',
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractError.ContractFunctionExecutionError` | The Universal Resolver call failed (with [`strict`](#strict); resolver errors otherwise map to `null`). |

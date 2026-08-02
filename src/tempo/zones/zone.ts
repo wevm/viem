@@ -1,10 +1,19 @@
 import { ZoneId } from 'ox/tempo'
+
+import * as Chain from '../../core/Chain.js'
 import { tempo } from '../../chains/definitions/tempo.js'
 import { tempoModerato } from '../../chains/definitions/tempoModerato.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 import { chainConfig } from '../chainConfig.js'
 import * as Addresses from './Addresses.js'
 
+type ZoneContracts = {
+  /** Parent-chain messenger contracts keyed by source chain ID. */
+  messenger: Record<number, Chain.Chain.Contract | undefined>
+  /** Parent-chain portal contracts keyed by source chain ID. */
+  portal: Record<number, Chain.Chain.Contract | undefined>
+}
+
+/** Returns the portal address for a zone on a Tempo chain. */
 export function getPortalAddress(
   chainId: number,
   zoneId: number,
@@ -19,19 +28,17 @@ export function getPortalAddress(
   return address
 }
 
-type ZoneContracts = {
-  messenger: Record<number, { address: `0x${string}` } | undefined>
-  portal: Record<number, { address: `0x${string}` } | undefined>
-}
+/** Zone chain factory for Tempo mainnet. */
+export const zone = /*#__PURE__*/ from({
+  sourceId: tempo.id,
+  rpcHost: 'tempo.xyz',
+})
 
-type Override = {
-  contracts?: ZoneContracts | undefined
-  name: string
-  rpcUrl: string
-}
-
-const overrides = {
-  [tempoModerato.id]: {
+/** Zone chain factory for Tempo Moderato (testnet). */
+export const zoneModerato = /*#__PURE__*/ from({
+  sourceId: tempoModerato.id,
+  rpcHost: 'tempoxyz.dev',
+  overrides: {
     1: {
       contracts: {
         messenger: {
@@ -57,16 +64,6 @@ const overrides = {
       rpcUrl: 'https://rpc-zone-b.testnet.tempo.xyz',
     },
   },
-} as const satisfies Record<number, Record<number, Override>>
-
-export const zone = /*#__PURE__*/ from({
-  sourceId: tempo.id,
-  rpcHost: 'tempo.xyz',
-})
-
-export const zoneModerato = /*#__PURE__*/ from({
-  sourceId: tempoModerato.id,
-  rpcHost: 'tempoxyz.dev',
 })
 
 /** Creates a zone chain factory for a given Tempo network. */
@@ -75,13 +72,14 @@ export function from(options: from.Options) {
     const chainId = ZoneId.toChainId(id)
     const paddedId = String(id).padStart(3, '0')
 
-    const override = (overrides as Record<number, Record<number, Override>>)[
-      options.sourceId
-    ]?.[id]
+    const override = options.overrides?.[id]
 
-    return defineChain({
+    return Chain.from({
       ...chainConfig,
-      ...(override?.contracts ? { contracts: override.contracts } : {}),
+      contracts: {
+        ...chainConfig.contracts,
+        ...override?.contracts,
+      },
       id: chainId,
       name: override?.name ?? `Tempo Zone ${paddedId}`,
       nativeCurrency: {
@@ -90,12 +88,8 @@ export function from(options: from.Options) {
         decimals: 6,
       },
       rpcUrls: {
-        default: {
-          http: [
-            override?.rpcUrl ??
-              `https://rpc-zone-${paddedId}.${options.rpcHost}`,
-          ],
-        },
+        http:
+          override?.rpcUrl ?? `https://rpc-zone-${paddedId}.${options.rpcHost}`,
       },
       sourceId: options.sourceId,
       supportsTransactionReplacementDetection: false,
@@ -103,8 +97,19 @@ export function from(options: from.Options) {
   }
 }
 
-declare namespace from {
+export declare namespace from {
+  type Override = {
+    /** Parent-chain contracts used by the Zone. */
+    contracts?: ZoneContracts | undefined
+    /** Human-readable Zone name. */
+    name: string
+    /** Zone RPC URL. */
+    rpcUrl: string
+  }
+
   type Options = {
+    /** Zone name and RPC URL overrides, keyed by zone ID. */
+    overrides?: Record<number, Override> | undefined
     /** RPC hostname used to construct zone RPC URLs (e.g. `tempo.xyz`). */
     rpcHost: string
     /** Chain ID of the parent Tempo chain (e.g. `4217` for mainnet, `42431` for moderato). */

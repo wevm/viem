@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const story = /*#__PURE__*/ defineChain({
+export const story = /*#__PURE__*/ Chain.from({
   id: 1514,
   name: 'Story',
   nativeCurrency: {
@@ -9,6 +10,7 @@ export const story = /*#__PURE__*/ defineChain({
     symbol: 'IP',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 340998,
@@ -22,15 +24,11 @@ export const story = /*#__PURE__*/ defineChain({
       blockCreated: 649114,
     },
   },
-  rpcUrls: {
-    default: { http: ['https://mainnet.storyrpc.io'] },
-  },
+  rpcUrls: { http: 'https://mainnet.storyrpc.io' },
   blockExplorers: {
-    default: {
-      name: 'Story explorer',
-      url: 'https://storyscan.io',
-      apiUrl: 'https://storyscan.io/api/v2',
-    },
+    name: 'Story explorer',
+    url: 'https://storyscan.io',
+    apiUrl: 'https://storyscan.io/api/v2',
   },
   ensTlds: ['.ip'],
   testnet: false,

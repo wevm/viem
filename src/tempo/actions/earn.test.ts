@@ -1,41 +1,25 @@
+import { Address, Value } from 'ox'
 import { TokenRole } from 'ox/tempo'
+import { Actions as CoreActions, Client as CoreClient } from 'viem'
 import {
-  type Address,
-  createClient,
-  encodeFunctionData,
-  isAddressEqual,
-  parseUnits,
-  toFunctionSelector,
-} from 'viem'
-import {
-  getBlockNumber,
-  readContract,
-  sendTransactionSync,
-  simulateContract,
-  waitForTransactionReceipt,
-  writeContractSync,
-} from 'viem/actions'
-import {
+  Account,
   Abis,
   Actions,
   Addresses,
+  Client,
   EarnShares,
   WaitForPrivateDepositTimeoutError,
   WaitForPrivateRedeemTimeoutError,
+  http,
 } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
-import {
-  accounts,
-  chain,
-  getClient,
-  http,
-  setupToken,
-} from '~test/tempo/config.js'
+import { accounts, getClient, rpcUrl, setupToken } from '~test/tempo.js'
 import { deployEarnStack } from '~test/tempo/earn.js'
 import * as EarnContracts from '~test/tempo/earnContracts.js'
 
-const account = accounts[0]
+const account = Account.fromSecp256k1(accounts[0].privateKey)
 const client = getClient({ account })
+const chain = client.chain
 
 // Run-once stack shared by the read suites: a fresh asset keeps balances
 // deterministic, and one deposit gives the suites a live position.
@@ -47,14 +31,14 @@ function setup() {
 async function deployStackWithPosition() {
   const stack = await setupStack()
   await approve({
-    amount: parseUnits('100', 6),
+    amount: Value.from('100', 6),
     spender: stack.adapter,
     token: stack.asset,
   })
-  await writeContractSync(client, {
+  await CoreActions.contract.writeSync(client, {
     abi: Abis.earnVault,
     address: stack.adapter,
-    args: [parseUnits('100', 6), account.address, 1n],
+    args: [Value.from('100', 6), account.address, 1n],
     functionName: 'deposit',
   })
   return stack
@@ -69,10 +53,10 @@ async function setupStack() {
 // The asset, Earn share, and venue share tokens all expose the same `approve`.
 async function approve(options: {
   amount: bigint
-  spender: Address
-  token: Address
+  spender: Address.Address
+  token: Address.Address
 }) {
-  await writeContractSync(client, {
+  await CoreActions.contract.writeSync(client, {
     abi: Abis.tip20,
     address: options.token,
     args: [options.spender, options.amount],
@@ -86,7 +70,7 @@ async function acquireVenueShares(
   assets: bigint,
 ) {
   await approve({ amount: assets, spender: stack.venue, token: stack.asset })
-  await writeContractSync(client, {
+  await CoreActions.contract.writeSync(client, {
     abi: EarnContracts.simple4626Vault.abi,
     address: stack.venue,
     args: [assets, account.address],
@@ -99,18 +83,18 @@ describe('deployEarnStack', { timeout: 30_000 }, () => {
     const stack = await deployEarnStack(client)
 
     const [engine, shareToken, issuer] = await Promise.all([
-      readContract(client, {
+      CoreActions.contract.read(client, {
         abi: Abis.earnVault,
         address: stack.adapter,
         functionName: 'engine',
       }),
-      readContract(client, {
+      CoreActions.contract.read(client, {
         abi: Abis.earnVault,
         address: stack.adapter,
         functionName: 'earnShare',
       }),
       // The factory wires the adapter as the Earn share token's sole issuer.
-      readContract(client, {
+      CoreActions.contract.read(client, {
         abi: Abis.tip20,
         address: stack.shareToken,
         args: [stack.adapter, TokenRole.serialize('issuer')],
@@ -118,8 +102,8 @@ describe('deployEarnStack', { timeout: 30_000 }, () => {
       }),
     ])
 
-    expect(isAddressEqual(engine, stack.engine)).toBe(true)
-    expect(isAddressEqual(shareToken, stack.shareToken)).toBe(true)
+    expect(Address.isEqual(engine, stack.engine)).toBe(true)
+    expect(Address.isEqual(shareToken, stack.shareToken)).toBe(true)
     expect(issuer).toBe(true)
   })
 })
@@ -184,18 +168,20 @@ describe('deposit', { timeout: 30_000 }, () => {
     const stack = await setupStack()
 
     const hash = await Actions.earn.deposit(client, {
-      assetAmount: parseUnits('100', 6),
-      shareAmountMin: EarnShares.minimumOutput(parseUnits('100', 6), 50),
+      assetAmount: Value.from('100', 6),
+      shareAmountMin: EarnShares.minimumOutput(Value.from('100', 6), 50),
       vault: stack.adapter,
     })
-    const receipt = await waitForTransactionReceipt(client, { hash })
+    const receipt = await CoreActions.transaction.waitForReceipt(client, {
+      hash,
+    }).receipt
 
     const { args } = Actions.earn.deposit.extractEvent(receipt.logs, {
       vault: stack.adapter,
     })
     const { caller, receiver, ...eventArgs } = args
-    expect(isAddressEqual(caller, account.address)).toBe(true)
-    expect(isAddressEqual(receiver, account.address)).toBe(true)
+    expect(Address.isEqual(caller, account.address)).toBe(true)
+    expect(Address.isEqual(receiver, account.address)).toBe(true)
     expect(eventArgs).toMatchInlineSnapshot(`
       {
         "assets": 100000000n,
@@ -208,14 +194,14 @@ describe('deposit', { timeout: 30_000 }, () => {
     const stack = await setupStack()
 
     const { recipient, shareAmount } = await Actions.earn.depositSync(client, {
-      assetAmount: parseUnits('50', 6),
+      assetAmount: Value.from('50', 6),
       shareAmountMin: 1n,
       recipient: accounts[2].address,
       vault: stack.adapter,
     })
 
-    expect(isAddressEqual(recipient, accounts[2].address)).toBe(true)
-    const balance = await readContract(client, {
+    expect(Address.isEqual(recipient, accounts[2].address)).toBe(true)
+    const balance = await CoreActions.contract.read(client, {
       abi: Abis.tip20,
       address: stack.shareToken,
       args: [accounts[2].address],
@@ -238,18 +224,14 @@ describe('deposit', { timeout: 30_000 }, () => {
     })
 
     expect(calls).toHaveLength(2)
-    expect(isAddressEqual(calls[0].address, asset)).toBe(true)
+    expect(Address.isEqual(calls[0].address, asset)).toBe(true)
     expect(calls[0].functionName).toBe('approve')
     expect(calls[0].args).toEqual([vault, 100_000_000n])
-    expect(encodeFunctionData(calls[0] as never).slice(0, 10)).toBe(
-      '0x095ea7b3',
-    )
+    expect(calls[0].data.slice(0, 10)).toBe('0x095ea7b3')
     expect(calls[1].address).toBe(vault)
     expect(calls[1].functionName).toBe('deposit')
     expect(calls[1].args).toEqual([100_000_000n, recipient, 99_500_000n])
-    expect(encodeFunctionData(calls[1] as never).slice(0, 10)).toBe(
-      '0xbc157ac1',
-    )
+    expect(calls[1].data.slice(0, 10)).toBe('0xbc157ac1')
   })
 
   test('behavior: calls floors a caller-supplied quote', () => {
@@ -295,24 +277,24 @@ describe('deposit', { timeout: 30_000 }, () => {
   test('behavior: estimates gas and simulates', async () => {
     const stack = await setupStack()
     await approve({
-      amount: parseUnits('100', 6),
+      amount: Value.from('100', 6),
       spender: stack.adapter,
       token: stack.asset,
     })
 
     const gas = await Actions.earn.deposit.estimateGas(client, {
-      assetAmount: parseUnits('100', 6),
+      assetAmount: Value.from('100', 6),
       shareAmountMin: 1n,
       vault: stack.adapter,
     })
     expect(gas).toBeGreaterThan(0n)
 
     const { result } = await Actions.earn.deposit.simulate(client, {
-      assetAmount: parseUnits('100', 6),
+      assetAmount: Value.from('100', 6),
       shareAmountMin: 1n,
       vault: stack.adapter,
     })
-    expect(result).toBe(parseUnits('100', 6))
+    expect(result).toBe(Value.from('100', 6))
   })
 
   // Batched sends surface reverts opaquely, so named reverts assert through
@@ -333,28 +315,28 @@ describe('deposit', { timeout: 30_000 }, () => {
     const stack = await setupStack()
 
     const { shareAmount } = await Actions.earn.depositSync(client, {
-      assetAmount: parseUnits('100', 6),
-      shareAmount: parseUnits('100', 6),
+      assetAmount: Value.from('100', 6),
+      shareAmount: Value.from('100', 6),
       slippageBps: 50,
       vault: stack.adapter,
     })
 
-    expect(shareAmount).toBe(parseUnits('100', 6))
+    expect(shareAmount).toBe(Value.from('100', 6))
   })
 
   test('error: minimum shares not met', async () => {
     const stack = await setupStack()
     // Simulation covers the adapter call only, so the pull needs an allowance.
     await approve({
-      amount: parseUnits('100', 6),
+      amount: Value.from('100', 6),
       spender: stack.adapter,
       token: stack.asset,
     })
 
     await expect(
       Actions.earn.deposit.simulate(client, {
-        assetAmount: parseUnits('100', 6),
-        shareAmountMin: parseUnits('100', 6) + 1n,
+        assetAmount: Value.from('100', 6),
+        shareAmountMin: Value.from('100', 6) + 1n,
         vault: stack.adapter,
       }),
     ).rejects.toThrow('MinimumEarnSharesNotMet')
@@ -363,22 +345,22 @@ describe('deposit', { timeout: 30_000 }, () => {
   test('error: slippageBps bound reverts when donated yield moves the rate', async () => {
     const stack = await setupStack()
     await Actions.earn.depositSync(client, {
-      assetAmount: parseUnits('100', 6),
+      assetAmount: Value.from('100', 6),
       shareAmountMin: 1n,
       vault: stack.adapter,
     })
     // Donated yield raises the venue rate, so a stale 1:1 quote over-asks.
-    await stack.donate(parseUnits('50', 6))
+    await stack.donate(Value.from('50', 6))
 
     await approve({
-      amount: parseUnits('100', 6),
+      amount: Value.from('100', 6),
       spender: stack.adapter,
       token: stack.asset,
     })
     await expect(
       Actions.earn.deposit.simulate(client, {
-        assetAmount: parseUnits('100', 6),
-        shareAmount: parseUnits('100', 6),
+        assetAmount: Value.from('100', 6),
+        shareAmount: Value.from('100', 6),
         slippageBps: 50,
         vault: stack.adapter,
       }),
@@ -386,8 +368,8 @@ describe('deposit', { timeout: 30_000 }, () => {
     // The atomic plain action hits the same revert at gas estimation.
     await expect(
       Actions.earn.deposit(client, {
-        assetAmount: parseUnits('100', 6),
-        shareAmount: parseUnits('100', 6),
+        assetAmount: Value.from('100', 6),
+        shareAmount: Value.from('100', 6),
         slippageBps: 50,
         vault: stack.adapter,
       }),
@@ -398,7 +380,7 @@ describe('deposit', { timeout: 30_000 }, () => {
     const stack = await setupStack()
     // Pause through the operator seat; the public pause action lands with the
     // operator family.
-    await writeContractSync(client, {
+    await CoreActions.contract.writeSync(client, {
       abi: Abis.earnVault,
       address: stack.adapter,
       args: [true],
@@ -421,14 +403,14 @@ describe('depositSync', { timeout: 30_000 }, () => {
 
     const { caller, receipt, recipient, ...result } =
       await Actions.earn.depositSync(client, {
-        assetAmount: parseUnits('100', 6),
-        shareAmountMin: EarnShares.minimumOutput(parseUnits('100', 6), 50),
+        assetAmount: Value.from('100', 6),
+        shareAmountMin: EarnShares.minimumOutput(Value.from('100', 6), 50),
         vault: stack.adapter,
       })
 
     expect(receipt.status).toBe('success')
-    expect(isAddressEqual(caller, account.address)).toBe(true)
-    expect(isAddressEqual(recipient, account.address)).toBe(true)
+    expect(Address.isEqual(caller, account.address)).toBe(true)
+    expect(Address.isEqual(recipient, account.address)).toBe(true)
     expect(result).toMatchInlineSnapshot(`
       {
         "assetAmount": 100000000n,
@@ -452,7 +434,7 @@ describe('depositSync', { timeout: 30_000 }, () => {
       vault: stack.adapter,
     })
 
-    expect(assetAmount).toBe(parseUnits('25', 6))
+    expect(assetAmount).toBe(Value.from('25', 6))
   })
 })
 
@@ -460,22 +442,24 @@ describe('depositShares', { timeout: 30_000 }, () => {
   test('default', async () => {
     // In-kind entry: a venue shareholder enters Earn without exiting the venue.
     const stack = await setupStack()
-    await acquireVenueShares(stack, parseUnits('500', 6))
+    await acquireVenueShares(stack, Value.from('500', 6))
 
     const hash = await Actions.earn.depositShares(client, {
-      earnShareAmountMin: EarnShares.minimumOutput(parseUnits('500', 6), 30),
+      earnShareAmountMin: EarnShares.minimumOutput(Value.from('500', 6), 30),
       vault: stack.adapter,
-      venueShareAmount: parseUnits('500', 6),
+      venueShareAmount: Value.from('500', 6),
       venueShareToken: stack.venue,
     })
-    const receipt = await waitForTransactionReceipt(client, { hash })
+    const receipt = await CoreActions.transaction.waitForReceipt(client, {
+      hash,
+    }).receipt
 
     const { args } = Actions.earn.depositShares.extractEvent(receipt.logs, {
       vault: stack.adapter,
     })
     const { caller, receiver, ...eventArgs } = args
-    expect(isAddressEqual(caller, account.address)).toBe(true)
-    expect(isAddressEqual(receiver, account.address)).toBe(true)
+    expect(Address.isEqual(caller, account.address)).toBe(true)
+    expect(Address.isEqual(receiver, account.address)).toBe(true)
     expect(eventArgs).toMatchInlineSnapshot(`
       {
         "earnShares": 500000000n,
@@ -487,15 +471,15 @@ describe('depositShares', { timeout: 30_000 }, () => {
 
   test('behavior: manual calls composition against a resolved engine', async () => {
     const stack = await setupStack()
-    await acquireVenueShares(stack, parseUnits('500', 6))
+    await acquireVenueShares(stack, Value.from('500', 6))
 
-    const receipt = await sendTransactionSync(client, {
+    const receipt = await CoreActions.transaction.sendSync(client, {
       calls: Actions.earn.depositShares.calls({
-        earnShareAmountMin: EarnShares.minimumOutput(parseUnits('500', 6), 30),
+        earnShareAmountMin: EarnShares.minimumOutput(Value.from('500', 6), 30),
         engine: stack.engine,
         recipient: account.address,
         vault: stack.adapter,
-        venueShareAmount: parseUnits('500', 6),
+        venueShareAmount: Value.from('500', 6),
         venueShareToken: stack.venue,
       }),
     })
@@ -503,22 +487,22 @@ describe('depositShares', { timeout: 30_000 }, () => {
     const { args } = Actions.earn.depositShares.extractEvent(receipt.logs, {
       vault: stack.adapter,
     })
-    expect(args.earnShares).toBe(parseUnits('500', 6))
+    expect(args.earnShares).toBe(Value.from('500', 6))
   })
 
   test('behavior: slippageBps floors a caller-supplied quote', async () => {
     const stack = await setupStack()
-    await acquireVenueShares(stack, parseUnits('500', 6))
+    await acquireVenueShares(stack, Value.from('500', 6))
 
     const { earnShareAmount } = await Actions.earn.depositSharesSync(client, {
-      earnShareAmount: parseUnits('500', 6),
+      earnShareAmount: Value.from('500', 6),
       slippageBps: 30,
       vault: stack.adapter,
-      venueShareAmount: parseUnits('500', 6),
+      venueShareAmount: Value.from('500', 6),
       venueShareToken: stack.venue,
     })
 
-    expect(earnShareAmount).toBe(parseUnits('500', 6))
+    expect(earnShareAmount).toBe(Value.from('500', 6))
   })
 
   test('behavior: calls approves the engine, not the adapter', () => {
@@ -543,9 +527,7 @@ describe('depositShares', { timeout: 30_000 }, () => {
     expect(calls[1].address).toBe(vault)
     expect(calls[1].functionName).toBe('depositVenueShares')
     expect(calls[1].args).toEqual([500n, recipient, 1n])
-    expect(encodeFunctionData(calls[1] as never).slice(0, 10)).toBe(
-      '0xf48e662c',
-    )
+    expect(calls[1].data.slice(0, 10)).toBe('0xf48e662c')
   })
 
   test('behavior: calls floors a caller-supplied quote', () => {
@@ -579,19 +561,19 @@ describe('depositShares', { timeout: 30_000 }, () => {
 describe('depositSharesSync', { timeout: 30_000 }, () => {
   test('default', async () => {
     const stack = await setupStack()
-    await acquireVenueShares(stack, parseUnits('500', 6))
+    await acquireVenueShares(stack, Value.from('500', 6))
 
     const { caller, receipt, recipient, ...result } =
       await Actions.earn.depositSharesSync(client, {
-        earnShareAmountMin: EarnShares.minimumOutput(parseUnits('500', 6), 30),
+        earnShareAmountMin: EarnShares.minimumOutput(Value.from('500', 6), 30),
         vault: stack.adapter,
-        venueShareAmount: parseUnits('500', 6),
+        venueShareAmount: Value.from('500', 6),
         venueShareToken: stack.venue,
       })
 
     expect(receipt.status).toBe('success')
-    expect(isAddressEqual(caller, account.address)).toBe(true)
-    expect(isAddressEqual(recipient, account.address)).toBe(true)
+    expect(Address.isEqual(caller, account.address)).toBe(true)
+    expect(Address.isEqual(recipient, account.address)).toBe(true)
     expect(result).toMatchInlineSnapshot(`
       {
         "earnShareAmount": 500000000n,
@@ -663,8 +645,8 @@ describe('getPosition', { timeout: 30_000 }, () => {
     const { assetToken, shareToken, ...position } =
       await Actions.earn.getPosition(client, { vault: stack.adapter })
 
-    expect(isAddressEqual(assetToken, stack.asset)).toBe(true)
-    expect(isAddressEqual(shareToken, stack.shareToken)).toBe(true)
+    expect(Address.isEqual(assetToken, stack.asset)).toBe(true)
+    expect(Address.isEqual(shareToken, stack.shareToken)).toBe(true)
     expect(position).toMatchInlineSnapshot(`
       {
         "assetAllowance": 0n,
@@ -690,12 +672,16 @@ describe('getPosition', { timeout: 30_000 }, () => {
 
   test('error: no account', async () => {
     const stack = await setup()
-    const accountlessClient = getClient()
+    const accountlessClient = Client.create({
+      chain,
+      transport: http(rpcUrl),
+    })
 
     await expect(
+      // @ts-expect-error Testing the runtime account guard.
       Actions.earn.getPosition(accountlessClient, {
         vault: stack.adapter,
-      } as never),
+      }),
     ).rejects.toThrowError(
       'Could not find an Account to execute with this Action.',
     )
@@ -717,16 +703,16 @@ describe('getVault', { timeout: 30_000 }, () => {
     } = await Actions.earn.getVault(client, { vault: stack.adapter })
     const { address, ...engineMeta } = engine
 
-    expect(isAddressEqual(assetToken, stack.asset)).toBe(true)
-    expect(isAddressEqual(asyncJanitor, stack.seats.asyncJanitor.address)).toBe(
-      true,
-    )
+    expect(Address.isEqual(assetToken, stack.asset)).toBe(true)
     expect(
-      isAddressEqual(emergencyGuardian, stack.seats.emergencyGuardian.address),
+      Address.isEqual(asyncJanitor, stack.seats.asyncJanitor.address),
     ).toBe(true)
-    expect(isAddressEqual(address, stack.engine)).toBe(true)
-    expect(isAddressEqual(operator, account.address)).toBe(true)
-    expect(isAddressEqual(shareToken, stack.shareToken)).toBe(true)
+    expect(
+      Address.isEqual(emergencyGuardian, stack.seats.emergencyGuardian.address),
+    ).toBe(true)
+    expect(Address.isEqual(address, stack.engine)).toBe(true)
+    expect(Address.isEqual(operator, account.address)).toBe(true)
+    expect(Address.isEqual(shareToken, stack.shareToken)).toBe(true)
     expect(engineMeta).toMatchInlineSnapshot(`
       {
         "name": "Tempo Earn Test Vault",
@@ -778,11 +764,11 @@ describe('getVault', { timeout: 30_000 }, () => {
     expect(calls[12].address).toBe(fees)
     expect(calls.slice(13).every((call) => call.address === engine)).toBe(true)
     expect(calls[0].functionName).toBe('asset')
-    expect(encodeFunctionData(calls[0] as never)).toBe('0x38d52e0f')
+    expect(calls[0].data).toBe('0x38d52e0f')
     expect(calls[1].functionName).toBe('engine')
-    expect(encodeFunctionData(calls[1] as never)).toBe('0xc9d4623f')
+    expect(calls[1].data).toBe('0xc9d4623f')
     expect(calls[13].functionName).toBe('totalAssets')
-    expect(encodeFunctionData(calls[13] as never)).toBe('0x01e1d114')
+    expect(calls[13].data).toBe('0x01e1d114')
     // ERC-165 probes for the four optional engine capabilities.
     for (const call of calls.slice(16))
       expect(call.functionName).toBe('supportsInterface')
@@ -790,9 +776,7 @@ describe('getVault', { timeout: 30_000 }, () => {
     expect(calls[17].args).toEqual(['0x0adfb0b9']) // IEarnEngineExactWithdraw
     expect(calls[18].args).toEqual(['0xce4790a9']) // IEarnEngineInKindDeposit
     expect(calls[19].args).toEqual(['0x94a2d467']) // IEarnEngineRedeem
-    expect(encodeFunctionData(calls[16] as never).slice(0, 10)).toBe(
-      '0x01ffc9a7',
-    )
+    expect(calls[16].data.slice(0, 10)).toBe('0x01ffc9a7')
   })
 })
 
@@ -818,9 +802,8 @@ describe('minimumOutput', () => {
   })
 
   test('error: invalid slippage', () => {
-    expect(() =>
-      EarnShares.minimumOutput(1_000_000n, 10_000),
-    ).toThrowErrorMatchingInlineSnapshot(`
+    expect(() => EarnShares.minimumOutput(1_000_000n, 10_000))
+      .toThrowErrorMatchingInlineSnapshot(`
       [EarnShares.InvalidSlippageError: Slippage tolerance \`10000\` is invalid.
 
       Slippage must be a whole number from 0 through 9999 basis points.]
@@ -831,20 +814,20 @@ describe('minimumOutput', () => {
 describe('getRedeemQuote', { timeout: 30_000 }, () => {
   test('call', () => {
     const call = Actions.earn.getRedeemQuote.call({
-      shareAmount: parseUnits('100', 6),
+      shareAmount: Value.from('100', 6),
       vault: `0x${'aa'.repeat(20)}`,
     })
 
     expect(call.functionName).toBe('previewRedeem')
     expect(call.args).toEqual([100_000_000n])
-    expect(encodeFunctionData(call).slice(0, 10)).toBe('0x4cdad506')
+    expect(call.data.slice(0, 10)).toBe('0x4cdad506')
   })
 
   test('default', async () => {
     const stack = await setup()
 
     const assetAmount = await Actions.earn.getRedeemQuote(client, {
-      shareAmount: parseUnits('100', 6),
+      shareAmount: Value.from('100', 6),
       vault: stack.adapter,
     })
 
@@ -866,20 +849,20 @@ describe('getRedeemQuote', { timeout: 30_000 }, () => {
 describe('getWithdrawQuote', { timeout: 30_000 }, () => {
   test('call', () => {
     const call = Actions.earn.getWithdrawQuote.call({
-      assetAmount: parseUnits('40', 6),
+      assetAmount: Value.from('40', 6),
       vault: `0x${'aa'.repeat(20)}`,
     })
 
     expect(call.functionName).toBe('previewWithdraw')
     expect(call.args).toEqual([40_000_000n])
-    expect(encodeFunctionData(call).slice(0, 10)).toBe('0x0a28a477')
+    expect(call.data.slice(0, 10)).toBe('0x0a28a477')
   })
 
   test('default', async () => {
     const stack = await setup()
 
     const shareAmount = await Actions.earn.getWithdrawQuote(client, {
-      assetAmount: parseUnits('40', 6),
+      assetAmount: Value.from('40', 6),
       vault: stack.adapter,
     })
 
@@ -891,31 +874,33 @@ describe('redeem', { timeout: 30_000 }, () => {
   test('default', async () => {
     const stack = await setupStack()
     await Actions.earn.depositSync(client, {
-      assetAmount: parseUnits('100', 6),
+      assetAmount: Value.from('100', 6),
       shareAmountMin: 1n,
       vault: stack.adapter,
     })
     // Injected yield moves the venue rate so the exit pays above the entry.
-    await stack.donate(parseUnits('50', 6))
+    await stack.donate(Value.from('50', 6))
 
     const assetAmount = await Actions.earn.getRedeemQuote(client, {
-      shareAmount: parseUnits('100', 6),
+      shareAmount: Value.from('100', 6),
       vault: stack.adapter,
     })
     // No manual approve: the plain action embeds the exact approval leg.
     const hash = await Actions.earn.redeem(client, {
       assetAmountMin: EarnShares.minimumOutput(assetAmount, 50),
-      shareAmount: parseUnits('100', 6),
+      shareAmount: Value.from('100', 6),
       vault: stack.adapter,
     })
-    const receipt = await waitForTransactionReceipt(client, { hash })
+    const receipt = await CoreActions.transaction.waitForReceipt(client, {
+      hash,
+    }).receipt
 
     const { args } = Actions.earn.redeem.extractEvent(receipt.logs, {
       vault: stack.adapter,
     })
     const { caller, receiver, ...eventArgs } = args
-    expect(isAddressEqual(caller, account.address)).toBe(true)
-    expect(isAddressEqual(receiver, account.address)).toBe(true)
+    expect(Address.isEqual(caller, account.address)).toBe(true)
+    expect(Address.isEqual(receiver, account.address)).toBe(true)
     expect(eventArgs).toMatchInlineSnapshot(`
       {
         "assets": 150000000n,
@@ -944,9 +929,7 @@ describe('redeem', { timeout: 30_000 }, () => {
     expect(calls[1].address).toBe(vault)
     expect(calls[1].functionName).toBe('redeem')
     expect(calls[1].args).toEqual([100n, recipient, 99n])
-    expect(encodeFunctionData(calls[1] as never).slice(0, 10)).toBe(
-      '0xd8780161',
-    )
+    expect(calls[1].data.slice(0, 10)).toBe('0xd8780161')
   })
 
   test('behavior: calls floors a caller-supplied quote', () => {
@@ -965,20 +948,20 @@ describe('redeem', { timeout: 30_000 }, () => {
   test('behavior: forwards caller-supplied assetAmount', async () => {
     const stack = await setupStack()
     await Actions.earn.depositSync(client, {
-      assetAmount: parseUnits('100', 6),
+      assetAmount: Value.from('100', 6),
       shareAmountMin: 1n,
       vault: stack.adapter,
     })
     await approve({
-      amount: parseUnits('40', 6),
+      amount: Value.from('40', 6),
       spender: stack.adapter,
       token: stack.shareToken,
     })
 
-    const assetAmount = parseUnits('39', 6)
+    const assetAmount = Value.from('39', 6)
     const { request } = await Actions.earn.redeem.simulate(client, {
       assetAmount,
-      shareAmount: parseUnits('40', 6),
+      shareAmount: Value.from('40', 6),
       slippageBps: 50,
       vault: stack.adapter,
     })
@@ -989,43 +972,43 @@ describe('redeem', { timeout: 30_000 }, () => {
   test('behavior: slippageBps floors a live preview', async () => {
     const stack = await setupStack()
     await Actions.earn.depositSync(client, {
-      assetAmount: parseUnits('100', 6),
+      assetAmount: Value.from('100', 6),
       shareAmountMin: 1n,
       vault: stack.adapter,
     })
-    await stack.donate(parseUnits('50', 6))
+    await stack.donate(Value.from('50', 6))
 
     const { assetAmount } = await Actions.earn.redeemSync(client, {
-      shareAmount: parseUnits('100', 6),
+      shareAmount: Value.from('100', 6),
       slippageBps: 50,
       vault: stack.adapter,
     })
 
-    expect(assetAmount).toBe(parseUnits('150', 6))
+    expect(assetAmount).toBe(Value.from('150', 6))
   })
 
   test('behavior: forwards the live preview floor as the onchain bound', async () => {
     const stack = await setupStack()
     await Actions.earn.depositSync(client, {
-      assetAmount: parseUnits('100', 6),
+      assetAmount: Value.from('100', 6),
       shareAmountMin: 1n,
       vault: stack.adapter,
     })
     // Donated yield moves the rate; the resolved bound must floor the moved
     // quote, not the entry rate.
-    await stack.donate(parseUnits('50', 6))
+    await stack.donate(Value.from('50', 6))
     await approve({
-      amount: parseUnits('100', 6),
+      amount: Value.from('100', 6),
       spender: stack.adapter,
       token: stack.shareToken,
     })
 
     const quote = await Actions.earn.getRedeemQuote(client, {
-      shareAmount: parseUnits('100', 6),
+      shareAmount: Value.from('100', 6),
       vault: stack.adapter,
     })
     const { request } = await Actions.earn.redeem.simulate(client, {
-      shareAmount: parseUnits('100', 6),
+      shareAmount: Value.from('100', 6),
       slippageBps: 50,
       vault: stack.adapter,
     })
@@ -1036,30 +1019,30 @@ describe('redeem', { timeout: 30_000 }, () => {
   test('error: slippageBps floor reverts when the rate moves between quote and execution', async () => {
     const stack = await setupStack()
     await Actions.earn.depositSync(client, {
-      assetAmount: parseUnits('100', 6),
+      assetAmount: Value.from('100', 6),
       shareAmountMin: 1n,
       vault: stack.adapter,
     })
     await approve({
-      amount: parseUnits('100', 6),
+      amount: Value.from('100', 6),
       spender: stack.adapter,
       token: stack.shareToken,
     })
-    const staleBlock = await getBlockNumber(client)
+    const staleBlock = await CoreActions.block.getNumber(client)
     // Donated yield moves the rate; the demo venue rate only rises, so
     // executing at the pre-donate block realizes the adverse ordering.
-    await stack.donate(parseUnits('50', 6))
+    await stack.donate(Value.from('50', 6))
 
     const quote = await Actions.earn.getRedeemQuote(client, {
-      shareAmount: parseUnits('100', 6),
+      shareAmount: Value.from('100', 6),
       vault: stack.adapter,
     })
     await expect(
-      simulateContract(client, {
+      CoreActions.contract.simulate(client, {
         ...Actions.earn.redeem.call({
           assetAmountMin: EarnShares.minimumOutput(quote, 50),
           recipient: account.address,
-          shareAmount: parseUnits('100', 6),
+          shareAmount: Value.from('100', 6),
           vault: stack.adapter,
         }),
         abi: [...Abis.earnVault, ...Abis.erc4626Engine],
@@ -1083,13 +1066,13 @@ describe('redeem', { timeout: 30_000 }, () => {
   test('error: minimum assets not met', async () => {
     const stack = await setupStack()
     await Actions.earn.depositSync(client, {
-      assetAmount: parseUnits('100', 6),
+      assetAmount: Value.from('100', 6),
       shareAmountMin: 1n,
       vault: stack.adapter,
     })
     // Simulation covers the adapter call only, so the pull needs an allowance.
     await approve({
-      amount: parseUnits('100', 6),
+      amount: Value.from('100', 6),
       spender: stack.adapter,
       token: stack.shareToken,
     })
@@ -1097,13 +1080,11 @@ describe('redeem', { timeout: 30_000 }, () => {
     // The engine enforces this bound before the vault's fallback check.
     await expect(
       Actions.earn.redeem.simulate(client, {
-        assetAmountMin: parseUnits('100', 6) + 1n,
-        shareAmount: parseUnits('100', 6),
+        assetAmountMin: Value.from('100', 6) + 1n,
+        shareAmount: Value.from('100', 6),
         vault: stack.adapter,
       }),
-    ).rejects.toThrow(
-      toFunctionSelector('InsufficientAssetsReceived(uint256,uint256)'),
-    )
+    ).rejects.toThrow('0xac362aa5')
   })
 })
 
@@ -1111,21 +1092,21 @@ describe('redeemSync', { timeout: 30_000 }, () => {
   test('default', async () => {
     const stack = await setupStack()
     await Actions.earn.depositSync(client, {
-      assetAmount: parseUnits('100', 6),
+      assetAmount: Value.from('100', 6),
       shareAmountMin: 1n,
       vault: stack.adapter,
     })
 
     const { caller, receipt, recipient, ...result } =
       await Actions.earn.redeemSync(client, {
-        assetAmountMin: EarnShares.minimumOutput(parseUnits('40', 6), 50),
-        shareAmount: parseUnits('40', 6),
+        assetAmountMin: EarnShares.minimumOutput(Value.from('40', 6), 50),
+        shareAmount: Value.from('40', 6),
         vault: stack.adapter,
       })
 
     expect(receipt.status).toBe('success')
-    expect(isAddressEqual(caller, account.address)).toBe(true)
-    expect(isAddressEqual(recipient, account.address)).toBe(true)
+    expect(Address.isEqual(caller, account.address)).toBe(true)
+    expect(Address.isEqual(recipient, account.address)).toBe(true)
     expect(result).toMatchInlineSnapshot(`
       {
         "assetAmount": 40000000n,
@@ -1139,29 +1120,31 @@ describe('withdrawExact', { timeout: 30_000 }, () => {
   test('default', async () => {
     const stack = await setupStack()
     await Actions.earn.depositSync(client, {
-      assetAmount: parseUnits('100', 6),
+      assetAmount: Value.from('100', 6),
       shareAmountMin: 1n,
       vault: stack.adapter,
     })
     const shareAmount = await Actions.earn.getWithdrawQuote(client, {
-      assetAmount: parseUnits('40', 6),
+      assetAmount: Value.from('40', 6),
       vault: stack.adapter,
     })
 
     // No manual approve: the plain action embeds the burn-cap approval leg.
     const hash = await Actions.earn.withdrawExact(client, {
-      assetAmount: parseUnits('40', 6),
+      assetAmount: Value.from('40', 6),
       shareAmountMax: shareAmount,
       vault: stack.adapter,
     })
-    const receipt = await waitForTransactionReceipt(client, { hash })
+    const receipt = await CoreActions.transaction.waitForReceipt(client, {
+      hash,
+    }).receipt
 
     const { args } = Actions.earn.withdrawExact.extractEvent(receipt.logs, {
       vault: stack.adapter,
     })
     const { caller, receiver, ...eventArgs } = args
-    expect(isAddressEqual(caller, account.address)).toBe(true)
-    expect(isAddressEqual(receiver, account.address)).toBe(true)
+    expect(Address.isEqual(caller, account.address)).toBe(true)
+    expect(Address.isEqual(receiver, account.address)).toBe(true)
     expect(eventArgs).toMatchInlineSnapshot(`
       {
         "assets": 40000000n,
@@ -1191,9 +1174,7 @@ describe('withdrawExact', { timeout: 30_000 }, () => {
     expect(calls[1].address).toBe(vault)
     expect(calls[1].functionName).toBe('withdrawExact')
     expect(calls[1].args).toEqual([40n, recipient, 42n])
-    expect(encodeFunctionData(calls[1] as never).slice(0, 10)).toBe(
-      '0x06eebf59',
-    )
+    expect(calls[1].data.slice(0, 10)).toBe('0x06eebf59')
   })
 
   test('behavior: calls raises a caller-supplied quote', () => {
@@ -1245,19 +1226,19 @@ Slippage must be a whole number from 0 through 9999 basis points.]`,
   test('behavior: forwards caller-supplied shareAmount', async () => {
     const stack = await setupStack()
     await Actions.earn.depositSync(client, {
-      assetAmount: parseUnits('100', 6),
+      assetAmount: Value.from('100', 6),
       shareAmountMin: 1n,
       vault: stack.adapter,
     })
     await approve({
-      amount: parseUnits('100', 6),
+      amount: Value.from('100', 6),
       spender: stack.adapter,
       token: stack.shareToken,
     })
 
-    const shareAmount = parseUnits('41', 6)
+    const shareAmount = Value.from('41', 6)
     const { request } = await Actions.earn.withdrawExact.simulate(client, {
-      assetAmount: parseUnits('40', 6),
+      assetAmount: Value.from('40', 6),
       shareAmount,
       slippageBps: 50,
       vault: stack.adapter,
@@ -1269,7 +1250,7 @@ Slippage must be a whole number from 0 through 9999 basis points.]`,
   test('behavior: slippageBps raises a live quote into a ceiling burn cap', async () => {
     const stack = await setupStack()
     await Actions.earn.depositSync(client, {
-      assetAmount: parseUnits('100', 6),
+      assetAmount: Value.from('100', 6),
       shareAmountMin: 1n,
       vault: stack.adapter,
     })
@@ -1277,16 +1258,16 @@ Slippage must be a whole number from 0 through 9999 basis points.]`,
     const { assetAmount, shareAmount } = await Actions.earn.withdrawExactSync(
       client,
       {
-        assetAmount: parseUnits('40', 6),
+        assetAmount: Value.from('40', 6),
         slippageBps: 50,
         vault: stack.adapter,
       },
     )
 
-    expect(assetAmount).toBe(parseUnits('40', 6))
-    expect(shareAmount).toBe(parseUnits('40', 6))
+    expect(assetAmount).toBe(Value.from('40', 6))
+    expect(shareAmount).toBe(Value.from('40', 6))
     // The cap approval is ceil(40e6 * 1.005) = 40.2e6; unburned headroom stays approved.
-    const allowance = await readContract(client, {
+    const allowance = await CoreActions.contract.read(client, {
       abi: Abis.tip20,
       address: stack.shareToken,
       args: [account.address, stack.adapter],
@@ -1298,18 +1279,18 @@ Slippage must be a whole number from 0 through 9999 basis points.]`,
   test('error: exceeds max shares', async () => {
     const stack = await setupStack()
     await Actions.earn.depositSync(client, {
-      assetAmount: parseUnits('100', 6),
+      assetAmount: Value.from('100', 6),
       shareAmountMin: 1n,
       vault: stack.adapter,
     })
     const shareAmount = await Actions.earn.getWithdrawQuote(client, {
-      assetAmount: parseUnits('40', 6),
+      assetAmount: Value.from('40', 6),
       vault: stack.adapter,
     })
 
     await expect(
       Actions.earn.withdrawExact.simulate(client, {
-        assetAmount: parseUnits('40', 6),
+        assetAmount: Value.from('40', 6),
         shareAmountMax: shareAmount - 1n,
         vault: stack.adapter,
       }),
@@ -1319,28 +1300,28 @@ Slippage must be a whole number from 0 through 9999 basis points.]`,
   test('error: residual backing', async () => {
     const stack = await setupStack()
     await Actions.earn.depositSync(client, {
-      assetAmount: parseUnits('100', 6),
+      assetAmount: Value.from('100', 6),
       shareAmountMin: 1n,
       vault: stack.adapter,
     })
     // Contributed backing adds venue shares without minting Earn shares, so a
     // rounded-up full-supply burn would strand venue dust.
     await approve({
-      amount: parseUnits('50', 6),
+      amount: Value.from('50', 6),
       spender: stack.adapter,
       token: stack.asset,
     })
-    await writeContractSync(client, {
+    await CoreActions.contract.writeSync(client, {
       abi: Abis.earnVault,
       address: stack.adapter,
-      args: [parseUnits('50', 6)],
+      args: [Value.from('50', 6)],
       functionName: 'contribute',
     })
 
     await expect(
       Actions.earn.withdrawExact.simulate(client, {
-        assetAmount: parseUnits('150', 6) - 1n,
-        shareAmountMax: parseUnits('100', 6),
+        assetAmount: Value.from('150', 6) - 1n,
+        shareAmountMax: Value.from('100', 6),
         vault: stack.adapter,
       }),
     ).rejects.toThrow('ResidualBacking')
@@ -1351,25 +1332,25 @@ describe('withdrawExactSync', { timeout: 30_000 }, () => {
   test('default', async () => {
     const stack = await setupStack()
     await Actions.earn.depositSync(client, {
-      assetAmount: parseUnits('100', 6),
+      assetAmount: Value.from('100', 6),
       shareAmountMin: 1n,
       vault: stack.adapter,
     })
     const shareAmount = await Actions.earn.getWithdrawQuote(client, {
-      assetAmount: parseUnits('40', 6),
+      assetAmount: Value.from('40', 6),
       vault: stack.adapter,
     })
 
     const { caller, receipt, recipient, ...result } =
       await Actions.earn.withdrawExactSync(client, {
-        assetAmount: parseUnits('40', 6),
+        assetAmount: Value.from('40', 6),
         shareAmountMax: shareAmount,
         vault: stack.adapter,
       })
 
     expect(receipt.status).toBe('success')
-    expect(isAddressEqual(caller, account.address)).toBe(true)
-    expect(isAddressEqual(recipient, account.address)).toBe(true)
+    expect(Address.isEqual(caller, account.address)).toBe(true)
+    expect(Address.isEqual(recipient, account.address)).toBe(true)
     expect(result).toMatchInlineSnapshot(`
       {
         "assetAmount": 40000000n,
@@ -1380,9 +1361,9 @@ describe('withdrawExactSync', { timeout: 30_000 }, () => {
 })
 
 describe('privateDeposit', () => {
-  const gateway = `0x${'aa'.repeat(20)}` as Address
-  const recoveryRecipient = `0x${'bb'.repeat(20)}` as Address
-  const token = `0x${'cc'.repeat(20)}` as Address
+  const gateway = `0x${'aa'.repeat(20)}` as Address.Address
+  const recoveryRecipient = `0x${'bb'.repeat(20)}` as Address.Address
+  const token = `0x${'cc'.repeat(20)}` as Address.Address
   const prepared = {
     actionId:
       '0x1111111111111111111111111111111111111111111111111111111111111111',
@@ -1423,7 +1404,10 @@ describe('privateDeposit', () => {
   })
 
   test('error: prepared request parent chain does not match the client', async () => {
-    const noChainClient = createClient({ account, transport: http() })
+    const noChainClient = CoreClient.create({
+      account,
+      transport: http(rpcUrl),
+    })
     await expect(
       Actions.earn.privateDeposit(noChainClient, { ...prepared, chain: null }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -1449,7 +1433,7 @@ describe('privateDeposit', () => {
     await expect(
       Actions.earn.waitForPrivateDeposit(client, {
         actionId,
-        fromBlock: await getBlockNumber(client, { cacheTime: 0 }),
+        fromBlock: await CoreActions.block.getNumber(client, { cacheTime: 0 }),
         gateway: accounts[1].address,
         pollingInterval: 5,
         timeout: 20,
@@ -1487,7 +1471,7 @@ describe('privateRedeem', () => {
     await expect(
       Actions.earn.waitForPrivateRedeem(client, {
         actionId,
-        fromBlock: await getBlockNumber(client, { cacheTime: 0 }),
+        fromBlock: await CoreActions.block.getNumber(client, { cacheTime: 0 }),
         gateway: accounts[1].address,
         pollingInterval: 5,
         timeout: 20,

@@ -1,3 +1,4 @@
+/** Tempo hardforks, in activation order. */
 export const hardforks = [
   'genesis',
   't0',
@@ -12,6 +13,7 @@ export const hardforks = [
   't6',
 ] as const
 
+/** A Tempo hardfork. */
 export type Hardfork = (typeof hardforks)[number]
 
 /** Returns `true` if `current` is before `target`. */

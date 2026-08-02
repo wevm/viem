@@ -1,19 +1,19 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const bitkub = /*#__PURE__*/ defineChain({
+export const bitkub = /*#__PURE__*/ Chain.from({
   id: 96,
   name: 'KUB Mainnet',
   nativeCurrency: { name: 'KUB Coin', symbol: 'KUB', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.bitkubchain.io'],
-    },
+    http: 'https://rpc.bitkubchain.io',
   },
   blockExplorers: {
-    default: {
-      name: 'KUB Chain Mainnet Explorer',
-      url: 'https://www.bkcscan.com',
-      apiUrl: 'https://www.bkcscan.com/api',
-    },
+    name: 'KUB Chain Mainnet Explorer',
+    url: 'https://www.bkcscan.com',
+    apiUrl: 'https://www.bkcscan.com/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

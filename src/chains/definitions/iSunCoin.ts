@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const iSunCoin = /*#__PURE__*/ defineChain({
+export const iSunCoin = /*#__PURE__*/ Chain.from({
   id: 8017,
   name: 'iSunCoin Mainnet',
   nativeCurrency: {
@@ -9,14 +9,10 @@ export const iSunCoin = /*#__PURE__*/ defineChain({
     symbol: 'ISC',
   },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.isuncoin.com'],
-    },
+    http: 'https://mainnet.isuncoin.com',
   },
   blockExplorers: {
-    default: {
-      name: 'iSunCoin Explorer',
-      url: 'https://baifa.io/app/chains/8017',
-    },
+    name: 'iSunCoin Explorer',
+    url: 'https://baifa.io/app/chains/8017',
   },
 })

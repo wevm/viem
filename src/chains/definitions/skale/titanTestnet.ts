@@ -1,20 +1,16 @@
-import { defineChain } from '../../../utils/chain/defineChain.js'
+import * as Chain from '../../../core/Chain.js'
 
-export const skaleTitanTestnet = /*#__PURE__*/ defineChain({
+export const skaleTitanTestnet = /*#__PURE__*/ Chain.from({
   id: 1_020_352_220,
   name: 'SKALE Titan Testnet',
   nativeCurrency: { name: 'sFUEL', symbol: 'sFUEL', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://testnet.skalenodes.com/v1/aware-fake-trim-testnet'],
-      webSocket: ['wss://testnet.skalenodes.com/v1/ws/aware-fake-trim-testnet'],
-    },
+    http: 'https://testnet.skalenodes.com/v1/aware-fake-trim-testnet',
+    ws: 'wss://testnet.skalenodes.com/v1/ws/aware-fake-trim-testnet',
   },
   blockExplorers: {
-    default: {
-      name: 'SKALE Explorer',
-      url: 'https://aware-fake-trim-testnet.explorer.testnet.skalenodes.com',
-    },
+    name: 'SKALE Explorer',
+    url: 'https://aware-fake-trim-testnet.explorer.testnet.skalenodes.com',
   },
   contracts: {
     multicall3: {

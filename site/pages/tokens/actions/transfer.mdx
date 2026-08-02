@@ -108,7 +108,6 @@ manually:
 :::code-group
 
 ```ts twoslash [example.ts]
-import { waitForTransactionReceipt } from 'viem/actions'
 import { client } from './viem.config'
 
 const hash = await client.token.transfer({
@@ -116,7 +115,7 @@ const hash = await client.token.transfer({
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   token: 'usdc',
 })
-const receipt = await waitForTransactionReceipt(client, { hash })
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
 const { args } = client.token.transfer.extractEvent(receipt.logs)
 ```
@@ -143,11 +142,13 @@ const gas = await client.token.transfer.estimateGas({
   token: 'usdc',
 })
 
-const { result } = await client.token.transfer.simulate({
+const { request, result } = await client.token.transfer.simulate({
   amount: { formatted: '1' },
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   token: 'usdc',
 })
+
+const receipt = await client.transaction.sendSync(request)
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -159,8 +160,8 @@ const { result } = await client.token.transfer.simulate({
 ### Composing Calls
 
 Use `.call` to build a `transfer` (or `transferFrom`, when `from` is given) contract call, ready to
-pass to [`sendCalls`](/docs/actions/wallet/sendCalls), `sendTransaction` (`calls`), or
-[`multicall`](/docs/contract/multicall).
+pass to [`sendCalls`](/docs/actions/wallet/sendCalls), [`multicall`](/docs/actions/public/multicall),
+or any other Action that accepts a contract call.
 
 :::code-group
 
@@ -180,7 +181,7 @@ const call = client.token.transfer.call({
 
 :::
 
-## Return Type
+## Return Value
 
 ```ts
 type ReturnType = {
@@ -199,9 +200,15 @@ type ReturnType = {
 }
 ```
 
-The non-sync `transfer` action returns the transaction [`Hex`](/docs/glossary/types#hex) hash instead.
+The non-sync `transfer` action returns the transaction `Hex` hash instead.
 
 ## Parameters
+
+### account
+
+- **Type:** `Account | Address`
+
+Account that will send the transaction. Defaults to the Client's `account`.
 
 ### amount
 
@@ -210,6 +217,43 @@ The non-sync `transfer` action returns the transaction [`Hex`](/docs/glossary/ty
 Amount to transfer in base units. Use `{ formatted: '10.5' }` to parse a human-readable
 decimal string for a Client-declared token, or include `amount.decimals` when using a
 token address.
+
+### from
+
+- **Type:** `Address`
+
+Address to transfer tokens from, using an allowance (calls `transferFrom`). Defaults to the caller.
+
+### gas
+
+- **Type:** `bigint`
+
+Gas limit for the transaction.
+
+### maxFeePerGas
+
+- **Type:** `bigint`
+
+Max fee per gas for the transaction.
+
+### maxPriorityFeePerGas
+
+- **Type:** `bigint`
+
+Max priority fee per gas for the transaction.
+
+### nonce
+
+- **Type:** `bigint`
+
+Nonce for the transaction.
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw if the transaction receipt reverts. Only applies to `transferSync`.
 
 ### to
 
@@ -223,46 +267,3 @@ Address to transfer tokens to.
 
 Token to operate on: a [Client-declared](/tokens/tokens#token-lookup)
 token symbol (resolving its `address` and `decimals`), or a token address.
-
-### from (optional)
-
-- **Type:** `Address`
-
-Address to transfer tokens from, using an allowance (calls `transferFrom`). Defaults to the caller.
-
-### throwOnReceiptRevert (optional)
-
-- **Type:** `boolean`
-- **Default:** `true`
-
-Whether to throw if the transaction receipt reverts. Only applies to `transferSync`.
-
-### account (optional)
-
-- **Type:** `Account | Address`
-
-Account that will send the transaction. Defaults to the Client's `account`.
-
-### gas (optional)
-
-- **Type:** `bigint`
-
-Gas limit for the transaction.
-
-### maxFeePerGas (optional)
-
-- **Type:** `bigint`
-
-Max fee per gas for the transaction.
-
-### maxPriorityFeePerGas (optional)
-
-- **Type:** `bigint`
-
-Max priority fee per gas for the transaction.
-
-### nonce (optional)
-
-- **Type:** `number`
-
-Nonce for the transaction.

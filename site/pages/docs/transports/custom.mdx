@@ -1,0 +1,178 @@
+# Custom (EIP-1193)
+
+## Overview
+
+The [`custom`](/docs/transports/custom) transport wraps an
+[EIP-1193](https://eips.ethereum.org/EIPS/eip-1193)-compatible provider as a
+[Transport](/docs/transports). The provider must have a `request` method.
+
+Use it with injected wallets, provider libraries, or your own provider.
+[`Provider.from`](/docs/utilities/provider/from) from `viem/utils` normalizes provider errors.
+
+```ts twoslash
+import { custom } from 'viem'
+
+const transport = custom({
+  async request({ method, params }) {
+    // ...
+    return null
+  },
+})
+```
+
+## Recipes
+
+### Wrapping an Existing Provider
+
+Any object with an EIP-1193 `request` method works, such as an injected wallet provider or one from a provider library.
+
+```ts twoslash
+import { custom } from 'viem'
+import 'viem/window'
+
+const transport = custom(window.ethereum!) // [!code focus]
+```
+
+### Restricting RPC Methods
+
+Limit a custom provider to specific RPC methods when it should only handle part of your request flow.
+
+```ts twoslash
+import { custom } from 'viem'
+import 'viem/window'
+
+const transport = custom(window.ethereum!, {
+  methods: { include: ['eth_call'] }, // [!code focus]
+})
+```
+
+### Configuring Retries
+
+Tune retry behavior when the wrapped provider needs a different retry budget or backoff delay.
+
+```ts twoslash
+import { custom } from 'viem'
+import 'viem/window'
+
+const transport = custom(window.ethereum!, {
+  retryCount: 5, // [!code focus]
+  retryDelay: 200, // [!code focus]
+})
+```
+
+## `custom`
+
+Creates a transport from an EIP-1193-compatible provider.
+
+### Usage
+
+```ts twoslash
+import { custom } from 'viem'
+
+const transport = custom({
+  async request({ method, params }) {
+    // ...
+    return null
+  },
+})
+```
+
+### Parameters
+
+#### provider
+
+- **Type:** `{ request(...args): Promise<any> }`
+
+An EIP-1193-compatible provider.
+
+```ts twoslash
+import { custom } from 'viem'
+import 'viem/window'
+// ---cut---
+const transport = custom(window.ethereum!) // [!code focus]
+```
+
+#### options.key
+
+- **Type:** `string`
+- **Default:** `'custom'`
+
+Transport key.
+
+```ts twoslash
+import { custom } from 'viem'
+import 'viem/window'
+// ---cut---
+const transport = custom(window.ethereum!, {
+  key: 'custom', // [!code focus]
+})
+```
+
+#### options.methods
+
+- **Type:** `{ include?: string[] } | { exclude?: string[] }`
+
+RPC methods to include or exclude.
+
+```ts twoslash
+import { custom } from 'viem'
+import 'viem/window'
+// ---cut---
+const transport = custom(window.ethereum!, {
+  methods: { include: ['eth_call'] }, // [!code focus]
+})
+```
+
+#### options.name
+
+- **Type:** `string`
+- **Default:** `'Custom Provider'`
+
+Transport name.
+
+```ts twoslash
+import { custom } from 'viem'
+import 'viem/window'
+// ---cut---
+const transport = custom(window.ethereum!, {
+  name: 'Custom Provider', // [!code focus]
+})
+```
+
+#### options.retryCount
+
+- **Type:** `number`
+- **Default:** `3`
+
+Max retries per request.
+
+```ts twoslash
+import { custom } from 'viem'
+import 'viem/window'
+// ---cut---
+const transport = custom(window.ethereum!, {
+  retryCount: 5, // [!code focus]
+})
+```
+
+#### options.retryDelay
+
+- **Type:** `number`
+- **Default:** `150`
+
+Base delay (ms) between retries.
+
+```ts twoslash
+import { custom } from 'viem'
+import 'viem/window'
+// ---cut---
+const transport = custom(window.ethereum!, {
+  retryDelay: 200, // [!code focus]
+})
+```
+
+### Return Value
+
+`Transport<'custom'>`
+
+A custom transport that delegates each request to the provider.

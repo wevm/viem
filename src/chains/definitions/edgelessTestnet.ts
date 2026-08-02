@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const edgelessTestnet = /*#__PURE__*/ defineChain({
+export const edgelessTestnet = /*#__PURE__*/ Chain.from({
   id: 202,
   name: 'Edgeless Testnet',
   nativeCurrency: {
@@ -9,16 +9,12 @@ export const edgelessTestnet = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://edgeless-testnet.rpc.caldera.xyz/http'],
-      webSocket: ['wss://edgeless-testnet.rpc.caldera.xyz/ws'],
-    },
+    http: 'https://edgeless-testnet.rpc.caldera.xyz/http',
+    ws: 'wss://edgeless-testnet.rpc.caldera.xyz/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Edgeless Testnet Explorer',
-      url: 'https://testnet.explorer.edgeless.network',
-    },
+    name: 'Edgeless Testnet Explorer',
+    url: 'https://testnet.explorer.edgeless.network',
   },
   testnet: true,
 })

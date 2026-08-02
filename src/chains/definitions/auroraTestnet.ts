@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const auroraTestnet = /*#__PURE__*/ defineChain({
+export const auroraTestnet = /*#__PURE__*/ Chain.from({
   id: 1313161555,
   name: 'Aurora Testnet',
   nativeCurrency: {
@@ -8,15 +9,14 @@ export const auroraTestnet = /*#__PURE__*/ defineChain({
     name: 'Ether',
     symbol: 'ETH',
   },
-  rpcUrls: {
-    default: { http: ['https://testnet.aurora.dev'] },
-  },
+  rpcUrls: { http: 'https://testnet.aurora.dev' },
   blockExplorers: {
-    default: {
-      name: 'Aurorascan',
-      url: 'https://testnet.aurorascan.dev',
-      apiUrl: 'https://testnet.aurorascan.dev/api',
-    },
+    name: 'Aurorascan',
+    url: 'https://testnet.aurorascan.dev',
+    apiUrl: 'https://testnet.aurorascan.dev/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

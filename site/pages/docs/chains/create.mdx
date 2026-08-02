@@ -1,0 +1,539 @@
+# Defining a Chain
+
+## Overview
+
+Use [`Chain.from`](#chainfrom) to define a [Chain](/docs/chains). It preserves literal input types,
+so IDs, names, and contract addresses stay narrow.
+
+The returned Chain includes [`.extend()`](/docs/chains/extend) for deriving another Chain from this
+base.
+
+```ts twoslash
+import { Chain } from 'viem'
+
+const mainnet = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+})
+```
+
+## Recipes
+
+### Create a Client for the Chain
+
+Pass the Chain to [`Client.create`](/docs/clients/create). The Client uses its RPC URLs, currency,
+contracts, and encoding behavior.
+
+```ts twoslash
+import { Chain, Client, http } from 'viem'
+
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+})
+
+const client = Client.create({
+  chain, // [!code focus]
+  transport: http(),
+})
+```
+
+### Adding a Block Explorer
+
+Set `blockExplorers` to attach explorer metadata to the chain. Actions and tooling can use this to build links to transactions, addresses, and blocks.
+
+```ts twoslash
+import { Chain } from 'viem'
+
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  blockExplorers: { name: 'Etherscan', url: 'https://etherscan.io' }, // [!code focus]
+})
+```
+
+### Declaring Contracts
+
+Set `contracts` to declare chain-level contract addresses. This lets actions discover well-known deployments such as Multicall3 from the chain definition.
+
+```ts twoslash
+import { Chain } from 'viem'
+
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  contracts: { multicall3: { address: '0xca11bde05977b3631167028862be2a173976ca11' } }, // [!code focus]
+})
+```
+
+### Setting Block Time
+
+Set `blockTime` to describe the expected time between blocks in milliseconds. Clients can use it to derive sensible polling defaults for the chain.
+
+```ts twoslash
+import { Chain } from 'viem'
+
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  blockTime: 12_000, // [!code focus]
+})
+```
+
+### Marking a Testnet
+
+Set `testnet` to identify a chain as a test network. This helps applications separate production networks from development and testing environments.
+
+```ts twoslash
+import { Chain } from 'viem'
+
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  testnet: true, // [!code focus]
+})
+```
+
+### Linking a Source Chain
+
+Set `sourceId` when a chain derives from another chain, such as an L2 pointing at its L1. This keeps the relationship available to actions and tooling.
+
+```ts twoslash
+import { Chain } from 'viem'
+
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  sourceId: 1, // [!code focus]
+})
+```
+
+### Configuring ENS TLDs
+
+Set `ensTlds` to list the ENS top-level domains supported by the chain. This lets name-resolution features know which suffixes belong to the network.
+
+```ts twoslash
+import { Chain } from 'viem'
+
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  ensTlds: ['.eth'], // [!code focus]
+})
+```
+
+### Customizing Fees
+
+Set `fees` to override how fee-estimation actions derive values for the chain. See [Customizing Fees](/docs/chains/fees) for the full configuration.
+
+```ts twoslash
+import { Chain } from 'viem'
+
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  fees: { // [!code focus]
+    baseFeeMultiplier: 1.2, // [!code focus]
+    maxPriorityFeePerGas: 1_000_000_000n, // [!code focus]
+  }, // [!code focus]
+})
+```
+
+### Setting Preconfirmation Time
+
+Set `preconfirmationTime` to describe the expected delay before preconfirmations are available. Use it for chains that expose faster preconfirmation signals than final blocks.
+
+```ts twoslash
+import { Chain } from 'viem'
+
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  preconfirmationTime: 1_000, // [!code focus]
+})
+```
+
+## `Chain.from`
+
+Defines a chain, preserving its literal type and attaching a chainable `.extend()`.
+
+### Usage
+
+```ts twoslash
+import { Chain } from 'viem'
+
+const mainnet = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+})
+```
+
+### Parameters
+
+#### chain
+
+- **Type:** `Chain.Chain`
+
+The chain definition. Only `id` is required; all other fields are optional.
+
+##### chain.blockExplorers
+
+- **Type:** `Chain.Chain.BlockExplorer`
+- **Optional**
+
+Block explorer for the chain (`name`, `url`, optional `apiUrl`).
+
+```ts twoslash
+import { Chain } from 'viem'
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  blockExplorers: { name: 'Etherscan', url: 'https://etherscan.io' }, // [!code focus]
+})
+```
+
+##### chain.blockTime
+
+- **Type:** `number`
+- **Optional**
+
+Block time in milliseconds.
+
+```ts twoslash
+import { Chain } from 'viem'
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  blockTime: 12_000, // [!code focus]
+})
+```
+
+##### chain.codecs
+
+- **Type:** `Chain.Chain.Codecs`
+- **Optional**
+
+Bidirectional RPC to native codecs.
+
+```ts twoslash
+import { Chain } from 'viem'
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  codecs: {}, // [!code focus]
+})
+```
+
+##### chain.contracts
+
+- **Type:** `Chain.Chain.Contracts`
+- **Optional**
+
+Deployed contracts on the chain.
+
+```ts twoslash
+import { Chain } from 'viem'
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  contracts: { multicall3: { address: '0xca11bde05977b3631167028862be2a173976ca11' } }, // [!code focus]
+})
+```
+
+##### chain.ensTlds
+
+- **Type:** `readonly string[]`
+- **Optional**
+
+ENS TLDs for the chain.
+
+```ts twoslash
+import { Chain } from 'viem'
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  ensTlds: ['.eth'], // [!code focus]
+})
+```
+
+##### chain.extendSchema
+
+- **Type:** `Record<string, unknown>`
+- **Optional**
+
+The typed extension fields that the chain adds to its root shape. Declare the fields with
+`Chain.extendSchema`.
+
+```ts twoslash
+import { Chain } from 'viem'
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  extendSchema: Chain.extendSchema<{ feeToken?: string | undefined }>(), // [!code focus]
+  feeToken: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+##### chain.fees
+
+- **Type:** `Chain.Chain.Fees`
+- **Optional**
+
+Overrides for how fees are derived. See [Customizing Fees](/docs/chains/fees).
+
+```ts twoslash
+import { Chain } from 'viem'
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  fees: { baseFeeMultiplier: 1.2, maxPriorityFeePerGas: 1_000_000_000n }, // [!code focus]
+})
+```
+
+##### chain.id
+
+- **Type:** `number`
+
+Chain id.
+
+```ts twoslash
+import { Chain } from 'viem'
+// ---cut---
+const chain = Chain.from({
+  id: 1, // [!code focus]
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+})
+```
+
+##### chain.name
+
+- **Type:** `string`
+- **Optional**
+
+Human-readable name.
+
+```ts twoslash
+import { Chain } from 'viem'
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum', // [!code focus]
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+})
+```
+
+##### chain.nativeCurrency
+
+- **Type:** `Chain.Chain.NativeCurrency`
+- **Optional**
+
+Currency used by the chain (`name`, `symbol`, `decimals`).
+
+```ts twoslash
+import { Chain } from 'viem'
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 }, // [!code focus]
+  rpcUrls: { http: 'https://eth.merkle.io' },
+})
+```
+
+##### chain.preconfirmationTime
+
+- **Type:** `number`
+- **Optional**
+
+Preconfirmation time in milliseconds.
+
+```ts twoslash
+import { Chain } from 'viem'
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  preconfirmationTime: 1_000, // [!code focus]
+})
+```
+
+##### chain.rpcUrls
+
+- **Type:** `Chain.Chain.RpcUrls`
+- **Optional**
+
+RPC endpoints. `http` (and optional `ws`) accept a single URL or a list. When omitted, Transports
+such as [`http`](/docs/transports/http) require an explicit URL.
+
+```ts twoslash
+import { Chain } from 'viem'
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' }, // [!code focus]
+})
+```
+
+##### chain.sourceId
+
+- **Type:** `number`
+- **Optional**
+
+Source chain ID, such as the L1 chain.
+
+```ts twoslash
+import { Chain } from 'viem'
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  sourceId: 1, // [!code focus]
+})
+```
+
+##### chain.supportsTransactionReplacementDetection
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether receipt polling checks for replaced transactions.
+
+```ts twoslash
+import { Chain } from 'viem'
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  supportsTransactionReplacementDetection: false, // [!code focus]
+})
+```
+
+##### chain.testnet
+
+- **Type:** `boolean`
+- **Optional**
+
+Flag for test networks.
+
+```ts twoslash
+import { Chain } from 'viem'
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  testnet: false, // [!code focus]
+})
+```
+
+##### chain.transaction
+
+- **Type:** `Chain.Chain.Transaction`
+- **Optional**
+
+Transaction signing and preparation hooks. `toEnvelope` converts a transaction
+request into an envelope.
+
+`getSignPayload` and `serialize` override hashing and serialization. By default, Viem uses the
+`TransactionRequest` and `TxEnvelope` codecs from `viem/utils`.
+
+`prepare` adds chain-specific fields while preparing a transaction request.
+
+```ts twoslash
+import { Chain } from 'viem'
+import { TxEnvelope } from 'viem/utils'
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  transaction: { // [!code focus]
+    serialize: (envelope, options) => // [!code focus]
+      TxEnvelope.serialize(envelope, options), // [!code focus]
+  }, // [!code focus]
+})
+```
+
+##### chain.verifyHash
+
+- **Type:** `Chain.Chain.VerifyHash`
+- **Optional**
+
+The hook that verifies a signed hash against an address for chains with custom account
+verification.
+
+```ts twoslash
+import { Chain } from 'viem'
+
+declare const verifyHash: Chain.Chain.VerifyHash
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+  verifyHash, // [!code focus]
+})
+```
+
+### Return Value
+
+`chain & { extend: (overrides) => Chain }`
+
+The chain with its literal type preserved, plus a chainable [`.extend()`](/docs/chains/extend).

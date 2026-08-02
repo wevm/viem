@@ -13,9 +13,8 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
-        with: 
-          submodules: 'recursive'
+        uses: actions/checkout@v6
+
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -27,7 +26,10 @@ jobs:
         run: pnpm check:repo
 
       - name: Check code
-        run: pnpm biome check
+        run: pnpm check
+
+      - name: Check for unapplied lint or format fixes
+        run: git diff --exit-code
 
   build:
     name: Build
@@ -39,9 +41,8 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
-        with: 
-          submodules: 'recursive'
+        uses: actions/checkout@v6
+
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -49,11 +50,14 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Check exports drift
+        run: git diff --exit-code package.json test/tsconfig.json
+
       - name: Publint
         run: pnpm test:build
 
       - name: Check for unused files, dependencies, and exports
-        run: pnpm knip --production
+        run: pnpm knip
 
       - name: Check size
         run: pnpm size
@@ -64,16 +68,16 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    timeout-minutes: 10
+    # JS-based tsc (5.9/6) runs ~10 minutes on 2-core runners.
+    timeout-minutes: 15
     strategy:
       matrix:
-        version: ['5.9.3', '6.0.3', 'latest']
+        version: ['5.9.3', '6', '7', 'latest']
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
-        with: 
-          submodules: 'recursive'
+        uses: actions/checkout@v6
+
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -87,17 +91,21 @@ jobs:
       - name: Check types
         run: pnpm check:types
 
+      # Attest benches with its own pinned typescript 5.9.3 (see .pnpmfile.cjs),
+      # so instantiation counts are matrix-independent; one leg is enough.
       - name: Bench types
-        # TODO: Re-enable for latest TypeScript when @ark/attest supports its compiler API.
-        if: matrix.version != 'latest'
+        if: ${{ matrix.version == '5.9.3' }}
         run: pnpm bench:types
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
 
   test:
-    name: 'Test Local (transport: ${{ matrix.transport-mode }}, multicall: ${{ matrix.multicall }}, ${{ matrix.shard }}/${{ matrix.total-shards }})'
+    name: 'Test Core Local (transport: ${{ matrix.transport-mode }}, multicall: ${{ matrix.multicall }}, ${{ matrix.shard }}/${{ matrix.total-shards }})'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: read
+      id-token: write
     strategy:
       max-parallel: 3
       matrix:
@@ -107,9 +115,8 @@ jobs:
         total-shards: [3]
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
-        with: 
-          submodules: 'recursive'
+        uses: actions/checkout@v6
+
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -119,11 +126,11 @@ jobs:
         run: pnpm contracts:build
 
       - name: Test Local
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: pnpm test --bail=1 --project core --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+          command: pnpm test --bail=1 --coverage --project core --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
           CI: true
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
@@ -135,10 +142,15 @@ jobs:
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
           VITE_SHARD_ID: ${{ matrix.shard }}
 
+      # Fork workflows cannot authenticate to Codecov for this private repository.
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4
+        if: github.actor != 'dependabot[bot]' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: codecov/codecov-action@v6
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          disable_search: true
+          fail_ci_if_error: true
+          files: ./coverage/lcov.info
+          use_oidc: true
 
   test-tempo-deployed:
     name: 'Test Deployed Tempo (env: ${{ matrix.node-env }}, e2e)'
@@ -151,15 +163,14 @@ jobs:
           # - mainnet
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
+        uses: actions/checkout@v6
+
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
       - name: Run tests
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -178,9 +189,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
+        uses: actions/checkout@v6
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -189,7 +198,7 @@ jobs:
         run: pnpm contracts:build
 
       - name: Run tests
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -206,6 +215,7 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
+      id-token: write
     strategy:
       fail-fast: false
       max-parallel: 3
@@ -231,9 +241,8 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
+        uses: actions/checkout@v6
+
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -242,11 +251,11 @@ jobs:
         run: pnpm contracts:build
 
       - name: Test Local Tempo
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: pnpm test --run --bail=1 --project tempo --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+          command: pnpm test --run --bail=1 --coverage --project tempo --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
           CI: true
           VITE_TEMPO_ENV: localnet
@@ -255,6 +264,15 @@ jobs:
           VITE_TEMPO_ZONES: 'true'
           VITE_TEMPO_ZONE_TAG: ${{ matrix.zone-tag }}
           VITE_TEMPO_ZONE_XTASK_TAG: ${{ matrix.zone-xtask-tag }}
+
+      - name: Upload coverage reports to Codecov
+        if: github.actor != 'dependabot[bot]' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: codecov/codecov-action@v6
+        with:
+          disable_search: true
+          fail_ci_if_error: true
+          files: ./coverage/lcov.info
+          use_oidc: true
 
   test-envs:
     name: Test Environments
@@ -283,17 +301,25 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
-        with: 
-          submodules: 'recursive'
+        uses: actions/checkout@v6
+
 
       - name: Set up foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: v1.7.1
+          version: nightly
 
       - name: Set up pnpm
-        uses: wevm/actions/.github/actions/pnpm@main
+        uses: pnpm/action-setup@v6
+
+      - name: Set up node
+        uses: actions/setup-node@v6
+        with:
+          cache: pnpm
+          node-version: 24.5
+
+      - name: Install dependencies
+        run: pnpm install
 
       - name: Set up Bun
         if: ${{ matrix.runtime == 'bun' }}
@@ -320,41 +346,22 @@ jobs:
       - name: Run tests
         run: pnpm test:env:${{ matrix.runtime }}
 
-  vectors:
-    name: Vectors
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
-        with: 
-          submodules: 'recursive'
-
-      - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
-
-      - name: Run test vectors
-        shell: bash
-        run: pnpm vectors
-
   wagmi:
     name: Wagmi
-    continue-on-error: true
+    # TODO: Re-enable once wagmi is compatible with the v3 API.
+    if: false
     permissions:
       contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
       matrix:
-        typescript-version: ['5.7.3', '5.8.3', '5.9.3']
+        typescript-version: ['5.9.3', 'latest']
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
-        with: 
-          submodules: 'recursive'
+        uses: actions/checkout@v6
+
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies

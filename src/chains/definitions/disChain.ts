@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const disChain = /*#__PURE__*/ defineChain({
+export const disChain = /*#__PURE__*/ Chain.from({
   id: 513100,
   name: 'DisChain',
   nativeCurrency: {
@@ -9,14 +9,10 @@ export const disChain = /*#__PURE__*/ defineChain({
     symbol: 'DIS',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.dischain.xyz'],
-    },
+    http: 'https://rpc.dischain.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'DisChain Explorer',
-      url: 'https://www.oklink.com/dis',
-    },
+    name: 'DisChain Explorer',
+    url: 'https://www.oklink.com/dis',
   },
 })

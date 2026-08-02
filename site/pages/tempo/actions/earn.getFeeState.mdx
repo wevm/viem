@@ -1,6 +1,6 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `earn.getFeeState`
+# Get Fee State [earn.getFeeState]
 
 Gets a vault's active fee configuration, pending fees, and fee baselines.
 
@@ -51,6 +51,72 @@ const fees = await client.earn.getFeeState({
 ```
 
 :::
+
+## Recipes
+
+### Value Claimable Fee Revenue in Assets
+
+Combine `claimableShares` with [`earn.getRedeemQuote`](/tempo/actions/earn.getRedeemQuote) to
+report a fee recipient's accrued revenue in asset terms instead of shares.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const vault = '0x0000000000000000000000000000000000000001'
+
+const { claimableShares } = await client.earn.getFeeState({ // [!code focus]
+  recipient: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  vault,
+})
+
+const revenue = await client.earn.getRedeemQuote({ // [!code focus]
+  shareAmount: claimableShares ?? 0n, // [!code focus]
+  vault,
+})
+// @log: 9_900_000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Detect Fee Configuration Changes
+
+Compare `configId` with the value recorded when the vault was approved to catch fee changes before
+committing more treasury funds.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const approvedConfigId = 1n
+
+const feeState = await client.earn.getFeeState({
+  vault: '0x0000000000000000000000000000000000000001',
+})
+
+if (feeState.configId !== approvedConfigId) // [!code focus]
+  throw new Error('Fee configuration changed since approval.') // [!code focus]
+
+const totalFixedRate = feeState.config.fixedFees.reduce( // [!code focus]
+  (total, fee) => total + fee.rate,
+  0n,
+)
+// @log: 20_000_000_000_000_000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Fee rates are scaled to 18 decimals, so `20_000_000_000_000_000n` is a 2% fixed rate.
 
 ## Return Value
 

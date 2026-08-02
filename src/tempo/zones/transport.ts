@@ -1,58 +1,66 @@
-import {
-  type HttpTransport,
-  type HttpTransportConfig,
-  http as http_,
-} from '../../clients/transports/http.js'
-import type { Storage } from '../Storage.js'
-import * as Storage_ from '../Storage.js'
-
-export type ZoneHttpConfig = Omit<
-  HttpTransportConfig,
-  'batch' | 'raw' | 'rpcSchema'
-> & {
-  /** Storage for reading zone authorization tokens. Defaults to sessionStorage (web) or memory (server). */
-  storage?: Storage | undefined
-}
+import type * as Transport from '../../core/Transport.js'
+import { http as http_ } from '../../core/transports/http.js'
+import * as Storage from '../Storage.js'
 
 /**
- * Creates an HTTP transport with support for Zone authentication tokens.
+ * Creates an HTTP JSON-RPC transport with support for Zone authorization
+ * tokens.
  *
- * Reads the authorization token from Storage and injects the
- * `X-Authorization-Token` header on every request. Batching is disabled
- * by default because zone tokens are account-scoped.
+ * Reads the authorization token for the client's chain from {@link Storage}
+ * and injects the `X-Authorization-Token` header on every request. Batching
+ * is not supported because zone tokens are account-scoped.
  *
  * @example
  * ```ts
- * import { createPublicClient } from 'viem'
- * import { http, zone } from 'viem/tempo/zones' // or zoneModerato
+ * import { Client } from 'viem/tempo'
+ * import { http, zone } from 'viem/tempo/zones'
  *
- * const client = createPublicClient({
+ * const client = Client.create({
  *   chain: zone(6),
  *   transport: http(),
  * })
  * ```
+ *
+ * @param url - RPC URL. Defaults to the chain's default RPC URL.
+ * @param options - Options.
+ * @returns An HTTP transport.
  */
 export function http(
   url?: string | undefined,
-  config: ZoneHttpConfig = {},
-): HttpTransport {
-  const { storage: storage_, onFetchRequest, ...rest } = config
-  const storage = storage_ ?? Storage_.defaultStorage()
+  options: http.Options = {},
+): Transport.Http {
+  const {
+    onFetchRequest,
+    storage = Storage.defaultStorage(),
+    ...rest
+  } = options
+  return {
+    key: rest.key ?? 'http',
+    name: rest.name ?? 'HTTP JSON-RPC',
+    type: 'http',
+    setup(setupOptions = {}) {
+      const chainId = setupOptions.chain?.id
+      return http_(url, {
+        ...rest,
+        async onFetchRequest(request, init) {
+          const next = (await onFetchRequest?.(request, init)) ?? init
+          const headers = new Headers(next.headers)
 
-  return (config) =>
-    http_(url, {
-      ...rest,
-      async onFetchRequest(request, init) {
-        const next = (await onFetchRequest?.(request, init)) ?? init
-        const headers = new Headers(next.headers)
+          if (chainId) {
+            const token = await storage.getItem(`auth:token:${chainId}`)
+            if (token) headers.set('X-Authorization-Token', token)
+          }
 
-        const chainId = config.chain?.id
-        if (chainId) {
-          const token = (await storage.getItem(`auth:token:${chainId}`)) ?? null
-          if (token) headers.set('X-Authorization-Token', token)
-        }
+          return { ...next, headers }
+        },
+      }).setup(setupOptions)
+    },
+  }
+}
 
-        return { ...next, headers }
-      },
-    })(config)
+export declare namespace http {
+  type Options = Omit<http_.Options, 'batch' | 'raw'> & {
+    /** Storage for reading zone authorization tokens. Defaults to sessionStorage (web) or memory (server). */
+    storage?: Storage.Storage | undefined
+  }
 }

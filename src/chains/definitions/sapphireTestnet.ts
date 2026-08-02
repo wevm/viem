@@ -1,21 +1,20 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const sapphireTestnet = /*#__PURE__*/ defineChain({
+export const sapphireTestnet = /*#__PURE__*/ Chain.from({
   id: 23295,
   name: 'Oasis Sapphire Testnet',
-  network: 'sapphire-testnet',
   nativeCurrency: { name: 'Sapphire Test Rose', symbol: 'TEST', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://testnet.sapphire.oasis.dev'],
-      webSocket: ['wss://testnet.sapphire.oasis.dev/ws'],
-    },
+    http: 'https://testnet.sapphire.oasis.dev',
+    ws: 'wss://testnet.sapphire.oasis.dev/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Oasis Explorer',
-      url: 'https://explorer.oasis.io/testnet/sapphire',
-    },
+    name: 'Oasis Explorer',
+    url: 'https://explorer.oasis.io/testnet/sapphire',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

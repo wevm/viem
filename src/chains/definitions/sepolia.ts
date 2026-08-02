@@ -1,22 +1,20 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const sepolia = /*#__PURE__*/ defineChain({
+export const sepolia = /*#__PURE__*/ Chain.from({
   id: 11_155_111,
   name: 'Sepolia',
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://11155111.rpc.thirdweb.com'],
-    },
+    http: 'https://11155111.rpc.thirdweb.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://sepolia.etherscan.io',
-      apiUrl: 'https://api-sepolia.etherscan.io/api',
-    },
+    name: 'Etherscan',
+    url: 'https://sepolia.etherscan.io',
+    apiUrl: 'https://api-sepolia.etherscan.io/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 751532,
