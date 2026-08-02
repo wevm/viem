@@ -9,6 +9,7 @@
   },
   "changesets": [
     "brave-passkeys-sign",
+    "bright-keys-protect",
     "clean-dingos-breathe",
     "friendly-client-bridges",
     "quiet-donuts-attack",
