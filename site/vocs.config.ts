@@ -796,7 +796,7 @@ export default defineConfig({
             text: 'Encryption',
             collapsed: true,
             items: [
-              { text: 'Overview', link: '/docs/guides/encryption' },
+              { text: 'Encryption', link: '/docs/guides/encryption' },
               {
                 text: 'Encryption with Passkeys',
                 link: '/docs/guides/encryption/passkeys',
@@ -850,7 +850,7 @@ export default defineConfig({
             text: 'Post-Quantum',
             collapsed: true,
             items: [
-              { text: 'Overview', link: '/docs/guides/post-quantum' },
+              { text: 'Post-Quantum', link: '/docs/guides/post-quantum' },
               {
                 text: 'Post-Quantum Passkeys',
                 link: '/docs/guides/post-quantum/passkeys',
