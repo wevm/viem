@@ -1,5 +1,5 @@
 import * as tempo from '~test/tempo.js'
-import { AbiParameters, Hash } from 'ox'
+import { WithdrawalSenderTag } from 'ox/tempo'
 import { expect, test } from 'vitest'
 
 import { Account, Client, http } from 'viem/tempo'
@@ -159,12 +159,10 @@ test('behavior: sends withdrawals', async () => {
   })
   expect(receipt.status).toMatchInlineSnapshot('"success"')
   expect(senderTag).toBe(
-    Hash.keccak256(
-      AbiParameters.encodePacked(
-        ['address', 'bytes32'],
-        [account.address, receipt.transactionHash],
-      ),
-    ),
+    WithdrawalSenderTag.from({
+      sender: account.address,
+      transactionHash: receipt.transactionHash,
+    }),
   )
 })
 
