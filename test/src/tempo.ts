@@ -377,12 +377,13 @@ async function startZone(options: DefineZoneOptions): Promise<StartedZone> {
 /** Creates a Dockerized Tempo node instance. */
 export function createInstance(options: createInstance.Options = {}) {
   const tag = process.env.VITE_TEMPO_TAG ?? 'latest'
+  const hardfork = process.env.VITE_TEMPO_HARDFORK
   const blockTime = options.zones ? '500ms' : process.env.CI ? '50ms' : '2ms'
   const image = resolveImage('ghcr.io/tempoxyz/tempo', tag)
-  if (options.zones) {
+  if (options.zones || hardfork === 'T9') {
     const artifactsTag = process.env.VITE_TEMPO_ZONE_XTASK_TAG
     return TempoZoneGenesis.create({
-      ...(artifactsTag
+      ...(options.zones && artifactsTag
         ? {
             artifactsImage: resolveImage(
               'ghcr.io/tempoxyz/tempo-zone-xtask',
@@ -391,6 +392,7 @@ export function createInstance(options: createInstance.Options = {}) {
           }
         : {}),
       blockTime,
+      hardfork,
       image,
       log: process.env.VITE_TEMPO_LOG,
       ownerKey: zoneAdminKey,

@@ -220,22 +220,24 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        hardfork: [T7, T8, T9]
+        hardfork: [T8, T9, T10]
         shard: [1, 2, 3]
         total-shards: [3]
         include:
-          - hardfork: T7
-            tempo-tag: sha-f56f173
-            zone-tag: sha-aae82c4
-            zone-xtask-tag: ''
           - hardfork: T8
             tempo-tag: sha-e828ab7
             zone-tag: sha-aae82c4
             zone-xtask-tag: ''
           - hardfork: T9
-            tempo-tag: sha256:20bcf40f19b251bcd2fdeae8b2db47eab16d3d8facab513dcfaab6cf3f4f7590
-            zone-tag: sha256:22c2d61174ba5d1dcc474b6de4310f129c6e4cb8bd2a4c08746e00602134a979
-            zone-xtask-tag: sha256:95ee688789c205f6ff608ecad747918f811fb6c985f7339182e4d7b2e9a083aa
+            # Tempo 1.12.0 (d791f43f) with pre-T10 Zones.
+            tempo-tag: sha256:23150c7bae007afd2eeaa596c4b9f3d6950ecd0dec3e05ad44ebdbb8a6add863
+            zone-tag: sha-aae82c4
+            zone-xtask-tag: ''
+          - hardfork: T10
+            # Tempo main (92a6f398) and Zones 60880b66.
+            tempo-tag: sha256:5c4625bcd508bb1211fb96ad42566f7a3f848abdd22b652494dd75dc5ff59a43
+            zone-tag: sha256:a9e0ca9e9eaa0e52ee7c473237235054b0be9b07d5836d5393b9fceaf3fabd61
+            zone-xtask-tag: sha256:9d2f325708a2bdeae0b6c04e12128c82e29f99ec569845d5d6ea5e191982b77a
 
     steps:
       - name: Clone repository

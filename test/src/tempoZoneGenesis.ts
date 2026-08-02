@@ -43,6 +43,9 @@ const tip403Registry = {
 } as const
 
 type Genesis = {
+  config: {
+    t10Time?: number | string | undefined
+  }
   alloc: Record<
     string,
     {
@@ -63,6 +66,7 @@ type ZoneArtifacts = {
 type Options = {
   artifactsImage?: string | undefined
   blockTime: string
+  hardfork?: string | undefined
   image: string
   log?: TestContainers.Instance.tempo.Parameters['log'] | undefined
   ownerKey: Hex.Hex
@@ -154,7 +158,7 @@ export function create(options: Options) {
 }
 
 function buildGenesis(
-  options: Pick<Options, 'artifactsImage' | 'image' | 'ownerKey'>,
+  options: Pick<Options, 'artifactsImage' | 'hardfork' | 'image' | 'ownerKey'>,
 ) {
   const dumped = execFileSync(
     'docker',
@@ -174,6 +178,13 @@ function buildGenesis(
     { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 },
   )
   const genesis = JSON.parse(dumped) as Genesis
+  if (options.hardfork === 'T9') {
+    delete genesis.config.t10Time
+    delete genesis.alloc[zoneFactory.address]
+    delete genesis.alloc[zoneMessenger.address]
+    delete genesis.alloc[zonePortal.address]
+    delete genesis.alloc[zoneVerifier.address]
+  }
   genesis.alloc[historyStorage.address] = {
     balance: '0x0',
     code: historyStorage.code,

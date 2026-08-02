@@ -22,7 +22,8 @@ const zoneAdmin = Account.fromSecp256k1(tempo.zoneAdminKey)
 const zoneAdminClient = tempo.getClient({ account: zoneAdmin })
 const zoneClient = tempoZone.getClient({ account })
 const hardfork = process.env.VITE_TEMPO_HARDFORK
-const legacyZoneCallback = hardfork === 'T7' || hardfork === 'T8'
+const legacyZoneCallback =
+  hardfork === 'T7' || hardfork === 'T8' || hardfork === 'T9'
 const zeroHash =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
 
