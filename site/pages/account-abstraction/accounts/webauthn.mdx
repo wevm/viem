@@ -24,11 +24,11 @@ import {
   CoinbaseSmartAccount,
   WebAuthnAccount,
 } from 'viem/erc4337'
-import { WebAuthnP256 } from 'viem/utils'
+import { WebAuthn } from 'viem/utils'
 import { client } from './client'
 
 // 1. Register a credential (ie. passkey).
-const credential = await WebAuthnP256.createCredential({
+const credential = await WebAuthn.createCredential({
   name: 'Example',
 })
 

@@ -36,10 +36,10 @@ export const owner = Account.fromPrivateKey('0x...')
 
 ```ts twoslash [owner.ts (Passkey)] filename="owner.ts"
 import { WebAuthnAccount } from 'viem/erc4337'
-import { WebAuthnP256 } from 'viem/utils'
+import { WebAuthn } from 'viem/utils'
 
 // Register a credential (ie. passkey).
-const credential = await WebAuthnP256.createCredential({ name: 'Wallet' })
+const credential = await WebAuthn.createCredential({ name: 'Wallet' })
 
 // Create a WebAuthn owner account from the credential.
 export const owner = WebAuthnAccount.fromCredential(credential)

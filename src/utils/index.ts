@@ -25,6 +25,9 @@ export * as AbiParameters from './AbiParameters.js'
 /** ABIs for common token standards: ERC-20, ERC-721, ERC-1155, ERC-4626. */
 export * as Abis from './Abis.js'
 
+/** Utilities for AES-GCM encryption. Re-exports `ox/AesGcm`. */
+export * as AesGcm from './AesGcm.js'
+
 /** Utilities & types for EIP-2930 access lists. Re-exports `ox/AccessList`. */
 export * as AccessList from './AccessList.js'
 
@@ -84,6 +87,9 @@ export * as Kzg from './Kzg.js'
 
 /** Utilities & types for event logs. Re-exports `ox/Log`. */
 export * as Log from './Log.js'
+
+/** Utilities for ML-DSA-44 post-quantum signatures. Re-exports `ox/MlDsa44`. */
+export * as MlDsa44 from './MlDsa44.js'
 
 /** Utilities & types for BIP-39 mnemonics. Re-exports `ox/Mnemonic`. */
 export * as Mnemonic from './Mnemonic.js'

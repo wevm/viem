@@ -1,0 +1,86 @@
+---
+description: Derive an AES-GCM encryption key from a credential-bound WebAuthn PRF.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Encryption with Passkeys
+
+## Overview
+
+A passkey can authorize a WebAuthn pseudo-random function (PRF) evaluation.
+[`AesGcm.fromPrf`](/docs/utilities/aesgcm/fromPrf) deterministically turns the 32-byte PRF output
+into a nonextractable AES-256-GCM `CryptoKey`.
+
+The derived key encrypts in application code after the WebAuthn ceremony. The authenticator does
+not encrypt the data or retain the AES key.
+
+## Recipes
+
+These recipes assume you have [installed and set up Viem](/docs).
+
+### Encrypt Data with a Passkey
+
+Create a [`WebAuthn`](/docs/utilities/webauthn) credential with a stable
+[`Prf.tag`](/docs/utilities/prf/tag), derive the encryption key, and store the credential identifier
+with the ciphertext.
+
+```ts twoslash
+import { AesGcm, Hex, Prf, WebAuthn } from 'viem/utils'
+
+const credential = await WebAuthn.createCredential({
+  name: 'Example',
+  prf: Prf.tag('encryption.v1'),
+})
+const key = await AesGcm.fromPrf(credential.prf)
+
+const plaintext = Hex.fromString('Sensitive application data')
+const ciphertext = await AesGcm.encrypt(plaintext, key)
+
+const credentialId = credential.id
+```
+
+### Decrypt Data with the Passkey
+
+Request the same credential with the same tag, derive the same key, and decrypt the stored
+ciphertext.
+
+```ts twoslash
+import { AesGcm, Hex, Prf, WebAuthn } from 'viem/utils'
+
+const credential = await WebAuthn.getCredential({
+  credentialId: '...',
+  prf: Prf.tag('encryption.v1'),
+})
+const key = await AesGcm.fromPrf(credential.prf)
+
+const ciphertext = '0x...'
+const plaintext = await AesGcm.decrypt(ciphertext, key)
+const message = Hex.toString(plaintext)
+```
+
+## Best Practices
+
+### Keep Tags Stable
+
+Changing the credential or tag derives a different AES key. Version the tag only as part of a key
+rotation that re-encrypts the protected data.
+
+### Provide Recovery Before Encrypting Durable Data
+
+WebAuthn PRF support varies by authenticator and credential. Losing the passkey or access to its PRF
+output makes the ciphertext unrecoverable unless your application provides another protected key
+or recovery path.
+
+### Limit Access to Derived Material
+
+Code running in the same relying-party scope can receive the PRF output after an authorized
+ceremony. Minimize third-party scripts and keep the derived key in the narrowest scope that can
+complete the encryption or decryption operation.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:lock-keyhole" title="Encryption" description="Encrypt data with AES-GCM and password-derived keys." to="/docs/guides/encryption" />
+  <Card icon="lucide:fingerprint" title="WebAuthn Reference" description="Create and retrieve WebAuthn credentials with PRF output." to="/docs/utilities/webauthn" />
+</Cards>

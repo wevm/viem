@@ -1,0 +1,75 @@
+---
+description: Create ML-DSA-44 key pairs and use post-quantum signatures with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Post-Quantum
+
+## Overview
+
+[`MlDsa44`](/docs/utilities/mldsa44) implements the ML-DSA-44 digital signature scheme from
+[FIPS 204](https://csrc.nist.gov/pubs/fips/204/final). ML-DSA is designed to resist attacks from
+classical and quantum computers.
+
+ML-DSA-44 private keys are 32-byte seeds. Public keys are 1,312 bytes and signatures are 2,420
+bytes, so protocols and storage formats must account for their size.
+
+## Recipes
+
+These recipes assume you have [installed and set up Viem](/docs).
+
+### Create a Key Pair
+
+Use [`MlDsa44.createKeyPair`](/docs/utilities/mldsa44/createKeyPair) to create a private seed and
+its corresponding public key.
+
+```ts twoslash
+import { MlDsa44 } from 'viem/utils'
+
+const { privateKey, publicKey } = MlDsa44.createKeyPair()
+```
+
+Keep the private key secret. Store or distribute the public key to verifiers.
+
+### Sign and Verify Data
+
+Use [`MlDsa44.sign`](/docs/utilities/mldsa44/sign) and
+[`MlDsa44.verify`](/docs/utilities/mldsa44/verify) with the same payload and optional context.
+
+```ts twoslash
+import { Hex, MlDsa44 } from 'viem/utils'
+
+const { privateKey, publicKey } = MlDsa44.createKeyPair()
+const payload = Hex.fromString('Approve document 42')
+const context = Hex.fromString('example.com:documents')
+
+const signature = MlDsa44.sign({ context, payload, privateKey })
+const valid = MlDsa44.verify({ context, payload, publicKey, signature })
+```
+
+A different payload, public key, signature, or context causes verification to return `false`.
+
+## Best Practices
+
+### Separate Protocols with a Context
+
+Use a stable context to separate signatures created for different protocols. FIPS 204 limits the
+context to 255 bytes.
+
+### Protect Private Keys
+
+Treat the 32-byte seed as secret key material. Generate it with a cryptographically secure random
+source, avoid logging it, and keep it outside long-lived application state when possible.
+
+### Plan for Larger Values
+
+Check every transport, database field, contract, and message format that stores public keys or
+signatures. ML-DSA-44 values are much larger than common elliptic-curve keys and signatures.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:fingerprint" title="Post-Quantum Passkeys" description="Derive an ML-DSA-44 key from a WebAuthn PRF." to="/docs/guides/post-quantum/passkeys" />
+  <Card icon="lucide:braces" title="MlDsa44 Reference" description="Browse the complete ML-DSA-44 utility API." to="/docs/utilities/mldsa44" />
+</Cards>

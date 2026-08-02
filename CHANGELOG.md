@@ -1,5 +1,18 @@
 # viem
 
+## 3.0.0-next.6
+
+### Patch Changes
+
+- [#4945](https://github.com/wevm/viem/pull/4945) [`f9ed404`](https://github.com/wevm/viem/commit/f9ed4046936c373bd59023e0a8f35a4bc90f4b07) Thanks [@jxom](https://github.com/jxom)! - Added `AesGcm` encryption and `MlDsa44` post-quantum signature utilities.
+
+  ```ts
+  import { AesGcm, MlDsa44 } from "viem/utils";
+
+  const keyPair = MlDsa44.createKeyPair();
+  const key = await AesGcm.getKey({ password: "example" });
+  ```
+
 ## 3.0.0-next.5
 
 ### Patch Changes
