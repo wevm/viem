@@ -1547,6 +1547,7 @@ async function readMetadataContracts<
     | 'stateOverride'
   >,
 ): Promise<MulticallReturnType<contracts>> {
+  // Preserve the action's deployless default unless the client overrides it.
   if (client.batch?.multicall === undefined)
     return multicall(client, {
       ...parameters,
