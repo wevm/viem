@@ -1,0 +1,44 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `earn.bindErc4626Engine`
+
+Permanently binds an ERC-4626 engine to its factory-created EarnVault. This API is experimental.
+
+## Usage
+
+```ts twoslash
+import { client } from './viem.config'
+
+const result = await client.earn.bindErc4626EngineSync({
+  engine: '0x0000000000000000000000000000000000000001',
+  vault: '0x0000000000000000000000000000000000000002',
+})
+// @log: { engine: '0x...', vault: '0x...', receipt: { ... } }
+```
+
+The transaction must be signed by the engine's final owner. Binding remains a separate operation so
+deployment and final ownership can use different accounts. It cannot be changed after initialization.
+
+Use `earn.bindErc4626Engine` to return a transaction hash without waiting. The action also exposes
+`call`, `estimateGas`, `simulate`, and `extractEvent` helpers.
+
+## Return Value
+
+The sync action returns the engine, bound vault, and transaction receipt. The asynchronous action
+returns a transaction hash.
+
+## Parameters
+
+### engine
+
+- **Type:** `Address`
+
+ERC-4626 engine address.
+
+### vault
+
+- **Type:** `Address`
+
+EarnVault created for the engine.
+
+<WriteParameters />

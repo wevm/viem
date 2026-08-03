@@ -18,8 +18,9 @@ import {
 } from '../../../src/index.js'
 import * as Abis from '../../../src/tempo/Abis.js'
 import * as Addresses from '../../../src/tempo/Addresses.js'
+import * as TempoActions from '../../../src/tempo/actions/index.js'
 import type { Account } from '../../../src/tempo/index.js'
-import { accounts, addresses } from './config.js'
+import { accounts, addresses, setupToken } from './config.js'
 import * as EarnContracts from './earnContracts.js'
 
 /**
@@ -74,13 +75,19 @@ export async function deployEarnStack(
         controls: {
           asyncJanitor: seats.asyncJanitor.address,
           emergencyGuardian: seats.emergencyGuardian.address,
+          maxManagedAssets: 0n,
           // `EngineMigrationMode`: 0 = UserOnly, 1 = OperatorEnabled.
           migrationMode: controls.migrationMode === 'userOnly' ? 0 : 1,
         },
         deploymentId,
+        distributorConfig: {
+          distributor: zeroAddress,
+          updateDelay: 0,
+        },
         engine,
         fees,
         owner: operator.address,
+        transferPolicyId: 0n,
       },
     ],
     functionName: 'deploy',
@@ -170,6 +177,64 @@ export declare namespace deployEarnStack {
   }
 }
 
+/** Deploys the reviewed Earn factories and an ERC-4626 venue for deployment tests. */
+export async function deployEarnFactories(
+  client: Client<Transport, Chain, viem_Account>,
+  options: deployEarnFactories.Options = {},
+): Promise<deployEarnFactories.ReturnValue> {
+  const asset = options.asset ?? addresses.alphaUsd
+  const venue = await deployContract(client, {
+    abi: EarnContracts.simple4626Vault.abi,
+    args: [asset, 'Tempo Earn Test Vault', 'teTEST', 6],
+    bytecode: EarnContracts.simple4626Vault.bytecode,
+  })
+  const earnVaultImplementation = await deployContract(client, {
+    abi: EarnContracts.earnVault.abi,
+    bytecode: EarnContracts.earnVault.bytecode,
+  })
+  const earnFeesImplementation = await deployContract(client, {
+    abi: EarnContracts.earnFees.abi,
+    bytecode: EarnContracts.earnFees.bytecode,
+  })
+  const earnFactory = await deployContract(client, {
+    abi: EarnContracts.earnFactory.abi,
+    args: [
+      Addresses.tip20Factory,
+      earnVaultImplementation,
+      earnFeesImplementation,
+    ],
+    bytecode: EarnContracts.earnFactory.bytecode,
+  })
+  const erc4626EngineFactory = await deployContract(client, {
+    abi: EarnContracts.erc4626EngineFactory.abi,
+    bytecode: EarnContracts.erc4626EngineFactory.bytecode,
+  })
+  return {
+    asset,
+    factories: {
+      earn: earnFactory,
+      erc4626Engine: erc4626EngineFactory,
+    },
+    venue,
+  }
+}
+
+export declare namespace deployEarnFactories {
+  export type Options = {
+    /** Venue base asset. @default `addresses.alphaUsd` */
+    asset?: Address | undefined
+  }
+
+  export type ReturnValue = {
+    asset: Address
+    factories: {
+      earn: Address
+      erc4626Engine: Address
+    }
+    venue: Address
+  }
+}
+
 /**
  * Deploys a Zone-only Earn gateway and enables the stack's tokens in the Zone.
  */
@@ -179,11 +244,6 @@ export async function deployEarnGateway(
 ): Promise<deployEarnGateway.ReturnValue> {
   const { adapter, portalClient } = options
   const portal = options.zonePortal
-
-  const gateway = await deployContract(client, {
-    abi: EarnContracts.earnRouter.abi,
-    bytecode: EarnContracts.earnRouter.bytecode,
-  })
 
   const [asset, shareToken] = await Promise.all([
     readContract(client, {
@@ -197,7 +257,32 @@ export async function deployEarnGateway(
       functionName: 'earnShare',
     }),
   ])
-  for (const token of [asset, shareToken]) {
+  const tokenAuthority =
+    options.tokenAuthority ??
+    (await deployDemoTokenAuthority(client, {
+      privateAsset: options.privateAsset,
+      vaultAsset: asset,
+    }))
+
+  const gateway = await deployContract(client, {
+    abi: EarnContracts.earnRouter.abi,
+    args: [options.zoneId, adapter, options.privateAsset, tokenAuthority],
+    bytecode: EarnContracts.earnRouter.bytecode,
+  })
+  if (!options.tokenAuthority) {
+    const role = await readContract(client, {
+      abi: EarnContracts.demoTokenAuthority.abi,
+      address: tokenAuthority,
+      functionName: 'UNWRAPPER_ROLE',
+    })
+    await writeContractSync(client, {
+      abi: EarnContracts.demoTokenAuthority.abi,
+      address: tokenAuthority,
+      args: [role, gateway],
+      functionName: 'grantRole',
+    })
+  }
+  for (const token of [options.privateAsset, shareToken]) {
     const enabled = await readContract(client, {
       abi: portalAbi,
       address: portal,
@@ -224,8 +309,14 @@ export declare namespace deployEarnGateway {
   export type Options = {
     /** `EarnVault` whose tokens are enabled in the Zone. */
     adapter: Address
+    /** Private stablecoin accepted by the router. */
+    privateAsset: Address
     /** Portal administrator client. */
     portalClient: Client<Transport, Chain, viem_Account>
+    /** Token authority for the private and vault asset pair. A demo authority is deployed by default. */
+    tokenAuthority?: Address | undefined
+    /** Only Zone accepted by the router. */
+    zoneId: number
     /** Zone portal on the parent chain. */
     zonePortal: Address
   }
@@ -236,35 +327,77 @@ export declare namespace deployEarnGateway {
   }
 }
 
-/** `EarnFeesInit` shape for `factory.deploy`. */
-export type FeeInit = {
-  administrator: Address
-  excessFeeCap: bigint
-  fixedFeeCap: bigint
-  guardian: Address
-  initialConfig: {
-    excess: {
-      account: Address
-      annualTargetRate: bigint
-      enabled: boolean
-      excessFeeRate: bigint
-    }
-    fixedFeeCount: number
-    fixedFees: readonly [FixedFee, FixedFee, FixedFee, FixedFee]
+async function deployDemoTokenAuthority(
+  client: Client<Transport, Chain, viem_Account>,
+  parameters: { privateAsset: Address; vaultAsset: Address },
+) {
+  const { token: reserveToken } = await setupToken(client, {
+    name: 'Earn Test Reserve',
+    symbol: 'etRESERVE',
+  })
+  const authority = await deployContract(client, {
+    abi: EarnContracts.demoTokenAuthority.abi,
+    args: [reserveToken, client.account.address],
+    bytecode: EarnContracts.demoTokenAuthority.bytecode,
+  })
+  for (const token of [
+    reserveToken,
+    parameters.privateAsset,
+    parameters.vaultAsset,
+  ])
+    await TempoActions.token.grantRolesSync(client, {
+      roles: ['issuer'],
+      to: authority,
+      token,
+    })
+
+  const bridgeRole = await readContract(client, {
+    abi: EarnContracts.demoTokenAuthority.abi,
+    address: authority,
+    functionName: 'BRIDGE_ECOSYSTEM_CONTRACT_ROLE',
+  })
+  await writeContractSync(client, {
+    abi: EarnContracts.demoTokenAuthority.abi,
+    address: authority,
+    args: [bridgeRole, client.account.address],
+    functionName: 'grantRole',
+  })
+  for (const token of [parameters.privateAsset, parameters.vaultAsset]) {
+    await writeContractSync(client, {
+      abi: EarnContracts.demoTokenAuthority.abi,
+      address: authority,
+      args: [token, 1_000_000_000_000n],
+      functionName: 'setTxnMintLimit',
+    })
+    await writeContractSync(client, {
+      abi: EarnContracts.demoTokenAuthority.abi,
+      address: authority,
+      args: [token, client.account.address, 1_000_000_000_000n],
+      functionName: 'mintBridgeEcosystem',
+    })
   }
+  return authority
 }
 
-type FixedFee = { account: Address; rate: bigint }
+/** `FeeConfig` shape for `factory.deploy`. */
+export type FeeInit = {
+  excess: {
+    account: Address
+    annualTargetRateBps: number
+    enabled: boolean
+    excessFeeRateBps: number
+  }
+  fixedFeeCount: number
+  fixedFees: readonly [FixedFee, FixedFee, FixedFee, FixedFee]
+}
+
+type FixedFee = { account: Address; rateBps: number }
 
 type Seats = {
   /** Cancel-to-stored-receiver liveness seat. */
   asyncJanitor: Account.RootAccount
   /** Pause-only emergency seat. */
   emergencyGuardian: Account.RootAccount
-  /** Fee configuration administrator. */
-  feeAdministrator: Account.RootAccount
-  /** Fee emergency-disable seat. */
-  feeGuardian: Account.RootAccount
   /** Adapter governance seat (the deployer). */
   operator: viem_Account
 }
@@ -273,30 +406,22 @@ type Seats = {
 export const seats = {
   asyncJanitor: accounts[16],
   emergencyGuardian: accounts[17],
-  feeAdministrator: accounts[18],
-  feeGuardian: accounts[20],
 } as const
 
 const zeroAddress = '0x0000000000000000000000000000000000000000' as const
 
-const zeroFixedFee = { account: zeroAddress, rate: 0n } as const
+const zeroFixedFee = { account: zeroAddress, rateBps: 0 } as const
 
-// Caps allow later `setFeeConfig` tests; the empty config keeps fees inactive.
+// The empty config keeps fees inactive.
 const inertFees: FeeInit = {
-  administrator: seats.feeAdministrator.address,
-  excessFeeCap: 1_000_000_000_000_000_000n,
-  fixedFeeCap: 100_000_000_000_000_000n,
-  guardian: seats.feeGuardian.address,
-  initialConfig: {
-    excess: {
-      account: zeroAddress,
-      annualTargetRate: 0n,
-      enabled: false,
-      excessFeeRate: 0n,
-    },
-    fixedFeeCount: 0,
-    fixedFees: [zeroFixedFee, zeroFixedFee, zeroFixedFee, zeroFixedFee],
+  excess: {
+    account: zeroAddress,
+    annualTargetRateBps: 0,
+    enabled: false,
+    excessFeeRateBps: 0,
   },
+  fixedFeeCount: 0,
+  fixedFees: [zeroFixedFee, zeroFixedFee, zeroFixedFee, zeroFixedFee],
 }
 
 // Local portal token enablement.

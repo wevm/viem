@@ -1,0 +1,71 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `earn.createErc4626Engine`
+
+Deploys a deterministic engine for an ERC-4626 venue. This API is experimental.
+
+## Usage
+
+```ts twoslash
+import { keccak256, toHex } from 'viem'
+import { client } from './viem.config'
+
+const result = await client.earn.createErc4626EngineSync({
+  deploymentId: keccak256(toHex('acme-usd-v1')),
+  factory: '0x0000000000000000000000000000000000000001',
+  venue: '0x0000000000000000000000000000000000000002',
+})
+// @log: { deploymentId: '0x...', engine: '0x...', receipt: { ... } }
+```
+
+The client account deploys and owns the engine by default. Use `owner` to set a different final
+owner. The action derives engine metadata from the venue unless `name` or `symbol` is provided.
+
+Use `earn.createErc4626Engine` to return a transaction hash without waiting. The action also exposes
+`call`, `predict`, `estimateGas`, `simulate`, and `extractEvent` helpers.
+
+## Return Value
+
+The sync action returns the decoded `ERC4626EngineDeployed` event and transaction receipt. The
+asynchronous action returns a transaction hash.
+
+## Parameters
+
+### deploymentId
+
+- **Type:** `Hex`
+
+A required, nonzero 32-byte identifier. Reuse it only when resuming the same deployment.
+
+### factory
+
+- **Type:** `Address`
+
+Reviewed `ERC4626EngineFactory` address.
+
+### venue
+
+- **Type:** `Address`
+
+ERC-4626 venue address.
+
+### owner (optional)
+
+- **Type:** `Account | Address`
+- **Default:** `account.address`
+
+Final engine owner. This account must later bind the engine to its EarnVault.
+
+### name (optional)
+
+- **Type:** `string`
+
+Engine name override. An omitted value derives metadata from the venue.
+
+### symbol (optional)
+
+- **Type:** `string`
+
+Engine symbol override. An omitted value derives metadata from the venue.
+
+<WriteParameters />

@@ -1099,8 +1099,10 @@ describe('earn', () => {
       })
       const { gateway } = await deployEarnGateway(mainnetClient, {
         adapter: stack.adapter,
+        privateAsset: addresses.alphaUsd,
         portalClient: portalAdminClient,
         zonePortal: portalAddress,
+        zoneId,
       })
       const privatePreparation = {
         gateway,
@@ -1121,7 +1123,7 @@ describe('earn', () => {
       const assetDeposit = await Actions.zone.depositSync(mainnetClient, {
         amount: assetDepositAmount,
         portalAddress,
-        token: stack.asset,
+        token: addresses.alphaUsd,
         zoneId,
       })
       await Actions.zone.waitForTempoBlock(zoneClient, {
@@ -1150,9 +1152,6 @@ describe('earn', () => {
         minOutputAmount: 0n,
         minVaultAssets: 0n,
       })
-      expect(
-        isAddressEqual(swappedDepositCallback.outputToken, stack.shareToken),
-      ).toBe(true)
 
       const boundedSwappedDeposit = await Actions.earn.privateDeposit.prepare(
         mainnetClient,
@@ -1213,9 +1212,6 @@ describe('earn', () => {
         minVaultAssets: assetAmount,
       })
       expect(
-        isAddressEqual(depositCallback.outputToken, stack.shareToken),
-      ).toBe(true)
-      expect(
         isAddressEqual(
           depositCallback.zoneReturn.refundRecipient,
           recoveryRecipient,
@@ -1244,7 +1240,7 @@ describe('earn', () => {
       })
       expect(deposit.actionId).toBe(preparedDeposit.actionId)
       expect(deposit.inputAmount).toBe(assetAmount)
-      expect(isAddressEqual(deposit.inputToken, stack.asset)).toBe(true)
+      expect(isAddressEqual(deposit.inputToken, addresses.alphaUsd)).toBe(true)
       expect(deposit.shares).toBe(assetAmount)
       expect(deposit.vaultAssets).toBe(assetAmount)
 
@@ -1277,11 +1273,8 @@ describe('earn', () => {
         flow: 1,
         minEarnShares: 0n,
         minOutputAmount: 2n,
-        minVaultAssets: 1n,
+        minVaultAssets: 2n,
       })
-      expect(
-        isAddressEqual(swappedRedeemCallback.outputToken, addresses.alphaUsd),
-      ).toBe(true)
 
       const preparedRedeem = await Actions.earn.privateRedeem.prepare(
         mainnetClient,
@@ -1314,10 +1307,9 @@ describe('earn', () => {
         actionId: keccak256('0x04'),
         flow: 1,
         minEarnShares: 0n,
-        minOutputAmount: 0n,
+        minOutputAmount: assetAmount,
         minVaultAssets: assetAmount,
       })
-      expect(isAddressEqual(redeemCallback.outputToken, stack.asset)).toBe(true)
       expect(
         isAddressEqual(
           redeemCallback.zoneReturn.refundRecipient,
@@ -1338,7 +1330,7 @@ describe('earn', () => {
         vault: stack.adapter,
       })
       expect(redeem.actionId).toBe(preparedRedeem.actionId)
-      expect(isAddressEqual(redeem.outputToken, stack.asset)).toBe(true)
+      expect(isAddressEqual(redeem.outputToken, addresses.alphaUsd)).toBe(true)
       expect(redeem.outputAmount).toBe(assetAmount)
       expect(redeem.shares).toBe(deposit.shares)
       expect(redeem.vaultAssets).toBe(assetAmount)
@@ -1351,7 +1343,7 @@ describe('earn', () => {
       const [assetBalance, finalShareBalance] = await Promise.all([
         Actions.token.getBalance(zoneClient, {
           account: account.address,
-          token: stack.asset,
+          token: addresses.alphaUsd,
         }),
         Actions.token.getBalance(zoneClient, {
           account: account.address,

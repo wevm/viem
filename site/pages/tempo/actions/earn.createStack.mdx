@@ -1,0 +1,87 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `earn.createStack`
+
+Deploys deterministic EarnShare, EarnVault, and EarnFees contracts around an unbound engine. This
+API is experimental.
+
+## Usage
+
+```ts twoslash
+import { keccak256, toHex } from 'viem'
+import { client } from './viem.config'
+
+const result = await client.earn.createStackSync({
+  deploymentId: keccak256(toHex('acme-usd-v1')),
+  engine: '0x0000000000000000000000000000000000000001',
+  factory: '0x0000000000000000000000000000000000000002',
+})
+// @log: { earnFees: '0x...', earnShare: '0x...', earnVault: '0x...', receipt: { ... } }
+```
+
+Omitting `fees` deploys a fee-free stack. The emergency guardian and async janitor default to the
+zero address, migration defaults to `userOnly`, managed assets are unlimited, and transfers use the
+built-in always-allow policy.
+
+Use `earn.createStack` to return a transaction hash without waiting. The action also exposes `call`,
+`predict`, `estimateGas`, `simulate`, and `extractEvent` helpers.
+
+## Return Value
+
+The sync action returns the deployed addresses, configuration event fields, and transaction receipt.
+The asynchronous action returns a transaction hash.
+
+## Parameters
+
+### deploymentId
+
+- **Type:** `Hex`
+
+A required, nonzero 32-byte identifier shared with the engine deployment.
+
+### engine
+
+- **Type:** `Address`
+
+Unbound engine address.
+
+### factory
+
+- **Type:** `Address`
+
+Reviewed `EarnFactory` address from the same release as the engine factory.
+
+### owner (optional)
+
+- **Type:** `Account | Address`
+- **Default:** `account.address`
+
+Final stack owner and operator.
+
+### controls (optional)
+
+- **Type:** `EarnVaultControls`
+
+Initial `emergencyGuardian`, `asyncJanitor`, `maxManagedAssets`, and `migrationMode` controls.
+
+### fees (optional)
+
+- **Type:** `EarnFeeConfiguration`
+
+Up to four fixed fees and an optional excess-return fee, all expressed in basis points. Omit this
+parameter for a fee-free stack.
+
+### distributor (optional)
+
+- **Type:** `EarnDistributorConfiguration`
+
+Protected distributor and update delay. An enabled distributor requires at least one fixed fee.
+
+### transferPolicyId (optional)
+
+- **Type:** `bigint`
+- **Default:** `0n`
+
+Existing simple whitelist policy. Zero selects the built-in always-allow policy.
+
+<WriteParameters />
