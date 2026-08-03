@@ -56,7 +56,7 @@ export function withRetry<data>(
             return
           }
         }
-        attemptRetry({ count: count + 1 })
+        return attemptRetry({ count: count + 1 })
       }
 
       try {
@@ -79,6 +79,6 @@ export function withRetry<data>(
         reject(err)
       }
     }
-    attemptRetry()
+    void attemptRetry().catch(reject)
   })
 }
