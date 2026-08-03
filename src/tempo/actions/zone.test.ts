@@ -366,6 +366,25 @@ describe('getZoneInfo', () => {
   })
 })
 
+describe('getTokenMetadata', () => {
+  test('behavior: supports disabled client multicall', async () => {
+    const client = getZoneClient({
+      account,
+      batch: { multicall: false },
+    })
+    await zoneActions.signAuthorizationToken(client, { zoneId })
+    const info = await zoneActions.getZoneInfo(client)
+
+    const metadata = await tokenActions.getMetadata(client, {
+      token: info.zoneTokens[0]!,
+    })
+
+    expect(metadata.decimals).toBe(6)
+    expect(metadata.name.length).toBeGreaterThan(0)
+    expect(metadata.symbol.length).toBeGreaterThan(0)
+  })
+})
+
 describe('waitForTempoBlock', () => {
   test('behavior: returns after the zone imports the block', async () => {
     await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
