@@ -39,6 +39,14 @@ type EthCallSchema = [Extract<PublicRpcSchema[number], { Method: 'eth_call' }>]
 type EthCallRequest = EIP1193Parameters<EthCallSchema>
 type RequestCall = [EthCallRequest, EIP1193RequestOptions?]
 
+function getEthCallRequest(
+  request: EIP1193Parameters<PublicRpcSchema>,
+): EthCallRequest {
+  if (request.method !== 'eth_call')
+    throw new Error(`Expected eth_call, received ${request.method}.`)
+  return request
+}
+
 describe('call (without client)', () => {
   test('default: builds the same call as the client form', () => {
     const args = {
@@ -493,7 +501,7 @@ describe('getMetadata', () => {
       method: 'eth_call',
       params: [{ data: expect.any(String) }, 'latest'],
     })
-    const calls = request.mock.calls as unknown as RequestCall[]
+    const calls: RequestCall[] = request.mock.calls
     expect(calls[0]?.[0].params?.[0]).not.toHaveProperty('to')
     request.mockRestore()
   })
@@ -512,7 +520,7 @@ describe('getMetadata', () => {
 
     expect(metadata.name).toBe('AlphaUSD')
     expect(request).toHaveBeenCalledTimes(10)
-    const calls = request.mock.calls as unknown as RequestCall[]
+    const calls: RequestCall[] = request.mock.calls
     for (const [{ method, params }] of calls) {
       expect(method).toBe('eth_call')
       expect(params?.[0]).toMatchObject({ to: addresses.alphaUsd })
@@ -534,7 +542,7 @@ describe('getMetadata', () => {
 
     expect(metadata.name).toBe('AlphaUSD')
     expect(request).toHaveBeenCalledTimes(1)
-    const calls = request.mock.calls as unknown as RequestCall[]
+    const calls: RequestCall[] = request.mock.calls
     expect(calls[0]?.[0].params?.[0]).not.toHaveProperty('to')
     request.mockRestore()
   })
@@ -549,7 +557,7 @@ describe('getMetadata', () => {
     const request = vi
       .spyOn(client, 'request')
       .mockImplementation(async (parameters, options) => {
-        const [{ data }] = (parameters as EthCallRequest).params
+        const [{ data }] = getEthCallRequest(parameters).params
         if (data === Selectors.tip20.logoURI) throw new Error('logo URI failed')
         return request_(parameters, options)
       })
@@ -572,7 +580,7 @@ describe('getMetadata', () => {
     const request = vi
       .spyOn(client, 'request')
       .mockImplementation(async (parameters, options) => {
-        const [{ data }] = (parameters as EthCallRequest).params
+        const [{ data }] = getEthCallRequest(parameters).params
         if (data === Selectors.tip20.name) throw new Error('name failed')
         if (data === Selectors.tip20.symbol) throw new Error('symbol failed')
         return request_(parameters, options)

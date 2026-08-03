@@ -9,8 +9,10 @@ import {
   type MulticallReturnType,
   multicall,
 } from '../../actions/public/multicall.js'
-import type { ReadContractReturnType } from '../../actions/public/readContract.js'
-import { readContract } from '../../actions/public/readContract.js'
+import {
+  type ReadContractReturnType,
+  readContract,
+} from '../../actions/public/readContract.js'
 import {
   type SimulateContractReturnType,
   simulateContract,
@@ -34,11 +36,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
-import type {
-  ContractFunctionParameters,
-  ExtractAbiItem,
-  GetEventArgs,
-} from '../../types/contract.js'
+import type { ExtractAbiItem, GetEventArgs } from '../../types/contract.js'
 import type { Log, Log as viem_Log } from '../../types/log.js'
 import type { Compute, OneOf, UnionOmit } from '../../types/utils.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
@@ -1546,7 +1544,18 @@ async function readMetadataContracts<
     | 'contracts'
     | 'stateOverride'
   >,
-): Promise<MulticallReturnType<contracts>> {
+): Promise<MulticallReturnType<contracts>>
+async function readMetadataContracts<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: Pick<
+    MulticallParameters,
+    | 'blockNumber'
+    | 'blockOverrides'
+    | 'blockTag'
+    | 'contracts'
+    | 'stateOverride'
+  >,
+): Promise<MulticallReturnType> {
   // Preserve the action's deployless default unless the client overrides it.
   if (client.batch?.multicall === undefined)
     return multicall(client, {
@@ -1557,18 +1566,18 @@ async function readMetadataContracts<
 
   const { contracts, ...rest } = parameters
   const results = await Promise.allSettled(
-    (contracts as readonly ContractFunctionParameters[]).map((contract) =>
+    contracts.map((contract) =>
       readContract(client, {
         ...rest,
         ...contract,
-      } as never),
+      }),
     ),
   )
   return results.map((result) =>
     result.status === 'fulfilled'
       ? { result: result.value, status: 'success' }
       : { error: result.reason, status: 'failure' },
-  ) as never
+  )
 }
 
 function unwrapMulticallResult<result>(
