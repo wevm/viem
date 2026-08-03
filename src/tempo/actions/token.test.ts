@@ -1,7 +1,13 @@
 import { setTimeout } from 'node:timers/promises'
 import { Hex } from 'ox'
 import { TokenId, TokenRole } from 'ox/tempo'
-import { formatUnits, parseUnits } from 'viem'
+import {
+  type EIP1193Parameters,
+  type EIP1193RequestOptions,
+  formatUnits,
+  type PublicRpcSchema,
+  parseUnits,
+} from 'viem'
 import { getCode, writeContractSync } from 'viem/actions'
 import { Abis, Addresses, Selectors, TokenIds } from 'viem/tempo'
 import { describe, expect, test, vi } from 'vitest'
@@ -29,15 +35,9 @@ const tokenlessClient = getClient({
   tokens: undefined,
 })
 
-type RequestCall = [
-  {
-    method: string
-    params?: readonly [
-      { data?: Hex.Hex | undefined; to?: string | undefined },
-      ...unknown[],
-    ]
-  },
-]
+type EthCallSchema = [Extract<PublicRpcSchema[number], { Method: 'eth_call' }>]
+type EthCallRequest = EIP1193Parameters<EthCallSchema>
+type RequestCall = [EthCallRequest, EIP1193RequestOptions?]
 
 describe('call (without client)', () => {
   test('default: builds the same call as the client form', () => {
@@ -549,8 +549,7 @@ describe('getMetadata', () => {
     const request = vi
       .spyOn(client, 'request')
       .mockImplementation(async (parameters, options) => {
-        const [{ data }] = (parameters as { params: [{ data: Hex.Hex }] })
-          .params
+        const [{ data }] = (parameters as EthCallRequest).params
         if (data === Selectors.tip20.logoURI) throw new Error('logo URI failed')
         return request_(parameters, options)
       })
@@ -573,8 +572,7 @@ describe('getMetadata', () => {
     const request = vi
       .spyOn(client, 'request')
       .mockImplementation(async (parameters, options) => {
-        const [{ data }] = (parameters as { params: [{ data: Hex.Hex }] })
-          .params
+        const [{ data }] = (parameters as EthCallRequest).params
         if (data === Selectors.tip20.name) throw new Error('name failed')
         if (data === Selectors.tip20.symbol) throw new Error('symbol failed')
         return request_(parameters, options)
