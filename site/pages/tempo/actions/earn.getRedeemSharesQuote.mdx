@@ -1,0 +1,56 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `earn.getRedeemSharesQuote`
+
+Gets the venue-share token and output for an exact Earn share input, including fees.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const quote = await client.earn.getRedeemSharesQuote({
+  shareAmount: 100_000_000n,
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: {
+//   venueShareAmount: 99_500_000n,
+//   venueShareToken: '0x20c0...0001',
+// }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The current engine must support in-kind redemption. Check
+`capabilities.inKindRedeem` with [`earn.getVault`](/tempo/actions/earn.getVault).
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  venueShareAmount: bigint
+  venueShareToken: Address
+}
+```
+
+## Parameters
+
+### shareAmount
+
+- **Type:** `bigint`
+
+Exact number of Earn shares to redeem, in base units.
+
+### vault
+
+- **Type:** `Address`
+
+Vault address.
+
+<ReadParameters />

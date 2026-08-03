@@ -21,6 +21,7 @@ const vault = await client.earn.getVault({
 //     asyncRedeem: false,
 //     exactWithdraw: true,
 //     inKindDeposit: true,
+//     inKindRedeem: true,
 //     syncRedeem: true,
 //   },
 //   depositsPaused: false,
@@ -35,8 +36,10 @@ const vault = await client.earn.getVault({
 //   engineShares: 1_000_000_000n,
 //   feesActive: true,
 //   isSynced: true,
+//   maxManagedAssets: 0n,
 //   operator: '0x0000...0003',
 //   pendingRedeemCount: 0n,
+//   remainingDepositCapacity: 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
 //   shareSupply: 995_000_000n,
 //   shareToken: '0x20c0...0002',
 // }
@@ -61,6 +64,7 @@ type ReturnValue = {
     asyncRedeem: boolean
     exactWithdraw: boolean
     inKindDeposit: boolean
+    inKindRedeem: boolean
     syncRedeem: boolean
   }
   /** Whether new deposits are paused. */
@@ -82,10 +86,14 @@ type ReturnValue = {
   feesActive: boolean
   /** Whether Earn share supply matches its asset backing. */
   isSynced: boolean
+  /** Current active managed-assets limit; zero means unlimited. */
+  maxManagedAssets: bigint
   /** Vault governance address. */
   operator: Address
   /** Open queued redemptions. */
   pendingRedeemCount: bigint
+  /** Assets that may enter before reaching the current limit. */
+  remainingDepositCapacity: bigint
   /** Active Earn share supply. */
   shareSupply: bigint
   /** Token representing Earn shares. */

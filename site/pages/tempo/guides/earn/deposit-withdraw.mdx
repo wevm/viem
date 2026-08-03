@@ -220,6 +220,28 @@ const result = await client.earn.redeemSync({
 
 To redeem the whole position, pass `position.shareBalance` as `shareAmount`.
 
+### Redeem Directly to Venue Shares
+
+Use [`earn.redeemSharesSync`](/tempo/actions/earn.redeemShares) to leave an Earn vault without
+unwinding the underlying venue position. The vault must report `capabilities.inKindRedeem: true`.
+This is useful when moving between Earn vaults backed by the same ERC-4626 venue: redeem venue
+shares from the old vault, then pass them to `earn.depositSharesSync` on the replacement vault.
+
+```ts twoslash
+import { client } from './viem.config'
+
+const result = await client.earn.redeemSharesSync({
+  shareAmount: 99_500_000n,
+  slippageBps: 50,
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: { venueShareAmount: 99_000_000n, venueShareToken: '0x...', ... }
+```
+
+The transaction burns the caller's Earn shares and sends the corresponding venue shares to
+`recipient`. It does not automatically enter another Earn vault. Integrations can compose the
+returned venue shares with a separate deposit after the first transaction confirms.
+
 ### Withdraw Exact Assets
 
 Use [`earn.withdrawExactSync`](/tempo/actions/earn.withdrawExact) when the asset output is fixed. The

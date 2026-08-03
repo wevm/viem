@@ -479,7 +479,7 @@ describe('depositShares', { timeout: 30_000 }, () => {
     expect(eventArgs).toMatchInlineSnapshot(`
       {
         "earnShares": 500000000n,
-        "receivedVenueShares": 500000000n,
+        "receivedEngineShares": 500000000n,
         "requestedVenueShares": 500000000n,
       }
     `)
@@ -740,6 +740,7 @@ describe('getVault', { timeout: 30_000 }, () => {
           "asyncRedeem": false,
           "exactWithdraw": true,
           "inKindDeposit": true,
+          "inKindRedeem": true,
           "syncRedeem": true,
         },
         "depositsPaused": false,
@@ -747,7 +748,9 @@ describe('getVault', { timeout: 30_000 }, () => {
         "engineShares": 100000000n,
         "feesActive": false,
         "isSynced": true,
+        "maxManagedAssets": 0n,
         "pendingRedeemCount": 0n,
+        "remainingDepositCapacity": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
         "shareSupply": 100000000n,
       }
     `)
@@ -770,27 +773,28 @@ describe('getVault', { timeout: 30_000 }, () => {
 
     const calls = Actions.earn.getVault.calls({ engine, fees, vault })
 
-    expect(calls).toHaveLength(20)
+    expect(calls).toHaveLength(23)
     // Vault reads come first, followed by fees and engine reads.
-    expect(calls.slice(0, 12).every((call) => call.address === vault)).toBe(
+    expect(calls.slice(0, 14).every((call) => call.address === vault)).toBe(
       true,
     )
-    expect(calls[12].address).toBe(fees)
-    expect(calls.slice(13).every((call) => call.address === engine)).toBe(true)
+    expect(calls[14].address).toBe(fees)
+    expect(calls.slice(15).every((call) => call.address === engine)).toBe(true)
     expect(calls[0].functionName).toBe('asset')
     expect(encodeFunctionData(calls[0] as never)).toBe('0x38d52e0f')
     expect(calls[1].functionName).toBe('engine')
     expect(encodeFunctionData(calls[1] as never)).toBe('0xc9d4623f')
-    expect(calls[13].functionName).toBe('totalAssets')
-    expect(encodeFunctionData(calls[13] as never)).toBe('0x01e1d114')
-    // ERC-165 probes for the four optional engine capabilities.
-    for (const call of calls.slice(16))
+    expect(calls[15].functionName).toBe('totalAssets')
+    expect(encodeFunctionData(calls[15] as never)).toBe('0x01e1d114')
+    // ERC-165 probes for the five optional engine capabilities.
+    for (const call of calls.slice(18))
       expect(call.functionName).toBe('supportsInterface')
-    expect(calls[16].args).toEqual(['0xa1a6a1d7']) // IEarnEngineAsyncRedeem
-    expect(calls[17].args).toEqual(['0x0adfb0b9']) // IEarnEngineExactWithdraw
-    expect(calls[18].args).toEqual(['0xce4790a9']) // IEarnEngineInKindDeposit
-    expect(calls[19].args).toEqual(['0x94a2d467']) // IEarnEngineRedeem
-    expect(encodeFunctionData(calls[16] as never).slice(0, 10)).toBe(
+    expect(calls[18].args).toEqual(['0xa1a6a1d7']) // IEarnEngineAsyncRedeem
+    expect(calls[19].args).toEqual(['0x0adfb0b9']) // IEarnEngineExactWithdraw
+    expect(calls[20].args).toEqual(['0xce4790a9']) // IEarnEngineInKindDeposit
+    expect(calls[21].args).toEqual(['0x59429bf1']) // IEarnEngineInKindRedeem
+    expect(calls[22].args).toEqual(['0x94a2d467']) // IEarnEngineRedeem
+    expect(encodeFunctionData(calls[18] as never).slice(0, 10)).toBe(
       '0x01ffc9a7',
     )
   })
@@ -860,6 +864,41 @@ describe('getRedeemQuote', { timeout: 30_000 }, () => {
     })
 
     expect(assetAmount).toBe(0n)
+  })
+})
+
+describe('getRedeemSharesQuote', { timeout: 30_000 }, () => {
+  test('call', () => {
+    const call = Actions.earn.getRedeemSharesQuote.call({
+      shareAmount: parseUnits('100', 6),
+      vault: `0x${'aa'.repeat(20)}`,
+    })
+
+    expect(call.functionName).toBe('previewRedeemVenueShares')
+    expect(call.args).toEqual([100_000_000n])
+  })
+
+  test('default', async () => {
+    const stack = await setup()
+
+    const quote = await Actions.earn.getRedeemSharesQuote(client, {
+      shareAmount: parseUnits('100', 6),
+      vault: stack.adapter,
+    })
+
+    expect(isAddressEqual(quote.venueShareToken, stack.venue)).toBe(true)
+    expect(quote.venueShareAmount).toBe(parseUnits('100', 6))
+  })
+
+  test('behavior: zero shares value zero venue shares', async () => {
+    const stack = await setup()
+
+    const quote = await Actions.earn.getRedeemSharesQuote(client, {
+      shareAmount: 0n,
+      vault: stack.adapter,
+    })
+
+    expect(quote.venueShareAmount).toBe(0n)
   })
 })
 
@@ -1130,6 +1169,146 @@ describe('redeemSync', { timeout: 30_000 }, () => {
       {
         "assetAmount": 40000000n,
         "shareAmount": 40000000n,
+      }
+    `)
+  })
+})
+
+describe('redeemShares', { timeout: 30_000 }, () => {
+  test('default', async () => {
+    const stack = await setupStack()
+    await Actions.earn.depositSync(client, {
+      assetAmount: parseUnits('100', 6),
+      shareAmountMin: 1n,
+      vault: stack.adapter,
+    })
+    await stack.donate(parseUnits('50', 6))
+
+    const hash = await Actions.earn.redeemShares(client, {
+      shareAmount: parseUnits('100', 6),
+      slippageBps: 50,
+      vault: stack.adapter,
+    })
+    const receipt = await waitForTransactionReceipt(client, { hash })
+    const { args } = Actions.earn.redeemShares.extractEvent(receipt.logs, {
+      vault: stack.adapter,
+    })
+    const { caller, receiver, venueShareToken, ...eventArgs } = args
+
+    expect(isAddressEqual(caller, account.address)).toBe(true)
+    expect(isAddressEqual(receiver, account.address)).toBe(true)
+    expect(isAddressEqual(venueShareToken, stack.venue)).toBe(true)
+    expect(eventArgs).toMatchInlineSnapshot(`
+      {
+        "earnShares": 100000000n,
+        "engineShares": 100000000n,
+        "venueShares": 100000000n,
+      }
+    `)
+  })
+
+  test('behavior: calls pair an exact approval with the redemption', () => {
+    const recipient = `0x${'cc'.repeat(20)}` as const
+    const shareToken = `0x${'dd'.repeat(20)}` as const
+    const vault = `0x${'aa'.repeat(20)}` as const
+    const venueShareToken = `0x${'ee'.repeat(20)}` as const
+
+    const calls = Actions.earn.redeemShares.calls({
+      recipient,
+      shareAmount: 100n,
+      shareToken,
+      vault,
+      venueShareAmountMin: 99n,
+      venueShareToken,
+    })
+
+    expect(calls).toHaveLength(2)
+    expect(calls[0].address).toBe(shareToken)
+    expect(calls[0].functionName).toBe('approve')
+    expect(calls[0].args).toEqual([vault, 100n])
+    expect(calls[1].address).toBe(vault)
+    expect(calls[1].functionName).toBe('redeemVenueShares')
+    expect(calls[1].args).toEqual([100n, recipient, venueShareToken, 99n])
+  })
+
+  test('behavior: slippage floors a live venue-share quote', async () => {
+    const stack = await setupStack()
+    await Actions.earn.depositSync(client, {
+      assetAmount: parseUnits('100', 6),
+      shareAmountMin: 1n,
+      vault: stack.adapter,
+    })
+    await approve({
+      amount: parseUnits('100', 6),
+      spender: stack.adapter,
+      token: stack.shareToken,
+    })
+
+    const quote = await Actions.earn.getRedeemSharesQuote(client, {
+      shareAmount: parseUnits('100', 6),
+      vault: stack.adapter,
+    })
+    const { request } = await Actions.earn.redeemShares.simulate(client, {
+      shareAmount: parseUnits('100', 6),
+      slippageBps: 50,
+      vault: stack.adapter,
+    })
+
+    expect(request.args?.[2]).toBe(quote.venueShareToken)
+    expect(request.args?.[3]).toBe(
+      EarnShares.minimumOutput(quote.venueShareAmount, 50),
+    )
+  })
+
+  test('error: expected venue-share token mismatch', async () => {
+    const stack = await setupStack()
+    await Actions.earn.depositSync(client, {
+      assetAmount: parseUnits('100', 6),
+      shareAmountMin: 1n,
+      vault: stack.adapter,
+    })
+    await approve({
+      amount: parseUnits('100', 6),
+      spender: stack.adapter,
+      token: stack.shareToken,
+    })
+
+    await expect(
+      Actions.earn.redeemShares.simulate(client, {
+        shareAmount: parseUnits('100', 6),
+        venueShareAmountMin: 1n,
+        venueShareToken: accounts[1].address,
+        vault: stack.adapter,
+      }),
+    ).rejects.toThrow('UnexpectedVenueShareToken')
+  })
+})
+
+describe('redeemSharesSync', { timeout: 30_000 }, () => {
+  test('default', async () => {
+    const stack = await setupStack()
+    await Actions.earn.depositSync(client, {
+      assetAmount: parseUnits('100', 6),
+      shareAmountMin: 1n,
+      vault: stack.adapter,
+    })
+
+    const { caller, receipt, recipient, venueShareToken, ...result } =
+      await Actions.earn.redeemSharesSync(client, {
+        shareAmount: parseUnits('40', 6),
+        slippageBps: 50,
+        vault: stack.adapter,
+      })
+
+    expect(receipt.status).toBe('success')
+    expect(isAddressEqual(caller, account.address)).toBe(true)
+    expect(isAddressEqual(recipient, account.address)).toBe(true)
+    expect(isAddressEqual(venueShareToken, stack.venue)).toBe(true)
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "engineShareAmount": 40000000n,
+        "shareAmount": 40000000n,
+        "venueShareAmount": 40000000n,
       }
     `)
   })

@@ -63,6 +63,12 @@ const zoneClient = getZoneClient({ account })
 const hardfork = import.meta.env.VITE_TEMPO_HARDFORK
 const legacyZoneCallback =
   hardfork === 'T7' || hardfork === 'T8' || hardfork === 'T9'
+const earnPrivateAsset = import.meta.env.VITE_TEMPO_EARN_PRIVATE_ASSET as
+  | Address
+  | undefined
+const earnTokenAuthority = import.meta.env.VITE_TEMPO_EARN_TOKEN_AUTHORITY as
+  | Address
+  | undefined
 const parentToken = '0x20c0000000000000000000000000000000000000'
 const depositParameters = {
   amount: parseUnits('1', 6),
@@ -1084,7 +1090,12 @@ describe('requestVerifiableWithdrawal', () => {
 })
 
 describe('earn', () => {
-  test.runIf(nodeEnv === 'localnet' && !legacyZoneCallback)(
+  test.runIf(
+    nodeEnv === 'localnet' &&
+      !legacyZoneCallback &&
+      earnPrivateAsset !== undefined &&
+      earnTokenAuthority !== undefined,
+  )(
     'behavior: deposits and redeems through a Zone gateway',
     async () => {
       await Actions.zone.signAuthorizationToken(zoneClient, { zoneId })
@@ -1099,7 +1110,10 @@ describe('earn', () => {
       })
       const { gateway } = await deployEarnGateway(mainnetClient, {
         adapter: stack.adapter,
+        privateAsset: earnPrivateAsset!,
         portalClient: portalAdminClient,
+        tokenAuthority: earnTokenAuthority!,
+        zoneId,
         zonePortal: portalAddress,
       })
       const privatePreparation = {
@@ -1150,10 +1164,6 @@ describe('earn', () => {
         minOutputAmount: 0n,
         minVaultAssets: 0n,
       })
-      expect(
-        isAddressEqual(swappedDepositCallback.outputToken, stack.shareToken),
-      ).toBe(true)
-
       const boundedSwappedDeposit = await Actions.earn.privateDeposit.prepare(
         mainnetClient,
         {
@@ -1212,9 +1222,6 @@ describe('earn', () => {
         minOutputAmount: 0n,
         minVaultAssets: assetAmount,
       })
-      expect(
-        isAddressEqual(depositCallback.outputToken, stack.shareToken),
-      ).toBe(true)
       expect(
         isAddressEqual(
           depositCallback.zoneReturn.refundRecipient,
@@ -1279,9 +1286,6 @@ describe('earn', () => {
         minOutputAmount: 2n,
         minVaultAssets: 1n,
       })
-      expect(
-        isAddressEqual(swappedRedeemCallback.outputToken, addresses.alphaUsd),
-      ).toBe(true)
 
       const preparedRedeem = await Actions.earn.privateRedeem.prepare(
         mainnetClient,
@@ -1317,7 +1321,6 @@ describe('earn', () => {
         minOutputAmount: 0n,
         minVaultAssets: assetAmount,
       })
-      expect(isAddressEqual(redeemCallback.outputToken, stack.asset)).toBe(true)
       expect(
         isAddressEqual(
           redeemCallback.zoneReturn.refundRecipient,

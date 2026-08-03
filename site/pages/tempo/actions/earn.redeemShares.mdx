@@ -1,0 +1,116 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `earn.redeemShares`
+
+Redeems an exact number of Earn shares directly into the current engine's venue shares.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.earn.redeemSharesSync({
+  shareAmount: 100_000_000n,
+  slippageBps: 50,
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: {
+//   caller: '0x...',
+//   engineShareAmount: 99_500_000n,
+//   receipt: { ... },
+//   recipient: '0x...',
+//   shareAmount: 100_000_000n,
+//   venueShareAmount: 99_500_000n,
+//   venueShareToken: '0x20c0...0001',
+// }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+When only `slippageBps` is provided, the action gets a live
+[`earn.getRedeemSharesQuote`](/tempo/actions/earn.getRedeemSharesQuote) and derives both the expected
+venue-share token and minimum output. The transaction approves the Earn shares and redeems them
+atomically.
+
+The current engine must support in-kind redemption. Check
+`capabilities.inKindRedeem` with [`earn.getVault`](/tempo/actions/earn.getVault).
+
+### Use an Existing Quote
+
+Pass `venueShareAmount`, `venueShareToken`, and `slippageBps` when you already have a recent quote.
+Pass `venueShareAmountMin` and `venueShareToken` when you already have an acceptable floor.
+
+### Asynchronous Usage
+
+`earn.redeemSharesSync` waits for inclusion and returns the decoded redemption event. Use
+`earn.redeemShares` to return the transaction hash immediately.
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  caller: Address
+  engineShareAmount: bigint
+  receipt: TransactionReceipt
+  recipient: Address
+  shareAmount: bigint
+  venueShareAmount: bigint
+  venueShareToken: Address
+}
+```
+
+The asynchronous action returns the transaction hash instead.
+
+## Parameters
+
+### recipient (optional)
+
+- **Type:** `Address`
+- **Default:** `account.address`
+
+Venue-share recipient.
+
+### shareAmount
+
+- **Type:** `bigint | { decimals?: number | undefined; formatted: string }`
+
+Earn shares to redeem. A `bigint` uses base units; a formatted value uses the share token's
+decimals unless `decimals` is provided.
+
+### slippageBps (optional)
+
+- **Type:** `number`
+
+Slippage tolerance below the provided or live venue-share quote, in basis points.
+
+### venueShareAmount (optional)
+
+- **Type:** `bigint`
+
+Quoted venue-share output. Provide it with `venueShareToken` and `slippageBps`.
+
+### venueShareAmountMin (optional)
+
+- **Type:** `bigint`
+
+Minimum venue shares to accept. Provide it with `venueShareToken`.
+
+### venueShareToken (optional)
+
+- **Type:** `Address`
+
+Expected venue-share token. The vault reverts if the engine reports a different token.
+
+### vault
+
+- **Type:** `Address`
+
+Vault address.
+
+<WriteParameters />

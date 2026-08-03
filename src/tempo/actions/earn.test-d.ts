@@ -97,6 +97,7 @@ test('getVault narrows union and nested fields', async () => {
     asyncRedeem: boolean
     exactWithdraw: boolean
     inKindDeposit: boolean
+    inKindRedeem: boolean
     syncRedeem: boolean
   }>()
   expectTypeOf(vault.engine.totalAssets).toEqualTypeOf<bigint>()
@@ -147,6 +148,10 @@ test('quote reads return bigint amounts', async () => {
     shareAmount: 1n,
     vault: address,
   })
+  const venueShareQuote = await earnActions.getRedeemSharesQuote(client, {
+    shareAmount: 1n,
+    vault: address,
+  })
   const shareAmount = await earnActions.getWithdrawQuote(client, {
     assetAmount: 1n,
     vault: address,
@@ -155,6 +160,11 @@ test('quote reads return bigint amounts', async () => {
   expectTypeOf(redeemCall.functionName).toEqualTypeOf<'previewRedeem'>()
   expectTypeOf(withdrawCall.functionName).toEqualTypeOf<'previewWithdraw'>()
   expectTypeOf(assetAmount).toEqualTypeOf<bigint>()
+  expectTypeOf(
+    venueShareQuote,
+  ).toEqualTypeOf<earnActions.getRedeemSharesQuote.ReturnValue>()
+  expectTypeOf(venueShareQuote.venueShareAmount).toEqualTypeOf<bigint>()
+  expectTypeOf(venueShareQuote.venueShareToken).toEqualTypeOf<Address>()
   expectTypeOf(shareAmount).toEqualTypeOf<bigint>()
   expectTypeOf(earnActions).not.toHaveProperty('previewRedeem')
   expectTypeOf(earnActions).not.toHaveProperty('previewWithdraw')
@@ -179,6 +189,12 @@ test('decorated earn reads preserve shapes', async () => {
     }),
   ).toEqualTypeOf<bigint>()
   expectTypeOf(
+    await decoratedClient.earn.getRedeemSharesQuote({
+      shareAmount: 1n,
+      vault: address,
+    }),
+  ).toEqualTypeOf<earnActions.getRedeemSharesQuote.ReturnValue>()
+  expectTypeOf(
     await decoratedClient.earn.getWithdrawQuote({
       assetAmount: 1n,
       vault: address,
@@ -200,6 +216,9 @@ test('write amounts accept AmountInput; resolved bounds stay bigint', async () =
   >().toEqualTypeOf<internal_Token.AmountInput>()
   expectTypeOf<
     earnActions.redeem.Args['shareAmount']
+  >().toEqualTypeOf<internal_Token.AmountInput>()
+  expectTypeOf<
+    earnActions.redeemShares.Args['shareAmount']
   >().toEqualTypeOf<internal_Token.AmountInput>()
   expectTypeOf<
     earnActions.withdrawExact.Args['assetAmount']
@@ -227,6 +246,12 @@ test('write amounts accept AmountInput; resolved bounds stay bigint', async () =
   >().toEqualTypeOf<bigint>()
   expectTypeOf<
     Extract<
+      earnActions.redeemShares.call.Args,
+      { venueShareAmountMin: bigint }
+    >['venueShareAmountMin']
+  >().toEqualTypeOf<bigint>()
+  expectTypeOf<
+    Extract<
       earnActions.withdrawExact.call.Args,
       { shareAmountMax: bigint }
     >['shareAmountMax']
@@ -249,10 +274,12 @@ test('write args and sync results use recipient', () => {
   expectTypeOf<earnActions.deposit.Args>().toHaveProperty('recipient')
   expectTypeOf<earnActions.depositShares.Args>().toHaveProperty('recipient')
   expectTypeOf<earnActions.redeem.Args>().toHaveProperty('recipient')
+  expectTypeOf<earnActions.redeemShares.Args>().toHaveProperty('recipient')
   expectTypeOf<earnActions.withdrawExact.Args>().toHaveProperty('recipient')
   expectTypeOf<earnActions.deposit.Args>().not.toHaveProperty('receiver')
   expectTypeOf<earnActions.depositShares.Args>().not.toHaveProperty('receiver')
   expectTypeOf<earnActions.redeem.Args>().not.toHaveProperty('receiver')
+  expectTypeOf<earnActions.redeemShares.Args>().not.toHaveProperty('receiver')
   expectTypeOf<earnActions.withdrawExact.Args>().not.toHaveProperty('receiver')
   expectTypeOf<earnActions.depositSync.ReturnValue>().toHaveProperty(
     'recipient',
@@ -261,6 +288,9 @@ test('write args and sync results use recipient', () => {
     'recipient',
   )
   expectTypeOf<earnActions.redeemSync.ReturnValue>().toHaveProperty('recipient')
+  expectTypeOf<earnActions.redeemSharesSync.ReturnValue>().toHaveProperty(
+    'recipient',
+  )
   expectTypeOf<earnActions.withdrawExactSync.ReturnValue>().toHaveProperty(
     'recipient',
   )
@@ -271,6 +301,9 @@ test('write args and sync results use recipient', () => {
     'receiver',
   )
   expectTypeOf<earnActions.redeemSync.ReturnValue>().not.toHaveProperty(
+    'receiver',
+  )
+  expectTypeOf<earnActions.redeemSharesSync.ReturnValue>().not.toHaveProperty(
     'receiver',
   )
   expectTypeOf<earnActions.withdrawExactSync.ReturnValue>().not.toHaveProperty(
@@ -373,6 +406,33 @@ test('bound branches are exclusive OneOf unions', async () => {
     vault: address,
   })
 
+  await earnActions.redeemShares(clientWithAccount, {
+    shareAmount: 1n,
+    venueShareAmountMin: 1n,
+    venueShareToken: address,
+    vault: address,
+  })
+  await earnActions.redeemShares(clientWithAccount, {
+    shareAmount: 1n,
+    slippageBps: 50,
+    vault: address,
+  })
+  await earnActions.redeemShares(clientWithAccount, {
+    shareAmount: 1n,
+    slippageBps: 50,
+    venueShareAmount: 1n,
+    venueShareToken: address,
+    vault: address,
+  })
+  // @ts-expect-error branches cannot mix
+  await earnActions.redeemShares(clientWithAccount, {
+    shareAmount: 1n,
+    slippageBps: 50,
+    venueShareAmountMin: 1n,
+    venueShareToken: address,
+    vault: address,
+  })
+
   await earnActions.withdrawExact(clientWithAccount, {
     assetAmount: 1n,
     shareAmountMax: 1n,
@@ -461,6 +521,23 @@ test('builders require explicit tokens and recipient', () => {
     recipient: address,
     shareAmount: 1n,
     vault: address,
+  })
+
+  earnActions.redeemShares.calls({
+    recipient: address,
+    shareAmount: 1n,
+    shareToken: address,
+    vault: address,
+    venueShareAmountMin: 1n,
+    venueShareToken: address,
+  })
+  // @ts-expect-error `shareToken` is required on the builder
+  earnActions.redeemShares.calls({
+    recipient: address,
+    shareAmount: 1n,
+    vault: address,
+    venueShareAmountMin: 1n,
+    venueShareToken: address,
   })
 
   earnActions.withdrawExact.calls({

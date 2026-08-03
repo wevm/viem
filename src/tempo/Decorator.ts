@@ -2033,6 +2033,13 @@ type DecoratorBase<
       parameters: earnActions.getRedeemQuote.Parameters,
     ) => Promise<earnActions.getRedeemQuote.ReturnValue>
     /**
+     * Gets the transferable venue-share token and output for an exact Earn
+     * share input, including fees.
+     */
+    getRedeemSharesQuote: (
+      parameters: earnActions.getRedeemSharesQuote.Parameters,
+    ) => Promise<earnActions.getRedeemSharesQuote.ReturnValue>
+    /**
      * Gets the Earn shares required for an exact asset output, including
      * fees and ceiling rounding.
      *
@@ -2118,6 +2125,14 @@ type DecoratorBase<
     redeemSync: (
       parameters: earnActions.redeemSync.Parameters<chain, account>,
     ) => Promise<earnActions.redeemSync.ReturnValue>
+    /** Redeems Earn shares directly into transferable venue shares. */
+    redeemShares: (
+      parameters: earnActions.redeemShares.Parameters<chain, account>,
+    ) => Promise<earnActions.redeemShares.ReturnValue>
+    /** Redeems into venue shares and returns the confirmed event data. */
+    redeemSharesSync: (
+      parameters: earnActions.redeemSharesSync.Parameters<chain, account>,
+    ) => Promise<earnActions.redeemSharesSync.ReturnValue>
     /**
      * Withdraws Earn shares from a Zone and redeems them on the parent chain.
      *
@@ -5898,10 +5913,13 @@ export function decorator() {
         'getFeeState',
         'getPosition',
         'getRedeemQuote',
+        'getRedeemSharesQuote',
         'getVault',
         'getWithdrawQuote',
         'redeem',
         'redeemSync',
+        'redeemShares',
+        'redeemSharesSync',
         'privateRedeem',
         'privateRedeemSync',
         'waitForPrivateDeposit',

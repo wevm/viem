@@ -74,6 +74,7 @@ export async function deployEarnStack(
         controls: {
           asyncJanitor: seats.asyncJanitor.address,
           emergencyGuardian: seats.emergencyGuardian.address,
+          maxManagedAssets: controls.maxManagedAssets ?? 0n,
           // `EngineMigrationMode`: 0 = UserOnly, 1 = OperatorEnabled.
           migrationMode: controls.migrationMode === 'userOnly' ? 0 : 1,
         },
@@ -81,6 +82,7 @@ export async function deployEarnStack(
         engine,
         fees,
         owner: operator.address,
+        transferPolicyId: 0n,
       },
     ],
     functionName: 'deploy',
@@ -140,12 +142,14 @@ export declare namespace deployEarnStack {
       | {
           /** Engine migration policy. @default `'operatorEnabled'` */
           migrationMode?: 'operatorEnabled' | 'userOnly' | undefined
+          /** Initial active managed-assets limit. @default unlimited */
+          maxManagedAssets?: bigint | undefined
         }
       | undefined
     /** Share-token namespace id. @default random */
     deploymentId?: Hex.Hex | undefined
-    /** `FeeInit` passed to `factory.deploy`. @default inert (caps set, no config) */
-    fees?: FeeInit | undefined
+    /** `FeeConfig` passed to `factory.deploy`. @default no fees */
+    fees?: FeeConfig | undefined
   }
 
   export type ReturnValue = {
@@ -182,6 +186,12 @@ export async function deployEarnGateway(
 
   const gateway = await deployContract(client, {
     abi: EarnContracts.earnRouter.abi,
+    args: [
+      options.zoneId,
+      adapter,
+      options.privateAsset,
+      options.tokenAuthority,
+    ],
     bytecode: EarnContracts.earnRouter.bytecode,
   })
 
@@ -224,8 +234,14 @@ export declare namespace deployEarnGateway {
   export type Options = {
     /** `EarnVault` whose tokens are enabled in the Zone. */
     adapter: Address
+    /** Private stablecoin accepted by the router. */
+    privateAsset: Address
     /** Portal administrator client. */
     portalClient: Client<Transport, Chain, viem_Account>
+    /** Existing TokenAuthority for the private and vault asset pair. */
+    tokenAuthority: Address
+    /** Immutable source Zone ID. */
+    zoneId: number
     /** Zone portal on the parent chain. */
     zonePortal: Address
   }
@@ -236,35 +252,25 @@ export declare namespace deployEarnGateway {
   }
 }
 
-/** `EarnFeesInit` shape for `factory.deploy`. */
-export type FeeInit = {
-  administrator: Address
-  excessFeeCap: bigint
-  fixedFeeCap: bigint
-  guardian: Address
-  initialConfig: {
-    excess: {
-      account: Address
-      annualTargetRate: bigint
-      enabled: boolean
-      excessFeeRate: bigint
-    }
-    fixedFeeCount: number
-    fixedFees: readonly [FixedFee, FixedFee, FixedFee, FixedFee]
+/** Earn fee configuration passed to `factory.deploy`. */
+export type FeeConfig = {
+  excess: {
+    account: Address
+    annualTargetRateBps: number
+    enabled: boolean
+    excessFeeRateBps: number
   }
+  fixedFeeCount: number
+  fixedFees: readonly [FixedFee, FixedFee, FixedFee, FixedFee]
 }
 
-type FixedFee = { account: Address; rate: bigint }
+type FixedFee = { account: Address; rateBps: number }
 
 type Seats = {
   /** Cancel-to-stored-receiver liveness seat. */
   asyncJanitor: Account.RootAccount
   /** Pause-only emergency seat. */
   emergencyGuardian: Account.RootAccount
-  /** Fee configuration administrator. */
-  feeAdministrator: Account.RootAccount
-  /** Fee emergency-disable seat. */
-  feeGuardian: Account.RootAccount
   /** Adapter governance seat (the deployer). */
   operator: viem_Account
 }
@@ -273,30 +279,21 @@ type Seats = {
 export const seats = {
   asyncJanitor: accounts[16],
   emergencyGuardian: accounts[17],
-  feeAdministrator: accounts[18],
-  feeGuardian: accounts[20],
 } as const
 
 const zeroAddress = '0x0000000000000000000000000000000000000000' as const
 
-const zeroFixedFee = { account: zeroAddress, rate: 0n } as const
+const zeroFixedFee = { account: zeroAddress, rateBps: 0 } as const
 
-// Caps allow later `setFeeConfig` tests; the empty config keeps fees inactive.
-const inertFees: FeeInit = {
-  administrator: seats.feeAdministrator.address,
-  excessFeeCap: 1_000_000_000_000_000_000n,
-  fixedFeeCap: 100_000_000_000_000_000n,
-  guardian: seats.feeGuardian.address,
-  initialConfig: {
-    excess: {
-      account: zeroAddress,
-      annualTargetRate: 0n,
-      enabled: false,
-      excessFeeRate: 0n,
-    },
-    fixedFeeCount: 0,
-    fixedFees: [zeroFixedFee, zeroFixedFee, zeroFixedFee, zeroFixedFee],
+const inertFees: FeeConfig = {
+  excess: {
+    account: zeroAddress,
+    annualTargetRateBps: 0,
+    enabled: false,
+    excessFeeRateBps: 0,
   },
+  fixedFeeCount: 0,
+  fixedFees: [zeroFixedFee, zeroFixedFee, zeroFixedFee, zeroFixedFee],
 }
 
 // Local portal token enablement.

@@ -923,7 +923,7 @@ export async function depositSharesSync<
     caller: args.caller,
     earnShareAmount: args.earnShares,
     receipt,
-    receivedVenueShareAmount: args.receivedVenueShares,
+    receivedVenueShareAmount: args.receivedEngineShares,
     recipient: args.receiver,
     venueShareAmount: args.requestedVenueShares,
   }
@@ -1039,7 +1039,9 @@ export namespace privateDeposit {
         zonePortal: portalAddress,
       }),
     ])
-    const assetToken = parameters.assetToken ?? config.vaultAsset
+    const assetToken = parameters.assetToken ?? config.privateAsset
+    if (!isAddressEqual(assetToken, config.privateAsset))
+      throw new Error('`assetToken` must match the gateway private asset.')
     const { encrypted, keyIndex } =
       await zoneActions.encryptedDeposit.prepareRecipient(client, {
         ...readParameters,
@@ -1049,18 +1051,13 @@ export namespace privateDeposit {
         zoneId: config.zoneId,
       })
     const shareAmountMin = resolveMinimumShareAmount(parameters)
-    const direct = isAddressEqual(assetToken, config.vaultAsset)
     const data = encodeAbiParameters(Abis.earnRouterCallbackData, [
       {
         actionId,
-        earnVault: config.vault,
         flow: 0,
         minEarnShares: shareAmountMin,
         minOutputAmount: 0n,
-        minVaultAssets: direct
-          ? assetAmount
-          : (parameters.vaultAssetAmountMin ?? 0n),
-        outputToken: config.shareToken,
+        minVaultAssets: parameters.vaultAssetAmountMin ?? assetAmount,
         zoneReturn: { encrypted, keyIndex, refundRecipient: recoveryRecipient },
       },
     ])
@@ -1429,15 +1426,15 @@ export type FeeConfig = {
   excess: {
     /** Excess fee recipient. */
     account: Address
-    /** Annual target growth rate, scaled to 18 decimals. */
-    annualTargetRate: bigint
+    /** Annual target growth rate in basis points. */
+    annualTargetRateBps: number
     /** Whether the excess fee is active. */
     enabled: boolean
-    /** Rate applied above the target, scaled to 18 decimals. */
-    excessFeeRate: bigint
+    /** Rate applied above the target in basis points. */
+    excessFeeRateBps: number
   }
-  /** Fixed fee recipients and their 18-decimal rates. */
-  fixedFees: readonly { account: Address; rate: bigint }[]
+  /** Fixed fee recipients and their basis-point rates. */
+  fixedFees: readonly { account: Address; rateBps: number }[]
 }
 
 /** Pending vault fee amounts. */
@@ -1684,6 +1681,91 @@ export namespace getRedeemQuote {
 }
 
 /**
+ * Gets the transferable venue-share token and output for an exact Earn share
+ * input, including fees.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * const quote = await Actions.earn.getRedeemSharesQuote(client, {
+ *   shareAmount: 100_000_000n,
+ *   vault: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The current venue-share token and output, including fees.
+ */
+export async function getRedeemSharesQuote<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getRedeemSharesQuote.Parameters,
+): Promise<getRedeemSharesQuote.ReturnValue> {
+  const { shareAmount, vault, ...rest } = parameters
+  const [venueShareToken, venueShareAmount] = await readContract(client, {
+    ...rest,
+    ...getRedeemSharesQuote.call({ shareAmount, vault }),
+  })
+  return { venueShareAmount, venueShareToken }
+}
+
+export namespace getRedeemSharesQuote {
+  export type Args = {
+    /** Exact Earn share input, base units. */
+    shareAmount: bigint
+    /** Vault address. */
+    vault: Address
+  }
+  export type Parameters = Omit<ReadParameters, 'account'> & Args
+  export type ReturnValue = {
+    /** Transferable venue shares returned by an in-kind redemption. */
+    venueShareAmount: bigint
+    /** Current transferable venue-share token. */
+    venueShareToken: Address
+  }
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /**
+   * Defines a call to the vault's `previewRedeemVenueShares` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`multicall`](https://viem.sh/docs/contract/multicall): batch the call with other contract reads
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   *
+   * @example
+   * ```ts
+   * import { Actions } from 'viem/tempo'
+   *
+   * const call = Actions.earn.getRedeemSharesQuote.call({
+   *   shareAmount: 100_000_000n,
+   *   vault: '0x...',
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { shareAmount, vault } = args
+    return defineCall({
+      address: vault,
+      abi: Abis.earnVault,
+      args: [shareAmount],
+      functionName: 'previewRedeemVenueShares',
+    })
+  }
+}
+
+/**
  * Gets the vault's addresses, configuration, accounting state, and supported
  * actions. Throws {@link GetVaultEngineChangedError} if its engine changes mid-read.
  *
@@ -1735,6 +1817,8 @@ export async function getVault<chain extends Chain | undefined>(
     asyncJanitor,
     engineMigrationMode,
     depositsPaused,
+    maxManagedAssets,
+    remainingDepositCapacity,
     engineShares,
     shareSupply,
     isSynced,
@@ -1746,6 +1830,7 @@ export async function getVault<chain extends Chain | undefined>(
     asyncRedeem,
     exactWithdraw,
     inKindDeposit,
+    inKindRedeem,
     syncRedeem,
   ] = await multicall(client, {
     ...rest,
@@ -1758,7 +1843,13 @@ export async function getVault<chain extends Chain | undefined>(
   return {
     assetToken,
     asyncJanitor,
-    capabilities: { asyncRedeem, exactWithdraw, inKindDeposit, syncRedeem },
+    capabilities: {
+      asyncRedeem,
+      exactWithdraw,
+      inKindDeposit,
+      inKindRedeem,
+      syncRedeem,
+    },
     depositsPaused,
     emergencyGuardian,
     engine: { address: engine_, name, symbol, totalAssets },
@@ -1768,8 +1859,10 @@ export async function getVault<chain extends Chain | undefined>(
     engineShares,
     feesActive,
     isSynced,
+    maxManagedAssets,
     operator,
     pendingRedeemCount,
+    remainingDepositCapacity,
     shareSupply,
     shareToken,
   }
@@ -1794,6 +1887,8 @@ export namespace getVault {
       exactWithdraw: boolean
       /** Venue share deposits. */
       inKindDeposit: boolean
+      /** Venue share redemptions. */
+      inKindRedeem: boolean
       /** Immediate redemptions. */
       syncRedeem: boolean
     }
@@ -1820,10 +1915,14 @@ export namespace getVault {
     feesActive: boolean
     /** Whether Earn share supply matches its asset backing. */
     isSynced: boolean
+    /** Current active managed-assets limit; zero means unlimited. */
+    maxManagedAssets: bigint
     /** Vault governance address. */
     operator: Address
     /** Open queued redemptions. */
     pendingRedeemCount: bigint
+    /** Assets that may enter before reaching the current limit. */
+    remainingDepositCapacity: bigint
     /** Active Earn share supply. */
     shareSupply: bigint
     /** Token representing Earn shares. */
@@ -1885,6 +1984,16 @@ export namespace getVault {
       defineCall({
         address: vault,
         abi: Abis.earnVault,
+        functionName: 'maxManagedAssets',
+      }),
+      defineCall({
+        address: vault,
+        abi: Abis.earnVault,
+        functionName: 'remainingDepositCapacity',
+      }),
+      defineCall({
+        address: vault,
+        abi: Abis.earnVault,
         functionName: 'engineShares',
       }),
       defineCall({
@@ -1939,6 +2048,12 @@ export namespace getVault {
         abi: Abis.earnEngine,
         functionName: 'supportsInterface',
         args: [interfaceIds.inKindDeposit],
+      }),
+      defineCall({
+        address: engine,
+        abi: Abis.earnEngine,
+        functionName: 'supportsInterface',
+        args: [interfaceIds.inKindRedeem],
       }),
       defineCall({
         address: engine,
@@ -2337,6 +2452,307 @@ export namespace redeemSync {
 }
 
 /**
+ * Redeems Earn shares directly into the current engine's transferable venue
+ * shares. The transaction includes the required Earn share approval and binds
+ * execution to the quoted venue-share token.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * const hash = await Actions.earn.redeemShares(client, {
+ *   shareAmount: 100_000_000n,
+ *   slippageBps: 50,
+ *   vault: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function redeemShares<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: redeemShares.Parameters<chain, account>,
+): Promise<redeemShares.ReturnValue> {
+  return redeemShares.inner(sendTransaction, client, parameters)
+}
+
+export namespace redeemShares {
+  export type Args = {
+    /** Earn shares to redeem; base units or `{ formatted, decimals? }`. */
+    shareAmount: internal_Token.AmountInput
+    /** Venue share recipient. @default `account.address` */
+    recipient?: Address | undefined
+    /** Vault address. */
+    vault: Address
+  } & OneOf<
+    | {
+        /** Minimum venue-share output to accept; must be greater than zero. */
+        venueShareAmountMin: bigint
+        /** Expected venue-share token. */
+        venueShareToken: Address
+      }
+    | {
+        /** Slippage under a live {@link getRedeemSharesQuote} (50 = 0.5%). */
+        slippageBps: number
+      }
+    | {
+        /** Quoted venue-share output; floored by `slippageBps`. */
+        venueShareAmount: bigint
+        /** Slippage tolerance under `venueShareAmount` (50 = 0.5%). */
+        slippageBps: number
+        /** Expected venue-share token. */
+        venueShareToken: Address
+      }
+  >
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+  export type ReturnValue = SendTransactionReturnType
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** @internal Shared dispatch; resolves the quote and Earn share approval. */
+  export async function inner<
+    action extends typeof sendTransaction | typeof sendTransactionSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const [args, shareToken] = await Promise.all([
+      toRedeemSharesArgs(client, parameters as never),
+      readContract(client, {
+        abi: Abis.earnVault,
+        address: parameters.vault,
+        functionName: 'earnShare',
+      }),
+    ])
+    return (await action(client, {
+      ...parameters,
+      calls: calls({ ...args, shareToken }),
+    } as never)) as never
+  }
+
+  /**
+   * Defines an in-kind venue-share redemption without an approval. Provide
+   * Earn share decimals for formatted inputs and explicit token and output
+   * bounds because this builder performs no reads.
+   *
+   * @param parameters - Client (optional), followed by the call arguments.
+   * @returns The call.
+   */
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<call.Args, Client<Transport, chain>>
+  ) {
+    const [, args] = resolveCallParameters(parameters)
+    const { recipient, vault, venueShareToken } = args
+    const venueShareAmountMin = (() => {
+      if (args.venueShareAmountMin !== undefined)
+        return args.venueShareAmountMin
+      return EarnShares.minimumOutput(args.venueShareAmount, args.slippageBps)
+    })()
+    return defineCall({
+      address: vault,
+      abi: Abis.earnVault,
+      functionName: 'redeemVenueShares',
+      args: [
+        internal_Token.toBaseUnits(args.shareAmount, undefined),
+        recipient,
+        venueShareToken,
+        venueShareAmountMin,
+      ],
+    })
+  }
+  export namespace call {
+    export type Args = {
+      /** Earn shares to redeem; base units or `{ formatted, decimals? }`. */
+      shareAmount: internal_Token.AmountInput
+      /** Venue share recipient. */
+      recipient: Address
+      /** Vault address. */
+      vault: Address
+      /** Expected venue-share token. */
+      venueShareToken: Address
+    } & OneOf<
+      | {
+          /** Minimum venue-share output to accept. */
+          venueShareAmountMin: bigint
+        }
+      | {
+          /** Quoted venue-share output; floored by `slippageBps`. */
+          venueShareAmount: bigint
+          /** Slippage tolerance under `venueShareAmount` (50 = 0.5%). */
+          slippageBps: number
+        }
+    >
+  }
+
+  /** Defines the Earn share approval and in-kind redemption calls. */
+  export function calls(
+    args: call.Args & {
+      /** Earn share token approved for the redemption. */
+      shareToken: Address
+    },
+  ) {
+    const { shareToken, vault } = args
+    const shareAmount = internal_Token.toBaseUnits(args.shareAmount, undefined)
+    return [
+      defineCall({
+        address: shareToken,
+        abi: Abis.tip20,
+        functionName: 'approve',
+        args: [vault, shareAmount],
+      }),
+      call({ ...args, shareAmount }),
+    ]
+  }
+
+  /**
+   * Extracts a `VenueSharesRedeemed` event from the vault's logs.
+   *
+   * @param logs - Logs.
+   * @param parameters - Parameters.
+   * @returns The `VenueSharesRedeemed` event.
+   */
+  export function extractEvent(logs: Log[], parameters: { vault: Address }) {
+    const { vault } = parameters
+    const [log] = parseEventLogs({
+      abi: Abis.earnVault,
+      eventName: 'VenueSharesRedeemed',
+      logs: logs.filter((log) => isAddressEqual(log.address, vault)),
+    })
+    if (!log) throw new Error('`VenueSharesRedeemed` event not found.')
+    return log
+  }
+
+  /** Estimates gas for an in-kind redemption, assuming enough allowance. */
+  export async function estimateGas<
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<bigint> {
+    return estimateContractGas(client, {
+      ...pickWriteParameters(parameters as never),
+      ...call(await toRedeemSharesArgs(client, parameters as never)),
+    } as never)
+  }
+
+  /** Simulates an in-kind redemption, assuming enough allowance. */
+  export async function simulate<
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<
+    SimulateContractReturnType<typeof Abis.earnVault, 'redeemVenueShares'>
+  > {
+    return simulateContract(client, {
+      ...pickWriteParameters(parameters as never),
+      ...call(await toRedeemSharesArgs(client, parameters as never)),
+    } as never) as never
+  }
+}
+
+/**
+ * Redeems Earn shares directly into venue shares and returns the confirmed
+ * receipt and event data.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * const result = await Actions.earn.redeemSharesSync(client, {
+ *   shareAmount: 100_000_000n,
+ *   slippageBps: 50,
+ *   vault: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction receipt and event data.
+ */
+export async function redeemSharesSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: redeemSharesSync.Parameters<chain, account>,
+): Promise<redeemSharesSync.ReturnValue> {
+  const { throwOnReceiptRevert = true, vault } = parameters
+  const receipt = await redeemShares.inner(sendTransactionSync, client, {
+    ...parameters,
+    throwOnReceiptRevert,
+  } as never)
+  const { args } = redeemShares.extractEvent(receipt.logs, { vault })
+  return {
+    caller: args.caller,
+    engineShareAmount: args.engineShares,
+    receipt,
+    recipient: args.receiver,
+    shareAmount: args.earnShares,
+    venueShareAmount: args.venueShares,
+    venueShareToken: args.venueShareToken,
+  }
+}
+
+export namespace redeemSharesSync {
+  export type Args = redeemShares.Args
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = redeemShares.Parameters<chain, account> &
+    WriteSyncParameters<chain, account>
+  export type ReturnValue = Compute<{
+    /** Redeeming caller. */
+    caller: Address
+    /** Active engine shares removed from backing. */
+    engineShareAmount: bigint
+    /** Transaction receipt. */
+    receipt: TransactionReceipt
+    /** Venue-share recipient. */
+    recipient: Address
+    /** Earn shares burned. */
+    shareAmount: bigint
+    /** Venue shares delivered. */
+    venueShareAmount: bigint
+    /** Venue-share token delivered. */
+    venueShareToken: Address
+  }>
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+}
+
+/**
  * Withdraws Earn shares from a Zone and redeems them on the parent chain. Use
  * {@link privateRedeem.prepare} to build the encrypted callback.
  *
@@ -2419,9 +2835,11 @@ export namespace privateRedeem {
         zonePortal: portalAddress,
       }),
     ])
-    const assetToken = parameters.assetToken ?? config.vaultAsset
+    const assetToken = parameters.assetToken ?? config.privateAsset
     if (isAddressEqual(assetToken, config.shareToken))
       throw new Error('`assetToken` cannot be the Earn share token.')
+    if (!isAddressEqual(assetToken, config.privateAsset))
+      throw new Error('`assetToken` must match the gateway private asset.')
 
     const [{ encrypted, keyIndex }, assetAmountMin] = await Promise.all([
       zoneActions.encryptedDeposit.prepareRecipient(client, {
@@ -2447,16 +2865,13 @@ export namespace privateRedeem {
         return EarnShares.minimumOutput(assetAmount, parameters.slippageBps)
       })(),
     ])
-    const direct = isAddressEqual(assetToken, config.vaultAsset)
     const data = encodeAbiParameters(Abis.earnRouterCallbackData, [
       {
         actionId,
-        earnVault: config.vault,
         flow: 1,
         minEarnShares: 0n,
-        minOutputAmount: direct ? 0n : assetAmountMin,
-        minVaultAssets: direct ? assetAmountMin : 1n,
-        outputToken: assetToken,
+        minOutputAmount: assetAmountMin,
+        minVaultAssets: 1n,
         zoneReturn: { encrypted, keyIndex, refundRecipient: recoveryRecipient },
       },
     ])
@@ -3132,7 +3547,16 @@ async function getZoneGatewayConfig<chain extends Chain | undefined>(
   },
 ) {
   const { flow, gateway, vault, zoneId, zonePortal, ...rest } = parameters
-  const [vaultAsset, shareToken, supportsFlow] = await multicall(client, {
+  const [
+    vaultAsset,
+    shareToken,
+    gatewayVault,
+    gatewayPrivateAsset,
+    gatewayVaultAsset,
+    gatewayShareToken,
+    gatewayZoneId,
+    supportsFlow,
+  ] = await multicall(client, {
     ...rest,
     allowFailure: false,
     contracts: [
@@ -3149,6 +3573,31 @@ async function getZoneGatewayConfig<chain extends Chain | undefined>(
       {
         abi: Abis.earnRouter,
         address: gateway,
+        functionName: 'earnVault',
+      },
+      {
+        abi: Abis.earnRouter,
+        address: gateway,
+        functionName: 'privateAsset',
+      },
+      {
+        abi: Abis.earnRouter,
+        address: gateway,
+        functionName: 'vaultAsset',
+      },
+      {
+        abi: Abis.earnRouter,
+        address: gateway,
+        functionName: 'earnShare',
+      },
+      {
+        abi: Abis.earnRouter,
+        address: gateway,
+        functionName: 'allowedZoneId',
+      },
+      {
+        abi: Abis.earnRouter,
+        address: gateway,
         args: [flow],
         functionName: 'supportsFlow',
       },
@@ -3156,7 +3605,15 @@ async function getZoneGatewayConfig<chain extends Chain | undefined>(
     deployless: true,
   })
   if (!supportsFlow) throw new Error('Zone gateway flow is not supported.')
+  if (
+    !isAddressEqual(gatewayVault, vault) ||
+    !isAddressEqual(gatewayVaultAsset, vaultAsset) ||
+    !isAddressEqual(gatewayShareToken, shareToken) ||
+    gatewayZoneId !== zoneId
+  )
+    throw new Error('Zone gateway immutable configuration does not match.')
   return {
+    privateAsset: gatewayPrivateAsset,
     shareToken,
     vault,
     vaultAsset,
@@ -3174,6 +3631,8 @@ const interfaceIds = {
   exactWithdraw: '0x0adfb0b9',
   /** `IEarnEngineInKindDeposit`. */
   inKindDeposit: '0xce4790a9',
+  /** `IEarnEngineInKindRedeem`. */
+  inKindRedeem: '0x59429bf1',
   /** `IEarnEngineRedeem`. */
   syncRedeem: '0x94a2d467',
 } as const
@@ -3287,6 +3746,43 @@ async function toRedeemArgs(
     ...args,
     assetAmount,
     slippageBps: parameters.slippageBps,
+  }
+}
+
+/** Resolves `redeemShares` parameters into the adapter call args. @internal */
+async function toRedeemSharesArgs(
+  client: Client<Transport, Chain | undefined, Account | undefined>,
+  parameters: redeemShares.Parameters,
+): Promise<redeemShares.call.Args> {
+  const { vault } = parameters
+  const shareAmount = await toBaseUnitsLive(client, {
+    amount: parameters.shareAmount,
+    token: 'shareToken',
+    vault,
+  })
+  const args = {
+    recipient: resolveRecipient(client, parameters),
+    shareAmount,
+    vault,
+  }
+  if (parameters.venueShareAmountMin !== undefined)
+    return {
+      ...args,
+      venueShareAmountMin: parameters.venueShareAmountMin,
+      venueShareToken: parameters.venueShareToken,
+    }
+  const quote = await (async () => {
+    if (parameters.venueShareAmount !== undefined)
+      return {
+        venueShareAmount: parameters.venueShareAmount,
+        venueShareToken: parameters.venueShareToken,
+      }
+    return getRedeemSharesQuote(client, { shareAmount, vault })
+  })()
+  return {
+    ...args,
+    slippageBps: parameters.slippageBps,
+    ...quote,
   }
 }
 
