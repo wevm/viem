@@ -3,8 +3,12 @@ import * as Fs from 'node:fs'
 import * as Path from 'node:path'
 import { AbiItem } from 'ox'
 
+// Run with `EARN_CONTRACTS_PATH=/path/to/earn pnpm gen:tempo-earn-abis`.
+// Update this revision only after the matching Earn release has been reviewed.
+// The checkout must be clean with recursive submodules initialized.
 const checkMode = process.argv.includes('--check')
 const repoRoot = Path.resolve(import.meta.dirname, '..')
+const earnCommit = '454fa260ded101f970ee7d6bafebf4c3b6ec9095'
 const checkout = (() => {
   const path = process.env.EARN_CONTRACTS_PATH
   if (!path)
@@ -40,6 +44,13 @@ const abiSlices: readonly {
   functions?: true | readonly string[] | undefined
 }[] = [
   {
+    contracts: ['ERC4626EngineFactory'],
+    errors: true,
+    events: ['ERC4626EngineDeployed'],
+    exportName: 'erc4626EngineFactory',
+    functions: ['computeEngineSalt', 'deploy', 'predictEngine'],
+  },
+  {
     contracts: ['EarnFactory'],
     errors: true,
     events: ['EarnStackDeployed'],
@@ -47,8 +58,11 @@ const abiSlices: readonly {
     functions: [
       'computeEarnShareSalt',
       'deploy',
+      'earnFeesImplementation',
+      'earnVaultImplementation',
       'predictEarnFees',
       'predictEarnShare',
+      'tip20Factory',
     ],
   },
   {
@@ -58,11 +72,17 @@ const abiSlices: readonly {
     exportName: 'erc4626Engine',
     functions: [
       'acceptOwnership',
+      'asset',
+      'baseAsset',
+      'earnVault',
       'initializeEarnVault',
+      'name',
       'owner',
       'pendingOwner',
       'renounceOwnership',
+      'symbol',
       'transferOwnership',
+      'vault',
     ],
   },
   { contracts: ['EarnVault'], exportName: 'earnVault' },
@@ -97,7 +117,7 @@ const abiSlices: readonly {
     functions: ['claimRedeem', 'getClaim', 'rate', 'settled'],
   },
   {
-    contracts: ['ZoneOnlyEarnRouter'],
+    contracts: ['SingleZoneEarnRouter'],
     errors: true,
     events: true,
     exportName: 'earnRouter',
@@ -107,11 +127,19 @@ const abiSlices: readonly {
 
 const deployables: readonly { contract: string; exportName: string }[] = [
   { contract: 'Simple4626Vault', exportName: 'simple4626Vault' },
+  {
+    contract: 'ERC4626EngineFactory',
+    exportName: 'erc4626EngineFactory',
+  },
   { contract: 'ERC4626Engine', exportName: 'erc4626Engine' },
   { contract: 'EarnVault', exportName: 'earnVault' },
   { contract: 'EarnFees', exportName: 'earnFees' },
   { contract: 'EarnFactory', exportName: 'earnFactory' },
-  { contract: 'ZoneOnlyEarnRouter', exportName: 'earnRouter' },
+  {
+    contract: 'DemoTokenAuthority',
+    exportName: 'demoTokenAuthority',
+  },
+  { contract: 'SingleZoneEarnRouter', exportName: 'earnRouter' },
   {
     contract: 'EarnContributionController',
     exportName: 'earnContributionController',
@@ -192,13 +220,12 @@ function structComponents(
 
 function routerCallbackDataParameter() {
   const zone = Path.join(checkout, 'src/interfaces/external/tempo/IZone.sol')
-  const base = Path.join(checkout, 'src/periphery/EarnRouterBase.sol')
-  const zoneOnly = Path.join(checkout, 'src/periphery/ZoneOnlyEarnRouter.sol')
+  const router = Path.join(checkout, 'src/router/SingleZoneEarnRouter.sol')
   const encrypted = structComponents(zone, 'EncryptedDepositPayload')
-  const zoneReturn = structComponents(base, 'ZoneReturn', {
+  const zoneReturn = structComponents(router, 'ZoneReturn', {
     EncryptedDepositPayload: encrypted,
   })
-  const components = structComponents(zoneOnly, 'CallbackData', {
+  const components = structComponents(router, 'CallbackData', {
     ZoneReturn: zoneReturn,
   })
   return [{ components, name: 'callbackData', type: 'tuple' }] as const
@@ -220,7 +247,7 @@ function generateAbiSlice(commit: string) {
       })
     return `export const ${slice.exportName} = ${JSON.stringify(sliceAbi(abi, slice))} as const`
   })
-  return `${earnMarker}${commit}. Do not modify manually.\n\n${slices.join('\n\n')}\n\n// \`ZoneOnlyEarnRouter.CallbackData\` parameter for \`encodeAbiParameters\`.\nexport const earnRouterCallbackData = ${JSON.stringify(routerCallbackDataParameter())} as const\n`
+  return `${earnMarker}${commit}. Do not modify manually.\n\n${slices.join('\n\n')}\n\n// \`SingleZoneEarnRouter.CallbackData\` parameter for \`encodeAbiParameters\`.\nexport const earnRouterCallbackData = ${JSON.stringify(routerCallbackDataParameter())} as const\n`
 }
 
 function generateContracts(commit: string) {
@@ -247,10 +274,26 @@ const commit = (() => {
   }).trim()
   if (status)
     throw new Error('`EARN_CONTRACTS_PATH` must point to a clean checkout.')
-  return execFileSync('git', ['rev-parse', 'HEAD'], {
+  const commit = execFileSync('git', ['rev-parse', 'HEAD'], {
     cwd: checkout,
     encoding: 'utf8',
   }).trim()
+  if (commit !== earnCommit)
+    throw new Error(
+      `\`EARN_CONTRACTS_PATH\` must point to tempoxyz/earn at ${earnCommit}.`,
+    )
+  const uninitializedSubmodule = execFileSync(
+    'git',
+    ['submodule', 'status', '--recursive'],
+    { cwd: checkout, encoding: 'utf8' },
+  )
+    .split('\n')
+    .some((line) => line.startsWith('-'))
+  if (uninitializedSubmodule)
+    throw new Error(
+      '`EARN_CONTRACTS_PATH` must have recursively initialized submodules.',
+    )
+  return commit
 })()
 const generatedAbis = replaceAbiSlice(
   Fs.readFileSync(abisOut, 'utf8'),
