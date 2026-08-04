@@ -67,7 +67,7 @@ export function getClient<
   parameters: Partial<
     Pick<
       ClientConfig<Transport, typeof zone, accountOrAddress>,
-      'account' | 'chain' | 'transport'
+      'account' | 'batch' | 'chain' | 'transport'
     >
   > = {},
 ) {

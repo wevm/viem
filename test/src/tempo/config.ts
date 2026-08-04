@@ -131,7 +131,7 @@ export function getClient<
   parameters: Partial<
     Pick<
       ClientConfig<Transport, chain_, accountOrAddress>,
-      'account' | 'chain' | 'tokens' | 'transport'
+      'account' | 'batch' | 'chain' | 'tokens' | 'transport'
     >
   > = {},
 ): Client<
