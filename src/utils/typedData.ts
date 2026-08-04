@@ -91,7 +91,7 @@ export function validateTypedData<
         integerMatch &&
         (typeof value === 'number' || typeof value === 'bigint')
       ) {
-        const [_type, base, size_] = integerMatch
+        const [_type, base, size_ = '256'] = integerMatch
         // If number cannot be cast to a sized hex value, it is out of range
         // and will throw.
         numberToHex(value, {

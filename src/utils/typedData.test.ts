@@ -173,6 +173,48 @@ describe('validateTypedData', () => {
     })
   })
 
+  test('uint (no explicit size)', () => {
+    validateTypedData({
+      types: {
+        EIP712Domain: [],
+        Mail: [
+          { name: 'from', type: 'Person' },
+          { name: 'to', type: 'Person' },
+        ],
+        Person: [
+          { name: 'name', type: 'string' },
+          { name: 'amount', type: 'uint' },
+        ],
+      },
+      primaryType: 'Mail',
+      message: {
+        from: { name: 'Cow', amount: 1n },
+        to: { name: 'Bob', amount: 2n },
+      },
+    } as any)
+  })
+
+  test('int (no explicit size)', () => {
+    validateTypedData({
+      types: {
+        EIP712Domain: [],
+        Mail: [
+          { name: 'from', type: 'Person' },
+          { name: 'to', type: 'Person' },
+        ],
+        Person: [
+          { name: 'name', type: 'string' },
+          { name: 'amount', type: 'int' },
+        ],
+      },
+      primaryType: 'Mail',
+      message: {
+        from: { name: 'Cow', amount: -1n },
+        to: { name: 'Bob', amount: 1n },
+      },
+    } as any)
+  })
+
   test('negative uint', () => {
     expect(() =>
       validateTypedData({
