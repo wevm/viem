@@ -727,7 +727,6 @@ test('zone redeem supports live and explicit output bounds', async () => {
     shareAmount: 1n,
     slippageBps: 50,
   })
-  // @ts-expect-error explicit `assetToken` needs an explicit or quoted bound
   await earnActions.privateRedeem.prepare(client, {
     assetToken: address,
     ...privatePreparation,

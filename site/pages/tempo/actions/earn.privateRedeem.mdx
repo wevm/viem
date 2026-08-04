@@ -125,9 +125,10 @@ Minimum assets returned to the Zone.
 ### assetToken (optional)
 
 - **Type:** `Address`
-- **Default:** The vault asset
+- **Default:** The gateway's private asset
 
-Asset token returned to the Zone. A different token uses the gateway swap.
+Private asset returned to the Zone. If provided, it must match the gateway's immutable private
+asset. The callback cannot select another output token.
 
 ### callbackGas (optional)
 
