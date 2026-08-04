@@ -1209,7 +1209,7 @@ describe('earn', () => {
         flow: 0,
         minEarnShares: 1n,
         minOutputAmount: 0n,
-        minVaultAssets: assetAmount,
+        minVaultAssets: 2n,
       })
       expect(
         isAddressEqual(

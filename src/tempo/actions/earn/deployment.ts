@@ -20,6 +20,7 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import { zeroAddress } from '../../../constants/address.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import { BaseError, type BaseErrorType } from '../../../errors/base.js'
+import { TransactionReceiptRevertedError } from '../../../errors/transaction.js'
 import type { Chain } from '../../../types/chain.js'
 import type { GetEventArgs } from '../../../types/contract.js'
 import type { Log } from '../../../types/log.js'
@@ -210,6 +211,11 @@ export namespace createErc4626Engine {
 
   /**
    * Defines a call to `ERC4626EngineFactory.deploy`.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
    *
    * @example
    * ```ts
@@ -514,6 +520,11 @@ export namespace createStack {
   /**
    * Defines a call to `EarnFactory.deploy`.
    *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
    * @example
    * ```ts
    * import { createClient, http, walletActions } from 'viem'
@@ -767,6 +778,11 @@ export namespace bindErc4626Engine {
 
   /**
    * Defines a call to `ERC4626Engine.initializeEarnVault`.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
    *
    * @example
    * ```ts
@@ -1047,11 +1063,18 @@ export async function deployErc4626StackSync<
         ...writeParameters,
         ...engineArgs,
       } as never)
-      const result = await createErc4626EngineSync(client, {
-        ...writeParameters,
-        ...engineArgs,
-      } as never)
-      receipts.engine = result.receipt
+      const receipt = await createErc4626Engine.inner(
+        writeContractSync,
+        client,
+        {
+          ...writeParameters,
+          ...engineArgs,
+        } as never,
+      )
+      receipts.engine = receipt
+      createErc4626Engine.extractEvent(receipt.logs, {
+        factory: parameters.factories.erc4626Engine,
+      })
     }
     await verifyEngine(client, engineArgs, predictedEngine)
   } catch (error) {
@@ -1097,15 +1120,18 @@ export async function deployErc4626StackSync<
         ...writeParameters,
         ...stackArgs,
       } as never)
-      const result = await createStackSync(client, {
+      const receipt = await createStack.inner(writeContractSync, client, {
         ...writeParameters,
         ...stackArgs,
       } as never)
-      state.vault = result.earnVault
-      receipts.stack = result.receipt
+      receipts.stack = receipt
+      const { args } = createStack.extractEvent(receipt.logs, {
+        factory: parameters.factories.earn,
+      })
+      state.vault = args.earnVault
       if (
         parameters.resume?.vault &&
-        !isAddressEqual(parameters.resume.vault, result.earnVault)
+        !isAddressEqual(parameters.resume.vault, args.earnVault)
       )
         throw new Error(
           'The resumed EarnVault does not match the factory deployment.',
@@ -1165,11 +1191,13 @@ export async function deployErc4626StackSync<
         vault,
       }
       await bindErc4626Engine.simulate(client, bindingParameters as never)
-      const result = await bindErc4626EngineSync(
+      const receipt = await bindErc4626Engine.inner(
+        writeContractSync,
         client,
         bindingParameters as never,
       )
-      receipts.binding = result.receipt
+      receipts.binding = receipt
+      bindErc4626Engine.extractEvent(receipt.logs, { engine: predictedEngine })
     } else if (!isAddressEqual(boundVault, vault)) {
       throw new Error(`Engine is already bound to ${boundVault}.`)
     }
@@ -1489,6 +1517,8 @@ function deploymentError(
   receipts: deployErc4626StackSync.Receipts,
 ) {
   if (error instanceof DeployErc4626StackError) return error
+  if (error instanceof TransactionReceiptRevertedError)
+    receipts[stage] = error.receipt
   return new DeployErc4626StackError(
     error instanceof Error ? error : new Error(String(error)),
     { receipts: { ...receipts }, stage, state: { ...state } },

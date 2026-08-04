@@ -3,8 +3,12 @@ import * as Fs from 'node:fs'
 import * as Path from 'node:path'
 import { AbiItem } from 'ox'
 
+// Run with `EARN_CONTRACTS_PATH=/path/to/earn pnpm gen:tempo-earn-abis`.
+// Update this revision only after the matching Earn release has been reviewed.
+// The checkout must be clean with recursive submodules initialized.
 const checkMode = process.argv.includes('--check')
 const repoRoot = Path.resolve(import.meta.dirname, '..')
+const earnCommit = 'c3343c1aee943b197178694cd79d8b30af7dac05'
 const checkout = (() => {
   const path = process.env.EARN_CONTRACTS_PATH
   if (!path)
@@ -270,10 +274,26 @@ const commit = (() => {
   }).trim()
   if (status)
     throw new Error('`EARN_CONTRACTS_PATH` must point to a clean checkout.')
-  return execFileSync('git', ['rev-parse', 'HEAD'], {
+  const commit = execFileSync('git', ['rev-parse', 'HEAD'], {
     cwd: checkout,
     encoding: 'utf8',
   }).trim()
+  if (commit !== earnCommit)
+    throw new Error(
+      `\`EARN_CONTRACTS_PATH\` must point to tempoxyz/earn at ${earnCommit}.`,
+    )
+  const uninitializedSubmodule = execFileSync(
+    'git',
+    ['submodule', 'status', '--recursive'],
+    { cwd: checkout, encoding: 'utf8' },
+  )
+    .split('\n')
+    .some((line) => line.startsWith('-'))
+  if (uninitializedSubmodule)
+    throw new Error(
+      '`EARN_CONTRACTS_PATH` must have recursively initialized submodules.',
+    )
+  return commit
 })()
 const generatedAbis = replaceAbiSlice(
   Fs.readFileSync(abisOut, 'utf8'),

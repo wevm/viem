@@ -143,9 +143,10 @@ Use [`earn.createErc4626Engine`](/tempo/actions/earn.createErc4626Engine),
 [`earn.bindErc4626Engine`](/tempo/actions/earn.bindErc4626Engine) when a deployment system needs to
 own each transaction.
 
-Each primitive exposes a `call` helper for `sendCalls`, simulation, and gas estimation. Treat
-multi-call deployment as experimental. Tempo limits contract creation per transaction, and the
-combined gas profile must be measured against the target network before batching.
+Each primitive exposes a `call` helper for
+[`sendCalls`](/docs/actions/wallet/sendCalls), simulation, and gas estimation. Treat multi-call
+deployment as experimental. Tempo limits contract creation per transaction, and the combined gas
+profile must be measured against the target network before batching.
 
 Binding remains a separate final-owner operation. The EarnVault address is emitted by
 `earn.createStack` rather than predicted, so it cannot be fed into a binding call in the same batch.
@@ -160,9 +161,10 @@ stage. The high-level recipe lets each transaction estimate gas and resolve its 
 Store factory addresses, release commit, runtime hashes, and factory deployment blocks with every
 deployment record. Do not mix factories from different Earn releases.
 
-Viem generates its Earn ABIs from the pinned `tempoxyz/earn` source revision. Factory deployment
-bytecode is not exposed as a public action: deploying and reviewing factory releases remains an Earn
-release process.
+Viem generates its Earn ABIs from
+[`tempoxyz/earn` commit `c3343c1`](https://github.com/tempoxyz/earn/commit/c3343c1aee943b197178694cd79d8b30af7dac05).
+Factory deployment bytecode is not exposed as a public action: deploying and reviewing factory
+releases remains an Earn release process.
 
 ### Derive Stable Identifiers
 

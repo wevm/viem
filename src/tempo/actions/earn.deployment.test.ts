@@ -1,10 +1,15 @@
 import { Hex } from 'ox'
-import { isAddressEqual, zeroAddress } from 'viem'
-import { readContract } from 'viem/actions'
+import { encodeDeployData, getAddress, isAddressEqual, zeroAddress } from 'viem'
+import {
+  readContract,
+  sendTransactionSync,
+  writeContractSync,
+} from 'viem/actions'
 import { Abis, Actions } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, getClient, setupFeeToken } from '~test/tempo/config.js'
 import { deployEarnFactories } from '~test/tempo/earn.js'
+import { earnFactory } from '~test/tempo/earnContracts.js'
 
 const account = accounts[0]
 const client = getClient({ account })
@@ -316,6 +321,40 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
     expect(resumed.receipts.binding?.status).toBe('success')
   })
 
+  test('returns completed receipts when final-owner binding fails', async () => {
+    const { factories, venue } = await setup()
+    const deploymentId = Hex.fromNumber(11, { size: 32 })
+    const owner = getAddress(Hex.random(20))
+    let failure: Actions.earn.DeployErc4626StackError | undefined
+
+    try {
+      await Actions.earn.deployErc4626StackSync(client, {
+        bindingAccount: owner,
+        deploymentId,
+        factories,
+        owner,
+        venue,
+      })
+    } catch (error) {
+      if (!(error instanceof Actions.earn.DeployErc4626StackError)) throw error
+      failure = error
+    }
+
+    expect(failure?.stage).toBe('binding')
+    expect(failure?.receipts.engine?.status).toBe('success')
+    expect(failure?.receipts.stack?.status).toBe('success')
+    expect(failure?.receipts.binding).toBeUndefined()
+    expect(failure?.state).toMatchObject({ deploymentId })
+    if (!failure?.state.engine)
+      throw new Error('Expected an engine after deployment failure.')
+    const boundVault = await readContract(client, {
+      abi: Abis.erc4626Engine,
+      address: failure.state.engine,
+      functionName: 'earnVault',
+    })
+    expect(boundVault).toBe(zeroAddress)
+  })
+
   test('rejects mismatched resume state before deployment', async () => {
     const { factories, venue } = await setup()
     await expect(
@@ -329,5 +368,128 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
         venue,
       }),
     ).rejects.toThrow('resumed deployment ID')
+  })
+
+  test('rejects factories without code or with an unexpected TIP-20 factory', async () => {
+    const { factories, venue } = await setup()
+    const deploymentId = Hex.fromNumber(8, { size: 32 })
+    await expect(
+      Actions.earn.deployErc4626StackSync(client, {
+        deploymentId,
+        factories: { ...factories, earn: accounts[10].address },
+        venue,
+      }),
+    ).rejects.toThrow('EarnFactory has no code')
+
+    const [earnVaultImplementation, earnFeesImplementation] = await Promise.all(
+      [
+        readContract(client, {
+          abi: Abis.earnFactory,
+          address: factories.earn,
+          functionName: 'earnVaultImplementation',
+        }),
+        readContract(client, {
+          abi: Abis.earnFactory,
+          address: factories.earn,
+          functionName: 'earnFeesImplementation',
+        }),
+      ],
+    )
+    const receipt = await sendTransactionSync(client, {
+      data: encodeDeployData({
+        abi: earnFactory.abi,
+        args: [
+          accounts[10].address,
+          earnVaultImplementation,
+          earnFeesImplementation,
+        ],
+        bytecode: earnFactory.bytecode,
+      }),
+    })
+    if (!receipt.contractAddress)
+      throw new Error('contract creation returned no address.')
+
+    await expect(
+      Actions.earn.deployErc4626StackSync(client, {
+        deploymentId,
+        factories: { ...factories, earn: receipt.contractAddress },
+        venue,
+      }),
+    ).rejects.toThrow('unexpected TIP-20 factory')
+  })
+
+  test('rejects recovered addresses that do not match the deployment', async () => {
+    const { factories, venue } = await setup()
+    const deploymentId = Hex.fromNumber(9, { size: 32 })
+    const deployed = await Actions.earn.deployErc4626StackSync(client, {
+      deploymentId,
+      factories,
+      venue,
+    })
+
+    await expect(
+      Actions.earn.deployErc4626StackSync(client, {
+        deploymentId,
+        factories,
+        fromBlock: deployed.receipts.stack?.blockNumber,
+        resume: { ...deployed, vault: venue },
+        venue,
+      }),
+    ).rejects.toMatchObject({
+      stage: 'stack',
+      state: {
+        deploymentId,
+        earnShare: deployed.earnShare,
+        engine: deployed.engine,
+        fees: deployed.fees,
+        vault: venue,
+      },
+    })
+  })
+
+  test('reports an engine bound to a different vault', async () => {
+    const { factories, venue } = await setup()
+    const deploymentId = Hex.fromNumber(10, { size: 32 })
+    const engine = await Actions.earn.createErc4626EngineSync(client, {
+      deploymentId,
+      factory: factories.erc4626Engine,
+      venue,
+    })
+    const stack = await Actions.earn.createStackSync(client, {
+      deploymentId,
+      engine: engine.engine,
+      factory: factories.earn,
+    })
+    await writeContractSync(client, {
+      abi: Abis.erc4626Engine,
+      address: engine.engine,
+      args: [venue],
+      functionName: 'initializeEarnVault',
+    })
+
+    await expect(
+      Actions.earn.deployErc4626StackSync(client, {
+        deploymentId,
+        factories,
+        fromBlock: stack.receipt.blockNumber,
+        resume: {
+          deploymentId,
+          earnShare: stack.earnShare,
+          engine: engine.engine,
+          fees: stack.earnFees,
+          vault: stack.earnVault,
+        },
+        venue,
+      }),
+    ).rejects.toMatchObject({
+      stage: 'binding',
+      state: {
+        deploymentId,
+        earnShare: stack.earnShare,
+        engine: engine.engine,
+        fees: stack.earnFees,
+        vault: stack.earnVault,
+      },
+    })
   })
 })

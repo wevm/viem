@@ -2990,7 +2990,7 @@ export const abis = [
   ...validatorConfigV2,
 ] as const
 
-// Earn source: tempoxyz/earn at e67f397931a124e632005228b4aa1f1ab78c2905. Do not modify manually.
+// Earn source: tempoxyz/earn at c3343c1aee943b197178694cd79d8b30af7dac05. Do not modify manually.
 
 export const erc4626EngineFactory = [
   {
@@ -3579,6 +3579,22 @@ export const erc4626Engine = [
   },
   { type: 'error', name: 'ReentrantCall', inputs: [] },
   { type: 'error', name: 'TransferFailed', inputs: [] },
+  {
+    type: 'error',
+    name: 'UnexpectedAssetsReceived',
+    inputs: [
+      { name: 'expectedAssets', type: 'uint256' },
+      { name: 'actualAssets', type: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'UnexpectedVenueSharesBurned',
+    inputs: [
+      { name: 'expectedShares', type: 'uint256' },
+      { name: 'actualShares', type: 'uint256' },
+    ],
+  },
   { type: 'error', name: 'ZeroAddress', inputs: [] },
 ] as const
 
@@ -4249,13 +4265,14 @@ export const earnVault = [
     name: 'EngineCapabilityUnsupported',
     inputs: [{ name: 'interfaceId', type: 'bytes4' }],
   },
+  { type: 'error', name: 'EngineExitUnsupported', inputs: [] },
   { type: 'error', name: 'ExceedsMaxEarnShares', inputs: [] },
   {
     type: 'error',
     name: 'ExcessiveConversionLoss',
     inputs: [
-      { name: 'inputEngineShares', type: 'uint256' },
-      { name: 'representedEngineShares', type: 'uint256' },
+      { name: 'inputShares', type: 'uint256' },
+      { name: 'representedShares', type: 'uint256' },
     ],
   },
   {
