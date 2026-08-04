@@ -1,5 +1,5 @@
-// TODO: Use T10's native dev genesis after
-// https://github.com/tempoxyz/tempo/pull/7011 lands.
+// Adds EIP-2935 history storage for Zone settlement. An optional xtask image
+// supplies legacy Zone contract allocations when the pinned image needs them.
 import { execFileSync } from 'node:child_process'
 import { AbiParameters, Address, Hash, Hex, Secp256k1 } from 'ox'
 import { Instance } from 'prool'
@@ -76,6 +76,7 @@ type Parameters = {
   hardfork?: string | undefined
   image: string
   log?: Instance.tempo.Parameters['log'] | undefined
+  mnemonic?: string | undefined
   ownerKey: `0x${string}`
   port: number
 }
@@ -201,6 +202,7 @@ const tempo = Instance.define(
     genesisContent: string
     image: string
     log?: Instance.tempo.Parameters['log'] | undefined
+    mnemonic?: string | undefined
     port: number
   }) => {
     const log = parameters.log
@@ -235,6 +237,9 @@ const tempo = Instance.define(
             '--dev',
             '--dev.block-time',
             parameters.blockTime,
+            ...(parameters.mnemonic
+              ? ['--dev.mnemonic', parameters.mnemonic]
+              : []),
             '--engine.disable-precompile-cache',
             '--engine.legacy-state-root',
             '--faucet.address',

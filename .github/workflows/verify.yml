@@ -224,10 +224,10 @@ jobs:
             zone-tag: sha-aae82c4
             zone-xtask-tag: ''
           - hardfork: T10
-            # Tempo main (92a6f398) and Zones 60880b66.
-            tempo-tag: sha256:5c4625bcd508bb1211fb96ad42566f7a3f848abdd22b652494dd75dc5ff59a43
+            # Tempo main (bb07377a) and Zones 60880b66.
+            tempo-tag: sha256:741514ef9b2bc1723620fb0d6cae22818512e83c80647d020144603e67964d43
             zone-tag: sha256:a9e0ca9e9eaa0e52ee7c473237235054b0be9b07d5836d5393b9fceaf3fabd61
-            zone-xtask-tag: sha256:9d2f325708a2bdeae0b6c04e12128c82e29f99ec569845d5d6ea5e191982b77a
+            zone-xtask-tag: ''
 
     steps:
       - name: Clone repository

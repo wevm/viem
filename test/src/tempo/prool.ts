@@ -1,4 +1,4 @@
-import { RpcTransport } from 'ox'
+import { Mnemonic, RpcTransport } from 'ox'
 import { type Instance, Server } from 'prool'
 import * as TestContainers from 'prool/testcontainers'
 import { getBlock } from '../../../src/actions/public/getBlock.js'
@@ -16,9 +16,19 @@ import { createTempo } from './prool.tmp.js'
 
 export const port = 9545
 
-/** Dev key used to provision and administer local Zones. */
-export const zoneAdminKey =
-  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+export const devMnemonic =
+  'test test test test test test test test test test test junk'
+
+/** Dev account that owns, provisions, and administers local Zones. */
+export const zoneAdminKey = (() => {
+  const hardfork = import.meta.env.VITE_TEMPO_HARDFORK
+  if (hardfork === 'T7' || hardfork === 'T8' || hardfork === 'T9')
+    return '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+  return Mnemonic.toPrivateKey(devMnemonic, {
+    as: 'Hex',
+    path: Mnemonic.path({ account: 0 }),
+  })
+})()
 
 export const rpcUrl = (() => {
   // Explicit override (e.g. a custom devnet) wins over env presets. Useful for
@@ -79,6 +89,7 @@ export async function createServer() {
             : {}),
           hardfork,
           image,
+          ...(hardfork === 'T10' ? { mnemonic: devMnemonic } : {}),
           ownerKey: zoneAdminKey,
         })
       : TestContainers.Instance.tempo({ ...args, image })
@@ -182,7 +193,7 @@ async function startZone(
 
   const instance = TestContainers.Instance.tempoZone({
     dev: {
-      // Anvil #1 owns the native factory and avoids test-account nonce races.
+      // Tempo's first dev account owns the native factory.
       key: zoneAdminKey,
       ...(import.meta.env.VITE_TEMPO_HARDFORK !== 'T7' &&
       import.meta.env.VITE_TEMPO_HARDFORK !== 'T8'
@@ -242,6 +253,20 @@ export async function restart(client: Client<Transport, Chain>) {
   if (nodeEnv !== 'localnet') return
   await fetch(`${client.chain.rpcUrls.default.http[0]}/restart`)
   await setup(client)
+}
+
+export async function setupZones(client: Client<Transport, Chain>) {
+  if (import.meta.env.VITE_TEMPO_ZONES !== 'true') return
+  const hardfork = import.meta.env.VITE_TEMPO_HARDFORK
+  if (hardfork === 'T7' || hardfork === 'T8' || hardfork === 'T9') return
+
+  await waitForBlock(client)
+  // ZoneFactory requires its initial token to use a transfer policy.
+  await actions.token.changeTransferPolicySync(client, {
+    account: accounts[0],
+    policyId: 1n,
+    token: pathUsd,
+  })
 }
 
 async function waitForBlock(client: Client<Transport, Chain>) {
