@@ -1150,7 +1150,7 @@ describe('earn', () => {
         flow: 0,
         minEarnShares: 2n,
         minOutputAmount: 0n,
-        minVaultAssets: 0n,
+        minVaultAssets: 1n,
       })
 
       const boundedSwappedDeposit = await Actions.earn.privateDeposit.prepare(

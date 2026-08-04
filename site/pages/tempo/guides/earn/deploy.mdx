@@ -89,8 +89,9 @@ const result = await client.earn.deployErc4626StackSync({
 
 :::
 
-Preflight checks require the binding signer before deployment starts. The owner must have enough of
-the selected fee token to submit the binding transaction.
+Preflight checks require the binding signer before a new or unbound engine is deployed. An
+idempotent rerun of an already bound stack does not require the signer. The owner must have enough
+of the selected fee token to submit the binding transaction.
 
 ### Resume After a Partial Failure
 
@@ -117,7 +118,7 @@ try {
   await client.earn.deployErc4626StackSync(parameters)
 } catch (error) {
   if (error instanceof Actions.earn.DeployErc4626StackError) {
-    console.log(error.stage, error.state)
+    console.log(error.stage, error.state, error.receipts)
     await client.earn.deployErc4626StackSync({
       ...parameters,
       resume: error.state,

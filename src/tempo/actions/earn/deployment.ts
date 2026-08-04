@@ -906,12 +906,14 @@ export namespace bindErc4626EngineSync {
 /** Error thrown after a partially completed Earn stack deployment. */
 export class DeployErc4626StackError extends BaseError {
   override name = 'DeployErc4626StackError'
+  receipts: deployErc4626StackSync.Receipts
   stage: deployErc4626StackSync.Stage
   state: deployErc4626StackSync.State
 
   constructor(
     cause: Error,
     parameters: {
+      receipts: deployErc4626StackSync.Receipts
       stage: deployErc4626StackSync.Stage
       state: deployErc4626StackSync.State
     },
@@ -919,6 +921,7 @@ export class DeployErc4626StackError extends BaseError {
     super(`ERC-4626 Earn deployment failed during ${parameters.stage}.`, {
       cause,
     })
+    this.receipts = parameters.receipts
     this.stage = parameters.stage
     this.state = parameters.state
   }
@@ -971,11 +974,10 @@ export async function deployErc4626StackSync<
     if (isAddressEqual(owner, deployerAddress)) return deployer
     return undefined
   })()
-  if (!bindingAccount)
-    throw new Error(
-      '`bindingAccount` is required when the final owner differs from the deployment account.',
-    )
-  if (!isAddressEqual(parseAccount(bindingAccount).address, owner))
+  if (
+    bindingAccount &&
+    !isAddressEqual(parseAccount(bindingAccount).address, owner)
+  )
     throw new Error('`bindingAccount` must match `owner`.')
 
   validateDeploymentId(parameters.deploymentId)
@@ -1023,9 +1025,24 @@ export async function deployErc4626StackSync<
   )
     throw new Error('The resumed engine does not match the factory prediction.')
 
+  const engineExists = await hasCode(client, predictedEngine)
+  if (!bindingAccount) {
+    const boundVault = engineExists
+      ? await readContract(client, {
+          address: predictedEngine,
+          abi: Abis.erc4626Engine,
+          functionName: 'earnVault',
+        })
+      : zeroAddress
+    if (isAddressEqual(boundVault, zeroAddress))
+      throw new Error(
+        '`bindingAccount` is required when the final owner differs from the deployment account.',
+      )
+  }
+
   const receipts: deployErc4626StackSync.Receipts = {}
   try {
-    if (!(await hasCode(client, predictedEngine))) {
+    if (!engineExists) {
       await createErc4626Engine.simulate(client, {
         ...writeParameters,
         ...engineArgs,
@@ -1038,7 +1055,7 @@ export async function deployErc4626StackSync<
     }
     await verifyEngine(client, engineArgs, predictedEngine)
   } catch (error) {
-    throw deploymentError(error, 'engine', state)
+    throw deploymentError(error, 'engine', state, receipts)
   }
 
   const stackArgs = {
@@ -1126,7 +1143,7 @@ export async function deployErc4626StackSync<
       vault: state.vault,
     })
   } catch (error) {
-    throw deploymentError(error, 'stack', state)
+    throw deploymentError(error, 'stack', state, receipts)
   }
 
   try {
@@ -1137,6 +1154,10 @@ export async function deployErc4626StackSync<
       functionName: 'earnVault',
     })
     if (isAddressEqual(boundVault, zeroAddress)) {
+      if (!bindingAccount)
+        throw new Error(
+          '`bindingAccount` is required when the final owner differs from the deployment account.',
+        )
       const bindingParameters = {
         ...writeParameters,
         account: bindingAccount,
@@ -1160,7 +1181,7 @@ export async function deployErc4626StackSync<
     if (!isAddressEqual(verified, vault))
       throw new Error('Engine binding verification failed.')
   } catch (error) {
-    throw deploymentError(error, 'binding', state)
+    throw deploymentError(error, 'binding', state, receipts)
   }
 
   return {
@@ -1465,10 +1486,11 @@ function deploymentError(
   error: unknown,
   stage: deployErc4626StackSync.Stage,
   state: deployErc4626StackSync.State,
+  receipts: deployErc4626StackSync.Receipts,
 ) {
   if (error instanceof DeployErc4626StackError) return error
   return new DeployErc4626StackError(
     error instanceof Error ? error : new Error(String(error)),
-    { stage, state: { ...state } },
+    { receipts: { ...receipts }, stage, state: { ...state } },
   )
 }

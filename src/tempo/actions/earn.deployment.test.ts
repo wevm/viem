@@ -240,14 +240,15 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
   test('uses a separate final owner for binding', async () => {
     const { factories, venue } = await setup()
     const owner = accounts[1]
+    const fees = {
+      fixedFees: [{ account: accounts[2].address, rateBps: 100 }],
+    } as const
     await setupFeeToken(client, { account: owner })
     const deployed = await Actions.earn.deployErc4626StackSync(client, {
       bindingAccount: owner,
       deploymentId: Hex.fromNumber(3, { size: 32 }),
       factories,
-      fees: {
-        fixedFees: [{ account: accounts[2].address, rateBps: 100 }],
-      },
+      fees,
       owner,
       venue,
     })
@@ -265,6 +266,54 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
     expect(feeState.config.fixedFees).toEqual([
       { account: accounts[2].address, rateBps: 100 },
     ])
+
+    const rerun = await Actions.earn.deployErc4626StackSync(client, {
+      deploymentId: deployed.deploymentId,
+      factories,
+      fees,
+      fromBlock: deployed.receipts.stack?.blockNumber,
+      owner: owner.address,
+      resume: deployed,
+      venue,
+    })
+    expect(rerun.receipts).toEqual({})
+  })
+
+  test('returns receipts and resumes after a partial failure', async () => {
+    const { factories, venue } = await setup()
+    const deploymentId = Hex.fromNumber(7, { size: 32 })
+    let failure: Actions.earn.DeployErc4626StackError | undefined
+
+    try {
+      await Actions.earn.deployErc4626StackSync(client, {
+        deploymentId,
+        distributor: {
+          distributor: accounts[3].address,
+          updateDelay: 86_400,
+        },
+        factories,
+        venue,
+      })
+    } catch (error) {
+      if (!(error instanceof Actions.earn.DeployErc4626StackError)) throw error
+      failure = error
+    }
+
+    expect(failure?.stage).toBe('stack')
+    expect(failure?.receipts.engine?.status).toBe('success')
+    expect(failure?.receipts.stack).toBeUndefined()
+    expect(failure?.state).toMatchObject({ deploymentId })
+    if (!failure) throw new Error('Expected deployment to fail.')
+
+    const resumed = await Actions.earn.deployErc4626StackSync(client, {
+      deploymentId,
+      factories,
+      resume: failure.state,
+      venue,
+    })
+    expect(resumed.receipts.engine).toBeUndefined()
+    expect(resumed.receipts.stack?.status).toBe('success')
+    expect(resumed.receipts.binding?.status).toBe('success')
   })
 
   test('rejects mismatched resume state before deployment', async () => {
