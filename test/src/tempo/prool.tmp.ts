@@ -1,7 +1,5 @@
-// Adds EIP-2935 history storage for Zone settlement. An optional xtask image
-// supplies legacy Zone contract allocations when the pinned image needs them.
+// TODO: Remove this file when Tempo's dev genesis includes EIP-2935 history storage and pre-T10 localnet coverage is retired.
 import { execFileSync } from 'node:child_process'
-import { AbiParameters, Address, Hash, Hex, Secp256k1 } from 'ox'
 import { Instance } from 'prool'
 import {
   GenericContainer,
@@ -9,44 +7,27 @@ import {
   type StartedTestContainer,
   Wait,
 } from 'testcontainers'
-import { pathUsd } from '../../../src/tempo/Addresses.js'
 
 const zoneFactory = {
   address: '0x5aF2000000000000000000000000000000000000',
-  code: '0xef',
 } as const
 
 const zoneMessenger = {
   address: '0x5A4D000000000000000000000000000000000000',
-  artifact: 'ZoneMessenger',
 } as const
 
 const zonePortal = {
   address: '0x5AD1000000000000000000000000000000000000',
-  artifact: 'ZonePortal',
 } as const
 
 const zoneVerifier = {
   address: '0x5A56000000000000000000000000000000000000',
-  artifact: 'Verifier',
 } as const
 
 // Zone settlement reads Tempo block hashes from the canonical EIP-2935 account.
 const historyStorage = {
   address: '0x0000f90827f1c53a10cb7a02335b175320002935',
   code: '0x3373fffffffffffffffffffffffffffffffffffffffe14604657602036036042575f35600143038111604257611fff81430311604257611fff9006545f5260205ff35b5f5ffd5b5f35611fff60014303065500',
-} as const
-
-const tip403Registry = {
-  address: '0x403c000000000000000000000000000000000000',
-  storage: {
-    [Hash.keccak256(
-      AbiParameters.encode(AbiParameters.from('address, uint256'), [
-        pathUsd,
-        4n,
-      ]),
-    )]: Hex.fromNumber((1n << 64n) | 1n, { size: 32 }),
-  },
 } as const
 
 type Genesis = {
@@ -64,35 +45,24 @@ type Genesis = {
   >
 }
 
-type ZoneArtifacts = {
-  messenger: string
-  portal: string
-  verifier: string
-}
-
 type Parameters = {
-  artifactsImage?: string | undefined
   blockTime: string
   hardfork?: string | undefined
   image: string
   log?: Instance.tempo.Parameters['log'] | undefined
-  mnemonic?: string | undefined
-  ownerKey: `0x${string}`
   port: number
 }
 
-export function createTempo(parameters: Parameters) {
+export function createCustomTempo(parameters: Parameters) {
   return tempo({
     ...parameters,
-    genesisContent: buildZoneGenesis(parameters),
+    genesisContent: buildCustomGenesis(parameters),
   })
 }
 
-function buildZoneGenesis(options: {
-  artifactsImage?: string | undefined
+function buildCustomGenesis(options: {
   hardfork?: string | undefined
   image: string
-  ownerKey: `0x${string}`
 }) {
   const dumped = execFileSync(
     'docker',
@@ -119,78 +89,11 @@ function buildZoneGenesis(options: {
     delete genesis.alloc[zonePortal.address]
     delete genesis.alloc[zoneVerifier.address]
   }
-  const artifactsImage = options.artifactsImage
-  if (!artifactsImage) {
-    genesis.alloc[historyStorage.address] = {
-      balance: '0x0',
-      code: historyStorage.code,
-      nonce: '0x1',
-    }
-    return `${JSON.stringify(genesis)}\n`
-  }
-  const artifacts = JSON.parse(
-    execFileSync(
-      'docker',
-      [
-        'run',
-        '--rm',
-        '--platform',
-        'linux/amd64',
-        '--entrypoint',
-        '/usr/bin/jq',
-        artifactsImage,
-        '-n',
-        '--slurpfile',
-        'portal',
-        `/app/specs/ref-impls/out/${zonePortal.artifact}.sol/${zonePortal.artifact}.json`,
-        '--slurpfile',
-        'messenger',
-        `/app/specs/ref-impls/out/${zoneMessenger.artifact}.sol/${zoneMessenger.artifact}.json`,
-        '--slurpfile',
-        'verifier',
-        `/app/specs/ref-impls/out/${zoneVerifier.artifact}.sol/${zoneVerifier.artifact}.json`,
-        '{portal:$portal[0].deployedBytecode.object,messenger:$messenger[0].deployedBytecode.object,verifier:$verifier[0].deployedBytecode.object}',
-      ],
-      { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 },
-    ),
-  ) as ZoneArtifacts
-  const owner = Address.fromPublicKey(
-    Secp256k1.getPublicKey({ privateKey: options.ownerKey }),
-  )
-  genesis.alloc[zoneFactory.address] = {
-    balance: '0x0',
-    code: zoneFactory.code,
-    storage: {
-      // Slot 0 packs the owner and next Zone ID.
-      [Hex.fromNumber(0n, { size: 32 })]: Hex.fromNumber(
-        (Hex.toBigInt(owner) << 32n) | 1n,
-        { size: 32 },
-      ),
-    },
-  }
-  genesis.alloc[zoneMessenger.address] = {
-    balance: '0x0',
-    code: artifacts.messenger,
-    nonce: '0x1',
-  }
-  genesis.alloc[zonePortal.address] = {
-    balance: '0x0',
-    code: artifacts.portal,
-    nonce: '0x1',
-  }
-  genesis.alloc[zoneVerifier.address] = {
-    balance: '0x0',
-    code: artifacts.verifier,
-    nonce: '0x1',
-  }
   genesis.alloc[historyStorage.address] = {
     balance: '0x0',
     code: historyStorage.code,
     nonce: '0x1',
   }
-  const registry = genesis.alloc[tip403Registry.address]
-  if (!registry) throw new Error('TIP-403 registry is unavailable.')
-  registry.storage = { ...registry.storage, ...tip403Registry.storage }
   return `${JSON.stringify(genesis)}\n`
 }
 
@@ -202,7 +105,6 @@ const tempo = Instance.define(
     genesisContent: string
     image: string
     log?: Instance.tempo.Parameters['log'] | undefined
-    mnemonic?: string | undefined
     port: number
   }) => {
     const log = parameters.log
@@ -237,9 +139,6 @@ const tempo = Instance.define(
             '--dev',
             '--dev.block-time',
             parameters.blockTime,
-            ...(parameters.mnemonic
-              ? ['--dev.mnemonic', parameters.mnemonic]
-              : []),
             '--engine.disable-precompile-cache',
             '--engine.legacy-state-root',
             '--faucet.address',

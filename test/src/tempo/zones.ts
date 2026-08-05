@@ -16,21 +16,12 @@ import {
   getPortalAddress,
   zoneModerato,
 } from '../../../src/tempo/zones/zone.js'
-import {
-  debugOptions,
-  getClient as getParentClient,
-  nodeEnv,
-  chain as parentChain,
-} from './config.js'
+import { debugOptions, nodeEnv, chain as parentChain } from './config.js'
 import * as Prool from './prool.js'
 
 // On localnet, provision a fresh zone (`tempo-zone dev`) against this
 // worker's L1 and derive the chain from its runtime metadata.
-const local = await (async () => {
-  if (nodeEnv !== 'localnet') return undefined
-  await Prool.setupZones(getParentClient())
-  return Prool.zone1.start()
-})()
+const local = nodeEnv === 'localnet' ? await Prool.zone1.start() : undefined
 
 export const zoneId = local?.zoneId ?? 7
 

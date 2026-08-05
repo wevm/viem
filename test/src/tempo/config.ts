@@ -26,12 +26,13 @@ import {
 import * as Actions from '../../../src/tempo/actions/index.js'
 import { Account, Addresses, Tick } from '../../../src/tempo/index.js'
 import { defineToken } from '../../../src/tokens/index.js'
-import { devMnemonic, rpcUrl } from './prool.js'
+import { rpcUrl } from './prool.js'
 
 export const nodeEnv = import.meta.env.VITE_TEMPO_ENV || 'localnet'
 
 const accountsMnemonic = (() => {
-  if (nodeEnv === 'localnet') return devMnemonic
+  if (nodeEnv === 'localnet')
+    return 'test test test test test test test test test test test junk'
   return generateMnemonic(english)
 })()
 
