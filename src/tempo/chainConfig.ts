@@ -124,9 +124,14 @@ export const chainConfig = {
         if (multisig) return false
         if (request.feePayer && typeof request.nonceKey === 'undefined')
           return true
-        const address = request.account?.address
+        const account = request.account as
+          | Account
+          | MultisigAccount
+          | Address
+          | undefined
+        const address = typeof account === 'string' ? account : account?.address
         if (address && typeof request.nonceKey === 'undefined')
-          return await Concurrent.detect(address)
+          return await Concurrent.detect(address.toLowerCase())
         return false
       })()
 
