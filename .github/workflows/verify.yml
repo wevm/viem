@@ -165,7 +165,6 @@ jobs:
         env:
           CI: true
           TEMPO_FUZZ_NODE_RUNS: 10
-          VITE_TEMPO_TAG: 1.8.1
 
   test-tempo-deployed:
     name: 'Test Deployed Tempo (env: ${{ matrix.node-env }}, e2e)'

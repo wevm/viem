@@ -12,7 +12,7 @@ function readInteger(name: string, fallback: number) {
 export function fuzzParameters(
   defaultRuns: number,
   options: { runsVariable?: string | undefined } = {},
-): Parameters<unknown> {
+): Pick<Parameters<unknown>, 'numRuns' | 'path' | 'seed'> {
   const { runsVariable = 'FUZZ_RUNS' } = options
   const seed = process.env.FUZZ_SEED
   const path = process.env.FUZZ_PATH

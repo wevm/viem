@@ -259,7 +259,7 @@ export async function restart(client: Client<Transport, Chain>) {
   await setup(client)
 }
 
-async function waitForBlock(client: Client<Transport, Chain>) {
+export async function waitForBlock(client: Client<Transport, Chain>) {
   await withRetry(
     async () => {
       const block = await getBlock(client)

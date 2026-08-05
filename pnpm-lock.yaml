@@ -123,6 +123,9 @@ importers:
       '@ethereumjs/rlp':
         specifier: ^5.0.2
         version: 5.0.2
+      '@fast-check/vitest':
+        specifier: ^0.4.1
+        version: 0.4.1(vitest@4.1.8)
       '@paulmillr/trusted-setups':
         specifier: ^0.1.2
         version: 0.1.2
@@ -1190,6 +1193,11 @@ packages:
     resolution: {integrity: sha512-DziebCdg4JpGlEqEdGgXmjqcFoJi+JGulUXwEjsZGAscAQ7MyD/7LE/GVCP29vEQxKc7AAwjT3A2ywHp2xfoCA==}
     engines: {node: '>=18'}
     hasBin: true
+
+  '@fast-check/vitest@0.4.1':
+    resolution: {integrity: sha512-OX6TecB+ZzRfPc49jcPChcV1cf5aDu77CdDU8liecWVam7eD7mPvJNP50b9bBSTxVoGN5wzxrX9PIcCnqgC8bg==}
+    peerDependencies:
+      vitest: ^4.1.0
 
   '@fastify/ajv-compiler@4.0.5':
     resolution: {integrity: sha512-KoWKW+MhvfTRWL4qrhUwAAZoaChluo0m0vbiJlGMt2GXvL4LVPQEjt8kSpHI3IBq5Rez8fg+XeH3cneztq+C7A==}
@@ -7886,6 +7894,11 @@ snapshots:
     optional: true
 
   '@ethereumjs/rlp@5.0.2': {}
+
+  '@fast-check/vitest@0.4.1(vitest@4.1.8)':
+    dependencies:
+      fast-check: 4.9.0
+      vitest: 4.1.8(@opentelemetry/api@1.7.0)(@types/node@24.5.2)(@vitest/coverage-v8@4.1.8)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.36.0)(tsx@4.22.4)(yaml@2.8.3)
 
   '@fastify/ajv-compiler@4.0.5':
     dependencies:

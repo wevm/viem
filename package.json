@@ -59,6 +59,7 @@
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.29.7",
     "@ethereumjs/rlp": "^5.0.2",
+    "@fast-check/vitest": "^0.4.1",
     "@paulmillr/trusted-setups": "^0.1.2",
     "@pimlico/alto": "0.0.18",
     "@remix-run/node-fetch-server": "^0.12.0",
