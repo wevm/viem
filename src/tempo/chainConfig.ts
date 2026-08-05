@@ -161,7 +161,8 @@ export const chainConfig = {
       // are detected, we use expiring nonces (nonceKey = uint256.max) with a
       // validBefore timestamp.
       const useExpiringNonce = await (async () => {
-        if (request.nonceKey === 'expiring') return true
+        if (request.nonceKey === 'expiring' || request.nonceKey === maxUint256)
+          return true
         if (multisig) return false
         if (request.feePayer && typeof request.nonceKey === 'undefined')
           return true

@@ -127,6 +127,19 @@ describe('prepareTransactionRequest', () => {
     expect(request?.validBefore).toBeLessThanOrEqual(now + 31)
   })
 
+  test('behavior: numeric expiring nonce sentinel gets a validity window', async () => {
+    const now = Math.floor(Date.now() / 1000)
+    const request = await prepareTransactionRequest(client, {
+      nonceKey: maxUint256,
+      parameters: [],
+    })
+
+    expect(request.nonceKey).toBe(maxUint256)
+    expect(request.nonce).toBe(0)
+    expect(request.validBefore).toBeGreaterThanOrEqual(now)
+    expect(request.validBefore).toBeLessThanOrEqual(now + 31)
+  })
+
   test('behavior: explicit validity window is preserved', async () => {
     const customValidAfter = Math.floor(Date.now() / 1000) - 15
     const customValidBefore = Math.floor(Date.now() / 1000) + 15
