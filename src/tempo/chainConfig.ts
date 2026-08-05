@@ -116,6 +116,19 @@ export const chainConfig = {
         if (request.account?.source !== 'multisig') delete request.account
       }
 
+      // Use expiring nonces for explicit, fee-payer, and concurrent transactions (TIP-1009).
+      // Detect concurrency before asynchronous preparation changes the event-loop boundary.
+      const useExpiringNonce = await (async () => {
+        if (request.nonceKey === 'expiring') return true
+        if (multisig) return false
+        if (request.feePayer && typeof request.nonceKey === 'undefined')
+          return true
+        const address = request.account?.address
+        if (address && typeof request.nonceKey === 'undefined')
+          return await Concurrent.detect(address)
+        return false
+      })()
+
       if (
         !request.keyAuthorization &&
         request.account?.source === 'accessKey'
@@ -155,21 +168,6 @@ export const chainConfig = {
           }
         }
       }
-
-      // Use expiring nonces for concurrent transactions (TIP-1009).
-      // When nonceKey is 'expiring', feePayer is specified, or concurrent requests
-      // are detected, we use expiring nonces (nonceKey = uint256.max) with a
-      // validBefore timestamp.
-      const useExpiringNonce = await (async () => {
-        if (request.nonceKey === 'expiring') return true
-        if (multisig) return false
-        if (request.feePayer && typeof request.nonceKey === 'undefined')
-          return true
-        const address = request.account?.address
-        if (address && typeof request.nonceKey === 'undefined')
-          return await Concurrent.detect(address)
-        return false
-      })()
 
       if (useExpiringNonce) {
         request.nonceKey = maxUint256

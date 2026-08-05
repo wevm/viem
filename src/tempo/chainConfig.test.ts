@@ -14,6 +14,7 @@ import { mainnet, tempoLocalnet } from '../chains/index.js'
 import { createClient, http } from '../index.js'
 import { defineChain } from '../utils/chain/defineChain.js'
 import { hashMessage } from '../utils/index.js'
+import { withResolvers } from '../utils/promise/withResolvers.js'
 import * as accessKeyActions from './actions/accessKey.js'
 import {
   Account,
@@ -156,6 +157,60 @@ describe('prepareTransactionRequest', () => {
     expect(consume).not.toHaveBeenCalled()
     expect(request.nonceKey).toBe(maxUint256)
     expect(request.nonce).toBe(0)
+  })
+
+  test('behavior: staggered requests use sequential nonces', async () => {
+    const entered_1 = withResolvers<void>()
+    const entered_2 = withResolvers<void>()
+    const release = withResolvers<void>()
+    let getCount = 0
+    const keyAuthorizationManager = KeyAuthorizationManager.from({
+      source: {
+        async get() {
+          getCount++
+          if (getCount === 1) entered_1.resolve()
+          if (getCount === 2) entered_2.resolve()
+          await release.promise
+          return undefined
+        },
+        remove() {},
+        set() {},
+      },
+    })
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: accounts.at(0)!,
+      keyAuthorizationManager,
+    })
+    let nonce = 7
+    const consume = vi.fn(async () => nonce++)
+    const nonceManager = {
+      consume,
+      get: vi.fn(async () => nonce),
+      increment: vi.fn(),
+      reset: vi.fn(),
+    }
+
+    const request_1 = prepareTransactionRequest(client, {
+      account: accessKey,
+      nonceManager,
+      parameters: ['nonce'],
+    })
+    await entered_1.promise
+    const request_2 = prepareTransactionRequest(client, {
+      account: accessKey,
+      nonceManager,
+      parameters: ['nonce'],
+    })
+    await entered_2.promise
+    release.resolve()
+
+    const requests = await Promise.all([request_1, request_2])
+    expect(requests.map((request) => request.nonce)).toEqual([7, 8])
+    expect(requests.map((request) => request.nonceKey)).toEqual([
+      undefined,
+      undefined,
+    ])
+    expect(consume).toHaveBeenCalledTimes(2)
   })
 
   test('behavior: sendTransaction with expiring nonces', async () => {
