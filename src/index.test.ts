@@ -277,6 +277,7 @@ test('exports', () => {
       "InvalidDomainError",
       "InvalidPrimaryTypeError",
       "InvalidStructTypeError",
+      "InvalidTypedDataTypeError",
       "InvalidDecimalNumberError",
       "EIP1193ProviderRpcError",
       "decodeAbiParameters",
