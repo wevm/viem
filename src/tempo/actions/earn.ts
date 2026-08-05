@@ -923,7 +923,7 @@ export async function depositSharesSync<
     caller: args.caller,
     earnShareAmount: args.earnShares,
     receipt,
-    receivedVenueShareAmount: args.receivedVenueShares,
+    receivedVenueShareAmount: args.receivedEngineShares,
     recipient: args.receiver,
     venueShareAmount: args.requestedVenueShares,
   }
@@ -1039,7 +1039,9 @@ export namespace privateDeposit {
         zonePortal: portalAddress,
       }),
     ])
-    const assetToken = parameters.assetToken ?? config.vaultAsset
+    const assetToken = parameters.assetToken ?? config.privateAsset
+    if (!isAddressEqual(assetToken, config.privateAsset))
+      throw new Error('`assetToken` must match the Zone gateway private asset.')
     const { encrypted, keyIndex } =
       await zoneActions.encryptedDeposit.prepareRecipient(client, {
         ...readParameters,
@@ -1049,18 +1051,13 @@ export namespace privateDeposit {
         zoneId: config.zoneId,
       })
     const shareAmountMin = resolveMinimumShareAmount(parameters)
-    const direct = isAddressEqual(assetToken, config.vaultAsset)
     const data = encodeAbiParameters(Abis.earnRouterCallbackData, [
       {
         actionId,
-        earnVault: config.vault,
         flow: 0,
         minEarnShares: shareAmountMin,
         minOutputAmount: 0n,
-        minVaultAssets: direct
-          ? assetAmount
-          : (parameters.vaultAssetAmountMin ?? 0n),
-        outputToken: config.shareToken,
+        minVaultAssets: parameters.vaultAssetAmountMin ?? assetAmount,
         zoneReturn: { encrypted, keyIndex, refundRecipient: recoveryRecipient },
       },
     ])
@@ -1084,9 +1081,9 @@ export namespace privateDeposit {
     export type Args = PrivatePreparationParameters & {
       /** Assets withdrawn from the Zone, base units. */
       assetAmount: bigint
-      /** Asset token withdrawn from the Zone. @default vault asset */
+      /** Private asset withdrawn from the Zone. @default gateway private asset */
       assetToken?: Address | undefined
-      /** Minimum vault assets accepted after swapping `assetToken`. @default `0n` */
+      /** Minimum vault assets accepted after conversion. @default `assetAmount` */
       vaultAssetAmountMin?: bigint | undefined
     } & MinimumShareAmountParameters
     export type ReturnValue = PreparedZoneRequest
@@ -1429,15 +1426,15 @@ export type FeeConfig = {
   excess: {
     /** Excess fee recipient. */
     account: Address
-    /** Annual target growth rate, scaled to 18 decimals. */
-    annualTargetRate: bigint
+    /** Annual target growth rate in basis points. */
+    annualTargetRateBps: number
     /** Whether the excess fee is active. */
     enabled: boolean
-    /** Rate applied above the target, scaled to 18 decimals. */
-    excessFeeRate: bigint
+    /** Rate applied above the target in basis points. */
+    excessFeeRateBps: number
   }
-  /** Fixed fee recipients and their 18-decimal rates. */
-  fixedFees: readonly { account: Address; rate: bigint }[]
+  /** Fixed fee recipients and their rates in basis points. */
+  fixedFees: readonly { account: Address; rateBps: number }[]
 }
 
 /** Pending vault fee amounts. */
@@ -2419,9 +2416,9 @@ export namespace privateRedeem {
         zonePortal: portalAddress,
       }),
     ])
-    const assetToken = parameters.assetToken ?? config.vaultAsset
-    if (isAddressEqual(assetToken, config.shareToken))
-      throw new Error('`assetToken` cannot be the Earn share token.')
+    const assetToken = parameters.assetToken ?? config.privateAsset
+    if (!isAddressEqual(assetToken, config.privateAsset))
+      throw new Error('`assetToken` must match the Zone gateway private asset.')
 
     const [{ encrypted, keyIndex }, assetAmountMin] = await Promise.all([
       zoneActions.encryptedDeposit.prepareRecipient(client, {
@@ -2447,16 +2444,13 @@ export namespace privateRedeem {
         return EarnShares.minimumOutput(assetAmount, parameters.slippageBps)
       })(),
     ])
-    const direct = isAddressEqual(assetToken, config.vaultAsset)
     const data = encodeAbiParameters(Abis.earnRouterCallbackData, [
       {
         actionId,
-        earnVault: config.vault,
         flow: 1,
         minEarnShares: 0n,
-        minOutputAmount: direct ? 0n : assetAmountMin,
-        minVaultAssets: direct ? assetAmountMin : 1n,
-        outputToken: assetToken,
+        minOutputAmount: assetAmountMin,
+        minVaultAssets: assetAmountMin,
         zoneReturn: { encrypted, keyIndex, refundRecipient: recoveryRecipient },
       },
     ])
@@ -2480,31 +2474,24 @@ export namespace privateRedeem {
       PrivatePreparationParameters & {
         /** Earn shares withdrawn from the Zone, base units. */
         shareAmount: bigint
-      } & (
-        | ({
-            /** Asset token returned to the Zone. @default vault asset */
-            assetToken?: undefined
-          } & OneOf<
-            | {
-                /** Minimum assets returned to the Zone. */
-                assetAmountMin: bigint
-              }
-            | {
-                /** Quoted assets returned to the Zone. */
-                assetAmount: bigint
-                /** Slippage tolerance under `assetAmount` (50 = 0.5%). */
-                slippageBps: number
-              }
-            | {
-                /** Slippage tolerance under a live vault quote (50 = 0.5%). */
-                slippageBps: number
-              }
-          >)
-        | ({
-            /** Asset token returned to the Zone after a swap. */
-            assetToken: Address
-          } & MinimumAssetAmountParameters)
-      )
+        /** Private asset returned to the Zone. Must match the gateway. @default gateway private asset */
+        assetToken?: Address | undefined
+      } & OneOf<
+        | {
+            /** Minimum assets returned to the Zone. */
+            assetAmountMin: bigint
+          }
+        | {
+            /** Quoted assets returned to the Zone. */
+            assetAmount: bigint
+            /** Slippage tolerance under `assetAmount` (50 = 0.5%). */
+            slippageBps: number
+          }
+        | {
+            /** Slippage tolerance under a live vault quote (50 = 0.5%). */
+            slippageBps: number
+          }
+      >
     export type ReturnValue = PreparedZoneRequest
     export type ErrorType = BaseErrorType
   }
@@ -3006,19 +2993,6 @@ export namespace withdrawExactSync {
   export type ErrorType = BaseErrorType
 }
 
-type MinimumAssetAmountParameters = OneOf<
-  | {
-      /** Minimum assets returned to the Zone. */
-      assetAmountMin: bigint
-    }
-  | {
-      /** Quoted assets returned to the Zone. */
-      assetAmount: bigint
-      /** Slippage tolerance under `assetAmount` (50 = 0.5%). */
-      slippageBps: number
-    }
->
-
 type MinimumShareAmountParameters = OneOf<
   | {
       /** Minimum Earn shares returned to the Zone. */
@@ -3132,7 +3106,16 @@ async function getZoneGatewayConfig<chain extends Chain | undefined>(
   },
 ) {
   const { flow, gateway, vault, zoneId, zonePortal, ...rest } = parameters
-  const [vaultAsset, shareToken, supportsFlow] = await multicall(client, {
+  const [
+    vaultAsset,
+    shareToken,
+    allowedZoneId,
+    routerVault,
+    privateAsset,
+    routerVaultAsset,
+    routerShareToken,
+    supportsFlow,
+  ] = await multicall(client, {
     ...rest,
     allowFailure: false,
     contracts: [
@@ -3149,6 +3132,31 @@ async function getZoneGatewayConfig<chain extends Chain | undefined>(
       {
         abi: Abis.earnRouter,
         address: gateway,
+        functionName: 'allowedZoneId',
+      },
+      {
+        abi: Abis.earnRouter,
+        address: gateway,
+        functionName: 'earnVault',
+      },
+      {
+        abi: Abis.earnRouter,
+        address: gateway,
+        functionName: 'privateAsset',
+      },
+      {
+        abi: Abis.earnRouter,
+        address: gateway,
+        functionName: 'vaultAsset',
+      },
+      {
+        abi: Abis.earnRouter,
+        address: gateway,
+        functionName: 'earnShare',
+      },
+      {
+        abi: Abis.earnRouter,
+        address: gateway,
         args: [flow],
         functionName: 'supportsFlow',
       },
@@ -3156,7 +3164,16 @@ async function getZoneGatewayConfig<chain extends Chain | undefined>(
     deployless: true,
   })
   if (!supportsFlow) throw new Error('Zone gateway flow is not supported.')
+  if (allowedZoneId !== zoneId)
+    throw new Error('Zone gateway is configured for a different Zone.')
+  if (!isAddressEqual(routerVault, vault))
+    throw new Error('Zone gateway is configured for a different Earn vault.')
+  if (!isAddressEqual(routerVaultAsset, vaultAsset))
+    throw new Error('Zone gateway vault asset does not match the Earn vault.')
+  if (!isAddressEqual(routerShareToken, shareToken))
+    throw new Error('Zone gateway share token does not match the Earn vault.')
   return {
+    privateAsset,
     shareToken,
     vault,
     vaultAsset,

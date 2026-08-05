@@ -68,10 +68,11 @@ const hash = await zoneClient.earn.privateDeposit(prepared)
 // @log: 0x1234...abcd
 ```
 
-### Swap-Routed Deposits
+### Bound the Asset Conversion
 
-Pass `assetToken` when the Zone asset differs from the vault asset. Set `vaultAssetAmountMin` to
-bound the vault assets produced by that swap, and set the share bound independently.
+Each gateway is permanently scoped to one private asset and one vault asset. It converts the
+private asset into the vault asset through its configured token authority before depositing. Set
+`vaultAssetAmountMin` to bound that conversion independently from the Earn share bound.
 
 ```ts twoslash
 import { client as parentClient } from './viem.config'
@@ -79,7 +80,6 @@ import { client as zoneClient } from './zones.config'
 
 const prepared = await parentClient.earn.privateDeposit.prepare({
   assetAmount: 100_000_000n,
-  assetToken: '0x0000000000000000000000000000000000000002',
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
@@ -90,8 +90,9 @@ const prepared = await parentClient.earn.privateDeposit.prepare({
 })
 ```
 
-When `assetToken` is the vault asset, the action always requires the exact withdrawn `assetAmount`.
-For swap-routed deposits, omitting `vaultAssetAmountMin` preserves the zero minimum.
+The conversion is fixed at gateway deployment. It cannot select another token or route from
+callback data. Omitting `vaultAssetAmountMin` requires the converted vault assets to equal
+`assetAmount`.
 
 ## Return Type
 
@@ -144,9 +145,10 @@ Assets withdrawn from the Zone, in base units.
 ### assetToken (optional)
 
 - **Type:** `Address`
-- **Default:** The vault asset
+- **Default:** The gateway's private asset
 
-Asset token withdrawn from the Zone. The gateway swaps it into the vault asset when needed.
+Private asset withdrawn from the Zone. If provided, it must match the gateway's immutable private
+asset.
 
 ### callbackGas (optional)
 
@@ -220,10 +222,10 @@ Earn vault receiving the assets.
 ### vaultAssetAmountMin (optional)
 
 - **Type:** `bigint`
-- **Default:** `0n` for swap-routed deposits
+- **Default:** `assetAmount`
 
-Minimum vault assets accepted after swapping `assetToken`. This bound works alongside the Earn
-share bound. Direct vault-asset deposits always use the exact withdrawn `assetAmount` instead.
+Minimum vault assets accepted after the gateway's fixed conversion. This bound works alongside the
+Earn share bound.
 
 ### withdrawalMemo (optional)
 
