@@ -1,5 +1,19 @@
 # viem
 
+## 2.55.12
+
+### Patch Changes
+
+- [#4969](https://github.com/wevm/viem/pull/4969) [`1f34ba0f12278525ee61edc51b9e5e6eb37dab54`](https://github.com/wevm/viem/commit/1f34ba0f12278525ee61edc51b9e5e6eb37dab54) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Detected concurrent Tempo requests made with equivalent JSON-RPC address accounts.
+
+- [#4964](https://github.com/wevm/viem/pull/4964) [`3c193e3df0969001b08aacfa52c6bf8c718716b0`](https://github.com/wevm/viem/commit/3c193e3df0969001b08aacfa52c6bf8c718716b0) Thanks [@struong](https://github.com/struong)! - Added experimental Tempo Earn actions for deterministic ERC-4626 stack deployment and binding.
+
+- [#4968](https://github.com/wevm/viem/pull/4968) [`9e5c4ec260bc899d4e3015b1e338382ea62d8b86`](https://github.com/wevm/viem/commit/9e5c4ec260bc899d4e3015b1e338382ea62d8b86) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Detect concurrent Tempo requests before asynchronous access key preparation.
+
+- [#4966](https://github.com/wevm/viem/pull/4966) [`82684eaedddbc4117809b030cd358bf98a86594b`](https://github.com/wevm/viem/commit/82684eaedddbc4117809b030cd358bf98a86594b) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Allow relay-routed sponsorship fills to bypass unsupported fill state cached from non-sponsored requests.
+
+- [#4970](https://github.com/wevm/viem/pull/4970) [`c2602fc8dceea4c0318fd073dae3abac4fa12376`](https://github.com/wevm/viem/commit/c2602fc8dceea4c0318fd073dae3abac4fa12376) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Populate the required validity window for the numeric Tempo expiring nonce sentinel.
+
 ## 2.55.11
 
 ### Patch Changes
