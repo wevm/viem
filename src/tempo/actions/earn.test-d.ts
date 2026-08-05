@@ -20,6 +20,11 @@ const privatePreparation = {
   vault: address,
   zoneId: 7,
 } as const
+const deployment = {
+  deploymentId: hash,
+  factories: { earn: address, erc4626Engine: address },
+  venue: address,
+} as const
 
 const transport = custom({
   async request() {
@@ -42,6 +47,108 @@ const zoneClientWithAccount = createClient({
   transport,
 })
 const decoratedZoneClient = zoneClientWithAccount.extend(decorator())
+
+test('deployment actions preserve account requirements and result types', async () => {
+  // @ts-expect-error account required when the client has none
+  await earnActions.createErc4626Engine(client, {
+    deploymentId: hash,
+    factory: address,
+    venue: address,
+  })
+  await earnActions.createErc4626Engine(client, {
+    account: address,
+    deploymentId: hash,
+    factory: address,
+    venue: address,
+  })
+  // @ts-expect-error account required when the client has none
+  await earnActions.createStack(client, {
+    deploymentId: hash,
+    engine: address,
+    factory: address,
+  })
+  await earnActions.createStack(client, {
+    account: address,
+    deploymentId: hash,
+    engine: address,
+    factory: address,
+  })
+  // @ts-expect-error account required when the client has none
+  await earnActions.bindErc4626Engine(client, {
+    engine: address,
+    vault: address,
+  })
+  await earnActions.bindErc4626Engine(client, {
+    account: address,
+    engine: address,
+    vault: address,
+  })
+  // @ts-expect-error account required when the client has none
+  await earnActions.deployErc4626StackSync(client, deployment)
+  await earnActions.deployErc4626StackSync(client, {
+    ...deployment,
+    account: address,
+  })
+
+  const engine = await decoratedClient.earn.createErc4626EngineSync({
+    deploymentId: hash,
+    factory: address,
+    venue: address,
+  })
+  expectTypeOf(engine.engine).toEqualTypeOf<Address>()
+  expectTypeOf(engine.receipt).toEqualTypeOf<TransactionReceipt>()
+  expectTypeOf(
+    await decoratedClient.earn.createErc4626Engine.predict({
+      deploymentId: hash,
+      factory: address,
+      owner: address,
+      venue: address,
+    }),
+  ).toEqualTypeOf<Address>()
+
+  const stack = await decoratedClient.earn.createStackSync({
+    deploymentId: hash,
+    engine: address,
+    factory: address,
+  })
+  expectTypeOf(stack.earnShare).toEqualTypeOf<Address>()
+  expectTypeOf(stack.earnVault).toEqualTypeOf<Address>()
+  expectTypeOf(stack.earnFees).toEqualTypeOf<Address>()
+
+  const binding = await decoratedClient.earn.bindErc4626EngineSync({
+    engine: address,
+    vault: address,
+  })
+  expectTypeOf(binding.vault).toEqualTypeOf<Address>()
+
+  const result = await decoratedClient.earn.deployErc4626StackSync(deployment)
+  expectTypeOf(result.engine).toEqualTypeOf<Address>()
+  expectTypeOf(
+    result.receipts,
+  ).toEqualTypeOf<earnActions.deployErc4626StackSync.Receipts>()
+
+  await decoratedClient.earn.deployErc4626StackSync({
+    ...deployment,
+    // @ts-expect-error sequential recipes do not accept one nonce for every stage
+    nonce: 1,
+  })
+  await decoratedClient.earn.deployErc4626StackSync({
+    ...deployment,
+    // @ts-expect-error one authorization cannot be reused across deployment stages
+    keyAuthorization: {} as never,
+  })
+  await decoratedClient.earn.deployErc4626StackSync({
+    ...deployment,
+    // @ts-expect-error the recipe always throws on reverted receipts
+    throwOnReceiptRevert: false,
+  })
+
+  // @ts-expect-error factories are explicit while Earn is experimental
+  await decoratedClient.earn.deployErc4626StackSync({
+    deploymentId: hash,
+    venue: address,
+  })
+})
 
 test('exit-safe policy actions preserve account and result types', async () => {
   const parameters = {

@@ -380,9 +380,6 @@ export async function prepareTransactionRequest<
     )
       return false
 
-    // Do not attempt if `eth_fillTransaction` is not supported.
-    if (supportsFillTransaction.get(client.uid) === false) return false
-
     // Always attempt if the caller explicitly requested a non-empty set of
     // `parameters` and a fee payer signature is being requested (e.g. Tempo
     // sponsorship via `feePayer: true`/`Account`) and has not already been
@@ -407,6 +404,10 @@ export async function prepareTransactionRequest<
       !('feePayerSignature' in request && (request as any).feePayerSignature)
     )
       return true
+
+    // Sponsorship can route fill requests to a different endpoint, so it must
+    // bypass support state cached from a non-sponsored request.
+    if (supportsFillTransaction.get(client.uid) === false) return false
 
     // Should attempt `eth_fillTransaction` if "fees" or "gas" are required to be populated,
     // otherwise, can just use the other individual calls.

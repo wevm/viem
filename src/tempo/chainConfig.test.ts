@@ -128,6 +128,19 @@ describe('prepareTransactionRequest', () => {
     expect(request?.validBefore).toBeLessThanOrEqual(now + 31)
   })
 
+  test('behavior: numeric expiring nonce sentinel gets a validity window', async () => {
+    const now = Math.floor(Date.now() / 1000)
+    const request = await prepareTransactionRequest(client, {
+      nonceKey: maxUint256,
+      parameters: [],
+    })
+
+    expect(request.nonceKey).toBe(maxUint256)
+    expect(request.nonce).toBe(0)
+    expect(request.validBefore).toBeGreaterThanOrEqual(now)
+    expect(request.validBefore).toBeLessThanOrEqual(now + 31)
+  })
+
   test('behavior: explicit validity window is preserved', async () => {
     const customValidAfter = Math.floor(Date.now() / 1000) - 15
     const customValidBefore = Math.floor(Date.now() / 1000) + 15
@@ -157,6 +170,61 @@ describe('prepareTransactionRequest', () => {
     expect(consume).not.toHaveBeenCalled()
     expect(request.nonceKey).toBe(maxUint256)
     expect(request.nonce).toBe(0)
+  })
+
+  test('behavior: detects concurrent JSON-RPC address accounts', async () => {
+    const address = accounts.at(0)!.address
+    const requests = await Promise.all([
+      prepareTransactionRequest(client, {
+        account: address,
+        parameters: [],
+      }),
+      prepareTransactionRequest(client, {
+        account: address.toLowerCase() as typeof address,
+        parameters: [],
+      }),
+    ])
+
+    expect(requests[0].nonceKey).toBe(maxUint256)
+    expect(requests[1].nonceKey).toBe(maxUint256)
+  })
+
+  test('behavior: detects concurrency before asynchronous account preparation', async () => {
+    let reads = 0
+    let releaseSecondRead: (() => void) | undefined
+    const secondRead = new Promise<undefined>((resolve) => {
+      releaseSecondRead = () => resolve(undefined)
+    })
+    const keyAuthorizationManager = KeyAuthorizationManager.from({
+      source: {
+        get() {
+          reads++
+          if (reads === 1) return undefined
+          return secondRead
+        },
+        remove() {},
+        set() {},
+      },
+    })
+    const account = Account.fromP256(generatePrivateKey(), {
+      access: accounts.at(0)!,
+      keyAuthorizationManager,
+    })
+
+    const firstPromise = prepareTransactionRequest(client, {
+      account,
+      parameters: [],
+    })
+    const secondPromise = prepareTransactionRequest(client, {
+      account,
+      parameters: [],
+    })
+    const first = await firstPromise
+    releaseSecondRead?.()
+    const second = await secondPromise
+
+    expect(first.nonceKey).toBe(maxUint256)
+    expect(second.nonceKey).toBe(maxUint256)
   })
 
   test('behavior: staggered requests use sequential nonces', async () => {

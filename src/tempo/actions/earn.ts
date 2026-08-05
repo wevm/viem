@@ -67,6 +67,9 @@ import * as policyActions from './policy.js'
 import * as tokenActions from './token.js'
 import * as zoneActions from './zone.js'
 
+// biome-ignore lint/performance/noBarrelFile: namespace module
+export * from './earn/deployment.js'
+
 /** TIP-403 policy ID that allows every sender, recipient, and mint recipient. */
 export const alwaysAllowPolicyId = 1n
 

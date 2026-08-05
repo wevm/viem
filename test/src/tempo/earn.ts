@@ -28,7 +28,7 @@ import * as EarnContracts from './earnContracts.js'
  * `earn/localnet/foundry/script/DeployLocalEarn.s.sol`: `Simple4626Vault`
  * venue -> `ERC4626Engine` -> `EarnVault` and `EarnFees` implementations ->
  * `EarnFactory` -> `factory.deploy` -> `engine.initializeEarnVault`. Deploys are sequential
- * since Tempo allows one contract creation per transaction.
+ * so each fixture contract address can be recovered independently.
  */
 export async function deployEarnStack(
   client: Client<Transport, Chain, viem_Account>,
@@ -173,6 +173,64 @@ export declare namespace deployEarnStack {
     /** TIP-20 share token issued by the vault. */
     shareToken: Address
     /** Deployed `Simple4626Vault` venue. */
+    venue: Address
+  }
+}
+
+/** Deploys the reviewed Earn factories and an ERC-4626 venue for deployment tests. */
+export async function deployEarnFactories(
+  client: Client<Transport, Chain, viem_Account>,
+  options: deployEarnFactories.Options = {},
+): Promise<deployEarnFactories.ReturnValue> {
+  const asset = options.asset ?? addresses.alphaUsd
+  const venue = await deployContract(client, {
+    abi: EarnContracts.simple4626Vault.abi,
+    args: [asset, 'Tempo Earn Test Vault', 'teTEST', 6],
+    bytecode: EarnContracts.simple4626Vault.bytecode,
+  })
+  const earnVaultImplementation = await deployContract(client, {
+    abi: EarnContracts.earnVault.abi,
+    bytecode: EarnContracts.earnVault.bytecode,
+  })
+  const earnFeesImplementation = await deployContract(client, {
+    abi: EarnContracts.earnFees.abi,
+    bytecode: EarnContracts.earnFees.bytecode,
+  })
+  const earnFactory = await deployContract(client, {
+    abi: EarnContracts.earnFactory.abi,
+    args: [
+      Addresses.tip20Factory,
+      earnVaultImplementation,
+      earnFeesImplementation,
+    ],
+    bytecode: EarnContracts.earnFactory.bytecode,
+  })
+  const erc4626EngineFactory = await deployContract(client, {
+    abi: EarnContracts.erc4626EngineFactory.abi,
+    bytecode: EarnContracts.erc4626EngineFactory.bytecode,
+  })
+  return {
+    asset,
+    factories: {
+      earn: earnFactory,
+      erc4626Engine: erc4626EngineFactory,
+    },
+    venue,
+  }
+}
+
+export declare namespace deployEarnFactories {
+  export type Options = {
+    /** Venue base asset. @default `addresses.alphaUsd` */
+    asset?: Address | undefined
+  }
+
+  export type ReturnValue = {
+    asset: Address
+    factories: {
+      earn: Address
+      erc4626Engine: Address
+    }
     venue: Address
   }
 }
