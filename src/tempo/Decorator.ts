@@ -126,7 +126,7 @@ export function tempoActions() {
     },
     earn: {
       bindErc4626Engine: Object.assign(
-        (options: earn.bindErc4626Engine.Parameters<chain, account>) =>
+        (options: earn.bindErc4626Engine.Parameters) =>
           earn.bindErc4626Engine(client, options),
         {
           call: earn.bindErc4626Engine.call,
@@ -138,7 +138,7 @@ export function tempoActions() {
       configureExitSafePolicy: (options) =>
         earn.configureExitSafePolicy(client, options),
       createErc4626Engine: Object.assign(
-        (options: earn.createErc4626Engine.Parameters<chain, account>) =>
+        (options: earn.createErc4626Engine.Parameters) =>
           earn.createErc4626Engine(client, options),
         {
           call: earn.createErc4626Engine.call,
@@ -150,7 +150,7 @@ export function tempoActions() {
       createErc4626EngineSync: (options) =>
         earn.createErc4626EngineSync(client, options),
       createStack: Object.assign(
-        (options: earn.createStack.Parameters<chain, account>) =>
+        (options: earn.createStack.Parameters) =>
           earn.createStack(client, options),
         {
           call: earn.createStack.call,
@@ -2034,7 +2034,7 @@ export type Decorator<
   earn: {
     /** Deploys an ERC-4626 engine. */
     createErc4626Engine: ((
-      options: earn.createErc4626Engine.Parameters<chain, account>,
+      options: earn.createErc4626Engine.Parameters,
     ) => Promise<earn.createErc4626Engine.ReturnValue>) & {
       call: typeof earn.createErc4626Engine.call
       extractEvent: typeof earn.createErc4626Engine.extractEvent
@@ -2044,11 +2044,11 @@ export type Decorator<
     }
     /** Deploys an ERC-4626 engine and waits for confirmation. */
     createErc4626EngineSync: (
-      options: earn.createErc4626EngineSync.Parameters<chain, account>,
+      options: earn.createErc4626EngineSync.Parameters,
     ) => Promise<earn.createErc4626EngineSync.ReturnValue>
     /** Creates an Earn core stack. */
     createStack: ((
-      options: earn.createStack.Parameters<chain, account>,
+      options: earn.createStack.Parameters,
     ) => Promise<earn.createStack.ReturnValue>) & {
       call: typeof earn.createStack.call
       extractEvent: typeof earn.createStack.extractEvent
@@ -2058,22 +2058,22 @@ export type Decorator<
     }
     /** Creates an Earn core stack and waits for confirmation. */
     createStackSync: (
-      options: earn.createStackSync.Parameters<chain, account>,
+      options: earn.createStackSync.Parameters,
     ) => Promise<earn.createStackSync.ReturnValue>
     /** Binds an ERC-4626 engine to an Earn vault. */
     bindErc4626Engine: ((
-      options: earn.bindErc4626Engine.Parameters<chain, account>,
+      options: earn.bindErc4626Engine.Parameters,
     ) => Promise<earn.bindErc4626Engine.ReturnValue>) & {
       call: typeof earn.bindErc4626Engine.call
       extractEvent: typeof earn.bindErc4626Engine.extractEvent
     }
     /** Binds an ERC-4626 engine and waits for confirmation. */
     bindErc4626EngineSync: (
-      options: earn.bindErc4626EngineSync.Parameters<chain, account>,
+      options: earn.bindErc4626EngineSync.Parameters,
     ) => Promise<earn.bindErc4626EngineSync.ReturnValue>
     /** Deploys and binds a complete ERC-4626 Earn stack. */
     deployErc4626StackSync: (
-      options: earn.deployErc4626StackSync.Parameters<chain, account>,
+      options: earn.deployErc4626StackSync.Parameters,
     ) => Promise<earn.deployErc4626StackSync.ReturnValue>
     /**
      * Creates and attaches an admission-only TIP-403 policy to an Earn share
