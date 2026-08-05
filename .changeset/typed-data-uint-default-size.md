@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed `validateTypedData` crashing with `RangeError` on `uint`/`int` types (no explicit bit size) instead of defaulting to 256-bit like `encodeAbiParameters` and `encodePacked`.
+Rejected nonstandard `uint` and `int` aliases in `validateTypedData` to prevent noncanonical EIP-712 hashes.

@@ -173,46 +173,19 @@ describe('validateTypedData', () => {
     })
   })
 
-  test('uint (no explicit size)', () => {
-    validateTypedData({
-      types: {
-        EIP712Domain: [],
-        Mail: [
-          { name: 'from', type: 'Person' },
-          { name: 'to', type: 'Person' },
-        ],
-        Person: [
-          { name: 'name', type: 'string' },
-          { name: 'amount', type: 'uint' },
-        ],
-      },
-      primaryType: 'Mail',
-      message: {
-        from: { name: 'Cow', amount: 1n },
-        to: { name: 'Bob', amount: 2n },
-      },
-    } as any)
-  })
-
-  test('int (no explicit size)', () => {
-    validateTypedData({
-      types: {
-        EIP712Domain: [],
-        Mail: [
-          { name: 'from', type: 'Person' },
-          { name: 'to', type: 'Person' },
-        ],
-        Person: [
-          { name: 'name', type: 'string' },
-          { name: 'amount', type: 'int' },
-        ],
-      },
-      primaryType: 'Mail',
-      message: {
-        from: { name: 'Cow', amount: -1n },
-        to: { name: 'Bob', amount: 1n },
-      },
-    } as any)
+  test.each(['uint', 'int', 'uint[]', 'int[2]'])('invalid type: %s', (type) => {
+    expect(() =>
+      validateTypedData({
+        types: {
+          EIP712Domain: [],
+          Message: [{ name: 'amount', type }],
+        },
+        primaryType: 'Message',
+        message: {
+          amount: type.includes('[') ? [1n, 2n] : 1n,
+        },
+      } as any),
+    ).toThrowError(`Type "${type}" is not a valid EIP-712 type.`)
   })
 
   test('negative uint', () => {

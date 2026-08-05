@@ -1060,6 +1060,8 @@ export {
   type InvalidPrimaryTypeErrorType,
   InvalidStructTypeError,
   type InvalidStructTypeErrorType,
+  InvalidTypedDataTypeError,
+  type InvalidTypedDataTypeErrorType,
 } from './errors/typedData.js'
 export {
   InvalidDecimalNumberError,

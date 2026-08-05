@@ -43,3 +43,16 @@ export class InvalidStructTypeError extends BaseError {
     })
   }
 }
+
+export type InvalidTypedDataTypeErrorType = InvalidTypedDataTypeError & {
+  name: 'InvalidTypedDataTypeError'
+}
+export class InvalidTypedDataTypeError extends BaseError {
+  constructor({ type }: { type: string }) {
+    const canonicalType = type.replace(/^(u?int)/, '$&256')
+    super(`Type "${type}" is not a valid EIP-712 type.`, {
+      metaMessages: [`Use "${canonicalType}" instead.`],
+      name: 'InvalidTypedDataTypeError',
+    })
+  }
+}
