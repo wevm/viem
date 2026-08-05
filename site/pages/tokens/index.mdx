@@ -81,8 +81,7 @@ export const client = createWalletClient({
 
 :::tip
 Instead of listing tokens one by one, pass a curated **token set** from the `tokens` object, like
-`tokens.tempo` (every token on Tempo chains). For direct access to Tempo data, [use the Tempo
-API](https://api.tempo.xyz). See [Token Sets](/tokens/tokens#token-sets) for more.
+`tokens.tempo` (every token on Tempo chains). See [Token Sets](/tokens/tokens#token-sets) for more.
 
 ```ts twoslash
 import { createWalletClient, http } from 'viem'
@@ -97,6 +96,10 @@ export const client = createWalletClient({
   transport: http(),
 })
 ```
+:::
+
+:::tip
+For direct access to Tempo data, [use the Tempo API](https://api.tempo.xyz).
 :::
 
 :::tip
