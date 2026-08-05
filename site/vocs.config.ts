@@ -2352,6 +2352,11 @@ export default defineConfig({
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Deploy an Earn Stack',
+                  link: '/tempo/guides/earn/deploy',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'Deposit & Withdraw',
                   link: '/tempo/guides/earn/deposit-withdraw',
                 },
@@ -2630,8 +2635,23 @@ export default defineConfig({
               items: [
                 {
                   badge: { text: 'EXP', variant: 'warning' },
+                  text: 'bindErc4626Engine',
+                  link: '/tempo/actions/earn.bindErc4626Engine',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'configureExitSafePolicy',
                   link: '/tempo/actions/earn.configureExitSafePolicy',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'createErc4626Engine',
+                  link: '/tempo/actions/earn.createErc4626Engine',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'createStack',
+                  link: '/tempo/actions/earn.createStack',
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },
@@ -2642,6 +2662,11 @@ export default defineConfig({
                   badge: { text: 'EXP', variant: 'warning' },
                   text: 'depositShares',
                   link: '/tempo/actions/earn.depositShares',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'deployErc4626StackSync',
+                  link: '/tempo/actions/earn.deployErc4626StackSync',
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },

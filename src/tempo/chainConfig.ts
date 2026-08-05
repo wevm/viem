@@ -116,6 +116,35 @@ export const chainConfig = {
         if (request.account?.source !== 'multisig') delete request.account
       }
 
+      // Register concurrency before account preparation performs storage or
+      // network I/O so overlapping requests cannot miss each other.
+      const useExpiringNonce = await (async () => {
+        if (request.nonceKey === 'expiring') return true
+        if (multisig) return false
+        if (request.feePayer && typeof request.nonceKey === 'undefined')
+          return true
+        const account = request.account as
+          | Account
+          | MultisigAccount
+          | Address
+          | undefined
+        const address = typeof account === 'string' ? account : account?.address
+        if (address && typeof request.nonceKey === 'undefined')
+          return await Concurrent.detect(address.toLowerCase())
+        return false
+      })()
+
+      if (useExpiringNonce) {
+        request.nonceKey = maxUint256
+        request.nonce = 0
+        if (typeof request.validAfter === 'undefined')
+          request.validAfter = randomValidAfter()
+        if (typeof request.validBefore === 'undefined')
+          request.validBefore = Math.floor(Date.now() / 1000) + maxExpirySecs
+      } else if (typeof request.nonceKey !== 'undefined') {
+        request.nonce = typeof request.nonce === 'number' ? request.nonce : 0
+      }
+
       if (
         !request.keyAuthorization &&
         request.account?.source === 'accessKey'
@@ -154,38 +183,6 @@ export const chainConfig = {
             }
           }
         }
-      }
-
-      // Use expiring nonces for concurrent transactions (TIP-1009).
-      // When nonceKey is 'expiring', feePayer is specified, or concurrent requests
-      // are detected, we use expiring nonces (nonceKey = uint256.max) with a
-      // validBefore timestamp.
-      const useExpiringNonce = await (async () => {
-        if (request.nonceKey === 'expiring') return true
-        if (multisig) return false
-        if (request.feePayer && typeof request.nonceKey === 'undefined')
-          return true
-        const account = request.account as
-          | Account
-          | MultisigAccount
-          | Address
-          | undefined
-        const address = typeof account === 'string' ? account : account?.address
-        if (address && typeof request.nonceKey === 'undefined')
-          return await Concurrent.detect(address.toLowerCase())
-        return false
-      })()
-
-      if (useExpiringNonce) {
-        request.nonceKey = maxUint256
-        request.nonce = 0
-        if (typeof request.validAfter === 'undefined')
-          request.validAfter = randomValidAfter()
-        if (typeof request.validBefore === 'undefined')
-          request.validBefore = Math.floor(Date.now() / 1000) + maxExpirySecs
-      } else if (typeof request.nonceKey !== 'undefined') {
-        // Explicit nonceKey provided (2D nonce mode)
-        request.nonce = typeof request.nonce === 'number' ? request.nonce : 0
       }
 
       if (!request.feeToken && request.chain?.feeToken)

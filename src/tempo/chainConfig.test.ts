@@ -157,6 +157,44 @@ describe('prepareTransactionRequest', () => {
     expect(requests[1].nonceKey).toBe(maxUint256)
   })
 
+  test('behavior: detects concurrency before asynchronous account preparation', async () => {
+    let reads = 0
+    let releaseSecondRead: (() => void) | undefined
+    const secondRead = new Promise<undefined>((resolve) => {
+      releaseSecondRead = () => resolve(undefined)
+    })
+    const keyAuthorizationManager = KeyAuthorizationManager.from({
+      source: {
+        get() {
+          reads++
+          if (reads === 1) return undefined
+          return secondRead
+        },
+        remove() {},
+        set() {},
+      },
+    })
+    const account = Account.fromP256(generatePrivateKey(), {
+      access: accounts.at(0)!,
+      keyAuthorizationManager,
+    })
+
+    const firstPromise = prepareTransactionRequest(client, {
+      account,
+      parameters: [],
+    })
+    const secondPromise = prepareTransactionRequest(client, {
+      account,
+      parameters: [],
+    })
+    const first = await firstPromise
+    releaseSecondRead?.()
+    const second = await secondPromise
+
+    expect(first.nonceKey).toBe(maxUint256)
+    expect(second.nonceKey).toBe(maxUint256)
+  })
+
   test('behavior: sendTransaction with expiring nonces', async () => {
     const receipts = await Promise.all([
       sendTransactionSync(client, {
