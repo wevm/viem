@@ -1744,6 +1744,37 @@ type DecoratorBase<
     ) => () => void
   }
   earn: {
+    /** Deploys a deterministic ERC-4626 engine. */
+    createErc4626Engine: (
+      parameters: earnActions.createErc4626Engine.Parameters<chain, account>,
+    ) => Promise<earnActions.createErc4626Engine.ReturnValue>
+    /** Deploys a deterministic ERC-4626 engine and waits for confirmation. */
+    createErc4626EngineSync: (
+      parameters: earnActions.createErc4626EngineSync.Parameters<
+        chain,
+        account
+      >,
+    ) => Promise<earnActions.createErc4626EngineSync.ReturnValue>
+    /** Deploys the EarnShare, EarnVault, and EarnFees contracts. */
+    createStack: (
+      parameters: earnActions.createStack.Parameters<chain, account>,
+    ) => Promise<earnActions.createStack.ReturnValue>
+    /** Deploys an Earn stack and waits for confirmation. */
+    createStackSync: (
+      parameters: earnActions.createStackSync.Parameters<chain, account>,
+    ) => Promise<earnActions.createStackSync.ReturnValue>
+    /** Binds an ERC-4626 engine to its EarnVault. */
+    bindErc4626Engine: (
+      parameters: earnActions.bindErc4626Engine.Parameters<chain, account>,
+    ) => Promise<earnActions.bindErc4626Engine.ReturnValue>
+    /** Binds an ERC-4626 engine and waits for confirmation. */
+    bindErc4626EngineSync: (
+      parameters: earnActions.bindErc4626EngineSync.Parameters<chain, account>,
+    ) => Promise<earnActions.bindErc4626EngineSync.ReturnValue>
+    /** Deploys and binds a complete, resumable ERC-4626 Earn stack. */
+    deployErc4626StackSync: (
+      parameters: earnActions.deployErc4626StackSync.Parameters<chain, account>,
+    ) => Promise<earnActions.deployErc4626StackSync.ReturnValue>
     /**
      * Creates and attaches an admission-only TIP-403 policy to an Earn share
      * token. Existing holders remain able to send shares while
@@ -5686,6 +5717,9 @@ type BoundActionHelpers<action> = (action extends { call: infer helper }
   (action extends { prepareRecipient: infer helper }
     ? { prepareRecipient: BoundHelper<helper> }
     : {}) &
+  (action extends { predict: infer helper }
+    ? { predict: BoundHelper<helper> }
+    : {}) &
   (action extends { simulate: infer helper }
     ? { simulate: BoundHelper<helper> }
     : {}) &
@@ -5888,11 +5922,18 @@ export function decorator() {
         'watchOrderPlaced',
       ]),
       earn: bindActions(client, earnActions, [
+        'bindErc4626Engine',
+        'bindErc4626EngineSync',
         'configureExitSafePolicy',
+        'createErc4626Engine',
+        'createErc4626EngineSync',
+        'createStack',
+        'createStackSync',
         'deposit',
         'depositSync',
         'depositShares',
         'depositSharesSync',
+        'deployErc4626StackSync',
         'privateDeposit',
         'privateDepositSync',
         'getFeeState',
