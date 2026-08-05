@@ -17,10 +17,6 @@ Each Action selects its token either by `token` symbol (resolved to its token ad
 [`transfer`](/tokens/actions/transfer) and [`getBalance`](/tokens/actions/getBalance) without looking
 up an address or decimals.
 
-:::tip
-Building on Tempo? [Use the Tempo API](https://api.tempo.xyz) alongside Viem's token Actions.
-:::
-
 ## Setup
 
 Setup token Actions for Viem by following the steps below.
@@ -85,7 +81,8 @@ export const client = createWalletClient({
 
 :::tip
 Instead of listing tokens one by one, pass a curated **token set** from the `tokens` object, like
-`tokens.tempo` (every token on Tempo chains). See [Token Sets](/tokens/tokens#token-sets) for more.
+`tokens.tempo` (every token on Tempo chains). For direct access to Tempo data, [use the Tempo
+API](https://api.tempo.xyz). See [Token Sets](/tokens/tokens#token-sets) for more.
 
 ```ts twoslash
 import { createWalletClient, http } from 'viem'
