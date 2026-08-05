@@ -140,6 +140,24 @@ describe('prepareTransactionRequest', () => {
     expect(request?.validBefore).toBe(customValidBefore)
   })
 
+  test('behavior: expiring nonces do not consume a sequential nonce', async () => {
+    const consume = vi.fn(async () => 7)
+    const request = await prepareTransactionRequest(client, {
+      feePayer: true,
+      nonceManager: {
+        consume,
+        get: vi.fn(async () => 7),
+        increment: vi.fn(),
+        reset: vi.fn(),
+      },
+      parameters: ['nonce'],
+    })
+
+    expect(consume).not.toHaveBeenCalled()
+    expect(request.nonceKey).toBe(maxUint256)
+    expect(request.nonce).toBe(0)
+  })
+
   test('behavior: sendTransaction with expiring nonces', async () => {
     const receipts = await Promise.all([
       sendTransactionSync(client, {

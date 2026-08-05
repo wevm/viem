@@ -341,20 +341,6 @@ export async function prepareTransactionRequest<
 
   let nonce = request.nonce
   if (
-    parameters.includes('nonce') &&
-    typeof nonce === 'undefined' &&
-    account &&
-    nonceManager
-  ) {
-    const chainId = await getChainId()
-    nonce = await nonceManager.consume({
-      address: account.address,
-      chainId,
-      client,
-    })
-  }
-
-  if (
     prepareTransactionRequest?.fn &&
     prepareTransactionRequest.runAt?.includes('beforeFillTransaction')
   ) {
@@ -368,6 +354,20 @@ export async function prepareTransactionRequest<
     nonce ??= request.nonce
     const sender = request.account ?? (request as TransactionRequest).from
     account = sender ? parseAccount(sender) : undefined
+  }
+
+  if (
+    parameters.includes('nonce') &&
+    typeof nonce === 'undefined' &&
+    account &&
+    nonceManager
+  ) {
+    const chainId = await getChainId()
+    nonce = await nonceManager.consume({
+      address: account.address,
+      chainId,
+      client,
+    })
   }
 
   const attemptFill = (() => {
