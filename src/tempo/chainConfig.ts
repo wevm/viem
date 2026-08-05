@@ -183,7 +183,10 @@ export const chainConfig = {
         request.nonce = typeof request.nonce === 'number' ? request.nonce : 0
       }
 
-      if (!request.feeToken && request.chain?.feeToken)
+      if (
+        typeof request.feeToken === 'undefined' &&
+        typeof request.chain?.feeToken !== 'undefined'
+      )
         request.feeToken = request.chain.feeToken
 
       return request as unknown as typeof r

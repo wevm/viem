@@ -184,6 +184,23 @@ describe('prepareTransactionRequest', () => {
     expect(request.feeToken).toBe(feeToken)
   })
 
+  test('behavior: explicit zero fee token ID overrides chain config', async () => {
+    const chainWithFeeToken = defineChain({
+      ...tempoLocalnet,
+      feeToken: 1n,
+    })
+    const clientWithFeeToken = getClient({
+      account: accounts.at(0)!,
+      chain: chainWithFeeToken,
+    })
+    const request = await prepareTransactionRequest(clientWithFeeToken, {
+      feeToken: 0n,
+      parameters: [],
+    })
+
+    expect(request.feeToken).toBe(0n)
+  })
+
   test('behavior: multisigSignatureCount inferred from equal weights', async () => {
     const config = MultisigConfig.from({
       threshold: 2,
