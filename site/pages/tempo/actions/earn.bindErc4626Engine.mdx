@@ -25,12 +25,13 @@ const result = await client.earn.bindErc4626EngineSync({
 :::
 
 The transaction must be signed by the engine's final owner. Binding remains a separate operation so
-deployment and final ownership can use different accounts. It cannot be changed after initialization.
-
-Use [`earn.bindErc4626Engine`](/tempo/actions/earn.bindErc4626Engine) to return a transaction hash
-without waiting. The action also exposes `call` and `extractEvent` helpers.
+deployment and final ownership can use different accounts. It cannot be changed after
+initialization.
 
 ### Asynchronous Usage
+
+`earn.bindErc4626EngineSync` waits for inclusion and returns the decoded binding event. Use
+`earn.bindErc4626Engine` to return the transaction hash immediately.
 
 ```ts twoslash
 import { Actions } from 'viem/tempo'
@@ -60,7 +61,7 @@ type ReturnValue = {
 }
 ```
 
-The asynchronous action returns a transaction hash.
+The asynchronous action returns the transaction hash instead.
 
 ## Parameters
 

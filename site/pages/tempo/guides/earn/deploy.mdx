@@ -8,17 +8,13 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-An ERC-4626 Earn deployment uses two reviewed factories. The engine is deployed first, the Earn
-factory creates EarnShare, EarnVault, and EarnFees, then the engine's final owner binds the engine to
+An ERC-4626 Earn deployment uses two factories. First, the engine factory deploys the engine. Then,
+the Earn factory creates EarnShare, EarnVault, and EarnFees. Finally, the engine's owner binds it to
 the new vault.
 
-Earn deployment is experimental. There are no canonical factory addresses, so resolve and verify a
-factory pair from the same release before deploying. The SDK does not deploy privacy routers in this
-flow.
-
-The recipe verifies that each address has code, the Earn factory uses Tempo's TIP-20 factory, and
-the deployed topology matches its predictions. It cannot prove a release from an address alone.
-Verify factory runtime hashes against the reviewed release before passing them to the SDK.
+Earn deployment is experimental and has no canonical factory addresses. Use a reviewed factory pair
+from the same release. The recipe verifies contract code, Tempo's TIP-20 factory, and the deployed
+topology, but it cannot verify a release from an address alone.
 
 ## Recipes
 
@@ -55,13 +51,13 @@ console.log(result.engine, result.vault, result.earnShare, result.fees)
 :::
 
 The defaults are fee-free, `userOnly` migration, unrestricted transfers, unlimited managed assets,
-and zero-address emergency guardian and async janitor seats. The client account is both deployer and
-owner.
+and the zero address for `emergencyGuardian` and `asyncJanitor`. The client account is both deployer
+and owner.
 
 ### Use Separate Deployment and Owner Accounts
 
-Provide an owner and its signing account. The deployer submits the factory transactions, while the
-owner submits the final binding transaction.
+Provide the owner account as both `owner` and `bindingAccount`. The client account submits the
+factory transactions, while the owner account submits the final binding transaction.
 
 :::code-group
 
@@ -89,9 +85,9 @@ const result = await client.earn.deployErc4626StackSync({
 
 :::
 
-Preflight checks require the binding signer before a new or unbound engine is deployed. An
-idempotent rerun of an already bound stack does not require the signer. The owner must have enough
-of the selected fee token to submit the binding transaction.
+The recipe requires the binding signer before it deploys a new or unbound engine. An idempotent
+rerun of an already bound stack does not require the signer. The owner must have enough of the
+selected fee token to submit the binding transaction.
 
 ### Resume After a Partial Failure
 
@@ -144,9 +140,56 @@ Use [`earn.createErc4626Engine`](/tempo/actions/earn.createErc4626Engine),
 own each transaction.
 
 Each primitive exposes a `call` helper for
-[`sendCalls`](/docs/actions/wallet/sendCalls), simulation, and gas estimation. Treat multi-call
-deployment as experimental. A batch combines both factories' deployment work into one transaction,
-so measure the combined gas profile against the target network before batching.
+[`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync), simulation, and gas estimation.
+Treat multi-call deployment as experimental. A batch combines both factories' deployment work into
+one transaction, so measure the combined gas profile against the target network before batching.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { keccak256, toHex } from 'viem'
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const deploymentId = keccak256(toHex('acme-usd-v1'))
+const earnFactory = '0x0000000000000000000000000000000000000003'
+const engineParameters = {
+  deploymentId,
+  factory: '0x0000000000000000000000000000000000000001',
+  owner: client.account.address,
+  venue: '0x0000000000000000000000000000000000000002',
+} as const
+const engine = await Actions.earn.createErc4626Engine.predict(
+  client,
+  engineParameters,
+)
+
+const receipt = await client.sendTransactionSync({
+  calls: [
+    Actions.earn.createErc4626Engine.call(engineParameters),
+    Actions.earn.createStack.call({
+      deploymentId,
+      engine,
+      factory: earnFactory,
+      owner: client.account.address,
+    }),
+  ],
+})
+
+const { args } = Actions.earn.createStack.extractEvent(receipt.logs, {
+  factory: earnFactory,
+})
+await client.earn.bindErc4626EngineSync({
+  engine,
+  vault: args.earnVault,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 Binding remains a separate final-owner operation. The EarnVault address is emitted by
 `earn.createStack` rather than predicted, so it cannot be fed into a binding call in the same batch.
@@ -161,10 +204,8 @@ stage. The high-level recipe lets each transaction estimate gas and resolve its 
 Store factory addresses, release commit, runtime hashes, and factory deployment blocks with every
 deployment record. Do not mix factories from different Earn releases.
 
-Viem generates its Earn ABIs from
-[`tempoxyz/earn` commit `454fa26`](https://github.com/tempoxyz/earn/commit/454fa260ded101f970ee7d6bafebf4c3b6ec9095).
-Factory deployment bytecode is not exposed as a public action: deploying and reviewing factory
-releases remains an Earn release process.
+Verify both factory runtime hashes against the reviewed release. Viem's generated Earn ABIs record
+the `tempoxyz/earn` source commit used to generate them.
 
 ### Derive Stable Identifiers
 

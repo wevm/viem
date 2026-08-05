@@ -29,10 +29,10 @@ const result = await client.earn.createErc4626EngineSync({
 The client account deploys and owns the engine by default. Use `owner` to set a different final
 owner. The action derives engine metadata from the venue unless `name` or `symbol` is provided.
 
-Use [`earn.createErc4626Engine`](/tempo/actions/earn.createErc4626Engine) to return a transaction
-hash without waiting. The action also exposes `call`, `predict`, and `extractEvent` helpers.
-
 ### Asynchronous Usage
+
+`earn.createErc4626EngineSync` waits for inclusion and returns the decoded deployment event. Use
+`earn.createErc4626Engine` to return the transaction hash immediately.
 
 ```ts twoslash
 import { keccak256, toHex } from 'viem'
@@ -72,7 +72,7 @@ type ReturnValue = {
 }
 ```
 
-The asynchronous action returns a transaction hash.
+The asynchronous action returns the transaction hash instead.
 
 ## Parameters
 

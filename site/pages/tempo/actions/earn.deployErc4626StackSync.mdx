@@ -103,8 +103,10 @@ First block used to recover a prior `EarnStackDeployed` event. Set this to the f
 block or the first attempted stack deployment block when `resume` does not include the EarnVault
 address.
 
-The recipe also accepts the `controls`, `fees`, `distributor`, `name`, `symbol`, and
-`transferPolicyId` parameters documented by the primitive deployment actions.
+The recipe also accepts the `controls`, `fees`, `distributor`, and `transferPolicyId` parameters
+documented by [`earn.createStack`](/tempo/actions/earn.createStack), plus the `name` and `symbol`
+parameters documented by
+[`earn.createErc4626Engine`](/tempo/actions/earn.createErc4626Engine).
 
 Shared transaction settings such as `feeToken`, `feePayer`, `nonceKey`, fee limits, validity bounds,
 `timeout`, and `pollingInterval` apply to every submitted transaction. Explicit `gas` and `nonce`
