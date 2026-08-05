@@ -3,11 +3,11 @@ import * as Contracts from '../../core/internal/contracts.js'
 
 export const storyAeneid = /*#__PURE__*/ Chain.from({
   id: 1315,
-  name: 'Story Aeneid',
+  name: 'Data Network Aeneid',
   nativeCurrency: {
     decimals: 18,
-    name: 'IP',
-    symbol: 'IP',
+    name: 'DATA',
+    symbol: 'DATA',
   },
   contracts: {
     create2: Contracts.create2,
@@ -24,11 +24,11 @@ export const storyAeneid = /*#__PURE__*/ Chain.from({
       blockCreated: 1322097,
     },
   },
-  rpcUrls: { http: 'https://aeneid.storyrpc.io' },
+  rpcUrls: { http: 'https://aeneid.datarpc.io' },
   blockExplorers: {
-    name: 'Story Aeneid Explorer',
-    url: 'https://aeneid.storyscan.io',
-    apiUrl: 'https://aeneid.storyscan.io/api/v2',
+    name: 'Data Network Aeneid Explorer',
+    url: 'https://aeneid.datanetscan.io',
+    apiUrl: 'https://aeneid.datanetscan.io/api/v2',
   },
   ensTlds: ['.ip'],
   testnet: true,

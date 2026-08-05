@@ -1,7 +1,7 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# Get Earn Private Redeem [earn.privateRedeem]
+# `earn.privateRedeem`
 
 Withdraws Earn shares from a private Zone, redeems them on Tempo, and returns the assets to an
 encrypted Zone recipient.
@@ -14,10 +14,11 @@ client.
 :::code-group
 
 ```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
 import { client as parentClient } from './viem.config'
 import { client as zoneClient } from './zones.config'
 
-const prepared = await parentClient.earn.privateRedeem.prepare({
+const prepared = await Actions.earn.privateRedeem.prepare(parentClient, {
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
@@ -51,10 +52,11 @@ redemption. `senderTag` identifies the corresponding parent-chain `WithdrawalPro
 Use `earn.privateRedeem` to return the Zone transaction hash immediately.
 
 ```ts twoslash
+import { Actions } from 'viem/tempo'
 import { client as parentClient } from './viem.config'
 import { client as zoneClient } from './zones.config'
 
-const prepared = await parentClient.earn.privateRedeem.prepare({
+const prepared = await Actions.earn.privateRedeem.prepare(parentClient, {
   assetAmountMin: 99_000_000n,
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
@@ -67,87 +69,6 @@ const prepared = await parentClient.earn.privateRedeem.prepare({
 const hash = await zoneClient.earn.privateRedeem(prepared)
 // @log: 0x1234...abcd
 ```
-
-## Recipes
-
-### Redeem into a Different Zone Stablecoin
-
-Pass `assetToken` to swap the redeemed vault asset before it returns to the Zone, and bound the
-post-swap output with `assetAmountMin`.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client as parentClient } from './viem.config'
-import { client as zoneClient } from './zones.config'
-
-const prepared = await parentClient.earn.privateRedeem.prepare({
-  assetAmountMin: 98_500_000n, // [!code focus]
-  assetToken: '0x20c0000000000000000000000000000000000001', // [!code focus]
-  gateway: '0x0000000000000000000000000000000000000001',
-  recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
-  shareAmount: 100_000_000n,
-  vault: '0x0000000000000000000000000000000000000002',
-  zoneId: 7,
-})
-
-const { receipt } = await zoneClient.earn.privateRedeemSync(prepared)
-// @log: { transactionHash: '0x1234...abcd', ... }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-```ts twoslash [zones.config.ts] filename="zones.config.ts"
-// [!include ~/snippets/tempo/zones.config.ts:setup]
-```
-
-:::
-
-A live vault quote cannot price the swap, so set an explicit floor, or pass an alternate-asset
-quote as `assetAmount` with `slippageBps`.
-
-### Pay a Contractor Confidentially from Yield
-
-Set `recipient` to another Zone address to deliver the redeemed assets to a beneficiary whose
-balance stays private.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client as parentClient } from './viem.config'
-import { client as zoneClient } from './zones.config'
-
-const contractor = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'
-
-const prepared = await parentClient.earn.privateRedeem.prepare({
-  gateway: '0x0000000000000000000000000000000000000001',
-  recipient: contractor, // [!code focus]
-  recoveryRecipient: parentClient.account.address,
-  shareAmount: 100_000_000n,
-  slippageBps: 50,
-  vault: '0x0000000000000000000000000000000000000002',
-  zoneId: 7,
-})
-
-const { receipt } = await zoneClient.earn.privateRedeemSync(prepared)
-// @log: { transactionHash: '0x1234...abcd', ... }
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-```ts twoslash [zones.config.ts] filename="zones.config.ts"
-// [!include ~/snippets/tempo/zones.config.ts:setup]
-```
-
-:::
-
-The submitting account supplies the shares and pays the withdrawal fee. The recipient is encrypted,
-while the amount, gateway, and timing remain public.
 
 ## Return Type
 
@@ -206,9 +127,10 @@ Minimum assets returned to the Zone.
 ### assetToken (optional)
 
 - **Type:** `Address`
-- **Default:** The vault asset
+- **Default:** The gateway's private asset
 
-Contract address of the asset token returned to the Zone. A different token uses the gateway swap.
+Private asset returned to the Zone. If provided, it must match the gateway's immutable private
+asset. The callback cannot select another output token.
 
 ### callbackGas (optional)
 

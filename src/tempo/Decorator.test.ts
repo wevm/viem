@@ -79,7 +79,14 @@ test('binds earn actions and helpers', () => {
 
   expect(Object.keys(offlineClient.earn).sort()).toMatchInlineSnapshot(`
     [
+      "bindErc4626Engine",
+      "bindErc4626EngineSync",
       "configureExitSafePolicy",
+      "createErc4626Engine",
+      "createErc4626EngineSync",
+      "createStack",
+      "createStackSync",
+      "deployErc4626StackSync",
       "deposit",
       "depositShares",
       "depositSharesSync",
@@ -103,6 +110,11 @@ test('binds earn actions and helpers', () => {
     ]
   `)
   expect({
+    bindErc4626Engine: Object.keys(offlineClient.earn.bindErc4626Engine).sort(),
+    createErc4626Engine: Object.keys(
+      offlineClient.earn.createErc4626Engine,
+    ).sort(),
+    createStack: Object.keys(offlineClient.earn.createStack).sort(),
     deposit: Object.keys(offlineClient.earn.deposit).sort(),
     depositShares: Object.keys(offlineClient.earn.depositShares).sort(),
     getRedeemQuote: Object.keys(offlineClient.earn.getRedeemQuote).sort(),
@@ -114,6 +126,20 @@ test('binds earn actions and helpers', () => {
     withdrawExact: Object.keys(offlineClient.earn.withdrawExact).sort(),
   }).toMatchInlineSnapshot(`
     {
+      "bindErc4626Engine": [
+        "call",
+        "extractEvent",
+      ],
+      "createErc4626Engine": [
+        "call",
+        "extractEvent",
+        "predict",
+      ],
+      "createStack": [
+        "call",
+        "extractEvent",
+        "predict",
+      ],
       "deposit": [
         "call",
         "calls",

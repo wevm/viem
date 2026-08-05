@@ -1,7 +1,7 @@
 import * as tempo from '~test/tempo.js'
 import { describe, expect, test } from 'vitest'
 
-import { Actions } from 'viem/tempo'
+import { Actions, http } from 'viem/tempo'
 
 const client = tempo.getClient({ feeToken: tempo.pathUsd })
 
@@ -25,6 +25,57 @@ describe('getMetadata', () => {
         "transferPolicyId": 1n,
       }
     `)
+  })
+
+  test('behavior: respects disabled client multicall', async () => {
+    const requests: { method: string; params?: unknown }[] = []
+    const client = tempo.getClient({
+      batch: { multicall: false },
+      feeToken: tempo.pathUsd,
+      transport: http(tempo.rpcUrl, {
+        async onFetchRequest(request) {
+          const body = await request.clone().json()
+          requests.push(...(Array.isArray(body) ? body : [body]))
+        },
+      }),
+    })
+
+    const metadata = await Actions.token.getMetadata(client, {
+      token: tempo.alphaUsd,
+    })
+
+    expect(metadata.name).toBe('AlphaUSD')
+    expect(requests).toHaveLength(10)
+    for (const { method, params } of requests) {
+      expect(method).toBe('eth_call')
+      expect((params as readonly unknown[])?.[0]).toMatchObject({
+        to: tempo.alphaUsd,
+      })
+    }
+  })
+
+  test('behavior: respects explicit deployless client multicall', async () => {
+    const requests: { method: string; params?: unknown }[] = []
+    const client = tempo.getClient({
+      batch: { multicall: { deployless: true } },
+      feeToken: tempo.pathUsd,
+      transport: http(tempo.rpcUrl, {
+        async onFetchRequest(request) {
+          const body = await request.clone().json()
+          requests.push(...(Array.isArray(body) ? body : [body]))
+        },
+      }),
+    })
+
+    const metadata = await Actions.token.getMetadata(client, {
+      token: tempo.alphaUsd,
+    })
+
+    expect(metadata.name).toBe('AlphaUSD')
+    expect(requests).toHaveLength(1)
+    expect((requests[0]?.params as readonly unknown[])?.[0]).not.toHaveProperty(
+      'to',
+    )
   })
 
   test('behavior: custom token (address)', async () => {

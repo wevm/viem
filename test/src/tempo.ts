@@ -21,8 +21,12 @@ export const zone = defineZone()
 /** Tempo localnet dev accounts (the anvil "test … junk" mnemonic). */
 export const accounts = constants.accounts
 
+const hardfork = process.env.VITE_TEMPO_HARDFORK
+const legacyHardfork =
+  hardfork === 'T7' || hardfork === 'T8' || hardfork === 'T9'
+
 /** Dev key that owns and provisions local Zone factories. */
-export const zoneAdminKey = accounts[1].privateKey
+export const zoneAdminKey = accounts[legacyHardfork ? 1 : 0].privateKey
 
 export const alphaUsd = '0x20c0000000000000000000000000000000000001'
 export const pathUsd = '0x20c0000000000000000000000000000000000000'
@@ -81,11 +85,13 @@ const validatorConfigAbi = [
 export function getClient(options: getClient.Options = {}) {
   const {
     account = Account.fromSecp256k1(accounts[0].privateKey),
+    batch,
     feeToken,
     transport,
   } = options
   return Client.create({
     account,
+    batch,
     chain: tempoLocalnet,
     ...(feeToken ? { feeToken } : {}),
     pollingInterval: 100,
@@ -100,6 +106,8 @@ export declare namespace getClient {
     account?: Account.Account | undefined
     /** Default fee token for the Client. */
     feeToken?: `0x${string}` | undefined
+    /** Client request batching configuration. */
+    batch?: Client.Client['batch'] | undefined
     /** RPC URL. @default the pool instance's URL */
     rpcUrl?: string | undefined
     /** Client transport. @default HTTP transport for the pool instance */
@@ -108,11 +116,14 @@ export declare namespace getClient {
 }
 
 /** Creates and funds a TIP-20 token for Tempo integration tests. */
-export async function setupToken(client: ReturnType<typeof getClient>) {
+export async function setupToken(
+  client: ReturnType<typeof getClient>,
+  options: { name?: string | undefined; symbol?: string | undefined } = {},
+) {
   const token = await TempoActions.token.createSync(client, {
     currency: 'USD',
-    name: 'Test Token',
-    symbol: 'TST',
+    name: options.name ?? 'Test Token',
+    symbol: options.symbol ?? 'TST',
   })
   await TempoActions.token.grantRolesSync(client, {
     roles: ['issuer'],
@@ -125,6 +136,23 @@ export async function setupToken(client: ReturnType<typeof getClient>) {
     token: token.token,
   })
   return token
+}
+
+/** Funds an account with the local fee token. */
+export async function setupFeeToken(
+  client: ReturnType<typeof getClient>,
+  options: { account: Account.Account },
+) {
+  if (
+    client.account.address.toLowerCase() ===
+    options.account.address.toLowerCase()
+  )
+    return
+  await TempoActions.token.transferSync(client, {
+    amount: Value.from('10000', 6),
+    to: options.account.address,
+    token: pathUsd,
+  })
 }
 
 /** Lazily booted dedicated Tempo node handle. */
@@ -315,6 +343,7 @@ export function defineZone(options: DefineZoneOptions = {}): ZoneInstance {
 }
 
 async function startZone(options: DefineZoneOptions): Promise<StartedZone> {
+  if (!legacyHardfork) await configureNativeZoneToken()
   const tag = process.env.VITE_TEMPO_ZONE_TAG ?? 'latest'
   const l1RpcUrl = rpcUrl.replace(
     /^http:\/\/localhost/,
@@ -374,28 +403,28 @@ async function startZone(options: DefineZoneOptions): Promise<StartedZone> {
   }
 }
 
+async function configureNativeZoneToken() {
+  await waitForBlock(rpcUrl)
+  const client = getClient({
+    account: Account.fromSecp256k1(accounts[0].privateKey),
+  })
+  await TempoActions.token.changeTransferPolicySync(client, {
+    policyId: 1n,
+    token: pathUsd,
+  })
+}
+
 /** Creates a Dockerized Tempo node instance. */
 export function createInstance(options: createInstance.Options = {}) {
   const tag = process.env.VITE_TEMPO_TAG ?? 'latest'
-  const hardfork = process.env.VITE_TEMPO_HARDFORK
   const blockTime = options.zones ? '500ms' : process.env.CI ? '50ms' : '2ms'
   const image = resolveImage('ghcr.io/tempoxyz/tempo', tag)
   if (options.zones || hardfork === 'T9') {
-    const artifactsTag = process.env.VITE_TEMPO_ZONE_XTASK_TAG
-    return TempoZoneGenesis.create({
-      ...(options.zones && artifactsTag
-        ? {
-            artifactsImage: resolveImage(
-              'ghcr.io/tempoxyz/tempo-zone-xtask',
-              artifactsTag,
-            ),
-          }
-        : {}),
+    return TempoZoneGenesis.createCustom({
       blockTime,
       hardfork,
       image,
       log: process.env.VITE_TEMPO_LOG,
-      ownerKey: zoneAdminKey,
     })
   }
   return TestContainers.Instance.tempo({

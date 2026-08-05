@@ -463,7 +463,7 @@ describe('depositShares', { timeout: 30_000 }, () => {
     expect(eventArgs).toMatchInlineSnapshot(`
       {
         "earnShares": 500000000n,
-        "receivedVenueShares": 500000000n,
+        "receivedEngineShares": 500000000n,
         "requestedVenueShares": 500000000n,
       }
     `)

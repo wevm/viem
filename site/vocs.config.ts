@@ -2473,6 +2473,11 @@ export default defineConfig({
               },
               {
                 badge: { text: 'EXP', variant: 'warning' },
+                text: 'Deploy an Earn Stack',
+                link: '/tempo/guides/earn/deploy',
+              },
+              {
+                badge: { text: 'EXP', variant: 'warning' },
                 text: 'Deposit & Withdraw',
                 link: '/tempo/guides/earn/deposit-withdraw',
               },
@@ -2905,8 +2910,23 @@ export default defineConfig({
               },
               {
                 badge: badge('wallet'),
+                text: 'Bind ERC-4626 Engine',
+                link: '/tempo/actions/earn.bindErc4626Engine',
+              },
+              {
+                badge: badge('wallet'),
                 text: 'Configure Exit-Safe Policy',
                 link: '/tempo/actions/earn.configureExitSafePolicy',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Create ERC-4626 Engine',
+                link: '/tempo/actions/earn.createErc4626Engine',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Create Stack',
+                link: '/tempo/actions/earn.createStack',
               },
               {
                 badge: badge('wallet'),
@@ -2917,6 +2937,11 @@ export default defineConfig({
                 badge: badge('wallet'),
                 text: 'Deposit Shares into Vault',
                 link: '/tempo/actions/earn.depositShares',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Deploy ERC-4626 Stack',
+                link: '/tempo/actions/earn.deployErc4626StackSync',
               },
               {
                 badge: badge('wallet'),

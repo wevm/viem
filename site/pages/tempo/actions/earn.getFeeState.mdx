@@ -104,10 +104,10 @@ if (feeState.configId !== approvedConfigId) // [!code focus]
   throw new Error('Fee configuration changed since approval.') // [!code focus]
 
 const totalFixedRate = feeState.config.fixedFees.reduce( // [!code focus]
-  (total, fee) => total + fee.rate,
-  0n,
+  (total, fee) => total + fee.rateBps,
+  0,
 )
-// @log: 20_000_000_000_000_000n
+// @log: 200
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -116,7 +116,7 @@ const totalFixedRate = feeState.config.fixedFees.reduce( // [!code focus]
 
 :::
 
-Fee rates are scaled to 18 decimals, so `20_000_000_000_000_000n` is a 2% fixed rate.
+Fee rates use basis points, so `200` is a 2% fixed rate.
 
 ## Return Value
 
@@ -141,11 +141,11 @@ type ReturnValue = {
 type FeeConfig = {
   excess: {
     account: Address
-    annualTargetRate: bigint
+    annualTargetRateBps: number
     enabled: boolean
-    excessFeeRate: bigint
+    excessFeeRateBps: number
   }
-  fixedFees: readonly { account: Address; rate: bigint }[]
+  fixedFees: readonly { account: Address; rateBps: number }[]
 }
 
 type FeePreview = {

@@ -3,11 +3,11 @@ import * as Contracts from '../../core/internal/contracts.js'
 
 export const story = /*#__PURE__*/ Chain.from({
   id: 1514,
-  name: 'Story',
+  name: 'Data Network',
   nativeCurrency: {
     decimals: 18,
-    name: 'IP Token',
-    symbol: 'IP',
+    name: 'DATA',
+    symbol: 'DATA',
   },
   contracts: {
     create2: Contracts.create2,
@@ -24,11 +24,11 @@ export const story = /*#__PURE__*/ Chain.from({
       blockCreated: 649114,
     },
   },
-  rpcUrls: { http: 'https://mainnet.storyrpc.io' },
+  rpcUrls: { http: 'https://mainnet.datarpc.io' },
   blockExplorers: {
-    name: 'Story explorer',
-    url: 'https://storyscan.io',
-    apiUrl: 'https://storyscan.io/api/v2',
+    name: 'Data Network explorer',
+    url: 'https://datanetscan.io',
+    apiUrl: 'https://datanetscan.io/api/v2',
   },
   ensTlds: ['.ip'],
   testnet: false,

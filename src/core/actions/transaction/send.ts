@@ -58,7 +58,7 @@ export async function send<chain extends Chain.Chain | undefined>(
   const account =
     typeof account_ === 'string' ? Account.from(account_) : account_
 
-  const nonceManager =
+  const accountNonceManager =
     account.type === 'local' ? account.nonceManager : undefined
 
   // `null` opts out of the current-chain assertion; `undefined` falls back to
@@ -70,6 +70,22 @@ export async function send<chain extends Chain.Chain | undefined>(
   // Recover the address to reset the nonce against if signing/broadcasting
   // fails after the nonce manager has consumed one.
   let reset: NonceManager.NonceManager.Parameters | undefined
+  const nonceManager =
+    accountNonceManager && typeof rest.nonce === 'undefined'
+      ? {
+          async consume(
+            parameters: NonceManager.NonceManager.Parameters & {
+              client: Client.Client
+            },
+          ) {
+            reset = parameters
+            return accountNonceManager.consume(parameters)
+          },
+          get: accountNonceManager.get,
+          increment: accountNonceManager.increment,
+          reset: accountNonceManager.reset,
+        }
+      : undefined
 
   try {
     const data = dataSuffix_.append(rest.data, dataSuffix)
@@ -134,11 +150,6 @@ export async function send<chain extends Chain.Chain | undefined>(
     }
 
     // Local account: prepare → sign → broadcast.
-    if (nonceManager && typeof rest.nonce === 'undefined') {
-      const chainId = chain ? chain.id : await getId(client)
-      reset = { address: account.address, chainId }
-    }
-
     const { request } = await getAction(
       client,
       prepare<chain, Account.Account | undefined, prepare.Options<chain>>,
@@ -163,7 +174,7 @@ export async function send<chain extends Chain.Chain | undefined>(
 
     return await sendRaw(client, { requestOptions, transaction })
   } catch (err) {
-    if (reset && nonceManager) nonceManager.reset(reset)
+    if (reset && accountNonceManager) accountNonceManager.reset(reset)
 
     if (isAbortError(err)) throw err
 

@@ -1,5 +1,5 @@
 import { AbiFunction, Authorization, TransactionRequest, Value } from 'ox'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
 import {
   Account,
@@ -548,6 +548,43 @@ test('behavior: eip7702 infers `to` from the authorization list', async () => {
 })
 
 describe('behavior: nonceManager', () => {
+  test('does not reset when the chain hook supplies a nonce', async () => {
+    const nonceManager = NonceManager.from({
+      source: { get: () => 1, set() {} },
+    })
+    const consume = vi.spyOn(nonceManager, 'consume')
+    const reset = vi.spyOn(nonceManager, 'reset')
+    const account = {
+      ...Account.fromPrivateKey(constants.accounts[0].privateKey),
+      nonceManager,
+    }
+    const chain = Chain.from({
+      ...mainnet,
+      transaction: {
+        prepare(request) {
+          return { ...request, nonce: 1 }
+        },
+      },
+    })
+    const hookClient = Client.create({
+      chain,
+      transport: http(anvil.mainnet.rpcUrl.http),
+    })
+
+    await expect(
+      Actions.transaction.sendSync(hookClient, {
+        account,
+        chainId: 1,
+        gas: 100n,
+        gasPrice: 1n,
+        to,
+        type: 'legacy',
+      }),
+    ).rejects.toBeInstanceOf(RpcError.ExecutionError)
+    expect(consume).not.toHaveBeenCalled()
+    expect(reset).not.toHaveBeenCalled()
+  })
+
   test('derives the nonce from the account nonce manager', async () => {
     await setup()
     const nonceManager = NonceManager.jsonRpc()

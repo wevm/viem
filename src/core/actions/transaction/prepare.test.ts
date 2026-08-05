@@ -487,6 +487,28 @@ describe('behavior: attemptFill', () => {
     }
   })
 
+  test('sponsorship bypasses a cached unsupported fill state', async () => {
+    const rejecter = await createCounter({
+      code: -32601,
+      message: 'method not found',
+    })
+    try {
+      const c = Client.create({ transport: http(rejecter.url) })
+      await Actions.transaction.prepare(c, { account, to, value: 1n })
+      expect(rejecter.state.calls).toBe(1)
+      await Actions.transaction.prepare(c, {
+        account,
+        feePayer: true,
+        parameters: ['nonce'],
+        to,
+        value: 1n,
+      })
+      expect(rejecter.state.calls).toBe(2)
+    } finally {
+      await rejecter.close()
+    }
+  })
+
   test('not when all parameters provided', async () => {
     expect(
       await attemptedFill({
@@ -1282,6 +1304,43 @@ describe('behavior: fees', () => {
 })
 
 describe('behavior: nonceManager', () => {
+  test('does not consume when the chain hook supplies a nonce', async () => {
+    let consumes = 0
+    const nonceManager: NonceManager.NonceManager = {
+      async consume() {
+        consumes++
+        return 1
+      },
+      async get() {
+        return 1
+      },
+      increment() {},
+      reset() {},
+    }
+    const chain = Chain.from({
+      id: 1,
+      name: 'Ethereum',
+      nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+      rpcUrls: { http: anvil.mainnet.rpcUrl.http },
+      transaction: {
+        prepare(request) {
+          return { ...request, nonce: 0 }
+        },
+      },
+    })
+    const hookClient = Client.create({ chain, transport: http() })
+
+    const { request } = await Actions.transaction.prepare(hookClient, {
+      account,
+      nonceManager,
+      parameters: ['nonce'],
+      to,
+    })
+
+    expect(request.nonce).toBe(0)
+    expect(consumes).toBe(0)
+  })
+
   test('nonceManager', async () => {
     const nonceManager = NonceManager.jsonRpc()
 
