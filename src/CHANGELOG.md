@@ -1,5 +1,19 @@
 # viem
 
+## 2.55.11
+
+### Patch Changes
+
+- [#4949](https://github.com/wevm/viem/pull/4949) [`f05ae7eff8852cd4b4b117a5c5d77140bd26a8f6`](https://github.com/wevm/viem/commit/f05ae7eff8852cd4b4b117a5c5d77140bd26a8f6) Thanks [@grandpig](https://github.com/grandpig)! - Fixed `withRetry` hanging when `shouldRetry` or the retry delay callback throws.
+
+- [#4955](https://github.com/wevm/viem/pull/4955) [`87067c2fc2487967872582c1a0739b419612d5ee`](https://github.com/wevm/viem/commit/87067c2fc2487967872582c1a0739b419612d5ee) Thanks [@ShenWang-PiP](https://github.com/ShenWang-PiP)! - Updated the `story` (1514) and `storyAeneid` (1315) chains for the Story → Data rebrand: renamed to "Data Network" / "Data Network Aeneid", set the native currency to $DATA, the RPC URLs to `datarpc.io`, and the block explorer to `datanetscan.io`. Chain IDs and the `story` / `storyAeneid` exports are unchanged.
+
+- [#4958](https://github.com/wevm/viem/pull/4958) [`3fe8f4bef7688d4e76d112cf89846d66d272d17b`](https://github.com/wevm/viem/commit/3fe8f4bef7688d4e76d112cf89846d66d272d17b) Thanks [@struong](https://github.com/struong)! - Refreshed the experimental Tempo Earn interfaces and Zone router actions against the latest reviewed contract source.
+
+- [#4956](https://github.com/wevm/viem/pull/4956) [`3304d2ec8efdf4704cc1978c3beb3d7bdfb30016`](https://github.com/wevm/viem/commit/3304d2ec8efdf4704cc1978c3beb3d7bdfb30016) Thanks [@struong](https://github.com/struong)! - Respect explicit client multicall configuration when fetching Tempo token metadata.
+
+- [#4961](https://github.com/wevm/viem/pull/4961) [`fca3ff599e16172a86a9d1f6ce7057ea91246056`](https://github.com/wevm/viem/commit/fca3ff599e16172a86a9d1f6ce7057ea91246056) Thanks [@RezaRahemtola](https://github.com/RezaRahemtola)! - Rejected nonstandard `uint` and `int` aliases in `validateTypedData` to prevent noncanonical EIP-712 hashes.
+
 ## 2.55.10
 
 ### Patch Changes
