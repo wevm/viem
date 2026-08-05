@@ -41,6 +41,7 @@ const earnAbis = new Set<string>([
   'earnRouterCallbackData',
   'earnVault',
   'erc4626Engine',
+  'erc4626EngineFactory',
   'vedaEngine',
 ])
 
