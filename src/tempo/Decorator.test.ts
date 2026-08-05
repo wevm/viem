@@ -66,6 +66,11 @@ describe('decorator', () => {
     expect(typeof client2.earn.privateDeposit.calls).toBe('function')
     expect(typeof client2.earn.privateRedeem.prepare).toBe('function')
     expect(typeof client2.earn.privateRedeem.calls).toBe('function')
+    expect(typeof client2.earn.createErc4626Engine.call).toBe('function')
+    expect(typeof client2.earn.createErc4626Engine.predict).toBe('function')
+    expect(typeof client2.earn.createStack.call).toBe('function')
+    expect(typeof client2.earn.createStack.predict).toBe('function')
+    expect(typeof client2.earn.bindErc4626Engine.call).toBe('function')
   })
 
   test('binds missing action entries', () => {
