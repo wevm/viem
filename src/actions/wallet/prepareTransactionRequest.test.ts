@@ -2199,6 +2199,41 @@ describe('behavior: attemptFill', () => {
     expect(fillTransactionSpy).not.toHaveBeenCalled()
   })
 
+  test('behavior: sponsorship bypasses cached unsupported fill state', async () => {
+    supportsFillTransaction.set(client.uid, false)
+
+    const fillTransactionSpy = vi
+      .spyOn(fillTransaction, 'fillTransaction')
+      .mockResolvedValue({
+        raw: '0x',
+        transaction: {
+          chainId: 1,
+          feePayerSignature: { r: '0x1', s: '0x2', yParity: 0 },
+          gas: 21_000n,
+          maxFeePerGas: 2n,
+          maxPriorityFeePerGas: 1n,
+          nonce: 0,
+          type: 'eip1559',
+        },
+      } as never)
+
+    const request = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      chainId: 1,
+      feePayer: true,
+      gas: 21_000n,
+      maxFeePerGas: 2n,
+      maxPriorityFeePerGas: 1n,
+      nonce: 0,
+      parameters: ['nonce'],
+      to: targetAccount.address,
+      type: 'eip1559',
+    } as never)
+
+    expect(fillTransactionSpy).toHaveBeenCalledOnce()
+    expect((request as any).feePayerSignature).toBeDefined()
+  })
+
   test('behavior: do not attempt fill when all parameters are already provided', async () => {
     await setup()
 
