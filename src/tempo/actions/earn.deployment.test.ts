@@ -108,6 +108,18 @@ describe('createStack.call', () => {
     expect(() =>
       Actions.earn.createStack.call({
         ...parameters,
+        distributor: {
+          distributor: zeroAddress,
+          updateDelay: 86_400,
+        },
+        fees: {
+          fixedFees: [{ account: accounts[2].address, rateBps: 100 }],
+        },
+      }),
+    ).toThrow('cannot be the zero address')
+    expect(() =>
+      Actions.earn.createStack.call({
+        ...parameters,
         transferPolicyId: 1n << 64n,
       }),
     ).toThrow('fit into uint64')

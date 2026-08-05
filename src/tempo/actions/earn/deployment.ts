@@ -2,14 +2,10 @@ import type { Address } from 'abitype'
 import { Hex } from 'ox'
 import type { Account } from '../../../accounts/types.js'
 import { parseAccount } from '../../../accounts/utils/parseAccount.js'
-import { estimateContractGas } from '../../../actions/public/estimateContractGas.js'
 import { getCode } from '../../../actions/public/getCode.js'
 import { getLogs } from '../../../actions/public/getLogs.js'
 import { readContract } from '../../../actions/public/readContract.js'
-import {
-  type SimulateContractReturnType,
-  simulateContract,
-} from '../../../actions/public/simulateContract.js'
+import { simulateContract } from '../../../actions/public/simulateContract.js'
 import {
   type WriteContractReturnType,
   writeContract,
@@ -66,20 +62,15 @@ export type EarnVaultControls = {
 }
 
 /** @experimental Optional protected fee-distributor configuration. */
-export type EarnDistributorConfiguration =
-  | {
-      /**
-       * Distributor address. When enabled, the first entry in
-       * `fees.fixedFees` is its protected fee.
-       */
-      distributor: Address
-      /** Delay before a distributor fee update can execute, in seconds. */
-      updateDelay: number
-    }
-  | {
-      distributor?: undefined
-      updateDelay?: undefined
-    }
+export type EarnDistributorConfiguration = {
+  /**
+   * Distributor address. The first entry in `fees.fixedFees` is its protected
+   * fee.
+   */
+  distributor: Address
+  /** Delay before a distributor fee update can execute, in seconds. */
+  updateDelay: number
+}
 
 /** @experimental Initial Earn fee configuration. Omit to deploy fee-free. */
 export type EarnFeeConfiguration = {
@@ -289,50 +280,6 @@ export namespace createErc4626Engine {
   }
 
   /**
-   * Estimates gas for the engine deployment.
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The gas estimate.
-   */
-  export async function estimateGas<
-    chain extends Chain | undefined,
-    account extends Account | undefined,
-  >(
-    client: Client<Transport, chain, account>,
-    parameters: Parameters<chain, account>,
-  ) {
-    const args = resolveArgs(client, parameters)
-    return estimateContractGas(client, {
-      ...pickWriteParameters(parameters as never),
-      ...createErc4626Engine.call(args),
-    } as never)
-  }
-
-  /**
-   * Simulates the engine deployment.
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The simulation result and write request.
-   */
-  export async function simulate<
-    chain extends Chain | undefined,
-    account extends Account | undefined,
-  >(
-    client: Client<Transport, chain, account>,
-    parameters: Parameters<chain, account>,
-  ): Promise<
-    SimulateContractReturnType<typeof Abis.erc4626EngineFactory, 'deploy'>
-  > {
-    const args = resolveArgs(client, parameters)
-    return simulateContract(client, {
-      ...pickWriteParameters(parameters as never),
-      ...createErc4626Engine.call(args),
-    } as never) as never
-  }
-
-  /**
    * Extracts the `ERC4626EngineDeployed` event from factory logs.
    *
    * @param logs - The logs.
@@ -350,26 +297,6 @@ export namespace createErc4626Engine {
     })
     if (!log) throw new Error('`ERC4626EngineDeployed` event not found.')
     return log
-  }
-
-  function resolveArgs<
-    chain extends Chain | undefined,
-    account extends Account | undefined,
-  >(
-    client: Client<Transport, chain, account>,
-    parameters: Parameters<chain, account>,
-  ): Args {
-    const account = parameters.account ?? client.account
-    const owner = parameters.owner ?? account
-    if (!owner) throw new Error('`owner` is required.')
-    return {
-      deploymentId: parameters.deploymentId,
-      factory: parameters.factory,
-      name: parameters.name,
-      owner: parseAccount(owner).address,
-      symbol: parameters.symbol,
-      venue: parameters.venue,
-    }
   }
 }
 
@@ -619,46 +546,6 @@ export namespace createStack {
   }
 
   /**
-   * Estimates gas for stack creation.
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The gas estimate.
-   */
-  export async function estimateGas<
-    chain extends Chain | undefined,
-    account extends Account | undefined,
-  >(
-    client: Client<Transport, chain, account>,
-    parameters: Parameters<chain, account>,
-  ) {
-    return estimateContractGas(client, {
-      ...pickWriteParameters(parameters as never),
-      ...createStack.call(resolveArgs(client, parameters)),
-    } as never)
-  }
-
-  /**
-   * Simulates stack creation.
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The simulation result and write request.
-   */
-  export async function simulate<
-    chain extends Chain | undefined,
-    account extends Account | undefined,
-  >(
-    client: Client<Transport, chain, account>,
-    parameters: Parameters<chain, account>,
-  ): Promise<SimulateContractReturnType<typeof Abis.earnFactory, 'deploy'>> {
-    return simulateContract(client, {
-      ...pickWriteParameters(parameters as never),
-      ...createStack.call(resolveArgs(client, parameters)),
-    } as never) as never
-  }
-
-  /**
    * Extracts the `EarnStackDeployed` event from factory logs.
    *
    * @param logs - The logs.
@@ -676,28 +563,6 @@ export namespace createStack {
     })
     if (!log) throw new Error('`EarnStackDeployed` event not found.')
     return log
-  }
-
-  function resolveArgs<
-    chain extends Chain | undefined,
-    account extends Account | undefined,
-  >(
-    client: Client<Transport, chain, account>,
-    parameters: Parameters<chain, account>,
-  ): Args {
-    const account = parameters.account ?? client.account
-    const owner = parameters.owner ?? account
-    if (!owner) throw new Error('`owner` is required.')
-    return {
-      controls: parameters.controls,
-      deploymentId: parameters.deploymentId,
-      distributor: parameters.distributor,
-      engine: parameters.engine,
-      factory: parameters.factory,
-      fees: parameters.fees,
-      owner: parseAccount(owner).address,
-      transferPolicyId: parameters.transferPolicyId,
-    }
   }
 }
 
@@ -866,48 +731,6 @@ export namespace bindErc4626Engine {
       functionName: 'initializeEarnVault',
       args: [args.vault],
     })
-  }
-
-  /**
-   * Estimates gas for the binding.
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The gas estimate.
-   */
-  export async function estimateGas<
-    chain extends Chain | undefined,
-    account extends Account | undefined,
-  >(
-    client: Client<Transport, chain, account>,
-    parameters: Parameters<chain, account>,
-  ) {
-    return estimateContractGas(client, {
-      ...pickWriteParameters(parameters as never),
-      ...bindErc4626Engine.call(parameters),
-    } as never)
-  }
-
-  /**
-   * Simulates the binding.
-   *
-   * @param client - Client.
-   * @param parameters - Parameters.
-   * @returns The simulation result and write request.
-   */
-  export async function simulate<
-    chain extends Chain | undefined,
-    account extends Account | undefined,
-  >(
-    client: Client<Transport, chain, account>,
-    parameters: Parameters<chain, account>,
-  ): Promise<
-    SimulateContractReturnType<typeof Abis.erc4626Engine, 'initializeEarnVault'>
-  > {
-    return simulateContract(client, {
-      ...pickWriteParameters(parameters as never),
-      ...bindErc4626Engine.call(parameters),
-    } as never) as never
   }
 
   /**
@@ -1142,9 +965,10 @@ export async function deployErc4626StackSync<
   const receipts: deployErc4626StackSync.Receipts = {}
   try {
     if (!engineExists) {
-      await createErc4626Engine.simulate(client, {
-        ...writeParameters,
-        ...engineArgs,
+      await simulateContract(client, {
+        ...sharedWriteParameters,
+        account: deployer,
+        ...createErc4626Engine.call(engineArgs),
       } as never)
       const receipt = await createErc4626Engine.inner(
         writeContractSync,
@@ -1199,9 +1023,10 @@ export async function deployErc4626StackSync<
         throw new Error(
           'Predicted EarnFees exists without the predicted EarnShare.',
         )
-      await createStack.simulate(client, {
-        ...writeParameters,
-        ...stackArgs,
+      await simulateContract(client, {
+        ...sharedWriteParameters,
+        account: deployer,
+        ...createStack.call(stackArgs),
       } as never)
       const receipt = await createStack.inner(writeContractSync, client, {
         ...writeParameters,
@@ -1268,7 +1093,11 @@ export async function deployErc4626StackSync<
         engine: predictedEngine,
         vault,
       }
-      await bindErc4626Engine.simulate(client, bindingParameters as never)
+      await simulateContract(client, {
+        ...sharedWriteParameters,
+        account: bindingAccount,
+        ...bindErc4626Engine.call({ engine: predictedEngine, vault }),
+      } as never)
       const receipt = await bindErc4626Engine.inner(
         writeContractSync,
         client,
@@ -1399,10 +1228,9 @@ function toDeployParameters(args: createStack.Args) {
   const zeroFee = { account: zeroAddress, rateBps: 0 } as const
   const distributor = args.distributor?.distributor ?? zeroAddress
   const updateDelay = args.distributor?.updateDelay ?? 0
-  if (isAddressEqual(distributor, zeroAddress)) {
-    if (updateDelay !== 0)
-      throw new Error('A disabled distributor must use a zero update delay.')
-  } else {
+  if (args.distributor) {
+    if (isAddressEqual(distributor, zeroAddress))
+      throw new Error('An enabled distributor cannot be the zero address.')
     if (updateDelay <= 0)
       throw new Error(
         'An enabled distributor requires a positive update delay.',
