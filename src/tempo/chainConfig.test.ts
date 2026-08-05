@@ -140,6 +140,23 @@ describe('prepareTransactionRequest', () => {
     expect(request?.validBefore).toBe(customValidBefore)
   })
 
+  test('behavior: detects concurrent JSON-RPC address accounts', async () => {
+    const address = accounts.at(0)!.address
+    const requests = await Promise.all([
+      prepareTransactionRequest(client, {
+        account: address,
+        parameters: [],
+      }),
+      prepareTransactionRequest(client, {
+        account: address.toLowerCase() as typeof address,
+        parameters: [],
+      }),
+    ])
+
+    expect(requests[0].nonceKey).toBe(maxUint256)
+    expect(requests[1].nonceKey).toBe(maxUint256)
+  })
+
   test('behavior: detects concurrency before asynchronous account preparation', async () => {
     let reads = 0
     let releaseSecondRead: (() => void) | undefined
