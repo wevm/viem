@@ -140,6 +140,33 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
+  test-tempo-fuzz:
+    name: Test Tempo Fuzz
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Fuzz Tempo models
+        run: pnpm test:fuzz:tempo
+        env:
+          CI: true
+          FUZZ_RUNS: 500
+
+      - name: Fuzz Tempo against local node
+        run: pnpm test:fuzz:tempo:node:docker
+        env:
+          CI: true
+          TEMPO_FUZZ_NODE_RUNS: 10
+          VITE_TEMPO_TAG: 1.8.1
+
   test-tempo-deployed:
     name: 'Test Deployed Tempo (env: ${{ matrix.node-env }}, e2e)'
     runs-on: ubuntu-latest

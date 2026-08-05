@@ -150,6 +150,9 @@ importers:
       ethers:
         specifier: ^6.15.0
         version: 6.15.0
+      fast-check:
+        specifier: ^4.9.0
+        version: 4.9.0
       knip:
         specifier: ^5.64.0
         version: 5.64.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.11.2)(@types/node@24.5.2)(typescript@5.9.3)
@@ -163,8 +166,8 @@ importers:
         specifier: ^0.2.57
         version: 0.2.57(ox@0.14.33(typescript@5.9.3)(zod@4.4.3))
       prool:
-        specifier: ~0.2.8
-        version: 0.2.8(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0)
+        specifier: ~0.2.14
+        version: 0.2.14(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0)
       publint:
         specifier: ^0.2.12
         version: 0.2.12
@@ -4242,6 +4245,10 @@ packages:
     engines: {node: '>= 10.17.0'}
     hasBin: true
 
+  fast-check@4.9.0:
+    resolution: {integrity: sha512-7ms6T7SybUev/PQITciI0yLM2pOSFy5zpG8Ty7tQofcVaQUvrMXp6CBwqF6fThLCLOrfBtuHAtwq6Yu4XPCllg==}
+    engines: {node: '>=12.17.0'}
+
   fast-copy@3.0.2:
     resolution: {integrity: sha512-dl0O9Vhju8IrcLndv2eU4ldt1ftXMqqfgN4H1cpmGV7P6jeB9FwpN9a2c8DPGE1Ys88rNUJVYDHq73CGAGOPfQ==}
 
@@ -5805,8 +5812,8 @@ packages:
     resolution: {integrity: sha512-sF308EhTenb/pDRPakm+WgiN+VdM/T1RaHj1x+MvAuT8UiQP8JmOEbxVqtkbfR4LrvOg5n7ic01kRBDGXjYikA==}
     engines: {node: '>=10'}
 
-  prool@0.2.8:
-    resolution: {integrity: sha512-VJXscto4WK/pISa5QvvXE0DEbbOA3vDuEXa2I27gGyqwUQZt3KnfkuzxqJ2sLqR7qm6vXg3NS2sZCXJRkmqfqQ==}
+  prool@0.2.14:
+    resolution: {integrity: sha512-GAu9hAJqIMac/16sHTm//ya8qfqwh0M+czyRcQYlL8daXYHhSfxOCbNv9SFkmRQ1wZhZHDvDtfqNJZmCcwzJaw==}
     engines: {node: '>=22'}
     peerDependencies:
       '@pimlico/alto': '*'
@@ -5853,6 +5860,9 @@ packages:
 
   pump@3.0.2:
     resolution: {integrity: sha512-tUPXtzlGM8FE3P0ZL6DVs/3P58k9nk8/jZeQCurTJylQA8qFYzHFfhBJkuqyE0FifOsQ0uKWekiZ5g8wtr28cw==}
+
+  pure-rand@8.4.2:
+    resolution: {integrity: sha512-vvuOGgcuPJAirlHvuQw1TrOiw7ptaIXXmIbNuiNOY6lNGJJH49PQ1Kj4nd783nPdQhQdicgOjVI2yI/9BD6/Ng==}
 
   puppeteer-core@22.6.5:
     resolution: {integrity: sha512-s0/5XkAWe0/dWISiljdrybjwDCHhgN31Nu/wznOZPKeikgcJtZtbvPKBz0t802XWqfSQnQDt3L6xiAE5JLlfuw==}
@@ -11205,6 +11215,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  fast-check@4.9.0:
+    dependencies:
+      pure-rand: 8.4.2
+
   fast-copy@3.0.2: {}
 
   fast-decode-uri-component@1.0.1: {}
@@ -13207,7 +13221,7 @@ snapshots:
     dependencies:
       tdigest: 0.1.2
 
-  prool@0.2.8(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0):
+  prool@0.2.14(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0):
     dependencies:
       change-case: 5.4.4
       eventemitter3: 5.0.4
@@ -13281,6 +13295,8 @@ snapshots:
     dependencies:
       end-of-stream: 1.4.4
       once: 1.4.0
+
+  pure-rand@8.4.2: {}
 
   puppeteer-core@22.6.5:
     dependencies:
