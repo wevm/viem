@@ -1107,6 +1107,7 @@ describe('earn', () => {
     'behavior: deposits and redeems through a Zone gateway',
     async () => {
       await Actions.zone.signAuthorizationToken(zoneClient, { zoneId })
+      await ensureZoneBalance(parentToken, parseUnits('1', 6))
 
       const stack = await deployEarnStack(mainnetClient, {
         asset: parentToken,
