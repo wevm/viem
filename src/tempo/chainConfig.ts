@@ -119,7 +119,8 @@ export const chainConfig = {
       // Register concurrency before account preparation performs storage or
       // network I/O so overlapping requests cannot miss each other.
       const useExpiringNonce = await (async () => {
-        if (request.nonceKey === 'expiring') return true
+        if (request.nonceKey === 'expiring' || request.nonceKey === maxUint256)
+          return true
         if (multisig) return false
         if (request.feePayer && typeof request.nonceKey === 'undefined')
           return true
