@@ -339,6 +339,11 @@ jobs:
         run: pnpm build
 
       - name: Link
+        if: ${{ matrix.runtime != 'tsc' }}
+        run: pnpm install
+
+      - name: Link declaration consumer
+        if: ${{ matrix.runtime == 'tsc' }}
         run: pnpm install --force --ignore-scripts
 
       - name: Run tests
