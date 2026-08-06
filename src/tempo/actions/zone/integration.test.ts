@@ -320,12 +320,16 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         callbackGas,
       })
       const assetAmount = Value.from('10', 6)
-      const assetDepositAmount =
-        assetAmount + withdrawalFee * 2n + Value.from('10', 6)
-      const assetDeposit = await Actions.zone.depositSync(parentClient, {
-        amount: assetDepositAmount,
+      await Actions.zone.depositSync(parentClient, {
+        amount: withdrawalFee * 2n + Value.from('10', 6),
         portalAddress,
         token: stack.asset,
+        zoneId: tempoZone.zoneId,
+      })
+      const assetDeposit = await Actions.zone.depositSync(parentClient, {
+        amount: assetAmount,
+        portalAddress,
+        token: tempo.alphaUsd,
         zoneId: tempoZone.zoneId,
       })
       await Actions.zone.waitForTempoBlock(zoneClient, {
@@ -445,7 +449,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
       })
       expect(deposit.actionId).toBe(preparedDeposit.actionId)
       expect(deposit.inputAmount).toBe(assetAmount)
-      expect(Address.isEqual(deposit.inputToken, stack.asset)).toBe(true)
+      expect(Address.isEqual(deposit.inputToken, tempo.alphaUsd)).toBe(true)
       expect(deposit.shares).toBe(assetAmount)
       expect(deposit.vaultAssets).toBe(assetAmount)
 
@@ -550,7 +554,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
       const [assetBalance, finalShareBalance] = await Promise.all([
         Actions.token.getBalance(zoneClient, {
           account: account.address,
-          token: stack.asset,
+          token: tempo.alphaUsd,
         }),
         Actions.token.getBalance(zoneClient, {
           account: account.address,

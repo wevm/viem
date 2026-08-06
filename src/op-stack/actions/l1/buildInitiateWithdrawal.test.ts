@@ -38,7 +38,7 @@ beforeAll(async () => {
     }),
     CoreActions.state.reset(optimismClient, {
       blockNumber: anvil.optimism.forkBlockNumber,
-      jsonRpcUrl: optimism.rpcUrls.http,
+      jsonRpcUrl: anvil.optimism.forkUrl,
     }),
   ])
   await Promise.all(

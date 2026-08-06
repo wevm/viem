@@ -29,7 +29,7 @@ const transfer = {
 beforeAll(async () => {
   await CoreActions.state.reset(client, {
     blockNumber: anvil.optimism.forkBlockNumber,
-    jsonRpcUrl: optimism.rpcUrls.http,
+    jsonRpcUrl: anvil.optimism.forkUrl,
   })
 }, 30_000)
 
