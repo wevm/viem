@@ -1,5 +1,5 @@
 import { RpcTransport } from 'ox'
-import { type Instance, Server } from 'prool'
+import { Instance, Server } from 'prool'
 import * as TestContainers from 'prool/testcontainers'
 import { getBlock } from '../../../src/actions/public/getBlock.js'
 import {
@@ -36,7 +36,9 @@ export const rpcUrl = (() => {
     return 'https://rpc.devnet.tempoxyz.dev'
   if (import.meta.env.VITE_TEMPO_ENV === 'testnet')
     return 'https://rpc.moderato.tempo.xyz'
+  const configuredId = Number(import.meta.env.VITE_TEMPO_INSTANCE_ID)
   const id =
+    configuredId ||
     (typeof import.meta !== 'undefined' &&
       Number(import.meta.env.VITEST_POOL_ID ?? 1) +
         Math.floor(Math.random() * 10_000)) ||
@@ -62,15 +64,21 @@ export async function createServer() {
   const zones = import.meta.env.VITE_TEMPO_ZONES === 'true'
   const args = {
     // Match Tempo's production cadence when Zone consumes every L1 block.
-    blockTime: zones ? '500ms' : process.env.CI ? '50ms' : '2ms',
+    blockTime:
+      import.meta.env.VITE_TEMPO_BLOCK_TIME ??
+      (zones ? '500ms' : process.env.CI ? '50ms' : '2ms'),
     log: import.meta.env.VITE_TEMPO_LOG,
     port,
   } satisfies Instance.tempo.Parameters
   const image = tag?.startsWith('sha256:')
     ? `ghcr.io/tempoxyz/tempo@${tag}`
     : `ghcr.io/tempoxyz/tempo:${tag ?? 'latest'}`
-  const instance =
-    zones || hardfork === 'T9'
+  const instance = import.meta.env.VITE_TEMPO_BINARY
+    ? Instance.tempo({
+        ...args,
+        binary: import.meta.env.VITE_TEMPO_BINARY,
+      })
+    : zones || hardfork === 'T9'
       ? createCustomTempo({
           ...args,
           hardfork,
@@ -251,7 +259,7 @@ export async function restart(client: Client<Transport, Chain>) {
   await setup(client)
 }
 
-async function waitForBlock(client: Client<Transport, Chain>) {
+export async function waitForBlock(client: Client<Transport, Chain>) {
   await withRetry(
     async () => {
       const block = await getBlock(client)
