@@ -76,6 +76,7 @@ export declare namespace sendRawSync {
 /** Thrown when a sync transaction receipt reports a reverted transaction. */
 export class TransactionReceiptRevertedError extends BaseError {
   override readonly name = 'TransactionReceipt.RevertedError'
+  readonly receipt: { transactionHash: Hex.Hex }
 
   constructor({ receipt }: { receipt: { transactionHash: Hex.Hex } }) {
     super(`Transaction with hash "${receipt.transactionHash}" reverted.`, {
@@ -83,5 +84,6 @@ export class TransactionReceiptRevertedError extends BaseError {
         'The receipt marked the transaction as "reverted". This could mean that the contract function threw an error.',
       ],
     })
+    this.receipt = receipt
   }
 }

@@ -1,7 +1,7 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# Get Earn Private Deposit [earn.privateDeposit]
+# `earn.privateDeposit`
 
 Withdraws assets from a private Zone, deposits them into an Earn vault, and returns the Earn shares
 to an encrypted Zone recipient.
@@ -14,10 +14,11 @@ client.
 :::code-group
 
 ```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
 import { client as parentClient } from './viem.config'
 import { client as zoneClient } from './zones.config'
 
-const prepared = await parentClient.earn.privateDeposit.prepare({
+const prepared = await Actions.earn.privateDeposit.prepare(parentClient, {
   assetAmount: 100_000_000n,
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
@@ -51,10 +52,11 @@ deposit. `senderTag` identifies the corresponding parent-chain `WithdrawalProces
 Use `earn.privateDeposit` to return the Zone transaction hash immediately.
 
 ```ts twoslash
+import { Actions } from 'viem/tempo'
 import { client as parentClient } from './viem.config'
 import { client as zoneClient } from './zones.config'
 
-const prepared = await parentClient.earn.privateDeposit.prepare({
+const prepared = await Actions.earn.privateDeposit.prepare(parentClient, {
   assetAmount: 100_000_000n,
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
@@ -68,18 +70,19 @@ const hash = await zoneClient.earn.privateDeposit(prepared)
 // @log: 0x1234...abcd
 ```
 
-### Swap-Routed Deposits
+### Bound the Asset Conversion
 
-Pass `assetToken` when the Zone asset differs from the vault asset. Set `vaultAssetAmountMin` to
-bound the vault assets produced by that swap, and set the share bound independently.
+Each gateway is permanently scoped to one private asset and one vault asset. It converts the
+private asset into the vault asset through its configured token authority before depositing. Set
+`vaultAssetAmountMin` to bound that conversion independently from the Earn share bound.
 
 ```ts twoslash
+import { Actions } from 'viem/tempo'
 import { client as parentClient } from './viem.config'
 import { client as zoneClient } from './zones.config'
 
-const prepared = await parentClient.earn.privateDeposit.prepare({
+const prepared = await Actions.earn.privateDeposit.prepare(parentClient, {
   assetAmount: 100_000_000n,
-  assetToken: '0x0000000000000000000000000000000000000002',
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
   recoveryRecipient: parentClient.account.address,
@@ -90,141 +93,9 @@ const prepared = await parentClient.earn.privateDeposit.prepare({
 })
 ```
 
-When `assetToken` is the vault asset, the action always requires the exact withdrawn `assetAmount`.
-For swap-routed deposits, omitting `vaultAssetAmountMin` preserves the zero minimum.
-
-## Recipes
-
-### Await Vault Settlement Before Crediting
-
-Combine the deposit with [`earn.waitForPrivateDeposit`](/tempo/actions/earn.waitForPrivateDeposit)
-and [`zone.waitForTempoBlock`](/tempo/actions/zone.waitForTempoBlock) to credit a user only once
-the returned shares are usable in the Zone.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client as parentClient } from './viem.config'
-import { client as zoneClient } from './zones.config'
-
-const gateway = '0x0000000000000000000000000000000000000001'
-const vault = '0x0000000000000000000000000000000000000002'
-
-const prepared = await parentClient.earn.privateDeposit.prepare({
-  assetAmount: 100_000_000n,
-  gateway,
-  recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
-  shareAmountMin: 99_500_000n,
-  vault,
-  zoneId: 7,
-})
-await zoneClient.earn.privateDepositSync(prepared)
-
-const deposit = await parentClient.earn.waitForPrivateDeposit({ // [!code focus]
-  actionId: prepared.actionId, // [!code focus]
-  fromBlock: prepared.fromBlock, // [!code focus]
-  gateway, // [!code focus]
-  vault, // [!code focus]
-}) // [!code focus]
-// @log: { shares: 99_750_000n, tempoBlockNumber: 123456n, ... }
-
-await zoneClient.zone.waitForTempoBlock({ // [!code focus]
-  tempoBlockNumber: deposit.tempoBlockNumber, // [!code focus]
-}) // [!code focus]
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-```ts twoslash [zones.config.ts] filename="zones.config.ts"
-// [!include ~/snippets/tempo/zones.config.ts:setup]
-```
-
-:::
-
-See [Earn from a Private Zone](/tempo/guides/earn/zones) for the complete flow and its privacy
-boundary.
-
-### Tag Deposits for Treasury Reconciliation
-
-Supply your own `actionId` and a `withdrawalMemo` so the Zone withdrawal and its gateway callback
-correlate with an internal treasury record.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client as parentClient } from './viem.config'
-import { client as zoneClient } from './zones.config'
-
-const prepared = await parentClient.earn.privateDeposit.prepare({
-  actionId: '0x00000000000000000000000000000000000000000000000000000000000004d2', // [!code focus]
-  assetAmount: 100_000_000n,
-  gateway: '0x0000000000000000000000000000000000000001',
-  recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
-  shareAmountMin: 99_500_000n,
-  vault: '0x0000000000000000000000000000000000000002',
-  withdrawalMemo: '0x737765657020323032362d5133', // [!code focus]
-  zoneId: 7,
-})
-
-await zoneClient.earn.privateDepositSync(prepared)
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-```ts twoslash [zones.config.ts] filename="zones.config.ts"
-// [!include ~/snippets/tempo/zones.config.ts:setup]
-```
-
-:::
-
-Persist `actionId` and `fromBlock` so a separate worker can pass them to
-`earn.waitForPrivateDeposit` later. Use `returnMemo` to attach the tag to the encrypted return
-deposit instead.
-
-### Route Callback Failures to a Monitored Wallet
-
-Set `fallbackRecipient` when a failed gateway callback should pay out to a monitored operations
-wallet on the public chain.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client as parentClient } from './viem.config'
-import { client as zoneClient } from './zones.config'
-
-const prepared = await parentClient.earn.privateDeposit.prepare({
-  assetAmount: 100_000_000n,
-  fallbackRecipient: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
-  gateway: '0x0000000000000000000000000000000000000001',
-  recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
-  shareAmountMin: 99_500_000n,
-  vault: '0x0000000000000000000000000000000000000002',
-  zoneId: 7,
-})
-
-const hash = await zoneClient.earn.privateDeposit(prepared)
-// @log: 0x1234...abcd
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-```ts twoslash [zones.config.ts] filename="zones.config.ts"
-// [!include ~/snippets/tempo/zones.config.ts:setup]
-```
-
-:::
-
-`fallbackRecipient` covers a failed parent-chain callback; `recoveryRecipient` still covers a
-failed encrypted return. Both addresses are public.
+The conversion is fixed at gateway deployment. It cannot select another token or route from
+callback data. Omitting `vaultAssetAmountMin` requires the converted vault assets to equal
+`assetAmount`.
 
 ## Return Type
 
@@ -277,10 +148,10 @@ Assets withdrawn from the Zone, in base units.
 ### assetToken (optional)
 
 - **Type:** `Address`
-- **Default:** The vault asset
+- **Default:** The gateway's private asset
 
-Contract address of the asset token withdrawn from the Zone. The gateway swaps it into the vault
-asset when needed.
+Private asset withdrawn from the Zone. If provided, it must match the gateway's immutable private
+asset.
 
 ### callbackGas (optional)
 
@@ -354,10 +225,10 @@ Earn vault receiving the assets.
 ### vaultAssetAmountMin (optional)
 
 - **Type:** `bigint`
-- **Default:** `0n` for swap-routed deposits
+- **Default:** `assetAmount`
 
-Minimum vault assets accepted after swapping `assetToken`. This bound works alongside the Earn
-share bound. Direct vault-asset deposits always use the exact withdrawn `assetAmount` instead.
+Minimum vault assets accepted after the gateway's fixed conversion. This bound works alongside the
+Earn share bound.
 
 ### withdrawalMemo (optional)
 

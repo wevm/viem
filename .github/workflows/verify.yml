@@ -227,17 +227,14 @@ jobs:
           - hardfork: T8
             tempo-tag: sha-e828ab7
             zone-tag: sha-aae82c4
-            zone-xtask-tag: ''
           - hardfork: T9
             # Tempo 1.12.0 (d791f43f) with pre-T10 Zones.
             tempo-tag: sha256:23150c7bae007afd2eeaa596c4b9f3d6950ecd0dec3e05ad44ebdbb8a6add863
             zone-tag: sha-aae82c4
-            zone-xtask-tag: ''
           - hardfork: T10
-            # Tempo main (92a6f398) and Zones 60880b66.
-            tempo-tag: sha256:5c4625bcd508bb1211fb96ad42566f7a3f848abdd22b652494dd75dc5ff59a43
+            # Tempo main (bb07377a) and Zones 60880b66.
+            tempo-tag: sha256:480dcf46f8805a13f9ec03371f8f1aa378942be77ec07e3e2f15a01a85b3dca4
             zone-tag: sha256:a9e0ca9e9eaa0e52ee7c473237235054b0be9b07d5836d5393b9fceaf3fabd61
-            zone-xtask-tag: sha256:9d2f325708a2bdeae0b6c04e12128c82e29f99ec569845d5d6ea5e191982b77a
 
     steps:
       - name: Clone repository
@@ -263,7 +260,6 @@ jobs:
           VITE_TEMPO_TAG: ${{ matrix.tempo-tag }}
           VITE_TEMPO_ZONES: 'true'
           VITE_TEMPO_ZONE_TAG: ${{ matrix.zone-tag }}
-          VITE_TEMPO_ZONE_XTASK_TAG: ${{ matrix.zone-xtask-tag }}
 
       - name: Upload coverage reports to Codecov
         if: github.actor != 'dependabot[bot]' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)

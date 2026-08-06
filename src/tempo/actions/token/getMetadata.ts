@@ -3,6 +3,7 @@ import type { Address, Errors } from 'ox'
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
+import { read } from '../../../core/actions/contract/read.js'
 import { multicall } from '../../../core/actions/multicall.js'
 import {
   defineCall,
@@ -63,7 +64,7 @@ export async function getMetadata<
   }
 
   if (address.toLowerCase() === Addresses.pathUsd.toLowerCase()) {
-    const { results } = await multicall(client, {
+    const { results } = await readMetadataCalls(client, {
       ...rest,
       calls: [
         defineCall({ address, abi, functionName: 'currency' }),
@@ -73,8 +74,6 @@ export async function getMetadata<
         defineCall({ address, abi, functionName: 'symbol' }),
         defineCall({ address, abi, functionName: 'totalSupply' }),
       ] as const,
-      allowFailure: true,
-      deployless: true,
     })
     const [currency, decimals, logoURI, name, symbol, totalSupply] = results
     return {
@@ -88,7 +87,7 @@ export async function getMetadata<
     } as getMetadata.ReturnType
   }
 
-  const { results } = await multicall(client, {
+  const { results } = await readMetadataCalls(client, {
     ...rest,
     calls: [
       defineCall({ address, abi, functionName: 'currency' }),
@@ -102,8 +101,6 @@ export async function getMetadata<
       defineCall({ address, abi, functionName: 'totalSupply' }),
       defineCall({ address, abi, functionName: 'transferPolicyId' }),
     ] as const,
-    allowFailure: true,
-    deployless: true,
   })
   const [
     currency,
@@ -130,6 +127,40 @@ export async function getMetadata<
     transferPolicyId: unwrapMulticallResult(transferPolicyId),
     ...overrides,
   } as getMetadata.ReturnType
+}
+
+async function readMetadataCalls<
+  chain extends Chain.Chain | undefined,
+  const calls extends readonly unknown[],
+>(
+  client: Client.Client<chain>,
+  options: Omit<getMetadata.Options, 'token'> & { calls: calls },
+): Promise<multicall.ReturnType<chain, calls>> {
+  // Preserve the action's deployless default unless the client overrides it.
+  if (client.batch?.multicall === undefined)
+    return multicall(client, {
+      ...options,
+      allowFailure: true,
+      deployless: true,
+    } as never)
+
+  const { calls, ...rest } = options
+  const results = await Promise.allSettled(
+    calls.map((call) =>
+      read(client, {
+        ...rest,
+        ...(call as object),
+        account: null,
+      } as never),
+    ),
+  )
+  return {
+    results: results.map((result) =>
+      result.status === 'fulfilled'
+        ? { result: result.value, status: 'success' }
+        : { error: result.reason, status: 'failure' },
+    ),
+  } as never
 }
 
 export namespace getMetadata {

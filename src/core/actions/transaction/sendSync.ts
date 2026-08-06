@@ -93,9 +93,25 @@ export async function sendSync<chain extends Chain.Chain | undefined>(
 
   const chain = chain_ === null ? null : (chain_ ?? client.chain)
   const codecsChain = chain_ ?? client.chain
-  const nonceManager =
+  const accountNonceManager =
     account.type === 'local' ? account.nonceManager : undefined
   let reset: NonceManager.NonceManager.Parameters | undefined
+  const nonceManager =
+    accountNonceManager && typeof rest.nonce === 'undefined'
+      ? {
+          async consume(
+            parameters: NonceManager.NonceManager.Parameters & {
+              client: Client.Client
+            },
+          ) {
+            reset = parameters
+            return accountNonceManager.consume(parameters)
+          },
+          get: accountNonceManager.get,
+          increment: accountNonceManager.increment,
+          reset: accountNonceManager.reset,
+        }
+      : undefined
 
   try {
     const data = dataSuffix_.append(rest.data, dataSuffix)
@@ -122,11 +138,6 @@ export async function sendSync<chain extends Chain.Chain | undefined>(
 
       return undefined
     })()
-
-    if (nonceManager && typeof rest.nonce === 'undefined') {
-      const chainId = chain ? chain.id : await getId(client)
-      reset = { address: account.address, chainId }
-    }
 
     transactionRequest.assert(rest)
 
@@ -161,10 +172,10 @@ export async function sendSync<chain extends Chain.Chain | undefined>(
   } catch (err) {
     if (
       reset &&
-      nonceManager &&
+      accountNonceManager &&
       !(err instanceof TransactionReceiptRevertedError)
     )
-      nonceManager.reset(reset)
+      accountNonceManager.reset(reset)
 
     if (isAbortError(err) || err instanceof TransactionReceiptRevertedError)
       throw err

@@ -301,8 +301,10 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
       })
       const { gateway } = await deployEarnGateway(parentClient, {
         adapter: stack.adapter,
+        privateAsset: tempo.alphaUsd,
         portalClient: zoneAdminClient,
         zonePortal: portalAddress,
+        zoneId: tempoZone.zoneId,
       })
       const privatePreparation = {
         gateway,
@@ -350,11 +352,8 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         flow: 0,
         minEarnShares: 2n,
         minOutputAmount: 0n,
-        minVaultAssets: 0n,
+        minVaultAssets: 1n,
       })
-      expect(
-        Address.isEqual(swappedDepositCallback.outputToken, stack.shareToken),
-      ).toBe(true)
 
       const boundedSwappedDeposit = await Actions.earn.privateDeposit.prepare(
         parentClient,
@@ -415,11 +414,8 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         flow: 0,
         minEarnShares: 1n,
         minOutputAmount: 0n,
-        minVaultAssets: assetAmount,
+        minVaultAssets: 2n,
       })
-      expect(
-        Address.isEqual(depositCallback.outputToken, stack.shareToken),
-      ).toBe(true)
       expect(
         Address.isEqual(
           depositCallback.zoneReturn.refundRecipient,
@@ -482,11 +478,8 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         flow: 1,
         minEarnShares: 0n,
         minOutputAmount: 2n,
-        minVaultAssets: 1n,
+        minVaultAssets: 2n,
       })
-      expect(
-        Address.isEqual(swappedRedeemCallback.outputToken, tempo.alphaUsd),
-      ).toBe(true)
 
       const redeemActionId = Hash.keccak256('0x04')
       const redeemReturnMemo = Hash.keccak256('0x05')
@@ -522,12 +515,9 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         actionId: redeemActionId,
         flow: 1,
         minEarnShares: 0n,
-        minOutputAmount: 0n,
+        minOutputAmount: assetAmount,
         minVaultAssets: assetAmount,
       })
-      expect(Address.isEqual(redeemCallback.outputToken, stack.asset)).toBe(
-        true,
-      )
       expect(
         Address.isEqual(
           redeemCallback.zoneReturn.refundRecipient,
@@ -548,7 +538,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         vault: stack.adapter,
       })
       expect(redeem.actionId).toBe(preparedRedeem.actionId)
-      expect(Address.isEqual(redeem.outputToken, stack.asset)).toBe(true)
+      expect(Address.isEqual(redeem.outputToken, tempo.alphaUsd)).toBe(true)
       expect(redeem.outputAmount).toBe(assetAmount)
       expect(redeem.shares).toBe(deposit.shares)
       expect(redeem.vaultAssets).toBe(assetAmount)

@@ -1,0 +1,80 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `earn.bindErc4626Engine`
+
+Permanently binds an ERC-4626 engine to its factory-created EarnVault. This API is experimental.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.earn.bindErc4626EngineSync({
+  engine: '0x0000000000000000000000000000000000000001',
+  vault: '0x0000000000000000000000000000000000000002',
+})
+// @log: { engine: '0x...', vault: '0x...', receipt: { ... } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The transaction must be signed by the engine's final owner. Binding remains a separate operation so
+deployment and final ownership can use different accounts. It cannot be changed after
+initialization.
+
+### Asynchronous Usage
+
+`earn.bindErc4626EngineSync` waits for inclusion and returns the decoded binding event. Use
+`earn.bindErc4626Engine` to return the transaction hash immediately.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const engine = '0x0000000000000000000000000000000000000001'
+const hash = await client.earn.bindErc4626Engine({
+  engine,
+  vault: '0x0000000000000000000000000000000000000002',
+})
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
+const { args } = Actions.earn.bindErc4626Engine.extractEvent(receipt.logs, {
+  engine,
+})
+```
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  /** ERC-4626 engine address. */
+  engine: Address
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+  /** Bound EarnVault address. */
+  vault: Address
+}
+```
+
+The asynchronous action returns the transaction hash instead.
+
+## Parameters
+
+### engine
+
+- **Type:** `Address`
+
+ERC-4626 engine address.
+
+### vault
+
+- **Type:** `Address`
+
+EarnVault created for the engine.
+
+<WriteParameters />
