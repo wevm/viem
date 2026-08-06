@@ -1,5 +1,11 @@
 # viem
 
+## 3.0.0-next.7
+
+### Patch Changes
+
+- [#4975](https://github.com/wevm/viem/pull/4975) [`a2cfbb4`](https://github.com/wevm/viem/commit/a2cfbb45c6dadd76a7bfadaca1d9b3e9a78ae137) Thanks [@jxom](https://github.com/jxom)! - Prevented sequential nonce consumption when chain preparation selected an expiring nonce.
+
 ## 3.0.0-next.6
 
 ### Patch Changes
