@@ -11,6 +11,7 @@ import {
   Secp256k1,
   Value,
 } from 'ox'
+import { WithdrawalSenderTag } from 'ox/tempo'
 import { Actions as CoreActions } from 'viem'
 import { Account, Abis, Actions } from 'viem/tempo'
 import { Abis as ZoneAbis } from 'viem/tempo/zones'
@@ -264,6 +265,23 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
           hash: withdrawalHash,
         }).receipt,
       ).resolves.toMatchObject({ status: 'success' })
+
+      const withdrawal = await Actions.zone.requestWithdrawalSync(zoneClient, {
+        amount: 10_000n,
+        token,
+      })
+      expect(withdrawal.receipt.status).toBe('success')
+      const { args } = Actions.zone.requestWithdrawal.extractEvent(
+        withdrawal.receipt.logs,
+      )
+      expect(args.fallbackNonce).toBeGreaterThan(0n)
+      expect(withdrawal.senderTag).toBe(
+        WithdrawalSenderTag.from({
+          fallbackNonce: args.fallbackNonce,
+          sender: args.sender,
+          transactionHash: withdrawal.receipt.transactionHash,
+        }),
+      )
 
       const { publicKey } = Secp256k1.createKeyPair()
       const revealTo = PublicKey.toHex(PublicKey.compress(publicKey))

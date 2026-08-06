@@ -54,3 +54,14 @@ test('zonePortal decodes withdrawal events', () => {
     callbackSuccess: boolean
   }>()
 })
+
+test('zoneOutbox decodes withdrawal events', () => {
+  const event = AbiEvent.fromAbi(Abis.zoneOutbox, 'WithdrawalRequested')
+  const decoded = AbiEvent.decode(event, {
+    topics: [AbiEvent.getSelector(event), zeroHash, zeroHash],
+    data: `${zeroHash}${zeroHash.slice(2)}${zeroHash.slice(2)}${zeroHash.slice(2)}${zeroHash.slice(2)}${zeroHash.slice(2)}${zeroHash.slice(2)}${zeroHash.slice(2)}${zeroHash.slice(2)}`,
+  })
+
+  expectTypeOf(decoded.fallbackNonce).toEqualTypeOf<bigint>()
+  expectTypeOf(decoded.sender).toEqualTypeOf<Address.Address>()
+})

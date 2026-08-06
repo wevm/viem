@@ -168,6 +168,23 @@ export const zonePortal = [
 /** Zone outbox contract ABI. */
 export const zoneOutbox = [
   {
+    name: 'WithdrawalRequested',
+    type: 'event',
+    inputs: [
+      { name: 'withdrawalIndex', type: 'uint64', indexed: true },
+      { name: 'sender', type: 'address', indexed: true },
+      { name: 'token', type: 'address', indexed: false },
+      { name: 'to', type: 'address', indexed: false },
+      { name: 'amount', type: 'uint128', indexed: false },
+      { name: 'fee', type: 'uint128', indexed: false },
+      { name: 'memo', type: 'bytes32', indexed: false },
+      { name: 'gasLimit', type: 'uint64', indexed: false },
+      { name: 'fallbackNonce', type: 'uint64', indexed: false },
+      { name: 'data', type: 'bytes', indexed: false },
+      { name: 'revealTo', type: 'bytes', indexed: false },
+    ],
+  },
+  {
     name: 'requestWithdrawal',
     type: 'function',
     stateMutability: 'nonpayable',

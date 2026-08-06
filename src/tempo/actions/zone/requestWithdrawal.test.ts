@@ -1,5 +1,4 @@
 import * as tempo from '~test/tempo.js'
-import { WithdrawalSenderTag } from 'ox/tempo'
 import { expect, test } from 'vitest'
 
 import { Account, Client, http } from 'viem/tempo'
@@ -151,19 +150,6 @@ test('behavior: sends withdrawals', async () => {
       token: tempo.pathUsd,
     }),
   ).resolves.toMatch(/^0x[\da-f]{64}$/)
-
-  const { receipt, senderTag } = await requestWithdrawalSync(client, {
-    amount: 0n,
-    gas: 1_000_000n,
-    token: tempo.pathUsd,
-  })
-  expect(receipt.status).toMatchInlineSnapshot('"success"')
-  expect(senderTag).toBe(
-    WithdrawalSenderTag.from({
-      sender: account.address,
-      transactionHash: receipt.transactionHash,
-    }),
-  )
 })
 
 test('error: no account', async () => {
