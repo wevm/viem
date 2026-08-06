@@ -796,6 +796,34 @@ describe('transaction.prepare', () => {
     expect(request.validBefore).toBeGreaterThan(Date.now() / 1000)
   })
 
+  test('expiring nonce: explicit numeric sentinel', async () => {
+    const request = await prepare(
+      { feeToken: baseRequest.feeToken, nonceKey: 2n ** 256n - 1n },
+      { client, phase: 'beforeFillTransaction' },
+    )
+    expect(request.nonceKey).toBe(2n ** 256n - 1n)
+    expect(request.nonce).toBe(0)
+    expect(request.validBefore).toBeGreaterThan(Date.now() / 1000)
+  })
+
+  test('expiring nonce: concurrent JSON-RPC address accounts', async () => {
+    const [first, second] = await Promise.all([
+      prepare(
+        { account: sender, feeToken: baseRequest.feeToken },
+        { client, phase: 'beforeFillTransaction' },
+      ),
+      prepare(
+        {
+          account: Address.checksum(sender),
+          feeToken: baseRequest.feeToken,
+        },
+        { client, phase: 'beforeFillTransaction' },
+      ),
+    ])
+    expect(first.nonceKey).toBe(2n ** 256n - 1n)
+    expect(second.nonceKey).toBe(2n ** 256n - 1n)
+  })
+
   test('expiring nonce: implied by a fee payer', async () => {
     const request = await prepare(
       { feePayer: true, feeToken: baseRequest.feeToken },

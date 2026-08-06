@@ -123,18 +123,6 @@ export async function prepare<
   }
 
   let nonce = request.nonce
-  if (
-    parameters.includes('nonce') &&
-    typeof nonce === 'undefined' &&
-    account &&
-    nonceManager
-  )
-    nonce = await nonceManager.consume({
-      address: account.address,
-      chainId: await getChainId(),
-      client,
-    })
-
   if (hook?.fn && hook.runAt.includes('beforeFillTransaction')) {
     request = await hook.fn(
       { ...request, chain },
@@ -150,6 +138,18 @@ export async function prepare<
       : undefined
   }
 
+  if (
+    parameters.includes('nonce') &&
+    typeof nonce === 'undefined' &&
+    account &&
+    nonceManager
+  )
+    nonce = await nonceManager.consume({
+      address: account.address,
+      chainId: await getChainId(),
+      client,
+    })
+
   const attemptFill = (() => {
     if (
       (parameters.includes('blobVersionedHashes') ||
@@ -158,10 +158,10 @@ export async function prepare<
       request.blobs
     )
       return false
-    if (supportsFill.get(client.uid) === false) return false
     // Sponsorship signatures are only produced by `eth_fillTransaction`.
     if (parameters.length > 0 && request.feePayer && !request.feePayerSignature)
       return true
+    if (supportsFill.get(client.uid) === false) return false
     if (!parameters.includes('fees') && !parameters.includes('gas'))
       return false
     if (parameters.includes('chainId') && typeof request.chainId !== 'number')

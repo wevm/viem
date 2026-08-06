@@ -8,6 +8,18 @@ const publicKey = Secp256k1.getPublicKey({
   privateKey: constants.accounts[0].privateKey,
 })
 
+describe('getSignPayload', () => {
+  test('rejects integer aliases', () => {
+    expect(() =>
+      TypedData.getSignPayload({
+        message: { amount: 1n },
+        primaryType: 'Message',
+        types: { Message: [{ name: 'amount', type: 'uint' }] },
+      } as never),
+    ).toThrow('Type "uint" is not a valid EIP-712 type.')
+  })
+})
+
 describe('recoverAddress', () => {
   test('default', () => {
     expect(
