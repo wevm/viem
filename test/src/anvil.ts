@@ -219,7 +219,7 @@ export const optimism = defineAnvil({
   forkBlockNumber: 147_000_000n,
   forkUrl: getEnv(
     'VITE_ANVIL_FORK_URL_OPTIMISM',
-    'https://mainnet.optimism.io',
+    'https://optimism.gateway.tenderly.co',
   ),
   hardfork: 'Prague',
   noMining: true,
@@ -227,7 +227,8 @@ export const optimism = defineAnvil({
 })
 
 function getEnv(key: string, fallback: string): string {
-  if (typeof process.env[key] === 'string') return process.env[key] as string
+  if (typeof process.env[key] === 'string' && process.env[key]?.trim() !== '')
+    return process.env[key] as string
   return fallback
 }
 

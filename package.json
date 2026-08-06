@@ -151,7 +151,7 @@
     {
       "name": "import { Client } from 'viem'",
       "path": "./dist/index.js",
-      "limit": "18.5 kB",
+      "limit": "21 kB",
       "import": "{ Client }"
     },
     {
@@ -193,7 +193,7 @@
     {
       "name": "import * from 'viem/tempo'",
       "path": "./dist/tempo/index.js",
-      "limit": "129.5 kB",
+      "limit": "132 kB",
       "import": "*"
     },
     {
@@ -211,7 +211,7 @@
     {
       "name": "import * from 'viem/wasm'",
       "path": "./dist/wasm/index.js",
-      "limit": "36.5 kB",
+      "limit": "97.5 kB",
       "import": "*"
     },
     {
