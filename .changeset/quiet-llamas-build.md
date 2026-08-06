@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add XGR Testnet chain.
+Added XGR Testnet chain.
