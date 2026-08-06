@@ -7,7 +7,6 @@ import {
   decodeAbiParameters,
   decodeFunctionData,
   encodeFunctionData,
-  encodePacked,
   type Hash,
   isAddressEqual,
   keccak256,
@@ -789,15 +788,16 @@ describe('depositSync', () => {
 })
 
 describe('requestWithdrawal', () => {
-  test('behavior: derives a deterministic Solidity-compatible sender tag', () => {
+  test('behavior: derives the production sender tag', () => {
     expect(
       WithdrawalSenderTag.from({
-        sender: '0x0000000000000000000000000000000000000001',
+        fallbackNonce: 19n,
+        sender: '0x0F0896dbf0465E5c07963301dcFEA1101Fa91EaC',
         transactionHash:
-          '0x1111111111111111111111111111111111111111111111111111111111111111',
+          '0xae628bdc4bd24a9f9a917825a208baa16c384ab8a96a40cd5146bd20d9b3f6d9',
       }),
-    ).toMatchInlineSnapshot(
-      `"0x7d1d33bbd5371cad19c9200930eb7f1f5374473cdfb76b88a1bcc0d0a2efc5bc"`,
+    ).toBe(
+      '0xf1acbae45cd689281144042331e3379cf631a8d2db83057ccf38754a0b0108f2',
     )
   })
 
@@ -914,13 +914,21 @@ describe('requestWithdrawal', () => {
 
     expect(clientAccountResult.receipt).toEqual(clientAccountReceipt)
     expect(clientAccountResult.receipt.status).toBe('success')
+    const [clientAccountEvent] = parseEventLogs({
+      abi: ZoneAbis.zoneOutbox,
+      logs: clientAccountResult.receipt.logs,
+      eventName: 'WithdrawalRequested',
+      strict: true,
+    })
+    if (!clientAccountEvent)
+      throw new Error('`WithdrawalRequested` event not found.')
+    expect(clientAccountEvent.args.fallbackNonce).toBeGreaterThan(0n)
     expect(clientAccountResult.senderTag).toBe(
-      keccak256(
-        encodePacked(
-          ['address', 'bytes32'],
-          [account.address, clientAccountResult.receipt.transactionHash],
-        ),
-      ),
+      WithdrawalSenderTag.from({
+        fallbackNonce: clientAccountEvent.args.fallbackNonce,
+        sender: clientAccountEvent.args.sender,
+        transactionHash: clientAccountResult.receipt.transactionHash,
+      }),
     )
 
     const explicitAccountClient = getZoneClient({})
@@ -943,13 +951,21 @@ describe('requestWithdrawal', () => {
 
     expect(explicitAccountResult.receipt).toEqual(explicitAccountReceipt)
     expect(explicitAccountResult.receipt.status).toBe('success')
+    const [explicitAccountEvent] = parseEventLogs({
+      abi: ZoneAbis.zoneOutbox,
+      logs: explicitAccountResult.receipt.logs,
+      eventName: 'WithdrawalRequested',
+      strict: true,
+    })
+    if (!explicitAccountEvent)
+      throw new Error('`WithdrawalRequested` event not found.')
+    expect(explicitAccountEvent.args.fallbackNonce).toBeGreaterThan(0n)
     expect(explicitAccountResult.senderTag).toBe(
-      keccak256(
-        encodePacked(
-          ['address', 'bytes32'],
-          [account.address, explicitAccountResult.receipt.transactionHash],
-        ),
-      ),
+      WithdrawalSenderTag.from({
+        fallbackNonce: explicitAccountEvent.args.fallbackNonce,
+        sender: explicitAccountEvent.args.sender,
+        transactionHash: explicitAccountResult.receipt.transactionHash,
+      }),
     )
   }, 20_000)
 
