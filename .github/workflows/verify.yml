@@ -90,6 +90,8 @@ jobs:
 
       - name: Check types
         run: pnpm check:types
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
 
       # Attest benches with its own pinned typescript 5.9.3 (see .pnpmfile.cjs),
       # so instantiation counts are matrix-independent; one leg is enough.
@@ -337,7 +339,7 @@ jobs:
         run: pnpm build
 
       - name: Link
-        run: pnpm install
+        run: pnpm install --force --ignore-scripts
 
       - name: Run tests
         run: pnpm test:env:${{ matrix.runtime }}
