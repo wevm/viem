@@ -29,6 +29,7 @@ autoInstallPeers: false
 enablePrePostScripts: true
 
 overrides:
+  ox: https://pkg.pr.new/ox@8100dbf8d4835d27b241d0078616e8852b2a77f2
   '@arethetypeswrong/core>typescript': '^5.9.3'
   '@babel/core': '>=7.29.6 <8'
   '@opentelemetry/api@^1.8.0': '~1.7.0'
