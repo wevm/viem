@@ -1,5 +1,11 @@
 # viem
 
+## 3.0.0-next.8
+
+### Patch Changes
+
+- [#4981](https://github.com/wevm/viem/pull/4981) [`ab704f4`](https://github.com/wevm/viem/commit/ab704f425e3083551fa055aa4f21e32b89f57462) Thanks [@struong](https://github.com/struong)! - Fixed Zone withdrawal sender tags to include the emitted fallback nonce.
+
 ## 3.0.0-next.7
 
 ### Patch Changes
