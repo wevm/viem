@@ -221,3 +221,28 @@ describe('transfer: from (allowance)', () => {
     expect(after.amount - before.amount).toMatchInlineSnapshot(`2000000000n`)
   })
 })
+
+describe('transfer.extractEvent', () => {
+  test('decodes an EIP-5792 call receipt log', () => {
+    const log = transfer.extractEvent([
+      {
+        address: usdc,
+        data: '0x000000000000000000000000000000000000000000000000000000003b9aca00',
+        topics: [
+          '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+          '0x0000000000000000000000005414d89a8bf7e99d732bc52f3e6a3ef461c0c078',
+          '0x0000000000000000000000009965507d1a55bcc2695c58ba16fb37d819b0a4dc',
+        ],
+      },
+    ])
+
+    expect(log.eventName).toMatchInlineSnapshot(`"Transfer"`)
+    expect(log.args).toMatchInlineSnapshot(`
+      {
+        "from": "0x5414d89a8bF7E99d732BC52f3e6A3Ef461c0C078",
+        "to": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+        "value": 1000000000n,
+      }
+    `)
+  })
+})

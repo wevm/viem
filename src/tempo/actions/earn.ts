@@ -1,5 +1,5 @@
 import { AbiEvent, AbiParameters, Address, Hex } from 'ox'
-import type { Errors, Log } from 'ox'
+import type { Errors } from 'ox'
 import { EarnShares } from 'ox/tempo'
 
 import * as Account from '../../core/Account.js'
@@ -500,16 +500,19 @@ export namespace deposit {
    * @param options - Options.
    * @returns The `Deposited` event.
    */
-  export function extractEvent(
-    logs: readonly Log.Log[],
-    options: { vault: Address.Address },
-  ) {
+  export function extractEvent<
+    const logs extends readonly (AbiEvent.extractLogs.Log & {
+      address: Address.Address
+    })[],
+  >(logs: logs, options: { vault: Address.Address }) {
     const { vault } = options
     // Earn contracts are user-deployed: several adapters can emit the same
     // signature in one receipt, so filter by emitting address before decode.
     const [log] = AbiEvent.extractLogs(
       Abis.earnVault,
-      logs.filter((log) => Address.isEqual(log.address, vault)),
+      logs.filter((log): log is logs[number] =>
+        Address.isEqual(log.address, vault),
+      ),
       { eventName: 'Deposited', strict: true },
     )
     if (!log) throw new Error('`Deposited` event not found.')
@@ -789,16 +792,19 @@ export namespace depositShares {
    * @param options - Options.
    * @returns The `VenueSharesDeposited` event.
    */
-  export function extractEvent(
-    logs: readonly Log.Log[],
-    options: { vault: Address.Address },
-  ) {
+  export function extractEvent<
+    const logs extends readonly (AbiEvent.extractLogs.Log & {
+      address: Address.Address
+    })[],
+  >(logs: logs, options: { vault: Address.Address }) {
     const { vault } = options
     // Earn contracts are user-deployed: several adapters can emit the same
     // signature in one receipt, so filter by emitting address before decode.
     const [log] = AbiEvent.extractLogs(
       Abis.earnVault,
-      logs.filter((log) => Address.isEqual(log.address, vault)),
+      logs.filter((log): log is logs[number] =>
+        Address.isEqual(log.address, vault),
+      ),
       { eventName: 'VenueSharesDeposited', strict: true },
     )
     if (!log) throw new Error('`VenueSharesDeposited` event not found.')
@@ -2152,16 +2158,19 @@ export namespace redeem {
    * @param options - Options.
    * @returns The `Redeemed` event.
    */
-  export function extractEvent(
-    logs: readonly Log.Log[],
-    options: { vault: Address.Address },
-  ) {
+  export function extractEvent<
+    const logs extends readonly (AbiEvent.extractLogs.Log & {
+      address: Address.Address
+    })[],
+  >(logs: logs, options: { vault: Address.Address }) {
     const { vault } = options
     // Earn contracts are user-deployed: several adapters can emit the same
     // signature in one receipt, so filter by emitting address before decode.
     const [log] = AbiEvent.extractLogs(
       Abis.earnVault,
-      logs.filter((log) => Address.isEqual(log.address, vault)),
+      logs.filter((log): log is logs[number] =>
+        Address.isEqual(log.address, vault),
+      ),
       { eventName: 'Redeemed', strict: true },
     )
     if (!log) throw new Error('`Redeemed` event not found.')
@@ -2791,16 +2800,19 @@ export namespace withdrawExact {
    * @param options - Options.
    * @returns The `WithdrewExact` event.
    */
-  export function extractEvent(
-    logs: readonly Log.Log[],
-    options: { vault: Address.Address },
-  ) {
+  export function extractEvent<
+    const logs extends readonly (AbiEvent.extractLogs.Log & {
+      address: Address.Address
+    })[],
+  >(logs: logs, options: { vault: Address.Address }) {
     const { vault } = options
     // Earn contracts are user-deployed: several adapters can emit the same
     // signature in one receipt, so filter by emitting address before decode.
     const [log] = AbiEvent.extractLogs(
       Abis.earnVault,
-      logs.filter((log) => Address.isEqual(log.address, vault)),
+      logs.filter((log): log is logs[number] =>
+        Address.isEqual(log.address, vault),
+      ),
       { eventName: 'WithdrewExact', strict: true },
     )
     if (!log) throw new Error('`WithdrewExact` event not found.')
