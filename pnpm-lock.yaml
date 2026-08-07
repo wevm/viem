@@ -138,7 +138,6 @@ catalogs:
       version: 5.9.3
 
 overrides:
-  ox: https://pkg.pr.new/ox@8100dbf8d4835d27b241d0078616e8852b2a77f2
   '@arethetypeswrong/core>typescript': ^5.9.3
   '@babel/core': '>=7.29.6 <8'
   '@opentelemetry/api@^1.8.0': ~1.7.0
@@ -231,8 +230,8 @@ importers:
         specifier: 1.3.0
         version: 1.3.0(typescript@7.0.2)(zod@4.4.3)
       ox:
-        specifier: https://pkg.pr.new/ox@8100dbf8d4835d27b241d0078616e8852b2a77f2
-        version: https://pkg.pr.new/ox@8100dbf8d4835d27b241d0078616e8852b2a77f2(typescript@7.0.2)
+        specifier: 1.6.2
+        version: 1.6.2(typescript@7.0.2)
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 'catalog:'
@@ -290,7 +289,7 @@ importers:
         version: 0.18.1
       permissionless:
         specifier: 'catalog:'
-        version: 0.2.57(ox@https://pkg.pr.new/ox@8100dbf8d4835d27b241d0078616e8852b2a77f2(typescript@7.0.2))
+        version: 0.2.57(ox@1.6.2(typescript@7.0.2))
       prool:
         specifier: 'catalog:'
         version: 0.2.13(@pimlico/alto@0.0.18(supports-color@8.1.1)(typescript@7.0.2))(debug@4.4.3(supports-color@8.1.1))(testcontainers@11.10.0(supports-color@8.1.1))
@@ -1347,6 +1346,10 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
+
+  '@noble/ciphers@1.3.0':
+    resolution: {integrity: sha512-2I0gnIVPtfnMw9ee9h1dJG7tp81+8Ob3OJb3Mv37rx5L40/b0i7djjCVvGOVqc9AEIQyvyu1i6ypKdFw8R8gQw==}
+    engines: {node: ^14.21.3 || >=16}
 
   '@noble/ciphers@2.2.0':
     resolution: {integrity: sha512-Z6pjIZ/8IJcCGzb2S/0Px5J81yij85xASuk1teLNeg75bfT07MV3a/O2Mtn1I2se43k3lkVEcFaR10N4cgQcZA==}
@@ -6026,9 +6029,24 @@ packages:
   outvariant@1.4.0:
     resolution: {integrity: sha512-AlWY719RF02ujitly7Kk/0QlV+pXGFDHrHf9O2OKqyqgBieaPOIeuSkL8sRK6j2WK+/ZAURq2kZsY0d8JapUiw==}
 
-  ox@https://pkg.pr.new/ox@8100dbf8d4835d27b241d0078616e8852b2a77f2:
-    resolution: {integrity: sha512-+HB8ktDKiJQrOHJXmCyHIN3fqMYJf547e9WhUXV9HQaVAHbN/Wau89JCI4uTzxdn30/QStDNXkeHDs6qK/ilZw==, tarball: https://pkg.pr.new/ox@8100dbf8d4835d27b241d0078616e8852b2a77f2}
-    version: 1.6.1
+  ox@0.14.29:
+    resolution: {integrity: sha512-M5j87Ec4V99MQdRct/g09eWXW60g6zhHTUs1lr4deUtrPDnezBdCJTgKd7pxqTpSZBFveV0ALi9jMMuT1qKyNg==}
+    peerDependencies:
+      typescript: '>=5.4.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  ox@0.14.33:
+    resolution: {integrity: sha512-rooA/4o7bBof4Ge2VH/eovfNPb/AEEYyrNj03wggc55g5HZD8Pjs/OeWhttgjic3dDcqn0r29bDuvQEdTiUemQ==}
+    peerDependencies:
+      typescript: '>=5.4.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  ox@1.6.2:
+    resolution: {integrity: sha512-Jcll+tKlUV0sUPJ6YlmcpKRcefipswF5DI9lz+kn8Qc6fY5UrMEoeL+E9Y+9h6apKnvQ4N4anggJWNqFC7Vxiw==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
@@ -6196,7 +6214,6 @@ packages:
 
   permissionless@0.2.57:
     resolution: {integrity: sha512-QrzAoQGYPV/NJ2x5Sj18h7qed6f+kCyQAojrncN091UPiGqHjFNjgdsgreiv8pxlQgF4UcpuJUvsHLpOEBd6cQ==}
-    version: 0.2.57
     peerDependencies:
       ox: ^0.8.0
     peerDependenciesMeta:
@@ -8815,6 +8832,8 @@ snapshots:
   '@next/swc-win32-x64-msvc@16.2.11':
     optional: true
 
+  '@noble/ciphers@1.3.0': {}
+
   '@noble/ciphers@2.2.0': {}
 
   '@noble/curves@1.9.1':
@@ -11402,6 +11421,11 @@ snapshots:
       typescript: 5.9.3
       zod: 4.4.3
 
+  abitype@1.3.0(typescript@7.0.2)(zod@3.25.76):
+    optionalDependencies:
+      typescript: 7.0.2
+      zod: 3.25.76
+
   abitype@1.3.0(typescript@7.0.2)(zod@4.4.3):
     optionalDependencies:
       typescript: 7.0.2
@@ -13927,7 +13951,37 @@ snapshots:
 
   outvariant@1.4.0: {}
 
-  ox@https://pkg.pr.new/ox@8100dbf8d4835d27b241d0078616e8852b2a77f2(typescript@5.9.3):
+  ox@0.14.29(typescript@7.0.2)(zod@3.25.76):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.1
+      '@noble/ciphers': 1.3.0
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.3.0(typescript@7.0.2)(zod@3.25.76)
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      typescript: 7.0.2
+    transitivePeerDependencies:
+      - zod
+
+  ox@0.14.33(typescript@7.0.2)(zod@4.4.3):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.1
+      '@noble/ciphers': 1.3.0
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.3.0(typescript@7.0.2)(zod@4.4.3)
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      typescript: 7.0.2
+    transitivePeerDependencies:
+      - zod
+
+  ox@1.6.2(typescript@5.9.3):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 2.2.0
@@ -13942,7 +13996,7 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
 
-  ox@https://pkg.pr.new/ox@8100dbf8d4835d27b241d0078616e8852b2a77f2(typescript@7.0.2):
+  ox@1.6.2(typescript@7.0.2):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 2.2.0
@@ -14194,11 +14248,11 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.57(ox@https://pkg.pr.new/ox@8100dbf8d4835d27b241d0078616e8852b2a77f2(typescript@7.0.2)):
+  permissionless@0.2.57(ox@1.6.2(typescript@7.0.2)):
     dependencies:
       viem: 'link:'
     optionalDependencies:
-      ox: https://pkg.pr.new/ox@8100dbf8d4835d27b241d0078616e8852b2a77f2(typescript@7.0.2)
+      ox: 1.6.2(typescript@7.0.2)
 
   pg-int8@1.0.1: {}
 
@@ -15622,7 +15676,7 @@ snapshots:
       '@scure/bip39': 1.6.0
       abitype: 1.2.3(typescript@7.0.2)(zod@3.25.76)
       isows: 1.0.7(ws@8.21.1)
-      ox: https://pkg.pr.new/ox@8100dbf8d4835d27b241d0078616e8852b2a77f2(typescript@7.0.2)
+      ox: 0.14.29(typescript@7.0.2)(zod@3.25.76)
       ws: 8.21.1
     optionalDependencies:
       typescript: 7.0.2
@@ -15639,7 +15693,7 @@ snapshots:
       '@scure/bip39': 1.6.0
       abitype: 1.2.3(typescript@7.0.2)(zod@4.4.3)
       isows: 1.0.7(ws@8.21.0)
-      ox: https://pkg.pr.new/ox@8100dbf8d4835d27b241d0078616e8852b2a77f2(typescript@7.0.2)
+      ox: 0.14.33(typescript@7.0.2)(zod@4.4.3)
       ws: 8.21.0
     optionalDependencies:
       typescript: 7.0.2
@@ -15651,7 +15705,7 @@ snapshots:
   viem@file:(typescript@5.9.3)(zod@4.4.3):
     dependencies:
       abitype: 1.3.0(typescript@5.9.3)(zod@4.4.3)
-      ox: https://pkg.pr.new/ox@8100dbf8d4835d27b241d0078616e8852b2a77f2(typescript@5.9.3)
+      ox: 1.6.2(typescript@5.9.3)
     optionalDependencies:
       typescript: 5.9.3
     transitivePeerDependencies:
@@ -15660,7 +15714,7 @@ snapshots:
   viem@file:(typescript@7.0.2)(zod@4.4.3):
     dependencies:
       abitype: 1.3.0(typescript@7.0.2)(zod@4.4.3)
-      ox: https://pkg.pr.new/ox@8100dbf8d4835d27b241d0078616e8852b2a77f2(typescript@7.0.2)
+      ox: 1.6.2(typescript@7.0.2)
     optionalDependencies:
       typescript: 7.0.2
     transitivePeerDependencies:
