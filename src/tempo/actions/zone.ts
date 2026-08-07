@@ -29,6 +29,7 @@ import { zeroHash } from '../../constants/bytes.js'
 import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain, GetChainParameter } from '../../types/chain.js'
 import type { Compute, UnionOmit } from '../../types/utils.js'
+import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { type PollErrorType, poll } from '../../utils/poll.js'
@@ -1547,8 +1548,16 @@ export async function requestWithdrawalSync<
     gas: parameters.gas ?? defaultWithdrawalGas,
     throwOnReceiptRevert,
   } as never)
+  const [event] = parseEventLogs({
+    abi: ZoneAbis.zoneOutbox,
+    logs: receipt.logs,
+    eventName: 'WithdrawalRequested',
+    strict: true,
+  })
+  if (!event) throw new Error('`WithdrawalRequested` event not found.')
   const senderTag = WithdrawalSenderTag.from({
-    sender: account_.address,
+    fallbackNonce: event.args.fallbackNonce,
+    sender: event.args.sender,
     transactionHash: receipt.transactionHash,
   })
   return { receipt, senderTag }

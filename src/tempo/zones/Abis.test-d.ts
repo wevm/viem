@@ -1,4 +1,11 @@
-import { encodeFunctionData, type Hex, zeroAddress, zeroHash } from 'viem'
+import {
+  type Address,
+  encodeFunctionData,
+  type Hex,
+  parseEventLogs,
+  zeroAddress,
+  zeroHash,
+} from 'viem'
 import { Abis } from 'viem/tempo/zones'
 import { expectTypeOf, test } from 'vitest'
 
@@ -41,4 +48,17 @@ test('zoneFactory supports both parameter shapes', () => {
 
   expectTypeOf(sequencerSet).toEqualTypeOf<Hex>()
   expectTypeOf(sequencer).toEqualTypeOf<Hex>()
+})
+
+test('zoneOutbox decodes WithdrawalRequested fallback nonces', () => {
+  const [event] = parseEventLogs({
+    abi: Abis.zoneOutbox,
+    eventName: 'WithdrawalRequested',
+    logs: [],
+    strict: true,
+  })
+
+  if (!event) return
+  expectTypeOf(event.args.fallbackNonce).toEqualTypeOf<bigint>()
+  expectTypeOf(event.args.sender).toEqualTypeOf<Address>()
 })
