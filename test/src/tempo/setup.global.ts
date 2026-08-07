@@ -7,7 +7,7 @@ export default async function () {
   const server = await createServer()
   const stop = await server.start()
 
-  // Arbitrary request to start the configured Tempo instance.
+  // Arbitrary request to start configured Tempo instance.
   console.log('Starting Tempo server...')
   await fetch(`http://localhost:${port}/1/start`)
   console.log('Tempo server started.')

@@ -6,19 +6,10 @@ import { custom } from '../clients/transports/custom.js'
 import * as Transaction from './Transaction.js'
 import { withRelay } from './Transport.js'
 
-type RequestRecord = {
-  method: string
-  serialized: `0x${string}`
-}
-
 const method = fc.constantFrom(
   'eth_sendRawTransaction' as const,
   'eth_sendRawTransactionSync' as const,
 )
-
-function address(index: number) {
-  return `0x${(index + 1).toString(16).padStart(40, '0')}` as const
-}
 
 describe('withRelay: fuzz', () => {
   test('routes concurrent sponsored transactions exactly once', async () => {
@@ -57,6 +48,10 @@ describe('withRelay: fuzz', () => {
           )
           const defaultRequests: RequestRecord[] = []
           const relayRequests: RequestRecord[] = []
+          type RequestRecord = {
+            method: string
+            serialized: `0x${string}`
+          }
 
           const defaultTransport = custom(
             {
@@ -185,3 +180,7 @@ describe('withRelay: fuzz', () => {
     )
   })
 })
+
+function address(index: number) {
+  return `0x${(index + 1).toString(16).padStart(40, '0')}` as const
+}

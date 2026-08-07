@@ -17,8 +17,6 @@ import { withRelay } from './Transport.js'
 const nodeParameters = () =>
   fuzzParameters(5, { runsVariable: 'TEMPO_FUZZ_NODE_RUNS' })
 
-let transactionSequence = 0
-
 const nonceBurst = fc.integer({ min: 2, max: 6 })
 const nonceKey = fc.bigInt({ min: 1n, max: 2n ** 128n })
 const nonceScenario = fc.oneof(
@@ -42,16 +40,6 @@ const sponsorshipScenario = {
 }
 
 beforeAll(() => waitForBlock(getClient()))
-
-function address(index: number) {
-  return `0x${(index + 100).toString(16).padStart(40, '0')}` as const
-}
-
-function nextAddressBatch() {
-  const offset = transactionSequence * 100
-  transactionSequence += 1
-  return (index: number) => address(offset + index)
-}
 
 describe('Tempo nonce concurrency: node fuzz', () => {
   test.prop(
@@ -249,3 +237,14 @@ describe('Tempo nonce concurrency: node fuzz', () => {
     },
   )
 })
+
+function address(index: number) {
+  return `0x${(index + 100).toString(16).padStart(40, '0')}` as const
+}
+
+let transactionSequence = 0
+function nextAddressBatch() {
+  const offset = transactionSequence * 100
+  transactionSequence += 1
+  return (index: number) => address(offset + index)
+}
