@@ -11,6 +11,7 @@ import {
   Secp256k1,
   Value,
 } from 'ox'
+import { WithdrawalSenderTag } from 'ox/tempo'
 import { Actions as CoreActions } from 'viem'
 import { Account, Abis, Actions } from 'viem/tempo'
 import { Abis as ZoneAbis } from 'viem/tempo/zones'
@@ -21,6 +22,11 @@ const account = parentClient.account
 const zoneAdmin = Account.fromSecp256k1(tempo.zoneAdminKey)
 const zoneAdminClient = tempo.getClient({ account: zoneAdmin })
 const zoneClient = tempoZone.getClient({ account })
+// Zone clients initially use Tempo API in practice, which provides unredacted Zone RPC access.
+const unredactedZoneClient = tempoZone.getClient({
+  account,
+  rpcUrl: tempoZone.unredactedRpcUrl,
+})
 const hardfork = process.env.VITE_TEMPO_HARDFORK
 const legacyZoneCallback =
   hardfork === 'T7' || hardfork === 'T8' || hardfork === 'T9'
@@ -264,6 +270,26 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
           hash: withdrawalHash,
         }).receipt,
       ).resolves.toMatchObject({ status: 'success' })
+
+      const withdrawal = await Actions.zone.requestWithdrawalSync(
+        unredactedZoneClient,
+        {
+          amount: 10_000n,
+          token,
+        },
+      )
+      expect(withdrawal.receipt.status).toBe('success')
+      const { args } = Actions.zone.requestWithdrawal.extractEvent(
+        withdrawal.receipt.logs,
+      )
+      expect(args.fallbackNonce).toBeGreaterThan(0n)
+      expect(withdrawal.senderTag).toBe(
+        WithdrawalSenderTag.from({
+          fallbackNonce: args.fallbackNonce,
+          sender: args.sender,
+          transactionHash: withdrawal.receipt.transactionHash,
+        }),
+      )
 
       const { publicKey } = Secp256k1.createKeyPair()
       const revealTo = PublicKey.toHex(PublicKey.compress(publicKey))

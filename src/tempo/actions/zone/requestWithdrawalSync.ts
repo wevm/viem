@@ -6,7 +6,7 @@ import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { sendSync } from '../../../core/actions/transaction/sendSync.js'
 import type { WriteSyncParameters } from '../../internal/types.js'
-import { getAccount, getAddress, type ReceiptReturn } from './internal.js'
+import type { ReceiptReturn } from './internal.js'
 import { requestWithdrawal } from './requestWithdrawal.js'
 
 /**
@@ -43,11 +43,12 @@ export async function requestWithdrawalSync<
     ...options,
     throwOnReceiptRevert,
   })
-  const account = getAccount(options.account ?? client.account)
+  const { args } = requestWithdrawal.extractEvent(receipt.logs)
   return {
     receipt,
     senderTag: WithdrawalSenderTag.from({
-      sender: getAddress(account),
+      fallbackNonce: args.fallbackNonce,
+      sender: args.sender,
       transactionHash: receipt.transactionHash,
     }),
   }
