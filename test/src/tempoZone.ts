@@ -17,6 +17,9 @@ export const factoryAddress = runtime?.factoryAddress
 /** Runtime zone portal address. */
 export const portalAddress = runtime?.portalAddress
 
+/** Runtime unredacted zone RPC URL. */
+export const unredactedRpcUrl = runtime?.rpcUrl ?? 'http://127.0.0.1:0'
+
 /** Runtime zone chain. */
 export const chain = Chain.from({
   ...tempoLocalnet,
@@ -40,7 +43,7 @@ export function getClient(options: getClient.Options = {}) {
     account: options.account,
     chain,
     pollingInterval: 100,
-    transport: http(),
+    transport: http(options.rpcUrl),
   })
 }
 
@@ -49,5 +52,7 @@ export namespace getClient {
   export type Options = {
     /** Account for the Client. */
     account?: Account.Account | Address.Address | undefined
+    /** RPC URL for the Client. Defaults to the authenticated, redacted RPC. */
+    rpcUrl?: string | undefined
   }
 }

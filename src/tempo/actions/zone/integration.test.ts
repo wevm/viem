@@ -22,6 +22,11 @@ const account = parentClient.account
 const zoneAdmin = Account.fromSecp256k1(tempo.zoneAdminKey)
 const zoneAdminClient = tempo.getClient({ account: zoneAdmin })
 const zoneClient = tempoZone.getClient({ account })
+// Zone clients initially use Tempo API in practice, which provides unredacted Zone RPC access.
+const unredactedZoneClient = tempoZone.getClient({
+  account,
+  rpcUrl: tempoZone.unredactedRpcUrl,
+})
 const hardfork = process.env.VITE_TEMPO_HARDFORK
 const legacyZoneCallback =
   hardfork === 'T7' || hardfork === 'T8' || hardfork === 'T9'
@@ -266,10 +271,13 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         }).receipt,
       ).resolves.toMatchObject({ status: 'success' })
 
-      const withdrawal = await Actions.zone.requestWithdrawalSync(zoneClient, {
-        amount: 10_000n,
-        token,
-      })
+      const withdrawal = await Actions.zone.requestWithdrawalSync(
+        unredactedZoneClient,
+        {
+          amount: 10_000n,
+          token,
+        },
+      )
       expect(withdrawal.receipt.status).toBe('success')
       const { args } = Actions.zone.requestWithdrawal.extractEvent(
         withdrawal.receipt.logs,
