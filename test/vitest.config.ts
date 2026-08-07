@@ -81,6 +81,8 @@ export default defineConfig({
           exclude: [
             '**/*.multisig.test.ts',
             zoneNodeConfigured ? '' : 'src/tempo/actions/zone.test.ts',
+            'src/tempo/**/*.fuzz.test.ts',
+            'src/tempo/**/*.node-fuzz.test.ts',
           ],
           include: ['src/tempo/**/*.test.ts'],
           setupFiles: [join(__dirname, './src/tempo/setup.ts')],
@@ -103,6 +105,32 @@ export default defineConfig({
                 sequence: { groupOrder: 1 },
                 hookTimeout: 180_000,
                 testTimeout: 120_000,
+              },
+            },
+          ]
+        : []) satisfies TestProjectConfiguration[]),
+      ...((process.env.TEST_TEMPO_FUZZ === 'true'
+        ? [
+            {
+              extends: true,
+              test: {
+                name: 'tempo-fuzz',
+                include: ['src/tempo/**/*.fuzz.test.ts'],
+                retry: 0,
+                testTimeout: 30_000,
+              },
+            },
+            {
+              extends: true,
+              test: {
+                name: 'tempo-fuzz-node',
+                include: ['src/tempo/**/*.node-fuzz.test.ts'],
+                setupFiles: [],
+                globalSetup: [join(__dirname, './src/tempo/setup.global.ts')],
+                retry: 0,
+                sequence: { groupOrder: 1 },
+                hookTimeout: 60_000,
+                testTimeout: 60_000,
               },
             },
           ]

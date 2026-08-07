@@ -1,5 +1,5 @@
 import { RpcTransport } from 'ox'
-import { type Instance, Server } from 'prool'
+import { Instance, Server } from 'prool'
 import * as TestContainers from 'prool/testcontainers'
 import { getBlock } from '../../../src/actions/public/getBlock.js'
 import {
@@ -36,11 +36,19 @@ export const rpcUrl = (() => {
     return 'https://rpc.devnet.tempoxyz.dev'
   if (import.meta.env.VITE_TEMPO_ENV === 'testnet')
     return 'https://rpc.moderato.tempo.xyz'
-  const id =
-    (typeof import.meta !== 'undefined' &&
-      Number(import.meta.env.VITEST_POOL_ID ?? 1) +
-        Math.floor(Math.random() * 10_000)) ||
-    1 + Math.floor(Math.random() * 10_000)
+  const id = (() => {
+    // Explicitly configured instance ID.
+    if (Number(import.meta.env.VITE_TEMPO_INSTANCE_ID))
+      return Number(import.meta.env.VITE_TEMPO_INSTANCE_ID)
+    // Vitest pool-derived instance ID isolates parallel workers.
+    if (typeof import.meta !== 'undefined')
+      return (
+        Number(import.meta.env.VITEST_POOL_ID ?? 1) +
+        Math.floor(Math.random() * 10_000)
+      )
+    // Random instance ID fallback outside Vite.
+    return 1 + Math.floor(Math.random() * 10_000)
+  })()
   return `http://localhost:${port}/${id}`
 })()
 
@@ -61,22 +69,37 @@ export async function createServer() {
 
   const zones = import.meta.env.VITE_TEMPO_ZONES === 'true'
   const args = {
-    // Match Tempo's production cadence when Zone consumes every L1 block.
-    blockTime: zones ? '500ms' : process.env.CI ? '50ms' : '2ms',
+    blockTime: (() => {
+      // Explicitly configured block time.
+      if (import.meta.env.VITE_TEMPO_BLOCK_TIME !== undefined)
+        return import.meta.env.VITE_TEMPO_BLOCK_TIME
+      if (zones) return '500ms' // Zone cadence matching Tempo production.
+      if (process.env.CI) return '50ms' // Faster CI cadence.
+      return '2ms' // Fastest local cadence.
+    })(),
     log: import.meta.env.VITE_TEMPO_LOG,
     port,
   } satisfies Instance.tempo.Parameters
   const image = tag?.startsWith('sha256:')
     ? `ghcr.io/tempoxyz/tempo@${tag}`
     : `ghcr.io/tempoxyz/tempo:${tag ?? 'latest'}`
-  const instance =
-    zones || hardfork === 'T9'
-      ? createCustomTempo({
-          ...args,
-          hardfork,
-          image,
-        })
-      : TestContainers.Instance.tempo({ ...args, image })
+  const instance = (() => {
+    // Explicitly configured local Tempo binary.
+    if (import.meta.env.VITE_TEMPO_BINARY)
+      return Instance.tempo({
+        ...args,
+        binary: import.meta.env.VITE_TEMPO_BINARY,
+      })
+    // Custom container configuration: Zones, T9 hardfork.
+    if (zones || hardfork === 'T9')
+      return createCustomTempo({
+        ...args,
+        hardfork,
+        image,
+      })
+    // Standard Tempo test container fallback.
+    return TestContainers.Instance.tempo({ ...args, image })
+  })()
 
   return Server.create({
     instance,
@@ -251,7 +274,7 @@ export async function restart(client: Client<Transport, Chain>) {
   await setup(client)
 }
 
-async function waitForBlock(client: Client<Transport, Chain>) {
+export async function waitForBlock(client: Client<Transport, Chain>) {
   await withRetry(
     async () => {
       const block = await getBlock(client)
