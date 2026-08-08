@@ -55,6 +55,8 @@ export const zone = local
 
 export const rpcUrl = zone.rpcUrls.default.http[0]!
 
+export const unredactedRpcUrl = local?.rpcUrl ?? rpcUrl
+
 export const http = (url = rpcUrl, config: ZoneHttpConfig = {}) =>
   zoneHttp(url, {
     ...debugOptions({ rpcUrl: url }),
