@@ -796,9 +796,7 @@ describe('requestWithdrawal', () => {
         transactionHash:
           '0xae628bdc4bd24a9f9a917825a208baa16c384ab8a96a40cd5146bd20d9b3f6d9',
       }),
-    ).toBe(
-      '0xf1acbae45cd689281144042331e3379cf631a8d2db83057ccf38754a0b0108f2',
-    )
+    ).toBe('0xf1acbae45cd689281144042331e3379cf631a8d2db83057ccf38754a0b0108f2')
   })
 
   test('behavior: encodes the 8-argument outbox requestWithdrawal call', () => {

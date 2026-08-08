@@ -181,6 +181,13 @@ export default defineConfig({
       destination: '/docs/actions/wallet/:path',
       status: 308,
     },
+
+    // TODO(v3): Remove redirect
+    {
+      source: '/zskync',
+      destination: 'https://github.com/wevm/viem/tree/main/src/zksync',
+      status: 308,
+    },
   ],
   renderStrategy: 'dynamic',
   rootDir: '.',
@@ -838,10 +845,6 @@ export default defineConfig({
               {
                 text: 'OP Stack',
                 link: '/op-stack',
-              },
-              {
-                text: 'ZKsync',
-                link: '/zksync',
               },
             ],
           },
@@ -3304,223 +3307,6 @@ export default defineConfig({
         },
       ],
     },
-    '/zksync': {
-      backLink: true,
-      items: [
-        {
-          text: 'ZKsync',
-          items: [
-            {
-              text: 'Getting Started',
-              link: '/zksync',
-            },
-            { text: 'Client', link: '/zksync/client' },
-            { text: 'Chains', link: '/zksync/chains' },
-          ],
-        },
-        {
-          text: 'Smart Accounts',
-          items: [
-            {
-              text: 'Singlesig',
-              link: '/zksync/accounts/toSinglesigSmartAccount',
-            },
-            {
-              text: 'Multisig',
-              link: '/zksync/accounts/toMultisigSmartAccount',
-            },
-            {
-              text: 'Custom',
-              link: '/zksync/accounts/toSmartAccount',
-            },
-          ],
-        },
-        {
-          text: 'EIP-712 Actions',
-          items: [
-            {
-              text: 'deployContract',
-              link: '/zksync/actions/deployContract',
-            },
-            {
-              text: 'sendTransaction',
-              link: '/zksync/actions/sendTransaction',
-            },
-            {
-              text: 'signTransaction',
-              link: '/zksync/actions/signTransaction',
-            },
-            {
-              text: 'writeContract',
-              link: '/zksync/actions/writeContract',
-            },
-          ],
-        },
-        {
-          text: 'L2 Public Actions',
-          items: [
-            {
-              text: 'estimateGasL1ToL2',
-              link: '/zksync/actions/estimateGasL1ToL2',
-            },
-            {
-              text: 'getBlockDetails',
-              link: '/zksync/actions/getBlockDetails',
-            },
-            {
-              text: 'getBridgehubContractAddress',
-              link: '/zksync/actions/getBridgehubContractAddress',
-            },
-            {
-              text: 'getDefaultBridgeAddress',
-              link: '/zksync/actions/getDefaultBridgeAddress',
-            },
-            {
-              text: 'getGasPerPubData',
-              link: '/zksync/actions/getGasPerPubData',
-            },
-            {
-              text: 'getL1BatchDetails',
-              link: '/zksync/actions/getL1BatchDetails',
-            },
-            {
-              text: 'getL1BatchBlockRange',
-              link: '/zksync/actions/getL1BatchBlockRange',
-            },
-            {
-              text: 'getL1BatchNumber',
-              link: '/zksync/actions/getL1BatchNumber',
-            },
-            {
-              text: 'getL1TokenAddress',
-              link: '/zksync/actions/getL1TokenAddress',
-            },
-            {
-              text: 'getL2TokenAddress',
-              link: '/zksync/actions/getL2TokenAddress',
-            },
-            {
-              text: 'getLogProof',
-              link: '/zksync/actions/getLogProof',
-            },
-            {
-              text: 'getTransactionDetails',
-              link: '/zksync/actions/getTransactionDetails',
-            },
-            {
-              text: 'estimateFee (deprecated)',
-              link: '/zksync/actions/estimateFee',
-            },
-            {
-              text: 'getAllBalances (deprecated)',
-              link: '/zksync/actions/getAllBalances',
-            },
-            {
-              text: 'getBaseTokenL1Address (deprecated)',
-              link: '/zksync/actions/getBaseTokenL1Address',
-            },
-            {
-              text: 'getL1ChainId (deprecated)',
-              link: '/zksync/actions/getL1ChainId',
-            },
-            {
-              text: 'getMainContractAddress (deprecated)',
-              link: '/zksync/actions/getMainContractAddress',
-            },
-            {
-              text: 'getRawBlockTransaction (deprecated)',
-              link: '/zksync/actions/getRawBlockTransactions',
-            },
-            {
-              text: 'getTestnetPaymasterAddress (deprecated)',
-              link: '/zksync/actions/getTestnetPaymasterAddress',
-            },
-          ],
-        },
-        {
-          text: 'L1 Public Actions',
-          items: [
-            {
-              text: 'getL1Allowance',
-              link: '/zksync/actions/getL1Allowance',
-            },
-            {
-              text: 'getL1Balance',
-              link: '/zksync/actions/getL1Balance',
-            },
-            {
-              text: 'getL1TokenBalance',
-              link: '/zksync/actions/getL1TokenBalance',
-            },
-            {
-              text: 'isWithdrawalFinalized',
-              link: '/zksync/actions/isWithdrawalFinalized',
-            },
-          ],
-        },
-        {
-          text: 'L2 Wallet Actions',
-          items: [
-            {
-              text: 'withdraw',
-              link: '/zksync/actions/withdraw',
-            },
-          ],
-        },
-        {
-          text: 'L1 Wallet Actions',
-          items: [
-            {
-              text: 'requestExecute',
-              link: '/zksync/actions/requestExecute',
-            },
-            {
-              text: 'finalizeWithdrawal',
-              link: '/zksync/actions/finalizeWithdrawal',
-            },
-            {
-              text: 'deposit',
-              link: '/zksync/actions/deposit',
-            },
-            {
-              text: 'claimFailedDeposit',
-              link: '/zksync/actions/claimFailedDeposit',
-            },
-          ],
-        },
-        {
-          text: 'Utilities',
-          items: [
-            {
-              text: 'Paymaster',
-              items: [
-                {
-                  text: 'getApprovalBasedPaymasterInput',
-                  link: '/zksync/utilities/paymaster/getApprovalBasedPaymasterInput',
-                },
-                {
-                  text: 'getGeneralPaymasterInput',
-                  link: '/zksync/utilities/paymaster/getGeneralPaymasterInput',
-                },
-              ],
-            },
-            {
-              text: 'Bridge',
-              items: [
-                {
-                  text: 'getL2HashFromPriorityOp',
-                  link: '/zksync/utilities/bridge/getL2HashFromPriorityOp',
-                },
-              ],
-            },
-            {
-              text: 'parseEip712Transaction',
-              link: '/zksync/utilities/parseEip712Transaction',
-            },
-          ],
-        },
-      ],
-    },
   } as const satisfies Config['sidebar'],
   socials: [
     {
@@ -3583,10 +3369,6 @@ export default defineConfig({
         {
           text: 'USDC (Circle)',
           link: '/circle-usdc',
-        },
-        {
-          text: 'ZKsync',
-          link: '/zksync',
         },
         {
           text: 'Experimental',
