@@ -30,7 +30,10 @@ export const anvilMainnet = defineAnvil({
 
 export const anvilSepolia = defineAnvil({
   chain: sepolia,
-  forkUrl: getEnv('VITE_ANVIL_FORK_URL_SEPOLIA', 'https://sepolia.drpc.org'),
+  forkUrl: getEnv(
+    'VITE_ANVIL_FORK_URL_SEPOLIA',
+    'https://rpc.sepolia.ethpandaops.io',
+  ),
   forkBlockNumber: 5858117n,
   noMining: true,
   port: 8845,
