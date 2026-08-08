@@ -33,6 +33,8 @@ import {
   factoryAddress,
   getClient as getZoneClient,
   portalAddress,
+  unredactedRpcUrl,
+  http as zoneHttp,
   zoneId,
 } from '~test/tempo/zones.js'
 import { createHttpServer } from '~test/utils.js'
@@ -59,6 +61,10 @@ const portalAdminClient = createClient({
   transport: http(),
 })
 const zoneClient = getZoneClient({ account })
+const unredactedZoneClient = getZoneClient({
+  account,
+  transport: zoneHttp(unredactedRpcUrl),
+})
 const hardfork = import.meta.env.VITE_TEMPO_HARDFORK
 const legacyZoneCallback =
   hardfork === 'T7' || hardfork === 'T8' || hardfork === 'T9'
@@ -900,15 +906,18 @@ describe('requestWithdrawal', () => {
     await ensureZoneBalance(zoneToken, amount * 2n)
 
     const clientAccountResult = await zoneActions.requestWithdrawalSync(
-      zoneClient,
+      unredactedZoneClient,
       {
         amount,
         token: zoneToken,
       },
     )
-    const clientAccountReceipt = await getTransactionReceipt(zoneClient, {
-      hash: clientAccountResult.receipt.transactionHash,
-    })
+    const clientAccountReceipt = await getTransactionReceipt(
+      unredactedZoneClient,
+      {
+        hash: clientAccountResult.receipt.transactionHash,
+      },
+    )
 
     expect(clientAccountResult.receipt).toEqual(clientAccountReceipt)
     expect(clientAccountResult.receipt.status).toBe('success')
@@ -934,8 +943,11 @@ describe('requestWithdrawal', () => {
       account,
       zoneId,
     })
+    const explicitAccountUnredactedClient = getZoneClient({
+      transport: zoneHttp(unredactedRpcUrl),
+    })
     const explicitAccountResult = await zoneActions.requestWithdrawalSync(
-      explicitAccountClient,
+      explicitAccountUnredactedClient,
       {
         account,
         amount,
@@ -943,7 +955,7 @@ describe('requestWithdrawal', () => {
       },
     )
     const explicitAccountReceipt = await getTransactionReceipt(
-      explicitAccountClient,
+      explicitAccountUnredactedClient,
       { hash: explicitAccountResult.receipt.transactionHash },
     )
 
