@@ -57,8 +57,16 @@ export function validateSiweMessage(
   if (nonce && message.nonce !== nonce) return false
   if (scheme && message.scheme !== scheme) return false
 
-  if (message.expirationTime && time >= message.expirationTime) return false
-  if (message.notBefore && time < message.notBefore) return false
+  // `new Date("never")` is truthy Invalid Date; comparisons against it are
+  // always false, which previously skipped lifetime / nbf checks entirely.
+  if (message.expirationTime) {
+    if (Number.isNaN(message.expirationTime.getTime())) return false
+    if (time >= message.expirationTime) return false
+  }
+  if (message.notBefore) {
+    if (Number.isNaN(message.notBefore.getTime())) return false
+    if (time < message.notBefore) return false
+  }
 
   try {
     if (!message.address) return false
