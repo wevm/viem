@@ -11,6 +11,11 @@ const method = fc.constantFrom(
   'eth_sendRawTransactionSync' as const,
 )
 
+type RequestRecord = {
+  method: string
+  serialized: `0x${string}`
+}
+
 describe('withRelay: fuzz', () => {
   test('routes concurrent sponsored transactions exactly once', async () => {
     await fc.assert(
@@ -48,10 +53,6 @@ describe('withRelay: fuzz', () => {
           )
           const defaultRequests: RequestRecord[] = []
           const relayRequests: RequestRecord[] = []
-          type RequestRecord = {
-            method: string
-            serialized: `0x${string}`
-          }
 
           const defaultTransport = custom(
             {
