@@ -1,5 +1,5 @@
 import { parseAbi } from 'abitype'
-import { expect, test } from 'vitest'
+import { expect, onTestFinished, test } from 'vitest'
 import {
   baycContractConfig,
   usdcContractConfig,
@@ -11,6 +11,8 @@ import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { erc20Abi, erc721Abi } from '../../constants/abis.js'
 import { numberToHex, parseEther } from '../../utils/index.js'
+import { mine } from '../test/mine.js'
+import { getBlockNumber } from './getBlockNumber.js'
 import { simulateCalls } from './simulateCalls.js'
 
 const client = anvilMainnet.getClient()
@@ -561,6 +563,61 @@ test('behavior: traceAssetChanges asset discovery uses the requested block', asy
   ])
   // The supplementary access list pass, which previously defaulted to `latest`.
   expect(blocksFor('eth_createAccessList')).toEqual([numberToHex(blockNumber)])
+})
+
+test('behavior: traceAssetChanges pins the base block when none is requested', async () => {
+  const base = anvilMainnet.forkBlockNumber
+  // This test mines, so restore the fork head for the tests that follow – including on
+  // failure, so a mined block cannot leak into them.
+  onTestFinished(() => anvilMainnet.restart())
+
+  const requests: { method: string; params?: any }[] = []
+  let advanced = false
+  const spyClient = createClient({
+    chain: client.chain,
+    transport: custom({
+      async request(args) {
+        requests.push(args as any)
+        const result = await client.request(args as any)
+        // Advance the chain head between the two simulations. Discovery and measurement
+        // are separate requests, so an unpinned measurement pass would follow the head
+        // and measure balances against a block the token set was never computed on.
+        if (args.method === 'eth_simulateV1' && !advanced) {
+          advanced = true
+          await mine(client, { blocks: 1 })
+        }
+        return result
+      },
+    }),
+  })
+
+  await simulateCalls(spyClient, {
+    account: accounts[0].address,
+    traceAssetChanges: true,
+    calls: [
+      {
+        abi: erc20Abi,
+        functionName: 'transfer',
+        to: usdcContractConfig.address,
+        args: [accounts[1].address, 1_000_000n],
+      },
+    ],
+  })
+
+  const blocksFor = (method: string) =>
+    requests
+      .filter((request) => request.method === method)
+      .map((request) => request.params[1])
+
+  // The head really did move, so the assertions below are not vacuous.
+  expect(await getBlockNumber(client, { cacheTime: 0 })).toBe(base + 1n)
+
+  // Both passes agree on the base, and neither followed the head.
+  expect(blocksFor('eth_simulateV1')).toEqual([
+    numberToHex(base),
+    numberToHex(base),
+  ])
+  expect(blocksFor('eth_createAccessList')).toEqual([numberToHex(base)])
 })
 
 test('behavior: account not provided with traceAssetChanges', async () => {

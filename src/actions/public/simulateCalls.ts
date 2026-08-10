@@ -29,6 +29,7 @@ import {
   type CreateAccessListErrorType,
   createAccessList,
 } from './createAccessList.js'
+import { getBlockNumber } from './getBlockNumber.js'
 import {
   type SimulateBlocksErrorType,
   type SimulateBlocksParameters,
@@ -228,6 +229,22 @@ export async function simulateCalls<
       })
     : undefined
 
+  // Discovery and measurement are separate requests, and `latest` resolves per request –
+  // independently, and possibly on a different replica – so without pinning, the token
+  // set can be computed against one block and the balances against another. Resolved
+  // upfront rather than derived from the discovery response: `eth_simulateV1`'s returned
+  // block numbering is not portable. The spec and geth put the first simulated block at
+  // base + 1, but anvil put it at base until foundry-rs/foundry#15841 (unreleased as of
+  // 1.7.1), so `number - 1n` silently picks the wrong base on some nodes. Only `latest`
+  // is pinned; an explicit tag is left as the caller wrote it.
+  const blockTag_ = blockTag ?? client.experimental_blockTag ?? 'latest'
+  const baseBlockNumber =
+    traceAssetChanges &&
+    typeof blockNumber !== 'bigint' &&
+    blockTag_ === 'latest'
+      ? await getBlockNumber(client, { cacheTime: 0 })
+      : blockNumber
+
   // Discover ERC20/721 addresses the calls move assets in. Simulating the batch as a
   // whole is what makes this correct: the calls run sequentially, with the caller's
   // state overrides, at the requested block. The access list pass is supplementary and
@@ -235,8 +252,8 @@ export async function simulateCalls<
   const discovery = traceAssetChanges
     ? await Promise.all([
         simulateBlocks(client, {
-          blockNumber,
-          blockTag: blockTag as undefined,
+          blockNumber: baseBlockNumber,
+          blockTag: (baseBlockNumber ? undefined : blockTag) as undefined,
           blocks: [
             {
               calls: calls.map((call) => ({
@@ -253,8 +270,10 @@ export async function simulateCalls<
           parameters.calls.map((call: any) =>
             accessListHints(client, {
               account: account!.address,
-              blockNumber,
-              blockTag: blockTag as BlockTag | undefined,
+              blockNumber: baseBlockNumber,
+              blockTag: baseBlockNumber
+                ? undefined
+                : (blockTag as BlockTag | undefined),
               call,
             }),
           ),
@@ -282,8 +301,8 @@ export async function simulateCalls<
     : []
 
   const blocks = await simulateBlocks(client, {
-    blockNumber,
-    blockTag: blockTag as undefined,
+    blockNumber: baseBlockNumber,
+    blockTag: (baseBlockNumber ? undefined : blockTag) as undefined,
     blocks: [
       ...(traceAssetChanges
         ? [
