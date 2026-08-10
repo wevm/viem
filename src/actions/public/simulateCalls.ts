@@ -10,7 +10,7 @@ import { deploylessCallViaBytecodeBytecode } from '../../constants/contracts.js'
 import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
-import type { Block } from '../../types/block.js'
+import type { Block, BlockTag } from '../../types/block.js'
 import type { Call, Calls } from '../../types/calls.js'
 import type { Chain } from '../../types/chain.js'
 import type { Log } from '../../types/log.js'
@@ -22,7 +22,7 @@ import {
   type EncodeFunctionDataErrorType,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
-import { hexToBigInt } from '../../utils/index.js'
+import { hexToBigInt, pad, toEventSelector } from '../../utils/index.js'
 import {
   type CreateAccessListErrorType,
   createAccessList,
@@ -35,6 +35,77 @@ import {
 
 const getBalanceCode =
   '0x6080604052348015600e575f80fd5b5061016d8061001c5f395ff3fe608060405234801561000f575f80fd5b5060043610610029575f3560e01c8063f8b2cb4f1461002d575b5f80fd5b610047600480360381019061004291906100db565b61005d565b604051610054919061011e565b60405180910390f35b5f8173ffffffffffffffffffffffffffffffffffffffff16319050919050565b5f80fd5b5f73ffffffffffffffffffffffffffffffffffffffff82169050919050565b5f6100aa82610081565b9050919050565b6100ba816100a0565b81146100c4575f80fd5b50565b5f813590506100d5816100b1565b92915050565b5f602082840312156100f0576100ef61007d565b5b5f6100fd848285016100c7565b91505092915050565b5f819050919050565b61011881610106565b82525050565b5f6020820190506101315f83018461010f565b9291505056fea26469706673582212203b9fe929fe995c7cf9887f0bdba8a36dd78e8b73f149b17d2d9ad7cd09d2dc6264736f6c634300081a0033'
+
+const transferEventSelector = toEventSelector(
+  'event Transfer(address indexed from, address indexed to, uint256 value)',
+)
+
+/**
+ * Extracts token addresses the account transacted in from a simulated block's logs.
+ *
+ * Reading only topics 0-2 covers ERC20 and ERC721 under one predicate: ERC721's fourth
+ * topic is the token id, which is irrelevant here because `balanceOf(address)` on a 721
+ * returns the owner's NFT count.
+ */
+function tokensFromLogs(logs: readonly Log[], account: Address): Address[] {
+  const account_ = pad(account.toLowerCase() as Hex, { size: 32 })
+  return logs
+    .filter((log) => {
+      if (log.topics[0] !== transferEventSelector) return false
+      // `traceTransfers` emits synthetic native transfer logs under `ethAddress`, which
+      // is measured separately.
+      if (log.address.toLowerCase() === ethAddress) return false
+      return (
+        log.topics[1]?.toLowerCase() === account_ ||
+        log.topics[2]?.toLowerCase() === account_
+      )
+    })
+    .map((log) => log.address.toLowerCase() as Address)
+}
+
+/**
+ * Whether a `balanceOf` probe actually returned a balance.
+ *
+ * A candidate address without code — an EOA that merely received value — returns
+ * success with empty data rather than reverting, so status alone is not enough.
+ */
+function isBalance(call: { data: Hex; status: 'success' | 'failure' }) {
+  return call.status === 'success' && call.data !== '0x'
+}
+
+/**
+ * Supplementary discovery via `eth_createAccessList`, for assets whose balance changes
+ * without a `Transfer` the account participates in.
+ *
+ * Advisory only. The method cannot accept state overrides, so it runs against
+ * unmodified state and rejects calls that revert there; some nodes do not implement it
+ * at all. Log-based discovery covers those cases, so failures are ignored.
+ */
+async function accessListHints<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: {
+    account: Address
+    blockNumber: bigint | undefined
+    blockTag: BlockTag | undefined
+    call: any
+  },
+): Promise<Address[]> {
+  const { account, blockNumber, blockTag, call } = parameters
+  if (!call.data && !call.abi) return []
+  try {
+    const { accessList } = await createAccessList(client, {
+      account,
+      ...call,
+      data: call.abi ? encodeFunctionData(call) : call.data,
+      ...(typeof blockNumber === 'bigint' ? { blockNumber } : { blockTag }),
+    })
+    return accessList
+      .filter(({ storageKeys }) => storageKeys.length > 0)
+      .map(({ address }) => address.toLowerCase() as Address)
+  } catch {
+    return []
+  }
+}
 
 export type SimulateCallsParameters<
   calls extends readonly unknown[] = readonly unknown[],
@@ -162,21 +233,57 @@ export async function simulateCalls<
       })
     : undefined
 
-  // Fetch ERC20/721 addresses that were "touched" from the calls.
-  const assetAddresses = traceAssetChanges
-    ? await Promise.all(
-        parameters.calls.map(async (call: any) => {
-          if (!call.data && !call.abi) return
-          const { accessList } = await createAccessList(client, {
-            account: account!.address,
-            ...call,
-            data: call.abi ? encodeFunctionData(call) : call.data,
-          })
-          return accessList.map(({ address, storageKeys }) =>
-            storageKeys.length > 0 ? address : null,
-          )
+  // Discover ERC20/721 addresses the calls move assets in. Simulating the batch as a
+  // whole is what makes this correct: the calls run sequentially, with the caller's
+  // state overrides, at the requested block. The access list pass is supplementary and
+  // runs concurrently, so it costs no additional latency.
+  const discovery = traceAssetChanges
+    ? await Promise.all([
+        simulateBlocks(client, {
+          blockNumber,
+          blockTag: blockTag as undefined,
+          blocks: [
+            {
+              calls: calls.map((call) => ({
+                ...(call as Call),
+                from: account!.address,
+              })) as any,
+              stateOverrides,
+            },
+          ],
+          traceTransfers,
+          validation,
         }),
-      ).then((x) => x.flat().filter(Boolean))
+        Promise.all(
+          parameters.calls.map((call: any) =>
+            accessListHints(client, {
+              account: account!.address,
+              blockNumber,
+              blockTag: blockTag as BlockTag | undefined,
+              call,
+            }),
+          ),
+        ),
+      ])
+    : undefined
+
+  const assetAddresses = discovery
+    ? [
+        ...new Set([
+          ...tokensFromLogs(
+            discovery[0][0]!.calls.flatMap((call) => call.logs ?? []),
+            account!.address,
+          ),
+          // Included even for calls without data: contracts that mint on receiving
+          // native value (WETH) emit `Deposit`, not a `Transfer` the logs would catch.
+          // Candidates without code fall out at `isBalance`.
+          ...parameters.calls.map((call: any) => call.to?.toLowerCase()),
+          ...discovery[1].flat(),
+        ]),
+      ].filter(
+        (address): address is Address =>
+          Boolean(address) && address !== ethAddress && address !== zeroAddress,
+      )
     : []
 
   const blocks = await simulateBlocks(client, {
@@ -336,14 +443,14 @@ export async function simulateCalls<
   const ethPre = block_ethPre?.calls ?? []
   const assetsPre = block_assetsPre?.calls ?? []
   const balancesPre = [...ethPre, ...assetsPre].map((call) =>
-    call.status === 'success' ? hexToBigInt(call.data) : null,
+    isBalance(call) ? hexToBigInt(call.data) : null,
   )
 
   // Extract post-execution ETH and asset balances.
   const ethPost = block_ethPost?.calls ?? []
   const assetsPost = block_assetsPost?.calls ?? []
   const balancesPost = [...ethPost, ...assetsPost].map((call) =>
-    call.status === 'success' ? hexToBigInt(call.data) : null,
+    isBalance(call) ? hexToBigInt(call.data) : null,
   )
 
   // Extract asset symbols & decimals.

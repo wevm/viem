@@ -1,3 +1,4 @@
+import { parseAbi } from 'abitype'
 import { expect, test } from 'vitest'
 import {
   baycContractConfig,
@@ -6,11 +7,22 @@ import {
 } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
+import { createClient } from '../../clients/createClient.js'
+import { custom } from '../../clients/transports/custom.js'
 import { erc20Abi, erc721Abi } from '../../constants/abis.js'
-import { parseEther } from '../../utils/index.js'
+import { numberToHex, parseEther } from '../../utils/index.js'
 import { simulateCalls } from './simulateCalls.js'
 
 const client = anvilMainnet.getClient()
+
+const wethAddress = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2' as const
+const wethAbi = parseAbi(['function deposit() payable'])
+
+const uniswapV2RouterAddress =
+  '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D' as const
+const uniswapV2RouterAbi = parseAbi([
+  'function swapExactETHForTokens(uint256 amountOutMin, address[] path, address to, uint256 deadline) payable returns (uint256[] amounts)',
+])
 
 test('default', async () => {
   const { results } = await simulateCalls(client, {
@@ -115,8 +127,7 @@ test('behavior: with mutation calls', async () => {
   `)
 })
 
-// TODO: Re-enable once Anvil supports contract creation in eth_simulateV1.
-test.skip('behavior: with mutation calls + asset changes', async () => {
+test('behavior: with mutation calls + asset changes', async () => {
   const account = '0xdead000000000000000042069420694206942069' as const
   const { assetChanges, results } = await simulateCalls(client, {
     account,
@@ -385,6 +396,170 @@ test('behavior: stress', async () => {
   await simulateCalls(client, {
     calls,
   })
+})
+
+test('behavior: traceAssetChanges with a call that reverts in isolation', async () => {
+  // `accounts[0]` holds no USDC, so this transfer reverts. Asset discovery must not
+  // abort the whole action over it — the revert belongs in `results`.
+  const { assetChanges, results } = await simulateCalls(client, {
+    account: accounts[0].address,
+    traceAssetChanges: true,
+    calls: [
+      {
+        abi: erc20Abi,
+        functionName: 'transfer',
+        to: usdcContractConfig.address,
+        args: [accounts[1].address, 1_000_000n],
+      },
+    ],
+  })
+
+  expect(results[0]!.status).toBe('failure')
+  expect(assetChanges).toMatchInlineSnapshot(`
+    [
+      {
+        "token": {
+          "address": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "decimals": 18,
+          "symbol": "ETH",
+        },
+        "value": {
+          "diff": 0n,
+          "post": 10000000000000000000000n,
+          "pre": 10000000000000000000000n,
+        },
+      },
+      {
+        "token": {
+          "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+          "decimals": 6,
+          "symbol": "USDC",
+        },
+        "value": {
+          "diff": 0n,
+          "post": 0n,
+          "pre": 0n,
+        },
+      },
+    ]
+  `)
+})
+
+test('behavior: traceAssetChanges with a call that depends on an earlier call', async () => {
+  // The transfer only succeeds because the deposit ran first. Discovering assets by
+  // replaying each call against pre-state independently cannot see that.
+  const { assetChanges, results } = await simulateCalls(client, {
+    account: accounts[0].address,
+    traceAssetChanges: true,
+    calls: [
+      {
+        abi: wethAbi,
+        functionName: 'deposit',
+        to: wethAddress,
+        value: parseEther('1'),
+      },
+      {
+        abi: erc20Abi,
+        functionName: 'transfer',
+        to: wethAddress,
+        args: [accounts[1].address, parseEther('0.4')],
+      },
+    ],
+  })
+
+  expect(results.map((result) => result.status)).toEqual(['success', 'success'])
+  expect(
+    assetChanges.map((change) => ({
+      symbol: change.token.symbol,
+      diff: change.value.diff,
+      pre: change.value.pre,
+    })),
+  ).toMatchInlineSnapshot(`
+    [
+      {
+        "diff": -1000000000000000000n,
+        "pre": 10000000000000000000000n,
+        "symbol": "ETH",
+      },
+      {
+        "diff": 600000000000000000n,
+        "pre": 0n,
+        "symbol": "WETH",
+      },
+    ]
+  `)
+})
+
+test('behavior: traceAssetChanges discovers a token not named by any call', async () => {
+  // Swapping ETH for USDC through the Uniswap V2 router: the only `to` is the router,
+  // and USDC is reachable only from the logs of the simulated batch.
+  const { assetChanges } = await simulateCalls(client, {
+    account: accounts[0].address,
+    traceAssetChanges: true,
+    calls: [
+      {
+        abi: uniswapV2RouterAbi,
+        functionName: 'swapExactETHForTokens',
+        to: uniswapV2RouterAddress,
+        args: [
+          0n,
+          [wethAddress, usdcContractConfig.address],
+          accounts[0].address,
+          99999999999n,
+        ],
+        value: parseEther('1'),
+      },
+    ],
+  })
+
+  const usdc = assetChanges.find(
+    (change) => change.token.address === usdcContractConfig.address,
+  )
+  expect(usdc?.token.symbol).toBe('USDC')
+  expect(usdc?.value.diff).toBeGreaterThan(0n)
+})
+
+test('behavior: traceAssetChanges asset discovery uses the requested block', async () => {
+  const requests: { method: string; params?: any }[] = []
+  const spyClient = createClient({
+    chain: client.chain,
+    transport: custom({
+      async request(args) {
+        requests.push(args as any)
+        return client.request(args as any)
+      },
+    }),
+  })
+
+  // It has to be the fork head: anvil delegates pre-fork blocks to the upstream RPC,
+  // which does not implement `eth_simulateV1`.
+  const blockNumber = anvilMainnet.forkBlockNumber
+  await simulateCalls(spyClient, {
+    account: accounts[0].address,
+    traceAssetChanges: true,
+    blockNumber,
+    calls: [
+      {
+        abi: erc20Abi,
+        functionName: 'transfer',
+        to: usdcContractConfig.address,
+        args: [accounts[1].address, 1_000_000n],
+      },
+    ],
+  })
+
+  const blocksFor = (method: string) =>
+    requests
+      .filter((request) => request.method === method)
+      .map((request) => request.params[1])
+
+  // The discovery simulation and the result simulation.
+  expect(blocksFor('eth_simulateV1')).toEqual([
+    numberToHex(blockNumber),
+    numberToHex(blockNumber),
+  ])
+  // The supplementary access list pass, which previously defaulted to `latest`.
+  expect(blocksFor('eth_createAccessList')).toEqual([numberToHex(blockNumber)])
 })
 
 test('behavior: account not provided with traceAssetChanges', async () => {
