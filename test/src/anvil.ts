@@ -34,7 +34,7 @@ export const anvilSepolia = defineAnvil({
     'VITE_ANVIL_FORK_URL_SEPOLIA',
     'https://rpc.sepolia.ethpandaops.io',
   ),
-  forkBlockNumber: undefined,
+  forkBlockNumber: 10_000_000n,
   noMining: true,
   port: 8845,
 })
@@ -72,23 +72,20 @@ function getEnv(key: string, fallback: string): string {
   return fallback
 }
 
-type DefineAnvilParameters<
-  chain extends Chain,
-  forkBlockNumber extends bigint | undefined = bigint,
-> = Omit<Instance.anvil.Parameters, 'forkBlockNumber' | 'forkUrl'> & {
+type DefineAnvilParameters<chain extends Chain> = Omit<
+  Instance.anvil.Parameters,
+  'forkBlockNumber' | 'forkUrl'
+> & {
   chain: chain
-  forkBlockNumber: forkBlockNumber
+  forkBlockNumber: bigint
   forkUrl: string
   port: number
 }
 
-type DefineAnvilReturnType<
-  chain extends Chain,
-  forkBlockNumber extends bigint | undefined = bigint,
-> = {
+type DefineAnvilReturnType<chain extends Chain> = {
   chain: chain
   clientConfig: ClientConfig<Transport, chain, undefined>
-  forkBlockNumber: forkBlockNumber
+  forkBlockNumber: bigint
   forkUrl: string
   getClient<
     config extends ExactPartial<
@@ -123,12 +120,9 @@ type DefineAnvilReturnType<
   start(): Promise<() => Promise<void>>
 }
 
-function defineAnvil<
-  const chain extends Chain,
-  const forkBlockNumber extends bigint | undefined,
->(
-  parameters: DefineAnvilParameters<chain, forkBlockNumber>,
-): DefineAnvilReturnType<chain, forkBlockNumber> {
+function defineAnvil<const chain extends Chain>(
+  parameters: DefineAnvilParameters<chain>,
+): DefineAnvilReturnType<chain> {
   const {
     chain: chain_,
     forkUrl,
