@@ -108,6 +108,7 @@ export { bxn } from './definitions/bxn.js'
 export { bxnTestnet } from './definitions/bxnTestnet.js'
 export { cannon } from './definitions/cannon.js'
 export { canto } from './definitions/canto.js'
+export { cashcat } from './definitions/cashcat.js'
 export { celo } from './definitions/celo.js'
 /** @deprecated use `celoSepolia` instead */
 export { celoAlfajores } from './definitions/celoAlfajores.js'
