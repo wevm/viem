@@ -846,3 +846,40 @@ test('deposit.extractEvent: preserves metadata for full logs', () => {
   expectTypeOf(log.logIndex).toEqualTypeOf<number>()
   expectTypeOf(log.transactionHash).toEqualTypeOf<Hex.Hex>()
 })
+
+test('deployment extractEvent helpers accept EIP-5792 call receipt logs', () => {
+  const logs: getCallsStatus.ReturnType['receipts'][number]['logs'] = []
+  const engine = Actions.earn.createErc4626Engine.extractEvent(logs, {
+    factory: address,
+  })
+  const stack = Actions.earn.createStack.extractEvent(logs, {
+    factory: address,
+  })
+  const binding = Actions.earn.bindErc4626Engine.extractEvent(logs, {
+    engine: address,
+  })
+
+  expectTypeOf(engine.eventName).toEqualTypeOf<'ERC4626EngineDeployed'>()
+  expectTypeOf(stack.eventName).toEqualTypeOf<'EarnStackDeployed'>()
+  expectTypeOf(binding.eventName).toEqualTypeOf<'EarnVaultInitialized'>()
+  expectTypeOf(engine).not.toHaveProperty('blockNumber')
+  expectTypeOf(stack).not.toHaveProperty('blockNumber')
+  expectTypeOf(binding).not.toHaveProperty('blockNumber')
+})
+
+test('deployment extractEvent helpers preserve metadata for full logs', () => {
+  const logs: readonly Log.Log[] = []
+  const engine = Actions.earn.createErc4626Engine.extractEvent(logs, {
+    factory: address,
+  })
+  const stack = Actions.earn.createStack.extractEvent(logs, {
+    factory: address,
+  })
+  const binding = Actions.earn.bindErc4626Engine.extractEvent(logs, {
+    engine: address,
+  })
+
+  expectTypeOf(engine.blockNumber).toEqualTypeOf<bigint>()
+  expectTypeOf(stack.blockNumber).toEqualTypeOf<bigint>()
+  expectTypeOf(binding.blockNumber).toEqualTypeOf<bigint>()
+})

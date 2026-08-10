@@ -1,5 +1,5 @@
 import { AbiEvent, Address, Hex } from 'ox'
-import type { Errors, Log } from 'ox'
+import type { Errors } from 'ox'
 
 import * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -274,13 +274,16 @@ export namespace createErc4626Engine {
    * @param parameters - Factory address used to filter the logs.
    * @returns The deployment event.
    */
-  export function extractEvent(
-    logs: readonly Log.Log[],
-    parameters: { factory: Address.Address },
-  ) {
+  export function extractEvent<
+    const logs extends readonly (AbiEvent.extractLogs.Log & {
+      address: Address.Address
+    })[],
+  >(logs: logs, parameters: { factory: Address.Address }) {
     const [log] = AbiEvent.extractLogs(
       Abis.erc4626EngineFactory,
-      logs.filter((log) => Address.isEqual(log.address, parameters.factory)),
+      logs.filter((log): log is logs[number] =>
+        Address.isEqual(log.address, parameters.factory),
+      ),
       {
         eventName: 'ERC4626EngineDeployed',
         strict: true,
@@ -531,13 +534,16 @@ export namespace createStack {
    * @param parameters - Factory address used to filter the logs.
    * @returns The deployment event.
    */
-  export function extractEvent(
-    logs: readonly Log.Log[],
-    parameters: { factory: Address.Address },
-  ) {
+  export function extractEvent<
+    const logs extends readonly (AbiEvent.extractLogs.Log & {
+      address: Address.Address
+    })[],
+  >(logs: logs, parameters: { factory: Address.Address }) {
     const [log] = AbiEvent.extractLogs(
       Abis.earnFactory,
-      logs.filter((log) => Address.isEqual(log.address, parameters.factory)),
+      logs.filter((log): log is logs[number] =>
+        Address.isEqual(log.address, parameters.factory),
+      ),
       {
         eventName: 'EarnStackDeployed',
         strict: true,
@@ -710,13 +716,16 @@ export namespace bindErc4626Engine {
    * @param parameters - Engine address used to filter the logs.
    * @returns The initialization event.
    */
-  export function extractEvent(
-    logs: readonly Log.Log[],
-    parameters: { engine: Address.Address },
-  ) {
+  export function extractEvent<
+    const logs extends readonly (AbiEvent.extractLogs.Log & {
+      address: Address.Address
+    })[],
+  >(logs: logs, parameters: { engine: Address.Address }) {
     const [log] = AbiEvent.extractLogs(
       Abis.erc4626Engine,
-      logs.filter((log) => Address.isEqual(log.address, parameters.engine)),
+      logs.filter((log): log is logs[number] =>
+        Address.isEqual(log.address, parameters.engine),
+      ),
       {
         eventName: 'EarnVaultInitialized',
         strict: true,
