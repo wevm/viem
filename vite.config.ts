@@ -142,7 +142,7 @@ export default defineConfig({
       {
         extends: true,
         test: {
-          name: 'tempo-fuzz',
+          name: 'fuzz',
           include: ['src/tempo/**/*.fuzz.test.ts'],
           exclude: ['**/*.node-fuzz.test.ts'],
           retry: 0,
@@ -152,7 +152,7 @@ export default defineConfig({
       {
         extends: true,
         test: {
-          name: 'tempo-fuzz-node',
+          name: 'fuzz-node',
           include: ['src/tempo/**/*.node-fuzz.test.ts'],
           retry: 0,
           hookTimeout: 180_000,
