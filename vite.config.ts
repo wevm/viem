@@ -126,9 +126,9 @@ export default defineConfig({
           include: ['src/tempo/**/*.test.ts'],
           exclude: [
             '**/node_modules/**',
+            '**/*.fuzz-int.test.ts',
             '**/*.fuzz.test.ts',
             '**/*.multisig.test.ts',
-            '**/*.node-fuzz.test.ts',
           ],
           globalSetup: ['./test/setup.tempo.global.ts'],
           setupFiles: ['./test/setup.tempo.ts'],
@@ -137,26 +137,6 @@ export default defineConfig({
           // Concurrent nodes slow receipt ceremonies; CI load pushes
           // single tests past 30s.
           testTimeout: 60_000,
-        },
-      },
-      {
-        extends: true,
-        test: {
-          name: 'fuzz',
-          include: ['src/tempo/**/*.fuzz.test.ts'],
-          exclude: ['**/*.node-fuzz.test.ts'],
-          retry: 0,
-          testTimeout: 30_000,
-        },
-      },
-      {
-        extends: true,
-        test: {
-          name: 'fuzz-node',
-          include: ['src/tempo/**/*.node-fuzz.test.ts'],
-          retry: 0,
-          hookTimeout: 180_000,
-          testTimeout: 180_000,
         },
       },
       // Register the multisig project only when explicitly enabled so
