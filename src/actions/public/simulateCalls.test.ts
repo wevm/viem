@@ -15,7 +15,8 @@ import { simulateCalls } from './simulateCalls.js'
 
 const client = anvilMainnet.getClient()
 
-const wethAddress = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2' as const
+const wethContractAddress =
+  '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2' as const
 const wethAbi = parseAbi(['function deposit() payable'])
 
 const uniswapV2RouterAddress =
@@ -455,13 +456,13 @@ test('behavior: traceAssetChanges with a call that depends on an earlier call', 
       {
         abi: wethAbi,
         functionName: 'deposit',
-        to: wethAddress,
+        to: wethContractAddress,
         value: parseEther('1'),
       },
       {
         abi: erc20Abi,
         functionName: 'transfer',
-        to: wethAddress,
+        to: wethContractAddress,
         args: [accounts[1].address, parseEther('0.4')],
       },
     ],
@@ -503,7 +504,7 @@ test('behavior: traceAssetChanges discovers a token not named by any call', asyn
         to: uniswapV2RouterAddress,
         args: [
           0n,
-          [wethAddress, usdcContractConfig.address],
+          [wethContractAddress, usdcContractConfig.address],
           accounts[0].address,
           99999999999n,
         ],

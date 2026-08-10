@@ -1,5 +1,6 @@
 import type { AbiStateMutability, Address, Narrow } from 'abitype'
 import * as AbiConstructor from 'ox/AbiConstructor'
+import * as AbiEvent from 'ox/AbiEvent'
 import * as AbiFunction from 'ox/AbiFunction'
 
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
@@ -22,7 +23,8 @@ import {
   type EncodeFunctionDataErrorType,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
-import { hexToBigInt, pad, toEventSelector } from '../../utils/index.js'
+import { type PadErrorType, pad } from '../../utils/data/pad.js'
+import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import {
   type CreateAccessListErrorType,
   createAccessList,
@@ -36,17 +38,16 @@ import {
 const getBalanceCode =
   '0x6080604052348015600e575f80fd5b5061016d8061001c5f395ff3fe608060405234801561000f575f80fd5b5060043610610029575f3560e01c8063f8b2cb4f1461002d575b5f80fd5b610047600480360381019061004291906100db565b61005d565b604051610054919061011e565b60405180910390f35b5f8173ffffffffffffffffffffffffffffffffffffffff16319050919050565b5f80fd5b5f73ffffffffffffffffffffffffffffffffffffffff82169050919050565b5f6100aa82610081565b9050919050565b6100ba816100a0565b81146100c4575f80fd5b50565b5f813590506100d5816100b1565b92915050565b5f602082840312156100f0576100ef61007d565b5b5f6100fd848285016100c7565b91505092915050565b5f819050919050565b61011881610106565b82525050565b5f6020820190506101315f83018461010f565b9291505056fea26469706673582212203b9fe929fe995c7cf9887f0bdba8a36dd78e8b73f149b17d2d9ad7cd09d2dc6264736f6c634300081a0033'
 
-const transferEventSelector = toEventSelector(
-  'event Transfer(address indexed from, address indexed to, uint256 value)',
+// ERC20 & ERC721 share this selector – both are `Transfer(address,address,uint256)`.
+const transferEventSelector = AbiEvent.getSelector(
+  AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
 )
 
-/**
- * Extracts token addresses the account transacted in from a simulated block's logs.
- *
- * Reading only topics 0-2 covers ERC20 and ERC721 under one predicate: ERC721's fourth
- * topic is the token id, which is irrelevant here because `balanceOf(address)` on a 721
- * returns the owner's NFT count.
- */
+// Extract token addresses that the account transferred, from a simulated block's logs.
+// Only topics 0-2 are read: ERC721's fourth topic is the token id, which is irrelevant
+// as `balanceOf(address)` on a 721 returns the owner's NFT count.
 function tokensFromLogs(logs: readonly Log[], account: Address): Address[] {
   const account_ = pad(account.toLowerCase() as Hex, { size: 32 })
   return logs
@@ -63,24 +64,17 @@ function tokensFromLogs(logs: readonly Log[], account: Address): Address[] {
     .map((log) => log.address.toLowerCase() as Address)
 }
 
-/**
- * Whether a `balanceOf` probe actually returned a balance.
- *
- * A candidate address without code — an EOA that merely received value — returns
- * success with empty data rather than reverting, so status alone is not enough.
- */
+// Whether a `balanceOf` probe returned a balance. A candidate without code (an EOA that
+// merely received value) succeeds with empty data instead of reverting, so `status`
+// alone is not enough.
 function isBalance(call: { data: Hex; status: 'success' | 'failure' }) {
   return call.status === 'success' && call.data !== '0x'
 }
 
-/**
- * Supplementary discovery via `eth_createAccessList`, for assets whose balance changes
- * without a `Transfer` the account participates in.
- *
- * Advisory only. The method cannot accept state overrides, so it runs against
- * unmodified state and rejects calls that revert there; some nodes do not implement it
- * at all. Log-based discovery covers those cases, so failures are ignored.
- */
+// Supplementary discovery for assets whose balance changes without a `Transfer` the
+// account participates in. Advisory only: `eth_createAccessList` cannot accept state
+// overrides, so it runs against unmodified state and rejects calls that revert there,
+// and some nodes do not implement it – log-based discovery covers those cases.
 async function accessListHints<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: {
@@ -156,6 +150,7 @@ export type SimulateCallsErrorType =
   | AbiFunction.from.ErrorType
   | CreateAccessListErrorType
   | EncodeFunctionDataErrorType
+  | PadErrorType
   | SimulateBlocksErrorType
   | ErrorType
 
