@@ -81,6 +81,8 @@ export type PreparedEncryptedDeposit = {
   keyIndex: bigint
   /** Zone portal address on the parent chain. */
   portalAddress: Address
+  /** Address that will call the Zone portal. */
+  sender: Address
   /** Token address or ID to deposit. */
   token: TokenId.TokenIdOrAddress
   /** Zone ID (e.g. `7`). */
@@ -96,6 +98,8 @@ export type PreparedEncryptedDepositRecipient = {
   keyIndex: bigint
   /** Zone portal address on the parent chain. */
   portalAddress: Address
+  /** Address that will call the Zone portal. */
+  sender: Address
   /** Zone ID (e.g. `7`). */
   zoneId: number
 }
@@ -494,6 +498,7 @@ export async function encryptedDeposit<
     memo: parameters.memo,
     portalAddress: parameters.portalAddress,
     recipient,
+    sender: account_.address,
     token: parameters.token,
     zoneId: parameters.zoneId,
   })
@@ -573,6 +578,7 @@ export namespace encryptedDeposit {
    *   amount: 1_000_000n,
    *   bouncebackRecipient: '0x...',
    *   recipient: '0x...',
+   *   sender: '0x...',
    *   zoneId: 7,
    * })
    * ```
@@ -597,6 +603,7 @@ export namespace encryptedDeposit {
       memo,
       portalAddress: portalAddress_,
       recipient,
+      sender,
       token,
       zoneId,
       ...rest
@@ -612,6 +619,7 @@ export namespace encryptedDeposit {
     const encrypted = await encryptDepositPayload(
       publicKey,
       recipient,
+      sender,
       portalAddress,
       keyIndex,
       memo,
@@ -624,6 +632,7 @@ export namespace encryptedDeposit {
       encrypted,
       keyIndex,
       portalAddress,
+      sender,
       token,
       zoneId,
     }
@@ -643,6 +652,8 @@ export namespace encryptedDeposit {
       portalAddress?: Address | undefined
       /** Recipient address in the zone. */
       recipient: Address
+      /** Address that will call the Zone portal. */
+      sender: Address
       /** Token address or ID to deposit. */
       token: TokenId.TokenIdOrAddress
       /** Zone ID (e.g. `7`). */
@@ -674,6 +685,7 @@ export namespace encryptedDeposit {
    *
    * const recipient = await Actions.zone.encryptedDeposit.prepareRecipient(client, {
    *   recipient: '0x...',
+   *   sender: '0x...',
    *   zoneId: 7,
    * })
    * ```
@@ -696,6 +708,7 @@ export namespace encryptedDeposit {
       memo,
       portalAddress: portalAddress_,
       recipient,
+      sender,
       zoneId,
       ...rest
     } = parameters
@@ -708,6 +721,7 @@ export namespace encryptedDeposit {
     const encrypted = await encryptDepositPayload(
       publicKey,
       recipient,
+      sender,
       portalAddress,
       keyIndex,
       memo,
@@ -718,6 +732,7 @@ export namespace encryptedDeposit {
       encrypted,
       keyIndex,
       portalAddress,
+      sender,
       zoneId,
     }
   }
@@ -732,6 +747,8 @@ export namespace encryptedDeposit {
       portalAddress?: Address | undefined
       /** Recipient address in the zone. */
       recipient: Address
+      /** Address that will call the Zone portal. */
+      sender: Address
       /** Zone ID (e.g. `7`). */
       zoneId: number
     }
@@ -864,6 +881,7 @@ export async function encryptedDepositSync<
     memo: parameters.memo,
     portalAddress: parameters.portalAddress,
     recipient,
+    sender: account_.address,
     token: parameters.token,
     zoneId: parameters.zoneId,
   })
@@ -1883,6 +1901,7 @@ export namespace signAuthorizationToken {
 async function encryptDepositPayload(
   publicKey: { prefix: 2 | 3; x: Hex.Hex },
   recipient: Address,
+  sender: Address,
   portalAddress: Address,
   keyIndex: bigint,
   memo: Hex.Hex = zeroHash,
@@ -1918,6 +1937,7 @@ async function encryptDepositPayload(
         portalAddress,
         keyIndex,
         Hex.fromNumber(compressedEphemeral.x, { size: 32 }),
+        sender,
       ) as BufferSource,
     },
     hkdfKey,
@@ -1961,11 +1981,13 @@ function buildDepositHkdfInfo(
   portalAddress: Address,
   keyIndex: bigint,
   ephemeralPubkeyX: Hex.Hex,
+  sender: Address,
 ): Bytes.Bytes {
   return Bytes.concat(
     Bytes.from(portalAddress),
     Bytes.fromNumber(keyIndex, { size: 32 }),
     Bytes.from(ephemeralPubkeyX),
+    Bytes.from(sender),
   )
 }
 

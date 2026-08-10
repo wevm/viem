@@ -89,6 +89,7 @@ const preparedEncryptedDeposit = {
   },
   keyIndex: 0n,
   portalAddress,
+  sender: account.address,
   token: '0x20c0000000000000000000000000000000000000',
   zoneId,
 } satisfies zoneActions.PreparedEncryptedDeposit
@@ -96,6 +97,7 @@ const prepareEncryptedDepositParameters = {
   amount: parseUnits('1', 6),
   bouncebackRecipient: account.address,
   recipient: account.address,
+  sender: account.address,
   token: parentToken,
   zoneId: 7,
 } as const
@@ -584,6 +586,7 @@ describe('encryptedDeposit', () => {
       {
         portalAddress,
         recipient: account.address,
+        sender: account.address,
         zoneId,
       },
     )

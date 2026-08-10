@@ -33,6 +33,7 @@ test('encryptedDeposit.prepare returns a reusable encrypted deposit payload', as
     amount: 1n,
     bouncebackRecipient: '0x0000000000000000000000000000000000000001',
     recipient: '0x0000000000000000000000000000000000000001',
+    sender: '0x0000000000000000000000000000000000000001',
     zoneId: 7,
   })
 
@@ -52,6 +53,7 @@ test('encryptedDeposit.prepareRecipient returns reusable encrypted recipient dat
   const prepared = await zoneActions.encryptedDeposit.prepareRecipient(client, {
     portalAddress: '0x0000000000000000000000000000000000000002',
     recipient: '0x0000000000000000000000000000000000000001',
+    sender: '0x0000000000000000000000000000000000000001',
     zoneId: 7,
   })
 
