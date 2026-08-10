@@ -9,6 +9,11 @@ import { Actions, Client, ContractError, custom, publicActions } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = anvil.getClient(anvil.mainnet)
+const local = anvil.getClient(anvil.local)
+
+const { address: readAddress } = await contract.deploy(local, {
+  bytecode: generated.Erc721.bytecode.object,
+})
 
 const a = constants.accounts[0].address
 const b = constants.accounts[1].address
@@ -29,22 +34,22 @@ const usdcAddress = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 const wagmiAddress = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
 
 test('simulates a batch of reads', async () => {
-  const { results } = await Actions.multicall(client, {
+  const { results } = await Actions.multicall(local, {
     calls: [
       {
-        abi: erc20Abi,
+        abi: generated.Erc721.abi,
         functionName: 'name',
-        to: usdcAddress,
+        to: readAddress,
       },
       {
-        abi: erc20Abi,
+        abi: generated.Erc721.abi,
         functionName: 'symbol',
-        to: usdcAddress,
+        to: readAddress,
       },
       {
-        abi: erc20Abi,
-        functionName: 'name',
-        to: baycAddress,
+        abi: generated.Erc721.abi,
+        functionName: 'totalSupply',
+        to: readAddress,
       },
     ],
   })
@@ -52,24 +57,24 @@ test('simulates a batch of reads', async () => {
   expect(results).toMatchInlineSnapshot(`
     [
       {
-        "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
-        "gasUsed": 31414n,
+        "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
+        "gasUsed": 24362n,
         "logs": [],
-        "result": "USD Coin",
+        "result": "wagmi",
         "status": "success",
       },
       {
-        "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000045553444300000000000000000000000000000000000000000000000000000000",
-        "gasUsed": 31434n,
+        "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000055741474d49000000000000000000000000000000000000000000000000000000",
+        "gasUsed": 24451n,
         "logs": [],
-        "result": "USDC",
+        "result": "WAGMI",
         "status": "success",
       },
       {
-        "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
-        "gasUsed": 24292n,
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "gasUsed": 21418n,
         "logs": [],
-        "result": "BoredApeYachtClub",
+        "result": 1n,
         "status": "success",
       },
     ]

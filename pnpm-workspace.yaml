@@ -18,8 +18,10 @@ allowBuilds:
 
 auditConfig:
   ignoreGhsas:
+    - GHSA-5p2g-fcmc-qvqq # image-size has no published patched release.
     - GHSA-444r-cwp2-x5xf # Alto's Fastify major has no patched release.
     - GHSA-8988-4f7v-96qf # Alto's OpenTelemetry major has no patched release.
+    - GHSA-w3rx-r6r6-pgpr # image-size has no published patched release.
     - GHSA-c96f-x56v-gq3h # Alto's Fastify major has no patched release.
     - GHSA-jx2c-rxcm-jvmq # Alto's Fastify major has no patched release.
     - GHSA-mrq3-vjjr-p77c # Alto's Fastify major has no patched release.
@@ -69,7 +71,7 @@ overrides:
   'mdast-util-to-hast@>=13.0.0 <13.2.1': '13.2.1'
   'micromatch@<4.0.8': '^4.0.8'
   minimatch: '>=10.2.3'
-  'nanoid@>=4.0.0 <5.0.9': '5.0.9'
+  'nanoid@>=4.0.0 <5.1.16': '5.1.16'
   'next@>=15.6.0-canary.0 <16.1.5': '>=16.1.5'
   'next@>=16.0.0-beta.0 <16.1.5': '>=16.1.5'
   'on-headers@<1.1.0': '1.1.0'

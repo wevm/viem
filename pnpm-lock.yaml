@@ -178,7 +178,7 @@ overrides:
   mdast-util-to-hast@>=13.0.0 <13.2.1: 13.2.1
   micromatch@<4.0.8: ^4.0.8
   minimatch: '>=10.2.3'
-  nanoid@>=4.0.0 <5.0.9: 5.0.9
+  nanoid@>=4.0.0 <5.1.16: 5.1.16
   next@>=15.6.0-canary.0 <16.1.5: '>=16.1.5'
   next@>=16.0.0-beta.0 <16.1.5: '>=16.1.5'
   on-headers@<1.1.0: 1.1.0
@@ -5881,18 +5881,8 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  nanoid@5.0.9:
-    resolution: {integrity: sha512-Aooyr6MXU6HpvvWXKoVoXwKMs/KyVakWwg7xQfv5/S/RIgJMy0Ifa45H9qqYy7pTCszrHzP21Uk4PZq2HpEM8Q==}
-    engines: {node: ^18 || >=20}
-    hasBin: true
-
-  nanoid@5.1.11:
-    resolution: {integrity: sha512-v+KEsUv2ps74PaSKv0gHTxTCgMXOIfBEbaqa6w6ISIGC7ZsvHN4N9oJ8d4cmf0n5oTzQz2SLmThbQWhjd/8eKg==}
-    engines: {node: ^18 || >=20}
-    hasBin: true
-
-  nanoid@5.1.5:
-    resolution: {integrity: sha512-Ir/+ZpE9fDsNH0hQ3C68uyThDXzYcim2EqcZ8zn8Chtt1iylPT9xXJB0kPCnqzgcEGikO9RxSrh63MsmVCU7Fw==}
+  nanoid@5.1.16:
+    resolution: {integrity: sha512-kVrnsrJqMR8+oLJnGEmSWw9BivK5mt7H3FZatVRjrc5wGqFYuBxX1yG7+A7Gi5AefkX6t/oCkizcQgpu0cY1dQ==}
     engines: {node: ^18 || >=20}
     hasBin: true
 
@@ -10119,7 +10109,7 @@ snapshots:
       fuse.js: 7.4.2
       js-base64: 3.8.1
       jsonc-parser: 3.3.1
-      nanoid: 5.1.11
+      nanoid: 5.1.16
       pretty-ms: 9.3.0
       radix-vue: 1.9.17(vue@3.5.39(typescript@5.9.3))
       set-cookie-parser: 3.1.0
@@ -10303,21 +10293,21 @@ snapshots:
 
   '@scalar/themes@0.16.2':
     dependencies:
-      nanoid: 5.1.11
+      nanoid: 5.1.16
 
   '@scalar/typebox@0.1.3': {}
 
   '@scalar/types@0.15.0':
     dependencies:
       '@scalar/helpers': 0.8.2
-      nanoid: 5.1.11
+      nanoid: 5.1.16
       type-fest: 5.8.0
       zod: 4.4.3
 
   '@scalar/types@0.16.2':
     dependencies:
       '@scalar/helpers': 0.9.0
-      nanoid: 5.1.11
+      nanoid: 5.1.16
       type-fest: 5.8.0
       zod: 4.4.3
 
@@ -10629,7 +10619,7 @@ snapshots:
 
   '@size-limit/webpack@12.1.0(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.23)(size-limit@12.1.0(jiti@2.7.0))':
     dependencies:
-      nanoid: 5.1.11
+      nanoid: 5.1.16
       size-limit: 12.1.0(jiti@2.7.0)
       webpack: 5.107.2(esbuild@0.27.2)(lightningcss@1.32.0)(postcss@8.5.23)
     transitivePeerDependencies:
@@ -12179,7 +12169,7 @@ snapshots:
       '@sitespeed.io/tracium': 0.3.3(supports-color@8.1.1)
       commander: 12.0.0
       find-chrome-bin: 2.0.4(supports-color@8.1.1)
-      nanoid: 5.1.5
+      nanoid: 5.1.16
       puppeteer-core: 24.22.0(supports-color@8.1.1)
     transitivePeerDependencies:
       - bare-buffer
@@ -13805,11 +13795,7 @@ snapshots:
 
   nanoid@3.3.17: {}
 
-  nanoid@5.0.9: {}
-
-  nanoid@5.1.11: {}
-
-  nanoid@5.1.5: {}
+  nanoid@5.1.16: {}
 
   nanospinner@1.2.2:
     dependencies:
@@ -14520,7 +14506,7 @@ snapshots:
       aria-hidden: 1.2.6
       defu: 6.1.7
       fast-deep-equal: 3.1.3
-      nanoid: 5.0.9
+      nanoid: 5.1.16
       vue: 3.5.39(typescript@5.9.3)
     transitivePeerDependencies:
       - '@vue/composition-api'
