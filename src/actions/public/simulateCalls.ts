@@ -247,8 +247,8 @@ export async function simulateCalls<
 
   // Discover ERC20/721 addresses the calls move assets in. Simulating the batch as a
   // whole is what makes this correct: the calls run sequentially, with the caller's
-  // state overrides, at the requested block. The access list pass is supplementary and
-  // runs concurrently, so it costs no additional latency.
+  // state overrides, on the same base block the results are measured against. The access
+  // list pass is supplementary and runs concurrently, so it costs no additional latency.
   const discovery = traceAssetChanges
     ? await Promise.all([
         simulateBlocks(client, {
