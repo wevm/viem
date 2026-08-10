@@ -7,94 +7,94 @@ export {
   transactionContextAbi,
 } from './abis.js'
 export {
-  type To8130AccountParameters,
-  type To8130AccountReturnType,
-  to8130Account,
-  type NewSmartAccount8130Parameters,
-  type NewSmartAccount8130ReturnType,
-  newSmartAccount8130,
-  type ToEoa8130AccountReturnType,
-  toEoa8130Account,
-  type ToDelegate8130SignerParameters,
-  toDelegate8130Signer,
   delegateAuthSize,
-} from './accounts/to8130Account.js'
+  type NewSmartAccountParameters,
+  type NewSmartAccountReturnType,
+  newSmartAccount,
+  type ToAccountParameters,
+  type ToAccountReturnType,
+  type ToDelegateSignerParameters,
+  type ToEoaAccountReturnType,
+  toAccount,
+  toDelegateSigner,
+  toEoaAccount,
+} from './accounts/toAccount.js'
 export {
   type Eip8130SmartAccountImplementation,
-  type ToSmartAccount8130Parameters,
-  type ToSmartAccount8130ReturnType,
-  toSmartAccount8130,
-} from './accounts/toSmartAccount8130.js'
+  type ToSmartAccountParameters,
+  type ToSmartAccountReturnType,
+  toSmartAccount,
+} from './accounts/toSmartAccount.js'
 export {
-  type EstimateGas8130Parameters,
-  type EstimateGas8130ReturnType,
-  estimateGas8130,
-} from './actions/estimateGas8130.js'
+  type EstimateGasParameters,
+  type EstimateGasReturnType,
+  estimateGas,
+} from './actions/estimateGas.js'
 export {
-  type GetActorConfig8130Parameters,
-  type GetActorConfig8130ReturnType,
-  getActorConfig8130,
-} from './actions/getActorConfig8130.js'
+  type GetActorConfigParameters,
+  type GetActorConfigReturnType,
+  getActorConfig,
+} from './actions/getActorConfig.js'
 export {
-  type GetConfigSequence8130Parameters,
-  type GetConfigSequence8130ReturnType,
-  getConfigSequence8130,
-} from './actions/getConfigSequence8130.js'
+  type GetConfigSequenceParameters,
+  type GetConfigSequenceReturnType,
+  getConfigSequence,
+} from './actions/getConfigSequence.js'
 export {
-  type GetLockStatus8130Parameters,
-  type GetLockStatus8130ReturnType,
-  getLockStatus8130,
-} from './actions/getLockStatus8130.js'
+  type GetLockStatusParameters,
+  type GetLockStatusReturnType,
+  getLockStatus,
+} from './actions/getLockStatus.js'
 export {
-  type GetPolicy8130Parameters,
-  type GetPolicy8130ReturnType,
-  getPolicy8130,
-} from './actions/getPolicy8130.js'
+  type GetPolicyParameters,
+  type GetPolicyReturnType,
+  getPolicy,
+} from './actions/getPolicy.js'
 export {
-  type GetSessionSpend8130Parameters,
-  type GetSessionSpend8130ReturnType,
-  getSessionSpend8130,
-} from './actions/getSessionSpend8130.js'
+  type GetSessionSpendParameters,
+  type GetSessionSpendReturnType,
+  getSessionSpend,
+} from './actions/getSessionSpend.js'
 export {
-  type IsActor8130Parameters,
-  type IsActor8130ReturnType,
-  isActor8130,
-} from './actions/isActor8130.js'
+  type GetTransactionParameters,
+  type GetTransactionReturnType,
+  getTransaction,
+  type Transaction,
+} from './actions/getTransaction.js'
 export {
-  type IsLocked8130Parameters,
-  type IsLocked8130ReturnType,
-  isLocked8130,
-} from './actions/isLocked8130.js'
-export {
-  type GetTransactionCount8130Parameters,
-  type GetTransactionCount8130ReturnType,
-  getTransactionCount8130,
-} from './actions/getTransactionCount8130.js'
+  type GetTransactionCountParameters,
+  type GetTransactionCountReturnType,
+  getTransactionCount,
+} from './actions/getTransactionCount.js'
 export {
   allPhasesSucceeded,
-  type Eip8130ReceiptFields,
-  type GetTransactionReceipt8130Parameters,
-  type GetTransactionReceipt8130ReturnType,
-  getTransactionReceipt8130,
-  parseEip8130ReceiptFields,
-} from './actions/getTransactionReceipt8130.js'
+  type GetTransactionReceiptParameters,
+  type GetTransactionReceiptReturnType,
+  getTransactionReceipt,
+  parseReceiptFields,
+  type ReceiptFields,
+} from './actions/getTransactionReceipt.js'
 export {
-  type GetTransaction8130Parameters,
-  type GetTransaction8130ReturnType,
-  type Transaction8130,
-  getTransaction8130,
-} from './actions/getTransaction8130.js'
+  type IsActorParameters,
+  type IsActorReturnType,
+  isActor,
+} from './actions/isActor.js'
 export {
-  type WaitForTransactionReceipt8130Parameters,
-  type WaitForTransactionReceipt8130ReturnType,
-  waitForTransactionReceipt8130,
-} from './actions/waitForTransactionReceipt8130.js'
+  type IsLockedParameters,
+  type IsLockedReturnType,
+  isLocked,
+} from './actions/isLocked.js'
 export {
-  type PrepareTransaction8130Parameters,
-  prepareTransaction8130,
-  type SendCalls8130Parameters,
-  sendCalls8130,
+  type PrepareTransactionParameters,
+  prepareTransaction,
+  type SendCallsParameters,
+  sendCalls,
 } from './actions/sendCalls.js'
+export {
+  type WaitForTransactionReceiptParameters,
+  type WaitForTransactionReceiptReturnType,
+  waitForTransactionReceipt,
+} from './actions/waitForTransactionReceipt.js'
 export {
   eip8130ChainIds,
   type Is8130EnabledParameters,
@@ -109,14 +109,13 @@ export {
   accountChangeType,
   accountConfigAddress,
   accountStateFlags,
-  actorChangeType,
   actorScope,
   canonicalAuthDataLength,
   canonicalAuthenticators,
+  changeType,
   defaultAccountAddress,
   deploymentHeaderSize,
   ecrecoverAuthenticator,
-  lockOp,
   maxCodeSize,
   nonceFreeCost,
   nonceFreeExpiryWindow,
@@ -132,7 +131,6 @@ export {
   scopeUnrestricted,
   trustedExecutorAuthenticator,
   txContextAddress,
-  unlockOp,
 } from './constants.js'
 export {
   baseSepoliaDeployment,
@@ -143,14 +141,14 @@ export {
   vibenetDevnetDeployment,
 } from './deployments.js'
 export {
-  type ActorNotBoundErrorType,
   ActorNotBoundError,
-  type NonceScopeErrorType,
+  type ActorNotBoundErrorType,
   NonceScopeError,
-  type ScopeMismatchErrorType,
+  type NonceScopeErrorType,
   ScopeMismatchError,
-  type TransactionExpiredErrorType,
+  type ScopeMismatchErrorType,
   TransactionExpiredError,
+  type TransactionExpiredErrorType,
 } from './errors.js'
 export {
   type AuthorizeActorOptions,
@@ -164,14 +162,10 @@ export {
   toScope,
 } from './keys.js'
 export {
-  type HashLockChange8130Parameters,
-  hashLockChange8130,
-  type InitiateUnlockCallParameters,
-  initiateUnlockCall,
-  type LockCallParameters,
-  type LockChangeOp,
-  lockChangeTypehash,
-  lockCall,
+  type LockChangeParameters,
+  lockChange,
+  maxUnlockDelay,
+  unlockChange,
 } from './lock.js'
 export { type Nonce, nonce } from './nonce.js'
 export {
@@ -201,32 +195,36 @@ export type {
   AaAccountChangeCreate,
   AaAccountChangeDelegation,
   AaActor,
-  AaActorChange,
   AaAuthorizeActor,
   AaCall,
   AaCalls,
+  AaChange,
+  AaChangeChannel,
+  AaIncrementLocalEpoch,
+  AaLock,
   AaRevokeActor,
+  AaUnlock,
   TransactionSerializable8130,
   TransactionSerialized8130,
 } from './types/transaction.js'
 export {
-  type EncodeApplySignedActorChangesDataErrorType,
-  type EncodeApplySignedActorChangesDataParameters,
+  type EncodeApplySignedAccountChangesDataErrorType,
+  type EncodeApplySignedAccountChangesDataParameters,
   type EncodeCreateAccountDataErrorType,
   type EncodeCreateAccountDataParameters,
-  encodeApplySignedActorChangesData,
+  encodeApplySignedAccountChangesData,
   encodeCreateAccountData,
-  type ToFactoryArgs8130ErrorType,
-  type ToFactoryArgs8130Parameters,
-  type ToFactoryArgs8130ReturnType,
-  toFactoryArgs8130,
+  type ToFactoryArgsErrorType,
+  type ToFactoryArgsParameters,
+  type ToFactoryArgsReturnType,
+  toFactoryArgs,
 } from './utils/accountConfigCalls.js'
 export {
-  type DecodeAuthorizeActorDataErrorType,
-  type DecodedAuthorizeActorData,
-  decodeAuthorizeActorData,
-  type EncodeActorChangeDataErrorType,
-  encodeActorChangeData,
+  type DecodeAuthorizeActorPayloadErrorType,
+  type DecodedAuthorizeActorPayload,
+  decodeAuthorizeActorPayload,
+  type EncodeChangePayloadErrorType,
+  encodeChangePayload,
 } from './utils/actorChangeData.js'
 export {
   type ActorIdFromAddressErrorType,
@@ -235,13 +233,13 @@ export {
   actorIdFromPublicKey,
 } from './utils/actorId.js'
 export {
-  type AssertTransaction8130ErrorType,
-  assertTransaction8130,
+  type AssertTransactionErrorType,
+  assertTransaction,
 } from './utils/assertTransaction.js'
 export {
-  type ComputeAddress8130ErrorType,
-  type ComputeAddress8130Parameters,
-  computeAddress8130,
+  type ComputeAddressErrorType,
+  type ComputeAddressParameters,
+  computeAddress,
   deploymentHeader,
 } from './utils/computeAddress.js'
 export {
@@ -251,41 +249,41 @@ export {
   encodeWalletCalls,
 } from './utils/encodeWalletCalls.js'
 export {
-  actorChangeTypehash,
-  type HashActorChanges8130ErrorType,
-  type HashActorChanges8130Parameters,
-  hashActorChanges8130,
-  signedActorChangesTypehash,
+  accountChangeTypehash,
+  type HashAccountChangesErrorType,
+  type HashAccountChangesParameters,
+  hashAccountChanges,
+  signedAccountChangesTypehash,
 } from './utils/hashActorChanges.js'
 export {
-  type GetPayerSignatureHash8130ErrorType,
-  type GetSenderSignatureHash8130ErrorType,
-  type GetSignatureHash8130Parameters,
-  type GetSignatureHash8130ReturnType,
-  getPayerSignatureHash8130,
-  getSenderSignatureHash8130,
+  type GetPayerSignatureHashErrorType,
+  type GetSenderSignatureHashErrorType,
+  type GetSignatureHashParameters,
+  type GetSignatureHashReturnType,
+  getPayerSignatureHash,
+  getSenderSignatureHash,
 } from './utils/hashTransaction.js'
 export {
-  type ParseTransaction8130ErrorType,
-  parseTransaction8130,
+  type ParseTransactionErrorType,
+  parseTransaction,
 } from './utils/parseTransaction.js'
 export { erc1167Bytecode, upgradeableProxyBytecode } from './utils/proxy.js'
 export {
-  type RecoverSenderAddress8130ErrorType,
-  type RecoverSenderAddress8130Parameters,
-  recoverSenderAddress8130,
+  type RecoverSenderAddressErrorType,
+  type RecoverSenderAddressParameters,
+  recoverSenderAddress,
 } from './utils/recoverSender.js'
 export {
-  type SerializeTransaction8130ErrorType,
-  serializeTransaction8130,
+  type SerializeTransactionErrorType,
+  serializeTransaction,
   toAccountChangesList,
   toCallsList,
   toTransactionBody,
 } from './utils/serializeTransaction.js'
 export {
-  type SignActorChanges8130ErrorType,
-  type SignActorChanges8130Parameters,
-  signActorChanges8130,
+  type SignAccountChangesErrorType,
+  type SignAccountChangesParameters,
+  signAccountChanges,
 } from './utils/signActorChanges.js'
 export {
   type EncodeSignedActorChangesSignatureErrorType,
@@ -302,7 +300,7 @@ export {
 } from './utils/signers.js'
 export {
   type Signer,
-  type SignTransaction8130ErrorType,
-  type SignTransaction8130Parameters,
-  signTransaction8130,
+  type SignTransactionErrorType,
+  type SignTransactionParameters,
+  signTransaction,
 } from './utils/signTransaction.js'

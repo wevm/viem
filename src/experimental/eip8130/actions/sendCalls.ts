@@ -7,7 +7,7 @@ import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import { getAction } from '../../../utils/getAction.js'
-import type { To8130AccountReturnType } from '../accounts/to8130Account.js'
+import type { ToAccountReturnType } from '../accounts/toAccount.js'
 import { nonceFreeMaxExpiryWindow, nonceKeyMax } from '../constants.js'
 import { NonceScopeError, ScopeMismatchError } from '../errors.js'
 import { isNoncelessOnly } from '../keys.js'
@@ -17,19 +17,22 @@ import type {
   AaCalls,
   TransactionSerializable8130,
 } from '../types/transaction.js'
-import { type EncodeExecute, encodeWalletCalls } from '../utils/encodeWalletCalls.js'
+import {
+  type EncodeExecute,
+  encodeWalletCalls,
+} from '../utils/encodeWalletCalls.js'
 import type { Signer } from '../utils/signTransaction.js'
-import { getActorConfig8130 } from './getActorConfig8130.js'
-import { getTransactionCount8130 } from './getTransactionCount8130.js'
-import { isActor8130 } from './isActor8130.js'
+import { getActorConfig } from './getActorConfig.js'
+import { getTransactionCount } from './getTransactionCount.js'
+import { isActor } from './isActor.js'
 
 type FeeOverrides = {
   maxFeePerGas?: bigint | undefined
   maxPriorityFeePerGas?: bigint | undefined
 }
 
-export type PrepareTransaction8130Parameters = FeeOverrides & {
-  account: To8130AccountReturnType
+export type PrepareTransactionParameters = FeeOverrides & {
+  account: ToAccountReturnType
   /** Ordered call phases. */
   calls: AaCalls
   accountChanges?: readonly AaAccountChange[] | undefined
@@ -38,7 +41,10 @@ export type PrepareTransaction8130Parameters = FeeOverrides & {
   gas: bigint
   nonceKey?: bigint | undefined
   nonceSequence?: bigint | undefined
-  expiry?: bigint | undefined
+  /** Lower validity bound (unix ms; 0/omitted = none). */
+  validAfter?: bigint | undefined
+  /** Upper validity bound (unix ms; required non-zero in nonce-free mode). */
+  validBefore?: bigint | undefined
   /**
    * Attribution / opaque suffix. Written to the EIP-8130 `metadata` field
    * (not appended to call calldata). Takes precedence over `client.dataSuffix`.
@@ -53,20 +59,20 @@ export type PrepareTransaction8130Parameters = FeeOverrides & {
  */
 async function resolveSigningScope(
   client: Client<Transport, Chain | undefined, Account | undefined>,
-  account: To8130AccountReturnType,
+  account: ToAccountReturnType,
 ): Promise<number | undefined> {
   const { actorId, scope: declared } = account
   if (!actorId) return declared
 
   const accountConfiguration = account.accountConfigAddress
-  const bound = await isActor8130(client, {
+  const bound = await isActor(client, {
     account: account.address,
     actorId,
     ...(accountConfiguration ? { accountConfiguration } : {}),
   })
   if (!bound) return declared
 
-  const { scope: onChain } = await getActorConfig8130(client, {
+  const { scope: onChain } = await getActorConfig(client, {
     account: account.address,
     actorId,
     ...(accountConfiguration ? { accountConfiguration } : {}),
@@ -82,9 +88,9 @@ async function resolveSigningScope(
  * `eth_getTransactionCount`'s 2D channel-nonce extension), and EIP-1559 fees
  * from the client when not provided.
  */
-export async function prepareTransaction8130(
+export async function prepareTransaction(
   client: Client<Transport, Chain | undefined, Account | undefined>,
-  parameters: PrepareTransaction8130Parameters,
+  parameters: PrepareTransactionParameters,
 ): Promise<TransactionSerializable8130> {
   const { account, calls, accountChanges, payer, gas } = parameters
 
@@ -116,7 +122,7 @@ export async function prepareTransaction8130(
     nonceKey ??= 0n
   }
 
-  let expiry = parameters.expiry
+  let validBefore = parameters.validBefore
 
   let { maxFeePerGas, maxPriorityFeePerGas } = parameters
   if (maxFeePerGas === undefined || maxPriorityFeePerGas === undefined) {
@@ -133,12 +139,12 @@ export async function prepareTransaction8130(
   let nonceSequence = parameters.nonceSequence
   if (nonceKey === nonceKeyMax) {
     // Nonce-free (expiring) mode: there is no per-channel counter to read;
-    // replay protection relies on `expiry`. Pin the sequence to `0n`.
-    // Default the expiry to the mempool admission window when the caller did
-    // not supply one — whether nonce-free was auto-selected (restricted actor)
-    // or explicitly chosen (admin / `SCOPE_NONCE` actor opting in).
-    if (!expiry || expiry === 0n)
-      expiry = BigInt(Math.floor(Date.now() / 1000)) + nonceFreeMaxExpiryWindow
+    // replay protection relies on `validBefore`. Pin the sequence to `0n`.
+    // Default `validBefore` to the mempool admission window (unix ms) when the
+    // caller did not supply one — whether nonce-free was auto-selected
+    // (restricted actor) or explicitly chosen (admin / `SCOPE_NONCE` opting in).
+    if (!validBefore || validBefore === 0n)
+      validBefore = BigInt(Date.now()) + nonceFreeMaxExpiryWindow
     nonceSequence ??= 0n
   } else if (nonceSequence === undefined) {
     // Read the next sequence via `eth_getTransactionCount` (with the 2D
@@ -146,8 +152,8 @@ export async function prepareTransaction8130(
     // `eth_call`, so this RPC path is the correct nonce source.
     nonceSequence = await getAction(
       client,
-      getTransactionCount8130,
-      'getTransactionCount8130',
+      getTransactionCount,
+      'getTransactionCount',
     )({ address: account.address, nonceKey })
   }
 
@@ -159,7 +165,7 @@ export async function prepareTransaction8130(
     maxFeePerGas,
     maxPriorityFeePerGas,
     gas,
-    expiry,
+    validBefore,
     accountChanges,
     calls,
     ...(dataSuffix ? { metadata: dataSuffix } : {}),
@@ -167,8 +173,8 @@ export async function prepareTransaction8130(
   }
 }
 
-export type SendCalls8130Parameters = FeeOverrides & {
-  account: To8130AccountReturnType
+export type SendCallsParameters = FeeOverrides & {
+  account: ToAccountReturnType
   /**
    * Calls to execute. A flat list runs as a single atomic phase; pass a nested
    * array to control phases explicitly.
@@ -179,7 +185,10 @@ export type SendCalls8130Parameters = FeeOverrides & {
   gas: bigint
   nonceKey?: bigint | undefined
   nonceSequence?: bigint | undefined
-  expiry?: bigint | undefined
+  /** Lower validity bound (unix ms; 0/omitted = none). */
+  validAfter?: bigint | undefined
+  /** Upper validity bound (unix ms; required non-zero in nonce-free mode). */
+  validBefore?: bigint | undefined
   /**
    * Attribution / opaque suffix. Written to the EIP-8130 `metadata` field
    * (not appended to call calldata). Takes precedence over `client.dataSuffix`.
@@ -193,16 +202,16 @@ export type SendCalls8130Parameters = FeeOverrides & {
   encodeExecute?: EncodeExecute | undefined
   /**
    * Invoked with the fully-resolved transaction just before it is signed and
-   * sent. Use it to thread the resolved `expiry` (which may be auto-computed for
-   * nonce-free sends) into `waitForTransactionReceipt8130` without re-preparing:
+   * sent. Use it to thread the resolved `validBefore` (which may be auto-computed
+   * for nonce-free sends) into `waitForTransactionReceipt` without re-preparing:
    *
    * ```ts
-   * let expiry: bigint | undefined
-   * const hash = await sendCalls8130(client, {
+   * let validBefore: bigint | undefined
+   * const hash = await sendCalls(client, {
    *   ...params,
-   *   onTransaction: (tx) => { expiry = tx.expiry },
+   *   onTransaction: (tx) => { validBefore = tx.validBefore },
    * })
-   * await waitForTransactionReceipt8130(client, { hash, expiry })
+   * await waitForTransactionReceipt(client, { hash, validBefore })
    * ```
    */
   onTransaction?:
@@ -210,7 +219,7 @@ export type SendCalls8130Parameters = FeeOverrides & {
     | undefined
 }
 
-function toPhases(calls: SendCalls8130Parameters['calls']): AaCalls {
+function toPhases(calls: SendCallsParameters['calls']): AaCalls {
   if (calls.length === 0) return []
   // Already phased (array of arrays)?
   if (Array.isArray(calls[0])) return calls as AaCalls
@@ -223,19 +232,19 @@ function toPhases(calls: SendCalls8130Parameters['calls']): AaCalls {
  * serializes, and submits via `eth_sendRawTransaction`.
  *
  * @example
- * const hash = await sendCalls8130(client, {
+ * const hash = await sendCalls(client, {
  *   account,
  *   calls: [{ to, data }],
  *   gas: 200_000n,
  * })
  */
-export async function sendCalls8130(
+export async function sendCalls(
   client: Client<Transport, Chain | undefined, Account | undefined>,
-  parameters: SendCalls8130Parameters,
+  parameters: SendCallsParameters,
 ): Promise<Hex> {
   const { account, calls, payer, encodeExecute, onTransaction, ...rest } =
     parameters
-  const transaction = await prepareTransaction8130(client, {
+  const transaction = await prepareTransaction(client, {
     ...rest,
     account,
     calls: encodeWalletCalls({

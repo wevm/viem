@@ -2,6 +2,7 @@ import type { Address } from 'abitype'
 import { BaseError } from '../../../errors/base.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Hex } from '../../../types/misc.js'
+import { decodeAbiParameters } from '../../../utils/abi/decodeAbiParameters.js'
 import { type SliceErrorType, sliceHex } from '../../../utils/data/slice.js'
 import {
   type HexToBigIntErrorType,
@@ -17,18 +18,18 @@ import type { RecursiveArray } from '../../../utils/encoding/toRlp.js'
 import {
   aaTransactionType,
   accountChangeType,
-  actorChangeType,
+  changeType,
 } from '../constants.js'
 import type {
   AaAccountChange,
   AaActor,
-  AaActorChange,
   AaCalls,
+  AaChange,
   TransactionSerializable8130,
 } from '../types/transaction.js'
-import { decodeAuthorizeActorData } from './actorChangeData.js'
+import { decodeAuthorizeActorPayload } from './actorChangeData.js'
 
-export type ParseTransaction8130ErrorType =
+export type ParseTransactionErrorType =
   | SliceErrorType
   | FromRlpErrorType
   | HexToBigIntErrorType
@@ -64,14 +65,14 @@ function parseActor(value: RlpHex): AaActor {
   return actor
 }
 
-function parseActorChange(value: RlpHex): AaActorChange {
-  const [changeType, actorId, data] = value as [Hex, Hex, Hex]
-  const type = changeType === '0x' ? 0 : hexToNumber(changeType)
-  if (type === actorChangeType.authorizeActor) {
-    const { authenticator, scope, expiry, policyData } =
-      decodeAuthorizeActorData(data)
-    const change: AaActorChange = {
-      changeType: actorChangeType.authorizeActor,
+function parseChange(value: RlpHex): AaChange {
+  const [opByte, payload] = value as [Hex, Hex]
+  const type = opByte === '0x' ? 0 : hexToNumber(opByte)
+  if (type === changeType.authorizeActor) {
+    const { actorId, authenticator, scope, expiry, policyData } =
+      decodeAuthorizeActorPayload(payload)
+    const change: AaChange = {
+      changeType: changeType.authorizeActor,
       actorId,
       authenticator,
     }
@@ -80,7 +81,16 @@ function parseActorChange(value: RlpHex): AaActorChange {
     if (policyData !== '0x') change.policyData = policyData
     return change
   }
-  return { changeType: actorChangeType.revokeActor, actorId }
+  if (type === changeType.revokeActor) {
+    const [actorId] = decodeAbiParameters([{ type: 'bytes32' }], payload)
+    return { changeType: changeType.revokeActor, actorId }
+  }
+  if (type === changeType.lock) {
+    const [unlockDelay] = decodeAbiParameters([{ type: 'uint16' }], payload)
+    return { changeType: changeType.lock, unlockDelay }
+  }
+  if (type === changeType.unlock) return { changeType: changeType.unlock }
+  return { changeType: changeType.incrementLocalEpoch }
 }
 
 function parseAccountChanges(value: RlpHex): readonly AaAccountChange[] {
@@ -103,13 +113,14 @@ function parseAccountChanges(value: RlpHex): readonly AaAccountChange[] {
       continue
     }
     if (type === accountChangeType.config) {
-      const [chainId, sequence, actorChanges, auth] = body
+      const [channel, sequence, changes, signature] = body
       result.push({
         type: 'config',
-        chainId: chainId === '0x' ? 0 : hexToNumber(chainId as Hex),
-        sequence: sequence === '0x' ? 0 : hexToNumber(sequence as Hex),
-        actorChanges: (actorChanges as RlpHex[]).map(parseActorChange),
-        auth: auth as Hex,
+        channel: (channel as Hex) === '0x01' ? 'multichain' : 'local',
+        sequence:
+          (sequence as Hex) === '0x' ? 0n : hexToBigInt(sequence as Hex),
+        changes: (changes as RlpHex[]).map(parseChange),
+        signature: signature as Hex,
       })
       continue
     }
@@ -127,9 +138,7 @@ function parseAccountChanges(value: RlpHex): readonly AaAccountChange[] {
  * Parses a serialized EIP-8130 (`AA_TX_TYPE`) transaction back into a
  * {@link TransactionSerializable8130}.
  */
-export function parseTransaction8130(
-  serialized: Hex,
-): TransactionSerializable8130 {
+export function parseTransaction(serialized: Hex): TransactionSerializable8130 {
   const type = sliceHex(serialized, 0, 1)
   if (type !== aaTransactionType)
     throw new BaseError(
@@ -142,7 +151,8 @@ export function parseTransaction8130(
     from,
     nonceKey,
     nonceSequence,
-    expiry,
+    validAfter,
+    validBefore,
     maxPriorityFeePerGas,
     maxFeePerGas,
     gas,
@@ -165,8 +175,10 @@ export function parseTransaction8130(
   const nonceSequenceValue = toOptionalBigInt(nonceSequence as Hex)
   if (nonceSequenceValue !== undefined)
     transaction.nonceSequence = nonceSequenceValue
-  const expiryValue = toOptionalBigInt(expiry as Hex)
-  if (expiryValue !== undefined) transaction.expiry = expiryValue
+  const validAfterValue = toOptionalBigInt(validAfter as Hex)
+  if (validAfterValue !== undefined) transaction.validAfter = validAfterValue
+  const validBeforeValue = toOptionalBigInt(validBefore as Hex)
+  if (validBeforeValue !== undefined) transaction.validBefore = validBeforeValue
   const maxPriorityFeePerGasValue = toOptionalBigInt(
     maxPriorityFeePerGas as Hex,
   )

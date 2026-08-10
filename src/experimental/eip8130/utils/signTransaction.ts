@@ -12,14 +12,14 @@ import type {
   TransactionSerialized8130,
 } from '../types/transaction.js'
 import {
-  type GetPayerSignatureHash8130ErrorType,
-  type GetSenderSignatureHash8130ErrorType,
-  getPayerSignatureHash8130,
-  getSenderSignatureHash8130,
+  type GetPayerSignatureHashErrorType,
+  type GetSenderSignatureHashErrorType,
+  getPayerSignatureHash,
+  getSenderSignatureHash,
 } from './hashTransaction.js'
 import {
-  type SerializeTransaction8130ErrorType,
-  serializeTransaction8130,
+  type SerializeTransactionErrorType,
+  serializeTransaction,
 } from './serializeTransaction.js'
 
 /**
@@ -43,7 +43,7 @@ export type Signer = Pick<LocalAccount, 'address'> & {
   authenticator?: Address | undefined
 }
 
-export type SignTransaction8130Parameters = {
+export type SignTransactionParameters = {
   transaction: TransactionSerializable8130
   /**
    * Sender signer (secp256k1). Used to produce `sender_auth` over the sender
@@ -80,10 +80,10 @@ export type SignTransaction8130Parameters = {
     | undefined
 }
 
-export type SignTransaction8130ErrorType =
-  | GetSenderSignatureHash8130ErrorType
-  | GetPayerSignatureHash8130ErrorType
-  | SerializeTransaction8130ErrorType
+export type SignTransactionErrorType =
+  | GetSenderSignatureHashErrorType
+  | GetPayerSignatureHashErrorType
+  | SerializeTransactionErrorType
   | ConcatHexErrorType
   | ErrorType
 
@@ -98,8 +98,8 @@ export type SignTransaction8130ErrorType =
  * authenticator-specific `data`. Presetting `transaction.senderAuth` /
  * `transaction.payerAuth` skips the corresponding signer entirely.
  */
-export async function signTransaction8130(
-  parameters: SignTransaction8130Parameters,
+export async function signTransaction(
+  parameters: SignTransactionParameters,
 ): Promise<TransactionSerialized8130> {
   const { account, payer } = parameters
   const transaction: TransactionSerializable8130 = { ...parameters.transaction }
@@ -111,8 +111,10 @@ export async function signTransaction8130(
         'A sender `account` with raw signing support, or a preset `transaction.senderAuth`, is required.',
       )
     const authenticator =
-      parameters.authenticator ?? account.authenticator ?? ecrecoverAuthenticator
-    const senderHash = getSenderSignatureHash8130(transaction)
+      parameters.authenticator ??
+      account.authenticator ??
+      ecrecoverAuthenticator
+    const senderHash = getSenderSignatureHash(transaction)
     const signature = await account.sign({ hash: senderHash })
     transaction.senderAuth = transaction.from
       ? // Configured actor: AUTHENTICATOR || data
@@ -137,10 +139,10 @@ export async function signTransaction8130(
       ecrecoverAuthenticator
     // The payer hash MUST bind to the resolved sender address.
     const from = transaction.from ?? account?.address
-    const payerHash = getPayerSignatureHash8130({ ...transaction, from })
+    const payerHash = getPayerSignatureHash({ ...transaction, from })
     const signature = await payer.account.sign({ hash: payerHash })
     transaction.payerAuth = concatHex([authenticator, signature])
   }
 
-  return serializeTransaction8130(transaction)
+  return serializeTransaction(transaction)
 }

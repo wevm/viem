@@ -4,7 +4,7 @@ description: Create an EIP-8130 smart account from a secp256k1, P-256, or WebAut
 
 # Creating an Account
 
-`newSmartAccount8130` turns a signer into an EIP-8130 smart account. It auto-derives the controlling actor, the deployment bytecode, and the counterfactual CREATE2 address. The account is **not** deployed yet — it is deployed atomically inside its [first transaction](/experimental/eip8130/sending-a-transaction#deploy-on-first-use).
+`newSmartAccount` turns a signer into an EIP-8130 smart account. It auto-derives the controlling actor, the deployment bytecode, and the counterfactual CREATE2 address. The account is **not** deployed yet — it is deployed atomically inside its [first transaction](/experimental/eip8130/sending-a-transaction#deploy-on-first-use).
 
 By default the account is an **`UpgradeableAccount`** deployed behind an ERC-1967 `UpgradeableProxy`, so its implementation can later be swapped via a CONFIG-key-signed `upgradeBySignature`. Pass `upgradeable: false` to deploy an immutable `DefaultHighRateAccount` behind a 45-byte ERC-1167 proxy instead.
 
@@ -14,11 +14,11 @@ The signer type (K1 / P-256 / WebAuthn) is detected automatically.
 
 ```ts
 import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
-import { newSmartAccount8130 } from 'viem/experimental/eip8130'
+import { newSmartAccount } from 'viem/experimental/eip8130'
 
 const owner = privateKeyToAccount(generatePrivateKey())
 
-const account = newSmartAccount8130({ signer: owner })
+const account = newSmartAccount({ signer: owner })
 
 account.address        // counterfactual address (deterministic from the salt)
 account.createChange   // include in `accountChanges` to deploy on first use
@@ -28,9 +28,9 @@ Pass a fixed `salt` to recover the same address across sessions:
 
 ```ts
 import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
-import { newSmartAccount8130 } from 'viem/experimental/eip8130'
+import { newSmartAccount } from 'viem/experimental/eip8130'
 const owner = privateKeyToAccount(generatePrivateKey())
-const account = newSmartAccount8130({
+const account = newSmartAccount({
   signer: owner,
   salt: '0x0000000000000000000000000000000000000000000000000000000000000001',
 })
@@ -40,23 +40,23 @@ const account = newSmartAccount8130({
 
 ```ts
 import * as P256 from 'ox/P256'
-import { newSmartAccount8130, toP256Signer } from 'viem/experimental/eip8130'
+import { newSmartAccount, toP256Signer } from 'viem/experimental/eip8130'
 
 const signer = toP256Signer({ privateKey: P256.randomPrivateKey() })
 
-const account = newSmartAccount8130({ signer })
+const account = newSmartAccount({ signer })
 ```
 
 ## WebAuthn / passkey
 
 ```ts
 import { createWebAuthnCredential, toWebAuthnAccount } from 'viem/account-abstraction'
-import { newSmartAccount8130, toWebAuthnSigner } from 'viem/experimental/eip8130'
+import { newSmartAccount, toWebAuthnSigner } from 'viem/experimental/eip8130'
 
 const credential = await createWebAuthnCredential({ name: 'vibes' })
 const signer = toWebAuthnSigner(toWebAuthnAccount({ credential }))
 
-const account = newSmartAccount8130({ signer })
+const account = newSmartAccount({ signer })
 ```
 
 ## Multiple initial keys
@@ -65,13 +65,13 @@ Register additional actors at creation with `extraActors`. Use the [`key`](/expe
 
 ```ts
 import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
-import { key, newSmartAccount8130, toP256Signer } from 'viem/experimental/eip8130'
+import { key, newSmartAccount, toP256Signer } from 'viem/experimental/eip8130'
 import * as P256 from 'ox/P256'
 
 const owner = privateKeyToAccount(generatePrivateKey())
 const p256 = toP256Signer({ privateKey: P256.randomPrivateKey() })
 
-const account = newSmartAccount8130({
+const account = newSmartAccount({
   signer: owner,
   extraActors: [key.p256(p256.publicKey)],
 })
@@ -79,13 +79,13 @@ const account = newSmartAccount8130({
 
 ## Plain / delegated EOAs
 
-To use a raw secp256k1 EOA as its own account (cheapest auth path — a bare 65-byte signature, no contract required), use `toEoa8130Account`. The same account can later be upgraded to a smart account via an EIP-7702 delegation in its first transaction.
+To use a raw secp256k1 EOA as its own account (cheapest auth path — a bare 65-byte signature, no contract required), use `toEoaAccount`. The same account can later be upgraded to a smart account via an EIP-7702 delegation in its first transaction.
 
 ```ts
 import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
-import { toEoa8130Account } from 'viem/experimental/eip8130'
+import { toEoaAccount } from 'viem/experimental/eip8130'
 
-const account = toEoa8130Account(privateKeyToAccount(generatePrivateKey()))
+const account = toEoaAccount(privateKeyToAccount(generatePrivateKey()))
 
 // Later, install smart-account code with `account.delegate(impl)` in the first
 // transaction's `accountChanges`.
@@ -99,9 +99,9 @@ The same EIP-8130 account works on chains **without** native 8130 support throug
 
 ```ts
 import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
-import { canonicalEip8130Deployment, toSmartAccount8130 } from 'viem/experimental/eip8130'
+import { canonicalEip8130Deployment, toSmartAccount } from 'viem/experimental/eip8130'
 
-const account = await toSmartAccount8130({
+const account = await toSmartAccount({
   client,
   owner: privateKeyToAccount(generatePrivateKey()),
   userSalt: '0x0000000000000000000000000000000000000000000000000000000000000001',

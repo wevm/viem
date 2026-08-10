@@ -8,11 +8,11 @@ import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import { accountConfigurationAbi } from '../abis.js'
 import {
-  accountConfigAddress as defaultAccountConfigAddress,
   actorScope,
+  accountConfigAddress as defaultAccountConfigAddress,
 } from '../constants.js'
 
-export type GetActorConfig8130Parameters = {
+export type GetActorConfigParameters = {
   /** The account whose actor to read. */
   account: Address
   /** The 32-byte actor identifier (see `key.*(...).actorId`). */
@@ -24,7 +24,7 @@ export type GetActorConfig8130Parameters = {
   accountConfiguration?: Address | undefined
 }
 
-export type GetActorConfig8130ReturnType = {
+export type GetActorConfigReturnType = {
   /** Authenticator contract address (or protocol sentinel) for the actor. */
   authenticator: Address
   /** Permission bitmask (see `actorScope`). `0` = unrestricted. */
@@ -42,9 +42,9 @@ export type GetActorConfig8130ReturnType = {
  *
  * @example
  * ```ts
- * import { getActorConfig8130, key } from 'viem/experimental/eip8130'
+ * import { getActorConfig, key } from 'viem/experimental/eip8130'
  *
- * const config = await getActorConfig8130(client, {
+ * const config = await getActorConfig(client, {
  *   account: account.address,
  *   actorId: key.p256({ x, y }).actorId,
  * })
@@ -54,13 +54,13 @@ export type GetActorConfig8130ReturnType = {
  * @param parameters - Parameters.
  * @returns The actor's configuration.
  */
-export async function getActorConfig8130<
+export async function getActorConfig<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: GetActorConfig8130Parameters,
-): Promise<GetActorConfig8130ReturnType> {
+  parameters: GetActorConfigParameters,
+): Promise<GetActorConfigReturnType> {
   const {
     account,
     actorId,

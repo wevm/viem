@@ -29,22 +29,24 @@ export const nonceKeyExistingCost = 5000n
 /**
  * Domain-separation prefix for the nonce-free `replay_id` preimage
  * (`REPLAY_ID_TYPE`): `keccak256(REPLAY_ID_TYPE || rlp([chain_id,
- * resolved_sender, expiry, account_changes, calls, metadata, payer]))`.
+ * resolved_sender, valid_after, valid_before, account_changes, calls, metadata,
+ * payer]))`.
  */
 export const replayIdType = '0x7901' satisfies Hex
 
 /**
- * Consensus/execution replay window (seconds) for nonce-free transactions
- * (`NONCE_FREE_EXPIRY_WINDOW`). A nonce-free tx's `expiry` must fall within
- * `(now, now + NONCE_FREE_EXPIRY_WINDOW]`.
+ * Consensus/execution replay window (**milliseconds**) for nonce-free
+ * transactions (`NONCE_FREE_EXPIRY_WINDOW`). A nonce-free tx's `validBefore`
+ * must fall within `(now, now + NONCE_FREE_EXPIRY_WINDOW]`, where `now` is
+ * `block.timestamp * 1000`.
  */
-export const nonceFreeExpiryWindow = 30n
+export const nonceFreeExpiryWindow = 30000n
 
 /**
- * Mempool-admission cap (seconds) on a nonce-free tx's `expiry` window
- * (`NONCE_FREE_MAX_EXPIRY_WINDOW`); tighter than the consensus window.
+ * Mempool-admission cap (**milliseconds**) on a nonce-free tx's `validBefore`
+ * window (`NONCE_FREE_MAX_EXPIRY_WINDOW`); tighter than the consensus window.
  */
-export const nonceFreeMaxExpiryWindow = 10n
+export const nonceFreeMaxExpiryWindow = 20000n
 
 /** Enshrined nonce-free replay ring-buffer capacity (`REPLAY_BUFFER_CAPACITY`). */
 export const replayBufferCapacity = 300000n
@@ -63,11 +65,23 @@ export const accountChangeType = {
 } as const satisfies Record<string, Hex>
 
 /**
- * Actor change operation types used within a config-change entry.
+ * `ChangeType` operations within a `SignedAccountChanges` batch (the `config`
+ * account-change entry). Mirrors `Keystore.ChangeType`; the value is the wire op
+ * byte hashed into the batch digest.
+ *
+ * - `authorizeActor` / `revokeActor`: authority ops (mutate who can act).
+ * - `incrementLocalEpoch`: bump the local epoch (either channel; empty payload).
+ * - `lock` / `unlock`: environment ops, Local-channel only and must be the
+ *   batch's only op. NOTE: the enshrined node currently defers `lock`/`unlock`
+ *   (a batch carrying one is rejected), so they are contract-accurate but not
+ *   yet accepted on the native path.
  */
-export const actorChangeType = {
-  authorizeActor: 0x01,
-  revokeActor: 0x02,
+export const changeType = {
+  authorizeActor: 0x00,
+  revokeActor: 0x01,
+  incrementLocalEpoch: 0x02,
+  lock: 0x03,
+  unlock: 0x04,
 } as const
 
 /**
@@ -111,19 +125,13 @@ export const accountStateFlags = {
   unlockInitiated: 0x04,
 } as const
 
-/** `applySignedLockChanges` op selecting a hard lock (`LOCK_OP`). */
-export const lockOp = 0x01
-
-/** `applySignedLockChanges` op initiating a (delayed) unlock (`UNLOCK_OP`). */
-export const unlockOp = 0x02
-
 /** Exact `policyData` byte length for a policy-bearing actor: `manager (20) || commitment (32)` (`POLICY_DATA_LEN`). */
 export const policyDataLength = 52
 
 /**
  * Nonce-free mode selector (`NONCE_KEY_MAX`). When `nonceKey` equals this value,
  * no nonce state is read or incremented and replay protection relies on
- * `expiry`.
+ * `validBefore`.
  */
 export const nonceKeyMax = 2n ** 256n - 1n
 
@@ -171,17 +179,17 @@ export const canonicalAuthenticators = {
   /** secp256k1 — native sentinel (`ECRECOVER_AUTHENTICATOR` / `K1_AUTHENTICATOR`). */
   k1: '0x0000000000000000000000000000000000000001',
   /** P-256 (raw). Canonical base/eip-8130 deployment. */
-  p256: '0xf8847a74F8067CabaE5fe56B70b372A7D670f0f8',
+  p256: '0x8130C89F65750431b564A4730397552a11CeA256',
   /** WebAuthn / FIDO2 passkey. Canonical base/eip-8130 deployment. */
-  passkey: '0x871c72d3950308A028E9c4917591bcfd3D6a1EF7',
+  passkey: '0x813007b6b1b48E75D91dEc5927ab515d12a0F1d0',
   /** Signature delegation (1-hop). Canonical base/eip-8130 deployment. */
-  delegate: '0xbb73E3871FBaC8aef1a7Ee8A24E21139916f14C2',
+  delegate: '0x81302CC9e53aB471abf9c5924aDD6CF0A3eBADE1',
 } as const satisfies Record<string, Hex>
 
 /**
  * Representative authentication-payload byte length (the bytes after a
  * prefixed blob's 20-byte authenticator selector) for each canonical
- * authenticator, keyed by lowercased address. Used by `estimateGas8130` to
+ * authenticator, keyed by lowercased address. Used by `estimateGas` to
  * synthesize an auth-blob stub from a verifier-address hint alone, without
  * requiring the caller to know the exact real signature length.
  *
@@ -212,10 +220,10 @@ export const txContextAddress =
  * Defaults to the [base/eip-8130](https://github.com/base/eip-8130) deployment
  * (Base Sepolia). The address may differ per chain — resolve via
  * {@link getEip8130Deployment}, or override via the `accountConfigAddress`
- * parameter of {@link computeAddress8130}.
+ * parameter of {@link computeAddress}.
  */
 export const accountConfigAddress =
-  '0x53648Cf00356fbAA1F2B531715c6B64AaBDE1555' satisfies Hex
+  '0x8130f09E345cE43531DF25966017710030Dc00AC' satisfies Hex
 
 /**
  * Default wallet implementation for EOA auto-delegation
@@ -226,7 +234,7 @@ export const accountConfigAddress =
  * {@link accountConfigAddress}.
  */
 export const defaultAccountAddress =
-  '0x58da469ef71Dd4B092B010CdA37DE124C926EebD' satisfies Hex
+  '0x81301D5aFE1DE3B255781876FC07eD45C150AdEF' satisfies Hex
 
 /** Size of the deployment header in bytes (`DEPLOYMENT_HEADER_SIZE`). */
 export const deploymentHeaderSize = 14

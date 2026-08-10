@@ -8,12 +8,12 @@ import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import { getAction } from '../../../utils/getAction.js'
 import {
+  type SessionPolicyTokenLimit,
   sessionPolicyAbi,
   sessionPolicyAddress,
-  type SessionPolicyTokenLimit,
 } from '../policies.js'
 
-export type GetSessionSpend8130Parameters = {
+export type GetSessionSpendParameters = {
   /** The session policy binding commitment (see `defineSessionPolicy().commitment`). */
   commitment: Hex
   /**
@@ -31,7 +31,7 @@ export type GetSessionSpend8130Parameters = {
   sessionPolicy?: Address | undefined
 }
 
-export type GetSessionSpend8130ReturnType = {
+export type GetSessionSpendReturnType = {
   /** The spend cap per period (atomic units) — echoes the supplied `tokenLimit.limit`. */
   allowance: bigint
   /** Period length in seconds. `0` = one-time (never resets). */
@@ -54,10 +54,10 @@ export type GetSessionSpend8130ReturnType = {
  *
  * @example
  * ```ts
- * import { getSessionSpend8130 } from 'viem/experimental/eip8130'
+ * import { getSessionSpend } from 'viem/experimental/eip8130'
  *
  * // Pass the exact token limit from the binding's config.
- * const { allowance, spent, remaining, periodEnd } = await getSessionSpend8130(
+ * const { allowance, spent, remaining, periodEnd } = await getSessionSpend(
  *   client,
  *   {
  *     commitment: session.commitment,
@@ -70,13 +70,13 @@ export type GetSessionSpend8130ReturnType = {
  * @param parameters - Parameters.
  * @returns The session key's limit and current-period spend for the token.
  */
-export async function getSessionSpend8130<
+export async function getSessionSpend<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: GetSessionSpend8130Parameters,
-): Promise<GetSessionSpend8130ReturnType> {
+  parameters: GetSessionSpendParameters,
+): Promise<GetSessionSpendReturnType> {
   const {
     commitment,
     tokenLimit,

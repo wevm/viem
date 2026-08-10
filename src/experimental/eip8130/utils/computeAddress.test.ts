@@ -6,7 +6,7 @@ import { toHex } from '../../../utils/encoding/toHex.js'
 import { keccak256 } from '../../../utils/hash/keccak256.js'
 import { accountConfigAddress } from '../constants.js'
 import type { AaActor } from '../types/transaction.js'
-import { computeAddress8130, deploymentHeader } from './computeAddress.js'
+import { computeAddress, deploymentHeader } from './computeAddress.js'
 
 const actorA: AaActor = {
   actorId: '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -25,27 +25,28 @@ describe('computeAddress (EIP-8130)', () => {
       code: '0x6080604052',
       initialActors: [actorA, actorB],
     } as const
-    const address = computeAddress8130(params)
+    const address = computeAddress(params)
     expect(isAddress(address)).toBe(true)
-    expect(computeAddress8130(params)).toBe(address)
+    expect(computeAddress(params)).toBe(address)
   })
 
   test('matches manual CREATE2 derivation', () => {
     const userSalt =
       '0x00000000000000000000000000000000000000000000000000000000000000aa' as const
     const code = '0x6080' as const
-    const actorsCommitment = keccak256(
-      concatHex([
-        actorA.actorId,
-        actorA.authenticator,
-        toHex(actorA.scope ?? 0, { size: 1 }),
-        actorA.policyData ?? '0x',
-        actorB.actorId,
-        actorB.authenticator,
-        toHex(actorB.scope ?? 0, { size: 1 }),
-        actorB.policyData ?? '0x',
-      ]),
-    )
+    // Leaves-then-list commitment (EIP-8130 `_computeActorsCommitment`): each
+    // actor hashes into a leaf `keccak256(actorId || authenticator ||
+    // scope(2 BE) || policyData)`, then the packed leaves are hashed once.
+    const leaf = (actor: AaActor) =>
+      keccak256(
+        concatHex([
+          actor.actorId,
+          actor.authenticator,
+          toHex(actor.scope ?? 0, { size: 2 }),
+          actor.policyData ?? '0x',
+        ]),
+      )
+    const actorsCommitment = keccak256(concatHex([leaf(actorA), leaf(actorB)]))
     const effectiveSalt = keccak256(concatHex([userSalt, actorsCommitment]))
     const deploymentCode = concatHex([deploymentHeader(2), code])
     const expected = getCreate2Address({
@@ -54,18 +55,18 @@ describe('computeAddress (EIP-8130)', () => {
       bytecode: deploymentCode,
     })
     expect(
-      computeAddress8130({ userSalt, code, initialActors: [actorA, actorB] }),
+      computeAddress({ userSalt, code, initialActors: [actorA, actorB] }),
     ).toBe(expected)
   })
 
   test('different salt yields different address', () => {
     const base = { code: '0x6080', initialActors: [actorA] } as const
-    const a = computeAddress8130({
+    const a = computeAddress({
       ...base,
       userSalt:
         '0x0000000000000000000000000000000000000000000000000000000000000001',
     })
-    const b = computeAddress8130({
+    const b = computeAddress({
       ...base,
       userSalt:
         '0x0000000000000000000000000000000000000000000000000000000000000002',
@@ -80,8 +81,8 @@ describe('computeAddress (EIP-8130)', () => {
       code: '0x6080',
       initialActors: [actorA],
     } as const
-    const a = computeAddress8130(base)
-    const b = computeAddress8130({
+    const a = computeAddress(base)
+    const b = computeAddress({
       ...base,
       accountConfigAddress: '0x00000000000000000000000000000000000000ff',
     })
@@ -95,7 +96,7 @@ describe('computeAddress (EIP-8130)', () => {
 
   test('rejects unsorted / duplicate actors', () => {
     expect(() =>
-      computeAddress8130({
+      computeAddress({
         userSalt:
           '0x0000000000000000000000000000000000000000000000000000000000000001',
         code: '0x6080',
@@ -103,7 +104,7 @@ describe('computeAddress (EIP-8130)', () => {
       }),
     ).toThrowError()
     expect(() =>
-      computeAddress8130({
+      computeAddress({
         userSalt:
           '0x0000000000000000000000000000000000000000000000000000000000000001',
         code: '0x6080',
@@ -114,7 +115,7 @@ describe('computeAddress (EIP-8130)', () => {
 
   test('rejects empty code', () => {
     expect(() =>
-      computeAddress8130({
+      computeAddress({
         userSalt:
           '0x0000000000000000000000000000000000000000000000000000000000000001',
         code: '0x',

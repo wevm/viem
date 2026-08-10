@@ -14,14 +14,14 @@ Use it to bind off-chain context to a transaction — a payer `policyId`, a clie
 
 ## Setting metadata
 
-`metadata` is a field on the transaction, not a parameter of `sendCalls8130`. Build the transaction with `prepareTransaction8130`, set `metadata`, then sign and submit:
+`metadata` is a field on the transaction, not a parameter of `sendCalls`. Build the transaction with `prepareTransaction`, set `metadata`, then sign and submit:
 
 ```ts
 import { sendRawTransaction } from 'viem/actions'
-import { prepareTransaction8130 } from 'viem/experimental/eip8130'
+import { prepareTransaction } from 'viem/experimental/eip8130'
 import { stringToHex } from 'viem'
 
-const tx = await prepareTransaction8130(client, {
+const tx = await prepareTransaction(client, {
   account,
   calls: [[{ to: recipient, data }]],
   gas: 250_000n,
@@ -42,9 +42,9 @@ The value round-trips onto the receipt:
 
 ```ts
 import { hexToString } from 'viem'
-import { waitForTransactionReceipt8130 } from 'viem/experimental/eip8130'
+import { waitForTransactionReceipt } from 'viem/experimental/eip8130'
 
-const receipt = await waitForTransactionReceipt8130(client, { hash })
+const receipt = await waitForTransactionReceipt(client, { hash })
 const raw = receipt.eip8130.metadata // e.g. '0x7b22...'
 if (raw && raw !== '0x') {
   const decoded = JSON.parse(hexToString(raw))

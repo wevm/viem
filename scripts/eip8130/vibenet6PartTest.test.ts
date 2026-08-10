@@ -21,13 +21,13 @@ import { generatePrivateKey, privateKeyToAccount } from '../../src/accounts/inde
 import { getBalance } from '../../src/actions/public/getBalance.js'
 import { waitForTransactionReceipt } from '../../src/actions/public/waitForTransactionReceipt.js'
 import { sendTransaction } from '../../src/actions/wallet/sendTransaction.js'
-import { waitForTransactionReceipt8130 } from '../../src/experimental/eip8130/actions/waitForTransactionReceipt8130.js'
+import { waitForTransactionReceipt as waitForReceipt8130 } from '../../src/experimental/eip8130/actions/waitForTransactionReceipt.js'
 import { createClient } from '../../src/clients/createClient.js'
 import { http } from '../../src/clients/transports/http.js'
-import { to8130Account } from '../../src/experimental/eip8130/accounts/to8130Account.js'
-import { getConfigSequence8130 } from '../../src/experimental/eip8130/actions/getConfigSequence8130.js'
-import { getTransactionCount8130 } from '../../src/experimental/eip8130/actions/getTransactionCount8130.js'
-import { sendCalls8130 } from '../../src/experimental/eip8130/actions/sendCalls.js'
+import { toAccount } from '../../src/experimental/eip8130/accounts/toAccount.js'
+import { getConfigSequence } from '../../src/experimental/eip8130/actions/getConfigSequence.js'
+import { getTransactionCount } from '../../src/experimental/eip8130/actions/getTransactionCount.js'
+import { sendCalls } from '../../src/experimental/eip8130/actions/sendCalls.js'
 import { vibenetDevnetDeployment } from '../../src/experimental/eip8130/deployments.js'
 import { authorizeActor, key } from '../../src/experimental/eip8130/keys.js'
 import { toP256Signer } from '../../src/experimental/eip8130/utils/signers.js'
@@ -37,7 +37,8 @@ import { erc1167Bytecode } from '../../src/experimental/eip8130/utils/proxy.js'
 import { keccak256 } from '../../src/utils/hash/keccak256.js'
 import { stringToHex } from '../../src/utils/encoding/toHex.js'
 import { parseEther } from '../../src/utils/unit/parseEther.js'
-import type { Address, Hex } from '../../src/types/index.js'
+import type { Address } from '../../src/index.js'
+import type { Hex } from '../../src/types/misc.js'
 
 // ---------------------------------------------------------------------------
 // Config — defaults target the local vibenet devnet
@@ -80,17 +81,17 @@ async function fund(to: Address, amount = parseEther('0.5')) {
   log('funded', `${to} ← ${amount} wei`)
 }
 
-async function send8130(
-  account: ReturnType<typeof to8130Account>,
+async function send(
+  account: ReturnType<typeof toAccount>,
   calls: AaCalls,
   accountChanges?: any[],
 ): Promise<Hex> {
-  const nonce = await getTransactionCount8130(client as any, {
+  const nonce = await getTransactionCount(client as any, {
     address: account.address as Address,
     nonceKey: 0n,
   })
 
-  const hash = await sendCalls8130(client as any, {
+  const hash = await sendCalls(client as any, {
     account,
     calls,
     accountChanges: accountChanges ?? [],
@@ -98,19 +99,19 @@ async function send8130(
     gas: 500_000n,
   })
   log('tx hash', hash)
-  const receipt = await waitForTransactionReceipt8130(client as any, { hash, timeout: 30_000 })
-  const ok = receipt.status === '0x1' || receipt.status === 'success'
+  const receipt = await waitForReceipt8130(client as any, { hash, timeout: 30_000 })
+  const ok = receipt.status === '0x1'
   log('status', ok ? '✓ success' : `✗ FAILED (status=${receipt.status}, phases=${JSON.stringify(receipt.eip8130?.phaseStatuses)})`)
   if (!ok) throw new Error(`Transaction reverted: ${hash}`)
   return hash
 }
 
 async function sendWithOwnerChange(
-  account: ReturnType<typeof to8130Account>,
+  account: ReturnType<typeof toAccount>,
   calls: AaCalls,
   actorChanges: Parameters<typeof account.change>[0],
 ): Promise<Hex> {
-  const { local } = await getConfigSequence8130(client as any, {
+  const { local } = await getConfigSequence(client as any, {
     accountConfiguration: D.accountConfiguration as Address,
     account: account.address as Address,
   })
@@ -118,14 +119,16 @@ async function sendWithOwnerChange(
     chainId: CHAIN_ID,
     sequence: Number(local),
   })
-  return send8130(account, calls, [configChange])
+  return send(account, calls, [configChange])
 }
 
 // ---------------------------------------------------------------------------
 // Test data — fresh keys per run so tests are fully independent
 // ---------------------------------------------------------------------------
 
-const code = erc1167Bytecode(D.accounts.erc4337)
+// Vibenet is native 8130: use the canonical DefaultAccount as the delegate /
+// proxy implementation (the deployment carries no erc4337 example wallet).
+const code = erc1167Bytecode(D.accounts.default)
 const RECIPIENT = '0x1111111111111111111111111111111111111111' as Address
 
 // EOA account — signer IS the account address
@@ -134,7 +137,7 @@ const eoaKey2 = generatePrivateKey()
 const eoa1 = privateKeyToAccount(eoaKey1)
 const eoa2 = privateKeyToAccount(eoaKey2)
 
-const eoaAccount1 = to8130Account({
+const eoaAccount1 = toAccount({
   signer: eoa1,
   userSalt: '0x' + '00'.repeat(32) as Hex,
   code,
@@ -144,7 +147,7 @@ const eoaAccount1 = to8130Account({
 })
 
 // On first use eoaAccount2 still points at eoa1's address but signs with eoa2
-const eoaAccount2 = to8130Account({
+const eoaAccount2 = toAccount({
   signer: eoa2,
   userSalt: '0x' + '00'.repeat(32) as Hex,
   code,
@@ -158,7 +161,7 @@ const smartKey1 = generatePrivateKey()
 const smart1 = privateKeyToAccount(smartKey1)
 const smartSalt = keccak256(stringToHex(`vibe-6part-${Date.now()}`))
 
-const smartAccount = to8130Account({
+const smartAccount = toAccount({
   signer: smart1,
   userSalt: smartSalt,
   code,
@@ -171,7 +174,7 @@ const p256PrivateKey = P256.randomPrivateKey()
 const p256Signer = toP256Signer({ privateKey: p256PrivateKey })
 const p256Salt = keccak256(stringToHex(`vibe-p256-${Date.now()}`))
 
-const p256Account = to8130Account({
+const p256Account = toAccount({
   signer: p256Signer,
   authenticator: p256Signer.authenticator,
   userSalt: p256Salt,
@@ -195,7 +198,7 @@ describe.sequential('6-part vibenet EIP-8130 native tx test', () => {
     // Include a `delegation` account-change so the EOA is backed by DefaultAccount
     // bytecode before executeBatch is invoked. Without this the EOA has no code
     // and the executeBatch self-call is a no-op (succeeds silently, value not sent).
-    await send8130(
+    await send(
       eoaAccount1,
       [[{ to: RECIPIENT, value: parseEther('0.001') }]],
       [eoaAccount1.delegate(D.accounts.default as Address)],
@@ -222,7 +225,7 @@ describe.sequential('6-part vibenet EIP-8130 native tx test', () => {
     console.log('\n══ Test 3: EOA tx with new key ══')
     const balBefore = await getBalance(client as any, { address: RECIPIENT })
 
-    await send8130(
+    await send(
       eoaAccount2,
       [[{ to: RECIPIENT, value: parseEther('0.001') }]],
     )
@@ -239,7 +242,7 @@ describe.sequential('6-part vibenet EIP-8130 native tx test', () => {
     const balBefore = await getBalance(client as any, { address: RECIPIENT })
 
     // First tx includes the create account-change so the account is deployed
-    await send8130(
+    await send(
       smartAccount,
       [[{ to: RECIPIENT, value: parseEther('0.001') }]],
       [smartAccount.create()],
@@ -253,7 +256,7 @@ describe.sequential('6-part vibenet EIP-8130 native tx test', () => {
     console.log('\n══ Test 5: Smart account follow-up tx ══')
     const balBefore = await getBalance(client as any, { address: RECIPIENT })
 
-    await send8130(
+    await send(
       smartAccount,
       [[{ to: RECIPIENT, value: parseEther('0.001') }]],
     )
@@ -287,7 +290,7 @@ describe.sequential('6-part vibenet EIP-8130 native tx test', () => {
     const balBefore = await getBalance(client as any, { address: RECIPIENT })
 
     // First tx: create account change deploys the account, then sends ETH.
-    await send8130(
+    await send(
       p256Account,
       [[{ to: RECIPIENT, value: parseEther('0.001') }]],
       [p256Account.create()],
@@ -303,7 +306,7 @@ describe.sequential('6-part vibenet EIP-8130 native tx test', () => {
     const balBefore = await getBalance(client as any, { address: RECIPIENT })
 
     // Subsequent tx: no account changes needed, P-256 signer signs directly.
-    await send8130(
+    await send(
       p256Account,
       [[{ to: RECIPIENT, value: parseEther('0.001') }]],
     )

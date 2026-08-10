@@ -18,15 +18,15 @@ There are two ways to obtain `payer_auth`:
 
 ## Co-signing locally
 
-Pass a `payer` signer to `sendCalls8130`. It signs `payer_auth` bound to the sender and sets the `payer` wire field. Set `payer.address` when the onchain payer account differs from the signing key.
+Pass a `payer` signer to `sendCalls`. It signs `payer_auth` bound to the sender and sets the `payer` wire field. Set `payer.address` when the onchain payer account differs from the signing key.
 
 ```ts
 import { privateKeyToAccount } from 'viem/accounts'
-import { sendCalls8130 } from 'viem/experimental/eip8130'
+import { sendCalls } from 'viem/experimental/eip8130'
 
 const sponsor = privateKeyToAccount(process.env.SPONSOR_KEY as `0x${string}`)
 
-const hash = await sendCalls8130(client, {
+const hash = await sendCalls(client, {
   account,                       // signs sender_auth
   calls: [{ to: recipient, data }],
   gas: 250_000n,
@@ -39,9 +39,9 @@ const hash = await sendCalls8130(client, {
 Pass the `payer` address (and, if the payer uses a non-K1 key, `payerAuthVerifier`) so the node prices the payer authentication too:
 
 ```ts
-import { canonicalAuthenticators, estimateGas8130 } from 'viem/experimental/eip8130'
+import { canonicalAuthenticators, estimateGas } from 'viem/experimental/eip8130'
 
-const gas = await estimateGas8130(client, {
+const gas = await estimateGas(client, {
   sender: account.address,
   calls: [[{ to: recipient, data }]],
   payer: sponsor.address,
@@ -55,9 +55,9 @@ To charge the sender in an ERC-20 while the payer fronts native gas, run a two-p
 
 ```ts
 import { encodeTokenTransfer } from 'viem/experimental/eip8168'
-import { sendCalls8130 } from 'viem/experimental/eip8130'
+import { sendCalls } from 'viem/experimental/eip8130'
 
-const hash = await sendCalls8130(client, {
+const hash = await sendCalls(client, {
   account,
   calls: [
     // phase 0 — pay the payer in USDC
@@ -74,13 +74,13 @@ In practice the token amount and payer are negotiated with a [payer service](/ex
 
 ## Lower-level control
 
-`sendCalls8130` wraps two primitives when you need to inspect or persist the transaction between signing and submitting:
+`sendCalls` wraps two primitives when you need to inspect or persist the transaction between signing and submitting:
 
 ```ts
 import { sendRawTransaction } from 'viem/actions'
-import { prepareTransaction8130 } from 'viem/experimental/eip8130'
+import { prepareTransaction } from 'viem/experimental/eip8130'
 
-const tx = await prepareTransaction8130(client, {
+const tx = await prepareTransaction(client, {
   account,
   calls: /* AaCalls (phased) */ phases,
   gas: 250_000n,

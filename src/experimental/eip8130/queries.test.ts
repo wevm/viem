@@ -1,15 +1,15 @@
-import { describe, expect, test } from 'vitest'
 import type { Abi } from 'abitype'
+import { describe, expect, test } from 'vitest'
 import { mainnet } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { decodeFunctionData } from '../../utils/abi/decodeFunctionData.js'
 import { encodeFunctionResult } from '../../utils/abi/encodeFunctionResult.js'
 import { accountConfigurationAbi } from './abis.js'
-import { getActorConfig8130 } from './actions/getActorConfig8130.js'
-import { getPolicy8130 } from './actions/getPolicy8130.js'
-import { getSessionSpend8130 } from './actions/getSessionSpend8130.js'
-import { isActor8130 } from './actions/isActor8130.js'
+import { getActorConfig } from './actions/getActorConfig.js'
+import { getPolicy } from './actions/getPolicy.js'
+import { getSessionSpend } from './actions/getSessionSpend.js'
+import { isActor } from './actions/isActor.js'
 import { canonicalAuthenticators } from './constants.js'
 import { sessionPolicyAbi } from './policies.js'
 
@@ -45,13 +45,13 @@ function readClient(abi: Abi, results: Record<string, unknown>) {
   })
 }
 
-describe('getSessionSpend8130', () => {
+describe('getSessionSpend', () => {
   test('reads getCurrentSpend into a budget view (#43: limit supplied)', async () => {
     const client = readClient(sessionPolicyAbi, {
       // PeriodUsage { start, end, spend }
       getCurrentSpend: { start: 1_000, end: 605_800, spend: 40_000_000n },
     })
-    const spend = await getSessionSpend8130(client, {
+    const spend = await getSessionSpend(client, {
       commitment,
       tokenLimit: { token, limit: 100_000_000n, period: 604_800n },
     })
@@ -69,7 +69,7 @@ describe('getSessionSpend8130', () => {
     const client = readClient(sessionPolicyAbi, {
       getCurrentSpend: { start: 1_000, end: 605_800, spend: 150_000_000n },
     })
-    const spend = await getSessionSpend8130(client, {
+    const spend = await getSessionSpend(client, {
       commitment,
       tokenLimit: { token, limit: 100_000_000n, period: 604_800n },
     })
@@ -77,7 +77,7 @@ describe('getSessionSpend8130', () => {
   })
 })
 
-describe('getActorConfig8130', () => {
+describe('getActorConfig', () => {
   test('decodes the ActorConfig struct', async () => {
     const client = readClient(accountConfigurationAbi, {
       getActorConfig: {
@@ -86,7 +86,7 @@ describe('getActorConfig8130', () => {
         expiry: 1_800_000_000,
       },
     })
-    expect(await getActorConfig8130(client, { account, actorId })).toEqual({
+    expect(await getActorConfig(client, { account, actorId })).toEqual({
       authenticator: canonicalAuthenticators.p256,
       scope: 2,
       expiry: 1_800_000_000,
@@ -96,20 +96,20 @@ describe('getActorConfig8130', () => {
   })
 })
 
-describe('isActor8130', () => {
+describe('isActor', () => {
   test('decodes the isActor bool', async () => {
     const client = readClient(accountConfigurationAbi, { isActor: true })
-    expect(await isActor8130(client, { account, actorId })).toBe(true)
+    expect(await isActor(client, { account, actorId })).toBe(true)
   })
 })
 
-describe('getPolicy8130', () => {
+describe('getPolicy', () => {
   test('decodes (target, commitment)', async () => {
     const manager = '0x00000000000000000000000000000000000000dd'
     const client = readClient(accountConfigurationAbi, {
       getPolicy: [manager, commitment],
     })
-    expect(await getPolicy8130(client, { account, actorId })).toEqual({
+    expect(await getPolicy(client, { account, actorId })).toEqual({
       target: manager,
       commitment,
     })

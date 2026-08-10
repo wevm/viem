@@ -15,14 +15,14 @@ The account address is a deterministic function of the salt (plus the wallet cod
 
 ```ts
 import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
-import { newSmartAccount8130 } from 'viem/experimental/eip8130'
+import { newSmartAccount } from 'viem/experimental/eip8130'
 
 const owner = privateKeyToAccount(generatePrivateKey())
 
 // A stable, human-meaningful salt derivation is convenient here.
-const main = newSmartAccount8130({ signer: owner, salt: saltFor('main') })
-const trading = newSmartAccount8130({ signer: owner, salt: saltFor('trading') })
-const savings = newSmartAccount8130({ signer: owner, salt: saltFor('savings') })
+const main = newSmartAccount({ signer: owner, salt: saltFor('main') })
+const trading = newSmartAccount({ signer: owner, salt: saltFor('trading') })
+const savings = newSmartAccount({ signer: owner, salt: saltFor('savings') })
 
 main.address !== trading.address // distinct accounts, same owner key
 ```
@@ -38,7 +38,7 @@ import {
   actorScope,
   authorizeActor,
   key,
-  sendCalls8130,
+  sendCalls,
 } from 'viem/experimental/eip8130'
 
 // On the sub account, authorize the primary account as a delegate.
@@ -51,7 +51,7 @@ const link = await subAccount.change(
   { chainId: client.chain.id, sequence: Number(sequence) },
 )
 
-const hash = await sendCalls8130(client, {
+const hash = await sendCalls(client, {
   account: subAccount,
   accountChanges: [link],
   calls: [],
@@ -64,18 +64,18 @@ Once linked, build an account handle that signs for the sub account using the **
 ```ts
 import {
   canonicalAuthenticators,
-  sendCalls8130,
-  to8130Account,
+  sendCalls,
+  toAccount,
 } from 'viem/experimental/eip8130'
 
 // Drive `subAccount.address` with `main`'s key through the delegate authenticator.
-const subAsDelegate = to8130Account({
+const subAsDelegate = toAccount({
   signer: main.signer,
   authenticator: canonicalAuthenticators.delegate,
   address: subAccount.address,
 })
 
-const hash = await sendCalls8130(client, {
+const hash = await sendCalls(client, {
   account: subAsDelegate,
   calls: [{ to: recipient, value: 1n }],
   gas: 200_000n,
@@ -83,7 +83,7 @@ const hash = await sendCalls8130(client, {
 ```
 
 :::note
-The delegate authenticator validates a signature produced for the linked account, so authentication gas is priced from the delegate blob's shape. Pass `senderAuthVerifier: canonicalAuthenticators.delegate` to [`estimateGas8130`](/experimental/eip8130/sending-a-transaction#estimate-gas) when pricing delegate-signed transactions.
+The delegate authenticator validates a signature produced for the linked account, so authentication gas is priced from the delegate blob's shape. Pass `senderAuthVerifier: canonicalAuthenticators.delegate` to [`estimateGas`](/experimental/eip8130/sending-a-transaction#estimate-gas) when pricing delegate-signed transactions.
 :::
 
 ## Revoking a link

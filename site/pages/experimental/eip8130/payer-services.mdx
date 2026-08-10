@@ -134,9 +134,9 @@ Prepare the transaction with the offer's gas, sign `sender_auth` with `payer` na
 
 ```ts
 import { hexToBigInt } from 'viem'
-import { prepareTransaction8130 } from 'viem/experimental/eip8130'
+import { prepareTransaction } from 'viem/experimental/eip8130'
 
-const tx = await prepareTransaction8130(client, {
+const tx = await prepareTransaction(client, {
   account,
   calls,
   gas: hexToBigInt(terms.gasEstimate!.gasLimit),

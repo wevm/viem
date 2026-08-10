@@ -13,7 +13,7 @@ import type { Hash, Hex } from '../../../types/misc.js'
  * These are present only for `AA_TX_TYPE` (`0x79`) receipts on a node with the
  * extension; they are `undefined` for standard receipts or older nodes.
  */
-export type Eip8130ReceiptFields = {
+export type ReceiptFields = {
   /**
    * Gas payer: the sender for self-pay, or the named payer for a sponsored tx.
    */
@@ -36,22 +36,22 @@ type RawReceipt = {
   [key: string]: unknown
 }
 
-export type GetTransactionReceipt8130Parameters = {
+export type GetTransactionReceiptParameters = {
   /** Transaction hash to fetch the receipt for. */
   hash: Hash
 }
 
-export type GetTransactionReceipt8130ReturnType =
+export type GetTransactionReceiptReturnType =
   | (RawReceipt & {
       /** Parsed EIP-8130 receipt fields (decoded from the raw receipt). */
-      eip8130: Eip8130ReceiptFields
+      eip8130: ReceiptFields
     })
   | null
 
 /** Reads the EIP-8130 fields off a raw JSON-RPC receipt (graceful if absent). */
-export function parseEip8130ReceiptFields(
+export function parseReceiptFields(
   receipt: RawReceipt | null | undefined,
-): Eip8130ReceiptFields {
+): ReceiptFields {
   if (!receipt) return {}
   return {
     payer: receipt.payer,
@@ -62,7 +62,7 @@ export function parseEip8130ReceiptFields(
 
 /** Returns `true` when every reported call phase succeeded. */
 export function allPhasesSucceeded(
-  fields: Pick<Eip8130ReceiptFields, 'phaseStatuses'>,
+  fields: Pick<ReceiptFields, 'phaseStatuses'>,
 ): boolean {
   const phases = fields.phaseStatuses
   if (!phases) return true
@@ -74,13 +74,13 @@ export function allPhasesSucceeded(
  * `phaseStatuses`, `metadata`) alongside the raw receipt. Returns `null` when
  * the receipt is not yet available.
  */
-export async function getTransactionReceipt8130<
+export async function getTransactionReceipt<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: GetTransactionReceipt8130Parameters,
-): Promise<GetTransactionReceipt8130ReturnType> {
+  parameters: GetTransactionReceiptParameters,
+): Promise<GetTransactionReceiptReturnType> {
   const { hash } = parameters
   const receipt = await (
     client.request as (args: {
@@ -90,5 +90,5 @@ export async function getTransactionReceipt8130<
   )({ method: 'eth_getTransactionReceipt', params: [hash] })
 
   if (!receipt) return null
-  return { ...receipt, eip8130: parseEip8130ReceiptFields(receipt) }
+  return { ...receipt, eip8130: parseReceiptFields(receipt) }
 }

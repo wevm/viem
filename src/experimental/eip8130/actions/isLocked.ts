@@ -8,7 +8,7 @@ import type { Chain } from '../../../types/chain.js'
 import { accountConfigurationAbi } from '../abis.js'
 import { accountConfigAddress as defaultAccountConfigAddress } from '../constants.js'
 
-export type IsLocked8130Parameters = {
+export type IsLockedParameters = {
   /** The account to check. */
   account: Address
   /**
@@ -18,31 +18,31 @@ export type IsLocked8130Parameters = {
   accountConfiguration?: Address | undefined
 }
 
-export type IsLocked8130ReturnType = boolean
+export type IsLockedReturnType = boolean
 
 /**
  * Reads whether an EIP-8130 account is currently locked, from the
  * `AccountConfiguration` system contract (`isLocked`). For the full status
- * (unlock timing, delay), use {@link getLockStatus8130}.
+ * (unlock timing, delay), use {@link getLockStatus}.
  *
  * @example
  * ```ts
- * import { isLocked8130 } from 'viem/experimental/eip8130'
+ * import { isLocked } from 'viem/experimental/eip8130'
  *
- * const locked = await isLocked8130(client, { account: account.address })
+ * const locked = await isLocked(client, { account: account.address })
  * ```
  *
  * @param client - Client.
  * @param parameters - Parameters.
  * @returns Whether the account is locked.
  */
-export async function isLocked8130<
+export async function isLocked<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: IsLocked8130Parameters,
-): Promise<IsLocked8130ReturnType> {
+  parameters: IsLockedParameters,
+): Promise<IsLockedReturnType> {
   const { account, accountConfiguration = defaultAccountConfigAddress } =
     parameters
 

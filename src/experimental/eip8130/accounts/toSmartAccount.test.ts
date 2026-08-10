@@ -9,9 +9,9 @@ import { recoverMessageAddress } from '../../../utils/signature/recoverMessageAd
 import { accountConfigurationAbi } from '../abis.js'
 import { ecrecoverAuthenticator } from '../constants.js'
 import type { AaActor } from '../types/transaction.js'
-import { computeAddress8130 } from '../utils/computeAddress.js'
+import { computeAddress } from '../utils/computeAddress.js'
 import { erc1167Bytecode } from '../utils/proxy.js'
-import { toSmartAccount8130 } from './toSmartAccount8130.js'
+import { toSmartAccount } from './toSmartAccount.js'
 
 // Offline stub transports. `client` reports the account as counterfactual
 // (not deployed); `deployedClient` reports it as deployed (so signatures are
@@ -47,11 +47,11 @@ const base = {
   implementation,
 } as const
 
-describe('toSmartAccount8130', () => {
-  test('getAddress matches computeAddress8130', async () => {
-    const account = await toSmartAccount8130(base)
+describe('toSmartAccount', () => {
+  test('getAddress matches computeAddress', async () => {
+    const account = await toSmartAccount(base)
     expect(await account.getAddress()).toBe(
-      computeAddress8130({
+      computeAddress({
         userSalt: base.userSalt,
         code: erc1167Bytecode(implementation),
         initialActors: base.initialActors,
@@ -60,7 +60,7 @@ describe('toSmartAccount8130', () => {
   })
 
   test('getFactoryArgs -> AccountConfiguration.createAccount', async () => {
-    const account = await toSmartAccount8130(base)
+    const account = await toSmartAccount(base)
     const { factory, factoryData } = await account.getFactoryArgs()
     expect(factory).toMatch(/^0x[0-9a-fA-F]{40}$/)
     const decoded = decodeFunctionData({
@@ -73,7 +73,7 @@ describe('toSmartAccount8130', () => {
   })
 
   test('encodeCalls/decodeCalls round-trip via executeBatch', async () => {
-    const account = await toSmartAccount8130(base)
+    const account = await toSmartAccount(base)
     const calls = [
       {
         to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
@@ -99,7 +99,7 @@ describe('toSmartAccount8130', () => {
   })
 
   test('getStubSignature is authenticator-prefixed', async () => {
-    const account = await toSmartAccount8130(base)
+    const account = await toSmartAccount(base)
     const stub = await account.getStubSignature()
     expect(slice(stub, 0, 20).toLowerCase()).toBe(
       ecrecoverAuthenticator.toLowerCase(),
@@ -107,7 +107,7 @@ describe('toSmartAccount8130', () => {
   })
 
   test('signMessage = authenticator || recoverable ECDSA', async () => {
-    const account = await toSmartAccount8130({
+    const account = await toSmartAccount({
       ...base,
       client: deployedClient,
     })
@@ -124,7 +124,7 @@ describe('toSmartAccount8130', () => {
   })
 
   test('throws without identity inputs when deriving factory args', async () => {
-    const account = await toSmartAccount8130({
+    const account = await toSmartAccount({
       client,
       owner,
       address: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',

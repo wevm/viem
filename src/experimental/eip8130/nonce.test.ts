@@ -5,12 +5,12 @@ import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import type { Hex } from '../../types/misc.js'
 import { keccak256 } from '../../utils/hash/keccak256.js'
-import { to8130Account } from './accounts/to8130Account.js'
-import { sendCalls8130 } from './actions/sendCalls.js'
+import { toAccount } from './accounts/toAccount.js'
+import { sendCalls } from './actions/sendCalls.js'
 import { nonceKeyMax } from './constants.js'
 import { key } from './keys.js'
 import { nonce } from './nonce.js'
-import { parseTransaction8130 } from './utils/parseTransaction.js'
+import { parseTransaction } from './utils/parseTransaction.js'
 import { erc1167Bytecode } from './utils/proxy.js'
 
 const owner = privateKeyToAccount(
@@ -20,7 +20,7 @@ const code = erc1167Bytecode('0x00000000000000000000000000000000000000Ec')
 const userSalt =
   '0x0000000000000000000000000000000000000000000000000000000000000001'
 
-const account = to8130Account({
+const account = toAccount({
   signer: owner,
   userSalt,
   code,
@@ -55,30 +55,30 @@ describe('nonce builders', () => {
     )
   })
 
-  test('nonceless with absolute expiry', () => {
-    expect(nonce.nonceless({ expiry: 1_800_000_000n })).toEqual({
+  test('nonceless with absolute validBefore (unix ms)', () => {
+    expect(nonce.nonceless({ validBefore: 1_800_000_000_000n })).toEqual({
       nonceKey: nonceKeyMax,
       nonceSequence: 0n,
-      expiry: 1_800_000_000n,
+      validBefore: 1_800_000_000_000n,
     })
   })
 
-  test('nonceless with relative expiresIn', () => {
-    const now = Math.floor(Date.now() / 1000)
+  test('nonceless with relative expiresIn (seconds → ms validBefore)', () => {
+    const nowMs = Date.now()
     const result = nonce.nonceless({ expiresIn: 600 })
     expect(result.nonceKey).toBe(nonceKeyMax)
     expect(result.nonceSequence).toBe(0n)
-    expect(Number(result.expiry)).toBeGreaterThanOrEqual(now + 600)
-    expect(Number(result.expiry)).toBeLessThanOrEqual(now + 601)
+    expect(Number(result.validBefore)).toBeGreaterThanOrEqual(nowMs + 600_000)
+    expect(Number(result.validBefore)).toBeLessThanOrEqual(nowMs + 601_000)
   })
 
-  test('nonceless requires an expiry', () => {
+  test('nonceless requires a validBefore', () => {
     expect(() => nonce.nonceless({})).toThrow()
-    expect(() => nonce.nonceless({ expiry: 0n })).toThrow()
+    expect(() => nonce.nonceless({ validBefore: 0n })).toThrow()
   })
 })
 
-describe('sendCalls8130 nonce integration', () => {
+describe('sendCalls nonce integration', () => {
   function makeClient() {
     const methods: string[] = []
     let sent: Hex | undefined
@@ -121,27 +121,29 @@ describe('sendCalls8130 nonce integration', () => {
     maxFeePerGas: 2_000_000_000n,
     maxPriorityFeePerGas: 1_000_000_000n,
   }
-  const calls = [{ to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', data: '0x' }]
+  const calls = [
+    { to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', data: '0x' },
+  ]
 
-  test('nonceless: no nonce read, tx carries NONCE_KEY_MAX + expiry', async () => {
+  test('nonceless: no nonce read, tx carries NONCE_KEY_MAX + validBefore', async () => {
     const ctx = makeClient()
-    await sendCalls8130(ctx.client, {
+    await sendCalls(ctx.client, {
       account,
       calls,
       ...fees,
-      ...nonce.nonceless({ expiry: 1_800_000_000n }),
+      ...nonce.nonceless({ validBefore: 1_800_000_000_000n }),
     })
     expect(ctx.methods).not.toContain('eth_getTransactionCount')
-    const parsed = parseTransaction8130(ctx.sent!)
+    const parsed = parseTransaction(ctx.sent!)
     expect(parsed.nonceKey).toBe(nonceKeyMax)
     // `0n` sequence RLP-encodes as empty and parses back as `undefined`/`0n`.
     expect(parsed.nonceSequence ?? 0n).toBe(0n)
-    expect(parsed.expiry).toBe(1_800_000_000n)
+    expect(parsed.validBefore).toBe(1_800_000_000_000n)
   })
 
   test('channel: reads the sequence with the 2D nonce_key param', async () => {
     const ctx = makeClient()
-    await sendCalls8130(ctx.client, {
+    await sendCalls(ctx.client, {
       account,
       calls,
       ...fees,
@@ -151,7 +153,7 @@ describe('sendCalls8130 nonce integration', () => {
     // [address, blockTag, nonce_key]
     expect(ctx.lastGetCountParams).toHaveLength(3)
     expect(ctx.lastGetCountParams?.[2]).toBe('0x5')
-    const parsed = parseTransaction8130(ctx.sent!)
+    const parsed = parseTransaction(ctx.sent!)
     expect(parsed.nonceKey).toBe(5n)
     expect(parsed.nonceSequence).toBe(3n)
   })

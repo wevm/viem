@@ -4,10 +4,10 @@ import { mainnet } from '../../../chains/index.js'
 import { createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'
 import { numberToHex } from '../../../utils/encoding/toHex.js'
-import { to8130Account } from '../accounts/to8130Account.js'
+import { toAccount } from '../accounts/toAccount.js'
 import { actorScope, canonicalAuthenticators } from '../constants.js'
 import { authorizeActor, encodePolicyData, key } from '../keys.js'
-import { estimateGas8130 } from './estimateGas8130.js'
+import { estimateGas } from './estimateGas.js'
 
 const owner = privateKeyToAccount(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
@@ -40,17 +40,17 @@ function recordingClient() {
   }
 }
 
-describe('estimateGas8130 — create account-change serialization', () => {
+describe('estimateGas — create account-change serialization', () => {
   test('each initialActor carries scope (number) and policyData (hex)', async () => {
     const rec = recordingClient()
-    const account = to8130Account({
+    const account = toAccount({
       signer: owner,
       userSalt,
       code,
       initialActors: [key.k1(owner.address)],
     })
 
-    await estimateGas8130(rec.client, {
+    await estimateGas(rec.client, {
       sender: account.address,
       accountChanges: [account.create()],
       calls: [[{ to: owner.address, value: 1n }]],
@@ -82,10 +82,13 @@ describe('estimateGas8130 — create account-change serialization', () => {
     } as const
     // Build a policy-gated actor and register it as an initial actor via its
     // scope/policyData (as computeAddress commits them).
-    const gated = authorizeActor(key.p256({
-      x: '0x1111111111111111111111111111111111111111111111111111111111111111',
-      y: '0x2222222222222222222222222222222222222222222222222222222222222222',
-    }), { scope: actorScope.sender, policy })
+    const gated = authorizeActor(
+      key.p256({
+        x: '0x1111111111111111111111111111111111111111111111111111111111111111',
+        y: '0x2222222222222222222222222222222222222222222222222222222222222222',
+      }),
+      { scope: actorScope.sender, policy },
+    )
 
     const initialActors = [
       {
@@ -97,14 +100,14 @@ describe('estimateGas8130 — create account-change serialization', () => {
       key.k1(owner.address),
     ].sort((a, b) => (BigInt(a.actorId) < BigInt(b.actorId) ? -1 : 1))
 
-    const account = to8130Account({
+    const account = toAccount({
       signer: owner,
       userSalt,
       code,
       initialActors,
     })
 
-    await estimateGas8130(rec.client, {
+    await estimateGas(rec.client, {
       sender: account.address,
       accountChanges: [account.create()],
       calls: [[{ to: owner.address }]],
@@ -112,9 +115,7 @@ describe('estimateGas8130 — create account-change serialization', () => {
     })
 
     const actors = rec.request.accountChanges[0].initialActors
-    const gatedOut = actors.find(
-      (a: any) => a.actorId === gated.actorId,
-    )
+    const gatedOut = actors.find((a: any) => a.actorId === gated.actorId)
     expect(gatedOut.scope).toBe(actorScope.sender | actorScope.policy)
     expect(typeof gatedOut.scope).toBe('number')
     expect(gatedOut.policyData?.toLowerCase()).toBe(
@@ -123,17 +124,17 @@ describe('estimateGas8130 — create account-change serialization', () => {
   })
 })
 
-describe('estimateGas8130 — dataSuffix → metadata', () => {
+describe('estimateGas — dataSuffix → metadata', () => {
   test('full-body mode writes dataSuffix to metadata', async () => {
     const rec = recordingClient()
-    const account = to8130Account({
+    const account = toAccount({
       signer: owner,
       userSalt,
       code,
       initialActors: [key.k1(owner.address)],
     })
 
-    await estimateGas8130(rec.client, {
+    await estimateGas(rec.client, {
       sender: account.address,
       accountChanges: [account.create()],
       calls: [[{ to: owner.address }]],
@@ -146,14 +147,14 @@ describe('estimateGas8130 — dataSuffix → metadata', () => {
 
   test('full-body mode defaults metadata to 0x', async () => {
     const rec = recordingClient()
-    const account = to8130Account({
+    const account = toAccount({
       signer: owner,
       userSalt,
       code,
       initialActors: [key.k1(owner.address)],
     })
 
-    await estimateGas8130(rec.client, {
+    await estimateGas(rec.client, {
       sender: account.address,
       accountChanges: [account.create()],
       calls: [[{ to: owner.address }]],

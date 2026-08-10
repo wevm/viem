@@ -5,8 +5,8 @@ import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
 import { hexToBigInt } from '../../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../../utils/encoding/toHex.js'
-import type { To8130AccountReturnType } from '../../eip8130/accounts/to8130Account.js'
-import { prepareTransaction8130 } from '../../eip8130/actions/sendCalls.js'
+import type { ToAccountReturnType } from '../../eip8130/accounts/toAccount.js'
+import { prepareTransaction } from '../../eip8130/actions/sendCalls.js'
 import { nonceFreeMaxExpiryWindow } from '../../eip8130/constants.js'
 import { isNoncelessOnly } from '../../eip8130/keys.js'
 import type { Address } from 'abitype'
@@ -59,7 +59,7 @@ export type ResignRequest = {
 
 export type SendSponsoredCallsParameters = {
   /** The sending account (signs `sender_auth`). */
-  account: To8130AccountReturnType
+  account: ToAccountReturnType
   /** Payer service client (ERC-8168). */
   payerClient: PayerClient
   /** User's intended calls (run in the final phase). */
@@ -86,12 +86,15 @@ export type SendSponsoredCallsParameters = {
   /** Opaque app context forwarded to `payer_*` calls (e.g. `policyId`). */
   context?: Record<string, unknown> | undefined
   /**
-   * Override transaction expiry as an absolute Unix timestamp (seconds). When
-   * omitted, the selected offer's `conditions.maxExpiry` (a relative duration)
-   * is applied: `current_time + maxExpiry`. With no `maxExpiry`, expiry is `0`
-   * (no protocol-enforced lifetime) unless overridden here.
+   * Override the transaction's upper validity bound (`validBefore`) as an
+   * absolute Unix timestamp in **milliseconds**. When omitted, the selected
+   * offer's `conditions.maxExpiry` (a relative duration in seconds) is applied:
+   * `now + maxExpiry * 1000`. With no `maxExpiry`, it is `0` (no
+   * protocol-enforced lifetime) — unless the sending actor is nonce-free-only,
+   * in which case the mempool admission window is used (a nonce-free tx MUST
+   * carry a non-zero `validBefore`).
    */
-  expiry?: bigint | undefined
+  validBefore?: bigint | undefined
   /** Override gas (defaults to the terms' top-level `gasEstimate.gasLimit`). */
   gas?: bigint | undefined
   maxFeePerGas?: bigint | undefined
@@ -119,15 +122,15 @@ export type SendSponsoredCallsParameters = {
   /**
    * Invoked with the fully-resolved transaction just before each submit attempt
    * (before `payer_sendTransaction` / `payer_signTransaction`). Use it to thread
-   * the resolved `expiry` — which is auto-computed here from the offer's
+   * the resolved `validBefore` — which is auto-computed here from the offer's
    * `maxExpiry` (or the nonce-free window) when not overridden — into
-   * `waitForTransactionReceipt8130` without re-deriving it:
+   * `waitForTransactionReceipt` without re-deriving it:
    *
    * ```ts
-   * let expiry: bigint | undefined
+   * let validBefore: bigint | undefined
    * await sendSponsoredCalls(client, {
    *   ...params,
-   *   onTransaction: (tx) => { expiry = tx.expiry },
+   *   onTransaction: (tx) => { validBefore = tx.validBefore },
    * })
    * ```
    *
@@ -224,39 +227,40 @@ export async function sendSponsoredCalls(
     : undefined
 
   // A nonce-free-only sending actor (admin or no `SCOPE_NONCE`) MUST carry a
-  // non-zero, in-window expiry — it is the sole replay protection. When the
-  // payer's offer has no `maxExpiry`, fall back to the mempool admission window
-  // instead of `0` (which the node would reject as a nonce-free tx).
+  // non-zero, in-window `validBefore` — it is the sole replay protection. When
+  // the payer's offer has no `maxExpiry`, fall back to the mempool admission
+  // window instead of `0` (which the node would reject as a nonce-free tx).
   const noncelessOnly =
     account.scope !== undefined && isNoncelessOnly(account.scope)
 
   // `conditions.maxExpiry` is a relative duration (seconds from now). The wallet
-  // sets the onchain expiry to `now + maxExpiry`; the payer keeps `maxExpiry`
-  // short. Recomputed per attempt so a retry doesn't inherit a near-expiry
-  // window. A caller-supplied absolute `expiry` is used as-is.
-  const computeExpiry = (): bigint => {
-    if (parameters.expiry !== undefined) return parameters.expiry
-    // Nonce-free-only actor: expiry is the sole replay protection and must fall
-    // within the protocol's tight replay window, so pin it to the mempool
-    // admission window regardless of the payer's (possibly larger) `maxExpiry`.
-    if (noncelessOnly)
-      return BigInt(Math.floor(Date.now() / 1000)) + nonceFreeMaxExpiryWindow
+  // sets the onchain `validBefore` (unix ms) to `now + maxExpiry * 1000`; the
+  // payer keeps `maxExpiry` short. Recomputed per attempt so a retry doesn't
+  // inherit a near-expiry window. A caller-supplied absolute `validBefore` (unix
+  // ms) is used as-is.
+  const computeValidBefore = (): bigint => {
+    if (parameters.validBefore !== undefined) return parameters.validBefore
+    // Nonce-free-only actor: `validBefore` is the sole replay protection and
+    // must fall within the protocol's tight replay window, so pin it to the
+    // mempool admission window (unix ms) regardless of the payer's (possibly
+    // larger) `maxExpiry`.
+    if (noncelessOnly) return BigInt(Date.now()) + nonceFreeMaxExpiryWindow
     const maxExpiry = option.conditions?.maxExpiry
     return maxExpiry !== undefined
-      ? BigInt(Math.floor(Date.now() / 1000)) + BigInt(maxExpiry)
+      ? BigInt(Date.now()) + BigInt(maxExpiry) * 1000n
       : 0n
   }
 
   // Prepared once so the nonce stays stable across re-signs; only the phase-0
   // transfer (on `requote`) and `gas` (on `minGasLimit`) change between attempts.
-  const transaction = await prepareTransaction8130(client, {
+  const transaction = await prepareTransaction(client, {
     account,
     calls: built.calls,
     accountChanges,
     gas: initialGas,
     maxFeePerGas,
     maxPriorityFeePerGas,
-    expiry: computeExpiry(),
+    validBefore: computeValidBefore(),
     nonceKey: parameters.nonceKey,
     nonceSequence: parameters.nonceSequence,
   })
@@ -273,7 +277,7 @@ export async function sendSponsoredCalls(
   for (let attempt = 0; ; attempt++) {
     transaction.calls = phases
     transaction.gas = gas
-    transaction.expiry = computeExpiry()
+    transaction.validBefore = computeValidBefore()
     transaction.payerAuth = '0x'
 
     onTransaction?.(transaction)

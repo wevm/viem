@@ -2,55 +2,39 @@ import { describe, expect, test } from 'vitest'
 import { mainnet } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
-import { decodeFunctionData } from '../../utils/abi/decodeFunctionData.js'
+import { encodeAbiParameters } from '../../utils/abi/encodeAbiParameters.js'
 import { encodeFunctionResult } from '../../utils/abi/encodeFunctionResult.js'
 import { accountConfigurationAbi } from './abis.js'
-import { getLockStatus8130 } from './actions/getLockStatus8130.js'
-import { isLocked8130 } from './actions/isLocked8130.js'
-import { accountConfigAddress, lockOp, unlockOp } from './constants.js'
-import { initiateUnlockCall, lockCall } from './lock.js'
+import { getLockStatus } from './actions/getLockStatus.js'
+import { isLocked } from './actions/isLocked.js'
+import { changeType } from './constants.js'
+import { lockChange, unlockChange } from './lock.js'
+import { encodeChangePayload } from './utils/actorChangeData.js'
 
 const account = '0x0000000000000000000000000000000000000a11'
-// Signed-lock-change `auth` blob (authenticator || data); opaque to the call builder.
-const auth = `0x${'ab'.repeat(85)}` as const
 
-describe('lockCall', () => {
-  test('encodes applySignedLockChanges(LOCK_OP) to the canonical AccountConfiguration', () => {
-    const call = lockCall({ account, unlockDelay: 3600, auth })
-    expect(call.to).toBe(accountConfigAddress)
-    const { functionName, args } = decodeFunctionData({
-      abi: accountConfigurationAbi,
-      data: call.data!,
-    })
-    expect(functionName).toBe('applySignedLockChanges')
-    expect(args).toEqual([account, lockOp, 3600, auth])
-  })
-
-  test('respects an accountConfiguration override', () => {
-    const accountConfiguration = '0x00000000000000000000000000000000000000cc'
-    expect(
-      lockCall({ account, unlockDelay: 3600, auth, accountConfiguration }).to,
-    ).toBe(accountConfiguration)
+describe('lockChange', () => {
+  test('builds a Lock op with an abi.encode(uint16 unlockDelay) payload', () => {
+    const change = lockChange({ unlockDelay: 3600 })
+    expect(change).toEqual({ changeType: changeType.lock, unlockDelay: 3600 })
+    expect(encodeChangePayload(change)).toBe(
+      encodeAbiParameters([{ type: 'uint16' }], [3600]),
+    )
   })
 
   test('rejects out-of-range unlockDelay (uint16)', () => {
-    expect(() => lockCall({ account, unlockDelay: 0, auth })).toThrow()
-    expect(() => lockCall({ account, unlockDelay: -1, auth })).toThrow()
-    expect(() => lockCall({ account, unlockDelay: 65_536, auth })).toThrow()
-    expect(() => lockCall({ account, unlockDelay: 1.5, auth })).toThrow()
+    expect(() => lockChange({ unlockDelay: 0 })).toThrow()
+    expect(() => lockChange({ unlockDelay: -1 })).toThrow()
+    expect(() => lockChange({ unlockDelay: 65_536 })).toThrow()
+    expect(() => lockChange({ unlockDelay: 1.5 })).toThrow()
   })
 })
 
-describe('initiateUnlockCall', () => {
-  test('encodes applySignedLockChanges(UNLOCK_OP) to the canonical AccountConfiguration', () => {
-    const call = initiateUnlockCall({ account, auth })
-    expect(call.to).toBe(accountConfigAddress)
-    const { functionName, args } = decodeFunctionData({
-      abi: accountConfigurationAbi,
-      data: call.data!,
-    })
-    expect(functionName).toBe('applySignedLockChanges')
-    expect(args).toEqual([account, unlockOp, 0, auth])
+describe('unlockChange', () => {
+  test('builds an Unlock op with an empty payload', () => {
+    const change = unlockChange()
+    expect(change).toEqual({ changeType: changeType.unlock })
+    expect(encodeChangePayload(change)).toBe('0x')
   })
 })
 
@@ -67,7 +51,7 @@ function lockClient(handlers: Record<string, `0x${string}`>) {
   })
 }
 
-describe('getLockStatus8130', () => {
+describe('getLockStatus', () => {
   test('decodes the AccountConfiguration.getLockStatus tuple', async () => {
     const client = lockClient({
       eth_call: encodeFunctionResult({
@@ -76,7 +60,7 @@ describe('getLockStatus8130', () => {
         result: [true, true, 1_800_000_000, 3600],
       }),
     })
-    const status = await getLockStatus8130(client, { account })
+    const status = await getLockStatus(client, { account })
     expect(status).toEqual({
       locked: true,
       hasInitiatedUnlock: true,
@@ -86,7 +70,7 @@ describe('getLockStatus8130', () => {
   })
 })
 
-describe('isLocked8130', () => {
+describe('isLocked', () => {
   test('decodes the AccountConfiguration.isLocked bool', async () => {
     const client = lockClient({
       eth_call: encodeFunctionResult({
@@ -95,6 +79,6 @@ describe('isLocked8130', () => {
         result: true,
       }),
     })
-    expect(await isLocked8130(client, { account })).toBe(true)
+    expect(await isLocked(client, { account })).toBe(true)
   })
 })

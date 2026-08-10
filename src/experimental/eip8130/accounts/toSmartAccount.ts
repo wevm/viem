@@ -1,5 +1,5 @@
 import type { Abi, Address } from 'abitype'
-import { toSmartAccount } from '../../../account-abstraction/accounts/toSmartAccount.js'
+import { toSmartAccount as toSmartAccount_ } from '../../../account-abstraction/accounts/toSmartAccount.js'
 import type {
   SmartAccount,
   SmartAccountImplementation,
@@ -25,11 +25,11 @@ import {
   ecrecoverAuthenticator,
 } from '../constants.js'
 import type { AaActor } from '../types/transaction.js'
-import { toFactoryArgs8130 } from '../utils/accountConfigCalls.js'
-import { computeAddress8130 } from '../utils/computeAddress.js'
+import { toFactoryArgs } from '../utils/accountConfigCalls.js'
+import { computeAddress } from '../utils/computeAddress.js'
 import { erc1167Bytecode } from '../utils/proxy.js'
 
-export type ToSmartAccount8130Parameters<
+export type ToSmartAccountParameters<
   entryPointAbi extends Abi = Abi,
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > = {
@@ -95,7 +95,7 @@ export type Eip8130SmartAccountImplementation<
   { abi: typeof erc4337AccountAbi }
 >
 
-export type ToSmartAccount8130ReturnType<
+export type ToSmartAccountReturnType<
   entryPointAbi extends Abi = Abi,
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > = Prettify<
@@ -115,9 +115,9 @@ export type ToSmartAccount8130ReturnType<
  * `authenticator || data` auth format.
  *
  * @example
- * import { toSmartAccount8130 } from 'viem/experimental'
+ * import { toSmartAccount } from 'viem/experimental/eip8130'
  *
- * const account = await toSmartAccount8130({
+ * const account = await toSmartAccount({
  *   client,
  *   owner,
  *   userSalt: '0x...',
@@ -125,12 +125,12 @@ export type ToSmartAccount8130ReturnType<
  *   implementation: '0x...', // ERC4337Account impl
  * })
  */
-export async function toSmartAccount8130<
+export async function toSmartAccount<
   entryPointAbi extends Abi = typeof entryPoint07Abi,
   entryPointVersion extends EntryPointVersion = '0.7',
 >(
-  parameters: ToSmartAccount8130Parameters<entryPointAbi, entryPointVersion>,
-): Promise<ToSmartAccount8130ReturnType<entryPointAbi, entryPointVersion>> {
+  parameters: ToSmartAccountParameters<entryPointAbi, entryPointVersion>,
+): Promise<ToSmartAccountReturnType<entryPointAbi, entryPointVersion>> {
   const {
     client,
     entryPoint: entryPoint_ = {
@@ -191,7 +191,7 @@ export async function toSmartAccount8130<
     }
   }
 
-  return toSmartAccount({
+  return toSmartAccount_({
     client,
     entryPoint,
     getNonce,
@@ -225,11 +225,11 @@ export async function toSmartAccount8130<
 
     async getAddress() {
       if (parameters.address) return parameters.address
-      return computeAddress8130(getCreateParameters())
+      return computeAddress(getCreateParameters())
     },
 
     async getFactoryArgs() {
-      return toFactoryArgs8130(getCreateParameters())
+      return toFactoryArgs(getCreateParameters())
     },
 
     async getStubSignature() {

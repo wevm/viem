@@ -4,7 +4,7 @@ import type { ErrorType } from '../../../errors/utils.js'
 import { nonceKeyMax } from '../constants.js'
 import type { TransactionSerializable8130 } from '../types/transaction.js'
 
-export type AssertTransaction8130ErrorType =
+export type AssertTransactionErrorType =
   | InvalidChainIdError
   | BaseError
   | ErrorType
@@ -13,11 +13,18 @@ export type AssertTransaction8130ErrorType =
  * Validates the structural invariants of an EIP-8130 transaction prior to
  * serialization or hashing.
  */
-export function assertTransaction8130(
+export function assertTransaction(
   transaction: TransactionSerializable8130,
 ): void {
-  const { chainId, nonceKey, nonceSequence, expiry, payer, payerAuth, calls } =
-    transaction
+  const {
+    chainId,
+    nonceKey,
+    nonceSequence,
+    validBefore,
+    payer,
+    payerAuth,
+    calls,
+  } = transaction
 
   if (chainId <= 0) throw new InvalidChainIdError({ chainId })
 
@@ -29,18 +36,18 @@ export function assertTransaction8130(
       for (const call of phase)
         if (call.value && call.value !== 0n)
           throw new BaseError(
-            'EIP-8130 calls cannot carry `value` on the wire. Route value-bearing calls through the account wallet (e.g. `encodeWalletCalls` / `sendCalls8130`).',
+            'EIP-8130 calls cannot carry `value` on the wire. Route value-bearing calls through the account wallet (e.g. `encodeWalletCalls` / `sendCalls`).',
           )
 
-  // Nonce-free mode (`NONCE_KEY_MAX`): sequence must be 0 and expiry non-zero.
+  // Nonce-free mode (`NONCE_KEY_MAX`): sequence must be 0 and validBefore non-zero.
   if (typeof nonceKey === 'bigint' && nonceKey === nonceKeyMax) {
     if (nonceSequence !== undefined && nonceSequence !== 0n)
       throw new BaseError(
         '`nonceSequence` must be `0n` when `nonceKey` is `nonceKeyMax` (nonce-free mode).',
       )
-    if (!expiry || expiry === 0n)
+    if (!validBefore || validBefore === 0n)
       throw new BaseError(
-        '`expiry` must be non-zero when `nonceKey` is `nonceKeyMax` (nonce-free mode).',
+        '`validBefore` must be non-zero when `nonceKey` is `nonceKeyMax` (nonce-free mode).',
       )
   }
 

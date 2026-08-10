@@ -13,7 +13,7 @@ import { baseSepolia } from '../../src/chains/index.js'
 import { createClient } from '../../src/clients/createClient.js'
 import { http } from '../../src/clients/transports/http.js'
 import { accountConfigurationAbi } from '../../src/experimental/eip8130/abis.js'
-import { toSmartAccount8130 } from '../../src/experimental/eip8130/accounts/toSmartAccount8130.js'
+import { toSmartAccount } from '../../src/experimental/eip8130/accounts/toSmartAccount.js'
 import {
   actorScope,
   ecrecoverAuthenticator,
@@ -21,7 +21,7 @@ import {
 import { getEip8130Deployment } from '../../src/experimental/eip8130/deployments.js'
 import { authorizeActor, key } from '../../src/experimental/eip8130/keys.js'
 import { actorIdFromPublicKey } from '../../src/experimental/eip8130/utils/actorId.js'
-import { signActorChanges8130 } from '../../src/experimental/eip8130/utils/signActorChanges.js'
+import { signActorChanges } from '../../src/experimental/eip8130/utils/signActorChanges.js'
 import { encodeSignedActorChangesSignature } from '../../src/experimental/eip8130/utils/signedActorChangesSignature.js'
 import { concatHex } from '../../src/utils/data/concat.js'
 import { stringToHex } from '../../src/utils/encoding/toHex.js'
@@ -52,7 +52,7 @@ describe.runIf(PRIVATE_KEY)(
       const deployment = getEip8130Deployment(baseSepolia.id)!
 
       const userSalt = keccak256(stringToHex(`viem-8130-rotate-${Date.now()}`))
-        const account = await toSmartAccount8130({
+        const account = await toSmartAccount({
           client,
           owner,
           userSalt,
@@ -121,7 +121,7 @@ describe.runIf(PRIVATE_KEY)(
       // Current k1 owner authorizes the new P-256 actor. createAccount() sets
       // localSequence = 1 (as the initialized flag), so the first
       // applySignedActorChanges call on a fresh account must sign over sequence 1.
-      const set = await signActorChanges8130({
+      const set = await signActorChanges({
         signer: owner,
         account: account.address,
         chainId: baseSepolia.id,

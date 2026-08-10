@@ -5,8 +5,8 @@ import { concatHex } from '../../../utils/data/concat.js'
 /**
  * Builds the 45-byte ERC-1167 minimal proxy runtime bytecode that delegates to
  * `implementation`. This is the `code` deployed at an **immutable** EIP-8130
- * account address (e.g. `DefaultHighRateAccount`). See {@link computeAddress8130}
- * and {@link toFactoryArgs8130}.
+ * account address (e.g. `DefaultHighRateAccount`). See {@link computeAddress}
+ * and {@link toFactoryArgs}.
  */
 export function erc1167Bytecode(implementation: Address): Hex {
   return concatHex([

@@ -8,7 +8,7 @@ import type { Chain } from '../../../types/chain.js'
 import { accountConfigurationAbi } from '../abis.js'
 import { accountConfigAddress as defaultAccountConfigAddress } from '../constants.js'
 
-export type GetLockStatus8130Parameters = {
+export type GetLockStatusParameters = {
   /** The account whose lock status to read. */
   account: Address
   /**
@@ -18,7 +18,7 @@ export type GetLockStatus8130Parameters = {
   accountConfiguration?: Address | undefined
 }
 
-export type GetLockStatus8130ReturnType = {
+export type GetLockStatusReturnType = {
   /** Whether the account is currently locked. */
   locked: boolean
   /** Whether an unlock has been initiated (the delay is counting down). */
@@ -35,23 +35,23 @@ export type GetLockStatus8130ReturnType = {
  *
  * @example
  * ```ts
- * import { getLockStatus8130 } from 'viem/experimental/eip8130'
+ * import { getLockStatus } from 'viem/experimental/eip8130'
  *
  * const { locked, hasInitiatedUnlock, unlocksAt, unlockDelay } =
- *   await getLockStatus8130(client, { account: account.address })
+ *   await getLockStatus(client, { account: account.address })
  * ```
  *
  * @param client - Client.
  * @param parameters - Parameters.
  * @returns The account's lock status.
  */
-export async function getLockStatus8130<
+export async function getLockStatus<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: GetLockStatus8130Parameters,
-): Promise<GetLockStatus8130ReturnType> {
+  parameters: GetLockStatusParameters,
+): Promise<GetLockStatusReturnType> {
   const { account, accountConfiguration = defaultAccountConfigAddress } =
     parameters
 

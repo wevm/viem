@@ -68,10 +68,12 @@ export type Eip8130Deployment = {
 
 /**
  * Canonical EIP-8130 deployment addresses. Every contract is deployed through
- * Nick's deterministic CREATE2 factory with `salt = 0` (see `base/eip-8130`
- * `script/Deploy.s.sol`), so each address is a pure function of its compiled
- * bytecode — identical on every chain (Base Sepolia, vibenet devnet, mainnet
- * when live).
+ * Nick's deterministic CREATE2 factory with a **per-contract mined salt** (see
+ * `base/eip-8130` `script/Deploy.s.sol`), so each address is a pure function of
+ * its compiled bytecode and salt — identical on every chain (Base Sepolia,
+ * vibenet devnet, mainnet when live). Each salt is mined so the contract shares
+ * the `0x8130…` vanity prefix (except `alwaysValid`, deployed under the zero
+ * salt).
  *
  * `accountConfiguration` is enshrined in the execution client; using any other
  * value derives a different account address and the create transaction fails.
@@ -80,52 +82,35 @@ export type Eip8130Deployment = {
  * bytecode change), all addresses must be re-derived and this object updated.
  */
 export const canonicalEip8130Deployment = {
-  accountConfiguration: '0x53648Cf00356fbAA1F2B531715c6B64AaBDE1555',
+  accountConfiguration: '0x8130f09E345cE43531DF25966017710030Dc00AC',
   accounts: {
     // `upgradeable` / `erc4337` are unaudited example wallets and are not part
     // of the canonical deployment. Callers must provide those implementations
     // explicitly if they choose an example-specific path.
-    default: '0x58da469ef71Dd4B092B010CdA37DE124C926EebD',
-    defaultHighRate: '0x23Fe6949d6370330Ae32e7c17E1265D65955C92a',
+    default: '0x81301D5aFE1DE3B255781876FC07eD45C150AdEF',
+    defaultHighRate: '0x81301B078907cad978E37E8Cf7F91d44f305fA57',
   },
   authenticators: {
     k1: '0x0000000000000000000000000000000000000001',
-    p256: '0xf8847a74F8067CabaE5fe56B70b372A7D670f0f8',
-    webAuthn: '0x871c72d3950308A028E9c4917591bcfd3D6a1EF7',
-    delegate: '0xbb73E3871FBaC8aef1a7Ee8A24E21139916f14C2',
+    p256: '0x8130C89F65750431b564A4730397552a11CeA256',
+    webAuthn: '0x813007b6b1b48E75D91dEc5927ab515d12a0F1d0',
+    delegate: '0x81302CC9e53aB471abf9c5924aDD6CF0A3eBADE1',
     alwaysValid: '0xA550545Da91720c23483c5B3493412A02D1cF9F9',
   },
   policies: {
-    manager: '0x6e9E627770C1c90371A2E4CB9474A7Af577a4306',
-    sessionPolicy: '0x58ef2d572a1bC528f0B9121d686B2618809604Dc',
+    manager: '0x8130646ffaB930BEBd601D06315118071d7F0ac1',
+    sessionPolicy: '0x8130309A18c9923b4523B448325F7e9529695e55',
   },
 } as const satisfies Eip8130Deployment
 
 /**
- * Current EIP-8130 deployment on Base Sepolia (chain id `84532`).
+ * EIP-8130 deployment on Base Sepolia (chain id `84532`).
  *
- * Base Sepolia has not yet migrated to the latest canonical AccountConfiguration
- * deployment, so keep its live addresses separate until that network upgrades.
+ * The finalized contracts deploy at deterministic, per-contract-salt addresses
+ * that are identical on every chain, so this is just the canonical set.
  */
 export const baseSepoliaDeployment = {
-  accountConfiguration: '0xe7Bb8eF3728ea9f0A8be6D7e9585FeAb12dE086A',
-  accounts: {
-    upgradeable: '0xF8dafa4DA35F664cf2CF842f00482ebb68a982b3',
-    default: '0xDd802113C9FF6964cD2A61A16e075D5271cC82c9',
-    defaultHighRate: '0xe5edfB7E7365893d685c2FbFBAC3e022f51d942F',
-    erc4337: '0x8812ee1c9BA2395b5f113412769f22C6e7b89B11',
-  },
-  authenticators: {
-    k1: '0x0000000000000000000000000000000000000001',
-    p256: '0xf8847a74F8067CabaE5fe56B70b372A7D670f0f8',
-    webAuthn: '0x871c72d3950308A028E9c4917591bcfd3D6a1EF7',
-    delegate: '0x1B0195ba5E3FCdB387DD619816eeF8b510Ed0855',
-    alwaysValid: '0xA550545Da91720c23483c5B3493412A02D1cF9F9',
-  },
-  policies: {
-    manager: '0x18B545EfC321644eE2dB9644c8f94f3f3d5e8624',
-    sessionPolicy: '0x6Ef50425716c134162C5c289E02162dde75b23Ea',
-  },
+  ...canonicalEip8130Deployment,
 } as const satisfies Eip8130Deployment
 
 /**
@@ -134,7 +119,6 @@ export const baseSepoliaDeployment = {
  * The devnet runs EIP-8130 **natively**: the execution client enshrines the
  * canonical `accountConfiguration`. Using any other value derives a different
  * account address and create transactions fail with "create address mismatch".
- * The example policy contracts use the #43 binding-at-execute ABI.
  */
 export const vibenetDevnetDeployment = {
   ...canonicalEip8130Deployment,

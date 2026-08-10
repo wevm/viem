@@ -9,7 +9,7 @@ import type { Hex } from '../../../types/misc.js'
 import { accountConfigurationAbi } from '../abis.js'
 import { accountConfigAddress as defaultAccountConfigAddress } from '../constants.js'
 
-export type GetPolicy8130Parameters = {
+export type GetPolicyParameters = {
   /** The account whose actor policy to read. */
   account: Address
   /** The 32-byte actor identifier (see `key.*(...).actorId`). */
@@ -21,7 +21,7 @@ export type GetPolicy8130Parameters = {
   accountConfiguration?: Address | undefined
 }
 
-export type GetPolicy8130ReturnType = {
+export type GetPolicyReturnType = {
   /** Policy manager the actor is gated to (the zero address when unset). */
   target: Address
   /** 32-byte policy commitment stored on the actor. */
@@ -31,30 +31,30 @@ export type GetPolicy8130ReturnType = {
 /**
  * Reads the policy binding for an actor (manager, commitment) from
  * the `AccountConfiguration` system contract (`getPolicy`). Use it to resolve a
- * session key's policy commitment for {@link getSessionSpend8130}.
+ * session key's policy commitment for {@link getSessionSpend}.
  *
  * @example
  * ```ts
- * import { getPolicy8130, getSessionSpend8130, key } from 'viem/experimental/eip8130'
+ * import { getPolicy, getSessionSpend, key } from 'viem/experimental/eip8130'
  *
- * const { commitment } = await getPolicy8130(client, {
+ * const { commitment } = await getPolicy(client, {
  *   account: account.address,
  *   actorId: key.p256({ x, y }).actorId,
  * })
- * const spend = await getSessionSpend8130(client, { commitment, token: usdc })
+ * const spend = await getSessionSpend(client, { commitment, token: usdc })
  * ```
  *
  * @param client - Client.
  * @param parameters - Parameters.
  * @returns The actor's policy binding.
  */
-export async function getPolicy8130<
+export async function getPolicy<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: GetPolicy8130Parameters,
-): Promise<GetPolicy8130ReturnType> {
+  parameters: GetPolicyParameters,
+): Promise<GetPolicyReturnType> {
   const {
     account,
     actorId,

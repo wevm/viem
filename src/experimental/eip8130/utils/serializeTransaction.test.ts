@@ -3,11 +3,11 @@ import { keccak256 } from '../../../utils/hash/keccak256.js'
 import { aaPayerType, aaTransactionType, nonceKeyMax } from '../constants.js'
 import type { TransactionSerializable8130 } from '../types/transaction.js'
 import {
-  getPayerSignatureHash8130,
-  getSenderSignatureHash8130,
+  getPayerSignatureHash,
+  getSenderSignatureHash,
 } from './hashTransaction.js'
-import { parseTransaction8130 } from './parseTransaction.js'
-import { serializeTransaction8130 } from './serializeTransaction.js'
+import { parseTransaction } from './parseTransaction.js'
+import { serializeTransaction } from './serializeTransaction.js'
 
 const alice = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' as const
 const bob = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266' as const
@@ -31,13 +31,13 @@ describe('serializeTransaction (EIP-8130)', () => {
       calls: [[{ to: bob, data: '0xdeadbeef' }]],
       senderAuth,
     }
-    const serialized = serializeTransaction8130(transaction)
+    const serialized = serializeTransaction(transaction)
     expect(serialized.startsWith(aaTransactionType)).toBe(true)
     // canonical codec round-trip (addresses are returned lowercase, matching viem)
-    expect(serializeTransaction8130(parseTransaction8130(serialized))).toEqual(
+    expect(serializeTransaction(parseTransaction(serialized))).toEqual(
       serialized,
     )
-    expect(parseTransaction8130(serialized)).toMatchObject({
+    expect(parseTransaction(serialized)).toMatchObject({
       chainId: 8453,
       nonceSequence: 3n,
       senderAuth,
@@ -50,7 +50,8 @@ describe('serializeTransaction (EIP-8130)', () => {
       from: alice,
       nonceKey: 7n,
       nonceSequence: 1n,
-      expiry: 1_900_000_000n,
+      validAfter: 1_800_000_000_000n,
+      validBefore: 1_900_000_000_000n,
       maxPriorityFeePerGas: 1n,
       maxFeePerGas: 2n,
       gas: 50_000n,
@@ -59,8 +60,8 @@ describe('serializeTransaction (EIP-8130)', () => {
       senderAuth,
       payerAuth,
     }
-    const serialized = serializeTransaction8130(transaction)
-    expect(serializeTransaction8130(parseTransaction8130(serialized))).toEqual(
+    const serialized = serializeTransaction(transaction)
+    expect(serializeTransaction(parseTransaction(serialized))).toEqual(
       serialized,
     )
   })
@@ -72,11 +73,11 @@ describe('serializeTransaction (EIP-8130)', () => {
       calls: [[{ to: bob, data: '0x' }]],
       senderAuth,
     }
-    const serialized = serializeTransaction8130(transaction)
-    const parsed = parseTransaction8130(serialized)
+    const serialized = serializeTransaction(transaction)
+    const parsed = parseTransaction(serialized)
     expect(parsed.from).toBeUndefined()
     // re-serialization is stable
-    expect(serializeTransaction8130(parsed)).toEqual(serialized)
+    expect(serializeTransaction(parsed)).toEqual(serialized)
   })
 
   test('account changes: create + delegation', () => {
@@ -103,8 +104,8 @@ describe('serializeTransaction (EIP-8130)', () => {
       calls: [[{ to: alice, data: '0x' }]],
       senderAuth,
     }
-    const serialized = serializeTransaction8130(transaction)
-    expect(serializeTransaction8130(parseTransaction8130(serialized))).toEqual(
+    const serialized = serializeTransaction(transaction)
+    expect(serializeTransaction(parseTransaction(serialized))).toEqual(
       serialized,
     )
   })
@@ -117,11 +118,11 @@ describe('serializeTransaction (EIP-8130)', () => {
       accountChanges: [
         {
           type: 'config',
-          chainId: 0,
-          sequence: 5,
-          actorChanges: [
+          channel: 'local',
+          sequence: 5n,
+          changes: [
             {
-              changeType: 0x01,
+              changeType: 0x00,
               actorId:
                 '0x0000000000000000000000003c44cdddb6a900fa2b585dd299e03d12fa4293bc',
               authenticator: '0x0000000000000000000000000000000000000001',
@@ -132,24 +133,28 @@ describe('serializeTransaction (EIP-8130)', () => {
               policyData: '0xc0ffee',
             },
             {
-              changeType: 0x02,
+              changeType: 0x01,
               actorId:
                 '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
             },
           ],
-          auth: '0xfeed',
+          signature: '0xfeed',
         },
       ],
       senderAuth,
     }
-    const serialized = serializeTransaction8130(transaction)
-    expect(serializeTransaction8130(parseTransaction8130(serialized))).toEqual(
+    const serialized = serializeTransaction(transaction)
+    expect(serializeTransaction(parseTransaction(serialized))).toEqual(
       serialized,
     )
-    // structural round-trip on the parsed actor changes
-    const parsed = parseTransaction8130(serialized)
+    // structural round-trip on the parsed changes
+    const parsed = parseTransaction(serialized)
     const config = parsed.accountChanges?.[0]
-    expect(config).toMatchObject({ type: 'config', chainId: 0, sequence: 5 })
+    expect(config).toMatchObject({
+      type: 'config',
+      channel: 'local',
+      sequence: 5n,
+    })
   })
 
   test('nonce-free mode (nonceKeyMax)', () => {
@@ -157,13 +162,13 @@ describe('serializeTransaction (EIP-8130)', () => {
       chainId: 8453,
       from: alice,
       nonceKey: nonceKeyMax,
-      expiry: 1_900_000_000n,
+      validBefore: 1_900_000_000_000n,
       maxFeePerGas: 2n,
       calls: [[{ to: bob }]],
       senderAuth,
     }
-    const serialized = serializeTransaction8130(transaction)
-    expect(serializeTransaction8130(parseTransaction8130(serialized))).toEqual(
+    const serialized = serializeTransaction(transaction)
+    expect(serializeTransaction(parseTransaction(serialized))).toEqual(
       serialized,
     )
   })
@@ -172,13 +177,13 @@ describe('serializeTransaction (EIP-8130)', () => {
 describe('assertions', () => {
   test('rejects invalid chainId', () => {
     expect(() =>
-      serializeTransaction8130({ chainId: 0, senderAuth }),
+      serializeTransaction({ chainId: 0, senderAuth }),
     ).toThrowError()
   })
 
-  test('nonce-free mode requires expiry', () => {
+  test('nonce-free mode requires validBefore', () => {
     expect(() =>
-      serializeTransaction8130({
+      serializeTransaction({
         chainId: 1,
         nonceKey: nonceKeyMax,
         senderAuth,
@@ -188,11 +193,11 @@ describe('assertions', () => {
 
   test('nonce-free mode rejects non-zero sequence', () => {
     expect(() =>
-      serializeTransaction8130({
+      serializeTransaction({
         chainId: 1,
         nonceKey: nonceKeyMax,
         nonceSequence: 1n,
-        expiry: 1_900_000_000n,
+        validBefore: 1_900_000_000_000n,
         senderAuth,
       }),
     ).toThrowError()
@@ -200,7 +205,7 @@ describe('assertions', () => {
 
   test('self-pay rejects payerAuth', () => {
     expect(() =>
-      serializeTransaction8130({ chainId: 1, senderAuth, payerAuth }),
+      serializeTransaction({ chainId: 1, senderAuth, payerAuth }),
     ).toThrowError()
   })
 })
@@ -217,16 +222,16 @@ describe('signature hashes', () => {
   }
 
   test('sender hash is domain-separated from payer hash', () => {
-    const senderHash = getSenderSignatureHash8130(transaction)
-    const payerHash = getPayerSignatureHash8130(transaction)
+    const senderHash = getSenderSignatureHash(transaction)
+    const payerHash = getPayerSignatureHash(transaction)
     expect(senderHash).not.toEqual(payerHash)
     expect(senderHash).toMatch(/^0x[0-9a-f]{64}$/)
     expect(payerHash).toMatch(/^0x[0-9a-f]{64}$/)
   })
 
   test('sender hash binds the payer field', () => {
-    const withPayer = getSenderSignatureHash8130(transaction)
-    const withoutPayer = getSenderSignatureHash8130({
+    const withPayer = getSenderSignatureHash(transaction)
+    const withoutPayer = getSenderSignatureHash({
       ...transaction,
       payer: undefined,
     })
@@ -236,15 +241,15 @@ describe('signature hashes', () => {
   test('payer hash binds the payer field', () => {
     // The payer signature commits to the full body INCLUDING the `payer` slot
     // (matches the Rust node's `payer_signature_hash`).
-    const a = getPayerSignatureHash8130(transaction)
-    const b = getPayerSignatureHash8130({ ...transaction, payer: undefined })
+    const a = getPayerSignatureHash(transaction)
+    const b = getPayerSignatureHash({ ...transaction, payer: undefined })
     expect(a).not.toEqual(b)
   })
 
   test('uses the correct domain-separation type bytes', () => {
     expect(aaTransactionType).not.toEqual(aaPayerType)
     // bytes output supported
-    const bytes = getSenderSignatureHash8130({ ...transaction, to: 'bytes' })
+    const bytes = getSenderSignatureHash({ ...transaction, to: 'bytes' })
     expect(bytes).toBeInstanceOf(Uint8Array)
     expect(keccak256(bytes)).toMatch(/^0x/)
   })

@@ -41,14 +41,14 @@ export type ToP256SignerParameters = {
  * Builds a {@link Signer} for a raw P-256 (secp256r1) configured actor. The
  * signer's `sign` returns the P-256 authenticator `data`
  * (`r || s || x || y || preHash`, 129 bytes) and carries the P-256
- * `authenticator`, so it can be passed straight to `to8130Account` /
- * `signTransaction8130` to sign as a non-ECDSA actor.
+ * `authenticator`, so it can be passed straight to `toAccount` /
+ * `signTransaction` to sign as a non-ECDSA actor.
  *
  * @example
- * import { key, to8130Account, toP256Signer } from 'viem/experimental'
+ * import { key, toAccount, toP256Signer } from 'viem/experimental'
  *
  * const signer = toP256Signer({ privateKey })
- * const account = to8130Account({
+ * const account = toAccount({
  *   signer,
  *   authenticator: signer.authenticator,
  *   userSalt,
@@ -137,11 +137,11 @@ export type ToWebAuthnSignerParameters = {
  *
  * @example
  * import { createWebAuthnCredential, toWebAuthnAccount } from 'viem/account-abstraction'
- * import { key, to8130Account, toWebAuthnSigner } from 'viem/experimental'
+ * import { key, toAccount, toWebAuthnSigner } from 'viem/experimental'
  *
  * const credential = await createWebAuthnCredential({ name: 'vibes' })
  * const signer = toWebAuthnSigner(toWebAuthnAccount({ credential }))
- * const account = to8130Account({
+ * const account = toAccount({
  *   signer,
  *   authenticator: signer.authenticator,
  *   userSalt,

@@ -7,9 +7,9 @@ import { erc20Abi } from '../../constants/abis.js'
 import { decodeFunctionData } from '../../utils/abi/decodeFunctionData.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { keccak256 } from '../../utils/hash/keccak256.js'
-import { to8130Account } from '../eip8130/accounts/to8130Account.js'
+import { toAccount } from '../eip8130/accounts/toAccount.js'
 import { key } from '../eip8130/keys.js'
-import { parseTransaction8130 } from '../eip8130/utils/parseTransaction.js'
+import { parseTransaction } from '../eip8130/utils/parseTransaction.js'
 import { erc1167Bytecode } from '../eip8130/utils/proxy.js'
 import { sendSponsoredCalls } from './actions/sendSponsoredCalls.js'
 import { createPayerClient } from './client.js'
@@ -22,7 +22,7 @@ import {
 const owner = privateKeyToAccount(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
 )
-const account = to8130Account({
+const account = toAccount({
   signer: owner,
   userSalt: `0x${'01'.padStart(64, '0')}`,
   code: erc1167Bytecode('0x00000000000000000000000000000000000000Ec'),
@@ -243,7 +243,7 @@ describe('sendSponsoredCalls (end-to-end)', () => {
     })
     expect(result).toHaveProperty('transactionHash')
 
-    const parsed = parseTransaction8130(relayed!)
+    const parsed = parseTransaction(relayed!)
     expect(parsed.payer?.toLowerCase()).toBe(PAYER.toLowerCase())
     expect(parsed.payerAuth ?? '0x').toBe('0x') // payer fills this in
     expect(parsed.senderAuth).toBeDefined()
@@ -275,7 +275,7 @@ describe('sendSponsoredCalls (end-to-end)', () => {
       nonceSequence: 0n,
     })
     expect(result).toHaveProperty('signedTransaction')
-    const parsed = parseTransaction8130(
+    const parsed = parseTransaction(
       (result as { signedTransaction: `0x${string}` }).signedTransaction,
     )
     expect(parsed.calls).toHaveLength(2)

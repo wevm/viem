@@ -9,7 +9,7 @@ import type { Hex } from '../../../types/misc.js'
 import { accountConfigurationAbi } from '../abis.js'
 import { accountConfigAddress as defaultAccountConfigAddress } from '../constants.js'
 
-export type IsActor8130Parameters = {
+export type IsActorParameters = {
   /** The account to check. */
   account: Address
   /** The 32-byte actor identifier (see `key.*(...).actorId`). */
@@ -21,18 +21,18 @@ export type IsActor8130Parameters = {
   accountConfiguration?: Address | undefined
 }
 
-export type IsActor8130ReturnType = boolean
+export type IsActorReturnType = boolean
 
 /**
  * Reads whether an actor is currently authorized on an EIP-8130 account, from
  * the `AccountConfiguration` system contract (`isActor`). For the actor's full
- * configuration, use {@link getActorConfig8130}.
+ * configuration, use {@link getActorConfig}.
  *
  * @example
  * ```ts
- * import { isActor8130, key } from 'viem/experimental/eip8130'
+ * import { isActor, key } from 'viem/experimental/eip8130'
  *
- * const authorized = await isActor8130(client, {
+ * const authorized = await isActor(client, {
  *   account: account.address,
  *   actorId: key.p256({ x, y }).actorId,
  * })
@@ -42,13 +42,13 @@ export type IsActor8130ReturnType = boolean
  * @param parameters - Parameters.
  * @returns Whether the actor is authorized.
  */
-export async function isActor8130<
+export async function isActor<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: IsActor8130Parameters,
-): Promise<IsActor8130ReturnType> {
+  parameters: IsActorParameters,
+): Promise<IsActorReturnType> {
   const {
     account,
     actorId,

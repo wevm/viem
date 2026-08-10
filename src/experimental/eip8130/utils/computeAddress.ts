@@ -50,7 +50,7 @@ export function deploymentHeader(codeSize: number): Hex {
   )
 }
 
-export type ComputeAddress8130Parameters = {
+export type ComputeAddressParameters = {
   /** User-chosen uniqueness factor (bytes32). */
   userSalt: Hex
   /** Runtime bytecode to be placed at the account address. */
@@ -67,7 +67,7 @@ export type ComputeAddress8130Parameters = {
   accountConfigAddress?: Address | undefined
 }
 
-export type ComputeAddress8130ErrorType =
+export type ComputeAddressErrorType =
   | GetCreate2AddressErrorType
   | ConcatHexErrorType
   | Keccak256ErrorType
@@ -79,16 +79,18 @@ export type ComputeAddress8130ErrorType =
  * CREATE2 derivation:
  *
  * ```
- * // per actor: actorId(32) || authenticator(20) || scope(1) || policyData(0|52)
- * actors_commitment = keccak256(actorId_0 || authenticator_0 || scope_0 || policyData_0 || ...)
+ * // per actor leaf: keccak256(actorId(32) || authenticator(20) || scope(2 BE) || policyData(0|52))
+ * actors_commitment = keccak256(leaf_0 || leaf_1 || ... || leaf_{n-1})
  * effective_salt    = keccak256(user_salt || actors_commitment)
  * deployment_code   = DEPLOYMENT_HEADER(len(code)) || code
  * address           = keccak256(0xff || ACCOUNT_CONFIG_ADDRESS || effective_salt || keccak256(deployment_code))[12:]
  * ```
+ *
+ * The commitment is a "hash-the-leaves-then-hash-the-list" scheme (EIP-8130
+ * `_computeActorsCommitment`): each actor is hashed into a 32-byte leaf, then
+ * the packed leaves are hashed once.
  */
-export function computeAddress8130(
-  parameters: ComputeAddress8130Parameters,
-): Address {
+export function computeAddress(parameters: ComputeAddressParameters): Address {
   const {
     userSalt,
     code,
@@ -118,12 +120,16 @@ export function computeAddress8130(
 
   const actorsCommitment = keccak256(
     concatHex(
-      initialActors.flatMap((actor) => [
-        actor.actorId,
-        actor.authenticator,
-        toHex(actor.scope ?? 0, { size: 1 }),
-        actor.policyData ?? '0x',
-      ]),
+      initialActors.map((actor) =>
+        keccak256(
+          concatHex([
+            actor.actorId,
+            actor.authenticator,
+            toHex(actor.scope ?? 0, { size: 2 }),
+            actor.policyData ?? '0x',
+          ]),
+        ),
+      ),
     ),
   )
   const effectiveSalt = keccak256(concatHex([userSalt, actorsCommitment]))

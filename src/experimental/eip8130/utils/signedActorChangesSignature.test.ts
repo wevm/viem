@@ -5,7 +5,7 @@ import { stringToHex } from '../../../utils/encoding/toHex.js'
 import { keccak256 } from '../../../utils/hash/keccak256.js'
 import { actorScope, canonicalAuthenticators } from '../constants.js'
 import { authorizeActor, key, revokeActor } from '../keys.js'
-import { encodeActorChangeData } from './actorChangeData.js'
+import { encodeChangePayload } from './actorChangeData.js'
 import {
   encodeSignedActorChangesSignature,
   signedActorChangesMagic,
@@ -26,8 +26,7 @@ const decodeParameters = [
         type: 'tuple[]',
         components: [
           { name: 'changeType', type: 'uint8' },
-          { name: 'actorId', type: 'bytes32' },
-          { name: 'data', type: 'bytes' },
+          { name: 'payload', type: 'bytes' },
         ],
       },
       { name: 'auth', type: 'bytes' },
@@ -49,7 +48,7 @@ describe('encodeSignedActorChangesSignature', () => {
     const signature = encodeSignedActorChangesSignature(
       [
         {
-          actorChanges: [authorizeActor(key.p256(pubKey))],
+          changes: [authorizeActor(key.p256(pubKey))],
           auth: '0xdeadbeef',
         },
       ],
@@ -65,7 +64,7 @@ describe('encodeSignedActorChangesSignature', () => {
     const auth = '0xc0ffee'
     const opAuth = '0xdeadbeef'
     const signature = encodeSignedActorChangesSignature(
-      [{ actorChanges: [change], auth }],
+      [{ changes: [change], auth }],
       opAuth,
     )
 
@@ -79,19 +78,19 @@ describe('encodeSignedActorChangesSignature', () => {
     expect(changeSets[0].auth).toBe(auth)
     expect(changeSets[0].changes).toHaveLength(1)
     expect(changeSets[0].changes[0].changeType).toBe(change.changeType)
-    expect(changeSets[0].changes[0].actorId).toBe(change.actorId)
-    expect(changeSets[0].changes[0].data).toBe(encodeActorChangeData(change))
+    expect(changeSets[0].changes[0].payload).toBe(encodeChangePayload(change))
     expect(decodedOpAuth).toBe(opAuth)
   })
 
   test('encodes multiple sets in order (chained rotations)', () => {
     const setA = {
-      actorChanges: [authorizeActor(key.p256(pubKey))],
+      changes: [authorizeActor(key.p256(pubKey))],
       auth: '0xaaaa',
     } as const
+    const revoke = revokeActor(key.p256(pubKey))
     const setB = {
-      actorChanges: [
-        revokeActor(key.p256(pubKey)),
+      changes: [
+        revoke,
         authorizeActor(key.k1('0x0000000000000000000000000000000000000abc')),
       ],
       auth: '0xbbbb',
@@ -103,18 +102,21 @@ describe('encodeSignedActorChangesSignature', () => {
     expect(changeSets).toHaveLength(2)
     expect(changeSets[0].auth).toBe(setA.auth)
     expect(changeSets[1].auth).toBe(setB.auth)
-    expect(changeSets[1].changes[0].data).toBe('0x')
-    expect(changeSets[1].changes[1].changeType).toBe(0x01)
+    // revokeActor payload is `abi.encode(bytes32 actorId)`.
+    expect(changeSets[1].changes[0].payload).toBe(encodeChangePayload(revoke))
+    expect(changeSets[1].changes[0].changeType).toBe(0x01)
+    // authorizeActor is ChangeType 0x00.
+    expect(changeSets[1].changes[1].changeType).toBe(0x00)
   })
 
-  test('p256 authorize data carries the canonical authenticator', () => {
+  test('p256 authorize payload carries the canonical authenticator', () => {
     const change = authorizeActor(key.p256(pubKey))
     const signature = encodeSignedActorChangesSignature(
-      [{ actorChanges: [change], auth: '0x' }],
+      [{ changes: [change], auth: '0x' }],
       '0x',
     )
     const [, changeSets] = decodeAbiParameters(decodeParameters, signature)
-    expect(changeSets[0].changes[0].data.toLowerCase()).toContain(
+    expect(changeSets[0].changes[0].payload.toLowerCase()).toContain(
       canonicalAuthenticators.p256.slice(2).toLowerCase(),
     )
   })

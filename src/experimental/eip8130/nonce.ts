@@ -7,7 +7,7 @@ import { isNoncelessOnly } from './keys.js'
 /**
  * A resolved EIP-8130 nonce selection: the channel key and (for nonce-free
  * mode) the fixed sequence and required expiry. Spread the result directly into
- * {@link sendCalls8130} / {@link prepareTransaction8130} parameters.
+ * {@link sendCalls} / {@link prepareTransaction} parameters.
  */
 export type Nonce = {
   /** 2D nonce channel selector (`uint256`). `0` = standard sequential ordering. */
@@ -18,17 +18,18 @@ export type Nonce = {
    */
   nonceSequence?: bigint | undefined
   /**
-   * Unix timestamp (seconds) after which the transaction is invalid. Required
-   * for nonce-free mode (it is the sole replay protection there).
+   * Unix timestamp (**milliseconds**) at/after which the transaction is invalid
+   * (the tx `validBefore`). Required (non-zero) for nonce-free mode — it is the
+   * sole replay protection there.
    */
-  expiry?: bigint | undefined
+  validBefore?: bigint | undefined
 }
 
 /**
  * Builders for EIP-8130 nonce selection. EIP-8130 accounts support three
  * distinct nonce strategies; these helpers produce the correct
  * `nonceKey` / `nonceSequence` / `expiry` fields for each, ready to spread into
- * {@link sendCalls8130} / {@link prepareTransaction8130}.
+ * {@link sendCalls} / {@link prepareTransaction}.
  *
  * - {@link nonce.sequential} — the classic single-file nonce (channel `0`).
  * - {@link nonce.channel} / {@link nonce.randomChannel} — independent 2D nonce
@@ -39,17 +40,17 @@ export type Nonce = {
  *
  * @example
  * ```ts
- * import { nonce, sendCalls8130 } from 'viem/experimental/eip8130'
+ * import { nonce, sendCalls } from 'viem/experimental/eip8130'
  *
  * // Two independent channels → can be mined in either order.
- * await sendCalls8130(client, { account, calls: a, gas, ...nonce.channel(1n) })
- * await sendCalls8130(client, { account, calls: b, gas, ...nonce.channel(2n) })
+ * await sendCalls(client, { account, calls: a, gas, ...nonce.channel(1n) })
+ * await sendCalls(client, { account, calls: b, gas, ...nonce.channel(2n) })
  *
  * // Fire-and-forget parallel txs on random channels.
- * await sendCalls8130(client, { account, calls, gas, ...nonce.randomChannel() })
+ * await sendCalls(client, { account, calls, gas, ...nonce.randomChannel() })
  *
  * // Nonce-free: valid for the next 10 minutes, no sequencing.
- * await sendCalls8130(client, { account, calls, gas, ...nonce.nonceless({ expiresIn: 600 }) })
+ * await sendCalls(client, { account, calls, gas, ...nonce.nonceless({ expiresIn: 600 }) })
  * ```
  */
 export const nonce = {
@@ -78,7 +79,7 @@ export const nonce = {
       )
     if (key === nonceKeyMax)
       throw new BaseError(
-        '`NONCE_KEY_MAX` selects nonce-free mode, which has no counter. Use `nonce.nonceless({ expiry })` instead.',
+        '`NONCE_KEY_MAX` selects nonce-free mode, which has no counter. Use `nonce.nonceless({ validBefore })` instead.',
       )
     return { nonceKey: key }
   },
@@ -102,22 +103,28 @@ export const nonce = {
    * any other; replay protection is provided solely by `expiry`. Ideal for
    * fully parallel, retry-safe sends.
    *
-   * @param parameters.expiry - Absolute expiry (unix seconds).
-   * @param parameters.expiresIn - Relative expiry (seconds from now). Ignored
-   *   when `expiry` is provided. One of `expiry` / `expiresIn` is required.
+   * @param parameters.validBefore - Absolute upper validity bound (unix ms).
+   * @param parameters.expiresIn - Relative validity window (**seconds** from
+   *   now). Ignored when `validBefore` is provided. One of `validBefore` /
+   *   `expiresIn` is required.
    */
-  nonceless(parameters: { expiry?: bigint; expiresIn?: number }): Nonce {
-    const { expiry, expiresIn } = parameters
-    const resolvedExpiry =
-      expiry ??
+  nonceless(parameters: { validBefore?: bigint; expiresIn?: number }): Nonce {
+    const { validBefore, expiresIn } = parameters
+    // `validBefore` is unix milliseconds; `expiresIn` is a seconds duration.
+    const resolvedValidBefore =
+      validBefore ??
       (expiresIn !== undefined
-        ? BigInt(Math.floor(Date.now() / 1000) + expiresIn)
+        ? BigInt(Date.now() + expiresIn * 1000)
         : undefined)
-    if (resolvedExpiry === undefined || resolvedExpiry <= 0n)
+    if (resolvedValidBefore === undefined || resolvedValidBefore <= 0n)
       throw new BaseError(
-        'Nonce-free mode requires a non-zero `expiry` (or `expiresIn`).',
+        'Nonce-free mode requires a non-zero `validBefore` (or `expiresIn`).',
       )
-    return { nonceKey: nonceKeyMax, nonceSequence: 0n, expiry: resolvedExpiry }
+    return {
+      nonceKey: nonceKeyMax,
+      nonceSequence: 0n,
+      validBefore: resolvedValidBefore,
+    }
   },
 
   /**
@@ -129,31 +136,32 @@ export const nonce = {
    * - Admin (`scope == 0`) **or** `SCOPE_NONCE` set → sequenced
    *   {@link nonce.channel} (default channel `0`, i.e. {@link nonce.sequential}).
    * - Restricted actor **without** `SCOPE_NONCE` → {@link nonce.nonceless},
-   *   defaulting the expiry to `NONCE_FREE_MAX_EXPIRY_WINDOW` seconds from now.
+   *   defaulting the window to `NONCE_FREE_MAX_EXPIRY_WINDOW` from now.
    *
    * @param scope - The signing actor's scope bitmask.
    * @param parameters.key - Sequenced channel selector (ignored in nonce-free
    *   mode). @default 0n
-   * @param parameters.expiry - Absolute expiry (unix seconds) for nonce-free
-   *   mode. Overrides `expiresIn`.
-   * @param parameters.expiresIn - Relative expiry (seconds) for nonce-free
-   *   mode. @default Number(NONCE_FREE_MAX_EXPIRY_WINDOW)
+   * @param parameters.validBefore - Absolute upper validity bound (unix ms) for
+   *   nonce-free mode. Overrides `expiresIn`.
+   * @param parameters.expiresIn - Relative validity window (seconds) for
+   *   nonce-free mode. @default Number(NONCE_FREE_MAX_EXPIRY_WINDOW) / 1000
    */
   forScope(
     scope: number,
     parameters: {
       key?: bigint | undefined
-      expiry?: bigint | undefined
+      validBefore?: bigint | undefined
       expiresIn?: number | undefined
     } = {},
   ): Nonce {
     if (isNoncelessOnly(scope))
       return nonce.nonceless(
-        parameters.expiry !== undefined
-          ? { expiry: parameters.expiry }
+        parameters.validBefore !== undefined
+          ? { validBefore: parameters.validBefore }
           : {
+              // `nonceFreeMaxExpiryWindow` is milliseconds; `expiresIn` seconds.
               expiresIn:
-                parameters.expiresIn ?? Number(nonceFreeMaxExpiryWindow),
+                parameters.expiresIn ?? Number(nonceFreeMaxExpiryWindow) / 1000,
             },
       )
     return nonce.channel(parameters.key ?? 0n)

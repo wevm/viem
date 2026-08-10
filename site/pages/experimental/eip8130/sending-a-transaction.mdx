@@ -4,17 +4,17 @@ description: Estimate, sign, and submit an EIP-8130 AA_TX_TYPE transaction
 
 # Sending a Transaction
 
-An EIP-8130 transaction is an `AA_TX_TYPE` (`0x79`) envelope. `sendCalls8130` handles the full lifecycle: it fills the nonce and fees, encodes the calls, signs `sender_auth` (and `payer_auth` when sponsored), serializes, and submits via `eth_sendRawTransaction`.
+An EIP-8130 transaction is an `AA_TX_TYPE` (`0x79`) envelope. `sendCalls` handles the full lifecycle: it fills the nonce and fees, encodes the calls, signs `sender_auth` (and `payer_auth` when sponsored), serializes, and submits via `eth_sendRawTransaction`.
 
 ## Estimate gas
 
-Unlike EVM transactions, the gas budget for an `AA_TX_TYPE` transaction is node-computed and required up front. `estimateGas8130` prices authentication gas from the *shape* of the auth blob — never a real signature — so you can estimate before signing. Pass a `senderAuthVerifier` hint matching your signer so the node prices the right authenticator:
+Unlike EVM transactions, the gas budget for an `AA_TX_TYPE` transaction is node-computed and required up front. `estimateGas` prices authentication gas from the *shape* of the auth blob — never a real signature — so you can estimate before signing. Pass a `senderAuthVerifier` hint matching your signer so the node prices the right authenticator:
 
 ```ts
 import { parseEther } from 'viem'
-import { canonicalAuthenticators, estimateGas8130 } from 'viem/experimental/eip8130'
+import { canonicalAuthenticators, estimateGas } from 'viem/experimental/eip8130'
 
-const gas = await estimateGas8130(client, {
+const gas = await estimateGas(client, {
   sender: account.address,
   // Include `createChange` only on the first (deploying) transaction.
   accountChanges: [account.createChange],
@@ -40,34 +40,34 @@ An EIP-8130 estimate returns the charged gas **even when an inner call reverts**
 
 ## Deploy on first use
 
-Deploy the account and run its first calls in a single transaction by including `account.createChange` in `accountChanges`. `waitForTransactionReceipt8130` surfaces the EIP-8130 receipt fields (per-phase statuses, `payer`, `metadata`).
+Deploy the account and run its first calls in a single transaction by including `account.createChange` in `accountChanges`. `waitForTransactionReceipt` surfaces the EIP-8130 receipt fields (per-phase statuses, `payer`, `metadata`).
 
 ```ts
 import { parseEther } from 'viem'
 import {
   canonicalAuthenticators,
-  estimateGas8130,
-  sendCalls8130,
-  waitForTransactionReceipt8130,
+  estimateGas,
+  sendCalls,
+  waitForTransactionReceipt,
 } from 'viem/experimental/eip8130'
 
 const calls = [{ to: recipient, value: parseEther('0.001') }]
 
-const gas = await estimateGas8130(client, {
+const gas = await estimateGas(client, {
   sender: account.address,
   accountChanges: [account.createChange],
   calls: [calls],
   senderAuthVerifier: canonicalAuthenticators.k1,
 })
 
-const hash = await sendCalls8130(client, {
+const hash = await sendCalls(client, {
   account,
   accountChanges: [account.createChange], // deploy — omit on later txs
   calls,
   gas: (gas * 120n) / 100n,
 })
 
-const receipt = await waitForTransactionReceipt8130(client, { hash })
+const receipt = await waitForTransactionReceipt(client, { hash })
 receipt.eip8130.phaseStatuses // e.g. ['0x1']
 ```
 
@@ -77,14 +77,14 @@ Once the account is deployed, drop `accountChanges` and just pass `calls`. The n
 
 ```ts
 import { encodeFunctionData } from 'viem'
-import { estimateGas8130, sendCalls8130 } from 'viem/experimental/eip8130'
+import { estimateGas, sendCalls } from 'viem/experimental/eip8130'
 
-const gas = await estimateGas8130(client, {
+const gas = await estimateGas(client, {
   sender: account.address,
   calls: [[{ to: token, data: transferData }]],
 })
 
-const hash = await sendCalls8130(client, {
+const hash = await sendCalls(client, {
   account,
   calls: [{ to: token, data: transferData }],
   gas: (gas * 120n) / 100n,
@@ -96,9 +96,9 @@ const hash = await sendCalls8130(client, {
 A flat `calls` array runs as one atomic phase. Pass a nested array to control phases explicitly (each phase is a separate `executeBatch`) — see [Calls & Batching](/experimental/eip8130/calls-and-batching) for the full phased model:
 
 ```ts
-import { sendCalls8130 } from 'viem/experimental/eip8130'
+import { sendCalls } from 'viem/experimental/eip8130'
 
-const hash = await sendCalls8130(client, {
+const hash = await sendCalls(client, {
   account,
   calls: [
     { to: tokenA, data: approveData },
@@ -113,9 +113,9 @@ const hash = await sendCalls8130(client, {
 A `payer` account can co-sign the transaction and pay its gas — either a key you hold or a payer web service:
 
 ```ts
-import { sendCalls8130 } from 'viem/experimental/eip8130'
+import { sendCalls } from 'viem/experimental/eip8130'
 
-const hash = await sendCalls8130(client, {
+const hash = await sendCalls(client, {
   account,
   calls: [{ to: recipient, data }],
   gas: 250_000n,
@@ -127,9 +127,9 @@ See [Sponsoring Transactions](/experimental/eip8130/sponsoring-transactions) for
 
 ## Lower-level control
 
-`sendCalls8130` composes two primitives you can use directly:
+`sendCalls` composes two primitives you can use directly:
 
-- `prepareTransaction8130(client, params)` — fills chain id, nonce sequence, and EIP-1559 fees into a `TransactionSerializable8130`.
+- `prepareTransaction(client, params)` — fills chain id, nonce sequence, and EIP-1559 fees into a `TransactionSerializable8130`.
 - `account.signTransaction(tx, { payer })` — produces the `sender_auth`/`payer_auth` blobs and returns the serialized envelope, which you can submit with `sendRawTransaction`.
 
 ## Next

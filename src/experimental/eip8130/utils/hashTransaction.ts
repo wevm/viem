@@ -19,17 +19,17 @@ import { toTransactionBody } from './serializeTransaction.js'
 
 type To = 'hex' | 'bytes'
 
-export type GetSignatureHash8130Parameters<to extends To = 'hex'> =
+export type GetSignatureHashParameters<to extends To = 'hex'> =
   TransactionSerializable8130 & {
     /** Output format. @default 'hex' */
     to?: to | To | undefined
   }
 
-export type GetSignatureHash8130ReturnType<to extends To = 'hex'> =
+export type GetSignatureHashReturnType<to extends To = 'hex'> =
   | (to extends 'bytes' ? ByteArray : never)
   | (to extends 'hex' ? Hex : never)
 
-export type GetSenderSignatureHash8130ErrorType =
+export type GetSenderSignatureHashErrorType =
   | Keccak256ErrorType
   | ConcatHexErrorType
   | HexToBytesErrorType
@@ -41,15 +41,15 @@ export type GetSenderSignatureHash8130ErrorType =
  *
  * ```
  * keccak256(AA_TX_TYPE || rlp([
- *   chain_id, from, nonce_key, nonce_sequence, expiry,
+ *   chain_id, from, nonce_key, nonce_sequence, valid_after, valid_before,
  *   max_priority_fee_per_gas, max_fee_per_gas, gas_limit,
- *   account_changes, calls, payer
+ *   account_changes, calls, metadata, payer
  * ]))
  * ```
  */
-export function getSenderSignatureHash8130<to extends To = 'hex'>(
-  parameters: GetSignatureHash8130Parameters<to>,
-): GetSignatureHash8130ReturnType<to> {
+export function getSenderSignatureHash<to extends To = 'hex'>(
+  parameters: GetSignatureHashParameters<to>,
+): GetSignatureHashReturnType<to> {
   const { to = 'hex', payer } = parameters
   const hash = keccak256(
     concatHex([
@@ -57,12 +57,11 @@ export function getSenderSignatureHash8130<to extends To = 'hex'>(
       toRlp([...toTransactionBody(parameters), payer ?? '0x']),
     ]),
   )
-  if (to === 'bytes')
-    return hexToBytes(hash) as GetSignatureHash8130ReturnType<to>
-  return hash as GetSignatureHash8130ReturnType<to>
+  if (to === 'bytes') return hexToBytes(hash) as GetSignatureHashReturnType<to>
+  return hash as GetSignatureHashReturnType<to>
 }
 
-export type GetPayerSignatureHash8130ErrorType =
+export type GetPayerSignatureHashErrorType =
   | Keccak256ErrorType
   | ConcatHexErrorType
   | HexToBytesErrorType
@@ -74,7 +73,7 @@ export type GetPayerSignatureHash8130ErrorType =
  *
  * ```
  * keccak256(AA_PAYER_TYPE || rlp([
- *   chain_id, from, nonce_key, nonce_sequence, expiry,
+ *   chain_id, from, nonce_key, nonce_sequence, valid_after, valid_before,
  *   max_priority_fee_per_gas, max_fee_per_gas, gas_limit,
  *   account_changes, calls, metadata, payer
  * ]))
@@ -90,9 +89,9 @@ export type GetPayerSignatureHash8130ErrorType =
  * `parameters.from` before computing this hash, to bind the payer's signature to
  * the specific sender and prevent cross-sender replay.
  */
-export function getPayerSignatureHash8130<to extends To = 'hex'>(
-  parameters: GetSignatureHash8130Parameters<to>,
-): GetSignatureHash8130ReturnType<to> {
+export function getPayerSignatureHash<to extends To = 'hex'>(
+  parameters: GetSignatureHashParameters<to>,
+): GetSignatureHashReturnType<to> {
   const { to = 'hex', payer } = parameters
   const hash = keccak256(
     concatHex([
@@ -100,7 +99,6 @@ export function getPayerSignatureHash8130<to extends To = 'hex'>(
       toRlp([...toTransactionBody(parameters), payer ?? '0x']),
     ]),
   )
-  if (to === 'bytes')
-    return hexToBytes(hash) as GetSignatureHash8130ReturnType<to>
-  return hash as GetSignatureHash8130ReturnType<to>
+  if (to === 'bytes') return hexToBytes(hash) as GetSignatureHashReturnType<to>
+  return hash as GetSignatureHashReturnType<to>
 }

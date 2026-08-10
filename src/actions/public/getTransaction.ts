@@ -186,7 +186,7 @@ export async function getTransaction<
       to: null,
       value: '0x0',
       input: '0x',
-      // EIP-8130 extra fields (preserved as-is for `getTransaction8130`).
+      // EIP-8130 extra fields (preserved as-is for the eip8130 `getTransaction`).
       nonceKey: body.nonceKey,
       expiry: body.expiry,
       calls: body.calls,

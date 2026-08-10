@@ -12,7 +12,7 @@ import type { AaAccountChange, AaCalls } from '../types/transaction.js'
  * transaction as returned by `eth_getTransactionByHash` on a node with the
  * EIP-8130 extension.
  */
-export type Transaction8130 = {
+export type Transaction = {
   /** EIP-8130 transaction type marker. */
   type: typeof aaTransactionType
   /** Transaction hash (injected from the request — not present in the raw RPC response). */
@@ -25,8 +25,10 @@ export type Transaction8130 = {
   nonceKey: Hex
   /** 2D nonce: sequence within the channel. */
   nonceSequence: number
-  /** Expiry timestamp (0 = no expiry). */
-  expiry: number
+  /** Lower validity bound (unix ms; 0 = no lower bound). */
+  validAfter: number
+  /** Upper validity bound (unix ms; 0 = no upper bound). */
+  validBefore: number
   /** Maximum fee per gas (EIP-1559). */
   maxFeePerGas: bigint
   /** Maximum priority fee per gas (EIP-1559). */
@@ -55,22 +57,23 @@ export type Transaction8130 = {
   transactionIndex: number | null
 }
 
-export type GetTransaction8130Parameters = {
+export type GetTransactionParameters = {
   /** The hash of the EIP-8130 transaction to fetch. */
   hash: Hash
 }
 
-export type GetTransaction8130ReturnType = Transaction8130
+export type GetTransactionReturnType = Transaction
 
 /** Raw RPC response shape for `eth_getTransactionByHash` on an 8130 node. */
-type RawTx8130 = {
+type RawTx = {
   type: typeof aaTransactionType
   tx: {
     chainId: number
     sender: Address
     nonceKey: Hex
     nonceSequence: number
-    expiry: number
+    validAfter: number
+    validBefore: number
     maxFeePerGas: Hex
     maxPriorityFeePerGas: Hex
     gasLimit: number
@@ -90,7 +93,7 @@ type RawTx8130 = {
 
 /**
  * Fetches an EIP-8130 (`AA_TX_TYPE`) transaction by hash and returns a
- * fully-typed `Transaction8130` object.
+ * fully-typed `Transaction` object.
  *
  * Unlike the generic `getTransaction`, this action:
  * - Understands the nested `tx` body format returned by the EIP-8130 RPC node.
@@ -98,30 +101,30 @@ type RawTx8130 = {
  * - Converts all numeric fields from raw form to `bigint` / `number`.
  *
  * @example
- * const tx = await getTransaction8130(client, { hash: '0xabc...' })
+ * const tx = await getTransaction(client, { hash: '0xabc...' })
  * console.log(tx.calls)          // AaCalls
  * console.log(tx.accountChanges) // AaAccountChange[]
  * console.log(tx.nonceSequence)  // number
  */
-export async function getTransaction8130<
+export async function getTransaction<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: GetTransaction8130Parameters,
-): Promise<GetTransaction8130ReturnType> {
+  parameters: GetTransactionParameters,
+): Promise<GetTransactionReturnType> {
   const { hash } = parameters
 
   const raw = await (
     client.request as (args: {
       method: 'eth_getTransactionByHash'
       params: [Hash]
-    }) => Promise<RawTx8130 | null>
+    }) => Promise<RawTx | null>
   )({ method: 'eth_getTransactionByHash', params: [hash] })
 
   if (!raw || raw.type !== aaTransactionType)
     throw new Error(
-      `getTransaction8130: expected type ${aaTransactionType} but got type ${(raw as any)?.type ?? 'null'} for hash ${hash}`,
+      `getTransaction: expected type ${aaTransactionType} but got type ${(raw as any)?.type ?? 'null'} for hash ${hash}`,
     )
 
   const body = raw.tx
@@ -133,7 +136,8 @@ export async function getTransaction8130<
     chainId: body.chainId,
     nonceKey: body.nonceKey,
     nonceSequence: body.nonceSequence,
-    expiry: body.expiry,
+    validAfter: body.validAfter,
+    validBefore: body.validBefore,
     maxFeePerGas: BigInt(body.maxFeePerGas),
     maxPriorityFeePerGas: BigInt(body.maxPriorityFeePerGas),
     gas: BigInt(body.gasLimit),

@@ -149,8 +149,8 @@ export type AuthorizeActorOptions = {
 
 /**
  * Builds an `authorizeActor` change from a {@link key} actor plus scope, expiry,
- * and optional policy. The result can be signed via `signActorChanges8130` /
- * `to8130Account#authorize`.
+ * and optional policy. The result can be signed via `signActorChanges` /
+ * `toAccount#authorize`.
  *
  * A policy-gated actor (session key) should be authorized as POLICY-only
  * (`scope: actorScope.policy`): `SCOPE_POLICY` grants "gated initiation", so the
@@ -171,7 +171,7 @@ export function authorizeActor(
   options: AuthorizeActorOptions = {},
 ): AaAuthorizeActor {
   const change: AaAuthorizeActor = {
-    changeType: 0x01,
+    changeType: 0x00,
     actorId: actor.actorId,
     authenticator: actor.authenticator,
   }
@@ -194,5 +194,5 @@ export function authorizeActor(
 /** Builds a `revokeActor` change for an actor (or raw `actorId`). */
 export function revokeActor(actor: AaActor | Hex): AaRevokeActor {
   const actorId = typeof actor === 'string' ? actor : actor.actorId
-  return { changeType: 0x02, actorId }
+  return { changeType: 0x01, actorId }
 }

@@ -10,7 +10,7 @@ import { http } from '../../src/clients/transports/http.js'
 import { accountConfigurationAbi } from '../../src/experimental/eip8130/abis.js'
 import { getEip8130Deployment } from '../../src/experimental/eip8130/deployments.js'
 import { key } from '../../src/experimental/eip8130/keys.js'
-import { computeAddress8130 } from '../../src/experimental/eip8130/utils/computeAddress.js'
+import { computeAddress } from '../../src/experimental/eip8130/utils/computeAddress.js'
 import { erc1167Bytecode } from '../../src/experimental/eip8130/utils/proxy.js'
 import { stringToHex } from '../../src/utils/encoding/toHex.js'
 import { keccak256 } from '../../src/utils/hash/keccak256.js'
@@ -37,7 +37,7 @@ describe.runIf(PRIVATE_KEY)('setup an EIP-8130 account on Base Sepolia', () => {
       authenticator: a.authenticator,
     }))
 
-    const local = computeAddress8130({ userSalt, code, initialActors })
+    const local = computeAddress({ userSalt, code, initialActors })
     const onchain = await readContract(client, {
       abi: accountConfigurationAbi,
       address: deployment.accountConfiguration,

@@ -17,35 +17,38 @@ import {
   type Keccak256ErrorType,
   keccak256,
 } from '../../../utils/hash/keccak256.js'
-import type { AaActorChange } from '../types/transaction.js'
-import { encodeActorChangeData } from './actorChangeData.js'
+import type { AaChange } from '../types/transaction.js'
+import { encodeChangePayload } from './actorChangeData.js'
 
-/** `keccak256("ActorChange(uint8 changeType,bytes32 actorId,bytes data)")` */
-export const actorChangeTypehash = keccak256(
-  stringToHex('ActorChange(uint8 changeType,bytes32 actorId,bytes data)'),
+/** `keccak256("AccountChange(uint8 changeType,bytes payload)")` */
+export const accountChangeTypehash = keccak256(
+  stringToHex('AccountChange(uint8 changeType,bytes payload)'),
 )
 
 /**
- * `keccak256("SignedActorChanges(address account,uint256 chainId,uint64 sequence,ActorChange[] actorChanges)ActorChange(uint8 changeType,bytes32 actorId,bytes data)")`
+ * `keccak256("SignedAccountChanges(address account,uint256 chainId,uint64 sequence,AccountChange[] changes)AccountChange(uint8 changeType,bytes payload)")`
  */
-export const signedActorChangesTypehash = keccak256(
+export const signedAccountChangesTypehash = keccak256(
   stringToHex(
-    'SignedActorChanges(address account,uint256 chainId,uint64 sequence,ActorChange[] actorChanges)ActorChange(uint8 changeType,bytes32 actorId,bytes data)',
+    'SignedAccountChanges(address account,uint256 chainId,uint64 sequence,AccountChange[] changes)AccountChange(uint8 changeType,bytes payload)',
   ),
 )
 
-export type HashActorChanges8130Parameters = {
-  /** The account whose actor configuration is changing. */
+export type HashAccountChangesParameters = {
+  /** The account whose configuration is changing. */
   account: Address
-  /** Chain ID scope. `0` = valid on any chain (multichain channel). */
-  chainId: number
-  /** Monotonic ordering sequence within the channel. */
-  sequence: number
-  /** Actor change operations. */
-  actorChanges: readonly AaActorChange[]
+  /**
+   * The replay chain id bound into the digest: `block.chainid` for the `'local'`
+   * channel, `0` for `'multichain'`.
+   */
+  chainId: number | bigint
+  /** The channel sequence word (`uint64`). */
+  sequence: number | bigint
+  /** The ordered ops in the batch. */
+  changes: readonly AaChange[]
 }
 
-export type HashActorChanges8130ErrorType =
+export type HashAccountChangesErrorType =
   | EncodeAbiParametersErrorType
   | ConcatHexErrorType
   | Keccak256ErrorType
@@ -53,41 +56,36 @@ export type HashActorChanges8130ErrorType =
   | ErrorType
 
 /**
- * Computes the EIP-8130 config-change (`SignedActorChanges`) signature digest:
+ * Computes the EIP-8130 `SignedAccountChanges` batch signature digest
+ * (`Keystore._changesDigest`):
  *
  * ```
- * actorChangeHashes = [keccak256(abi.encode(ACTORCHANGE_TYPEHASH, changeType, actorId, keccak256(data)))]
- * actorChangesHash  = keccak256(abi.encodePacked(actorChangeHashes))
- * digest            = keccak256(abi.encode(TYPEHASH, account, chainId, sequence, actorChangesHash))
+ * changeHashes = [keccak256(abi.encode(ACCOUNT_CHANGE_TYPEHASH, changeType, keccak256(payload)))]
+ * changesHash  = keccak256(abi.encodePacked(changeHashes))
+ * digest       = keccak256(abi.encode(SIGNED_ACCOUNT_CHANGES_TYPEHASH, account, chainId, sequence, changesHash))
  * ```
  *
  * The resulting digest is signed (in `authenticator || data` form) to produce
- * the config-change entry's `auth`.
+ * the config entry's `signature`.
  */
-export function hashActorChanges8130(
-  parameters: HashActorChanges8130Parameters,
+export function hashAccountChanges(
+  parameters: HashAccountChangesParameters,
 ): Hex {
-  const { account, chainId, sequence, actorChanges } = parameters
+  const { account, chainId, sequence, changes } = parameters
 
-  const actorChangeHashes = actorChanges.map((change) =>
+  const changeHashes = changes.map((change) =>
     keccak256(
       encodeAbiParameters(
+        [{ type: 'bytes32' }, { type: 'uint8' }, { type: 'bytes32' }],
         [
-          { type: 'bytes32' },
-          { type: 'uint8' },
-          { type: 'bytes32' },
-          { type: 'bytes32' },
-        ],
-        [
-          actorChangeTypehash,
+          accountChangeTypehash,
           change.changeType,
-          change.actorId,
-          keccak256(encodeActorChangeData(change)),
+          keccak256(encodeChangePayload(change)),
         ],
       ),
     ),
   )
-  const actorChangesHash = keccak256(concatHex(actorChangeHashes))
+  const changesHash = keccak256(concatHex(changeHashes))
 
   return keccak256(
     encodeAbiParameters(
@@ -99,11 +97,11 @@ export function hashActorChanges8130(
         { type: 'bytes32' },
       ],
       [
-        signedActorChangesTypehash,
+        signedAccountChangesTypehash,
         account,
         BigInt(chainId),
         BigInt(sequence),
-        actorChangesHash,
+        changesHash,
       ],
     ),
   )

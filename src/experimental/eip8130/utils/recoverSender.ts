@@ -2,16 +2,16 @@ import type { Address } from 'abitype'
 import type { ErrorType } from '../../../errors/utils.js'
 import { recoverAddress } from '../../../utils/signature/recoverAddress.js'
 import type { TransactionSerializable8130 } from '../types/transaction.js'
-import { getSenderSignatureHash8130 } from './hashTransaction.js'
+import { getSenderSignatureHash } from './hashTransaction.js'
 
-export type RecoverSenderAddress8130Parameters = {
+export type RecoverSenderAddressParameters = {
   /**
    * A parsed / serializable EIP-8130 transaction. Must carry `senderAuth`.
    */
   transaction: TransactionSerializable8130
 }
 
-export type RecoverSenderAddress8130ErrorType = ErrorType
+export type RecoverSenderAddressErrorType = ErrorType
 
 /**
  * Resolves the sender (`from`) address of an EIP-8130 transaction.
@@ -28,10 +28,10 @@ export type RecoverSenderAddress8130ErrorType = ErrorType
  * the wire format omits `from` in that case.
  *
  * @example
- * const from = await recoverSenderAddress8130({ transaction: parsed })
+ * const from = await recoverSenderAddress({ transaction: parsed })
  */
-export async function recoverSenderAddress8130(
-  parameters: RecoverSenderAddress8130Parameters,
+export async function recoverSenderAddress(
+  parameters: RecoverSenderAddressParameters,
 ): Promise<Address> {
   const { transaction } = parameters
   if (transaction.from) return transaction.from
@@ -40,6 +40,6 @@ export async function recoverSenderAddress8130(
       'Cannot recover sender: transaction has neither `from` nor `senderAuth`.',
     )
   // EOA path: sender hash is computed with `from` empty (the wire form).
-  const hash = getSenderSignatureHash8130({ ...transaction, from: undefined })
+  const hash = getSenderSignatureHash({ ...transaction, from: undefined })
   return recoverAddress({ hash, signature: transaction.senderAuth })
 }

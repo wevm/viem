@@ -17,20 +17,21 @@ import type {
   AaAccountChangeCreate,
   AaAccountChangeDelegation,
   AaActor,
-  AaActorChange,
+  AaChange,
+  AaChangeChannel,
   TransactionSerializable8130,
   TransactionSerialized8130,
 } from '../types/transaction.js'
-import { computeAddress8130 } from '../utils/computeAddress.js'
+import { computeAddress } from '../utils/computeAddress.js'
 import { erc1167Bytecode, upgradeableProxyBytecode } from '../utils/proxy.js'
-import { signActorChanges8130 } from '../utils/signActorChanges.js'
-import { type Signer, signTransaction8130 } from '../utils/signTransaction.js'
+import { signAccountChanges } from '../utils/signActorChanges.js'
+import { type Signer, signTransaction } from '../utils/signTransaction.js'
 
 /**
- * Common base params shared by both `to8130Account` shapes.
+ * Common base params shared by both `toAccount` shapes.
  * @internal
  */
-type To8130AccountBase = {
+type ToAccountBase = {
   /** Signer that produces `sender_auth` / `auth` blobs for this account. */
   signer: Signer
   /**
@@ -42,7 +43,7 @@ type To8130AccountBase = {
   /**
    * Scope bitmask of the **signing actor** on this account (see
    * {@link actorScope}). Prefer omitting this once the actor is on-chain —
-   * {@link prepareTransaction8130} reads `getActorConfig` and derives nonce
+   * {@link prepareTransaction} reads `getActorConfig` and derives nonce
    * mode from chain truth. When set on an already-bound actor, it must match
    * the on-chain value or prepare throws {@link ScopeMismatchError}.
    *
@@ -59,7 +60,7 @@ type To8130AccountBase = {
 }
 
 /**
- * Parameters for `to8130Account` — two mutually exclusive shapes:
+ * Parameters for `toAccount` — two mutually exclusive shapes:
  *
  * **Smart-account shape** (`userSalt` + `code` + `initialActors`): derives the
  * counterfactual CREATE2 address and exposes `create()` for first-deployment.
@@ -69,7 +70,7 @@ type To8130AccountBase = {
  * in the first transaction's `accountChanges` instead. No `userSalt`, `code`, or
  * `initialActors` are needed.
  */
-export type To8130AccountParameters = To8130AccountBase &
+export type ToAccountParameters = ToAccountBase &
   (
     | {
         /**
@@ -105,14 +106,14 @@ export type To8130AccountParameters = To8130AccountBase &
       }
   )
 
-export type To8130AccountReturnType = {
+export type ToAccountReturnType = {
   readonly address: Address
   readonly signer: Signer
   readonly initialActors: readonly AaActor[]
   /**
    * Scope of the signing actor, when known off-chain. Prefer leaving this
    * unset once the actor is authorized — prepare reads chain truth instead.
-   * See {@link prepareTransaction8130}.
+   * See {@link prepareTransaction}.
    */
   readonly scope?: number | undefined
   /**
@@ -128,10 +129,14 @@ export type To8130AccountReturnType = {
    * (e.g. delegated EOA) — use `delegate(impl)` instead.
    */
   create(): AaAccountChangeCreate
-  /** Signs an `authorizeActor` / `revokeActor` set into a `config` entry. */
+  /** Signs a `SignedAccountChanges` batch into a `config` entry. */
   change(
-    actorChanges: readonly AaActorChange[],
-    options?: { chainId?: number; sequence?: number },
+    changes: readonly AaChange[],
+    options?: {
+      channel?: AaChangeChannel
+      chainId?: number
+      sequence?: bigint
+    },
   ): Promise<AaAccountChangeConfig>
   /**
    * Builds an EIP-7702 `delegation` account-change entry.
@@ -153,13 +158,13 @@ export type To8130AccountReturnType = {
  *
  * **Smart-account** — supply `userSalt + code + initialActors`:
  * ```ts
- * const account = to8130Account({ signer, userSalt, code, initialActors })
+ * const account = toAccount({ signer, userSalt, code, initialActors })
  * // first tx: accountChanges: [account.create()]
  * ```
  *
  * **Delegated EOA** — supply `address` only (no salt, no code, no actors):
  * ```ts
- * const account = to8130Account({ signer, address: eoaSigner.address })
+ * const account = toAccount({ signer, address: eoaSigner.address })
  * // first tx: accountChanges: [account.delegate(deployment.accounts.default)]
  * // add keys:  accountChanges: [account.delegate(...), await account.change([...])]
  * ```
@@ -167,19 +172,19 @@ export type To8130AccountReturnType = {
  * For the P256 / WebAuthn actor to drive the EOA after delegation, construct
  * a second handle with the new signer but the same `address`:
  * ```ts
- * const accountAsP256 = to8130Account({
+ * const accountAsP256 = toAccount({
  *   signer: p256,
  *   authenticator: p256.authenticator,
  *   address: eoaSigner.address,
  * })
  * ```
  *
- * For pure EOA K1 signing (no contract, raw 65-byte sig) see {@link toEoa8130Account}.
- * For a new smart account with auto-derived address see {@link newSmartAccount8130}.
+ * For pure EOA K1 signing (no contract, raw 65-byte sig) see {@link toEoaAccount}.
+ * For a new smart account with auto-derived address see {@link newSmartAccount}.
  */
-export function to8130Account(
-  parameters: To8130AccountParameters,
-): To8130AccountReturnType {
+export function toAccount(
+  parameters: ToAccountParameters,
+): ToAccountReturnType {
   const { signer, authenticator = ecrecoverAuthenticator, scope } = parameters
 
   // Address-only mode (delegated EOA): address is fixed, no CREATE2 derivation.
@@ -194,7 +199,7 @@ export function to8130Account(
       throw new BaseError(
         'Provide `address` or `userSalt + code + initialActors` to derive the account address.',
       )
-    return computeAddress8130({
+    return computeAddress({
       userSalt: parameters.userSalt!,
       code: parameters.code!,
       initialActors: parameters.initialActors!,
@@ -235,13 +240,14 @@ export function to8130Account(
       }
     },
 
-    async change(actorChanges, options = {}) {
-      return signActorChanges8130({
+    async change(changes, options = {}) {
+      return signAccountChanges({
         signer,
         account: address,
+        channel: options.channel ?? 'local',
         chainId: options.chainId ?? 0,
-        sequence: options.sequence ?? 0,
-        actorChanges,
+        sequence: options.sequence ?? 0n,
+        changes,
         authenticator,
       })
     },
@@ -253,7 +259,7 @@ export function to8130Account(
     async signTransaction(transaction, options = {}) {
       if (!signer.sign)
         throw new BaseError('`signer` does not support raw signing.')
-      return signTransaction8130({
+      return signTransaction({
         transaction: { ...transaction, from: transaction.from ?? address },
         account: signer,
         authenticator,
@@ -264,10 +270,10 @@ export function to8130Account(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// newSmartAccount8130
+// newSmartAccount
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type NewSmartAccount8130Parameters = {
+export type NewSmartAccountParameters = {
   /**
    * The signing key for this account's controlling actor.
    *
@@ -312,13 +318,13 @@ export type NewSmartAccount8130Parameters = {
   accountConfigAddress?: Address | undefined
 }
 
-export type NewSmartAccount8130ReturnType = To8130AccountReturnType & {
+export type NewSmartAccountReturnType = ToAccountReturnType & {
   /**
    * The `create` account-change entry — include in `accountChanges` for the
    * first transaction to deploy this account.
    *
    * @example
-   * const gas = await estimateGas8130(client, {
+   * const gas = await estimateGas(client, {
    *   from: account.address,
    *   accountChanges: [account.createChange],
    *   calls: [[{ to: recipient, value: parseEther('0.01') }]],
@@ -344,21 +350,21 @@ export type NewSmartAccount8130ReturnType = To8130AccountReturnType & {
  *
  * @example
  * // K1 (EOA private key)
- * const account = newSmartAccount8130({ signer: privateKeyToAccount(pk) })
+ * const account = newSmartAccount({ signer: privateKeyToAccount(pk) })
  *
  * @example
  * // P-256
  * const p256 = toP256Signer({ privateKey: P256.randomPrivateKey() })
- * const account = newSmartAccount8130({ signer: p256 })
+ * const account = newSmartAccount({ signer: p256 })
  *
  * @example
  * // WebAuthn / passkey
  * const webAuthn = toWebAuthnSigner(toWebAuthnAccount({ credential }))
- * const account = newSmartAccount8130({ signer: webAuthn })
+ * const account = newSmartAccount({ signer: webAuthn })
  *
  * @example
  * // First tx: create + call in one shot
- * const gas = await estimateGas8130(client, {
+ * const gas = await estimateGas(client, {
  *   from: account.address,
  *   accountChanges: [account.createChange],
  *   calls: [[{ to: recipient, value }]],
@@ -372,9 +378,9 @@ export type NewSmartAccount8130ReturnType = To8130AccountReturnType & {
  *   maxPriorityFeePerGas: 1_000_000n,
  * })
  */
-export function newSmartAccount8130(
-  parameters: NewSmartAccount8130Parameters,
-): NewSmartAccount8130ReturnType {
+export function newSmartAccount(
+  parameters: NewSmartAccountParameters,
+): NewSmartAccountReturnType {
   const {
     signer,
     implementation,
@@ -421,7 +427,7 @@ export function newSmartAccount8130(
     }
   }
 
-  const inner = to8130Account({
+  const inner = toAccount({
     signer,
     userSalt: salt,
     code,
@@ -439,10 +445,10 @@ export function newSmartAccount8130(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// toEoa8130Account
+// toEoaAccount
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type ToEoa8130AccountParameters = {
+export type ToEoaAccountParameters = {
   /**
    * Scope of the EOA's implicit self-actor. Defaults to admin
    * ({@link scopeUnrestricted}), which may use ordered *or* nonce-free nonces
@@ -451,14 +457,14 @@ export type ToEoa8130AccountParameters = {
   scope?: number | undefined
 }
 
-export type ToEoa8130AccountReturnType = {
+export type ToEoaAccountReturnType = {
   /** The EOA address — both the sender identity and the key recovery target. */
   readonly address: Address
   readonly signer: Signer
   /**
    * Scope of the implicit self-actor (admin by default). Drives automatic
    * nonce-mode selection: admin may use ordered *or* nonce-free, so sends
-   * default to ordered (sequenced) mode. See {@link prepareTransaction8130}.
+   * default to ordered (sequenced) mode. See {@link prepareTransaction}.
    */
   readonly scope?: number | undefined
   /**
@@ -489,8 +495,12 @@ export type ToEoa8130AccountReturnType = {
    * })
    */
   change(
-    actorChanges: readonly AaActorChange[],
-    options?: { chainId?: number; sequence?: number },
+    changes: readonly AaChange[],
+    options?: {
+      channel?: AaChangeChannel
+      chainId?: number
+      sequence?: bigint
+    },
   ): Promise<AaAccountChangeConfig>
   /**
    * Signs an EIP-8130 transaction using the EOA implicit self-actor path.
@@ -519,9 +529,9 @@ export type ToEoa8130AccountReturnType = {
  * the first tx's `accountChanges`). Both cases use the same signing path.
  *
  * To drive the same EOA address with a **different** actor (P-256 / WebAuthn)
- * after delegation, use {@link to8130Account} with `address`:
+ * after delegation, use {@link toAccount} with `address`:
  * ```ts
- * const accountAsP256 = to8130Account({
+ * const accountAsP256 = toAccount({
  *   signer: p256,
  *   authenticator: p256.authenticator,
  *   address: eoaSigner.address,
@@ -530,22 +540,22 @@ export type ToEoa8130AccountReturnType = {
  *
  * @example
  * // Pure EOA — no contract, payer-sponsored
- * const account = toEoa8130Account(privateKeyToAccount(pk))
+ * const account = toEoaAccount(privateKeyToAccount(pk))
  * const signed = await account.signTransaction({ calls: wire, payer: payerAddr, ... })
  *
  * @example
  * // Delegated EOA — delegate + add P256 in one shot
- * const account = toEoa8130Account(privateKeyToAccount(pk))
+ * const account = toEoaAccount(privateKeyToAccount(pk))
  * const addP256 = await account.change([authorizeActor(key.p256(...))], { chainId, sequence: 0 })
  * const signed = await account.signTransaction({
  *   accountChanges: [account.delegate(deployment.accounts.default), addP256],
  *   calls: wire, ...
  * })
  */
-export function toEoa8130Account(
+export function toEoaAccount(
   signer: Signer,
-  parameters: ToEoa8130AccountParameters = {},
-): ToEoa8130AccountReturnType {
+  parameters: ToEoaAccountParameters = {},
+): ToEoaAccountReturnType {
   if (!signer.address)
     throw new BaseError(
       '`signer.address` is required. Use `privateKeyToAccount(pk)` or equivalent.',
@@ -562,13 +572,14 @@ export function toEoa8130Account(
       return { type: 'delegation', target }
     },
 
-    async change(actorChanges, options = {}) {
-      return signActorChanges8130({
+    async change(changes, options = {}) {
+      return signAccountChanges({
         signer,
         account: address,
+        channel: options.channel ?? 'local',
         chainId: options.chainId ?? 0,
-        sequence: options.sequence ?? 0,
-        actorChanges,
+        sequence: options.sequence ?? 0n,
+        changes,
         authenticator: ecrecoverAuthenticator,
       })
     },
@@ -576,7 +587,7 @@ export function toEoa8130Account(
     async signTransaction(transaction, options = {}) {
       if (!signer.sign)
         throw new BaseError('`signer` does not support raw signing.')
-      return signTransaction8130({
+      return signTransaction({
         // Omit `from` → EOA implicit self-actor path:
         // senderAuth = raw 65-byte sig, sender recovered via ecrecover.
         transaction,
@@ -589,10 +600,10 @@ export function toEoa8130Account(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// toDelegate8130Signer
+// toDelegateSigner
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type ToDelegate8130SignerParameters = {
+export type ToDelegateSignerParameters = {
   /**
    * The delegate (parent) account address that controls the sub-account. The
    * sub-account must have a `key.delegate(delegateAccount)` actor authorized
@@ -620,17 +631,17 @@ export type ToDelegate8130SignerParameters = {
  * sub-account through the `DelegateAuthenticator` (one delegation hop). The
  * produced `sign` returns the delegate authenticator's `data` payload —
  * `delegateAccount(20) ‖ nestedAuthenticator(20) ‖ nestedSignature` — so that
- * `to8130Account`'s configured-actor path serializes the full `senderAuth` as
+ * `toAccount`'s configured-actor path serializes the full `senderAuth` as
  * `DELEGATE_AUTHENTICATOR ‖ data`.
  *
- * Use it as the `signer` (and pass its `authenticator`) to {@link to8130Account}
+ * Use it as the `signer` (and pass its `authenticator`) to {@link toAccount}
  * for an account whose only owner is `key.delegate(parent)`:
  * ```ts
- * const delegateSigner = toDelegate8130Signer({
+ * const delegateSigner = toDelegateSigner({
  *   delegateAccount: parent.address,
  *   nestedSigner: parentAdmin, // an admin (scope 0) owner of the parent
  * })
- * const sub = to8130Account({
+ * const sub = toAccount({
  *   signer: delegateSigner,
  *   authenticator: delegateSigner.authenticator, // DelegateAuthenticator
  *   userSalt, code,
@@ -642,8 +653,8 @@ export type ToDelegate8130SignerParameters = {
  * The parent account MUST be deployed (its admin actor config must be on-chain)
  * before the delegate vouch can be validated.
  */
-export function toDelegate8130Signer(
-  parameters: ToDelegate8130SignerParameters,
+export function toDelegateSigner(
+  parameters: ToDelegateSignerParameters,
 ): Signer {
   const {
     delegateAccount,

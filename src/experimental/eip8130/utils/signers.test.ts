@@ -6,9 +6,9 @@ import { sliceHex } from '../../../utils/data/slice.js'
 import { hexToBigInt } from '../../../utils/encoding/fromHex.js'
 import { canonicalAuthenticators } from '../constants.js'
 import type { TransactionSerializable8130 } from '../types/transaction.js'
-import { parseTransaction8130 } from './parseTransaction.js'
+import { parseTransaction } from './parseTransaction.js'
 import { toP256Signer, toWebAuthnSigner } from './signers.js'
-import { signTransaction8130 } from './signTransaction.js'
+import { signTransaction } from './signTransaction.js'
 
 const bob = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' as const
 const privateKey = `0x${'a'.repeat(64)}` as const
@@ -49,11 +49,11 @@ describe('toP256Signer', () => {
       maxFeePerGas: 2n,
       calls: [[{ to: bob }]],
     }
-    const serialized = await signTransaction8130({
+    const serialized = await signTransaction({
       transaction,
       account: signer,
     })
-    const parsed = parseTransaction8130(serialized)
+    const parsed = parseTransaction(serialized)
 
     expect(sliceHex(parsed.senderAuth!, 0, 20).toLowerCase()).toBe(
       canonicalAuthenticators.p256.toLowerCase(),

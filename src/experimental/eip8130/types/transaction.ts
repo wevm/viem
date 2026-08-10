@@ -6,7 +6,7 @@ import type { Hex } from '../../../types/misc.js'
  *
  * On the wire, EIP-8130 calls carry no ETH value — each call executes with
  * `msg.value == 0`. A `value` MAY be supplied as ERC-5792-style intent: actions
- * that build the wire (e.g. {@link sendCalls8130}) realize any non-zero `value`
+ * that build the wire (e.g. {@link sendCalls}) realize any non-zero `value`
  * by routing the phase through the account's wallet bytecode (`executeBatch`),
  * collapsing it back into a value-less `[to, data]`. A call whose `value` is `0`
  * (or omitted) is encoded directly as `[to, data]`. A non-zero `value` that
@@ -43,18 +43,19 @@ export type AaCalls = readonly (readonly AaCall[])[]
  * An initial actor for a `create` entry, and the identity returned by the
  * {@link key} builders.
  *
- * Initial actors carry their `scope` and (when `scope & SCOPE_POLICY`) their
- * `policyData`; `expiry` is always `0` at creation. The address-derivation
- * commitment is `actorId || authenticator || scope || policyData` per actor
- * (`policyData` is empty unless the `SCOPE_POLICY` bit is set, then exactly
- * 52 bytes).
+ * Initial actors carry their `scope` (a `uint16` bitmask) and (when
+ * `scope & SCOPE_POLICY`) their `policyData`; `expiry` is always `0` at creation.
+ * The address-derivation commitment hashes each actor into a leaf
+ * `keccak256(actorId(32) || authenticator(20) || scope(2, big-endian) || policyData)`
+ * then hashes the concatenated leaves (`policyData` is empty unless the
+ * `SCOPE_POLICY` bit is set, then exactly 52 bytes).
  */
 export type AaActor = {
   /** 32-byte actor identifier. */
   actorId: Hex
   /** Authenticator contract address. */
   authenticator: Address
-  /** Scope bitmask committed at creation. `0` (or omitted) = unrestricted admin. */
+  /** Scope bitmask (`uint16`) committed at creation. `0` (or omitted) = unrestricted admin. */
   scope?: number | undefined
   /** Policy data (`manager || commitment`) — required iff `scope & SCOPE_POLICY`, else empty/omitted. */
   policyData?: Hex | undefined
@@ -74,41 +75,96 @@ export type AaAccountChangeCreate = {
   initialActors: readonly AaActor[]
 }
 
-/** `authorizeActor` (change type `0x01`) operation within a config-change entry. */
+/**
+ * `authorizeActor` (`ChangeType` `0x00`) op within a `SignedAccountChanges`
+ * batch. Payload: `abi.encode(bytes32 actorId, (address authenticator, uint48
+ * expiry, uint16 scope) config, bytes policyData)`.
+ */
 export type AaAuthorizeActor = {
-  changeType: 0x01
+  changeType: 0x00
   /** 32-byte actor identifier. */
   actorId: Hex
   /** Authenticator contract address. */
   authenticator: Address
-  /** Permission bitmask. `0` (or omitted) = unrestricted admin. Set the `SCOPE_POLICY` bit for a policy-gated actor. */
+  /** Permission bitmask (`uint16`). `0` (or omitted) = unrestricted admin. Set the `SCOPE_POLICY` bit for a policy-gated actor. */
   scope?: number | undefined
-  /** Actor expiry (unix seconds). `0` (or omitted) = no expiry. */
+  /** Actor expiry (unix seconds, `uint48`). `0` (or omitted) = no expiry. */
   expiry?: bigint | undefined
   /** Policy data (`manager || commitment`) — required iff `scope & SCOPE_POLICY`, else empty/omitted. */
   policyData?: Hex | undefined
 }
 
-/** `revokeActor` (change type `0x02`) operation within a config-change entry. */
+/** `revokeActor` (`ChangeType` `0x01`) op. Payload: `abi.encode(bytes32 actorId)`. */
 export type AaRevokeActor = {
-  changeType: 0x02
+  changeType: 0x01
   /** 32-byte actor identifier. */
   actorId: Hex
 }
 
-export type AaActorChange = AaAuthorizeActor | AaRevokeActor
+/**
+ * `incrementLocalEpoch` (`ChangeType` `0x02`) op: bumps the account's local
+ * epoch, invalidating every unlanded local-channel signature at a prior epoch.
+ * Valid on either channel; empty payload.
+ */
+export type AaIncrementLocalEpoch = {
+  changeType: 0x02
+}
 
-/** `config` (type `0x01`) account-change entry: actor management. */
+/**
+ * `lock` (`ChangeType` `0x03`) op: hard-locks the account with a delayed unlock.
+ * Local channel only and MUST be the batch's only op. Payload:
+ * `abi.encode(uint16 unlockDelay)`.
+ *
+ * @remarks The enshrined node currently defers lock/unlock (a batch carrying one
+ * is rejected on the native path); it is contract-accurate but not yet accepted.
+ */
+export type AaLock = {
+  changeType: 0x03
+  /** Unlock delay in seconds (`uint16`, `1 … 65535`). */
+  unlockDelay: number
+}
+
+/**
+ * `unlock` (`ChangeType` `0x04`) op: initiates the delayed unlock. Local channel
+ * only and MUST be the batch's only op; empty payload. See {@link AaLock}.
+ */
+export type AaUnlock = {
+  changeType: 0x04
+}
+
+/** A single operation within a `SignedAccountChanges` batch. */
+export type AaChange =
+  | AaAuthorizeActor
+  | AaRevokeActor
+  | AaIncrementLocalEpoch
+  | AaLock
+  | AaUnlock
+
+/** The replay domain a `SignedAccountChanges` batch binds to. */
+export type AaChangeChannel = 'local' | 'multichain'
+
+/**
+ * `config` (type `0x01`) account-change entry: a signed `SignedAccountChanges`
+ * batch (`applySignedAccountChanges`).
+ */
 export type AaAccountChangeConfig = {
   type: 'config'
-  /** Chain ID scope. `0` = valid on any chain (multichain channel). */
-  chainId: number
-  /** Monotonic ordering sequence within the channel. */
-  sequence: number
-  /** Actor change operations. */
-  actorChanges: readonly AaActorChange[]
-  /** Authorization signature (`authenticator || data`). */
-  auth: Hex
+  /**
+   * Replay channel. `'local'` binds `block.chainid` and carries the epoch +
+   * sequence machinery; `'multichain'` binds chain id `0` (a plain monotonic
+   * counter).
+   */
+  channel: AaChangeChannel
+  /**
+   * Channel sequence word (`uint64`). On the `'local'` channel this is
+   * `localEpoch (high 32) || localSequence (low 32)`; on `'multichain'` it is a
+   * plain monotonic counter. Source it from `getConfigSequence`.
+   */
+  sequence: bigint
+  /** The ordered ops, applied all-or-nothing. */
+  changes: readonly AaChange[]
+  /** Authorization signature over the batch digest (`authenticator || data`). */
+  signature: Hex
 }
 
 /** `delegation` (type `0x02`) account-change entry: code delegation. */
@@ -130,7 +186,7 @@ export type AaAccountChange =
  *
  * ```
  * AA_TX_TYPE || rlp([
- *   chain_id, sender, nonce_key, nonce_sequence, expiry,
+ *   chain_id, sender, nonce_key, nonce_sequence, valid_after, valid_before,
  *   max_priority_fee_per_gas, max_fee_per_gas, gas_limit,
  *   account_changes, calls, metadata, payer, sender_auth, payer_auth
  * ])
@@ -149,8 +205,19 @@ export type TransactionSerializable8130 = {
   nonceKey?: bigint | undefined
   /** Expected sequence number within `nonceKey` (`uint64`). */
   nonceSequence?: bigint | undefined
-  /** Unix timestamp (seconds) after which the transaction is invalid. `0` = no expiry. */
-  expiry?: bigint | undefined
+  /**
+   * Unix timestamp (**milliseconds**, `uint64`) before which the transaction is
+   * invalid. `0` (or omitted) = no lower bound. Evaluated against
+   * `block.timestamp * 1000`.
+   */
+  validAfter?: bigint | undefined
+  /**
+   * Unix timestamp (**milliseconds**, `uint64`) at/after which the transaction
+   * is invalid. `0` (or omitted) = no upper bound, but MUST be non-zero in
+   * nonce-free mode (`nonceKey == nonceKeyMax`). Evaluated against
+   * `block.timestamp * 1000`.
+   */
+  validBefore?: bigint | undefined
   /** Max priority fee per gas (EIP-1559). */
   maxPriorityFeePerGas?: bigint | undefined
   /** Max fee per gas (EIP-1559). */
@@ -167,7 +234,7 @@ export type TransactionSerializable8130 = {
    * is authenticated by both the sender and (when present) the payer. Omit or
    * `'0x'` for none.
    *
-   * High-level helpers (`prepareTransaction8130` / `sendCalls8130`) populate
+   * High-level helpers (`prepareTransaction` / `sendCalls`) populate
    * this from `dataSuffix` / `client.dataSuffix` (EIP-8130 has no calldata
    * suffix; attribution lands here instead).
    */

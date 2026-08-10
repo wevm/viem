@@ -7,8 +7,12 @@ import {
 } from '../../../utils/abi/encodeFunctionData.js'
 import { accountConfigurationAbi } from '../abis.js'
 import { accountConfigAddress as defaultAccountConfigAddress } from '../constants.js'
-import type { AaActor, AaActorChange } from '../types/transaction.js'
-import { encodeActorChangeData } from './actorChangeData.js'
+import type {
+  AaActor,
+  AaChange,
+  AaChangeChannel,
+} from '../types/transaction.js'
+import { encodeChangePayload } from './actorChangeData.js'
 
 function toInitialActors(actors: readonly AaActor[]) {
   return actors.map((actor) => ({
@@ -19,11 +23,10 @@ function toInitialActors(actors: readonly AaActor[]) {
   }))
 }
 
-function toAbiActorChanges(changes: readonly AaActorChange[]) {
+function toAbiChanges(changes: readonly AaChange[]) {
   return changes.map((change) => ({
     changeType: change.changeType,
-    actorId: change.actorId,
-    data: encodeActorChangeData(change),
+    payload: encodeChangePayload(change),
   }))
 }
 
@@ -43,7 +46,7 @@ export type EncodeCreateAccountDataErrorType =
 /**
  * Encodes calldata for `AccountConfiguration.createAccount` — the ERC-4337
  * factory call that deploys an EIP-8130 account on a non-8130 chain (and is the
- * `factoryData` returned by {@link toFactoryArgs8130}).
+ * `factoryData` returned by {@link toFactoryArgs}).
  */
 export function encodeCreateAccountData(
   parameters: EncodeCreateAccountDataParameters,
@@ -56,7 +59,7 @@ export function encodeCreateAccountData(
   })
 }
 
-export type ToFactoryArgs8130Parameters = EncodeCreateAccountDataParameters & {
+export type ToFactoryArgsParameters = EncodeCreateAccountDataParameters & {
   /**
    * Account Configuration contract address (the ERC-4337 factory). Defaults to
    * the placeholder {@link accountConfigAddress} constant.
@@ -64,23 +67,23 @@ export type ToFactoryArgs8130Parameters = EncodeCreateAccountDataParameters & {
   accountConfigAddress?: Address | undefined
 }
 
-export type ToFactoryArgs8130ReturnType = {
+export type ToFactoryArgsReturnType = {
   factory: Address
   factoryData: Hex
 }
 
-export type ToFactoryArgs8130ErrorType =
+export type ToFactoryArgsErrorType =
   | EncodeCreateAccountDataErrorType
   | ErrorType
 
 /**
  * Returns the ERC-4337 `{ factory, factoryData }` for deploying an EIP-8130
  * account through the `AccountConfiguration` contract on a non-8130 chain. The
- * resulting account address matches {@link computeAddress8130}.
+ * resulting account address matches {@link computeAddress}.
  */
-export function toFactoryArgs8130(
-  parameters: ToFactoryArgs8130Parameters,
-): ToFactoryArgs8130ReturnType {
+export function toFactoryArgs(
+  parameters: ToFactoryArgsParameters,
+): ToFactoryArgsReturnType {
   const {
     accountConfigAddress = defaultAccountConfigAddress,
     ...createParameters
@@ -91,33 +94,43 @@ export function toFactoryArgs8130(
   }
 }
 
-export type EncodeApplySignedActorChangesDataParameters = {
-  /** The account whose actor configuration is changing. */
+export type EncodeApplySignedAccountChangesDataParameters = {
+  /** The account whose configuration is changing. */
   account: Address
-  /** Chain ID scope. `0` = valid on any chain (multichain channel). */
-  chainId: number
-  /** Actor change operations. */
-  actorChanges: readonly AaActorChange[]
-  /** Authorization signature (`authenticator || data`). */
-  auth: Hex
+  /** Replay channel (`'local'` binds `block.chainid`; `'multichain'` binds `0`). */
+  channel: AaChangeChannel
+  /** The channel sequence word (`uint64`). */
+  sequence: bigint
+  /** The ordered ops in the batch. */
+  changes: readonly AaChange[]
+  /** Authorization signature over the batch digest (`authenticator || data`). */
+  signature: Hex
 }
 
-export type EncodeApplySignedActorChangesDataErrorType =
+export type EncodeApplySignedAccountChangesDataErrorType =
   | EncodeFunctionDataErrorType
   | ErrorType
 
 /**
- * Encodes calldata for `AccountConfiguration.applySignedActorChanges` — the
- * portable (any-chain) path to apply signed actor changes via plain EVM
- * execution. Pair with {@link signActorChanges8130} to produce the `auth`.
+ * Encodes calldata for `AccountConfiguration.applySignedAccountChanges` — the
+ * portable (any-chain) path to apply a signed batch via plain EVM execution.
+ * Pair with {@link signAccountChanges} to produce the `signature`.
  */
-export function encodeApplySignedActorChangesData(
-  parameters: EncodeApplySignedActorChangesDataParameters,
+export function encodeApplySignedAccountChangesData(
+  parameters: EncodeApplySignedAccountChangesDataParameters,
 ): Hex {
-  const { account, chainId, actorChanges, auth } = parameters
+  const { account, channel, sequence, changes, signature } = parameters
   return encodeFunctionData({
     abi: accountConfigurationAbi,
-    functionName: 'applySignedActorChanges',
-    args: [account, BigInt(chainId), toAbiActorChanges(actorChanges), auth],
+    functionName: 'applySignedAccountChanges',
+    args: [
+      account,
+      {
+        channel: channel === 'multichain' ? 1 : 0,
+        sequence,
+        changes: toAbiChanges(changes),
+        signature,
+      },
+    ],
   })
 }

@@ -12,9 +12,9 @@ import { actorScope } from '../../src/experimental/eip8130/constants.js'
 import { getEip8130Deployment } from '../../src/experimental/eip8130/deployments.js'
 import { authorizeActor, key } from '../../src/experimental/eip8130/keys.js'
 import { encodeApplySignedActorChangesData } from '../../src/experimental/eip8130/utils/accountConfigCalls.js'
-import { computeAddress8130 } from '../../src/experimental/eip8130/utils/computeAddress.js'
+import { computeAddress } from '../../src/experimental/eip8130/utils/computeAddress.js'
 import { erc1167Bytecode } from '../../src/experimental/eip8130/utils/proxy.js'
-import { signActorChanges8130 } from '../../src/experimental/eip8130/utils/signActorChanges.js'
+import { signActorChanges } from '../../src/experimental/eip8130/utils/signActorChanges.js'
 import { stringToHex } from '../../src/utils/encoding/toHex.js'
 import { keccak256 } from '../../src/utils/hash/keccak256.js'
 
@@ -35,15 +35,15 @@ describe.runIf(PRIVATE_KEY)(
 
       const deployment = getEip8130Deployment(baseSepolia.id)!
 
-      // Re-derive the account deployed by setup8130Account.test.ts.
+      // Re-derive the account deployed by setupAccount.test.ts.
       const code = erc1167Bytecode(deployment.accounts.erc4337)
       const initialActors = [key.k1(owner.address)]
       const userSalt = keccak256(stringToHex(SALT_LABEL))
-      const account = computeAddress8130({ userSalt, code, initialActors })
+      const account = computeAddress({ userSalt, code, initialActors })
 
       const deployed = await getCode(client, { address: account })
       if (!deployed || deployed === '0x')
-        throw new Error('account not deployed; run setup8130Account first')
+        throw new Error('account not deployed; run setupAccount first')
 
       // A new P-256 session key (any 32-byte x/y; on-curve validity is only
       // checked by the authenticator at use-time, not at authorization).
@@ -63,7 +63,7 @@ describe.runIf(PRIVATE_KEY)(
       })
 
       const chainId = baseSepolia.id
-      const signed = await signActorChanges8130({
+      const signed = await signActorChanges({
         signer: owner,
         account,
         chainId,

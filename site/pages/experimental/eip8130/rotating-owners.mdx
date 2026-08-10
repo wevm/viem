@@ -48,10 +48,10 @@ An unrestricted (full-owner) actor uses scope `0`.
 Every config change is signed against the account's **next** config sequence. Read it first to avoid sequence-mismatch rejections:
 
 ```ts
-import { getConfigSequence8130, getEip8130Deployment } from 'viem/experimental/eip8130'
+import { getConfigSequence, getEip8130Deployment } from 'viem/experimental/eip8130'
 
 const { accountConfiguration } = getEip8130Deployment(client.chain.id)!
-const { local: sequence } = await getConfigSequence8130(client, {
+const { local: sequence } = await getConfigSequence(client, {
   accountConfiguration,
   account: account.address,
 })
@@ -66,7 +66,7 @@ import {
   actorScope,
   authorizeActor,
   key,
-  sendCalls8130,
+  sendCalls,
 } from 'viem/experimental/eip8130'
 
 const change = await account.change(
@@ -78,7 +78,7 @@ const change = await account.change(
   { chainId: client.chain.id, sequence: Number(sequence) },
 )
 
-const hash = await sendCalls8130(client, {
+const hash = await sendCalls(client, {
   account,
   accountChanges: [change],
   calls: [], // config-only transaction
@@ -117,19 +117,19 @@ import {
   authorizeActor,
   canonicalEip8130Deployment,
   key,
-  sendCalls8130,
-  toEoa8130Account,
+  sendCalls,
+  toEoaAccount,
 } from 'viem/experimental/eip8130'
 import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
 
-const account = toEoa8130Account(privateKeyToAccount(generatePrivateKey()))
+const account = toEoaAccount(privateKeyToAccount(generatePrivateKey()))
 
 const addP256 = await account.change(
   [authorizeActor(key.p256({ x, y }), { scope: actorScope.sender })],
   { chainId: client.chain.id, sequence: 0 },
 )
 
-const hash = await sendCalls8130(client, {
+const hash = await sendCalls(client, {
   account,
   accountChanges: [
     account.delegate(canonicalEip8130Deployment.accounts.default),

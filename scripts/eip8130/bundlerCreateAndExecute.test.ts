@@ -12,7 +12,7 @@ import { http } from '../../src/clients/transports/http.js'
 import { parseEther } from '../../src/utils/unit/parseEther.js'
 import { stringToHex } from '../../src/utils/encoding/toHex.js'
 import { keccak256 } from '../../src/utils/hash/keccak256.js'
-import { toSmartAccount8130 } from '../../src/experimental/eip8130/accounts/toSmartAccount8130.js'
+import { toSmartAccount } from '../../src/experimental/eip8130/accounts/toSmartAccount.js'
 import { getEip8130Deployment } from '../../src/experimental/eip8130/deployments.js'
 import { key } from '../../src/experimental/eip8130/keys.js'
 
@@ -42,7 +42,7 @@ describe.runIf(PRIVATE_KEY)(
 
         // Fresh salt so the account is purely counterfactual (not pre-created).
         const userSalt = keccak256(stringToHex(`viem-8130-bundler-${Date.now()}`))
-        const account = await toSmartAccount8130({
+        const account = await toSmartAccount({
           client,
           owner,
           userSalt,

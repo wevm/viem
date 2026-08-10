@@ -7,11 +7,11 @@ import type { Hex } from '../../types/misc.js'
 import { keccak256 } from '../../utils/hash/keccak256.js'
 import {
   delegateAuthSize,
-  newSmartAccount8130,
-  to8130Account,
-  toDelegate8130Signer,
-} from './accounts/to8130Account.js'
-import { sendCalls8130 } from './actions/sendCalls.js'
+  newSmartAccount,
+  toAccount,
+  toDelegateSigner,
+} from './accounts/toAccount.js'
+import { sendCalls } from './actions/sendCalls.js'
 import {
   actorScope,
   canonicalAuthenticators,
@@ -26,7 +26,7 @@ import {
   toScope,
 } from './keys.js'
 import { actorIdFromAddress, actorIdFromPublicKey } from './utils/actorId.js'
-import { parseTransaction8130 } from './utils/parseTransaction.js'
+import { parseTransaction } from './utils/parseTransaction.js'
 import { erc1167Bytecode } from './utils/proxy.js'
 
 const owner = privateKeyToAccount(
@@ -43,7 +43,7 @@ const pubkey = {
 
 describe('canonical smart-account deployment', () => {
   test('defaults to an ERC-1167 proxy to DefaultAccount', () => {
-    const account = newSmartAccount8130({ signer: owner, salt: userSalt })
+    const account = newSmartAccount({ signer: owner, salt: userSalt })
 
     expect(account.createChange.code).toBe(
       erc1167Bytecode(canonicalEip8130Deployment.accounts.default),
@@ -52,7 +52,7 @@ describe('canonical smart-account deployment', () => {
 
   test('requires an explicit implementation for upgradeable accounts', () => {
     expect(() =>
-      newSmartAccount8130({
+      newSmartAccount({
         signer: owner,
         salt: userSalt,
         upgradeable: true,
@@ -116,8 +116,8 @@ describe('scope + policy helpers', () => {
   })
 })
 
-describe('to8130Account', () => {
-  const account = to8130Account({
+describe('toAccount', () => {
+  const account = toAccount({
     signer: owner,
     userSalt,
     code,
@@ -146,9 +146,9 @@ describe('to8130Account', () => {
       revokeActor(key.k1('0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC')),
     ])
     expect(change.type).toBe('config')
-    expect(change.actorChanges).toHaveLength(2)
-    // auth = ecrecover authenticator (20 bytes) || 65-byte sig = 85 bytes
-    expect(change.auth.length).toBe(2 + 85 * 2)
+    expect(change.changes).toHaveLength(2)
+    // signature = ecrecover authenticator (20 bytes) || 65-byte sig = 85 bytes
+    expect(change.signature.length).toBe(2 + 85 * 2)
   })
 
   test('delegate() entry', () => {
@@ -161,7 +161,7 @@ describe('to8130Account', () => {
   })
 })
 
-describe('sendCalls8130', () => {
+describe('sendCalls', () => {
   let sent: Hex | undefined
   const client = createClient({
     chain: mainnet,
@@ -178,7 +178,7 @@ describe('sendCalls8130', () => {
       },
     }),
   })
-  const account = to8130Account({
+  const account = toAccount({
     signer: owner,
     userSalt,
     code,
@@ -186,7 +186,7 @@ describe('sendCalls8130', () => {
   })
 
   test('builds, signs, serializes and submits an AA_TX_TYPE tx', async () => {
-    const hash = await sendCalls8130(client, {
+    const hash = await sendCalls(client, {
       account,
       calls: [
         { to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', data: '0x' },
@@ -205,7 +205,7 @@ describe('sendCalls8130', () => {
     expect(hash).toMatch(/^0x[0-9a-f]{64}$/)
     expect(sent?.startsWith('0x79')).toBe(true)
 
-    const parsed = parseTransaction8130(sent!)
+    const parsed = parseTransaction(sent!)
     expect(parsed.from?.toLowerCase()).toBe(account.address.toLowerCase())
     expect(parsed.chainId).toBe(1)
     expect(parsed.calls).toHaveLength(1) // single atomic phase
@@ -216,7 +216,7 @@ describe('sendCalls8130', () => {
   })
 
   test('behavior: dataSuffix is written to metadata', async () => {
-    await sendCalls8130(client, {
+    await sendCalls(client, {
       account,
       calls: [{ to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', data: '0x' }],
       accountChanges: [account.create()],
@@ -227,7 +227,7 @@ describe('sendCalls8130', () => {
       dataSuffix: '0xdeadbeef',
     })
 
-    const parsed = parseTransaction8130(sent!)
+    const parsed = parseTransaction(sent!)
     expect(parsed.metadata).toBe('0xdeadbeef')
     // Calldata is untouched — attribution lives in metadata, not call data.
     expect(parsed.calls?.[0]?.[0]?.data ?? '0x').toBe('0x')
@@ -251,7 +251,7 @@ describe('sendCalls8130', () => {
       }),
     })
 
-    await sendCalls8130(suffixedClient, {
+    await sendCalls(suffixedClient, {
       account,
       calls: [{ to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', data: '0x' }],
       accountChanges: [account.create()],
@@ -261,11 +261,11 @@ describe('sendCalls8130', () => {
       nonceSequence: 0n,
     })
 
-    expect(parseTransaction8130(clientSent!).metadata).toBe('0x12345678')
+    expect(parseTransaction(clientSent!).metadata).toBe('0x12345678')
   })
 })
 
-describe('toDelegate8130Signer (sub-account via key.delegate)', () => {
+describe('toDelegateSigner (sub-account via key.delegate)', () => {
   const parent = '0x00112233445566778899aabbccddeeff00112233' as const
 
   test('delegateAuthSize defaults to a 125-byte K1 blob', () => {
@@ -274,7 +274,7 @@ describe('toDelegate8130Signer (sub-account via key.delegate)', () => {
   })
 
   test('signer wraps the nested sig into the delegate data blob', async () => {
-    const signer = toDelegate8130Signer({
+    const signer = toDelegateSigner({
       delegateAccount: parent,
       nestedSigner: owner,
     })
@@ -289,12 +289,12 @@ describe('toDelegate8130Signer (sub-account via key.delegate)', () => {
     )
   })
 
-  test('to8130Account serializes the full delegate senderAuth', async () => {
-    const signer = toDelegate8130Signer({
+  test('toAccount serializes the full delegate senderAuth', async () => {
+    const signer = toDelegateSigner({
       delegateAccount: parent,
       nestedSigner: owner,
     })
-    const sub = to8130Account({
+    const sub = toAccount({
       signer,
       authenticator: signer.authenticator,
       userSalt,
@@ -310,7 +310,7 @@ describe('toDelegate8130Signer (sub-account via key.delegate)', () => {
       maxPriorityFeePerGas: 1_000_000_000n,
       nonceSequence: 0n,
     })
-    const parsed = parseTransaction8130(serialized)
+    const parsed = parseTransaction(serialized)
     // senderAuth = DELEGATE(20) || delegate(20) || nested(20) || sig(65) = 125 bytes
     expect((parsed.senderAuth!.length - 2) / 2).toBe(delegateAuthSize())
     expect(parsed.senderAuth!.slice(0, 42).toLowerCase()).toBe(

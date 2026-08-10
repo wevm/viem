@@ -10,7 +10,7 @@ import { hexToBigInt } from '../../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../../utils/encoding/toHex.js'
 import { nonceKeyMax } from '../constants.js'
 
-export type GetTransactionCount8130Parameters = {
+export type GetTransactionCountParameters = {
   /** The account address. */
   address: Address
   /**
@@ -28,7 +28,7 @@ export type GetTransactionCount8130Parameters = {
   blockTag?: BlockTag | undefined
 }
 
-export type GetTransactionCount8130ReturnType = bigint
+export type GetTransactionCountReturnType = bigint
 
 /**
  * Reads an EIP-8130 nonce via `eth_getTransactionCount`, including the 2D
@@ -44,18 +44,18 @@ export type GetTransactionCount8130ReturnType = bigint
  * - `nonceKey !== 0n` → 2D channel nonce from the precompile storage.
  *
  * @example
- * const sequence = await getTransactionCount8130(client, {
+ * const sequence = await getTransactionCount(client, {
  *   address: account.address,
  *   nonceKey: 0n,
  * })
  */
-export async function getTransactionCount8130<
+export async function getTransactionCount<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: GetTransactionCount8130Parameters,
-): Promise<GetTransactionCount8130ReturnType> {
+  parameters: GetTransactionCountParameters,
+): Promise<GetTransactionCountReturnType> {
   const {
     address,
     nonceKey = 0n,
@@ -73,9 +73,7 @@ export async function getTransactionCount8130<
   // Third positional `nonce_key` is the EIP-8130 RPC extension. Omitting it
   // (or passing 0x0) yields the standard protocol-nonce resolution.
   const params: [Address, string] | [Address, string, Hex] =
-    nonceKey === 0n
-      ? [address, block]
-      : [address, block, numberToHex(nonceKey)]
+    nonceKey === 0n ? [address, block] : [address, block, numberToHex(nonceKey)]
 
   const count = await (
     client.request as (args: {

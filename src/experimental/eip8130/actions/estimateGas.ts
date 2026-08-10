@@ -12,15 +12,15 @@ import { hexToBigInt } from '../../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../../utils/encoding/toHex.js'
 import {
   aaTransactionType,
-  actorChangeType,
   canonicalAuthDataLength,
+  changeType,
 } from '../constants.js'
 import type { AaAccountChange, AaCalls } from '../types/transaction.js'
-import { encodeActorChangeData } from '../utils/actorChangeData.js'
+import { encodeChangePayload } from '../utils/actorChangeData.js'
 
-export type EstimateGas8130Parameters = {
+export type EstimateGasParameters = {
   /**
-   * Sender address. **Required** (or {@link EstimateGas8130Parameters.sender})
+   * Sender address. **Required** (or {@link EstimateGasParameters.sender})
    * — the sender drives actor/policy resolution, and the node returns
    * `INVALID_PARAMS` for an EIP-8130 estimate without one.
    */
@@ -104,7 +104,7 @@ export type EstimateGas8130Parameters = {
    * policy and revert. Pass the session (or other non-self) actor id you intend
    * to sign with; the node resolves that actor's policy after applying
    * `accountChanges`, so an actor authorized in the same estimate request is
-   * visible. Orthogonal to {@link EstimateGas8130Parameters.senderAuthAuthenticator}
+   * visible. Orthogonal to {@link EstimateGasParameters.senderAuthAuthenticator}
    * (auth-gas pricing) — accept both when estimating a session-key send.
    */
   senderActorId?: Hex | undefined
@@ -133,7 +133,7 @@ export type EstimateGas8130Parameters = {
   blockTag?: BlockTag | undefined
 }
 
-export type EstimateGas8130ReturnType = bigint
+export type EstimateGasReturnType = bigint
 
 /** Generous cap matching the node's `MAX_AUTH_SIZE`; rejects OOM-sized inputs. */
 const maxAuthSize = 8_192
@@ -164,19 +164,19 @@ const maxAuthSize = 8_192
  * `senderAuth`) for a configured account, and leave both unset for the
  * default EOA. For policy-gated actors (session keys), also pass
  * `senderActorId` so the simulate path publishes the intended acting actor
- * instead of the account's self-actor. See {@link EstimateGas8130Parameters}.
+ * instead of the account's self-actor. See {@link EstimateGasParameters}.
  *
  * Note: an EIP-8130 estimate that reverts a phase surfaces the revert (like
  * standard `eth_estimateGas`), even though a reverted EIP-8130 tx would still
  * be included onchain (nonce consumed, fee paid).
  */
-export async function estimateGas8130<
+export async function estimateGas<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: EstimateGas8130Parameters,
-): Promise<EstimateGas8130ReturnType> {
+  parameters: EstimateGasParameters,
+): Promise<EstimateGasReturnType> {
   const {
     from,
     sender,
@@ -247,21 +247,21 @@ export async function estimateGas8130<
       sender: account_,
       nonceKey: Number(nonceKey),
       nonceSequence,
-      expiry: 0,
+      validAfter: 0,
+      validBefore: 0,
       // Reasonable fee defaults — the estimate skips fee validation.
       maxFeePerGas: numberToHex(1_000_000_000n),
       maxPriorityFeePerGas: numberToHex(1_000_000n),
       // Large gas cap so the simulation isn't capped below real execution.
       gasLimit: 30_000_000,
       accountChanges: (accountChanges ?? []).map(serializeAccountChange),
-      calls: (
-        calls ?? [[{ to: account_, value: 0n, data: '0x' as Hex }]]
-      ).map((phase) =>
-        phase.map((c) => ({
-          to: c.to,
-          value: numberToHex(c.value ?? 0n),
-          data: c.data ?? '0x',
-        })),
+      calls: (calls ?? [[{ to: account_, value: 0n, data: '0x' as Hex }]]).map(
+        (phase) =>
+          phase.map((c) => ({
+            to: c.to,
+            value: numberToHex(c.value ?? 0n),
+            data: c.data ?? '0x',
+          })),
       ),
       metadata: dataSuffix ?? '0x',
       payer: payer ?? null,
@@ -326,7 +326,8 @@ function buildAuthBlob(
     if (size === undefined) return undefined
     return filler(size)
   }
-  const dataLength = size ?? canonicalAuthDataLength[authenticator.toLowerCase()]
+  const dataLength =
+    size ?? canonicalAuthDataLength[authenticator.toLowerCase()]
   if (dataLength === undefined)
     throw new BaseError(
       `No default auth-payload length is known for authenticator ${authenticator}. Pass an explicit auth size.`,
@@ -343,8 +344,9 @@ function filler(length: number): Hex {
  * `eth_estimateGas` deserialiser expects. For `create` changes, all fields are
  * passed through directly. For `delegation`, only `target` is required (the
  * node does not need the proxy bytecode for gas pricing). For `config`, the
- * node tags the variant as `configChange` and expects each actor change in
- * wire form (`changeType` + opaque `data`), not the typed authorize fields.
+ * node tags the variant as `configChange` and expects the `SignedAccountChanges`
+ * batch shape (`channel` / `sequence` / `changes[{changeType, payload}]` /
+ * `signature`) — the ABI-encoded opaque `payload`, not the typed fields.
  */
 function serializeAccountChange(
   change: AaAccountChange,
@@ -373,20 +375,25 @@ function serializeAccountChange(
   if (change.type === 'delegation') {
     return { type: 'delegation', target: change.target }
   }
-  // config → RPC tag `configChange`. Simulate does not verify auth, but still
-  // prices its byte-length into intrinsic gas and applies actorChanges.
+  // config → RPC tag `configChange`. Simulate does not verify the signature, but
+  // still prices the batch's byte-length into intrinsic gas and applies it. The
+  // node deserializes the consensus `SignedAccountChanges` (serde camelCase),
+  // whose `channel` / `changeType` are the enum variant names.
+  const changeTypeName: Record<number, string> = {
+    [changeType.authorizeActor]: 'AuthorizeActor',
+    [changeType.revokeActor]: 'RevokeActor',
+    [changeType.incrementLocalEpoch]: 'IncrementLocalEpoch',
+    [changeType.lock]: 'Lock',
+    [changeType.unlock]: 'Unlock',
+  }
   return {
     type: 'configChange',
-    chainId: change.chainId,
-    sequence: change.sequence,
-    actorChanges: change.actorChanges.map((ac) => ({
-      changeType:
-        ac.changeType === actorChangeType.revokeActor
-          ? 'Revoke'
-          : 'Authorize',
-      actorId: ac.actorId,
-      data: encodeActorChangeData(ac),
+    channel: change.channel === 'multichain' ? 'Multichain' : 'Local',
+    sequence: Number(change.sequence),
+    changes: change.changes.map((c) => ({
+      changeType: changeTypeName[c.changeType],
+      payload: encodeChangePayload(c),
     })),
-    auth: change.auth,
+    signature: change.signature,
   }
 }

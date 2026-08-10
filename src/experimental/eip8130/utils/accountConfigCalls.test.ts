@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+import type { Hex } from '../../../types/misc.js'
 import { decodeFunctionData } from '../../../utils/abi/decodeFunctionData.js'
 import { accountConfigurationAbi } from '../abis.js'
 import {
@@ -8,13 +9,13 @@ import {
   unregister8130Chains,
 } from '../chains.js'
 import { accountConfigAddress } from '../constants.js'
-import type { AaActor, AaActorChange } from '../types/transaction.js'
+import type { AaActor, AaChange } from '../types/transaction.js'
 import {
-  encodeApplySignedActorChangesData,
+  encodeApplySignedAccountChangesData,
   encodeCreateAccountData,
-  toFactoryArgs8130,
+  toFactoryArgs,
 } from './accountConfigCalls.js'
-import { computeAddress8130 } from './computeAddress.js'
+import { computeAddress } from './computeAddress.js'
 
 const actor: AaActor = {
   actorId: '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -39,7 +40,7 @@ describe('is8130Enabled (routing)', () => {
   })
 })
 
-describe('toFactoryArgs8130 (ERC-4337 factory)', () => {
+describe('toFactoryArgs (ERC-4337 factory)', () => {
   const params = {
     userSalt:
       '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -48,7 +49,7 @@ describe('toFactoryArgs8130 (ERC-4337 factory)', () => {
   } as const
 
   test('factory is the account config contract; factoryData is createAccount', () => {
-    const { factory, factoryData } = toFactoryArgs8130(params)
+    const { factory, factoryData } = toFactoryArgs(params)
     expect(factory).toBe(accountConfigAddress)
     expect(factoryData).toBe(encodeCreateAccountData(params))
 
@@ -71,51 +72,57 @@ describe('toFactoryArgs8130 (ERC-4337 factory)', () => {
 
   test('custom factory address', () => {
     const factoryAddress = '0x00000000000000000000000000000000000000aa' as const
-    const { factory } = toFactoryArgs8130({
+    const { factory } = toFactoryArgs({
       ...params,
       accountConfigAddress: factoryAddress,
     })
     expect(factory).toBe(factoryAddress)
   })
 
-  test('factory deploys to the computeAddress8130 address', () => {
+  test('factory deploys to the computeAddress address', () => {
     // both derive from the same inputs/config address -> portable address
-    const address = computeAddress8130(params)
+    const address = computeAddress(params)
     expect(address).toMatch(/^0x[0-9a-fA-F]{40}$/)
   })
 })
 
-describe('encodeApplySignedActorChangesData (portable path)', () => {
-  test('encodes account, chainId, actorChanges, auth', () => {
-    const actorChanges: readonly AaActorChange[] = [
+describe('encodeApplySignedAccountChangesData (portable path)', () => {
+  test('encodes account + SignedAccountChanges(channel, sequence, changes, signature)', () => {
+    const changes: readonly AaChange[] = [
       {
-        changeType: 0x01,
+        changeType: 0x00,
         actorId:
           '0x0000000000000000000000003c44cdddb6a900fa2b585dd299e03d12fa4293bc',
         authenticator: '0x0000000000000000000000000000000000000001',
         scope: 0x04,
       },
       {
-        changeType: 0x02,
+        changeType: 0x01,
         actorId:
           '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
       },
     ]
-    const data = encodeApplySignedActorChangesData({
+    const data = encodeApplySignedAccountChangesData({
       account: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
-      chainId: 0,
-      actorChanges,
-      auth: '0xfeed',
+      channel: 'local',
+      sequence: 1n,
+      changes,
+      signature: '0xfeed',
     })
     const decoded = decodeFunctionData({
       abi: accountConfigurationAbi,
       data,
     })
-    expect(decoded.functionName).toBe('applySignedActorChanges')
-    expect(decoded.args[1]).toBe(0n)
-    expect((decoded.args[2] as readonly { changeType: number }[]).length).toBe(
-      2,
-    )
-    expect(decoded.args[3]).toBe('0xfeed')
+    expect(decoded.functionName).toBe('applySignedAccountChanges')
+    const s = decoded.args[1] as {
+      channel: number
+      sequence: bigint
+      changes: readonly { changeType: number; payload: Hex }[]
+      signature: Hex
+    }
+    expect(s.channel).toBe(0)
+    expect(s.sequence).toBe(1n)
+    expect(s.changes.length).toBe(2)
+    expect(s.signature).toBe('0xfeed')
   })
 })

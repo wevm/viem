@@ -16,15 +16,15 @@ import {
 import { aaTransactionType, accountChangeType } from '../constants.js'
 import type {
   AaAccountChange,
-  AaActorChange,
   AaCalls,
+  AaChange,
   TransactionSerializable8130,
   TransactionSerialized8130,
 } from '../types/transaction.js'
-import { encodeActorChangeData } from './actorChangeData.js'
+import { encodeChangePayload } from './actorChangeData.js'
 import {
-  type AssertTransaction8130ErrorType,
-  assertTransaction8130,
+  type AssertTransactionErrorType,
+  assertTransaction,
 } from './assertTransaction.js'
 
 /** Encodes the `calls` field into a nested RLP-ready array. */
@@ -34,12 +34,15 @@ export function toCallsList(calls: AaCalls | undefined): RecursiveArray<Hex>[] {
   )
 }
 
-/** Encodes a single `actor_change` operation into a nested RLP-ready array. */
-function toActorChange(change: AaActorChange): RecursiveArray<Hex> {
+/**
+ * Encodes a single `SignedAccountChanges` op into its `rlp([op_byte, payload])`
+ * pair. `op_byte` is the `ChangeType` discriminant (`authorizeActor` = `0` →
+ * RLP `0x80`).
+ */
+function toChange(change: AaChange): RecursiveArray<Hex> {
   return [
-    numberToHex(change.changeType),
-    change.actorId,
-    encodeActorChangeData(change),
+    change.changeType ? numberToHex(change.changeType) : '0x',
+    encodeChangePayload(change),
   ]
 }
 
@@ -74,10 +77,11 @@ export function toAccountChangesList(
     if (entry.type === 'config')
       return [
         accountChangeType.config,
-        entry.chainId ? numberToHex(entry.chainId) : '0x',
+        // channel byte: local = 0x00 (RLP '0x'), multichain = 0x01.
+        entry.channel === 'multichain' ? '0x01' : '0x',
         entry.sequence ? numberToHex(entry.sequence) : '0x',
-        entry.actorChanges.map(toActorChange),
-        entry.auth,
+        entry.changes.map(toChange),
+        entry.signature,
       ]
     return [accountChangeType.delegation, entry.target]
   })
@@ -97,7 +101,8 @@ export function toTransactionBody(
     from,
     nonceKey,
     nonceSequence,
-    expiry,
+    validAfter,
+    validBefore,
     maxPriorityFeePerGas,
     maxFeePerGas,
     gas,
@@ -110,7 +115,8 @@ export function toTransactionBody(
     from ?? '0x',
     nonceKey ? numberToHex(nonceKey) : '0x',
     nonceSequence ? numberToHex(nonceSequence) : '0x',
-    expiry ? numberToHex(expiry) : '0x',
+    validAfter ? numberToHex(validAfter) : '0x',
+    validBefore ? numberToHex(validBefore) : '0x',
     maxPriorityFeePerGas ? numberToHex(maxPriorityFeePerGas) : '0x',
     maxFeePerGas ? numberToHex(maxFeePerGas) : '0x',
     gas ? numberToHex(gas) : '0x',
@@ -120,8 +126,8 @@ export function toTransactionBody(
   ]
 }
 
-export type SerializeTransaction8130ErrorType =
-  | AssertTransaction8130ErrorType
+export type SerializeTransactionErrorType =
+  | AssertTransactionErrorType
   | ConcatHexErrorType
   | NumberToHexErrorType
   | ToRlpErrorType
@@ -133,10 +139,10 @@ export type SerializeTransaction8130ErrorType =
  * Requires `senderAuth`. For sponsored transactions, also provide `payer` and
  * `payerAuth`; omit both for self-pay.
  */
-export function serializeTransaction8130(
+export function serializeTransaction(
   transaction: TransactionSerializable8130,
 ): TransactionSerialized8130 {
-  assertTransaction8130(transaction)
+  assertTransaction(transaction)
 
   const { payer, senderAuth, payerAuth } = transaction
 

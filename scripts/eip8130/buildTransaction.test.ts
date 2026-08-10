@@ -11,10 +11,10 @@ import type {
   AaCalls,
   TransactionSerializable8130,
 } from '../../src/experimental/eip8130/types/transaction.js'
-import { parseTransaction8130 } from '../../src/experimental/eip8130/utils/parseTransaction.js'
+import { parseTransaction } from '../../src/experimental/eip8130/utils/parseTransaction.js'
 import { erc1167Bytecode } from '../../src/experimental/eip8130/utils/proxy.js'
-import { serializeTransaction8130 } from '../../src/experimental/eip8130/utils/serializeTransaction.js'
-import { signTransaction8130 } from '../../src/experimental/eip8130/utils/signTransaction.js'
+import { serializeTransaction } from '../../src/experimental/eip8130/utils/serializeTransaction.js'
+import { signTransaction } from '../../src/experimental/eip8130/utils/signTransaction.js'
 import { sliceHex } from '../../src/utils/data/slice.js'
 import { fromRlp } from '../../src/utils/encoding/fromRlp.js'
 import { stringToHex } from '../../src/utils/encoding/toHex.js'
@@ -114,7 +114,7 @@ describe('build an EIP-8130 transaction (offline demo)', () => {
     console.log('  p256 authenticator:', canonicalAuthenticators.p256)
 
     // ── sign + serialize ─────────────────────────────────────────────────────
-    const serialized = await signTransaction8130({
+    const serialized = await signTransaction({
       transaction,
       account: owner,
     })
@@ -153,7 +153,7 @@ describe('build an EIP-8130 transaction (offline demo)', () => {
     })
 
     // ── round-trip: parse the envelope back to a structured tx ───────────────
-    const parsed = parseTransaction8130(serialized)
+    const parsed = parseTransaction(serialized)
     console.log('\n══════════════════════════════════════════════════════════')
     console.log(' Parsed back from the envelope')
     console.log('══════════════════════════════════════════════════════════')
@@ -176,6 +176,6 @@ describe('build an EIP-8130 transaction (offline demo)', () => {
     expect(parsed.payerAuth).toBeUndefined()
 
     // Re-serializing the parsed tx yields the identical envelope.
-    expect(serializeTransaction8130(parsed)).toBe(serialized)
+    expect(serializeTransaction(parsed)).toBe(serialized)
   })
 })

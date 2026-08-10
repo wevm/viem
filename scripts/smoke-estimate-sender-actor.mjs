@@ -1,5 +1,5 @@
 /**
- * Live smoke: estimateGas8130 with/without senderActorId against vibenet.
+ * Live smoke: estimateGas with/without senderActorId against vibenet.
  *
  * Proves the node (#3892) + viem hint path for policy-gated session keys.
  *
@@ -9,8 +9,8 @@
 import { createPublicClient, http, parseEther, zeroAddress } from '../src/index.ts'
 import { privateKeyToAccount } from '../src/accounts/privateKeyToAccount.ts'
 import { toP256Signer } from '../src/experimental/eip8130/utils/signers.ts'
-import { to8130Account } from '../src/experimental/eip8130/accounts/to8130Account.ts'
-import { estimateGas8130 } from '../src/experimental/eip8130/actions/estimateGas8130.ts'
+import { toAccount } from '../src/experimental/eip8130/accounts/toAccount.ts'
+import { estimateGas } from '../src/experimental/eip8130/actions/estimateGas.ts'
 import {
   authorizeActor,
   key,
@@ -45,7 +45,7 @@ const initialActors = [
   key.trustedExecutor(POLICY_MANAGER),
 ].sort((a, b) => (a.actorId < b.actorId ? -1 : a.actorId > b.actorId ? 1 : 0))
 
-const account = to8130Account({
+const account = toAccount({
   signer: owner,
   userSalt,
   code: erc1167Bytecode(DEFAULT_ACCOUNT),
@@ -100,7 +100,7 @@ console.log('chainId', await client.getChainId())
 
 async function tryEstimate(label, params) {
   try {
-    const gas = await estimateGas8130(client, params)
+    const gas = await estimateGas(client, params)
     console.log(`OK  ${label}: gas=${gas}`)
     return { ok: true, gas }
   } catch (err) {

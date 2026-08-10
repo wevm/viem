@@ -12,8 +12,8 @@ import {
   type Keccak256ErrorType,
   keccak256,
 } from '../../../utils/hash/keccak256.js'
-import type { AaActorChange } from '../types/transaction.js'
-import { encodeActorChangeData } from './actorChangeData.js'
+import type { AaChange } from '../types/transaction.js'
+import { encodeChangePayload } from './actorChangeData.js'
 
 /**
  * `keccak256("ERC4337Account.signedActorChanges.v1")` — the 32-byte discriminator
@@ -26,13 +26,13 @@ export const signedActorChangesMagic = keccak256(
 
 export type SignedActorChangeSet = {
   /**
-   * Actor change operations applied as one batch (consuming one sequence). Use a
-   * {@link key} builder + {@link authorizeActor}/{@link revokeActor} to construct.
+   * Ops applied as one batch (consuming one sequence). Use a {@link key} builder
+   * + {@link authorizeActor}/{@link revokeActor} to construct.
    */
-  actorChanges: readonly AaActorChange[]
+  changes: readonly AaChange[]
   /**
    * Authorization over the batch digest in `authenticator || data` form, as
-   * produced by {@link signActorChanges8130} (its `auth` field).
+   * produced by {@link signAccountChanges} (its `signature` field).
    */
   auth: Hex
 }
@@ -47,8 +47,7 @@ const signatureParameters = [
         type: 'tuple[]',
         components: [
           { name: 'changeType', type: 'uint8' },
-          { name: 'actorId', type: 'bytes32' },
-          { name: 'data', type: 'bytes' },
+          { name: 'payload', type: 'bytes' },
         ],
       },
       { name: 'auth', type: 'bytes' },
@@ -83,12 +82,12 @@ export type EncodeSignedActorChangesSignatureErrorType =
  *
  * @example
  * ```ts
- * const set = await signActorChanges8130({
+ * const set = await signAccountChanges({
  *   signer: owner,
  *   account: smartAccount,
  *   chainId: baseSepolia.id,
  *   sequence,
- *   actorChanges: [authorizeActor(key.p256({ x, y }), { scope: actorScope.sender })],
+ *   changes: [authorizeActor(key.p256({ x, y }), { scope: actorScope.sender })],
  * })
  * // opAuth: authenticator-prefixed signature over the userOpHash by any authorized actor
  * const opAuth = concatHex([ecrecoverAuthenticator, await owner.sign({ hash: userOpHash })])
@@ -102,10 +101,9 @@ export function encodeSignedActorChangesSignature(
   return encodeAbiParameters(signatureParameters, [
     signedActorChangesMagic,
     changeSets.map((set) => ({
-      changes: set.actorChanges.map((change) => ({
+      changes: set.changes.map((change) => ({
         changeType: change.changeType,
-        actorId: change.actorId,
-        data: encodeActorChangeData(change),
+        payload: encodeChangePayload(change),
       })),
       auth: set.auth,
     })),

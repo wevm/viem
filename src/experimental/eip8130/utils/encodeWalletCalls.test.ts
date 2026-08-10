@@ -37,9 +37,7 @@ describe('encodeWalletCalls', () => {
       data: phase[0].data!,
     })
     expect(decoded.functionName).toBe('executeBatch')
-    expect(decoded.args).toEqual([
-      [{ target: to, value: 1n, data: '0xbeef' }],
-    ])
+    expect(decoded.args).toEqual([[{ target: to, value: 1n, data: '0xbeef' }]])
   })
 
   test('collapses every call in a value-bearing phase (incl. value-less ones)', () => {
