@@ -211,6 +211,27 @@ jobs:
           VITE_TEMPO_MULTISIG: 'true'
           VITE_TEMPO_TAG: sha-6d831c2
 
+  test-tempo-fuzz:
+    name: Test Tempo Fuzz
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v6
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Run fuzz tests
+        run: pnpm test:fuzz
+        env:
+          FUZZ_RUNS: 500
+          TEMPO_FUZZ_NODE_RUNS: 10
+          VITE_TEMPO_TAG: sha256:480dcf46f8805a13f9ec03371f8f1aa378942be77ec07e3e2f15a01a85b3dca4
+
   test-tempo:
     name: Test Local Tempo (${{ matrix.hardfork }}, ${{ matrix.shard }}/${{ matrix.total-shards }})
     runs-on: ubuntu-latest

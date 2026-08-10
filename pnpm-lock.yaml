@@ -18,6 +18,9 @@ catalogs:
     '@changesets/cli':
       specifier: ^2.31.0
       version: 2.31.0
+    '@fast-check/vitest':
+      specifier: ^0.4.1
+      version: 0.4.1
     '@openzeppelin/contracts':
       specifier: 5.4.0
       version: 5.4.0
@@ -63,6 +66,9 @@ catalogs:
     bun:
       specifier: ^1.3.14
       version: 1.3.14
+    fast-check:
+      specifier: ^4.9.0
+      version: 4.9.0
     knip:
       specifier: ^6.16.1
       version: 6.16.1
@@ -245,6 +251,9 @@ importers:
       '@changesets/cli':
         specifier: 'catalog:'
         version: 2.31.0(@types/node@24.5.2)
+      '@fast-check/vitest':
+        specifier: 'catalog:'
+        version: 0.4.1(@voidzero-dev/vite-plus-test@0.1.24)
       '@openzeppelin/contracts':
         specifier: 'catalog:'
         version: 5.4.0
@@ -281,6 +290,9 @@ importers:
       bun:
         specifier: 'catalog:'
         version: 1.3.14
+      fast-check:
+        specifier: 'catalog:'
+        version: 4.9.0
       knip:
         specifier: 'catalog:'
         version: 6.16.1
@@ -891,6 +903,11 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@fast-check/vitest@0.4.1':
+    resolution: {integrity: sha512-OX6TecB+ZzRfPc49jcPChcV1cf5aDu77CdDU8liecWVam7eD7mPvJNP50b9bBSTxVoGN5wzxrX9PIcCnqgC8bg==}
+    peerDependencies:
+      vitest: ^4.1.0
 
   '@fastify/ajv-compiler@3.6.0':
     resolution: {integrity: sha512-LwdXQJjmMD+GwLOkP7TVC68qa+pSSogeWWmznRJ/coyTcfe9qA05AHFSe1eZFwK6q+xVRpChnvFUkf1iYaSZsQ==}
@@ -4797,6 +4814,10 @@ packages:
     engines: {node: '>= 10.17.0'}
     hasBin: true
 
+  fast-check@4.9.0:
+    resolution: {integrity: sha512-7ms6T7SybUev/PQITciI0yLM2pOSFy5zpG8Ty7tQofcVaQUvrMXp6CBwqF6fThLCLOrfBtuHAtwq6Yu4XPCllg==}
+    engines: {node: '>=12.17.0'}
+
   fast-content-type-parse@1.1.0:
     resolution: {integrity: sha512-fBHHqSTFLVnR61C+gltJuE5GkVQMV0S2nqUO8TJ+5Z3qAKG8vAx4FKai1s5jq/inV1+sREynIWSuQ6HgoSXpDQ==}
 
@@ -6402,6 +6423,9 @@ packages:
   puppeteer-core@24.22.0:
     resolution: {integrity: sha512-oUeWlIg0pMz8YM5pu0uqakM+cCyYyXkHBxx9di9OUELu9X9+AYrNGGRLK9tNME3WfN3JGGqQIH3b4/E9LGek/w==}
     engines: {node: '>=18'}
+
+  pure-rand@8.4.2:
+    resolution: {integrity: sha512-vvuOGgcuPJAirlHvuQw1TrOiw7ptaIXXmIbNuiNOY6lNGJJH49PQ1Kj4nd783nPdQhQdicgOjVI2yI/9BD6/Ng==}
 
   qs@6.15.2:
     resolution: {integrity: sha512-Rzq0KEyX/w/tEybncDgdkZrJgVUsUMk3xjh3t5bv3S1HTAtg+uOYt72+ZfwiQwKdysThkTBdL/rTi6HDmX9Ddw==}
@@ -8349,6 +8373,11 @@ snapshots:
 
   '@esbuild/win32-x64@0.27.2':
     optional: true
+
+  '@fast-check/vitest@0.4.1(@voidzero-dev/vite-plus-test@0.1.24)':
+    dependencies:
+      fast-check: 4.9.0
+      vitest: '@voidzero-dev/vite-plus-test@0.1.24(@arethetypeswrong/core@0.18.3)(@opentelemetry/api@1.7.0)(@types/node@24.5.2)(@vitest/coverage-v8@4.1.8)(esbuild@0.27.2)(jiti@2.7.0)(publint@0.3.21)(terser@5.36.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.8.3)'
 
   '@fastify/ajv-compiler@3.6.0':
     dependencies:
@@ -12328,6 +12357,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  fast-check@4.9.0:
+    dependencies:
+      pure-rand: 8.4.2
+
   fast-content-type-parse@1.1.0: {}
 
   fast-copy@3.0.2: {}
@@ -14483,6 +14516,8 @@ snapshots:
       - bufferutil
       - supports-color
       - utf-8-validate
+
+  pure-rand@8.4.2: {}
 
   qs@6.15.2:
     dependencies:
