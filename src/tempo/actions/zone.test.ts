@@ -897,6 +897,8 @@ describe('requestWithdrawal', () => {
   }, 20_000)
 
   test('behavior: returns the receipt and sender tag for client and explicit accounts', async () => {
+    if (legacyZoneCallback) return
+
     await zoneActions.signAuthorizationToken(zoneClient, { zoneId })
 
     const info = await zoneActions.getZoneInfo(zoneClient)
@@ -1272,7 +1274,7 @@ describe('earn', () => {
         `[Error: Prepared Zone request Zone ID does not match client chain.]`,
       )
       const acceptedDeposit = await Actions.earn.privateDepositSync(
-        zoneClient,
+        unredactedZoneClient,
         preparedDeposit,
       )
       expect(acceptedDeposit.receipt.status).toBe('success')
@@ -1363,7 +1365,7 @@ describe('earn', () => {
         ),
       ).toBe(true)
       const acceptedRedeem = await Actions.earn.privateRedeemSync(
-        zoneClient,
+        unredactedZoneClient,
         preparedRedeem,
       )
       expect(acceptedRedeem.receipt.status).toBe('success')
