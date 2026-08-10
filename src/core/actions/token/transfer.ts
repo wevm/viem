@@ -1,6 +1,6 @@
 import type { Abi } from 'abitype'
 import { AbiEvent } from 'ox'
-import type { Address, Errors, Log } from 'ox'
+import type { Address, Errors } from 'ox'
 
 import type * as Account from '../../Account.js'
 import type * as Chain from '../../Chain.js'
@@ -189,7 +189,9 @@ export namespace transfer {
    * @param logs - The logs.
    * @returns The `Transfer` event.
    */
-  export function extractEvent(logs: readonly Log.Log[]) {
+  export function extractEvent<
+    const logs extends readonly AbiEvent.extractLogs.Log[],
+  >(logs: logs) {
     const [log] = AbiEvent.extractLogs(erc20Abi, logs, {
       eventName: 'Transfer',
       strict: true,

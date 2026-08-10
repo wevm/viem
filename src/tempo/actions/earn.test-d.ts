@@ -1,9 +1,11 @@
-import type { Address, Hex, TransactionReceipt } from 'ox'
+import type { Address, Hex, Log, TransactionReceipt } from 'ox'
 import { expectTypeOf, test } from 'vitest'
 
 import { tempoLocalnet } from 'viem/chains'
 import { Account, Actions, Client, EarnShares, http } from 'viem/tempo'
 import { zoneModerato } from 'viem/tempo/zones'
+
+import type { getCallsStatus } from '../../core/actions/wallet/getCallsStatus.js'
 
 const account = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
@@ -826,4 +828,58 @@ test('decorated zone earn actions preserve helpers and results', async () => {
       vault: privatePreparation.vault,
     }),
   ).toEqualTypeOf<Actions.earn.waitForPrivateRedeem.ReturnType>()
+})
+
+test('deposit.extractEvent: accepts EIP-5792 call receipt logs', () => {
+  const logs: getCallsStatus.ReturnType['receipts'][number]['logs'] = []
+  const log = Actions.earn.deposit.extractEvent(logs, { vault: address })
+
+  expectTypeOf(log.eventName).toEqualTypeOf<'Deposited'>()
+  expectTypeOf(log).not.toHaveProperty('blockNumber')
+})
+
+test('deposit.extractEvent: preserves metadata for full logs', () => {
+  const logs: readonly Log.Log[] = []
+  const log = Actions.earn.deposit.extractEvent(logs, { vault: address })
+
+  expectTypeOf(log.blockNumber).toEqualTypeOf<bigint>()
+  expectTypeOf(log.logIndex).toEqualTypeOf<number>()
+  expectTypeOf(log.transactionHash).toEqualTypeOf<Hex.Hex>()
+})
+
+test('deployment extractEvent helpers accept EIP-5792 call receipt logs', () => {
+  const logs: getCallsStatus.ReturnType['receipts'][number]['logs'] = []
+  const engine = Actions.earn.createErc4626Engine.extractEvent(logs, {
+    factory: address,
+  })
+  const stack = Actions.earn.createStack.extractEvent(logs, {
+    factory: address,
+  })
+  const binding = Actions.earn.bindErc4626Engine.extractEvent(logs, {
+    engine: address,
+  })
+
+  expectTypeOf(engine.eventName).toEqualTypeOf<'ERC4626EngineDeployed'>()
+  expectTypeOf(stack.eventName).toEqualTypeOf<'EarnStackDeployed'>()
+  expectTypeOf(binding.eventName).toEqualTypeOf<'EarnVaultInitialized'>()
+  expectTypeOf(engine).not.toHaveProperty('blockNumber')
+  expectTypeOf(stack).not.toHaveProperty('blockNumber')
+  expectTypeOf(binding).not.toHaveProperty('blockNumber')
+})
+
+test('deployment extractEvent helpers preserve metadata for full logs', () => {
+  const logs: readonly Log.Log[] = []
+  const engine = Actions.earn.createErc4626Engine.extractEvent(logs, {
+    factory: address,
+  })
+  const stack = Actions.earn.createStack.extractEvent(logs, {
+    factory: address,
+  })
+  const binding = Actions.earn.bindErc4626Engine.extractEvent(logs, {
+    engine: address,
+  })
+
+  expectTypeOf(engine.blockNumber).toEqualTypeOf<bigint>()
+  expectTypeOf(stack.blockNumber).toEqualTypeOf<bigint>()
+  expectTypeOf(binding.blockNumber).toEqualTypeOf<bigint>()
 })

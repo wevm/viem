@@ -1,4 +1,4 @@
-import type { Address, Hex } from 'ox'
+import type { Address, Hex, Log } from 'ox'
 import { describe, expectTypeOf, test } from 'vitest'
 
 import { Actions as CoreActions } from 'viem'
@@ -6,6 +6,7 @@ import { tempoLocalnet } from 'viem/chains'
 import { Account, Actions, Client, http } from 'viem/tempo'
 import { zoneModerato } from 'viem/tempo/zones'
 
+import type { getCallsStatus } from '../../../core/actions/wallet/getCallsStatus.js'
 import { deposit } from './deposit.js'
 import { depositSync } from './depositSync.js'
 import { encryptedDeposit } from './encryptedDeposit.js'
@@ -35,6 +36,23 @@ const zoneClient = Client.create({
 const publicZoneClient = Client.create({
   chain: zoneModerato(7),
   transport: http(),
+})
+
+test('requestWithdrawal.extractEvent accepts EIP-5792 call receipt logs', () => {
+  const logs: getCallsStatus.ReturnType['receipts'][number]['logs'] = []
+  const log = Actions.zone.requestWithdrawal.extractEvent(logs)
+
+  expectTypeOf(log.eventName).toEqualTypeOf<'WithdrawalRequested'>()
+  expectTypeOf(log).not.toHaveProperty('blockNumber')
+})
+
+test('requestWithdrawal.extractEvent preserves metadata for full logs', () => {
+  const logs: readonly Log.Log[] = []
+  const log = Actions.zone.requestWithdrawal.extractEvent(logs)
+
+  expectTypeOf(log.blockNumber).toEqualTypeOf<bigint>()
+  expectTypeOf(log.logIndex).toEqualTypeOf<number>()
+  expectTypeOf(log.transactionHash).toEqualTypeOf<Hex.Hex>()
 })
 
 describe('zone action types', () => {

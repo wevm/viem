@@ -1,4 +1,4 @@
-import { AbiEvent, type Address, type Errors, type Hex, type Log } from 'ox'
+import { AbiEvent, type Address, type Errors, type Hex } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -140,7 +140,9 @@ export namespace requestWithdrawal {
   }
 
   /** Extracts the `WithdrawalRequested` event from logs. */
-  export function extractEvent(logs: readonly Log.Log[]) {
+  export function extractEvent<
+    const logs extends readonly AbiEvent.extractLogs.Log[],
+  >(logs: logs) {
     const [log] = AbiEvent.extractLogs(ZoneAbis.zoneOutbox, logs, {
       eventName: 'WithdrawalRequested',
       strict: true,

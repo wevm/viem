@@ -1,5 +1,5 @@
 import { AbiEvent, Hex } from 'ox'
-import type { Address, Errors, Log } from 'ox'
+import type { Address, Errors } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -192,7 +192,9 @@ export namespace transfer {
    * @param logs - The logs.
    * @returns The `Transfer` event.
    */
-  export function extractEvent(logs: readonly Log.Log[]) {
+  export function extractEvent<
+    const logs extends readonly AbiEvent.extractLogs.Log[],
+  >(logs: logs) {
     const [log] = AbiEvent.extractLogs(Abis.tip20, logs, {
       eventName: 'Transfer',
       strict: true,
