@@ -50,7 +50,7 @@ describe('encoders', () => {
 describe('commitmentOf', () => {
   test('matches PolicyManager.commitmentOf reference vector', () => {
     expect(commitmentOf(binding)).toBe(
-      '0x75038539ec7d5b1284b0ee42ebef12db17a334d5fe73189d8449881a3bdd68c3',
+      '0x76958bee732b160cb2b85c73c153db765cf10892871632afd5746cbba149bf33',
     )
   })
 
