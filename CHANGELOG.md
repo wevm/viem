@@ -1,5 +1,11 @@
 # viem
 
+## 3.0.0-next.9
+
+### Patch Changes
+
+- [#4919](https://github.com/wevm/viem/pull/4919) [`e45e91e`](https://github.com/wevm/viem/commit/e45e91e28c057535956803bae6a2d3ffe9ae74cf) Thanks [@2wheeh](https://github.com/2wheeh)! - Allowed `extractEvent`/`extractEvents` and the OP Stack log extractors to decode partial EIP-5792 call receipt logs without casts while preserving the input logs' block and transaction metadata in their return types.
+
 ## 3.0.0-next.8
 
 ### Patch Changes
