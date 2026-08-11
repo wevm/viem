@@ -199,6 +199,18 @@ export type SessionPolicy = {
    * action fields `{ target, value?, data? }` and the encoding is done for you.
    */
   executeCall(executionData: Hex | SessionPolicyAction): AaCall
+  /**
+   * External-pull call: `PolicyManager.executeFor(binding, executionData)`,
+   * sent by an *external caller* (e.g. a subscription provider) from its own
+   * address — not routed through the account. The account must have authorized
+   * that caller as an external-pull actor (see `key.externalPull`); the manager
+   * resolves the acting id from `msg.sender`. Returns the raw call to submit as
+   * an ordinary transaction from the caller.
+   *
+   * Pass either raw `executionData` ({@link encodeSessionPolicyAction}) or the
+   * action fields `{ target, value?, data? }`.
+   */
+  executeForCall(executionData: Hex | SessionPolicyAction): AaCall
 }
 
 export type DefineSessionPolicyErrorType = CommitmentOfErrorType
@@ -279,6 +291,21 @@ export function defineSessionPolicy(
         data: encodeFunctionData({
           abi: policyManagerAbi,
           functionName: 'execute',
+          args: [toBindingArgs(binding), executionData],
+        }),
+      }
+    },
+    executeForCall(executionDataOrAction) {
+      const executionData =
+        typeof executionDataOrAction === 'string'
+          ? executionDataOrAction
+          : encodeSessionPolicyAction(executionDataOrAction)
+      return {
+        to: manager,
+        value: 0n,
+        data: encodeFunctionData({
+          abi: policyManagerAbi,
+          functionName: 'executeFor',
           args: [toBindingArgs(binding), executionData],
         }),
       }

@@ -116,6 +116,7 @@ export {
   defaultAccountAddress,
   deploymentHeaderSize,
   ecrecoverAuthenticator,
+  externalPolicyAuthenticator,
   maxCodeSize,
   nonceFreeCost,
   nonceFreeExpiryWindow,
@@ -170,6 +171,11 @@ export {
 } from './lock.js'
 export { type Nonce, nonce } from './nonce.js'
 export {
+  type FulfillGrantPermissionsErrorType,
+  type FulfillGrantPermissionsParameters,
+  type FulfillGrantPermissionsReturnType,
+  fulfillGrantPermissions,
+  type GrantRole,
   type ToSessionPolicyConfigErrorType,
   type ToSessionPolicyErrorType,
   type ToSessionPolicyParameters,

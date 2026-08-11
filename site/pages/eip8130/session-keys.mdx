@@ -133,20 +133,21 @@ A transfer that exceeds the weekly limit, or targets a contract/selector outside
 
 ## Fulfilling an ERC-7715 request
 
-When a dApp asks a wallet for a session key via [ERC-7715](https://eips.ethereum.org/EIPS/eip-7715) `wallet_grantPermissions`, the request arrives as a set of `permissions` (+ policies) and a top-level `expiry`. `toSessionPolicy` lowers that request directly onto the EIP-8130 primitives above — no need to hand-author the `SessionPolicyConfig`:
+When a dApp asks a wallet for permissions via [ERC-7715](https://eips.ethereum.org/EIPS/eip-7715) `wallet_grantPermissions`, the request arrives as a set of `permissions` (+ policies) and a top-level `expiry`. `fulfillGrantPermissions` lowers that request directly onto the EIP-8130 primitives above — building the `SessionPolicyConfig`, binding it, and returning the ready-to-sign `authorizeActor` change. It supports two roles, both **POLICY-gated** to the same committed policy:
+
+- `role: 'session'` (default) — a **key on the account**. The protocol dispatches its calls as the account (`PolicyManager.execute`). Uses a secp256k1 (`k1`) actor.
+- `role: 'pull'` — an **external caller** (e.g. a subscription provider) that draws against the policy via `PolicyManager.executeFor` from its own address. Uses the `externalPolicyAuthenticator` sentinel actor, which can *only* act through the external-pull path.
+
+The single `expiry` drives **both** the actor authorization and the policy binding's `validUntil`, so they can't drift.
 
 ```ts
 import { parseUnits } from 'viem'
-import {
-  actorScope,
-  authorizeActor,
-  key,
-  toSessionPolicy,
-} from 'viem/eip8130'
+import { fulfillGrantPermissions } from 'viem/eip8130'
 
 // The `permissions` + `expiry` a dApp sent via `wallet_grantPermissions`.
-const session = toSessionPolicy({
+const { change, session } = fulfillGrantPermissions({
   account: account.address,
+  grantee: sessionKeyAddress, // the key to authorize (k1)
   expiry: Math.floor(Date.now() / 1000) + 7 * 86_400,
   permissions: [
     {
@@ -162,15 +163,31 @@ const session = toSessionPolicy({
 })
 
 // Authorize the requested key — its signed commitment *is* the grant.
-const change = await account.change([
-  authorizeActor(key.p256({ x, y }), {
-    scope: actorScope.sender,
-    policy: session.actorPolicy,
-  }),
-])
+await account.change([change])
+
+// Later, the session key spends within its limit (routed through the manager):
+// session.executeCall({ target: usdc, data: transferCalldata })
 ```
 
-The mapping is:
+For an **external pull** subscription, pass `role: 'pull'` and the provider's address. The provider later submits `session.executeForCall(action)` as an ordinary transaction from its own address:
+
+```ts
+const pull = fulfillGrantPermissions({
+  account: account.address,
+  grantee: providerAddress,
+  role: 'pull',
+  expiry,
+  permissions,
+})
+await account.change([pull.change])
+// provider draws (from its own address): pull.session.executeForCall({ target: usdc, data })
+```
+
+:::info
+For the manager's forwarded `executeBatch` to land, the account must register the manager as a trusted-executor actor once: `authorizeActor(key.trustedExecutor(manager), { scope: actorScope.sender })`.
+:::
+
+The permission → policy mapping is:
 
 | ERC-7715 | EIP-8130 `SessionPolicy` |
 | --- | --- |
@@ -180,4 +197,4 @@ The mapping is:
 | `rate-limit` `interval` (on a transfer) | the cap's reset `period` (a recurring allowance) |
 | `gas-limit` | ignored — gas is settled by the payer / [ERC-8168](/eip8168) layer |
 
-A transfer permission without a `token-allowance` throws (an unbounded spend can't be safely granted), as do `custom` permissions/policies — build the `SessionPolicyConfig` explicitly for those. Use `toSessionPolicyConfig` on its own if you only need the lowered config (e.g. to inspect or extend it before binding).
+A transfer permission without a `token-allowance` throws (an unbounded spend can't be safely granted), as do `custom` permissions/policies — build the `SessionPolicyConfig` explicitly for those. Use `toSessionPolicyConfig` (the pure mapping) or `toSessionPolicy` (mapping + binding) directly if you only need the lowered config or the bound policy without the `authorizeActor` change.

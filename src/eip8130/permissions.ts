@@ -5,6 +5,8 @@ import type { Permission } from '../experimental/erc7715/types/permission.js'
 import type { Policy as GrantedPolicy } from '../experimental/erc7715/types/policy.js'
 import type { Hex } from '../types/misc.js'
 import { toFunctionSelector } from '../utils/hash/toFunctionSelector.js'
+import { actorScope } from './constants.js'
+import { authorizeActor, key } from './keys.js'
 import {
   type DefineSessionPolicyParameters,
   defineSessionPolicy,
@@ -14,6 +16,7 @@ import {
   type SessionPolicyConfig,
   type SessionPolicyTokenLimit,
 } from './policies.js'
+import type { AaActor, AaAuthorizeActor } from './types/transaction.js'
 
 /**
  * The ERC-20 selectors a `SessionPolicy` gates on for token spend + recipient
@@ -242,4 +245,139 @@ export function toSessionPolicy(
     policyConfig: encodeSessionPolicyConfig(toSessionPolicyConfig(permissions)),
     validUntil: expiry === undefined ? undefined : BigInt(expiry),
   })
+}
+
+/**
+ * How the granted key acts on the account:
+ *
+ * - `'session'`: a key **on** the account. The EIP-8130 protocol dispatches its
+ *   calls as the account (`PolicyManager.execute`), gated by the policy. Uses a
+ *   secp256k1 (k1) actor for the given key address.
+ * - `'pull'`: an **external** caller (e.g. a subscription provider) that draws
+ *   against the policy via `PolicyManager.executeFor` from its *own* address.
+ *   Uses the {@link externalPolicyAuthenticator} sentinel actor, which can only
+ *   act through the external-pull path.
+ */
+export type GrantRole = 'session' | 'pull'
+
+export type FulfillGrantPermissionsParameters = Omit<
+  DefineSessionPolicyParameters,
+  'account' | 'policyConfig' | 'validUntil' | 'policyType'
+> & {
+  /** The smart account granting the permissions (the execution target). */
+  account: Address
+  /**
+   * The key/caller to authorize:
+   * - `role: 'session'` → the session key's secp256k1 address.
+   * - `role: 'pull'` → the external caller's (subscription provider's) address.
+   */
+  grantee: Address
+  /** How the grantee acts on the account. @default 'session' */
+  role?: GrantRole | undefined
+  /** The ERC-7715 permissions to grant. */
+  permissions: readonly Permission[]
+  /**
+   * Top-level ERC-7715 `expiry` (unix **seconds**). Drives **both** the policy
+   * binding's `validUntil` and the actor authorization's `expiry`, so they can't
+   * drift. @default 0n (no expiry)
+   */
+  expiry?: number | bigint | undefined
+}
+
+export type FulfillGrantPermissionsReturnType = {
+  /** The authorized actor (`key.k1` for `session`, `key.externalPull` for `pull`). */
+  actor: AaActor
+  /**
+   * The `authorizeActor` change the account must sign + land. Its signed
+   * commitment *is* the authorization (no separate install). Always POLICY-gated
+   * ({@link actorScope}.policy).
+   */
+  change: AaAuthorizeActor
+  /**
+   * The bound {@link SessionPolicy}: `commitment`, `actorPolicy`, and the call
+   * builders (`executeCall` for `session`, `executeForCall` for `pull`).
+   */
+  session: SessionPolicy
+}
+
+export type FulfillGrantPermissionsErrorType = ToSessionPolicyConfigErrorType
+
+/**
+ * Fulfill an ERC-7715 `wallet_grantPermissions` request as an EIP-8130
+ * **policy-gated** actor — the wallet-side glue for both flows we support:
+ *
+ * - a **session key** that takes actions on the account (`role: 'session'`), or
+ * - an **external pull** subscription that batches draws (`role: 'pull'`).
+ *
+ * Both are authorized POLICY-only ({@link actorScope}.policy) against the same
+ * committed {@link SessionPolicy}; the `role` only changes the actor's
+ * authenticator (a k1 key vs. the external-pull sentinel) and which manager
+ * entrypoint is used at execution (`execute` vs. `executeFor`). The single
+ * ERC-7715 `expiry` drives both the binding `validUntil` and the actor `expiry`.
+ *
+ * @remarks For the policy-manager's forwarded `executeBatch` to land, the
+ * account must (once) register the `manager` as a trusted-executor actor:
+ * `authorizeActor(key.trustedExecutor(manager), { scope: actorScope.sender })`.
+ *
+ * @example
+ * import { fulfillGrantPermissions, sendCalls } from 'viem/eip8130'
+ *
+ * // session key: "≤ 100 USDC / week", expires in 7 days
+ * const { change, session } = fulfillGrantPermissions({
+ *   account: account.address,
+ *   grantee: sessionKeyAddress,
+ *   expiry: Math.floor(Date.now() / 1000) + 7 * 86_400,
+ *   permissions: [
+ *     {
+ *       type: 'erc20-token-transfer',
+ *       data: { address: usdc, ticker: 'USDC' },
+ *       policies: [
+ *         { type: 'token-allowance', data: { allowance: parseUnits('100', 6) } },
+ *         { type: 'rate-limit', data: { count: 1, interval: 7 * 86_400 } },
+ *       ],
+ *     },
+ *   ],
+ * })
+ * await account.change([change])
+ * // later: session.executeCall({ target: usdc, data: transferCalldata })
+ *
+ * // external pull: the same policy, drawn by a provider via executeFor
+ * const pull = fulfillGrantPermissions({
+ *   account: account.address,
+ *   grantee: providerAddress,
+ *   role: 'pull',
+ *   expiry,
+ *   permissions,
+ * })
+ * // provider later submits (from its own address): pull.session.executeForCall(action)
+ */
+export function fulfillGrantPermissions(
+  parameters: FulfillGrantPermissionsParameters,
+): FulfillGrantPermissionsReturnType {
+  const {
+    account,
+    grantee,
+    role = 'session',
+    permissions,
+    expiry,
+    ...rest
+  } = parameters
+  const expiryBig = expiry === undefined ? undefined : BigInt(expiry)
+
+  const session = defineSessionPolicy({
+    ...rest,
+    account,
+    policyConfig: encodeSessionPolicyConfig(toSessionPolicyConfig(permissions)),
+    validUntil: expiryBig,
+  })
+
+  const actor = role === 'pull' ? key.externalPull(grantee) : key.k1(grantee)
+
+  const change = authorizeActor(actor, {
+    scope: actorScope.policy,
+    policy: session.actorPolicy,
+    expiry: expiryBig,
+  })
+
+  return { actor, change, session }
 }

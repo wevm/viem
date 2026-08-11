@@ -8,6 +8,7 @@ import {
   actorScope,
   canonicalAuthenticators,
   ecrecoverAuthenticator,
+  externalPolicyAuthenticator,
   scopeUnrestricted,
   trustedExecutorAuthenticator,
 } from './constants.js'
@@ -83,6 +84,21 @@ export const key = {
     return {
       actorId: actorIdFromAddress(caller),
       authenticator: trustedExecutorAuthenticator,
+    }
+  },
+  /**
+   * External-pull ("subscription provider") actor for `caller` — an address the
+   * account authorizes to draw against a policy via the manager's `executeFor` /
+   * `executeForMany` entrypoints. Uses the {@link externalPolicyAuthenticator}
+   * sentinel, so the actor can *only* act through the external policy path (never
+   * `executeBatch`, and it cannot sign an 8130 transaction). Pair with
+   * `authorizeActor(..., { scope: actorScope.policy, policy })`: the manager
+   * resolves the acting id as `actorIdFromAddress(caller)`.
+   */
+  externalPull(caller: Address): AaActor {
+    return {
+      actorId: actorIdFromAddress(caller),
+      authenticator: externalPolicyAuthenticator,
     }
   },
 } as const

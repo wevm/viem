@@ -166,6 +166,23 @@ export const trustedExecutorAuthenticator =
   '0xbe114b191a3ac7519670cac0c5e74aac1d819a13' satisfies Hex
 
 /**
+ * Sentinel authenticator for external-pull policy actors
+ * (`EXTERNAL_POLICY_AUTHENTICATOR = address(uint160(uint256(keccak256("externalPolicyCaller"))))`,
+ * as defined in `base/eip-8130`'s `PolicyManager`).
+ *
+ * No contract is deployed here. An actor whose `authenticator` is this sentinel
+ * represents an *external caller* governed by a policy (e.g. a subscription
+ * provider): it may act ONLY through the manager's external entrypoints
+ * (`executeFor` / `executeForMany`), never directly. Because the address is
+ * no-code, the actor cannot authenticate an EIP-8130 transaction or drive
+ * `executeBatch` — the manager requires `authenticator == this` on the external
+ * path, and the acting `actorId` is `actorIdFromAddress(msg.sender)` (the pull
+ * caller's own address). See {@link key.externalPull}.
+ */
+export const externalPolicyAuthenticator =
+  '0x8a22e6B3c724A7D0C3aCA1f7EbD089CfbD96B392' satisfies Hex
+
+/**
  * Canonical authenticator set (the signature algorithms compliant nodes MUST
  * accept). `k1` is the native `ECRECOVER_AUTHENTICATOR` sentinel; the others are
  * onchain contracts.

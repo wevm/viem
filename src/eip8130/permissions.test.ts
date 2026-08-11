@@ -1,8 +1,24 @@
 import { describe, expect, test } from 'vitest'
 import { zeroAddress } from '../constants/address.js'
 import type { Permission } from '../experimental/erc7715/types/permission.js'
-import { toSessionPolicy, toSessionPolicyConfig } from './permissions.js'
-import { defineSessionPolicy, encodeSessionPolicyConfig } from './policies.js'
+import { decodeFunctionData } from '../utils/abi/decodeFunctionData.js'
+import {
+  actorScope,
+  ecrecoverAuthenticator,
+  externalPolicyAuthenticator,
+} from './constants.js'
+import { encodePolicyData, key } from './keys.js'
+import {
+  fulfillGrantPermissions,
+  toSessionPolicy,
+  toSessionPolicyConfig,
+} from './permissions.js'
+import {
+  defineSessionPolicy,
+  encodeSessionPolicyConfig,
+  policyManagerAbi,
+} from './policies.js'
+import { actorIdFromAddress } from './utils/actorId.js'
 
 const account = '0x0000000000000000000000000000000000000a11'
 const usdc = '0x0000000000000000000000000000000000000a22'
@@ -169,5 +185,66 @@ describe('toSessionPolicy', () => {
     expect(session.commitment).toBe(expected.commitment)
     expect(session.binding.validUntil).toBe(BigInt(expiry))
     expect(session.actorPolicy).toEqual(expected.actorPolicy)
+  })
+})
+
+describe('fulfillGrantPermissions', () => {
+  const permissions: readonly Permission[] = [
+    {
+      type: 'erc20-token-transfer',
+      data: { address: usdc, ticker: 'USDC' },
+      policies: [
+        { type: 'token-allowance', data: { allowance: 100_000_000n } },
+      ],
+    },
+  ]
+  const grantee = '0x00000000000000000000000000000000000acce5'
+  const expiry = 1_800_000_000
+
+  test('session role → POLICY-only k1 actor, one expiry drives both surfaces', () => {
+    const { actor, change, session } = fulfillGrantPermissions({
+      account,
+      grantee,
+      permissions,
+      expiry,
+    })
+
+    // k1 actor for the session key address.
+    expect(actor).toEqual(key.k1(grantee))
+    expect(change.authenticator).toBe(ecrecoverAuthenticator)
+    expect(change.actorId).toBe(actorIdFromAddress(grantee))
+
+    // POLICY-only, gated to the bound policy.
+    expect(change.scope).toBe(actorScope.policy)
+    expect(change.policyData).toBe(encodePolicyData(session.actorPolicy))
+
+    // Single expiry → both the actor change and the policy binding.
+    expect(change.expiry).toBe(BigInt(expiry))
+    expect(session.binding.validUntil).toBe(BigInt(expiry))
+  })
+
+  test('pull role → external-pull sentinel actor + executeFor call', () => {
+    const { actor, change, session } = fulfillGrantPermissions({
+      account,
+      grantee,
+      role: 'pull',
+      permissions,
+      expiry,
+    })
+
+    // External-pull sentinel; actorId derived from the caller address.
+    expect(actor).toEqual(key.externalPull(grantee))
+    expect(change.authenticator).toBe(externalPolicyAuthenticator)
+    expect(change.actorId).toBe(actorIdFromAddress(grantee))
+    expect(change.scope).toBe(actorScope.policy)
+
+    // The pull call targets the manager's `executeFor` entrypoint.
+    const call = session.executeForCall({ target: usdc, data: '0x' })
+    expect(call.to).toBe(session.manager)
+    const decoded = decodeFunctionData({
+      abi: policyManagerAbi,
+      data: call.data,
+    })
+    expect(decoded.functionName).toBe('executeFor')
   })
 })
