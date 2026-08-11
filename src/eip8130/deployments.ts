@@ -51,9 +51,12 @@ export type Eip8130Deployment = {
     alwaysValid: Address
   }
   /**
-   * Example actor-policy contracts (unaudited reference). A restricted actor is
-   * gated to the `manager`; the manager forwards committed call plans built by
-   * the policy. See `viem/eip8130` policy helpers.
+   * Actor-policy contracts. Policies are app-level, not part of the EIP-8130
+   * protocol: a restricted actor is gated to the `manager`, which forwards
+   * committed call plans built by the policy. Base ships one audited
+   * `PolicyManager` and one `SessionPolicy` in use today; both are extensible —
+   * add a new policy under the same manager, or deploy a new manager. See
+   * `viem/eip8130` policy helpers.
    */
   policies?: {
     /** PolicyManager — the single target a policy-gated actor may call. */
@@ -82,24 +85,32 @@ export type Eip8130Deployment = {
  * bytecode change), all addresses must be re-derived and this object updated.
  */
 export const canonicalEip8130Deployment = {
-  accountConfiguration: '0x8130f09E345cE43531DF25966017710030Dc00AC',
+  accountConfiguration: '0x8130b291585518d44a6250952b7385d00DB900ac',
   accounts: {
-    // `upgradeable` / `erc4337` are unaudited example wallets and are not part
-    // of the canonical deployment. Callers must provide those implementations
-    // explicitly if they choose an example-specific path.
-    default: '0x81301D5aFE1DE3B255781876FC07eD45C150AdEF',
-    defaultHighRate: '0x81301B078907cad978E37E8Cf7F91d44f305fA57',
+    // PENDING FINAL IMPLEMENTATION: the default `newSmartAccount` proxy is
+    // `'upgradeable'`, which must delegate to a real UUPS `UpgradeableAccount`
+    // (see base/eip-8130-examples) so accounts are genuinely upgradeable and
+    // multichain-safe. No such implementation is enshrined against the canonical
+    // Keystore yet — its address is keystore-dependent (constructor arg), and
+    // the expected long-term implementation is Coinbase Smart Wallet v2. Until an
+    // address is set here, `proxy: 'upgradeable'` requires an explicit
+    // `implementation`. Set `upgradeable` once deployed and the default goes live.
+    upgradeable: undefined,
+    default: '0x8130920597E715374C513C0b77D1E2bD0A7AAdef',
+    defaultHighRate: '0x8130f457Acda6659911897fd1514f235eA4dFA57',
+    // `erc4337` (BackwardsCompatible4337Account) is intentionally out of scope
+    // for now — supply it explicitly if you choose the ERC-4337 portable path.
   },
   authenticators: {
     k1: '0x0000000000000000000000000000000000000001',
     p256: '0x8130C89F65750431b564A4730397552a11CeA256',
     webAuthn: '0x813007b6b1b48E75D91dEc5927ab515d12a0F1d0',
-    delegate: '0x81302CC9e53aB471abf9c5924aDD6CF0A3eBADE1',
+    delegate: '0x813077C6d0931a8FD93e59dB9e2E7b56364AaDe1',
     alwaysValid: '0xA550545Da91720c23483c5B3493412A02D1cF9F9',
   },
   policies: {
-    manager: '0x8130646ffaB930BEBd601D06315118071d7F0ac1',
-    sessionPolicy: '0x8130309A18c9923b4523B448325F7e9529695e55',
+    manager: '0x8130427F403f58513d09DD8CDc57f919c3a40ac1',
+    sessionPolicy: '0x813058cC4b7a0248274BBd6DACcA825237735E55',
   },
 } as const satisfies Eip8130Deployment
 

@@ -123,7 +123,10 @@ describe('sendCalls nonce integration', () => {
     maxPriorityFeePerGas: 1_000_000_000n,
   }
   const calls = [
-    { to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', data: '0x' },
+    {
+      to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' as const,
+      data: '0x' as const,
+    },
   ]
 
   test('nonceless: no nonce read, tx carries NONCE_KEY_MAX + validBefore', async () => {

@@ -281,37 +281,61 @@ export type NewSmartAccountParameters = {
    * - **P-256** — from `toP256Signer({ privateKey })`
    * - **WebAuthn / passkey** — from `toWebAuthnSigner(toWebAuthnAccount({ credential }))`
    *
-   * The signer's type is detected automatically: K1 signers expose `.address`;
-   * P-256 / WebAuthn signers expose `.publicKey` and `.authenticator`.
+   * The signer's type is detected automatically: K1 signers expose `.address`
+   * (and, for a `LocalAccount`, a SEC1 hex `.publicKey`); P-256 / WebAuthn
+   * signers expose an `{ x, y }` `.publicKey` and `.authenticator`.
    */
-  signer: Signer & { publicKey?: { x: Hex; y: Hex } }
+  signer: Signer & { publicKey?: { x: Hex; y: Hex } | Hex | undefined }
   /**
    * Uniqueness factor for CREATE2 (bytes32). Randomly generated if omitted.
    * Pass the same salt across sessions to recover a deterministic address.
    */
   salt?: Hex | undefined
   /**
-   * When `false` (default), the account is deployed as an ERC-1167 proxy to the
-   * canonical `DefaultAccount`. When `true`, `implementation` is required and
-   * is deployed behind an ERC-1967 `UpgradeableProxy`. Ignored if `code` is
-   * provided.
+   * Per-account proxy placed at the account address.
+   *
+   * - `'upgradeable'` (default) — 93-byte ERC-1967 {@link upgradeableProxyBytecode}
+   *   delegating to a real UUPS `UpgradeableAccount`, so the account is genuinely
+   *   upgradeable (owner-signed, multichain-safe `upgradeBySignature`). Uses
+   *   `implementation` if given, else the enshrined `accounts.upgradeable`. It
+   *   never falls back to the non-UUPS `DefaultAccount`. **PENDING FINAL
+   *   IMPLEMENTATION**: no canonical UUPS impl is enshrined yet (expected:
+   *   Coinbase Smart Wallet v2), so until then this path needs an explicit
+   *   `implementation` (e.g. the `UpgradeableAccount` example from
+   *   [base/eip-8130-examples](https://github.com/base/eip-8130-examples)).
+   * - `'erc1167'` — immutable 45-byte {@link erc1167Bytecode} minimal proxy to the
+   *   canonical `DefaultAccount`. No upgrade slot (smallest attack surface), but
+   *   not multichain-upgrade-safe.
+   *
+   * Ignored if `code` is provided.
    */
-  upgradeable?: boolean | undefined
+  proxy?: 'erc1167' | 'upgradeable' | undefined
   /**
-   * Wallet implementation address the account proxies to. Defaults to the
-   * canonical `DefaultAccount` when `upgradeable` is `false`. Required when
-   * `upgradeable` is `true`. Ignored if `code` is provided.
+   * Implementation address the proxy delegates to. For `proxy: 'erc1167'`
+   * defaults to the canonical `DefaultAccount`; for `proxy: 'upgradeable'`
+   * defaults to the enshrined `accounts.upgradeable` (a UUPS `UpgradeableAccount`
+   * — required explicitly until one is enshrined). Swap it to back the account
+   * with a different wallet implementation you deployed. Ignored if `code` is
+   * provided.
    */
   implementation?: Address | undefined
   /**
-   * Deployment bytecode override. Defaults to `upgradeableProxyBytecode(implementation)`
-   * (or `erc1167Bytecode(implementation)` when `upgradeable` is `false`).
+   * Deployment bytecode override. Bypasses `proxy` / `implementation` — supply
+   * the full runtime bytecode placed at the account address.
    */
   code?: Hex | undefined
   /**
-   * Additional actors to include at account creation alongside the signer's own
-   * actor. All actors are sorted by `actorId` in strictly ascending order (as
-   * required by the protocol).
+   * Additional **admin** (unrestricted, scope `0`) actors registered at creation
+   * alongside the signer's own actor — co-owners, multisig owners, or recovery
+   * keys. Any `scope`/`policyData` on these is ignored (forced to admin). Build
+   * them with {@link key} (e.g. `key.p256(pubkey)`, `key.k1(addr)`).
+   */
+  admins?: readonly AaActor[] | undefined
+  /**
+   * Additional **scoped** actors registered at creation — session keys,
+   * delegates, or trusted executors. Each carries its own `scope`/`policyData`
+   * (see {@link authorizeActor}). All actors (signer + admins + extras) are
+   * sorted by `actorId` in strictly ascending order (protocol requirement).
    */
   extraActors?: readonly AaActor[] | undefined
   /** AccountConfiguration contract override (advanced). Defaults to canonical. */
@@ -349,18 +373,21 @@ export type NewSmartAccountReturnType = ToAccountReturnType & {
  * automatically from the signer object.
  *
  * @example
- * // K1 (EOA private key)
- * const account = newSmartAccount({ signer: privateKeyToAccount(pk) })
+ * // Immutable ERC-1167 proxy to the canonical DefaultAccount
+ * const account = newSmartAccount({ signer: privateKeyToAccount(pk), proxy: 'erc1167' })
  *
  * @example
- * // P-256
- * const p256 = toP256Signer({ privateKey: P256.randomPrivateKey() })
- * const account = newSmartAccount({ signer: p256 })
+ * // Upgradeable (default): supply a UUPS UpgradeableAccount you deployed —
+ * // required until a canonical upgradeable impl is enshrined.
+ * const account = newSmartAccount({ signer, implementation: upgradeableAccountImpl })
  *
  * @example
- * // WebAuthn / passkey
- * const webAuthn = toWebAuthnSigner(toWebAuthnAccount({ credential }))
- * const account = newSmartAccount({ signer: webAuthn })
+ * // Multisig / co-owners + a session key at creation
+ * const account = newSmartAccount({
+ *   signer,
+ *   admins: [key.p256(recoveryPubkey)],           // extra unrestricted owners
+ *   extraActors: [authorizeActor(key.p256(sessionPubkey), { scope: actorScope.sender })],
+ * })
  *
  * @example
  * // First tx: create + call in one shot
@@ -384,7 +411,8 @@ export function newSmartAccount(
   const {
     signer,
     implementation,
-    upgradeable = false,
+    proxy = 'upgradeable',
+    admins = [],
     extraActors = [],
     accountConfigAddress,
   } = parameters
@@ -401,31 +429,64 @@ export function newSmartAccount(
         : key.p256(signer.publicKey)
       : key.k1(signer.address)
 
+  // Admins are unrestricted co-owners: strip any scope/policyData so they are
+  // registered as admin (scope 0) actors regardless of what was passed in.
+  const adminActors: AaActor[] = admins.map((a) => ({
+    actorId: a.actorId,
+    authenticator: a.authenticator,
+  }))
+
   // Sort all actors by actorId (strictly ascending — protocol requirement).
-  const allActors: AaActor[] = [primaryActor, ...extraActors].sort((a, b) => {
+  const allActors: AaActor[] = [
+    primaryActor,
+    ...adminActors,
+    ...extraActors,
+  ].sort((a, b) => {
     const ai = hexToBigInt(a.actorId as Hex)
     const bi = hexToBigInt(b.actorId as Hex)
     return ai < bi ? -1 : ai > bi ? 1 : 0
   })
 
+  // Reject duplicate actor ids: the protocol requires *strictly* ascending
+  // order, and a repeated id would otherwise corrupt address derivation.
+  for (let i = 1; i < allActors.length; i++)
+    if (allActors[i]!.actorId === allActors[i - 1]!.actorId)
+      throw new BaseError(
+        `Duplicate initial actor id \`${allActors[i]!.actorId}\` (signer, admins, and extraActors must be distinct).`,
+      )
+
   const salt = parameters.salt ?? randomBytes32()
 
-  // Canonical accounts use an ERC-1167 proxy to DefaultAccount. Upgradeability
-  // remains available only when the caller explicitly supplies an implementation.
-  let code = parameters.code
-  if (!code) {
-    if (upgradeable) {
-      if (!implementation)
-        throw new BaseError(
-          '`implementation` is required for `upgradeable: true`; the canonical deployment does not include the unaudited UpgradeableAccount example.',
+  // Proxy selection.
+  // - 'erc1167'     — immutable minimal proxy → `implementation` ?? DefaultAccount.
+  // - 'upgradeable' — ERC-1967 proxy → a real UUPS `UpgradeableAccount`, so the
+  //   account is *actually* upgradeable (owner-signed `upgradeBySignature`,
+  //   multichain-safe). It must NOT silently fall back to the non-UUPS
+  //   DefaultAccount, so we require an explicit `implementation` or an enshrined
+  //   `accounts.upgradeable`.
+  //
+  // PENDING FINAL IMPLEMENTATION: `accounts.upgradeable` is not enshrined yet
+  // (expected long-term impl: Coinbase Smart Wallet v2). Until it is, the default
+  // `proxy: 'upgradeable'` path needs an explicit `implementation`.
+  const code =
+    parameters.code ??
+    (() => {
+      if (proxy === 'erc1167')
+        return erc1167Bytecode(
+          implementation ?? canonicalEip8130Deployment.accounts.default,
         )
-      code = upgradeableProxyBytecode(implementation)
-    } else {
-      code = erc1167Bytecode(
-        implementation ?? canonicalEip8130Deployment.accounts.default,
-      )
-    }
-  }
+      const impl =
+        implementation ?? canonicalEip8130Deployment.accounts.upgradeable
+      if (!impl)
+        throw new BaseError(
+          'No canonical `UpgradeableAccount` is enshrined yet (pending final ' +
+            'implementation), so `proxy: "upgradeable"` requires an explicit ' +
+            '`implementation` — a UUPS UpgradeableAccount you deployed (see ' +
+            'https://github.com/base/eip-8130-examples). Alternatively pass ' +
+            '`proxy: "erc1167"` for an immutable DefaultAccount-backed account.',
+        )
+      return upgradeableProxyBytecode(impl)
+    })()
 
   const inner = toAccount({
     signer,

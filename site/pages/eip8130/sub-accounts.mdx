@@ -20,9 +20,9 @@ import { newSmartAccount } from 'viem/eip8130'
 const owner = privateKeyToAccount(generatePrivateKey())
 
 // A stable, human-meaningful salt derivation is convenient here.
-const main = newSmartAccount({ signer: owner, salt: saltFor('main') })
-const trading = newSmartAccount({ signer: owner, salt: saltFor('trading') })
-const savings = newSmartAccount({ signer: owner, salt: saltFor('savings') })
+const main = newSmartAccount({ signer: owner, proxy: 'erc1167', salt: saltFor('main') })
+const trading = newSmartAccount({ signer: owner, proxy: 'erc1167', salt: saltFor('trading') })
+const savings = newSmartAccount({ signer: owner, proxy: 'erc1167', salt: saltFor('savings') })
 
 main.address !== trading.address // distinct accounts, same owner key
 ```

@@ -4,19 +4,32 @@ description: Getting started with EIP-8130 native account abstraction in Viem
 
 # EIP-8130 (Native Account Abstraction) [Overview]
 
-[EIP-8130](https://github.com/base/eip-8130) is a native account-abstraction transaction type (`AA_TX_TYPE`, `0x79`). Every account is a smart account governed by an onchain **Account Configuration** contract, and transactions are sent directly to the chain — no bundler, no EntryPoint. Viem exposes the full flow through the `viem/eip8130` entrypoint.
+[EIP-8130](https://github.com/base/eip-8130) is a native account-abstraction transaction type (`AA_TX_TYPE`, `0x79`). Every account is a smart account governed by an onchain **Keystore** contract, and transactions are sent directly to the chain — no bundler, no EntryPoint. Viem exposes the full flow through the `viem/eip8130` entrypoint.
 
 :::warning[Warning]
-EIP-8130 is experimental and enabled per-chain. It is not yet live on mainnet. Do not solely rely on experimental features in production.
+EIP-8130 is not yet enabled on mainnet and is currently in audit. Do not rely on it in production yet.
 :::
 
 ## What you get
 
-- **One account, many keys** — a single account address controlled by a set of *actors* (secp256k1 / P-256 / WebAuthn passkeys / delegates), each with its own scope and expiry.
-- **Deploy-on-first-use** — the counterfactual address is known up front; the account is deployed atomically inside its first transaction.
-- **Native transactions** — sign an `AA_TX_TYPE` transaction and submit it with `eth_sendRawTransaction`. Gas is priced by the node via an EIP-8130-aware `eth_estimateGas`.
-- **Sponsored gas** — an optional `payer` co-signs the transaction so a third party pays the fee.
-- **Session keys** — policy-gated actors (spend limits, target/selector allowlists) for scoped, delegated signing.
+**Auth**
+- **Multiple key types** — sign for the account with secp256k1, P-256, or WebAuthn passkeys, and **rotate keys** at any time.
+- **Sub-accounts** — many accounts per owner, linked via delegate actors.
+- **Session keys & scoped permissions** — policy-gated actors (spend limits, target/selector allowlists).
+- **Account recovery & multisig** — available today (recover via actor sets, require multiple actors to authorize).
+
+**Gas abstraction**
+- **Sponsorship** and **ERC-20 gas payment**.
+
+**Account**
+- **Backwards compatible** with existing ERC-4337 accounts — every account works.
+- **Portable** — one account for everything: an EOA, an existing smart account, or a new one — the same on **any EVM chain**.
+
+**Execution**
+- **Guaranteed atomic batching**.
+- **Call phases** — sequentially-committed atomic call groups.
+- **Expiring transactions**.
+- **High-throughput accounts** — 100s of tps.
 
 ## Mental model
 
@@ -24,8 +37,17 @@ EIP-8130 is experimental and enabled per-chain. It is not yet live on mainnet. D
 | --- | --- |
 | **Account** | Smart account at a CREATE2 address derived from `userSalt`, wallet `code`, and `initialActors`. |
 | **Actor** | A key authorized on the account (`{ actorId, authenticator }`), built via the [`key`](/eip8130/rotating-owners#actors-and-keys) helpers. |
+| **Authenticator** | A contract that validates an auth blob and returns the `actorId` it authenticates (`bytes32(0)` if invalid). Secp256k1 is built in (`address(1)`); P-256, WebAuthn, and delegate authenticators are contracts. |
 | **Account change** | A `create`, `config` (actor changes), or `delegation` operation applied atomically within a transaction. |
 | **Auth blob** | `sender_auth` / `payer_auth` bytes: a bare 65-byte signature for the implicit EOA path, or `authenticator(20) || data` for a configured actor. |
+
+Every authenticator implements a single view function — given a hash and the auth `data`, it returns the actor it proves (or `bytes32(0)`):
+
+```solidity
+interface IAuthenticator {
+  function authenticate(bytes32 hash, bytes data) external view returns (bytes32 actorId);
+}
+```
 
 ## Installation
 
@@ -62,22 +84,35 @@ register8130Chains(vibenet.id)
 
 ## Deployment addresses
 
-The protocol contracts (Account Configuration, wallet implementations, authenticators, example policies) are deployed deterministically and are identical on every chain running the same bytecode. Resolve them per chain:
+Every protocol contract is deployed through a deterministic CREATE2 factory with a per-contract mined salt, so each address is a pure function of its bytecode — **identical on every chain**. The `viem/eip8130` actions already default to this canonical set (`accountConfiguration` is enshrined in the execution client), so you normally don't pass any addresses at all.
+
+The default is implied but extensible — fall back to `canonicalEip8130Deployment`, and override only if a chain ever pins a different set:
 
 ```ts
 import { getEip8130Deployment, canonicalEip8130Deployment } from 'viem/eip8130'
 
-const deployment = getEip8130Deployment(84_538_453) ?? canonicalEip8130Deployment
-deployment.accountConfiguration    // factory + actor-config registry
-deployment.accounts.upgradeable    // UpgradeableAccount — default smart-account impl
-deployment.accounts.default        // DefaultAccount — default EOA (EIP-7702) delegate
-deployment.accounts.defaultHighRate // DefaultHighRateAccount — immutable smart-account impl
-deployment.accounts.erc4337        // BackwardsCompatible4337Account — cross-chain (ERC-4337)
-deployment.authenticators.p256     // P-256 authenticator
-deployment.policies?.manager       // example PolicyManager (session keys)
+const deployment =
+  getEip8130Deployment(chainId) ?? // per-chain override, if one is ever registered
+  canonicalEip8130Deployment       // canonical default (every chain today)
+
+deployment.accountConfiguration     // Keystore — factory + actor-config registry (enshrined)
+deployment.accounts.default         // DefaultAccount — EIP-7702 delegate / proxy impl
+deployment.accounts.defaultHighRate // CanonicalHighRatePayerAccount — immutable (ERC-1167)
+deployment.authenticators.p256      // P-256 (webAuthn, delegate, k1, alwaysValid alongside)
 ```
 
-Account implementations: **`UpgradeableAccount`** (the default for smart accounts — behind an ERC-1967 `UpgradeableProxy`, upgradeable via `upgradeBySignature`), **`DefaultAccount`** (the bare building block, deployed standalone as the direct EIP-7702 delegation target for EOAs), **`DefaultHighRateAccount`** (immutable — behind a 45-byte ERC-1167 proxy), and **`BackwardsCompatible4337Account`** (the ERC-4337 portable implementation for non-native chains). All four are deployed as singletons by base's canonical `Deploy.s.sol` at canonical CREATE2 addresses.
+The canonical set is **`DefaultAccount`** (the bare building block and the direct EIP-7702 delegation target for EOAs) and **`CanonicalHighRatePayerAccount`** (immutable, behind a 45-byte ERC-1167 proxy). **`UpgradeableAccount`** (ERC-1967 upgradeable proxy) and **`BackwardsCompatible4337Account`** (the ERC-4337 portable implementation for non-native chains) are optional, unaudited example wallets — supply them explicitly if you choose those paths.
+
+### Policies are app-level, not protocol
+
+Policy contracts are **not** part of the EIP-8130 protocol. A policy-gated actor is simply gated to a `manager` address that forwards committed call plans — and both the manager and the policies it enforces are **extensible**: add a new policy under the same manager, or deploy a whole new manager. Base ships one **audited** `PolicyManager` and one `SessionPolicy` in use today:
+
+```ts
+deployment.policies?.manager        // PolicyManager (audited)
+deployment.policies?.sessionPolicy  // SessionPolicy — the policy in use today
+```
+
+To use your own, point `authorizeActor`'s `policy.manager` at your contract — see [Session Keys](/eip8130/session-keys).
 
 ## Guides
 

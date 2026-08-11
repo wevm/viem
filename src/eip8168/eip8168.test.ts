@@ -32,7 +32,10 @@ const PAYER = '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC' as const
 const FEE_RECIPIENT = '0x90F79bf6EB2c4f870365E785982E1f101E93b906' as const
 const USDC = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' as const
 const userCalls = [
-  { to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', data: '0x' as const },
+  {
+    to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' as const,
+    data: '0x' as const,
+  },
 ]
 
 const gasEstimate = {
@@ -158,7 +161,15 @@ describe('buildSponsoredCalls', () => {
           {
             ...tokenTerms.options[0],
             tokens: [
-              { ...tokenTerms.options[0].tokens[0], feeRecipient: undefined },
+              {
+                ...(
+                  tokenTerms.options[0] as Extract<
+                    GetTermsReturnType['options'][number],
+                    { kind: 'token' }
+                  >
+                ).tokens[0],
+                feeRecipient: undefined,
+              },
             ],
           } as (typeof tokenTerms.options)[number],
         ],

@@ -27,7 +27,7 @@ import {
 } from './keys.js'
 import { actorIdFromAddress, actorIdFromPublicKey } from './utils/actorId.js'
 import { parseTransaction } from './utils/parseTransaction.js'
-import { erc1167Bytecode } from './utils/proxy.js'
+import { erc1167Bytecode, upgradeableProxyBytecode } from './utils/proxy.js'
 
 const owner = privateKeyToAccount(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
@@ -42,22 +42,89 @@ const pubkey = {
 } as const
 
 describe('canonical smart-account deployment', () => {
-  test('defaults to an ERC-1167 proxy to DefaultAccount', () => {
-    const account = newSmartAccount({ signer: owner, salt: userSalt })
+  test('default upgradeable proxy requires an implementation until enshrined', () => {
+    // PENDING FINAL IMPLEMENTATION: no canonical UUPS UpgradeableAccount is
+    // enshrined yet, so the default `proxy: 'upgradeable'` needs an explicit impl.
+    expect(() => newSmartAccount({ signer: owner, salt: userSalt })).toThrow(
+      'No canonical `UpgradeableAccount` is enshrined yet',
+    )
+  })
+
+  test('upgradeable proxy to an explicit UUPS implementation', () => {
+    const impl = '0x00000000000000000000000000000000000000Ec' as const
+    const account = newSmartAccount({
+      signer: owner,
+      salt: userSalt,
+      implementation: impl,
+    })
+
+    expect(account.createChange.code).toBe(upgradeableProxyBytecode(impl))
+  })
+
+  test('proxy: "erc1167" deploys an immutable minimal proxy to DefaultAccount', () => {
+    const account = newSmartAccount({
+      signer: owner,
+      salt: userSalt,
+      proxy: 'erc1167',
+    })
 
     expect(account.createChange.code).toBe(
       erc1167Bytecode(canonicalEip8130Deployment.accounts.default),
     )
   })
 
-  test('requires an explicit implementation for upgradeable accounts', () => {
+  test('swaps the implementation the proxy delegates to', () => {
+    const impl = '0x00000000000000000000000000000000000000Ec' as const
+    expect(
+      newSmartAccount({ signer: owner, salt: userSalt, implementation: impl })
+        .createChange.code,
+    ).toBe(upgradeableProxyBytecode(impl))
+    expect(
+      newSmartAccount({
+        signer: owner,
+        salt: userSalt,
+        proxy: 'erc1167',
+        implementation: impl,
+      }).createChange.code,
+    ).toBe(erc1167Bytecode(impl))
+  })
+
+  test('merges admins + extraActors, sorted by actorId', () => {
+    const co = privateKeyToAccount(
+      '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
+    )
+    const account = newSmartAccount({
+      signer: owner,
+      salt: userSalt,
+      proxy: 'erc1167',
+      admins: [key.k1(co.address)],
+      extraActors: [
+        authorizeActor(key.p256(pubkey), { scope: actorScope.sender }),
+      ],
+    })
+
+    const ids = account.createChange.initialActors.map((a) => a.actorId)
+    // strictly ascending
+    expect([...ids].sort()).toStrictEqual(ids)
+    expect(ids).toContain(actorIdFromAddress(owner.address))
+    expect(ids).toContain(actorIdFromAddress(co.address))
+    expect(ids).toContain(actorIdFromPublicKey(pubkey))
+    // admins are forced to unrestricted (no scope)
+    const coActor = account.createChange.initialActors.find(
+      (a) => a.actorId === actorIdFromAddress(co.address),
+    )
+    expect(coActor?.scope).toBeUndefined()
+  })
+
+  test('rejects duplicate initial actor ids', () => {
     expect(() =>
       newSmartAccount({
         signer: owner,
         salt: userSalt,
-        upgradeable: true,
+        proxy: 'erc1167',
+        admins: [key.k1(owner.address)],
       }),
-    ).toThrow('`implementation` is required for `upgradeable: true`')
+    ).toThrow('Duplicate initial actor id')
   })
 })
 

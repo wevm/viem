@@ -105,9 +105,10 @@ import {
   toP256Signer,
 } from 'viem/eip8130'
 
-// Same account address, driven by the session key.
+// Same account address, driven by the session key (match the account's proxy).
 const sessionAccount = newSmartAccount({
   signer: toP256Signer({ privateKey: sessionPrivateKey }),
+  proxy: 'erc1167',
   salt: accountSalt,
 })
 
