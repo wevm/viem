@@ -130,3 +130,54 @@ const hash = await sendCalls(client, {
 ```
 
 A transfer that exceeds the weekly limit, or targets a contract/selector outside the allowlist, reverts inside the manager — so the key can only ever act within its committed policy.
+
+## Fulfilling an ERC-7715 request
+
+When a dApp asks a wallet for a session key via [ERC-7715](https://eips.ethereum.org/EIPS/eip-7715) `wallet_grantPermissions`, the request arrives as a set of `permissions` (+ policies) and a top-level `expiry`. `toSessionPolicy` lowers that request directly onto the EIP-8130 primitives above — no need to hand-author the `SessionPolicyConfig`:
+
+```ts
+import { parseUnits } from 'viem'
+import {
+  actorScope,
+  authorizeActor,
+  key,
+  toSessionPolicy,
+} from 'viem/eip8130'
+
+// The `permissions` + `expiry` a dApp sent via `wallet_grantPermissions`.
+const session = toSessionPolicy({
+  account: account.address,
+  expiry: Math.floor(Date.now() / 1000) + 7 * 86_400,
+  permissions: [
+    {
+      // ≤ 100 USDC / week (a recurring "subscription")
+      type: 'erc20-token-transfer',
+      data: { address: usdc, ticker: 'USDC' },
+      policies: [
+        { type: 'token-allowance', data: { allowance: parseUnits('100', 6) } },
+        { type: 'rate-limit', data: { count: 1, interval: 7 * 86_400 } },
+      ],
+    },
+  ],
+})
+
+// Authorize the requested key — its signed commitment *is* the grant.
+const change = await account.change([
+  authorizeActor(key.p256({ x, y }), {
+    scope: actorScope.sender,
+    policy: session.actorPolicy,
+  }),
+])
+```
+
+The mapping is:
+
+| ERC-7715 | EIP-8130 `SessionPolicy` |
+| --- | --- |
+| `native-token-transfer` + `token-allowance` | native-ETH `tokenLimit` (gated on each call's `value`) |
+| `erc20-token-transfer` + `token-allowance` | ERC-20 `tokenLimit` **and** a `callScope` for `transfer`/`transferFrom` on the token |
+| `contract-call` `{ address, calls }` | a `callScope` restricting the key to those selectors on the target |
+| `rate-limit` `interval` (on a transfer) | the cap's reset `period` (a recurring allowance) |
+| `gas-limit` | ignored — gas is settled by the payer / [ERC-8168](/eip8168) layer |
+
+A transfer permission without a `token-allowance` throws (an unbounded spend can't be safely granted), as do `custom` permissions/policies — build the `SessionPolicyConfig` explicitly for those. Use `toSessionPolicyConfig` on its own if you only need the lowered config (e.g. to inspect or extend it before binding).

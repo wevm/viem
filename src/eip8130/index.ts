@@ -170,6 +170,13 @@ export {
 } from './lock.js'
 export { type Nonce, nonce } from './nonce.js'
 export {
+  type ToSessionPolicyConfigErrorType,
+  type ToSessionPolicyErrorType,
+  type ToSessionPolicyParameters,
+  toSessionPolicy,
+  toSessionPolicyConfig,
+} from './permissions.js'
+export {
   type CommitmentOfErrorType,
   commitmentOf,
   type DefineSessionPolicyErrorType,
