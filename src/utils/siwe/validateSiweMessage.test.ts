@@ -141,3 +141,15 @@ test('behavior: unparseable notBefore', () => {
     }),
   ).toBeFalsy()
 })
+
+test('behavior: invalid time rejects before lifetime checks', () => {
+  expect(
+    validateSiweMessage({
+      message: {
+        ...message,
+        expirationTime: new Date(Date.UTC(2030, 1, 1)),
+      },
+      time: new Date('never'),
+    }),
+  ).toBeFalsy()
+})

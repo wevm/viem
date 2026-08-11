@@ -1,7 +1,15 @@
 import type { Address } from 'abitype'
 
 import type { ExactPartial, Prettify } from '../../types/utils.js'
+import { isValidSiweDateTime } from './isValidSiweDateTime.js'
 import type { SiweMessage } from './types.js'
+
+function parseSiweDateTime(value: string): Date {
+  // Reject non-RFC-3339 / non-EIP-4361 date-time strings before Date coercion
+  // (JS Date accepts many non-SIWE forms that would otherwise look "valid").
+  if (!isValidSiweDateTime(value)) return new Date(Number.NaN)
+  return new Date(value)
+}
 
 /**
  * @description Parses EIP-4361 formatted message into message fields object.
@@ -36,9 +44,9 @@ export function parseSiweMessage(
     ...prefix,
     ...suffix,
     ...(chainId ? { chainId: Number(chainId) } : {}),
-    ...(expirationTime ? { expirationTime: new Date(expirationTime) } : {}),
-    ...(issuedAt ? { issuedAt: new Date(issuedAt) } : {}),
-    ...(notBefore ? { notBefore: new Date(notBefore) } : {}),
+    ...(expirationTime ? { expirationTime: parseSiweDateTime(expirationTime) } : {}),
+    ...(issuedAt ? { issuedAt: parseSiweDateTime(issuedAt) } : {}),
+    ...(notBefore ? { notBefore: parseSiweDateTime(notBefore) } : {}),
     ...(requestId ? { requestId } : {}),
     ...(resources ? { resources } : {}),
     ...(scheme ? { scheme } : {}),

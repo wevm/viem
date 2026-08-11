@@ -57,8 +57,11 @@ export function validateSiweMessage(
   if (nonce && message.nonce !== nonce) return false
   if (scheme && message.scheme !== scheme) return false
 
-  // `new Date("never")` is truthy Invalid Date; comparisons against it are
-  // always false, which previously skipped lifetime / nbf checks entirely.
+  // Invalid `time` makes both lifetime comparisons false in JS; reject first.
+  if (Number.isNaN(time.getTime())) return false
+
+  // Invalid Date (e.g. non-RFC-3339 SIWE timestamp coerced at parse) is truthy;
+  // comparisons against it are always false and previously skipped checks.
   if (message.expirationTime) {
     if (Number.isNaN(message.expirationTime.getTime())) return false
     if (time >= message.expirationTime) return false
