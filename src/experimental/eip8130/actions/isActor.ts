@@ -1,13 +1,12 @@
 import type { Address } from 'abitype'
 
-import { readContract } from '../../../actions/public/readContract.js'
+import { zeroAddress } from '../../../constants/address.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
-import { accountConfigurationAbi } from '../abis.js'
-import { accountConfigAddress as defaultAccountConfigAddress } from '../constants.js'
+import { getActorConfig } from './getActorConfig.js'
 
 export type IsActorParameters = {
   /** The account to check. */
@@ -24,9 +23,14 @@ export type IsActorParameters = {
 export type IsActorReturnType = boolean
 
 /**
- * Reads whether an actor is currently authorized on an EIP-8130 account, from
- * the `AccountConfiguration` system contract (`isActor`). For the actor's full
- * configuration, use {@link getActorConfig}.
+ * Reads whether an actor is currently authorized on an EIP-8130 account.
+ *
+ * The finalized Keystore system contract has no dedicated `isActor` view; actor
+ * liveness is derived from {@link getActorConfig}, whose single resolver returns
+ * the all-zero config (authenticator `0x0`) for any actor that is unknown,
+ * revoked, disabled, or expired — and never reverts (including for an account
+ * that has not been created yet). "Bound" therefore means a non-zero
+ * authenticator. For the actor's full configuration, use {@link getActorConfig}.
  *
  * @example
  * ```ts
@@ -49,16 +53,12 @@ export async function isActor<
   client: Client<Transport, chain, account>,
   parameters: IsActorParameters,
 ): Promise<IsActorReturnType> {
-  const {
+  const { account, actorId, accountConfiguration } = parameters
+
+  const { authenticator } = await getActorConfig(client, {
     account,
     actorId,
-    accountConfiguration = defaultAccountConfigAddress,
-  } = parameters
-
-  return readContract(client, {
-    address: accountConfiguration,
-    abi: accountConfigurationAbi,
-    functionName: 'isActor',
-    args: [account, actorId],
+    ...(accountConfiguration ? { accountConfiguration } : {}),
   })
+  return authenticator !== zeroAddress
 }

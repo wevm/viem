@@ -166,6 +166,9 @@ export async function prepareTransaction(
     maxPriorityFeePerGas,
     gas,
     validBefore,
+    ...(parameters.validAfter !== undefined
+      ? { validAfter: parameters.validAfter }
+      : {}),
     accountChanges,
     calls,
     ...(dataSuffix ? { metadata: dataSuffix } : {}),

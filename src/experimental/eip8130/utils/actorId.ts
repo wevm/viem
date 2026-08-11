@@ -10,14 +10,16 @@ import { keccak256 } from '../../../utils/hash/keccak256.js'
 export type ActorIdFromAddressErrorType = PadErrorType | ErrorType
 
 /**
- * Derives the `actorId` for an address-based actor: `bytes32(bytes20(address))`.
+ * Derives the `actorId` for an address-based actor:
+ * `bytes32(uint256(uint160(address)))`.
  *
  * Used for the implicit EOA actor, `k1` (`ECRECOVER_AUTHENTICATOR`), and
- * `delegate` actors. `bytesN` widening is left-aligned, so the 20-byte address
- * occupies the high-order bytes and the remaining 12 bytes are zero.
+ * `delegate` actors. The 20-byte address is right-aligned into the low-order
+ * bytes and the high 12 bytes are zero (matches `Keystore.ActorId.fromAddress`
+ * and enables the standard `address(uint160(uint256(id)))` round-trip).
  */
 export function actorIdFromAddress(address: Address): Hex {
-  return pad(address, { dir: 'right', size: 32 })
+  return pad(address, { dir: 'left', size: 32 })
 }
 
 export type ActorIdFromPublicKeyErrorType = BaseError | ErrorType
