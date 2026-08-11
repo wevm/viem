@@ -73,9 +73,10 @@ function isBalance(call: { data: Hex; status: 'success' | 'failure' }) {
 }
 
 // Supplementary discovery for assets whose balance changes without a `Transfer` the
-// account participates in. Advisory only: `eth_createAccessList` cannot accept state
-// overrides, so it runs against unmodified state and rejects calls that revert there,
-// and some nodes do not implement it – log-based discovery covers those cases.
+// account participates in. Advisory only: no state overrides are passed – geth accepts
+// them on `eth_createAccessList`, but support is not portable across nodes – so it runs
+// against unmodified state and rejects calls that revert there, and some nodes do not
+// implement the method at all. Log-based discovery covers those cases.
 async function accessListHints<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: {
