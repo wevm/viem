@@ -2,6 +2,10 @@ import { expect, test, vi } from 'vitest'
 
 import { anvilMainnet } from '~test/anvil.js'
 import { createClient } from '../../clients/createClient.js'
+import {
+  createTransport,
+  type Transport,
+} from '../../clients/transports/createTransport.js'
 import { webSocket } from '../../clients/transports/webSocket.js'
 import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
@@ -42,4 +46,35 @@ test('watches for new block headers without fetching blocks', async () => {
   expect(blockHeaders[0]).not.toHaveProperty('withdrawals')
   expect(getBlock_).not.toHaveBeenCalled()
   getBlock_.mockRestore()
+})
+
+test('reports subscription setup failures once', async () => {
+  const error = new Error('subscription failed')
+  const onError = vi.fn()
+  const subscribe = vi.fn(
+    async ({ onError }: { onError(error: Error): void }) => {
+      onError(error)
+      throw error
+    },
+  )
+  const transport: Transport<
+    'webSocket',
+    { subscribe: typeof subscribe }
+  > = () =>
+    createTransport(
+      {
+        key: 'webSocket',
+        name: 'Mock WebSocket Transport',
+        request: vi.fn(async () => null) as never,
+        type: 'webSocket',
+      },
+      { subscribe },
+    )
+  const client = createClient({ transport })
+
+  watchBlockHeaders(client, { onBlockHeader() {}, onError })
+  await wait(0)
+
+  expect(onError).toHaveBeenCalledOnce()
+  expect(onError).toHaveBeenCalledWith(error)
 })

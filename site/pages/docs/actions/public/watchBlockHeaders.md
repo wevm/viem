@@ -4,7 +4,7 @@ description: Watches and returns incoming block headers.
 
 # watchBlockHeaders
 
-Watches and returns incoming block headers without fetching full blocks. This Action requires a WebSocket or IPC Client.
+Watches and returns incoming block headers without fetching full blocks. This Action requires a [WebSocket Transport](/docs/clients/transports/websocket) or [IPC Transport](/docs/clients/transports/ipc).
 
 ## Usage
 

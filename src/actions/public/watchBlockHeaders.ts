@@ -54,7 +54,8 @@ export type WatchBlockHeadersErrorType = StringifyErrorType | ErrorType
  * @returns A function that can be invoked to stop watching for new block headers. {@link WatchBlockHeadersReturnType}
  *
  * @example
- * import { createPublicClient, watchBlockHeaders, webSocket } from 'viem'
+ * import { createPublicClient, webSocket } from 'viem'
+ * import { watchBlockHeaders } from 'viem/actions'
  * import { mainnet } from 'viem/chains'
  *
  * const client = createPublicClient({
@@ -83,6 +84,7 @@ export function watchBlockHeaders<
 
   return observe(observerId, { onBlockHeader, onError }, (emit) => {
     let active = true
+    let subscribed = false
     let unsubscribe = () => (active = false)
     ;(async () => {
       try {
@@ -114,9 +116,10 @@ export function watchBlockHeaders<
             prevBlockHeader = blockHeader as OnBlockHeaderParameter<chain>
           },
           onError(error: Error) {
-            emit.onError?.(error)
+            if (subscribed) emit.onError?.(error)
           },
         })
+        subscribed = true
         unsubscribe = unsubscribe_
         if (!active) unsubscribe()
       } catch (err) {

@@ -93,6 +93,7 @@ test('default', async () => {
       "verifySiweMessage": [Function],
       "verifyTypedData": [Function],
       "waitForTransactionReceipt": [Function],
+      "watchBlockHeaders": [Function],
       "watchBlockNumber": [Function],
       "watchBlocks": [Function],
       "watchContractEvent": [Function],
