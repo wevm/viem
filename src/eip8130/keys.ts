@@ -14,6 +14,7 @@ import {
 import type {
   AaActor,
   AaAuthorizeActor,
+  AaIncrementLocalEpoch,
   AaRevokeActor,
 } from './types/transaction.js'
 import { actorIdFromAddress, actorIdFromPublicKey } from './utils/actorId.js'
@@ -195,4 +196,21 @@ export function authorizeActor(
 export function revokeActor(actor: AaActor | Hex): AaRevokeActor {
   const actorId = typeof actor === 'string' ? actor : actor.actorId
   return { changeType: 0x01, actorId }
+}
+
+/**
+ * Builds an `incrementLocalEpoch` change: bumps the account's local epoch,
+ * invalidating **every** unlanded local-channel signature signed at a prior
+ * epoch in one shot — an instant "revoke all pending" / rotation kill-switch
+ * (e.g. after a suspected key compromise, or to void outstanding JIT grants).
+ *
+ * Sign it like any other change via `account.change` at the current `local`
+ * sequence from {@link getConfigSequence}; it takes no payload.
+ *
+ * @example
+ * const { local } = await getConfigSequence(client, { accountConfiguration, account })
+ * const bump = await account.change([incrementLocalEpoch()], { chainId, sequence: local })
+ */
+export function incrementLocalEpoch(): AaIncrementLocalEpoch {
+  return { changeType: 0x02 }
 }

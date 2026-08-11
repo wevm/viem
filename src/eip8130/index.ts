@@ -155,6 +155,7 @@ export {
   authorizeActor,
   canUseSequencedNonce,
   encodePolicyData,
+  incrementLocalEpoch,
   isNoncelessOnly,
   key,
   type Policy,

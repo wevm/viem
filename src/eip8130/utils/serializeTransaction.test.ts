@@ -1,6 +1,12 @@
 import { describe, expect, test } from 'vitest'
 import { keccak256 } from '../../utils/hash/keccak256.js'
-import { aaPayerType, aaTransactionType, nonceKeyMax } from '../constants.js'
+import {
+  aaPayerType,
+  aaTransactionType,
+  changeType,
+  nonceKeyMax,
+} from '../constants.js'
+import { incrementLocalEpoch } from '../keys.js'
 import type { TransactionSerializable8130 } from '../types/transaction.js'
 import {
   getPayerSignatureHash,
@@ -154,6 +160,37 @@ describe('serializeTransaction (EIP-8130)', () => {
       type: 'config',
       channel: 'local',
       sequence: 5n,
+    })
+  })
+
+  test('account changes: incrementLocalEpoch (empty-payload op)', () => {
+    const change = incrementLocalEpoch()
+    expect(change).toEqual({ changeType: changeType.incrementLocalEpoch })
+
+    const transaction: TransactionSerializable8130 = {
+      chainId: 8453,
+      from: alice,
+      maxFeePerGas: 2n,
+      accountChanges: [
+        {
+          type: 'config',
+          channel: 'local',
+          sequence: 5n,
+          changes: [change],
+          signature: '0xfeed',
+        },
+      ],
+      senderAuth,
+    }
+    const serialized = serializeTransaction(transaction)
+    expect(serializeTransaction(parseTransaction(serialized))).toEqual(
+      serialized,
+    )
+    const parsed = parseTransaction(serialized)
+    const config = parsed.accountChanges?.[0]
+    expect(config).toMatchObject({ type: 'config', channel: 'local' })
+    expect(config && 'changes' in config && config.changes?.[0]).toEqual({
+      changeType: changeType.incrementLocalEpoch,
     })
   })
 

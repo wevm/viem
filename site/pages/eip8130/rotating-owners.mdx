@@ -107,6 +107,33 @@ const rotate = await account.change(
 )
 ```
 
+## Invalidate pending changes (epoch bump)
+
+`incrementLocalEpoch()` bumps the account's local epoch, invalidating **every** unlanded local-channel signature signed at a prior epoch in one shot — an instant "revoke all pending" kill-switch (e.g. after a suspected key compromise, or to void outstanding just-in-time session-key grants that haven't landed). It takes no payload; sign it at the current `local` sequence like any other change:
+
+```ts
+import { getConfigSequence, incrementLocalEpoch, sendCalls } from 'viem/eip8130'
+
+const { local: sequence } = await getConfigSequence(client, {
+  accountConfiguration,
+  account: account.address,
+})
+
+const bump = await account.change([incrementLocalEpoch()], {
+  chainId: client.chain.id,
+  sequence,
+})
+
+const hash = await sendCalls(client, {
+  account,
+  accountChanges: [bump],
+  calls: [],
+  gas: 200_000n,
+})
+```
+
+The new epoch is reflected in `getConfigSequence`'s `localEpoch` once it lands.
+
 ## Rotate during deployment
 
 For a delegated EOA, you can delegate *and* install new keys in the very first transaction — no separate account handle required:
