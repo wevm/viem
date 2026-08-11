@@ -342,6 +342,10 @@ export default defineConfig({
                 link: '/docs/actions/public/watchBlockNumber',
               },
               {
+                text: 'watchBlockHeaders',
+                link: '/docs/actions/public/watchBlockHeaders',
+              },
+              {
                 text: 'watchBlocks',
                 link: '/docs/actions/public/watchBlocks',
               },
