@@ -75,7 +75,7 @@ const change = await account.change(
       scope: actorScope.sender, // full owner? use scope 0
     }),
   ],
-  { chainId: client.chain.id, sequence: Number(sequence) },
+  { chainId: client.chain.id, sequence }, // bigint, straight from getConfigSequence
 )
 
 const hash = await sendCalls(client, {
@@ -103,7 +103,7 @@ const rotate = await account.change(
     authorizeActor(key.k1('0xnewOwner...'), { scope: actorScope.sender }),
     revokeActor(key.k1('0xoldOwner...')),
   ],
-  { chainId: client.chain.id, sequence: Number(sequence) },
+  { chainId: client.chain.id, sequence },
 )
 ```
 
