@@ -326,7 +326,7 @@ jobs:
       - name: Set up foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: nightly
+          version: nightly-08e262a80b23493d13b3811d4b4ba4b10b1221be
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v6
