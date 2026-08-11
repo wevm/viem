@@ -23,9 +23,9 @@ It polls `eth_getTransactionReceipt` until the transaction is mined (default eve
 
 ### Expiring transactions
 
-Any transaction with a non-zero `expiry` (sequenced or nonce-free) can no longer land once the chain's latest block timestamp passes it. Pass the `expiry` you signed with and the wait rejects with a `TransactionExpiredError` the moment it lapses, instead of silently spinning until the timeout.
+Any transaction with a non-zero `validBefore` (sequenced or nonce-free) can no longer land once the chain's latest block timestamp passes it. Pass the `validBefore` (unix **milliseconds**) you signed with and the wait rejects with a `TransactionExpiredError` the moment it lapses, instead of silently spinning until the timeout.
 
-Thread the resolved `expiry` out of `sendCalls` with `onTransaction` — this is reliable because it's the exact value the tx was signed with (including auto-computed nonce-free expiries), and it doesn't depend on the node returning a pending transaction:
+Thread the resolved `validBefore` out of `sendCalls` with `onTransaction` — this is reliable because it's the exact value the tx was signed with (including auto-computed nonce-free windows), and it doesn't depend on the node returning a pending transaction:
 
 ```ts
 import {
@@ -34,24 +34,24 @@ import {
   waitForTransactionReceipt,
 } from 'viem/eip8130'
 
-let expiry: bigint | undefined
+let validBefore: bigint | undefined
 const hash = await sendCalls(client, {
   account,
   calls,
   gas,
-  onTransaction: (tx) => { expiry = tx.expiry },
+  onTransaction: (tx) => { validBefore = tx.validBefore },
 })
 
 try {
-  const receipt = await waitForTransactionReceipt(client, { hash, expiry })
+  const receipt = await waitForTransactionReceipt(client, { hash, validBefore })
 } catch (e) {
   if (e instanceof TransactionExpiredError) {
-    // tx can never land — resubmit with a fresh `expiry`
+    // tx can never land — resubmit with a fresh `validBefore`
   }
 }
 ```
 
-If you omit `expiry`, the wait still tries to read it off the pending transaction, but that is best-effort only — a node is not obligated to serve a pending `eth_getTransactionByHash`.
+If you omit `validBefore`, the wait still tries to read it off the pending transaction, but that is best-effort only — a node is not obligated to serve a pending `eth_getTransactionByHash`.
 
 ## Fetch without waiting
 

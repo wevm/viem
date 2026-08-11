@@ -45,7 +45,7 @@ export type ToP256SignerParameters = {
  * `signTransaction` to sign as a non-ECDSA actor.
  *
  * @example
- * import { key, toAccount, toP256Signer } from 'viem/experimental'
+ * import { key, toAccount, toP256Signer } from 'viem/eip8130'
  *
  * const signer = toP256Signer({ privateKey })
  * const account = toAccount({
@@ -137,7 +137,7 @@ export type ToWebAuthnSignerParameters = {
  *
  * @example
  * import { createWebAuthnCredential, toWebAuthnAccount } from 'viem/account-abstraction'
- * import { key, toAccount, toWebAuthnSigner } from 'viem/experimental'
+ * import { key, toAccount, toWebAuthnSigner } from 'viem/eip8130'
  *
  * const credential = await createWebAuthnCredential({ name: 'vibes' })
  * const signer = toWebAuthnSigner(toWebAuthnAccount({ credential }))

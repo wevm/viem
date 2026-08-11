@@ -1,9 +1,10 @@
 # EIP-8130 manual scripts
 
-Temporary dev/integration scripts for the experimental EIP-8130 work in
-`src/eip8130`. These are **not** public examples (see top-level
-`examples/` for those) — they import local source (`../../src`) and most hit a
-live testnet. Keep them here until EIP-8130 graduates from experimental.
+Runnable dev/integration demonstrations for the EIP-8130 (`viem/eip8130`) and
+ERC-8168 (`viem/eip8168`) modules. They import local source
+(`../../src/eip8130`, `../../src/eip8168`) so they exercise the code in this
+repo directly; most hit a live testnet (skipped unless `PRIVATE_KEY` is set).
+For copy-paste usage docs see `site/pages/eip8130/`.
 
 ## Run
 

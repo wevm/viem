@@ -127,24 +127,29 @@ describe('build an EIP-8130 transaction (offline demo)', () => {
     console.log('\nrlp envelope:')
     console.log(serialized)
 
-    // ── decode the raw RLP to show the 13-field wire layout ──────────────────
+    // ── decode the raw RLP to show the 15-field wire layout ──────────────────
+    // Replay protection is a nonce (nonce_key + nonce_sequence) AND/OR an
+    // absolute validity window (valid_after / valid_before, unix ms). A
+    // nonce-free tx sets nonce_key = NONCE_KEY_MAX and relies on the window.
     const fields = fromRlp(sliceHex(serialized, 1), 'hex') as unknown[]
     const fieldNames = [
       'chain_id',
       'sender',
       'nonce_key',
       'nonce_sequence',
-      'expiry',
+      'valid_after',
+      'valid_before',
       'max_priority_fee_per_gas',
       'max_fee_per_gas',
       'gas_limit',
       'account_changes',
       'calls',
+      'metadata',
       'payer',
       'sender_auth',
       'payer_auth',
     ]
-    console.log('\n— raw RLP fields (13 elements) —')
+    console.log('\n— raw RLP fields (15 elements) —')
     fields.forEach((value, i) => {
       const rendered = Array.isArray(value)
         ? jsonify(value)
