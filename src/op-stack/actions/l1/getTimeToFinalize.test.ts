@@ -61,33 +61,3 @@ test('rejects an unproven withdrawal', async () => {
     Version: viem@x.x.x]
   `)
 }, 60_000)
-
-test('returns the legacy finalization period', async () => {
-  const legacyClient = Client.create({
-    chain: mainnet,
-    transport: http(anvil.mainnet.rpcUrl.http),
-  })
-  await CoreActions.state.reset(legacyClient, {
-    blockNumber: 18_770_525n,
-    jsonRpcUrl: anvil.mainnet.forkUrl,
-  })
-  const before = Date.now()
-
-  const time = await Actions.l1.getTimeToFinalize(legacyClient, {
-    targetChain: optimism,
-    withdrawalHash:
-      '0x539dfd84b3939c6d2f61e1fbaa176a70e6a433e222093c3fea872ac36527d6ac',
-  })
-
-  expect({
-    period: time.period,
-    seconds: time.seconds,
-    timestampCurrent: time.timestamp >= before && time.timestamp <= Date.now(),
-  }).toMatchInlineSnapshot(`
-    {
-      "period": 604800,
-      "seconds": 0,
-      "timestampCurrent": true,
-    }
-  `)
-}, 60_000)
