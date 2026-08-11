@@ -9,7 +9,7 @@ description: Negotiate gas sponsorship and token payment with an ERC-8168 payer 
 Viem exposes the client and helpers under `viem/eip8168`.
 
 :::warning[Warning]
-ERC-8168 is experimental. A payer's offers are trust-based — always preflight caps (`conditions`) and confirm token charges with the user before re-signing.
+ERC-8168 is a draft standard. A payer's offers are trust-based — always preflight caps (`conditions`) and confirm token charges with the user before re-signing.
 :::
 
 ## The RPC surface
@@ -30,6 +30,50 @@ import { createPayerClient } from 'viem/eip8168'
 
 const payerClient = createPayerClient({ url: 'https://payer.example.com/v1' })
 ```
+
+## Discovering payers
+
+A wallet often has more than one place to get sponsorship: the chain's node RPC may serve `payer_*` itself, a **block builder** integrated with the sequencer (e.g. flashblocks) may expose it, the app may run its own payer, and the wallet may inject one. `createAggregatePayerClient` queries them all **in parallel** and presents the result as a single `PayerClient`, so it drops straight into `sendSponsoredCalls`.
+
+- `getTerms` fans out with `Promise.allSettled` (a slow or failing source never blocks the others) and merges every source's offers best-first, in source order.
+- `sendTransaction` / `signTransaction` read the signed tx's `payer` and route the co-sign back to the source that offered it — so let the aggregate fetch terms (don't pre-pass `terms`).
+
+Use `hasChainPayerService` to decide whether to add the node itself (via `toChainPayerClient`) as a source; register the chains you know serve it with `registerPayerServiceChains`.
+
+```ts
+import {
+  createAggregatePayerClient,
+  createPayerClient,
+  hasChainPayerService,
+  registerPayerServiceChains,
+  sendSponsoredCalls,
+  toChainPayerClient,
+} from 'viem/eip8168'
+
+// Chains whose node RPC (or integrated builder, e.g. flashblocks) serves payer_*.
+registerPayerServiceChains(client.chain.id)
+
+const payerClient = createAggregatePayerClient({
+  payers: [
+    // 1. the chain / block builder, over the wallet's own RPC
+    ...(hasChainPayerService(client.chain) ? [toChainPayerClient(client)] : []),
+    // 2. the app's payer service
+    createPayerClient({ url: 'https://payer.myapp.com/v1' }),
+    // 3. a wallet-injected payer (any PayerClient)
+    walletPayer,
+  ],
+  onError: (error, index) => console.warn(`payer #${index} unavailable`, error),
+})
+
+// Unchanged: the aggregate is just a PayerClient.
+const { transactionHash } = await sendSponsoredCalls(client, {
+  account,
+  payerClient,
+  calls: [{ to: recipient, data }],
+})
+```
+
+The merged `gasEstimate` is the worst-case (largest `gasLimit`) across sources; a source with a tighter cap re-quotes via `GAS_TOO_LOW`, which `sendSponsoredCalls` handles.
 
 ## End-to-end: `sendSponsoredCalls`
 

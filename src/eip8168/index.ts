@@ -6,10 +6,22 @@ export {
   sendSponsoredCalls,
 } from './actions/sendSponsoredCalls.js'
 export {
+  type CreateAggregatePayerClientParameters,
+  createAggregatePayerClient,
+} from './aggregate.js'
+export {
+  type HasChainPayerServiceParameters,
+  hasChainPayerService,
+  payerServiceChainIds,
+  registerPayerServiceChains,
+  unregisterPayerServiceChains,
+} from './chains.js'
+export {
   type CreatePayerClientParameters,
   createPayerClient,
   type PayerClient,
   type PayerRpcSchema,
+  toChainPayerClient,
 } from './client.js'
 export {
   type PayerErrorCode,
