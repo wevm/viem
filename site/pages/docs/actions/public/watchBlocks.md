@@ -6,6 +6,8 @@ description: Watches and returns information for incoming blocks.
 
 Watches and returns information for incoming blocks.
 
+To receive block headers without fetching full blocks, use [`watchBlockHeaders`](/docs/actions/public/watchBlockHeaders).
+
 ## Usage
 
 Pass through your Public Client, along with a listener.
