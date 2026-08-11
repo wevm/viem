@@ -47,27 +47,27 @@ import { describe, expect, test } from 'vitest'
 import { generatePrivateKey, privateKeyToAccount } from '../../src/accounts/index.js'
 import { createPublicClient } from '../../src/clients/createPublicClient.js'
 import { http } from '../../src/clients/transports/http.js'
-import { createPayerClient } from '../../src/experimental/eip8168/client.js'
-import { sendSponsoredCalls } from '../../src/experimental/eip8168/actions/sendSponsoredCalls.js'
-import { toAccount } from '../../src/experimental/eip8130/accounts/toAccount.js'
-import { getActorConfig } from '../../src/experimental/eip8130/actions/getActorConfig.js'
-import { getConfigSequence } from '../../src/experimental/eip8130/actions/getConfigSequence.js'
-import { isActor } from '../../src/experimental/eip8130/actions/isActor.js'
-import { allPhasesSucceeded } from '../../src/experimental/eip8130/actions/getTransactionReceipt.js'
-import { waitForTransactionReceipt } from '../../src/experimental/eip8130/actions/waitForTransactionReceipt.js'
+import { createPayerClient } from '../../src/eip8168/client.js'
+import { sendSponsoredCalls } from '../../src/eip8168/actions/sendSponsoredCalls.js'
+import { toAccount } from '../../src/eip8130/accounts/toAccount.js'
+import { getActorConfig } from '../../src/eip8130/actions/getActorConfig.js'
+import { getConfigSequence } from '../../src/eip8130/actions/getConfigSequence.js'
+import { isActor } from '../../src/eip8130/actions/isActor.js'
+import { allPhasesSucceeded } from '../../src/eip8130/actions/getTransactionReceipt.js'
+import { waitForTransactionReceipt } from '../../src/eip8130/actions/waitForTransactionReceipt.js'
 import {
   actorScope,
   canonicalAuthenticators,
   scopeUnrestricted,
-} from '../../src/experimental/eip8130/constants.js'
-import { getEip8130Deployment } from '../../src/experimental/eip8130/deployments.js'
-import { authorizeActor, key } from '../../src/experimental/eip8130/keys.js'
+} from '../../src/eip8130/constants.js'
+import { getEip8130Deployment } from '../../src/eip8130/deployments.js'
+import { authorizeActor, key } from '../../src/eip8130/keys.js'
 import {
   defineSessionPolicy,
   encodeSessionPolicyConfig,
-} from '../../src/experimental/eip8130/policies.js'
-import type { AaAccountChange, AaCall } from '../../src/experimental/eip8130/types/transaction.js'
-import { upgradeableProxyBytecode } from '../../src/experimental/eip8130/utils/proxy.js'
+} from '../../src/eip8130/policies.js'
+import type { AaAccountChange, AaCall } from '../../src/eip8130/types/transaction.js'
+import { upgradeableProxyBytecode } from '../../src/eip8130/utils/proxy.js'
 import type { Hex } from '../../src/types/misc.js'
 import { hexToBigInt } from '../../src/utils/encoding/fromHex.js'
 

@@ -12,9 +12,9 @@ import { http } from '../../src/clients/transports/http.js'
 import { parseEther } from '../../src/utils/unit/parseEther.js'
 import { stringToHex } from '../../src/utils/encoding/toHex.js'
 import { keccak256 } from '../../src/utils/hash/keccak256.js'
-import { toSmartAccount } from '../../src/experimental/eip8130/accounts/toSmartAccount.js'
-import { getEip8130Deployment } from '../../src/experimental/eip8130/deployments.js'
-import { key } from '../../src/experimental/eip8130/keys.js'
+import { toSmartAccount } from '../../src/eip8130/accounts/toSmartAccount.js'
+import { getEip8130Deployment } from '../../src/eip8130/deployments.js'
+import { key } from '../../src/eip8130/keys.js'
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY as `0x${string}` | undefined
 const RPC_URL = process.env.BASE_SEPOLIA_RPC ?? 'https://sepolia.base.org'

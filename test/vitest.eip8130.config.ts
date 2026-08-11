@@ -11,8 +11,8 @@ export default defineConfig({
       { find: /^viem\/(.*)/, replacement: join(__dirname, '../src/$1') },
     ],
     include: [
-      'src/experimental/eip813*/**/*.test.ts',
-      'src/experimental/eip8168/**/*.test.ts',
+      'src/eip8130/**/*.test.ts',
+      'src/eip8168/**/*.test.ts',
       // Manual / integration demo scripts (most require PRIVATE_KEY + network).
       'scripts/eip8130/**/*.test.ts',
     ],

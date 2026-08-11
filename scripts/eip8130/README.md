@@ -1,7 +1,7 @@
 # EIP-8130 manual scripts
 
 Temporary dev/integration scripts for the experimental EIP-8130 work in
-`src/experimental/eip8130`. These are **not** public examples (see top-level
+`src/eip8130`. These are **not** public examples (see top-level
 `examples/` for those) — they import local source (`../../src`) and most hit a
 live testnet. Keep them here until EIP-8130 graduates from experimental.
 
@@ -48,4 +48,4 @@ scripts.
   op over `userOpHash`. See `encodeSignedActorChangesSignature`.
 - `createAccount` seeds `localSequence = 1`, so the first `applySignedActorChanges`
   on a fresh account signs over sequence `1`.
-- Deployment addresses live in `src/experimental/eip8130/deployments.ts`.
+- Deployment addresses live in `src/eip8130/deployments.ts`.

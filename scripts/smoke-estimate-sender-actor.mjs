@@ -8,20 +8,20 @@
  */
 import { createPublicClient, http, parseEther, zeroAddress } from '../src/index.ts'
 import { privateKeyToAccount } from '../src/accounts/privateKeyToAccount.ts'
-import { toP256Signer } from '../src/experimental/eip8130/utils/signers.ts'
-import { toAccount } from '../src/experimental/eip8130/accounts/toAccount.ts'
-import { estimateGas } from '../src/experimental/eip8130/actions/estimateGas.ts'
+import { toP256Signer } from '../src/eip8130/utils/signers.ts'
+import { toAccount } from '../src/eip8130/accounts/toAccount.ts'
+import { estimateGas } from '../src/eip8130/actions/estimateGas.ts'
 import {
   authorizeActor,
   key,
-} from '../src/experimental/eip8130/keys.ts'
-import { actorScope, canonicalAuthenticators } from '../src/experimental/eip8130/constants.ts'
+} from '../src/eip8130/keys.ts'
+import { actorScope, canonicalAuthenticators } from '../src/eip8130/constants.ts'
 import {
   defineSessionPolicy,
   encodeSessionPolicyAction,
   encodeSessionPolicyConfig,
-} from '../src/experimental/eip8130/policies.ts'
-import { erc1167Bytecode } from '../src/experimental/eip8130/utils/proxy.ts'
+} from '../src/eip8130/policies.ts'
+import { erc1167Bytecode } from '../src/eip8130/utils/proxy.ts'
 import * as P256 from 'ox/P256'
 
 const RPC = process.env.VIBENET_RPC ?? 'https://rpc.vibes.base.org'

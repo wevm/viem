@@ -1,0 +1,93 @@
+---
+description: Getting started with EIP-8130 native account abstraction in Viem
+---
+
+# EIP-8130 (Native Account Abstraction) [Overview]
+
+[EIP-8130](https://github.com/base/eip-8130) is a native account-abstraction transaction type (`AA_TX_TYPE`, `0x79`). Every account is a smart account governed by an onchain **Account Configuration** contract, and transactions are sent directly to the chain — no bundler, no EntryPoint. Viem exposes the full flow through the `viem/eip8130` entrypoint.
+
+:::warning[Warning]
+EIP-8130 is experimental and enabled per-chain. It is not yet live on mainnet. Do not solely rely on experimental features in production.
+:::
+
+## What you get
+
+- **One account, many keys** — a single account address controlled by a set of *actors* (secp256k1 / P-256 / WebAuthn passkeys / delegates), each with its own scope and expiry.
+- **Deploy-on-first-use** — the counterfactual address is known up front; the account is deployed atomically inside its first transaction.
+- **Native transactions** — sign an `AA_TX_TYPE` transaction and submit it with `eth_sendRawTransaction`. Gas is priced by the node via an EIP-8130-aware `eth_estimateGas`.
+- **Sponsored gas** — an optional `payer` co-signs the transaction so a third party pays the fee.
+- **Session keys** — policy-gated actors (spend limits, target/selector allowlists) for scoped, delegated signing.
+
+## Mental model
+
+| Concept | Meaning |
+| --- | --- |
+| **Account** | Smart account at a CREATE2 address derived from `userSalt`, wallet `code`, and `initialActors`. |
+| **Actor** | A key authorized on the account (`{ actorId, authenticator }`), built via the [`key`](/eip8130/rotating-owners#actors-and-keys) helpers. |
+| **Account change** | A `create`, `config` (actor changes), or `delegation` operation applied atomically within a transaction. |
+| **Auth blob** | `sender_auth` / `payer_auth` bytes: a bare 65-byte signature for the implicit EOA path, or `authenticator(20) || data` for a configured actor. |
+
+## Installation
+
+The helpers live under the dedicated entrypoint:
+
+```ts
+import {
+  newSmartAccount,
+  sendCalls,
+  estimateGas,
+} from 'viem/eip8130'
+```
+
+## Setup
+
+EIP-8130 actions are standalone — they take a Viem `Client` as their first argument (there is no `.extend()` client decorator). Configure a client for your 8130-enabled chain and register the chain id so `is8130Enabled` can route correctly:
+
+```ts
+import { createClient, http, defineChain } from 'viem'
+import { register8130Chains } from 'viem/eip8130'
+
+export const vibenet = defineChain({
+  id: 84_538_453,
+  name: 'Vibenet Devnet',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { default: { http: ['http://127.0.0.1:8545'] } },
+})
+
+export const client = createClient({ chain: vibenet, transport: http() })
+
+// Mark the chain as EIP-8130 enabled (empty by default).
+register8130Chains(vibenet.id)
+```
+
+## Deployment addresses
+
+The protocol contracts (Account Configuration, wallet implementations, authenticators, example policies) are deployed deterministically and are identical on every chain running the same bytecode. Resolve them per chain:
+
+```ts
+import { getEip8130Deployment, canonicalEip8130Deployment } from 'viem/eip8130'
+
+const deployment = getEip8130Deployment(84_538_453) ?? canonicalEip8130Deployment
+deployment.accountConfiguration    // factory + actor-config registry
+deployment.accounts.upgradeable    // UpgradeableAccount — default smart-account impl
+deployment.accounts.default        // DefaultAccount — default EOA (EIP-7702) delegate
+deployment.accounts.defaultHighRate // DefaultHighRateAccount — immutable smart-account impl
+deployment.accounts.erc4337        // BackwardsCompatible4337Account — cross-chain (ERC-4337)
+deployment.authenticators.p256     // P-256 authenticator
+deployment.policies?.manager       // example PolicyManager (session keys)
+```
+
+Account implementations: **`UpgradeableAccount`** (the default for smart accounts — behind an ERC-1967 `UpgradeableProxy`, upgradeable via `upgradeBySignature`), **`DefaultAccount`** (the bare building block, deployed standalone as the direct EIP-7702 delegation target for EOAs), **`DefaultHighRateAccount`** (immutable — behind a 45-byte ERC-1167 proxy), and **`BackwardsCompatible4337Account`** (the ERC-4337 portable implementation for non-native chains). All four are deployed as singletons by base's canonical `Deploy.s.sol` at canonical CREATE2 addresses.
+
+## Guides
+
+- [Creating an Account](/eip8130/creating-an-account) — K1, P-256, and passkey accounts.
+- [Sending a Transaction](/eip8130/sending-a-transaction) — estimate, deploy-on-first-use, sponsor gas, batch calls.
+- [Calls & Batching](/eip8130/calls-and-batching) — atomic phases and value-bearing calls.
+- [Receipts](/eip8130/receipts) — per-phase statuses, payer, and metadata.
+- [Metadata](/eip8130/metadata) — attach opaque, authenticated application data.
+- [Rotating Owners](/eip8130/rotating-owners) — authorize and revoke actors.
+- [Session Keys](/eip8130/session-keys) — policy-gated, scoped signing keys.
+- [Sub Accounts](/eip8130/sub-accounts) — many accounts per owner, linked via delegate actors.
+- [Sponsoring Transactions](/eip8130/sponsoring-transactions) — pay another account's gas with a co-signing payer.
+- [Payer Services (ERC-8168)](/eip8130/payer-services) — negotiate sponsorship / token payment with a web service.

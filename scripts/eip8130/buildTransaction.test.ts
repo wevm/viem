@@ -4,17 +4,17 @@ import { baseSepolia } from '../../src/chains/index.js'
 import {
   actorScope,
   canonicalAuthenticators,
-} from '../../src/experimental/eip8130/constants.js'
-import { getEip8130Deployment } from '../../src/experimental/eip8130/deployments.js'
-import { authorizeActor, key } from '../../src/experimental/eip8130/keys.js'
+} from '../../src/eip8130/constants.js'
+import { getEip8130Deployment } from '../../src/eip8130/deployments.js'
+import { authorizeActor, key } from '../../src/eip8130/keys.js'
 import type {
   AaCalls,
   TransactionSerializable8130,
-} from '../../src/experimental/eip8130/types/transaction.js'
-import { parseTransaction } from '../../src/experimental/eip8130/utils/parseTransaction.js'
-import { erc1167Bytecode } from '../../src/experimental/eip8130/utils/proxy.js'
-import { serializeTransaction } from '../../src/experimental/eip8130/utils/serializeTransaction.js'
-import { signTransaction } from '../../src/experimental/eip8130/utils/signTransaction.js'
+} from '../../src/eip8130/types/transaction.js'
+import { parseTransaction } from '../../src/eip8130/utils/parseTransaction.js'
+import { erc1167Bytecode } from '../../src/eip8130/utils/proxy.js'
+import { serializeTransaction } from '../../src/eip8130/utils/serializeTransaction.js'
+import { signTransaction } from '../../src/eip8130/utils/signTransaction.js'
 import { sliceHex } from '../../src/utils/data/slice.js'
 import { fromRlp } from '../../src/utils/encoding/fromRlp.js'
 import { stringToHex } from '../../src/utils/encoding/toHex.js'
