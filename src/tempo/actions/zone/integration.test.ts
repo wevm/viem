@@ -462,7 +462,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         `[Error: Prepared Zone request Zone ID does not match client chain.]`,
       )
       const acceptedDeposit = await Actions.earn.privateDepositSync(
-        zoneClient,
+        unredactedZoneClient,
         preparedDeposit,
       )
       expect(acceptedDeposit.receipt.status).toBe('success')
@@ -556,7 +556,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         ),
       ).toBe(true)
       const acceptedRedeem = await Actions.earn.privateRedeemSync(
-        zoneClient,
+        unredactedZoneClient,
         preparedRedeem,
       )
       expect(acceptedRedeem.receipt.status).toBe('success')
