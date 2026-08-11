@@ -1,11 +1,18 @@
+import type { Abi } from 'abitype'
 import { describe, expect, test } from 'vitest'
+import { mainnet } from '../chains/index.js'
+import { createClient } from '../clients/createClient.js'
+import { custom } from '../clients/transports/custom.js'
 import { zeroAddress } from '../constants/address.js'
 import type { Permission } from '../experimental/erc7715/types/permission.js'
 import { decodeFunctionData } from '../utils/abi/decodeFunctionData.js'
+import { encodeFunctionResult } from '../utils/abi/encodeFunctionResult.js'
+import { accountConfigurationAbi } from './abis.js'
 import {
   actorScope,
   ecrecoverAuthenticator,
   externalPolicyAuthenticator,
+  trustedExecutorAuthenticator,
 } from './constants.js'
 import { encodePolicyData, key } from './keys.js'
 import {
@@ -19,6 +26,43 @@ import {
   policyManagerAbi,
 } from './policies.js'
 import { actorIdFromAddress } from './utils/actorId.js'
+
+/**
+ * A client whose `eth_call` decodes `getActorConfig` and returns an actor with
+ * the given `authenticator` (zero = unregistered).
+ */
+function actorConfigClient(authenticator: string) {
+  return createClient({
+    chain: mainnet,
+    transport: custom({
+      async request({ method, params }: { method: string; params: any }) {
+        if (method === 'eth_chainId') return '0x1'
+        if (method === 'eth_call') {
+          const { functionName } = decodeFunctionData({
+            abi: accountConfigurationAbi as Abi,
+            data: params[0].data,
+          })
+          return encodeFunctionResult({
+            abi: accountConfigurationAbi as Abi,
+            functionName,
+            result: { authenticator, expiry: 0, scope: 0 } as never,
+          })
+        }
+        throw new Error(`unexpected RPC: ${method}`)
+      },
+    }),
+  })
+}
+
+/** A client that throws on any request — proves no RPC was made. */
+const throwingClient = createClient({
+  chain: mainnet,
+  transport: custom({
+    async request() {
+      throw new Error('no RPC expected')
+    },
+  }),
+})
 
 const account = '0x0000000000000000000000000000000000000a11'
 const usdc = '0x0000000000000000000000000000000000000a22'
@@ -201,8 +245,9 @@ describe('fulfillGrantPermissions', () => {
   const grantee = '0x00000000000000000000000000000000000acce5'
   const expiry = 1_800_000_000
 
-  test('session role → POLICY-only k1 actor, one expiry drives both surfaces', () => {
-    const { actor, change, session } = fulfillGrantPermissions({
+  test('session role → POLICY-only k1 actor, one expiry drives both surfaces', async () => {
+    const client = actorConfigClient(trustedExecutorAuthenticator)
+    const { actor, change, session } = await fulfillGrantPermissions(client, {
       account,
       grantee,
       permissions,
@@ -223,8 +268,43 @@ describe('fulfillGrantPermissions', () => {
     expect(session.binding.validUntil).toBe(BigInt(expiry))
   })
 
-  test('pull role → external-pull sentinel actor + executeFor call', () => {
-    const { actor, change, session } = fulfillGrantPermissions({
+  test('manager not registered → managerChange folded into the batch', async () => {
+    const client = actorConfigClient(zeroAddress)
+    const { change, managerChange, changes, session } =
+      await fulfillGrantPermissions(client, { account, grantee, permissions })
+
+    // A trusted-executor registration for the manager is included first.
+    expect(managerChange).toBeDefined()
+    expect(managerChange?.authenticator).toBe(trustedExecutorAuthenticator)
+    expect(managerChange?.actorId).toBe(actorIdFromAddress(session.manager))
+    expect(managerChange?.scope).toBe(actorScope.sender)
+    expect(managerChange?.policyData).toBeUndefined()
+
+    expect(changes).toEqual([managerChange, change])
+  })
+
+  test('manager already registered → no managerChange', async () => {
+    const client = actorConfigClient(trustedExecutorAuthenticator)
+    const { change, managerChange, changes } = await fulfillGrantPermissions(
+      client,
+      { account, grantee, permissions },
+    )
+    expect(managerChange).toBeUndefined()
+    expect(changes).toEqual([change])
+  })
+
+  test('assumeManagerRegistered skips the on-chain read', async () => {
+    const { managerChange, changes, change } = await fulfillGrantPermissions(
+      throwingClient,
+      { account, grantee, permissions, assumeManagerRegistered: true },
+    )
+    expect(managerChange).toBeUndefined()
+    expect(changes).toEqual([change])
+  })
+
+  test('pull role → external-pull sentinel actor + executeFor call', async () => {
+    const client = actorConfigClient(trustedExecutorAuthenticator)
+    const { actor, change, session } = await fulfillGrantPermissions(client, {
       account,
       grantee,
       role: 'pull',

@@ -1,11 +1,16 @@
 import type { Address } from 'abitype'
+import type { Client } from '../clients/createClient.js'
+import type { Transport } from '../clients/transports/createTransport.js'
 import { zeroAddress } from '../constants/address.js'
 import { BaseError } from '../errors/base.js'
 import type { Permission } from '../experimental/erc7715/types/permission.js'
 import type { Policy as GrantedPolicy } from '../experimental/erc7715/types/policy.js'
+import type { Account } from '../types/account.js'
+import type { Chain } from '../types/chain.js'
 import type { Hex } from '../types/misc.js'
 import { toFunctionSelector } from '../utils/hash/toFunctionSelector.js'
-import { actorScope } from './constants.js'
+import { getActorConfig } from './actions/getActorConfig.js'
+import { actorScope, trustedExecutorAuthenticator } from './constants.js'
 import { authorizeActor, key } from './keys.js'
 import {
   type DefineSessionPolicyParameters,
@@ -16,7 +21,11 @@ import {
   type SessionPolicyConfig,
   type SessionPolicyTokenLimit,
 } from './policies.js'
-import type { AaActor, AaAuthorizeActor } from './types/transaction.js'
+import type {
+  AaActor,
+  AaAuthorizeActor,
+  AaChange,
+} from './types/transaction.js'
 
 /**
  * The ERC-20 selectors a `SessionPolicy` gates on for token spend + recipient
@@ -282,17 +291,41 @@ export type FulfillGrantPermissionsParameters = Omit<
    * drift. @default 0n (no expiry)
    */
   expiry?: number | bigint | undefined
+  /**
+   * Skip the on-chain check for whether `manager` is registered as a
+   * trusted-executor actor on the account (assume it already is). When `false`
+   * (default), the account is read and a `managerChange` is included in `changes`
+   * if the manager still needs registering. @default false
+   */
+  assumeManagerRegistered?: boolean | undefined
+  /**
+   * `AccountConfiguration` system contract used for the manager check. Defaults
+   * to the canonical (enshrined) address.
+   */
+  accountConfiguration?: Address | undefined
 }
 
 export type FulfillGrantPermissionsReturnType = {
   /** The authorized actor (`key.k1` for `session`, `key.externalPull` for `pull`). */
   actor: AaActor
   /**
-   * The `authorizeActor` change the account must sign + land. Its signed
-   * commitment *is* the authorization (no separate install). Always POLICY-gated
+   * The `authorizeActor` change authorizing the grantee. Its signed commitment
+   * *is* the authorization (no separate install). Always POLICY-gated
    * ({@link actorScope}.policy).
    */
   change: AaAuthorizeActor
+  /**
+   * Present iff the `manager` was not yet registered as a trusted-executor actor
+   * on the account: the one-time `authorizeActor(key.trustedExecutor(manager),
+   * { scope: sender })` change the account needs so the manager's forwarded
+   * `executeBatch` can land. Already included in {@link changes}.
+   */
+  managerChange?: AaAuthorizeActor | undefined
+  /**
+   * The full batch of account changes to sign + land in one transaction: the
+   * `managerChange` (if needed) followed by the grantee `change`.
+   */
+  changes: readonly AaChange[]
   /**
    * The bound {@link SessionPolicy}: `commitment`, `actorPolicy`, and the call
    * builders (`executeCall` for `session`, `executeForCall` for `pull`).
@@ -315,15 +348,18 @@ export type FulfillGrantPermissionsErrorType = ToSessionPolicyConfigErrorType
  * entrypoint is used at execution (`execute` vs. `executeFor`). The single
  * ERC-7715 `expiry` drives both the binding `validUntil` and the actor `expiry`.
  *
- * @remarks For the policy-manager's forwarded `executeBatch` to land, the
- * account must (once) register the `manager` as a trusted-executor actor:
- * `authorizeActor(key.trustedExecutor(manager), { scope: actorScope.sender })`.
+ * For the manager's forwarded `executeBatch` to land, the account must register
+ * the `manager` as a trusted-executor actor. This action reads the account and,
+ * if that registration is missing, includes it as `managerChange` at the front
+ * of `changes` — so a single `account.change(changes)` both provisions the
+ * manager (once) and authorizes the grantee. Pass `assumeManagerRegistered:
+ * true` to skip the read.
  *
  * @example
- * import { fulfillGrantPermissions, sendCalls } from 'viem/eip8130'
+ * import { fulfillGrantPermissions } from 'viem/eip8130'
  *
  * // session key: "≤ 100 USDC / week", expires in 7 days
- * const { change, session } = fulfillGrantPermissions({
+ * const { changes, session } = await fulfillGrantPermissions(client, {
  *   account: account.address,
  *   grantee: sessionKeyAddress,
  *   expiry: Math.floor(Date.now() / 1000) + 7 * 86_400,
@@ -338,28 +374,28 @@ export type FulfillGrantPermissionsErrorType = ToSessionPolicyConfigErrorType
  *     },
  *   ],
  * })
- * await account.change([change])
+ * // provisions the manager (if needed) + authorizes the key, in one batch
+ * await account.change(changes)
  * // later: session.executeCall({ target: usdc, data: transferCalldata })
  *
- * // external pull: the same policy, drawn by a provider via executeFor
- * const pull = fulfillGrantPermissions({
- *   account: account.address,
- *   grantee: providerAddress,
- *   role: 'pull',
- *   expiry,
- *   permissions,
- * })
- * // provider later submits (from its own address): pull.session.executeForCall(action)
+ * @param client - Client.
+ * @param parameters - Parameters.
  */
-export function fulfillGrantPermissions(
+export async function fulfillGrantPermissions<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
   parameters: FulfillGrantPermissionsParameters,
-): FulfillGrantPermissionsReturnType {
+): Promise<FulfillGrantPermissionsReturnType> {
   const {
     account,
     grantee,
     role = 'session',
     permissions,
     expiry,
+    assumeManagerRegistered = false,
+    accountConfiguration,
     ...rest
   } = parameters
   const expiryBig = expiry === undefined ? undefined : BigInt(expiry)
@@ -379,5 +415,25 @@ export function fulfillGrantPermissions(
     expiry: expiryBig,
   })
 
-  return { actor, change, session }
+  // Ensure the manager is a trusted-executor actor so its forwarded
+  // `executeBatch` can drive the account; register it in the same batch if not.
+  let managerChange: AaAuthorizeActor | undefined
+  if (!assumeManagerRegistered) {
+    const managerActor = key.trustedExecutor(session.manager)
+    const { authenticator } = await getActorConfig(client, {
+      account,
+      actorId: managerActor.actorId,
+      ...(accountConfiguration ? { accountConfiguration } : {}),
+    })
+    const registered =
+      authenticator.toLowerCase() === trustedExecutorAuthenticator.toLowerCase()
+    if (!registered)
+      managerChange = authorizeActor(managerActor, {
+        scope: actorScope.sender,
+      })
+  }
+
+  const changes = managerChange ? [managerChange, change] : [change]
+
+  return { actor, change, managerChange, changes, session }
 }
