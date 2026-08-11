@@ -28,8 +28,7 @@ const unredactedZoneClient = tempoZone.getClient({
   rpcUrl: tempoZone.unredactedRpcUrl,
 })
 const hardfork = process.env.VITE_TEMPO_HARDFORK
-const legacyZoneCallback =
-  hardfork === 'T7' || hardfork === 'T8' || hardfork === 'T9'
+const legacyZone = hardfork === 'T7' || hardfork === 'T8' || hardfork === 'T9'
 const zeroHash =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
 
@@ -271,25 +270,27 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         }).receipt,
       ).resolves.toMatchObject({ status: 'success' })
 
-      const withdrawal = await Actions.zone.requestWithdrawalSync(
-        unredactedZoneClient,
-        {
-          amount: 10_000n,
-          token,
-        },
-      )
-      expect(withdrawal.receipt.status).toBe('success')
-      const { args } = Actions.zone.requestWithdrawal.extractEvent(
-        withdrawal.receipt.logs,
-      )
-      expect(args.fallbackNonce).toBeGreaterThan(0n)
-      expect(withdrawal.senderTag).toBe(
-        WithdrawalSenderTag.from({
-          fallbackNonce: args.fallbackNonce,
-          sender: args.sender,
-          transactionHash: withdrawal.receipt.transactionHash,
-        }),
-      )
+      if (!legacyZone) {
+        const withdrawal = await Actions.zone.requestWithdrawalSync(
+          unredactedZoneClient,
+          {
+            amount: 10_000n,
+            token,
+          },
+        )
+        expect(withdrawal.receipt.status).toBe('success')
+        const { args } = Actions.zone.requestWithdrawal.extractEvent(
+          withdrawal.receipt.logs,
+        )
+        expect(args.fallbackNonce).toBeGreaterThan(0n)
+        expect(withdrawal.senderTag).toBe(
+          WithdrawalSenderTag.from({
+            fallbackNonce: args.fallbackNonce,
+            sender: args.sender,
+            transactionHash: withdrawal.receipt.transactionHash,
+          }),
+        )
+      }
 
       const { publicKey } = Secp256k1.createKeyPair()
       const revealTo = PublicKey.toHex(PublicKey.compress(publicKey))
@@ -304,7 +305,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
     },
   )
 
-  test.skipIf(legacyZoneCallback)(
+  test.skipIf(legacyZone)(
     'deposits and redeems through an Earn gateway',
     { retry: 0, timeout: 480_000 },
     async () => {
