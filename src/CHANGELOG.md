@@ -1,5 +1,15 @@
 # viem
 
+## 2.55.14
+
+### Patch Changes
+
+- [#4999](https://github.com/wevm/viem/pull/4999) [`2d7e83757373a8333dd55a43080c5cd697065a80`](https://github.com/wevm/viem/commit/2d7e83757373a8333dd55a43080c5cd697065a80) Thanks [@jxom](https://github.com/jxom)! - Added `watchBlockHeaders` for emitting formatted subscription headers without refetching full blocks.
+
+  ```ts
+  watchBlockHeaders(client, { onBlockHeader });
+  ```
+
 ## 2.55.13
 
 ### Patch Changes
