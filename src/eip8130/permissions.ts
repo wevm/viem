@@ -8,6 +8,8 @@ import type { Policy as GrantedPolicy } from '../experimental/erc7715/types/poli
 import type { Account } from '../types/account.js'
 import type { Chain } from '../types/chain.js'
 import type { Hex } from '../types/misc.js'
+import { decodeAbiParameters } from '../utils/abi/decodeAbiParameters.js'
+import { encodeAbiParameters } from '../utils/abi/encodeAbiParameters.js'
 import { toFunctionSelector } from '../utils/hash/toFunctionSelector.js'
 import { getActorConfig } from './actions/getActorConfig.js'
 import { actorScope, trustedExecutorAuthenticator } from './constants.js'
@@ -17,6 +19,7 @@ import {
   defineSessionPolicy,
   encodeSessionPolicyConfig,
   type SessionPolicy,
+  type SessionPolicyAction,
   type SessionPolicyCallScope,
   type SessionPolicyConfig,
   type SessionPolicyTokenLimit,
@@ -24,6 +27,7 @@ import {
 import type {
   AaActor,
   AaAuthorizeActor,
+  AaCall,
   AaChange,
 } from './types/transaction.js'
 
@@ -331,6 +335,13 @@ export type FulfillGrantPermissionsReturnType = {
    * builders (`executeCall` for `session`, `executeForCall` for `pull`).
    */
   session: SessionPolicy
+  /**
+   * Opaque, self-describing ERC-7715 `permissionsContext` for this grant.
+   * Return it to the dApp; later `routePermissionedCalls` / `sendPermissionedCalls`
+   * decode it to route the granted key's calls through the manager — no wallet-
+   * side storage needed (see {@link parsePermissionsContext}).
+   */
+  permissionsContext: Hex
 }
 
 export type FulfillGrantPermissionsErrorType = ToSessionPolicyConfigErrorType
@@ -435,5 +446,170 @@ export async function fulfillGrantPermissions<
 
   const changes = managerChange ? [managerChange, change] : [change]
 
-  return { actor, change, managerChange, changes, session }
+  const permissionsContext = toPermissionsContext({ role, actor, session })
+
+  return { actor, change, managerChange, changes, session, permissionsContext }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// permissionsContext — encode / decode / route
+// ─────────────────────────────────────────────────────────────────────────────
+
+const grantRoleCode = { session: 0, pull: 1 } as const
+const grantRoleName = [
+  'session',
+  'pull',
+] as const satisfies readonly GrantRole[]
+
+const permissionsContextParameters = [
+  { type: 'address' }, // account
+  { type: 'uint8' }, // role
+  { type: 'bytes32' }, // actorId
+  { type: 'address' }, // authenticator
+  { type: 'address' }, // manager
+  { type: 'address' }, // policy
+  { type: 'bytes' }, // policyConfig
+  { type: 'uint40' }, // validAfter
+  { type: 'uint40' }, // validUntil
+  { type: 'uint256' }, // salt
+] as const
+
+export type ToPermissionsContextParameters = {
+  /** The granted role (`session` or `pull`). */
+  role: GrantRole
+  /** The authorized actor (`{ actorId, authenticator }`). */
+  actor: AaActor
+  /** The bound {@link SessionPolicy} (carries the binding + manager + policy). */
+  session: SessionPolicy
+}
+
+export type ParsePermissionsContextReturnType = {
+  /** The account the permission was granted on. */
+  account: Address
+  /** The granted role. */
+  role: GrantRole
+  /** The authorized actor. */
+  actor: AaActor
+  /** The rebound {@link SessionPolicy} (recomputes the same `commitment`). */
+  session: SessionPolicy
+}
+
+/**
+ * Encodes a grant into an opaque, **self-describing** ERC-7715
+ * `permissionsContext` — everything needed to later route the granted key's
+ * calls (account, role, actor identity, and the full policy binding), so no
+ * wallet-side storage is required. Round-trips with {@link parsePermissionsContext}.
+ */
+export function toPermissionsContext(
+  parameters: ToPermissionsContextParameters,
+): Hex {
+  const { role, actor, session } = parameters
+  const { binding } = session
+  return encodeAbiParameters(permissionsContextParameters, [
+    binding.account,
+    grantRoleCode[role],
+    actor.actorId,
+    actor.authenticator,
+    session.manager,
+    binding.policy,
+    binding.policyConfig,
+    Number(binding.validAfter),
+    Number(binding.validUntil),
+    binding.salt,
+  ])
+}
+
+export type ParsePermissionsContextErrorType = BaseError
+
+/**
+ * Decodes an opaque {@link toPermissionsContext} `permissionsContext` back into
+ * the account, role, actor, and a rebound {@link SessionPolicy} (which recomputes
+ * the same `commitment` and exposes `executeCall` / `executeForCall`).
+ */
+export function parsePermissionsContext(
+  context: Hex,
+): ParsePermissionsContextReturnType {
+  const [
+    account,
+    roleCode,
+    actorId,
+    authenticator,
+    manager,
+    policy,
+    policyConfig,
+    validAfter,
+    validUntil,
+    salt,
+  ] = decodeAbiParameters(permissionsContextParameters, context)
+
+  const role = grantRoleName[roleCode]
+  if (!role)
+    throw new BaseError(`Unknown permissionsContext role code: ${roleCode}.`)
+
+  const session = defineSessionPolicy({
+    account,
+    policy,
+    manager,
+    policyConfig,
+    validAfter: BigInt(validAfter),
+    validUntil: BigInt(validUntil),
+    salt,
+  })
+
+  return { account, role, actor: { actorId, authenticator }, session }
+}
+
+export type RoutePermissionedCallsParameters = {
+  /** The ERC-7715 `permissionsContext` returned at grant time. */
+  context: Hex
+  /** The actions the granted key wants to perform (target/value/data each). */
+  calls: readonly SessionPolicyAction[]
+}
+
+export type RoutePermissionedCallsReturnType =
+  ParsePermissionsContextReturnType & {
+    /**
+     * The calls to submit, each wrapped for the policy manager:
+     * `execute` for a `session` key (sent as the account) or `executeFor` for a
+     * `pull` actor (sent by the external caller from its own address).
+     */
+    calls: readonly AaCall[]
+  }
+
+export type RoutePermissionedCallsErrorType = ParsePermissionsContextErrorType
+
+/**
+ * The `sendCalls`-level routing step: decodes a `permissionsContext` and wraps
+ * each user action so it lands on the policy manager under the granted key —
+ * `session.executeCall` for a session key (dispatched as the account) or
+ * `session.executeForCall` for an external pull actor.
+ *
+ * @example
+ * import { routePermissionedCalls, sendCalls, toAccount, actorScope } from 'viem/eip8130'
+ *
+ * const { account, actor, calls } = routePermissionedCalls({
+ *   context: permissionsContext,        // from the grant
+ *   calls: [{ target: usdc, data: transferCalldata }],
+ * })
+ *
+ * // session key: send the routed calls AS the account, signed by the session key
+ * const handle = toAccount({
+ *   signer: sessionSigner,
+ *   address: account,
+ *   authenticator: actor.authenticator,
+ *   actorId: actor.actorId,
+ *   scope: actorScope.policy,
+ * })
+ * await sendCalls(client, { account: handle, calls, gas })
+ */
+export function routePermissionedCalls(
+  parameters: RoutePermissionedCallsParameters,
+): RoutePermissionedCallsReturnType {
+  const { context, calls } = parameters
+  const parsed = parsePermissionsContext(context)
+  const wrap =
+    parsed.role === 'pull'
+      ? parsed.session.executeForCall
+      : parsed.session.executeCall
+  return { ...parsed, calls: calls.map((action) => wrap(action)) }
 }

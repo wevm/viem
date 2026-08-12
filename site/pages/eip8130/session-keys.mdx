@@ -188,6 +188,39 @@ await account.change(pull.changes)
 The manager registration is checked on-chain and included automatically only when missing. Pass `assumeManagerRegistered: true` to skip the read when you already know it's provisioned.
 :::
 
+### Redeeming a grant
+
+`fulfillGrantPermissions` also returns a `permissionsContext` — an opaque, **self-describing** string (per [ERC-7715](https://eips.ethereum.org/EIPS/eip-7715)) that encodes everything needed to redeem the grant later: the account, role, actor identity, and full policy binding. No wallet-side storage is required.
+
+When the granted key wants to act, `routePermissionedCalls` decodes it and wraps each action so it lands on the policy manager — `execute` for a session key (dispatched as the account) or `executeFor` for an external pull actor:
+
+```ts
+import {
+  actorScope,
+  routePermissionedCalls,
+  sendCalls,
+  toAccount,
+} from 'viem/eip8130'
+
+const { account, actor, calls } = routePermissionedCalls({
+  context: permissionsContext, // returned at grant time
+  calls: [{ target: usdc, data: transferCalldata }],
+})
+
+// A session key signs and sends the routed calls AS the account:
+const handle = toAccount({
+  signer: sessionSigner,
+  address: account,
+  authenticator: actor.authenticator,
+  actorId: actor.actorId,
+  scope: actorScope.policy,
+})
+
+const hash = await sendCalls(client, { account: handle, calls, gas: 250_000n })
+```
+
+For a `pull` grant the routed calls target `executeFor`, and the external provider submits them from **its own** address (not through the account). Use `parsePermissionsContext` if you only need to inspect a context (account, role, actor, rebound `SessionPolicy`) without routing calls.
+
 The permission → policy mapping is:
 
 | ERC-7715 | EIP-8130 `SessionPolicy` |

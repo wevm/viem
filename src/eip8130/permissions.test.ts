@@ -17,6 +17,8 @@ import {
 import { encodePolicyData, key } from './keys.js'
 import {
   fulfillGrantPermissions,
+  parsePermissionsContext,
+  routePermissionedCalls,
   toSessionPolicy,
   toSessionPolicyConfig,
 } from './permissions.js'
@@ -326,5 +328,80 @@ describe('fulfillGrantPermissions', () => {
       data: call.data,
     })
     expect(decoded.functionName).toBe('executeFor')
+  })
+
+  test('returns a permissionsContext that round-trips', async () => {
+    const client = actorConfigClient(trustedExecutorAuthenticator)
+    const { permissionsContext, session, actor } =
+      await fulfillGrantPermissions(client, {
+        account,
+        grantee,
+        permissions,
+        expiry,
+      })
+
+    const parsed = parsePermissionsContext(permissionsContext)
+    expect(parsed.account).toBe(account)
+    expect(parsed.role).toBe('session')
+    expect(parsed.actor).toEqual(actor)
+    // Rebound policy recomputes the identical commitment.
+    expect(parsed.session.commitment).toBe(session.commitment)
+    expect(parsed.session.binding.validUntil).toBe(BigInt(expiry))
+  })
+})
+
+describe('routePermissionedCalls', () => {
+  const permissions: readonly Permission[] = [
+    {
+      type: 'erc20-token-transfer',
+      data: { address: usdc, ticker: 'USDC' },
+      policies: [
+        { type: 'token-allowance', data: { allowance: 100_000_000n } },
+      ],
+    },
+  ]
+
+  test('session context → calls routed through PolicyManager.execute', async () => {
+    const client = actorConfigClient(trustedExecutorAuthenticator)
+    const { permissionsContext, session } = await fulfillGrantPermissions(
+      client,
+      {
+        account,
+        grantee: '0x00000000000000000000000000000000000acce5',
+        permissions,
+      },
+    )
+
+    const routed = routePermissionedCalls({
+      context: permissionsContext,
+      calls: [{ target: usdc, data: '0x' }],
+    })
+    expect(routed.role).toBe('session')
+    expect(routed.calls).toHaveLength(1)
+    expect(routed.calls[0]!.to).toBe(session.manager)
+    expect(
+      decodeFunctionData({ abi: policyManagerAbi, data: routed.calls[0]!.data })
+        .functionName,
+    ).toBe('execute')
+  })
+
+  test('pull context → calls routed through PolicyManager.executeFor', async () => {
+    const client = actorConfigClient(trustedExecutorAuthenticator)
+    const { permissionsContext } = await fulfillGrantPermissions(client, {
+      account,
+      grantee: '0x00000000000000000000000000000000000acce5',
+      role: 'pull',
+      permissions,
+    })
+
+    const routed = routePermissionedCalls({
+      context: permissionsContext,
+      calls: [{ target: usdc, data: '0x' }],
+    })
+    expect(routed.role).toBe('pull')
+    expect(
+      decodeFunctionData({ abi: policyManagerAbi, data: routed.calls[0]!.data })
+        .functionName,
+    ).toBe('executeFor')
   })
 })
