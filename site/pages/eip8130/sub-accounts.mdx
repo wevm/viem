@@ -99,6 +99,35 @@ const unlink = await subAccount.change(
 )
 ```
 
+## Fulfilling an ERC-7895 request
+
+When a dApp asks a wallet to create a sub account via [ERC-7895](https://eips.ethereum.org/EIPS/eip-7895) `wallet_addSubAccount` (`type: 'create'`), `fulfillAddSubAccount` builds the two primitives above in one step: a **distinct** account whose owner set is the requested `keys` **plus** `key.delegate(parent)` — the link installed at creation, so no separate change transaction is needed.
+
+```ts
+import { fulfillAddSubAccount, sendCalls } from 'viem/eip8130'
+
+// `keys` are the owner keys the dApp requested (wallet_addSubAccount).
+const sub = fulfillAddSubAccount({
+  parent: parent.address,
+  signer: parent.signer, // signs for the sub account via the delegate authenticator
+  proxy: 'erc1167',
+  keys: [{ publicKey: dappKeyAddress, type: 'address' }],
+})
+
+// ERC-7895 response shape:
+sub.response.address
+
+// Deploy + first call in one shot — the parent drives it as a delegate:
+const hash = await sendCalls(client, {
+  account: sub,
+  accountChanges: [sub.createChange],
+  calls: [{ to: recipient, value: 1n }],
+  gas: 300_000n,
+})
+```
+
+The returned handle is a full account (its own `address`, `createChange`, and `signTransaction`) driven by the parent's `signer` through the delegate authenticator. Requested `keys` map to owner actors by `type`: `'address'` → `key.k1`, `'p256'` / `'webcrypto-p256'` → `key.p256`, `'webauthn-p256'` → `key.webAuthn`. Pass a stable `salt` to derive a deterministic sub-account address.
+
 ## Next
 
 - Let a third party pay for a sub account's gas — [Sponsoring Transactions](/eip8130/sponsoring-transactions).

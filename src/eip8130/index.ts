@@ -203,6 +203,13 @@ export {
   sessionPolicyAbi,
   sessionPolicyAddress,
 } from './policies.js'
+export {
+  type FulfillAddSubAccountErrorType,
+  type FulfillAddSubAccountParameters,
+  type FulfillAddSubAccountReturnType,
+  fulfillAddSubAccount,
+  type SubAccountKey,
+} from './subAccounts.js'
 export type {
   AaAccountChange,
   AaAccountChangeConfig,
