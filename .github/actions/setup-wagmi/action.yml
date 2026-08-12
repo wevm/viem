@@ -8,6 +8,13 @@ runs:
       shell: bash
       run: gh repo clone wevm/wagmi
 
+    - name: Check out sender-compatible wagmi
+      shell: bash
+      working-directory: ./wagmi
+      run: |
+        git fetch origin pull/5222/head
+        git checkout --detach 662a43e54838285473448092bb64b06a4f139f9e
+
     - name: Set up pnpm
       uses: pnpm/action-setup@v4
       with:
