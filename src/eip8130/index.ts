@@ -96,6 +96,16 @@ export {
   waitForTransactionReceipt,
 } from './actions/waitForTransactionReceipt.js'
 export {
+  type Eip8130Capabilities,
+  type Eip8130CapabilitiesParameters,
+  eip8130Capabilities,
+  eip8130CapabilitiesByChain,
+  supportedPermissionTypes,
+  supportedPolicyTypes,
+  supportedSignerTypes,
+  supportedSubAccountKeyTypes,
+} from './capabilities.js'
+export {
   eip8130ChainIds,
   type Is8130EnabledParameters,
   is8130Enabled,

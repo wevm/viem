@@ -128,6 +128,28 @@ const hash = await sendCalls(client, {
 
 The returned handle is a full account (its own `address`, `createChange`, and `signTransaction`) driven by the parent's `signer` through the delegate authenticator. Requested `keys` map to owner actors by `type`: `'address'` → `key.k1`, `'p256'` / `'webcrypto-p256'` → `key.p256`, `'webauthn-p256'` → `key.webAuthn`. Pass a stable `salt` to derive a deterministic sub-account address.
 
+By default the requested `keys` are unrestricted **co-owners**. Pass `keyScope` (and optionally `keyPolicy`) to register them as **scoped** actors instead — so the parent stays the sole full owner while the dApp key is a bounded session key:
+
+```ts
+import { actorScope, defineSessionPolicy, encodeSessionPolicyConfig } from 'viem/eip8130'
+
+const session = defineSessionPolicy({
+  account: subAddress, // the sub-account address you're creating
+  policyConfig: encodeSessionPolicyConfig({
+    tokenLimits: [{ token: usdc, limit: 100_000_000n, period: 604_800n }],
+  }),
+})
+
+const sub = fulfillAddSubAccount({
+  parent: parent.address,
+  signer: parent.signer,
+  proxy: 'erc1167',
+  keys: [{ publicKey: dappKeyAddress, type: 'address' }],
+  keyScope: actorScope.policy, // policy-gated session key (not a full owner)
+  keyPolicy: session.actorPolicy,
+})
+```
+
 ## Next
 
 - Let a third party pay for a sub account's gas — [Sponsoring Transactions](/eip8130/sponsoring-transactions).

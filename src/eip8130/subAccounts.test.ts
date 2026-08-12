@@ -1,7 +1,11 @@
 import { describe, expect, test } from 'vitest'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
-import { canonicalAuthenticators, scopeUnrestricted } from './constants.js'
-import { key } from './keys.js'
+import {
+  actorScope,
+  canonicalAuthenticators,
+  scopeUnrestricted,
+} from './constants.js'
+import { encodePolicyData, key } from './keys.js'
 import { fulfillAddSubAccount } from './subAccounts.js'
 
 // Deterministic parent signer for stable addresses.
@@ -86,6 +90,51 @@ describe('fulfillAddSubAccount', () => {
         keys: [{ publicKey: parent, type: 'address' }],
       }),
     ).toThrow(/Duplicate initial actor id/)
+  })
+
+  test('keyScope registers requested keys as scoped actors (parent stays sole owner)', () => {
+    const sub = fulfillAddSubAccount({
+      parent,
+      signer: parentSigner,
+      proxy: 'erc1167',
+      salt,
+      keys: [{ publicKey: dappKey, type: 'address' }],
+      keyScope: actorScope.sender,
+    })
+
+    const keyActor = sub.initialActors.find(
+      (a) => a.actorId === key.k1(dappKey).actorId,
+    )
+    expect(keyActor?.scope).toBe(actorScope.sender)
+
+    // The parent delegate remains an unrestricted admin.
+    const parentActor = sub.initialActors.find(
+      (a) => a.actorId === key.delegate(parent).actorId,
+    )
+    expect(parentActor?.scope ?? scopeUnrestricted).toBe(scopeUnrestricted)
+  })
+
+  test('keyPolicy gates requested keys (policy-scoped session key)', () => {
+    const policy = {
+      type: 1,
+      manager: '0x00000000000000000000000000000000000ma9a5',
+      commitment: `0x${'cc'.repeat(32)}`,
+    } as const
+    const sub = fulfillAddSubAccount({
+      parent,
+      signer: parentSigner,
+      proxy: 'erc1167',
+      salt,
+      keys: [{ publicKey: dappKey, type: 'address' }],
+      keyScope: actorScope.policy,
+      keyPolicy: policy,
+    })
+
+    const keyActor = sub.initialActors.find(
+      (a) => a.actorId === key.k1(dappKey).actorId,
+    )
+    expect(keyActor?.scope).toBe(actorScope.policy)
+    expect(keyActor?.policyData).toBe(encodePolicyData(policy))
   })
 
   test('upgradeable proxy without an implementation throws (pending enshrinement)', () => {

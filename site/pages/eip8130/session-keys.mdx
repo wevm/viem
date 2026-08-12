@@ -199,3 +199,27 @@ The permission → policy mapping is:
 | `gas-limit` | ignored — gas is settled by the payer / [ERC-8168](/eip8168) layer |
 
 A transfer permission without a `token-allowance` throws (an unbounded spend can't be safely granted), as do `custom` permissions/policies — build the `SessionPolicyConfig` explicitly for those. Use `toSessionPolicyConfig` (the pure mapping) or `toSessionPolicy` (mapping + binding) directly if you only need the lowered config or the bound policy without the `authorizeActor` change.
+
+## Advertising support (EIP-5792)
+
+So a dApp can discover — before requesting — which permission, policy, and key types it can rely on, a wallet returns `eip8130Capabilities` from its [EIP-5792](https://eips.ethereum.org/EIPS/eip-5792) `wallet_getCapabilities` handler. It describes exactly what the adapters here support: atomic batches, ERC-7715 grants (`fulfillGrantPermissions`), and ERC-7895 sub-accounts (`fulfillAddSubAccount`).
+
+```ts
+import { eip8130CapabilitiesByChain } from 'viem/eip8130'
+
+// In the wallet's `wallet_getCapabilities` handler (per chain):
+const capabilities = eip8130CapabilitiesByChain([8453, 84532], {
+  paymasterService: true, // if the wallet exposes an ERC-8168 payer
+})
+// {
+//   '0x2105': {
+//     atomic: { status: 'supported' },
+//     permissions: { supported: true, signerTypes, permissionTypes, policyTypes },
+//     unstable_addSubAccount: { supported: true, keyTypes },
+//     paymasterService: { supported: true },
+//   },
+//   ...
+// }
+```
+
+The advertised lists (`supportedPermissionTypes`, `supportedPolicyTypes`, `supportedSubAccountKeyTypes`) mirror what the adapters actually accept — `custom` and `gas-limit` are deliberately excluded, since they can't be lowered to a `SessionPolicy`.

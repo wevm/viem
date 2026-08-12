@@ -6,7 +6,7 @@ import { bytesToHex } from '../utils/encoding/toHex.js'
 import { type ToAccountReturnType, toAccount } from './accounts/toAccount.js'
 import { canonicalAuthenticators, scopeUnrestricted } from './constants.js'
 import { canonicalEip8130Deployment } from './deployments.js'
-import { key } from './keys.js'
+import { authorizeActor, key, type Policy } from './keys.js'
 import type { AaAccountChangeCreate, AaActor } from './types/transaction.js'
 import { erc1167Bytecode, upgradeableProxyBytecode } from './utils/proxy.js'
 import type { Signer } from './utils/signTransaction.js'
@@ -57,10 +57,26 @@ export type FulfillAddSubAccountParameters = {
    */
   signer: Signer
   /**
-   * ERC-7895 requested owner keys (from a `type: 'create'` request) registered
-   * as additional unrestricted co-owners of the sub-account.
+   * ERC-7895 requested keys (from a `type: 'create'` request). By default they
+   * are registered as additional unrestricted **co-owners**; pass `keyScope`
+   * (and optionally `keyPolicy`) to register them as **scoped** actors instead,
+   * keeping the parent the sole full owner.
    */
   keys?: readonly SubAccountKey[] | undefined
+  /**
+   * Scope applied to the requested `keys`. Omitted or {@link scopeUnrestricted}
+   * (`0`, default) registers them as unrestricted co-owners (admins). Set a
+   * restricted scope (e.g. `actorScope.sender`, or `actorScope.policy` with
+   * `keyPolicy`) to register them as scoped session-key actors — so the parent
+   * remains the only unrestricted owner.
+   */
+  keyScope?: number | undefined
+  /**
+   * Policy gate applied to the requested `keys` (a `SessionPolicy` binding — see
+   * `defineSessionPolicy`). Requires a restricted `keyScope` (the `SCOPE_POLICY`
+   * bit is added automatically). Ignored when `keyScope` is unrestricted.
+   */
+  keyPolicy?: Policy | undefined
   /**
    * CREATE2 uniqueness factor (bytes32). Randomly generated if omitted; pass a
    * stable salt to derive a deterministic sub-account address.
@@ -132,6 +148,8 @@ export function fulfillAddSubAccount(
     parent,
     signer,
     keys = [],
+    keyScope,
+    keyPolicy,
     proxy = 'upgradeable',
     implementation,
     accountConfigAddress,
@@ -139,15 +157,25 @@ export function fulfillAddSubAccount(
 
   const parentActor = key.delegate(parent)
 
+  // Map each requested key to an owner actor: an unrestricted admin by default,
+  // or a scoped (optionally policy-gated) actor when `keyScope` is set.
+  const restricted = keyScope !== undefined && keyScope !== scopeUnrestricted
+  const keyActors: AaActor[] = keys.map((k) => {
+    const actor = toKeyActor(k)
+    if (!restricted) return actor
+    return authorizeActor(actor, {
+      scope: keyScope,
+      ...(keyPolicy ? { policy: keyPolicy } : {}),
+    })
+  })
+
   // Owner set: the parent delegate + the requested keys, sorted by actorId in
   // strictly ascending order (protocol requirement), rejecting duplicates.
-  const initialActors: AaActor[] = [parentActor, ...keys.map(toKeyActor)].sort(
-    (a, b) => {
-      const ai = hexToBigInt(a.actorId as Hex)
-      const bi = hexToBigInt(b.actorId as Hex)
-      return ai < bi ? -1 : ai > bi ? 1 : 0
-    },
-  )
+  const initialActors: AaActor[] = [parentActor, ...keyActors].sort((a, b) => {
+    const ai = hexToBigInt(a.actorId as Hex)
+    const bi = hexToBigInt(b.actorId as Hex)
+    return ai < bi ? -1 : ai > bi ? 1 : 0
+  })
   for (let i = 1; i < initialActors.length; i++)
     if (initialActors[i]!.actorId === initialActors[i - 1]!.actorId)
       throw new BaseError(
