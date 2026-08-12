@@ -110,7 +110,7 @@ export const canonicalEip8130Deployment = {
   },
   policies: {
     manager: '0x813077055d1110F92191ccE13018f51820B40ac1',
-    sessionPolicy: '0x81300Fd9bCa7DC7982474d0eaB0d936FF1C25E55',
+    sessionPolicy: '0x813070914C530d030f4Efd8Fa99C18e836435e55',
   },
 } as const satisfies Eip8130Deployment
 

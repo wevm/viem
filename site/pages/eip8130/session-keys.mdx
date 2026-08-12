@@ -44,6 +44,24 @@ session.commitment   // the policy commitment stored on the actor
 session.actorPolicy  // pass to `authorizeActor(key, { scope, policy })`
 ```
 
+:::warning[Native ETH is fail-closed]
+A session key can move ETH (a call with `value > 0`) **only** when the config has a `tokenLimits` entry for the **zero address** (`0x0000000000000000000000000000000000000000`); its `limit` caps cumulative native spend per `period`. With no native limit, any call carrying `value` reverts with `NativeValueNotAllowed` — an absent native limit means **no ETH**, not unlimited. (ERC-20s differ: an absent token limit is unbounded, because moving a token still requires an allowlisted `callScope` to its contract, which acts as the gate.)
+:::
+
+To let a key spend ETH, add a native `tokenLimits` entry:
+
+```ts
+import { parseEther, zeroAddress } from 'viem'
+import { encodeSessionPolicyConfig } from 'viem/eip8130'
+
+encodeSessionPolicyConfig({
+  // ≤ 0.1 ETH per day.
+  tokenLimits: [
+    { token: zeroAddress, limit: parseEther('0.1'), period: 86_400n },
+  ],
+})
+```
+
 `selectorRules` may bind recipients for the standard ERC-20 selectors (`transfer`, `transferFrom`, `approve`):
 
 ```ts
