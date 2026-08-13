@@ -45,6 +45,8 @@ auditConfig:
     # image-size has no patched release.
     - GHSA-5p2g-fcmc-qvqq
     - GHSA-w3rx-r6r6-pgpr
+    # extract-zip has no patched release.
+    - GHSA-jmr9-qjv8-65gv
 
 overrides:
   typescript: ^5.9.3

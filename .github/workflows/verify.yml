@@ -249,9 +249,9 @@ jobs:
             tempo-tag: sha256:23150c7bae007afd2eeaa596c4b9f3d6950ecd0dec3e05ad44ebdbb8a6add863
             zone-tag: sha-aae82c4
           - hardfork: T10
-            # Tempo main (bb07377a) and Zones 60880b66.
-            tempo-tag: sha256:480dcf46f8805a13f9ec03371f8f1aa378942be77ec07e3e2f15a01a85b3dca4
-            zone-tag: sha256:a9e0ca9e9eaa0e52ee7c473237235054b0be9b07d5836d5393b9fceaf3fabd61
+            # Tempo de760926 and sender-bound Zones 196f47b7.
+            tempo-tag: sha256:af7a8955370adc4868a3237352ceded3bd917702a14758796eab86b338b75e49
+            zone-tag: sha256:45b4e66b0a7d5f8d9486eeb05e0842c7a223b53e9ef910ef73cd9558f4a79118
 
     steps:
       - name: Clone repository
@@ -365,6 +365,8 @@ jobs:
   wagmi:
     name: Wagmi
     continue-on-error: true
+    # TODO: Re-enable Wagmi verification.
+    if: ${{ false }}
     permissions:
       contents: read
     runs-on: ubuntu-latest

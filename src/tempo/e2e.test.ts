@@ -45,6 +45,7 @@ describe.runIf(nodeEnv === 'testnet')('zone.encryptedDeposit.prepare', () => {
       amount: 1n,
       bouncebackRecipient: accounts[0].address,
       recipient: accounts[0].address,
+      sender: accounts[0].address,
       memo: Hex.fromNumber(1n, { size: 32 }),
       zoneId: 7,
     })
