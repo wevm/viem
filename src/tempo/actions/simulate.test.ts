@@ -391,7 +391,7 @@ describe('simulateCalls', () => {
   })
 
   test('behavior: approve + dex swap + transfer', async () => {
-    // Set up token pair + liquidity onchain
+    // Set up token pair + liquidity on-chain
     const { base, quote } = await setupTokenPair(client as never)
 
     // Place sell order so there's liquidity to buy against
@@ -459,7 +459,7 @@ describe('simulateCalls', () => {
     // Fund seller with fee tokens for gas
     await setupFeeToken(client, { account: seller })
 
-    // Set up token pair + liquidity onchain
+    // Set up token pair + liquidity on-chain
     const { base, quote } = await setupTokenPair(client as never)
 
     // Fund seller with base tokens and approve DEX
