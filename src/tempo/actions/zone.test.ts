@@ -109,12 +109,15 @@ async function ensureZoneBalance(zoneToken: Address, minimumBalance: bigint) {
   })
   if (balance.amount >= minimumBalance) return
 
-  await zoneActions.depositSync(mainnetClient, {
+  const parameters = {
     amount: parseUnits('1', 6),
     portalAddress,
     token: parentToken,
     zoneId,
-  })
+  } as const
+  if (legacyZoneCallback)
+    await zoneActions.depositSync(mainnetClient, parameters)
+  else await zoneActions.encryptedDepositSync(mainnetClient, parameters)
 
   for (let attempt = 0; attempt < 150; attempt++) {
     const nextBalance = await tokenActions.getBalance(zoneClient, {
@@ -705,36 +708,42 @@ describe('deposit', () => {
     expect(registryCalls[1].address).toBe(getPortalAddress(tempoModerato.id, 7))
   })
 
-  test('behavior: defaults bounceback recipient to account', async () => {
-    const client = createClient({
-      chain,
-      pollingInterval: 100,
-      transport: http(),
-    })
+  test.runIf(legacyZoneCallback)(
+    'behavior: defaults bounceback recipient to account',
+    async () => {
+      const client = createClient({
+        chain,
+        pollingInterval: 100,
+        transport: http(),
+      })
 
-    const hash = await zoneActions.deposit(client, {
-      ...depositParameters,
-      account,
-    })
-    const receipt = await waitForTransactionReceipt(client, { hash })
-    const call = await getPortalCall(hash)
+      const hash = await zoneActions.deposit(client, {
+        ...depositParameters,
+        account,
+      })
+      const receipt = await waitForTransactionReceipt(client, { hash })
+      const call = await getPortalCall(hash)
 
-    expect(receipt.status).toBe('success')
-    expect(call.functionName).toBe('deposit')
-    expect(call.args[4]).toBe(account.address)
-  })
+      expect(receipt.status).toBe('success')
+      expect(call.functionName).toBe('deposit')
+      expect(call.args[4]).toBe(account.address)
+    },
+  )
 
-  test('behavior: deposits tokens into zone via parent chain', async () => {
-    const result = await zoneActions.depositSync(mainnetClient, {
-      token: parentToken,
-      amount: parseUnits('1', 6),
-      portalAddress,
-      zoneId,
-    })
+  test.runIf(legacyZoneCallback)(
+    'behavior: deposits tokens into zone via parent chain',
+    async () => {
+      const result = await zoneActions.depositSync(mainnetClient, {
+        token: parentToken,
+        amount: parseUnits('1', 6),
+        portalAddress,
+        zoneId,
+      })
 
-    expect(result.receipt).toBeDefined()
-    expect(result.receipt.status).toBe('success')
-  })
+      expect(result.receipt).toBeDefined()
+      expect(result.receipt.status).toBe('success')
+    },
+  )
 
   test('error: no account', async () => {
     const noAccountClient = createClient({
@@ -1171,12 +1180,15 @@ describe('earn', () => {
       const assetAmount = parseUnits('10', 6)
       const assetDepositAmount =
         assetAmount + withdrawalFee * 2n + parseUnits('10', 6)
-      const assetDeposit = await Actions.zone.depositSync(mainnetClient, {
-        amount: assetDepositAmount,
-        portalAddress,
-        token: addresses.alphaUsd,
-        zoneId,
-      })
+      const assetDeposit = await Actions.zone.encryptedDepositSync(
+        mainnetClient,
+        {
+          amount: assetDepositAmount,
+          portalAddress,
+          token: addresses.alphaUsd,
+          zoneId,
+        },
+      )
       await Actions.zone.waitForTempoBlock(zoneClient, {
         pollingInterval: 100,
         tempoBlockNumber: assetDeposit.receipt.blockNumber,
