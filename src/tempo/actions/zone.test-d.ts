@@ -20,6 +20,10 @@ const client = createClient({
   chain: tempoModerato,
   transport,
 })
+const publicClient = createClient({
+  chain: tempoModerato,
+  transport,
+})
 const zoneClient = createClient({
   account: '0x0000000000000000000000000000000000000001',
   chain: zoneModerato(7),
@@ -33,7 +37,6 @@ test('encryptedDeposit.prepare returns a reusable encrypted deposit payload', as
     amount: 1n,
     bouncebackRecipient: '0x0000000000000000000000000000000000000001',
     recipient: '0x0000000000000000000000000000000000000001',
-    sender: '0x0000000000000000000000000000000000000001',
     zoneId: 7,
   })
 
@@ -53,13 +56,26 @@ test('encryptedDeposit.prepareRecipient returns reusable encrypted recipient dat
   const prepared = await zoneActions.encryptedDeposit.prepareRecipient(client, {
     portalAddress: '0x0000000000000000000000000000000000000002',
     recipient: '0x0000000000000000000000000000000000000001',
-    sender: '0x0000000000000000000000000000000000000001',
     zoneId: 7,
   })
 
   expectTypeOf(
     prepared,
   ).toEqualTypeOf<zoneActions.PreparedEncryptedDepositRecipient>()
+})
+
+test('encryptedDeposit preparation requires a sender without a client account', async () => {
+  // @ts-expect-error sender is required when the client has no account
+  await zoneActions.encryptedDeposit.prepareRecipient(publicClient, {
+    recipient: '0x0000000000000000000000000000000000000001',
+    zoneId: 7,
+  })
+
+  await zoneActions.encryptedDeposit.prepareRecipient(publicClient, {
+    recipient: '0x0000000000000000000000000000000000000001',
+    sender: '0x0000000000000000000000000000000000000002',
+    zoneId: 7,
+  })
 })
 
 test('requestWithdrawal.prepare returns a request, maximum fee, and details', async () => {

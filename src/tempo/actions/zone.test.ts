@@ -571,12 +571,14 @@ describe('encryptedDeposit', () => {
   })
 
   test('behavior: sends a prepared encrypted deposit', async () => {
+    const { sender: _, ...parameters } = prepareEncryptedDepositParameters
     const prepared = await zoneActions.encryptedDeposit.prepare(mainnetClient, {
-      ...prepareEncryptedDepositParameters,
+      ...parameters,
       portalAddress,
       zoneId,
     })
 
+    expect(prepared.sender).toBe(mainnetClient.account.address)
     const hash = await zoneActions.encryptedDeposit(mainnetClient, prepared)
     const receipt = await waitForTransactionReceipt(mainnetClient, { hash })
 
@@ -589,13 +591,13 @@ describe('encryptedDeposit', () => {
       {
         portalAddress,
         recipient: account.address,
-        sender: account.address,
         zoneId,
       },
     )
 
     expect(prepared.chainId).toBe(chain.id)
     expect(prepared.portalAddress).toBe(portalAddress)
+    expect(prepared.sender).toBe(mainnetClient.account.address)
     expect(prepared.zoneId).toBe(zoneId)
     expect(prepared.keyIndex).toBeGreaterThanOrEqual(0n)
     expect(prepared.encrypted.ciphertext).toBeDefined()

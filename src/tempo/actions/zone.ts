@@ -28,7 +28,12 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import { zeroHash } from '../../constants/bytes.js'
 import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain, GetChainParameter } from '../../types/chain.js'
-import type { Compute, UnionOmit } from '../../types/utils.js'
+import type {
+  Compute,
+  IsUndefined,
+  MaybeRequired,
+  UnionOmit,
+} from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
@@ -592,7 +597,7 @@ export namespace encryptedDeposit {
     account extends Account | undefined,
   >(
     client: Client<Transport, chain, account>,
-    parameters: prepare.Parameters,
+    parameters: prepare.Parameters<account>,
   ): Promise<prepare.ReturnValue> {
     const chainId = client.chain?.id
     if (!chainId) throw new Error('`chain` is required.')
@@ -603,11 +608,13 @@ export namespace encryptedDeposit {
       memo,
       portalAddress: portalAddress_,
       recipient,
-      sender,
+      sender: sender_ = client.account?.address,
       token,
       zoneId,
       ...rest
     } = parameters
+    if (!sender_) throw new Error('`sender` is required.')
+    const sender = sender_
     const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
 
     const { keyIndex, publicKey } = await getEncryptionKey(client, {
@@ -639,7 +646,17 @@ export namespace encryptedDeposit {
   }
 
   export namespace prepare {
-    export type Parameters = ReadParameters & Args
+    export type Parameters<
+      account extends Account | undefined = Account | undefined,
+    > = ReadParameters &
+      Omit<Args, 'sender'> &
+      MaybeRequired<
+        {
+          /** Address that will call the Zone portal. @default `client.account.address` */
+          sender?: Address | undefined
+        },
+        IsUndefined<account>
+      >
 
     export type Args = {
       /** Amount of tokens to deposit. */
@@ -699,7 +716,7 @@ export namespace encryptedDeposit {
     account extends Account | undefined,
   >(
     client: Client<Transport, chain, account>,
-    parameters: prepareRecipient.Parameters,
+    parameters: prepareRecipient.Parameters<account>,
   ): Promise<prepareRecipient.ReturnValue> {
     const chainId = client.chain?.id
     if (!chainId) throw new Error('`chain` is required.')
@@ -708,10 +725,12 @@ export namespace encryptedDeposit {
       memo,
       portalAddress: portalAddress_,
       recipient,
-      sender,
+      sender: sender_ = client.account?.address,
       zoneId,
       ...rest
     } = parameters
+    if (!sender_) throw new Error('`sender` is required.')
+    const sender = sender_
     const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
     const { keyIndex, publicKey } = await getEncryptionKey(client, {
       ...rest,
@@ -738,7 +757,17 @@ export namespace encryptedDeposit {
   }
 
   export namespace prepareRecipient {
-    export type Parameters = ReadParameters & Args
+    export type Parameters<
+      account extends Account | undefined = Account | undefined,
+    > = ReadParameters &
+      Omit<Args, 'sender'> &
+      MaybeRequired<
+        {
+          /** Address that will call the Zone portal. @default `client.account.address` */
+          sender?: Address | undefined
+        },
+        IsUndefined<account>
+      >
 
     export type Args = {
       /** Optional deposit memo. @default `0x00...00` */
