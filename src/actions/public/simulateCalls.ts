@@ -25,11 +25,11 @@ import {
 } from '../../utils/abi/encodeFunctionData.js'
 import { type PadErrorType, pad } from '../../utils/data/pad.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
+import { createAccessList } from './createAccessList.js'
 import {
-  type CreateAccessListErrorType,
-  createAccessList,
-} from './createAccessList.js'
-import { getBlockNumber } from './getBlockNumber.js'
+  type GetBlockNumberErrorType,
+  getBlockNumber,
+} from './getBlockNumber.js'
 import {
   type SimulateBlocksErrorType,
   type SimulateBlocksParameters,
@@ -150,8 +150,8 @@ export type SimulateCallsReturnType<
 export type SimulateCallsErrorType =
   | AbiFunction.encodeData.ErrorType
   | AbiFunction.from.ErrorType
-  | CreateAccessListErrorType
   | EncodeFunctionDataErrorType
+  | GetBlockNumberErrorType
   | PadErrorType
   | SimulateBlocksErrorType
   | ErrorType
@@ -254,7 +254,9 @@ export async function simulateCalls<
     ? await Promise.all([
         simulateBlocks(client, {
           blockNumber: baseBlockNumber,
-          blockTag: (baseBlockNumber ? undefined : blockTag) as undefined,
+          blockTag: (typeof baseBlockNumber === 'bigint'
+            ? undefined
+            : blockTag_) as undefined,
           blocks: [
             {
               calls: calls.map((call) => ({
@@ -272,9 +274,8 @@ export async function simulateCalls<
             accessListHints(client, {
               account: account!.address,
               blockNumber: baseBlockNumber,
-              blockTag: baseBlockNumber
-                ? undefined
-                : (blockTag as BlockTag | undefined),
+              blockTag:
+                typeof baseBlockNumber === 'bigint' ? undefined : blockTag_,
               call,
             }),
           ),
@@ -303,7 +304,9 @@ export async function simulateCalls<
 
   const blocks = await simulateBlocks(client, {
     blockNumber: baseBlockNumber,
-    blockTag: (baseBlockNumber ? undefined : blockTag) as undefined,
+    blockTag: (typeof baseBlockNumber === 'bigint'
+      ? undefined
+      : blockTag_) as undefined,
     blocks: [
       ...(traceAssetChanges
         ? [

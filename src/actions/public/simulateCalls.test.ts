@@ -1,5 +1,5 @@
 import { parseAbi } from 'abitype'
-import { expect, onTestFinished, test } from 'vitest'
+import { expect, onTestFinished, test, vi } from 'vitest'
 import {
   baycContractConfig,
   usdcContractConfig,
@@ -12,7 +12,10 @@ import { custom } from '../../clients/transports/custom.js'
 import { erc20Abi, erc721Abi } from '../../constants/abis.js'
 import { numberToHex, parseEther } from '../../utils/index.js'
 import { mine } from '../test/mine.js'
+import * as createAccessList from './createAccessList.js'
+import * as getBlockNumberModule from './getBlockNumber.js'
 import { getBlockNumber } from './getBlockNumber.js'
+import * as simulateBlocks from './simulateBlocks.js'
 import { simulateCalls } from './simulateCalls.js'
 
 const client = anvilMainnet.getClient()
@@ -405,6 +408,53 @@ test('behavior: stress', async () => {
   await simulateCalls(client, {
     calls,
   })
+})
+
+test('behavior: traceAssetChanges uses the client block tag', async () => {
+  const client_ = createClient({
+    experimental_blockTag: 'safe',
+    transport: custom({
+      async request() {
+        throw new Error('Unexpected request')
+      },
+    }),
+  })
+  const getBlockNumberSpy = vi.spyOn(getBlockNumberModule, 'getBlockNumber')
+  const createAccessListSpy = vi
+    .spyOn(createAccessList, 'createAccessList')
+    .mockResolvedValue({ accessList: [], gasUsed: 0n })
+  const simulateBlocksSpy = vi
+    .spyOn(simulateBlocks, 'simulateBlocks')
+    .mockResolvedValueOnce([{ calls: [] }] as never)
+    .mockResolvedValueOnce([
+      { calls: [{ data: '0x00', status: 'success' }] },
+      { calls: [] },
+      {
+        calls: [{ data: '0x', gasUsed: 0n, logs: [], status: 'success' }],
+      },
+      { calls: [{ data: '0x00', status: 'success' }] },
+      { calls: [] },
+      { calls: [] },
+      { calls: [] },
+      { calls: [] },
+    ] as never)
+
+  await simulateCalls(client_, {
+    account: accounts[0].address,
+    calls: [{ data: '0x1234', to: usdcContractConfig.address }],
+    traceAssetChanges: true,
+  })
+
+  expect(getBlockNumberSpy).not.toHaveBeenCalled()
+  expect(createAccessListSpy).toHaveBeenCalledWith(
+    client_,
+    expect.objectContaining({ blockTag: 'safe' }),
+  )
+  expect(simulateBlocksSpy).toHaveBeenCalledTimes(2)
+  for (const [client, parameters] of simulateBlocksSpy.mock.calls) {
+    expect(client).toBe(client_)
+    expect(parameters).toEqual(expect.objectContaining({ blockTag: 'safe' }))
+  }
 })
 
 // TODO: Re-enable once the pinned Anvil includes foundry-rs/foundry#15784.
