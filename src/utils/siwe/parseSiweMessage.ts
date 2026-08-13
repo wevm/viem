@@ -1,8 +1,15 @@
 import type { Address } from 'abitype'
 
 import type { ExactPartial, Prettify } from '../../types/utils.js'
-import { isValidSiweDateTime } from './isValidSiweDateTime.js'
 import type { SiweMessage } from './types.js'
+
+const siweDateTimeRegex =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/
+
+function isValidSiweDateTime(value: string): boolean {
+  if (!siweDateTimeRegex.test(value)) return false
+  return !Number.isNaN(new Date(value).getTime())
+}
 
 function parseSiweDateTime(value: string): Date {
   // Reject non-RFC-3339 / non-EIP-4361 date-time strings before Date coercion
@@ -44,7 +51,9 @@ export function parseSiweMessage(
     ...prefix,
     ...suffix,
     ...(chainId ? { chainId: Number(chainId) } : {}),
-    ...(expirationTime ? { expirationTime: parseSiweDateTime(expirationTime) } : {}),
+    ...(expirationTime
+      ? { expirationTime: parseSiweDateTime(expirationTime) }
+      : {}),
     ...(issuedAt ? { issuedAt: parseSiweDateTime(issuedAt) } : {}),
     ...(notBefore ? { notBefore: parseSiweDateTime(notBefore) } : {}),
     ...(requestId ? { requestId } : {}),
