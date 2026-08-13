@@ -1,5 +1,11 @@
 # viem
 
+## 2.55.15
+
+### Patch Changes
+
+- [#5002](https://github.com/wevm/viem/pull/5002) [`8f7ef0435914133582633004d123eb2e5fe5a35b`](https://github.com/wevm/viem/commit/8f7ef0435914133582633004d123eb2e5fe5a35b) Thanks [@struong](https://github.com/struong)! - Bound encrypted Zone deposits to the parent-chain portal caller.
+
 ## 2.55.14
 
 ### Patch Changes
