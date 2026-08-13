@@ -22,7 +22,7 @@ import { accounts, poolId } from './constants.js'
 
 export const anvilMainnet = defineAnvil({
   chain: mainnet,
-  forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://eth.drpc.org'),
+  forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://ethereum.reth.rs/rpc'),
   forkBlockNumber: 22263623n,
   noMining: true,
   port: 8545,
