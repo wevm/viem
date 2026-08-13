@@ -1,25 +1,23 @@
 import { expect, test } from 'vitest'
 
-import { base } from '../../chains/index.js'
-import { createPublicClient } from '../../clients/createPublicClient.js'
-import { http } from '../../clients/transports/http.js'
+import { wagmiContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import type { Hash } from '../../types/misc.js'
 import { getBlock } from './getBlock.js'
 import { getProof } from './getProof.js'
 
+const client = anvilMainnet.getClient()
+const storageKeys: Hash[] = [
+  '0x0000000000000000000000000000000000000000000000000000000000000000',
+]
+
 test('default', async () => {
-  const client = createPublicClient({
-    chain: base,
-    transport: http(),
-  })
-
   const result = await getProof(client, {
-    address: '0x4200000000000000000000000000000000000016',
-    storageKeys: [
-      '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
-    ],
+    address: wagmiContractConfig.address,
+    storageKeys,
   })
 
-  expect(Object.keys(result)).toMatchInlineSnapshot(`
+  expect(Object.keys(result).sort()).toMatchInlineSnapshot(`
     [
       "accountProof",
       "address",
@@ -33,22 +31,17 @@ test('default', async () => {
 })
 
 test('args: blockHash (EIP-1898)', async () => {
-  const client = createPublicClient({
-    chain: base,
-    transport: http(),
+  const block = await getBlock(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
   })
 
-  const block = await getBlock(client, { blockTag: 'latest' })
-
   const result = await getProof(client, {
-    address: '0x4200000000000000000000000000000000000016',
-    storageKeys: [
-      '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
-    ],
+    address: wagmiContractConfig.address,
+    storageKeys,
     blockHash: block.hash!,
   })
 
-  expect(Object.keys(result)).toMatchInlineSnapshot(`
+  expect(Object.keys(result).sort()).toMatchInlineSnapshot(`
     [
       "accountProof",
       "address",
@@ -62,23 +55,18 @@ test('args: blockHash (EIP-1898)', async () => {
 })
 
 test('args: blockHash + requireCanonical (EIP-1898)', async () => {
-  const client = createPublicClient({
-    chain: base,
-    transport: http(),
+  const block = await getBlock(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
   })
 
-  const block = await getBlock(client, { blockTag: 'latest' })
-
   const result = await getProof(client, {
-    address: '0x4200000000000000000000000000000000000016',
-    storageKeys: [
-      '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
-    ],
+    address: wagmiContractConfig.address,
+    storageKeys,
     blockHash: block.hash!,
     requireCanonical: true,
   })
 
-  expect(Object.keys(result)).toMatchInlineSnapshot(`
+  expect(Object.keys(result).sort()).toMatchInlineSnapshot(`
     [
       "accountProof",
       "address",

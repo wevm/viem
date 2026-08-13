@@ -5,6 +5,7 @@ import { numberToHex } from '../utils/encoding/toHex.js'
 
 import {
   HttpRequestError,
+  ResponseBodyTooLargeError,
   RpcRequestError,
   SocketClosedError,
   TimeoutError,
@@ -50,6 +51,23 @@ test('HttpRequestError', () => {
     Version: viem@x.y.z]
   `)
   expect(err.url).toBeDefined()
+})
+
+test('ResponseBodyTooLargeError', () => {
+  const err = new ResponseBodyTooLargeError({
+    maxSize: 10,
+    size: 11,
+  })
+  expect(err).toMatchInlineSnapshot(`
+    [ResponseBodyTooLargeError: HTTP response body exceeded the size limit.
+
+    Max: 10 bytes
+    Received: 11 bytes
+
+    Version: viem@x.y.z]
+  `)
+  expect(err.maxSize).toBe(10)
+  expect(err.size).toBe(11)
 })
 
 test('WebSocketRequestError', () => {

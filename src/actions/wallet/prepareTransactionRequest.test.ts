@@ -617,6 +617,7 @@ describe('without `eth_fillTransaction`', () => {
     } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       blobs: toBlobs({ data: '0x1234' }),
+      gas: 21001n,
       kzg,
       maxFeePerBlobGas: parseGwei('20'),
       to: targetAccount.address,
@@ -827,6 +828,44 @@ describe('without `eth_fillTransaction`', () => {
     `)
   })
 
+  test('behavior: sponsor fill feeToken overrides prefilled feeToken', async () => {
+    const requestFeeToken = '0x20c0000000000000000000000000000000000001'
+    const sponsorFeeToken = '0x20c0000000000000000000000000000000000000'
+    const fillTransactionSpy = vi
+      .spyOn(fillTransaction, 'fillTransaction')
+      .mockResolvedValueOnce({
+        transaction: {
+          feePayerSignature: {
+            r: '0x1',
+            s: '0x2',
+            yParity: 0,
+          },
+          feeToken: sponsorFeeToken,
+          gas: 21000n,
+        },
+      } as never)
+
+    try {
+      const request = await prepareTransactionRequest(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        feePayer: true,
+        feeToken: requestFeeToken,
+        parameters: ['gas'],
+        to: targetAccount.address,
+        value: parseEther('1'),
+      } as never)
+      const tempoRequest = request as {
+        feePayerSignature?: unknown
+        feeToken?: string | undefined
+      }
+
+      expect(tempoRequest.feePayerSignature).toBeDefined()
+      expect(tempoRequest.feeToken).toBe(sponsorFeeToken)
+    } finally {
+      fillTransactionSpy.mockRestore()
+    }
+  })
+
   test('behavior: chain default priority fee', async () => {
     await setup()
 
@@ -1006,6 +1045,29 @@ describe('without `eth_fillTransaction`', () => {
         value: parseEther('1'),
       })
       expect(request.gas).toEqual(50000n)
+    })
+
+    test('preserves a sender derived by the chain hook', async () => {
+      await setup()
+
+      const hookClient = createClient({
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        chain: defineChain({
+          ...anvilMainnet.chain,
+          async prepareTransactionRequest(args) {
+            const { account: _, ...request } = args
+            return { ...request, from: targetAccount.address }
+          },
+        }),
+        transport: http(anvilMainnet.rpcUrl.http),
+      })
+      const request = await prepareTransactionRequest(hookClient, {
+        to: sourceAccount.address,
+        value: 0n,
+      })
+
+      expect(request.account).toBeUndefined()
+      expect(request.from).toBe(targetAccount.address)
     })
 
     test('client chain with prepareTransactionRequest', async () => {
@@ -2135,6 +2197,41 @@ describe('behavior: attemptFill', () => {
     })
 
     expect(fillTransactionSpy).not.toHaveBeenCalled()
+  })
+
+  test('behavior: sponsorship bypasses cached unsupported fill state', async () => {
+    supportsFillTransaction.set(client.uid, false)
+
+    const fillTransactionSpy = vi
+      .spyOn(fillTransaction, 'fillTransaction')
+      .mockResolvedValue({
+        raw: '0x',
+        transaction: {
+          chainId: 1,
+          feePayerSignature: { r: '0x1', s: '0x2', yParity: 0 },
+          gas: 21_000n,
+          maxFeePerGas: 2n,
+          maxPriorityFeePerGas: 1n,
+          nonce: 0,
+          type: 'eip1559',
+        },
+      } as never)
+
+    const request = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      chainId: 1,
+      feePayer: true,
+      gas: 21_000n,
+      maxFeePerGas: 2n,
+      maxPriorityFeePerGas: 1n,
+      nonce: 0,
+      parameters: ['nonce'],
+      to: targetAccount.address,
+      type: 'eip1559',
+    } as never)
+
+    expect(fillTransactionSpy).toHaveBeenCalledOnce()
+    expect((request as any).feePayerSignature).toBeDefined()
   })
 
   test('behavior: do not attempt fill when all parameters are already provided', async () => {

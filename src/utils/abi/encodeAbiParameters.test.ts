@@ -1921,3 +1921,105 @@ test('https://github.com/wevm/viem/issues/1960', () => {
     Version: viem@x.y.z]
   `)
 })
+
+describe('zero-width types', () => {
+  // Per the ABI spec, `enc(T[0])` and `enc(())` are zero-length: a zero-length
+  // fixed array or empty tuple contributes no bytes. Expected values verified
+  // against ethers `AbiCoder.defaultAbiCoder()`.
+  test('zero-length fixed array', () => {
+    expect(
+      encodeAbiParameters(
+        [{ type: 'uint256[0]' }, { type: 'uint256' }],
+        [[], 3n],
+      ),
+    ).toBe('0x0000000000000000000000000000000000000000000000000000000000000003')
+  })
+
+  test('empty tuple', () => {
+    expect(
+      encodeAbiParameters(
+        [{ type: 'uint256' }, { type: 'tuple', components: [] }],
+        [5n, []],
+      ),
+    ).toBe('0x0000000000000000000000000000000000000000000000000000000000000005')
+  })
+
+  test('empty tuple only', () => {
+    expect(encodeAbiParameters([{ type: 'tuple', components: [] }], [[]])).toBe(
+      '0x',
+    )
+  })
+
+  test('tuple of empty tuples', () => {
+    expect(
+      encodeAbiParameters(
+        [
+          {
+            type: 'tuple',
+            components: [
+              { type: 'tuple', components: [] },
+              { type: 'tuple', components: [] },
+            ],
+          },
+          { type: 'uint256' },
+        ],
+        [[[], []], 7n],
+      ),
+    ).toBe('0x0000000000000000000000000000000000000000000000000000000000000007')
+  })
+
+  test('nested zero-length fixed arrays', () => {
+    expect(
+      encodeAbiParameters(
+        [{ type: 'uint256[0][2]' }, { type: 'uint256' }],
+        [[[], []], 9n],
+      ),
+    ).toBe('0x0000000000000000000000000000000000000000000000000000000000000009')
+    expect(
+      encodeAbiParameters(
+        [{ type: 'uint256[2][0]' }, { type: 'uint256' }],
+        [[], 9n],
+      ),
+    ).toBe('0x0000000000000000000000000000000000000000000000000000000000000009')
+  })
+
+  test('offsets skip zero-width parameters', () => {
+    expect(
+      encodeAbiParameters(
+        [{ type: 'uint256[0]' }, { type: 'string' }],
+        [[], 'hello'],
+      ),
+    ).toBe(
+      '0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000568656c6c6f000000000000000000000000000000000000000000000000000000',
+    )
+  })
+
+  test('empty tuple inside dynamic tuple', () => {
+    expect(
+      encodeAbiParameters(
+        [
+          {
+            type: 'tuple',
+            components: [{ type: 'string' }, { type: 'tuple', components: [] }],
+          },
+        ],
+        [['hi', []]],
+      ),
+    ).toBe(
+      '0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000026869000000000000000000000000000000000000000000000000000000000000',
+    )
+  })
+
+  // `T[0]` of a dynamic `T` is dynamic per the ABI spec: 32-byte offset
+  // pointing at a zero-length tail.
+  test('zero-length fixed array of dynamic type', () => {
+    expect(
+      encodeAbiParameters(
+        [{ type: 'string[0]' }, { type: 'uint256' }],
+        [[], 3n],
+      ),
+    ).toBe(
+      '0x00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000003',
+    )
+  })
+})

@@ -1,12 +1,13 @@
 import type { Address } from 'abitype'
 import type { Account } from '../accounts/types.js'
-import type { Client } from '../clients/createClient.js'
+import { bindActionDecorators, type Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
 import type { Chain } from '../types/chain.js'
 import * as accessKeyActions from './actions/accessKey.js'
 import * as ammActions from './actions/amm.js'
 import * as channelActions from './actions/channel.js'
 import * as dexActions from './actions/dex.js'
+import * as earnActions from './actions/earn.js'
 import * as faucetActions from './actions/faucet.js'
 import * as feeActions from './actions/fee.js'
 import * as nonceActions from './actions/nonce.js'
@@ -19,7 +20,7 @@ import * as validatorActions from './actions/validator.js'
 import * as virtualAddressActions from './actions/virtualAddress.js'
 import * as zoneActions from './actions/zone.js'
 
-export type Decorator<
+type DecoratorBase<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
 > = {
@@ -1742,6 +1743,571 @@ export type Decorator<
       parameters: dexActions.watchOrderPlaced.Parameters,
     ) => () => void
   }
+  earn: {
+    /** Deploys a deterministic ERC-4626 engine. */
+    createErc4626Engine: (
+      parameters: earnActions.createErc4626Engine.Parameters<chain, account>,
+    ) => Promise<earnActions.createErc4626Engine.ReturnValue>
+    /** Deploys a deterministic ERC-4626 engine and waits for confirmation. */
+    createErc4626EngineSync: (
+      parameters: earnActions.createErc4626EngineSync.Parameters<
+        chain,
+        account
+      >,
+    ) => Promise<earnActions.createErc4626EngineSync.ReturnValue>
+    /** Deploys the EarnShare, EarnVault, and EarnFees contracts. */
+    createStack: (
+      parameters: earnActions.createStack.Parameters<chain, account>,
+    ) => Promise<earnActions.createStack.ReturnValue>
+    /** Deploys an Earn stack and waits for confirmation. */
+    createStackSync: (
+      parameters: earnActions.createStackSync.Parameters<chain, account>,
+    ) => Promise<earnActions.createStackSync.ReturnValue>
+    /** Binds an ERC-4626 engine to its EarnVault. */
+    bindErc4626Engine: (
+      parameters: earnActions.bindErc4626Engine.Parameters<chain, account>,
+    ) => Promise<earnActions.bindErc4626Engine.ReturnValue>
+    /** Binds an ERC-4626 engine and waits for confirmation. */
+    bindErc4626EngineSync: (
+      parameters: earnActions.bindErc4626EngineSync.Parameters<chain, account>,
+    ) => Promise<earnActions.bindErc4626EngineSync.ReturnValue>
+    /** Deploys and binds a complete, resumable ERC-4626 Earn stack. */
+    deployErc4626StackSync: (
+      parameters: earnActions.deployErc4626StackSync.Parameters<chain, account>,
+    ) => Promise<earnActions.deployErc4626StackSync.ReturnValue>
+    /**
+     * Creates and attaches an admission-only TIP-403 policy to an Earn share
+     * token. Existing holders remain able to send shares while
+     * recipients and mint recipients must belong to the same whitelist.
+     *
+     * @example
+     * ```ts
+     * const { policy } = await client.earn.configureExitSafePolicy({
+     *   accessAdministrator: '0x...',
+     *   initialMembers: ['0x...', '0x...'],
+     *   shareToken: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Share token, administrator, and initial members.
+     * @returns The configured policy IDs and transaction receipts.
+     */
+    configureExitSafePolicy: (
+      parameters: earnActions.configureExitSafePolicy.Parameters<account>,
+    ) => Promise<earnActions.configureExitSafePolicy.ReturnValue>
+    /**
+     * Deposits assets into a vault and mints Earn shares to `recipient`. The
+     * transaction includes the required asset approval.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.earn.deposit({
+     *   assetAmount: 100_000_000n,
+     *   shareAmountMin: 99_400_000n,
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    deposit: (
+      parameters: earnActions.deposit.Parameters<chain, account>,
+    ) => Promise<earnActions.deposit.ReturnValue>
+    /**
+     * Deposits venue shares into a vault and mints Earn shares to
+     * `recipient`. The transaction includes the required venue share approval.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.earn.depositShares({
+     *   earnShareAmountMin: 499_000_000n,
+     *   vault: '0x...',
+     *   venueShareAmount: 500_000_000n,
+     *   venueShareToken: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    depositShares: (
+      parameters: earnActions.depositShares.Parameters<chain, account>,
+    ) => Promise<earnActions.depositShares.ReturnValue>
+    /**
+     * Deposits venue shares and returns the confirmed receipt and event data.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { earnShareAmount } = await client.earn.depositSharesSync({
+     *   earnShareAmountMin: 499_000_000n,
+     *   vault: '0x...',
+     *   venueShareAmount: 500_000_000n,
+     *   venueShareToken: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    depositSharesSync: (
+      parameters: earnActions.depositSharesSync.Parameters<chain, account>,
+    ) => Promise<earnActions.depositSharesSync.ReturnValue>
+    /**
+     * Deposits assets and returns the confirmed receipt and event data.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { shareAmount } = await client.earn.depositSync({
+     *   assetAmount: 100_000_000n,
+     *   shareAmountMin: 99_400_000n,
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    depositSync: (
+      parameters: earnActions.depositSync.Parameters<chain, account>,
+    ) => Promise<earnActions.depositSync.ReturnValue>
+    /**
+     * Withdraws assets from a Zone and deposits them into a vault on the
+     * parent chain.
+     *
+     * @example
+     * ```ts
+     * const prepared = await parentClient.earn.privateDeposit.prepare({
+     *   assetAmount: 100_000_000n,
+     *   assetToken: '0x...',
+     *   gateway: '0x...',
+     *   recipient: '0x...',
+     *   recoveryRecipient: '0x...',
+     *   shareAmountMin: 99_500_000n,
+     *   vault: '0x...',
+     *   vaultAssetAmountMin: 99_000_000n,
+     *   zoneId: 7,
+     * })
+     * const hash = await zoneClient.earn.privateDeposit(prepared)
+     * ```
+     *
+     * @param parameters - Prepared deposit and transaction parameters.
+     * @returns The transaction hash.
+     */
+    privateDeposit: (
+      parameters: earnActions.privateDeposit.Parameters<chain, account>,
+    ) => Promise<earnActions.privateDeposit.ReturnValue>
+    /**
+     * Requests a private Zone deposit and waits for the Zone transaction
+     * receipt.
+     *
+     * @example
+     * ```ts
+     * const { receipt, senderTag } =
+     *   await zoneClient.earn.privateDepositSync(prepared)
+     * ```
+     *
+     * @param parameters - Prepared deposit and transaction parameters.
+     * @returns The Zone transaction receipt and parent-chain withdrawal sender tag.
+     */
+    privateDepositSync: (
+      parameters: earnActions.privateDepositSync.Parameters<chain, account>,
+    ) => Promise<earnActions.privateDepositSync.ReturnValue>
+    /**
+     * Gets the vault's active fee configuration, pending fees, and fee baselines.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const feeState = await client.earn.getFeeState({
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The active fee configuration, pending fees, and baselines.
+     */
+    getFeeState: (
+      parameters: earnActions.getFeeState.Parameters,
+    ) => Promise<earnActions.getFeeState.ReturnValue>
+    /**
+     * Gets an account's asset and Earn share balances, allowances, and
+     * current share value. The value includes fees.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const position = await client.earn.getPosition({
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The asset and Earn share balances, allowances, and value.
+     */
+    getPosition: (
+      parameters: earnActions.getPosition.Parameters<account>,
+    ) => Promise<earnActions.getPosition.ReturnValue>
+    /**
+     * Gets the vault's addresses, configuration, accounting state, and
+     * supported actions. Throws `GetVaultEngineChangedError` if its engine
+     * changes mid-read.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const vault = await client.earn.getVault({
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The vault state and metadata.
+     */
+    getVault: (
+      parameters: earnActions.getVault.Parameters,
+    ) => Promise<earnActions.getVault.ReturnValue>
+    /**
+     * Gets the asset output for an exact Earn share input, including fees.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const assetAmount = await client.earn.getRedeemQuote({
+     *   shareAmount: 100_000_000n,
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The asset output, including fees.
+     */
+    getRedeemQuote: (
+      parameters: earnActions.getRedeemQuote.Parameters,
+    ) => Promise<earnActions.getRedeemQuote.ReturnValue>
+    /**
+     * Gets the Earn shares required for an exact asset output, including
+     * fees and ceiling rounding.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const shareAmount = await client.earn.getWithdrawQuote({
+     *   assetAmount: 250_000_000n,
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The required Earn share input, ceiling-rounded.
+     */
+    getWithdrawQuote: (
+      parameters: earnActions.getWithdrawQuote.Parameters,
+    ) => Promise<earnActions.getWithdrawQuote.ReturnValue>
+    /**
+     * Redeems Earn shares for assets sent to `recipient`. The transaction
+     * includes the required Earn share approval.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.earn.redeem({
+     *   shareAmount: 100_000_000n,
+     *   slippageBps: 50,
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    redeem: (
+      parameters: earnActions.redeem.Parameters<chain, account>,
+    ) => Promise<earnActions.redeem.ReturnValue>
+    /**
+     * Redeems Earn shares and returns the confirmed receipt and event data.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { assetAmount } = await client.earn.redeemSync({
+     *   assetAmountMin: 99_500_000n,
+     *   shareAmount: 100_000_000n,
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    redeemSync: (
+      parameters: earnActions.redeemSync.Parameters<chain, account>,
+    ) => Promise<earnActions.redeemSync.ReturnValue>
+    /**
+     * Withdraws Earn shares from a Zone and redeems them on the parent chain.
+     *
+     * @example
+     * ```ts
+     * const prepared = await parentClient.earn.privateRedeem.prepare({
+     *   gateway: '0x...',
+     *   recipient: '0x...',
+     *   recoveryRecipient: '0x...',
+     *   shareAmount: 100_000_000n,
+     *   slippageBps: 50,
+     *   vault: '0x...',
+     *   zoneId: 7,
+     * })
+     * const hash = await zoneClient.earn.privateRedeem(prepared)
+     * ```
+     *
+     * @param parameters - Prepared redemption and transaction parameters.
+     * @returns The transaction hash.
+     */
+    privateRedeem: (
+      parameters: earnActions.privateRedeem.Parameters<chain, account>,
+    ) => Promise<earnActions.privateRedeem.ReturnValue>
+    /**
+     * Requests a private Zone redemption and waits for the Zone transaction
+     * receipt.
+     *
+     * @example
+     * ```ts
+     * const { receipt, senderTag } =
+     *   await zoneClient.earn.privateRedeemSync(prepared)
+     * ```
+     *
+     * @param parameters - Prepared redemption and transaction parameters.
+     * @returns The Zone transaction receipt and parent-chain withdrawal sender tag.
+     */
+    privateRedeemSync: (
+      parameters: earnActions.privateRedeemSync.Parameters<chain, account>,
+    ) => Promise<earnActions.privateRedeemSync.ReturnValue>
+    /**
+     * Waits for a Zone gateway deposit to complete on the parent chain.
+     *
+     * @example
+     * ```ts
+     * const result = await parentClient.earn.waitForPrivateDeposit({
+     *   actionId: prepared.actionId,
+     *   fromBlock: prepared.fromBlock,
+     *   gateway: '0x...',
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Correlation and polling parameters.
+     * @returns The completed gateway deposit.
+     */
+    waitForPrivateDeposit: (
+      parameters: earnActions.waitForPrivateDeposit.Parameters,
+    ) => Promise<earnActions.waitForPrivateDeposit.ReturnType>
+    /**
+     * Waits for a Zone gateway redemption to complete on the parent chain.
+     *
+     * @example
+     * ```ts
+     * const result = await parentClient.earn.waitForPrivateRedeem({
+     *   actionId: prepared.actionId,
+     *   fromBlock: prepared.fromBlock,
+     *   gateway: '0x...',
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Correlation and polling parameters.
+     * @returns The completed gateway redemption.
+     */
+    waitForPrivateRedeem: (
+      parameters: earnActions.waitForPrivateRedeem.Parameters,
+    ) => Promise<earnActions.waitForPrivateRedeem.ReturnType>
+    /**
+     * Verifies that an Earn share token uses the expected exit-safe
+     * TIP-403 policy and that every required member can receive transfers and
+     * mints.
+     *
+     * @example
+     * ```ts
+     * await client.earn.validateExitSafePolicy({
+     *   accessAdministrator: '0x...',
+     *   policy,
+     *   requiredMembers: ['0x...', '0x...'],
+     *   shareToken: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Expected policy, administrator, and required members.
+     * @returns Nothing when the policy is valid.
+     */
+    validateExitSafePolicy: (
+      parameters: earnActions.validateExitSafePolicy.Parameters,
+    ) => Promise<earnActions.validateExitSafePolicy.ReturnValue>
+    /**
+     * Withdraws an exact asset amount to `recipient`, up to the specified
+     * Earn share limit. The transaction includes the required Earn share
+     * approval; use `redeem` for a full exit.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.earn.withdrawExact({
+     *   assetAmount: 40_000_000n,
+     *   slippageBps: 50,
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    withdrawExact: (
+      parameters: earnActions.withdrawExact.Parameters<chain, account>,
+    ) => Promise<earnActions.withdrawExact.ReturnValue>
+    /**
+     * Withdraws an exact asset amount and returns the confirmed receipt and event data.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { shareAmount } = await client.earn.withdrawExactSync({
+     *   assetAmount: 40_000_000n,
+     *   shareAmountMax: 40_200_000n,
+     *   vault: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    withdrawExactSync: (
+      parameters: earnActions.withdrawExactSync.Parameters<chain, account>,
+    ) => Promise<earnActions.withdrawExactSync.ReturnValue>
+  }
   faucet: {
     /**
      * Funds an account with an initial amount of set token(s)
@@ -3382,13 +3948,15 @@ export type Decorator<
      * }).extend(tempoActions())
      *
      * const allowance = await client.token.getAllowance({
+     *   account: '0x...',
      *   spender: '0x...',
+     *   token: '0x...',
      * })
      * ```
      *
      * @param client - Client.
      * @param parameters - Parameters.
-     * @returns The token allowance.
+     * @returns The token allowance, in base units and human-readable form.
      */
     getAllowance: (
       parameters: tokenActions.getAllowance.Parameters,
@@ -3409,12 +3977,15 @@ export type Decorator<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const balance = await client.token.getBalance()
+     * const balance = await client.token.getBalance({
+     *   account: '0x...',
+     *   token: '0x...',
+     * })
      * ```
      *
      * @param client - Client.
      * @param parameters - Parameters.
-     * @returns The token balance.
+     * @returns The token balance, in base units and human-readable form.
      */
     getBalance: (
       parameters: tokenActions.getBalance.Parameters<account>,
@@ -3445,6 +4016,32 @@ export type Decorator<
     getMetadata: (
       parameters: tokenActions.getMetadata.Parameters,
     ) => Promise<tokenActions.getMetadata.ReturnValue>
+    /**
+     * Gets the total supply of a TIP20 token.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const totalSupply = await client.token.getTotalSupply({
+     *   token: '0x...',
+     * })
+     * ```
+     *
+     * @param client - Client.
+     * @param parameters - Parameters.
+     * @returns The token total supply, in base units and human-readable form.
+     */
+    getTotalSupply: (
+      parameters: tokenActions.getTotalSupply.Parameters,
+    ) => Promise<tokenActions.getTotalSupply.ReturnValue>
     /**
      * Gets the admin role for a specific role in a TIP20 token.
      *
@@ -4860,6 +5457,22 @@ export type Decorator<
       parameters: zoneActions.encryptedDepositSync.Parameters<chain, account>,
     ) => Promise<zoneActions.encryptedDepositSync.ReturnValue>
     /**
+     * Gets the active sequencer encryption key for a zone.
+     *
+     * @example
+     * ```ts
+     * const { keyIndex, publicKey } = await client.zone.getEncryptionKey({
+     *   zoneId: 7,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The active encryption key and its zero-based index.
+     */
+    getEncryptionKey: (
+      parameters: zoneActions.getEncryptionKey.Parameters,
+    ) => Promise<zoneActions.getEncryptionKey.ReturnValue>
+    /**
      * Returns the authenticated account address and authorization token expiry.
      *
      * @example
@@ -4879,31 +5492,6 @@ export type Decorator<
      * @returns The account address and token expiry.
      */
     getAuthorizationTokenInfo: () => Promise<zoneActions.getAuthorizationTokenInfo.ReturnType>
-    /**
-     * Returns deposit processing status for a given Tempo block number.
-     *
-     * @example
-     * ```ts
-     * import { createClient } from 'viem'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: zoneModerato(7),
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const status = await client.zone.getDepositStatus({
-     *   tempoBlockNumber: 1n,
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The deposit status.
-     */
-    getDepositStatus: (
-      parameters: zoneActions.getDepositStatus.Parameters,
-    ) => Promise<zoneActions.getDepositStatus.ReturnType>
     /**
      * Returns the withdrawal fee for a given gas limit.
      *
@@ -4948,6 +5536,15 @@ export type Decorator<
      */
     getZoneInfo: () => Promise<zoneActions.getZoneInfo.ReturnType>
     /**
+     * Waits for a zone to import a Tempo block.
+     *
+     * @param parameters - Tempo block number and polling options.
+     * @returns Zone metadata after the block has been imported.
+     */
+    waitForTempoBlock: (
+      parameters: zoneActions.waitForTempoBlock.Parameters,
+    ) => Promise<zoneActions.waitForTempoBlock.ReturnType>
+    /**
      * Requests a withdrawal from a zone to the parent Tempo chain.
      * Batches approve and withdrawal into a single transaction.
      *
@@ -4973,9 +5570,25 @@ export type Decorator<
      * @param parameters - Parameters.
      * @returns The transaction hash.
      */
-    requestWithdrawal: (
+    requestWithdrawal: ((
       parameters: zoneActions.requestWithdrawal.Parameters<chain, account>,
-    ) => Promise<zoneActions.requestWithdrawal.ReturnValue>
+    ) => Promise<zoneActions.requestWithdrawal.ReturnValue>) & {
+      prepare: (
+        parameters: zoneActions.requestWithdrawal.prepare.Parameters<
+          chain,
+          account,
+          undefined,
+          undefined
+        >,
+      ) => Promise<
+        zoneActions.requestWithdrawal.prepare.ReturnType<
+          chain,
+          account,
+          undefined,
+          undefined
+        >
+      >
+    }
     /**
      * Requests a withdrawal and waits for the transaction receipt.
      *
@@ -4992,14 +5605,14 @@ export type Decorator<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const { receipt } = await client.zone.requestWithdrawalSync({
+     * const { receipt, senderTag } = await client.zone.requestWithdrawalSync({
      *   token: '0x20c0...0001',
      *   amount: 1_000_000n,
      * })
      * ```
      *
      * @param parameters - Parameters.
-     * @returns The transaction receipt.
+     * @returns The transaction receipt and sender tag for the parent-chain withdrawal event.
      */
     requestWithdrawalSync: (
       parameters: zoneActions.requestWithdrawalSync.Parameters<chain, account>,
@@ -5074,6 +5687,155 @@ export type Decorator<
   }
 }
 
+type BoundHelper<helper> = helper extends (
+  ...parameters: infer parameters
+) => infer returnType
+  ? parameters extends [Client<any, any, any>, infer args, ...unknown[]]
+    ? (args: args) => returnType
+    : parameters extends [Client<any, any, any>]
+      ? () => returnType
+      : parameters extends [infer args, ...unknown[]]
+        ? (args: args) => returnType
+        : () => returnType
+  : never
+
+type BoundActionHelpers<action> = (action extends { call: infer helper }
+  ? { call: BoundHelper<helper> }
+  : {}) &
+  (action extends { calls: infer helper }
+    ? { calls: BoundHelper<helper> }
+    : {}) &
+  (action extends { callWithPeriod: infer helper }
+    ? { callWithPeriod: BoundHelper<helper> }
+    : {}) &
+  (action extends { estimateGas: infer helper }
+    ? { estimateGas: BoundHelper<helper> }
+    : {}) &
+  (action extends { prepare: infer helper }
+    ? { prepare: BoundHelper<helper> }
+    : {}) &
+  (action extends { prepareRecipient: infer helper }
+    ? { prepareRecipient: BoundHelper<helper> }
+    : {}) &
+  (action extends { predict: infer helper }
+    ? { predict: BoundHelper<helper> }
+    : {}) &
+  (action extends { simulate: infer helper }
+    ? { simulate: BoundHelper<helper> }
+    : {}) &
+  // `extractEvent(s)` helpers are client-less and copied through unwrapped by
+  // `bindActionDecorators`, so their full signatures are preserved.
+  (action extends { extractEvent: infer helper }
+    ? { extractEvent: helper }
+    : {}) &
+  (action extends { extractEvents: infer helper }
+    ? { extractEvents: helper }
+    : {})
+
+type BoundAction<action> = action extends (
+  ...parameters: infer parameters
+) => infer returnType
+  ? (parameters extends [Client<any, any, any>, infer args, ...unknown[]]
+      ? (args: args) => returnType
+      : parameters extends [Client<any, any, any>]
+        ? () => returnType
+        : never) &
+      BoundActionHelpers<action>
+  : never
+
+type DecorateNamespace<namespace, actions> = {
+  [key in keyof namespace]: key extends keyof actions
+    ? namespace[key] & BoundActionHelpers<actions[key]>
+    : namespace[key]
+} & {
+  [key in Exclude<keyof actions, keyof namespace> as actions[key] extends (
+    ...parameters: any
+  ) => any
+    ? key
+    : never]: BoundAction<actions[key]>
+}
+
+export type Decorator<
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
+> = {
+  accessKey: DecorateNamespace<
+    DecoratorBase<chain, account>['accessKey'],
+    typeof accessKeyActions
+  >
+  amm: DecorateNamespace<
+    DecoratorBase<chain, account>['amm'],
+    typeof ammActions
+  >
+  channel: DecorateNamespace<
+    DecoratorBase<chain, account>['channel'],
+    typeof channelActions
+  >
+  dex: DecorateNamespace<
+    DecoratorBase<chain, account>['dex'],
+    typeof dexActions
+  >
+  earn: DecorateNamespace<
+    DecoratorBase<chain, account>['earn'],
+    typeof earnActions
+  >
+  faucet: DecorateNamespace<
+    DecoratorBase<chain, account>['faucet'],
+    typeof faucetActions
+  >
+  nonce: DecorateNamespace<
+    DecoratorBase<chain, account>['nonce'],
+    typeof nonceActions
+  >
+  fee: DecorateNamespace<
+    DecoratorBase<chain, account>['fee'],
+    typeof feeActions
+  >
+  policy: DecorateNamespace<
+    DecoratorBase<chain, account>['policy'],
+    typeof policyActions
+  >
+  receivePolicy: DecorateNamespace<
+    DecoratorBase<chain, account>['receivePolicy'],
+    typeof receivePolicyActions
+  >
+  reward: DecorateNamespace<
+    DecoratorBase<chain, account>['reward'],
+    typeof rewardActions
+  >
+  simulate: DecorateNamespace<
+    DecoratorBase<chain, account>['simulate'],
+    typeof simulateActions
+  >
+  token: DecorateNamespace<
+    DecoratorBase<chain, account>['token'],
+    typeof tokenActions
+  >
+  validator: DecorateNamespace<
+    DecoratorBase<chain, account>['validator'],
+    typeof validatorActions
+  >
+  virtualAddress: DecorateNamespace<
+    DecoratorBase<chain, account>['virtualAddress'],
+    typeof virtualAddressActions
+  >
+  zone: DecorateNamespace<
+    DecoratorBase<chain, account>['zone'],
+    typeof zoneActions
+  >
+}
+
+function bindActions<actions extends Record<string, unknown>>(
+  client: Client<Transport, Chain | undefined, Account | undefined>,
+  actions: actions,
+  keys: readonly (keyof actions)[],
+) {
+  const bound: Record<string, unknown> = {}
+  for (const key of keys)
+    bound[key as string] = bindActionDecorators(client, actions[key])
+  return bound
+}
+
 export function decorator() {
   return <
     transport extends Transport,
@@ -5083,337 +5845,264 @@ export function decorator() {
     client: Client<transport, chain, account>,
   ): Decorator<chain, account> => {
     return {
-      accessKey: {
-        authorize: (parameters) =>
-          accessKeyActions.authorize(client, parameters),
-        authorizeSync: (parameters) =>
-          accessKeyActions.authorizeSync(client, parameters),
-        burnWitness: (parameters) =>
-          accessKeyActions.burnWitness(client, parameters),
-        burnWitnessSync: (parameters) =>
-          accessKeyActions.burnWitnessSync(client, parameters),
-        getMetadata: (parameters) =>
-          accessKeyActions.getMetadata(client, parameters),
-        getRemainingLimit: (parameters) =>
-          accessKeyActions.getRemainingLimit(client, parameters),
-        isAdmin: (parameters) => accessKeyActions.isAdmin(client, parameters),
-        isWitnessBurned: (parameters) =>
-          accessKeyActions.isWitnessBurned(client, parameters),
-        revoke: (parameters) => accessKeyActions.revoke(client, parameters),
-        revokeSync: (parameters) =>
-          accessKeyActions.revokeSync(client, parameters),
-        updateLimit: (parameters) =>
-          accessKeyActions.updateLimit(client, parameters),
-        updateLimitSync: (parameters) =>
-          accessKeyActions.updateLimitSync(client, parameters),
-        watchAdminAuthorized: (parameters) =>
-          accessKeyActions.watchAdminAuthorized(client, parameters),
-        watchWitness: (parameters) =>
-          accessKeyActions.watchWitness(client, parameters),
-        watchWitnessBurned: (parameters) =>
-          accessKeyActions.watchWitnessBurned(client, parameters),
-      },
-      amm: {
-        getPool: (parameters) => ammActions.getPool(client, parameters),
-        getLiquidityBalance: (parameters) =>
-          ammActions.getLiquidityBalance(client, parameters),
-        burn: (parameters) => ammActions.burn(client, parameters),
-        burnSync: (parameters) => ammActions.burnSync(client, parameters),
-        mint: (parameters) => ammActions.mint(client, parameters),
-        mintSync: (parameters) => ammActions.mintSync(client, parameters),
-        rebalanceSwap: (parameters) =>
-          ammActions.rebalanceSwap(client, parameters),
-        rebalanceSwapSync: (parameters) =>
-          ammActions.rebalanceSwapSync(client, parameters),
-        watchBurn: (parameters) => ammActions.watchBurn(client, parameters),
-        watchMint: (parameters) => ammActions.watchMint(client, parameters),
-        watchRebalanceSwap: (parameters) =>
-          ammActions.watchRebalanceSwap(client, parameters),
-      },
-      channel: {
-        close: (parameters) => channelActions.close(client, parameters),
-        closeSync: (parameters) => channelActions.closeSync(client, parameters),
-        getStates: (parameters) => channelActions.getStates(client, parameters),
-        open: (parameters) => channelActions.open(client, parameters),
-        openSync: (parameters) => channelActions.openSync(client, parameters),
-        requestClose: (parameters) =>
-          channelActions.requestClose(client, parameters),
-        requestCloseSync: (parameters) =>
-          channelActions.requestCloseSync(client, parameters),
-        settle: (parameters) => channelActions.settle(client, parameters),
-        settleSync: (parameters) =>
-          channelActions.settleSync(client, parameters),
-        signVoucher: (parameters) =>
-          channelActions.signVoucher(client, parameters),
-        topUp: (parameters) => channelActions.topUp(client, parameters),
-        topUpSync: (parameters) => channelActions.topUpSync(client, parameters),
-        withdraw: (parameters) => channelActions.withdraw(client, parameters),
-        withdrawSync: (parameters) =>
-          channelActions.withdrawSync(client, parameters),
-      },
-      dex: {
-        buy: (parameters) => dexActions.buy(client, parameters),
-        buySync: (parameters) => dexActions.buySync(client, parameters),
-        cancel: (parameters) => dexActions.cancel(client, parameters),
-        cancelSync: (parameters) => dexActions.cancelSync(client, parameters),
-        cancelStale: (parameters) => dexActions.cancelStale(client, parameters),
-        cancelStaleSync: (parameters) =>
-          dexActions.cancelStaleSync(client, parameters),
-        createPair: (parameters) => dexActions.createPair(client, parameters),
-        createPairSync: (parameters) =>
-          dexActions.createPairSync(client, parameters),
-        getBalance: (parameters) => dexActions.getBalance(client, parameters),
-        getBuyQuote: (parameters) => dexActions.getBuyQuote(client, parameters),
-        getOrder: (parameters) => dexActions.getOrder(client, parameters),
-        getTickLevel: (parameters) =>
-          dexActions.getTickLevel(client, parameters),
-        getSellQuote: (parameters) =>
-          dexActions.getSellQuote(client, parameters),
-        place: (parameters) => dexActions.place(client, parameters),
-        placeSync: (parameters) => dexActions.placeSync(client, parameters),
-        placeFlip: (parameters) => dexActions.placeFlip(client, parameters),
-        placeFlipSync: (parameters) =>
-          dexActions.placeFlipSync(client, parameters),
-        sell: (parameters) => dexActions.sell(client, parameters),
-        sellSync: (parameters) => dexActions.sellSync(client, parameters),
-        withdraw: (parameters) => dexActions.withdraw(client, parameters),
-        withdrawSync: (parameters) =>
-          dexActions.withdrawSync(client, parameters),
-        watchFlipOrderPlaced: (parameters) =>
-          dexActions.watchFlipOrderPlaced(client, parameters),
-        watchOrderCancelled: (parameters) =>
-          dexActions.watchOrderCancelled(client, parameters),
-        watchOrderFilled: (parameters) =>
-          dexActions.watchOrderFilled(client, parameters),
-        watchOrderPlaced: (parameters) =>
-          dexActions.watchOrderPlaced(client, parameters),
-      },
-      faucet: {
-        fund: (parameters) => faucetActions.fund(client, parameters),
-        fundSync: (parameters) => faucetActions.fundSync(client, parameters),
-      },
-      nonce: {
-        getNonce: (parameters) => nonceActions.getNonce(client, parameters),
-        watchNonceIncremented: (parameters) =>
-          nonceActions.watchNonceIncremented(client, parameters),
-      },
-      fee: {
-        validateToken: (parameters) =>
-          feeActions.validateToken(client, parameters),
-        // @ts-expect-error
-        getUserToken: (parameters) =>
-          // @ts-expect-error
-          feeActions.getUserToken(client, parameters),
-        setUserToken: (parameters) =>
-          feeActions.setUserToken(client, parameters),
-        setUserTokenSync: (parameters) =>
-          feeActions.setUserTokenSync(client, parameters),
-        watchSetUserToken: (parameters) =>
-          feeActions.watchSetUserToken(client, parameters),
-      },
-      policy: {
-        create: (parameters) => policyActions.create(client, parameters),
-        createSync: (parameters) =>
-          policyActions.createSync(client, parameters),
-        setAdmin: (parameters) => policyActions.setAdmin(client, parameters),
-        setAdminSync: (parameters) =>
-          policyActions.setAdminSync(client, parameters),
-        modifyWhitelist: (parameters) =>
-          policyActions.modifyWhitelist(client, parameters),
-        modifyWhitelistSync: (parameters) =>
-          policyActions.modifyWhitelistSync(client, parameters),
-        modifyBlacklist: (parameters) =>
-          policyActions.modifyBlacklist(client, parameters),
-        modifyBlacklistSync: (parameters) =>
-          policyActions.modifyBlacklistSync(client, parameters),
-        getData: (parameters) => policyActions.getData(client, parameters),
-        isAuthorized: (parameters) =>
-          policyActions.isAuthorized(client, parameters),
-        watchCreate: (parameters) =>
-          policyActions.watchCreate(client, parameters),
-        watchAdminUpdated: (parameters) =>
-          policyActions.watchAdminUpdated(client, parameters),
-        watchWhitelistUpdated: (parameters) =>
-          policyActions.watchWhitelistUpdated(client, parameters),
-        watchBlacklistUpdated: (parameters) =>
-          policyActions.watchBlacklistUpdated(client, parameters),
-      },
-      receivePolicy: {
-        burn: (parameters) => receivePolicyActions.burn(client, parameters),
-        burnSync: (parameters) =>
-          receivePolicyActions.burnSync(client, parameters),
-        claim: (parameters) => receivePolicyActions.claim(client, parameters),
-        claimSync: (parameters) =>
-          receivePolicyActions.claimSync(client, parameters),
-        get: (parameters) => receivePolicyActions.get(client, parameters),
-        getBlockedBalance: (parameters) =>
-          receivePolicyActions.getBlockedBalance(client, parameters),
-        set: (parameters) => receivePolicyActions.set(client, parameters),
-        setSync: (parameters) =>
-          receivePolicyActions.setSync(client, parameters),
-        validate: (parameters) =>
-          receivePolicyActions.validate(client, parameters),
-        watchBlocked: (parameters) =>
-          receivePolicyActions.watchBlocked(client, parameters),
-        watchBurned: (parameters) =>
-          receivePolicyActions.watchBurned(client, parameters),
-        watchClaimed: (parameters) =>
-          receivePolicyActions.watchClaimed(client, parameters),
-        watchUpdated: (parameters) =>
-          receivePolicyActions.watchUpdated(client, parameters),
-      },
-      reward: {
-        claim: (parameters) => rewardActions.claim(client, parameters),
-        claimSync: (parameters) => rewardActions.claimSync(client, parameters),
-        distribute: (parameters) =>
-          rewardActions.distribute(client, parameters),
-        distributeSync: (parameters) =>
-          rewardActions.distributeSync(client, parameters),
-        getUserRewardInfo: (parameters) =>
-          rewardActions.getUserRewardInfo(client, parameters),
-        setRecipient: (parameters) =>
-          rewardActions.setRecipient(client, parameters),
-        setRecipientSync: (parameters) =>
-          rewardActions.setRecipientSync(client, parameters),
-        watchRewardDistributed: (parameters) =>
-          rewardActions.watchRewardDistributed(client, parameters),
-        watchRewardRecipientSet: (parameters) =>
-          rewardActions.watchRewardRecipientSet(client, parameters),
-      },
-      simulate: {
-        simulateBlocks: (parameters) =>
-          simulateActions.simulateBlocks(client, parameters),
-        simulateCalls: (parameters) =>
-          simulateActions.simulateCalls(client, parameters),
-      },
-      token: {
-        approve: (parameters) => tokenActions.approve(client, parameters),
-        approveSync: (parameters) =>
-          tokenActions.approveSync(client, parameters),
-        burnBlocked: (parameters) =>
-          tokenActions.burnBlocked(client, parameters),
-        burnBlockedSync: (parameters) =>
-          tokenActions.burnBlockedSync(client, parameters),
-        burn: (parameters) => tokenActions.burn(client, parameters),
-        burnSync: (parameters) => tokenActions.burnSync(client, parameters),
-        changeTransferPolicy: (parameters) =>
-          tokenActions.changeTransferPolicy(client, parameters),
-        changeTransferPolicySync: (parameters) =>
-          tokenActions.changeTransferPolicySync(client, parameters),
-        create: (parameters) => tokenActions.create(client, parameters),
-        createSync: (parameters) => tokenActions.createSync(client, parameters),
-        getAllowance: (parameters) =>
-          tokenActions.getAllowance(client, parameters),
-        getBalance: (parameters) => tokenActions.getBalance(client, parameters),
-        getMetadata: (parameters) =>
-          tokenActions.getMetadata(client, parameters),
-        getRoleAdmin: (parameters) =>
-          tokenActions.getRoleAdmin(client, parameters),
-        hasRole: (parameters) => tokenActions.hasRole(client, parameters),
-        grantRoles: (parameters) => tokenActions.grantRoles(client, parameters),
-        grantRolesSync: (parameters) =>
-          tokenActions.grantRolesSync(client, parameters),
-        mint: (parameters) => tokenActions.mint(client, parameters),
-        mintSync: (parameters) => tokenActions.mintSync(client, parameters),
-        pause: (parameters) => tokenActions.pause(client, parameters),
-        pauseSync: (parameters) => tokenActions.pauseSync(client, parameters),
-        renounceRoles: (parameters) =>
-          tokenActions.renounceRoles(client, parameters),
-        renounceRolesSync: (parameters) =>
-          tokenActions.renounceRolesSync(client, parameters),
-        revokeRoles: (parameters) =>
-          tokenActions.revokeRoles(client, parameters),
-        revokeRolesSync: (parameters) =>
-          tokenActions.revokeRolesSync(client, parameters),
-        setSupplyCap: (parameters) =>
-          tokenActions.setSupplyCap(client, parameters),
-        setSupplyCapSync: (parameters) =>
-          tokenActions.setSupplyCapSync(client, parameters),
-        setRoleAdmin: (parameters) =>
-          tokenActions.setRoleAdmin(client, parameters),
-        setRoleAdminSync: (parameters) =>
-          tokenActions.setRoleAdminSync(client, parameters),
-        transfer: (parameters) => tokenActions.transfer(client, parameters),
-        transferSync: (parameters) =>
-          tokenActions.transferSync(client, parameters),
-        unpause: (parameters) => tokenActions.unpause(client, parameters),
-        unpauseSync: (parameters) =>
-          tokenActions.unpauseSync(client, parameters),
-        watchApprove: (parameters) =>
-          tokenActions.watchApprove(client, parameters),
-        watchBurn: (parameters) => tokenActions.watchBurn(client, parameters),
-        watchCreate: (parameters) =>
-          tokenActions.watchCreate(client, parameters),
-        watchMint: (parameters) => tokenActions.watchMint(client, parameters),
-        watchAdminRole: (parameters) =>
-          tokenActions.watchAdminRole(client, parameters),
-        watchRole: (parameters) => tokenActions.watchRole(client, parameters),
-        watchTransfer: (parameters) =>
-          tokenActions.watchTransfer(client, parameters),
-      },
-      validator: {
-        add: (parameters) => validatorActions.add(client, parameters),
-        addSync: (parameters) => validatorActions.addSync(client, parameters),
-        changeOwner: (parameters) =>
-          validatorActions.changeOwner(client, parameters),
-        changeOwnerSync: (parameters) =>
-          validatorActions.changeOwnerSync(client, parameters),
-        changeStatus: (parameters) =>
-          validatorActions.changeStatus(client, parameters),
-        changeStatusSync: (parameters) =>
-          validatorActions.changeStatusSync(client, parameters),
-        get: (parameters) => validatorActions.get(client, parameters),
-        getByIndex: (parameters) =>
-          validatorActions.getByIndex(client, parameters),
-        getCount: (parameters) => validatorActions.getCount(client, parameters),
-        getNextFullDkgCeremony: (parameters) =>
-          validatorActions.getNextFullDkgCeremony(client, parameters),
-        getOwner: (parameters) => validatorActions.getOwner(client, parameters),
-        list: (parameters) => validatorActions.list(client, parameters),
-        setNextFullDkgCeremony: (parameters) =>
-          validatorActions.setNextFullDkgCeremony(client, parameters),
-        setNextFullDkgCeremonySync: (parameters) =>
-          validatorActions.setNextFullDkgCeremonySync(client, parameters),
-        update: (parameters) => validatorActions.update(client, parameters),
-        updateSync: (parameters) =>
-          validatorActions.updateSync(client, parameters),
-      },
-      virtualAddress: {
-        getMasterAddress: (parameters) =>
-          virtualAddressActions.getMasterAddress(client, parameters),
-        registerMaster: (parameters) =>
-          virtualAddressActions.registerMaster(client, parameters),
-        registerMasterSync: (parameters) =>
-          virtualAddressActions.registerMasterSync(client, parameters),
-        resolve: (parameters) =>
-          virtualAddressActions.resolve(client, parameters),
-      },
-      zone: {
-        deposit: (parameters) => zoneActions.deposit(client, parameters),
-        depositSync: (parameters) =>
-          zoneActions.depositSync(client, parameters),
-        encryptedDeposit: (parameters) =>
-          zoneActions.encryptedDeposit(client, parameters),
-        encryptedDepositSync: (parameters) =>
-          zoneActions.encryptedDepositSync(client, parameters),
-        getAuthorizationTokenInfo: () =>
-          zoneActions.getAuthorizationTokenInfo(client),
-        getDepositStatus: (parameters) =>
-          zoneActions.getDepositStatus(client, parameters),
-        getWithdrawalFee: (parameters) =>
-          zoneActions.getWithdrawalFee(client, parameters),
-        getZoneInfo: () => zoneActions.getZoneInfo(client),
-        requestWithdrawal: (parameters) =>
-          zoneActions.requestWithdrawal(client, parameters),
-        requestWithdrawalSync: (parameters) =>
-          zoneActions.requestWithdrawalSync(client, parameters),
-        requestVerifiableWithdrawal: (parameters) =>
-          zoneActions.requestVerifiableWithdrawal(client, parameters),
-        requestVerifiableWithdrawalSync: (parameters) =>
-          zoneActions.requestVerifiableWithdrawalSync(client, parameters),
-        signAuthorizationToken: (parameters) =>
-          zoneActions.signAuthorizationToken(client, parameters),
-      },
-    }
+      accessKey: bindActions(client, accessKeyActions, [
+        'authorize',
+        'authorizeSync',
+        'burnWitness',
+        'burnWitnessSync',
+        'getMetadata',
+        'getRemainingLimit',
+        'isAdmin',
+        'isWitnessBurned',
+        'revoke',
+        'revokeSync',
+        'signAuthorization',
+        'updateLimit',
+        'updateLimitSync',
+        'verifyHash',
+        'watchAdminAuthorized',
+        'watchWitness',
+        'watchWitnessBurned',
+      ]),
+      amm: bindActions(client, ammActions, [
+        'getPool',
+        'getLiquidityBalance',
+        'burn',
+        'burnSync',
+        'mint',
+        'mintSync',
+        'rebalanceSwap',
+        'rebalanceSwapSync',
+        'watchBurn',
+        'watchMint',
+        'watchRebalanceSwap',
+      ]),
+      channel: bindActions(client, channelActions, [
+        'close',
+        'closeSync',
+        'getStates',
+        'open',
+        'openSync',
+        'requestClose',
+        'requestCloseSync',
+        'settle',
+        'settleSync',
+        'signVoucher',
+        'topUp',
+        'topUpSync',
+        'withdraw',
+        'withdrawSync',
+      ]),
+      dex: bindActions(client, dexActions, [
+        'buy',
+        'buySync',
+        'cancel',
+        'cancelSync',
+        'cancelStale',
+        'cancelStaleSync',
+        'createPair',
+        'createPairSync',
+        'getBalance',
+        'getBuyQuote',
+        'getOrder',
+        'getOrderbook',
+        'getTickLevel',
+        'getSellQuote',
+        'place',
+        'placeSync',
+        'placeFlip',
+        'placeFlipSync',
+        'sell',
+        'sellSync',
+        'withdraw',
+        'withdrawSync',
+        'watchFlipOrderPlaced',
+        'watchOrderCancelled',
+        'watchOrderFilled',
+        'watchOrderPlaced',
+      ]),
+      earn: bindActions(client, earnActions, [
+        'bindErc4626Engine',
+        'bindErc4626EngineSync',
+        'configureExitSafePolicy',
+        'createErc4626Engine',
+        'createErc4626EngineSync',
+        'createStack',
+        'createStackSync',
+        'deposit',
+        'depositSync',
+        'depositShares',
+        'depositSharesSync',
+        'deployErc4626StackSync',
+        'privateDeposit',
+        'privateDepositSync',
+        'getFeeState',
+        'getPosition',
+        'getRedeemQuote',
+        'getVault',
+        'getWithdrawQuote',
+        'redeem',
+        'redeemSync',
+        'privateRedeem',
+        'privateRedeemSync',
+        'waitForPrivateDeposit',
+        'waitForPrivateRedeem',
+        'validateExitSafePolicy',
+        'withdrawExact',
+        'withdrawExactSync',
+      ]),
+      faucet: bindActions(client, faucetActions, ['fund', 'fundSync']),
+      nonce: bindActions(client, nonceActions, [
+        'getNonce',
+        'watchNonceIncremented',
+      ]),
+      fee: bindActions(client, feeActions, [
+        'validateToken',
+        'getUserToken',
+        'setUserToken',
+        'setUserTokenSync',
+        'getValidatorToken',
+        'setValidatorToken',
+        'setValidatorTokenSync',
+        'watchSetUserToken',
+        'watchSetValidatorToken',
+      ]),
+      policy: bindActions(client, policyActions, [
+        'create',
+        'createSync',
+        'setAdmin',
+        'setAdminSync',
+        'modifyWhitelist',
+        'modifyWhitelistSync',
+        'modifyBlacklist',
+        'modifyBlacklistSync',
+        'getData',
+        'isAuthorized',
+        'watchCreate',
+        'watchAdminUpdated',
+        'watchWhitelistUpdated',
+        'watchBlacklistUpdated',
+      ]),
+      receivePolicy: bindActions(client, receivePolicyActions, [
+        'burn',
+        'burnSync',
+        'claim',
+        'claimSync',
+        'get',
+        'getBlockedBalance',
+        'set',
+        'setSync',
+        'validate',
+        'watchBlocked',
+        'watchBurned',
+        'watchClaimed',
+        'watchUpdated',
+      ]),
+      reward: bindActions(client, rewardActions, [
+        'claim',
+        'claimSync',
+        'distribute',
+        'distributeSync',
+        'getGlobalRewardPerToken',
+        'getPendingRewards',
+        'getUserRewardInfo',
+        'setRecipient',
+        'setRecipientSync',
+        'watchRewardDistributed',
+        'watchRewardRecipientSet',
+      ]),
+      simulate: bindActions(client, simulateActions, [
+        'simulateBlocks',
+        'simulateCalls',
+      ]),
+      token: bindActions(client, tokenActions, [
+        'approve',
+        'approveSync',
+        'burnBlocked',
+        'burnBlockedSync',
+        'burn',
+        'burnSync',
+        'changeTransferPolicy',
+        'changeTransferPolicySync',
+        'create',
+        'createSync',
+        'getAllowance',
+        'getBalance',
+        'getMetadata',
+        'getTotalSupply',
+        'getRoleAdmin',
+        'hasRole',
+        'grantRoles',
+        'grantRolesSync',
+        'mint',
+        'mintSync',
+        'pause',
+        'pauseSync',
+        'renounceRoles',
+        'renounceRolesSync',
+        'revokeRoles',
+        'revokeRolesSync',
+        'setSupplyCap',
+        'setSupplyCapSync',
+        'setRoleAdmin',
+        'setRoleAdminSync',
+        'transfer',
+        'transferSync',
+        'unpause',
+        'unpauseSync',
+        'prepareUpdateQuoteToken',
+        'prepareUpdateQuoteTokenSync',
+        'updateQuoteToken',
+        'updateQuoteTokenSync',
+        'watchApprove',
+        'watchBurn',
+        'watchCreate',
+        'watchMint',
+        'watchAdminRole',
+        'watchRole',
+        'watchTransfer',
+        'watchUpdateQuoteToken',
+      ]),
+      validator: bindActions(client, validatorActions, [
+        'add',
+        'addSync',
+        'changeOwner',
+        'changeOwnerSync',
+        'changeStatus',
+        'changeStatusSync',
+        'get',
+        'getByIndex',
+        'getCount',
+        'getNextFullDkgCeremony',
+        'getOwner',
+        'list',
+        'setNextFullDkgCeremony',
+        'setNextFullDkgCeremonySync',
+        'update',
+        'updateSync',
+      ]),
+      virtualAddress: bindActions(client, virtualAddressActions, [
+        'getMasterAddress',
+        'registerMaster',
+        'registerMasterSync',
+        'resolve',
+      ]),
+      zone: bindActions(client, zoneActions, [
+        'deposit',
+        'depositSync',
+        'encryptedDeposit',
+        'encryptedDepositSync',
+        'getAuthorizationTokenInfo',
+        'getEncryptionKey',
+        'getWithdrawalFee',
+        'getZoneInfo',
+        'requestWithdrawal',
+        'requestWithdrawalSync',
+        'requestVerifiableWithdrawal',
+        'requestVerifiableWithdrawalSync',
+        'signAuthorizationToken',
+        'waitForTempoBlock',
+      ]),
+    } as Decorator<chain, account>
   }
 }

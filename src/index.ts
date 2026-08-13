@@ -238,6 +238,11 @@ export type {
   GetProofReturnType,
 } from './actions/public/getProof.js'
 export type {
+  GetRawTransactionErrorType,
+  GetRawTransactionParameters,
+  GetRawTransactionReturnType,
+} from './actions/public/getRawTransaction.js'
+export type {
   GetStorageAtErrorType,
   GetStorageAtParameters,
   GetStorageAtReturnType,
@@ -315,6 +320,14 @@ export type {
   WaitForTransactionReceiptParameters,
   WaitForTransactionReceiptReturnType,
 } from './actions/public/waitForTransactionReceipt.js'
+export type {
+  BlockHeader,
+  OnBlockHeader,
+  OnBlockHeaderParameter,
+  WatchBlockHeadersErrorType,
+  WatchBlockHeadersParameters,
+  WatchBlockHeadersReturnType,
+} from './actions/public/watchBlockHeaders.js'
 export type {
   OnBlockNumberFn,
   OnBlockNumberParameter,
@@ -878,6 +891,12 @@ export {
   type InvalidHexBooleanErrorType,
   InvalidHexValueError,
   type InvalidHexValueErrorType,
+  RlpDepthLimitExceededError,
+  type RlpDepthLimitExceededErrorType,
+  RlpListBoundaryExceededError,
+  type RlpListBoundaryExceededErrorType,
+  RlpTrailingBytesError,
+  type RlpTrailingBytesErrorType,
   SizeOverflowError,
   type SizeOverflowErrorType,
 } from './errors/encoding.js'
@@ -938,6 +957,8 @@ export {
 export {
   HttpRequestError,
   type HttpRequestErrorType,
+  ResponseBodyTooLargeError,
+  type ResponseBodyTooLargeErrorType,
   RpcRequestError,
   type RpcRequestErrorType,
   SocketClosedError,
@@ -1025,6 +1046,8 @@ export {
   type InvalidSerializedTransactionTypeErrorType,
   InvalidStorageKeySizeError,
   type InvalidStorageKeySizeErrorType,
+  InvalidYParityError,
+  type InvalidYParityErrorType,
   TransactionExecutionError,
   type TransactionExecutionErrorType,
   TransactionNotFoundError,
@@ -1045,11 +1068,14 @@ export {
   type InvalidPrimaryTypeErrorType,
   InvalidStructTypeError,
   type InvalidStructTypeErrorType,
+  InvalidTypedDataTypeError,
+  type InvalidTypedDataTypeErrorType,
 } from './errors/typedData.js'
 export {
   InvalidDecimalNumberError,
   type InvalidDecimalNumberErrorType,
 } from './errors/unit.js'
+export type { ResolvedToken, Tokens } from './tokens/defineToken.js'
 export type {
   DeriveAccount,
   HDKey,

@@ -90,6 +90,7 @@ test('creates', () => {
       "setStorageAt": [Function],
       "snapshot": [Function],
       "stopImpersonatingAccount": [Function],
+      "tokens": undefined,
       "transport": {
         "key": "mock",
         "methods": undefined,
@@ -177,6 +178,7 @@ describe('transports', () => {
         "setStorageAt": [Function],
         "snapshot": [Function],
         "stopImpersonatingAccount": [Function],
+        "tokens": undefined,
         "transport": {
           "fetchOptions": undefined,
           "key": "http",
@@ -265,6 +267,7 @@ describe('transports', () => {
         "setStorageAt": [Function],
         "snapshot": [Function],
         "stopImpersonatingAccount": [Function],
+        "tokens": undefined,
         "transport": {
           "getRpcClient": [Function],
           "getSocket": [Function],
@@ -368,6 +371,7 @@ test('extend', () => {
       "getLogs": [Function],
       "getPermissions": [Function],
       "getProof": [Function],
+      "getRawTransaction": [Function],
       "getStorageAt": [Function],
       "getTransaction": [Function],
       "getTransactionConfirmations": [Function],
@@ -427,6 +431,17 @@ test('extend', () => {
       "snapshot": [Function],
       "stopImpersonatingAccount": [Function],
       "switchChain": [Function],
+      "token": {
+        "approve": [Function],
+        "approveSync": [Function],
+        "getAllowance": [Function],
+        "getBalance": [Function],
+        "getMetadata": [Function],
+        "getTotalSupply": [Function],
+        "transfer": [Function],
+        "transferSync": [Function],
+      },
+      "tokens": undefined,
       "transport": {
         "fetchOptions": undefined,
         "key": "http",
@@ -448,6 +463,7 @@ test('extend', () => {
       "waitForCallsStatus": [Function],
       "waitForTransactionReceipt": [Function],
       "watchAsset": [Function],
+      "watchBlockHeaders": [Function],
       "watchBlockNumber": [Function],
       "watchBlocks": [Function],
       "watchContractEvent": [Function],

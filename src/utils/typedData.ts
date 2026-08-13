@@ -6,6 +6,7 @@ import {
   InvalidDomainError,
   InvalidPrimaryTypeError,
   InvalidStructTypeError,
+  InvalidTypedDataTypeError,
 } from '../errors/typedData.js'
 import type { ErrorType } from '../errors/utils.js'
 import type { Hex } from '../types/misc.js'
@@ -85,6 +86,10 @@ export function validateTypedData<
     for (const param of struct) {
       const { name, type } = param
       const value = data[name]
+
+      const baseType = type.replace(/(\[[0-9]*\])+$/, '')
+      if (baseType === 'int' || baseType === 'uint')
+        throw new InvalidTypedDataTypeError({ type })
 
       const integerMatch = type.match(integerRegex)
       if (

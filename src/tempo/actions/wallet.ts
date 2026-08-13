@@ -88,7 +88,7 @@ export declare namespace transfer {
     to: Address
     /**
      * Token to transfer, accepted as either a contract address or a curated
-     * tokenlist symbol (case-insensitive, for example `"pathUsd"`). Symbols
+     * tokenlist symbol (case-insensitive, for example `"pathusd"`). Symbols
      * are resolved against the curated tokenlist on the active chain.
      */
     token: Address | string
@@ -108,7 +108,7 @@ export declare namespace transfer {
     to?: Address | undefined
     /**
      * Token to pre-fill, accepted as either a contract address or a curated
-     * tokenlist symbol (case-insensitive, for example `"pathUsd"`). Symbols
+     * tokenlist symbol (case-insensitive, for example `"pathusd"`). Symbols
      * are resolved against the curated tokenlist on the active chain. Omit
      * to let the user choose.
      */
@@ -214,7 +214,7 @@ export declare namespace swap {
  *
  * const result = await Actions.wallet.deposit(client, {
  *   amount: '1.5',
- *   token: 'pathUsd',
+ *   token: 'pathusd',
  * })
  * ```
  *

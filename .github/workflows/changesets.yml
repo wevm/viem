@@ -18,6 +18,65 @@ jobs:
     permissions:
       contents: read # checkout repository contents in the reusable workflow
 
+  report-wagmi-failures:
+    name: Report Wagmi failures
+    needs: verify
+    if: ${{ !cancelled() && github.repository_owner == 'wevm' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 5
+    permissions:
+      actions: read # inspect jobs from this workflow run
+      issues: write # create or update the tracking issue
+
+    steps:
+      - name: Report failures
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          failed_jobs="$(
+            gh api --paginate \
+              "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs?per_page=100" \
+              --jq '.jobs[] | select(.name | startswith("Verify / Wagmi")) | select(.conclusion == "failure" or .conclusion == "timed_out" or ([.steps[]?.conclusion] | index("failure"))) | [.name, .html_url] | @tsv'
+          )"
+          if [[ -z "$failed_jobs" ]]; then
+            exit 0
+          fi
+
+          title='ci: wagmi compatibility checks failing'
+          {
+            echo '<!-- wagmi-ci-failures -->'
+            echo "Wagmi compatibility checks are failing on \`main\`."
+            echo
+            echo "Run: [$GITHUB_RUN_ID]($RUN_URL)"
+            echo "Commit: \`$GITHUB_SHA\`"
+            echo
+            echo 'Failed jobs:'
+            while IFS=$'\t' read -r name url; do
+              echo "- [$name]($url)"
+            done <<< "$failed_jobs"
+          } > "$RUNNER_TEMP/wagmi-failure.md"
+
+          issue_number="$(
+            gh api --paginate --slurp \
+              "repos/$GITHUB_REPOSITORY/issues?state=open&labels=github_actions&per_page=100" |
+              jq -r '[.[][] | select(.pull_request == null) | select(.body != null and (.body | contains("<!-- wagmi-ci-failures -->")))][0].number // empty'
+          )"
+          if [[ -n "$issue_number" ]]; then
+            gh issue comment "$issue_number" \
+              --repo "$GITHUB_REPOSITORY" \
+              --body-file "$RUNNER_TEMP/wagmi-failure.md"
+          else
+            gh issue create \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "$title" \
+              --body-file "$RUNNER_TEMP/wagmi-failure.md" \
+              --label 'A: CI' \
+              --label 'T: Bug' \
+              --label github_actions
+          fi
+
   changesets:
     name: Create version pull request
     runs-on: ubuntu-latest

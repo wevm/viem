@@ -3,7 +3,7 @@ import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import { Period } from 'ox/tempo'
 import { generatePrivateKey } from 'viem/accounts'
-import { Account } from 'viem/tempo'
+import { Account, Scopes } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import * as actions from './index.js'
@@ -242,7 +242,7 @@ describe('signAuthorization', () => {
       account,
       accessKey,
       expiry: Math.floor((Date.now() + 30_000) / 1000),
-      scopes: [{ address: feeToken, selector: '0xa9059cbb' }],
+      scopes: [Scopes.tip20(feeToken).transfer()],
     })
 
     expect(keyAuthorization).toBeDefined()

@@ -1,4 +1,117 @@
+export const zoneFactory = [
+  {
+    type: 'event',
+    name: 'ZoneCreated',
+    inputs: [
+      { name: 'zoneId', type: 'uint32', indexed: true },
+      { name: 'portal', type: 'address', indexed: true },
+      { name: 'initialToken', type: 'address', indexed: false },
+      { name: 'accessMode', type: 'bool', indexed: false },
+      { name: 'gatewayMode', type: 'bool', indexed: false },
+      { name: 'admin', type: 'address', indexed: false },
+      { name: 'sequencers', type: 'address[]', indexed: false },
+      { name: 'threshold', type: 'uint8', indexed: false },
+      { name: 'verifier', type: 'address', indexed: false },
+    ],
+  },
+  {
+    type: 'event',
+    name: 'ZoneCreated',
+    inputs: [
+      { name: 'zoneId', type: 'uint32', indexed: true },
+      { name: 'portal', type: 'address', indexed: true },
+      { name: 'messenger', type: 'address', indexed: true },
+      { name: 'initialToken', type: 'address', indexed: false },
+      { name: 'admin', type: 'address', indexed: false },
+      { name: 'sequencer', type: 'address', indexed: false },
+      { name: 'verifier', type: 'address', indexed: false },
+      { name: 'genesisBlockHash', type: 'bytes32', indexed: false },
+      { name: 'genesisTempoBlockHash', type: 'bytes32', indexed: false },
+      {
+        name: 'genesisTempoBlockNumber',
+        type: 'uint64',
+        indexed: false,
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'createZone',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'params',
+        type: 'tuple',
+        components: [
+          { name: 'initialToken', type: 'address' },
+          { name: 'accessMode', type: 'bool' },
+          { name: 'gatewayMode', type: 'bool' },
+          { name: 'allowedAccounts', type: 'address[]' },
+          { name: 'zoneGateways', type: 'address[]' },
+          { name: 'admin', type: 'address' },
+          { name: 'sequencers', type: 'address[]' },
+          { name: 'threshold', type: 'uint8' },
+          { name: 'rpcUrl', type: 'string' },
+        ],
+      },
+    ],
+    outputs: [
+      { name: 'zoneId', type: 'uint32' },
+      { name: 'portal', type: 'address' },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'createZone',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'params',
+        type: 'tuple',
+        components: [
+          { name: 'initialToken', type: 'address' },
+          { name: 'admin', type: 'address' },
+          { name: 'sequencer', type: 'address' },
+          { name: 'verifier', type: 'address' },
+          {
+            name: 'zoneParams',
+            type: 'tuple',
+            components: [
+              { name: 'genesisBlockHash', type: 'bytes32' },
+              { name: 'genesisTempoBlockHash', type: 'bytes32' },
+              { name: 'genesisTempoBlockNumber', type: 'uint64' },
+            ],
+          },
+          { name: 'rpcUrl', type: 'string' },
+        ],
+      },
+    ],
+    outputs: [
+      { name: 'zoneId', type: 'uint32' },
+      { name: 'portal', type: 'address' },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'verifier',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+  },
+] as const
+
 export const zonePortal = [
+  {
+    name: 'WithdrawalProcessed',
+    type: 'event',
+    inputs: [
+      { name: 'to', type: 'address', indexed: true },
+      { name: 'senderTag', type: 'bytes32', indexed: true },
+      { name: 'token', type: 'address', indexed: false },
+      { name: 'amount', type: 'uint128', indexed: false },
+      { name: 'callbackSuccess', type: 'bool', indexed: false },
+    ],
+  },
   {
     name: 'deposit',
     type: 'function',
@@ -8,6 +121,7 @@ export const zonePortal = [
       { name: 'to', type: 'address' },
       { name: 'amount', type: 'uint128' },
       { name: 'memo', type: 'bytes32' },
+      { name: 'bouncebackRecipient', type: 'address' },
     ],
     outputs: [{ name: '', type: 'bytes32' }],
   },
@@ -30,6 +144,7 @@ export const zonePortal = [
           { name: 'tag', type: 'bytes16' },
         ],
       },
+      { name: 'bouncebackRecipient', type: 'address' },
     ],
     outputs: [{ name: '', type: 'bytes32' }],
   },
@@ -53,6 +168,23 @@ export const zonePortal = [
 ] as const
 
 export const zoneOutbox = [
+  {
+    name: 'WithdrawalRequested',
+    type: 'event',
+    inputs: [
+      { name: 'withdrawalIndex', type: 'uint64', indexed: true },
+      { name: 'sender', type: 'address', indexed: true },
+      { name: 'token', type: 'address', indexed: false },
+      { name: 'to', type: 'address', indexed: false },
+      { name: 'amount', type: 'uint128', indexed: false },
+      { name: 'fee', type: 'uint128', indexed: false },
+      { name: 'memo', type: 'bytes32', indexed: false },
+      { name: 'gasLimit', type: 'uint64', indexed: false },
+      { name: 'fallbackNonce', type: 'uint64', indexed: false },
+      { name: 'data', type: 'bytes', indexed: false },
+      { name: 'revealTo', type: 'bytes', indexed: false },
+    ],
+  },
   {
     name: 'requestWithdrawal',
     type: 'function',

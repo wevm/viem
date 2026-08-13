@@ -238,6 +238,24 @@ test('wrong domain value', () => {
   `)
 })
 
+test('invalid integer alias', () => {
+  expect(() =>
+    hashTypedData({
+      types: {
+        Message: [{ name: 'amount', type: 'uint' }],
+      },
+      primaryType: 'Message',
+      message: { amount: 1n },
+    } as any),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [InvalidTypedDataTypeError: Type "uint" is not a valid EIP-712 type.
+
+    Use "uint256" instead.
+
+    Version: viem@x.y.z]
+  `)
+})
+
 test('https://github.com/wevm/viem/issues/2888', () => {
   expect(() =>
     hashTypedData({

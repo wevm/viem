@@ -37,6 +37,8 @@ export type OpStackRpcTransaction<pending extends boolean = boolean> = OneOf<
 >
 
 export type OpStackRpcTransactionReceiptOverrides = {
+  depositNonce?: Quantity | undefined
+  depositReceiptVersion?: Quantity | undefined
   l1GasPrice: Hex | null
   l1GasUsed: Hex | null
   l1Fee: Hex | null
@@ -69,6 +71,8 @@ export type OpStackTransaction<pending extends boolean = boolean> =
   | OpStackDepositTransaction<pending>
 
 export type OpStackTransactionReceiptOverrides = {
+  depositNonce?: bigint | undefined
+  depositReceiptVersion?: number | undefined
   l1GasPrice: bigint | null
   l1GasUsed: bigint | null
   l1Fee: bigint | null

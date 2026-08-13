@@ -201,6 +201,12 @@ export {
   getProof,
 } from './public/getProof.js'
 export {
+  type GetRawTransactionErrorType,
+  type GetRawTransactionParameters,
+  type GetRawTransactionReturnType,
+  getRawTransaction,
+} from './public/getRawTransaction.js'
+export {
   type GetStorageAtErrorType,
   type GetStorageAtParameters,
   type GetStorageAtReturnType,
@@ -300,6 +306,15 @@ export {
   type WaitForTransactionReceiptReturnType,
   waitForTransactionReceipt,
 } from './public/waitForTransactionReceipt.js'
+export {
+  type BlockHeader,
+  type OnBlockHeader,
+  type OnBlockHeaderParameter,
+  type WatchBlockHeadersErrorType,
+  type WatchBlockHeadersParameters,
+  type WatchBlockHeadersReturnType,
+  watchBlockHeaders,
+} from './public/watchBlockHeaders.js'
 export {
   type OnBlockNumberFn,
   type OnBlockNumberParameter,
@@ -474,6 +489,7 @@ export {
   type StopImpersonatingAccountParameters,
   stopImpersonatingAccount,
 } from './test/stopImpersonatingAccount.js'
+export * as token from './token/index.js'
 export {
   type AddChainErrorType,
   type AddChainParameters,

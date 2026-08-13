@@ -2,10 +2,6 @@ import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
 # `accessKey.burnWitness`
 
-:::warning
-**Coming soon:** [TIP-1053](https://tips.sh/1053) ships in the **T6** hardfork — live on **Testnet** June 11 and **Mainnet** June 15.
-:::
-
 Burns a key-authorization witness, invalidating any authorization bound to it before it is submitted onchain.
 
 A witness is an optional 32-byte value bound into a key authorization's signing hash (see [`accessKey.authorize`](/tempo/actions/accessKey.authorize)). Once burned, an authorization carrying the same witness can no longer be submitted, giving applications a revocation handle for signed-but-not-yet-submitted authorizations.

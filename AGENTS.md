@@ -2,6 +2,12 @@
 
 This document contains guidelines for AI agents working on the Viem codebase.
 
+## Friction Logging
+
+- Log papercuts and friction (tooling, docs, APIs, tests, conventions) as you hit them with `pnpx frog log`.
+- Do not add global, system, or internal friction.
+- Run `pnpx frog list` first to see what is already known.
+
 ## Documentation (Site)
 
 Guidelines for authoring docs and guides under `site/pages/`.
@@ -334,6 +340,13 @@ When encountering situations that require judgment:
 ### Testing
 
 Tests should be co-located with actions in `*action-name*.test.ts` files. Reference contract tests in `test/tempo/crates/precompiles/` for expected behavior. 
+
+- Run `pnpm check:types` and `pnpm build:types` sequentially, never concurrently. `build:types`
+  writes the ignored `src/_types` tree and must start with that directory absent to avoid TypeScript
+  reading generated declarations as inputs. Remove `src/_types` again before `check:types`.
+- Local Tempo tests intentionally run against `VITE_TEMPO_TAG=latest`. Before submitting fixture
+  transactions with expiring nonces, wait until `getBlock` returns a nonzero timestamp; the node's
+  startup signal can arrive before the first canonical block is available through RPC.
 
 See `src/tempo/actions/token.test.ts` for a comprehensive example of test patterns and structure.
 

@@ -1,10 +1,16 @@
 {
   "extends": "../tsconfig.base.json",
-  "include": ["."],
+  "include": [".", "../src"],
   // The `eip8130/` demos are manual, network-gated harnesses that import local
   // source directly and run via `test/vitest.eip8130.config.ts` — they are not
   // part of the library and are intentionally excluded from `check:types`.
-  "exclude": ["./eip8130"],
+  "exclude": [
+    "./eip8130",
+    "../src/**/*.test.ts",
+    "../src/**/*.test-d.ts",
+    "../src/**/*.bench.ts",
+    "../src/**/*.bench-d.ts"
+  ],
   "compilerOptions": {
     "composite": true,
     "noEmit": true,

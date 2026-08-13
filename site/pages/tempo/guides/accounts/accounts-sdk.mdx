@@ -10,8 +10,8 @@ import { Card, Cards } from 'vocs'
 
 The [Tempo Accounts SDK](https://accounts.tempo.xyz/docs) is a TypeScript library for letting
 users connect a Tempo account (a hosted Tempo Wallet, a domain-bound passkey, and more) to your
-application. It exposes a `Provider` that hands you a ready-to-use Viem client via
-`provider.getClient()`, so you can connect an account and then drive it with the same
+application. It exposes a `Provider` that you pass to [`createClient`](/tempo) as a transport,
+so you can connect an account and then drive it with the same
 [Viem](/tempo) and [Tempo Actions](/tempo/actions) used throughout these guides.
 
 This guide covers the vanilla **Provider + Viem** path. For the Wagmi/React connectors,
@@ -59,16 +59,18 @@ const { accounts } = await provider.request({
 
 ### Get a Viem Client
 
-Call `provider.getClient()` to get a Viem client for the connected account, then extend it with
-[`tempoActions`](/tempo/actions) to unlock the Tempo Actions namespaces.
+Create a Tempo client with [`createClient`](/tempo), passing the connected `provider` as its
+transport. The client comes preconfigured with the Tempo Actions namespaces.
 
 ```ts
 import { Provider } from 'accounts'
-import { tempoActions } from 'viem/tempo'
+import { createClient, custom } from 'viem/tempo'
 
 const provider = Provider.create()
 
-const client = provider.getClient().extend(tempoActions())
+const client = createClient({
+  transport: custom(provider),
+})
 ```
 
 ### Send a Payment

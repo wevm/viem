@@ -1,6 +1,10 @@
 import { join } from 'node:path'
 import { defineConfig, type TestProjectConfiguration } from 'vitest/config'
 
+const zoneNodeConfigured =
+  (process.env.VITE_TEMPO_ENV || 'localnet') !== 'localnet' ||
+  process.env.VITE_TEMPO_ZONES === 'true'
+
 export default defineConfig({
   test: {
     alias: [
@@ -18,6 +22,7 @@ export default defineConfig({
       reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
       exclude: [
         '**/account-abstraction/**',
+        '**/celo/**',
         '**/errors/utils.ts',
         '**/linea/**',
         '**/op-stack/**',
@@ -57,6 +62,7 @@ export default defineConfig({
               : '',
             'src/tempo/**',
             'src/account-abstraction/**',
+            'src/celo/**',
             'src/linea/**',
             'src/op-stack/**',
           ],
@@ -72,6 +78,12 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'tempo',
+          exclude: [
+            '**/*.multisig.test.ts',
+            zoneNodeConfigured ? '' : 'src/tempo/actions/zone.test.ts',
+            'src/tempo/**/*.fuzz.test.ts',
+            'src/tempo/**/*.node-fuzz.test.ts',
+          ],
           include: ['src/tempo/**/*.test.ts'],
           setupFiles: [join(__dirname, './src/tempo/setup.ts')],
           globalSetup: [join(__dirname, './src/tempo/setup.global.ts')],
@@ -80,6 +92,49 @@ export default defineConfig({
           testTimeout: 10_000,
         },
       },
+      ...((process.env.VITE_TEMPO_MULTISIG === 'true'
+        ? [
+            {
+              extends: true,
+              test: {
+                name: 'tempo-multisig',
+                include: ['src/tempo/**/*.multisig.test.ts'],
+                setupFiles: [join(__dirname, './src/tempo/setup.ts')],
+                globalSetup: [join(__dirname, './src/tempo/setup.global.ts')],
+                retry: 0,
+                sequence: { groupOrder: 1 },
+                hookTimeout: 180_000,
+                testTimeout: 120_000,
+              },
+            },
+          ]
+        : []) satisfies TestProjectConfiguration[]),
+      ...((process.env.TEST_TEMPO_FUZZ === 'true'
+        ? [
+            {
+              extends: true,
+              test: {
+                name: 'tempo-fuzz',
+                include: ['src/tempo/**/*.fuzz.test.ts'],
+                retry: 0,
+                testTimeout: 30_000,
+              },
+            },
+            {
+              extends: true,
+              test: {
+                name: 'tempo-fuzz-node',
+                include: ['src/tempo/**/*.node-fuzz.test.ts'],
+                setupFiles: [],
+                globalSetup: [join(__dirname, './src/tempo/setup.global.ts')],
+                retry: 0,
+                sequence: { groupOrder: 1 },
+                hookTimeout: 60_000,
+                testTimeout: 60_000,
+              },
+            },
+          ]
+        : []) satisfies TestProjectConfiguration[]),
     ],
   },
 })
