@@ -321,6 +321,14 @@ export type {
   WaitForTransactionReceiptReturnType,
 } from './actions/public/waitForTransactionReceipt.js'
 export type {
+  BlockHeader,
+  OnBlockHeader,
+  OnBlockHeaderParameter,
+  WatchBlockHeadersErrorType,
+  WatchBlockHeadersParameters,
+  WatchBlockHeadersReturnType,
+} from './actions/public/watchBlockHeaders.js'
+export type {
   OnBlockNumberFn,
   OnBlockNumberParameter,
   WatchBlockNumberErrorType,

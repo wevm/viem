@@ -307,6 +307,15 @@ export {
   waitForTransactionReceipt,
 } from './public/waitForTransactionReceipt.js'
 export {
+  type BlockHeader,
+  type OnBlockHeader,
+  type OnBlockHeaderParameter,
+  type WatchBlockHeadersErrorType,
+  type WatchBlockHeadersParameters,
+  type WatchBlockHeadersReturnType,
+  watchBlockHeaders,
+} from './public/watchBlockHeaders.js'
+export {
   type OnBlockNumberFn,
   type OnBlockNumberParameter,
   type WatchBlockNumberErrorType,

@@ -662,6 +662,7 @@ test('extend', () => {
       "waitForCallsStatus": [Function],
       "waitForTransactionReceipt": [Function],
       "watchAsset": [Function],
+      "watchBlockHeaders": [Function],
       "watchBlockNumber": [Function],
       "watchBlocks": [Function],
       "watchContractEvent": [Function],
