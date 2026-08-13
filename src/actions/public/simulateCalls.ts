@@ -46,6 +46,17 @@ const transferEventSelector = AbiEvent.getSelector(
   ),
 )
 
+const balanceOfFunction = AbiFunction.from(
+  'function balanceOf(address) returns (uint256)',
+)
+const decimalsFunction = AbiFunction.from(
+  'function decimals() returns (uint256)',
+)
+const tokenUriFunction = AbiFunction.from(
+  'function tokenURI(uint256) returns (string)',
+)
+const symbolFunction = AbiFunction.from('function symbol() returns (string)')
+
 // Extract token addresses that the account transferred, from a simulated block's logs.
 // Only topics 0-2 are read: ERC721's fourth topic is the token id, which is irrelevant
 // as `balanceOf(address)` on a 721 returns the owner's NFT count.
@@ -69,7 +80,19 @@ function tokensFromLogs(logs: readonly Log[], account: Address): Address[] {
 // merely received value) succeeds with empty data instead of reverting, so `status`
 // alone is not enough.
 function isBalance(call: { data: Hex; status: 'success' | 'failure' }) {
-  return call.status === 'success' && call.data !== '0x'
+  return call.status === 'success' && /^0x[\da-f]{64}$/i.test(call.data)
+}
+
+function decodeAssetResult(
+  call: { data: Hex; status: 'success' | 'failure' },
+  abiFunction: AbiFunction.AbiFunction,
+) {
+  if (call.status === 'failure' || call.data === '0x') return null
+  try {
+    return AbiFunction.decodeResult(abiFunction, call.data)
+  } catch {
+    return null
+  }
 }
 
 // Supplementary discovery for assets whose balance changes without a `Transfer` the
@@ -258,6 +281,8 @@ export async function simulateCalls<
             ? undefined
             : blockTag_) as undefined,
           blocks: [
+            { calls: [] },
+            { calls: [] },
             {
               calls: calls.map((call) => ({
                 ...(call as Call),
@@ -287,7 +312,7 @@ export async function simulateCalls<
     ? [
         ...new Set([
           ...tokensFromLogs(
-            discovery[0][0]!.calls.flatMap((call) => call.logs ?? []),
+            discovery[0][2]!.calls.flatMap((call) => call.logs ?? []),
             account!.address,
           ),
           // Included even for calls without data: contracts that mint on receiving
@@ -319,13 +344,9 @@ export async function simulateCalls<
             // Asset pre balances
             {
               calls: assetAddresses.map((address, i) => ({
-                abi: [
-                  AbiFunction.from(
-                    'function balanceOf(address) returns (uint256)',
-                  ),
-                ],
-                functionName: 'balanceOf',
-                args: [account!.address],
+                data: AbiFunction.encodeData(balanceOfFunction, [
+                  account!.address,
+                ]),
                 to: address,
                 from: zeroAddress,
                 nonce: i,
@@ -358,13 +379,9 @@ export async function simulateCalls<
             // Asset post balances
             {
               calls: assetAddresses.map((address, i) => ({
-                abi: [
-                  AbiFunction.from(
-                    'function balanceOf(address) returns (uint256)',
-                  ),
-                ],
-                functionName: 'balanceOf',
-                args: [account!.address],
+                data: AbiFunction.encodeData(balanceOfFunction, [
+                  account!.address,
+                ]),
                 to: address,
                 from: zeroAddress,
                 nonce: i,
@@ -381,10 +398,7 @@ export async function simulateCalls<
             {
               calls: assetAddresses.map((address, i) => ({
                 to: address,
-                abi: [
-                  AbiFunction.from('function decimals() returns (uint256)'),
-                ],
-                functionName: 'decimals',
+                data: AbiFunction.encodeData(decimalsFunction),
                 from: zeroAddress,
                 nonce: i,
               })),
@@ -400,13 +414,7 @@ export async function simulateCalls<
             {
               calls: assetAddresses.map((address, i) => ({
                 to: address,
-                abi: [
-                  AbiFunction.from(
-                    'function tokenURI(uint256) returns (string)',
-                  ),
-                ],
-                functionName: 'tokenURI',
-                args: [0n],
+                data: AbiFunction.encodeData(tokenUriFunction, [0n]),
                 from: zeroAddress,
                 nonce: i,
               })),
@@ -422,8 +430,7 @@ export async function simulateCalls<
             {
               calls: assetAddresses.map((address, i) => ({
                 to: address,
-                abi: [AbiFunction.from('function symbol() returns (string)')],
-                functionName: 'symbol',
+                data: AbiFunction.encodeData(symbolFunction),
                 from: zeroAddress,
                 nonce: i,
               })),
@@ -460,31 +467,40 @@ export async function simulateCalls<
   // Extract pre-execution ETH and asset balances.
   const ethPre = block_ethPre?.calls ?? []
   const assetsPre = block_assetsPre?.calls ?? []
-  const balancesPre = [...ethPre, ...assetsPre].map((call) =>
+  const balanceCallsPre = [...ethPre, ...assetsPre]
+  const balancesPre = balanceCallsPre.map((call) =>
     isBalance(call) ? hexToBigInt(call.data) : null,
   )
 
   // Extract post-execution ETH and asset balances.
   const ethPost = block_ethPost?.calls ?? []
   const assetsPost = block_assetsPost?.calls ?? []
-  const balancesPost = [...ethPost, ...assetsPost].map((call) =>
+  const balanceCallsPost = [...ethPost, ...assetsPost]
+  const balancesPost = balanceCallsPost.map((call) =>
     isBalance(call) ? hexToBigInt(call.data) : null,
   )
 
   // Extract asset symbols & decimals.
-  const decimals = (block_decimals?.calls ?? []).map((x) =>
-    x.status === 'success' ? x.result : null,
-  ) as (number | null)[]
-  const symbols = (block_symbols?.calls ?? []).map((x) =>
-    x.status === 'success' ? x.result : null,
+  const decimals = (block_decimals?.calls ?? []).map((call) =>
+    decodeAssetResult(call, decimalsFunction),
+  ) as (bigint | null)[]
+  const symbols = (block_symbols?.calls ?? []).map((call) =>
+    decodeAssetResult(call, symbolFunction),
   ) as (string | null)[]
-  const tokenURI = (block_tokenURI?.calls ?? []).map((x) =>
-    x.status === 'success' ? x.result : null,
+  const tokenURI = (block_tokenURI?.calls ?? []).map((call) =>
+    decodeAssetResult(call, tokenUriFunction),
   ) as (string | null)[]
 
   const changes: Mutable<SimulateCallsReturnType<calls>['assetChanges']> = []
   for (const [i, balancePost] of balancesPost.entries()) {
-    const balancePre = balancesPre[i]
+    const balancePre_ = balancesPre[i]
+    const preCall = balanceCallsPre[i]
+    const balancePre =
+      typeof balancePre_ === 'bigint'
+        ? balancePre_
+        : i > 0 && preCall?.status === 'success' && preCall.data === '0x'
+          ? 0n
+          : null
 
     if (typeof balancePost !== 'bigint') continue
     if (typeof balancePre !== 'bigint') continue

@@ -1,5 +1,5 @@
 import { parseAbi } from 'abitype'
-import { expect, onTestFinished, test, vi } from 'vitest'
+import { expect, onTestFinished, test } from 'vitest'
 import {
   baycContractConfig,
   usdcContractConfig,
@@ -10,12 +10,10 @@ import { accounts } from '~test/constants.js'
 import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { erc20Abi, erc721Abi } from '../../constants/abis.js'
+import type { Hex } from '../../types/misc.js'
 import { numberToHex, parseEther } from '../../utils/index.js'
 import { mine } from '../test/mine.js'
-import * as createAccessList from './createAccessList.js'
-import * as getBlockNumberModule from './getBlockNumber.js'
 import { getBlockNumber } from './getBlockNumber.js'
-import * as simulateBlocks from './simulateBlocks.js'
 import { simulateCalls } from './simulateCalls.js'
 
 const client = anvilMainnet.getClient()
@@ -29,6 +27,91 @@ const uniswapV2RouterAddress =
 const uniswapV2RouterAbi = parseAbi([
   'function swapExactETHForTokens(uint256 amountOutMin, address[] path, address to, uint256 deadline) payable returns (uint256[] amounts)',
 ])
+
+function mockCall(returnData: Hex = '0x') {
+  return { gasUsed: '0x0', logs: [], returnData, status: '0x1' } as const
+}
+
+function mockBlock(calls: readonly ReturnType<typeof mockCall>[]) {
+  const hash = `0x${'0'.repeat(64)}` as const
+  return {
+    baseFeePerGas: '0x0',
+    blobGasUsed: '0x0',
+    calls,
+    difficulty: '0x0',
+    excessBlobGas: '0x0',
+    extraData: '0x',
+    gasLimit: '0x0',
+    gasUsed: '0x0',
+    hash,
+    logsBloom: '0x00',
+    miner: accounts[0].address,
+    mixHash: hash,
+    nonce: '0x0000000000000000',
+    number: '0x0',
+    parentHash: hash,
+    receiptsRoot: hash,
+    sha3Uncles: hash,
+    size: '0x0',
+    stateRoot: hash,
+    timestamp: '0x0',
+    totalDifficulty: '0x0',
+    transactions: [],
+    transactionsRoot: hash,
+    uncles: [],
+    withdrawals: [],
+    withdrawalsRoot: hash,
+  } as const
+}
+
+function createTraceClient({
+  assetPre,
+  assetPost,
+  metadata,
+}: {
+  assetPre?: Hex | undefined
+  assetPost?: Hex | undefined
+  metadata?: Hex | undefined
+} = {}) {
+  const requests: { method: string; params?: any }[] = []
+  const zero = `0x${'0'.repeat(64)}` as Hex
+  const calls = (data: Hex | undefined) =>
+    data === undefined ? [] : [mockCall(data)]
+  let simulation = 0
+  const client = createClient({
+    experimental_blockTag: 'safe',
+    transport: custom({
+      async request(request) {
+        requests.push(request)
+        if (request.method === 'eth_createAccessList')
+          return { accessList: [], gasUsed: '0x0' }
+        if (request.method !== 'eth_simulateV1')
+          throw new Error(`Unexpected request: ${request.method}`)
+
+        simulation++
+        if (simulation === 1)
+          return [
+            mockBlock([]),
+            mockBlock([]),
+            mockBlock([mockCall()]),
+          ] as never
+        if (simulation === 2)
+          return [
+            mockBlock([mockCall(zero)]),
+            mockBlock(calls(assetPre)),
+            mockBlock([mockCall(), mockCall()]),
+            mockBlock([mockCall(zero)]),
+            mockBlock(calls(assetPost)),
+            mockBlock(calls(metadata)),
+            mockBlock(calls(metadata)),
+            mockBlock(calls(metadata)),
+          ] as never
+        throw new Error('Unexpected simulation')
+      },
+    }),
+  })
+  return { client, requests }
+}
 
 test('default', async () => {
   const { results } = await simulateCalls(client, {
@@ -411,33 +494,7 @@ test('behavior: stress', async () => {
 })
 
 test('behavior: traceAssetChanges uses the client block tag', async () => {
-  const client_ = createClient({
-    experimental_blockTag: 'safe',
-    transport: custom({
-      async request() {
-        throw new Error('Unexpected request')
-      },
-    }),
-  })
-  const getBlockNumberSpy = vi.spyOn(getBlockNumberModule, 'getBlockNumber')
-  const createAccessListSpy = vi
-    .spyOn(createAccessList, 'createAccessList')
-    .mockResolvedValue({ accessList: [], gasUsed: 0n })
-  const simulateBlocksSpy = vi
-    .spyOn(simulateBlocks, 'simulateBlocks')
-    .mockResolvedValueOnce([{ calls: [] }] as never)
-    .mockResolvedValueOnce([
-      { calls: [{ data: '0x00', status: 'success' }] },
-      { calls: [] },
-      {
-        calls: [{ data: '0x', gasUsed: 0n, logs: [], status: 'success' }],
-      },
-      { calls: [{ data: '0x00', status: 'success' }] },
-      { calls: [] },
-      { calls: [] },
-      { calls: [] },
-      { calls: [] },
-    ] as never)
+  const { client: client_, requests } = createTraceClient()
 
   await simulateCalls(client_, {
     account: accounts[0].address,
@@ -445,16 +502,61 @@ test('behavior: traceAssetChanges uses the client block tag', async () => {
     traceAssetChanges: true,
   })
 
-  expect(getBlockNumberSpy).not.toHaveBeenCalled()
-  expect(createAccessListSpy).toHaveBeenCalledWith(
-    client_,
-    expect.objectContaining({ blockTag: 'safe' }),
+  expect(requests.map(({ method }) => method)).not.toContain('eth_blockNumber')
+  expect(
+    requests
+      .filter(({ method }) => method === 'eth_simulateV1')
+      .map(({ params }) => params[1]),
+  ).toEqual(['safe', 'safe'])
+  expect(
+    requests.find(({ method }) => method === 'eth_createAccessList')
+      ?.params?.[1],
+  ).toBe('safe')
+
+  const simulations = requests.filter(
+    ({ method }) => method === 'eth_simulateV1',
   )
-  expect(simulateBlocksSpy).toHaveBeenCalledTimes(2)
-  for (const [client, parameters] of simulateBlocksSpy.mock.calls) {
-    expect(client).toBe(client_)
-    expect(parameters).toEqual(expect.objectContaining({ blockTag: 'safe' }))
-  }
+  expect(simulations[0]!.params[0].blockStateCalls).toHaveLength(3)
+  expect(simulations[0]!.params[0].blockStateCalls[2].calls).toHaveLength(1)
+  expect(simulations[1]!.params[0].blockStateCalls[2].calls).toHaveLength(2)
+})
+
+test('behavior: traceAssetChanges ignores malformed candidate responses', async () => {
+  const { client: client_ } = createTraceClient({
+    assetPre: '0x01',
+    assetPost: '0x01',
+    metadata: '0x01',
+  })
+
+  const { assetChanges } = await simulateCalls(client_, {
+    account: accounts[0].address,
+    blockTag: 'safe',
+    calls: [{ data: '0x1234', to: usdcContractConfig.address }],
+    traceAssetChanges: true,
+  })
+
+  expect(assetChanges.map((change) => change.token.address)).toEqual([
+    '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+  ])
+})
+
+test('behavior: traceAssetChanges treats a pre-deployment balance as zero', async () => {
+  const { client: client_ } = createTraceClient({
+    assetPre: '0x',
+    assetPost: `0x${'0'.repeat(63)}1`,
+  })
+
+  const { assetChanges } = await simulateCalls(client_, {
+    account: accounts[0].address,
+    blockTag: 'safe',
+    calls: [{ data: '0x1234', to: usdcContractConfig.address }],
+    traceAssetChanges: true,
+  })
+
+  expect(assetChanges[1]).toEqual({
+    token: { address: usdcContractConfig.address },
+    value: { diff: 1n, post: 1n, pre: 0n },
+  })
 })
 
 // TODO: Re-enable once the pinned Anvil includes foundry-rs/foundry#15784.
