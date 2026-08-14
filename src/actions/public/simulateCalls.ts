@@ -25,6 +25,7 @@ import {
 } from '../../utils/abi/encodeFunctionData.js'
 import { type PadErrorType, pad } from '../../utils/data/pad.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
+import { call } from './call.js'
 import { createAccessList } from './createAccessList.js'
 import { type GetBlockErrorType, getBlock } from './getBlock.js'
 import {
@@ -39,6 +40,10 @@ import {
 
 const getBalanceCode =
   '0x6080604052348015600e575f80fd5b5061016d8061001c5f395ff3fe608060405234801561000f575f80fd5b5060043610610029575f3560e01c8063f8b2cb4f1461002d575b5f80fd5b610047600480360381019061004291906100db565b61005d565b604051610054919061011e565b60405180910390f35b5f8173ffffffffffffffffffffffffffffffffffffffff16319050919050565b5f80fd5b5f73ffffffffffffffffffffffffffffffffffffffff82169050919050565b5f6100aa82610081565b9050919050565b6100ba816100a0565b81146100c4575f80fd5b50565b5f813590506100d5816100b1565b92915050565b5f602082840312156100f0576100ef61007d565b5b5f6100fd848285016100c7565b91505092915050565b5f819050919050565b61011881610106565b82525050565b5f6020820190506101315f83018461010f565b9291505056fea26469706673582212203b9fe929fe995c7cf9887f0bdba8a36dd78e8b73f149b17d2d9ad7cd09d2dc6264736f6c634300081a0033'
+
+// Deploys a helper whose `query(address,bytes)` function forwards through STATICCALL.
+const staticCallCode =
+  '0x6080604052348015600e575f5ffd5b506101be8061001c5f395ff3fe608060405234801561000f575f5ffd5b5060043610610029575f3560e01c8063fd00430c1461002d575b5f5ffd5b6100476004803603810190610042919061012b565b610049565b005b80825f375f5f825f865afa610060573d5f5f3e3d5ffd5b3d5f5f3e3d5ff35b5f5ffd5b5f5ffd5b5f73ffffffffffffffffffffffffffffffffffffffff82169050919050565b5f61009982610070565b9050919050565b6100a98161008f565b81146100b3575f5ffd5b50565b5f813590506100c4816100a0565b92915050565b5f5ffd5b5f5ffd5b5f5ffd5b5f5f83601f8401126100eb576100ea6100ca565b5b8235905067ffffffffffffffff811115610108576101076100ce565b5b602083019150836001820283011115610124576101236100d2565b5b9250929050565b5f5f5f6040848603121561014257610141610068565b5b5f61014f868287016100b6565b935050602084013567ffffffffffffffff8111156101705761016f61006c565b5b61017c868287016100d6565b9250925050925092509256fea2646970667358221220e8c29d0e378cebe8c1667aaa8158e0acb96501f866501176600e2f06005ccba964736f6c63430008230033'
 
 // ERC20 & ERC721 share this selector – both are `Transfer(address,address,uint256)`.
 const transferEventSelector = AbiEvent.getSelector(
@@ -57,75 +62,9 @@ const tokenUriFunction = AbiFunction.from(
   'function tokenURI(uint256) returns (string)',
 )
 const symbolFunction = AbiFunction.from('function symbol() returns (string)')
-
-// Extract token addresses that the account transferred, from a simulated block's logs.
-// Only topics 0-2 are read: ERC721's fourth topic is the token id, which is irrelevant
-// as `balanceOf(address)` on a 721 returns the owner's NFT count.
-function tokensFromLogs(logs: readonly Log[], account: Address): Address[] {
-  const account_ = pad(account.toLowerCase() as Hex, { size: 32 })
-  return logs
-    .filter((log) => {
-      if (log.topics[0] !== transferEventSelector) return false
-      // `traceTransfers` emits synthetic native transfer logs under `ethAddress`, which
-      // is measured separately.
-      if (log.address.toLowerCase() === ethAddress) return false
-      return (
-        log.topics[1]?.toLowerCase() === account_ ||
-        log.topics[2]?.toLowerCase() === account_
-      )
-    })
-    .map((log) => log.address.toLowerCase() as Address)
-}
-
-// Whether a `balanceOf` probe returned a balance. A candidate without code (an EOA that
-// merely received value) succeeds with empty data instead of reverting, so `status`
-// alone is not enough.
-function isBalance(call: { data: Hex; status: 'success' | 'failure' }) {
-  return call.status === 'success' && /^0x[\da-f]{64}$/i.test(call.data)
-}
-
-function decodeAssetResult(
-  call: { data: Hex; status: 'success' | 'failure' },
-  abiFunction: AbiFunction.AbiFunction,
-) {
-  if (call.status === 'failure' || call.data === '0x') return null
-  try {
-    return AbiFunction.decodeResult(abiFunction, call.data)
-  } catch {
-    return null
-  }
-}
-
-// Supplementary discovery for assets whose balance changes without a `Transfer` the
-// account participates in. Advisory only: no state overrides are passed – geth accepts
-// them on `eth_createAccessList`, but support is not portable across nodes – so it runs
-// against unmodified state and rejects calls that revert there, and some nodes do not
-// implement the method at all. Log-based discovery covers those cases.
-async function accessListHints<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: {
-    account: Address
-    blockNumber: bigint | undefined
-    blockTag: BlockTag | undefined
-    call: any
-  },
-): Promise<Address[]> {
-  const { account, blockNumber, blockTag, call } = parameters
-  if (!call.data && !call.abi) return []
-  try {
-    const { accessList } = await createAccessList(client, {
-      account,
-      ...call,
-      data: call.abi ? encodeFunctionData(call) : call.data,
-      ...(typeof blockNumber === 'bigint' ? { blockNumber } : { blockTag }),
-    })
-    return accessList
-      .filter(({ storageKeys }) => storageKeys.length > 0)
-      .map(({ address }) => address.toLowerCase() as Address)
-  } catch {
-    return []
-  }
-}
+const staticCallFunction = AbiFunction.from(
+  'function query(address target, bytes data)',
+)
 
 export type SimulateCallsParameters<
   calls extends readonly unknown[] = readonly unknown[],
@@ -259,6 +198,10 @@ export async function simulateCalls<
   // not derive the base from simulated block numbers: clients disagree on whether the
   // first simulated block is the base or its successor.
   const blockTag_ = blockTag ?? client.experimental_blockTag ?? 'latest'
+  if (traceAssetChanges && blockTag_ === 'pending')
+    throw new BaseError(
+      '`pending` is not supported when `traceAssetChanges` is true.',
+    )
   let baseBlockNumber = blockNumber
   if (
     traceAssetChanges &&
@@ -333,131 +276,103 @@ export async function simulateCalls<
       )
     : []
 
-  const zeroStateOverride = stateOverrides?.find(
-    ({ address }) => address.toLowerCase() === zeroAddress,
-  )
-  const stateOverridesWithZeroNonce = traceAssetChanges
-    ? [
-        ...(stateOverrides ?? []).filter(
-          ({ address }) => address.toLowerCase() !== zeroAddress,
-        ),
-        { ...zeroStateOverride, address: zeroAddress, nonce: 0 },
-      ]
-    : stateOverrides
-
-  const blocks = await simulateBlocks(client, {
-    blockNumber: baseBlockNumber,
-    blockTag: (typeof baseBlockNumber === 'bigint'
-      ? undefined
-      : blockTag_) as undefined,
-    blocks: [
-      {
-        // Keep pre-balance probes in the calls' block so discovery and measurement
-        // execute with identical block fields and predecessor hashes.
-        calls: [
-          ...(traceAssetChanges
-            ? [
-                { data: getBalanceData },
-                ...assetAddresses.map((address, i) => ({
-                  data: AbiFunction.encodeData(balanceOfFunction, [
-                    account!.address,
-                  ]),
-                  to: address,
-                  from: zeroAddress,
-                  nonce: i,
-                })),
-              ]
-            : []),
-          ...calls.map((call) => ({
+  const [balanceCallsPre, blocks] = await Promise.all([
+    traceAssetChanges
+      ? Promise.all([
+          readBalance(client, {
+            account: account!.address,
+            blockNumber: baseBlockNumber,
+            blockTag:
+              typeof baseBlockNumber === 'bigint' ? undefined : blockTag_,
+            data: getBalanceData!,
+            stateOverride: stateOverrides,
+          }),
+          ...assetAddresses.map((address) =>
+            readBalance(client, {
+              account: account!.address,
+              address,
+              blockNumber: baseBlockNumber,
+              blockTag:
+                typeof baseBlockNumber === 'bigint' ? undefined : blockTag_,
+              data: AbiFunction.encodeData(balanceOfFunction, [
+                account!.address,
+              ]),
+              stateOverride: stateOverrides,
+            }),
+          ),
+        ])
+      : [],
+    simulateBlocks(client, {
+      blockNumber: baseBlockNumber,
+      blockTag: (typeof baseBlockNumber === 'bigint'
+        ? undefined
+        : blockTag_) as undefined,
+      blocks: [
+        {
+          calls: [...calls, { to: zeroAddress }].map((call) => ({
             ...(call as Call),
             from: account?.address,
-          })),
-          { to: zeroAddress, from: account?.address },
-        ] as any,
-        stateOverrides: stateOverridesWithZeroNonce,
-      },
+          })) as any,
+          stateOverrides,
+        },
 
-      ...(traceAssetChanges
-        ? [
-            // ETH post balances
-            {
-              calls: [{ data: getBalanceData }],
-            },
+        ...(traceAssetChanges
+          ? [
+              // ETH post balances
+              {
+                calls: [{ data: getBalanceData }],
+              },
 
-            // Asset post balances
-            {
-              calls: assetAddresses.map((address, i) => ({
-                data: AbiFunction.encodeData(balanceOfFunction, [
-                  account!.address,
-                ]),
-                to: address,
-                from: zeroAddress,
-                nonce: i,
-              })),
-              stateOverrides: [
-                {
-                  address: zeroAddress,
-                  nonce: 0,
-                },
-              ],
-            },
+              // Asset post balances
+              {
+                calls: assetAddresses.map((address) => ({
+                  data: encodeStaticCall(
+                    address,
+                    AbiFunction.encodeData(balanceOfFunction, [
+                      account!.address,
+                    ]),
+                  ),
+                })),
+              },
 
-            // Decimals
-            {
-              calls: assetAddresses.map((address, i) => ({
-                to: address,
-                data: AbiFunction.encodeData(decimalsFunction),
-                from: zeroAddress,
-                nonce: i,
-              })),
-              stateOverrides: [
-                {
-                  address: zeroAddress,
-                  nonce: 0,
-                },
-              ],
-            },
+              // Decimals
+              {
+                calls: assetAddresses.map((address) => ({
+                  data: encodeStaticCall(
+                    address,
+                    AbiFunction.encodeData(decimalsFunction),
+                  ),
+                })),
+              },
 
-            // Token URI
-            {
-              calls: assetAddresses.map((address, i) => ({
-                to: address,
-                data: AbiFunction.encodeData(tokenUriFunction, [0n]),
-                from: zeroAddress,
-                nonce: i,
-              })),
-              stateOverrides: [
-                {
-                  address: zeroAddress,
-                  nonce: 0,
-                },
-              ],
-            },
+              // Token URI
+              {
+                calls: assetAddresses.map((address) => ({
+                  data: encodeStaticCall(
+                    address,
+                    AbiFunction.encodeData(tokenUriFunction, [0n]),
+                  ),
+                })),
+              },
 
-            // Symbols
-            {
-              calls: assetAddresses.map((address, i) => ({
-                to: address,
-                data: AbiFunction.encodeData(symbolFunction),
-                from: zeroAddress,
-                nonce: i,
-              })),
-              stateOverrides: [
-                {
-                  address: zeroAddress,
-                  nonce: 0,
-                },
-              ],
-            },
-          ]
-        : []),
-    ],
-    traceTransfers,
-    validation,
-  })
+              // Symbols
+              {
+                calls: assetAddresses.map((address) => ({
+                  data: encodeStaticCall(
+                    address,
+                    AbiFunction.encodeData(symbolFunction),
+                  ),
+                })),
+              },
+            ]
+          : []),
+      ],
+      traceTransfers,
+      validation,
+    }),
+  ])
 
-  const block_results = traceAssetChanges ? discovery![0][0]! : blocks[0]!
-  const measurementCalls = blocks[0]!.calls
+  const block_results = blocks[0]!
   const [
     block_ethPost,
     block_assetsPost,
@@ -468,15 +383,9 @@ export async function simulateCalls<
 
   // Extract call results from the simulation.
   const { calls: block_calls, ...block } = block_results
-  const preCallCount = traceAssetChanges ? assetAddresses.length + 1 : 0
-  const results = traceAssetChanges ? block_calls : block_calls.slice(0, -1)
+  const results = block_calls.slice(0, -1)
 
   // Extract pre-execution ETH and asset balances.
-  const ethPre = traceAssetChanges ? measurementCalls.slice(0, 1) : []
-  const assetsPre = traceAssetChanges
-    ? measurementCalls.slice(1, preCallCount)
-    : []
-  const balanceCallsPre = [...ethPre, ...assetsPre]
   const balancesPre = balanceCallsPre.map((call) =>
     isBalance(call) ? hexToBigInt(call.data) : null,
   )
@@ -551,4 +460,113 @@ export async function simulateCalls<
     block,
     results,
   } as unknown as SimulateCallsReturnType<calls>
+}
+
+function encodeStaticCall(address: Address, data: Hex) {
+  return AbiConstructor.encode(
+    AbiConstructor.from('constructor(bytes, bytes)'),
+    {
+      bytecode: deploylessCallViaBytecodeBytecode,
+      args: [
+        staticCallCode,
+        AbiFunction.encodeData(staticCallFunction, [address, data]),
+      ],
+    },
+  )
+}
+
+// Extract token addresses that the account transferred, from a simulated block's logs.
+// Only topics 0-2 are read: ERC721's fourth topic is the token id, which is irrelevant
+// as `balanceOf(address)` on a 721 returns the owner's NFT count.
+function tokensFromLogs(logs: readonly Log[], account: Address): Address[] {
+  const account_ = pad(account.toLowerCase() as Hex, { size: 32 })
+  return logs
+    .filter((log) => {
+      if (log.topics[0] !== transferEventSelector) return false
+      // `traceTransfers` emits synthetic native transfer logs under `ethAddress`, which
+      // is measured separately.
+      if (log.address.toLowerCase() === ethAddress) return false
+      return (
+        log.topics[1]?.toLowerCase() === account_ ||
+        log.topics[2]?.toLowerCase() === account_
+      )
+    })
+    .map((log) => log.address.toLowerCase() as Address)
+}
+
+// Whether a `balanceOf` probe returned a balance. A candidate without code (an EOA that
+// merely received value) succeeds with empty data instead of reverting, so `status`
+// alone is not enough.
+function isBalance(call: { data: Hex; status: 'success' | 'failure' }) {
+  return call.status === 'success' && /^0x[\da-f]{64}$/i.test(call.data)
+}
+
+function decodeAssetResult(
+  call: { data: Hex; status: 'success' | 'failure' },
+  abiFunction: AbiFunction.AbiFunction,
+) {
+  if (call.status === 'failure' || call.data === '0x') return null
+  try {
+    return AbiFunction.decodeResult(abiFunction, call.data)
+  } catch {
+    return null
+  }
+}
+
+// Supplementary discovery for assets whose balance changes without a `Transfer` the
+// account participates in. Advisory only: no state overrides are passed – geth accepts
+// them on `eth_createAccessList`, but support is not portable across nodes – so it runs
+// against unmodified state and rejects calls that revert there, and some nodes do not
+// implement the method at all. Log-based discovery covers those cases.
+async function accessListHints<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: {
+    account: Address
+    blockNumber: bigint | undefined
+    blockTag: BlockTag | undefined
+    call: any
+  },
+): Promise<Address[]> {
+  const { account, blockNumber, blockTag, call } = parameters
+  if (!call.data && !call.abi) return []
+  try {
+    const { accessList } = await createAccessList(client, {
+      account,
+      ...call,
+      data: call.abi ? encodeFunctionData(call) : call.data,
+      ...(typeof blockNumber === 'bigint' ? { blockNumber } : { blockTag }),
+    })
+    return accessList
+      .filter(({ storageKeys }) => storageKeys.length > 0)
+      .map(({ address }) => address.toLowerCase() as Address)
+  } catch {
+    return []
+  }
+}
+
+async function readBalance<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: {
+    account: Address
+    address?: Address | undefined
+    blockNumber: bigint | undefined
+    blockTag: BlockTag | undefined
+    data: Hex
+    stateOverride: StateOverride | undefined
+  },
+) {
+  const { account, address, blockNumber, blockTag, data, stateOverride } =
+    parameters
+  try {
+    const result = await call(client, {
+      account: address ? zeroAddress : account,
+      data,
+      stateOverride,
+      ...(address ? { to: address } : {}),
+      ...(typeof blockNumber === 'bigint' ? { blockNumber } : { blockTag }),
+    } as never)
+    return { data: result.data ?? '0x', status: 'success' as const }
+  } catch {
+    return { data: '0x' as const, status: 'failure' as const }
+  }
 }

@@ -21,7 +21,6 @@ import {
   parseEther,
 } from '../../utils/index.js'
 import { mine } from '../test/mine.js'
-import { getBlock } from './getBlock.js'
 import { getBlockNumber } from './getBlockNumber.js'
 import { simulateCalls } from './simulateCalls.js'
 
@@ -418,14 +417,20 @@ test('behavior: stress', async () => {
 })
 
 test('behavior: traceAssetChanges uses the client block tag', async () => {
+  const requests: { method: string; params?: any }[] = []
+  const mainnetClient = createClient({ chain: mainnet, transport: http() })
   const client_ = createClient({
     chain: mainnet,
     experimental_blockTag: 'finalized',
-    transport: http(),
+    transport: custom({
+      async request(args) {
+        requests.push(args as any)
+        return mainnetClient.request(args as any)
+      },
+    }),
   })
-  const before = (await getBlock(client_, { blockTag: 'finalized' })).number!
 
-  const { assetChanges, block } = await simulateCalls(client_, {
+  const { assetChanges } = await simulateCalls(client_, {
     account: zeroAddress,
     calls: [
       {
@@ -435,13 +440,41 @@ test('behavior: traceAssetChanges uses the client block tag', async () => {
     ],
     traceAssetChanges: true,
   })
-  const after = (await getBlock(client_, { blockTag: 'finalized' })).number!
 
-  const baseBlockNumber = block.number! - 1n
-  // The public endpoint load-balances across replicas, so allow bounded lag.
-  expect(baseBlockNumber).toBeGreaterThanOrEqual(before - 256n)
-  expect(baseBlockNumber).toBeLessThanOrEqual(after)
+  expect(
+    requests.find(({ method }) => method === 'eth_getBlockByNumber')?.params,
+  ).toEqual(['finalized', false])
+  const simulationBlocks = requests
+    .filter(({ method }) => method === 'eth_simulateV1')
+    .map(({ params }) => params[1])
+  expect(simulationBlocks).toHaveLength(2)
+  expect(new Set(simulationBlocks).size).toBe(1)
+  expect(simulationBlocks[0]).toMatch(/^0x[\da-f]+$/)
+  expect(
+    requests
+      .filter(({ method }) =>
+        ['eth_call', 'eth_createAccessList'].includes(method),
+      )
+      .every(({ params }) => params[1] === simulationBlocks[0]),
+  ).toBe(true)
   expect(assetChanges[0]?.value.diff).toBe(0n)
+})
+
+test('behavior: traceAssetChanges rejects the pending block tag', async () => {
+  const client_ = createClient({ chain: mainnet, transport: http() })
+
+  await expect(
+    simulateCalls(client_, {
+      account: zeroAddress,
+      blockTag: 'pending',
+      calls: [{ to: zeroAddress }],
+      traceAssetChanges: true,
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [BaseError: \`pending\` is not supported when \`traceAssetChanges\` is true.
+
+    Version: viem@x.y.z]
+  `)
 })
 
 test('behavior: traceAssetChanges ignores malformed candidate responses', async () => {
@@ -464,6 +497,33 @@ test('behavior: traceAssetChanges ignores malformed candidate responses', async 
     traceAssetChanges: true,
   })
 
+  expect(assetChanges.map((change) => change.token.address)).toEqual([
+    '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+  ])
+})
+
+test('behavior: traceAssetChanges isolates candidate balance reads', async () => {
+  const client_ = createClient({ chain: mainnet, transport: http() })
+  const target = '0x3000000000000000000000000000000000000003'
+
+  const { assetChanges, results } = await simulateCalls(client_, {
+    account: zeroAddress,
+    blockNumber: 22_263_623n,
+    calls: [{ data: '0x1234', to: target }],
+    stateOverrides: [
+      {
+        address: target,
+        // Increment slot zero and return its previous value on every call.
+        code: '0x5f54806001015f555f5260205ff3',
+      },
+    ],
+    traceAssetChanges: true,
+  })
+
+  expect(results[0]).toMatchObject({
+    data: `0x${'0'.repeat(64)}`,
+    status: 'success',
+  })
   expect(assetChanges.map((change) => change.token.address)).toEqual([
     '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
   ])
