@@ -28,7 +28,7 @@ test('default', async () => {
       "account": undefined,
       "request": {
         "data": undefined,
-        "gas": 21000n,
+        "gas": 23660n,
         "isCreation": undefined,
         "mint": undefined,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -56,7 +56,7 @@ test('args: account', async () => {
       },
       "request": {
         "data": undefined,
-        "gas": 21000n,
+        "gas": 23660n,
         "isCreation": undefined,
         "mint": undefined,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -85,7 +85,7 @@ test('args: chain', async () => {
       },
       "request": {
         "data": undefined,
-        "gas": 21000n,
+        "gas": 23660n,
         "isCreation": undefined,
         "mint": undefined,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -114,7 +114,7 @@ test('args: data', async () => {
       },
       "request": {
         "data": "0xdeadbeef",
-        "gas": 21160n,
+        "gas": 23838n,
         "isCreation": undefined,
         "mint": undefined,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -172,7 +172,7 @@ test('args: mint', async () => {
       },
       "request": {
         "data": undefined,
-        "gas": 21000n,
+        "gas": 23660n,
         "isCreation": undefined,
         "mint": 1000000000000000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -201,7 +201,7 @@ test('args: value', async () => {
       },
       "request": {
         "data": undefined,
-        "gas": 21000n,
+        "gas": 32646n,
         "isCreation": undefined,
         "mint": undefined,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
