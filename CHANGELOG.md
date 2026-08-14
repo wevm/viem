@@ -1,5 +1,11 @@
 # viem
 
+## 3.0.0-next.10
+
+### Patch Changes
+
+- [#5007](https://github.com/wevm/viem/pull/5007) [`a4058d9`](https://github.com/wevm/viem/commit/a4058d9f71ac858a22acfe2274d972017bcefef9) Thanks [@jxom](https://github.com/jxom)! - Fixed `multicall` asset discovery across reverting, state-dependent, malformed, and newly deployed tokens while pinning stable block tags and isolating balance probes.
+
 ## 3.0.0-next.9
 
 ### Patch Changes
