@@ -16,6 +16,7 @@ src/node/trustedSetups_esm.ts
 **/trusted-setups/**/*.txt
 .idea
 .pnpm-store
+tasks
 
 # local env files
 .env

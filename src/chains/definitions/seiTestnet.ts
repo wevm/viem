@@ -12,8 +12,9 @@ export const seiTestnet = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Seitrace',
-      url: 'https://seitrace.com',
+      name: 'Seiscan',
+      url: 'https://testnet.seiscan.io',
+      apiUrl: 'https://api.etherscan.io/v2/api',
     },
   },
   contracts: {

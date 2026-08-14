@@ -3,7 +3,7 @@ on:
   pull_request:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  group: ${{ github.workflow }}-branch-${{ github.event.pull_request.head.repo.full_name }}-${{ github.head_ref }}
   cancel-in-progress: true
 
 jobs:

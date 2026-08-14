@@ -73,6 +73,7 @@ describe('wagmi', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: execution reverted: ERC721: approval to current owner
       Version: viem@x.y.z]
     `)
     await expect(() =>
@@ -93,6 +94,7 @@ describe('wagmi', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: execution reverted: Token ID is taken
       Version: viem@x.y.z]
     `)
     await expect(() =>
@@ -117,6 +119,7 @@ describe('wagmi', () => {
         sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: execution reverted: ERC721: transfer caller is not owner nor approved
       Version: viem@x.y.z]
     `)
   })
@@ -219,6 +222,7 @@ describe('BAYC', () => {
           sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
         Docs: https://viem.sh/docs/contract/estimateContractGas
+        Details: execution reverted: Sale must be active to mint Ape
         Version: viem@x.y.z]
       `)
     })
@@ -259,6 +263,7 @@ describe('contract errors', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: execution reverted: This is a revert message
       Version: viem@x.y.z]
     `)
   })
@@ -283,6 +288,7 @@ describe('contract errors', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: execution reverted: panic: assertion failed (0x01)
       Version: viem@x.y.z]
     `)
   })
@@ -307,6 +313,7 @@ describe('contract errors', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: execution reverted: panic: arithmetic underflow or overflow (0x11)
       Version: viem@x.y.z]
     `)
   })
@@ -331,6 +338,7 @@ describe('contract errors', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: execution reverted: panic: division or modulo by zero (0x12)
       Version: viem@x.y.z]
     `)
   })
@@ -354,6 +362,7 @@ describe('contract errors', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: execution reverted
       Version: viem@x.y.z]
     `)
   })
@@ -380,6 +389,7 @@ describe('contract errors', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: execution reverted: custom error 0xf9006398:                                                                bugger                          
       Version: viem@x.y.z]
     `)
   })
@@ -406,6 +416,7 @@ describe('contract errors', () => {
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
       Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: execution reverted: custom error 0xdb731cf4: 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000004500000000000000000000000000000000000000000000000000000000000000066275676765720000000000000000000000000000000000000000000000000000
       Version: viem@x.y.z]
     `)
   })

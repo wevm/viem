@@ -25,11 +25,19 @@ import {
   RawContractError,
   type RawContractErrorType,
 } from '../../errors/contract.js'
-import type { ErrorType } from '../../errors/utils.js'
+import {
+  type ErrorType,
+  getAbortError,
+  isAbortError,
+} from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import type { Hex } from '../../types/misc.js'
-import type { RpcTransactionRequest } from '../../types/rpc.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
+import type { Hash, Hex } from '../../types/misc.js'
+import type {
+  RpcStateOverride,
+  RpcTransactionRequest,
+} from '../../types/rpc.js'
 import type { StateOverride } from '../../types/stateOverride.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { ExactPartial, UnionOmit } from '../../types/utils.js'
@@ -45,15 +53,16 @@ import {
   type EncodeFunctionDataErrorType,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
+import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
+import {
+  type FormatBlockParameterErrorType,
+  formatBlockParameter,
+} from '../../utils/block/formatBlockParameter.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
 } from '../../utils/chain/getChainContractAddress.js'
-import {
-  type NumberToHexErrorType,
-  numberToHex,
-} from '../../utils/encoding/toHex.js'
 import {
   type GetCallErrorReturnType,
   getCallError,
@@ -93,21 +102,35 @@ export type CallParameters<
   factory?: Address | undefined
   /** Calldata to execute on the factory to deploy the contract. */
   factoryData?: Hex | undefined
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
   /** State overrides for the call. */
   stateOverride?: StateOverride | undefined
 } & (
     | {
-        /** The balance of the account at a block number. */
+        /** The block number to perform the call against. */
         blockNumber?: bigint | undefined
         blockTag?: undefined
+        blockHash?: undefined
+        requireCanonical?: undefined
       }
     | {
         blockNumber?: undefined
         /**
-         * The balance of the account at a block tag.
+         * The block tag to perform the call against.
          * @default 'latest'
          */
         blockTag?: BlockTag | undefined
+        blockHash?: undefined
+        requireCanonical?: undefined
+      }
+    | {
+        blockNumber?: undefined
+        blockTag?: undefined
+        /** The block hash to perform the call against. */
+        blockHash: Hash
+        /** Whether or not to throw an error if the block is not in the canonical chain. Only allowed in conjunction with `blockHash`. */
+        requireCanonical?: boolean | undefined
       }
   )
 type FormattedCall<chain extends Chain | undefined = Chain | undefined> =
@@ -119,7 +142,7 @@ export type CallErrorType = GetCallErrorReturnType<
   | ParseAccountErrorType
   | SerializeStateOverrideErrorType
   | AssertRequestErrorType
-  | NumberToHexErrorType
+  | FormatBlockParameterErrorType
   | FormatTransactionRequestErrorType
   | ScheduleMulticallErrorType
   | RequestErrorType
@@ -160,8 +183,10 @@ export async function call<chain extends Chain | undefined>(
     account: account_ = client.account,
     authorizationList,
     batch = Boolean(client.batch?.multicall),
+    blockHash,
     blockNumber,
     blockTag = client.experimental_blockTag ?? 'latest',
+    requireCanonical,
     accessList,
     blobs,
     blockOverrides,
@@ -175,6 +200,7 @@ export async function call<chain extends Chain | undefined>(
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
+    requestOptions,
     to,
     value,
     stateOverride,
@@ -214,9 +240,12 @@ export async function call<chain extends Chain | undefined>(
   try {
     assertRequest(args as AssertRequestParameters)
 
-    const blockNumberHex =
-      typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
-    const block = blockNumberHex || blockTag
+    const block = formatBlockParameter({
+      blockHash,
+      blockNumber,
+      blockTag,
+      requireCanonical,
+    })
 
     const rpcBlockOverrides = blockOverrides
       ? BlockOverrides.toRpc(blockOverrides)
@@ -250,15 +279,33 @@ export async function call<chain extends Chain | undefined>(
     if (
       batch &&
       shouldPerformMulticall({ request }) &&
-      !rpcStateOverride &&
-      !rpcBlockOverrides
+      !rpcBlockOverrides &&
+      blockHash === undefined
     ) {
       try {
-        return await scheduleMulticall(client, {
-          ...request,
+        const { deployless = false } =
+          typeof client.batch?.multicall === 'object'
+            ? client.batch.multicall
+            : {}
+        const multicallAddress = getMulticallAddress(client, {
           blockNumber,
-          blockTag,
-        } as unknown as ScheduleMulticallParameters<chain>)
+          deployless,
+        })
+
+        if (
+          !multicallAddress ||
+          !hasStateOverrideForAddress(rpcStateOverride, multicallAddress)
+        )
+          return await scheduleMulticall(client, {
+            ...request,
+            blockHash,
+            blockNumber,
+            blockTag,
+            multicallAddress,
+            requestOptions,
+            requireCanonical,
+            rpcStateOverride,
+          } as unknown as ScheduleMulticallParameters<chain>)
       } catch (err) {
         if (
           !(err instanceof ClientChainNotConfiguredError) &&
@@ -280,13 +327,20 @@ export async function call<chain extends Chain | undefined>(
       return base
     })()
 
-    const response = await client.request({
-      method: 'eth_call',
-      params,
-    })
+    const response = await client.request(
+      {
+        method: 'eth_call',
+        params,
+      },
+      requestOptions,
+    )
     if (response === '0x') return { data: undefined }
     return { data: response }
   } catch (err) {
+    if (requestOptions?.signal?.aborted)
+      throw getAbortError(requestOptions.signal)
+    if (isAbortError(err)) throw err
+
     const data = getRevertErrorData(err)
 
     // Check for CCIP-Read offchain lookup signature.
@@ -298,7 +352,9 @@ export async function call<chain extends Chain | undefined>(
       data?.slice(0, 10) === offchainLookupSignature &&
       to
     )
-      return { data: await offchainLookup(client, { data, to }) }
+      return {
+        data: await offchainLookup(client, { data, requestOptions, to }),
+      }
 
     // Check for counterfactual deployment error.
     if (deploylessCall && data?.slice(0, 10) === '0x101bb98d')
@@ -329,18 +385,33 @@ function shouldPerformMulticall({ request }: { request: TransactionRequest }) {
   return true
 }
 
+let requestOptionsId = 0
+const requestOptionsIds = new WeakMap<EIP1193RequestOptions, number>()
+function getRequestOptionsId(
+  requestOptions: EIP1193RequestOptions | undefined,
+) {
+  if (!requestOptions) return 'default'
+  const id = requestOptionsIds.get(requestOptions)
+  if (id !== undefined) return id
+  const nextId = requestOptionsId++
+  requestOptionsIds.set(requestOptions, nextId)
+  return nextId
+}
+
 type ScheduleMulticallParameters<chain extends Chain | undefined> = Pick<
   CallParameters<chain>,
-  'blockNumber' | 'blockTag'
+  'blockHash' | 'blockNumber' | 'blockTag' | 'requireCanonical'
 > & {
   data: Hex
-  multicallAddress?: Address | undefined
+  multicallAddress?: Address | null | undefined
+  requestOptions?: EIP1193RequestOptions | undefined
   to: Address
+  rpcStateOverride?: RpcStateOverride | undefined
 }
 
 type ScheduleMulticallErrorType =
   | GetChainContractAddressErrorType
-  | NumberToHexErrorType
+  | FormatBlockParameterErrorType
   | CreateBatchSchedulerErrorType
   | EncodeFunctionDataErrorType
   | DecodeFunctionResultErrorType
@@ -357,31 +428,39 @@ async function scheduleMulticall<chain extends Chain | undefined>(
     wait = 0,
   } = typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}
   const {
+    blockHash,
     blockNumber,
     blockTag = client.experimental_blockTag ?? 'latest',
+    requireCanonical,
     data,
+    multicallAddress: multicallAddress_,
+    requestOptions,
+    rpcStateOverride,
     to,
   } = args
 
-  const multicallAddress = (() => {
-    if (deployless) return null
-    if (args.multicallAddress) return args.multicallAddress
-    if (client.chain) {
-      return getChainContractAddress({
-        blockNumber,
-        chain: client.chain,
-        contract: 'multicall3',
-      })
-    }
-    throw new ClientChainNotConfiguredError()
-  })()
+  const multicallAddress =
+    multicallAddress_ !== undefined
+      ? multicallAddress_
+      : getMulticallAddress(client, {
+          blockNumber,
+          deployless,
+        })
 
-  const blockNumberHex =
-    typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
-  const block = blockNumberHex || blockTag
+  const block = formatBlockParameter({
+    blockHash,
+    blockNumber,
+    blockTag,
+    requireCanonical,
+  })
+  const blockId = typeof block === 'string' ? block : JSON.stringify(block)
+
+  const stateOverrideKey = rpcStateOverride
+    ? `.${JSON.stringify(rpcStateOverride)}`
+    : ''
 
   const { schedule } = createBatchScheduler({
-    id: `${client.uid}.${block}`,
+    id: `${client.uid}.${blockId}.${getRequestOptionsId(requestOptions)}${stateOverrideKey}`,
     wait,
     shouldSplitBatch(args) {
       const size = args.reduce((size, { data }) => size + (data.length - 2), 0)
@@ -405,22 +484,25 @@ async function scheduleMulticall<chain extends Chain | undefined>(
         functionName: 'aggregate3',
       })
 
-      const data = await client.request({
-        method: 'eth_call',
-        params: [
-          {
-            ...(multicallAddress === null
-              ? {
-                  data: toDeploylessCallViaBytecodeData({
-                    code: multicall3Bytecode,
-                    data: calldata,
-                  }),
-                }
-              : { to: multicallAddress, data: calldata }),
-          },
-          block,
-        ],
-      })
+      const multicallRequest = {
+        ...(multicallAddress === null
+          ? {
+              data: toDeploylessCallViaBytecodeData({
+                code: multicall3Bytecode,
+                data: calldata,
+              }),
+            }
+          : { to: multicallAddress, data: calldata }),
+      }
+      const data = await client.request(
+        {
+          method: 'eth_call',
+          params: rpcStateOverride
+            ? [multicallRequest, block, rpcStateOverride]
+            : [multicallRequest, block],
+        },
+        requestOptions,
+      )
 
       return decodeFunctionResult({
         abi: multicall3Abi,
@@ -436,6 +518,34 @@ async function scheduleMulticall<chain extends Chain | undefined>(
   if (!success) throw new RawContractError({ data: returnData })
   if (returnData === '0x') return { data: undefined }
   return { data: returnData }
+}
+
+function getMulticallAddress(
+  client: Client<Transport>,
+  parameters: {
+    blockNumber?: bigint | undefined
+    deployless?: boolean | undefined
+  },
+): Address | null {
+  const { blockNumber, deployless } = parameters
+  if (deployless) return null
+  if (client.chain)
+    return getChainContractAddress({
+      blockNumber,
+      chain: client.chain,
+      contract: 'multicall3',
+    })
+  throw new ClientChainNotConfiguredError()
+}
+
+function hasStateOverrideForAddress(
+  rpcStateOverride: RpcStateOverride | undefined,
+  address: Address,
+) {
+  if (!rpcStateOverride) return false
+  return Object.keys(rpcStateOverride).some((stateOverrideAddress) =>
+    isAddressEqual(stateOverrideAddress as Address, address),
+  )
 }
 
 type ToDeploylessCallViaBytecodeDataErrorType =

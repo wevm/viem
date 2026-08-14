@@ -55,7 +55,7 @@ export type WaitForTransactionReceiptParameters<
 > = {
   /**
    * Whether to check for transaction replacements.
-   * @default true
+   * @default `client.chain?.supportsTransactionReplacementDetection ?? true`
    */
   checkReplacement?: boolean | undefined
   /**
@@ -143,7 +143,8 @@ export async function waitForTransactionReceipt<
   parameters: WaitForTransactionReceiptParameters<chain>,
 ): Promise<WaitForTransactionReceiptReturnType<chain>> {
   const {
-    checkReplacement = true,
+    checkReplacement = client.chain?.supportsTransactionReplacementDetection ??
+      true,
     confirmations = 1,
     hash,
     onReplaced,

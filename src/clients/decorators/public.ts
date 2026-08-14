@@ -98,6 +98,11 @@ import {
   getBlockNumber,
 } from '../../actions/public/getBlockNumber.js'
 import {
+  type GetBlockReceiptsParameters,
+  type GetBlockReceiptsReturnType,
+  getBlockReceipts,
+} from '../../actions/public/getBlockReceipts.js'
+import {
   type GetBlockTransactionCountParameters,
   type GetBlockTransactionCountReturnType,
   getBlockTransactionCount,
@@ -116,6 +121,11 @@ import {
   type GetContractEventsReturnType,
   getContractEvents,
 } from '../../actions/public/getContractEvents.js'
+import {
+  type GetDelegationParameters,
+  type GetDelegationReturnType,
+  getDelegation,
+} from '../../actions/public/getDelegation.js'
 import {
   type GetEip712DomainParameters,
   type GetEip712DomainReturnType,
@@ -150,6 +160,11 @@ import {
   type GetProofReturnType,
   getProof,
 } from '../../actions/public/getProof.js'
+import {
+  type GetRawTransactionParameters,
+  type GetRawTransactionReturnType,
+  getRawTransaction,
+} from '../../actions/public/getRawTransaction.js'
 import {
   type GetStorageAtParameters,
   type GetStorageAtReturnType,
@@ -226,6 +241,11 @@ import {
   waitForTransactionReceipt,
 } from '../../actions/public/waitForTransactionReceipt.js'
 import {
+  type WatchBlockHeadersParameters,
+  type WatchBlockHeadersReturnType,
+  watchBlockHeaders,
+} from '../../actions/public/watchBlockHeaders.js'
+import {
   type WatchBlockNumberParameters,
   type WatchBlockNumberReturnType,
   watchBlockNumber,
@@ -256,6 +276,12 @@ import {
   verifySiweMessage,
 } from '../../actions/siwe/verifySiweMessage.js'
 import {
+  getAllowance,
+  getMetadata,
+  getBalance as getTokenBalance,
+  getTotalSupply,
+} from '../../actions/token/index.js'
+import {
   type PrepareTransactionRequestParameters,
   type PrepareTransactionRequestRequest,
   type PrepareTransactionRequestReturnType,
@@ -271,6 +297,7 @@ import {
   type SendRawTransactionSyncReturnType,
   sendRawTransactionSync,
 } from '../../actions/wallet/sendRawTransactionSync.js'
+import type { Tokens } from '../../tokens/defineToken.js'
 import type { Account } from '../../types/account.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
@@ -283,13 +310,18 @@ import type {
 } from '../../types/contract.js'
 import type { FeeValuesType } from '../../types/fee.js'
 import type { FilterType } from '../../types/filter.js'
-import type { Client } from '../createClient.js'
+import type { HasTransportType } from '../../types/transport.js'
+import { bindActionDecorators, type Client } from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
+
+/** @internal */
+export type { TokenName } from '../../actions/token/internal.js'
 
 export type PublicActions<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 > = {
   /**
    * Executes a new message call immediately without submitting a transaction to the network.
@@ -667,6 +699,30 @@ export type PublicActions<
     args?: GetBlockParameters<includeTransactions, blockTag> | undefined,
   ) => Promise<GetBlockReturnType<chain, includeTransactions, blockTag>>
   /**
+   * Returns the transaction receipts of a block at a block number, hash, or tag.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/getBlockReceipts
+   * - JSON-RPC Methods: [`eth_getBlockReceipts`](https://ethereum.github.io/execution-apis/api/methods/eth_getBlockReceipts/)
+   *
+   * @param args - {@link GetBlockReceiptsParameters}
+   * @returns The transaction receipts. {@link GetBlockReceiptsReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const receipts = await client.getBlockReceipts({
+   *   blockNumber: 69420n,
+   * })
+   */
+  getBlockReceipts: (
+    args?: GetBlockReceiptsParameters | undefined,
+  ) => Promise<GetBlockReceiptsReturnType<chain>>
+  /**
    * Returns the number of the most recent block seen.
    *
    * - Docs: https://viem.sh/docs/actions/public/getBlockNumber
@@ -800,6 +856,29 @@ export type PublicActions<
   ) => Promise<
     GetContractEventsReturnType<abi, eventName, strict, fromBlock, toBlock>
   >
+  /**
+   * Returns the address that an account has delegated to via EIP-7702.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/getDelegation
+   *
+   * @param args - {@link GetDelegationParameters}
+   * @returns The delegated address, or undefined if not delegated. {@link GetDelegationReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const delegation = await client.getDelegation({
+   *   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   * })
+   */
+  getDelegation: (
+    args: GetDelegationParameters,
+  ) => Promise<GetDelegationReturnType>
   /**
    * Reads the EIP-712 domain from a contract, based on the ERC-5267 specification.
    *
@@ -1284,6 +1363,30 @@ export type PublicActions<
       | EstimateMaxPriorityFeePerGasParameters<chain, chainOverride>
       | undefined,
   ) => Promise<EstimateMaxPriorityFeePerGasReturnType>
+  /**
+   * Returns the raw, serialized [Transaction](https://viem.sh/docs/glossary/terms#transaction) given a hash.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/getRawTransaction
+   * - JSON-RPC Methods: `eth_getRawTransactionByHash`
+   *
+   * @param args - {@link GetRawTransactionParameters}
+   * @returns The raw, serialized transaction. {@link GetRawTransactionReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const rawTransaction = await client.getRawTransaction({
+   *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+   * })
+   */
+  getRawTransaction: (
+    args: GetRawTransactionParameters,
+  ) => Promise<GetRawTransactionReturnType>
   /**
    * Returns the value from a storage slot at a given address.
    *
@@ -1892,6 +1995,32 @@ export type PublicActions<
     args: WatchBlockNumberParameters,
   ) => WatchBlockNumberReturnType
   /**
+   * Watches and returns incoming block headers without fetching full blocks.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/watchBlockHeaders
+   * - JSON-RPC Methods: Uses a WebSocket or IPC subscription via [`eth_subscribe`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_subscribe) and the `"newHeads"` event.
+   *
+   * @param args - {@link WatchBlockHeadersParameters}
+   * @returns A function that can be invoked to stop watching for new block headers. {@link WatchBlockHeadersReturnType}
+   *
+   * @example
+   * import { createPublicClient, webSocket } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: webSocket(),
+   * })
+   * const unwatch = client.watchBlockHeaders({
+   *   onBlockHeader: (blockHeader) => console.log(blockHeader),
+   * })
+   */
+  watchBlockHeaders: (
+    args: HasTransportType<transport, 'webSocket' | 'ipc'> extends true
+      ? WatchBlockHeadersParameters<chain>
+      : never,
+  ) => WatchBlockHeadersReturnType
+  /**
    * Watches and returns information for incoming blocks.
    *
    * - Docs: https://viem.sh/docs/actions/public/watchBlocks
@@ -2034,15 +2163,150 @@ export type PublicActions<
   watchPendingTransactions: (
     args: WatchPendingTransactionsParameters<transport>,
   ) => WatchPendingTransactionsReturnType
+  /**
+   * Read-only ERC-20 Actions, exposed under the `token` namespace.
+   *
+   * Every action selects its token by `token`, which is either a token symbol
+   * (resolved from the Client's `tokens` array) or a contract `address`.
+   *
+   * - Docs: https://viem.sh/docs/token
+   */
+  token: {
+    /**
+     * Gets the amount of tokens a `spender` is allowed to spend on behalf of an
+     * `account`.
+     *
+     * - Docs: https://viem.sh/docs/token/getAllowance
+     *
+     * @param parameters - {@link getAllowance.Parameters}
+     * @returns The remaining allowance, in base units and human-readable form. {@link getAllowance.ReturnValue}
+     *
+     * @example
+     * import { createPublicClient, http } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = createPublicClient({ chain: mainnet, transport: http() })
+     *
+     * const allowance = await client.token.getAllowance({
+     *   account: '0x…',
+     *   spender: '0x…',
+     *   token: 'usdc',
+     * })
+     */
+    getAllowance: ((
+      parameters: getAllowance.Parameters<chain, tokens>,
+    ) => Promise<getAllowance.ReturnValue>) & {
+      /**
+       * Defines an `allowance` contract call, ready to pass to `multicall`,
+       * `simulateContract`, or any other action that accepts a contract call.
+       *
+       * - Docs: https://viem.sh/docs/token/getAllowance#composing-calls
+       *
+       * @param args - {@link getAllowance.Args}
+       * @returns The contract call.
+       */
+      call: (
+        args: getAllowance.Args<chain, tokens>,
+      ) => ReturnType<typeof getAllowance.call>
+    }
+    /**
+     * Gets the token balance of an `account`.
+     *
+     * - Docs: https://viem.sh/docs/token/getBalance
+     *
+     * @param parameters - {@link getTokenBalance.Parameters}
+     * @returns The token balance, in base units and human-readable form. {@link getTokenBalance.ReturnValue}
+     *
+     * @example
+     * import { createPublicClient, http } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = createPublicClient({ chain: mainnet, transport: http() })
+     *
+     * const balance = await client.token.getBalance({
+     *   account: '0x…',
+     *   token: 'usdc',
+     * })
+     */
+    getBalance: ((
+      parameters: getTokenBalance.Parameters<chain, account, tokens>,
+    ) => Promise<getTokenBalance.ReturnValue>) & {
+      /**
+       * Defines a `balanceOf` contract call, ready to pass to `multicall`,
+       * `simulateContract`, or any other action that accepts a contract call.
+       *
+       * - Docs: https://viem.sh/docs/token/getBalance#composing-calls
+       *
+       * @param args - {@link getTokenBalance.Args}
+       * @returns The contract call.
+       */
+      call: (
+        args: getTokenBalance.Args<chain, account, tokens>,
+      ) => ReturnType<typeof getTokenBalance.call>
+    }
+    /**
+     * Gets the metadata (`decimals`, `name`, `symbol`) of the token. Fields
+     * declared on the Client's `tokens` array are used as-is; any missing field
+     * is fetched from the token contract.
+     *
+     * - Docs: https://viem.sh/docs/token/getMetadata
+     *
+     * @param parameters - {@link getMetadata.Parameters}
+     * @returns The token metadata (`decimals`, `name`, `symbol`). {@link getMetadata.ReturnValue}
+     *
+     * @example
+     * import { createPublicClient, http } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = createPublicClient({ chain: mainnet, transport: http() })
+     *
+     * const metadata = await client.token.getMetadata({ token: 'usdc' })
+     */
+    getMetadata: (
+      parameters: getMetadata.Parameters<chain, tokens>,
+    ) => Promise<getMetadata.ReturnValue>
+    /**
+     * Gets the total supply of the token.
+     *
+     * - Docs: https://viem.sh/docs/token/getTotalSupply
+     *
+     * @param parameters - {@link getTotalSupply.Parameters}
+     * @returns The token total supply, in base units and human-readable form. {@link getTotalSupply.ReturnValue}
+     *
+     * @example
+     * import { createPublicClient, http } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = createPublicClient({ chain: mainnet, transport: http() })
+     *
+     * const totalSupply = await client.token.getTotalSupply({ token: 'usdc' })
+     */
+    getTotalSupply: ((
+      parameters: getTotalSupply.Parameters<chain, tokens>,
+    ) => Promise<getTotalSupply.ReturnValue>) & {
+      /**
+       * Defines a `totalSupply` contract call, ready to pass to `multicall`,
+       * `simulateContract`, or any other action that accepts a contract call.
+       *
+       * - Docs: https://viem.sh/docs/token/getTotalSupply#composing-calls
+       *
+       * @param args - {@link getTotalSupply.Args}
+       * @returns The contract call.
+       */
+      call: (
+        args: getTotalSupply.Args<chain, tokens>,
+      ) => ReturnType<typeof getTotalSupply.call>
+    }
+  }
 }
-
 export function publicActions<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 >(
-  client: Client<transport, chain, account>,
-): PublicActions<transport, chain, account> {
+  client: Client<transport, chain, account, undefined, undefined, tokens>,
+): PublicActions<transport, chain, account, tokens> {
   return {
     call: (args) => call(client, args),
     createAccessList: (args) => createAccessList(client, args),
@@ -2058,11 +2322,13 @@ export function publicActions<
     getBlobBaseFee: () => getBlobBaseFee(client),
     getBlock: (args) => getBlock(client, args),
     getBlockNumber: (args) => getBlockNumber(client, args),
+    getBlockReceipts: (args) => getBlockReceipts(client, args),
     getBlockTransactionCount: (args) => getBlockTransactionCount(client, args),
     getBytecode: (args) => getCode(client, args),
     getChainId: () => getChainId(client),
     getCode: (args) => getCode(client, args),
     getContractEvents: (args) => getContractEvents(client, args),
+    getDelegation: (args) => getDelegation(client, args),
     getEip712Domain: (args) => getEip712Domain(client, args),
     getEnsAddress: (args) => getEnsAddress(client, args),
     getEnsAvatar: (args) => getEnsAvatar(client, args),
@@ -2079,6 +2345,7 @@ export function publicActions<
     estimateMaxPriorityFeePerGas: (args) =>
       estimateMaxPriorityFeePerGas(client, args),
     fillTransaction: (args) => fillTransaction(client, args),
+    getRawTransaction: (args) => getRawTransaction(client, args),
     getStorageAt: (args) => getStorageAt(client, args),
     getTransaction: (args) => getTransaction(client, args),
     getTransactionConfirmations: (args) =>
@@ -2102,10 +2369,27 @@ export function publicActions<
     uninstallFilter: (args) => uninstallFilter(client, args),
     waitForTransactionReceipt: (args) =>
       waitForTransactionReceipt(client, args),
+    watchBlockHeaders: (args) => watchBlockHeaders(client, args),
     watchBlocks: (args) => watchBlocks(client, args),
     watchBlockNumber: (args) => watchBlockNumber(client, args),
     watchContractEvent: (args) => watchContractEvent(client, args),
     watchEvent: (args) => watchEvent(client, args),
     watchPendingTransactions: (args) => watchPendingTransactions(client, args),
+    token: bindPublicToken(client) as never,
+  }
+}
+
+/**
+ * Binds the read-only ERC-20 actions (and their `.call` helpers) to `client`.
+ * Merged with the write actions from {@link walletActions} (when present) by the
+ * Client's `extend`, which shallow-merges conflicting plain-object namespaces.
+ * @internal
+ */
+function bindPublicToken(client: Client<Transport, Chain | undefined, any>) {
+  return {
+    getAllowance: bindActionDecorators(client, getAllowance),
+    getBalance: bindActionDecorators(client, getTokenBalance),
+    getMetadata: bindActionDecorators(client, getMetadata),
+    getTotalSupply: bindActionDecorators(client, getTotalSupply),
   }
 }

@@ -3,6 +3,7 @@ import { expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
 
+import { getBlock } from './getBlock.js'
 import { getCode } from './getCode.js'
 
 const client = anvilMainnet.getClient()
@@ -20,6 +21,33 @@ test('default', async () => {
     await getCode(client, {
       address: wagmiContractConfig.address,
       blockNumber: anvilMainnet.forkBlockNumber,
+    }),
+  ).toBeDefined()
+})
+
+test('args: blockHash (EIP-1898)', async () => {
+  const block = await getBlock(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
+  })
+
+  expect(
+    await getCode(client, {
+      address: wagmiContractConfig.address,
+      blockHash: block.hash!,
+    }),
+  ).toBeDefined()
+})
+
+test('args: blockHash + requireCanonical (EIP-1898)', async () => {
+  const block = await getBlock(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
+  })
+
+  expect(
+    await getCode(client, {
+      address: wagmiContractConfig.address,
+      blockHash: block.hash!,
+      requireCanonical: true,
     }),
   ).toBeDefined()
 })

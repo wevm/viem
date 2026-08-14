@@ -235,6 +235,45 @@ describe('request', () => {
     await server.close()
   })
 
+  test('batch separates requests by signal', async () => {
+    let count = 0
+    const server = await createHttpServer((req, res) => {
+      let body = ''
+      req.on('data', (chunk) => {
+        body += chunk
+      })
+      req.on('end', () => {
+        count++
+        const requests = JSON.parse(body)
+        res.appendHeader('Content-Type', 'application/json')
+        res.end(
+          JSON.stringify(
+            requests.map((request: { id: number; method: string }) => ({
+              id: request.id,
+              result: request.method,
+            })),
+          ),
+        )
+      })
+    })
+
+    const transport = http(server.url, {
+      key: 'mock',
+      batch: true,
+    })({ chain: localhost })
+    const controller = new AbortController()
+
+    const results = await Promise.all([
+      transport.request({ method: 'eth_a' }),
+      transport.request({ method: 'eth_b' }, { signal: controller.signal }),
+    ])
+
+    expect(results).toEqual(['eth_a', 'eth_b'])
+    expect(count).toEqual(2)
+
+    await server.close()
+  })
+
   test('batch (with wait)', async () => {
     let count = 0
     const server = await createHttpServer((_, res) => {
@@ -418,6 +457,35 @@ describe('request', () => {
     await server.close()
   })
 
+  test('behavior: maxResponseBodySize', async () => {
+    const body = JSON.stringify({ result: '0x1' })
+    const server = await createHttpServer((_, res) => {
+      res.writeHead(200, {
+        'Content-Length': body.length,
+        'Content-Type': 'application/json',
+      })
+      res.end(body)
+    })
+
+    const transport = http(server.url, {
+      key: 'mock',
+      maxResponseBodySize: body.length - 1,
+    })({ chain: localhost })
+
+    await expect(() =>
+      transport.request({ method: 'eth_blockNumber' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ResponseBodyTooLargeError: HTTP response body exceeded the size limit.
+
+      Max: 15 bytes
+      Received: 16 bytes
+
+      Version: viem@x.y.z]
+    `)
+
+    await server.close()
+  })
+
   test('behavior: methods.exclude', async () => {
     const server = await createHttpServer((_, res) => {
       res.end(JSON.stringify({ result: '0x1' }))
@@ -555,6 +623,29 @@ describe('request', () => {
       Details: The request timed out.
       Version: viem@x.y.z]
     `)
+  })
+
+  test('behavior: request signal aborts request', async () => {
+    const server = await createHttpServer(async (_req, res) => {
+      await wait(1_000)
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+    const transport = http(server.url, {
+      key: 'jsonRpc',
+      name: 'JSON RPC',
+    })({ chain: localhost })
+    const controller = new AbortController()
+
+    setTimeout(() => controller.abort(), 50)
+
+    await expect(() =>
+      transport.request(
+        { method: 'eth_blockNumber' },
+        { signal: controller.signal },
+      ),
+    ).rejects.toThrowError('This operation was aborted')
+
+    await server.close()
   })
 
   test('behavior: raw', async () => {

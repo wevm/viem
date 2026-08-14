@@ -17,7 +17,7 @@ const balance = await client.token.getBalance({
 })
 
 console.log('Balance:', balance)
-// @log: Balance: 10500000n
+// @log: Balance: { amount: 10500000n, decimals: 6, formatted: '10.5' }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -29,8 +29,18 @@ console.log('Balance:', balance)
 ## Return Type
 
 ```ts
-type ReturnType = bigint // Balance amount
+type ReturnType = {
+  /** Balance in the token's base units. */
+  amount: bigint
+  /** Token decimals used to derive `formatted`. */
+  decimals: number
+  /** Balance formatted with the token's `decimals`. */
+  formatted: string
+}
 ```
+
+The balance, both in base units (`amount`) and as a human-readable decimal string
+(`formatted`, derived from the token's `decimals`).
 
 ## Parameters
 
@@ -38,13 +48,20 @@ type ReturnType = bigint // Balance amount
 
 - **Type:** `Address`
 
-Account address.
+Account to get the balance of.
 
 ### token
 
-- **Type:** `Address | bigint`
+- **Type:** `string`
 
-Address or ID of the TIP20 token.
+Token to operate on: a [chain-declared](/tokens/tokens#token-lookup) token name (resolving
+its `address` and `decimals`), a TIP20 token id, or a token address.
+
+### decimals (optional)
+
+- **Type:** `number`
+
+Token decimals for converting base units to human-readable amounts. Inferred from
+the chain's `tokens` config, or fetched from the token contract when omitted.
 
 <ReadAccountParameters />
-

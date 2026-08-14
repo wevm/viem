@@ -44,11 +44,13 @@ export type ReadContractParameters<
     CallParameters,
     | 'account'
     | 'authorizationList'
+    | 'blockHash'
     | 'blockNumber'
     | 'blockOverrides'
     | 'blockTag'
     | 'factory'
     | 'factoryData'
+    | 'requireCanonical'
     | 'stateOverride'
   >
 > &

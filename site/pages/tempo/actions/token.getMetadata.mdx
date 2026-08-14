@@ -2,7 +2,7 @@ import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
 # `token.getMetadata`
 
-Gets the metadata for a TIP-20 token, including name, symbol, decimals, currency, and total supply.
+Gets the metadata for a TIP-20 token, including name, symbol, logo URI, decimals, currency, and total supply.
 
 ## Usage
 
@@ -21,6 +21,8 @@ console.log('Decimals:', metadata.decimals)
 // @log: Decimals: 18
 console.log('Name:', metadata.name)
 // @log: Name: United States Dollar
+console.log('Logo URI:', metadata.logoURI)
+// @log: Logo URI: https://example.com/token.svg
 console.log('Symbol:', metadata.symbol)
 // @log: Symbol: USD
 console.log('Total Supply:', metadata.totalSupply)
@@ -39,6 +41,7 @@ console.log('Total Supply:', metadata.totalSupply)
 type ReturnType = {
   currency: string
   decimals: number
+  logoURI: string
   name: string
   paused?: boolean
   quoteToken?: Address
@@ -53,9 +56,11 @@ type ReturnType = {
 
 ### token
 
-- **Type:** `Address | bigint`
+- **Type:** `string`
 
-Address or ID of the TIP-20 token.
+Token to operate on: a [chain-declared](/tokens/tokens#token-lookup) token name (resolving
+its `address` and metadata), a TIP-20 token id, or a token address. Metadata
+declared on the chain's `tokens` config is used when present; otherwise it is read
+from the contract.
 
 <ReadParameters />
-

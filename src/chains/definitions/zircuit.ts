@@ -14,12 +14,7 @@ export const zircuit = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: [
-        'https://mainnet.zircuit.com',
-        'https://zircuit1-mainnet.liquify.com',
-        'https://zircuit1-mainnet.p2pify.com',
-        'https://zircuit-mainnet.drpc.org',
-      ],
+      http: ['https://mainnet.zircuit.com'],
     },
   },
   blockExplorers: {
@@ -29,6 +24,7 @@ export const zircuit = /*#__PURE__*/ defineChain({
     },
   },
   contracts: {
+    ...chainConfig.contracts,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
     },

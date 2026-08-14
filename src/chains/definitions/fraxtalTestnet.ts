@@ -44,4 +44,5 @@ export const fraxtalTestnet = /*#__PURE__*/ defineChain({
     },
   },
   sourceId,
+  testnet: true,
 })

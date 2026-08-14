@@ -55,6 +55,9 @@ export function formatTransaction(
     blockNumber: transaction.blockNumber
       ? BigInt(transaction.blockNumber)
       : null,
+    ...(transaction.blockTimestamp != null && {
+      blockTimestamp: BigInt(transaction.blockTimestamp),
+    }),
     chainId: transaction.chainId ? hexToNumber(transaction.chainId) : undefined,
     gas: transaction.gas ? BigInt(transaction.gas) : undefined,
     gasPrice: transaction.gasPrice ? BigInt(transaction.gasPrice) : undefined,

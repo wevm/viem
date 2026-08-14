@@ -1,0 +1,46 @@
+# `TempoAddress.format`
+
+Formats a raw Ethereum address (and optional zone ID) into a Tempo address string.
+
+## Usage
+
+```ts twoslash
+// @twoslash-cache: {"v":2,"hash":"0340e4ce23ac77aa6d76eb00d4add368513c3b9f206d59c0602ddd03dfdb1626","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIAVGViAIJQopeAipw0AQw5IAnFQA2MMAHM0+JAEYATFWmlVMBohC9+QkWMohFjMLkQAGKgGN8Mqa5rlEcgL4U6NiOBMRkNjT0eK4QYJKcUsKicHCInAAGNPy0ACTAkqT2qv4ZNpIyJgAsCrYq6pqIAOz6MkYmIElWqTZ2Dkh6IO6e3hGIAGyBwTh4hCTk+nQdLGwcPHxsliniIBWyiACstcpqGtqDBu145pvJ1kr2joPDpF4+2pNB1CGz4QvUSzwADMAK5gbyMOKcIHsZhSNAACi623SN0Ed1SADotmIAJSojbo7pwTFogA6YDAUmY8CwXhg0Nh8JsUAgrgQpgAYky0HBEpxXgB3TgAUQ0ZBgIOYiQxfPsaAg/LRMuJnEKxUxkSkqg5yGQIDo1KwyhsGTNvM4aEFEDgiikcHwFJW7C4wHWFllnH80NIEGlAHIILQAPTZNj+ikU2LxLjIsScAC87tuxMxMNIcMR/qctCaVR0UAAzAcAMKucbjQtVEtOA6FnRyHQHKSFgBGAA4qlUAEKuOQwJpHA5AnStgAiOnb/txFODwZAAF0KPrFBBVDZ0v6w0Gc3mC8XXOXK1VXLX643m23O1VW32B0OR62oJOI2AzWUl/q6a9mDY46lOAAWh4fAGSFTgdCcQDWwwGhRXFUQpRVbZNU/EBRDQEFSHiGxuFAzgVFiWAoGTRV/z5dU1FQpddgMEwmkGE4GiQcZWkMYxgR5XpHgGNwPFeUZfAbKZvhmUxpHXKgqRpPBV0k2jKnOA4lHqM5nEWaJTC3QktAARywcYAC9xigQUiCIcsiF0g4YCBDAAGtC2YOBCzkMEYHGYwQSqKQ5F0tAACsdHs+ynH9bj+kQKo+JGd5nH8GiiNCZ01jdNEcQA70gV9AMiEYPhQ0JV8oziBJyMTUiMpJdNMwRbNc3zItSyPKsazrBsmxbDsu17ftBzkYdRwnKcZzAGwaWkJBQCWFQ4EhMbxIQfx/CAA=="}
+import { TempoAddress } from 'viem/tempo'
+
+const address = TempoAddress.format('0x742d35Cc6634C0532925a3b844Bc9e7595f2bD28')
+// @log: 'tempo1qp6z6dwvvc6vq5efyk3ms39une6etu4a9qtj2kk0'
+```
+
+### Zone Address
+
+```ts twoslash
+// @twoslash-cache: {"v":2,"hash":"ab7fc0a66572fff26228c9558560ad8933274af7aa946dcc6d703eba62a06cab","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808BLAWywlLQAIAVGViAIJQopeAipw0AQw5IAnFQA2MMAHM0+JAEYATFWmlVMBohC9+QkWMohFjMLkQAGKgGN8Mqa5rlEcgL4U6NiOBMRkNjT0eK4QYJKcUsKicHCInAAGNPy0ACTAkqT2qv4ZNpIyJgAsCrYq6pqIAOz6MkYmIElWqTZ2Dkh6IO6e3hGIAGyBwTh4hCTk+nQdLGwcPHxsliniIBWyiACstcpqGtqDBu145pvJ1kr2joPDpF4+2pNB1CGz4QvUSzwADMAK5gbyMOKcIHsZhSNAACi623SN0Ed1SADotmIAJSojbo7pwTFogA6YDAUmY8CwXhg0Nh8JsUAgrgQpgAYky0HBEpxXgB3TgAUQ0ZBgIOYiQxfPsaAg/LRMuJnEKxUxkSkqg5yGQIDo1KwyhsGTNvM4aEFEDgiikcHwFJW7C4wHWFllnH80NIEGlAHIILQAPTZNj+ikU2LxLjIsScAC87tuxMxMNIcMR/qctCaVR0UAAzAcAMKucbjQtVEtOA6FnRyHQHKSFgBGAA4qlUAEKuOQwJpHA5AnStgAiOnb/txFODwZAAF0KPrFBBVDZ0v6w0Gc3mC8XXOXK1VXLX643m23O1VW32B0OR62oJOI2AzWUl/q6a9mDY46lOAAWh4fAGSFTgdCcQDWwwGhRXFUQpRVbZNU/EBRDQEFSHiGxuFAzgVFiWAoGTRV/z5dU1FQpddgMEwmkGE4GiQcZWkMYxgR5XpHgGNwPFeUZfAbKZvhmUw5giRZolMBEsF9HAOAwXFOAALziGAAEkoHSMApVbSTaMqbR6yUeozgmNirlMNSHC07j+kQKo+JGd5HJEzAxOobUbCpGk8FXdcJDo7QqhaOpTkaFwAWkkAt0JFStAAR2S/B1CBKoYELMBSCBOAVLAOQMAAK3GdtBRUjB8CKpx2zQOQnCK/ADgORK8ygOQQSK/17McMKXjeMYnH8GiiNCZ01jdNEcQA70gV9AMiEYPhQ0JV8oziBJyMTUjppJdNMwRClOE4bNc3zItSyPKsazrBsmxbDsu17ftBzkYdRwnKcKCOzg3RszTtM4LQvW+sAZzAGwaWkJBQCWFQ4EhCHTF5EB/H8IA==="}
+import { TempoAddress } from 'viem/tempo'
+
+const address = TempoAddress.format(
+  '0x742d35Cc6634C0532925a3b844Bc9e7595f2bD28',
+  { zoneId: 1 },
+)
+// @log: 'tempoz1qqqhgtf4e3nrfszn9yj68wzyhj08t90jh55q74d9uj'
+```
+
+## Parameters
+
+### address
+
+- **Type:** `Address`
+
+The raw 20-byte Ethereum address.
+
+### options.zoneId (optional)
+
+- **Type:** `number | bigint`
+
+Zone ID for zone addresses.
+
+## Return Type
+
+`TempoAddress`
+
+The encoded Tempo address string.

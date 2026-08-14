@@ -32,6 +32,11 @@ import {
   getContractError,
 } from '../../utils/errors/getContractError.js'
 import { getAction } from '../../utils/getAction.js'
+import {
+  type CreateBatchSchedulerErrorType,
+  createBatchScheduler,
+} from '../../utils/promise/createBatchScheduler.js'
+import { stringify } from '../../utils/stringify.js'
 import type { CallParameters } from './call.js'
 import { type ReadContractErrorType, readContract } from './readContract.js'
 
@@ -45,9 +50,11 @@ export type MulticallParameters<
 > = Pick<
   CallParameters,
   | 'authorizationList'
+  | 'blockHash'
   | 'blockNumber'
   | 'blockOverrides'
   | 'blockTag'
+  | 'requireCanonical'
   | 'stateOverride'
 > & {
   /** The account to use for the multicall. */
@@ -80,12 +87,21 @@ export type MulticallReturnType<
 >
 
 export type MulticallErrorType =
+  | CreateBatchSchedulerErrorType
   | GetChainContractAddressErrorType
   | ReadContractErrorType
   | GetContractErrorReturnType<
       EncodeFunctionDataErrorType | DecodeFunctionResultErrorType
     >
   | ErrorType
+
+type Aggregate3Call = {
+  allowFailure: boolean
+  callData: Hex
+  target: Address
+}
+
+type Aggregate3Calls = Aggregate3Call[]
 
 /**
  * Similar to [`readContract`](https://viem.sh/docs/contract/readContract), but batches up multiple functions on a contract in a single RPC call via the [`multicall3` contract](https://github.com/mds1/multicall).
@@ -138,17 +154,19 @@ export async function multicall<
     account,
     authorizationList,
     allowFailure = true,
+    blockHash,
     blockNumber,
     blockOverrides,
     blockTag,
+    requireCanonical,
     stateOverride,
   } = parameters
   const contracts = parameters.contracts as ContractFunctionParameters[]
 
-  const {
-    batchSize = parameters.batchSize ?? 1024,
-    deployless = parameters.deployless ?? false,
-  } = typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}
+  const batch =
+    typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}
+  const batchSize = parameters.batchSize ?? batch.batchSize ?? 1024
+  const deployless = parameters.deployless ?? batch.deployless ?? false
 
   const multicallAddress = (() => {
     if (parameters.multicallAddress) return parameters.multicallAddress
@@ -164,12 +182,6 @@ export async function multicall<
       'client chain not configured. multicallAddress is required.',
     )
   })()
-
-  type Aggregate3Calls = {
-    allowFailure: boolean
-    callData: Hex
-    target: Address
-  }[]
 
   const chunkedCalls: Aggregate3Calls[] = [[]]
   let currentChunk = 0
@@ -223,9 +235,27 @@ export async function multicall<
     }
   }
 
+  const batching = Boolean(client.batch?.multicall)
+  const batches = batching
+    ? chunkedCalls.flatMap((calls) => calls.map((call) => [call]))
+    : chunkedCalls
   const aggregate3Results = await Promise.allSettled(
-    chunkedCalls.map((calls) =>
-      getAction(
+    batches.map((calls) => {
+      if (batching)
+        return scheduleMulticall(client, {
+          account,
+          authorizationList,
+          batchSize,
+          blockHash,
+          blockNumber,
+          blockOverrides,
+          blockTag,
+          call: calls[0]!,
+          multicallAddress,
+          requireCanonical,
+          stateOverride,
+        }).then((result) => [result])
+      return getAction(
         client,
         readContract,
         'readContract',
@@ -237,13 +267,15 @@ export async function multicall<
         account,
         args: [calls],
         authorizationList,
+        blockHash,
         blockNumber,
         blockOverrides,
         blockTag,
         functionName: 'aggregate3',
+        requireCanonical,
         stateOverride,
-      }),
-    ),
+      })
+    }),
   )
 
   const results = []
@@ -254,7 +286,7 @@ export async function multicall<
     // then append the failure reason to each contract result.
     if (result.status === 'rejected') {
       if (!allowFailure) throw result.reason
-      for (let j = 0; j < chunkedCalls[i].length; j++) {
+      for (let j = 0; j < batches[i].length; j++) {
         results.push({
           status: 'failure',
           error: result.reason,
@@ -271,7 +303,7 @@ export async function multicall<
       const { returnData, success } = aggregate3Result[j]
 
       // Extract the request call data from the original call.
-      const { callData } = chunkedCalls[i][j]
+      const { callData } = batches[i][j]
 
       // Extract the contract config for this call from the `contracts` argument
       // for decoding.
@@ -306,4 +338,58 @@ export async function multicall<
   if (results.length !== contracts.length)
     throw new BaseError('multicall results mismatch')
   return results as MulticallReturnType<contracts, allowFailure>
+}
+
+type ScheduleMulticallParameters = Pick<
+  MulticallParameters,
+  | 'account'
+  | 'authorizationList'
+  | 'blockHash'
+  | 'blockNumber'
+  | 'blockOverrides'
+  | 'blockTag'
+  | 'requireCanonical'
+  | 'stateOverride'
+> & {
+  batchSize: number
+  call: Aggregate3Call
+  multicallAddress: Address | null
+}
+
+async function scheduleMulticall(
+  client: Client<Transport>,
+  parameters: ScheduleMulticallParameters,
+) {
+  const { batchSize, call, multicallAddress, ...rest } = parameters
+  const { wait = 0 } =
+    typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}
+  const { schedule } = createBatchScheduler({
+    id: stringify(['multicall', client.uid, batchSize, multicallAddress, rest]),
+    wait,
+    shouldSplitBatch(calls: Aggregate3Calls) {
+      if (batchSize === 0) return false
+      const size = calls.reduce(
+        (size, { callData }) => size + (callData.length - 2) / 2,
+        0,
+      )
+      return size > batchSize
+    },
+    fn: (calls: Aggregate3Calls) =>
+      getAction(
+        client,
+        readContract,
+        'readContract',
+      )({
+        ...(multicallAddress === null
+          ? { code: multicall3Bytecode }
+          : { address: multicallAddress }),
+        ...rest,
+        abi: multicall3Abi,
+        args: [calls],
+        functionName: 'aggregate3',
+      }),
+  })
+
+  const [result] = await schedule(call)
+  return result
 }

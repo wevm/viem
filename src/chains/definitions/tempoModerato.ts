@@ -4,10 +4,11 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const tempoModerato = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 42431,
+  hardfork: 't5',
   blockExplorers: {
     default: {
       name: 'Tempo Explorer',
-      url: 'https://explore.moderato.tempo.xyz',
+      url: 'https://explore.testnet.tempo.xyz',
     },
   },
   name: 'Tempo Testnet (Moderato)',
@@ -22,4 +23,5 @@ export const tempoModerato = /*#__PURE__*/ defineChain({
       webSocket: ['wss://rpc.moderato.tempo.xyz'],
     },
   },
+  testnet: true,
 })

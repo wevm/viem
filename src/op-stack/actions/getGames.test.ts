@@ -26,6 +26,7 @@ test('default', async () => {
   expect(game).toHaveProperty('timestamp')
   expect(game).toHaveProperty('rootClaim')
   expect(game).toHaveProperty('extraData')
+  expect(game).toHaveProperty('usesSuperRoots', false)
 })
 
 test('args: l2BlockNumber', async () => {
@@ -43,6 +44,7 @@ test('args: l2BlockNumber', async () => {
   expect(game).toHaveProperty('timestamp')
   expect(game).toHaveProperty('rootClaim')
   expect(game).toHaveProperty('extraData')
+  expect(game).toHaveProperty('usesSuperRoots', false)
 })
 
 test('args: l2BlockNumber (high)', async () => {
@@ -70,4 +72,5 @@ test('args: address', async () => {
   expect(game).toHaveProperty('timestamp')
   expect(game).toHaveProperty('rootClaim')
   expect(game).toHaveProperty('extraData')
+  expect(game).toHaveProperty('usesSuperRoots', false)
 })

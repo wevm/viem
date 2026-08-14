@@ -466,8 +466,8 @@ export type LogTopicType<
   topic extends LogTopic = LogTopic,
 > = topic extends Hex
   ? primitiveType
-  : topic extends Hex[]
-    ? primitiveType[]
+  : topic extends readonly Hex[]
+    ? readonly primitiveType[]
     : topic extends null
       ? null
       : never

@@ -2,6 +2,7 @@ import { ExecutionRevertedError } from '../../errors/node.js'
 import {
   TransactionRejectedRpcError,
   UserRejectedRequestError,
+  WalletConnectSessionSettlementError,
 } from '../../errors/rpc.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
@@ -211,6 +212,7 @@ export function shouldThrow(error: Error) {
     if (
       error.code === TransactionRejectedRpcError.code ||
       error.code === UserRejectedRequestError.code ||
+      error.code === WalletConnectSessionSettlementError.code ||
       ExecutionRevertedError.nodeMessage.test(error.message) ||
       error.code === 5000 // CAIP UserRejectedRequestError
     )

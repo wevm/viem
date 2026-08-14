@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest'
 
-import { observe } from './observe.js'
+import { cleanupCache, listenersCache, observe } from './observe.js'
 import { wait } from './wait.js'
 
 test('emits data to callbacks', async () => {
@@ -208,6 +208,37 @@ test('cleans up emit function when last listener unwatch', async () => {
 
   unwatch2()
 
+  expect(cleanup).toHaveBeenCalledTimes(1)
+})
+
+test('removes caches when last listener unwatches', () => {
+  const id = 'mock'
+  const cleanup = vi.fn()
+  const emitter = vi.fn(() => cleanup)
+
+  const unwatch1 = observe(id, { emit: vi.fn() }, emitter)
+  const unwatch2 = observe(id, { emit: vi.fn() }, emitter)
+
+  unwatch1()
+
+  expect(listenersCache.get(id)).toHaveLength(1)
+  expect(cleanupCache.has(id)).toBe(true)
+
+  unwatch2()
+
+  expect(cleanup).toHaveBeenCalledTimes(1)
+  expect(listenersCache.has(id)).toBe(false)
+  expect(cleanupCache.has(id)).toBe(false)
+})
+
+test('does not reuse cleanup after last listener unwatches', () => {
+  const id = 'mock'
+  const cleanup = vi.fn()
+
+  observe(id, { emit: vi.fn() }, () => cleanup)()
+  expect(cleanup).toHaveBeenCalledTimes(1)
+
+  observe(id, { emit: vi.fn() }, () => {})()
   expect(cleanup).toHaveBeenCalledTimes(1)
 })
 

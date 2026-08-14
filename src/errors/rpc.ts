@@ -75,6 +75,7 @@ export type ProviderRpcErrorCode =
   | 5740 // Bundle too large
   | 5750 // Atomic-ready wallet rejected upgrade
   | 5760 // Atomicity not supported
+  | 7000 // WalletConnect Session Settlement Failed
 
 /**
  * Error subclass implementing Ethereum Provider errors per EIP-1193.
@@ -640,6 +641,28 @@ export class AtomicityNotSupportedError extends ProviderRpcError {
       name: 'AtomicityNotSupportedError',
       shortMessage:
         'The wallet does not support atomic execution but the request requires it.',
+    })
+  }
+}
+
+/**
+ * Subclass for a "Session Settlement Failed" WalletConnect error.
+ *
+ * WalletConnect https://docs.walletconnect.com/2.0/specs/clients/sign/error-codes
+ */
+export type WalletConnectSessionSettlementErrorType =
+  WalletConnectSessionSettlementError & {
+    code: 7000
+    name: 'WalletConnectSessionSettlementError'
+  }
+export class WalletConnectSessionSettlementError extends ProviderRpcError {
+  static code = 7000 as const
+
+  constructor(cause: Error) {
+    super(cause, {
+      code: WalletConnectSessionSettlementError.code,
+      name: 'WalletConnectSessionSettlementError',
+      shortMessage: 'WalletConnect session settlement failed.',
     })
   }
 }

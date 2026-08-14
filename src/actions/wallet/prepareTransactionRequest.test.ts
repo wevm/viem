@@ -617,6 +617,7 @@ describe('without `eth_fillTransaction`', () => {
     } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       blobs: toBlobs({ data: '0x1234' }),
+      gas: 21001n,
       kzg,
       maxFeePerBlobGas: parseGwei('20'),
       to: targetAccount.address,
@@ -827,6 +828,44 @@ describe('without `eth_fillTransaction`', () => {
     `)
   })
 
+  test('behavior: sponsor fill feeToken overrides prefilled feeToken', async () => {
+    const requestFeeToken = '0x20c0000000000000000000000000000000000001'
+    const sponsorFeeToken = '0x20c0000000000000000000000000000000000000'
+    const fillTransactionSpy = vi
+      .spyOn(fillTransaction, 'fillTransaction')
+      .mockResolvedValueOnce({
+        transaction: {
+          feePayerSignature: {
+            r: '0x1',
+            s: '0x2',
+            yParity: 0,
+          },
+          feeToken: sponsorFeeToken,
+          gas: 21000n,
+        },
+      } as never)
+
+    try {
+      const request = await prepareTransactionRequest(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        feePayer: true,
+        feeToken: requestFeeToken,
+        parameters: ['gas'],
+        to: targetAccount.address,
+        value: parseEther('1'),
+      } as never)
+      const tempoRequest = request as {
+        feePayerSignature?: unknown
+        feeToken?: string | undefined
+      }
+
+      expect(tempoRequest.feePayerSignature).toBeDefined()
+      expect(tempoRequest.feeToken).toBe(sponsorFeeToken)
+    } finally {
+      fillTransactionSpy.mockRestore()
+    }
+  })
+
   test('behavior: chain default priority fee', async () => {
     await setup()
 
@@ -1006,6 +1045,29 @@ describe('without `eth_fillTransaction`', () => {
         value: parseEther('1'),
       })
       expect(request.gas).toEqual(50000n)
+    })
+
+    test('preserves a sender derived by the chain hook', async () => {
+      await setup()
+
+      const hookClient = createClient({
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        chain: defineChain({
+          ...anvilMainnet.chain,
+          async prepareTransactionRequest(args) {
+            const { account: _, ...request } = args
+            return { ...request, from: targetAccount.address }
+          },
+        }),
+        transport: http(anvilMainnet.rpcUrl.http),
+      })
+      const request = await prepareTransactionRequest(hookClient, {
+        to: sourceAccount.address,
+        value: 0n,
+      })
+
+      expect(request.account).toBeUndefined()
+      expect(request.from).toBe(targetAccount.address)
     })
 
     test('client chain with prepareTransactionRequest', async () => {
@@ -1248,8 +1310,8 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gas": 21000n,
-        "gasPrice": 12900000000n,
-        "maxFeePerGas": 12900000000n,
+        "gasPrice": 11700000000n,
+        "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -1285,8 +1347,8 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 12900000000n,
-        "maxFeePerGas": 12900000000n,
+        "gasPrice": 11700000000n,
+        "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -1322,8 +1384,8 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 12900000000n,
-        "maxFeePerGas": 12900000000n,
+        "gasPrice": 11700000000n,
+        "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -1360,8 +1422,8 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 12900000000n,
-        "maxFeePerGas": 12900000000n,
+        "gasPrice": 11700000000n,
+        "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 5,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -1526,8 +1588,8 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 17700000000n,
-        "maxFeePerGas": 17700000000n,
+        "gasPrice": 11700000000n,
+        "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 5000000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
@@ -1659,8 +1721,8 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 12900000000n,
-        "maxFeePerGas": 12900000000n,
+        "gasPrice": 11700000000n,
+        "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
@@ -1695,8 +1757,8 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 12900000000n,
-        "maxFeePerGas": 12900000000n,
+        "gasPrice": 11700000000n,
+        "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -1728,8 +1790,8 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 12900000000n,
-        "maxFeePerGas": 12900000000n,
+        "gasPrice": 11700000000n,
+        "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -1761,8 +1823,8 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 12900000000n,
-        "maxFeePerGas": 12900000000n,
+        "gasPrice": 11700000000n,
+        "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -1794,8 +1856,8 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "gasPrice": 12900000000n,
-        "maxFeePerGas": 12900000000n,
+        "gasPrice": 11700000000n,
+        "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -2137,6 +2199,41 @@ describe('behavior: attemptFill', () => {
     expect(fillTransactionSpy).not.toHaveBeenCalled()
   })
 
+  test('behavior: sponsorship bypasses cached unsupported fill state', async () => {
+    supportsFillTransaction.set(client.uid, false)
+
+    const fillTransactionSpy = vi
+      .spyOn(fillTransaction, 'fillTransaction')
+      .mockResolvedValue({
+        raw: '0x',
+        transaction: {
+          chainId: 1,
+          feePayerSignature: { r: '0x1', s: '0x2', yParity: 0 },
+          gas: 21_000n,
+          maxFeePerGas: 2n,
+          maxPriorityFeePerGas: 1n,
+          nonce: 0,
+          type: 'eip1559',
+        },
+      } as never)
+
+    const request = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      chainId: 1,
+      feePayer: true,
+      gas: 21_000n,
+      maxFeePerGas: 2n,
+      maxPriorityFeePerGas: 1n,
+      nonce: 0,
+      parameters: ['nonce'],
+      to: targetAccount.address,
+      type: 'eip1559',
+    } as never)
+
+    expect(fillTransactionSpy).toHaveBeenCalledOnce()
+    expect((request as any).feePayerSignature).toBeDefined()
+  })
+
   test('behavior: do not attempt fill when all parameters are already provided', async () => {
     await setup()
 
@@ -2368,5 +2465,66 @@ describe('behavior: attemptFill', () => {
 
     // fillTransaction will be called because 'gas' is in parameters and gas is not provided
     expect(fillTransactionSpy).toHaveBeenCalled()
+  })
+
+  test('behavior: ignores relay transaction `calls` and exposes autoSwap calls in capabilities', async () => {
+    const userCalls = [{ to: targetAccount.address, data: '0xdeadbeef' }]
+    const relayCalls = [
+      {
+        to: '0x0000000000000000000000000000000000000001',
+        data: '0xbadc0de',
+      },
+    ] as const
+    const autoSwapCalls = [
+      {
+        to: '0x20c000000000000000000000b9537d11c60e8b50',
+        data: '0x095ea7b3',
+        value: '0x0',
+      },
+      {
+        to: '0xdec0000000000000000000000000000000000000',
+        data: '0xf0122b75',
+        value: '0x0',
+      },
+    ] as const
+
+    vi.spyOn(fillTransaction, 'fillTransaction').mockResolvedValueOnce({
+      transaction: {
+        chainId: 1,
+        from: sourceAccount.address,
+        gas: 408981n,
+        maxFeePerGas: parseGwei('20'),
+        maxPriorityFeePerGas: 0n,
+        nonce: 0,
+        type: 'tempo',
+        calls: relayCalls,
+        feeToken: '0x20c0000000000000000000000000000000000000',
+        feePayerSignature: { r: '0x1', s: '0x1', yParity: '0x0' },
+      },
+      capabilities: {
+        autoSwap: {
+          calls: autoSwapCalls,
+        },
+      },
+    } as never)
+
+    const request = (await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      calls: userCalls,
+      feePayer: true,
+      parameters: defaultParameters,
+    } as never)) as never as Record<string, unknown>
+
+    expect(request.calls).toEqual(userCalls)
+    expect(request.to).toBeUndefined()
+    expect(request.data).toBeUndefined()
+    expect(request.value).toBeUndefined()
+    expect(
+      (
+        request._capabilities as {
+          autoSwap?: { calls?: typeof autoSwapCalls }
+        }
+      ).autoSwap?.calls,
+    ).toEqual(autoSwapCalls)
   })
 })

@@ -51,6 +51,7 @@ import {
 } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
 import { LruMap } from '../../utils/lru.js'
+import type { NonceManager } from '../../utils/nonceManager.js'
 import {
   type AssertRequestErrorType,
   type AssertRequestParameters,
@@ -213,6 +214,7 @@ export async function sendTransactionSync<
       docsPath: '/docs/actions/wallet/sendTransactionSync',
     })
   const account = account_ ? parseAccount(account_) : null
+  let nonceManagerParameters: { address: Address; chainId: number } | undefined
 
   try {
     assertRequest(parameters as AssertRequestParameters)
@@ -262,7 +264,7 @@ export async function sendTransactionSync<
           authorizationList,
           blobs,
           chainId,
-          data: data ? concat([data, dataSuffix ?? '0x']) : data,
+          data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data,
           gas,
           gasPrice,
           maxFeePerBlobGas,
@@ -348,6 +350,30 @@ export async function sendTransactionSync<
     }
 
     if (account?.type === 'local') {
+      const nonceManager = ((): NonceManager | undefined => {
+        if (!account.nonceManager || typeof nonce !== 'undefined')
+          return account.nonceManager
+        const nonceManager = account.nonceManager
+        return {
+          consume(parameters) {
+            nonceManagerParameters = {
+              address: parameters.address,
+              chainId: parameters.chainId,
+            }
+            return nonceManager.consume(parameters)
+          },
+          get(parameters) {
+            return nonceManager.get(parameters)
+          },
+          increment(parameters) {
+            return nonceManager.increment(parameters)
+          },
+          reset(parameters) {
+            return nonceManager.reset(parameters)
+          },
+        }
+      })()
+
       // Prepare the request for signing (assign appropriate fees, etc.)
       const request = await getAction(
         client,
@@ -359,14 +385,14 @@ export async function sendTransactionSync<
         authorizationList,
         blobs,
         chain,
-        data: data ? concat([data, dataSuffix ?? '0x']) : data,
+        data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data,
         gas,
         gasPrice,
         maxFeePerBlobGas,
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
-        nonceManager: account.nonceManager,
+        nonceManager,
         parameters: [...defaultParameters, 'sidecars'],
         type,
         value,
@@ -375,9 +401,12 @@ export async function sendTransactionSync<
       } as any)
 
       const serializer = chain?.serializers?.transaction
-      const serializedTransaction = (await account.signTransaction(request, {
-        serializer,
-      })) as Hash
+      const serializedTransaction = (await account.signTransaction(
+        request as never,
+        {
+          serializer,
+        },
+      )) as Hash
       return (await getAction(
         client,
         sendRawTransactionSync,
@@ -404,6 +433,11 @@ export async function sendTransactionSync<
     })
   } catch (err) {
     if (err instanceof AccountTypeNotSupportedError) throw err
+    if (
+      nonceManagerParameters &&
+      !(err instanceof TransactionReceiptRevertedError)
+    )
+      account?.nonceManager?.reset(nonceManagerParameters)
     throw getTransactionError(err as BaseError, {
       ...parameters,
       account,

@@ -17,4 +17,5 @@ export const zkLinkNovaSepoliaTestnet = /*#__PURE__*/ defineChain({
       url: 'https://sepolia.explorer.zklink.io',
     },
   },
+  testnet: true,
 })

@@ -3,6 +3,7 @@ import { expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
 
+import { getBlock } from './getBlock.js'
 import { getStorageAt } from './getStorageAt.js'
 
 const client = anvilMainnet.getClient()
@@ -28,6 +29,35 @@ test('args: blockNumber', async () => {
       address: wagmiContractConfig.address,
       slot: '0x0',
       blockNumber: anvilMainnet.forkBlockNumber,
+    }),
+  ).toBe('0x7761676d6900000000000000000000000000000000000000000000000000000a')
+})
+
+test('args: blockHash (EIP-1898)', async () => {
+  const block = await getBlock(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
+  })
+
+  expect(
+    await getStorageAt(client, {
+      address: wagmiContractConfig.address,
+      slot: '0x0',
+      blockHash: block.hash!,
+    }),
+  ).toBe('0x7761676d6900000000000000000000000000000000000000000000000000000a')
+})
+
+test('args: blockHash + requireCanonical (EIP-1898)', async () => {
+  const block = await getBlock(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
+  })
+
+  expect(
+    await getStorageAt(client, {
+      address: wagmiContractConfig.address,
+      slot: '0x0',
+      blockHash: block.hash!,
+      requireCanonical: true,
     }),
   ).toBe('0x7761676d6900000000000000000000000000000000000000000000000000000a')
 })

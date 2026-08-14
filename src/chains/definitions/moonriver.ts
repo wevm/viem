@@ -5,7 +5,7 @@ export const moonriver = /*#__PURE__*/ defineChain({
   name: 'Moonriver',
   nativeCurrency: {
     decimals: 18,
-    name: 'MOVR',
+    name: 'Moonriver',
     symbol: 'MOVR',
   },
   rpcUrls: {

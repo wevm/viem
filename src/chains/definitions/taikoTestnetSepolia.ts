@@ -15,4 +15,5 @@ export const taikoTestnetSepolia = /*#__PURE__*/ defineChain({
       url: 'https://explorer.test.taiko.xyz',
     },
   },
+  testnet: true,
 })

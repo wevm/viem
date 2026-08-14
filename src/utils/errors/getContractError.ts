@@ -57,7 +57,7 @@ export function getContractError<err extends ErrorType<string>>(
 
   const cause = (() => {
     if (err instanceof AbiDecodingZeroDataError)
-      return new ContractFunctionZeroDataError({ functionName })
+      return new ContractFunctionZeroDataError({ functionName, cause: err })
     if (
       ([EXECUTION_REVERTED_ERROR_CODE, InternalRpcError.code].includes(code) &&
         (data || details || message || shortMessage)) ||
@@ -73,6 +73,7 @@ export function getContractError<err extends ErrorType<string>>(
           error instanceof RpcRequestError
             ? details
             : (shortMessage ?? message),
+        cause: err,
       })
     }
     return err

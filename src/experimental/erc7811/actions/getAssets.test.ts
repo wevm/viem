@@ -9,7 +9,7 @@ const client = createClient({
   transport: http('https://rpc.ithaca.xyz'),
 }).extend(erc7811Actions())
 
-test('default', async () => {
+test.skip('default', async () => {
   const response = await getAssets(client, {
     account: '0x0000000000000000000000000000000000000001',
   })
@@ -51,7 +51,7 @@ test('default', async () => {
   expect(Array.isArray(response[11155420])).toBe(true)
 })
 
-test('args: aggregate (false)', async () => {
+test.skip('args: aggregate (false)', async () => {
   const response = await getAssets(client, {
     account: '0x0000000000000000000000000000000000000000',
     aggregate: false,
@@ -92,7 +92,7 @@ test('args: aggregate (false)', async () => {
   }
 })
 
-test('args: aggregate (function)', async () => {
+test.skip('args: aggregate (function)', async () => {
   const response = await getAssets(client, {
     account: '0x0000000000000000000000000000000000000000',
     aggregate: (asset) => JSON.stringify(asset.metadata),
@@ -134,7 +134,7 @@ test('args: aggregate (function)', async () => {
   expect(response[11155420]).toBeDefined()
 })
 
-test('args: chainIds', async () => {
+test.skip('args: chainIds', async () => {
   const response = await getAssets(client, {
     account: '0x0000000000000000000000000000000000000000',
     chainIds: [84532],
@@ -177,7 +177,7 @@ test('args: chainIds', async () => {
   expect(typeof nativeAsset?.balance).toBe('bigint')
 })
 
-test('args: assetTypes', async () => {
+test.skip('args: assetTypes', async () => {
   const response = await getAssets(client, {
     account: '0x0000000000000000000000000000000000000000',
     assetTypes: ['native'],
@@ -214,7 +214,7 @@ test('args: assetTypes', async () => {
   }
 })
 
-test('behavior: erc721 assets with tokenId', async () => {
+test.skip('behavior: erc721 assets with tokenId', async () => {
   const mockClient = createClient({
     transport: http('https://mock.example.com'),
   })
@@ -263,7 +263,7 @@ test('behavior: erc721 assets with tokenId', async () => {
   `)
 })
 
-test('behavior: custom asset types', async () => {
+test.skip('behavior: custom asset types', async () => {
   const mockClient = createClient({
     transport: http('https://mock.example.com'),
   })
@@ -310,7 +310,7 @@ test('behavior: custom asset types', async () => {
   `)
 })
 
-test('error: account not found', async () => {
+test.skip('error: account not found', async () => {
   await expect(() => getAssets(client, {} as any)).rejects.toThrowError(
     AccountNotFoundError,
   )

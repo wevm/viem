@@ -13,13 +13,33 @@ import type {
   WalletGetCallsStatusReturnType,
 } from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
-import { getHttpRpcClient, parseEther } from '../../utils/index.js'
+import { getHttpRpcClient, numberToHex, parseEther } from '../../utils/index.js'
 import { uid } from '../../utils/uid.js'
-import { sendCalls } from './sendCalls.js'
+import {
+  fallbackMagicIdentifier,
+  fallbackTransactionErrorMagicIdentifier,
+  sendCalls,
+} from './sendCalls.js'
 
 type Uid = string
 type TxHashes = Hex[]
 const calls = new Map<Uid, TxHashes[]>()
+
+function expectFallbackId(id: string, callCount: number) {
+  expect(id).toMatch(/^0x(?:[0-9a-f]{64})+$/)
+
+  const chunks =
+    id
+      .slice(2)
+      .match(/.{64}/g)
+      ?.map((chunk) => `0x${chunk}` as Hex) ?? []
+
+  expect(chunks).toHaveLength(callCount + 2)
+  expect(chunks.at(-2)).toBe(numberToHex(mainnet.id, { size: 32 }))
+  expect(chunks.at(-1)).toBe(fallbackMagicIdentifier)
+
+  return chunks.slice(0, callCount)
+}
 
 const getClient = <chain extends Chain | undefined = undefined>({
   chain,
@@ -452,9 +472,8 @@ describe('behavior: eth_sendTransaction fallback', () => {
       experimental_fallback: true,
     })
 
-    expect(response.id).toMatchInlineSnapshot(
-      `"0xb0fd8d440a3cb766200a237ad236241a70660e6f13398c880ed913fce620e8e5386fc7a922e91f765fc5034631f96c76a801071d0285fec1c43f856eb4445566e7941d94f9057aca5978cbeda09c96f6772ca5762c257867382a4da0cdea36dd6c1959f1051e01bb652246da0bb803ba6e678864cd6382b40c0bfb1ae1c3202600000000000000000000000000000000000000000000000000000000000000015792579257925792579257925792579257925792579257925792579257925792"`,
-    )
+    const hashes = expectFallbackId(response.id, 4)
+    expect(hashes).not.toContain(fallbackTransactionErrorMagicIdentifier)
   })
 
   test('behavior: optional capabilities', async () => {
@@ -634,7 +653,8 @@ describe('behavior: eth_sendTransaction fallback', () => {
       experimental_fallback: true,
       experimental_fallbackDelay: 0,
     })
-    expect(response.id).toBeDefined()
+    const hashes = expectFallbackId(response.id, 3)
+    expect(hashes).toContain(fallbackTransactionErrorMagicIdentifier)
   })
 })
 

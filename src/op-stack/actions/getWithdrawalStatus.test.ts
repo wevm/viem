@@ -1,11 +1,65 @@
-import { beforeAll, describe, expect, test, vi } from 'vitest'
+import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest'
 import { anvilMainnet, anvilOptimism } from '~test/anvil.js'
 import { getTransactionReceipt, reset } from '../../actions/index.js'
+import * as readContractModule from '../../actions/public/readContract.js'
 
+import { GameNotFoundError } from '../errors/withdrawal.js'
+import * as getGameModule from './getGame.js'
+import * as getPortalVersionModule from './getPortalVersion.js'
 import { getWithdrawalStatus } from './getWithdrawalStatus.js'
 
 const client = anvilMainnet.getClient()
 const optimismClient = anvilOptimism.getClient()
+
+afterEach(() => {
+  vi.restoreAllMocks()
+})
+
+test('args: l2Timestamp', async () => {
+  vi.spyOn(getPortalVersionModule, 'getPortalVersion').mockResolvedValueOnce({
+    major: 3,
+    minor: 0,
+    patch: 0,
+  })
+  const getGame = vi
+    .spyOn(getGameModule, 'getGame')
+    .mockRejectedValueOnce(new GameNotFoundError())
+  vi.spyOn(readContractModule, 'readContract').mockImplementation(
+    (_, parameters) => {
+      if (parameters.functionName === 'numProofSubmitters')
+        return Promise.resolve(1n)
+      if (parameters.functionName === 'proofSubmitters')
+        return Promise.resolve('0x0000000000000000000000000000000000000001')
+      if (parameters.functionName === 'provenWithdrawals')
+        return Promise.resolve([
+          '0x0000000000000000000000000000000000000000',
+          0n,
+          0n,
+        ])
+      if (parameters.functionName === 'checkWithdrawal')
+        return Promise.resolve()
+      if (parameters.functionName === 'finalizedWithdrawals')
+        return Promise.resolve(false)
+      return Promise.reject(new Error('unexpected readContract call'))
+    },
+  )
+
+  const status = await getWithdrawalStatus(client, {
+    disputeGameFactoryAddress: '0x0000000000000000000000000000000000000001',
+    l2BlockNumber: 10n,
+    l2Timestamp: 20n,
+    portalAddress: '0x0000000000000000000000000000000000000002',
+    sender: '0x0000000000000000000000000000000000000001',
+    withdrawalHash:
+      '0x0000000000000000000000000000000000000000000000000000000000000003',
+  })
+
+  expect(status).toBe('waiting-to-prove')
+  expect(getGame).toHaveBeenCalledWith(
+    client,
+    expect.objectContaining({ l2BlockNumber: 20n }),
+  )
+})
 
 test('waiting-to-prove', async () => {
   await reset(client, {

@@ -24,4 +24,5 @@ export const huddle01Testnet = /*#__PURE__*/ defineChain({
     },
   },
   sourceId,
+  testnet: true,
 })

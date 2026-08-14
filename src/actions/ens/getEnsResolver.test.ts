@@ -96,17 +96,7 @@ test('invalid universal resolver address', async () => {
       name: 'jxom.eth',
       universalResolverAddress: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
     }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ContractFunctionExecutionError: The contract function "findResolver" reverted.
-
-    Contract Call:
-      address:   0x0000000000000000000000000000000000000000
-      function:  findResolver(bytes)
-      args:                  (0x046a786f6d0365746800)
-
-    Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@x.y.z]
-  `)
+  ).rejects.toThrow('The contract function "findResolver" reverted')
 })
 
 test('invalid TLD', async () => {

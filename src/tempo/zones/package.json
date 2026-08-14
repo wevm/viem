@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "types": "../../_types/tempo/zones/index.d.ts",
+  "module": "../../_esm/tempo/zones/index.js",
+  "main": "../../_cjs/tempo/zones/index.js"
+}

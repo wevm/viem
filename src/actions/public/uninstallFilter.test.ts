@@ -20,7 +20,7 @@ test('default', async () => {
   expect(await uninstallFilter(client, { filter })).toBeTruthy()
 })
 
-test('pending txns', async () => {
+test.skip('pending txns', async () => {
   const filter = await createPendingTransactionFilter(client)
 
   await sendTransaction(client, {

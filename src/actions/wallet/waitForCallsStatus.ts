@@ -109,7 +109,7 @@ export async function waitForCallsStatus<chain extends Chain | undefined>(
   const { promise, resolve, reject } =
     withResolvers<WaitForCallsStatusReturnType>()
 
-  let timer: Timer | undefined
+  let timer: ReturnType<typeof setTimeout> | undefined
 
   const unobserve = observe(observerId, { resolve, reject }, (emit) => {
     const unpoll = poll(

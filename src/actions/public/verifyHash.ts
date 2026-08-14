@@ -19,8 +19,9 @@ import {
 } from '../../errors/contract.js'
 import type { InvalidHexBooleanError } from '../../errors/encoding.js'
 import type { ErrorType } from '../../errors/utils.js'
+import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import type { ByteArray, Hex, Signature } from '../../types/misc.js'
+import type { ByteArray, Hash, Hex, Signature } from '../../types/misc.js'
 import type { OneOf } from '../../types/utils.js'
 import {
   type EncodeDeployDataErrorType,
@@ -61,10 +62,27 @@ import { type CallErrorType, type CallParameters, call } from './call.js'
 import { type GetCodeErrorType, getCode } from './getCode.js'
 import { type ReadContractErrorType, readContract } from './readContract.js'
 
-export type VerifyHashParameters = Pick<
-  CallParameters,
-  'blockNumber' | 'blockTag'
-> & {
+export type BlockParameters = OneOf<
+  | {
+      /** The block number to check if the contract was already deployed. */
+      blockNumber?: bigint | undefined
+    }
+  | {
+      /**
+       * The block tag to check if the contract was already deployed.
+       * @default 'latest'
+       */
+      blockTag?: BlockTag | undefined
+    }
+  | {
+      /** The block hash to check if the contract was already deployed. Implements [EIP-1898](https://eips.ethereum.org/EIPS/eip-1898). */
+      blockHash: Hash
+      /** Whether or not to require the block to be in the canonical chain. Only allowed in conjunction with `blockHash`. */
+      requireCanonical?: boolean | undefined
+    }
+>
+
+export type VerifyHashParameters = BlockParameters & {
   /** The address that signed the original message. */
   address: Address
   /** The chain to use. */
@@ -79,6 +97,8 @@ export type VerifyHashParameters = Pick<
   signature: Hex | ByteArray | Signature
   /** @deprecated use `erc6492VerifierAddress` instead. */
   universalSignatureVerifierAddress?: Address | undefined
+  /** Chooses which verification path to try first before falling back. */
+  mode?: 'auto' | 'eoa' | (string & {}) | undefined
 } & OneOf<{ factory: Address; factoryData: Hex } | {}>
 
 export type VerifyHashReturnType = boolean
@@ -120,6 +140,7 @@ export async function verifyHash<chain extends Chain | undefined>(
       chain?.contracts?.erc6492Verifier?.address,
     multicallAddress = parameters.multicallAddress ??
       chain?.contracts?.multicall3?.address,
+    mode = 'auto',
   } = parameters
 
   if (chain?.verifyHash) return await chain.verifyHash(client, parameters)
@@ -131,8 +152,17 @@ export async function verifyHash<chain extends Chain | undefined>(
       return serializeSignature(signature)
     return bytesToHex(signature)
   })()
-
   try {
+    if (mode === 'eoa') {
+      try {
+        const verified = isAddressEqual(
+          getAddress(address),
+          await recoverAddress({ hash, signature }),
+        )
+        if (verified) return true
+      } catch {}
+    }
+
     if (SignatureErc8010.validate(signature))
       return await verifyErc8010(client, {
         ...parameters,
@@ -145,14 +175,16 @@ export async function verifyHash<chain extends Chain | undefined>(
       signature,
     })
   } catch (error) {
-    // Fallback attempt to verify the signature via ECDSA recovery.
-    try {
-      const verified = isAddressEqual(
-        getAddress(address),
-        await recoverAddress({ hash, signature }),
-      )
-      if (verified) return true
-    } catch {}
+    if (mode !== 'eoa') {
+      // Fallback attempt to verify the signature via ECDSA recovery.
+      try {
+        const verified = isAddressEqual(
+          getAddress(address),
+          await recoverAddress({ hash, signature }),
+        )
+        if (verified) return true
+      } catch {}
+    }
 
     if (error instanceof VerificationError) {
       // if the execution fails, the signature was not valid and an internal method inside of the validator reverted
@@ -170,7 +202,15 @@ export async function verifyErc8010(
   client: Client,
   parameters: verifyErc8010.Parameters,
 ) {
-  const { address, blockNumber, blockTag, hash, multicallAddress } = parameters
+  const {
+    address,
+    blockHash,
+    blockNumber,
+    blockTag,
+    hash,
+    multicallAddress,
+    requireCanonical,
+  } = parameters
 
   const {
     authorization: authorization_ox,
@@ -182,17 +222,16 @@ export async function verifyErc8010(
   // Check if already delegated
   const code = await getCode(client, {
     address,
+    blockHash,
     blockNumber,
     blockTag,
+    requireCanonical,
   } as never)
 
   // If already delegated, perform standard ERC-1271 verification.
   if (code === concatHex(['0xef0100', authorization_ox.address]))
     return await verifyErc1271(client, {
-      address,
-      blockNumber,
-      blockTag,
-      hash,
+      ...parameters,
       signature,
     })
 
@@ -222,9 +261,11 @@ export async function verifyErc8010(
       : { code: multicall3Bytecode }),
     authorizationList: [authorization],
     abi: multicall3Abi,
+    blockHash,
     blockNumber,
     blockTag: 'pending',
     functionName: 'aggregate3',
+    requireCanonical,
     args: [
       [
         ...(initData
@@ -256,7 +297,7 @@ export async function verifyErc8010(
 }
 
 export namespace verifyErc8010 {
-  export type Parameters = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
+  export type Parameters = BlockParameters & {
     /** The address that signed the original message. */
     address: Address
     /** The hash to be verified. */
@@ -334,7 +375,7 @@ async function verifyErc6492(
 }
 
 export namespace verifyErc6492 {
-  export type Parameters = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
+  export type Parameters = BlockParameters & {
     /** The address that signed the original message. */
     address: Address
     /** The hash to be verified. */
@@ -351,7 +392,15 @@ export async function verifyErc1271(
   client: Client,
   parameters: verifyErc1271.Parameters,
 ) {
-  const { address, blockNumber, blockTag, hash, signature } = parameters
+  const {
+    address,
+    blockHash,
+    blockNumber,
+    blockTag,
+    hash,
+    requireCanonical,
+    signature,
+  } = parameters
 
   const result = await getAction(
     client,
@@ -361,9 +410,11 @@ export async function verifyErc1271(
     address,
     abi: erc1271Abi,
     args: [hash, signature],
+    blockHash,
     blockNumber,
     blockTag,
     functionName: 'isValidSignature',
+    requireCanonical,
   }).catch((error) => {
     if (error instanceof ContractFunctionExecutionError)
       throw new VerificationError()
@@ -375,7 +426,7 @@ export async function verifyErc1271(
 }
 
 export namespace verifyErc1271 {
-  export type Parameters = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
+  export type Parameters = BlockParameters & {
     /** The address that signed the original message. */
     address: Address
     /** The hash to be verified. */

@@ -50,6 +50,10 @@ export function createNonceManager(
 
   const getKey = ({ address, chainId }: FunctionParameters) =>
     `${address}.${chainId}`
+  const resetCache = (key: string) => {
+    deltaMap.delete(key)
+    promiseMap.delete(key)
+  }
 
   return {
     async consume({ address, chainId, client }) {
@@ -83,7 +87,7 @@ export function createNonceManager(
             nonceMap.delete(key)
             return nonce
           } finally {
-            this.reset({ address, chainId })
+            resetCache(key)
           }
         })()
         promiseMap.set(key, promise)
@@ -94,8 +98,8 @@ export function createNonceManager(
     },
     reset({ address, chainId }) {
       const key = getKey({ address, chainId })
-      deltaMap.delete(key)
-      promiseMap.delete(key)
+      nonceMap.delete(key)
+      resetCache(key)
     },
   }
 }

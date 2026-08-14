@@ -2,6 +2,12 @@ import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import {
   InvalidHexValueError,
   type InvalidHexValueErrorType,
+  RlpDepthLimitExceededError,
+  type RlpDepthLimitExceededErrorType,
+  RlpListBoundaryExceededError,
+  type RlpListBoundaryExceededErrorType,
+  RlpTrailingBytesError,
+  type RlpTrailingBytesErrorType,
 } from '../../errors/encoding.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
@@ -17,6 +23,8 @@ import type { RecursiveArray } from './toRlp.js'
 
 type To = 'hex' | 'bytes'
 
+const rlpDepthLimit = 1_024
+
 export type FromRlpReturnType<to extends To> =
   | (to extends 'bytes' ? RecursiveArray<ByteArray> : never)
   | (to extends 'hex' ? RecursiveArray<Hex> : never)
@@ -26,6 +34,8 @@ export type FromRlpErrorType =
   | FromRlpCursorErrorType
   | HexToBytesErrorType
   | InvalidHexValueErrorType
+  | RlpDepthLimitExceededErrorType
+  | RlpTrailingBytesErrorType
   | ErrorType
 
 export function fromRlp<to extends To = 'hex'>(
@@ -46,6 +56,12 @@ export function fromRlp<to extends To = 'hex'>(
   })
   const result = fromRlpCursor(cursor, to)
 
+  // RLP payloads encode exactly one item (Yellow Paper, Appendix B).
+  if (cursor.position < cursor.bytes.length)
+    throw new RlpTrailingBytesError({
+      count: cursor.bytes.length - cursor.position,
+    })
+
   return result as FromRlpReturnType<to>
 }
 
@@ -58,7 +74,11 @@ type FromRlpCursorErrorType =
 function fromRlpCursor<to extends To = 'hex'>(
   cursor: Cursor,
   to: to | To | undefined = 'hex',
+  recursiveDepth = 0,
 ): FromRlpReturnType<to> {
+  if (recursiveDepth >= rlpDepthLimit)
+    throw new RlpDepthLimitExceededError({ limit: rlpDepthLimit })
+
   if (cursor.bytes.length === 0)
     return (
       to === 'hex' ? bytesToHex(cursor.bytes) : cursor.bytes
@@ -76,7 +96,12 @@ function fromRlpCursor<to extends To = 'hex'>(
 
   // list
   const length = readLength(cursor, prefix, 0xc0)
-  return readList(cursor, length, to) as {} as FromRlpReturnType<to>
+  return readList(
+    cursor,
+    length,
+    to,
+    recursiveDepth + 1,
+  ) as {} as FromRlpReturnType<to>
 }
 
 type ReadLengthErrorType = BaseErrorType | ErrorType
@@ -91,12 +116,23 @@ function readLength(cursor: Cursor, prefix: number, offset: number) {
   throw new BaseError('Invalid RLP prefix')
 }
 
-type ReadListErrorType = ErrorType
+type ReadListErrorType = RlpListBoundaryExceededErrorType | ErrorType
 
-function readList<to extends To>(cursor: Cursor, length: number, to: to | To) {
+function readList<to extends To>(
+  cursor: Cursor,
+  length: number,
+  to: to | To,
+  recursiveDepth: number,
+) {
   const position = cursor.position
   const value: FromRlpReturnType<to>[] = []
   while (cursor.position - position < length)
-    value.push(fromRlpCursor(cursor, to))
+    value.push(fromRlpCursor(cursor, to, recursiveDepth))
+  // Items must consume exactly the declared list length.
+  if (cursor.position - position !== length)
+    throw new RlpListBoundaryExceededError({
+      consumed: cursor.position - position,
+      declared: length,
+    })
   return value
 }

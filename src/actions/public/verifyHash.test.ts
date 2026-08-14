@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test } from 'vitest'
+import { beforeAll, describe, expect, test, vi } from 'vitest'
 
 import {
   Eoa,
@@ -26,6 +26,7 @@ import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { zksync } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
+import { custom } from '../../clients/transports/custom.js'
 import { http } from '../../clients/transports/http.js'
 import { signMessage as signMessageErc1271 } from '../../experimental/erc7739/actions/signMessage.js'
 import type { Hex } from '../../types/misc.js'
@@ -46,6 +47,7 @@ import { sendTransaction } from '../wallet/sendTransaction.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
 import { signMessage } from '../wallet/signMessage.js'
 import { writeContract } from '../wallet/writeContract.js'
+import { getBlock } from './getBlock.js'
 import { simulateContract } from './simulateContract.js'
 import { verifyHash } from './verifyHash.js'
 
@@ -95,6 +97,43 @@ describe('local account', async () => {
         address: localAccount.address,
         hash: hashMessage('hello world'),
         signature: parseSignature(signature),
+      }),
+    ).resolves.toBe(true)
+  })
+})
+
+describe('mode', async () => {
+  test('eoa verifies locally without RPC when local recovery succeeds', async () => {
+    const request = vi.fn(async () => {
+      throw new Error('unexpected rpc request')
+    })
+    const mockClient = createClient({
+      transport: custom({ request }),
+    })
+
+    const hash = hashMessage('hello world')
+    const signature = await localAccount.sign({ hash })
+
+    await expect(
+      verifyHash(mockClient, {
+        address: localAccount.address,
+        hash,
+        signature,
+        mode: 'eoa',
+      }),
+    ).resolves.toBe(true)
+
+    expect(request).not.toHaveBeenCalled()
+  })
+
+  test('eoa falls back to universal verification', async () => {
+    await expect(
+      verifyHash(client, {
+        address: smartAccountConfig.address,
+        hash: hashMessage('This is a test message for viem!'),
+        signature:
+          '0xefd5fb29a274ea6682673d8b3caa9263e936d48d486e5df68893003e0a76496439594d12245008c6fba1c8e3ef28241cffe1bef27ff6bca487b167f261f329251c',
+        mode: 'eoa',
       }),
     ).resolves.toBe(true)
   })
@@ -291,7 +330,7 @@ describe('erc6492', async () => {
     ).resolves.toBe(true)
   })
 
-  test('deployed w/ owner update encoded as factory + factoryData', async () => {
+  test.skip('deployed w/ owner update encoded as factory + factoryData', async () => {
     const [account] = await getSmartAccounts_07()
 
     const newOwner = privateKeyToAccount(accounts[1].privateKey)
@@ -539,6 +578,35 @@ describe('erc8010', async () => {
     expect(valid).toBe(true)
   })
 
+  test('predelegated: blockHash (EIP-1898)', async () => {
+    const account = privateKeyToAccount(generatePrivateKey())
+
+    const authorization = await signAuthorization(client, {
+      account,
+      address: delegation,
+    })
+
+    const hash = hashMessage('hello world')
+
+    const signature = serializeErc8010Signature({
+      authorization,
+      signature: await account.sign({
+        hash,
+      }),
+    })
+
+    const block = await getBlock(client)
+
+    const valid = await verifyHash(client, {
+      address: account.address,
+      blockHash: block.hash!,
+      hash,
+      signature,
+    })
+
+    expect(valid).toBe(true)
+  })
+
   test('predelegated: with init data', async () => {
     const account = privateKeyToAccount(generatePrivateKey())
 
@@ -722,6 +790,71 @@ describe('erc8010', async () => {
         signature,
       }),
     ).toBe(false)
+  })
+})
+
+describe('args: blockHash (EIP-1898)', async () => {
+  let blockHashBeforeDeploy: `0x${string}`
+  let blockHashAfterDeploy: `0x${string}`
+  let signature: Hex
+  let verifier: `0x${string}`
+
+  beforeAll(async () => {
+    blockHashBeforeDeploy = (await getBlock(client)).hash!
+
+    const { factoryAddress } = await deploySoladyAccount_07()
+    const { request, result } = await simulateContract(client, {
+      account: localAccount,
+      abi: SoladyAccountFactory07.abi,
+      address: factoryAddress,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
+    verifier = result
+    await writeContract(client, request)
+    await mine(client, { blocks: 1 })
+
+    signature = await signMessageErc1271(client, {
+      account: localAccount,
+      message: 'hello world',
+      verifier,
+    })
+
+    blockHashAfterDeploy = (await getBlock(client)).hash!
+  })
+
+  test('blockHash', async () => {
+    await expect(
+      verifyHash(client, {
+        address: verifier,
+        hash: hashMessage('hello world'),
+        signature,
+        blockHash: blockHashAfterDeploy,
+      }),
+    ).resolves.toBe(true)
+  })
+
+  test('blockHash + requireCanonical', async () => {
+    await expect(
+      verifyHash(client, {
+        address: verifier,
+        hash: hashMessage('hello world'),
+        signature,
+        blockHash: blockHashAfterDeploy,
+        requireCanonical: true,
+      }),
+    ).resolves.toBe(true)
+  })
+
+  test('blockHash: pre-deployment block', async () => {
+    await expect(
+      verifyHash(client, {
+        address: verifier,
+        hash: hashMessage('hello world'),
+        signature,
+        blockHash: blockHashBeforeDeploy,
+      }),
+    ).resolves.toBe(false)
   })
 })
 

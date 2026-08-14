@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const xLayerTestnet = /*#__PURE__*/ defineChain({
-  id: 195,
+  id: 1952,
   name: 'X1 Testnet',
   nativeCurrency: {
     decimals: 18,

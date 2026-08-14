@@ -11,7 +11,7 @@ import type {
   RpcTransactionRequest,
 } from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
-import type { ExactPartial } from '../../types/utils.js'
+import type { ExactPartial, UnionOmit } from '../../types/utils.js'
 import { bytesToHex, numberToHex } from '../encoding/toHex.js'
 import { type DefineFormatterErrorType, defineFormatter } from './formatter.js'
 
@@ -22,6 +22,18 @@ export type FormattedTransactionRequest<
   'transactionRequest',
   TransactionRequest
 >
+
+export type ExtractFormattedTransactionRequest<
+  chain extends Chain | undefined,
+  request extends { type?: string | undefined },
+  ///
+  _transactionRequest = UnionOmit<FormattedTransactionRequest<chain>, 'from'>,
+  _transactionType = request['type'],
+> = _transactionRequest extends { type?: infer type | undefined }
+  ? Extract<_transactionType, type> extends never
+    ? never
+    : _transactionRequest
+  : never
 
 export const rpcTransactionType = {
   legacy: '0x0',

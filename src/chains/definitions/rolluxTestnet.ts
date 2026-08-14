@@ -27,4 +27,5 @@ export const rolluxTestnet = /*#__PURE__*/ defineChain({
       blockCreated: 1813675,
     },
   },
+  testnet: true,
 })

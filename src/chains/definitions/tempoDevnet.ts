@@ -5,6 +5,7 @@ export const tempoDevnet = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 31318,
   name: 'Tempo Devnet',
+  hardfork: 't3',
   blockExplorers: {
     default: {
       name: 'Tempo Explorer',
@@ -22,4 +23,5 @@ export const tempoDevnet = /*#__PURE__*/ defineChain({
       webSocket: ['wss://rpc.devnet.tempoxyz.dev'],
     },
   },
+  testnet: true,
 })

@@ -6,11 +6,11 @@
     "bench": "vitest bench",
     "bench:types": "TYPES=true vitest -c ./test/vitest.config.ts --project type-bench",
     "build": "pnpm clean && pnpm build:cjs && pnpm build:esm && pnpm build:types",
-    "build:cjs": "pnpm build:trustedSetups:start && tsc --project ./tsconfig.build.json --module commonjs --moduleResolution node --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json && pnpm build:trustedSetups:end",
+    "build:cjs": "pnpm build:trustedSetups:start && node scripts/runTsc.js --project ./tsconfig.build.json --module commonjs --moduleResolution node --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json && pnpm build:trustedSetups:end",
     "build:esm": "tsc --project ./tsconfig.build.json --outDir ./src/_esm && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./src/_esm/package.json",
     "build:trustedSetups:start": "mv src/node/trustedSetups.ts src/node/trustedSetups_esm.ts && mv src/node/trustedSetups_cjs.ts src/node/trustedSetups.ts",
     "build:trustedSetups:end": "mv src/node/trustedSetups.ts src/node/trustedSetups_cjs.ts && mv src/node/trustedSetups_esm.ts src/node/trustedSetups.ts",
-    "build:types": "tsc --project ./tsconfig.build.json --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap",
+    "build:types": "rm -rf ./src/_types && tsc --project ./tsconfig.build.json --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap --incremental false && printf '{\"type\":\"module\"}' > ./src/_types/package.json",
     "changeset:prepublish": "pnpm version:update && pnpm build && bun scripts/prepublishOnly.ts",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
     "changeset:version": "pnpm install --lockfile-only && changeset version && pnpm version:update && pnpm check",
@@ -23,7 +23,10 @@
     "check:repo": "sherif",
     "check:types": "tsc -b",
     "check:unused": "pnpm clean && knip",
-    "gen:tempo-abis": "bun scripts/generateTempoAbis.ts",
+    "gen:tempo-abis": "bun scripts/generateTempoAbis.ts && biome check --write --unsafe src/tempo/Abis.ts src/tempo/Selectors.ts",
+    "gen:tempo-earn-abis": "bun scripts/generateTempoEarnAbis.ts && biome check --write --unsafe src/tempo/Abis.ts test/src/tempo/earnContracts.ts",
+    "gen:tokenlist": "bun scripts/generateTokenlist.ts && biome check --write --unsafe src/tokens && pnpm gen:token-lookup",
+    "gen:token-lookup": "bun scripts/generateTokenLookup.ts && biome check --write --unsafe site/data/tokens.ts",
     "postinstall": "git submodule update --init --recursive && pnpm contracts:build",
     "preconstruct": "bun scripts/preconstruct.ts",
     "preinstall": "pnpx only-allow pnpm",
@@ -39,6 +42,10 @@
     "test:env:node": "pnpm --filter test-node test",
     "test:env:tsc": "pnpm --filter test-tsc test",
     "test:env:vite": "pnpm --filter test-vite test",
+    "test:fuzz:tempo": "TEST_TEMPO_FUZZ=true vitest run -c ./test/vitest.config.ts --project tempo-fuzz",
+    "test:fuzz:tempo:all": "pnpm test:fuzz:tempo && pnpm test:fuzz:tempo:node",
+    "test:fuzz:tempo:node": "TEST_TEMPO_FUZZ=true VITE_TEMPO_BINARY=${VITE_TEMPO_BINARY:-tempo} VITE_TEMPO_BLOCK_TIME=50ms VITE_TEMPO_INSTANCE_ID=1 vitest run -c ./test/vitest.config.ts --project tempo-fuzz-node",
+    "test:fuzz:tempo:node:docker": "TEST_TEMPO_FUZZ=true VITE_TEMPO_BLOCK_TIME=50ms VITE_TEMPO_INSTANCE_ID=1 vitest run -c ./test/vitest.config.ts --project tempo-fuzz-node",
     "test:typecheck": "SKIP_GLOBAL_SETUP=true vitest --typecheck.only -c ./test/vitest.config.ts",
     "test:ui": "vitest dev -c ./test/vitest.config.ts --ui",
     "vectors": "bun test vectors/**/*.test.ts",
@@ -52,29 +59,31 @@
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.29.7",
     "@ethereumjs/rlp": "^5.0.2",
+    "@fast-check/vitest": "^0.4.1",
     "@paulmillr/trusted-setups": "^0.1.2",
     "@pimlico/alto": "0.0.18",
     "@remix-run/node-fetch-server": "^0.12.0",
     "@size-limit/preset-big-lib": "^11.2.0",
     "@types/bun": "^1.2.22",
     "@types/node": "^24.5.2",
-    "@vitest/coverage-v8": "^4.0.15",
+    "@vitest/coverage-v8": "^4.1.8",
     "bun": "^1.2.22",
     "ethers": "^6.15.0",
+    "fast-check": "^4.9.0",
     "knip": "^5.64.0",
     "micro-eth-signer": "^0.14.0",
-    "ox": "~0.11.3",
+    "ox": "0.14.33",
     "permissionless": "^0.2.57",
-    "prool": "~0.2.2",
+    "prool": "~0.2.14",
     "publint": "^0.2.12",
     "sherif": "^0.8.4",
     "simple-git-hooks": "^2.13.1",
     "size-limit": "^11.2.0",
     "testcontainers": "^11.10.0",
     "typescript": "catalog:",
-    "vitest": "^4.0.15"
+    "vitest": "^4.1.8"
   },
-  "packageManager": "pnpm@10.22.0",
+  "packageManager": "pnpm@11.13.1",
   "engines": {
     "node": ">=24.5"
   },
@@ -116,7 +125,7 @@
       "src": {
         "entry": [
           "index.ts!",
-          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,utils,window,zksync}/index.ts!",
+          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,tempo/actions,tempo/chains,tempo/zones,tokens,utils,window,zksync}/index.ts!",
           "chains/utils.ts!"
         ],
         "ignore": [
@@ -135,13 +144,13 @@
     {
       "name": "import * from 'viem' (esm)",
       "path": "./src/_esm/index.js",
-      "limit": "85 kB",
+      "limit": "86 kB",
       "import": "*"
     },
     {
       "name": "const viem = require('viem') (cjs)",
       "path": "./src/_cjs/index.js",
-      "limit": "105 kB"
+      "limit": "106 kB"
     },
     {
       "name": "import { createClient, http } from 'viem'",
@@ -152,7 +161,7 @@
     {
       "name": "import * from 'viem/account-abstraction'",
       "path": "./src/_esm/account-abstraction/index.js",
-      "limit": "58 kB",
+      "limit": "61 kB",
       "import": "*"
     },
     {
@@ -188,7 +197,7 @@
     {
       "name": "import * from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "96 kB",
+      "limit": "111 kB",
       "import": "*"
     },
     {
@@ -200,7 +209,7 @@
     {
       "name": "import { tempoTestnet } from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "55 kB",
+      "limit": "68 kB",
       "import": "{ tempoTestnet }"
     },
     {
@@ -239,60 +248,5 @@
       "limit": "47 kB",
       "import": "{ verifyHash }"
     }
-  ],
-  "pnpm": {
-    "overrides": {
-      "@opentelemetry/api@^1.8.0": "~1.7.0",
-      "hono@<4.2.7": "^4.2.7",
-      "ws@>=8.0.0 <8.17.1": "^8.17.1",
-      "ws@>=7.0.0 <7.5.10": "^7.5.10",
-      "hono@<4.5.8": "^4.5.8",
-      "micromatch@<4.0.8": "^4.0.8",
-      "permissionless>viem": "workspace:*",
-      "send@<0.19.0": "^0.19.0",
-      "serve-static@<1.16.0": "^1.16.0",
-      "cookie@<0.7.0": "^0.7.0",
-      "find-my-way@>=5.5.0 <8.2.2": "^8.2.2",
-      "cross-spawn@<6.0.6": ">=6.0.6",
-      "cross-spawn@>=7.0.0 <7.0.5": ">=7.0.5",
-      "smol-toml@<=1.3.0": "1.3.1",
-      "nanoid@>=4.0.0 <5.0.9": "5.0.9",
-      "vite@>=6.2.0 <6.2.3": "6.2.3",
-      "vite@>=6.2.0 <6.2.4": "6.2.4",
-      "estree-util-value-to-estree@<3.3.3": "3.3.3",
-      "vite@>=6.2.0 <6.2.6": "6.2.6",
-      "@babel/runtime@<7.26.10": "7.26.10",
-      "@babel/helpers@<7.26.10": "7.26.10",
-      "react-router@>=7.0 <=7.5.1": "7.5.2",
-      "react-router@>=7.2.0 <=7.5.1": "7.5.2",
-      "vite@>=6.2.0 <=6.2.6": "6.2.7",
-      "vite@>=6.2.0 <6.2.5": "6.2.5",
-      "tar-fs@>=3.0.0 <3.0.7": "3.0.7",
-      "brace-expansion@>=2.0.0 <=2.0.1": "2.0.2",
-      "on-headers@<1.1.0": "1.1.0",
-      "tar-fs@>=3.0.0 <3.0.9": "3.0.9",
-      "vite@>=6.0.0 <=6.3.5": "6.3.6",
-      "hono@<4.9.7": "4.9.7",
-      "tar-fs@>=3.0.0 <3.1.1": ">=3.1.1",
-      "vite@>=6.0.0 <=6.4.0": "6.4.1",
-      "hono@>=1.1.0 <4.10.2": "4.10.2",
-      "glob@>=10.3.7 <=11.0.3": ">=11.1.0",
-      "mdast-util-to-hast@>=13.0.0 <13.2.1": "13.2.1",
-      "react-router@>=7.0.0 <=7.11.0": "7.12.0",
-      "hono@<4.11.4": "4.11.4",
-      "undici@>=7.0.0 <7.18.2": "7.18.2",
-      "tar@<=7.5.3": "7.5.4",
-      "lodash-es@>=4.0.0 <=4.17.22": "4.17.23",
-      "lodash@>=4.0.0 <=4.17.22": "4.17.23",
-      "hono@<4.11.7": "4.11.7",
-      "next@>=15.6.0-canary.0 <16.1.5": ">=16.1.5",
-      "next@>=16.0.0-beta.0 <16.1.5": ">=16.1.5",
-      "tar@<7.5.7": "7.5.7"
-    },
-    "onlyBuiltDependencies": [
-      "bun",
-      "protobufjs",
-      "simple-git-hooks"
-    ]
-  }
+  ]
 }

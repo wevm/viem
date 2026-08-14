@@ -16,21 +16,104 @@ import type { Chain } from '../types/chain.js'
 import type { ChainConfig } from './chainConfig.js'
 import * as Transaction from './Transaction.js'
 
+type RelayProxyParameters = {
+  /** Policy for how the relay should handle sponsored transactions. Defaults to `'sign-only'`. */
+  policy?: 'sign-only' | 'sign-and-broadcast' | undefined
+}
+
 export type FeePayer = Transport<typeof withFeePayer.type>
+export type Relay = Transport<typeof withRelay.type>
 
 /**
- * Creates a fee payer transport that routes requests between
- * the default transport or the fee payer transport.
+ * Creates a relay transport that routes requests between
+ * the default transport or the relay transport.
  *
- * The policy parameter controls how the fee payer handles transactions:
- * - `'sign-only'`: Fee payer co-signs the transaction and returns it to the client transport, which then broadcasts it via the default transport
- * - `'sign-and-broadcast'`: Fee payer co-signs and broadcasts the transaction directly
+ * All `eth_fillTransaction` requests are sent to the relay with the request's
+ * `feePayer` value preserved so the relay can decide whether to sponsor the transaction.
+ *
+ * The policy parameter controls how the relay handles sponsored transactions:
+ * - `'sign-only'`: Relay co-signs the transaction and returns it to the client transport, which then broadcasts it via the default transport
+ * - `'sign-and-broadcast'`: Relay co-signs and broadcasts the transaction directly
  *
  * @param defaultTransport - The default transport to use.
- * @param feePayerTransport - The fee payer transport to use.
+ * @param relayTransport - The relay transport to use.
  * @param parameters - Configuration parameters.
  * @returns A relay transport.
  */
+export function withRelay(
+  defaultTransport: Transport,
+  relayTransport: Transport,
+  parameters?: withRelay.Parameters,
+): withRelay.ReturnValue {
+  const { policy = 'sign-only' } = parameters ?? {}
+
+  return (config) => {
+    const transport_default = defaultTransport(config)
+    const transport_relay = relayTransport(config)
+
+    return createTransport({
+      key: withRelay.type,
+      name: 'Relay Proxy',
+      async request({ method, params }, options) {
+        if (method === 'eth_fillTransaction')
+          return transport_relay.request({ method, params }, options) as never
+
+        if (
+          method === 'eth_sendRawTransactionSync' ||
+          method === 'eth_sendRawTransaction'
+        ) {
+          const serialized = (params as any)[0] as `0x76${string}`
+          const transaction = Transaction.deserialize(serialized)
+
+          // Serialized Tempo envelopes encode `feePayer: true` as a missing fee payer
+          // signature until the relay co-signs the transaction.
+          if (transaction.feePayerSignature === null) {
+            // For 'sign-and-broadcast', relay signs and broadcasts
+            if (policy === 'sign-and-broadcast')
+              return transport_relay.request(
+                { method, params },
+                options,
+              ) as never
+
+            // For 'sign-only', request signature from relay using eth_signRawTransaction
+            {
+              // Request signature from relay using eth_signRawTransaction
+              const signedTransaction = await transport_relay.request(
+                {
+                  method: 'eth_signRawTransaction',
+                  params: [serialized],
+                },
+                options,
+              )
+
+              // Broadcast the signed transaction via the default transport
+              return transport_default.request(
+                { method, params: [signedTransaction] },
+                options,
+              ) as never
+            }
+          }
+        }
+
+        return (await transport_default.request(
+          { method, params },
+          options,
+        )) as never
+      },
+      type: withRelay.type,
+    })
+  }
+}
+
+export declare namespace withRelay {
+  export const type = 'relay'
+
+  export type Parameters = RelayProxyParameters
+
+  export type ReturnValue = Relay
+}
+
+/** @deprecated Use `withRelay` instead. */
 export function withFeePayer(
   defaultTransport: Transport,
   relayTransport: Transport,
@@ -46,6 +129,16 @@ export function withFeePayer(
       key: withFeePayer.type,
       name: 'Relay Proxy',
       async request({ method, params }, options) {
+        if (method === 'eth_fillTransaction') {
+          const request = (params as readonly unknown[] | undefined)?.[0]
+          if (
+            request &&
+            typeof request === 'object' &&
+            'feePayer' in request &&
+            request.feePayer === true
+          )
+            return transport_relay.request({ method, params }, options) as never
+        }
         if (
           method === 'eth_sendRawTransactionSync' ||
           method === 'eth_sendRawTransaction'
@@ -53,7 +146,8 @@ export function withFeePayer(
           const serialized = (params as any)[0] as `0x76${string}`
           const transaction = Transaction.deserialize(serialized)
 
-          // If the transaction is intended to be sponsored, forward it to the relay.
+          // Serialized Tempo envelopes encode `feePayer: true` as a missing fee payer
+          // signature until the relay co-signs the transaction.
           if (transaction.feePayerSignature === null) {
             // For 'sign-and-broadcast', relay signs and broadcasts
             if (policy === 'sign-and-broadcast')

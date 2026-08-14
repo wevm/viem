@@ -335,6 +335,19 @@ After the initiate withdrawal transaction has been processed on a block on the L
 
 Before a withdrawal transaction can be proved, the transaction needs to be included in an L2 Output proposal. Until then, we will need to wait for the withdrawal transaction to be ready to be proved (1). This usually takes a maximum of **one hour**. 
 
+The same flow works for OP Stack chains that use super-root dispute games. For those chains, the dispute game anchor is an L2 timestamp instead of an L2 block number, so pass the initiating withdrawal block timestamp as `l2Timestamp` to L1-side prove readiness checks like `waitToProve`, `getTimeToProve`, and `getWithdrawalStatus`.
+
+```ts
+const receipt = await publicClientL2.getTransactionReceipt({ hash })
+const block = await publicClientL2.getBlock({ blockNumber: receipt.blockNumber })
+
+await publicClientL1.waitToProve({
+  receipt,
+  l2Timestamp: block.timestamp,
+  targetChain: walletClientL2.chain
+})
+```
+
 Once the L2 output has been proposed, we will need to build the parameters for the prove withdrawal transaction on the L2 (2), and then execute the transaction on the L1 (3). We also want to wait for the L1 transaction to be processed on a block (4) before we continue.
 
 :::code-group

@@ -27,6 +27,11 @@ export const zora = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    disputeGameFactory: {
+      [sourceId]: {
+        address: '0xB0F15106fa1e473Ddb39790f197275BC979Aa37e',
+      },
+    },
     l2OutputOracle: {
       [sourceId]: {
         address: '0x9E6204F750cD866b299594e2aC9eA824E2e5f95c',

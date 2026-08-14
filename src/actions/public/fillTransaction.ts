@@ -6,6 +6,7 @@ import type { BaseError } from '../../errors/base.js'
 import { BaseFeeScalarError } from '../../errors/fee.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
+import type { ExtractCapabilities } from '../../types/capabilities.js'
 import type {
   Chain,
   ChainFeesFnParameters,
@@ -59,6 +60,9 @@ export type FillTransactionReturnType<
   ///
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = {
+  capabilities?:
+    | ExtractCapabilities<'fillTransaction', 'ReturnType'>
+    | undefined
   raw: Hex
   transaction: FormattedTransaction<_derivedChain>
 }
@@ -203,7 +207,7 @@ export async function fillTransaction<
     if (transaction.maxPriorityFeePerGas)
       transaction.maxPriorityFeePerGas =
         parameters.maxPriorityFeePerGas ?? transaction.maxPriorityFeePerGas
-    if (transaction.nonce)
+    if (typeof transaction.nonce !== 'undefined')
       transaction.nonce = parameters.nonce ?? transaction.nonce
 
     // Build fee multiplier function.
@@ -223,14 +227,16 @@ export async function fillTransaction<
     const decimals = feeMultiplier.toString().split('.')[1]?.length ?? 0
     const denominator = 10 ** decimals
     const multiplyFee = (base: bigint) =>
-      (base * BigInt(Math.ceil(feeMultiplier * denominator))) /
+      (base * BigInt(Math.round(feeMultiplier * denominator))) /
       BigInt(denominator)
 
     // Apply fee multiplier.
-    if (transaction.maxFeePerGas && !parameters.maxFeePerGas)
-      transaction.maxFeePerGas = multiplyFee(transaction.maxFeePerGas)
-    if (transaction.gasPrice && !parameters.gasPrice)
-      transaction.gasPrice = multiplyFee(transaction.gasPrice)
+    if (!transaction.feePayerSignature) {
+      if (transaction.maxFeePerGas && !parameters.maxFeePerGas)
+        transaction.maxFeePerGas = multiplyFee(transaction.maxFeePerGas)
+      if (transaction.gasPrice && !parameters.gasPrice)
+        transaction.gasPrice = multiplyFee(transaction.gasPrice)
+    }
 
     return {
       raw: response.raw,
@@ -238,6 +244,7 @@ export async function fillTransaction<
         from: request.from,
         ...transaction,
       },
+      ...(response.capabilities ? { capabilities: response.capabilities } : {}),
     }
   } catch (err) {
     throw getTransactionError(

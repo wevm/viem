@@ -15,8 +15,9 @@ import {
   HttpRequestError,
   type HttpRequestErrorType,
 } from '../errors/request.js'
-import type { ErrorType } from '../errors/utils.js'
+import { type ErrorType, getAbortError, isAbortError } from '../errors/utils.js'
 import type { Chain } from '../types/chain.js'
+import type { EIP1193RequestOptions } from '../types/eip1193.js'
 import type { Hex } from '../types/misc.js'
 import { decodeErrorResult } from './abi/decodeErrorResult.js'
 import { encodeAbiParameters } from './abi/encodeAbiParameters.js'
@@ -65,8 +66,9 @@ export async function offchainLookup<chain extends Chain | undefined>(
     blockNumber,
     blockTag,
     data,
+    requestOptions,
     to,
-  }: Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
+  }: Pick<CallParameters, 'blockNumber' | 'blockTag' | 'requestOptions'> & {
     data: Hex
     to: Address
   },
@@ -90,9 +92,10 @@ export async function offchainLookup<chain extends Chain | undefined>(
     const result = urls.includes(localBatchGatewayUrl)
       ? await localBatchGatewayRequest({
           data: callData,
-          ccipRequest: ccipRequest_,
+          ccipRequest: (parameters) =>
+            ccipRequest_({ ...parameters, requestOptions }),
         })
-      : await ccipRequest_({ data: callData, sender, urls })
+      : await ccipRequest_({ data: callData, requestOptions, sender, urls })
 
     const { data: data_ } = await call(client, {
       blockNumber,
@@ -104,11 +107,16 @@ export async function offchainLookup<chain extends Chain | undefined>(
           [result, extraData],
         ),
       ]),
+      requestOptions,
       to,
     } as CallParameters)
 
     return data_!
   } catch (err) {
+    if (requestOptions?.signal?.aborted)
+      throw getAbortError(requestOptions.signal)
+    if (isAbortError(err)) throw err
+
     throw new OffchainLookupError({
       callbackSelector,
       cause: err as BaseError,
@@ -122,6 +130,7 @@ export async function offchainLookup<chain extends Chain | undefined>(
 
 export type CcipRequestParameters = {
   data: Hex
+  requestOptions?: EIP1193RequestOptions | undefined
   sender: Address
   urls: readonly string[]
 }
@@ -135,12 +144,16 @@ export type CcipRequestErrorType =
 
 export async function ccipRequest({
   data,
+  requestOptions,
   sender,
   urls,
 }: CcipRequestParameters): Promise<CcipRequestReturnType> {
   let error = new Error('An unknown error occurred.')
 
   for (let i = 0; i < urls.length; i++) {
+    if (requestOptions?.signal?.aborted)
+      throw getAbortError(requestOptions.signal)
+
     const url = urls[i]
     const method = url.includes('{data}') ? 'GET' : 'POST'
     const body = method === 'POST' ? { data, sender } : undefined
@@ -154,6 +167,7 @@ export async function ccipRequest({
           body: JSON.stringify(body),
           headers,
           method,
+          ...(requestOptions?.signal ? { signal: requestOptions.signal } : {}),
         },
       )
 
@@ -189,6 +203,10 @@ export async function ccipRequest({
 
       return result
     } catch (err) {
+      if (requestOptions?.signal?.aborted)
+        throw getAbortError(requestOptions.signal)
+      if (isAbortError(err)) throw err
+
       error = new HttpRequestError({
         body,
         details: (err as Error).message,

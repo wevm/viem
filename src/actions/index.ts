@@ -117,6 +117,12 @@ export {
   getBlockNumber,
 } from './public/getBlockNumber.js'
 export {
+  type GetBlockReceiptsErrorType,
+  type GetBlockReceiptsParameters,
+  type GetBlockReceiptsReturnType,
+  getBlockReceipts,
+} from './public/getBlockReceipts.js'
+export {
   type GetBlockTransactionCountErrorType,
   type GetBlockTransactionCountParameters,
   type GetBlockTransactionCountReturnType,
@@ -147,6 +153,12 @@ export {
   type GetContractEventsReturnType,
   getContractEvents,
 } from './public/getContractEvents.js'
+export {
+  type GetDelegationErrorType,
+  type GetDelegationParameters,
+  type GetDelegationReturnType,
+  getDelegation,
+} from './public/getDelegation.js'
 export {
   type GetEip712DomainErrorType,
   type GetEip712DomainParameters,
@@ -188,6 +200,12 @@ export {
   type GetProofReturnType,
   getProof,
 } from './public/getProof.js'
+export {
+  type GetRawTransactionErrorType,
+  type GetRawTransactionParameters,
+  type GetRawTransactionReturnType,
+  getRawTransaction,
+} from './public/getRawTransaction.js'
 export {
   type GetStorageAtErrorType,
   type GetStorageAtParameters,
@@ -288,6 +306,15 @@ export {
   type WaitForTransactionReceiptReturnType,
   waitForTransactionReceipt,
 } from './public/waitForTransactionReceipt.js'
+export {
+  type BlockHeader,
+  type OnBlockHeader,
+  type OnBlockHeaderParameter,
+  type WatchBlockHeadersErrorType,
+  type WatchBlockHeadersParameters,
+  type WatchBlockHeadersReturnType,
+  watchBlockHeaders,
+} from './public/watchBlockHeaders.js'
 export {
   type OnBlockNumberFn,
   type OnBlockNumberParameter,
@@ -462,6 +489,7 @@ export {
   type StopImpersonatingAccountParameters,
   stopImpersonatingAccount,
 } from './test/stopImpersonatingAccount.js'
+export * as token from './token/index.js'
 export {
   type AddChainErrorType,
   type AddChainParameters,

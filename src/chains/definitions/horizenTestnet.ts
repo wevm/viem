@@ -5,8 +5,8 @@ export const horizenTestnet = /*#__PURE__*/ defineChain({
   name: 'Horizen Testnet',
   network: 'horizen-testnet',
   nativeCurrency: {
-    symbol: 'Sepolia Ether',
-    name: 'ETH',
+    name: 'Sepolia Ether',
+    symbol: 'ETH',
     decimals: 18,
   },
   rpcUrls: {

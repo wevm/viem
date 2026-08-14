@@ -1,6 +1,8 @@
 import * as Http from 'node:http'
+import { setTimeout } from 'node:timers/promises'
 import { createRequestListener } from '@remix-run/node-fetch-server'
-import { RpcRequest, RpcResponse, WebCryptoP256 } from 'ox'
+import { Hex, RpcRequest, RpcResponse, Value, WebCryptoP256 } from 'ox'
+import { Period } from 'ox/tempo'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import {
   getTransaction,
@@ -15,16 +17,52 @@ import { Account, Actions, Transaction } from 'viem/tempo'
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest'
 import {
   accounts,
+  addresses,
   chain,
   feeToken,
   getClient,
   http,
+  nodeEnv,
   setupFeeToken,
 } from '~test/tempo/config.js'
 import * as Prool from '~test/tempo/prool.js'
 import { withFeePayer } from './Transport.js'
 
 const client = getClient()
+
+/** Spending limits covering both fee tokens (pathUsd + alphaUsd). */
+function feeTokenLimits(limit: bigint, period?: number) {
+  return [
+    { token: addresses.pathUsd, limit, ...(period != null && { period }) },
+    { token: addresses.alphaUsd, limit, ...(period != null && { period }) },
+  ]
+}
+
+describe.runIf(nodeEnv === 'testnet')('zone.encryptedDeposit.prepare', () => {
+  test('default', async () => {
+    const prepared = await Actions.zone.encryptedDeposit.prepare(client, {
+      token: addresses.pathUsd,
+      amount: 1n,
+      bouncebackRecipient: accounts[0].address,
+      recipient: accounts[0].address,
+      sender: accounts[0].address,
+      memo: Hex.fromNumber(1n, { size: 32 }),
+      zoneId: 7,
+    })
+
+    expect(prepared.amount).toBe(1n)
+    expect(prepared.bouncebackRecipient).toBe(accounts[0].address)
+    expect(prepared.chainId).toBe(chain.id)
+    expect(prepared.encrypted.ciphertext).toBeDefined()
+    expect(prepared.encrypted.ephemeralPubkeyX).toBeDefined()
+    expect(prepared.encrypted.nonce).toBeDefined()
+    expect(prepared.encrypted.tag).toBeDefined()
+    expect(prepared.keyIndex).toBeGreaterThanOrEqual(0n)
+    expect(prepared.portalAddress).toBeDefined()
+    expect(prepared.token).toBe(addresses.pathUsd)
+    expect(prepared.zoneId).toBe(7)
+  })
+})
 
 describe('sendTransaction', () => {
   test('default', async () => {
@@ -40,6 +78,7 @@ describe('sendTransaction', () => {
     const {
       blockHash,
       blockNumber,
+      blockTimestamp: _blockTimestamp,
       chainId,
       from,
       gas,
@@ -98,6 +137,7 @@ describe('sendTransaction', () => {
     const {
       blockHash,
       blockNumber,
+      blockTimestamp: _blockTimestamp,
       chainId,
       feeToken: feeToken_,
       from,
@@ -111,6 +151,7 @@ describe('sendTransaction', () => {
       nonceKey,
       signature,
       transactionIndex,
+      validBefore,
       ...transaction
     } = await getTransaction(client, { hash })
 
@@ -128,6 +169,7 @@ describe('sendTransaction', () => {
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
+    expect(validBefore).toBeNull()
     expect(transaction).toMatchInlineSnapshot(`
       {
         "accessList": [],
@@ -147,7 +189,6 @@ describe('sendTransaction', () => {
         "typeHex": "0x76",
         "v": undefined,
         "validAfter": null,
-        "validBefore": null,
         "value": 0n,
         "yParity": undefined,
       }
@@ -171,6 +212,7 @@ describe('sendTransaction', () => {
     const {
       blockHash,
       blockNumber,
+      blockTimestamp: _blockTimestamp,
       chainId,
       feeToken: feeToken_,
       from,
@@ -184,6 +226,7 @@ describe('sendTransaction', () => {
       nonceKey,
       signature,
       transactionIndex,
+      validBefore,
       ...transaction
     } = await getTransaction(client, { hash })
 
@@ -201,6 +244,7 @@ describe('sendTransaction', () => {
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
+    expect(validBefore).toBeNull()
     expect(transaction).toMatchInlineSnapshot(`
       {
         "accessList": [],
@@ -220,7 +264,6 @@ describe('sendTransaction', () => {
         "typeHex": "0x76",
         "v": undefined,
         "validAfter": null,
-        "validBefore": null,
         "value": 0n,
         "yParity": undefined,
       }
@@ -233,7 +276,7 @@ describe('sendTransaction', () => {
     const hash = await sendTransaction(client, {
       account,
       calls: [
-        Actions.token.create.call({
+        Actions.token.create.call(client, {
           admin: accounts[0].address,
           currency: 'USD',
           name: 'Test Token 3',
@@ -246,6 +289,7 @@ describe('sendTransaction', () => {
     const {
       blockHash,
       blockNumber,
+      blockTimestamp: _blockTimestamp,
       calls,
       chainId,
       feeToken: ___,
@@ -260,6 +304,7 @@ describe('sendTransaction', () => {
       nonceKey,
       signature,
       transactionIndex,
+      validBefore,
       ...transaction
     } = await getTransaction(client, { hash })
 
@@ -277,6 +322,7 @@ describe('sendTransaction', () => {
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
+    expect(validBefore).toBeNull()
     expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -289,7 +335,6 @@ describe('sendTransaction', () => {
           "typeHex": "0x76",
           "v": undefined,
           "validAfter": null,
-          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -310,6 +355,7 @@ describe('sendTransaction', () => {
     const {
       blockHash,
       blockNumber,
+      blockTimestamp: _blockTimestamp,
       chainId,
       feePayerSignature,
       feeToken: ___,
@@ -324,6 +370,8 @@ describe('sendTransaction', () => {
       nonceKey,
       signature,
       transactionIndex,
+      validAfter,
+      validBefore,
       ...transaction
     } = await getTransaction(client, { hash })
 
@@ -341,29 +389,29 @@ describe('sendTransaction', () => {
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
+    expect(validAfter).toBeTypeOf('number')
+    expect(validBefore).toBeTypeOf('number')
     expect(transaction).toMatchInlineSnapshot(`
-        {
-          "accessList": [],
-          "authorizationList": [],
-          "calls": [
-            {
-              "data": "0x",
-              "to": "0x0000000000000000000000000000000000000000",
-              "value": 0n,
-            },
-          ],
-          "data": undefined,
-          "maxFeePerBlobGas": undefined,
-          "to": null,
-          "type": "tempo",
-          "typeHex": "0x76",
-          "v": undefined,
-          "validAfter": null,
-          "validBefore": null,
-          "value": 0n,
-          "yParity": undefined,
-        }
-      `)
+      {
+        "accessList": [],
+        "authorizationList": [],
+        "calls": [
+          {
+            "data": "0x",
+            "to": "0x0000000000000000000000000000000000000000",
+            "value": 0n,
+          },
+        ],
+        "data": undefined,
+        "maxFeePerBlobGas": undefined,
+        "to": null,
+        "type": "tempo",
+        "typeHex": "0x76",
+        "v": undefined,
+        "value": 0n,
+        "yParity": undefined,
+      }
+    `)
   })
 
   test('behavior: deploy contract', async () => {
@@ -391,7 +439,10 @@ describe('sendTransaction', () => {
       access: account,
     })
 
-    const keyAuthorization = await account.signKeyAuthorization(accessKey)
+    const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+    })
 
     {
       const receipt = await sendTransactionSync(client, {
@@ -440,6 +491,7 @@ describe('sendTransaction', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp: _blockTimestamp,
         chainId,
         feeToken: ___,
         from,
@@ -453,6 +505,7 @@ describe('sendTransaction', () => {
         nonceKey,
         signature,
         transactionIndex,
+        validBefore,
         ...transaction
       } = await getTransaction(client, {
         hash: receipt.transactionHash,
@@ -471,6 +524,7 @@ describe('sendTransaction', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
+      expect(validBefore).toBeNull()
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -490,7 +544,6 @@ describe('sendTransaction', () => {
           "typeHex": "0x76",
           "v": undefined,
           "validAfter": null,
-          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -507,7 +560,7 @@ describe('sendTransaction', () => {
       const receipt = await sendTransactionSync(client, {
         account,
         calls: [
-          Actions.token.create.call({
+          Actions.token.create.call(client, {
             admin: account.address,
             currency: 'USD',
             name: 'Test Token 4',
@@ -521,6 +574,7 @@ describe('sendTransaction', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp: _blockTimestamp,
         calls,
         chainId,
         feeToken: ___,
@@ -535,6 +589,7 @@ describe('sendTransaction', () => {
         nonceKey,
         signature,
         transactionIndex,
+        validBefore,
         ...transaction
       } = await getTransaction(client, {
         hash: receipt.transactionHash,
@@ -554,6 +609,7 @@ describe('sendTransaction', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
+      expect(validBefore).toBeNull()
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -566,7 +622,6 @@ describe('sendTransaction', () => {
           "typeHex": "0x76",
           "v": undefined,
           "validAfter": null,
-          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -590,6 +645,7 @@ describe('sendTransaction', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp: _blockTimestamp,
         chainId,
         feePayerSignature,
         feeToken: ___,
@@ -604,6 +660,8 @@ describe('sendTransaction', () => {
         nonceKey,
         signature,
         transactionIndex,
+        validAfter,
+        validBefore,
         ...transaction
       } = await getTransaction(client, { hash })
 
@@ -621,6 +679,8 @@ describe('sendTransaction', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
+      expect(validAfter).toBeTypeOf('number')
+      expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -638,8 +698,6 @@ describe('sendTransaction', () => {
           "type": "tempo",
           "typeHex": "0x76",
           "v": undefined,
-          "validAfter": null,
-          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -652,7 +710,10 @@ describe('sendTransaction', () => {
         access: account,
       })
 
-      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        { account, accessKey },
+      )
 
       {
         const receipt = await sendTransactionSync(client, {
@@ -681,7 +742,10 @@ describe('sendTransaction', () => {
       })
       const feePayer = accounts[0]
 
-      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        { account, accessKey },
+      )
 
       {
         const receipt = await sendTransactionSync(client, {
@@ -720,6 +784,7 @@ describe('sendTransaction', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp: _blockTimestamp,
         chainId,
         feeToken: ___,
         from,
@@ -733,6 +798,7 @@ describe('sendTransaction', () => {
         nonceKey,
         signature,
         transactionIndex,
+        validBefore,
         ...transaction
       } = await getTransaction(client, {
         hash: receipt.transactionHash,
@@ -751,6 +817,7 @@ describe('sendTransaction', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
+      expect(validBefore).toBeNull()
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -770,7 +837,6 @@ describe('sendTransaction', () => {
           "typeHex": "0x76",
           "v": undefined,
           "validAfter": null,
-          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -786,7 +852,7 @@ describe('sendTransaction', () => {
       const receipt = await sendTransactionSync(client, {
         account,
         calls: [
-          Actions.token.create.call({
+          Actions.token.create.call(client, {
             admin: account.address,
             currency: 'USD',
             name: 'Test Token 5',
@@ -880,7 +946,10 @@ describe('sendTransaction', () => {
 
       await setupFeeToken(client, { account })
 
-      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        { account, accessKey },
+      )
 
       {
         const receipt = await sendTransactionSync(client, {
@@ -921,6 +990,7 @@ describe('sendTransaction', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp: _blockTimestamp,
         chainId,
         feeToken: ___,
         from,
@@ -934,6 +1004,7 @@ describe('sendTransaction', () => {
         nonceKey,
         signature,
         transactionIndex,
+        validBefore,
         ...transaction
       } = await getTransaction(client, {
         hash: receipt.transactionHash,
@@ -952,6 +1023,7 @@ describe('sendTransaction', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
+      expect(validBefore).toBeNull()
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -971,7 +1043,6 @@ describe('sendTransaction', () => {
           "typeHex": "0x76",
           "v": undefined,
           "validAfter": null,
-          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -992,7 +1063,7 @@ describe('sendTransaction', () => {
       const receipt = await sendTransactionSync(client, {
         account,
         calls: [
-          Actions.token.create.call({
+          Actions.token.create.call(client, {
             admin: account.address,
             currency: 'USD',
             name: 'Test Token 6',
@@ -1006,6 +1077,7 @@ describe('sendTransaction', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp: _blockTimestamp,
         calls,
         chainId,
         feeToken: ___,
@@ -1020,6 +1092,7 @@ describe('sendTransaction', () => {
         nonceKey,
         signature,
         transactionIndex,
+        validBefore: validBefore2,
         ...transaction
       } = await getTransaction(client, {
         hash: receipt.transactionHash,
@@ -1039,6 +1112,7 @@ describe('sendTransaction', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
+      expect(validBefore2).toBeNull()
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -1051,7 +1125,6 @@ describe('sendTransaction', () => {
           "typeHex": "0x76",
           "v": undefined,
           "validAfter": null,
-          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -1079,6 +1152,7 @@ describe('sendTransaction', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp: _blockTimestamp,
         chainId,
         feePayerSignature,
         feeToken: ___,
@@ -1093,6 +1167,8 @@ describe('sendTransaction', () => {
         nonceKey,
         signature,
         transactionIndex,
+        validAfter,
+        validBefore,
         ...transaction
       } = await getTransaction(client, { hash })
 
@@ -1110,6 +1186,8 @@ describe('sendTransaction', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
+      expect(validAfter).toBeTypeOf('number')
+      expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -1127,8 +1205,6 @@ describe('sendTransaction', () => {
           "type": "tempo",
           "typeHex": "0x76",
           "v": undefined,
-          "validAfter": null,
-          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -1149,7 +1225,10 @@ describe('sendTransaction', () => {
 
       await setupFeeToken(client, { account })
 
-      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        { account, accessKey },
+      )
 
       {
         const receipt = await sendTransactionSync(client, {
@@ -1177,13 +1256,13 @@ describe('sendTransaction', () => {
     const receipts = await Promise.all([
       sendTransactionSync(client, {
         account,
-        nonceKey: 'random',
+        nonceKey: 'expiring',
         to: '0x0000000000000000000000000000000000000000',
       }),
       sendTransactionSync(client, {
         account,
-        nonceKey: 'random',
-        to: '0x0000000000000000000000000000000000000000',
+        nonceKey: 'expiring',
+        to: '0x0000000000000000000000000000000000000001',
       }),
     ])
 
@@ -1197,30 +1276,63 @@ describe('sendTransaction', () => {
 
     await setupFeeToken(client, { account })
 
-    const receipts = await Promise.all([
-      sendTransactionSync(client, {
-        account,
-        to: '0x0000000000000000000000000000000000000000',
-      }),
-      sendTransactionSync(client, {
-        account,
-        to: '0x0000000000000000000000000000000000000000',
-      }),
-      sendTransactionSync(client, {
-        account,
-        to: '0x0000000000000000000000000000000000000000',
-      }),
-    ])
+    {
+      const receipts = await Promise.all([
+        sendTransactionSync(client, {
+          account,
+          to: '0x0000000000000000000000000000000000000004',
+        }),
+        sendTransactionSync(client, {
+          account,
+          to: '0x0000000000000000000000000000000000000005',
+        }),
+        sendTransactionSync(client, {
+          account,
+          to: '0x0000000000000000000000000000000000000006',
+        }),
+      ])
 
-    const transactions = await Promise.all([
-      getTransaction(client, { hash: receipts[0].transactionHash }),
-      getTransaction(client, { hash: receipts[1].transactionHash }),
-      getTransaction(client, { hash: receipts[2].transactionHash }),
-    ])
+      const transactions = await Promise.all([
+        getTransaction(client, { hash: receipts[0].transactionHash }),
+        getTransaction(client, { hash: receipts[1].transactionHash }),
+        getTransaction(client, { hash: receipts[2].transactionHash }),
+      ])
 
-    expect(transactions[0].nonceKey).toBe(undefined)
-    expect(transactions[1].nonceKey).toBeGreaterThan(0n)
-    expect(transactions[2].nonceKey).toBeGreaterThan(0n)
+      const maxUint256 = 2n ** 256n - 1n
+      expect(transactions[0].nonceKey).toBe(maxUint256)
+      expect(transactions[1].nonceKey).toBe(maxUint256)
+      expect(transactions[2].nonceKey).toBe(maxUint256)
+    }
+
+    await setTimeout(1000)
+
+    {
+      const receipts = await Promise.all([
+        sendTransactionSync(client, {
+          account,
+          to: '0x0000000000000000000000000000000000000000',
+        }),
+        sendTransactionSync(client, {
+          account,
+          to: '0x0000000000000000000000000000000000000001',
+        }),
+        sendTransactionSync(client, {
+          account,
+          to: '0x0000000000000000000000000000000000000002',
+        }),
+      ])
+
+      const transactions = await Promise.all([
+        getTransaction(client, { hash: receipts[0].transactionHash }),
+        getTransaction(client, { hash: receipts[1].transactionHash }),
+        getTransaction(client, { hash: receipts[2].transactionHash }),
+      ])
+
+      const maxUint256 = 2n ** 256n - 1n
+      expect(transactions[0].nonceKey).toBe(maxUint256)
+      expect(transactions[1].nonceKey).toBe(maxUint256)
+      expect(transactions[2].nonceKey).toBe(maxUint256)
+    }
   })
 })
 
@@ -1254,6 +1366,7 @@ describe('signTransaction', () => {
     const {
       blockHash,
       blockNumber,
+      blockTimestamp: _blockTimestamp,
       chainId,
       feePayerSignature,
       feeToken: ___,
@@ -1268,6 +1381,8 @@ describe('signTransaction', () => {
       nonceKey,
       signature,
       transactionIndex,
+      validAfter,
+      validBefore,
       ...transaction2
     } = await getTransaction(client, { hash })
 
@@ -1285,6 +1400,8 @@ describe('signTransaction', () => {
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
+    expect(validAfter).toBeTypeOf('number')
+    expect(validBefore).toBeTypeOf('number')
     expect(transaction2).toMatchInlineSnapshot(`
       {
         "accessList": [],
@@ -1302,8 +1419,6 @@ describe('signTransaction', () => {
         "type": "tempo",
         "typeHex": "0x76",
         "v": undefined,
-        "validAfter": null,
-        "validBefore": null,
         "value": 0n,
         "yParity": undefined,
       }
@@ -1330,6 +1445,14 @@ describe('relay', () => {
 
         const request = RpcRequest.from(await r.json())
 
+        if ((request as any).method === 'eth_fillTransaction') {
+          const result = await client.request({
+            method: request.method,
+            params: request.params,
+          } as never)
+          return Response.json(RpcResponse.from({ result }, { request }))
+        }
+
         // Validate method
         if (
           (request as any).method !== 'eth_signRawTransaction' &&
@@ -1341,7 +1464,7 @@ describe('relay', () => {
               {
                 error: new RpcResponse.InvalidParamsError({
                   message:
-                    'service only supports `eth_signTransaction`, `eth_sendRawTransaction`, and `eth_sendRawTransactionSync`',
+                    'service only supports `eth_fillTransaction`, `eth_signTransaction`, `eth_sendRawTransaction`, and `eth_sendRawTransactionSync`',
                 }),
               },
               { request },
@@ -1349,12 +1472,13 @@ describe('relay', () => {
           )
 
         const serialized = request.params?.[0] as `0x76${string}`
-        if (!serialized.startsWith('0x76'))
+        if (!serialized.startsWith('0x76') && !serialized.startsWith('0x78'))
           return Response.json(
             RpcResponse.from(
               {
                 error: new RpcResponse.InvalidParamsError({
-                  message: 'service only supports `0x76` transactions',
+                  message:
+                    'service only supports `0x76` and `0x78` transactions',
                 }),
               },
               { request },
@@ -1417,6 +1541,7 @@ describe('relay', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp: _blockTimestamp,
         calls,
         chainId,
         feePayerSignature,
@@ -1432,6 +1557,8 @@ describe('relay', () => {
         nonceKey,
         signature,
         transactionIndex,
+        validAfter,
+        validBefore,
         ...transaction
       } = await getTransaction(client, { hash: receipt.transactionHash })
 
@@ -1450,6 +1577,8 @@ describe('relay', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
+      expect(validAfter).toBeTypeOf('number')
+      expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -1460,8 +1589,6 @@ describe('relay', () => {
           "type": "tempo",
           "typeHex": "0x76",
           "v": undefined,
-          "validAfter": null,
-          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -1492,6 +1619,31 @@ describe('relay', () => {
         }),
       ])
 
+      expect(receipts.every((receipt) => receipt.status === 'success')).toBe(
+        true,
+      )
+    })
+
+    test('behavior: identical sponsored transactions', async () => {
+      const account = privateKeyToAccount(
+        // unfunded PK
+        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
+      )
+      const hashes = await Promise.all(
+        Array.from({ length: 3 }, () =>
+          sendTransaction(client, {
+            account,
+            feePayer: true,
+            to: '0x0000000000000000000000000000000000000000',
+          }),
+        ),
+      )
+
+      expect(new Set(hashes).size).toBe(hashes.length)
+
+      const receipts = await Promise.all(
+        hashes.map((hash) => waitForTransactionReceipt(client, { hash })),
+      )
       expect(receipts.every((receipt) => receipt.status === 'success')).toBe(
         true,
       )
@@ -1538,6 +1690,7 @@ describe('relay', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp: _blockTimestamp,
         calls,
         chainId,
         feePayerSignature,
@@ -1553,6 +1706,8 @@ describe('relay', () => {
         nonceKey,
         signature,
         transactionIndex,
+        validAfter,
+        validBefore,
         ...transaction
       } = await getTransaction(client, { hash: receipt.transactionHash })
 
@@ -1571,6 +1726,8 @@ describe('relay', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
+      expect(validAfter).toBeTypeOf('number')
+      expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -1581,8 +1738,6 @@ describe('relay', () => {
           "type": "tempo",
           "typeHex": "0x76",
           "v": undefined,
-          "validAfter": null,
-          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -1632,6 +1787,7 @@ describe('relay', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp: _blockTimestamp,
         calls,
         chainId,
         feePayerSignature,
@@ -1647,6 +1803,8 @@ describe('relay', () => {
         nonceKey,
         signature,
         transactionIndex,
+        validAfter,
+        validBefore,
         ...transaction
       } = await getTransaction(client, { hash: receipt.transactionHash })
 
@@ -1665,6 +1823,8 @@ describe('relay', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
+      expect(validAfter).toBeTypeOf('number')
+      expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -1675,8 +1835,6 @@ describe('relay', () => {
           "type": "tempo",
           "typeHex": "0x76",
           "v": undefined,
-          "validAfter": null,
-          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -1698,7 +1856,10 @@ describe('relay', () => {
         },
       )
 
-      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        { account, accessKey },
+      )
 
       await setupFeeToken(client, { account })
 
@@ -1714,5 +1875,277 @@ describe('relay', () => {
         expect(receipt).toBeDefined()
       }
     })
+  })
+})
+
+// TODO: remove skipIf once T3 is deployed to testnet
+describe.skipIf(nodeEnv === 'testnet')(
+  'accessKeys: periodic spending limits',
+  () => {
+    test('behavior: access key with periodic spending limit', async () => {
+      const account = accounts[0]
+      const accessKey = Account.fromP256(generatePrivateKey(), {
+        access: account,
+      })
+
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          limits: feeTokenLimits(Value.from('10000', 6), Period.months(1)),
+        },
+      )
+
+      // Provision key + transfer in same tx (access key signs, root sends)
+      const { receipt } = await Actions.token.transferSync(client, {
+        account: accessKey,
+        feeToken,
+        keyAuthorization,
+        amount: 100n,
+        token: feeToken,
+        to: '0x0000000000000000000000000000000000000001',
+      })
+      expect(receipt.status).toBe('success')
+    })
+
+    test('behavior: reverts transfer exceeding periodic spending limit', async () => {
+      const account = accounts[0]
+      const accessKey = Account.fromP256(generatePrivateKey(), {
+        access: account,
+      })
+
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          limits: feeTokenLimits(Value.from('5', 6), Period.months(1)),
+        },
+      )
+
+      // Provision key + try to transfer 10 (exceeds 5 limit) — should throw.
+      await expect(
+        Actions.token.transferSync(client, {
+          account: accessKey,
+          keyAuthorization,
+          amount: { decimals: 6, formatted: '10' },
+          token: feeToken,
+          to: '0x0000000000000000000000000000000000000001',
+        }),
+      ).rejects.toThrow()
+    })
+
+    test(
+      'behavior: periodic spending limit resets after period',
+      { timeout: 20_000 },
+      async () => {
+        const account = accounts[0]
+        const accessKey = Account.fromP256(generatePrivateKey(), {
+          access: account,
+        })
+
+        // Authorize with periodic limit that resets every 5 seconds
+        const keyAuthorization = await Actions.accessKey.signAuthorization(
+          client,
+          {
+            account,
+            accessKey,
+            limits: feeTokenLimits(Value.from('5', 6), Period.seconds(5)),
+          },
+        )
+
+        // Provision key + transfer 4 (within 5 limit)
+        {
+          const { receipt } = await Actions.token.transferSync(client, {
+            account: accessKey,
+            feeToken,
+            keyAuthorization,
+            amount: { decimals: 6, formatted: '4' },
+            token: feeToken,
+            to: '0x0000000000000000000000000000000000000001',
+          })
+          expect(receipt.status).toBe('success')
+        }
+
+        // Immediately try another 4 (total 8 > limit 5 — should throw).
+        await expect(
+          Actions.token.transferSync(client, {
+            account: accessKey,
+            feeToken,
+            amount: { decimals: 6, formatted: '4' },
+            token: feeToken,
+            to: '0x0000000000000000000000000000000000000001',
+          }),
+        ).rejects.toThrow()
+
+        // Wait for period to reset
+        await setTimeout(6000)
+
+        // Transfer again after period reset — should succeed
+        {
+          const { receipt } = await Actions.token.transferSync(client, {
+            account: accessKey,
+            feeToken,
+            amount: { decimals: 6, formatted: '4' },
+            token: feeToken,
+            to: '0x0000000000000000000000000000000000000001',
+          })
+          expect(receipt.status).toBe('success')
+        }
+      },
+    )
+  },
+)
+
+// TODO: remove skipIf once T3 is deployed to testnet
+describe.skipIf(nodeEnv === 'testnet')('accessKeys: call scopes', () => {
+  test('behavior: access key with call scopes (transfer)', async () => {
+    const account = accounts[0]
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      limits: feeTokenLimits(Value.from('10000', 6)),
+      scopes: [
+        {
+          address: feeToken,
+          selector: '0xa9059cbb', // transfer(address,uint256)
+        },
+      ],
+    })
+
+    // Provision key + transfer in same tx
+    const { receipt } = await Actions.token.transferSync(client, {
+      account: accessKey,
+      feeToken,
+      keyAuthorization,
+      amount: 100n,
+      token: feeToken,
+      to: '0x0000000000000000000000000000000000000001',
+    })
+    expect(receipt.status).toBe('success')
+  })
+
+  test('behavior: access key with call scopes + recipient allowlist', async () => {
+    const recipient = '0x0000000000000000000000000000000000000001'
+    const account = accounts[0]
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      limits: feeTokenLimits(Value.from('10000', 6)),
+      scopes: [
+        {
+          address: feeToken,
+          selector: '0xa9059cbb', // transfer(address,uint256)
+          recipients: [recipient],
+        },
+      ],
+    })
+
+    // Provision key + transfer in same tx
+    const { receipt } = await Actions.token.transferSync(client, {
+      account: accessKey,
+      feeToken,
+      keyAuthorization,
+      amount: 100n,
+      token: feeToken,
+      to: recipient,
+    })
+    expect(receipt.status).toBe('success')
+  })
+
+  test('behavior: rejects transfer to wrong recipient', async () => {
+    const allowedRecipient = '0x0000000000000000000000000000000000000001'
+    const wrongRecipient = '0x0000000000000000000000000000000000000002'
+    const account = accounts[0]
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      limits: feeTokenLimits(Value.from('10000', 6)),
+      scopes: [
+        {
+          address: feeToken,
+          selector: '0xa9059cbb',
+          recipients: [allowedRecipient],
+        },
+      ],
+    })
+
+    await expect(
+      Actions.token.transferSync(client, {
+        account: accessKey,
+        keyAuthorization,
+        amount: 100n,
+        token: feeToken,
+        to: wrongRecipient,
+      }),
+    ).rejects.toThrow('CallNotAllowed')
+  })
+
+  test('behavior: rejects approve when only transfer is scoped', async () => {
+    const account = accounts[0]
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      limits: feeTokenLimits(Value.from('10000', 6)),
+      scopes: [
+        {
+          address: feeToken,
+          selector: '0xa9059cbb', // only transfer
+        },
+      ],
+    })
+
+    await expect(
+      Actions.token.approveSync(client, {
+        account: accessKey,
+        feeToken,
+        keyAuthorization,
+        amount: 100n,
+        token: feeToken,
+        spender: '0x0000000000000000000000000000000000000001',
+      }),
+    ).rejects.toThrow('CallNotAllowed')
+  })
+
+  test('behavior: rejects any call when scopes = [] (empty)', async () => {
+    const account = accounts[0]
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      limits: feeTokenLimits(Value.from('10000', 6)),
+      scopes: [], // no calls allowed
+    })
+
+    await expect(
+      Actions.token.transferSync(client, {
+        account: accessKey,
+        feeToken,
+        keyAuthorization,
+        amount: 100n,
+        token: feeToken,
+        to: '0x0000000000000000000000000000000000000001',
+      }),
+    ).rejects.toThrow('CallNotAllowed')
   })
 })

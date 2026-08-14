@@ -78,11 +78,14 @@ describe('sendTransaction()', () => {
     })
 
     expect(hash).toEqual(transactionHash)
-    expect(transportRequestMock).toHaveBeenLastCalledWith({
-      method: 'eth_sendRawTransaction',
-      params: [
-        '0x7bf87782a4ec807b7b0194f39fd6e51aad88f6f4ce6ab8827279cfffb922660180c0940000000000000000000000000000000000000fee01a038c5dfc128d40b147544b13572dbb0462b9389a8a687d0fe32973e435d7de23aa03c01d6bff1279e94f53a1244302de288bd335bc3a1e61da73fd6215f6d67ccf2',
-      ],
-    })
+    expect(transportRequestMock).toHaveBeenLastCalledWith(
+      {
+        method: 'eth_sendRawTransaction',
+        params: [
+          '0x7bf87782a4ec807b7b0194f39fd6e51aad88f6f4ce6ab8827279cfffb922660180c0940000000000000000000000000000000000000fee01a038c5dfc128d40b147544b13572dbb0462b9389a8a687d0fe32973e435d7de23aa03c01d6bff1279e94f53a1244302de288bd335bc3a1e61da73fd6215f6d67ccf2',
+        ],
+      },
+      undefined,
+    )
   })
 })

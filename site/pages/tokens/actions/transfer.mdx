@@ -1,0 +1,268 @@
+---
+description: Transfer tokens.
+---
+
+# token.transfer
+
+Transfers tokens to a recipient, **waits for the transaction to be confirmed**, and returns the
+decoded `Transfer` event along with the transaction receipt.
+
+Pass `from` to transfer on behalf of another address using an allowance (calls `transferFrom`);
+otherwise transfers from the caller (calls `transfer`).
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { from, to, value, formatted, receipt } = await client.token.transferSync({
+  amount: { formatted: '10.5' },
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### By Token Address
+
+When passing a token address, include `amount.decimals` so the formatted amount can be parsed.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.transferSync({
+  amount: { decimals: 6, formatted: '10.5' },
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### Base Amounts
+
+Pass a `bigint` to use the token's base unit amount directly.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.transferSync({
+  amount: 10500000n,
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### Transfer From an Approved Account
+
+Pass `from` to move tokens on behalf of an owner that has approved the caller (calls `transferFrom`).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.transferSync({
+  amount: { formatted: '10.5' },
+  from: '0x55FE002aefF02F77364de339a1292923A15844B8',
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+The examples above use the `transferSync` variant, which waits for the transaction to be included
+before returning.
+
+If you are optimizing for performance, use the non-sync `transfer` action and wait for inclusion
+manually:
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { waitForTransactionReceipt } from 'viem/actions'
+import { client } from './viem.config'
+
+const hash = await client.token.transfer({
+  amount: { formatted: '10.5' },
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+const receipt = await waitForTransactionReceipt(client, { hash })
+
+const { args } = client.token.transfer.extractEvent(receipt.logs)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### Estimate Gas & Simulate
+
+The `transfer` action exposes `.estimateGas` and `.simulate`, which take the same parameters as the
+Action itself.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const gas = await client.token.transfer.estimateGas({
+  amount: { formatted: '1' },
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+
+const { result } = await client.token.transfer.simulate({
+  amount: { formatted: '1' },
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### Composing Calls
+
+Use `.call` to build a `transfer` (or `transferFrom`, when `from` is given) contract call, ready to
+pass to [`sendCalls`](/docs/actions/wallet/sendCalls), `sendTransaction` (`calls`), or
+[`multicall`](/docs/contract/multicall).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const call = client.token.transfer.call({
+  amount: { formatted: '1' },
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Token decimals used to derive `formatted`, if known. */
+  decimals?: number | undefined
+  /** Transferred amount formatted with the token's `decimals`, if known. */
+  formatted?: string | undefined
+  /** Address tokens were transferred from. */
+  from: Address
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+  /** Address tokens were transferred to. */
+  to: Address
+  /** Amount of tokens transferred, in base units. */
+  value: bigint
+}
+```
+
+The non-sync `transfer` action returns the transaction [`Hex`](/docs/glossary/types#hex) hash instead.
+
+## Parameters
+
+### amount
+
+- **Type:** `bigint | { decimals?: number, formatted: string }`
+
+Amount to transfer in base units. Use `{ formatted: '10.5' }` to parse a human-readable
+decimal string for a Client-declared token, or include `amount.decimals` when using a
+token address.
+
+### to
+
+- **Type:** `Address`
+
+Address to transfer tokens to.
+
+### token
+
+- **Type:** `string`
+
+Token to operate on: a [Client-declared](/tokens/tokens#token-lookup)
+token symbol (resolving its `address` and `decimals`), or a token address.
+
+### from (optional)
+
+- **Type:** `Address`
+
+Address to transfer tokens from, using an allowance (calls `transferFrom`). Defaults to the caller.
+
+### throwOnReceiptRevert (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw if the transaction receipt reverts. Only applies to `transferSync`.
+
+### account (optional)
+
+- **Type:** `Account | Address`
+
+Account that will send the transaction. Defaults to the Client's `account`.
+
+### gas (optional)
+
+- **Type:** `bigint`
+
+Gas limit for the transaction.
+
+### maxFeePerGas (optional)
+
+- **Type:** `bigint`
+
+Max fee per gas for the transaction.
+
+### maxPriorityFeePerGas (optional)
+
+- **Type:** `bigint`
+
+Max priority fee per gas for the transaction.
+
+### nonce (optional)
+
+- **Type:** `number`
+
+Nonce for the transaction.

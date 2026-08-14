@@ -41,7 +41,7 @@ describe('buy', () => {
     })
 
     // Should have received base tokens
-    expect(baseBalanceAfter).toBeGreaterThan(baseBalanceBefore)
+    expect(baseBalanceAfter.amount).toBeGreaterThan(baseBalanceBefore.amount)
   })
 
   test('behavior: respects maxAmountIn', async () => {
@@ -139,7 +139,7 @@ describe('cancel', () => {
     // Transfer gas to account2
     await Actions.token.transferSync(client, {
       to: account2.address,
-      amount: parseUnits('1', 6),
+      amount: { formatted: '1' },
       token: 1n,
     })
 
@@ -1071,15 +1071,15 @@ describe('place', () => {
     })
 
     // Base token balance should be unchanged (we're buying base, not selling)
-    expect(baseBalanceAfter).toBe(baseBalanceBefore)
+    expect(baseBalanceAfter.amount).toBe(baseBalanceBefore.amount)
 
     // Quote token balance should decrease (escrowed for the bid)
     // Amount = orderAmount * (1 + tick/1000) for bids
     const expectedQuoteEscrowed =
       (orderAmount * BigInt(100000 + tick)) / BigInt(100000)
-    expect(quoteBalanceBefore - quoteBalanceAfter).toBeGreaterThanOrEqual(
-      expectedQuoteEscrowed,
-    )
+    expect(
+      quoteBalanceBefore.amount - quoteBalanceAfter.amount,
+    ).toBeGreaterThanOrEqual(expectedQuoteEscrowed)
   })
 
   test('behavior: multiple orders at same tick', async () => {
@@ -1139,7 +1139,7 @@ describe('placeFlip', () => {
     `)
   })
 
-  test('behavior: flip bid requires flipTick > tick', async () => {
+  test('behavior: flip bid requires flipTick >= tick', async () => {
     const { base } = await setupTokenPair(client)
 
     // Valid: flipTick > tick for bid
@@ -1152,17 +1152,17 @@ describe('placeFlip', () => {
     })
     expect(receipt1.status).toBe('success')
 
-    // Invalid: flipTick <= tick for bid should fail
-    await expect(
-      Actions.dex.placeFlipSync(client, {
-        token: base,
-        amount: parseUnits('100', 6),
-        type: 'buy',
-        tick: Tick.fromPrice('1.001'),
-        flipTick: Tick.fromPrice('1.001'), // Equal
-      }),
-    ).rejects.toThrow('The contract function "placeFlip" reverted')
+    // Valid (T5+, TIP-1030): flipTick == tick for bid
+    const { receipt: receipt2 } = await Actions.dex.placeFlipSync(client, {
+      token: base,
+      amount: parseUnits('100', 6),
+      type: 'buy',
+      tick: Tick.fromPrice('1.001'),
+      flipTick: Tick.fromPrice('1.001'), // Equal
+    })
+    expect(receipt2.status).toBe('success')
 
+    // Invalid: flipTick < tick for bid should fail
     await expect(
       Actions.dex.placeFlipSync(client, {
         token: base,
@@ -1174,7 +1174,7 @@ describe('placeFlip', () => {
     ).rejects.toThrow('The contract function "placeFlip" reverted')
   })
 
-  test('behavior: flip ask requires flipTick < tick', async () => {
+  test('behavior: flip ask requires flipTick <= tick', async () => {
     const { base } = await setupTokenPair(client)
 
     // Valid: flipTick < tick for ask
@@ -1187,17 +1187,17 @@ describe('placeFlip', () => {
     })
     expect(receipt1.status).toBe('success')
 
-    // Invalid: flipTick >= tick for ask should fail
-    await expect(
-      Actions.dex.placeFlipSync(client, {
-        token: base,
-        amount: parseUnits('100', 6),
-        type: 'sell',
-        tick: Tick.fromPrice('1.0005'),
-        flipTick: Tick.fromPrice('1.0005'), // Equal
-      }),
-    ).rejects.toThrow('The contract function "placeFlip" reverted')
+    // Valid (T5+, TIP-1030): flipTick == tick for ask
+    const { receipt: receipt2 } = await Actions.dex.placeFlipSync(client, {
+      token: base,
+      amount: parseUnits('100', 6),
+      type: 'sell',
+      tick: Tick.fromPrice('1.0005'),
+      flipTick: Tick.fromPrice('1.0005'), // Equal
+    })
+    expect(receipt2.status).toBe('success')
 
+    // Invalid: flipTick > tick for ask should fail
     await expect(
       Actions.dex.placeFlipSync(client, {
         token: base,
@@ -1554,6 +1554,8 @@ describe('withdraw', () => {
     const walletBalanceAfter = await Actions.token.getBalance(client, {
       token: quote,
     })
-    expect(walletBalanceAfter).toBeGreaterThan(walletBalanceBefore)
+    expect(walletBalanceAfter.amount).toBeGreaterThan(
+      walletBalanceBefore.amount,
+    )
   })
 })

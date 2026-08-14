@@ -24,6 +24,7 @@ test('default', async () => {
   expect(game).toHaveProperty('timestamp')
   expect(game).toHaveProperty('rootClaim')
   expect(game).toHaveProperty('extraData')
+  expect(game).toHaveProperty('usesSuperRoots', false)
 })
 
 test('args: strategy', async () => {
@@ -39,6 +40,7 @@ test('args: strategy', async () => {
   expect(game).toHaveProperty('timestamp')
   expect(game).toHaveProperty('rootClaim')
   expect(game).toHaveProperty('extraData')
+  expect(game).toHaveProperty('usesSuperRoots', false)
 })
 
 test('args: address', async () => {
@@ -54,4 +56,5 @@ test('args: address', async () => {
   expect(game).toHaveProperty('timestamp')
   expect(game).toHaveProperty('rootClaim')
   expect(game).toHaveProperty('extraData')
+  expect(game).toHaveProperty('usesSuperRoots', false)
 })

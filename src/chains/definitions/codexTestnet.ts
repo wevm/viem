@@ -42,4 +42,5 @@ export const codexTestnet = /*#__PURE__*/ defineChain({
     },
   },
   sourceId,
+  testnet: true,
 })

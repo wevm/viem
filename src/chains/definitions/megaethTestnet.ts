@@ -17,8 +17,9 @@ export const megaethTestnet = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'MegaETH Testnet Explorer',
-      url: 'https://www.megaexplorer.xyz/',
+      name: 'Etherscan',
+      url: 'https://testnet-mega.etherscan.io',
+      apiUrl: 'https://api.etherscan.io/v2/api',
     },
     blockscout: {
       name: 'Blockscout',
@@ -29,6 +30,7 @@ export const megaethTestnet = /*#__PURE__*/ defineChain({
   contracts: {
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 0,
     },
   },
   testnet: true,

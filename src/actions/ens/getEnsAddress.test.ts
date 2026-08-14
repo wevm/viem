@@ -3,12 +3,28 @@ import { anvilMainnet } from '~test/anvil.js'
 import { createHttpServer, setVitalikResolver } from '~test/utils.js'
 import { linea, mainnet, optimism } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
+import { custom } from '../../clients/transports/custom.js'
 import { http } from '../../clients/transports/http.js'
+import { universalResolverResolveAbi } from '../../constants/abis.js'
 import { toCoinType } from '../../ens/index.js'
+import { encodeFunctionResult } from '../../utils/abi/encodeFunctionResult.js'
 import { reset } from '../test/reset.js'
 import { getEnsAddress } from './getEnsAddress.js'
 
 const client = anvilMainnet.getClient()
+
+const addressResolverAbi = [
+  {
+    name: 'addr',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { name: 'name', type: 'bytes32' },
+      { name: 'coinType', type: 'uint256' },
+    ],
+    outputs: [{ name: '', type: 'address' }],
+  },
+] as const
 
 beforeAll(async () => {
   await reset(client, {
@@ -101,20 +117,7 @@ test('name with resolver that does not support addr', async () => {
 test('name with resolver that does not support addr - strict', async () => {
   await expect(
     getEnsAddress(client, { name: 'vitalik.eth', strict: true }),
-  ).rejects.toMatchInlineSnapshot(`
-    [ContractFunctionExecutionError: The contract function "resolveWithGateways" reverted.
-
-    Error: ResolverError(bytes errorData)
-                        (0x)
-     
-    Contract Call:
-      address:   0x0000000000000000000000000000000000000000
-      function:  resolveWithGateways(bytes name, bytes data, string[] gateways)
-      args:                         (0x07766974616c696b0365746800, 0x3b3b57deee6c4522aab0003e8d14cd40a6af439055fd2577951148c14b6cea9a53475835, ["x-batch-gateway:true"])
-
-    Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@x.y.z]
-  `)
+  ).rejects.toThrow('The contract function "resolveWithGateways" reverted')
 })
 
 test('name that looks like a hex', async () => {
@@ -146,6 +149,39 @@ test('offchain: gets address for name', async () => {
   ).resolves.toMatchInlineSnapshot(
     `"0x41563129cDbbD0c5D3e1c86cf9563926b243834d"`,
   )
+})
+
+test('offchain: decodes address-encoded coinType response', async () => {
+  const address = '0x534631Bcf33BDb069fB20A93d2fdb9e4D4dD42CF'
+  const resolverAddress = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'
+  const data = encodeFunctionResult({
+    abi: universalResolverResolveAbi,
+    functionName: 'resolveWithGateways',
+    result: [
+      encodeFunctionResult({
+        abi: addressResolverAbi,
+        functionName: 'addr',
+        result: address,
+      }),
+      resolverAddress,
+    ],
+  })
+  const client = createClient({
+    transport: custom({
+      async request({ method }) {
+        if (method === 'eth_call') return data
+        return null
+      },
+    }),
+  })
+
+  await expect(
+    getEnsAddress(client, {
+      name: 'pokersback.com',
+      coinType: 60n,
+      universalResolverAddress: resolverAddress,
+    }),
+  ).resolves.toBe(address)
 })
 
 test('offchain: name without address', async () => {
@@ -244,17 +280,7 @@ test('invalid universal resolver address', async () => {
       name: 'awkweb.eth',
       universalResolverAddress: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
     }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ContractFunctionExecutionError: The contract function "resolveWithGateways" reverted.
-
-    Contract Call:
-      address:   0x0000000000000000000000000000000000000000
-      function:  resolveWithGateways(bytes name, bytes data, string[] gateways)
-      args:                         (0x0661776b7765620365746800, 0x3b3b57de52d0f5fbf348925621be297a61b88ec492ebbbdfa9477d82892e2786020ad61c, ["x-batch-gateway:true"])
-
-    Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@x.y.z]
-  `)
+  ).rejects.toThrow('The contract function "resolveWithGateways" reverted')
 })
 
 test('invalid TLD', async () => {

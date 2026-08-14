@@ -20,10 +20,21 @@ beforeAll(() => {
     version: 'viem@x.y.z',
   })
   vi.mock('../src/errors/utils.ts', () => ({
+    getAbortError: vi.fn((signal?: AbortSignal | undefined) => {
+      if (signal?.reason) return signal.reason
+      return new DOMException('This operation was aborted', 'AbortError')
+    }),
     getContractAddress: vi
       .fn()
       .mockReturnValue('0x0000000000000000000000000000000000000000'),
     getUrl: vi.fn().mockReturnValue('http://localhost'),
+    isAbortError: vi.fn(
+      (error: unknown) =>
+        typeof error === 'object' &&
+        error !== null &&
+        'name' in error &&
+        error.name === 'AbortError',
+    ),
   }))
 })
 

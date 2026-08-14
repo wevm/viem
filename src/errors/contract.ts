@@ -179,11 +179,13 @@ export class ContractFunctionRevertedError extends BaseError {
     data,
     functionName,
     message,
+    cause: error,
   }: {
     abi: Abi
     data?: Hex | undefined
     functionName: string
     message?: string | undefined
+    cause?: BaseError | Error | undefined
   }) {
     let cause: Error | undefined
     let decodedData: DecodeErrorResultReturnType | undefined
@@ -191,7 +193,7 @@ export class ContractFunctionRevertedError extends BaseError {
     let reason: string | undefined
     if (data && data !== '0x') {
       try {
-        decodedData = decodeErrorResult({ abi, data })
+        decodedData = decodeErrorResult({ abi, data, cause: error })
         const { abiItem, errorName, args: errorArgs } = decodedData
         if (errorName === 'Error') {
           reason = (errorArgs as [string])[0]
@@ -246,7 +248,7 @@ export class ContractFunctionRevertedError extends BaseError {
           ].join('\n')
         : `The contract function "${functionName}" reverted.`,
       {
-        cause,
+        cause: cause ?? error,
         metaMessages,
         name: 'ContractFunctionRevertedError',
       },
@@ -264,7 +266,13 @@ export type ContractFunctionZeroDataErrorType =
     name: 'ContractFunctionZeroDataError'
   }
 export class ContractFunctionZeroDataError extends BaseError {
-  constructor({ functionName }: { functionName: string }) {
+  constructor({
+    functionName,
+    cause,
+  }: {
+    functionName: string
+    cause?: BaseError | Error | undefined
+  }) {
     super(`The contract function "${functionName}" returned no data ("0x").`, {
       metaMessages: [
         'This could be due to any of the following:',
@@ -273,6 +281,7 @@ export class ContractFunctionZeroDataError extends BaseError {
         '  - The address is not a contract.',
       ],
       name: 'ContractFunctionZeroDataError',
+      cause,
     })
   }
 }

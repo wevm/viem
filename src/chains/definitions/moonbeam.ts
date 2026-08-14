@@ -5,7 +5,7 @@ export const moonbeam = /*#__PURE__*/ defineChain({
   name: 'Moonbeam',
   nativeCurrency: {
     decimals: 18,
-    name: 'GLMR',
+    name: 'Moonbeam',
     symbol: 'GLMR',
   },
   rpcUrls: {

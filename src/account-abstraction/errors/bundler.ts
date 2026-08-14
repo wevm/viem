@@ -450,7 +450,7 @@ export class PaymasterStakeTooLowError extends BaseError {
 
   constructor({ cause }: { cause?: BaseError | undefined }) {
     super(
-      'UserOperation rejected because paymaster (or signature aggregator) is throttled/banned.',
+      'UserOperation rejected because paymaster (or signature aggregator) stake or unstake-delay is too low.',
       {
         cause,
         name: 'PaymasterStakeTooLowError',

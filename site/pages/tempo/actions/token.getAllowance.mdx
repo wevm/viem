@@ -2,7 +2,7 @@ import ReadAccountParameters from '../../../snippets/tempo/read-parameters.mdx'
 
 # `token.getAllowance`
 
-Gets the amount of tokens that a spender is approved to transfer on behalf of an owner.
+Gets the amount of tokens that a spender is approved to transfer on behalf of an account.
 
 ## Usage
 
@@ -18,7 +18,7 @@ const allowance = await client.token.getAllowance({
 })
 
 console.log('Allowance:', allowance)
-// @log: Allowance: 10500000n
+// @log: Allowance: { amount: 10500000n, decimals: 6, formatted: '10.5' }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -30,8 +30,18 @@ console.log('Allowance:', allowance)
 ## Return Type
 
 ```ts
-type ReturnType = bigint // Allowance amount
+type ReturnType = {
+  /** Allowance in the token's base units. */
+  amount: bigint
+  /** Token decimals used to derive `formatted`. */
+  decimals: number
+  /** Allowance formatted with the token's `decimals`. */
+  formatted: string
+}
 ```
+
+The remaining allowance, both in base units (`amount`) and as a human-readable
+decimal string (`formatted`, derived from the token's `decimals`).
 
 ## Parameters
 
@@ -39,19 +49,26 @@ type ReturnType = bigint // Allowance amount
 
 - **Type:** `Address`
 
-Account address.
+Account that owns the tokens.
 
 ### spender
 
 - **Type:** `Address`
 
-Address of the spender.
+Account allowed to spend the account's tokens.
 
 ### token
 
-- **Type:** `Address | bigint`
+- **Type:** `string`
 
-Address or ID of the TIP20 token.
+Token to operate on: a [chain-declared](/tokens/tokens#token-lookup) token name (resolving
+its `address` and `decimals`), a TIP20 token id, or a token address.
+
+### decimals (optional)
+
+- **Type:** `number`
+
+Token decimals for converting base units to human-readable amounts. Inferred from
+the chain's `tokens` config, or fetched from the token contract when omitted.
 
 <ReadAccountParameters />
-

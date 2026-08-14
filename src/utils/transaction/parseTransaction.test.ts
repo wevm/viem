@@ -197,6 +197,38 @@ describe('eip7702', () => {
       `)
     })
 
+    test('invalid authorization list yParity', () => {
+      expect(() =>
+        parseTransaction(
+          `0x04${toRlp([
+            toHex(1), // chainId
+            toHex(0), // nonce
+            toHex(1), // maxPriorityFeePerGas
+            toHex(1), // maxFeePerGas
+            toHex(1), // gas
+            '0x0000000000000000000000000000000000000000', // to
+            toHex(0), // value
+            '0x', // data
+            [], // accessList
+            [
+              [
+                toHex(1), // chainId
+                '0x0000000000000000000000000000000000000000', // address
+                toHex(0), // nonce
+                toHex(2), // yParity
+                toHex(69), // r
+                toHex(420), // s
+              ],
+            ], // authorizationList
+          ]).slice(2)}`,
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [InvalidYParityError: Invalid \`yParity\` value "2". Expected 0 or 1.
+
+        Version: viem@x.y.z]
+      `)
+    })
+
     test('invalid transaction (all missing)', () => {
       expect(() =>
         parseTransaction(`0x04${toRlp([]).slice(2)}`),
@@ -205,6 +237,31 @@ describe('eip7702', () => {
 
         Serialized Transaction: "0x04c0"
         Missing Attributes: chainId, nonce, maxPriorityFeePerGas, maxFeePerGas, gas, to, value, data, accessList, authorizationList
+
+        Version: viem@x.y.z]
+      `)
+    })
+
+    test('invalid yParity', () => {
+      expect(() =>
+        parseTransaction(
+          `0x02${toRlp([
+            toHex(1), // chainId
+            toHex(0), // nonce
+            toHex(1), // maxPriorityFeePerGas
+            toHex(1), // maxFeePerGas
+            toHex(1), // gas
+            '0x0000000000000000000000000000000000000000', // to
+            toHex(0), // value
+            '0x', // data
+            '0x', // accessList
+            toHex(2), // yParity
+            toHex(69), // r
+            toHex(420), // s
+          ]).slice(2)}`,
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [InvalidYParityError: Invalid \`yParity\` value "2". Expected 0 or 1.
 
         Version: viem@x.y.z]
       `)

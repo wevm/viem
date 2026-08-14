@@ -69,10 +69,7 @@ export type Block<
   withdrawalsRoot?: Hex | undefined
 }
 
-export type BlockIdentifier<quantity = bigint> = {
-  /** Whether or not to throw an error if the block is not in the canonical chain as described below. Only allowed in conjunction with the blockHash tag. Defaults to false. */
-  requireCanonical?: boolean | undefined
-} & (
+export type BlockIdentifier<quantity = bigint> =
   | {
       /** The block in the canonical chain with this number */
       blockNumber: BlockNumber<quantity>
@@ -80,8 +77,9 @@ export type BlockIdentifier<quantity = bigint> = {
   | {
       /** The block uniquely identified by this hash. The `blockNumber` and `blockHash` properties are mutually exclusive; exactly one of them must be set. */
       blockHash: Hash
+      /** Whether or not to throw an error if the block is not in the canonical chain as described below. Only allowed in conjunction with the blockHash tag. Defaults to false. */
+      requireCanonical?: boolean | undefined
     }
-)
 
 /** Represents a block number in the blockchain. */
 export type BlockNumber<quantity = bigint> = quantity

@@ -24,8 +24,7 @@ function SponsorLink({
 }) {
   const slug = getSlug(sponsor)
   const height = heights[size]
-  const isLocal = slug === 'tempo'
-  const baseUrl = isLocal ? '/sponsors' : sponsorsUrl
+  const baseUrl = sponsorsUrl
   return (
     <a href={sponsor.url} target="_blank" rel="noreferrer noopener">
       <picture>

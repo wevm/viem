@@ -53,6 +53,17 @@ export class InvalidLegacyVError extends BaseError {
   }
 }
 
+export type InvalidYParityErrorType = InvalidYParityError & {
+  name: 'InvalidYParityError'
+}
+export class InvalidYParityError extends BaseError {
+  constructor({ yParity }: { yParity: bigint }) {
+    super(`Invalid \`yParity\` value "${yParity}". Expected 0 or 1.`, {
+      name: 'InvalidYParityError',
+    })
+  }
+}
+
 export type InvalidSerializableTransactionErrorType =
   InvalidSerializableTransactionError & {
     name: 'InvalidSerializableTransactionError'

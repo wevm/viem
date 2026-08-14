@@ -7,7 +7,7 @@ export const polygon = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://polygon-rpc.com'],
+      http: ['https://polygon.drpc.org'],
     },
   },
   blockExplorers: {

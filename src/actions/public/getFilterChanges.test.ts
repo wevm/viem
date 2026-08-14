@@ -12,6 +12,7 @@ import { ERC20InvalidTransferEvent } from '~contracts/generated.js'
 import { usdcContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts, address } from '~test/constants.js'
+import type { NormalizeType } from '~test/typeUtils.js'
 import { deployErc20InvalidTransferEvent } from '~test/utils.js'
 import type { Log } from '../../types/log.js'
 import type { Hash } from '../../types/misc.js'
@@ -711,7 +712,7 @@ describe('events', () => {
       Log<bigint, number, false, typeof event.default>[]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer'>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<{
+    expectTypeOf<NormalizeType<(typeof logs)[number]['args']>>().toEqualTypeOf<{
       from?: Address
       to?: Address
       value?: bigint
@@ -882,7 +883,7 @@ describe('events', () => {
 
     expect(logs.length).toBe(1482)
 
-    expectTypeOf(logs[0].args).toEqualTypeOf<{
+    expectTypeOf<NormalizeType<(typeof logs)[number]['args']>>().toEqualTypeOf<{
       from?: Address
       to?: Address
       value?: bigint

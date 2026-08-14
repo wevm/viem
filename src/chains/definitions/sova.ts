@@ -16,7 +16,7 @@ export const sova = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Sova Block Explorer',
-      url: 'hhttps://explorer.sova.io',
+      url: 'https://explorer.sova.io',
     },
   },
   testnet: false,

@@ -47,6 +47,10 @@ export type GetTimeToProveParameters<
     intervalBuffer?:
       | GetTimeToNextL2OutputParameters['intervalBuffer']
       | undefined
+    /**
+     * L2 timestamp of the withdrawal. Required for super-root dispute games.
+     */
+    l2Timestamp?: bigint | undefined
     receipt: TransactionReceipt
   }
 
@@ -98,7 +102,7 @@ export async function getTimeToProve<
   client: Client<Transport, chain, account>,
   parameters: GetTimeToProveParameters<chain, chainOverride>,
 ): Promise<GetTimeToProveReturnType> {
-  const { receipt } = parameters
+  const { l2Timestamp, receipt } = parameters
 
   const portalVersion = await getPortalVersion(
     client,
@@ -109,11 +113,11 @@ export async function getTimeToProve<
   if (portalVersion.major < 3)
     return getTimeToNextL2Output(client, {
       ...parameters,
-      l2BlockNumber: receipt.blockNumber,
+      l2BlockNumber: l2Timestamp ?? receipt.blockNumber,
     } as GetTimeToNextL2OutputParameters)
 
   return getTimeToNextGame(client, {
     ...parameters,
-    l2BlockNumber: receipt.blockNumber,
+    l2BlockNumber: l2Timestamp ?? receipt.blockNumber,
   } as GetTimeToNextGameParameters)
 }

@@ -7,7 +7,7 @@ export const tempo = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Tempo Explorer',
-      url: 'https://explore.mainnet.tempo.xyz',
+      url: 'https://explore.tempo.xyz',
     },
   },
   name: 'Tempo Mainnet',
@@ -18,8 +18,8 @@ export const tempo = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.presto.tempo.xyz'],
-      webSocket: ['wss://rpc.presto.tempo.xyz'],
+      http: ['https://rpc.tempo.xyz'],
+      webSocket: ['wss://rpc.tempo.xyz'],
     },
   },
 })

@@ -8,8 +8,9 @@ export const xLayer = /*#__PURE__*/ defineChain({
     name: 'OKB',
     symbol: 'OKB',
   },
+  blockTime: 1_000,
   rpcUrls: {
-    default: { http: ['https://rpc.xlayer.tech'] },
+    default: { http: ['https://xlayerrpc.okx.com'] },
   },
   blockExplorers: {
     default: {

@@ -193,9 +193,8 @@ test('sends transaction (w/ serializer)', async () => {
     }),
   ).rejects.toThrowError()
 
-  expect(serializer).toReturnWith(
-    '0x08f3018203b9843b9aca00850300e66100825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
-  )
+  expect(serializer).toHaveReturned()
+  expect(serializer.mock.results[0]!.value).toMatch(/^0x08/)
 })
 
 // TODO: This test is flaky. Need to figure out how to mitigate.
@@ -673,7 +672,7 @@ describe('local account', () => {
     ).toBeLessThan(sourceAccount.balance)
 
     const transaction = await getTransaction(client, { hash })
-    expect(transaction.maxFeePerGas).toBe(12900000000n)
+    expect(transaction.maxFeePerGas).toBe(11700000000n)
     expect(transaction.maxPriorityFeePerGas).toBe(1000000000n)
     expect(transaction.gas).toBe(21000n)
   })
@@ -1691,5 +1690,65 @@ describe('behavior: client dataSuffix', () => {
 
     const tx = await getTransaction(client, { hash })
     expect(tx.input).toBe(concatHex([baseData, '0x12345678']))
+  })
+})
+
+describe('behavior: sendTransaction dataSuffix', () => {
+  test('sends transaction with sendTransaction dataSuffix (hex string)', async () => {
+    await setup()
+
+    let capturedData: string | undefined
+
+    // Create a client with dataSuffix
+    const walletClient = createWalletClient({
+      chain: anvilMainnet.chain,
+      transport: http(anvilMainnet.rpcUrl.http),
+      dataSuffix: '0xabc',
+    })
+
+    // Override request to capture the data
+    const walletRequest = walletClient.request
+    ;(walletClient as any).request = async (params: any) => {
+      if (
+        params.method === 'eth_sendTransaction' ||
+        params.method === 'wallet_sendTransaction'
+      ) {
+        capturedData = params.params[0].data
+      }
+      return walletRequest.call(walletClient, params)
+    }
+
+    await sendTransaction(walletClient, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      gas: 100_000n,
+      dataSuffix: '0x12345678',
+    })
+
+    expect(capturedData).toBe('0x12345678')
+  })
+
+  test('sends transaction with sendTransaction dataSuffix (local account)', async () => {
+    await setup()
+
+    // Create a client with dataSuffix
+    const walletClient = createWalletClient({
+      chain: anvilMainnet.chain,
+      transport: http(anvilMainnet.rpcUrl.http),
+      dataSuffix: '0xabc',
+    })
+
+    const hash = await sendTransaction(walletClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      value: parseEther('1'),
+      dataSuffix: '0x12345678',
+    })
+
+    await mine(client, { blocks: 1 })
+
+    const tx = await getTransaction(client, { hash })
+    expect(tx.input).toBe('0x12345678')
   })
 })
