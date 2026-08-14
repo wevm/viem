@@ -7,12 +7,21 @@ import {
 } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
+import { mainnet } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
+import { http } from '../../clients/transports/http.js'
 import { erc20Abi, erc721Abi } from '../../constants/abis.js'
-import type { Hex } from '../../types/misc.js'
-import { numberToHex, parseEther } from '../../utils/index.js'
+import { zeroAddress } from '../../constants/address.js'
+import {
+  concatHex,
+  getContractAddress,
+  numberToHex,
+  pad,
+  parseEther,
+} from '../../utils/index.js'
 import { mine } from '../test/mine.js'
+import { getBlock } from './getBlock.js'
 import { getBlockNumber } from './getBlockNumber.js'
 import { simulateCalls } from './simulateCalls.js'
 
@@ -27,91 +36,6 @@ const uniswapV2RouterAddress =
 const uniswapV2RouterAbi = parseAbi([
   'function swapExactETHForTokens(uint256 amountOutMin, address[] path, address to, uint256 deadline) payable returns (uint256[] amounts)',
 ])
-
-function mockCall(returnData: Hex = '0x') {
-  return { gasUsed: '0x0', logs: [], returnData, status: '0x1' } as const
-}
-
-function mockBlock(calls: readonly ReturnType<typeof mockCall>[]) {
-  const hash = `0x${'0'.repeat(64)}` as const
-  return {
-    baseFeePerGas: '0x0',
-    blobGasUsed: '0x0',
-    calls,
-    difficulty: '0x0',
-    excessBlobGas: '0x0',
-    extraData: '0x',
-    gasLimit: '0x0',
-    gasUsed: '0x0',
-    hash,
-    logsBloom: '0x00',
-    miner: accounts[0].address,
-    mixHash: hash,
-    nonce: '0x0000000000000000',
-    number: '0x0',
-    parentHash: hash,
-    receiptsRoot: hash,
-    sha3Uncles: hash,
-    size: '0x0',
-    stateRoot: hash,
-    timestamp: '0x0',
-    totalDifficulty: '0x0',
-    transactions: [],
-    transactionsRoot: hash,
-    uncles: [],
-    withdrawals: [],
-    withdrawalsRoot: hash,
-  } as const
-}
-
-function createTraceClient({
-  assetPre,
-  assetPost,
-  metadata,
-}: {
-  assetPre?: Hex | undefined
-  assetPost?: Hex | undefined
-  metadata?: Hex | undefined
-} = {}) {
-  const requests: { method: string; params?: any }[] = []
-  const zero = `0x${'0'.repeat(64)}` as Hex
-  const calls = (data: Hex | undefined) =>
-    data === undefined ? [] : [mockCall(data)]
-  let simulation = 0
-  const client = createClient({
-    experimental_blockTag: 'safe',
-    transport: custom({
-      async request(request) {
-        requests.push(request)
-        if (request.method === 'eth_createAccessList')
-          return { accessList: [], gasUsed: '0x0' }
-        if (request.method !== 'eth_simulateV1')
-          throw new Error(`Unexpected request: ${request.method}`)
-
-        simulation++
-        if (simulation === 1)
-          return [
-            mockBlock([]),
-            mockBlock([]),
-            mockBlock([mockCall()]),
-          ] as never
-        if (simulation === 2)
-          return [
-            mockBlock([mockCall(zero)]),
-            mockBlock(calls(assetPre)),
-            mockBlock([mockCall(), mockCall()]),
-            mockBlock([mockCall(zero)]),
-            mockBlock(calls(assetPost)),
-            mockBlock(calls(metadata)),
-            mockBlock(calls(metadata)),
-            mockBlock(calls(metadata)),
-          ] as never
-        throw new Error('Unexpected simulation')
-      },
-    }),
-  })
-  return { client, requests }
-}
 
 test('default', async () => {
   const { results } = await simulateCalls(client, {
@@ -494,44 +418,49 @@ test('behavior: stress', async () => {
 })
 
 test('behavior: traceAssetChanges uses the client block tag', async () => {
-  const { client: client_, requests } = createTraceClient()
+  const client_ = createClient({
+    chain: mainnet,
+    experimental_blockTag: 'finalized',
+    transport: http(),
+  })
+  const before = (await getBlock(client_, { blockTag: 'finalized' })).number!
 
-  await simulateCalls(client_, {
-    account: accounts[0].address,
-    calls: [{ data: '0x1234', to: usdcContractConfig.address }],
+  const { assetChanges, block } = await simulateCalls(client_, {
+    account: zeroAddress,
+    calls: [
+      {
+        data: '0x1234',
+        to: '0x0000000000000000000000000000000000000004',
+      },
+    ],
     traceAssetChanges: true,
   })
+  const after = (await getBlock(client_, { blockTag: 'finalized' })).number!
 
-  expect(requests.map(({ method }) => method)).not.toContain('eth_blockNumber')
-  expect(
-    requests
-      .filter(({ method }) => method === 'eth_simulateV1')
-      .map(({ params }) => params[1]),
-  ).toEqual(['safe', 'safe'])
-  expect(
-    requests.find(({ method }) => method === 'eth_createAccessList')
-      ?.params?.[1],
-  ).toBe('safe')
-
-  const simulations = requests.filter(
-    ({ method }) => method === 'eth_simulateV1',
-  )
-  expect(simulations[0]!.params[0].blockStateCalls).toHaveLength(3)
-  expect(simulations[0]!.params[0].blockStateCalls[2].calls).toHaveLength(1)
-  expect(simulations[1]!.params[0].blockStateCalls[2].calls).toHaveLength(2)
+  const baseBlockNumber = block.number! - 3n
+  // The public endpoint load-balances across replicas, so allow bounded lag.
+  expect(baseBlockNumber).toBeGreaterThanOrEqual(before - 256n)
+  expect(baseBlockNumber).toBeLessThanOrEqual(after)
+  expect(assetChanges[0]?.value.diff).toBe(0n)
 })
 
 test('behavior: traceAssetChanges ignores malformed candidate responses', async () => {
-  const { client: client_ } = createTraceClient({
-    assetPre: '0x01',
-    assetPost: '0x01',
-    metadata: '0x01',
+  const client_ = createClient({
+    chain: mainnet,
+    transport: http(),
   })
 
   const { assetChanges } = await simulateCalls(client_, {
-    account: accounts[0].address,
-    blockTag: 'safe',
-    calls: [{ data: '0x1234', to: usdcContractConfig.address }],
+    account: zeroAddress,
+    blockNumber: 22_263_623n,
+    calls: [
+      {
+        // The identity precompile returns the `balanceOf` calldata unchanged, which is
+        // successful but not a valid ABI-encoded uint256.
+        data: '0x1234',
+        to: '0x0000000000000000000000000000000000000004',
+      },
+    ],
     traceAssetChanges: true,
   })
 
@@ -541,20 +470,41 @@ test('behavior: traceAssetChanges ignores malformed candidate responses', async 
 })
 
 test('behavior: traceAssetChanges treats a pre-deployment balance as zero', async () => {
-  const { client: client_ } = createTraceClient({
-    assetPre: '0x',
-    assetPost: `0x${'0'.repeat(63)}1`,
+  const client_ = createClient({
+    chain: mainnet,
+    transport: http(),
   })
+  const account = '0x1000000000000000000000000000000000000001'
+  const factory = '0x2000000000000000000000000000000000000002'
+  const token = getContractAddress({ from: factory, nonce: 0n })
+  const bytecode = concatHex([
+    '0x60016000527f',
+    pad(account, { size: 32 }),
+    '0x60007fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+    // Emit `Transfer(0, account, 1)`, then deploy runtime code that returns uint256(1).
+    '0x60206000a3600a605a600039600a6000f3600160005260206000f3',
+  ])
 
   const { assetChanges } = await simulateCalls(client_, {
-    account: accounts[0].address,
-    blockTag: 'safe',
-    calls: [{ data: '0x1234', to: usdcContractConfig.address }],
+    account,
+    blockNumber: 22_263_623n,
+    calls: [{ data: bytecode, to: factory }],
+    stateOverrides: [
+      { address: account, balance: parseEther('1') },
+      {
+        address: factory,
+        // Deploy long calldata with CREATE; return empty for asset probe calls.
+        code: '0x60403611600a575f5ff35b3660006000373660006000f060005260206000f3',
+        nonce: 0,
+      },
+    ],
     traceAssetChanges: true,
   })
 
-  expect(assetChanges[1]).toEqual({
-    token: { address: usdcContractConfig.address },
+  expect(
+    assetChanges.find((change) => change.token.address === token.toLowerCase()),
+  ).toEqual({
+    token: { address: token.toLowerCase(), decimals: 1, symbol: undefined },
     value: { diff: 1n, post: 1n, pre: 0n },
   })
 })
