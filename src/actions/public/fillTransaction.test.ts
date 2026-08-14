@@ -5,11 +5,31 @@ import { accounts } from '~test/constants.js'
 import { deploy } from '~test/utils.js'
 import { Delegation } from '../../../contracts/generated.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import type { Client } from '../../clients/createClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
 import { encodeFunctionData, nonceManager } from '../../utils/index.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
 import { fillTransaction } from './fillTransaction.js'
 
 const client = anvilMainnet.getClient({ account: true })
+
+function createFillClient(transaction: Record<string, unknown>) {
+  return {
+    chain: {
+      formatters: {
+        transaction: { format: (transaction: unknown) => transaction },
+      },
+    },
+    request: async () => ({ raw: '0x', tx: structuredClone(transaction) }),
+  } as unknown as Client<Transport, Chain>
+}
+
+const feePayerSignature = {
+  r: '0x0000000000000000000000000000000000000000000000000000000000000001',
+  s: '0x0000000000000000000000000000000000000000000000000000000000000002',
+  yParity: 0,
+} as const
 
 test('default', async () => {
   const result = await fillTransaction(client, {
@@ -111,6 +131,54 @@ test('args: nonce', async () => {
   })
 
   expect(result.transaction.nonce).toBe(1000)
+})
+
+test('behavior: preserves fee-payer-signed filled fields', async () => {
+  const client = createFillClient({
+    feePayerSignature,
+    gas: 100n,
+    input: '0x',
+    maxFeePerGas: 104n,
+    maxPriorityFeePerGas: 103n,
+    nonce: 105,
+  })
+  const result = await fillTransaction(client, {
+    gas: 200n,
+    maxFeePerGas: 204n,
+    maxPriorityFeePerGas: 203n,
+    nonce: 205,
+  })
+
+  expect(result.transaction).toMatchObject({
+    feePayerSignature,
+    gas: 100n,
+    maxFeePerGas: 104n,
+    maxPriorityFeePerGas: 103n,
+    nonce: 105,
+  })
+})
+
+test('behavior: prefers caller fields for unsigned relay transactions', async () => {
+  const client = createFillClient({
+    gas: 100n,
+    input: '0x',
+    maxFeePerGas: 104n,
+    maxPriorityFeePerGas: 103n,
+    nonce: 105,
+  })
+  const result = await fillTransaction(client, {
+    gas: 200n,
+    maxFeePerGas: 204n,
+    maxPriorityFeePerGas: 203n,
+    nonce: 205,
+  })
+
+  expect(result.transaction).toMatchObject({
+    gas: 200n,
+    maxFeePerGas: 204n,
+    maxPriorityFeePerGas: 203n,
+    nonce: 205,
+  })
 })
 
 test('behavior: fee multiplier applied when maxFeePerGas not provided', async () => {

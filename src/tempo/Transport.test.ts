@@ -24,6 +24,7 @@ import { walletNamespaceCompat, withFeePayer, withRelay } from './Transport.js'
 
 describe('withRelay', () => {
   let server: Http.Server
+  let overrideSponsorGas = false
   let sponsorFills = false
   let relayRequests: Array<{
     method: string
@@ -48,9 +49,13 @@ describe('withRelay', () => {
 
         if (request.method === 'eth_fillTransaction') {
           if (sponsorFills) {
+            const params = structuredClone(request.params) as [
+              Record<string, unknown>,
+            ]
+            if (overrideSponsorGas) delete params[0].gas
             const result = await feePayerClient.request({
               method: 'eth_fillTransaction',
-              params: request.params as never,
+              params: params as never,
             })
             const transaction = {
               ...Transaction.deserialize(result.raw as `0x76${string}`),
@@ -145,6 +150,7 @@ describe('withRelay', () => {
   })
 
   beforeEach(() => {
+    overrideSponsorGas = false
     sponsorFills = false
     relayRequests = []
   })
@@ -197,6 +203,27 @@ describe('withRelay', () => {
       })
 
       expect(receipt.status).toBe('success')
+      expect(relayRequests.map(({ method }) => method)).toEqual([
+        'eth_fillTransaction',
+      ])
+    })
+
+    test('behavior: preserves relay gas covered by fee payer signature', async () => {
+      sponsorFills = true
+      overrideSponsorGas = true
+      const account = privateKeyToAccount(
+        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
+      )
+
+      const receipt = await sendTransactionSync(client, {
+        account,
+        feePayer: true,
+        gas: 1n,
+        to: '0x0000000000000000000000000000000000000000',
+      })
+
+      expect(receipt.status).toBe('success')
+      expect(receipt.feePayer).toBe(accounts[0].address.toLowerCase())
       expect(relayRequests.map(({ method }) => method)).toEqual([
         'eth_fillTransaction',
       ])
