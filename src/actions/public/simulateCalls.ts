@@ -434,9 +434,6 @@ export async function simulateCalls<
       }
     })()
 
-    if (changes.some((change) => change.token.address === token.address))
-      continue
-
     changes.push({
       token,
       value: {
