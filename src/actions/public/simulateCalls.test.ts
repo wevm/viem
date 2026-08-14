@@ -437,7 +437,7 @@ test('behavior: traceAssetChanges uses the client block tag', async () => {
   })
   const after = (await getBlock(client_, { blockTag: 'finalized' })).number!
 
-  const baseBlockNumber = block.number! - 3n
+  const baseBlockNumber = block.number! - 1n
   // The public endpoint load-balances across replicas, so allow bounded lag.
   expect(baseBlockNumber).toBeGreaterThanOrEqual(before - 256n)
   expect(baseBlockNumber).toBeLessThanOrEqual(after)

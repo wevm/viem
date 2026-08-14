@@ -26,6 +26,7 @@ import {
 import { type PadErrorType, pad } from '../../utils/data/pad.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { createAccessList } from './createAccessList.js'
+import { type GetBlockErrorType, getBlock } from './getBlock.js'
 import {
   type GetBlockNumberErrorType,
   getBlockNumber,
@@ -174,6 +175,7 @@ export type SimulateCallsErrorType =
   | AbiFunction.encodeData.ErrorType
   | AbiFunction.from.ErrorType
   | EncodeFunctionDataErrorType
+  | GetBlockErrorType
   | GetBlockNumberErrorType
   | PadErrorType
   | SimulateBlocksErrorType
@@ -253,21 +255,27 @@ export async function simulateCalls<
       })
     : undefined
 
-  // Discovery and measurement are separate requests, and `latest` resolves per request –
-  // independently, and possibly on a different replica – so without pinning, the token
-  // set can be computed against one block and the balances against another. Resolved
-  // upfront rather than derived from the discovery response: `eth_simulateV1`'s returned
-  // block numbering is not portable. The spec and geth put the first simulated block at
-  // base + 1, but anvil put it at base until foundry-rs/foundry#15841 (unreleased as of
-  // 1.7.1), so `number - 1n` silently picks the wrong base on some nodes. Only `latest`
-  // is pinned; an explicit tag is left as the caller wrote it.
+  // Discovery and measurement are separate requests, so resolve moving tags once. Do
+  // not derive the base from simulated block numbers: clients disagree on whether the
+  // first simulated block is the base or its successor.
   const blockTag_ = blockTag ?? client.experimental_blockTag ?? 'latest'
-  const baseBlockNumber =
+  let baseBlockNumber = blockNumber
+  if (
     traceAssetChanges &&
-    typeof blockNumber !== 'bigint' &&
-    blockTag_ === 'latest'
-      ? await getBlockNumber(client, { cacheTime: 0 })
-      : blockNumber
+    typeof baseBlockNumber !== 'bigint' &&
+    blockTag_ !== 'earliest'
+  ) {
+    if (blockTag_ === 'latest')
+      baseBlockNumber = await getBlockNumber(client, { cacheTime: 0 })
+    else {
+      const block = await getBlock(client, { blockTag: blockTag_ })
+      if (typeof block.number !== 'bigint')
+        throw new BaseError(
+          `Block tag \`${blockTag_}\` did not resolve to a number.`,
+        )
+      baseBlockNumber = block.number
+    }
+  }
 
   // Discover ERC20/721 addresses the calls move assets in. Simulating the batch as a
   // whole is what makes this correct: the calls run sequentially, with the caller's
@@ -281,8 +289,6 @@ export async function simulateCalls<
             ? undefined
             : blockTag_) as undefined,
           blocks: [
-            { calls: [] },
-            { calls: [] },
             {
               calls: calls.map((call) => ({
                 ...(call as Call),
@@ -312,7 +318,7 @@ export async function simulateCalls<
     ? [
         ...new Set([
           ...tokensFromLogs(
-            discovery[0][2]!.calls.flatMap((call) => call.logs ?? []),
+            discovery[0][0]!.calls.flatMap((call) => call.logs ?? []),
             account!.address,
           ),
           // Included even for calls without data: contracts that mint on receiving
@@ -327,46 +333,48 @@ export async function simulateCalls<
       )
     : []
 
+  const zeroStateOverride = stateOverrides?.find(
+    ({ address }) => address.toLowerCase() === zeroAddress,
+  )
+  const stateOverridesWithZeroNonce = traceAssetChanges
+    ? [
+        ...(stateOverrides ?? []).filter(
+          ({ address }) => address.toLowerCase() !== zeroAddress,
+        ),
+        { ...zeroStateOverride, address: zeroAddress, nonce: 0 },
+      ]
+    : stateOverrides
+
   const blocks = await simulateBlocks(client, {
     blockNumber: baseBlockNumber,
     blockTag: (typeof baseBlockNumber === 'bigint'
       ? undefined
       : blockTag_) as undefined,
     blocks: [
-      ...(traceAssetChanges
-        ? [
-            // ETH pre balances
-            {
-              calls: [{ data: getBalanceData }],
-              stateOverrides,
-            },
-
-            // Asset pre balances
-            {
-              calls: assetAddresses.map((address, i) => ({
-                data: AbiFunction.encodeData(balanceOfFunction, [
-                  account!.address,
-                ]),
-                to: address,
-                from: zeroAddress,
-                nonce: i,
-              })),
-              stateOverrides: [
-                {
-                  address: zeroAddress,
-                  nonce: 0,
-                },
-              ],
-            },
-          ]
-        : []),
-
       {
-        calls: [...calls, { to: zeroAddress }].map((call) => ({
-          ...(call as Call),
-          from: account?.address,
-        })) as any,
-        stateOverrides,
+        // Keep pre-balance probes in the calls' block so discovery and measurement
+        // execute with identical block fields and predecessor hashes.
+        calls: [
+          ...(traceAssetChanges
+            ? [
+                { data: getBalanceData },
+                ...assetAddresses.map((address, i) => ({
+                  data: AbiFunction.encodeData(balanceOfFunction, [
+                    account!.address,
+                  ]),
+                  to: address,
+                  from: zeroAddress,
+                  nonce: i,
+                })),
+              ]
+            : []),
+          ...calls.map((call) => ({
+            ...(call as Call),
+            from: account?.address,
+          })),
+          { to: zeroAddress, from: account?.address },
+        ] as any,
+        stateOverrides: stateOverridesWithZeroNonce,
       },
 
       ...(traceAssetChanges
@@ -448,25 +456,26 @@ export async function simulateCalls<
     validation,
   })
 
-  const block_results = traceAssetChanges ? blocks[2] : blocks[0]
+  const block_results = traceAssetChanges ? discovery![0][0]! : blocks[0]!
+  const measurementCalls = blocks[0]!.calls
   const [
-    block_ethPre,
-    block_assetsPre,
-    ,
     block_ethPost,
     block_assetsPost,
     block_decimals,
     block_tokenURI,
     block_symbols,
-  ] = traceAssetChanges ? blocks : []
+  ] = traceAssetChanges ? blocks.slice(1) : []
 
   // Extract call results from the simulation.
   const { calls: block_calls, ...block } = block_results
-  const results = block_calls.slice(0, -1) ?? []
+  const preCallCount = traceAssetChanges ? assetAddresses.length + 1 : 0
+  const results = traceAssetChanges ? block_calls : block_calls.slice(0, -1)
 
   // Extract pre-execution ETH and asset balances.
-  const ethPre = block_ethPre?.calls ?? []
-  const assetsPre = block_assetsPre?.calls ?? []
+  const ethPre = traceAssetChanges ? measurementCalls.slice(0, 1) : []
+  const assetsPre = traceAssetChanges
+    ? measurementCalls.slice(1, preCallCount)
+    : []
   const balanceCallsPre = [...ethPre, ...assetsPre]
   const balancesPre = balanceCallsPre.map((call) =>
     isBalance(call) ? hexToBigInt(call.data) : null,
