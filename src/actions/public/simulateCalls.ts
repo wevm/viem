@@ -465,7 +465,7 @@ function tokensFromLogs(logs: readonly Log[], account: Address): Address[] {
   const account_ = pad(account.toLowerCase() as Hex, { size: 32 })
   return logs
     .filter((log) => {
-      if (log.topics[0] !== transferEventSelector) return false
+      if (log.topics[0]?.toLowerCase() !== transferEventSelector) return false
       // `traceTransfers` emits synthetic native transfer logs under `ethAddress`, which
       // is measured separately.
       if (log.address.toLowerCase() === ethAddress) return false

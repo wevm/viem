@@ -643,10 +643,23 @@ test('behavior: traceAssetChanges does not replace caller state overrides', asyn
   })
 })
 
-test('behavior: traceAssetChanges treats a pre-deployment balance as zero', async () => {
+test('behavior: traceAssetChanges handles uppercase new-token logs', async () => {
+  const mainnetClient = createClient({ chain: mainnet, transport: http() })
   const client_ = createClient({
     chain: mainnet,
-    transport: http(),
+    transport: custom({
+      async request(args) {
+        const result = await mainnetClient.request(args as any)
+        if (args.method === 'eth_simulateV1')
+          for (const block of result as any)
+            for (const call of block.calls)
+              for (const log of call.logs ?? [])
+                log.topics = log.topics.map(
+                  (topic: string) => `0x${topic.slice(2).toUpperCase()}`,
+                )
+        return result
+      },
+    }),
   })
   const account = '0x1000000000000000000000000000000000000001'
   const factory = '0x2000000000000000000000000000000000000002'
