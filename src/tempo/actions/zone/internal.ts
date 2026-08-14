@@ -41,6 +41,7 @@ export function getAddress(account: Account.Account) {
 export async function encryptDepositPayload(
   publicKey: { prefix: 2 | 3; x: Hex.Hex },
   recipient: Address.Address,
+  sender: Address.Address,
   portalAddress: Address.Address,
   keyIndex: bigint,
   memo: Hex.Hex = zeroHash,
@@ -77,6 +78,7 @@ export async function encryptDepositPayload(
         portalAddress,
         keyIndex,
         ephemeralPubkeyX,
+        sender,
       ) as BufferSource,
     },
     hkdfKey,
@@ -122,10 +124,12 @@ function buildDepositHkdfInfo(
   portalAddress: Address.Address,
   keyIndex: bigint,
   ephemeralPubkeyX: Hex.Hex,
+  sender: Address.Address,
 ): Bytes.Bytes {
   return Bytes.concat(
     Bytes.from(portalAddress),
     Bytes.fromNumber(keyIndex, { size: 32 }),
     Bytes.from(ephemeralPubkeyX),
+    Bytes.from(sender),
   )
 }

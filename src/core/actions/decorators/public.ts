@@ -69,6 +69,7 @@ export function publicActions() {
         block.getTransactionCount(client, options),
       simulate: (options) => block.simulate(client, options),
       watch: (options) => block.watch(client, options),
+      watchHeaders: () => block.watchHeaders(client),
       watchNumber: (options) => block.watchNumber(client, options),
     },
     call: (options) => call(client, options),
@@ -430,6 +431,24 @@ export declare namespace publicActions {
           | block.watch.Options<includeTransactions, blockTag>
           | undefined,
       ) => block.watch.Watcher<chain, includeTransactions, blockTag>
+      /**
+       * Watches incoming block headers without fetching full blocks.
+       *
+       * @example
+       * ```ts
+       * import { Client, publicActions, webSocket } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: webSocket(),
+       * }).extend(publicActions())
+       *
+       * const watch = client.block.watchHeaders()
+       * watch.onBlockHeader((header) => console.log(header.number))
+       * ```
+       */
+      watchHeaders: () => block.watchHeaders.Watcher<chain>
       /**
        * Watches incoming block numbers, returning a watcher handle.
        *

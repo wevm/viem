@@ -478,6 +478,15 @@ const { results } = await Actions.multicall(client, {
 
 Whether to trace native/ERC20/ERC721 balance changes of [`account`](#account) across the batch. Requires `account`; forces the `eth_simulateV1` mode.
 
+The `pending` block tag is supported, but discovery and balance measurement use separate requests. Pending state can change between requests, so the results are not pinned to one pending snapshot.
+
+Assets are discovered by simulating the batch and inspecting its `Transfer` logs, together with each call's `to` address. Discovery uses your `stateOverride`, runs at the requested block, and sees state produced by earlier calls in the batch.
+
+Two kinds of balances are not traced:
+
+- ERC-1155 balances, because `balanceOf` requires a token ID.
+- Tokens that change balances without emitting a `Transfer` involving the account, including some rebasing and nonstandard tokens.
+
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'

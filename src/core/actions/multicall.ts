@@ -1,5 +1,12 @@
 import type { AbiStateMutability, Narrow } from 'abitype'
-import { Abi, AbiFunction, AbiParameters, Hex, StateOverrides } from 'ox'
+import {
+  Abi,
+  AbiEvent,
+  AbiFunction,
+  AbiParameters,
+  Hex,
+  StateOverrides,
+} from 'ox'
 import type { Address, Block, Errors, Log } from 'ox'
 
 import type * as Account from '../Account.js'
@@ -7,7 +14,7 @@ import type * as Chain from '../Chain.js'
 import type * as Client from '../Client.js'
 import * as ContractError from '../ContractError.js'
 import { BaseError } from '../Errors.js'
-import type * as RpcError from '../RpcError.js'
+import * as RpcError from '../RpcError.js'
 import { isAbortError } from '../internal/errors.js'
 import { createBatchScheduler } from '../internal/promise.js'
 import type { Prettify } from '../internal/types.js'
@@ -21,26 +28,42 @@ import {
   getRequestOptionsId,
   isMethodNotSupportedError,
 } from './internal/multicall.js'
+import { get } from './block/get.js'
+import { getNumber } from './block/getNumber.js'
 import { simulate } from './block/simulate.js'
-import { createAccessList } from './transaction/createAccessList.js'
+import { call } from './call.js'
 
 type RequestOptions = Parameters<Client.Client['request']>[1]
 
 const zeroAddress = '0x0000000000000000000000000000000000000000'
 const ethAddress = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
 
-const balanceOfAbi = /*#__PURE__*/ Abi.from([
+const balanceOfAbi = /*#__PURE__*/ AbiFunction.from(
   'function balanceOf(address) returns (uint256)',
-])
-const decimalsAbi = /*#__PURE__*/ Abi.from([
+)
+const decimalsAbi = /*#__PURE__*/ AbiFunction.from(
   'function decimals() returns (uint256)',
-])
-const symbolAbi = /*#__PURE__*/ Abi.from(['function symbol() returns (string)'])
-const tokenUriAbi = /*#__PURE__*/ Abi.from([
+)
+const symbolAbi = /*#__PURE__*/ AbiFunction.from(
+  'function symbol() returns (string)',
+)
+const tokenUriAbi = /*#__PURE__*/ AbiFunction.from(
   'function tokenURI(uint256) returns (string)',
-])
+)
 const getBalanceFn = /*#__PURE__*/ AbiFunction.from(
   'function getBalance(address)',
+)
+
+const staticCallCode =
+  '0x608060405234801561000f575f5ffd5b5060043610610029575f3560e01c8063fd00430c1461002d575b5f5ffd5b6100476004803603810190610042919061012b565b610049565b005b80825f375f5f825f865afa610060573d5f5f3e3d5ffd5b3d5f5f3e3d5ff35b5f5ffd5b5f5ffd5b5f73ffffffffffffffffffffffffffffffffffffffff82169050919050565b5f61009982610070565b9050919050565b6100a98161008f565b81146100b3575f5ffd5b50565b5f813590506100c4816100a0565b92915050565b5f5ffd5b5f5ffd5b5f5ffd5b5f5f83601f8401126100eb576100ea6100ca565b5b8235905067ffffffffffffffff811115610108576101076100ce565b5b602083019150836001820283011115610124576101236100d2565b5b9250929050565b5f5f5f6040848603121561014257610141610068565b5b5f61014f868287016100b6565b935050602084013567ffffffffffffffff8111156101705761016f61006c565b5b61017c868287016100d6565b9250925050925092509256fea2646970667358221220635ed99185cacf3f2acba6921f23687c969cec2bbaf5f9ad599f507e6e105e6964736f6c63430008230033'
+const staticCallAddressBase = 0x00000000000000000000000000000000deadbeefn
+const transferEventSelector = /*#__PURE__*/ AbiEvent.getSelector(
+  AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
+)
+const staticCallFn = /*#__PURE__*/ AbiFunction.from(
+  'function query(address target, bytes data)',
 )
 
 type Aggregate3Call = {
@@ -200,7 +223,6 @@ async function executeSimulate(
       '`account` is required when `traceAssetChanges` is true.',
     )
 
-  // Deployless call extracting the account's native balance via a contract read.
   const getBalanceData = from
     ? toDeploylessCallViaBytecodeData({
         code: getBalanceBytecode,
@@ -208,182 +230,211 @@ async function executeSimulate(
       })
     : undefined
 
-  // Discover ERC20/721 contracts the calls touch (accounts with touched
-  // storage in each call's access list).
-  const assetAddresses = traceAssetChanges
-    ? await Promise.all(
-        calls.map(async (call_) => {
-          const call = call_ as Call
-          if (!call.data && !call.abi) return undefined
-          const data = call.abi
-            ? AbiFunction.encodeData(
-                AbiFunction.fromAbi(call.abi, call.functionName, {
-                  args: call.args,
-                }),
-                call.args,
-              )
-            : call.data
-          const { accessList } = await createAccessList(client, {
-            account: from,
-            data,
-            to: call.to,
-            value: call.value,
-          })
-          return accessList.map(({ address, storageKeys }) =>
-            storageKeys.length > 0 ? address : null,
-          )
-        }),
-      ).then((x) => x.flat().filter(Boolean) as readonly Address.Address[])
+  const blockTag_ = blockTag ?? client.blockTag ?? 'latest'
+  let baseBlockNumber = blockNumber
+  if (
+    traceAssetChanges &&
+    typeof baseBlockNumber !== 'bigint' &&
+    blockTag_ !== 'earliest' &&
+    blockTag_ !== 'pending'
+  ) {
+    if (blockTag_ === 'latest')
+      baseBlockNumber = await getNumber(client, { cacheTime: 0 })
+    else {
+      const block = await get(client, { blockTag: blockTag_ })
+      if (typeof block.number !== 'bigint')
+        throw new BaseError(
+          `Block tag \`${blockTag_}\` did not resolve to a number.`,
+        )
+      baseBlockNumber = block.number
+    }
+  }
+  const blockOptions =
+    typeof baseBlockNumber === 'bigint'
+      ? { blockNumber: baseBlockNumber }
+      : { blockTag: blockTag_ }
+
+  const discovery = traceAssetChanges
+    ? await simulate(client, {
+        ...blockOptions,
+        blocks: [
+          {
+            calls: calls.map((call) => ({
+              ...(call as Call),
+              from,
+            })),
+            stateOverride,
+          },
+        ],
+        requestOptions,
+        traceTransfers,
+        validation,
+      } as simulate.Options)
+    : undefined
+
+  const assetAddresses = discovery
+    ? [
+        ...new Set([
+          ...tokensFromLogs(
+            discovery[0]!.calls.flatMap((call) => call.logs ?? []),
+            from!,
+          ),
+          ...calls.map((call_) => {
+            const call = call_ as Call
+            return call.to?.toLowerCase()
+          }),
+        ]),
+      ].filter(
+        (address): address is Address.Address =>
+          Boolean(address) && address !== ethAddress && address !== zeroAddress,
+      )
     : []
 
-  const assetStateOverride = { [zeroAddress]: { nonce: 0n } }
+  const staticCallAddress = getStaticCallAddress([
+    ...(from ? [from] : []),
+    ...assetAddresses,
+    ...Object.keys(stateOverride ?? {}),
+  ])
+  const staticCallStateOverride = {
+    [staticCallAddress]: { code: staticCallCode },
+  } as StateOverrides.StateOverrides
 
-  const blocks = await simulate(client, {
-    // `blockNumber`/`blockTag` are mutually exclusive on the simulate options.
-    ...(blockNumber != null ? { blockNumber } : { blockTag }),
-    requestOptions,
-    blocks: [
-      ...(traceAssetChanges
-        ? [
-            // Native pre-balance.
-            {
-              calls: [{ data: getBalanceData }],
+  const [balanceCallsPre, blocks] = await Promise.all([
+    traceAssetChanges
+      ? Promise.all([
+          readBalance(client, {
+            account: from!,
+            ...blockOptions,
+            data: getBalanceData!,
+            requestOptions,
+            stateOverride,
+          }),
+          ...assetAddresses.map((address) =>
+            readBalance(client, {
+              account: from!,
+              address,
+              ...blockOptions,
+              data: AbiFunction.encodeData(balanceOfAbi, [from!]),
+              requestOptions,
               stateOverride,
-            },
-            // Asset pre-balances.
-            {
-              calls: assetAddresses.map((address, i) => ({
-                abi: balanceOfAbi,
-                args: [from],
-                from: zeroAddress,
-                functionName: 'balanceOf',
-                nonce: i,
-                to: address,
-              })),
-              stateOverride: assetStateOverride,
-            },
-          ]
-        : []),
+              staticCallAddress,
+            }),
+          ),
+        ])
+      : [],
+    simulate(client, {
+      ...blockOptions,
+      blocks: [
+        {
+          calls: [...calls, { to: zeroAddress }].map((call) => ({
+            ...(call as Call),
+            from,
+          })),
+          stateOverride,
+        },
+        ...(traceAssetChanges
+          ? [
+              {
+                calls: [{ data: getBalanceData }],
+              },
+              {
+                calls: assetAddresses.map((address) => ({
+                  data: encodeStaticCall(
+                    address,
+                    AbiFunction.encodeData(balanceOfAbi, [from!]),
+                  ),
+                  from: zeroAddress,
+                  to: staticCallAddress,
+                })),
+                stateOverride: staticCallStateOverride,
+              },
+              {
+                calls: assetAddresses.map((address) => ({
+                  data: encodeStaticCall(
+                    address,
+                    AbiFunction.encodeData(decimalsAbi),
+                  ),
+                  from: zeroAddress,
+                  to: staticCallAddress,
+                })),
+                stateOverride: staticCallStateOverride,
+              },
+              {
+                calls: assetAddresses.map((address) => ({
+                  data: encodeStaticCall(
+                    address,
+                    AbiFunction.encodeData(tokenUriAbi, [0n]),
+                  ),
+                  from: zeroAddress,
+                  to: staticCallAddress,
+                })),
+                stateOverride: staticCallStateOverride,
+              },
+              {
+                calls: assetAddresses.map((address) => ({
+                  data: encodeStaticCall(
+                    address,
+                    AbiFunction.encodeData(symbolAbi),
+                  ),
+                  from: zeroAddress,
+                  to: staticCallAddress,
+                })),
+                stateOverride: staticCallStateOverride,
+              },
+            ]
+          : []),
+      ] as simulate.Options['blocks'],
+      requestOptions,
+      traceTransfers,
+      validation,
+    } as simulate.Options),
+  ])
 
-      {
-        calls: [...calls, { to: zeroAddress }].map((call) => ({
-          ...(call as Call),
-          from,
-        })),
-        stateOverride,
-      },
-
-      ...(traceAssetChanges
-        ? [
-            // Native post-balance.
-            {
-              calls: [{ data: getBalanceData }],
-            },
-            // Asset post-balances.
-            {
-              calls: assetAddresses.map((address, i) => ({
-                abi: balanceOfAbi,
-                args: [from],
-                from: zeroAddress,
-                functionName: 'balanceOf',
-                nonce: i,
-                to: address,
-              })),
-              stateOverride: assetStateOverride,
-            },
-            // Asset decimals.
-            {
-              calls: assetAddresses.map((address, i) => ({
-                abi: decimalsAbi,
-                from: zeroAddress,
-                functionName: 'decimals',
-                nonce: i,
-                to: address,
-              })),
-              stateOverride: assetStateOverride,
-            },
-            // Asset token URIs (ERC-721 detection).
-            {
-              calls: assetAddresses.map((address, i) => ({
-                abi: tokenUriAbi,
-                args: [0n],
-                from: zeroAddress,
-                functionName: 'tokenURI',
-                nonce: i,
-                to: address,
-              })),
-              stateOverride: assetStateOverride,
-            },
-            // Asset symbols.
-            {
-              calls: assetAddresses.map((address, i) => ({
-                abi: symbolAbi,
-                from: zeroAddress,
-                functionName: 'symbol',
-                nonce: i,
-                to: address,
-              })),
-              stateOverride: assetStateOverride,
-            },
-          ]
-        : []),
-      // Raw balance-probe calls (`data`-only) sit outside the typed `Call`
-      // union that structured calls satisfy.
-    ] as simulate.Options['blocks'],
-    traceTransfers,
-    validation,
-  })
-
-  const blockResults = traceAssetChanges ? blocks[2]! : blocks[0]!
+  const blockResults = blocks[0]!
   const [
-    blockEthPre,
-    blockAssetsPre,
-    ,
     blockEthPost,
     blockAssetsPost,
     blockDecimals,
     blockTokenUri,
     blockSymbols,
-  ] = traceAssetChanges ? blocks : []
+  ] = traceAssetChanges ? blocks.slice(1) : []
 
-  // Extract the user calls' results (dropping the trailing sentinel call).
   const { calls: blockCalls, ...block } = blockResults
   const results = (blockCalls as readonly unknown[]).slice(0, -1)
 
   type BalanceCall = { data: Hex.Hex; status: 'success' | 'failure' }
-  type ResultCall = {
-    result: unknown
-    status: 'success' | 'failure'
-  }
 
-  // Pre-execution native + asset balances.
-  const ethPre = (blockEthPre?.calls ?? []) as readonly BalanceCall[]
-  const assetsPre = (blockAssetsPre?.calls ?? []) as readonly BalanceCall[]
-  const balancesPre = [...ethPre, ...assetsPre].map((call) =>
-    call.status === 'success' ? Hex.toBigInt(call.data) : null,
+  const balancesPre = balanceCallsPre.map((call) =>
+    isBalance(call) ? Hex.toBigInt(call.data) : null,
   )
 
-  // Post-execution native + asset balances.
   const ethPost = (blockEthPost?.calls ?? []) as readonly BalanceCall[]
   const assetsPost = (blockAssetsPost?.calls ?? []) as readonly BalanceCall[]
-  const balancesPost = [...ethPost, ...assetsPost].map((call) =>
-    call.status === 'success' ? Hex.toBigInt(call.data) : null,
+  const balanceCallsPost = [...ethPost, ...assetsPost]
+  const balancesPost = balanceCallsPost.map((call) =>
+    isBalance(call) ? Hex.toBigInt(call.data) : null,
   )
 
-  // Asset metadata.
-  const decimals = ((blockDecimals?.calls ?? []) as readonly ResultCall[]).map(
-    (x) => (x.status === 'success' ? (x.result as bigint) : null),
-  )
-  const symbols = ((blockSymbols?.calls ?? []) as readonly ResultCall[]).map(
-    (x) => (x.status === 'success' ? (x.result as string) : null),
-  )
-  const tokenUri = ((blockTokenUri?.calls ?? []) as readonly ResultCall[]).map(
-    (x) => (x.status === 'success' ? (x.result as string) : null),
-  )
+  const decimals = (blockDecimals?.calls ?? []).map((call) =>
+    decodeAssetResult(call as BalanceCall, decimalsAbi),
+  ) as (bigint | null)[]
+  const symbols = (blockSymbols?.calls ?? []).map((call) =>
+    decodeAssetResult(call as BalanceCall, symbolAbi),
+  ) as (string | null)[]
+  const tokenUri = (blockTokenUri?.calls ?? []).map((call) =>
+    decodeAssetResult(call as BalanceCall, tokenUriAbi),
+  ) as (string | null)[]
 
   const assetChanges: multicall.AssetChange[] = []
   for (const [i, balancePost] of balancesPost.entries()) {
-    const balancePre = balancesPre[i]
+    const balancePre_ = balancesPre[i]
+    const preCall = balanceCallsPre[i]
+    const balancePre =
+      typeof balancePre_ === 'bigint'
+        ? balancePre_
+        : i > 0 && preCall?.status === 'success' && preCall.data === '0x'
+          ? 0n
+          : null
 
     if (typeof balancePost !== 'bigint') continue
     if (typeof balancePre !== 'bigint') continue
@@ -407,9 +458,6 @@ async function executeSimulate(
       }
     })()
 
-    if (assetChanges.some((change) => change.token.address === token.address))
-      continue
-
     assetChanges.push({
       token,
       value: {
@@ -422,9 +470,102 @@ async function executeSimulate(
 
   return {
     assetChanges,
-    block: block,
+    block,
     results: applyAllowFailure(results, allowFailure),
   }
+}
+
+function encodeStaticCall(address: Address.Address, data: Hex.Hex) {
+  return AbiFunction.encodeData(staticCallFn, [address, data])
+}
+
+function tokensFromLogs(
+  logs: readonly Log.Log[],
+  account: Address.Address,
+): Address.Address[] {
+  const account_ = Hex.padLeft(account.toLowerCase() as Hex.Hex, 32)
+  return logs
+    .filter((log) => {
+      if (log.topics[0]?.toLowerCase() !== transferEventSelector) return false
+      if (log.address.toLowerCase() === ethAddress) return false
+      return (
+        log.topics[1]?.toLowerCase() === account_ ||
+        log.topics[2]?.toLowerCase() === account_
+      )
+    })
+    .map((log) => log.address.toLowerCase() as Address.Address)
+}
+
+function isBalance(call: { data: Hex.Hex; status: 'success' | 'failure' }) {
+  return call.status === 'success' && /^0x[\da-f]{64}$/i.test(call.data)
+}
+
+function decodeAssetResult(
+  call: { data: Hex.Hex; status: 'success' | 'failure' },
+  abi: AbiFunction.AbiFunction,
+) {
+  if (call.status === 'failure' || call.data === '0x') return null
+  try {
+    return AbiFunction.decodeResult(abi, call.data)
+  } catch {
+    return null
+  }
+}
+
+async function readBalance(
+  client: Client.Client,
+  options: {
+    account: Address.Address
+    address?: Address.Address | undefined
+    blockNumber?: bigint | undefined
+    blockTag?: Block.Tag | undefined
+    data: Hex.Hex
+    requestOptions?: RequestOptions | undefined
+    staticCallAddress?: Address.Address | undefined
+    stateOverride?: StateOverrides.StateOverrides | undefined
+  },
+) {
+  const {
+    account,
+    address,
+    blockNumber,
+    blockTag,
+    data,
+    requestOptions,
+    staticCallAddress,
+    stateOverride,
+  } = options
+  try {
+    const result = await call({ ...client, ccipRead: undefined }, {
+      account: address ? zeroAddress : account,
+      data: address ? encodeStaticCall(address, data) : data,
+      requestOptions,
+      stateOverride:
+        address && staticCallAddress
+          ? {
+              ...stateOverride,
+              [staticCallAddress]: { code: staticCallCode },
+            }
+          : stateOverride,
+      ...(address ? { to: staticCallAddress } : {}),
+      ...(typeof blockNumber === 'bigint' ? { blockNumber } : { blockTag }),
+    } as never)
+    return { data: result.data ?? '0x', status: 'success' as const }
+  } catch (error) {
+    if (
+      !(error instanceof RpcError.ExecutionError) ||
+      !(error.cause instanceof RpcError.ExecutionRevertedError)
+    )
+      throw error
+    return { data: '0x' as const, status: 'failure' as const }
+  }
+}
+
+function getStaticCallAddress(addresses: readonly string[]): Address.Address {
+  const occupied = new Set(addresses.map((address) => address.toLowerCase()))
+  let value = staticCallAddressBase
+  while (occupied.has(`0x${value.toString(16).padStart(40, '0')}`)) value++
+  return `0x${value.toString(16).padStart(40, '0')}`
 }
 
 /** Executes the batch as a multicall3 `aggregate3` read (`eth_call`). */

@@ -1016,6 +1016,7 @@ export namespace privateDeposit {
         memo: returnMemo,
         portalAddress: config.zonePortal,
         recipient,
+        sender: gateway,
         zoneId: config.zoneId,
       })
     const shareAmountMin = resolveMinimumShareAmount(options)
@@ -2374,6 +2375,7 @@ export namespace privateRedeem {
         memo: returnMemo,
         portalAddress: config.zonePortal,
         recipient,
+        sender: gateway,
         zoneId: config.zoneId,
       }),
       (async () => {

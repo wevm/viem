@@ -5,7 +5,11 @@ import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { send } from '../../../core/actions/transaction/send.js'
 import { sendSync } from '../../../core/actions/transaction/sendSync.js'
-import type { UnionOmit } from '../../../core/internal/types.js'
+import type {
+  IsUndefined,
+  MaybeRequired,
+  UnionOmit,
+} from '../../../core/internal/types.js'
 import * as Abis from '../../Abis.js'
 import {
   defineCall,
@@ -82,6 +86,8 @@ export namespace encryptedDeposit {
     portalAddress?: Address.Address | undefined
     /** Recipient address in the zone. */
     recipient: Address.Address
+    /** Address that will call the zone portal. */
+    sender: Address.Address
     /** Token address to deposit. */
     token: Address.Address
     /** Zone ID. */
@@ -92,7 +98,12 @@ export namespace encryptedDeposit {
   > = ZoneWriteParameters<account> &
     Omit<
       Args,
-      'bouncebackRecipient' | 'chainId' | 'encrypted' | 'keyIndex' | 'recipient'
+      | 'bouncebackRecipient'
+      | 'chainId'
+      | 'encrypted'
+      | 'keyIndex'
+      | 'recipient'
+      | 'sender'
     > & {
       /** Refund recipient on the parent chain. Defaults to `account.address`. */
       bouncebackRecipient?: Address.Address | undefined
@@ -141,6 +152,7 @@ export namespace encryptedDeposit {
       memo: options.memo,
       portalAddress: options.portalAddress,
       recipient,
+      sender: getAddress(account),
       token: options.token,
       zoneId: options.zoneId,
     })
@@ -153,9 +165,12 @@ export namespace encryptedDeposit {
   }
 
   /** Prepares an encrypted deposit instruction without broadcasting it. */
-  export async function prepare<chain extends Chain.Chain | undefined>(
-    client: Client.Client<chain>,
-    options: prepare.Options,
+  export async function prepare<
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
+  >(
+    client: Client.Client<chain, account>,
+    options: prepare.Options<account>,
   ): Promise<prepare.ReturnType> {
     const chain = client.chain
     if (!chain) throw new Error('`chain` is required.')
@@ -165,10 +180,13 @@ export namespace encryptedDeposit {
       memo,
       portalAddress: portalAddress_,
       recipient,
+      sender: sender_ = client.account?.address,
       token,
       zoneId,
       ...rest
     } = options
+    if (!sender_) throw new Error('`sender` is required.')
+    const sender = sender_
     const portalAddress = portalAddress_ ?? getPortalAddress(chain.id, zoneId)
     const { keyIndex, publicKey } = await getEncryptionKey(client, {
       ...rest,
@@ -182,12 +200,14 @@ export namespace encryptedDeposit {
       encrypted: await encryptDepositPayload(
         publicKey,
         recipient,
+        sender,
         portalAddress,
         keyIndex,
         memo,
       ),
       keyIndex,
       portalAddress,
+      sender,
       token,
       zoneId,
     }
@@ -205,24 +225,35 @@ export namespace encryptedDeposit {
       portalAddress?: Address.Address | undefined
       /** Recipient address in the zone. */
       recipient: Address.Address
+      /** Address that will call the zone portal. */
+      sender: Address.Address
       /** Token address to deposit. */
       token: Address.Address
       /** Zone ID. */
       zoneId: number
     }
-    export type Options = UnionOmit<
-      getEncryptionKey.Options,
-      'portalAddress' | 'zoneId'
-    > &
-      Args
+    export type Options<
+      account extends Account.Account | undefined = Account.Account | undefined,
+    > = UnionOmit<getEncryptionKey.Options, 'portalAddress' | 'zoneId'> &
+      Omit<Args, 'sender'> &
+      MaybeRequired<
+        {
+          /** Address that will call the zone portal. Defaults to `client.account.address`. */
+          sender?: Address.Address | undefined
+        },
+        IsUndefined<account>
+      >
     export type ReturnType = PreparedEncryptedDeposit
     export type ErrorType = Errors.GlobalErrorType
   }
 
   /** Prepares encrypted recipient instructions without constructing a deposit. */
-  export async function prepareRecipient<chain extends Chain.Chain | undefined>(
-    client: Client.Client<chain>,
-    options: prepareRecipient.Options,
+  export async function prepareRecipient<
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
+  >(
+    client: Client.Client<chain, account>,
+    options: prepareRecipient.Options<account>,
   ): Promise<prepareRecipient.ReturnType> {
     const chain = client.chain
     if (!chain) throw new Error('`chain` is required.')
@@ -230,9 +261,12 @@ export namespace encryptedDeposit {
       memo,
       portalAddress: portalAddress_,
       recipient,
+      sender: sender_ = client.account?.address,
       zoneId,
       ...rest
     } = options
+    if (!sender_) throw new Error('`sender` is required.')
+    const sender = sender_
     const portalAddress = portalAddress_ ?? getPortalAddress(chain.id, zoneId)
     const { keyIndex, publicKey } = await getEncryptionKey(client, {
       ...rest,
@@ -244,12 +278,14 @@ export namespace encryptedDeposit {
       encrypted: await encryptDepositPayload(
         publicKey,
         recipient,
+        sender,
         portalAddress,
         keyIndex,
         memo,
       ),
       keyIndex,
       portalAddress,
+      sender,
       zoneId,
     }
   }
@@ -263,15 +299,23 @@ export namespace encryptedDeposit {
       portalAddress?: Address.Address | undefined
       /** Recipient address in the zone. */
       recipient: Address.Address
+      /** Address that will call the zone portal. */
+      sender: Address.Address
       /** Zone ID. */
       zoneId: number
     }
     /** Options for {@link prepareRecipient}. */
-    export type Options = UnionOmit<
-      getEncryptionKey.Options,
-      'portalAddress' | 'zoneId'
-    > &
-      Args
+    export type Options<
+      account extends Account.Account | undefined = Account.Account | undefined,
+    > = UnionOmit<getEncryptionKey.Options, 'portalAddress' | 'zoneId'> &
+      Omit<Args, 'sender'> &
+      MaybeRequired<
+        {
+          /** Address that will call the zone portal. Defaults to `client.account.address`. */
+          sender?: Address.Address | undefined
+        },
+        IsUndefined<account>
+      >
     /** Return value for {@link prepareRecipient}. */
     export type ReturnType = PreparedEncryptedDepositRecipient
     /** Errors thrown by {@link prepareRecipient}. */

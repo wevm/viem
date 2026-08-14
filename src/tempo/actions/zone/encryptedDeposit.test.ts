@@ -27,6 +27,7 @@ const prepared = {
   },
   keyIndex: 0n,
   portalAddress: '0x3F5296303400B56271b476F5A0B9cBF74350D6Ac',
+  sender: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   token: '0x20c0000000000000000000000000000000000000',
   zoneId: 7,
 } satisfies PreparedEncryptedDeposit
@@ -71,6 +72,7 @@ test('behavior: prepare encrypted payloads', async () => {
   } satisfies StateOverrides.StateOverrides
   const options = {
     recipient: prepared.bouncebackRecipient,
+    sender: prepared.sender,
     stateOverride,
     zoneId: prepared.zoneId,
   }
@@ -102,6 +104,8 @@ test('behavior: prepare encrypted payloads', async () => {
   expect(recipient.portalAddress).toBe(prepared.portalAddress)
   expect(defaultRecipient.portalAddress).toBe(prepared.portalAddress)
   expect(deposit.keyIndex).toBeGreaterThan(0n)
+  expect(deposit.sender).toBe(prepared.sender)
+  expect(recipient.sender).toBe(prepared.sender)
   expect(recipient.encrypted.ciphertext).toMatch(/^0x[\da-f]+$/)
 })
 
@@ -152,6 +156,7 @@ test('error: no configured encryption key', async () => {
       bouncebackRecipient: prepared.bouncebackRecipient,
       portalAddress: prepared.portalAddress,
       recipient: prepared.bouncebackRecipient,
+      sender: prepared.sender,
       stateOverride: {
         [prepared.portalAddress]: { code: '0x600060005260206000f3' },
       },
@@ -185,6 +190,7 @@ test('error: prepare without chain', async () => {
       bouncebackRecipient: prepared.bouncebackRecipient,
       portalAddress: prepared.portalAddress,
       recipient: prepared.bouncebackRecipient,
+      sender: prepared.sender,
       token: prepared.token,
       zoneId: prepared.zoneId,
     }),
@@ -193,6 +199,7 @@ test('error: prepare without chain', async () => {
     encryptedDeposit.prepareRecipient(client, {
       portalAddress: prepared.portalAddress,
       recipient: prepared.bouncebackRecipient,
+      sender: prepared.sender,
       zoneId: prepared.zoneId,
     }),
   ).rejects.toThrow('`chain` is required.')

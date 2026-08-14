@@ -48,7 +48,11 @@ const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
 ### Prepared Usage
 
-Encrypting the payload requires reading the sequencer's encryption key from the portal contract. Use `prepare` to build the encrypted payload ahead of time, then submit it separately:
+Encrypting the payload requires reading the sequencer's encryption key from the portal contract. Use `prepare` when one party chooses the private zone recipient and another party submits the parent-chain deposit transaction.
+
+:::warning
+Prepared encrypted deposits contain public transaction intent. If you receive a prepared payload from another party, validate `chainId`, `zoneId`, `portalAddress`, `sender`, `token`, and `amount` before passing it to `zone.encryptedDeposit`. The sender must match the account that calls the zone portal.
+:::
 
 ```ts twoslash
 import { Actions } from 'viem/tempo'
@@ -58,6 +62,7 @@ const prepared = await Actions.zone.encryptedDeposit.prepare(client, {
   amount: 100_000_000n,
   bouncebackRecipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  sender: client.account.address,
   token: '0x20c0000000000000000000000000000000000001',
   zoneId: 7,
 })
@@ -67,7 +72,7 @@ const hash = await client.zone.encryptedDeposit(prepared)
 
 ### Prepared Recipient Usage
 
-Use `Actions.zone.encryptedDeposit.prepareRecipient` when another contract or service handles token movement and only needs the ZonePortal encryption fields.
+Use `Actions.zone.encryptedDeposit.prepareRecipient` when another contract or service handles token movement and only needs the zone portal encryption fields. The sender defaults to `client.account.address`. Set it explicitly when another account will call the zone portal.
 
 ```ts twoslash
 import { Actions } from 'viem/tempo'
@@ -80,7 +85,7 @@ const { encrypted, keyIndex } =
   })
 ```
 
-The helper returns the encrypted payload and its key index together with the parent chain ID, portal address, and zone ID.
+The helper returns the encrypted payload and its key index together with the parent chain ID, portal address, sender, and zone ID.
 
 ## Recipes
 

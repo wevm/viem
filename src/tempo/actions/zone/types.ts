@@ -28,6 +28,8 @@ export type PreparedEncryptedDeposit = {
   keyIndex: bigint
   /** Zone portal address on the parent chain. */
   portalAddress: Address.Address
+  /** Address that will call the zone portal. */
+  sender: Address.Address
   /** Token address to deposit. */
   token: Address.Address
   /** Zone ID. */
@@ -44,6 +46,8 @@ export type PreparedEncryptedDepositRecipient = {
   keyIndex: bigint
   /** Zone portal address on the parent chain. */
   portalAddress: Address.Address
+  /** Address that will call the zone portal. */
+  sender: Address.Address
   /** Zone ID. */
   zoneId: number
 }

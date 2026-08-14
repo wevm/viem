@@ -155,32 +155,34 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         }),
       ).rejects.toThrow('No sequencer encryption key configured.')
 
-      const deposit = await Actions.zone.depositSync(parentClient, {
-        amount: 1_000_000n,
-        portalAddress: tempoZone.portalAddress,
-        token: tempo.pathUsd,
-        zoneId: tempoZone.zoneId,
-      })
-      expect(deposit.receipt.status).toBe('success')
-      const depositTransaction = await CoreActions.transaction.get(
-        parentClient,
-        { hash: deposit.receipt.transactionHash },
-      )
-      const depositCall = depositTransaction.calls?.[1]
-      if (!depositCall?.data) throw new Error('Deposit call is unavailable.')
-      const depositArgs = AbiFunction.decodeData(
-        AbiFunction.fromAbi(ZoneAbis.zonePortal, 'deposit'),
-        depositCall.data,
-      )
-      expect(depositArgs[4]).toBe(account.address)
+      if (legacyZone) {
+        const deposit = await Actions.zone.depositSync(parentClient, {
+          amount: 1_000_000n,
+          portalAddress: tempoZone.portalAddress,
+          token: tempo.pathUsd,
+          zoneId: tempoZone.zoneId,
+        })
+        expect(deposit.receipt.status).toBe('success')
+        const depositTransaction = await CoreActions.transaction.get(
+          parentClient,
+          { hash: deposit.receipt.transactionHash },
+        )
+        const depositCall = depositTransaction.calls?.[1]
+        if (!depositCall?.data) throw new Error('Deposit call is unavailable.')
+        const depositArgs = AbiFunction.decodeData(
+          AbiFunction.fromAbi(ZoneAbis.zonePortal, 'deposit'),
+          depositCall.data,
+        )
+        expect(depositArgs[4]).toBe(account.address)
 
-      const imported = await Actions.zone.waitForTempoBlock(zoneClient, {
-        pollingInterval: 100,
-        tempoBlockNumber: deposit.receipt.blockNumber,
-      })
-      expect(imported.tempoBlockNumber).toBeGreaterThanOrEqual(
-        deposit.receipt.blockNumber,
-      )
+        const imported = await Actions.zone.waitForTempoBlock(zoneClient, {
+          pollingInterval: 100,
+          tempoBlockNumber: deposit.receipt.blockNumber,
+        })
+        expect(imported.tempoBlockNumber).toBeGreaterThanOrEqual(
+          deposit.receipt.blockNumber,
+        )
+      }
 
       const encryptedDeposit = await Actions.zone.encryptedDepositSync(
         parentClient,
@@ -347,18 +349,15 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         callbackGas,
       })
       const assetAmount = Value.from('10', 6)
-      await Actions.zone.depositSync(parentClient, {
-        amount: withdrawalFee * 2n + Value.from('10', 6),
-        portalAddress,
-        token: stack.asset,
-        zoneId: tempoZone.zoneId,
-      })
-      const assetDeposit = await Actions.zone.depositSync(parentClient, {
-        amount: assetAmount,
-        portalAddress,
-        token: tempo.alphaUsd,
-        zoneId: tempoZone.zoneId,
-      })
+      const assetDeposit = await Actions.zone.encryptedDepositSync(
+        parentClient,
+        {
+          amount: assetAmount + withdrawalFee * 2n + Value.from('10', 6),
+          portalAddress,
+          token: tempo.alphaUsd,
+          zoneId: tempoZone.zoneId,
+        },
+      )
       await Actions.zone.waitForTempoBlock(zoneClient, {
         pollingInterval: 100,
         tempoBlockNumber: assetDeposit.receipt.blockNumber,
