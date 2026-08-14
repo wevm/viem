@@ -18,7 +18,7 @@ import type { TransactionRequestEIP1559 } from '../../types/transaction.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { getChainContractAddress } from '../../utils/chain/getChainContractAddress.js'
 import type { HexToNumberErrorType } from '../../utils/encoding/fromHex.js'
-import { gasPriceOracleAbi } from '../abis.js'
+import { gasPriceOracleAbi, l1BlockAbi } from '../abis.js'
 import { contracts } from '../contracts.js'
 
 export type EstimateOperatorFeeParameters<
@@ -82,6 +82,7 @@ export async function estimateOperatorFee<
   const {
     chain = client.chain,
     gasPriceOracleAddress: gasPriceOracleAddress_,
+    l1BlockAddress,
   } = args
 
   const gasPriceOracleAddress = (() => {
@@ -94,8 +95,34 @@ export async function estimateOperatorFee<
     return contracts.gasPriceOracle.address
   })() as Address
 
-  // Estimate gas for the transaction
   const gasUsed = await estimateGas(client, args as EstimateGasParameters)
+
+  if (l1BlockAddress) {
+    // `isJovian` is unavailable on Isthmus Gas Price Oracle implementations.
+    const [operatorFeeScalar, operatorFeeConstant, isJovian] =
+      await Promise.all([
+        readContract(client, {
+          abi: l1BlockAbi,
+          address: l1BlockAddress,
+          functionName: 'operatorFeeScalar',
+        }),
+        readContract(client, {
+          abi: l1BlockAbi,
+          address: l1BlockAddress,
+          functionName: 'operatorFeeConstant',
+        }),
+        readContract(client, {
+          abi: gasPriceOracleAbi,
+          address: gasPriceOracleAddress,
+          functionName: 'isJovian',
+        }).catch(() => false),
+      ])
+
+    const scalar = BigInt(operatorFeeScalar)
+    const constant = BigInt(operatorFeeConstant)
+    if (isJovian) return gasUsed * scalar * 100n + constant
+    return (gasUsed * scalar) / 1_000_000n + constant
+  }
 
   return readContract(client, {
     abi: gasPriceOracleAbi,
