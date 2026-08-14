@@ -458,21 +458,37 @@ test('behavior: traceAssetChanges uses the client block tag', async () => {
   expect(assetChanges[0]?.value.diff).toBe(0n)
 })
 
-test('behavior: traceAssetChanges rejects the pending block tag', async () => {
-  const client_ = createClient({ chain: mainnet, transport: http() })
-
-  await expect(
-    simulateCalls(client_, {
-      account: zeroAddress,
-      blockTag: 'pending',
-      calls: [{ to: zeroAddress }],
-      traceAssetChanges: true,
+test('behavior: traceAssetChanges preserves the pending block tag', async () => {
+  const requests: { method: string; params?: any }[] = []
+  const mainnetClient = createClient({ chain: mainnet, transport: http() })
+  const client_ = createClient({
+    chain: mainnet,
+    transport: custom({
+      async request(args) {
+        requests.push(args as any)
+        return mainnetClient.request(args as any)
+      },
     }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [BaseError: \`pending\` is not supported when \`traceAssetChanges\` is true.
+  })
 
-    Version: viem@x.y.z]
-  `)
+  const { assetChanges } = await simulateCalls(client_, {
+    account: zeroAddress,
+    blockTag: 'pending',
+    calls: [{ to: zeroAddress }],
+    traceAssetChanges: true,
+  })
+
+  expect(
+    requests
+      .filter(({ method }) => method === 'eth_simulateV1')
+      .map(({ params }) => params[1]),
+  ).toEqual(['pending', 'pending'])
+  expect(
+    requests
+      .filter(({ method }) => method === 'eth_call')
+      .map(({ params }) => params[1]),
+  ).toEqual(['pending'])
+  expect(assetChanges[0]?.value.diff).toBe(0n)
 })
 
 test('behavior: traceAssetChanges uses an explicit block number over the client block tag', async () => {

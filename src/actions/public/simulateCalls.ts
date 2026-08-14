@@ -193,23 +193,16 @@ export async function simulateCalls<
       })
     : undefined
 
-  // Discovery and measurement are separate requests, so resolve moving tags once. Do
-  // not derive the base from simulated block numbers: clients disagree on whether the
-  // first simulated block is the base or its successor.
+  // Resolve moving canonical tags once so both simulations share a block. Preserve
+  // `pending` because its prospective number cannot be queried directly.
+  // Do not infer the base from results because clients disagree on simulated numbering.
   const blockTag_ = blockTag ?? client.experimental_blockTag ?? 'latest'
-  if (
-    traceAssetChanges &&
-    typeof blockNumber !== 'bigint' &&
-    blockTag_ === 'pending'
-  )
-    throw new BaseError(
-      '`pending` is not supported when `traceAssetChanges` is true.',
-    )
   let baseBlockNumber = blockNumber
   if (
     traceAssetChanges &&
     typeof baseBlockNumber !== 'bigint' &&
-    blockTag_ !== 'earliest'
+    blockTag_ !== 'earliest' &&
+    blockTag_ !== 'pending'
   ) {
     if (blockTag_ === 'latest')
       baseBlockNumber = await getBlockNumber(client, { cacheTime: 0 })
