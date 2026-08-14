@@ -499,11 +499,12 @@ async function readBalance<chain extends Chain | undefined>(
   const { account, address, blockNumber, blockTag, data, stateOverride } =
     parameters
   try {
+    // Match post-balance STATICCALL semantics so caller-sensitive tokens cannot
+    // distinguish direct pre-balance probes and execution faults remain isolated.
     const result = await call({ ...client, ccipRead: false }, {
       account: address ? zeroAddress : account,
-      data,
+      data: address ? encodeStaticCall(address, data) : data,
       stateOverride,
-      ...(address ? { to: address } : {}),
       ...(typeof blockNumber === 'bigint' ? { blockNumber } : { blockTag }),
     } as never)
     return { data: result.data ?? '0x', status: 'success' as const }

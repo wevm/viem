@@ -551,6 +551,53 @@ test('behavior: traceAssetChanges isolates candidate balance reads', async () =>
   ])
 })
 
+test('behavior: traceAssetChanges isolates invalid opcode balance reads', async () => {
+  const client_ = createClient({ chain: mainnet, transport: http() })
+  const target = '0x7000000000000000000000000000000000000007'
+
+  const { assetChanges, results } = await simulateCalls(client_, {
+    account: zeroAddress,
+    blockNumber: 22_263_623n,
+    calls: [{ data: '0x1234', to: target }],
+    stateOverrides: [
+      {
+        address: target,
+        // Succeed for the simulated call, but execute INVALID for balanceOf(address).
+        code: '0x5f3560e01c6370a0823114600f57005bfe',
+      },
+    ],
+    traceAssetChanges: true,
+  })
+
+  expect(results[0]?.status).toBe('success')
+  expect(assetChanges.map((change) => change.token.address)).toEqual([
+    '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+  ])
+})
+
+test('behavior: traceAssetChanges uses consistent balance probe callers', async () => {
+  const client_ = createClient({ chain: mainnet, transport: http() })
+  const target = '0x3000000000000000000000000000000000000003'
+
+  const { assetChanges } = await simulateCalls(client_, {
+    account: zeroAddress,
+    blockNumber: 22_263_623n,
+    calls: [{ data: '0x1234', to: target }],
+    stateOverrides: [
+      {
+        address: target,
+        // Return 0 when called by zeroAddress and 1 for any other caller.
+        code: '0x3315155f5260205ff3',
+      },
+    ],
+    traceAssetChanges: true,
+  })
+
+  expect(
+    assetChanges.find((change) => change.token.address === target)?.value,
+  ).toEqual({ diff: 0n, post: 1n, pre: 1n })
+})
+
 test('behavior: traceAssetChanges treats a pre-deployment balance as zero', async () => {
   const client_ = createClient({
     chain: mainnet,
