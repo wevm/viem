@@ -458,6 +458,65 @@ test('behavior: traceAssetChanges uses the client block tag', async () => {
   expect(assetChanges[0]?.value.diff).toBe(0n)
 })
 
+test('behavior: traceAssetChanges resolves the latest block once', async () => {
+  const requests: { method: string; params?: any }[] = []
+  const mainnetClient = createClient({ chain: mainnet, transport: http() })
+  const client_ = createClient({
+    chain: mainnet,
+    transport: custom({
+      async request(args) {
+        requests.push(args as any)
+        return mainnetClient.request(args as any)
+      },
+    }),
+  })
+
+  await simulateCalls(client_, {
+    account: zeroAddress,
+    calls: [{ to: zeroAddress }],
+    traceAssetChanges: true,
+  })
+
+  expect(
+    requests.filter(({ method }) => method === 'eth_blockNumber'),
+  ).toHaveLength(1)
+  const simulationBlocks = requests
+    .filter(({ method }) => method === 'eth_simulateV1')
+    .map(({ params }) => params[1])
+  expect(simulationBlocks).toHaveLength(2)
+  expect(new Set(simulationBlocks).size).toBe(1)
+  expect(simulationBlocks[0]).toMatch(/^0x[\da-f]+$/)
+  expect(
+    requests
+      .filter(({ method }) => method === 'eth_call')
+      .map(({ params }) => params[1]),
+  ).toEqual([simulationBlocks[0]])
+})
+
+test('behavior: traceAssetChanges rejects an unresolved block tag', async () => {
+  const mainnetClient = createClient({ chain: mainnet, transport: http() })
+  const client_ = createClient({
+    chain: mainnet,
+    transport: custom({
+      async request(args) {
+        const result = await mainnetClient.request(args as any)
+        if (args.method === 'eth_getBlockByNumber')
+          return { ...(result as any), number: null }
+        return result
+      },
+    }),
+  })
+
+  await expect(
+    simulateCalls(client_, {
+      account: zeroAddress,
+      blockTag: 'safe',
+      calls: [{ to: zeroAddress }],
+      traceAssetChanges: true,
+    }),
+  ).rejects.toThrow('Block tag `safe` did not resolve to a number.')
+})
+
 test('behavior: traceAssetChanges preserves the pending block tag', async () => {
   const requests: { method: string; params?: any }[] = []
   const mainnetClient = createClient({ chain: mainnet, transport: http() })
@@ -591,6 +650,79 @@ test('behavior: traceAssetChanges isolates invalid opcode balance reads', async 
   ])
 })
 
+test('behavior: traceAssetChanges omits assets without a pre-balance', async () => {
+  const client_ = createClient({ chain: mainnet, transport: http() })
+  const target = '0x8000000000000000000000000000000000000008'
+
+  const { assetChanges, results } = await simulateCalls(client_, {
+    account: zeroAddress,
+    blockNumber: 22_263_623n,
+    calls: [{ data: '0x1234', to: target }],
+    stateOverrides: [
+      {
+        address: target,
+        // Revert balanceOf before the call; enable it after the call writes slot zero.
+        code: '0x5f3560e01c6370a082311460135760015f55005b5f541560225760015f5260205ff35b5f5ffd',
+      },
+    ],
+    traceAssetChanges: true,
+  })
+
+  expect(results[0]?.status).toBe('success')
+  expect(assetChanges.map((change) => change.token.address)).toEqual([
+    '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+  ])
+})
+
+test('behavior: traceAssetChanges omits unavailable token metadata', async () => {
+  const client_ = createClient({ chain: mainnet, transport: http() })
+  const target = '0x8100000000000000000000000000000000000008'
+
+  const { assetChanges } = await simulateCalls(client_, {
+    account: zeroAddress,
+    blockNumber: 22_263_623n,
+    calls: [{ data: '0x1234', to: target }],
+    stateOverrides: [
+      {
+        address: target,
+        // Return one only for balanceOf; return empty data for metadata calls.
+        code: '0x5f3560e01c6370a0823114600f57005b60015f5260205ff3',
+      },
+    ],
+    traceAssetChanges: true,
+  })
+
+  expect(
+    assetChanges.find((change) => change.token.address === target),
+  ).toEqual({
+    token: { address: target, decimals: undefined, symbol: undefined },
+    value: { diff: 0n, post: 1n, pre: 1n },
+  })
+})
+
+test('behavior: traceAssetChanges rethrows balance transport errors', async () => {
+  const mainnetClient = createClient({ chain: mainnet, transport: http() })
+  const client_ = createClient({
+    chain: mainnet,
+    transport: custom({
+      async request(args) {
+        if (args.method === 'eth_call')
+          throw new Error('Balance transport error')
+        return mainnetClient.request(args as any)
+      },
+    }),
+  })
+
+  await expect(
+    simulateCalls(client_, {
+      account: zeroAddress,
+      blockNumber: 22_263_623n,
+      calls: [{ to: zeroAddress }],
+      traceAssetChanges: true,
+    }),
+  ).rejects.toThrow('Balance transport error')
+})
+
 test('behavior: traceAssetChanges uses consistent balance probe callers', async () => {
   const client_ = createClient({ chain: mainnet, transport: http() })
   const target = '0x3000000000000000000000000000000000000003'
@@ -693,6 +825,71 @@ test('behavior: traceAssetChanges handles uppercase new-token logs', async () =>
   ).toEqual({
     token: { address: token.toLowerCase(), decimals: 1, symbol: undefined },
     value: { diff: 1n, post: 1n, pre: 0n },
+  })
+})
+
+test('behavior: traceAssetChanges ignores unrelated and native transfer logs', async () => {
+  const requests = { simulations: 0 }
+  const mainnetClient = createClient({ chain: mainnet, transport: http() })
+  const client_ = createClient({
+    chain: mainnet,
+    transport: custom({
+      async request(args) {
+        const result = await mainnetClient.request(args as any)
+        if (args.method === 'eth_simulateV1' && requests.simulations++ === 0)
+          delete (result as any)[0].calls[2].logs
+        return result
+      },
+    }),
+  })
+  const account = '0x1000000000000000000000000000000000000001'
+  const logger = '0x8200000000000000000000000000000000000008'
+  const recipient = '0x8300000000000000000000000000000000000008'
+
+  const { assetChanges } = await simulateCalls(client_, {
+    account,
+    blockNumber: 22_263_623n,
+    calls: [{ to: logger }, { to: recipient, value: 1n }, { to: zeroAddress }],
+    stateOverrides: [
+      { address: account, balance: parseEther('1') },
+      { address: logger, code: '0x60006000a000' },
+    ],
+    traceAssetChanges: true,
+    traceTransfers: true,
+  })
+
+  expect(assetChanges.map((change) => change.token.address)).toEqual([
+    '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+  ])
+})
+
+test('behavior: traceAssetChanges traces ERC721 metadata', async () => {
+  const client_ = createClient({ chain: mainnet, transport: http() })
+  const owner = '0xf7801B8115f3Fe46AC55f8c0Fdb5243726bdb66A'
+
+  const { assetChanges, results } = await simulateCalls(client_, {
+    account: owner,
+    blockNumber: 22_263_623n,
+    calls: [
+      {
+        abi: erc721Abi,
+        functionName: 'transferFrom',
+        args: [owner, '0x000000000000000000000000000000000000dEaD', 0n],
+        to: baycContractConfig.address,
+      },
+    ],
+    stateOverrides: [{ address: owner, balance: parseEther('1') }],
+    traceAssetChanges: true,
+  })
+
+  expect(results[0]?.status).toBe('success')
+  expect(
+    assetChanges.find(
+      (change) => change.token.address === baycContractConfig.address,
+    ),
+  ).toMatchObject({
+    token: { decimals: 1, symbol: 'BAYC' },
+    value: { diff: -1n },
   })
 })
 
