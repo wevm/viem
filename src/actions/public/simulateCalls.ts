@@ -23,7 +23,7 @@ import type { StateOverride } from '../../types/stateOverride.js'
 import type { Mutable } from '../../types/utils.js'
 import { type PadErrorType, pad } from '../../utils/data/pad.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
-import { call } from './call.js'
+import { type CallErrorType, call } from './call.js'
 import { type GetBlockErrorType, getBlock } from './getBlock.js'
 import {
   type GetBlockNumberErrorType,
@@ -38,9 +38,12 @@ import {
 const getBalanceCode =
   '0x6080604052348015600e575f80fd5b5061016d8061001c5f395ff3fe608060405234801561000f575f80fd5b5060043610610029575f3560e01c8063f8b2cb4f1461002d575b5f80fd5b610047600480360381019061004291906100db565b61005d565b604051610054919061011e565b60405180910390f35b5f8173ffffffffffffffffffffffffffffffffffffffff16319050919050565b5f80fd5b5f73ffffffffffffffffffffffffffffffffffffffff82169050919050565b5f6100aa82610081565b9050919050565b6100ba816100a0565b81146100c4575f80fd5b50565b5f813590506100d5816100b1565b92915050565b5f602082840312156100f0576100ef61007d565b5b5f6100fd848285016100c7565b91505092915050565b5f819050919050565b61011881610106565b82525050565b5f6020820190506101315f83018461010f565b9291505056fea26469706673582212203b9fe929fe995c7cf9887f0bdba8a36dd78e8b73f149b17d2d9ad7cd09d2dc6264736f6c634300081a0033'
 
-// `contracts/src/deployless/StaticCall.sol` compiled with Solidity 0.8.35.
+// Runtime bytecode from `contracts/src/deployless/StaticCall.sol`, compiled with
+// Solidity 0.8.35.
 const staticCallCode =
-  '0x608060405234801561000f575f5ffd5b50604051610252380380610252833981810160405281019061003191906101f7565b5f5f825160208401855afa610048573d5f5f3e3d5ffd5b3d5f5f3e3d5ff35b5f604051905090565b5f5ffd5b5f5ffd5b5f73ffffffffffffffffffffffffffffffffffffffff82169050919050565b5f61008a82610061565b9050919050565b61009a81610080565b81146100a4575f5ffd5b50565b5f815190506100b581610091565b92915050565b5f5ffd5b5f5ffd5b5f601f19601f8301169050919050565b7f4e487b71000000000000000000000000000000000000000000000000000000005f52604160045260245ffd5b610109826100c3565b810181811067ffffffffffffffff82111715610128576101276100d3565b5b80604052505050565b5f61013a610050565b90506101468282610100565b919050565b5f67ffffffffffffffff821115610165576101646100d3565b5b61016e826100c3565b9050602081019050919050565b8281835e5f83830152505050565b5f61019b6101968461014b565b610131565b9050828152602081018484840111156101b7576101b66100bf565b5b6101c284828561017b565b509392505050565b5f82601f8301126101de576101dd6100bb565b5b81516101ee848260208601610189565b91505092915050565b5f5f6040838503121561020d5761020c610059565b5b5f61021a858286016100a7565b925050602083015167ffffffffffffffff81111561023b5761023a61005d565b5b610247858286016101ca565b915050925092905056fe'
+  '0x608060405234801561000f575f5ffd5b5060043610610029575f3560e01c8063fd00430c1461002d575b5f5ffd5b6100476004803603810190610042919061012b565b610049565b005b80825f375f5f825f865afa610060573d5f5f3e3d5ffd5b3d5f5f3e3d5ff35b5f5ffd5b5f5ffd5b5f73ffffffffffffffffffffffffffffffffffffffff82169050919050565b5f61009982610070565b9050919050565b6100a98161008f565b81146100b3575f5ffd5b50565b5f813590506100c4816100a0565b92915050565b5f5ffd5b5f5ffd5b5f5ffd5b5f5f83601f8401126100eb576100ea6100ca565b5b8235905067ffffffffffffffff811115610108576101076100ce565b5b602083019150836001820283011115610124576101236100d2565b5b9250929050565b5f5f5f6040848603121561014257610141610068565b5b5f61014f868287016100b6565b935050602084013567ffffffffffffffff8111156101705761016f61006c565b5b61017c868287016100d6565b9250925050925092509256fea2646970667358221220635ed99185cacf3f2acba6921f23687c969cec2bbaf5f9ad599f507e6e105e6964736f6c63430008230033'
+
+const staticCallAddressBase = 0x00000000000000000000000000000000deadbeefn
 
 // ERC20 & ERC721 share this selector – both are `Transfer(address,address,uint256)`.
 const transferEventSelector = AbiEvent.getSelector(
@@ -59,6 +62,9 @@ const tokenUriFunction = AbiFunction.from(
   'function tokenURI(uint256) returns (string)',
 )
 const symbolFunction = AbiFunction.from('function symbol() returns (string)')
+const staticCallFunction = AbiFunction.from(
+  'function query(address target, bytes data)',
+)
 export type SimulateCallsParameters<
   calls extends readonly unknown[] = readonly unknown[],
   account extends Account | Address | undefined = Account | Address | undefined,
@@ -106,6 +112,7 @@ export type SimulateCallsReturnType<
 export type SimulateCallsErrorType =
   | AbiFunction.encodeData.ErrorType
   | AbiFunction.from.ErrorType
+  | CallErrorType
   | GetBlockErrorType
   | GetBlockNumberErrorType
   | PadErrorType
@@ -257,6 +264,14 @@ export async function simulateCalls<
           Boolean(address) && address !== ethAddress && address !== zeroAddress,
       )
     : []
+  const staticCallAddress = getStaticCallAddress([
+    ...(account ? [account.address] : []),
+    ...assetAddresses,
+    ...(stateOverrides?.map(({ address }) => address) ?? []),
+  ])
+  const staticCallStateOverrides: StateOverride = [
+    { address: staticCallAddress, code: staticCallCode },
+  ]
 
   const [balanceCallsPre, blocks] = await Promise.all([
     traceAssetChanges
@@ -275,6 +290,7 @@ export async function simulateCalls<
               data: AbiFunction.encodeData(balanceOfFunction, [
                 account!.address,
               ]),
+              staticCallAddress,
               stateOverride: stateOverrides,
             }),
           ),
@@ -301,6 +317,7 @@ export async function simulateCalls<
               // Asset post balances
               {
                 calls: assetAddresses.map((address) => ({
+                  to: staticCallAddress,
                   data: encodeStaticCall(
                     address,
                     AbiFunction.encodeData(balanceOfFunction, [
@@ -308,36 +325,43 @@ export async function simulateCalls<
                     ]),
                   ),
                 })),
+                stateOverrides: staticCallStateOverrides,
               },
 
               // Decimals
               {
                 calls: assetAddresses.map((address) => ({
+                  to: staticCallAddress,
                   data: encodeStaticCall(
                     address,
                     AbiFunction.encodeData(decimalsFunction),
                   ),
                 })),
+                stateOverrides: staticCallStateOverrides,
               },
 
               // Token URI
               {
                 calls: assetAddresses.map((address) => ({
+                  to: staticCallAddress,
                   data: encodeStaticCall(
                     address,
                     AbiFunction.encodeData(tokenUriFunction, [0n]),
                   ),
                 })),
+                stateOverrides: staticCallStateOverrides,
               },
 
               // Symbols
               {
                 calls: assetAddresses.map((address) => ({
+                  to: staticCallAddress,
                   data: encodeStaticCall(
                     address,
                     AbiFunction.encodeData(symbolFunction),
                   ),
                 })),
+                stateOverrides: staticCallStateOverrides,
               },
             ]
           : []),
@@ -438,13 +462,7 @@ export async function simulateCalls<
 }
 
 function encodeStaticCall(address: Address, data: Hex) {
-  return AbiConstructor.encode(
-    AbiConstructor.from('constructor(address target, bytes data)'),
-    {
-      bytecode: staticCallCode,
-      args: [address, data],
-    },
-  )
+  return AbiFunction.encodeData(staticCallFunction, [address, data])
 }
 
 // Extract token addresses that the account transferred, from a simulated block's logs.
@@ -493,18 +511,31 @@ async function readBalance<chain extends Chain | undefined>(
     blockNumber?: bigint | undefined
     blockTag?: BlockTag | undefined
     data: Hex
+    staticCallAddress?: Address | undefined
     stateOverride: StateOverride | undefined
   },
 ) {
-  const { account, address, blockNumber, blockTag, data, stateOverride } =
-    parameters
+  const {
+    account,
+    address,
+    blockNumber,
+    blockTag,
+    data,
+    staticCallAddress,
+    stateOverride,
+  } = parameters
   try {
-    // Match post-balance STATICCALL semantics so caller-sensitive tokens cannot
-    // distinguish direct pre-balance probes and execution faults remain isolated.
     const result = await call({ ...client, ccipRead: false }, {
       account: address ? zeroAddress : account,
       data: address ? encodeStaticCall(address, data) : data,
-      stateOverride,
+      stateOverride:
+        address && staticCallAddress
+          ? [
+              ...(stateOverride ?? []),
+              { address: staticCallAddress, code: staticCallCode },
+            ]
+          : stateOverride,
+      ...(address ? { to: staticCallAddress } : {}),
       ...(typeof blockNumber === 'bigint' ? { blockNumber } : { blockTag }),
     } as never)
     return { data: result.data ?? '0x', status: 'success' as const }
@@ -516,4 +547,11 @@ async function readBalance<chain extends Chain | undefined>(
       throw error
     return { data: '0x' as const, status: 'failure' as const }
   }
+}
+
+function getStaticCallAddress(addresses: readonly Address[]): Address {
+  const occupied = new Set(addresses.map((address) => address.toLowerCase()))
+  let value = staticCallAddressBase
+  while (occupied.has(`0x${value.toString(16).padStart(40, '0')}`)) value++
+  return `0x${value.toString(16).padStart(40, '0')}`
 }

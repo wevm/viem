@@ -586,8 +586,8 @@ test('behavior: traceAssetChanges uses consistent balance probe callers', async 
     stateOverrides: [
       {
         address: target,
-        // Return 0 when called by zeroAddress and 1 for any other caller.
-        code: '0x3315155f5260205ff3',
+        // Return msg.sender as the balance.
+        code: '0x335f5260205ff3',
       },
     ],
     traceAssetChanges: true,
@@ -595,7 +595,36 @@ test('behavior: traceAssetChanges uses consistent balance probe callers', async 
 
   expect(
     assetChanges.find((change) => change.token.address === target)?.value,
-  ).toEqual({ diff: 0n, post: 1n, pre: 1n })
+  ).toEqual({
+    diff: 0n,
+    post: 0x00000000000000000000000000000000deadbeefn,
+    pre: 0x00000000000000000000000000000000deadbeefn,
+  })
+})
+
+test('behavior: traceAssetChanges does not replace caller state overrides', async () => {
+  const client_ = createClient({ chain: mainnet, transport: http() })
+  const staticCallAddress = '0x00000000000000000000000000000000deadbeef'
+  const target = '0x9000000000000000000000000000000000000009'
+
+  const { assetChanges } = await simulateCalls(client_, {
+    account: zeroAddress,
+    blockNumber: 22_263_623n,
+    calls: [{ data: '0x1234', to: target }],
+    stateOverrides: [
+      { address: staticCallAddress, code: '0x00' },
+      { address: target, code: '0x335f5260205ff3' },
+    ],
+    traceAssetChanges: true,
+  })
+
+  expect(
+    assetChanges.find((change) => change.token.address === target)?.value,
+  ).toEqual({
+    diff: 0n,
+    post: 0x00000000000000000000000000000000deadbef0n,
+    pre: 0x00000000000000000000000000000000deadbef0n,
+  })
 })
 
 test('behavior: traceAssetChanges treats a pre-deployment balance as zero', async () => {
