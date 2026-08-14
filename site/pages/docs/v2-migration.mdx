@@ -1091,6 +1091,7 @@ Every mechanical rename on this page, alphabetized by v2 symbol. Semantic change
 | `WalletPermissionCaveat` | Removed; indexed access on `ReturnType` | [Wallet & Capabilities](#wallet--capabilities) |
 | `WalletRpcSchema` | `RpcSchema.Wallet` | [Type Exports](#type-exports) |
 | `watchAsset` | `Actions.wallet.watchAsset` | [Wallet & Capabilities](#wallet--capabilities) |
+| `watchBlockHeaders` | `Actions.block.watchHeaders` (returns handle) | [Events & Filters](#events--filters) |
 | `watchBlockNumber` | `Actions.block.watchNumber` (returns handle) | [Events & Filters](#events--filters) |
 | `watchBlocks` | `Actions.block.watch` (returns handle) | [Events & Filters](#events--filters) |
 | `watchContractEvent` | `Actions.contract.watchEvent` (returns handle) | [Events & Filters](#events--filters) |
@@ -1646,7 +1647,7 @@ Account parsing and filter types moved onto their owning namespaces. Per-call ch
 | `getBlockReceipts(client, options)` | `Actions.block.getReceipts(client, options)` |
 | `getBlockTransactionCount(client, options)` | `Actions.block.getTransactionCount(client, options)` |
 
-Block watchers (`watchBlocks`, `watchBlockNumber`) and the block filter producer moved with the
+Block watchers (`watchBlockHeaders`, `watchBlocks`, `watchBlockNumber`) and the block filter producer moved with the
 other [watchers and filters](#events--filters).
 
 Block-level simulation moved to [`Actions.block.simulate`](/docs/actions/public/block/simulate).
@@ -1823,6 +1824,7 @@ Event log reads and watchers moved to their owning domain namespaces. Every watc
 | v2 | v3 |
 | --- | --- |
 | `getLogs(client, options)` | `Actions.event.getLogs(client, options)` |
+| `watchBlockHeaders(client, { onBlockHeader })` | `Actions.block.watchHeaders(client)` returns handle; `handle.onBlockHeader(fn)` |
 | `watchBlockNumber(client, { onBlockNumber })` | `Actions.block.watchNumber(client)` returns handle; `handle.onBlockNumber(fn)` |
 | `watchBlocks(client, { onBlock })` | `Actions.block.watch(client)` returns handle; `handle.onBlock(fn)` |
 | `watchContractEvent(client, { abi, eventName, onLogs })` | `Actions.contract.watchEvent(client, { abi, eventName })` returns handle; `handle.onLogs(fn)` |

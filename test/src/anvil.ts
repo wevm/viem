@@ -182,7 +182,7 @@ export declare namespace getWalletClient {
 export const mainnet = defineAnvil({
   chainId: 1,
   forkBlockNumber: 24_000_000n,
-  forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://eth.drpc.org'),
+  forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://ethereum.reth.rs/rpc'),
   hardfork: 'Prague',
   initialize: clearInheritedAccountCode,
   noMining: true,

@@ -342,6 +342,7 @@ const encrypted = await Actions.zone.encryptedDeposit.prepare(parentClient, {
   amount: earnShareAmount,
   bouncebackRecipient: parentClient.account.address,
   recipient: zoneClient.account.address,
+  sender: parentClient.account.address,
   token: vault.shareToken,
   zoneId,
 })

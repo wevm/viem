@@ -1,4 +1,4 @@
-import { Abi, RpcResponse, Value } from 'ox'
+import { Abi, AbiEvent, AbiFunction, Hex, RpcResponse, Value } from 'ox'
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
@@ -158,6 +158,129 @@ test.skip('behavior: traceAssetChanges', async () => {
   })
 
   expect(assetChanges).toMatchInlineSnapshot()
+})
+
+test('behavior: discovers asset changes from simulated logs', async () => {
+  const token = '0x0000000000000000000000000000000000001234' as const
+  const zeroHash = `0x${'0'.repeat(64)}` as const
+  const rpcBlock = {
+    difficulty: '0x0',
+    gasLimit: '0x1c9c380',
+    gasUsed: '0x5208',
+    hash: zeroHash,
+    logsBloom: `0x${'0'.repeat(512)}`,
+    miner: '0x0000000000000000000000000000000000000000',
+    mixHash: zeroHash,
+    nonce: '0x0000000000000000',
+    number: '0x65',
+    parentHash: zeroHash,
+    receiptsRoot: zeroHash,
+    sha3Uncles: zeroHash,
+    size: '0x1',
+    stateRoot: zeroHash,
+    timestamp: '0x1',
+    totalDifficulty: '0x0',
+    transactions: [],
+    transactionsRoot: zeroHash,
+    uncles: [],
+  } as const
+  const result = (returnData: Hex.Hex, logs: readonly unknown[] = []) => ({
+    gasUsed: '0x1',
+    logs,
+    returnData,
+    status: '0x1',
+  })
+  const failed = result('0x')
+  failed.status = '0x0'
+  const transfer = {
+    address: token,
+    blockHash: zeroHash,
+    blockNumber: '0x65',
+    data: Hex.fromNumber(5n, { size: 32 }),
+    logIndex: '0x0',
+    removed: false,
+    topics: [
+      AbiEvent.getSelector(
+        AbiEvent.from(
+          'event Transfer(address indexed from, address indexed to, uint256 value)',
+        ),
+      ),
+      Hex.padLeft(a.toLowerCase() as Hex.Hex, 32),
+      Hex.padLeft(b.toLowerCase() as Hex.Hex, 32),
+    ],
+    transactionHash: zeroHash,
+    transactionIndex: '0x0',
+  }
+  const decimals = AbiFunction.from('function decimals() returns (uint256)')
+  const symbol = AbiFunction.from('function symbol() returns (string)')
+  const blocks: string[] = []
+
+  const mock = Client.create({
+    transport: custom({
+      async request({ method, params }: { method: string; params: unknown }) {
+        if (method === 'eth_blockNumber') return '0x64'
+        if (method === 'eth_call') {
+          const [request, block] = params as [{ to?: string }, string]
+          blocks.push(block)
+          return request.to
+            ? Hex.fromNumber(10n, { size: 32 })
+            : Hex.fromNumber(100n, { size: 32 })
+        }
+        if (method === 'eth_simulateV1') {
+          const [options, block] = params as [
+            { blockStateCalls: readonly unknown[] },
+            string,
+          ]
+          blocks.push(block)
+          if (options.blockStateCalls.length === 1)
+            return [{ ...rpcBlock, calls: [result('0x', [transfer])] }]
+          return [
+            { ...rpcBlock, calls: [result('0x'), result('0x')] },
+            {
+              ...rpcBlock,
+              calls: [result(Hex.fromNumber(90n, { size: 32 }))],
+            },
+            {
+              ...rpcBlock,
+              calls: [result(Hex.fromNumber(15n, { size: 32 }))],
+            },
+            {
+              ...rpcBlock,
+              calls: [result(AbiFunction.encodeResult(decimals, 18n))],
+            },
+            { ...rpcBlock, calls: [failed] },
+            {
+              ...rpcBlock,
+              calls: [result(AbiFunction.encodeResult(symbol, 'TKN'))],
+            },
+          ]
+        }
+        throw new Error(`Unexpected request: ${method}`)
+      },
+    }),
+  })
+
+  const { assetChanges } = await Actions.multicall(mock, {
+    account: a,
+    calls: [{ data: '0x1234', to: token }],
+    traceAssetChanges: true,
+  })
+
+  expect(blocks.every((block) => block === '0x64')).toBe(true)
+  expect(assetChanges).toEqual([
+    {
+      token: {
+        address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+        decimals: 18,
+        symbol: 'ETH',
+      },
+      value: { diff: -10n, post: 90n, pre: 100n },
+    },
+    {
+      token: { address: token, decimals: 18, symbol: 'TKN' },
+      value: { diff: 5n, post: 15n, pre: 10n },
+    },
+  ])
 })
 
 test('behavior: mutation calls with insufficient balance', async () => {

@@ -114,12 +114,3 @@ jobs:
           publish: pnpm changeset:publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  docs:
-    name: Deploy Docs
-    needs: [verify, changesets, release]
-    if: always() && github.ref == 'refs/heads/main' && needs.verify.result == 'success' && needs.changesets.result == 'success' && (needs.release.result == 'success' || needs.release.result == 'skipped')
-    uses: ./.github/workflows/deploy-docs.yml
-    secrets: inherit
-    permissions:
-      contents: read # checkout repository contents in the reusable workflow

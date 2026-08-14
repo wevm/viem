@@ -143,6 +143,17 @@ describe('zone action types', () => {
       recipient,
     ).toEqualTypeOf<Actions.zone.PreparedEncryptedDepositRecipient>()
 
+    // @ts-expect-error sender is required when the client has no account
+    await Actions.zone.encryptedDeposit.prepareRecipient(publicZoneClient, {
+      recipient: account.address,
+      zoneId: 7,
+    })
+    await Actions.zone.encryptedDeposit.prepareRecipient(publicZoneClient, {
+      recipient: account.address,
+      sender: account.address,
+      zoneId: 7,
+    })
+
     const prepared = await Actions.zone.requestWithdrawal.prepare(zoneClient, {
       amount: 1n,
       callbackGas: 10_000_000n,

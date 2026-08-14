@@ -530,6 +530,11 @@ export default defineConfig({
       destination: '/docs/actions/public/multicall',
       status: 308,
     },
+    {
+      source: '/docs/actions/public/watchBlockHeaders',
+      destination: '/docs/actions/public/block/watchHeaders',
+      status: 308,
+    },
 
     // Section move.
     {
@@ -1132,6 +1137,11 @@ export default defineConfig({
               {
                 text: 'Watch Block Number',
                 link: '/docs/actions/public/block/watchNumber',
+                badge: badge('public'),
+              },
+              {
+                text: 'Watch Block Headers',
+                link: '/docs/actions/public/block/watchHeaders',
                 badge: badge('public'),
               },
               {
