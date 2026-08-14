@@ -146,7 +146,7 @@ test('behavior: preserves fee-payer-signed filled fields', async () => {
     gas: 200n,
     maxFeePerGas: 204n,
     maxPriorityFeePerGas: 203n,
-    nonce: 205,
+    nonce: 105,
   })
 
   expect(result.transaction).toMatchObject({
@@ -156,6 +156,22 @@ test('behavior: preserves fee-payer-signed filled fields', async () => {
     maxPriorityFeePerGas: 103n,
     nonce: 105,
   })
+})
+
+test('error: fee-payer-signed nonce does not match requested nonce', async () => {
+  const client = createFillClient({
+    feePayerSignature,
+    input: '0x',
+    nonce: 105,
+  })
+
+  await expect(
+    fillTransaction(client, {
+      nonce: 205,
+    }),
+  ).rejects.toThrow(
+    'The filled transaction nonce does not match the requested nonce.',
+  )
 })
 
 test('behavior: prefers caller fields for unsigned relay transactions', async () => {

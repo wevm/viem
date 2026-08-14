@@ -42,6 +42,27 @@ export class FeeConflictError extends BaseError {
   }
 }
 
+export type FeePayerNonceMismatchErrorType = FeePayerNonceMismatchError & {
+  name: 'FeePayerNonceMismatchError'
+}
+export class FeePayerNonceMismatchError extends BaseError {
+  constructor({
+    filledNonce,
+    requestedNonce,
+  }: {
+    filledNonce: number | undefined
+    requestedNonce: number
+  }) {
+    super('The filled transaction nonce does not match the requested nonce.', {
+      metaMessages: [
+        `Requested Nonce: ${requestedNonce}`,
+        `Filled Nonce: ${filledNonce}`,
+      ],
+      name: 'FeePayerNonceMismatchError',
+    })
+  }
+}
+
 export type InvalidLegacyVErrorType = InvalidLegacyVError & {
   name: 'InvalidLegacyVError'
 }

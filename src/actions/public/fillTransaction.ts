@@ -4,6 +4,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
 import { BaseFeeScalarError } from '../../errors/fee.js'
+import { FeePayerNonceMismatchError } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
@@ -198,8 +199,19 @@ export async function fillTransaction<
       typeof transaction.feePayerSignature !== 'undefined' &&
       transaction.feePayerSignature !== null
 
+    if (
+      hasFeePayerSignature &&
+      typeof nonce !== 'undefined' &&
+      transaction.nonce !== nonce
+    )
+      throw new FeePayerNonceMismatchError({
+        filledNonce: transaction.nonce,
+        requestedNonce: nonce,
+      })
+
     // A fee payer signature commits to the filled transaction, so preserve
     // its signed fields regardless of who produced the signature.
+    // https://tips.sh/0001#fee-payer-signature
     if (!hasFeePayerSignature) {
       // Preference supplied fees (some nodes do not take these preferences).
       if (transaction.gas) transaction.gas = parameters.gas ?? transaction.gas
