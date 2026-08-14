@@ -1,5 +1,13 @@
 # viem
 
+## 2.55.16
+
+### Patch Changes
+
+- [#4997](https://github.com/wevm/viem/pull/4997) [`0c4f19a354255ec5e7e159228df36f9c8714ce0a`](https://github.com/wevm/viem/commit/0c4f19a354255ec5e7e159228df36f9c8714ce0a) Thanks [@Ghadi8](https://github.com/Ghadi8)! - Fixed `simulateCalls` asset discovery across reverting, state-dependent, malformed, and newly deployed tokens while pinning stable block tags and isolating balance probes.
+
+- [#4990](https://github.com/wevm/viem/pull/4990) [`cd1d2d51849f78e20f09e4a26f4c0a20afa84bb4`](https://github.com/wevm/viem/commit/cd1d2d51849f78e20f09e4a26f4c0a20afa84bb4) Thanks [@SashaMIT](https://github.com/SashaMIT)! - Required EIP-4361 / RFC 3339 date-time strings and rejected invalid `time`.
+
 ## 2.55.15
 
 ### Patch Changes
