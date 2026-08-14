@@ -528,8 +528,9 @@ const { results } = await client.simulateCalls({
 
 Whether to trace asset changes. Requires an `account`.
 
-Asset tracing does not support the `pending` block tag because discovery and balance
-measurement require a stable base block.
+The `pending` block tag is supported, but discovery and balance measurement use
+separate requests. Pending state can change between them, so the results are not pinned
+to one pending snapshot.
 
 Assets are discovered by simulating the batch and inspecting the `Transfer` logs it
 emits, along with the `to` address of each call. Discovery therefore accounts for your
