@@ -452,9 +452,7 @@ test('behavior: traceAssetChanges uses the client block tag', async () => {
   expect(simulationBlocks[0]).toMatch(/^0x[\da-f]+$/)
   expect(
     requests
-      .filter(({ method }) =>
-        ['eth_call', 'eth_createAccessList'].includes(method),
-      )
+      .filter(({ method }) => method === 'eth_call')
       .every(({ params }) => params[1] === simulationBlocks[0]),
   ).toBe(true)
   expect(assetChanges[0]?.value.diff).toBe(0n)
@@ -475,6 +473,30 @@ test('behavior: traceAssetChanges rejects the pending block tag', async () => {
 
     Version: viem@x.y.z]
   `)
+})
+
+test('behavior: traceAssetChanges uses an explicit block number over the client block tag', async () => {
+  const client_ = createClient({
+    chain: mainnet,
+    experimental_blockTag: 'pending',
+    transport: http(),
+  })
+
+  const { assetChanges } = await simulateCalls(client_, {
+    account: zeroAddress,
+    blockNumber: 22_263_623n,
+    calls: [
+      {
+        data: '0x1234',
+        to: '0x0000000000000000000000000000000000000004',
+      },
+    ],
+    traceAssetChanges: true,
+  })
+
+  expect(assetChanges.map((change) => change.token.address)).toEqual([
+    '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+  ])
 })
 
 test('behavior: traceAssetChanges ignores malformed candidate responses', async () => {
@@ -733,8 +755,6 @@ test.skip('behavior: traceAssetChanges asset discovery uses the requested block'
     numberToHex(blockNumber),
     numberToHex(blockNumber),
   ])
-  // The supplementary access list pass, which previously defaulted to `latest`.
-  expect(blocksFor('eth_createAccessList')).toEqual([numberToHex(blockNumber)])
 })
 
 // TODO: Re-enable once the pinned Anvil includes foundry-rs/foundry#15784.
@@ -790,7 +810,6 @@ test.skip('behavior: traceAssetChanges pins the base block when none is requeste
     numberToHex(base),
     numberToHex(base),
   ])
-  expect(blocksFor('eth_createAccessList')).toEqual([numberToHex(base)])
 })
 
 test('behavior: account not provided with traceAssetChanges', async () => {
