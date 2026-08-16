@@ -1,5 +1,15 @@
 # viem
 
+## 2.55.17
+
+### Patch Changes
+
+- [#5013](https://github.com/wevm/viem/pull/5013) [`70e7145dcc9c0442a68344cc9f115c63ecde2495`](https://github.com/wevm/viem/commit/70e7145dcc9c0442a68344cc9f115c63ecde2495) Thanks [@CheyneWeb3](https://github.com/CheyneWeb3)! - Added Haus Chain Testnet chain.
+
+- [#5012](https://github.com/wevm/viem/pull/5012) [`5e436053872805cd5db7c0ca504abb9296497025`](https://github.com/wevm/viem/commit/5e436053872805cd5db7c0ca504abb9296497025) Thanks [@struong](https://github.com/struong)! - Preserved filled transaction fields covered by a Tempo fee payer signature.
+
+- [#4290](https://github.com/wevm/viem/pull/4290) [`20dcc0675d26cf673ef473eeaafa424ba353e771`](https://github.com/wevm/viem/commit/20dcc0675d26cf673ef473eeaafa424ba353e771) Thanks [@Kemperino](https://github.com/Kemperino)! - Fixed Operator Fee estimation for Isthmus upgrade by using the `getOperatorFee` function from the Gas Price Oracle instead of manually computing from L1Block parameters.
+
 ## 2.55.16
 
 ### Patch Changes
