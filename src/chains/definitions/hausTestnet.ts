@@ -11,7 +11,6 @@ export const hausTestnet = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: ['https://rpc-testnet.hausserver.xyz'],
-      webSocket: ['wss://rpc-testnet.hausserver.xyz'],
     },
   },
   blockExplorers: {
