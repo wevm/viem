@@ -29,6 +29,7 @@ import {
   Eip1559FeesNotSupportedError,
   MaxFeePerGasTooLowError,
 } from '../../errors/fee.js'
+import { FeePayerNonceMismatchError } from '../../errors/transaction.js'
 import type { DeriveAccount, GetAccountParameter } from '../../types/account.js'
 import type { Block } from '../../types/block.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
@@ -508,6 +509,11 @@ export async function prepareTransactionRequest<
           const error = e as FillTransactionErrorType
 
           if (error.name !== 'TransactionExecutionError') return request
+
+          const nonceMismatch = error.walk?.(
+            (error) => error instanceof FeePayerNonceMismatchError,
+          )
+          if (nonceMismatch) throw e
 
           const executionReverted = error.walk?.((e) => {
             const error = e as BaseError

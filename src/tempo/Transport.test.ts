@@ -5,6 +5,8 @@ import { MultisigConfig, TxEnvelopeTempo } from 'ox/tempo'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import {
   getCallsStatus,
+  getTransaction,
+  getTransactionCount,
   prepareTransactionRequest,
   sendCallsSync,
   sendTransaction,
@@ -24,6 +26,15 @@ import { walletNamespaceCompat, withFeePayer, withRelay } from './Transport.js'
 
 describe('withRelay', () => {
   let server: Http.Server
+  let overrideSponsorFields = false
+  let overrideSponsorNonce = false
+  let sponsorFillFields:
+    | {
+        gas?: bigint | undefined
+        maxFeePerGas?: bigint | undefined
+        maxPriorityFeePerGas?: bigint | undefined
+      }
+    | undefined
   let sponsorFills = false
   let relayRequests: Array<{
     method: string
@@ -48,13 +59,27 @@ describe('withRelay', () => {
 
         if (request.method === 'eth_fillTransaction') {
           if (sponsorFills) {
+            const params = structuredClone(request.params) as [
+              Record<string, unknown>,
+            ]
+            if (overrideSponsorFields) {
+              delete params[0].gas
+              delete params[0].maxFeePerGas
+              delete params[0].maxPriorityFeePerGas
+            }
+            if (overrideSponsorNonce) delete params[0].nonce
             const result = await feePayerClient.request({
               method: 'eth_fillTransaction',
-              params: request.params as never,
+              params: params as never,
             })
             const transaction = {
               ...Transaction.deserialize(result.raw as `0x76${string}`),
               feeToken,
+            }
+            sponsorFillFields = {
+              gas: transaction.gas,
+              maxFeePerGas: transaction.maxFeePerGas,
+              maxPriorityFeePerGas: transaction.maxPriorityFeePerGas ?? 0n,
             }
             const sender = (request.params?.[0] as { from: `0x${string}` }).from
             const feePayerSignature = Signature.from(
@@ -145,6 +170,9 @@ describe('withRelay', () => {
   })
 
   beforeEach(() => {
+    overrideSponsorFields = false
+    overrideSponsorNonce = false
+    sponsorFillFields = undefined
     sponsorFills = false
     relayRequests = []
   })
@@ -197,6 +225,60 @@ describe('withRelay', () => {
       })
 
       expect(receipt.status).toBe('success')
+      expect(relayRequests.map(({ method }) => method)).toEqual([
+        'eth_fillTransaction',
+      ])
+    })
+
+    test('behavior: preserves relay fields covered by fee payer signature', async () => {
+      sponsorFills = true
+      overrideSponsorFields = true
+      const account = privateKeyToAccount(
+        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
+      )
+
+      const receipt = await sendTransactionSync(client, {
+        account,
+        feePayer: true,
+        gas: 1n,
+        maxFeePerGas: 1n,
+        maxPriorityFeePerGas: 1n,
+        to: '0x0000000000000000000000000000000000000000',
+      })
+
+      expect(receipt.status).toBe('success')
+      expect(receipt.feePayer).toBe(accounts[0].address.toLowerCase())
+      const transaction = await getTransaction(client, {
+        hash: receipt.transactionHash,
+      })
+      expect(sponsorFillFields).toBeDefined()
+      expect(transaction).toMatchObject(sponsorFillFields!)
+      expect(relayRequests.map(({ method }) => method)).toEqual([
+        'eth_fillTransaction',
+      ])
+    })
+
+    test('error: rejects a fee-payer-signed nonce mismatch', async () => {
+      sponsorFills = true
+      overrideSponsorNonce = true
+      const account = privateKeyToAccount(
+        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
+      )
+      const nonce = await getTransactionCount(client, {
+        address: account.address,
+        blockTag: 'pending',
+      })
+
+      await expect(
+        sendTransactionSync(client, {
+          account,
+          feePayer: true,
+          nonce: nonce + 1,
+          to: '0x0000000000000000000000000000000000000000',
+        }),
+      ).rejects.toThrow(
+        'The filled transaction nonce does not match the requested nonce.',
+      )
       expect(relayRequests.map(({ method }) => method)).toEqual([
         'eth_fillTransaction',
       ])
