@@ -10,6 +10,7 @@ import type { Hex } from '../../types/misc.js'
 import type { RpcAuthorizationList, RpcTransaction } from '../../types/rpc.js'
 import type { Transaction, TransactionType } from '../../types/transaction.js'
 import type { ExactPartial, UnionLooseOmit } from '../../types/utils.js'
+import { isHex } from '../data/isHex.js'
 import { hexToNumber } from '../encoding/fromHex.js'
 import { type DefineFormatterErrorType, defineFormatter } from './formatter.js'
 
@@ -132,11 +133,17 @@ function formatAuthorizationList(
   authorizationList: RpcAuthorizationList,
 ): SignedAuthorizationList {
   return authorizationList.map((authorization) => ({
-    address: (authorization as any).address,
-    chainId: Number(authorization.chainId),
-    nonce: Number(authorization.nonce),
+    address: authorization.address,
+    chainId: parseAuthorizationQuantity(authorization.chainId),
+    nonce: parseAuthorizationQuantity(authorization.nonce),
     r: authorization.r,
     s: authorization.s,
-    yParity: Number(authorization.yParity),
+    yParity: parseAuthorizationQuantity(authorization.yParity),
   })) as SignedAuthorizationList
+}
+
+function parseAuthorizationQuantity(value: Hex): number {
+  if (!isHex(value))
+    throw new Error(`Invalid authorization list quantity "${value}"`)
+  return hexToNumber(value)
 }

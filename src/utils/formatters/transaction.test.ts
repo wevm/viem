@@ -769,6 +769,42 @@ test('nullish values', () => {
   `)
 })
 
+const authorization = {
+  address: '0x0000000000000000000000000000000000000000',
+  chainId: '0x1',
+  nonce: '0x2',
+  r: '0x1',
+  s: '0x1',
+  yParity: '0x0',
+} as const
+
+test('eip7702 authorization list quantities', () => {
+  expect(
+    formatTransaction({ authorizationList: [authorization] })
+      .authorizationList,
+  ).toEqual([
+    {
+      address: authorization.address,
+      chainId: 1,
+      nonce: 2,
+      r: authorization.r,
+      s: authorization.s,
+      yParity: 0,
+    },
+  ])
+})
+
+test.each(['chainId', 'nonce', 'yParity'] as const)(
+  'invalid eip7702 authorization %s throws',
+  (field) => {
+    expect(() =>
+      formatTransaction({
+        authorizationList: [{ ...authorization, [field]: '' }],
+      } as unknown as Parameters<typeof formatTransaction>[0]),
+    ).toThrow(`Invalid authorization list quantity ""`)
+  },
+)
+
 test('contract deployment transaction', () => {
   expect(
     formatTransaction({
