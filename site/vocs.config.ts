@@ -26,7 +26,10 @@ export const sponsors = {
     { name: 'Paradigm', url: 'https://paradigm.xyz' },
     { name: 'Tempo', url: 'https://tempo.xyz' },
   ],
-  largeEnterprise: [{ name: 'Stripe', url: 'https://www.stripe.com' }],
+  largeEnterprise: [
+    { name: 'Stripe', url: 'https://www.stripe.com' },
+    { name: 'Circle', url: 'https://www.circle.com' },
+  ],
   smallEnterprise: [
     { name: 'Family', url: 'https://twitter.com/family' },
     { name: 'Context', url: 'https://twitter.com/context' },
@@ -178,6 +181,13 @@ export default defineConfig({
       destination: '/docs/actions/wallet/:path',
       status: 308,
     },
+
+    // TODO(v3): Remove redirect
+    {
+      source: '/zskync',
+      destination: 'https://github.com/wevm/viem/tree/main/src/zksync',
+      status: 308,
+    },
   ],
   renderStrategy: 'dynamic',
   rootDir: '.',
@@ -190,17 +200,24 @@ export default defineConfig({
       return 1
     },
   },
-  ai: {
-    retriever: Retriever.local({
-      embedding: Embedding.cloudflare(),
-      reranker: Reranker.cloudflare(),
-      sources: [
-        { url: 'https://wagmi.sh/llms.txt', label: 'wagmi', weight: 0.8 },
-      ],
-      // Remote store keeps vectors out of the server bundle entirely.
-      vectorStore: VectorStore.cloudflare({ index: 'viem-docs' }),
-    }),
-  },
+  ai:
+    process.env.CLOUDFLARE_ACCOUNT_ID && process.env.CLOUDFLARE_API_TOKEN
+      ? {
+          retriever: Retriever.local({
+            embedding: Embedding.cloudflare(),
+            reranker: Reranker.cloudflare(),
+            sources: [
+              {
+                url: 'https://wagmi.sh/llms.txt',
+                label: 'wagmi',
+                weight: 0.8,
+              },
+            ],
+            // Remote store keeps vectors out of the server bundle entirely.
+            vectorStore: VectorStore.cloudflare({ index: 'viem-docs' }),
+          }),
+        }
+      : undefined,
   sidebar: {
     '/docs/': [
       {
@@ -323,6 +340,10 @@ export default defineConfig({
               {
                 text: 'watchBlockNumber',
                 link: '/docs/actions/public/watchBlockNumber',
+              },
+              {
+                text: 'watchBlockHeaders',
+                link: '/docs/actions/public/watchBlockHeaders',
               },
               {
                 text: 'watchBlocks',
@@ -828,10 +849,6 @@ export default defineConfig({
               {
                 text: 'OP Stack',
                 link: '/op-stack',
-              },
-              {
-                text: 'ZKsync',
-                link: '/zksync',
               },
             ],
           },
@@ -2332,6 +2349,37 @@ export default defineConfig({
               ],
             },
             {
+              text: 'Earn',
+              collapsed: true,
+              items: [
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Overview',
+                  link: '/tempo/guides/earn',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Deploy an Earn Stack',
+                  link: '/tempo/guides/earn/deploy',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Deposit & Withdraw',
+                  link: '/tempo/guides/earn/deposit-withdraw',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Protected Vaults',
+                  link: '/tempo/guides/earn/protected-vaults',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Earn with Private Zones',
+                  link: '/tempo/guides/earn/zones',
+                },
+              ],
+            },
+            {
               text: 'Virtual Addresses',
               collapsed: true,
               items: [
@@ -2585,6 +2633,107 @@ export default defineConfig({
                 {
                   text: 'withdraw',
                   link: '/tempo/actions/channel.withdraw',
+                },
+              ],
+            },
+            {
+              text: 'Earn',
+              collapsed: true,
+              items: [
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'bindErc4626Engine',
+                  link: '/tempo/actions/earn.bindErc4626Engine',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'configureExitSafePolicy',
+                  link: '/tempo/actions/earn.configureExitSafePolicy',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'createErc4626Engine',
+                  link: '/tempo/actions/earn.createErc4626Engine',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'createStack',
+                  link: '/tempo/actions/earn.createStack',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'deposit',
+                  link: '/tempo/actions/earn.deposit',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'depositShares',
+                  link: '/tempo/actions/earn.depositShares',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'deployErc4626StackSync',
+                  link: '/tempo/actions/earn.deployErc4626StackSync',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getFeeState',
+                  link: '/tempo/actions/earn.getFeeState',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getPosition',
+                  link: '/tempo/actions/earn.getPosition',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getRedeemQuote',
+                  link: '/tempo/actions/earn.getRedeemQuote',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getVault',
+                  link: '/tempo/actions/earn.getVault',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getWithdrawQuote',
+                  link: '/tempo/actions/earn.getWithdrawQuote',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'privateDeposit',
+                  link: '/tempo/actions/earn.privateDeposit',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'privateRedeem',
+                  link: '/tempo/actions/earn.privateRedeem',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'redeem',
+                  link: '/tempo/actions/earn.redeem',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'validateExitSafePolicy',
+                  link: '/tempo/actions/earn.validateExitSafePolicy',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'waitForPrivateDeposit',
+                  link: '/tempo/actions/earn.waitForPrivateDeposit',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'waitForPrivateRedeem',
+                  link: '/tempo/actions/earn.waitForPrivateRedeem',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'withdrawExact',
+                  link: '/tempo/actions/earn.withdrawExact',
                 },
               ],
             },
@@ -3065,8 +3214,8 @@ export default defineConfig({
                   link: '/tempo/actions/zone.getAuthorizationTokenInfo',
                 },
                 {
-                  text: 'getDepositStatus',
-                  link: '/tempo/actions/zone.getDepositStatus',
+                  text: 'getEncryptionKey',
+                  link: '/tempo/actions/zone.getEncryptionKey',
                 },
                 {
                   text: 'getWithdrawalFee',
@@ -3087,6 +3236,10 @@ export default defineConfig({
                 {
                   text: 'signAuthorizationToken',
                   link: '/tempo/actions/zone.signAuthorizationToken',
+                },
+                {
+                  text: 'waitForTempoBlock',
+                  link: '/tempo/actions/zone.waitForTempoBlock',
                 },
               ],
             },
@@ -3158,223 +3311,6 @@ export default defineConfig({
         },
       ],
     },
-    '/zksync': {
-      backLink: true,
-      items: [
-        {
-          text: 'ZKsync',
-          items: [
-            {
-              text: 'Getting Started',
-              link: '/zksync',
-            },
-            { text: 'Client', link: '/zksync/client' },
-            { text: 'Chains', link: '/zksync/chains' },
-          ],
-        },
-        {
-          text: 'Smart Accounts',
-          items: [
-            {
-              text: 'Singlesig',
-              link: '/zksync/accounts/toSinglesigSmartAccount',
-            },
-            {
-              text: 'Multisig',
-              link: '/zksync/accounts/toMultisigSmartAccount',
-            },
-            {
-              text: 'Custom',
-              link: '/zksync/accounts/toSmartAccount',
-            },
-          ],
-        },
-        {
-          text: 'EIP-712 Actions',
-          items: [
-            {
-              text: 'deployContract',
-              link: '/zksync/actions/deployContract',
-            },
-            {
-              text: 'sendTransaction',
-              link: '/zksync/actions/sendTransaction',
-            },
-            {
-              text: 'signTransaction',
-              link: '/zksync/actions/signTransaction',
-            },
-            {
-              text: 'writeContract',
-              link: '/zksync/actions/writeContract',
-            },
-          ],
-        },
-        {
-          text: 'L2 Public Actions',
-          items: [
-            {
-              text: 'estimateGasL1ToL2',
-              link: '/zksync/actions/estimateGasL1ToL2',
-            },
-            {
-              text: 'getBlockDetails',
-              link: '/zksync/actions/getBlockDetails',
-            },
-            {
-              text: 'getBridgehubContractAddress',
-              link: '/zksync/actions/getBridgehubContractAddress',
-            },
-            {
-              text: 'getDefaultBridgeAddress',
-              link: '/zksync/actions/getDefaultBridgeAddress',
-            },
-            {
-              text: 'getGasPerPubData',
-              link: '/zksync/actions/getGasPerPubData',
-            },
-            {
-              text: 'getL1BatchDetails',
-              link: '/zksync/actions/getL1BatchDetails',
-            },
-            {
-              text: 'getL1BatchBlockRange',
-              link: '/zksync/actions/getL1BatchBlockRange',
-            },
-            {
-              text: 'getL1BatchNumber',
-              link: '/zksync/actions/getL1BatchNumber',
-            },
-            {
-              text: 'getL1TokenAddress',
-              link: '/zksync/actions/getL1TokenAddress',
-            },
-            {
-              text: 'getL2TokenAddress',
-              link: '/zksync/actions/getL2TokenAddress',
-            },
-            {
-              text: 'getLogProof',
-              link: '/zksync/actions/getLogProof',
-            },
-            {
-              text: 'getTransactionDetails',
-              link: '/zksync/actions/getTransactionDetails',
-            },
-            {
-              text: 'estimateFee (deprecated)',
-              link: '/zksync/actions/estimateFee',
-            },
-            {
-              text: 'getAllBalances (deprecated)',
-              link: '/zksync/actions/getAllBalances',
-            },
-            {
-              text: 'getBaseTokenL1Address (deprecated)',
-              link: '/zksync/actions/getBaseTokenL1Address',
-            },
-            {
-              text: 'getL1ChainId (deprecated)',
-              link: '/zksync/actions/getL1ChainId',
-            },
-            {
-              text: 'getMainContractAddress (deprecated)',
-              link: '/zksync/actions/getMainContractAddress',
-            },
-            {
-              text: 'getRawBlockTransaction (deprecated)',
-              link: '/zksync/actions/getRawBlockTransactions',
-            },
-            {
-              text: 'getTestnetPaymasterAddress (deprecated)',
-              link: '/zksync/actions/getTestnetPaymasterAddress',
-            },
-          ],
-        },
-        {
-          text: 'L1 Public Actions',
-          items: [
-            {
-              text: 'getL1Allowance',
-              link: '/zksync/actions/getL1Allowance',
-            },
-            {
-              text: 'getL1Balance',
-              link: '/zksync/actions/getL1Balance',
-            },
-            {
-              text: 'getL1TokenBalance',
-              link: '/zksync/actions/getL1TokenBalance',
-            },
-            {
-              text: 'isWithdrawalFinalized',
-              link: '/zksync/actions/isWithdrawalFinalized',
-            },
-          ],
-        },
-        {
-          text: 'L2 Wallet Actions',
-          items: [
-            {
-              text: 'withdraw',
-              link: '/zksync/actions/withdraw',
-            },
-          ],
-        },
-        {
-          text: 'L1 Wallet Actions',
-          items: [
-            {
-              text: 'requestExecute',
-              link: '/zksync/actions/requestExecute',
-            },
-            {
-              text: 'finalizeWithdrawal',
-              link: '/zksync/actions/finalizeWithdrawal',
-            },
-            {
-              text: 'deposit',
-              link: '/zksync/actions/deposit',
-            },
-            {
-              text: 'claimFailedDeposit',
-              link: '/zksync/actions/claimFailedDeposit',
-            },
-          ],
-        },
-        {
-          text: 'Utilities',
-          items: [
-            {
-              text: 'Paymaster',
-              items: [
-                {
-                  text: 'getApprovalBasedPaymasterInput',
-                  link: '/zksync/utilities/paymaster/getApprovalBasedPaymasterInput',
-                },
-                {
-                  text: 'getGeneralPaymasterInput',
-                  link: '/zksync/utilities/paymaster/getGeneralPaymasterInput',
-                },
-              ],
-            },
-            {
-              text: 'Bridge',
-              items: [
-                {
-                  text: 'getL2HashFromPriorityOp',
-                  link: '/zksync/utilities/bridge/getL2HashFromPriorityOp',
-                },
-              ],
-            },
-            {
-              text: 'parseEip712Transaction',
-              link: '/zksync/utilities/parseEip712Transaction',
-            },
-          ],
-        },
-      ],
-    },
   } as const satisfies Config['sidebar'],
   socials: [
     {
@@ -3437,10 +3373,6 @@ export default defineConfig({
         {
           text: 'USDC (Circle)',
           link: '/circle-usdc',
-        },
-        {
-          text: 'ZKsync',
-          link: '/zksync',
         },
         {
           text: 'Experimental',

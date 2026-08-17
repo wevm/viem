@@ -14,11 +14,11 @@
     "accounts": "^0.9.0",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-server-dom-webpack": "~19.2.3",
+    "react-server-dom-webpack": "~19.2.8",
     "tailwindcss": "^4.1.16",
     "viem": "workspace:*",
     "vite": "^8.0.14",
-    "vocs": "https://pkg.pr.new/vocs@35ebd0c",
+    "vocs": "2.8.1",
     "waku": "^1.0.0-beta.6"
   }
 }

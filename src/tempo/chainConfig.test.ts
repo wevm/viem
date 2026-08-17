@@ -14,6 +14,7 @@ import { mainnet, tempoLocalnet } from '../chains/index.js'
 import { createClient, http } from '../index.js'
 import { defineChain } from '../utils/chain/defineChain.js'
 import { hashMessage } from '../utils/index.js'
+import { withResolvers } from '../utils/promise/withResolvers.js'
 import * as accessKeyActions from './actions/accessKey.js'
 import {
   Account,
@@ -47,6 +48,11 @@ describe('prepareTransactionRequest', () => {
     expect(requests[0]?.nonce).toBe(0)
     expect(requests[1]?.nonce).toBe(0)
     expect(requests[2]?.nonce).toBe(0)
+
+    // All should be immediately valid
+    expect(requests[0]?.validAfter).toBeLessThan(now)
+    expect(requests[1]?.validAfter).toBeLessThan(now)
+    expect(requests[2]?.validAfter).toBeLessThan(now)
 
     // All should have validBefore set within 30 seconds
     expect(requests[0]?.validBefore).toBeGreaterThanOrEqual(now)
@@ -84,6 +90,33 @@ describe('prepareTransactionRequest', () => {
     expect(request?.validBefore).toBeUndefined()
   })
 
+  test('behavior: does not set gas when gas is not prepared', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: accounts.at(0)!,
+    })
+    const request = await prepareTransactionRequest(client, {
+      account: accessKey,
+      feePayer: true,
+      parameters: [],
+    })
+
+    expect(request.gas).toBeUndefined()
+  })
+
+  test('behavior: bumps prepared gas for sponsored access keys', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: accounts.at(0)!,
+    })
+    const request = await prepareTransactionRequest(client, {
+      account: accessKey,
+      feePayer: true,
+      gas: 33_000n,
+      parameters: [],
+    })
+
+    expect(request.gas).toBe(43_000n)
+  })
+
   test('behavior: nonceKey expiring uses expiring nonces', async () => {
     const now = Math.floor(Date.now() / 1000)
     const request = await prepareTransactionRequest(client, {
@@ -95,14 +128,157 @@ describe('prepareTransactionRequest', () => {
     expect(request?.validBefore).toBeLessThanOrEqual(now + 31)
   })
 
-  test('behavior: explicit validBefore is preserved', async () => {
+  test('behavior: numeric expiring nonce sentinel gets a validity window', async () => {
+    const now = Math.floor(Date.now() / 1000)
+    const request = await prepareTransactionRequest(client, {
+      nonceKey: maxUint256,
+      parameters: [],
+    })
+
+    expect(request.nonceKey).toBe(maxUint256)
+    expect(request.nonce).toBe(0)
+    expect(request.validBefore).toBeGreaterThanOrEqual(now)
+    expect(request.validBefore).toBeLessThanOrEqual(now + 31)
+  })
+
+  test('behavior: explicit validity window is preserved', async () => {
+    const customValidAfter = Math.floor(Date.now() / 1000) - 15
     const customValidBefore = Math.floor(Date.now() / 1000) + 15
     const request = await prepareTransactionRequest(client, {
       feePayer: true,
+      validAfter: customValidAfter,
       validBefore: customValidBefore,
     })
     expect(request?.nonceKey).toBe(maxUint256)
+    expect(request?.validAfter).toBe(customValidAfter)
     expect(request?.validBefore).toBe(customValidBefore)
+  })
+
+  test('behavior: expiring nonces do not consume a sequential nonce', async () => {
+    const consume = vi.fn(async () => 7)
+    const request = await prepareTransactionRequest(client, {
+      feePayer: true,
+      nonceManager: {
+        consume,
+        get: vi.fn(async () => 7),
+        increment: vi.fn(),
+        reset: vi.fn(),
+      },
+      parameters: ['nonce'],
+    })
+
+    expect(consume).not.toHaveBeenCalled()
+    expect(request.nonceKey).toBe(maxUint256)
+    expect(request.nonce).toBe(0)
+  })
+
+  test('behavior: detects concurrent JSON-RPC address accounts', async () => {
+    const address = accounts.at(0)!.address
+    const requests = await Promise.all([
+      prepareTransactionRequest(client, {
+        account: address,
+        parameters: [],
+      }),
+      prepareTransactionRequest(client, {
+        account: address.toLowerCase() as typeof address,
+        parameters: [],
+      }),
+    ])
+
+    expect(requests[0].nonceKey).toBe(maxUint256)
+    expect(requests[1].nonceKey).toBe(maxUint256)
+  })
+
+  test('behavior: detects concurrency before asynchronous account preparation', async () => {
+    let reads = 0
+    let releaseSecondRead: (() => void) | undefined
+    const secondRead = new Promise<undefined>((resolve) => {
+      releaseSecondRead = () => resolve(undefined)
+    })
+    const keyAuthorizationManager = KeyAuthorizationManager.from({
+      source: {
+        get() {
+          reads++
+          if (reads === 1) return undefined
+          return secondRead
+        },
+        remove() {},
+        set() {},
+      },
+    })
+    const account = Account.fromP256(generatePrivateKey(), {
+      access: accounts.at(0)!,
+      keyAuthorizationManager,
+    })
+
+    const firstPromise = prepareTransactionRequest(client, {
+      account,
+      parameters: [],
+    })
+    const secondPromise = prepareTransactionRequest(client, {
+      account,
+      parameters: [],
+    })
+    const first = await firstPromise
+    releaseSecondRead?.()
+    const second = await secondPromise
+
+    expect(first.nonceKey).toBe(maxUint256)
+    expect(second.nonceKey).toBe(maxUint256)
+  })
+
+  test('behavior: staggered requests use sequential nonces', async () => {
+    const entered_1 = withResolvers<void>()
+    const entered_2 = withResolvers<void>()
+    const release = withResolvers<void>()
+    let getCount = 0
+    const keyAuthorizationManager = KeyAuthorizationManager.from({
+      source: {
+        async get() {
+          getCount++
+          if (getCount === 1) entered_1.resolve()
+          if (getCount === 2) entered_2.resolve()
+          await release.promise
+          return undefined
+        },
+        remove() {},
+        set() {},
+      },
+    })
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: accounts.at(0)!,
+      keyAuthorizationManager,
+    })
+    let nonce = 7
+    const consume = vi.fn(async () => nonce++)
+    const nonceManager = {
+      consume,
+      get: vi.fn(async () => nonce),
+      increment: vi.fn(),
+      reset: vi.fn(),
+    }
+
+    const request_1 = prepareTransactionRequest(client, {
+      account: accessKey,
+      nonceManager,
+      parameters: ['nonce'],
+    })
+    await entered_1.promise
+    const request_2 = prepareTransactionRequest(client, {
+      account: accessKey,
+      nonceManager,
+      parameters: ['nonce'],
+    })
+    await entered_2.promise
+    release.resolve()
+
+    const requests = await Promise.all([request_1, request_2])
+    expect(requests.map((request) => request.nonce)).toEqual([7, 8])
+    expect(requests.map((request) => request.nonceKey)).toEqual([
+      undefined,
+      undefined,
+    ])
+    expect(consume).toHaveBeenCalledTimes(2)
   })
 
   test('behavior: sendTransaction with expiring nonces', async () => {

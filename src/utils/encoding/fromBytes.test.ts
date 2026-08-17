@@ -41,6 +41,7 @@ describe('converts bytes to number', () => {
         size: 32,
       }),
     ).toEqual(420)
+    expect(bytesToNumber(new Uint8Array([1, 164]), { size: 32 })).toEqual(420)
   })
 
   test('error: size overflow', () => {
@@ -99,6 +100,7 @@ describe('converts bytes to bigint', () => {
         size: 32,
       }),
     ).toEqual(420n)
+    expect(bytesToBigInt(new Uint8Array([1, 164]), { size: 32 })).toEqual(420n)
   })
 
   test('error: size overflow', () => {

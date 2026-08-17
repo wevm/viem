@@ -1,10 +1,16 @@
 import { setTimeout } from 'node:timers/promises'
 import { Hex } from 'ox'
 import { TokenId, TokenRole } from 'ox/tempo'
-import { formatUnits, parseUnits } from 'viem'
+import {
+  type EIP1193Parameters,
+  type EIP1193RequestOptions,
+  formatUnits,
+  type PublicRpcSchema,
+  parseUnits,
+} from 'viem'
 import { getCode, writeContractSync } from 'viem/actions'
-import { Abis, Addresses, TokenIds } from 'viem/tempo'
-import { describe, expect, test } from 'vitest'
+import { Abis, Addresses, Selectors, TokenIds } from 'viem/tempo'
+import { describe, expect, test, vi } from 'vitest'
 import {
   accounts,
   addresses,
@@ -28,6 +34,18 @@ const tokenlessClient = getClient({
   chain: chain.extend({ feeToken }),
   tokens: undefined,
 })
+
+type EthCallSchema = [Extract<PublicRpcSchema[number], { Method: 'eth_call' }>]
+type EthCallRequest = EIP1193Parameters<EthCallSchema>
+type RequestCall = [EthCallRequest, EIP1193RequestOptions?]
+
+function getEthCallRequest(
+  request: EIP1193Parameters<PublicRpcSchema>,
+): EthCallRequest {
+  if (request.method !== 'eth_call')
+    throw new Error(`Expected eth_call, received ${request.method}.`)
+  return request
+}
 
 describe('call (without client)', () => {
   test('default: builds the same call as the client form', () => {
@@ -459,6 +477,7 @@ describe('getTotalSupply', () => {
 
 describe('getMetadata', () => {
   test('default', async () => {
+    const request = vi.spyOn(client, 'request')
     const metadata = await actions.token.getMetadata(client, {
       token: addresses.alphaUsd,
     })
@@ -477,6 +496,102 @@ describe('getMetadata', () => {
         "transferPolicyId": 1n,
       }
     `)
+    expect(request).toHaveBeenCalledTimes(1)
+    expect(request.mock.calls[0]?.[0]).toMatchObject({
+      method: 'eth_call',
+      params: [{ data: expect.any(String) }, 'latest'],
+    })
+    const calls: RequestCall[] = request.mock.calls
+    expect(calls[0]?.[0].params?.[0]).not.toHaveProperty('to')
+    request.mockRestore()
+  })
+
+  test('behavior: respects disabled client multicall', async () => {
+    const client = getClient({
+      batch: { multicall: false },
+      chain: chainWithFeeToken,
+      tokens: undefined,
+    })
+    const request = vi.spyOn(client, 'request')
+
+    const metadata = await actions.token.getMetadata(client, {
+      token: addresses.alphaUsd,
+    })
+
+    expect(metadata.name).toBe('AlphaUSD')
+    expect(request).toHaveBeenCalledTimes(10)
+    const calls: RequestCall[] = request.mock.calls
+    for (const [{ method, params }] of calls) {
+      expect(method).toBe('eth_call')
+      expect(params?.[0]).toMatchObject({ to: addresses.alphaUsd })
+    }
+    request.mockRestore()
+  })
+
+  test('behavior: respects explicit deployless client multicall', async () => {
+    const client = getClient({
+      batch: { multicall: { deployless: true } },
+      chain: chainWithFeeToken,
+      tokens: undefined,
+    })
+    const request = vi.spyOn(client, 'request')
+
+    const metadata = await actions.token.getMetadata(client, {
+      token: addresses.alphaUsd,
+    })
+
+    expect(metadata.name).toBe('AlphaUSD')
+    expect(request).toHaveBeenCalledTimes(1)
+    const calls: RequestCall[] = request.mock.calls
+    expect(calls[0]?.[0].params?.[0]).not.toHaveProperty('to')
+    request.mockRestore()
+  })
+
+  test('behavior: falls back when logo URI fails', async () => {
+    const client = getClient({
+      batch: { multicall: false },
+      chain: chainWithFeeToken,
+      tokens: undefined,
+    })
+    const request_ = client.request
+    const request = vi
+      .spyOn(client, 'request')
+      .mockImplementation(async (parameters, options) => {
+        const [{ data }] = getEthCallRequest(parameters).params
+        if (data === Selectors.tip20.logoURI) throw new Error('logo URI failed')
+        return request_(parameters, options)
+      })
+
+    const metadata = await actions.token.getMetadata(client, {
+      token: addresses.alphaUsd,
+    })
+
+    expect(metadata.logoURI).toBe('')
+    request.mockRestore()
+  })
+
+  test('behavior: throws required field failures in return order', async () => {
+    const client = getClient({
+      batch: { multicall: false },
+      chain: chainWithFeeToken,
+      tokens: undefined,
+    })
+    const request_ = client.request
+    const request = vi
+      .spyOn(client, 'request')
+      .mockImplementation(async (parameters, options) => {
+        const [{ data }] = getEthCallRequest(parameters).params
+        if (data === Selectors.tip20.name) throw new Error('name failed')
+        if (data === Selectors.tip20.symbol) throw new Error('symbol failed')
+        return request_(parameters, options)
+      })
+
+    await expect(
+      actions.token.getMetadata(client, {
+        token: addresses.alphaUsd,
+      }),
+    ).rejects.toThrow('name failed')
+    request.mockRestore()
   })
 
   test('behavior: custom token (address)', async () => {
@@ -540,6 +655,29 @@ describe('getMetadata', () => {
         }
       `)
     }
+  })
+
+  test('behavior: quote token with disabled client multicall', async () => {
+    const client = getClient({
+      batch: { multicall: false },
+      chain: chainWithFeeToken,
+      tokens: undefined,
+    })
+    const request = vi.spyOn(client, 'request')
+
+    const metadata = await actions.token.getMetadata(client, {
+      token: Addresses.pathUsd,
+    })
+
+    expect(metadata).toMatchObject({
+      currency: 'USD',
+      decimals: 6,
+      logoURI: '',
+      name: 'pathUSD',
+      symbol: 'pathUSD',
+    })
+    expect(request).toHaveBeenCalledTimes(6)
+    request.mockRestore()
   })
 
   test('behavior: custom token (id)', async () => {
@@ -2752,13 +2890,11 @@ describe('watchAdminRole', () => {
 describe('watchRole', () => {
   test('default', async () => {
     // Create a new token for testing
-    const { token: address } = await actions.token.createSync(client, {
+    const { receipt, token: address } = await actions.token.createSync(client, {
       currency: 'USD',
       name: 'Role Watch Token',
       symbol: 'ROLE',
     })
-
-    await setTimeout(100)
 
     const receivedRoleUpdates: Array<{
       args: actions.token.watchRole.Args
@@ -2769,6 +2905,7 @@ describe('watchRole', () => {
     const unwatch = actions.token.watchRole(client, {
       token: address,
       onRoleUpdated: (args, log) => {
+        if (log.blockNumber <= receipt.blockNumber) return
         receivedRoleUpdates.push({ args, log })
       },
     })

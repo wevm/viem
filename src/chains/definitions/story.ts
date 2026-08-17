@@ -2,11 +2,11 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const story = /*#__PURE__*/ defineChain({
   id: 1514,
-  name: 'Story',
+  name: 'Data Network',
   nativeCurrency: {
     decimals: 18,
-    name: 'IP Token',
-    symbol: 'IP',
+    name: 'DATA',
+    symbol: 'DATA',
   },
   contracts: {
     multicall3: {
@@ -23,13 +23,13 @@ export const story = /*#__PURE__*/ defineChain({
     },
   },
   rpcUrls: {
-    default: { http: ['https://mainnet.storyrpc.io'] },
+    default: { http: ['https://mainnet.datarpc.io'] },
   },
   blockExplorers: {
     default: {
-      name: 'Story explorer',
-      url: 'https://storyscan.io',
-      apiUrl: 'https://storyscan.io/api/v2',
+      name: 'Data Network explorer',
+      url: 'https://datanetscan.io',
+      apiUrl: 'https://datanetscan.io/api/v2',
     },
   },
   ensTlds: ['.ip'],

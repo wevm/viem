@@ -1,23 +1,41 @@
 import * as Http from 'node:http'
 import { createRequestListener } from '@remix-run/node-fetch-server'
-import { Hex, RpcRequest, RpcResponse } from 'ox'
-import { MultisigConfig } from 'ox/tempo'
-import { privateKeyToAccount } from 'viem/accounts'
+import { Hex, RpcRequest, RpcResponse, Signature } from 'ox'
+import { MultisigConfig, TxEnvelopeTempo } from 'ox/tempo'
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import {
   getCallsStatus,
+  getTransaction,
+  getTransactionCount,
   prepareTransactionRequest,
   sendCallsSync,
   sendTransaction,
   sendTransactionSync,
   signTransaction,
 } from 'viem/actions'
-import { Account, Transaction } from 'viem/tempo'
+import { Account, Actions, Transaction } from 'viem/tempo'
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest'
-import { accounts, chain, getClient, http } from '~test/tempo/config.js'
+import {
+  accounts,
+  chain,
+  feeToken,
+  getClient,
+  http,
+} from '~test/tempo/config.js'
 import { walletNamespaceCompat, withFeePayer, withRelay } from './Transport.js'
 
 describe('withRelay', () => {
   let server: Http.Server
+  let overrideSponsorFields = false
+  let overrideSponsorNonce = false
+  let sponsorFillFields:
+    | {
+        gas?: bigint | undefined
+        maxFeePerGas?: bigint | undefined
+        maxPriorityFeePerGas?: bigint | undefined
+      }
+    | undefined
+  let sponsorFills = false
   let relayRequests: Array<{
     method: string
     params: readonly unknown[] | undefined
@@ -40,6 +58,55 @@ describe('withRelay', () => {
         })
 
         if (request.method === 'eth_fillTransaction') {
+          if (sponsorFills) {
+            const params = structuredClone(request.params) as [
+              Record<string, unknown>,
+            ]
+            if (overrideSponsorFields) {
+              delete params[0].gas
+              delete params[0].maxFeePerGas
+              delete params[0].maxPriorityFeePerGas
+            }
+            if (overrideSponsorNonce) delete params[0].nonce
+            const result = await feePayerClient.request({
+              method: 'eth_fillTransaction',
+              params: params as never,
+            })
+            const transaction = {
+              ...Transaction.deserialize(result.raw as `0x76${string}`),
+              feeToken,
+            }
+            sponsorFillFields = {
+              gas: transaction.gas,
+              maxFeePerGas: transaction.maxFeePerGas,
+              maxPriorityFeePerGas: transaction.maxPriorityFeePerGas ?? 0n,
+            }
+            const sender = (request.params?.[0] as { from: `0x${string}` }).from
+            const feePayerSignature = Signature.from(
+              await accounts[0].sign({
+                hash: TxEnvelopeTempo.getFeePayerSignPayload(
+                  TxEnvelopeTempo.from(transaction as never),
+                  { sender },
+                ),
+              }),
+            )
+
+            return Response.json(
+              RpcResponse.from({
+                id: request.id,
+                jsonrpc: request.jsonrpc,
+                result: {
+                  ...result,
+                  tx: {
+                    ...result.tx,
+                    feePayerSignature: Signature.toRpc(feePayerSignature),
+                    feeToken,
+                  },
+                },
+              }),
+            )
+          }
+
           return Response.json(
             RpcResponse.from({
               id: request.id,
@@ -103,6 +170,10 @@ describe('withRelay', () => {
   })
 
   beforeEach(() => {
+    overrideSponsorFields = false
+    overrideSponsorNonce = false
+    sponsorFillFields = undefined
+    sponsorFills = false
     relayRequests = []
   })
 
@@ -131,6 +202,186 @@ describe('withRelay', () => {
       })
       expect(relayRequests).toContainEqual({
         method: 'eth_signRawTransaction',
+        params: expect.any(Array),
+      })
+    })
+
+    test('behavior: access key preserves fill-time sponsorship', async () => {
+      sponsorFills = true
+      const account = Account.fromSecp256k1(generatePrivateKey())
+      const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+        access: account,
+      })
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        { account, accessKey },
+      )
+
+      const receipt = await sendTransactionSync(client, {
+        account: accessKey,
+        feePayer: true,
+        keyAuthorization,
+        to: '0x0000000000000000000000000000000000000000',
+      })
+
+      expect(receipt.status).toBe('success')
+      expect(relayRequests.map(({ method }) => method)).toEqual([
+        'eth_fillTransaction',
+      ])
+    })
+
+    test('behavior: preserves relay fields covered by fee payer signature', async () => {
+      sponsorFills = true
+      overrideSponsorFields = true
+      const account = privateKeyToAccount(
+        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
+      )
+
+      const receipt = await sendTransactionSync(client, {
+        account,
+        feePayer: true,
+        gas: 1n,
+        maxFeePerGas: 1n,
+        maxPriorityFeePerGas: 1n,
+        to: '0x0000000000000000000000000000000000000000',
+      })
+
+      expect(receipt.status).toBe('success')
+      expect(receipt.feePayer).toBe(accounts[0].address.toLowerCase())
+      const transaction = await getTransaction(client, {
+        hash: receipt.transactionHash,
+      })
+      expect(sponsorFillFields).toBeDefined()
+      expect(transaction).toMatchObject(sponsorFillFields!)
+      expect(relayRequests.map(({ method }) => method)).toEqual([
+        'eth_fillTransaction',
+      ])
+    })
+
+    test('error: rejects a fee-payer-signed nonce mismatch', async () => {
+      sponsorFills = true
+      overrideSponsorNonce = true
+      const account = privateKeyToAccount(
+        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
+      )
+      const nonce = await getTransactionCount(client, {
+        address: account.address,
+        blockTag: 'pending',
+      })
+
+      await expect(
+        sendTransactionSync(client, {
+          account,
+          feePayer: true,
+          nonce: nonce + 1,
+          to: '0x0000000000000000000000000000000000000000',
+        }),
+      ).rejects.toThrow(
+        'The filled transaction nonce does not match the requested nonce.',
+      )
+      expect(relayRequests.map(({ method }) => method)).toEqual([
+        'eth_fillTransaction',
+      ])
+    })
+
+    test('behavior: sendTransaction still gets sponsored via feePayer: true when nonce/gas/fees are pre-populated', async () => {
+      const account = privateKeyToAccount(
+        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
+      )
+
+      // Pre-populate nonce/gas/fees, simulating a caller that has already
+      // fully filled out the transaction envelope before calling
+      // `prepareTransactionRequest` (e.g. because a wallet SDK filled them
+      // in separately). Historically this caused `prepareTransactionRequest`
+      // to skip the `eth_fillTransaction` call entirely (its heuristic
+      // assumes nothing is left to fill), which meant the fee-payer
+      // signature -- only obtainable as a side effect of that call -- was
+      // silently never attached, even though `feePayer: true` was set.
+      const nonce = await prepareTransactionRequest(client, {
+        account,
+        parameters: ['nonce'],
+        to: '0x0000000000000000000000000000000000000000',
+      }).then((request) => request.nonce)
+
+      const receipt = await sendTransactionSync(client, {
+        account,
+        chainId: chain.id,
+        feePayer: true,
+        gas: 100_000n,
+        maxFeePerGas: 10_000_000_000n,
+        maxPriorityFeePerGas: 1_000_000_000n,
+        nonce,
+        to: '0x0000000000000000000000000000000000000000',
+      })
+
+      expect(receipt.status).toBe('success')
+      expect(receipt.feePayer).toBe(accounts[0].address.toLowerCase())
+      expect(relayRequests).toContainEqual({
+        method: 'eth_fillTransaction',
+        params: expect.any(Array),
+      })
+    })
+
+    test('behavior: sendTransaction still gets sponsored via feePayer: true when the caller restricts `parameters` to omit fees/gas, even with a fully-populated envelope', async () => {
+      const account = privateKeyToAccount(
+        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
+      )
+
+      // The feePayer check must run *before* the `shouldAttempt` gate, which
+      // only fires `eth_fillTransaction` when the caller's `parameters`
+      // option includes `'fees'` or `'gas'`. A caller who restricts
+      // `parameters` to omit both (e.g. only wants `nonce`/`type` filled)
+      // must still get a fee-payer signature -- sponsorship is independent
+      // of which parameters the caller opted into filling.
+      const nonce = await prepareTransactionRequest(client, {
+        account,
+        parameters: ['nonce'],
+        to: '0x0000000000000000000000000000000000000000',
+      }).then((request) => request.nonce)
+
+      const receipt = await sendTransactionSync(client, {
+        account,
+        chainId: chain.id,
+        feePayer: true,
+        gas: 100_000n,
+        maxFeePerGas: 10_000_000_000n,
+        maxPriorityFeePerGas: 1_000_000_000n,
+        nonce,
+        parameters: ['nonce', 'type'],
+        to: '0x0000000000000000000000000000000000000000',
+      })
+
+      expect(receipt.status).toBe('success')
+      expect(receipt.feePayer).toBe(accounts[0].address.toLowerCase())
+      expect(relayRequests).toContainEqual({
+        method: 'eth_fillTransaction',
+        params: expect.any(Array),
+      })
+    })
+
+    test('behavior: sendTransaction still gets sponsored via feePayer: true when the caller restricts `parameters` to omit fees/gas on a minimal (unpopulated) envelope', async () => {
+      const account = privateKeyToAccount(
+        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
+      )
+
+      // Same as above, but with no envelope fields pre-populated at all --
+      // confirms the fix isn't accidentally coupled to "fields already set".
+      // Uses `prepareTransactionRequest` directly (rather than a full send)
+      // since restricting `parameters` to omit `'gas'`/`'fees'` on an
+      // otherwise-empty envelope intentionally leaves the transaction
+      // incomplete for broadcast -- what's under test is that the fill is
+      // still *attempted* (this mock relay only attaches the fee-payer
+      // signature at raw-transaction send time, not at fill time, so it
+      // can't be asserted on the prepared result here).
+      await prepareTransactionRequest(client, {
+        account,
+        feePayer: true,
+        parameters: ['nonce', 'type'],
+        to: '0x0000000000000000000000000000000000000000',
+      })
+
+      expect(relayRequests).toContainEqual({
+        method: 'eth_fillTransaction',
         params: expect.any(Array),
       })
     })

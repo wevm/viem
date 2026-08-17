@@ -216,6 +216,12 @@ export function pickWriteParameters(parameters: Record<string, unknown>) {
   }
 }
 
+/** @internal */
+export function pickWriteSyncParameters(parameters: Record<string, unknown>) {
+  const { pollingInterval, timeout } = parameters
+  return { pollingInterval, timeout }
+}
+
 /**
  * Parameters of an action's `.call` builder: the call arguments, optionally
  * preceded by a Client. The Client is used to resolve token symbols declared

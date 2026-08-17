@@ -42,7 +42,7 @@ test('default', async () => {
       "rpcUrls": {
         "default": {
           "http": [
-            "https://eth.merkle.io",
+            "https://ethereum.reth.rs/rpc",
           ],
         },
       },

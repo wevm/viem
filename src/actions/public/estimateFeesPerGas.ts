@@ -124,7 +124,7 @@ export async function internal_estimateFeesPerGas<
   const decimals = baseFeeMultiplier.toString().split('.')[1]?.length ?? 0
   const denominator = 10 ** decimals
   const multiply = (base: bigint) =>
-    (base * BigInt(Math.ceil(baseFeeMultiplier * denominator))) /
+    (base * BigInt(Math.round(baseFeeMultiplier * denominator))) /
     BigInt(denominator)
 
   const block = block_

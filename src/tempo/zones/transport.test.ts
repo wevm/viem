@@ -91,6 +91,35 @@ describe('http transport', () => {
     }
   })
 
+  test('proceeds without header when no chain is configured', async () => {
+    const storage = Storage.memory()
+
+    const headers: (string | undefined)[] = []
+    const server = await createHttpServer(async (req, res) => {
+      let body = ''
+      req.setEncoding('utf8')
+      for await (const chunk of req) body += chunk
+
+      headers.push(req.headers['x-authorization-token'] as string | undefined)
+
+      const request = JSON.parse(body)
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ id: request.id, jsonrpc: '2.0', result: '0x1' }))
+    })
+
+    try {
+      const client = createClient({
+        transport: http(server.url, { storage }),
+      })
+
+      await getBlockNumber(client)
+
+      expect(headers).toEqual([undefined])
+    } finally {
+      await server.close()
+    }
+  })
+
   test('signed token is injected into subsequent requests', async () => {
     const storage = Storage.memory()
     const account = privateKeyToAccount(Secp256k1.randomPrivateKey())

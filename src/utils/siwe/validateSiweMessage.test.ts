@@ -101,6 +101,18 @@ test('behavior: time is after expirationTime', () => {
   ).toBeFalsy()
 })
 
+test('behavior: unparseable expirationTime', () => {
+  expect(
+    validateSiweMessage({
+      message: {
+        ...message,
+        expirationTime: new Date('never'),
+      },
+      time: new Date(Date.UTC(2020, 1, 1)),
+    }),
+  ).toBeFalsy()
+})
+
 test('behavior: time is before notBefore', () => {
   vi.useFakeTimers()
   vi.setSystemTime(new Date(Date.UTC(2023, 1, 1)))
@@ -116,4 +128,28 @@ test('behavior: time is before notBefore', () => {
   ).toBeFalsy()
 
   vi.useRealTimers()
+})
+
+test('behavior: unparseable notBefore', () => {
+  expect(
+    validateSiweMessage({
+      message: {
+        ...message,
+        notBefore: new Date('not-a-date'),
+      },
+      time: new Date(Date.UTC(2025, 1, 1)),
+    }),
+  ).toBeFalsy()
+})
+
+test('behavior: invalid time rejects before lifetime checks', () => {
+  expect(
+    validateSiweMessage({
+      message: {
+        ...message,
+        expirationTime: new Date(Date.UTC(2030, 1, 1)),
+      },
+      time: new Date('never'),
+    }),
+  ).toBeFalsy()
 })

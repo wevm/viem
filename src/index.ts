@@ -321,6 +321,14 @@ export type {
   WaitForTransactionReceiptReturnType,
 } from './actions/public/waitForTransactionReceipt.js'
 export type {
+  BlockHeader,
+  OnBlockHeader,
+  OnBlockHeaderParameter,
+  WatchBlockHeadersErrorType,
+  WatchBlockHeadersParameters,
+  WatchBlockHeadersReturnType,
+} from './actions/public/watchBlockHeaders.js'
+export type {
   OnBlockNumberFn,
   OnBlockNumberParameter,
   WatchBlockNumberErrorType,
@@ -1028,6 +1036,8 @@ export {
 export {
   FeeConflictError,
   type FeeConflictErrorType,
+  FeePayerNonceMismatchError,
+  type FeePayerNonceMismatchErrorType,
   InvalidLegacyVError,
   type InvalidLegacyVErrorType,
   InvalidSerializableTransactionError,
@@ -1060,6 +1070,8 @@ export {
   type InvalidPrimaryTypeErrorType,
   InvalidStructTypeError,
   type InvalidStructTypeErrorType,
+  InvalidTypedDataTypeError,
+  type InvalidTypedDataTypeErrorType,
 } from './errors/typedData.js'
 export {
   InvalidDecimalNumberError,

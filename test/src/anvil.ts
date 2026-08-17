@@ -22,7 +22,7 @@ import { accounts, poolId } from './constants.js'
 
 export const anvilMainnet = defineAnvil({
   chain: mainnet,
-  forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://eth.drpc.org'),
+  forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://ethereum.reth.rs/rpc'),
   forkBlockNumber: 22263623n,
   noMining: true,
   port: 8545,
@@ -30,8 +30,11 @@ export const anvilMainnet = defineAnvil({
 
 export const anvilSepolia = defineAnvil({
   chain: sepolia,
-  forkUrl: getEnv('VITE_ANVIL_FORK_URL_SEPOLIA', 'https://sepolia.drpc.org'),
-  forkBlockNumber: 5858117n,
+  forkUrl: getEnv(
+    'VITE_ANVIL_FORK_URL_SEPOLIA',
+    'https://rpc.sepolia.ethpandaops.io',
+  ),
+  forkBlockNumber: 10_000_000n,
   noMining: true,
   port: 8845,
 })
@@ -42,7 +45,7 @@ export const anvilOptimism = defineAnvil({
     'VITE_ANVIL_FORK_URL_OPTIMISM',
     'https://mainnet.optimism.io',
   ),
-  forkBlockNumber: 113624777n,
+  forkBlockNumber: 147000000n,
   port: 8645,
 })
 

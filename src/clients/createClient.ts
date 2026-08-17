@@ -350,9 +350,9 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
  * Binds an action function to a `client`, returning a parameter-only version
  * along with any helpers the action exposes. Helpers that need a client
  * (`.call`, `.calls`, `.callWithPeriod`, `.estimateGas`, `.prepare`,
- * `.simulate`) are bound to `client`; pure helpers (`.extractEvent`,
- * `.extractEvents`) are copied as-is. Used by decorators that attach
- * namespaced actions to a Client.
+ * `.prepareRecipient`, `.predict`, `.simulate`) are bound to `client`;
+ * pure helpers (`.extractEvent`, `.extractEvents`) are copied as-is. Used
+ * by decorators that attach namespaced actions to a Client.
  * @internal
  */
 export function bindActionDecorators(
@@ -366,6 +366,8 @@ export function bindActionDecorators(
     'callWithPeriod',
     'estimateGas',
     'prepare',
+    'prepareRecipient',
+    'predict',
     'simulate',
   ] as const)
     if (Object.hasOwn(action, key)) {

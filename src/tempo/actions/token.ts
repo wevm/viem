@@ -4,9 +4,15 @@ import { TokenId, TokenRole } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import { estimateContractGas } from '../../actions/public/estimateContractGas.js'
-import { multicall } from '../../actions/public/multicall.js'
-import type { ReadContractReturnType } from '../../actions/public/readContract.js'
-import { readContract } from '../../actions/public/readContract.js'
+import {
+  type MulticallParameters,
+  type MulticallReturnType,
+  multicall,
+} from '../../actions/public/multicall.js'
+import {
+  type ReadContractReturnType,
+  readContract,
+} from '../../actions/public/readContract.js'
 import {
   type SimulateContractReturnType,
   simulateContract,
@@ -1399,7 +1405,7 @@ export async function getMetadata<chain extends Chain | undefined>(
   }
 
   if (TokenId.fromAddress(address) === TokenId.fromAddress(Addresses.pathUsd))
-    return multicall(client, {
+    return readMetadataContracts(client, {
       ...rest,
       contracts: [
         {
@@ -1433,8 +1439,6 @@ export async function getMetadata<chain extends Chain | undefined>(
           functionName: 'totalSupply',
         },
       ] as const,
-      allowFailure: true,
-      deployless: true,
     }).then(([currency, decimals, logoURI, name, symbol, totalSupply]) => ({
       name: unwrapMulticallResult(name),
       symbol: unwrapMulticallResult(symbol),
@@ -1445,7 +1449,7 @@ export async function getMetadata<chain extends Chain | undefined>(
       ...overrides,
     }))
 
-  return multicall(client, {
+  return readMetadataContracts(client, {
     ...rest,
     contracts: [
       {
@@ -1499,8 +1503,6 @@ export async function getMetadata<chain extends Chain | undefined>(
         functionName: 'transferPolicyId',
       },
     ] as const,
-    allowFailure: true,
-    deployless: true,
   }).then(
     ([
       currency,
@@ -1526,6 +1528,55 @@ export async function getMetadata<chain extends Chain | undefined>(
       transferPolicyId: unwrapMulticallResult(transferPolicyId),
       ...overrides,
     }),
+  )
+}
+
+async function readMetadataContracts<
+  chain extends Chain | undefined,
+  const contracts extends readonly unknown[],
+>(
+  client: Client<Transport, chain>,
+  parameters: Pick<
+    MulticallParameters<contracts>,
+    | 'blockNumber'
+    | 'blockOverrides'
+    | 'blockTag'
+    | 'contracts'
+    | 'stateOverride'
+  >,
+): Promise<MulticallReturnType<contracts>>
+async function readMetadataContracts<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: Pick<
+    MulticallParameters,
+    | 'blockNumber'
+    | 'blockOverrides'
+    | 'blockTag'
+    | 'contracts'
+    | 'stateOverride'
+  >,
+): Promise<MulticallReturnType> {
+  // Preserve the action's deployless default unless the client overrides it.
+  if (client.batch?.multicall === undefined)
+    return multicall(client, {
+      ...parameters,
+      allowFailure: true,
+      deployless: true,
+    })
+
+  const { contracts, ...rest } = parameters
+  const results = await Promise.allSettled(
+    contracts.map((contract) =>
+      readContract(client, {
+        ...rest,
+        ...contract,
+      }),
+    ),
+  )
+  return results.map((result) =>
+    result.status === 'fulfilled'
+      ? { result: result.value, status: 'success' }
+      : { error: result.reason, status: 'failure' },
   )
 }
 

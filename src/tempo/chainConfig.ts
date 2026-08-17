@@ -22,6 +22,14 @@ import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
 
+/** Returns random past seconds to distinguish otherwise-identical expiring transactions. */
+function randomValidAfter(): number {
+  const now = BigInt(Math.floor(Date.now() / 1_000))
+  const latest = now - 60n
+  if (latest <= 0n) return 0
+  return Number(BigInt(Hex.random(8)) % latest)
+}
+
 export const chainConfig = {
   blockTime: 1_000,
   extendSchema: extendSchema<{
@@ -50,6 +58,7 @@ export const chainConfig = {
               feeToken?: TokenId.TokenIdOrAddress | undefined
             })
           | undefined
+        feePayerSignature?: Transaction.TransactionSerializableTempo['feePayerSignature']
         from?: Address | undefined
         multisig?: MultisigConfig.Config | undefined
         signatures?: readonly unknown[] | undefined
@@ -58,7 +67,12 @@ export const chainConfig = {
       // FIXME: node estimates gas with secp256k1 dummy sig + null feePayerSignature.
       // Actual tx has larger keychain/webAuthn sigs + real fee payer sig, costing more intrinsic gas.
       if (phase === 'afterFillParameters') {
-        if (request.feePayer) {
+        // Fee payer signature covers the gas limit, so the relay must set it before signing and Viem must not change it afterward.
+        if (
+          typeof request.gas !== 'undefined' &&
+          request.feePayer &&
+          !request.feePayerSignature
+        ) {
           if (request.keyAuthorization?.signature.type === 'webAuthn')
             request.gas = (request.gas ?? 0n) + 20_000n
           else if (request.account?.source === 'accessKey')
@@ -102,6 +116,36 @@ export const chainConfig = {
         if (request.account?.source !== 'multisig') delete request.account
       }
 
+      // Register concurrency before account preparation performs storage or
+      // network I/O so overlapping requests cannot miss each other.
+      const useExpiringNonce = await (async () => {
+        if (request.nonceKey === 'expiring' || request.nonceKey === maxUint256)
+          return true
+        if (multisig) return false
+        if (request.feePayer && typeof request.nonceKey === 'undefined')
+          return true
+        const account = request.account as
+          | Account
+          | MultisigAccount
+          | Address
+          | undefined
+        const address = typeof account === 'string' ? account : account?.address
+        if (address && typeof request.nonceKey === 'undefined')
+          return await Concurrent.detect(address.toLowerCase())
+        return false
+      })()
+
+      if (useExpiringNonce) {
+        request.nonceKey = maxUint256
+        request.nonce = 0
+        if (typeof request.validAfter === 'undefined')
+          request.validAfter = randomValidAfter()
+        if (typeof request.validBefore === 'undefined')
+          request.validBefore = Math.floor(Date.now() / 1000) + maxExpirySecs
+      } else if (typeof request.nonceKey !== 'undefined') {
+        request.nonce = typeof request.nonce === 'number' ? request.nonce : 0
+      }
+
       if (
         !request.keyAuthorization &&
         request.account?.source === 'accessKey'
@@ -140,31 +184,6 @@ export const chainConfig = {
             }
           }
         }
-      }
-
-      // Use expiring nonces for concurrent transactions (TIP-1009).
-      // When nonceKey is 'expiring', feePayer is specified, or concurrent requests
-      // are detected, we use expiring nonces (nonceKey = uint256.max) with a
-      // validBefore timestamp.
-      const useExpiringNonce = await (async () => {
-        if (request.nonceKey === 'expiring') return true
-        if (multisig) return false
-        if (request.feePayer && typeof request.nonceKey === 'undefined')
-          return true
-        const address = request.account?.address
-        if (address && typeof request.nonceKey === 'undefined')
-          return await Concurrent.detect(address)
-        return false
-      })()
-
-      if (useExpiringNonce) {
-        request.nonceKey = maxUint256
-        request.nonce = 0
-        if (typeof request.validBefore === 'undefined')
-          request.validBefore = Math.floor(Date.now() / 1000) + maxExpirySecs
-      } else if (typeof request.nonceKey !== 'undefined') {
-        // Explicit nonceKey provided (2D nonce mode)
-        request.nonce = typeof request.nonce === 'number' ? request.nonce : 0
       }
 
       if (!request.feeToken && request.chain?.feeToken)

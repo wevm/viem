@@ -53,7 +53,7 @@ const receipt = await client.waitForTransactionReceipt({ hash })
 Use `zone.encryptedDeposit.prepare` when one party should choose the private zone recipient, but another party will submit the parent-chain deposit transaction.
 
 :::warning
-Prepared encrypted deposits contain public transaction intent. If you receive a prepared payload from another party, validate `chainId`, `zoneId`, `portalAddress`, `token`, and `amount` before passing it to `zone.encryptedDeposit`.
+Prepared encrypted deposits contain public transaction intent. If you receive a prepared payload from another party, validate `chainId`, `zoneId`, `portalAddress`, `sender`, `token`, and `amount` before passing it to `zone.encryptedDeposit`. The sender must match the account that calls the Zone portal.
 :::
 
 :::code-group
@@ -65,6 +65,7 @@ import { broadcaster, client } from './viem.config'
 const prepared = await client.zone.encryptedDeposit.prepare({
   amount: parseUnits('100', 6),
   recipient: '0x0000000000000000000000000000000000000001',
+  sender: broadcaster.account.address,
   token: '0x20c0000000000000000000000000000000000001',
   zoneId: 7,
 })
@@ -79,6 +80,20 @@ export const broadcaster = client
 ```
 
 :::
+
+### Prepare Only the Encrypted Recipient
+
+Use `zone.encryptedDeposit.prepareRecipient` when another contract or service controls token movement and only needs the ZonePortal encryption fields. The sender defaults to `client.account.address`; set it explicitly when another account will call the Zone portal.
+
+```ts twoslash
+import { client } from './viem.config'
+
+const { encrypted, keyIndex } =
+  await client.zone.encryptedDeposit.prepareRecipient({
+    recipient: '0x0000000000000000000000000000000000000001',
+    zoneId: 7,
+  })
+```
 
 ## Return Type
 

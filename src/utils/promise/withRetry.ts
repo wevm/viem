@@ -39,13 +39,13 @@ export function withRetry<data>(
   }: WithRetryParameters = {},
 ) {
   return new Promise<data>((resolve, reject) => {
-    const attemptRetry = async ({ count = 0 } = {}) => {
+    const attemptRetry = async ({ count = 0 } = {}): Promise<void> => {
       if (signal?.aborted) {
         reject(getAbortError(signal))
         return
       }
 
-      const retry = async ({ error }: { error: Error }) => {
+      const retry = async ({ error }: { error: Error }): Promise<void> => {
         const delay =
           typeof delay_ === 'function' ? delay_({ count, error }) : delay_
         if (delay) {
@@ -56,7 +56,7 @@ export function withRetry<data>(
             return
           }
         }
-        attemptRetry({ count: count + 1 })
+        return attemptRetry({ count: count + 1 })
       }
 
       try {
@@ -79,6 +79,6 @@ export function withRetry<data>(
         reject(err)
       }
     }
-    attemptRetry()
+    void attemptRetry().catch(reject)
   })
 }

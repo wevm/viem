@@ -43,12 +43,15 @@ describe.runIf(nodeEnv === 'testnet')('zone.encryptedDeposit.prepare', () => {
     const prepared = await Actions.zone.encryptedDeposit.prepare(client, {
       token: addresses.pathUsd,
       amount: 1n,
+      bouncebackRecipient: accounts[0].address,
       recipient: accounts[0].address,
+      sender: accounts[0].address,
       memo: Hex.fromNumber(1n, { size: 32 }),
       zoneId: 7,
     })
 
     expect(prepared.amount).toBe(1n)
+    expect(prepared.bouncebackRecipient).toBe(accounts[0].address)
     expect(prepared.chainId).toBe(chain.id)
     expect(prepared.encrypted.ciphertext).toBeDefined()
     expect(prepared.encrypted.ephemeralPubkeyX).toBeDefined()
@@ -367,6 +370,7 @@ describe('sendTransaction', () => {
       nonceKey,
       signature,
       transactionIndex,
+      validAfter,
       validBefore,
       ...transaction
     } = await getTransaction(client, { hash })
@@ -385,6 +389,7 @@ describe('sendTransaction', () => {
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
+    expect(validAfter).toBeTypeOf('number')
     expect(validBefore).toBeTypeOf('number')
     expect(transaction).toMatchInlineSnapshot(`
       {
@@ -403,7 +408,6 @@ describe('sendTransaction', () => {
         "type": "tempo",
         "typeHex": "0x76",
         "v": undefined,
-        "validAfter": null,
         "value": 0n,
         "yParity": undefined,
       }
@@ -656,6 +660,7 @@ describe('sendTransaction', () => {
         nonceKey,
         signature,
         transactionIndex,
+        validAfter,
         validBefore,
         ...transaction
       } = await getTransaction(client, { hash })
@@ -674,6 +679,7 @@ describe('sendTransaction', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
+      expect(validAfter).toBeTypeOf('number')
       expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
@@ -692,7 +698,6 @@ describe('sendTransaction', () => {
           "type": "tempo",
           "typeHex": "0x76",
           "v": undefined,
-          "validAfter": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -1162,6 +1167,7 @@ describe('sendTransaction', () => {
         nonceKey,
         signature,
         transactionIndex,
+        validAfter,
         validBefore,
         ...transaction
       } = await getTransaction(client, { hash })
@@ -1180,6 +1186,7 @@ describe('sendTransaction', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
+      expect(validAfter).toBeTypeOf('number')
       expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
@@ -1198,7 +1205,6 @@ describe('sendTransaction', () => {
           "type": "tempo",
           "typeHex": "0x76",
           "v": undefined,
-          "validAfter": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -1375,6 +1381,7 @@ describe('signTransaction', () => {
       nonceKey,
       signature,
       transactionIndex,
+      validAfter,
       validBefore,
       ...transaction2
     } = await getTransaction(client, { hash })
@@ -1393,6 +1400,7 @@ describe('signTransaction', () => {
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
+    expect(validAfter).toBeTypeOf('number')
     expect(validBefore).toBeTypeOf('number')
     expect(transaction2).toMatchInlineSnapshot(`
       {
@@ -1411,7 +1419,6 @@ describe('signTransaction', () => {
         "type": "tempo",
         "typeHex": "0x76",
         "v": undefined,
-        "validAfter": null,
         "value": 0n,
         "yParity": undefined,
       }
@@ -1550,6 +1557,7 @@ describe('relay', () => {
         nonceKey,
         signature,
         transactionIndex,
+        validAfter,
         validBefore,
         ...transaction
       } = await getTransaction(client, { hash: receipt.transactionHash })
@@ -1569,6 +1577,7 @@ describe('relay', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
+      expect(validAfter).toBeTypeOf('number')
       expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
@@ -1580,7 +1589,6 @@ describe('relay', () => {
           "type": "tempo",
           "typeHex": "0x76",
           "v": undefined,
-          "validAfter": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -1611,6 +1619,31 @@ describe('relay', () => {
         }),
       ])
 
+      expect(receipts.every((receipt) => receipt.status === 'success')).toBe(
+        true,
+      )
+    })
+
+    test('behavior: identical sponsored transactions', async () => {
+      const account = privateKeyToAccount(
+        // unfunded PK
+        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
+      )
+      const hashes = await Promise.all(
+        Array.from({ length: 3 }, () =>
+          sendTransaction(client, {
+            account,
+            feePayer: true,
+            to: '0x0000000000000000000000000000000000000000',
+          }),
+        ),
+      )
+
+      expect(new Set(hashes).size).toBe(hashes.length)
+
+      const receipts = await Promise.all(
+        hashes.map((hash) => waitForTransactionReceipt(client, { hash })),
+      )
       expect(receipts.every((receipt) => receipt.status === 'success')).toBe(
         true,
       )
@@ -1673,6 +1706,7 @@ describe('relay', () => {
         nonceKey,
         signature,
         transactionIndex,
+        validAfter,
         validBefore,
         ...transaction
       } = await getTransaction(client, { hash: receipt.transactionHash })
@@ -1692,6 +1726,7 @@ describe('relay', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
+      expect(validAfter).toBeTypeOf('number')
       expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
@@ -1703,7 +1738,6 @@ describe('relay', () => {
           "type": "tempo",
           "typeHex": "0x76",
           "v": undefined,
-          "validAfter": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -1769,6 +1803,7 @@ describe('relay', () => {
         nonceKey,
         signature,
         transactionIndex,
+        validAfter,
         validBefore,
         ...transaction
       } = await getTransaction(client, { hash: receipt.transactionHash })
@@ -1788,6 +1823,7 @@ describe('relay', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
+      expect(validAfter).toBeTypeOf('number')
       expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
@@ -1799,7 +1835,6 @@ describe('relay', () => {
           "type": "tempo",
           "typeHex": "0x76",
           "v": undefined,
-          "validAfter": null,
           "value": 0n,
           "yParity": undefined,
         }

@@ -241,6 +241,11 @@ import {
   waitForTransactionReceipt,
 } from '../../actions/public/waitForTransactionReceipt.js'
 import {
+  type WatchBlockHeadersParameters,
+  type WatchBlockHeadersReturnType,
+  watchBlockHeaders,
+} from '../../actions/public/watchBlockHeaders.js'
+import {
   type WatchBlockNumberParameters,
   type WatchBlockNumberReturnType,
   watchBlockNumber,
@@ -305,6 +310,7 @@ import type {
 } from '../../types/contract.js'
 import type { FeeValuesType } from '../../types/fee.js'
 import type { FilterType } from '../../types/filter.js'
+import type { HasTransportType } from '../../types/transport.js'
 import { bindActionDecorators, type Client } from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
 
@@ -1989,6 +1995,32 @@ export type PublicActions<
     args: WatchBlockNumberParameters,
   ) => WatchBlockNumberReturnType
   /**
+   * Watches and returns incoming block headers without fetching full blocks.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/watchBlockHeaders
+   * - JSON-RPC Methods: Uses a WebSocket or IPC subscription via [`eth_subscribe`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_subscribe) and the `"newHeads"` event.
+   *
+   * @param args - {@link WatchBlockHeadersParameters}
+   * @returns A function that can be invoked to stop watching for new block headers. {@link WatchBlockHeadersReturnType}
+   *
+   * @example
+   * import { createPublicClient, webSocket } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: webSocket(),
+   * })
+   * const unwatch = client.watchBlockHeaders({
+   *   onBlockHeader: (blockHeader) => console.log(blockHeader),
+   * })
+   */
+  watchBlockHeaders: (
+    args: HasTransportType<transport, 'webSocket' | 'ipc'> extends true
+      ? WatchBlockHeadersParameters<chain>
+      : never,
+  ) => WatchBlockHeadersReturnType
+  /**
    * Watches and returns information for incoming blocks.
    *
    * - Docs: https://viem.sh/docs/actions/public/watchBlocks
@@ -2337,6 +2369,7 @@ export function publicActions<
     uninstallFilter: (args) => uninstallFilter(client, args),
     waitForTransactionReceipt: (args) =>
       waitForTransactionReceipt(client, args),
+    watchBlockHeaders: (args) => watchBlockHeaders(client, args),
     watchBlocks: (args) => watchBlocks(client, args),
     watchBlockNumber: (args) => watchBlockNumber(client, args),
     watchContractEvent: (args) => watchContractEvent(client, args),
