@@ -730,11 +730,12 @@ describe('fromMultisig', () => {
   test('example: configuration rotation', async () => {
     const owner_1 = accounts[14]
     const owner_2 = accounts[15]
+    const owner_3 = accounts[16]
     const account = Account.fromMultisig({
       threshold: 2,
       owners: [owner_1, owner_2],
     })
-    const initialConfig = account.config
+    const initialConfig = account.initialConfig
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -772,13 +773,14 @@ describe('fromMultisig', () => {
       owners: initialConfig.owners,
     })
 
-    const rotatedConfig = MultisigConfig.from({
+    const rotatedAccount = Account.fromMultisig(initialConfig, {
       threshold: 1,
-      owners: [{ owner: owner_2.address, weight: 1 }],
+      owners: [owner_3],
     })
+    expect(rotatedAccount.address).toBe(account.address)
     const update = await prepareTransactionRequest(client, {
       account,
-      calls: [Actions.multisig.updateConfig.call(rotatedConfig)],
+      calls: [Actions.multisig.updateConfig.call(rotatedAccount.config)],
       feeToken,
     })
     const updateSignatures = await Promise.all(
@@ -795,26 +797,45 @@ describe('fromMultisig', () => {
       Actions.multisig.updateConfig.extractEvent(updateReceipt.logs).args,
     ).toEqual({
       account: account.address,
-      threshold: rotatedConfig.threshold,
-      owners: rotatedConfig.owners,
+      threshold: rotatedAccount.config.threshold,
+      owners: rotatedAccount.config.owners,
     })
 
+    {
+      const request = await prepareTransactionRequest(client, {
+        account,
+        calls: [{ to, value: 0n }],
+        feeToken,
+      })
+      expect(request.multisigSignatureCount).toBeUndefined()
+      expect(request.multisigOwnerStates?.[0]).toEqual({
+        account: account.address,
+        config: {
+          owners: rotatedAccount.config.owners,
+          threshold: rotatedAccount.config.threshold,
+        },
+        initialized: true,
+        version: 1n,
+      })
+      expect(request.multisigVersion).toBe(1n)
+      const signature = await signTransaction(client, {
+        ...request,
+        account: owner_3,
+      })
+      const receipt = await sendTransactionSync(client, {
+        ...request,
+        signatures: [signature],
+      })
+
+      expect(receipt.status).toBe('success')
+      expect(receipt.from).toBe(account.address.toLowerCase())
+    }
+
     const request = await prepareTransactionRequest(client, {
-      account,
+      account: rotatedAccount,
       calls: [{ to, value: 0n }],
       feeToken,
     })
-    expect(request.multisigSignatureCount).toBeUndefined()
-    expect(request.multisigOwnerStates?.[0]).toEqual({
-      account: account.address,
-      config: {
-        owners: rotatedConfig.owners,
-        threshold: rotatedConfig.threshold,
-      },
-      initialized: true,
-      version: 1n,
-    })
-    expect(request.multisigVersion).toBe(1n)
     const transaction = await signTransaction(client, request)
     const receipt = await sendRawTransactionSync(client, {
       serializedTransaction: transaction,

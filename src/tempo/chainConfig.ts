@@ -102,7 +102,7 @@ export const chainConfig = {
       const multisigConfig =
         request.multisig ??
         (request.account?.source === 'multisig'
-          ? (request.account as MultisigAccount).config
+          ? (request.account as MultisigAccount).initialConfig
           : undefined)
       if (multisigConfig) {
         const config = MultisigConfig.from(multisigConfig)

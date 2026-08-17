@@ -304,38 +304,48 @@ export declare namespace fromSecp256k1 {
  * const transaction = await client.signTransaction(request)
  * ```
  *
- * @param config Multisig config with direct or weighted owners.
+ * @param initialConfig Initial multisig config used to derive the account address.
+ * @param config Current multisig config. Defaults to the initial config.
  * @returns Multisig account.
  */
-export function fromMultisig(config: fromMultisig.Config): MultisigAccount {
-  const ownerEntries = config.owners.map((value) =>
-    typeof value === 'string' || 'address' in value
-      ? { owner: value, weight: 1 }
-      : value,
-  )
-  const ownerAccounts = ownerEntries.flatMap(({ owner }) =>
-    typeof owner === 'string' ? [] : [parseAccount(owner)],
-  )
-  const normalized = MultisigConfig.from({
-    ...config,
-    owners: ownerEntries.map(({ owner, weight }) => ({
-      owner: typeof owner === 'string' ? owner : owner.address,
-      weight,
-    })),
-    threshold: config.threshold ?? 1,
-  })
-  const address = Address.checksum(MultisigConfig.getAddress(normalized))
-  const owners = normalized.owners.flatMap(({ owner }) => {
-    const account = ownerAccounts.find((account) =>
-      Address.isEqual(account.address, owner),
+export function fromMultisig(
+  initialConfig: fromMultisig.Config,
+  config: fromMultisig.Config = initialConfig,
+): MultisigAccount {
+  const normalize = (config: fromMultisig.Config) => {
+    const ownerEntries = config.owners.map((value) =>
+      typeof value === 'string' || 'address' in value
+        ? { owner: value, weight: 1 }
+        : value,
     )
-    return account ? [account] : []
-  })
+    const ownerAccounts = ownerEntries.flatMap(({ owner }) =>
+      typeof owner === 'string' ? [] : [parseAccount(owner)],
+    )
+    const normalized = MultisigConfig.from({
+      ...config,
+      owners: ownerEntries.map(({ owner, weight }) => ({
+        owner: typeof owner === 'string' ? owner : owner.address,
+        weight,
+      })),
+      threshold: config.threshold ?? 1,
+    })
+    const owners = normalized.owners.flatMap(({ owner }) => {
+      const account = ownerAccounts.find((account) =>
+        Address.isEqual(account.address, owner),
+      )
+      return account ? [account] : []
+    })
+    return { config: normalized, owners }
+  }
+  const initial = normalize(initialConfig)
+  const current = normalize(config)
+  const address = Address.checksum(MultisigConfig.getAddress(initial.config))
 
   const account: MultisigAccount = {
     address,
-    config: normalized,
-    owners,
+    config: current.config,
+    initialConfig: initial.config,
+    owners: current.owners,
     publicKey: '0x',
     source: 'multisig',
     type: 'local',
@@ -348,7 +358,7 @@ export function fromMultisig(config: fromMultisig.Config): MultisigAccount {
     async signTransaction(transaction, options) {
       const { serializer = Transaction.serialize } = options ?? {}
       const request = transaction as Transaction.TransactionSerializableTempo
-      if (owners.length === 0)
+      if (account.owners.length === 0)
         return (await serializer(transaction as never)) as Hex.Hex
 
       const presign = {
@@ -425,8 +435,10 @@ export declare namespace fromMultisig {
 }
 
 export type MultisigAccount = LocalAccount<'multisig'> & {
-  /** Multisig config (from `MultisigConfig.from`). */
+  /** Current multisig config. */
   config: MultisigConfig.Config
+  /** Initial multisig config used to derive the account address. */
+  initialConfig: MultisigConfig.Config
   /** @internal Local owner accounts available for signing. */
   owners: readonly LocalAccount[]
 }
@@ -457,7 +469,7 @@ async function signMultisig(
   )
   const currentConfig = state?.config ?? account.config
   const digest = MultisigConfig.getSignPayload({
-    initialConfig: account.config,
+    initialConfig: account.initialConfig,
     payload,
     version,
   })
@@ -516,10 +528,10 @@ async function signMultisig(
     throw new Error('Local multisig owners do not meet the threshold.')
 
   return SignatureEnvelope.from({
-    initialConfig: account.config,
+    initialConfig: account.initialConfig,
     ...(init ? { init: true } : {}),
     signatures: SignatureEnvelope.sortMultisigApprovals({
-      initialConfig: account.config,
+      initialConfig: account.initialConfig,
       payload,
       signatures,
       version,
