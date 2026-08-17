@@ -1,5 +1,11 @@
 # viem
 
+## 2.55.18
+
+### Patch Changes
+
+- [#5016](https://github.com/wevm/viem/pull/5016) [`9244e27940675fa32b227d4ba845a0f574447e8a`](https://github.com/wevm/viem/commit/9244e27940675fa32b227d4ba845a0f574447e8a) Thanks [@struong](https://github.com/struong)! - **Breaking(viem/tempo)**: Renamed the Tempo Earn private entry recovery parameter from `recoveryRecipient` to `tempoRefundRecipient`.
+
 ## 2.55.17
 
 ### Patch Changes
