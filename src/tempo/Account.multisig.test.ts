@@ -8,7 +8,13 @@ import {
   sendTransactionSync,
   signTransaction,
 } from 'viem/actions'
-import { Account, Actions, MultisigConfig } from 'viem/tempo'
+import {
+  Account,
+  Actions,
+  MultisigConfig,
+  P256,
+  WebCryptoP256,
+} from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
 
@@ -147,6 +153,69 @@ describe('fromMultisig', () => {
     })
     expect(receipt.status).toBe('success')
     expect(receipt.from).toBe(account.address.toLowerCase())
+  })
+
+  test('mixed owner key types', async () => {
+    const owners = [
+      Account.fromSecp256k1(generatePrivateKey()),
+      Account.fromP256(P256.randomPrivateKey()),
+      Account.fromHeadlessWebAuthn(P256.randomPrivateKey(), {
+        origin: 'https://example.com',
+        rpId: 'example.com',
+      }),
+      Account.fromWebCryptoP256(await WebCryptoP256.createKeyPair()),
+    ]
+    const config = MultisigConfig.from({
+      owners: owners.map((owner) => ({ owner: owner.address, weight: 1 })),
+      threshold: owners.length,
+    })
+    const account = Account.fromMultisig(config)
+
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: feeToken,
+    })
+
+    for (let nonce = 0; nonce < 2; nonce++) {
+      const request = await prepareTransactionRequest(client, {
+        account,
+        calls: [{ to, value: 0n }],
+        feeToken,
+      })
+      expect(request).toMatchObject({
+        keyData: '0x0578',
+        keyType: 'webAuthn',
+      })
+      const signatures = await Promise.all(
+        owners.map((owner) =>
+          signTransaction(client, { ...request, account: owner }),
+        ),
+      )
+      const receipt = await sendTransactionSync(client, {
+        ...request,
+        account,
+        signatures,
+      })
+
+      expect(receipt.status).toBe('success')
+      const result = await getTransaction(client, {
+        hash: receipt.transactionHash,
+      })
+      expect(result.nonce).toBe(nonce)
+      expect(result.signature?.type).toBe('multisig')
+      if (result.signature?.type !== 'multisig') throw new Error('unreachable')
+      expect(
+        result.signature.signatures.map((signature) => signature.type).sort(),
+      ).toEqual(['p256', 'p256', 'secp256k1', 'webAuthn'])
+      expect(
+        result.signature.signatures
+          .filter((signature) => signature.type === 'p256')
+          .map((signature) => signature.prehash)
+          .sort(),
+      ).toEqual([false, true])
+    }
   })
 
   test('example: nested ownership', async () => {

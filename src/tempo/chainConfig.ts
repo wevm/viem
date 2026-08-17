@@ -65,6 +65,8 @@ export const chainConfig = {
           | undefined
         feePayerSignature?: Transaction.TransactionSerializableTempo['feePayerSignature']
         from?: Address | undefined
+        keyData?: Hex.Hex | undefined
+        keyType?: 'p256' | 'secp256k1' | 'webAuthn' | undefined
         multisig?: MultisigConfig.Config | undefined
         multisigOwnerStates?: Transaction.TransactionRequestTempo['multisigOwnerStates']
         signatures?: readonly unknown[] | undefined
@@ -106,6 +108,12 @@ export const chainConfig = {
         const config = MultisigConfig.from(multisigConfig)
         request.multisig = config
         request.from = MultisigConfig.getAddress(config)
+        // Key types are not part of the config, so conservatively model every
+        // approval as a maximum-size WebAuthn signature.
+        if (typeof request.keyType === 'undefined') {
+          request.keyType = 'webAuthn'
+          if (typeof request.keyData === 'undefined') request.keyData = '0x0578'
+        }
         const getState = createMultisigStateResolver((account) =>
           getAction(client, multisig.getConfig, 'getConfig')({ account }),
         )
