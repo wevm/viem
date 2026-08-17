@@ -47,7 +47,7 @@ import * as zoneActions from './zone.js'
 
 const account = privateKeyToAccount(accounts[0].privateKey)
 const portalAdmin = privateKeyToAccount(zoneAdminKey)
-const recoveryRecipient = accounts[2].address
+const bouncebackRecipient = accounts[2].address
 const mainnetClient = createClient({
   account,
   chain,
@@ -1203,7 +1203,7 @@ describe('earn', () => {
           assetToken: addresses.alphaUsd,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
+          bouncebackRecipient,
           shareAmountMin: 2n,
         },
       )
@@ -1225,7 +1225,7 @@ describe('earn', () => {
           assetToken: addresses.alphaUsd,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
+          bouncebackRecipient,
           shareAmountMin: 4n,
           vaultAssetAmountMin: 3n,
         },
@@ -1250,7 +1250,7 @@ describe('earn', () => {
           fallbackRecipient: accounts[2].address,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
+          bouncebackRecipient,
           returnMemo: keccak256('0x02'),
           shareAmountMin: 1n,
           vaultAssetAmountMin: 2n,
@@ -1279,7 +1279,7 @@ describe('earn', () => {
       expect(
         isAddressEqual(
           depositCallback.zoneReturn.refundRecipient,
-          recoveryRecipient,
+          bouncebackRecipient,
         ),
       ).toBe(true)
       await expect(
@@ -1326,7 +1326,7 @@ describe('earn', () => {
           assetToken: addresses.alphaUsd,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
+          bouncebackRecipient,
           shareAmount: 1n,
         },
       )
@@ -1349,7 +1349,7 @@ describe('earn', () => {
           fallbackRecipient: accounts[2].address,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
+          bouncebackRecipient,
           returnMemo: keccak256('0x05'),
           shareAmount: shareBalance.amount,
           slippageBps: 0,
@@ -1378,7 +1378,7 @@ describe('earn', () => {
       expect(
         isAddressEqual(
           redeemCallback.zoneReturn.refundRecipient,
-          recoveryRecipient,
+          bouncebackRecipient,
         ),
       ).toBe(true)
       const acceptedRedeem = await Actions.earn.privateRedeemSync(

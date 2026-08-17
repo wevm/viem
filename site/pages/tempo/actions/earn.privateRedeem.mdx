@@ -20,7 +20,7 @@ import { client as zoneClient } from './zones.config'
 const prepared = await parentClient.earn.privateRedeem.prepare({
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
+  bouncebackRecipient: parentClient.account.address,
   shareAmount: 100_000_000n,
   slippageBps: 50,
   vault: '0x0000000000000000000000000000000000000002',
@@ -58,7 +58,7 @@ const prepared = await parentClient.earn.privateRedeem.prepare({
   assetAmountMin: 99_000_000n,
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
+  bouncebackRecipient: parentClient.account.address,
   shareAmount: 100_000_000n,
   vault: '0x0000000000000000000000000000000000000002',
   zoneId: 7,
@@ -140,7 +140,7 @@ Gas reserved for the parent-chain gateway callback.
 ### fallbackRecipient (optional)
 
 - **Type:** `Address`
-- **Default:** `recoveryRecipient`
+- **Default:** `bouncebackRecipient`
 
 Public recipient if the parent-chain gateway callback fails.
 
@@ -163,7 +163,7 @@ Source Zone portal on the parent chain.
 
 Encrypted Zone recipient for the returned assets.
 
-### recoveryRecipient
+### bouncebackRecipient
 
 - **Type:** `Address`
 

@@ -968,7 +968,7 @@ export namespace depositSharesSync {
  *   assetToken: '0x...',
  *   gateway: '0x...',
  *   recipient: '0x...',
- *   recoveryRecipient: '0x...',
+ *   bouncebackRecipient: '0x...',
  *   shareAmountMin: 99_500_000n,
  *   vault: '0x...',
  *   vaultAssetAmountMin: 99_000_000n,
@@ -1018,12 +1018,12 @@ export namespace privateDeposit {
     const {
       actionId = Hex.random(32),
       assetAmount,
+      bouncebackRecipient,
       callbackGas = zoneGatewayCallbackGas,
-      fallbackRecipient = parameters.recoveryRecipient,
+      fallbackRecipient = bouncebackRecipient,
       gateway,
       portalAddress: portalAddress_,
       recipient,
-      recoveryRecipient,
       returnMemo,
       vault,
       withdrawalMemo,
@@ -1062,7 +1062,11 @@ export namespace privateDeposit {
         minEarnShares: shareAmountMin,
         minOutputAmount: 0n,
         minVaultAssets: parameters.vaultAssetAmountMin ?? assetAmount,
-        zoneReturn: { encrypted, keyIndex, refundRecipient: recoveryRecipient },
+        zoneReturn: {
+          encrypted,
+          keyIndex,
+          refundRecipient: bouncebackRecipient,
+        },
       },
     ])
     return {
@@ -2346,7 +2350,7 @@ export namespace redeemSync {
  * const prepared = await Actions.earn.privateRedeem.prepare(parentClient, {
  *   gateway: '0x...',
  *   recipient: '0x...',
- *   recoveryRecipient: '0x...',
+ *   bouncebackRecipient: '0x...',
  *   shareAmount: 100_000_000n,
  *   slippageBps: 50,
  *   vault: '0x...',
@@ -2395,12 +2399,12 @@ export namespace privateRedeem {
     if (!chainId) throw new Error('`chain` is required.')
     const {
       actionId = Hex.random(32),
+      bouncebackRecipient,
       callbackGas = zoneGatewayCallbackGas,
-      fallbackRecipient = parameters.recoveryRecipient,
+      fallbackRecipient = bouncebackRecipient,
       gateway,
       portalAddress: portalAddress_,
       recipient,
-      recoveryRecipient,
       returnMemo,
       shareAmount,
       vault,
@@ -2456,7 +2460,11 @@ export namespace privateRedeem {
         minEarnShares: 0n,
         minOutputAmount: assetAmountMin,
         minVaultAssets: assetAmountMin,
-        zoneReturn: { encrypted, keyIndex, refundRecipient: recoveryRecipient },
+        zoneReturn: {
+          encrypted,
+          keyIndex,
+          refundRecipient: bouncebackRecipient,
+        },
       },
     ])
     return {
@@ -3014,9 +3022,11 @@ type MinimumShareAmountParameters = OneOf<
 type PrivatePreparationParameters = {
   /** Optional caller-supplied correlation id. @default Random bytes32 */
   actionId?: Hex.Hex | undefined
+  /** Refund recipient on the parent chain if the return deposit bounces. */
+  bouncebackRecipient: Address
   /** Gas reserved for the parent-chain callback. @default `10_000_000n` */
   callbackGas?: bigint | undefined
-  /** Public recipient if the parent-chain callback fails. @default `recoveryRecipient` */
+  /** Public recipient if the parent-chain callback fails. @default `bouncebackRecipient` */
   fallbackRecipient?: Address | undefined
   /** Zone gateway address. */
   gateway: Address
@@ -3024,8 +3034,6 @@ type PrivatePreparationParameters = {
   portalAddress?: Address | undefined
   /** Encrypted recipient for the returned tokens. */
   recipient: Address
-  /** Public recipient if the encrypted return fails. */
-  recoveryRecipient: Address
   /** Optional memo encrypted with the returned Zone deposit. */
   returnMemo?: Hex.Hex | undefined
   /** Vault address. */
