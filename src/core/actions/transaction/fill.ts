@@ -5,6 +5,7 @@ import type * as Account from '../../Account.js'
 import type * as Capabilities from '../../Capabilities.js'
 import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
+import { BaseError } from '../../Errors.js'
 import * as RpcError from '../../RpcError.js'
 import type * as NonceManager from '../../NonceManager.js'
 import { isAbortError } from '../../internal/errors.js'
@@ -101,48 +102,68 @@ export async function fill<chain extends Chain.Chain | undefined>(
     // Rewrite fields.
     transaction.data = transaction.input
 
-    // Preference supplied fees (some nodes do not take these preferences).
     // Coerce to `bigint` so the return type stays consistent with the
     // node-derived (decoded) values regardless of the supplied input format.
     const quantity = (value: bigint | number | Hex.Hex | undefined) =>
       typeof value === 'undefined' ? undefined : BigInt(value)
-    if (transaction.gas)
-      transaction.gas = quantity(options.gas) ?? transaction.gas
-    if (transaction.gasPrice)
-      transaction.gasPrice = quantity(options.gasPrice) ?? transaction.gasPrice
-    if (transaction.maxFeePerBlobGas)
-      transaction.maxFeePerBlobGas =
-        quantity(options.maxFeePerBlobGas) ?? transaction.maxFeePerBlobGas
-    if (transaction.maxFeePerGas)
-      transaction.maxFeePerGas =
-        quantity(options.maxFeePerGas) ?? transaction.maxFeePerGas
-    if (transaction.maxPriorityFeePerGas)
-      transaction.maxPriorityFeePerGas =
-        quantity(options.maxPriorityFeePerGas) ??
-        transaction.maxPriorityFeePerGas
-    if (typeof transaction.nonce !== 'undefined')
-      transaction.nonce = quantity(options.nonce) ?? transaction.nonce
+    const filledNonce = quantity(transaction.nonce)
+    const requestedNonce = quantity(nonce)
+    const hasFeePayerSignature =
+      typeof transaction.feePayerSignature !== 'undefined' &&
+      transaction.feePayerSignature !== null
 
-    // Build the fee multiplier from the chain's `baseFeeMultiplier`.
-    const feeMultiplier = await (async () => {
-      if (typeof chain?.fees?.baseFeeMultiplier === 'function')
-        return chain.fees.baseFeeMultiplier({
-          block: await getBlock(client),
-          client,
-          request,
-        })
-      return chain?.fees?.baseFeeMultiplier ?? 1.2
-    })()
-    if (feeMultiplier < 1) throw new BaseFeeScalarError()
+    if (
+      hasFeePayerSignature &&
+      typeof requestedNonce !== 'undefined' &&
+      filledNonce !== requestedNonce
+    )
+      throw new FeePayerNonceMismatchError({
+        filledNonce,
+        requestedNonce,
+      })
 
-    const decimals = feeMultiplier.toString().split('.')[1]?.length ?? 0
-    const denominator = 10 ** decimals
-    const multiplyFee = (base: bigint) =>
-      (base * BigInt(Math.round(feeMultiplier * denominator))) /
-      BigInt(denominator)
+    // A fee payer signature commits to the filled transaction, so preserve
+    // its signed fields regardless of who produced the signature.
+    // https://tips.sh/0001#fee-payer-signature
+    if (!hasFeePayerSignature) {
+      // Preference supplied fees (some nodes do not take these preferences).
+      if (transaction.gas)
+        transaction.gas = quantity(options.gas) ?? transaction.gas
+      if (transaction.gasPrice)
+        transaction.gasPrice =
+          quantity(options.gasPrice) ?? transaction.gasPrice
+      if (transaction.maxFeePerBlobGas)
+        transaction.maxFeePerBlobGas =
+          quantity(options.maxFeePerBlobGas) ?? transaction.maxFeePerBlobGas
+      if (transaction.maxFeePerGas)
+        transaction.maxFeePerGas =
+          quantity(options.maxFeePerGas) ?? transaction.maxFeePerGas
+      if (transaction.maxPriorityFeePerGas)
+        transaction.maxPriorityFeePerGas =
+          quantity(options.maxPriorityFeePerGas) ??
+          transaction.maxPriorityFeePerGas
+      if (typeof transaction.nonce !== 'undefined')
+        transaction.nonce = quantity(options.nonce) ?? transaction.nonce
 
-    // Apply the fee multiplier to node-derived fees the caller did not supply.
-    if (!transaction.feePayerSignature) {
+      // Build the fee multiplier from the chain's `baseFeeMultiplier`.
+      const feeMultiplier = await (async () => {
+        if (typeof chain?.fees?.baseFeeMultiplier === 'function')
+          return chain.fees.baseFeeMultiplier({
+            block: await getBlock(client),
+            client,
+            request,
+          })
+        return chain?.fees?.baseFeeMultiplier ?? 1.2
+      })()
+      if (feeMultiplier < 1) throw new BaseFeeScalarError()
+
+      const decimals = feeMultiplier.toString().split('.')[1]?.length ?? 0
+      const denominator = 10 ** decimals
+      const multiplyFee = (base: bigint) =>
+        (base * BigInt(Math.round(feeMultiplier * denominator))) /
+        BigInt(denominator)
+
+      // Apply the fee multiplier to node-derived fees the caller did not supply.
       if (transaction.maxFeePerGas && !options.maxFeePerGas)
         transaction.maxFeePerGas = multiplyFee(transaction.maxFeePerGas)
       if (transaction.gasPrice && !options.gasPrice)
@@ -162,6 +183,26 @@ export async function fill<chain extends Chain.Chain | undefined>(
       chain: chain ?? undefined,
       from,
       nonce,
+    })
+  }
+}
+
+/** Thrown when a fee-payer-signed fill changes the requested nonce. */
+export class FeePayerNonceMismatchError extends BaseError {
+  override readonly name = 'TransactionFill.FeePayerNonceMismatchError'
+
+  constructor({
+    filledNonce,
+    requestedNonce,
+  }: {
+    filledNonce: bigint | undefined
+    requestedNonce: bigint
+  }) {
+    super('The filled transaction nonce does not match the requested nonce.', {
+      metaMessages: [
+        `Requested Nonce: ${requestedNonce}`,
+        `Filled Nonce: ${filledNonce}`,
+      ],
     })
   }
 }
@@ -196,6 +237,7 @@ export declare namespace fill {
   }
 
   type ErrorType =
+    | FeePayerNonceMismatchError
     | RpcError.ExecutionError
     | transactionRequest.assert.ErrorType
     | BaseFeeScalarError

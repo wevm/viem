@@ -1,3 +1,4 @@
+export { FeePayerNonceMismatchError } from './fill.js'
 export { MaxFeePerGasTooLowError } from './prepare.js'
 export { TransactionNotFoundError } from './get.js'
 export { TransactionReceiptNotFoundError } from './getReceipt.js'

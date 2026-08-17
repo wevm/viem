@@ -3,7 +3,7 @@ name: Prepublish
 on: [push, pull_request]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && format('branch-{0}-{1}', github.event.pull_request.head.repo.full_name, github.head_ref) || format('{0}-{1}-{2}', github.ref_type, github.repository, github.ref_name) }}
   cancel-in-progress: true
 
 jobs:

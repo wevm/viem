@@ -434,6 +434,89 @@ test('behavior: blob transaction fee preference', async () => {
   }
 })
 
+async function createFeePayerFillClient() {
+  const server = await Http.createServer((_req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end(
+      JSON.stringify({
+        id: 1,
+        jsonrpc: '2.0',
+        result: { raw: '0x76deadbeef', tx: {} },
+      }),
+    )
+  })
+  const transaction = {
+    chainId: 1,
+    feePayerSignature: { r: '0x1', s: '0x1', yParity: 0 },
+    gas: 21_000n,
+    input: '0x',
+    maxFeePerGas: 100n,
+    maxPriorityFeePerGas: 2n,
+    nonce: 2n,
+    to: '0x0000000000000000000000000000000000000000',
+    type: 'eip1559' as const,
+    value: 0n,
+  }
+  const chain = mainnet.extend({
+    rpcUrls: { http: server.url },
+    codecs: {
+      transaction: {
+        fromRpc: () => transaction as never,
+      },
+    },
+  })
+  return {
+    client: Client.create({ chain, transport: http(server.url) }),
+    server,
+  }
+}
+
+test('behavior: preserves fee-payer-signed fields', async () => {
+  const { client, server } = await createFeePayerFillClient()
+  try {
+    const { transaction } = await Actions.transaction.fill(client, {
+      account,
+      gas: 1n,
+      maxFeePerGas: 1n,
+      maxPriorityFeePerGas: 1n,
+      nonce: 2,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+    expect(transaction).toMatchObject({
+      gas: 21_000n,
+      maxFeePerGas: 100n,
+      maxPriorityFeePerGas: 2n,
+      nonce: 2n,
+    })
+  } finally {
+    await server.close()
+  }
+})
+
+test('error: rejects fee-payer-signed nonce mismatch during prepare', async () => {
+  const { client, server } = await createFeePayerFillClient()
+  try {
+    const error = await Actions.transaction
+      .prepare(client, {
+        account,
+        feePayer: true,
+        nonce: 1,
+        to: '0x0000000000000000000000000000000000000000',
+      } as never)
+      .catch((error) => error)
+    expect(error).toBeInstanceOf(RpcError.ExecutionError)
+    expect(
+      error.walk(
+        (error: Error) =>
+          error instanceof
+          Actions.transaction.Errors.FeePayerNonceMismatchError,
+      ),
+    ).toBeInstanceOf(Actions.transaction.Errors.FeePayerNonceMismatchError)
+  } finally {
+    await server.close()
+  }
+})
+
 test('error: aborted request is not wrapped', async () => {
   const controller = new AbortController()
   controller.abort()

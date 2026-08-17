@@ -22,6 +22,7 @@ test('exports errors by Action domain', () => {
     'BaseFeeScalarError' | 'Eip1559FeesNotSupportedError'
   >()
   expectTypeOf<keyof typeof Actions.transaction.Errors>().toEqualTypeOf<
+    | 'FeePayerNonceMismatchError'
     | 'MaxFeePerGasTooLowError'
     | 'TransactionNotFoundError'
     | 'TransactionReceiptNotFoundError'
@@ -46,6 +47,7 @@ test('exports errors by Action domain', () => {
     | Actions.Errors.CounterfactualDeploymentFailedError
     | Actions.fee.Errors.BaseFeeScalarError
     | Actions.fee.Errors.Eip1559FeesNotSupportedError
+    | Actions.transaction.Errors.FeePayerNonceMismatchError
     | Actions.transaction.Errors.MaxFeePerGasTooLowError
     | Actions.transaction.Errors.TransactionNotFoundError
     | Actions.transaction.Errors.TransactionReceiptNotFoundError

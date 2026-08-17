@@ -22,7 +22,7 @@ import {
 import { Eip1559FeesNotSupportedError } from '../fee/estimateMaxPriorityFeePerGas.js'
 import { getAction } from '../getAction.js'
 import { estimateGas } from './estimateGas.js'
-import { fill } from './fill.js'
+import { FeePayerNonceMismatchError, fill } from './fill.js'
 
 /** Default `parameters` filled when none are supplied. */
 export const defaultParameters = [
@@ -244,6 +244,11 @@ export async function prepare<
     } catch (err) {
       if (isAbortError(err)) throw err
       if (err instanceof RpcError.ExecutionRevertedError) throw err
+      if (
+        err instanceof BaseError &&
+        err.walk((error) => error instanceof FeePayerNonceMismatchError)
+      )
+        throw err
       if (isUnsupportedFill(err)) supportsFill.set(client.uid, false)
       // Otherwise, fall back to manual preparation below.
     }
