@@ -727,11 +727,12 @@ describe('fromMultisig', () => {
     expect(receipt.from).toBe(account.address.toLowerCase())
   })
 
-  test('example: configuration rotation', async () => {
+  async function setupRotatedAccount(salt: number) {
     const owner_1 = accounts[14]
     const owner_2 = accounts[15]
     const owner_3 = accounts[16]
     const account = Account.fromMultisig({
+      salt: toHex(salt, { size: 32 }),
       threshold: 2,
       owners: [owner_1, owner_2],
     })
@@ -756,21 +757,12 @@ describe('fromMultisig', () => {
         signTransaction(client, { ...bootstrap, account: owner }),
       ),
     )
-    await sendTransactionSync(client, {
+    const bootstrapReceipt = await sendTransactionSync(client, {
       ...bootstrap,
       signatures: bootstrapSignatures,
     })
-    expect(
-      await Actions.multisig.isInitialized(client, {
-        account: account.address,
-      }),
-    ).toBe(true)
-    expect(
-      await Actions.multisig.getConfig(client, { account: account.address }),
-    ).toEqual({
-      version: 0n,
-      threshold: initialConfig.threshold,
-      owners: initialConfig.owners,
+    const initialState = await Actions.multisig.getConfig(client, {
+      account: account.address,
     })
 
     const rotatedAccount = Account.fromMultisig(initialConfig, {
@@ -792,6 +784,35 @@ describe('fromMultisig', () => {
       ...update,
       signatures: updateSignatures,
     })
+
+    return {
+      account,
+      bootstrapReceipt,
+      initialConfig,
+      initialState,
+      owner: owner_3,
+      rotatedAccount,
+      updateReceipt,
+    }
+  }
+
+  test('example: configuration rotation with independent signing', async () => {
+    const {
+      account,
+      bootstrapReceipt,
+      initialConfig,
+      initialState,
+      owner,
+      rotatedAccount,
+      updateReceipt,
+    } = await setupRotatedAccount(0x106105)
+
+    expect(bootstrapReceipt.status).toBe('success')
+    expect(initialState).toEqual({
+      version: 0n,
+      threshold: initialConfig.threshold,
+      owners: initialConfig.owners,
+    })
     expect(updateReceipt.status).toBe('success')
     expect(
       Actions.multisig.updateConfig.extractEvent(updateReceipt.logs).args,
@@ -801,35 +822,41 @@ describe('fromMultisig', () => {
       owners: rotatedAccount.config.owners,
     })
 
-    {
-      const request = await prepareTransactionRequest(client, {
-        account,
-        calls: [{ to, value: 0n }],
-        feeToken,
-      })
-      expect(request.multisigSignatureCount).toBeUndefined()
-      expect(request.multisigOwnerStates?.[0]).toEqual({
-        account: account.address,
-        config: {
-          owners: rotatedAccount.config.owners,
-          threshold: rotatedAccount.config.threshold,
-        },
-        initialized: true,
-        version: 1n,
-      })
-      expect(request.multisigVersion).toBe(1n)
-      const signature = await signTransaction(client, {
-        ...request,
-        account: owner_3,
-      })
-      const receipt = await sendTransactionSync(client, {
-        ...request,
-        signatures: [signature],
-      })
+    const request = await prepareTransactionRequest(client, {
+      account,
+      calls: [{ to, value: 0n }],
+      feeToken,
+    })
+    expect(request.multisigSignatureCount).toBeUndefined()
+    expect(request.multisigOwnerStates?.[0]).toEqual({
+      account: account.address,
+      config: {
+        owners: rotatedAccount.config.owners,
+        threshold: rotatedAccount.config.threshold,
+      },
+      initialized: true,
+      version: 1n,
+    })
+    expect(request.multisigVersion).toBe(1n)
+    const signature = await signTransaction(client, {
+      ...request,
+      account: owner,
+    })
+    const receipt = await sendTransactionSync(client, {
+      ...request,
+      signatures: [signature],
+    })
 
-      expect(receipt.status).toBe('success')
-      expect(receipt.from).toBe(account.address.toLowerCase())
-    }
+    expect(receipt.status).toBe('success')
+    expect(receipt.from).toBe(account.address.toLowerCase())
+  })
+
+  test('example: configuration rotation with automatic signing', async () => {
+    const { account, bootstrapReceipt, rotatedAccount, updateReceipt } =
+      await setupRotatedAccount(0x106106)
+
+    expect(bootstrapReceipt.status).toBe('success')
+    expect(updateReceipt.status).toBe('success')
 
     const request = await prepareTransactionRequest(client, {
       account: rotatedAccount,
