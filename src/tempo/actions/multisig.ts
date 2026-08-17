@@ -205,7 +205,12 @@ export namespace updateConfig {
     account extends Account | undefined = Account | undefined,
   > = WriteParameters<chain, account> & Args
 
-  export type Args = Pick<MultisigConfig.Config, 'owners' | 'threshold'>
+  export type Args = {
+    /** New multisig owners and their weights. */
+    owners: MultisigConfig.Config['owners']
+    /** New signature weight required to authorize the account. */
+    threshold: MultisigConfig.Config['threshold']
+  }
 
   export type ReturnValue = WriteContractReturnType
 

@@ -1012,7 +1012,7 @@ export namespace revokeSync {
 }
 
 /**
- * Prepares a key authorization by resolving chain and multisig state.
+ * Prepares a key authorization for signing.
  *
  * @example
  * ```ts
