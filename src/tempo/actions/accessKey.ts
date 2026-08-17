@@ -21,10 +21,18 @@ import type { Hex } from '../../types/misc.js'
 import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
-import type { AccessKeyAccount, resolveAccessKey } from '../Account.js'
+import type {
+  AccessKeyAccount,
+  MultisigAccount,
+  resolveAccessKey,
+} from '../Account.js'
 import { signKeyAuthorization } from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import * as Hardfork from '../Hardfork.js'
+import {
+  createMultisigStateResolver,
+  getMultisigOwnerStates,
+} from '../internal/multisig.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -32,6 +40,7 @@ import type {
 } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
+import * as multisig from './multisig.js'
 
 /** @internal */
 const signatureTypes = {
@@ -155,10 +164,10 @@ export namespace authorize {
     const account_ = rest.account ?? client.account
     if (!account_) throw new Error('account is required.')
     if (!chainId) throw new Error('chainId is required.')
-    const parsed = parseAccount(account_)
-    const keyAuthorization = await signKeyAuthorization(parsed as never, {
-      chainId: BigInt(chainId),
-      key: accessKey,
+    const keyAuthorization = await signAuthorization(client, {
+      account: account_,
+      accessKey,
+      chainId,
       admin,
       expiry,
       limits,
@@ -1003,52 +1012,65 @@ export namespace revokeSync {
 }
 
 /**
- * Signs a key authorization for an access key.
+ * Prepares a key authorization by resolving chain and multisig state.
  *
  * @example
  * ```ts
- * import { generatePrivateKey } from 'viem/accounts'
- * import { Account, Actions } from 'viem/tempo'
- *
- * const account = Account.from({ privateKey: '0x...' })
- * const accessKey = Account.fromP256(generatePrivateKey(), {
- *   access: account,
+ * const authorization = await Actions.accessKey.prepareAuthorization(client, {
+ *   account,
+ *   accessKey,
  * })
- *
  * const keyAuthorization = await Actions.accessKey.signAuthorization(
  *   client,
- *   {
- *     account,
- *     accessKey,
- *     expiry: Math.floor((Date.now() + 30_000) / 1000),
- *   },
+ *   authorization,
  * )
  * ```
  *
  * @param client - Client.
  * @param parameters - Parameters.
- * @returns The signed key authorization.
+ * @returns Prepared key authorization parameters.
  */
-export async function signAuthorization<
+export async function prepareAuthorization<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: signAuthorization.Parameters<account>,
-): Promise<signAuthorization.ReturnValue> {
-  const { accessKey, chainId = client.chain?.id, ...rest } = parameters
-  const account_ = rest.account ?? client.account
+  parameters: prepareAuthorization.Parameters<account>,
+): Promise<prepareAuthorization.ReturnValue> {
+  const {
+    accessKey,
+    account: accountParameter,
+    chainId = client.chain?.id,
+    multisig: preparedMultisigState,
+    ...rest
+  } = parameters
+  const account_ = accountParameter ?? client.account
   if (!account_) throw new Error('account is required.')
   if (!chainId) throw new Error('chainId is required.')
   const parsed = parseAccount(account_)
-  return signKeyAuthorization(parsed as never, {
-    chainId: BigInt(chainId),
-    key: accessKey,
+  const multisigState = await (async () => {
+    if ('multisig' in parameters) return preparedMultisigState
+    if (parsed.source !== 'multisig') return undefined
+    const account = parsed as MultisigAccount
+    const getState = createMultisigStateResolver((account) =>
+      multisig.getConfig(client, { account }),
+    )
+    const [state, states] = await Promise.all([
+      getState(account.address),
+      getMultisigOwnerStates(account, getState),
+    ])
+    return { init: !state.initialized, states, version: state.version }
+  })()
+  return {
+    account: parsed,
+    accessKey,
+    chainId,
+    multisig: multisigState,
     ...rest,
-  })
+  } as never
 }
 
-export namespace signAuthorization {
+export namespace prepareAuthorization {
   export type Parameters<
     account extends Account | undefined = Account | undefined,
   > = GetAccountParameter<account> & {
@@ -1083,7 +1105,60 @@ export namespace signAuthorization {
      * [TIP-1053](https://tips.sh/1053)
      */
     witness?: Hex | undefined
+    /** @internal Prepared multisig state. */
+    multisig?: signKeyAuthorization.Parameters['multisig']
   }
+
+  export type ReturnValue = Compute<
+    Omit<Parameters<Account | undefined>, 'account' | 'chainId'> & {
+      account: Account
+      chainId: number
+      multisig: signKeyAuthorization.Parameters['multisig']
+    }
+  >
+}
+
+/**
+ * Signs a key authorization for an access key.
+ *
+ * Use {@link prepareAuthorization} before this action when signing requires
+ * transient user activation.
+ *
+ * @param client - Client.
+ * @param parameters - Parameters or the prepared result.
+ * @returns The signed key authorization.
+ */
+export async function signAuthorization<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: signAuthorization.Parameters<account>,
+): Promise<signAuthorization.ReturnValue> {
+  const prepared = (
+    'multisig' in parameters
+      ? parameters
+      : await prepareAuthorization(client, parameters)
+  ) as prepareAuthorization.ReturnValue
+  const {
+    accessKey,
+    account: account_,
+    chainId,
+    multisig: multisigState,
+    ...rest
+  } = prepared
+  return signKeyAuthorization(account_ as never, {
+    chainId: BigInt(chainId),
+    key: accessKey,
+    multisig: multisigState,
+    ...rest,
+  })
+}
+
+export namespace signAuthorization {
+  export type Parameters<
+    account extends Account | undefined = Account | undefined,
+  > = prepareAuthorization.Parameters<account>
 
   export type ReturnValue = Awaited<ReturnType<typeof signKeyAuthorization>>
 }

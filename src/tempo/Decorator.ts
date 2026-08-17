@@ -5897,6 +5897,7 @@ export function decorator() {
         'getRemainingLimit',
         'isAdmin',
         'isWitnessBurned',
+        'prepareAuthorization',
         'revoke',
         'revokeSync',
         'signAuthorization',

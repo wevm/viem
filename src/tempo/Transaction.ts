@@ -112,6 +112,13 @@ export type TransactionReceiptRpc = TransactionReceipt<
   ox_TransactionReceipt.RpcType
 >
 
+/** @internal */
+export type MultisigOwnerState = {
+  account: Address
+  initialized: boolean
+  version: bigint
+}
+
 export type TransactionRequestTempo<
   quantity = bigint,
   index = number,
@@ -125,8 +132,6 @@ export type TransactionRequestTempo<
     feeToken?: TempoAddress.Address | bigint | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     multisig?: MultisigConfig.Config<index> | undefined
-    /** Current multisig config version. Inferred during request preparation; defaults to `0n` for bootstrap. */
-    multisigVersion?: bigint | undefined
     /** Bootstrap multisig config hint for node-side gas modeling (TIP-1061). Attached automatically when `multisig` is present; the node ignores it for registered senders. */
     multisigInit?:
       | {
@@ -135,8 +140,12 @@ export type TransactionRequestTempo<
           owners: readonly { owner: Address; weight: number }[]
         }
       | undefined
+    /** @internal Local signing state for nested multisig owner accounts. */
+    multisigOwnerStates?: readonly MultisigOwnerState[] | undefined
     /** Modeled owner approval count for node-side gas modeling (TIP-1061). */
     multisigSignatureCount?: number | undefined
+    /** Current multisig config version. Inferred during request preparation; defaults to `0n` for bootstrap. */
+    multisigVersion?: bigint | undefined
     nonceKey?: 'expiring' | quantity | undefined
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined
     validBefore?: index | undefined
@@ -160,6 +169,8 @@ export type TransactionSerializableTempo<
     from?: Address | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     multisig?: MultisigConfig.Config<index> | undefined
+    /** @internal Local signing state for nested multisig owner accounts. */
+    multisigOwnerStates?: readonly MultisigOwnerState[] | undefined
     /** Current multisig config version. Inferred during request preparation; defaults to `0n` for bootstrap. */
     multisigVersion?: bigint | undefined
     nonceKey?: quantity | undefined
@@ -330,14 +341,17 @@ async function serializeTempo(
   const hasPrefilledFeePayerSignature =
     typeof transaction.feePayerSignature !== 'undefined' &&
     transaction.feePayerSignature !== null
+  const hasSenderSignature =
+    typeof signature_provided !== 'undefined' ||
+    Boolean(transaction.multisig && transaction.signatures)
   // Sponsorship sender signatures omit `feeToken`.
   const shouldStripFeeTokenForSponsorship =
     // Relay fills a partial sender envelope first.
-    (feePayer === true && (!signature_provided || !feePayerSignature)) ||
+    (feePayer === true && (!hasSenderSignature || !feePayerSignature)) ||
     // Local fee-payer accounts sign after sender serialization.
-    (typeof feePayer === 'object' && !signature_provided) ||
+    (typeof feePayer === 'object' && !hasSenderSignature) ||
     // Filled transactions can already include fee-payer approval.
-    (!signature_provided && hasPrefilledFeePayerSignature)
+    (!hasSenderSignature && hasPrefilledFeePayerSignature)
 
   const transaction_ox = {
     ...rest,
@@ -382,10 +396,16 @@ async function serializeTempo(
       initialConfig: transaction.multisig,
       version: transaction.multisigVersion,
     })
+    const keyAuthorizationSignature = transaction.keyAuthorization?.signature
+    const keyAuthorizationInitializes =
+      keyAuthorizationSignature?.type === 'multisig' &&
+      typeof keyAuthorizationSignature.init !== 'undefined'
     return SignatureEnvelope.from({
       initialConfig: transaction.multisig,
       signatures: sorted,
-      ...(nonce || transaction.nonceKey ? {} : { init: true }),
+      ...(nonce || transaction.nonceKey || keyAuthorizationInitializes
+        ? {}
+        : { init: true }),
     })
   })()
 

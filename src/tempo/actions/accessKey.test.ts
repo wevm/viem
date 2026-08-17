@@ -140,6 +140,29 @@ describe('authorize', () => {
 })
 
 describe('signAuthorization', () => {
+  test('behavior: prepared authorization invokes signer synchronously', async () => {
+    let invoked = false
+    const sensitiveAccount = {
+      ...account,
+      sign(parameters: Parameters<typeof account.sign>[0]) {
+        invoked = true
+        return account.sign(parameters)
+      },
+    }
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: sensitiveAccount,
+    })
+    const authorization = await actions.accessKey.prepareAuthorization(client, {
+      account: sensitiveAccount,
+      accessKey,
+    })
+
+    const promise = actions.accessKey.signAuthorization(client, authorization)
+
+    expect(invoked).toBe(true)
+    await expect(promise).resolves.toBeDefined()
+  })
+
   test('default', async () => {
     const accessKey = Account.fromP256(generatePrivateKey(), {
       access: account,

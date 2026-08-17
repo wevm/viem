@@ -4,8 +4,6 @@ import { MultisigConfig, SignatureEnvelope, type TokenId } from 'ox/tempo'
 import { getCode } from '../actions/public/getCode.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
 import { maxUint256 } from '../constants/number.js'
-import { BaseError } from '../errors/base.js'
-import { ContractFunctionRevertedError } from '../errors/contract.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
 import { isAddressEqual } from '../utils/address/isAddressEqual.js'
 import { extendSchema } from '../utils/chain/defineChain.js'
@@ -21,6 +19,10 @@ import * as multisig from './actions/multisig.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
+import {
+  createMultisigStateResolver,
+  getMultisigOwnerStates,
+} from './internal/multisig.js'
 import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
@@ -64,6 +66,7 @@ export const chainConfig = {
         feePayerSignature?: Transaction.TransactionSerializableTempo['feePayerSignature']
         from?: Address | undefined
         multisig?: MultisigConfig.Config | undefined
+        multisigOwnerStates?: Transaction.TransactionRequestTempo['multisigOwnerStates']
         signatures?: readonly unknown[] | undefined
       }
 
@@ -103,38 +106,48 @@ export const chainConfig = {
         const config = MultisigConfig.from(multisigConfig)
         request.multisig = config
         request.from = MultisigConfig.getAddress(config)
+        const getState = createMultisigStateResolver((account) =>
+          getAction(client, multisig.getConfig, 'getConfig')({ account }),
+        )
+        const ownerStates =
+          request.account?.source === 'multisig'
+            ? getMultisigOwnerStates(
+                request.account as MultisigAccount,
+                getState,
+              )
+            : undefined
         if (typeof request.multisigVersion === 'undefined') {
-          try {
-            const current = await getAction(
-              client,
-              multisig.getConfig,
-              'getConfig',
-            )({
-              account: request.from,
-            })
-            request.multisigVersion = current.version
-          } catch (error) {
-            const cause =
-              error instanceof BaseError
-                ? error.walk(
-                    (error) => error instanceof ContractFunctionRevertedError,
-                  )
-                : undefined
-            if (
-              !(cause instanceof ContractFunctionRevertedError) ||
-              cause.data?.errorName !== 'NotMultisigAccount'
-            )
-              throw error
-            request.multisigVersion = 0n
-          }
+          const state = await getState(request.from)
+          request.multisigVersion = state.version
         }
-        request.multisigInit = {
-          salt: config.salt ?? MultisigConfig.zeroSalt,
-          threshold: Number(config.threshold),
-          owners: config.owners.map((owner) => ({
-            owner: owner.owner,
-            weight: Number(owner.weight),
-          })),
+        const authorizationSignature = request.keyAuthorization?.signature
+        if (
+          authorizationSignature?.type === 'multisig' &&
+          typeof authorizationSignature.init !== 'undefined'
+        )
+          request.keyAuthorization = {
+            ...request.keyAuthorization!,
+            signature: SignatureEnvelope.from({
+              initialConfig: authorizationSignature.init,
+              signatures: authorizationSignature.signatures,
+            }),
+          }
+        const keyAuthorizationSignature = request.keyAuthorization?.signature
+        const keyAuthorizationInitializes =
+          keyAuthorizationSignature?.type === 'multisig' &&
+          typeof keyAuthorizationSignature.init !== 'undefined'
+        if (!keyAuthorizationInitializes)
+          request.multisigInit = {
+            salt: config.salt ?? MultisigConfig.zeroSalt,
+            threshold: Number(config.threshold),
+            owners: config.owners.map((owner) => ({
+              owner: owner.owner,
+              weight: Number(owner.weight),
+            })),
+          }
+        if (ownerStates) {
+          const states = await ownerStates
+          if (states.length > 0) request.multisigOwnerStates = states
         }
         // A non-multisig `account` (e.g. the client's default) isn't the sender,
         // so drop it: core then fills nonce/gas/fees for the multisig sender via
@@ -148,7 +161,7 @@ export const chainConfig = {
       const useExpiringNonce = await (async () => {
         if (request.nonceKey === 'expiring' || request.nonceKey === maxUint256)
           return true
-        if (multisig) return false
+        if (multisigConfig) return false
         if (request.feePayer && typeof request.nonceKey === 'undefined')
           return true
         const account = request.account as
