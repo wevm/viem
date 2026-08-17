@@ -117,7 +117,9 @@ export const chainConfig = {
               )
             : undefined
         if (typeof request.multisigVersion === 'undefined') {
-          const state = await getState(request.from)
+          const state = ownerStates
+            ? (await ownerStates)[0]!
+            : await getState(request.from)
           request.multisigVersion = state.version
         }
         const authorizationSignature = request.keyAuthorization?.signature

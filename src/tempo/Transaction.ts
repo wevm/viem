@@ -115,6 +115,7 @@ export type TransactionReceiptRpc = TransactionReceipt<
 /** @internal */
 export type MultisigOwnerState = {
   account: Address
+  config?: Pick<MultisigConfig.Config, 'owners' | 'threshold'> | undefined
   initialized: boolean
   version: bigint
 }

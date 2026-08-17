@@ -439,6 +439,10 @@ async function signMultisig(
   },
 ): Promise<SignatureEnvelope.Multisig> {
   const { init = false, payload, states = [], version = 0n } = parameters
+  const state = states.find((state) =>
+    Address.isEqual(state.account, account.address),
+  )
+  const currentConfig = state?.config ?? account.config
   const digest = MultisigConfig.getSignPayload({
     initialConfig: account.config,
     payload,
@@ -447,7 +451,7 @@ async function signMultisig(
   const signatures: SignatureEnvelope.SignatureEnvelope[] = []
   let weight = 0
 
-  for (const owner of account.config.owners) {
+  for (const owner of currentConfig.owners) {
     const ownerAccount = account.owners.find((account) =>
       Address.isEqual(account.address, owner.owner),
     )
@@ -475,10 +479,10 @@ async function signMultisig(
     }
 
     weight += Number(owner.weight)
-    if (weight >= Number(account.config.threshold)) break
+    if (weight >= Number(currentConfig.threshold)) break
   }
 
-  if (weight < Number(account.config.threshold))
+  if (weight < Number(currentConfig.threshold))
     throw new Error('Local multisig owners do not meet the threshold.')
 
   return SignatureEnvelope.from({

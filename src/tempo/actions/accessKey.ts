@@ -1055,10 +1055,8 @@ export async function prepareAuthorization<
     const getState = createMultisigStateResolver((account) =>
       multisig.getConfig(client, { account }),
     )
-    const [state, states] = await Promise.all([
-      getState(account.address),
-      getMultisigOwnerStates(account, getState),
-    ])
+    const states = await getMultisigOwnerStates(account, getState)
+    const state = states[0]!
     return { init: !state.initialized, states, version: state.version }
   })()
   return {
