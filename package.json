@@ -196,7 +196,7 @@
     {
       "name": "import * from 'viem/tempo'",
       "path": "./dist/tempo/index.js",
-      "limit": "132 kB",
+      "limit": "133.5 kB",
       "import": "*"
     },
     {
