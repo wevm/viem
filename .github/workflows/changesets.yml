@@ -102,7 +102,7 @@ jobs:
 
       - name: Create Version Pull Request
         id: changesets
-        uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc
+        uses: changesets/action@198f833dd7d863100ea6e28967bc9a9fdefadb0a
         with:
           commit: 'chore: version package'
           title: 'chore: version package'
@@ -136,7 +136,7 @@ jobs:
 
       - name: Publish to NPM
         id: changesets
-        uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc
+        uses: changesets/action@198f833dd7d863100ea6e28967bc9a9fdefadb0a
         with:
           createGithubReleases: true
           publish: pnpm changeset:publish
