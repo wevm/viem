@@ -16,7 +16,7 @@ Each gateway is permanently scoped to one Zone, Earn vault, private asset, and t
 accepts only that private asset for deposits, returns only that private asset after redemptions, and
 converts it one-to-one with the vault asset. Callback data cannot select a token, vault, or route.
 
-The vault transaction and recovery address are public. The recipient of the returned Zone deposit is
+The vault transaction and bounceback address are public. The recipient of the returned Zone deposit is
 encrypted, and the resulting balance stays private inside the Zone.
 
 :::warning
@@ -49,7 +49,7 @@ const prepared = await parentClient.earn.privateDeposit.prepare({
   assetAmount: 100_000_000n,
   gateway,
   recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
+  bouncebackRecipient: parentClient.account.address,
   shareAmountMin: 99_500_000n,
   vault,
   zoneId,
@@ -106,7 +106,7 @@ const prepared = await parentClient.earn.privateDeposit.prepare({
   assetToken: privateAsset,
   gateway,
   recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
+  bouncebackRecipient: parentClient.account.address,
   shareAmountMin: 98_500_000n,
   vault,
   vaultAssetAmountMin: 99_000_000n,
@@ -161,7 +161,7 @@ const zoneId = 7
 const prepared = await parentClient.earn.privateRedeem.prepare({
   gateway,
   recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
+  bouncebackRecipient: parentClient.account.address,
   shareAmount: 99_750_000n,
   slippageBps: 50,
   vault,
@@ -220,7 +220,7 @@ const prepared = await parentClient.earn.privateRedeem.prepare({
   assetToken: privateAsset,
   gateway,
   recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
+  bouncebackRecipient: parentClient.account.address,
   shareAmount: 99_750_000n,
   vault,
   zoneId,
@@ -272,7 +272,7 @@ const zoneId = 7
 const prepared = await parentClient.earn.privateRedeem.prepare({
   gateway,
   recipient: beneficiary,
-  recoveryRecipient: parentClient.account.address,
+  bouncebackRecipient: parentClient.account.address,
   shareAmount: 99_750_000n,
   slippageBps: 50,
   vault,
@@ -305,7 +305,7 @@ await zoneClient.zone.waitForTempoBlock({
 :::
 
 The same `recipient` behavior applies to `earn.privateDeposit.prepare`. The recipient is encrypted,
-but the action amount, timing, gateway, and recovery address remain public at the privacy boundary.
+but the action amount, timing, gateway, and bounceback address remain public at the privacy boundary.
 
 ### Move Existing Venue Shares into a Zone
 
@@ -379,13 +379,13 @@ immediately before submission. When an exact quote is not reliable, use two tran
 
 ### Understand the Privacy Boundary
 
-The vault action, amounts, gateway, and recovery address are visible on the parent chain. The Zone
+The vault action, amounts, gateway, and bounceback address are visible on the parent chain. The Zone
 recipient and balances returned to the Zone remain private.
 
-### Use a Safe Recovery Recipient
+### Use a Safe Bounceback Recipient
 
-`recoveryRecipient` receives funds on the public Tempo chain if a gateway callback fails. Use an
-address you control and treat it as public information.
+`bouncebackRecipient` receives funds on the public Tempo chain if the encrypted return deposit
+bounces. Use an address you control and treat it as public information.
 
 ### Bound Every Vault Action
 

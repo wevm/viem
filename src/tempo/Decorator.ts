@@ -1926,7 +1926,7 @@ type DecoratorBase<
      *   assetToken: '0x...',
      *   gateway: '0x...',
      *   recipient: '0x...',
-     *   recoveryRecipient: '0x...',
+     *   bouncebackRecipient: '0x...',
      *   shareAmountMin: 99_500_000n,
      *   vault: '0x...',
      *   vaultAssetAmountMin: 99_000_000n,
@@ -2157,7 +2157,7 @@ type DecoratorBase<
      * const prepared = await parentClient.earn.privateRedeem.prepare({
      *   gateway: '0x...',
      *   recipient: '0x...',
-     *   recoveryRecipient: '0x...',
+     *   bouncebackRecipient: '0x...',
      *   shareAmount: 100_000_000n,
      *   slippageBps: 50,
      *   vault: '0x...',

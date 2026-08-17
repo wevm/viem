@@ -21,7 +21,7 @@ const prepared = await parentClient.earn.privateDeposit.prepare({
   assetAmount: 100_000_000n,
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
+  bouncebackRecipient: parentClient.account.address,
   shareAmountMin: 99_500_000n,
   vault: '0x0000000000000000000000000000000000000002',
   zoneId: 7,
@@ -58,7 +58,7 @@ const prepared = await parentClient.earn.privateDeposit.prepare({
   assetAmount: 100_000_000n,
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
+  bouncebackRecipient: parentClient.account.address,
   shareAmountMin: 99_500_000n,
   vault: '0x0000000000000000000000000000000000000002',
   zoneId: 7,
@@ -82,7 +82,7 @@ const prepared = await parentClient.earn.privateDeposit.prepare({
   assetAmount: 100_000_000n,
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
+  bouncebackRecipient: parentClient.account.address,
   shareAmountMin: 98_500_000n,
   vault: '0x0000000000000000000000000000000000000003',
   vaultAssetAmountMin: 99_000_000n,
@@ -160,7 +160,7 @@ Gas reserved for the parent-chain gateway callback.
 ### fallbackRecipient (optional)
 
 - **Type:** `Address`
-- **Default:** `recoveryRecipient`
+- **Default:** `bouncebackRecipient`
 
 Public recipient if the parent-chain gateway callback fails.
 
@@ -183,7 +183,7 @@ Source Zone portal on the parent chain.
 
 Encrypted Zone recipient for the returned Earn shares.
 
-### recoveryRecipient
+### bouncebackRecipient
 
 - **Type:** `Address`
 

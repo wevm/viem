@@ -754,7 +754,7 @@ test('zone deposit bounds and recipients are required', async () => {
     fallbackRecipient: address,
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
+    bouncebackRecipient: address,
     returnMemo: hash,
     shareAmountMin: 1n,
     vaultAssetAmountMin: 1n,
@@ -765,7 +765,7 @@ test('zone deposit bounds and recipients are required', async () => {
     assetToken: address,
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
+    bouncebackRecipient: address,
     shareAmount: 1n,
     slippageBps: 50,
     vaultAssetAmountMin: 1n,
@@ -775,17 +775,17 @@ test('zone deposit bounds and recipients are required', async () => {
     assetAmount: 1n,
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
+    bouncebackRecipient: address,
     slippageBps: 50,
   })
   // @ts-expect-error `recipient` is required
   await earnActions.privateDeposit.prepare(client, {
     assetAmount: 1n,
     ...privatePreparation,
-    recoveryRecipient: address,
+    bouncebackRecipient: address,
     shareAmountMin: 1n,
   })
-  // @ts-expect-error `recoveryRecipient` is required
+  // @ts-expect-error `bouncebackRecipient` is required
   await earnActions.privateDeposit.prepare(client, {
     assetAmount: 1n,
     ...privatePreparation,
@@ -799,21 +799,21 @@ test('zone redeem supports live and explicit output bounds', async () => {
     assetAmountMin: 1n,
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
+    bouncebackRecipient: address,
     shareAmount: 1n,
   })
   await earnActions.privateRedeem.prepare(client, {
     assetAmount: 1n,
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
+    bouncebackRecipient: address,
     shareAmount: 1n,
     slippageBps: 50,
   })
   await earnActions.privateRedeem.prepare(client, {
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
+    bouncebackRecipient: address,
     shareAmount: 1n,
     slippageBps: 50,
   })
@@ -822,7 +822,7 @@ test('zone redeem supports live and explicit output bounds', async () => {
     assetToken: address,
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
+    bouncebackRecipient: address,
     shareAmount: 1n,
   })
   await earnActions.privateRedeem.prepare(client, {
@@ -830,7 +830,7 @@ test('zone redeem supports live and explicit output bounds', async () => {
     assetToken: address,
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
+    bouncebackRecipient: address,
     shareAmount: 1n,
     slippageBps: 50,
   })
@@ -838,7 +838,7 @@ test('zone redeem supports live and explicit output bounds', async () => {
     assetToken: address,
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
+    bouncebackRecipient: address,
     shareAmount: 1n,
     slippageBps: 50,
   })
@@ -874,7 +874,7 @@ test('decorated zone earn actions preserve helpers and results', async () => {
     assetToken: address,
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
+    bouncebackRecipient: address,
     shareAmountMin: 1n,
     vaultAssetAmountMin: 1n,
   })
@@ -902,7 +902,7 @@ test('decorated zone earn actions preserve helpers and results', async () => {
   const redeem = await decoratedClient.earn.privateRedeem.prepare({
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
+    bouncebackRecipient: address,
     shareAmount: 1n,
     slippageBps: 50,
   })
