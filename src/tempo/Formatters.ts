@@ -118,15 +118,16 @@ export function formatTransactionRequest(
   if (request.feePayer === true && !request.feePayerSignature)
     delete request.feeToken
 
-  // `multisig` / `signatures` are client-side only (TIP-1061). They drive
-  // sender derivation, owner signing, and final envelope assembly, but are
-  // never sent as raw RPC fields — the wire payload is the serialized tx.
+  // `multisig` / `multisigVersion` / `signatures` are client-side only
+  // (TIP-1061). They drive sender derivation, owner signing, and final envelope
+  // assembly, but are never sent as raw RPC fields.
   // `multisigInit` / `multisigSignatureCount` are wire fields: the node
   // prices multisig gas from them during simulation.
   const {
     multisig: _multisig,
     multisigInit,
     multisigSignatureCount,
+    multisigVersion: _multisigVersion,
     signatures: _signatures,
     ...rpcRequest
   } = request

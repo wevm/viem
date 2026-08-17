@@ -678,13 +678,15 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
       // primitive signature over the multisig owner approval digest — instead of
       // a full serialized transaction. Approvals are combined later in
       // `sendTransaction({ signatures })`.
-      const multisig = (
-        transaction as { multisig?: MultisigConfig.Config | undefined }
-      ).multisig
+      const { multisig, multisigVersion } = transaction as {
+        multisig?: MultisigConfig.Config | undefined
+        multisigVersion?: bigint | undefined
+      }
       if (multisig) {
         const digest = MultisigConfig.getSignPayload({
           payload,
-          genesisConfig: multisig,
+          initialConfig: multisig,
+          version: multisigVersion,
         })
         return await sign({ hash: digest, raw: true })
       }

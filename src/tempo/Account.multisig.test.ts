@@ -1,3 +1,4 @@
+import { encodeFunctionData, parseAbi } from 'viem'
 import {
   getTransaction,
   prepareTransactionRequest,
@@ -9,6 +10,10 @@ import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
 
 const client = tempo.getClient()
+
+const nativeMultisigAbi = parseAbi([
+  'function updateConfig(uint8 threshold, (address owner, uint8 weight)[] owners)',
+])
 
 describe('fromMultisig', () => {
   const { accounts, feeToken } = tempo
@@ -319,5 +324,89 @@ describe('fromMultisig', () => {
     expect(receipt.status).toBe('success')
     expect(receipt.from).toBe(account.address.toLowerCase())
     expect(receipt.feePayer).toBe(accounts[0].address.toLowerCase())
+  })
+
+  test('configuration rotation uses the current version', async () => {
+    const owner_1 = accounts[14]
+    const owner_2 = accounts[15]
+    const replacement = accounts[16]
+    const initialConfig = MultisigConfig.from({
+      threshold: 2,
+      owners: [
+        { owner: owner_1.address, weight: 1 },
+        { owner: owner_2.address, weight: 1 },
+      ],
+    })
+    const account = Account.fromMultisig(initialConfig)
+
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: feeToken,
+    })
+
+    const bootstrap = await prepareTransactionRequest(client, {
+      account,
+      calls: [{ to, value: 0n }],
+      feeToken,
+    })
+    const bootstrapSignatures = await Promise.all(
+      [owner_1, owner_2].map((owner) =>
+        signTransaction(client, { ...bootstrap, account: owner }),
+      ),
+    )
+    await sendTransactionSync(client, {
+      ...bootstrap,
+      signatures: bootstrapSignatures,
+    })
+
+    const rotatedConfig = MultisigConfig.from({
+      threshold: 1,
+      owners: [{ owner: replacement.address, weight: 1 }],
+    })
+    const update = await prepareTransactionRequest(client, {
+      account,
+      calls: [
+        {
+          data: encodeFunctionData({
+            abi: nativeMultisigAbi,
+            functionName: 'updateConfig',
+            args: [rotatedConfig.threshold, rotatedConfig.owners],
+          }),
+          to: '0xAACC000000000000000000000000000000000000',
+        },
+      ],
+      feeToken,
+    })
+    const updateSignatures = await Promise.all(
+      [owner_1, owner_2].map((owner) =>
+        signTransaction(client, { ...update, account: owner }),
+      ),
+    )
+    const updateReceipt = await sendTransactionSync(client, {
+      ...update,
+      signatures: updateSignatures,
+    })
+    expect(updateReceipt.status).toBe('success')
+
+    const request = await prepareTransactionRequest(client, {
+      account,
+      calls: [{ to, value: 0n }],
+      feeToken,
+      multisigSignatureCount: 1,
+      multisigVersion: 1n,
+    })
+    const signature = await signTransaction(client, {
+      ...request,
+      account: replacement,
+    })
+    const receipt = await sendTransactionSync(client, {
+      ...request,
+      signatures: [signature],
+    })
+
+    expect(receipt.status).toBe('success')
+    expect(receipt.from).toBe(account.address.toLowerCase())
   })
 })

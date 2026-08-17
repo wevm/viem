@@ -379,6 +379,21 @@ describe('prepareTransactionRequest', () => {
     expect(request.multisigSignatureCount).toBe(3)
   })
 
+  test('behavior: explicit multisigVersion is preserved', async () => {
+    const config = MultisigConfig.from({
+      threshold: 1,
+      owners: [{ owner: accounts[1].address, weight: 1 }],
+    })
+
+    const request = await prepareTransactionRequest(client, {
+      multisig: config,
+      multisigVersion: 2n,
+      parameters: ['chainId'],
+    })
+
+    expect(request.multisigVersion).toBe(2n)
+  })
+
   test('behavior: keyAuthorizationManager attaches pending key authorization', async () => {
     const rootAccount = accounts.at(0)!
     const keyAuthorizationManager = KeyAuthorizationManager.memory()

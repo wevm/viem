@@ -125,6 +125,8 @@ export type TransactionRequestTempo<
     feeToken?: TempoAddress.Address | bigint | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     multisig?: MultisigConfig.Config<index> | undefined
+    /** Current multisig config version. Defaults to `0n`. */
+    multisigVersion?: bigint | undefined
     /** Bootstrap multisig config hint for node-side gas modeling (TIP-1061). Attached automatically when `multisig` is present; the node ignores it for registered senders. */
     multisigInit?:
       | {
@@ -158,6 +160,8 @@ export type TransactionSerializableTempo<
     from?: Address | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     multisig?: MultisigConfig.Config<index> | undefined
+    /** Current multisig config version. Defaults to `0n`. */
+    multisigVersion?: bigint | undefined
     nonceKey?: quantity | undefined
     signature?: SignatureEnvelope.SignatureEnvelope<quantity, index> | undefined
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined
@@ -191,6 +195,7 @@ export function getType(
     typeof transaction.feeToken !== 'undefined' ||
     typeof transaction.keyAuthorization !== 'undefined' ||
     typeof transaction.multisig !== 'undefined' ||
+    typeof transaction.multisigVersion !== 'undefined' ||
     typeof transaction.nonceKey !== 'undefined' ||
     typeof transaction.signature !== 'undefined' ||
     typeof transaction.signatures !== 'undefined' ||
@@ -374,10 +379,11 @@ async function serializeTempo(
     const sorted = SignatureEnvelope.sortMultisigApprovals({
       payload,
       signatures,
-      genesisConfig: transaction.multisig,
+      initialConfig: transaction.multisig,
+      version: transaction.multisigVersion,
     })
     return SignatureEnvelope.from({
-      genesisConfig: transaction.multisig,
+      initialConfig: transaction.multisig,
       signatures: sorted,
       ...(nonce || transaction.nonceKey ? {} : { init: true }),
     })
