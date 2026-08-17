@@ -263,6 +263,7 @@ test('exports', () => {
       "AccountStateConflictError",
       "StateAssignmentConflictError",
       "FeeConflictError",
+      "FeePayerNonceMismatchError",
       "InvalidLegacyVError",
       "InvalidSerializableTransactionError",
       "InvalidSerializedTransactionError",
