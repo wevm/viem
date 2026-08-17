@@ -754,9 +754,9 @@ test('zone deposit bounds and recipients are required', async () => {
     fallbackRecipient: address,
     ...privatePreparation,
     recipient: address,
-    bouncebackRecipient: address,
     returnMemo: hash,
     shareAmountMin: 1n,
+    tempoRefundRecipient: address,
     vaultAssetAmountMin: 1n,
     withdrawalMemo: hash,
   })
@@ -765,9 +765,9 @@ test('zone deposit bounds and recipients are required', async () => {
     assetToken: address,
     ...privatePreparation,
     recipient: address,
-    bouncebackRecipient: address,
     shareAmount: 1n,
     slippageBps: 50,
+    tempoRefundRecipient: address,
     vaultAssetAmountMin: 1n,
   })
   // @ts-expect-error bare slippage cannot quote a Zone deposit
@@ -775,17 +775,17 @@ test('zone deposit bounds and recipients are required', async () => {
     assetAmount: 1n,
     ...privatePreparation,
     recipient: address,
-    bouncebackRecipient: address,
     slippageBps: 50,
+    tempoRefundRecipient: address,
   })
   // @ts-expect-error `recipient` is required
   await earnActions.privateDeposit.prepare(client, {
     assetAmount: 1n,
     ...privatePreparation,
-    bouncebackRecipient: address,
     shareAmountMin: 1n,
+    tempoRefundRecipient: address,
   })
-  // @ts-expect-error `bouncebackRecipient` is required
+  // @ts-expect-error `tempoRefundRecipient` is required
   await earnActions.privateDeposit.prepare(client, {
     assetAmount: 1n,
     ...privatePreparation,
@@ -799,48 +799,48 @@ test('zone redeem supports live and explicit output bounds', async () => {
     assetAmountMin: 1n,
     ...privatePreparation,
     recipient: address,
-    bouncebackRecipient: address,
     shareAmount: 1n,
+    tempoRefundRecipient: address,
   })
   await earnActions.privateRedeem.prepare(client, {
     assetAmount: 1n,
     ...privatePreparation,
     recipient: address,
-    bouncebackRecipient: address,
     shareAmount: 1n,
     slippageBps: 50,
+    tempoRefundRecipient: address,
   })
   await earnActions.privateRedeem.prepare(client, {
     ...privatePreparation,
     recipient: address,
-    bouncebackRecipient: address,
     shareAmount: 1n,
     slippageBps: 50,
+    tempoRefundRecipient: address,
   })
   await earnActions.privateRedeem.prepare(client, {
     assetAmountMin: 1n,
     assetToken: address,
     ...privatePreparation,
     recipient: address,
-    bouncebackRecipient: address,
     shareAmount: 1n,
+    tempoRefundRecipient: address,
   })
   await earnActions.privateRedeem.prepare(client, {
     assetAmount: 1n,
     assetToken: address,
     ...privatePreparation,
     recipient: address,
-    bouncebackRecipient: address,
     shareAmount: 1n,
     slippageBps: 50,
+    tempoRefundRecipient: address,
   })
   await earnActions.privateRedeem.prepare(client, {
     assetToken: address,
     ...privatePreparation,
     recipient: address,
-    bouncebackRecipient: address,
     shareAmount: 1n,
     slippageBps: 50,
+    tempoRefundRecipient: address,
   })
 })
 
@@ -874,8 +874,8 @@ test('decorated zone earn actions preserve helpers and results', async () => {
     assetToken: address,
     ...privatePreparation,
     recipient: address,
-    bouncebackRecipient: address,
     shareAmountMin: 1n,
+    tempoRefundRecipient: address,
     vaultAssetAmountMin: 1n,
   })
   expectTypeOf(
@@ -902,9 +902,9 @@ test('decorated zone earn actions preserve helpers and results', async () => {
   const redeem = await decoratedClient.earn.privateRedeem.prepare({
     ...privatePreparation,
     recipient: address,
-    bouncebackRecipient: address,
     shareAmount: 1n,
     slippageBps: 50,
+    tempoRefundRecipient: address,
   })
   decoratedZoneClient.earn.privateRedeem.calls(redeem)
   expectTypeOf(
