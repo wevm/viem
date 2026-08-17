@@ -351,6 +351,8 @@ describe('fromMultisig', () => {
       calls: [{ to, value: 0n }],
       feeToken,
     })
+    expect(bootstrap.multisigVersion).toBe(0n)
+    expect(bootstrap.multisigSignatureCount).toBeUndefined()
     const bootstrapSignatures = await Promise.all(
       [owner_1, owner_2].map((owner) =>
         signTransaction(client, { ...bootstrap, account: owner }),
@@ -394,9 +396,9 @@ describe('fromMultisig', () => {
       account,
       calls: [{ to, value: 0n }],
       feeToken,
-      multisigSignatureCount: 1,
-      multisigVersion: 1n,
     })
+    expect(request.multisigVersion).toBe(1n)
+    expect(request.multisigSignatureCount).toBeUndefined()
     const signature = await signTransaction(client, {
       ...request,
       account: replacement,

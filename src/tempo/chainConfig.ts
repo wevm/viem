@@ -1,9 +1,12 @@
-import type { Address } from 'abitype'
+import { type Address, parseAbi } from 'abitype'
 import * as Hex from 'ox/Hex'
 import { MultisigConfig, SignatureEnvelope, type TokenId } from 'ox/tempo'
 import { getCode } from '../actions/public/getCode.js'
+import { readContract } from '../actions/public/readContract.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
 import { maxUint256 } from '../constants/number.js'
+import { BaseError } from '../errors/base.js'
+import { ContractFunctionRevertedError } from '../errors/contract.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
 import { isAddressEqual } from '../utils/address/isAddressEqual.js'
 import { extendSchema } from '../utils/chain/defineChain.js'
@@ -21,6 +24,11 @@ import * as Concurrent from './internal/concurrent.js'
 import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
+const nativeMultisigAddress = '0xAACC000000000000000000000000000000000000'
+const nativeMultisigAbi = parseAbi([
+  'function getConfig(address account) view returns ((uint64 version, uint8 threshold, (address owner, uint8 weight)[] owners) config)',
+  'error NotMultisigAccount()',
+])
 
 /** Returns random past seconds to distinguish otherwise-identical expiring transactions. */
 function randomValidAfter(): number {
@@ -100,6 +108,34 @@ export const chainConfig = {
         const config = MultisigConfig.from(multisig)
         request.multisig = config
         request.from = MultisigConfig.getAddress(config)
+        if (typeof request.multisigVersion === 'undefined') {
+          try {
+            const current = await getAction(
+              client,
+              readContract,
+              'readContract',
+            )({
+              abi: nativeMultisigAbi,
+              address: nativeMultisigAddress,
+              functionName: 'getConfig',
+              args: [request.from],
+            })
+            request.multisigVersion = current.version
+          } catch (error) {
+            const cause =
+              error instanceof BaseError
+                ? error.walk(
+                    (error) => error instanceof ContractFunctionRevertedError,
+                  )
+                : undefined
+            if (
+              !(cause instanceof ContractFunctionRevertedError) ||
+              cause.data?.errorName !== 'NotMultisigAccount'
+            )
+              throw error
+            request.multisigVersion = 0n
+          }
+        }
         request.multisigInit = {
           salt: config.salt ?? MultisigConfig.zeroSalt,
           threshold: Number(config.threshold),
@@ -108,7 +144,6 @@ export const chainConfig = {
             weight: Number(owner.weight),
           })),
         }
-        request.multisigSignatureCount ??= inferMultisigSignatureCount(config)
         // A non-multisig `account` (e.g. the client's default) isn't the sender,
         // so drop it: core then fills nonce/gas/fees for the multisig sender via
         // `request.from`. A multisig account *is* the sender — keep it so the
@@ -286,16 +321,3 @@ export const chainConfig = {
 } as const satisfies viem_ChainConfig & { blockTime: number }
 
 export type ChainConfig = typeof chainConfig
-
-function inferMultisigSignatureCount(config: MultisigConfig.Config) {
-  const threshold = Number(config.threshold)
-  const weights = config.owners
-    .map((owner) => Number(owner.weight))
-    .sort((a, b) => b - a)
-  let total = 0
-  for (const [index, weight] of weights.entries()) {
-    total += weight
-    if (total >= threshold) return index + 1
-  }
-  return weights.length
-}

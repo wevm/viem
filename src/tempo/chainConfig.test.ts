@@ -325,7 +325,7 @@ describe('prepareTransactionRequest', () => {
     expect(request.feeToken).toBe(feeToken)
   })
 
-  test('behavior: multisigSignatureCount inferred from equal weights', async () => {
+  test('behavior: multisigSignatureCount left for node inference', async () => {
     const config = MultisigConfig.from({
       threshold: 2,
       owners: [
@@ -337,27 +337,11 @@ describe('prepareTransactionRequest', () => {
 
     const request = await prepareTransactionRequest(client, {
       multisig: config,
+      multisigVersion: 0n,
       parameters: ['chainId'],
     })
 
-    expect(request.multisigSignatureCount).toBe(2)
-  })
-
-  test('behavior: multisigSignatureCount inferred from weights', async () => {
-    const config = MultisigConfig.from({
-      threshold: 2,
-      owners: [
-        { owner: accounts[1].address, weight: 2 },
-        { owner: accounts[2].address, weight: 1 },
-      ],
-    })
-
-    const request = await prepareTransactionRequest(client, {
-      multisig: config,
-      parameters: ['chainId'],
-    })
-
-    expect(request.multisigSignatureCount).toBe(1)
+    expect(request.multisigSignatureCount).toBeUndefined()
   })
 
   test('behavior: explicit multisigSignatureCount is preserved', async () => {
@@ -373,6 +357,7 @@ describe('prepareTransactionRequest', () => {
     const request = await prepareTransactionRequest(client, {
       multisig: config,
       multisigSignatureCount: 3,
+      multisigVersion: 0n,
       parameters: ['chainId'],
     })
 

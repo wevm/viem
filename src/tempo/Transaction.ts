@@ -125,7 +125,7 @@ export type TransactionRequestTempo<
     feeToken?: TempoAddress.Address | bigint | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     multisig?: MultisigConfig.Config<index> | undefined
-    /** Current multisig config version. Defaults to `0n`. */
+    /** Current multisig config version. Inferred during request preparation; defaults to `0n` for bootstrap. */
     multisigVersion?: bigint | undefined
     /** Bootstrap multisig config hint for node-side gas modeling (TIP-1061). Attached automatically when `multisig` is present; the node ignores it for registered senders. */
     multisigInit?:
@@ -160,7 +160,7 @@ export type TransactionSerializableTempo<
     from?: Address | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     multisig?: MultisigConfig.Config<index> | undefined
-    /** Current multisig config version. Defaults to `0n`. */
+    /** Current multisig config version. Inferred during request preparation; defaults to `0n` for bootstrap. */
     multisigVersion?: bigint | undefined
     nonceKey?: quantity | undefined
     signature?: SignatureEnvelope.SignatureEnvelope<quantity, index> | undefined
