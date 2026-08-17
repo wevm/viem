@@ -15,6 +15,7 @@ const selectorMaps = {
   addressRegistry: Selectors.addressRegistry,
   feeAmm: Selectors.feeAmm,
   feeManager: Selectors.feeManager,
+  nativeMultisig: Selectors.nativeMultisig,
   nonce: Selectors.nonce,
   receivePolicyGuard: Selectors.receivePolicyGuard,
   signatureVerifier: Selectors.signatureVerifier,

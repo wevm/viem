@@ -49,6 +49,13 @@ export const addressRegistry = {
   resolveVirtualAddress: '0xe2fc56ef',
 } as const satisfies FunctionSelectors<typeof Abis.addressRegistry>
 
+export const nativeMultisig = {
+  deriveAccount: '0xce8e071c',
+  getConfig: '0xe48a5f7b',
+  isMultisigAccount: '0x9fbf029a',
+  updateConfig: '0xe175d479',
+} as const satisfies FunctionSelectors<typeof Abis.nativeMultisig>
+
 export const nonce = {
   getNonce: '0x89535803',
 } as const satisfies FunctionSelectors<typeof Abis.nonce>

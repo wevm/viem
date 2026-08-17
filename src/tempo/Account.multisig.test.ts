@@ -1,4 +1,3 @@
-import { encodeFunctionData, parseAbi } from 'viem'
 import {
   getTransaction,
   prepareTransactionRequest,
@@ -10,10 +9,6 @@ import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
 
 const client = tempo.getClient()
-
-const nativeMultisigAbi = parseAbi([
-  'function updateConfig(uint8 threshold, (address owner, uint8 weight)[] owners)',
-])
 
 describe('fromMultisig', () => {
   const { accounts, feeToken } = tempo
@@ -362,6 +357,18 @@ describe('fromMultisig', () => {
       ...bootstrap,
       signatures: bootstrapSignatures,
     })
+    expect(
+      await Actions.multisig.isInitialized(client, {
+        account: account.address,
+      }),
+    ).toBe(true)
+    expect(
+      await Actions.multisig.getConfig(client, { account: account.address }),
+    ).toEqual({
+      version: 0n,
+      threshold: initialConfig.threshold,
+      owners: initialConfig.owners,
+    })
 
     const rotatedConfig = MultisigConfig.from({
       threshold: 1,
@@ -369,16 +376,7 @@ describe('fromMultisig', () => {
     })
     const update = await prepareTransactionRequest(client, {
       account,
-      calls: [
-        {
-          data: encodeFunctionData({
-            abi: nativeMultisigAbi,
-            functionName: 'updateConfig',
-            args: [rotatedConfig.threshold, rotatedConfig.owners],
-          }),
-          to: '0xAACC000000000000000000000000000000000000',
-        },
-      ],
+      calls: [Actions.multisig.updateConfig.call(rotatedConfig)],
       feeToken,
     })
     const updateSignatures = await Promise.all(
@@ -391,6 +389,13 @@ describe('fromMultisig', () => {
       signatures: updateSignatures,
     })
     expect(updateReceipt.status).toBe('success')
+    expect(
+      Actions.multisig.updateConfig.extractEvent(updateReceipt.logs).args,
+    ).toEqual({
+      account: account.address,
+      threshold: rotatedConfig.threshold,
+      owners: rotatedConfig.owners,
+    })
 
     const request = await prepareTransactionRequest(client, {
       account,

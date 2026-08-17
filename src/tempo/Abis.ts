@@ -443,6 +443,107 @@ export const addressRegistry = [
   { name: 'VirtualAddressUnregistered', type: 'error', inputs: [] },
 ] as const
 
+export const nativeMultisig = [
+  {
+    name: 'deriveAccount',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [
+      { type: 'bytes32', name: 'salt' },
+      { type: 'uint8', name: 'threshold' },
+      {
+        type: 'tuple[]',
+        name: 'owners',
+        components: [
+          { type: 'address', name: 'owner' },
+          { type: 'uint8', name: 'weight' },
+        ],
+      },
+    ],
+    outputs: [{ type: 'address', name: 'account' }],
+  },
+  {
+    name: 'isMultisigAccount',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'account' }],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'getConfig',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'account' }],
+    outputs: [
+      {
+        type: 'tuple',
+        components: [
+          { type: 'uint64', name: 'version' },
+          { type: 'uint8', name: 'threshold' },
+          {
+            type: 'tuple[]',
+            name: 'owners',
+            components: [
+              { type: 'address', name: 'owner' },
+              { type: 'uint8', name: 'weight' },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'updateConfig',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint8', name: 'threshold' },
+      {
+        type: 'tuple[]',
+        name: 'owners',
+        components: [
+          { type: 'address', name: 'owner' },
+          { type: 'uint8', name: 'weight' },
+        ],
+      },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'MultisigInitialized',
+    type: 'event',
+    inputs: [{ type: 'address', name: 'account', indexed: true }],
+  },
+  {
+    name: 'MultisigConfigUpdated',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'uint8', name: 'threshold' },
+      {
+        type: 'tuple[]',
+        name: 'owners',
+        components: [
+          { type: 'address', name: 'owner' },
+          { type: 'uint8', name: 'weight' },
+        ],
+      },
+    ],
+  },
+  { name: 'NotMultisigAccount', type: 'error', inputs: [] },
+  { name: 'InvalidAccount', type: 'error', inputs: [] },
+  { name: 'InvalidConfig', type: 'error', inputs: [] },
+  { name: 'InvalidThreshold', type: 'error', inputs: [] },
+  { name: 'InvalidOwner', type: 'error', inputs: [] },
+  { name: 'InvalidWeight', type: 'error', inputs: [] },
+  { name: 'TooManyOwners', type: 'error', inputs: [] },
+  { name: 'DuplicateOwner', type: 'error', inputs: [] },
+  { name: 'InvalidOwnerOrder', type: 'error', inputs: [] },
+  { name: 'AccountAlreadyInitialized', type: 'error', inputs: [] },
+  { name: 'UnauthorizedCaller', type: 'error', inputs: [] },
+  { name: 'SameTransactionUpdateNotAllowed', type: 'error', inputs: [] },
+] as const
+
 export const nonce = [
   {
     name: 'getNonce',
@@ -2975,6 +3076,7 @@ export const validatorConfigV2 = [
 export const abis = [
   ...accountKeychain,
   ...addressRegistry,
+  ...nativeMultisig,
   ...nonce,
   ...receivePolicyGuard,
   ...signatureVerifier,

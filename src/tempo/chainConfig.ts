@@ -1,8 +1,7 @@
-import { type Address, parseAbi } from 'abitype'
+import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
 import { MultisigConfig, SignatureEnvelope, type TokenId } from 'ox/tempo'
 import { getCode } from '../actions/public/getCode.js'
-import { readContract } from '../actions/public/readContract.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
 import { maxUint256 } from '../constants/number.js'
 import { BaseError } from '../errors/base.js'
@@ -18,17 +17,13 @@ import { keccak256 } from '../utils/hash/keccak256.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { Account, MultisigAccount } from './Account.js'
 import { getMetadata } from './actions/accessKey.js'
+import * as multisig from './actions/multisig.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
 import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
-const nativeMultisigAddress = '0xAACC000000000000000000000000000000000000'
-const nativeMultisigAbi = parseAbi([
-  'function getConfig(address account) view returns ((uint64 version, uint8 threshold, (address owner, uint8 weight)[] owners) config)',
-  'error NotMultisigAccount()',
-])
 
 /** Returns random past seconds to distinguish otherwise-identical expiring transactions. */
 function randomValidAfter(): number {
@@ -99,26 +94,23 @@ export const chainConfig = {
       // The config is taken from an explicit `multisig` field, or inferred from
       // a multisig account (so callers can just pass `account` to
       // `prepareTransactionRequest` without also passing `multisig`).
-      const multisig =
+      const multisigConfig =
         request.multisig ??
         (request.account?.source === 'multisig'
           ? (request.account as MultisigAccount).config
           : undefined)
-      if (multisig) {
-        const config = MultisigConfig.from(multisig)
+      if (multisigConfig) {
+        const config = MultisigConfig.from(multisigConfig)
         request.multisig = config
         request.from = MultisigConfig.getAddress(config)
         if (typeof request.multisigVersion === 'undefined') {
           try {
             const current = await getAction(
               client,
-              readContract,
-              'readContract',
+              multisig.getConfig,
+              'getConfig',
             )({
-              abi: nativeMultisigAbi,
-              address: nativeMultisigAddress,
-              functionName: 'getConfig',
-              args: [request.from],
+              account: request.from,
             })
             request.multisigVersion = current.version
           } catch (error) {
